@@ -74,15 +74,7 @@ bool UnitTest::run(v_int32 times) {
       OATPP_LOGD("Pool", "name: '%s' [%d(objs)]", pool->getName().c_str(), pool->getObjectsCount());
       it ++;
     }
-    /*
-    leakingObjects = base::Environment::getObjectsCount() - objectsCount;
-    base::Environment::log(TAG,
-                           "FINISHED - failed, leakingObjects = %d",
-                           leakingObjects);
-     */
   }
-  
-  OATPP_LOGD("test", "Pools count=%d", oatpp::base::memory::MemoryPool::POOLS.size());
   
   OATPP_ASSERT(result);
   return result;

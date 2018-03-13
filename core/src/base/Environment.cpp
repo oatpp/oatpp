@@ -143,10 +143,10 @@ void Environment::log(v_int32 priority, const std::string& tag, const std::strin
 }
   
 void Environment::logFormatted(v_int32 priority, const std::string& tag, const char* message, ...) {
-  char buffer[1025];
+  char buffer[4097];
   va_list args;
   va_start (args, message);
-  vsnprintf(buffer, 1024, message, args);
+  vsnprintf(buffer, 4096, message, args);
   log(priority, tag, buffer);
   va_end(args);
 }

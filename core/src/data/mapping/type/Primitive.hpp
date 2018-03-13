@@ -67,6 +67,11 @@ public:
     : type::SharedWrapper<oatpp::base::String, __class::String>(oatpp::base::String::createFromCString(str))
   {}
   
+  StringSharedWrapper(const std::string& str)
+    : type::SharedWrapper<oatpp::base::String, __class::String>
+    (oatpp::base::String::createShared(str.data(), str.size()))
+  {}
+  
   StringSharedWrapper(const oatpp::base::SharedWrapper<oatpp::base::String>& other)
     : type::SharedWrapper<oatpp::base::String, __class::String>(other)
   {}
@@ -77,6 +82,11 @@ public:
   
   StringSharedWrapper& operator = (const char* str) {
     m_ptr = oatpp::base::String::createFromCString(str);
+    return *this;
+  }
+  
+  StringSharedWrapper& operator = (const std::string& str) {
+    m_ptr = oatpp::base::String::createShared(str.data(), str.size());
     return *this;
   }
   
@@ -98,7 +108,8 @@ public:
     return oatpp::base::String::createSharedConcatenated(m_ptr.get()->getData(), m_ptr.get()->getSize(), other.get()->getData(), other.get()->getSize());
   }
   
-  operator AbstractSharedWrapper();
+  operator AbstractSharedWrapper() const;
+  operator std::string() const;
   
   static const StringSharedWrapper& empty(){
     static StringSharedWrapper empty;
@@ -173,8 +184,12 @@ public:
       return *this;
     }
     
-    inline operator ValueType(){
-      return this->m_object->getValue();
+    inline operator ValueType() const {
+      return this->get()->getValue();
+    }
+    
+    inline operator AbstractSharedWrapper() const {
+      return AbstractSharedWrapper(this->m_ptr, Clazz::getType());
     }
     
     static const SharedWrapper& empty(){

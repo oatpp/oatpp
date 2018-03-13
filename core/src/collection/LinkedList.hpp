@@ -235,10 +235,11 @@ public:
    *     // your code here
    *  });
    */
-  void forEach(void (*func)(const T& item)) const {
+  template<typename F>
+  void forEach(const F& lambda) const {
     auto curr = m_first;
     while(curr != nullptr) {
-      func(curr->data);
+      lambda(curr->data);
       curr = curr->next;
     }
   }
@@ -250,10 +251,11 @@ public:
    *     // your code here
    *  });
    */
-  void forEachNode(void (*func)(LinkedListNode* node)) const {
+  template<typename F>
+  void forEachNode(const F& lambda) const {
     auto curr = m_first;
     while(curr != nullptr) {
-      func(curr);
+      lambda(curr);
       curr = curr->next;
     }
   }

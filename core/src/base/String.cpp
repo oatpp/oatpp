@@ -26,6 +26,12 @@
 
 namespace oatpp { namespace base {
   
+void String::set(const void* data, v_int32 size, bool hasOwnData) {
+  m_data = (p_char8) data;
+  m_size = size;
+  m_hasOwnData = hasOwnData;
+}
+  
 void String::setAndCopy(const void* data, const void* originData, v_int32 size){
   m_data = (p_char8) data;
   m_size = size;
@@ -100,16 +106,24 @@ const char* String::c_str() const {
   return (const char*) m_data;
 }
   
+std::string String::std_str() const {
+  return std::string((const char*) m_data, m_size);
+}
+  
 bool String::hasOwnData() const {
   return m_hasOwnData;
 }
   
 std::shared_ptr<String> String::toLowerCase() const {
-  return createShared(allocateAndLowerCase(m_data, m_size), m_size, true);
+  const auto& ptr = allocShared(m_data, m_size, true);
+  lowerCase(ptr->m_data, ptr->m_size);
+  return ptr;
 }
 
 std::shared_ptr<String> String::toUpperCase() const {
-  return createShared(allocateAndUpperCase(m_data, m_size), m_size, true);
+  const auto& ptr = allocShared(m_data, m_size, true);
+  upperCase(ptr->m_data, ptr->m_size);
+  return ptr;
 }
   
 bool String::equals(const void* data, v_int32 size) const {
@@ -250,26 +264,18 @@ bool String::equalsCI_FAST(const String::SharedWrapper& str1, const char* str2) 
   return (str1->getSize() == len && equalsCI_FAST(str1->m_data, str2, str1->m_size));
 }
 
-p_char8 String::allocateAndLowerCase(const void* originData, v_int32 size) {
-  p_char8 result = new v_char8[size + 1];
+void String::lowerCase(const void* data, v_int32 size) {
   for(v_int32 i = 0; i < size; i++) {
-    v_char8 a = ((p_char8)originData)[i];
-    if(a >= 'A' && a <= 'Z') a |= 32;
-    result[i] = a;
+    v_char8 a = ((p_char8) data)[i];
+    if(a >= 'A' && a <= 'Z') ((p_char8) data)[i] = a | 32;
   }
-  result[size] = 0;
-  return result;
 }
 
-p_char8 String::allocateAndUpperCase(const void* originData, v_int32 size) {
-  p_char8 result = new v_char8[size + 1];
+void String::upperCase(const void* data, v_int32 size) {
   for(v_int32 i = 0; i < size; i++) {
-    v_char8 a = ((p_char8)originData)[i];
-    if(a >= 'a' && a <= 'z') a &= 223;
-    result[i] = a;
+    v_char8 a = ((p_char8) data)[i];
+    if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;
   }
-  result[size] = 0;
-  return result;
 }
   
 // Operator

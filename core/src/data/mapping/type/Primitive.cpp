@@ -27,15 +27,22 @@
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
 StringSharedWrapper::StringSharedWrapper(const std::shared_ptr<oatpp::base::String>& ptr, const type::Type* const valueType)
-  : oatpp::data::mapping::type::SharedWrapper<oatpp::base::String, __class::String>()
+  : oatpp::data::mapping::type::SharedWrapper<oatpp::base::String, __class::String>(ptr)
 {
   if(type::__class::String::getType() != valueType) {
     throw std::runtime_error("Value type does not match");
   }
 }
   
-StringSharedWrapper::operator AbstractSharedWrapper() {
+StringSharedWrapper::operator AbstractSharedWrapper() const {
   return AbstractSharedWrapper(m_ptr, __class::String::getType());
+}
+  
+StringSharedWrapper::operator std::string() const {
+  if(m_ptr){
+    return m_ptr->std_str();
+  }
+  return nullptr;
 }
   
 namespace __class {

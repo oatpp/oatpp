@@ -99,6 +99,7 @@ private:
   bool m_hasOwnData;
 private:
   
+  void set(const void* data, v_int32 size, bool hasOwnData);
   void setAndCopy(const void* data, const void* originData, v_int32 size);
   static std::shared_ptr<String> allocShared(const void* data, v_int32 size, bool copyAsOwnData);
 
@@ -142,6 +143,7 @@ public:
   v_int32 getSize() const;
   
   const char* c_str() const;
+  std::string std_str() const;
   
   bool hasOwnData() const;
   
@@ -188,16 +190,14 @@ public:
   static bool equalsCI_FAST(const String::SharedWrapper& str1, const char* str2);
   
   /**
-   *  allocate memory of size + 1 (in bytes) and fill it with originData lowercased (correct for ACII only)
-   *  additional char allocated for '\0'
+   *  lower case chars in the buffer @data (correct for ACII only)
    */
-  static p_char8 allocateAndLowerCase(const void* originData, v_int32 size);
+  static void lowerCase(const void* data, v_int32 size);
   
   /**
-   *  allocate memory of size + 1 (in bytes) and fill it with originData UPPERCASED (correct for ACII only)
-   *  additional char allocated for '\0'
+   *  upper case chars in the buffer @data (correct for ACII only)
    */
-  static p_char8 allocateAndUpperCase(const void* originData, v_int32 size);
+  static void upperCase(const void* data, v_int32 size);
   
 };
   
