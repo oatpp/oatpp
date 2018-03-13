@@ -87,22 +87,7 @@ void testStdListPerformance(v_int32 iterationsCount){
   
 bool LinkedListTest::onRun() {
   
-  //for(v_int32 i = 0; i < 10000000; i++){
-    //auto ptr = TestObject::createShared2();
-  //}
   
-  // 398689
-  for(v_int32 i = 0; i < 1000000; i++) {
-    auto s = oatpp::base::String::createShared(1024);
-  }
-  
-  oatpp::base::String::SharedWrapper s1 = "Leonid";
-  oatpp::base::String::SharedWrapper s2 = "Stryzhevskyi";
-  oatpp::base::String::SharedWrapper s3 = s1 + " " + s2;
-  OATPP_LOGD("Hello!", "s1='%s', s2='%s'", s1->c_str(), s2->c_str());
-  OATPP_LOGD("Hello!", "s3='%s'", s3->c_str());
-  
-  /*
   v_int32 iterationsCount = 100000;
   
   {
@@ -118,7 +103,6 @@ bool LinkedListTest::onRun() {
       testStdListPerformance(iterationsCount);
     }
   }
-   */
   
   return true;
 }

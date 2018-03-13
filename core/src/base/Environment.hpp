@@ -32,17 +32,12 @@
 #include <unordered_map>
 #include <stdexcept>
 
-#ifndef OATPP_DISABLE_ASSERT
 
-  #define OATPP_ASSERT(EXP) \
-    if(!(EXP)) { \
-      OATPP_LOGE("ASSERT[FAILED]", #EXP); \
-      throw std::runtime_error("ASSERT[FAILED]:" #EXP); \
-    }
-
-#else
-  #define OATPP_ASSERT(EXP)
-#endif
+#define OATPP_ASSERT(EXP) \
+if(!(EXP)) { \
+  OATPP_LOGE("ASSERT[FAILED]", #EXP); \
+  throw std::runtime_error("ASSERT[FAILED]:" #EXP); \
+}
 
 typedef unsigned char v_char8;
 typedef v_char8 *p_char8;
