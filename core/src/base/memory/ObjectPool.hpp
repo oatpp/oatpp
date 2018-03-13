@@ -49,7 +49,7 @@ public: \
   \
   template<typename ... Args> \
   static std::shared_ptr<TYPE> allocateShared(Args... args){ \
-    return std::shared_ptr<TYPE>::allocate_shared(getAllocator(), args...); \
+    return std::allocate_shared<TYPE, Allocator>(getAllocator(), args...); \
   } \
   \
 };
@@ -74,7 +74,7 @@ public: \
   \
   template<typename ... Args> \
   static std::shared_ptr<TYPE> allocateShared(Args... args){ \
-    return std::shared_ptr<TYPE>::allocate_shared(getAllocator(), args...); \
+    return std::allocate_shared<TYPE, Allocator>(getAllocator(), args...); \
   } \
   \
 };

@@ -157,8 +157,9 @@ inline bool operator != (const SharedObjectAllocator<T>& a, const SharedObjectAl
   
 template<typename T, typename ... Args>
 static std::shared_ptr<T> allocateSharedWithExtras(AllocationExtras& extras, Args... args){
-  SharedObjectAllocator<T> allocator(extras);
-  return std::shared_ptr<T>::allocate_shared(allocator, args...);
+  typedef SharedObjectAllocator<T> _Allocator;
+  _Allocator allocator(extras);
+  return std::allocate_shared<T, _Allocator>(allocator, args...);
 }
   
 }}}
