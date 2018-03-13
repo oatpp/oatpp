@@ -1,0 +1,247 @@
+/***************************************************************************
+ *
+ * Project         _____    __   ____   _      _
+ *                (  _  )  /__\ (_  _)_| |_  _| |_
+ *                 )(_)(  /(__)\  )( (_   _)(_   _)
+ *                (_____)(__)(__)(__)  |_|    |_|
+ *
+ *
+ * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ***************************************************************************/
+
+#include "ChunkedBuffer.hpp"
+
+namespace oatpp { namespace data{ namespace stream {
+  
+const char* const ChunkedBuffer::CHUNK_POOL_NAME = "ChunkedBuffer_Chunk_Pool";
+
+const os::io::Library::v_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
+const os::io::Library::v_size ChunkedBuffer::CHUNK_ENTRY_SIZE =
+                                              (1 << ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT);
+const os::io::Library::v_size ChunkedBuffer::CHUNK_CHUNK_SIZE = 32;
+  
+ChunkedBuffer::ChunkEntry* ChunkedBuffer::obtainNewEntry(){
+  auto result = new ChunkEntry(getSegemntPool().obtain(), nullptr);
+  if(m_firstEntry == nullptr) {
+    m_firstEntry = result;
+  } else {
+    m_lastEntry->next = result;
+  }
+  m_lastEntry = result;
+  return result;
+}
+
+void ChunkedBuffer::freeEntry(ChunkEntry* entry){
+  oatpp::base::memory::MemoryPool::free(entry->chunk);
+  delete entry;
+}
+  
+os::io::Library::v_size ChunkedBuffer::writeToEntry(ChunkEntry* entry,
+                                                      const void *data,
+                                                      os::io::Library::v_size count,
+                                                      os::io::Library::v_size& outChunkPos) {
+  if(count >= CHUNK_ENTRY_SIZE){
+    std::memcpy(entry->chunk, data, CHUNK_ENTRY_SIZE);
+    outChunkPos = 0;
+    return CHUNK_ENTRY_SIZE;
+  } else {
+    std::memcpy(entry->chunk, data, count);
+    outChunkPos = count;
+    return count;
+  }
+}
+  
+os::io::Library::v_size ChunkedBuffer::writeToEntryFrom(ChunkEntry* entry,
+                                                          os::io::Library::v_size inChunkPos,
+                                                          const void *data,
+                                                          os::io::Library::v_size count,
+                                                          os::io::Library::v_size& outChunkPos) {
+  os::io::Library::v_size spaceLeft = CHUNK_ENTRY_SIZE - inChunkPos;
+  if(count >= spaceLeft){
+    std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, spaceLeft);
+    outChunkPos = 0;
+    return spaceLeft;
+  } else {
+    std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, count);
+    outChunkPos = inChunkPos + count;
+    return count;
+  }
+}
+  
+ChunkedBuffer::ChunkEntry* ChunkedBuffer::getChunkForPosition(ChunkEntry* fromChunk,
+                                                                      os::io::Library::v_size pos,
+                                                                      os::io::Library::v_size& outChunkPos) {
+  
+  os::io::Library::v_size segIndex = pos >> CHUNK_ENTRY_SIZE_INDEX_SHIFT;
+  outChunkPos = pos - (segIndex << CHUNK_ENTRY_SIZE_INDEX_SHIFT);
+  
+  auto curr = fromChunk;
+  
+  for(os::io::Library::v_size i = 0; i < segIndex; i++){
+    curr = curr->next;
+  }
+  
+  return curr;
+  
+}
+  
+os::io::Library::v_size ChunkedBuffer::write(const void *data, os::io::Library::v_size count){
+  
+  if(count <= 0){
+    return 0;
+  }
+  
+  if(m_lastEntry == nullptr){
+    obtainNewEntry();
+  }
+  
+  ChunkEntry* entry = m_lastEntry;
+  os::io::Library::v_size pos = 0;
+  
+  pos += writeToEntryFrom(entry, m_chunkPos, data, count, m_chunkPos);
+  
+  if(m_chunkPos == 0){
+    entry = obtainNewEntry();
+  }
+  
+  while (pos < count) {
+    
+    pos += writeToEntry(entry, &((p_char8) data)[pos], count - pos, m_chunkPos);
+    
+    if(m_chunkPos == 0){
+      entry = obtainNewEntry();
+    }
+  }
+  
+  m_size += pos; // pos == count
+  return count;
+  
+}
+  
+os::io::Library::v_size ChunkedBuffer::readSubstring(void *buffer,
+                                                       os::io::Library::v_size pos,
+                                                       os::io::Library::v_size count) {
+  
+  if(pos < 0 || pos >= m_size){
+    return 0;
+  }
+  
+  os::io::Library::v_size countToRead;
+  if(pos + count > m_size){
+    countToRead = m_size - pos;
+  } else {
+    countToRead = count;
+  }
+  
+  os::io::Library::v_size firstChunkPos;
+  auto firstChunk = getChunkForPosition(m_firstEntry, pos, firstChunkPos);
+  
+  os::io::Library::v_size lastChunkPos;
+  auto lastChunk = getChunkForPosition(firstChunk, firstChunkPos + countToRead, lastChunkPos);
+  
+  os::io::Library::v_size bufferPos = 0;
+  
+  if(firstChunk != lastChunk){
+    
+    os::io::Library::v_size countToCopy = CHUNK_ENTRY_SIZE - firstChunkPos;
+    std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], countToCopy);
+    bufferPos += countToCopy;
+    
+    auto curr = firstChunk->next;
+    
+    while (curr != lastChunk) {
+      std::memcpy(&((p_char8)buffer)[bufferPos], curr->chunk, CHUNK_ENTRY_SIZE);
+      bufferPos += CHUNK_ENTRY_SIZE;
+      curr = curr->next;
+    }
+    
+    std::memcpy(&((p_char8)buffer)[bufferPos], lastChunk->chunk, lastChunkPos);
+    
+  } else {
+    os::io::Library::v_size countToCopy = lastChunkPos - firstChunkPos;
+    std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], countToCopy);
+  }
+  
+  return countToRead;
+  
+}
+  
+std::shared_ptr<oatpp::base::String> ChunkedBuffer::getSubstring(os::io::Library::v_size pos,
+                                                        os::io::Library::v_size count){
+  auto str = oatpp::base::String::createShared((v_int32) count);
+  readSubstring(str->getData(), pos, count);
+  return str;
+}
+  
+bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
+  os::io::Library::v_size pos = m_size;
+  auto curr = m_firstEntry;
+  while (pos > 0) {
+    if(pos > CHUNK_ENTRY_SIZE) {
+      auto res = stream->write(curr->chunk, CHUNK_ENTRY_SIZE);
+      if(res != CHUNK_ENTRY_SIZE) {
+        return false;
+      }
+      pos -= res;
+    } else {
+      auto res = stream->write(curr->chunk, pos);
+      if(res != pos) {
+        return false;
+      }
+      pos -= res;
+    }
+    curr = curr->next;
+  }
+  return true;
+}
+  
+std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {
+  auto chunks = Chunks::createShared();
+  auto curr = m_firstEntry;
+  v_int32 count = 0;
+  while (curr != nullptr) {
+    if(curr->next != nullptr){
+      chunks->pushBack(Chunk::createShared(curr->chunk, CHUNK_ENTRY_SIZE));
+    } else {
+      chunks->pushBack(Chunk::createShared(curr->chunk, m_size - CHUNK_ENTRY_SIZE * count));
+    }
+    ++count;
+    curr = curr->next;
+  }
+  return chunks;
+}
+
+os::io::Library::v_size ChunkedBuffer::getSize(){
+  return m_size;
+}
+
+void ChunkedBuffer::clear(){
+  
+  ChunkEntry* curr = m_firstEntry;
+  while (curr != nullptr) {
+    ChunkEntry* next = curr->next;
+    freeEntry(curr);
+    curr = next;
+  }
+  
+  m_size = 0;
+  m_chunkPos = 0;
+  m_firstEntry = nullptr;
+  m_lastEntry = nullptr;
+  
+}
+  
+}}}
