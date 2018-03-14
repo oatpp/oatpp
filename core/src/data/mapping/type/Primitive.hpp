@@ -108,7 +108,6 @@ public:
     return oatpp::base::String::createSharedConcatenated(m_ptr.get()->getData(), m_ptr.get()->getSize(), other.get()->getData(), other.get()->getSize());
   }
   
-  operator AbstractSharedWrapper() const;
   operator std::string() const;
   
   static const StringSharedWrapper& empty(){
