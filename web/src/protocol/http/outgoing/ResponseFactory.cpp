@@ -42,7 +42,7 @@ ResponseFactory::createShared(const Status& status, const std::shared_ptr<oatpp:
 
 std::shared_ptr<Response>
 ResponseFactory::createShared(const Status& status,
-                        const oatpp::data::mapping::type::VariantWrapper& dto,
+                        const oatpp::data::mapping::type::AbstractSharedWrapper& dto,
                         oatpp::data::mapping::ObjectMapper* objectMapper) {
   return Response::createShared(status, DtoBody::createShared(dto, objectMapper));
 }

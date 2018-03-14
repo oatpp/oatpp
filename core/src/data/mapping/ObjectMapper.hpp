@@ -58,12 +58,12 @@ public:
   }
   
   virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                     const type::VariantWrapper& variant) = 0;
+                     const type::AbstractSharedWrapper& variant) = 0;
   
   virtual type::AbstractSharedWrapper read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                            const type::Type* const type) = 0;
   
-  std::shared_ptr<oatpp::base::String> writeToString(const type::VariantWrapper& variant){
+  std::shared_ptr<oatpp::base::String> writeToString(const type::AbstractSharedWrapper& variant){
     auto stream = stream::ChunkedBuffer::createShared();
     write(stream, variant);
     return stream->toString();

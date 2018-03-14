@@ -110,6 +110,10 @@ public:
     return *this;
   }
   
+  inline operator PolymorphicWrapper<oatpp::base::Controllable>() const {
+    return PolymorphicWrapper<oatpp::base::Controllable>(this->m_ptr, valueType);
+  }
+  
   const Type* const valueType;
   
 };
@@ -166,53 +170,6 @@ public:
     }
     PolymorphicWrapper<T>::operator = (std::move(other));
     return *this;
-  }
-  
-};
-
-class VariantWrapper : public oatpp::base::SharedWrapper<oatpp::base::Controllable> {
-protected:
-  const Type* m_valueType;
-public:
-  
-  explicit VariantWrapper()
-    : oatpp::base::SharedWrapper<oatpp::base::Controllable>()
-    , m_valueType(nullptr)
-  {}
-  
-  VariantWrapper(const VariantWrapper& other)
-    : oatpp::base::SharedWrapper<oatpp::base::Controllable>(other)
-    , m_valueType(other.m_valueType)
-  {}
-  
-  template <class T, class Clazz>
-  VariantWrapper(const oatpp::data::mapping::type::SharedWrapper<T, Clazz>& other)
-    : oatpp::base::SharedWrapper<oatpp::base::Controllable>(std::static_pointer_cast<oatpp::base::Controllable>(other.getPtr()))
-    , m_valueType(other.valueType)
-  {}
-  
-  static VariantWrapper empty(){
-    return VariantWrapper();
-  }
-  
-  const Type* const getValueType() const {
-    return m_valueType;
-  }
-  
-  template <class T, class Clazz>
-  VariantWrapper& operator=(const oatpp::data::mapping::type::SharedWrapper<T, Clazz>& other){
-    oatpp::base::SharedWrapper<oatpp::base::Controllable>::operator = (other);
-    this->m_valueType = other.valueType;
-    return *this;
-  }
-  
-  template <class T, class Clazz>
-  inline operator oatpp::data::mapping::type::SharedWrapper<T, Clazz>(){
-    if(Clazz::getType() != m_valueType){
-      OATPP_LOGE("VariantWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::VariantWrapper]: Invalid class cast");
-    }
-    return oatpp::data::mapping::type::SharedWrapper<T, Clazz>(m_ptr);
   }
   
 };

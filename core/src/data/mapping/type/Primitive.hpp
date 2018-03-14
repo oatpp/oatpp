@@ -156,12 +156,6 @@ public:
       : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(std::move(other))
     {}
     
-    SharedWrapper(const VariantWrapper& variant)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>()
-    {
-      *this = variant;
-    }
-    
     SharedWrapper(const ValueType& value)
       : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(Primitive::createShared(value))
     {}
@@ -175,21 +169,8 @@ public:
       return *this;
     }
     
-    SharedWrapper& operator=(const VariantWrapper& variant) {
-      if(this->valueType != variant.getValueType()) {
-        OATPP_LOGE("[oatpp::data::mapping::type::Primitive::SharedWrapper]", "Invalid class cast");
-        throw std::runtime_error("[oatpp::data::mapping::type::Primitive::SharedWrapper]: Invalid class cast");
-      }
-      oatpp::base::SharedWrapper<oatpp::base::Controllable>::operator=(variant);
-      return *this;
-    }
-    
     inline operator ValueType() const {
       return this->get()->getValue();
-    }
-    
-    inline operator AbstractSharedWrapper() const {
-      return AbstractSharedWrapper(this->m_ptr, Clazz::getType());
     }
     
     static const SharedWrapper& empty(){

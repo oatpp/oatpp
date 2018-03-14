@@ -54,7 +54,7 @@ public:
   }
   
   void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-             const oatpp::data::mapping::type::VariantWrapper& variant) override {
+             const oatpp::data::mapping::type::AbstractSharedWrapper& variant) override {
     Serializer::serialize(stream, variant);
   }
   

@@ -34,10 +34,6 @@ StringSharedWrapper::StringSharedWrapper(const std::shared_ptr<oatpp::base::Stri
   }
 }
   
-StringSharedWrapper::operator AbstractSharedWrapper() const {
-  return AbstractSharedWrapper(m_ptr, __class::String::getType());
-}
-  
 StringSharedWrapper::operator std::string() const {
   if(m_ptr){
     return m_ptr->std_str();

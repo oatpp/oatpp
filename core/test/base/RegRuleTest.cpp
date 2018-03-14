@@ -72,8 +72,6 @@ namespace {
   template<typename T>
   using TypeSharedWrapper = oatpp::data::mapping::type::SharedWrapper<T, oatpp::data::mapping::type::__class::Void>;
   
-  typedef oatpp::data::mapping::type::VariantWrapper VariantWrapper;
-  
   typedef oatpp::data::mapping::type::StringSharedWrapper StringSharedWrapper;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;

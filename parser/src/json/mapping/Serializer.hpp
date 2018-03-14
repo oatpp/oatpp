@@ -145,12 +145,12 @@ private:
 public:
   
   static void serialize(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                        const oatpp::data::mapping::type::VariantWrapper& variant){
-    auto type = variant.getValueType();
+                        const oatpp::data::mapping::type::AbstractSharedWrapper& object){
+    auto type = object.valueType;
     if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
-      writeObject(stream.get(), type, static_cast<Object*>(variant.get()));
+      writeObject(stream.get(), type, static_cast<Object*>(object.get()));
     } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
-      writeListCollection(stream.get(), static_cast<AbstractList*>(variant.get()), type);
+      writeListCollection(stream.get(), static_cast<AbstractList*>(object.get()), type);
     } else {
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
     }
