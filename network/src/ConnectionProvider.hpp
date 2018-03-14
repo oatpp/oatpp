@@ -52,18 +52,18 @@ class ClientConnectionProvider {
 public:
   typedef oatpp::data::stream::IOStream IOStream;
 protected:
-  oatpp::base::String::SharedWrapper m_host;
+  oatpp::base::String::PtrWrapper m_host;
   v_word16 m_port;
 public:
   
-  ClientConnectionProvider(const oatpp::base::String::SharedWrapper& host, v_word16 port)
+  ClientConnectionProvider(const oatpp::base::String::PtrWrapper& host, v_word16 port)
     : m_host(host)
     , m_port(port)
   {}
   
   virtual std::shared_ptr<IOStream> getConnection() = 0;
   
-  oatpp::base::String::SharedWrapper getHost() {
+  oatpp::base::String::PtrWrapper getHost() {
     return m_host;
   }
   

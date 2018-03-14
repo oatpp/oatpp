@@ -30,7 +30,7 @@
 namespace oatpp { namespace web { namespace server { namespace handler {
   
 std::shared_ptr<protocol::http::outgoing::Response>
-DefaultErrorHandler::handleError(const protocol::http::Status& status, const base::SharedWrapper<base::String>& message) {
+DefaultErrorHandler::handleError(const protocol::http::Status& status, const base::PtrWrapper<base::String>& message) {
   
   auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
   stream << "server=" << protocol::http::Header::Value::SERVER << "\n";

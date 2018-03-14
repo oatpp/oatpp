@@ -51,12 +51,12 @@ public:
   
 public:
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;
-  typedef oatpp::data::mapping::type::StringSharedWrapper String;
-  typedef oatpp::data::mapping::type::Int32::SharedWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::SharedWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::SharedWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::SharedWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::SharedWrapper Boolean;
+  typedef oatpp::data::mapping::type::StringPtrWrapper String;
+  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
+  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
+  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
+  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
+  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
   
 protected:
   
@@ -134,7 +134,7 @@ public:
     return m_endpointInfo[endpointName];
   }
   
-  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const base::String::SharedWrapper& message) {
+  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const base::String::PtrWrapper& message) {
     return m_errorHandler->handleError(status, message);
   }
   
@@ -152,7 +152,7 @@ public:
   // Helper methods
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const oatpp::base::String::SharedWrapper& str) {
+                                                   const oatpp::base::String::PtrWrapper& str) {
     return OutgoingResponseFactory::createShared(status, str);
   }
   
@@ -162,13 +162,13 @@ public:
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractSharedWrapper& dto,
+                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) {
     return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractSharedWrapper& dto) {
+                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto) {
     return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
   }
   

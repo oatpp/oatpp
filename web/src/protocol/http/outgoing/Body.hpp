@@ -32,7 +32,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 class Body {
 protected:
-  typedef oatpp::collection::ListMap<base::String::SharedWrapper, base::String::SharedWrapper> Headers;
+  typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
   virtual void declareHeaders(const std::shared_ptr<Headers>& headers) = 0;

@@ -34,13 +34,13 @@ namespace oatpp { namespace network { namespace client {
   
 class SimpleTCPConnectionProvider : public base::Controllable, public ClientConnectionProvider {
 public:
-  SimpleTCPConnectionProvider(const oatpp::base::String::SharedWrapper& host, v_int32 port)
+  SimpleTCPConnectionProvider(const oatpp::base::String::PtrWrapper& host, v_int32 port)
     : ClientConnectionProvider(host, port)
   {}
 public:
   
   static std::shared_ptr<SimpleTCPConnectionProvider>
-  createShared(const oatpp::base::String::SharedWrapper& host, v_int32 port){
+  createShared(const oatpp::base::String::PtrWrapper& host, v_int32 port){
     return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(host, port));
   }
   

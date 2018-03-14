@@ -37,8 +37,8 @@ public:
   OBJECT_POOL(Outgoing_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Request_Pool, Request, 32)
 public:
-  Request(const base::String::SharedWrapper& pMethod,
-          const base::String::SharedWrapper& pPath,
+  Request(const base::String::PtrWrapper& pMethod,
+          const base::String::PtrWrapper& pPath,
           const std::shared_ptr<Headers>& pHeaders,
           const std::shared_ptr<Body>& pBody)
     : method(pMethod)
@@ -48,15 +48,15 @@ public:
   {}
 public:
   
-  static std::shared_ptr<Request> createShared(const base::String::SharedWrapper& method,
-                                         const base::String::SharedWrapper& path,
+  static std::shared_ptr<Request> createShared(const base::String::PtrWrapper& method,
+                                         const base::String::PtrWrapper& path,
                                          const std::shared_ptr<Headers>& headers,
                                          const std::shared_ptr<Body>& body) {
     return Shared_Outgoing_Request_Pool::allocateShared(method, path, headers, body);
   }
   
-  const base::String::SharedWrapper method;
-  const base::String::SharedWrapper path;
+  const base::String::PtrWrapper method;
+  const base::String::PtrWrapper path;
   
   const std::shared_ptr<Headers> headers;
   const std::shared_ptr<Body> body;

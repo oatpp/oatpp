@@ -30,7 +30,7 @@
 #include "../base/memory/ObjectPool.hpp"
 
 #include "../base/Controllable.hpp"
-#include "../base/SharedWrapper.hpp"
+#include "../base/PtrWrapper.hpp"
 
 #include <thread>
 #include <atomic>

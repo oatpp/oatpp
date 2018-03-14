@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace web { namespace server { namespace api {
 
-oatpp::base::SharedWrapper<oatpp::base::String> Endpoint::Info::toString() {
+oatpp::base::PtrWrapper<oatpp::base::String> Endpoint::Info::toString() {
   auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
   
   stream << "\nEndpoint\n";

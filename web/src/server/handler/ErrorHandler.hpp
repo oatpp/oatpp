@@ -35,7 +35,7 @@ public:
   
   virtual
   std::shared_ptr<protocol::http::outgoing::Response>
-  handleError(const protocol::http::Status& status, const base::SharedWrapper<base::String>& message) = 0;
+  handleError(const protocol::http::Status& status, const base::PtrWrapper<base::String>& message) = 0;
   
 };
   
@@ -50,7 +50,7 @@ public:
   }
   
   std::shared_ptr<protocol::http::outgoing::Response>
-  handleError(const protocol::http::Status& status, const base::SharedWrapper<base::String>& message) override;
+  handleError(const protocol::http::Status& status, const base::PtrWrapper<base::String>& message) override;
   
 };
   

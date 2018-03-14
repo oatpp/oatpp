@@ -27,7 +27,7 @@
 
 #include "../base/memory/ObjectPool.hpp"
 
-#include "../base/SharedWrapper.hpp"
+#include "../base/PtrWrapper.hpp"
 #include "../base/Controllable.hpp"
 #include "../base/Environment.hpp"
 

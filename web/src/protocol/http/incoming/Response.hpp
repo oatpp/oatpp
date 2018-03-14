@@ -36,7 +36,7 @@ public:
   SHARED_OBJECT_POOL(Shared_Incoming_Response_Pool, Response, 32)
 public:
   Response(v_int32 pStatusCode,
-           const oatpp::base::String::SharedWrapper& pStatusDescription,
+           const oatpp::base::String::PtrWrapper& pStatusDescription,
            const std::shared_ptr<http::Protocol::Headers>& pHeaders,
            const std::shared_ptr<oatpp::data::stream::InputStream>& pBodyStream)
     : statusCode(pStatusCode)
@@ -47,14 +47,14 @@ public:
 public:
   
   static std::shared_ptr<Response> createShared(v_int32 statusCode,
-                                          const oatpp::base::String::SharedWrapper& statusDescription,
+                                          const oatpp::base::String::PtrWrapper& statusDescription,
                                           const std::shared_ptr<http::Protocol::Headers>& headers,
                                           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) {
     return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream);
   }
   
   const v_int32 statusCode;
-  const oatpp::base::String::SharedWrapper statusDescription;
+  const oatpp::base::String::PtrWrapper statusDescription;
   const std::shared_ptr<http::Protocol::Headers> headers;
   const std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
   
@@ -62,12 +62,12 @@ public:
     protocol::http::incoming::BodyDecoder::decode(headers, bodyStream, toStream);
   }
   
-  oatpp::base::String::SharedWrapper readBodyToString() const {
+  oatpp::base::String::PtrWrapper readBodyToString() const {
     return protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream);
   }
   
   template<class Type>
-  typename Type::SharedWrapper readBodyToDTO(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+  typename Type::PtrWrapper readBodyToDTO(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));
   }

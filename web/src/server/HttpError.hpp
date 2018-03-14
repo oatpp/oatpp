@@ -33,11 +33,11 @@ namespace oatpp { namespace web { namespace server {
 class HttpError : public std::runtime_error {
 private:
   oatpp::web::protocol::http::Status m_status;
-  oatpp::base::String::SharedWrapper m_message;
+  oatpp::base::String::PtrWrapper m_message;
 public:
   
   HttpError(const oatpp::web::protocol::http::Status& status,
-            const oatpp::base::String::SharedWrapper& message)
+            const oatpp::base::String::PtrWrapper& message)
     :std::runtime_error(status.description)
     , m_status(status)
     , m_message(message)
@@ -47,7 +47,7 @@ public:
     return m_status;
   }
   
-  oatpp::base::String::SharedWrapper& getMessage(){
+  oatpp::base::String::PtrWrapper& getMessage(){
     return m_message;
   }
   

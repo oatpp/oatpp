@@ -35,7 +35,7 @@
 
 #include "../../../../oatpp-lib/core/src/os/io/Library.hpp"
 
-#include "../../../../oatpp-lib/core/src/base/SharedWrapper.hpp"
+#include "../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
 #include "../../../../oatpp-lib/core/src/base/Controllable.hpp"
 #include "../../../../oatpp-lib/core/src/base/Environment.hpp"
 

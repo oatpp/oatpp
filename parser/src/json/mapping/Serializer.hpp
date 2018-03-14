@@ -47,7 +47,7 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   
   typedef oatpp::data::mapping::type::List<
-    oatpp::data::mapping::type::AbstractSharedWrapper
+    oatpp::data::mapping::type::AbstractPtrWrapper
   > AbstractList;
 public:
   
@@ -145,7 +145,7 @@ private:
 public:
   
   static void serialize(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                        const oatpp::data::mapping::type::AbstractSharedWrapper& object){
+                        const oatpp::data::mapping::type::AbstractPtrWrapper& object){
     auto type = object.valueType;
     if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
       writeObject(stream.get(), type, static_cast<Object*>(object.get()));

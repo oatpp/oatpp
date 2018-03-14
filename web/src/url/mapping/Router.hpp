@@ -32,7 +32,7 @@
 
 #include "../../../../../oatpp-lib/core/src/base/String.hpp"
 
-#include "../../../../../oatpp-lib/core/src/base/SharedWrapper.hpp"
+#include "../../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
 #include "../../../../../oatpp-lib/core/src/base/Controllable.hpp"
 #include "../../../../../oatpp-lib/core/src/base/Environment.hpp"
 
@@ -97,14 +97,14 @@ public:
     return std::shared_ptr<Router>(new Router());
   }
   
-  void addSubscriber(const base::String::SharedWrapper& urlPattern,
+  void addSubscriber(const base::String::PtrWrapper& urlPattern,
                      const std::shared_ptr<UrlSubscriber>& subscriber){
     auto pattern = Pattern::parse(urlPattern);
     auto pair = Pair::createShared(pattern, subscriber);
     m_subscribers->pushBack(pair);
   }
   
-  Route getRoute(const base::String::SharedWrapper& url){
+  Route getRoute(const base::String::PtrWrapper& url){
     auto curr = m_subscribers->getFirstNode();
     while(curr != nullptr) {
       const std::shared_ptr<Pair>& pair = curr->getData();

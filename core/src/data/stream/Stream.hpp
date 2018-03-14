@@ -31,7 +31,7 @@
 
 #include "../../os/io/Library.hpp"
 
-#include "../../base/SharedWrapper.hpp"
+#include "../../base/PtrWrapper.hpp"
 #include "../../base/Environment.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
@@ -45,7 +45,7 @@ public:
     return write((p_char8)data, std::strlen(data));
   }
   
-  os::io::Library::v_size write(const oatpp::base::SharedWrapper<oatpp::base::String>& str){
+  os::io::Library::v_size write(const oatpp::base::PtrWrapper<oatpp::base::String>& str){
     return write(str->getData(), str->getSize());
   }
   
@@ -102,7 +102,7 @@ public:
 };
   
 const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const base::String::SharedWrapper& str);
+(const std::shared_ptr<OutputStream>& s, const base::String::PtrWrapper& str);
 
 const std::shared_ptr<OutputStream>& operator <<
 (const std::shared_ptr<OutputStream>& s, const char* str);

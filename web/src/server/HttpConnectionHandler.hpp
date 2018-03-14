@@ -56,7 +56,7 @@ private:
   private:
     
     std::shared_ptr<protocol::http::outgoing::Response>
-    handleError(const protocol::http::Status& status, const base::String::SharedWrapper& message);
+    handleError(const protocol::http::Status& status, const base::String::PtrWrapper& message);
     
     std::shared_ptr<protocol::http::outgoing::Response>
     processRequest(p_char8,

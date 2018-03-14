@@ -74,7 +74,7 @@ os::io::Library::v_size OutputStream::writeAsString(bool value) {
 // Functions
   
 const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const base::String::SharedWrapper& str) {
+(const std::shared_ptr<OutputStream>& s, const base::String::PtrWrapper& str) {
   s->write(str);
   return s;
 }

@@ -38,10 +38,10 @@ public:
   OBJECT_POOL(Http_Outgoing_DtoBody_Pool, DtoBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_DtoBody_Pool, DtoBody, 32)
 private:
-  oatpp::data::mapping::type::AbstractSharedWrapper m_dto;
+  oatpp::data::mapping::type::AbstractPtrWrapper m_dto;
   oatpp::data::mapping::ObjectMapper* m_objectMapper;
 public:
-  DtoBody(const oatpp::data::mapping::type::AbstractSharedWrapper& dto,
+  DtoBody(const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
           oatpp::data::mapping::ObjectMapper* objectMapper,
           bool chunked)
     : ChunkedBufferBody(oatpp::data::stream::ChunkedBuffer::createShared(), chunked)
@@ -50,12 +50,12 @@ public:
   {}
 public:
   
-  static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractSharedWrapper& dto,
+  static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
                                          oatpp::data::mapping::ObjectMapper* objectMapper) {
     return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, false);
   }
   
-  static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractSharedWrapper& dto,
+  static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
                                          oatpp::data::mapping::ObjectMapper* objectMapper,
                                          bool chunked) {
     return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, chunked);

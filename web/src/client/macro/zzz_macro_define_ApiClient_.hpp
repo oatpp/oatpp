@@ -130,7 +130,7 @@ OATPP_MACRO_API_CLIENT_PARAM_MACRO X
 // API_CALL MACRO
 
 #define OATPP_API_CALL_0(NAME, METHOD, PATH, LIST) \
-static PathPattern Z_getPathPattern_##NAME(const oatpp::base::String::SharedWrapper& path) { \
+static PathPattern Z_getPathPattern_##NAME(const oatpp::base::String::PtrWrapper& path) { \
   static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
   return pattern; \
 } \
@@ -146,7 +146,7 @@ std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME() { \
 }
 
 #define OATPP_API_CALL_1(NAME, METHOD, PATH, LIST) \
-static PathPattern Z_getPathPattern_##NAME(const oatpp::base::String::SharedWrapper& path) { \
+static PathPattern Z_getPathPattern_##NAME(const oatpp::base::String::PtrWrapper& path) { \
   static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
   return pattern; \
 } \

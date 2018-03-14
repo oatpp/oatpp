@@ -27,7 +27,7 @@
 
 #include "../../base/memory/ObjectPool.hpp"
 #include "../../base/Controllable.hpp"
-#include "../../base/SharedWrapper.hpp"
+#include "../../base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
   

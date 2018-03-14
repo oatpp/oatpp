@@ -105,7 +105,7 @@ std::shared_ptr<Pattern> Pattern::parse(const char* data){
   return parse((p_char8) data, (v_int32) std::strlen(data));
 }
 
-std::shared_ptr<Pattern> Pattern::parse(const base::String::SharedWrapper& data){
+std::shared_ptr<Pattern> Pattern::parse(const base::String::PtrWrapper& data){
   return parse(data->getData(), data->getSize());
 }
   
@@ -181,7 +181,7 @@ std::shared_ptr<Pattern::MatchMap> Pattern::match(const char* url){
   return match((p_char8) url, (v_int32) std::strlen(url));
 }
 
-std::shared_ptr<Pattern::MatchMap> Pattern::match(const base::String::SharedWrapper& url){
+std::shared_ptr<Pattern::MatchMap> Pattern::match(const base::String::PtrWrapper& url){
   return match(url->getData(), url->getSize());
 }
 

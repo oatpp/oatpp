@@ -27,7 +27,7 @@
 
 #include "memory/ObjectPool.hpp"
 #include "./Controllable.hpp"
-#include "./SharedWrapper.hpp"
+#include "./PtrWrapper.hpp"
 
 #include <cstring> // c
 
@@ -36,56 +36,56 @@ namespace oatpp { namespace base {
 class String : public oatpp::base::Controllable {
 public:
   
-  class SharedWrapper : public oatpp::base::SharedWrapper<String> {
+  class PtrWrapper : public oatpp::base::PtrWrapper<String> {
   public:
     
-    SharedWrapper() {}
+    PtrWrapper() {}
     
-    SharedWrapper(const std::shared_ptr<String>& ptr)
-      : oatpp::base::SharedWrapper<String>(ptr)
+    PtrWrapper(const std::shared_ptr<String>& ptr)
+      : oatpp::base::PtrWrapper<String>(ptr)
     {}
     
-    SharedWrapper(std::shared_ptr<String>&& ptr)
-      : oatpp::base::SharedWrapper<String>(std::move(ptr))
+    PtrWrapper(std::shared_ptr<String>&& ptr)
+      : oatpp::base::PtrWrapper<String>(std::move(ptr))
     {}
     
-    SharedWrapper(const char* str)
-      : oatpp::base::SharedWrapper<String>(createFromCString(str))
+    PtrWrapper(const char* str)
+      : oatpp::base::PtrWrapper<String>(createFromCString(str))
     {}
     
-    SharedWrapper(const oatpp::base::SharedWrapper<String>& other)
-      : oatpp::base::SharedWrapper<String>(other)
+    PtrWrapper(const oatpp::base::PtrWrapper<String>& other)
+      : oatpp::base::PtrWrapper<String>(other)
     {}
     
-    SharedWrapper(oatpp::base::SharedWrapper<String>&& other)
-      : oatpp::base::SharedWrapper<String>(std::move(other))
+    PtrWrapper(oatpp::base::PtrWrapper<String>&& other)
+      : oatpp::base::PtrWrapper<String>(std::move(other))
     {}
     
-    SharedWrapper& operator = (const char* str) {
+    PtrWrapper& operator = (const char* str) {
       m_ptr = String::createFromCString(str);
       return *this;
     }
     
-    SharedWrapper& operator = (const oatpp::base::SharedWrapper<String>& other){
-      oatpp::base::SharedWrapper<String>::operator=(other);
+    PtrWrapper& operator = (const oatpp::base::PtrWrapper<String>& other){
+      oatpp::base::PtrWrapper<String>::operator=(other);
       return *this;
     }
 
-    SharedWrapper& operator = (oatpp::base::SharedWrapper<String>&& other){
-      oatpp::base::SharedWrapper<String>::operator=(std::move(other));
+    PtrWrapper& operator = (oatpp::base::PtrWrapper<String>&& other){
+      oatpp::base::PtrWrapper<String>::operator=(std::move(other));
       return *this;
     }
     
-    SharedWrapper operator + (const char* str) const{
+    PtrWrapper operator + (const char* str) const{
       return String::createSharedConcatenated(m_ptr.get()->m_data, m_ptr.get()->m_size, str, (v_int32) std::strlen(str));
     }
     
-    SharedWrapper operator + (const oatpp::base::SharedWrapper<String>& other) const{
+    PtrWrapper operator + (const oatpp::base::PtrWrapper<String>& other) const{
       return String::createSharedConcatenated(m_ptr.get()->m_data, m_ptr.get()->m_size, other.get()->m_data, other.get()->m_size);
     }
     
-    static const SharedWrapper& empty(){
-      static SharedWrapper empty;
+    static const PtrWrapper& empty(){
+      static PtrWrapper empty;
       return empty;
     }
     
@@ -160,7 +160,7 @@ public:
   bool equals(const void* data, v_int32 size) const;
   bool equals(const char* data) const;
   bool equals(String* other) const;
-  bool equals(const String::SharedWrapper& other) const;
+  bool equals(const String::PtrWrapper& other) const;
   bool equals(const std::shared_ptr<String>& other) const;
   
   bool startsWith(const void* data, v_int32 size) const;
@@ -187,7 +187,7 @@ public:
   static bool equalsCI_FAST(const void* data1, const void* data2, v_int32 size);
   static bool equalsCI_FAST(const char* data1, const char* data2);
   static bool equalsCI_FAST(String* str1, String* str2);
-  static bool equalsCI_FAST(const String::SharedWrapper& str1, const char* str2);
+  static bool equalsCI_FAST(const String::PtrWrapper& str1, const char* str2);
   
   /**
    *  lower case chars in the buffer @data (correct for ACII only)
@@ -201,8 +201,8 @@ public:
   
 };
   
-oatpp::base::SharedWrapper<String> operator + (const char* a, const oatpp::base::SharedWrapper<String>& b);
-oatpp::base::SharedWrapper<String> operator + (const oatpp::base::SharedWrapper<String>& b, const char* a);
+oatpp::base::PtrWrapper<String> operator + (const char* a, const oatpp::base::PtrWrapper<String>& b);
+oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& b, const char* a);
 
 std::shared_ptr<String> operator + (const char* a, const std::shared_ptr<String>& b);
 std::shared_ptr<String> operator + (const std::shared_ptr<String>& b, const char* a);

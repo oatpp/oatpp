@@ -26,7 +26,7 @@
 #define network_server_ConnectionHandler_hpp
 
 #include "../../../../oatpp-lib/core/src/data/stream/Stream.hpp"
-#include "../../../../oatpp-lib/core/src/base/SharedWrapper.hpp"
+#include "../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
 
 namespace oatpp { namespace network { namespace server {
   

@@ -59,7 +59,7 @@ bool HttpConnectionHandler::considerConnectionKeepAlive(const std::shared_ptr<pr
 }
   
 std::shared_ptr<protocol::http::outgoing::Response>
-HttpConnectionHandler::Task::handleError(const protocol::http::Status& status, const base::String::SharedWrapper& message){
+HttpConnectionHandler::Task::handleError(const protocol::http::Status& status, const base::String::PtrWrapper& message){
   return m_errorHandler->handleError(status, message);
 }
   

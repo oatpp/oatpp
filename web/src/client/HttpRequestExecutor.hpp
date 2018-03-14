@@ -44,8 +44,8 @@ public:
     return std::shared_ptr<HttpRequestExecutor>(new HttpRequestExecutor(connectionProvider));
   }
   
-  std::shared_ptr<Response> execute(const String::SharedWrapper& method,
-                                    const String::SharedWrapper& path,
+  std::shared_ptr<Response> execute(const String::PtrWrapper& method,
+                                    const String::PtrWrapper& path,
                                     const std::shared_ptr<Headers>& headers,
                                     const std::shared_ptr<Body>& body) override;
   

@@ -41,8 +41,8 @@
 namespace oatpp { namespace web { namespace client {
   
 std::shared_ptr<HttpRequestExecutor::Response>
-HttpRequestExecutor::execute(const String::SharedWrapper& method,
-                             const String::SharedWrapper& path,
+HttpRequestExecutor::execute(const String::PtrWrapper& method,
+                             const String::PtrWrapper& path,
                              const std::shared_ptr<Headers>& headers,
                              const std::shared_ptr<Body>& body) {
   

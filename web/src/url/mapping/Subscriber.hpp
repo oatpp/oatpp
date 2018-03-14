@@ -25,7 +25,7 @@
 #ifndef oatpp_network_url_Subscriber_hpp
 #define oatpp_network_url_Subscriber_hpp
 
-#include "../../../../../oatpp-lib/core/src/base/SharedWrapper.hpp"
+#include "../../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   

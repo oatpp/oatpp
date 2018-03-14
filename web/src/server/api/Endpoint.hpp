@@ -71,9 +71,9 @@ public:
       return std::shared_ptr<Info>(new Info());
     }
     
-    base::String::SharedWrapper name;
-    base::String::SharedWrapper path;
-    base::String::SharedWrapper method;
+    base::String::PtrWrapper name;
+    base::String::PtrWrapper path;
+    base::String::PtrWrapper method;
     
     Param body;
     
@@ -83,7 +83,7 @@ public:
     
     std::list<Param> returnTypes;
     
-    oatpp::base::SharedWrapper<oatpp::base::String> toString();
+    oatpp::base::PtrWrapper<oatpp::base::String> toString();
     
   };
 public:

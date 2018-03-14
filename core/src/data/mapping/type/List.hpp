@@ -32,7 +32,7 @@
 #include "../../../base/memory/ObjectPool.hpp"
 #include "../../../base/Controllable.hpp"
 #include "../../../base/String.hpp"
-#include "../../../base/SharedWrapper.hpp"
+#include "../../../base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -52,14 +52,14 @@ template<class T>
 class List : public oatpp::collection::LinkedList<T> {
   friend __class::List<T>;
 public:
-  typedef oatpp::data::mapping::type::SharedWrapper<List, __class::List<T>> SharedWrapper;
+  typedef oatpp::data::mapping::type::PtrWrapper<List, __class::List<T>> PtrWrapper;
 public:
   OBJECT_POOL(DTO_LIST_POOL, List, 32)
   SHARED_OBJECT_POOL(SHARED_DTO_LIST_POOL, List, 32)
 protected:
   
-  static AbstractSharedWrapper Z__CLASS_OBJECT_CREATOR(){
-    return AbstractSharedWrapper(SHARED_DTO_LIST_POOL::allocateShared(), Z__CLASS_GET_TYPE());
+  static AbstractPtrWrapper Z__CLASS_OBJECT_CREATOR(){
+    return AbstractPtrWrapper(SHARED_DTO_LIST_POOL::allocateShared(), Z__CLASS_GET_TYPE());
   }
   
   static Type* Z__CLASS_GET_TYPE(){
@@ -75,11 +75,11 @@ public:
   {}
 public:
   
-  static SharedWrapper createShared(){
-    return SharedWrapper(SHARED_DTO_LIST_POOL::allocateShared());
+  static PtrWrapper createShared(){
+    return PtrWrapper(SHARED_DTO_LIST_POOL::allocateShared());
   }
   
-  virtual void addPolymorphicItem(const AbstractSharedWrapper& item){
+  virtual void addPolymorphicItem(const AbstractPtrWrapper& item){
     auto ptr = std::static_pointer_cast<typename T::ObjectType>(item.getPtr());
     this->pushBack(T(ptr, item.valueType));
   }

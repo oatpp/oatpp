@@ -43,7 +43,7 @@
 #include "../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
 
 #include "../../../../oatpp-lib/core/src/base/Controllable.hpp"
-#include "../../../../oatpp-lib/core/src/base/SharedWrapper.hpp"
+#include "../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
 
 #include <string>
 #include <list>
@@ -56,26 +56,26 @@ public:
   static constexpr const char* const TAG = "Client";
 protected:
   typedef oatpp::collection::ListMap<
-    oatpp::base::String::SharedWrapper,
-    oatpp::data::mapping::type::AbstractSharedWrapper
+    oatpp::base::String::PtrWrapper,
+    oatpp::data::mapping::type::AbstractPtrWrapper
   > StringToParamMap;
 protected:
   typedef std::unordered_map<std::string, std::shared_ptr<oatpp::base::String>> PathVariablesMap;
 private:
   typedef oatpp::collection::ListMap<
-    oatpp::base::String::SharedWrapper,
-    oatpp::base::String::SharedWrapper
+    oatpp::base::String::PtrWrapper,
+    oatpp::base::String::PtrWrapper
   > StringToStringMap;
 public:
   typedef oatpp::web::protocol::http::Status Status;
   typedef oatpp::web::protocol::http::Header Header;
 public:
-  typedef oatpp::data::mapping::type::StringSharedWrapper String;
-  typedef oatpp::data::mapping::type::Int32::SharedWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::SharedWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::SharedWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::SharedWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::SharedWrapper Boolean;
+  typedef oatpp::data::mapping::type::StringPtrWrapper String;
+  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
+  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
+  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
+  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
+  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
 public:
   typedef oatpp::web::protocol::http::incoming::Response Response;
 protected:
@@ -131,7 +131,7 @@ public:
   
 protected:
   
-  virtual std::shared_ptr<Response> formatAndExecuteRequest(const oatpp::base::String::SharedWrapper& method,
+  virtual std::shared_ptr<Response> formatAndExecuteRequest(const oatpp::base::String::PtrWrapper& method,
                                                             const PathPattern& pathPattern,
                                                             const std::shared_ptr<StringToParamMap>& headers,
                                                             const std::shared_ptr<StringToParamMap>& pathParams,

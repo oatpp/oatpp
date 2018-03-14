@@ -26,15 +26,15 @@
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
-StringSharedWrapper::StringSharedWrapper(const std::shared_ptr<oatpp::base::String>& ptr, const type::Type* const valueType)
-  : oatpp::data::mapping::type::SharedWrapper<oatpp::base::String, __class::String>(ptr)
+StringPtrWrapper::StringPtrWrapper(const std::shared_ptr<oatpp::base::String>& ptr, const type::Type* const valueType)
+  : oatpp::data::mapping::type::PtrWrapper<oatpp::base::String, __class::String>(ptr)
 {
   if(type::__class::String::getType() != valueType) {
     throw std::runtime_error("Value type does not match");
   }
 }
   
-StringSharedWrapper::operator std::string() const {
+StringPtrWrapper::operator std::string() const {
   if(m_ptr){
     return m_ptr->std_str();
   }
@@ -43,23 +43,23 @@ StringSharedWrapper::operator std::string() const {
   
 namespace __class {
   
-  type::Int32::SharedWrapper Int32::parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success) {
+  type::Int32::PtrWrapper Int32::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
   
-  type::Int64::SharedWrapper Int64::parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success) {
+  type::Int64::PtrWrapper Int64::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
     return utils::conversion::strToInt64(str, success);
   }
   
-  type::Float32::SharedWrapper Float32::parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success) {
+  type::Float32::PtrWrapper Float32::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
     return utils::conversion::strToFloat32(str, success);
   }
   
-  type::Float64::SharedWrapper Float64::parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success) {
+  type::Float64::PtrWrapper Float64::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
     return utils::conversion::strToFloat64(str, success);
   }
   
-  type::Boolean::SharedWrapper Boolean::parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success) {
+  type::Boolean::PtrWrapper Boolean::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
     return utils::conversion::strToBool(str, success);
   }
   

@@ -117,75 +117,75 @@ void Deserializer::skipValue(const std::shared_ptr<oatpp::parser::ParsingCaret>&
   }
 }
   
-Deserializer::AbstractSharedWrapper Deserializer::readStringValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
+Deserializer::AbstractPtrWrapper Deserializer::readStringValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper(String::Class::getType());
+    return AbstractPtrWrapper(String::Class::getType());
   } else {
-    return AbstractSharedWrapper(oatpp::parser::json::Utils::parseString(caret), String::Class::getType());
+    return AbstractPtrWrapper(oatpp::parser::json::Utils::parseString(caret), String::Class::getType());
   }
 }
 
-Deserializer::AbstractSharedWrapper Deserializer::readInt32Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
+Deserializer::AbstractPtrWrapper Deserializer::readInt32Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper(Int32::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Int32::PtrWrapper::Class::getType());
   } else {
-    return AbstractSharedWrapper(Int32::createAbstract(caret->parseInt32()), Int32::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Int32::createAbstract(caret->parseInt32()), Int32::PtrWrapper::Class::getType());
   }
 }
 
-Deserializer::AbstractSharedWrapper Deserializer::readInt64Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
+Deserializer::AbstractPtrWrapper Deserializer::readInt64Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper(Int64::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Int64::PtrWrapper::Class::getType());
   } else {
-    return AbstractSharedWrapper(Int64::createAbstract(caret->parseInt64()), Int64::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Int64::createAbstract(caret->parseInt64()), Int64::PtrWrapper::Class::getType());
   }
 }
 
-Deserializer::AbstractSharedWrapper Deserializer::readFloat32Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
+Deserializer::AbstractPtrWrapper Deserializer::readFloat32Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper(Float32::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Float32::PtrWrapper::Class::getType());
   } else {
-    return AbstractSharedWrapper(Float32::createAbstract(caret->parseFloat32()), Float32::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Float32::createAbstract(caret->parseFloat32()), Float32::PtrWrapper::Class::getType());
   }
 }
 
-Deserializer::AbstractSharedWrapper Deserializer::readFloat64Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
+Deserializer::AbstractPtrWrapper Deserializer::readFloat64Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper(Float64::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Float64::PtrWrapper::Class::getType());
   } else {
-    return AbstractSharedWrapper(Float64::createAbstract(caret->parseFloat64()), Float64::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Float64::createAbstract(caret->parseFloat64()), Float64::PtrWrapper::Class::getType());
   }
 }
 
-Deserializer::AbstractSharedWrapper Deserializer::readBooleanValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
+Deserializer::AbstractPtrWrapper Deserializer::readBooleanValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper(Boolean::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Boolean::PtrWrapper::Class::getType());
   } else {
-    return AbstractSharedWrapper(Boolean::createAbstract(caret->parseBoolean("true", "false")), Boolean::SharedWrapper::Class::getType());
+    return AbstractPtrWrapper(Boolean::createAbstract(caret->parseBoolean("true", "false")), Boolean::PtrWrapper::Class::getType());
   }
 }
   
-Deserializer::AbstractSharedWrapper Deserializer::readObjectValue(const Type* const type,
+Deserializer::AbstractPtrWrapper Deserializer::readObjectValue(const Type* const type,
                                                         const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                                         const std::shared_ptr<Config>& config){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper::empty();
+    return AbstractPtrWrapper::empty();
   } else {
     return readObject(type, caret, config);
   }
 }
   
-Deserializer::AbstractSharedWrapper Deserializer::readListValue(const Type* const type,
+Deserializer::AbstractPtrWrapper Deserializer::readListValue(const Type* const type,
                                                       const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                                       const std::shared_ptr<Config>& config){
   if(caret->proceedIfFollowsText("null")){
-    return AbstractSharedWrapper::empty();
+    return AbstractPtrWrapper::empty();
   } else {
     return readList(type, caret, config);
   }
 }
   
-Deserializer::AbstractSharedWrapper Deserializer::readValue(const Type* const type,
+Deserializer::AbstractPtrWrapper Deserializer::readValue(const Type* const type,
                                                   const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                                   const std::shared_ptr<Config>& config){
   
@@ -210,11 +210,11 @@ Deserializer::AbstractSharedWrapper Deserializer::readValue(const Type* const ty
     skipValue(caret);
   }
   
-  return AbstractSharedWrapper::empty();
+  return AbstractPtrWrapper::empty();
   
 }
   
-Deserializer::AbstractSharedWrapper Deserializer::readList(const Type* type,
+Deserializer::AbstractPtrWrapper Deserializer::readList(const Type* type,
                                                  const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                                  const std::shared_ptr<Config>& config){
   
@@ -231,7 +231,7 @@ Deserializer::AbstractSharedWrapper Deserializer::readList(const Type* type,
       caret->findNotBlankChar();
       auto item = readValue(itemType, caret, config);
       if(caret->hasError()){
-        return AbstractSharedWrapper::empty();
+        return AbstractPtrWrapper::empty();
       }
       
       list->addPolymorphicItem(item);
@@ -245,18 +245,18 @@ Deserializer::AbstractSharedWrapper Deserializer::readList(const Type* type,
       if(!caret->hasError()){
         caret->setError(ERROR_PARSER_ARRAY_SCOPE_CLOSE);
       }
-      return AbstractSharedWrapper::empty();
+      return AbstractPtrWrapper::empty();
     };
     
-    return AbstractSharedWrapper(list.getPtr(), list.valueType);
+    return AbstractPtrWrapper(list.getPtr(), list.valueType);
   } else {
     caret->setError(ERROR_PARSER_ARRAY_SCOPE_OPEN);
-    return AbstractSharedWrapper::empty();
+    return AbstractPtrWrapper::empty();
   }
   
 }
   
-Deserializer::AbstractSharedWrapper Deserializer::readObject(const Type* type,
+Deserializer::AbstractPtrWrapper Deserializer::readObject(const Type* type,
                                                    const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                                    const std::shared_ptr<Config>& config){
   
@@ -270,7 +270,7 @@ Deserializer::AbstractSharedWrapper Deserializer::readObject(const Type* type,
       caret->findNotBlankChar();
       auto key = Utils::parseStringToStdString(caret);
       if(caret->hasError()){
-        return AbstractSharedWrapper::empty();
+        return AbstractPtrWrapper::empty();
       }
       
       auto fieldIterator = fieldsMap->find(key);
@@ -279,7 +279,7 @@ Deserializer::AbstractSharedWrapper Deserializer::readObject(const Type* type,
         caret->findNotBlankChar();
         if(!caret->canContinueAtChar(':', 1)){
           caret->setError(ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING);
-          return AbstractSharedWrapper::empty();
+          return AbstractPtrWrapper::empty();
         }
         
         caret->findNotBlankChar();
@@ -291,13 +291,13 @@ Deserializer::AbstractSharedWrapper Deserializer::readObject(const Type* type,
         caret->findNotBlankChar();
         if(!caret->canContinueAtChar(':', 1)){
           caret->setError(ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING);
-          return AbstractSharedWrapper::empty();
+          return AbstractPtrWrapper::empty();
         }
         caret->findNotBlankChar();
         skipValue(caret);
       } else {
         caret->setError(ERROR_PARSER_OBJECT_SCOPE_UNKNOWN_FIELD);
-        return AbstractSharedWrapper::empty();
+        return AbstractPtrWrapper::empty();
       }
       
       caret->findNotBlankChar();
@@ -309,7 +309,7 @@ Deserializer::AbstractSharedWrapper Deserializer::readObject(const Type* type,
       if(!caret->hasError()){
         caret->setError(ERROR_PARSER_OBJECT_SCOPE_CLOSE);
       }
-      return AbstractSharedWrapper::empty();
+      return AbstractPtrWrapper::empty();
     }
     
     return object;
@@ -318,7 +318,7 @@ Deserializer::AbstractSharedWrapper Deserializer::readObject(const Type* type,
     caret->setError(ERROR_PARSER_OBJECT_SCOPE_OPEN);
   }
   
-  return AbstractSharedWrapper::empty();
+  return AbstractPtrWrapper::empty();
   
 }
   

@@ -33,7 +33,7 @@
 #include "../../../base/memory/ObjectPool.hpp"
 #include "../../../base/Controllable.hpp"
 #include "../../../base/String.hpp"
-#include "../../../base/SharedWrapper.hpp"
+#include "../../../base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -59,12 +59,12 @@ namespace __class {
   
 class Object : public oatpp::base::Controllable {
 public:
-  typedef oatpp::data::mapping::type::StringSharedWrapper String;
-  typedef oatpp::data::mapping::type::Int32::SharedWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::SharedWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::SharedWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::SharedWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::SharedWrapper Boolean;
+  typedef oatpp::data::mapping::type::StringPtrWrapper String;
+  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
+  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
+  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
+  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
+  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
 protected:

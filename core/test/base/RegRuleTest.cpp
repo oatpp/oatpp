@@ -64,91 +64,91 @@ namespace {
   typedef oatpp::base::String String;
   
   template<typename T>
-  using SharedWrapper = oatpp::base::SharedWrapper<T>;
+  using PtrWrapper = oatpp::base::PtrWrapper<T>;
   
   template<typename T>
   using PolymorphicWrapper = oatpp::data::mapping::type::PolymorphicWrapper<T>;
   
   template<typename T>
-  using TypeSharedWrapper = oatpp::data::mapping::type::SharedWrapper<T, oatpp::data::mapping::type::__class::Void>;
+  using TypePtrWrapper = oatpp::data::mapping::type::PtrWrapper<T, oatpp::data::mapping::type::__class::Void>;
   
-  typedef oatpp::data::mapping::type::StringSharedWrapper StringSharedWrapper;
+  typedef oatpp::data::mapping::type::StringPtrWrapper StringPtrWrapper;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;
   typedef oatpp::data::mapping::type::Float64 Float64;
   typedef oatpp::data::mapping::type::Boolean Boolean;
   
-  template <class SharedWrapperBC, class SharedWrapperCC, class BC, class CC>
-  void checkSharedWrapper(){
+  template <class PtrWrapperBC, class PtrWrapperCC, class BC, class CC>
+  void checkPtrWrapper(){
     {
-      SharedWrapperBC reg1(new BC);
-      SharedWrapperBC reg2(reg1);
+      PtrWrapperBC reg1(new BC);
+      PtrWrapperBC reg2(reg1);
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg3(std::move(reg1));
+      PtrWrapperBC reg3(std::move(reg1));
       OATPP_ASSERT(reg1.isNull());
-      SharedWrapperBC reg4(BC::template create1<SharedWrapperBC>());
-      SharedWrapperBC reg5(BC::template create2<SharedWrapperBC>());
+      PtrWrapperBC reg4(BC::template create1<PtrWrapperBC>());
+      PtrWrapperBC reg5(BC::template create2<PtrWrapperBC>());
     }
     
     {
-      SharedWrapperBC reg1 = new BC;
-      SharedWrapperBC reg2 = reg1;
+      PtrWrapperBC reg1 = new BC;
+      PtrWrapperBC reg2 = reg1;
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg3 = std::move(reg1);
+      PtrWrapperBC reg3 = std::move(reg1);
       OATPP_ASSERT(reg1.isNull());
-      SharedWrapperBC reg4 = BC::template create1<SharedWrapperBC>();
-      SharedWrapperBC reg5 = BC::template create2<SharedWrapperBC>();
+      PtrWrapperBC reg4 = BC::template create1<PtrWrapperBC>();
+      PtrWrapperBC reg5 = BC::template create2<PtrWrapperBC>();
     }
     
     {
-      SharedWrapperBC reg1 = new BC;
-      SharedWrapperBC reg2;
+      PtrWrapperBC reg1 = new BC;
+      PtrWrapperBC reg2;
       reg2 = reg1;
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg3;
+      PtrWrapperBC reg3;
       reg3 = std::move(reg1);
       OATPP_ASSERT(reg1.isNull());
-      SharedWrapperBC reg4;
-      reg4 = BC::template create1<SharedWrapperBC>();
-      SharedWrapperBC reg5;
-      reg5 = BC::template create2<SharedWrapperBC>();
+      PtrWrapperBC reg4;
+      reg4 = BC::template create1<PtrWrapperBC>();
+      PtrWrapperBC reg5;
+      reg5 = BC::template create2<PtrWrapperBC>();
     }
     
     //---
     
     {
-      SharedWrapperCC reg1(new CC);
-      SharedWrapperBC reg2(reg1);
+      PtrWrapperCC reg1(new CC);
+      PtrWrapperBC reg2(reg1);
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg3(std::move(reg1));
+      PtrWrapperBC reg3(std::move(reg1));
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg4(CC::template create1<SharedWrapperCC>());
-      SharedWrapperBC reg5(CC::template create2<SharedWrapperCC>());
+      PtrWrapperBC reg4(CC::template create1<PtrWrapperCC>());
+      PtrWrapperBC reg5(CC::template create2<PtrWrapperCC>());
     }
     
     {
-      SharedWrapperCC reg1 = new CC;
-      SharedWrapperBC reg2 = reg1;
+      PtrWrapperCC reg1 = new CC;
+      PtrWrapperBC reg2 = reg1;
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg3 = std::move(reg1);
+      PtrWrapperBC reg3 = std::move(reg1);
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg4 = CC::template create1<SharedWrapperCC>();
-      SharedWrapperBC reg5 = CC::template create2<SharedWrapperCC>();
+      PtrWrapperBC reg4 = CC::template create1<PtrWrapperCC>();
+      PtrWrapperBC reg5 = CC::template create2<PtrWrapperCC>();
     }
     
     {
-      SharedWrapperCC reg1 = new CC;
-      SharedWrapperBC reg2;
+      PtrWrapperCC reg1 = new CC;
+      PtrWrapperBC reg2;
       reg2 = reg1;
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg3;
+      PtrWrapperBC reg3;
       reg3 = std::move(reg1);
       OATPP_ASSERT(!reg1.isNull());
-      SharedWrapperBC reg4;
-      reg4 = CC::template create1<SharedWrapperCC>();
-      SharedWrapperBC reg5;
-      reg5 = CC::template create2<SharedWrapperCC>();
+      PtrWrapperBC reg4;
+      reg4 = CC::template create1<PtrWrapperCC>();
+      PtrWrapperBC reg5;
+      reg5 = CC::template create2<PtrWrapperCC>();
     }
   }
   
@@ -156,139 +156,139 @@ namespace {
 
 bool RegRuleTest::onRun() {
   
-  //checkSharedWrapper<SharedWrapper<BaseClass>, SharedWrapper<ChildClass>, BaseClass, ChildClass>();
+  //checkPtrWrapper<PtrWrapper<BaseClass>, PtrWrapper<ChildClass>, BaseClass, ChildClass>();
   
   {
-    String::SharedWrapper reg1("");
-    String::SharedWrapper reg2(reg1);
+    String::PtrWrapper reg1("");
+    String::PtrWrapper reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    String::SharedWrapper reg3(std::move(reg1));
+    String::PtrWrapper reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
-    String::SharedWrapper reg4 = String::createShared(100);
+    String::PtrWrapper reg4 = String::createShared(100);
   }
   
   {
-    String::SharedWrapper reg1("");
-    base::SharedWrapper<String> reg2(reg1);
+    String::PtrWrapper reg1("");
+    base::PtrWrapper<String> reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    base::SharedWrapper<String> reg3(std::move(reg1));
+    base::PtrWrapper<String> reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
-    base::SharedWrapper<String> reg4 = String::createShared(100) + "Leonid";
+    base::PtrWrapper<String> reg4 = String::createShared(100) + "Leonid";
   }
   
   {
-    base::SharedWrapper<String> reg1 = String::createShared(100);
-    String::SharedWrapper reg2(reg1);
+    base::PtrWrapper<String> reg1 = String::createShared(100);
+    String::PtrWrapper reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    String::SharedWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-  }
-  
-  {
-    String::SharedWrapper reg1(String::createShared(100) + "Leonid");
-    StringSharedWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    StringSharedWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-    StringSharedWrapper reg4 = String::createShared(100);
-  }
-  
-  {
-    StringSharedWrapper reg1 = String::createShared(100);
-    String::SharedWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    String::SharedWrapper reg3(std::move(reg1));
+    String::PtrWrapper reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
   }
   
   {
-    base::SharedWrapper<String> reg1 = String::createShared(100);
-    StringSharedWrapper reg2(reg1);
+    String::PtrWrapper reg1(String::createShared(100) + "Leonid");
+    StringPtrWrapper reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    StringSharedWrapper reg3(std::move(reg1));
+    StringPtrWrapper reg3(std::move(reg1));
+    OATPP_ASSERT(reg1.isNull());
+    StringPtrWrapper reg4 = String::createShared(100);
+  }
+  
+  {
+    StringPtrWrapper reg1 = String::createShared(100);
+    String::PtrWrapper reg2(reg1);
+    OATPP_ASSERT(!reg1.isNull());
+    String::PtrWrapper reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
   }
   
   {
-    StringSharedWrapper reg1 = String::createShared(100);
-    base::SharedWrapper<String> reg2(reg1);
+    base::PtrWrapper<String> reg1 = String::createShared(100);
+    StringPtrWrapper reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    base::SharedWrapper<String> reg3(std::move(reg1));
+    StringPtrWrapper reg3(std::move(reg1));
+    OATPP_ASSERT(reg1.isNull());
+  }
+  
+  {
+    StringPtrWrapper reg1 = String::createShared(100);
+    base::PtrWrapper<String> reg2(reg1);
+    OATPP_ASSERT(!reg1.isNull());
+    base::PtrWrapper<String> reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
   }
 
   
-  //checkSharedWrapper<PolymorphicSharedWrapper<BaseClass>, PolymorphicSharedWrapper<ChildClass>, BaseClass, ChildClass>();
+  //checkPtrWrapper<PolymorphicPtrWrapper<BaseClass>, PolymorphicPtrWrapper<ChildClass>, BaseClass, ChildClass>();
   
   /*
   {
-    SharedWrapper<BaseClass> reg1(new BaseClass);
-    SharedWrapper<BaseClass> reg2(reg1);
+    PtrWrapper<BaseClass> reg1(new BaseClass);
+    PtrWrapper<BaseClass> reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg3(std::move(reg1));
+    PtrWrapper<BaseClass> reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
-    SharedWrapper<BaseClass> reg4(BaseClass::create1<SharedWrapper<BaseClass>>());
-    SharedWrapper<BaseClass> reg5(BaseClass::create2<SharedWrapper<BaseClass>>());
+    PtrWrapper<BaseClass> reg4(BaseClass::create1<PtrWrapper<BaseClass>>());
+    PtrWrapper<BaseClass> reg5(BaseClass::create2<PtrWrapper<BaseClass>>());
   }
   
   {
-    SharedWrapper<BaseClass> reg1 = new BaseClass;
-    SharedWrapper<BaseClass> reg2 = reg1;
+    PtrWrapper<BaseClass> reg1 = new BaseClass;
+    PtrWrapper<BaseClass> reg2 = reg1;
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg3 = std::move(reg1);
+    PtrWrapper<BaseClass> reg3 = std::move(reg1);
     OATPP_ASSERT(reg1.isNull());
-    SharedWrapper<BaseClass> reg4 = BaseClass::create1<SharedWrapper<BaseClass>>();
-    SharedWrapper<BaseClass> reg5 = BaseClass::create2<SharedWrapper<BaseClass>>();
+    PtrWrapper<BaseClass> reg4 = BaseClass::create1<PtrWrapper<BaseClass>>();
+    PtrWrapper<BaseClass> reg5 = BaseClass::create2<PtrWrapper<BaseClass>>();
   }
   
   {
-    SharedWrapper<BaseClass> reg1 = new BaseClass;
-    SharedWrapper<BaseClass> reg2;
+    PtrWrapper<BaseClass> reg1 = new BaseClass;
+    PtrWrapper<BaseClass> reg2;
     reg2 = reg1;
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg3;
+    PtrWrapper<BaseClass> reg3;
     reg3 = std::move(reg1);
     OATPP_ASSERT(reg1.isNull());
-    SharedWrapper<BaseClass> reg4;
-    reg4 = BaseClass::create1<SharedWrapper<BaseClass>>();
-    SharedWrapper<BaseClass> reg5;
-    reg5 = BaseClass::create2<SharedWrapper<BaseClass>>();
+    PtrWrapper<BaseClass> reg4;
+    reg4 = BaseClass::create1<PtrWrapper<BaseClass>>();
+    PtrWrapper<BaseClass> reg5;
+    reg5 = BaseClass::create2<PtrWrapper<BaseClass>>();
   }
   
   //---
   
   {
-    SharedWrapper<ChildClass> reg1(new ChildClass);
-    SharedWrapper<BaseClass> reg2(reg1);
+    PtrWrapper<ChildClass> reg1(new ChildClass);
+    PtrWrapper<BaseClass> reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg3(std::move(reg1));
+    PtrWrapper<BaseClass> reg3(std::move(reg1));
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg4(ChildClass::create1<SharedWrapper<ChildClass>>());
-    SharedWrapper<BaseClass> reg5(ChildClass::create2<SharedWrapper<ChildClass>>());
+    PtrWrapper<BaseClass> reg4(ChildClass::create1<PtrWrapper<ChildClass>>());
+    PtrWrapper<BaseClass> reg5(ChildClass::create2<PtrWrapper<ChildClass>>());
   }
   
   {
-    SharedWrapper<ChildClass> reg1 = new ChildClass;
-    SharedWrapper<BaseClass> reg2 = reg1;
+    PtrWrapper<ChildClass> reg1 = new ChildClass;
+    PtrWrapper<BaseClass> reg2 = reg1;
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg3 = std::move(reg1);
+    PtrWrapper<BaseClass> reg3 = std::move(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg4 = ChildClass::create1<SharedWrapper<ChildClass>>();
-    SharedWrapper<BaseClass> reg5 = ChildClass::create2<SharedWrapper<ChildClass>>();
+    PtrWrapper<BaseClass> reg4 = ChildClass::create1<PtrWrapper<ChildClass>>();
+    PtrWrapper<BaseClass> reg5 = ChildClass::create2<PtrWrapper<ChildClass>>();
   }
   
   {
-    SharedWrapper<ChildClass> reg1 = new ChildClass;
-    SharedWrapper<BaseClass> reg2;
+    PtrWrapper<ChildClass> reg1 = new ChildClass;
+    PtrWrapper<BaseClass> reg2;
     reg2 = reg1;
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg3;
+    PtrWrapper<BaseClass> reg3;
     reg3 = std::move(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    SharedWrapper<BaseClass> reg4;
-    reg4 = ChildClass::create1<SharedWrapper<ChildClass>>();
-    SharedWrapper<BaseClass> reg5;
-    reg5 = ChildClass::create2<SharedWrapper<ChildClass>>();
+    PtrWrapper<BaseClass> reg4;
+    reg4 = ChildClass::create1<PtrWrapper<ChildClass>>();
+    PtrWrapper<BaseClass> reg5;
+    reg5 = ChildClass::create2<PtrWrapper<ChildClass>>();
   }
   */
   return true;

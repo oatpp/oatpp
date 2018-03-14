@@ -144,7 +144,7 @@ bool String::equals(String* other) const {
   return equals((String*) this, other);
 }
   
-bool String::equals(const String::SharedWrapper& other) const {
+bool String::equals(const String::PtrWrapper& other) const {
   return equals((String*) this, other.get());
 }
 
@@ -259,7 +259,7 @@ bool String::equalsCI_FAST(String* str1, String* str2) {
    );
 }
   
-bool String::equalsCI_FAST(const String::SharedWrapper& str1, const char* str2) {
+bool String::equalsCI_FAST(const String::PtrWrapper& str1, const char* str2) {
   v_int32 len = (v_int32) std::strlen(str2);
   return (str1->getSize() == len && equalsCI_FAST(str1->m_data, str2, str1->m_size));
 }
@@ -280,11 +280,11 @@ void String::upperCase(const void* data, v_int32 size) {
   
 // Operator
   
-oatpp::base::SharedWrapper<String> operator + (const char* a, const oatpp::base::SharedWrapper<String>& b){
+oatpp::base::PtrWrapper<String> operator + (const char* a, const oatpp::base::PtrWrapper<String>& b){
   return String::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
 }
   
-oatpp::base::SharedWrapper<String> operator + (const oatpp::base::SharedWrapper<String>& b, const char* a){
+oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& b, const char* a){
   return String::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
 }
   

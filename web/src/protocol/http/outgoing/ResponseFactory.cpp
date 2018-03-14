@@ -31,7 +31,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 std::shared_ptr<Response>
-ResponseFactory::createShared(const Status& status, const oatpp::base::String::SharedWrapper& text) {
+ResponseFactory::createShared(const Status& status, const oatpp::base::String::PtrWrapper& text) {
   return Response::createShared(status, BufferBody::createShared(text));
 }
 
@@ -42,7 +42,7 @@ ResponseFactory::createShared(const Status& status, const std::shared_ptr<oatpp:
 
 std::shared_ptr<Response>
 ResponseFactory::createShared(const Status& status,
-                        const oatpp::data::mapping::type::AbstractSharedWrapper& dto,
+                        const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
                         oatpp::data::mapping::ObjectMapper* objectMapper) {
   return Response::createShared(status, DtoBody::createShared(dto, objectMapper));
 }

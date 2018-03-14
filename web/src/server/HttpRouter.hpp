@@ -43,12 +43,12 @@ protected:
     std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
     std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
   > BranchRouter;
-  typedef oatpp::collection::ListMap<oatpp::base::String::SharedWrapper, std::shared_ptr<BranchRouter>> BranchMap;
+  typedef oatpp::collection::ListMap<oatpp::base::String::PtrWrapper, std::shared_ptr<BranchRouter>> BranchMap;
 protected:
   std::shared_ptr<BranchMap> m_branchMap;
 protected:
   
-  const std::shared_ptr<BranchRouter>& getBranch(const oatpp::base::String::SharedWrapper& name){
+  const std::shared_ptr<BranchRouter>& getBranch(const oatpp::base::String::PtrWrapper& name){
     auto entry = m_branchMap->find(name);
     if(entry == nullptr){
       auto branch = BranchRouter::createShared();
@@ -67,14 +67,14 @@ public:
     return std::shared_ptr<HttpRouter>(new HttpRouter());
   }
   
-  void addSubscriber(const oatpp::base::String::SharedWrapper& method,
-                     const oatpp::base::String::SharedWrapper& urlPattern,
+  void addSubscriber(const oatpp::base::String::PtrWrapper& method,
+                     const oatpp::base::String::PtrWrapper& urlPattern,
                      const std::shared_ptr<Subscriber>& subscriber) {
     getBranch(method)->addSubscriber(urlPattern, subscriber);
   }
   
-  BranchRouter::Route getRoute(const oatpp::base::String::SharedWrapper& method,
-                               const oatpp::base::String::SharedWrapper& url){
+  BranchRouter::Route getRoute(const oatpp::base::String::PtrWrapper& method,
+                               const oatpp::base::String::PtrWrapper& url){
     const std::shared_ptr<BranchRouter>& branch = m_branchMap->get(method, nullptr);
     if(branch){
       return branch->getRoute(url);

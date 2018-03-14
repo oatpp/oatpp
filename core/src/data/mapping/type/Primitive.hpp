@@ -33,7 +33,7 @@
 #include "../../../base/Controllable.hpp"
 #include "../../../base/String.hpp"
 
-#include "../../../base/SharedWrapper.hpp"
+#include "../../../base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -48,70 +48,70 @@ namespace __class {
   
 }
   
-class StringSharedWrapper : public oatpp::data::mapping::type::SharedWrapper<oatpp::base::String, __class::String> {
+class StringPtrWrapper : public oatpp::data::mapping::type::PtrWrapper<oatpp::base::String, __class::String> {
 public:
-  StringSharedWrapper(const std::shared_ptr<oatpp::base::String>& ptr, const type::Type* const valueType);
+  StringPtrWrapper(const std::shared_ptr<oatpp::base::String>& ptr, const type::Type* const valueType);
 public:
   
-  StringSharedWrapper() {}
+  StringPtrWrapper() {}
   
-  StringSharedWrapper(const std::shared_ptr<oatpp::base::String>& ptr)
-    : type::SharedWrapper<oatpp::base::String, __class::String>(ptr)
+  StringPtrWrapper(const std::shared_ptr<oatpp::base::String>& ptr)
+    : type::PtrWrapper<oatpp::base::String, __class::String>(ptr)
   {}
   
-  StringSharedWrapper(std::shared_ptr<oatpp::base::String>&& ptr)
-    : type::SharedWrapper<oatpp::base::String, __class::String>(std::move(ptr))
+  StringPtrWrapper(std::shared_ptr<oatpp::base::String>&& ptr)
+    : type::PtrWrapper<oatpp::base::String, __class::String>(std::move(ptr))
   {}
   
-  StringSharedWrapper(const char* str)
-    : type::SharedWrapper<oatpp::base::String, __class::String>(oatpp::base::String::createFromCString(str))
+  StringPtrWrapper(const char* str)
+    : type::PtrWrapper<oatpp::base::String, __class::String>(oatpp::base::String::createFromCString(str))
   {}
   
-  StringSharedWrapper(const std::string& str)
-    : type::SharedWrapper<oatpp::base::String, __class::String>
+  StringPtrWrapper(const std::string& str)
+    : type::PtrWrapper<oatpp::base::String, __class::String>
     (oatpp::base::String::createShared(str.data(), str.size()))
   {}
   
-  StringSharedWrapper(const oatpp::base::SharedWrapper<oatpp::base::String>& other)
-    : type::SharedWrapper<oatpp::base::String, __class::String>(other)
+  StringPtrWrapper(const oatpp::base::PtrWrapper<oatpp::base::String>& other)
+    : type::PtrWrapper<oatpp::base::String, __class::String>(other)
   {}
   
-  StringSharedWrapper(oatpp::base::SharedWrapper<oatpp::base::String>&& other)
-    : type::SharedWrapper<oatpp::base::String, __class::String>(std::move(other))
+  StringPtrWrapper(oatpp::base::PtrWrapper<oatpp::base::String>&& other)
+    : type::PtrWrapper<oatpp::base::String, __class::String>(std::move(other))
   {}
   
-  StringSharedWrapper& operator = (const char* str) {
+  StringPtrWrapper& operator = (const char* str) {
     m_ptr = oatpp::base::String::createFromCString(str);
     return *this;
   }
   
-  StringSharedWrapper& operator = (const std::string& str) {
+  StringPtrWrapper& operator = (const std::string& str) {
     m_ptr = oatpp::base::String::createShared(str.data(), str.size());
     return *this;
   }
   
-  StringSharedWrapper& operator = (const oatpp::base::SharedWrapper<oatpp::base::String>& other){
-    oatpp::base::SharedWrapper<oatpp::base::String>::operator=(other);
+  StringPtrWrapper& operator = (const oatpp::base::PtrWrapper<oatpp::base::String>& other){
+    oatpp::base::PtrWrapper<oatpp::base::String>::operator=(other);
     return *this;
   }
   
-  StringSharedWrapper& operator = (oatpp::base::SharedWrapper<oatpp::base::String>&& other){
-    oatpp::base::SharedWrapper<oatpp::base::String>::operator=(std::move(other));
+  StringPtrWrapper& operator = (oatpp::base::PtrWrapper<oatpp::base::String>&& other){
+    oatpp::base::PtrWrapper<oatpp::base::String>::operator=(std::move(other));
     return *this;
   }
   
-  StringSharedWrapper operator + (const char* str) const{
+  StringPtrWrapper operator + (const char* str) const{
     return oatpp::base::String::createSharedConcatenated(m_ptr.get()->getData(), m_ptr.get()->getSize(), str, (v_int32) std::strlen(str));
   }
   
-  StringSharedWrapper operator + (const oatpp::base::SharedWrapper<oatpp::base::String>& other) const{
+  StringPtrWrapper operator + (const oatpp::base::PtrWrapper<oatpp::base::String>& other) const{
     return oatpp::base::String::createSharedConcatenated(m_ptr.get()->getData(), m_ptr.get()->getSize(), other.get()->getData(), other.get()->getSize());
   }
   
   operator std::string() const;
   
-  static const StringSharedWrapper& empty(){
-    static StringSharedWrapper empty;
+  static const StringPtrWrapper& empty(){
+    static StringPtrWrapper empty;
     return empty;
   }
   
@@ -124,10 +124,10 @@ public:
   SHARED_OBJECT_POOL(Shared_Primitive_Type_Pool, Primitive, 32)
 public:
   
-  class SharedWrapper : public oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz> {
+  class PtrWrapper : public oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz> {
   public:
-    SharedWrapper(const std::shared_ptr<Primitive>& ptr, const type::Type* const valueType)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(ptr)
+    PtrWrapper(const std::shared_ptr<Primitive>& ptr, const type::Type* const valueType)
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>(ptr)
     {
       if(Clazz::getType() != valueType){
         throw std::runtime_error("Value type does not match");
@@ -135,31 +135,31 @@ public:
     }
   public:
     
-    SharedWrapper()
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>()
+    PtrWrapper()
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>()
     {}
     
-    SharedWrapper(const std::shared_ptr<Primitive>& ptr)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(ptr)
+    PtrWrapper(const std::shared_ptr<Primitive>& ptr)
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>(ptr)
     {}
     
-    SharedWrapper(std::shared_ptr<Primitive>&& ptr)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(std::move(ptr))
+    PtrWrapper(std::shared_ptr<Primitive>&& ptr)
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>(std::move(ptr))
     {}
     
-    SharedWrapper(const SharedWrapper& other)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(other)
+    PtrWrapper(const PtrWrapper& other)
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>(other)
     {}
     
-    SharedWrapper(SharedWrapper&& other)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(std::move(other))
+    PtrWrapper(PtrWrapper&& other)
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>(std::move(other))
     {}
     
-    SharedWrapper(const ValueType& value)
-      : oatpp::data::mapping::type::SharedWrapper<Primitive, Clazz>(Primitive::createShared(value))
+    PtrWrapper(const ValueType& value)
+      : oatpp::data::mapping::type::PtrWrapper<Primitive, Clazz>(Primitive::createShared(value))
     {}
     
-    SharedWrapper& operator = (const ValueType& value){
+    PtrWrapper& operator = (const ValueType& value){
       if(this->isNull()){
         this->m_ptr = Primitive::createShared(value);
       } else {
@@ -172,8 +172,8 @@ public:
       return this->get()->getValue();
     }
     
-    static const SharedWrapper& empty(){
-      static SharedWrapper result;
+    static const PtrWrapper& empty(){
+      static PtrWrapper result;
       return result;
     }
     
@@ -225,7 +225,7 @@ namespace __class {
       return &type;
     }
     
-    static type::StringSharedWrapper parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success){
+    static type::StringPtrWrapper parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success){
       success = true;
       return str;
     }
@@ -241,7 +241,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Int32::SharedWrapper parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success);
+    static type::Int32::PtrWrapper parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success);
     
   };
   
@@ -254,7 +254,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Int64::SharedWrapper parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success);
+    static type::Int64::PtrWrapper parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success);
     
   };
   
@@ -267,7 +267,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Float32::SharedWrapper parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success);
+    static type::Float32::PtrWrapper parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success);
     
   };
   
@@ -280,7 +280,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Float64::SharedWrapper parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success);
+    static type::Float64::PtrWrapper parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success);
     
   };
   
@@ -293,14 +293,14 @@ namespace __class {
       return &type;
     }
     
-    static type::Boolean::SharedWrapper parseFromString(const oatpp::base::String::SharedWrapper& str, bool& success);
+    static type::Boolean::PtrWrapper parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success);
     
   };
   
 }
   
 template<class T>
-base::SharedWrapper<base::String>
+base::PtrWrapper<base::String>
 primitiveToStr(const oatpp::data::mapping::type::PolymorphicWrapper<T>& primitive) {
   auto type = primitive.valueType;
   if(type == oatpp::data::mapping::type::__class::String::getType()) {

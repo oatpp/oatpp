@@ -22,43 +22,43 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_base_SharedWrapper
-#define oatpp_base_SharedWrapper
+#ifndef oatpp_base_PtrWrapper
+#define oatpp_base_PtrWrapper
 
 #include "Controllable.hpp"
 
 namespace oatpp { namespace base {
 
 template<class T>
-class SharedWrapper {
+class PtrWrapper {
 protected:
   std::shared_ptr<T> m_ptr;
 public:
   
-  SharedWrapper() {}
+  PtrWrapper() {}
   
-  SharedWrapper(const std::shared_ptr<T>& ptr)
+  PtrWrapper(const std::shared_ptr<T>& ptr)
     : m_ptr(ptr)
   {}
   
-  SharedWrapper(std::shared_ptr<T>&& ptr)
+  PtrWrapper(std::shared_ptr<T>&& ptr)
     : m_ptr(std::move(ptr))
   {}
   
-  SharedWrapper(const SharedWrapper& other)
+  PtrWrapper(const PtrWrapper& other)
     : m_ptr(other.m_ptr)
   {}
   
-  SharedWrapper(SharedWrapper&& other)
+  PtrWrapper(PtrWrapper&& other)
     : m_ptr(std::move(other.m_ptr))
   {}
   
-  SharedWrapper& operator = (const SharedWrapper& other){
+  PtrWrapper& operator = (const PtrWrapper& other){
     m_ptr = other.m_ptr;
     return *this;
   }
   
-  SharedWrapper& operator = (SharedWrapper&& other){
+  PtrWrapper& operator = (PtrWrapper&& other){
     m_ptr = std::move(other.m_ptr);
     return *this;
   }
@@ -79,27 +79,27 @@ public:
     return m_ptr.get() == nullptr;
   }
   
-  static const SharedWrapper& empty(){
-    static SharedWrapper empty;
+  static const PtrWrapper& empty(){
+    static PtrWrapper empty;
     return empty;
   }
   
-  inline bool operator == (const SharedWrapper& other){
+  inline bool operator == (const PtrWrapper& other){
     return m_ptr.get() == other.m_ptr.get();
   }
   
-  inline bool operator != (const SharedWrapper& other){
+  inline bool operator != (const PtrWrapper& other){
     return m_ptr.get() != other.m_ptr.get();
   }
   
 };
   
 template<class T, class F>
-inline SharedWrapper<T> static_wrapper_cast(const F& from){
-  return SharedWrapper<T>(std::static_pointer_cast<T>(from.getPtr()));
+inline PtrWrapper<T> static_wrapper_cast(const F& from){
+  return PtrWrapper<T>(std::static_pointer_cast<T>(from.getPtr()));
 }
   
 }}
 
 
-#endif /* oatpp_base_SharedWrapper */
+#endif /* oatpp_base_PtrWrapper */

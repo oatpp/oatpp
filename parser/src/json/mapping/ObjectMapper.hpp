@@ -54,11 +54,11 @@ public:
   }
   
   void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-             const oatpp::data::mapping::type::AbstractSharedWrapper& variant) override {
+             const oatpp::data::mapping::type::AbstractPtrWrapper& variant) override {
     Serializer::serialize(stream, variant);
   }
   
-  oatpp::data::mapping::type::AbstractSharedWrapper
+  oatpp::data::mapping::type::AbstractPtrWrapper
   read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
        const oatpp::data::mapping::type::Type* const type) override {
     return Deserializer::deserialize(caret, deserializerConfig, type);

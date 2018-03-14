@@ -187,7 +187,7 @@ public:
   
 class Protocol {
 public:
-  typedef oatpp::collection::ListMap<base::String::SharedWrapper, base::String::SharedWrapper> Headers;
+  typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
 private:
   static std::shared_ptr<oatpp::base::String> parseHeaderName(oatpp::parser::ParsingCaret& caret);
 public:

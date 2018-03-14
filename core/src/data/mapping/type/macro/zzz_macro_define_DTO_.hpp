@@ -31,7 +31,7 @@
 \
 public: \
   typedef TYPE_NAME Z__CLASS; \
-  typedef oatpp::data::mapping::type::SharedWrapper<Z__CLASS, oatpp::data::mapping::type::__class::Object<Z__CLASS>> SharedWrapper; \
+  typedef oatpp::data::mapping::type::PtrWrapper<Z__CLASS, oatpp::data::mapping::type::__class::Object<Z__CLASS>> PtrWrapper; \
 public: \
   OBJECT_POOL(DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
   SHARED_OBJECT_POOL(SHARED_DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
@@ -42,8 +42,8 @@ public: \
   } \
 public: \
 \
-  static SharedWrapper createShared(){ \
-    return SharedWrapper(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared()); \
+  static PtrWrapper createShared(){ \
+    return PtrWrapper(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared()); \
   } \
 \
   static oatpp::data::mapping::type::Type::Properties* Z__CLASS_GET_FIELDS_MAP(){ \
@@ -51,8 +51,8 @@ public: \
     return &map; \
   } \
 \
-  static oatpp::data::mapping::type::AbstractSharedWrapper Z__CLASS_OBJECT_CREATOR(){ \
-    return oatpp::data::mapping::type::AbstractSharedWrapper(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared(), Z__CLASS_GET_TYPE()); \
+  static oatpp::data::mapping::type::AbstractPtrWrapper Z__CLASS_OBJECT_CREATOR(){ \
+    return oatpp::data::mapping::type::AbstractPtrWrapper(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared(), Z__CLASS_GET_TYPE()); \
   } \
 \
   static oatpp::data::mapping::type::Type* Z__CLASS_GET_TYPE(){ \
@@ -68,11 +68,11 @@ public: \
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
   Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Controllable*>(this), \
-                            (oatpp::base::SharedWrapper<oatpp::base::Controllable>*)(&NAME)); \
+                            (oatpp::base::PtrWrapper<oatpp::base::Controllable>*)(&NAME)); \
 \
 static oatpp::data::mapping::type::Type::Property* \
 Z__CLASS_GET_FIELD_##NAME(oatpp::base::Controllable* _this, \
-                          oatpp::base::SharedWrapper<oatpp::base::Controllable>* _reg) { \
+                          oatpp::base::PtrWrapper<oatpp::base::Controllable>* _reg) { \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \
@@ -87,11 +87,11 @@ TYPE NAME
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
   Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Controllable*>(this), \
-                            (oatpp::base::SharedWrapper<oatpp::base::Controllable>*)(&NAME)); \
+                            (oatpp::base::PtrWrapper<oatpp::base::Controllable>*)(&NAME)); \
 \
 static oatpp::data::mapping::type::Type::Property* \
 Z__CLASS_GET_FIELD_##NAME(oatpp::base::Controllable* _this, \
-                          oatpp::base::SharedWrapper<oatpp::base::Controllable>* _reg) { \
+                          oatpp::base::PtrWrapper<oatpp::base::Controllable>* _reg) { \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \

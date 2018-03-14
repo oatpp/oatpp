@@ -44,7 +44,7 @@ class TestChild : public DTO {
   
   DTO_INIT(TestChild, DTO)
   
-  static SharedWrapper createShared(const char* name, const char* secondName){
+  static PtrWrapper createShared(const char* name, const char* secondName){
     auto result = createShared();
     result->name = name;
     result->secondName = secondName;
@@ -67,18 +67,18 @@ class Test : public DTO {
   DTO_FIELD(Float64, _float64);
   DTO_FIELD(Boolean, _boolean);
   
-  DTO_FIELD(List<String>::SharedWrapper, _list_string) = List<String>::createShared();
-  DTO_FIELD(List<Int32>::SharedWrapper, _list_int32) = List<Int32>::createShared();
-  DTO_FIELD(List<Int64>::SharedWrapper, _list_int64) = List<Int64>::createShared();
-  DTO_FIELD(List<Float32>::SharedWrapper, _list_float32) = List<Float32>::createShared();
-  DTO_FIELD(List<Float64>::SharedWrapper, _list_float64) = List<Float64>::createShared();
-  DTO_FIELD(List<Boolean>::SharedWrapper, _list_boolean) = List<Boolean>::createShared();
+  DTO_FIELD(List<String>::PtrWrapper, _list_string) = List<String>::createShared();
+  DTO_FIELD(List<Int32>::PtrWrapper, _list_int32) = List<Int32>::createShared();
+  DTO_FIELD(List<Int64>::PtrWrapper, _list_int64) = List<Int64>::createShared();
+  DTO_FIELD(List<Float32>::PtrWrapper, _list_float32) = List<Float32>::createShared();
+  DTO_FIELD(List<Float64>::PtrWrapper, _list_float64) = List<Float64>::createShared();
+  DTO_FIELD(List<Boolean>::PtrWrapper, _list_boolean) = List<Boolean>::createShared();
   
-  DTO_FIELD(List<TestChild::SharedWrapper>::SharedWrapper, _list_object) = List<TestChild::SharedWrapper>::createShared();
-  DTO_FIELD(List<List<TestChild::SharedWrapper>::SharedWrapper>::SharedWrapper, _list_list_object) = List<List<TestChild::SharedWrapper>::SharedWrapper>::createShared();
+  DTO_FIELD(List<TestChild::PtrWrapper>::PtrWrapper, _list_object) = List<TestChild::PtrWrapper>::createShared();
+  DTO_FIELD(List<List<TestChild::PtrWrapper>::PtrWrapper>::PtrWrapper, _list_list_object) = List<List<TestChild::PtrWrapper>::PtrWrapper>::createShared();
   
-  DTO_FIELD(Test::SharedWrapper, obj1);
-  DTO_FIELD(TestChild::SharedWrapper, child1);
+  DTO_FIELD(Test::PtrWrapper, obj1);
+  DTO_FIELD(TestChild::PtrWrapper, child1);
   
 };
   
@@ -90,7 +90,7 @@ bool DTOMapperTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
-  Test::SharedWrapper test1 = Test::createShared();
+  Test::PtrWrapper test1 = Test::createShared();
   
   test1->_string = "string value";
   test1->_int32 = 32;
@@ -137,9 +137,9 @@ bool DTOMapperTest::onRun(){
   test1->_list_object->pushBack(TestChild::createShared("child", "2"));
   test1->_list_object->pushBack(TestChild::createShared("child", "3"));
   
-  auto l1 = DTO::List<TestChild::SharedWrapper>::createShared();
-  auto l2 = DTO::List<TestChild::SharedWrapper>::createShared();
-  auto l3 = DTO::List<TestChild::SharedWrapper>::createShared();
+  auto l1 = DTO::List<TestChild::PtrWrapper>::createShared();
+  auto l2 = DTO::List<TestChild::PtrWrapper>::createShared();
+  auto l3 = DTO::List<TestChild::PtrWrapper>::createShared();
   
   l1->pushBack(TestChild::createShared("list_1", "item_1"));
   l1->pushBack(TestChild::createShared("list_1", "item_2"));

@@ -58,28 +58,28 @@ public:
   }
   
   virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                     const type::AbstractSharedWrapper& variant) = 0;
+                     const type::AbstractPtrWrapper& variant) = 0;
   
-  virtual type::AbstractSharedWrapper read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+  virtual type::AbstractPtrWrapper read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
                                            const type::Type* const type) = 0;
   
-  std::shared_ptr<oatpp::base::String> writeToString(const type::AbstractSharedWrapper& variant){
+  std::shared_ptr<oatpp::base::String> writeToString(const type::AbstractPtrWrapper& variant){
     auto stream = stream::ChunkedBuffer::createShared();
     write(stream, variant);
     return stream->toString();
   }
   
   template<class Class>
-  typename Class::SharedWrapper readFromCaret(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret) {
-    auto type = Class::SharedWrapper::Class::getType();
-    return oatpp::base::static_wrapper_cast<typename Class::SharedWrapper::ObjectType>(read(caret, type));
+  typename Class::PtrWrapper readFromCaret(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret) {
+    auto type = Class::PtrWrapper::Class::getType();
+    return oatpp::base::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
   }
   
   template<class Class>
-  typename Class::SharedWrapper readFromString(const oatpp::base::String::SharedWrapper& str) {
-    auto type = Class::SharedWrapper::Class::getType();
+  typename Class::PtrWrapper readFromString(const oatpp::base::String::PtrWrapper& str) {
+    auto type = Class::PtrWrapper::Class::getType();
     auto caret = oatpp::parser::ParsingCaret::createShared(str.getPtr());
-    return oatpp::base::static_wrapper_cast<typename Class::SharedWrapper::ObjectType>(read(caret, type));
+    return oatpp::base::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
   }
   
 };

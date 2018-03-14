@@ -59,7 +59,7 @@ public:
   const std::shared_ptr<http::Protocol::Headers> headers;
   const std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
   
-  base::String::SharedWrapper getHeader(const base::String::SharedWrapper& headerName) const{
+  base::String::PtrWrapper getHeader(const base::String::PtrWrapper& headerName) const{
     auto entry = headers->find(headerName);
     if(entry != nullptr) {
       return entry->getValue();
@@ -67,7 +67,7 @@ public:
     return nullptr;
   }
   
-  base::String::SharedWrapper getPathVariable(const base::String::SharedWrapper& name) const{
+  base::String::PtrWrapper getPathVariable(const base::String::PtrWrapper& name) const{
     auto entry = pathVariables->getVariable(name);
     if(entry != nullptr) {
       return entry->getValue();
@@ -88,13 +88,13 @@ public:
   }
   
   template<class Type>
-  typename Type::SharedWrapper readBodyToDTO(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+  typename Type::PtrWrapper readBodyToDTO(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));
   }
   
   template<class Type>
-  void readBodyToDTO(oatpp::base::SharedWrapper<Type>& objectWrapper,
+  void readBodyToDTO(oatpp::base::PtrWrapper<Type>& objectWrapper,
                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     objectWrapper = objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));

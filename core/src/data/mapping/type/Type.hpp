@@ -25,7 +25,7 @@
 #ifndef oatpp_data_type_Type_hpp
 #define oatpp_data_type_Type_hpp
 
-#include "../../../base/SharedWrapper.hpp"
+#include "../../../base/PtrWrapper.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -44,45 +44,45 @@ namespace __class {
 }
   
 template <class T>
-class PolymorphicWrapper : public oatpp::base::SharedWrapper<T> {
+class PolymorphicWrapper : public oatpp::base::PtrWrapper<T> {
 public:
   typedef T ObjectType;
 public:
   typedef __class::Void Class;
 public:
-  PolymorphicWrapper(const oatpp::base::SharedWrapper<T>& other, const Type* const type)
-    : oatpp::base::SharedWrapper<T>(other)
+  PolymorphicWrapper(const oatpp::base::PtrWrapper<T>& other, const Type* const type)
+    : oatpp::base::PtrWrapper<T>(other)
     , valueType(type)
   {}
   
-  PolymorphicWrapper(oatpp::base::SharedWrapper<T>&& other, const Type* const type)
-    : oatpp::base::SharedWrapper<T>(std::move(other))
+  PolymorphicWrapper(oatpp::base::PtrWrapper<T>&& other, const Type* const type)
+    : oatpp::base::PtrWrapper<T>(std::move(other))
     , valueType(type)
   {}
 public:
   
   PolymorphicWrapper()
-    : oatpp::base::SharedWrapper<T>() 
+    : oatpp::base::PtrWrapper<T>() 
     , valueType(Class::getType())
   {}
   
   PolymorphicWrapper(const Type* const type)
-    : oatpp::base::SharedWrapper<T>()
+    : oatpp::base::PtrWrapper<T>()
     , valueType(type)
   {}
   
   PolymorphicWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
-    : oatpp::base::SharedWrapper<T>(ptr)
+    : oatpp::base::PtrWrapper<T>(ptr)
     , valueType(type)
   {}
   
   PolymorphicWrapper(const PolymorphicWrapper& other)
-    : oatpp::base::SharedWrapper<T>(other)
+    : oatpp::base::PtrWrapper<T>(other)
     , valueType(other.valueType)
   {}
   
   PolymorphicWrapper(PolymorphicWrapper&& other)
-    : oatpp::base::SharedWrapper<T>(std::move(other))
+    : oatpp::base::PtrWrapper<T>(std::move(other))
     , valueType(other.valueType)
   {}
   
@@ -90,23 +90,23 @@ public:
     return PolymorphicWrapper();
   }
   
-  PolymorphicWrapper& operator=(const oatpp::base::SharedWrapper<T>& other){
-    oatpp::base::SharedWrapper<T>::operator = (other);
+  PolymorphicWrapper& operator=(const oatpp::base::PtrWrapper<T>& other){
+    oatpp::base::PtrWrapper<T>::operator = (other);
     return *this;
   }
   
-  PolymorphicWrapper& operator=(const oatpp::base::SharedWrapper<T>&& other){
-    oatpp::base::SharedWrapper<T>::operator = (std::move(other));
+  PolymorphicWrapper& operator=(const oatpp::base::PtrWrapper<T>&& other){
+    oatpp::base::PtrWrapper<T>::operator = (std::move(other));
     return *this;
   }
   
   PolymorphicWrapper& operator=(const PolymorphicWrapper<T>& other){
-    oatpp::base::SharedWrapper<T>::operator = (other);
+    oatpp::base::PtrWrapper<T>::operator = (other);
     return *this;
   }
   
   PolymorphicWrapper& operator=(const PolymorphicWrapper<T>&& other){
-    oatpp::base::SharedWrapper<T>::operator = (std::move(other));
+    oatpp::base::PtrWrapper<T>::operator = (std::move(other));
     return *this;
   }
   
@@ -119,13 +119,13 @@ public:
 };
   
 template <class T, class Clazz>
-class SharedWrapper : public PolymorphicWrapper<T>{
+class PtrWrapper : public PolymorphicWrapper<T>{
 public:
   typedef T ObjectType;
 public:
   typedef Clazz Class;
 public:
-  SharedWrapper(const std::shared_ptr<T>& ptr, const type::Type* const valueType)
+  PtrWrapper(const std::shared_ptr<T>& ptr, const type::Type* const valueType)
     : PolymorphicWrapper<T>(ptr, Class::getType())
   {
     if(Class::getType() != valueType){
@@ -134,39 +134,39 @@ public:
   }
 public:
   
-  SharedWrapper()
+  PtrWrapper()
     : PolymorphicWrapper<T>(Class::getType())
   {}
   
-  SharedWrapper(const std::shared_ptr<T>& ptr)
+  PtrWrapper(const std::shared_ptr<T>& ptr)
     : PolymorphicWrapper<T>(ptr, Class::getType())
   {}
   
-  SharedWrapper(const oatpp::base::SharedWrapper<T>& other)
+  PtrWrapper(const oatpp::base::PtrWrapper<T>& other)
     : PolymorphicWrapper<T>(other, Class::getType())
   {}
   
-  SharedWrapper(oatpp::base::SharedWrapper<T>&& other)
+  PtrWrapper(oatpp::base::PtrWrapper<T>&& other)
     : PolymorphicWrapper<T>(std::move(other), Class::getType())
   {}
   
-  static SharedWrapper empty(){
-    return SharedWrapper();
+  static PtrWrapper empty(){
+    return PtrWrapper();
   }
   
-  SharedWrapper& operator=(const oatpp::base::SharedWrapper<T>& other){
+  PtrWrapper& operator=(const oatpp::base::PtrWrapper<T>& other){
     if(this->valueType != other.valueType){
-      OATPP_LOGE("SharedWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::SharedWrapper]: Invalid class cast");
+      OATPP_LOGE("PtrWrapper", "Invalid class cast");
+      throw std::runtime_error("[oatpp::data::mapping::type::PtrWrapper]: Invalid class cast");
     }
     PolymorphicWrapper<T>::operator = (other);
     return *this;
   }
   
-  SharedWrapper& operator=(const oatpp::base::SharedWrapper<T>&& other){
+  PtrWrapper& operator=(const oatpp::base::PtrWrapper<T>&& other){
     if(this->valueType != other.valueType){
-      OATPP_LOGE("SharedWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::SharedWrapper]: Invalid class cast");
+      OATPP_LOGE("PtrWrapper", "Invalid class cast");
+      throw std::runtime_error("[oatpp::data::mapping::type::PtrWrapper]: Invalid class cast");
     }
     PolymorphicWrapper<T>::operator = (std::move(other));
     return *this;
@@ -174,11 +174,11 @@ public:
   
 };
   
-typedef PolymorphicWrapper<oatpp::base::Controllable> AbstractSharedWrapper;
+typedef PolymorphicWrapper<oatpp::base::Controllable> AbstractPtrWrapper;
   
 class Type {
 public:
-  typedef AbstractSharedWrapper (*Creator)();
+  typedef AbstractPtrWrapper (*Creator)();
 public:
   class Property; // FWD
   typedef std::unordered_map<std::string, Property*> Properties;
@@ -203,15 +203,15 @@ public:
     const char* const name;
     const Type* const type;
     
-    void set(void* object, const oatpp::base::SharedWrapper<oatpp::base::Controllable>& value) {
-      oatpp::base::SharedWrapper<oatpp::base::Controllable>* property =
-      (oatpp::base::SharedWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
+    void set(void* object, const oatpp::base::PtrWrapper<oatpp::base::Controllable>& value) {
+      oatpp::base::PtrWrapper<oatpp::base::Controllable>* property =
+      (oatpp::base::PtrWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
       *property = value;
     }
     
-    oatpp::base::SharedWrapper<oatpp::base::Controllable> get(void* object) {
-      oatpp::base::SharedWrapper<oatpp::base::Controllable>* property =
-      (oatpp::base::SharedWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
+    oatpp::base::PtrWrapper<oatpp::base::Controllable> get(void* object) {
+      oatpp::base::PtrWrapper<oatpp::base::Controllable>* property =
+      (oatpp::base::PtrWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
       return *property;
     }
     

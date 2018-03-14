@@ -30,7 +30,7 @@
 
 #include "../../../../../oatpp-lib/core/src/base/String.hpp"
 
-#include "../../../../../oatpp-lib/core/src/base/SharedWrapper.hpp"
+#include "../../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
 #include "../../../../../oatpp-lib/core/src/base/Controllable.hpp"
 #include "../../../../../oatpp-lib/core/src/base/Environment.hpp"
 
@@ -41,7 +41,7 @@ public:
   
   class MatchMap : public base::Controllable{
   public:
-    typedef oatpp::collection::ListMap<base::String::SharedWrapper, base::String::SharedWrapper> Variables;
+    typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Variables;
   protected:
     MatchMap(const std::shared_ptr<Variables>& vars, const std::shared_ptr<base::String>& urlTail)
       : variables(vars)
@@ -53,7 +53,7 @@ public:
       return std::shared_ptr<MatchMap>(new MatchMap(vars, tail));
     }
     
-    const Variables::Entry* getVariable(const base::String::SharedWrapper& key){
+    const Variables::Entry* getVariable(const base::String::PtrWrapper& key){
       return variables->find(key);
     }
     
@@ -99,11 +99,11 @@ public:
   
   static std::shared_ptr<Pattern> parse(p_char8 data, v_int32 size);
   static std::shared_ptr<Pattern> parse(const char* data);
-  static std::shared_ptr<Pattern> parse(const base::String::SharedWrapper& data);
+  static std::shared_ptr<Pattern> parse(const base::String::PtrWrapper& data);
   
   std::shared_ptr<MatchMap> match(p_char8 url, v_int32 size);
   std::shared_ptr<MatchMap> match(const char* url);
-  std::shared_ptr<MatchMap> match(const base::String::SharedWrapper& url);
+  std::shared_ptr<MatchMap> match(const base::String::PtrWrapper& url);
   
   std::shared_ptr<oatpp::base::String> toString();
   
