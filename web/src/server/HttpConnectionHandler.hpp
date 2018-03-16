@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_ConnectionHandler_hpp
-#define oatpp_web_server_ConnectionHandler_hpp
+#ifndef oatpp_web_server_HttpConnectionHandler_hpp
+#define oatpp_web_server_HttpConnectionHandler_hpp
 
 #include "./handler/ErrorHandler.hpp"
 
@@ -45,24 +45,11 @@ namespace oatpp { namespace web { namespace server {
   
 class HttpConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
 private:
-  static bool considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
-private:
   class Task : public base::Controllable, public concurrency::Runnable{
   private:
     HttpRouter* m_router;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  private:
-    
-    std::shared_ptr<protocol::http::outgoing::Response>
-    handleError(const protocol::http::Status& status, const base::String::PtrWrapper& message);
-    
-    std::shared_ptr<protocol::http::outgoing::Response>
-    processRequest(p_char8,
-                   v_int32,
-                   const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>&,
-                   bool& keepAlive);
     
   public:
     Task(HttpRouter* router,
@@ -112,4 +99,4 @@ public:
   
 }}}
 
-#endif /* oatpp_web_server_ConnectionHandler_hpp */
+#endif /* oatpp_web_server_HttpConnectionHandler_hpp */

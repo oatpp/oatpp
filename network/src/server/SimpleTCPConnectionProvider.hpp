@@ -36,18 +36,20 @@ namespace oatpp { namespace network { namespace server {
 class SimpleTCPConnectionProvider : public base::Controllable, public ServerConnectionProvider {
 private:
   oatpp::os::io::Library::v_handle m_serverHandle;
+  bool m_nonBlocking;
 private:
   oatpp::os::io::Library::v_handle instantiateServer();
 public:
-  SimpleTCPConnectionProvider(v_word16 port)
+  SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking = false)
     : ServerConnectionProvider(port)
+    , m_nonBlocking(nonBlocking)
   {
     m_serverHandle = instantiateServer();
   }
 public:
   
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port){
-    return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(port));
+  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool nonBlocking = false){
+    return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(port, nonBlocking));
   }
   
   std::shared_ptr<IOStream> getConnection() override;

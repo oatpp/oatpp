@@ -45,7 +45,6 @@ public:
   SHARED_OBJECT_POOL(Shared_Connection_Pool, Connection, 32);
 private:
   Library::v_handle m_handle;
-  void prepareGracefulDisconnect();
 public:
   Connection(Library::v_handle handle);
 public:

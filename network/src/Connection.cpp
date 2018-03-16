@@ -59,24 +59,7 @@ v_int32 Connection::shutdownWrite(){
   return ::shutdown(m_handle, SHUT_WR);
 }
 
-void Connection::prepareGracefulDisconnect(){
-  
-  if(::shutdown(m_handle, SHUT_WR) == 0){
-    
-    v_int32 times = 0;
-    while(::shutdown(m_handle, SHUT_WR) == 0){
-      times++;
-      std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-    if(times > 0){
-      OATPP_LOGD("Server", "Connection tries to shutdown = %d", times);
-    }
-    
-  }
-}
-
 void Connection::close(){
-  //prepareGracefulDisconnect(); // TODO remove this
   Library::handle_close(m_handle);
 }
 
