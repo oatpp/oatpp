@@ -33,7 +33,6 @@
 
 #include "./HttpError.hpp"
 
-#include "../../../../oatpp-lib/network/src/io/AsyncIOStream.hpp"
 #include "../../../../oatpp-lib/network/src/AsyncConnection.hpp"
 
 #include "../../../../oatpp-lib/core/test/Checker.hpp"
@@ -44,11 +43,15 @@ namespace oatpp { namespace web { namespace server {
   
 void AsyncHttpConnectionHandler::Task::run(){
   
-  //Backlog& backlog = Backlog::getInstance();
-  
+  while(true) {
+    while (m_processor.iterate()) {
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+  /*
   while(true) {
     
-    Backlog::Entry* entry = m_backLog.popFront();
+    Backlog::Entry* entry = backlog.popFront();
     if(entry != nullptr) {
       auto& state = entry->connectionState;
       auto response = HttpProcessor::processRequest(m_router, state->connection, m_errorHandler,
@@ -63,7 +66,7 @@ void AsyncHttpConnectionHandler::Task::run(){
       }
       
       if(state->keepAlive){
-        m_backLog.pushBack(entry);
+        backlog.pushBack(entry);
       } else {
         delete entry;
       }
@@ -72,26 +75,38 @@ void AsyncHttpConnectionHandler::Task::run(){
     }
     
   }
+   */
   
 }
 
 void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
+  
   auto task = m_tasks[m_taskBalancer % m_threadCount];
   
-  auto asyncConnection = oatpp::network::io::AsyncIOStream::createShared(connection, task->getIOQueue());
-  
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
-  auto state = ConnectionState::createShared();
-  state->connection = asyncConnection;
+  auto state = HttpProcessor::ConnectionState::createShared();
+  state->connection = connection;
   state->ioBuffer = ioBuffer;
-  state->outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(asyncConnection, ioBuffer);
-  state->inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(asyncConnection, ioBuffer);
+  state->outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
+  state->inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, ioBuffer);
   state->keepAlive = true;
   
-  //Backlog::getInstance().pushBack(state);
-  task->getBacklog().pushBack(state);
+  auto routine = oatpp::async::Routine::_do({
+    [this, state]{
+      return HttpProcessor::processRequestAsync(m_router.get(), m_errorHandler, state);
+    }, [] (const oatpp::async::Error& error) {
+      //OATPP_LOGD("AsyncHttpConnectionHandler", "received error");
+      if(error.error == HttpProcessor::RETURN_KEEP_ALIVE) {
+        return oatpp::async::Action::_retry();
+      }
+      return oatpp::async::Action(nullptr);
+    }
+  });
+  
+  task->getProcessor().addRoutine(routine);
   
   m_taskBalancer ++;
+  
 }
   
 }}}

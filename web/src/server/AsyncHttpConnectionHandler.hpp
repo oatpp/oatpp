@@ -32,8 +32,6 @@
 #include "../protocol/http/incoming/Request.hpp"
 #include "../protocol/http/outgoing/Response.hpp"
 
-#include "../../../../oatpp-lib/network/src/io/Queue.hpp"
-
 #include "../../../../oatpp-lib/network/src/server/Server.hpp"
 #include "../../../../oatpp-lib/network/src/Connection.hpp"
 
@@ -43,95 +41,18 @@
 #include "../../../../oatpp-lib/core/src/data/stream/StreamBufferedProxy.hpp"
 #include "../../../../oatpp-lib/core/src/data/buffer/IOBuffer.hpp"
 
+#include "../../../../oatpp-lib/core/src/async/Processor.hpp"
+
 namespace oatpp { namespace web { namespace server {
   
 class AsyncHttpConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
-private:
-  
-  class ConnectionState {
-    SHARED_OBJECT_POOL(ConnectionState_Pool, ConnectionState, 32)
-  public:
-    
-    static std::shared_ptr<ConnectionState> createShared(){
-      return ConnectionState_Pool::allocateShared();
-    }
-    
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
-    std::shared_ptr<oatpp::data::buffer::IOBuffer> ioBuffer;
-    std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> outStream;
-    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
-    bool keepAlive = true;
-    
-  };
-  
-  class Backlog {
-  public:
-    /*static Backlog& getInstance(){
-      static Backlog backlog;
-      return backlog;
-    }*/
-  public:
-    class Entry {
-    public:
-      OBJECT_POOL(AsyncHttpConnectionHandler_Backlog_Entry_Pool, Entry, 32)
-    public:
-      Entry(const std::shared_ptr<ConnectionState>& pConnectionState, Entry* pNext)
-      : connectionState(pConnectionState)
-      , next(pNext)
-      {}
-      std::shared_ptr<ConnectionState> connectionState;
-      Entry* next;
-    };
-  private:
-    oatpp::concurrency::SpinLock::Atom m_atom;
-    Entry* m_first;
-    Entry* m_last;
-  public:
-    
-    Backlog()
-    : m_atom(false)
-    , m_first(nullptr)
-    , m_last(nullptr)
-    {}
-    
-    Entry* popFront() {
-      oatpp::concurrency::SpinLock lock(m_atom);
-      auto result = m_first;
-      if(m_first != nullptr) {
-        m_first = m_first->next;
-        if(m_first == nullptr){
-          m_last = nullptr;
-        }
-      }
-      return result;
-    }
-    
-    void pushBack(const std::shared_ptr<ConnectionState>& connectionState) {
-      pushBack(new Entry(connectionState, nullptr));
-    }
-    
-    void pushBack(Entry* entry) {
-      oatpp::concurrency::SpinLock lock(m_atom);
-      entry->next = nullptr;
-      if(m_last != nullptr) {
-        m_last->next = entry;
-        m_last = entry;
-      } else {
-        m_first = entry;
-        m_last = entry;
-      }
-    }
-    
-  };
-  
 private:
   
   class Task : public base::Controllable, public concurrency::Runnable{
   private:
     HttpRouter* m_router;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    oatpp::network::io::Queue m_ioQueue;
-    Backlog m_backLog;
+    oatpp::async::Processor m_processor;
   public:
     Task(HttpRouter* router,
          const std::shared_ptr<handler::ErrorHandler>& errorHandler)
@@ -147,12 +68,8 @@ private:
     
     void run() override;
     
-    oatpp::network::io::Queue& getIOQueue(){
-      return m_ioQueue;
-    }
-    
-    Backlog& getBacklog(){
-      return m_backLog;
+    oatpp::async::Processor& getProcessor(){
+      return m_processor;
     }
     
   };

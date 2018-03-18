@@ -56,4 +56,36 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream){
   
 }
   
+oatpp::async::Action Response::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
+  
+  if(body){
+    body->declareHeaders(headers);
+  } else {
+    headers->put(Header::CONTENT_LENGTH, "0");
+  }
+  
+  stream->write("HTTP/1.1 ", 9);
+  stream->writeAsString(status.code);
+  stream->write(" ", 1);
+  stream->OutputStream::write(status.description);
+  stream->write("\r\n", 2);
+  
+  auto curr = headers->getFirstEntry();
+  while(curr != nullptr){
+    stream->write(curr->getKey()->getData(), curr->getKey()->getSize());
+    stream->write(": ", 2);
+    stream->write(curr->getValue()->getData(), curr->getValue()->getSize());
+    stream->write("\r\n", 2);
+    curr = curr->getNext();
+  }
+  
+  stream->write("\r\n", 2);
+  if(body) {
+    body->writeToStream(stream);
+  }
+  
+  return nullptr; // TODO make Async
+  
+}
+  
 }}}}}

@@ -55,8 +55,8 @@ public:
   
   template<class Type>
   static typename Type::PtrWrapper decodeToDTO(const std::shared_ptr<Protocol::Headers>& headers,
-                                                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper){
+                                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+                                               const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper){
     return objectMapper->readFromString<Type>(decodeToString(headers, bodyStream));
   }
   

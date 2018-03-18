@@ -68,6 +68,10 @@ public:
   
 class IOStream : public InputStream, public OutputStream {
 public:
+  static os::io::Library::v_size ERROR_NOTHING_TO_READ;
+  static os::io::Library::v_size ERROR_CLOSED;
+  static os::io::Library::v_size ERROR_TRY_AGAIN;
+public:
   typedef os::io::Library::v_size v_size;
 };
 
