@@ -174,21 +174,14 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
     
     [state] {
       
-      //static std::atomic<v_int32> maxRetries(0);
-      
       state->readCount = state->connectionState->connection->read(state->ioBuffer, state->ioBufferSize);
       if(state->readCount > 0) {
         return oatpp::async::Action(nullptr);
       } else if(state->readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-        /*
-        state->retries ++;
-        if(state->retries > maxRetries){
-          maxRetries = state->retries;
-          OATPP_LOGD("Retry", "max=%d", maxRetries.load());
-        }*/
         return oatpp::async::Action::_wait_retry();
       }
       return oatpp::async::Action::_abort();
+      
     }, nullptr
     
   })._then({
@@ -216,15 +209,17 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
     }, nullptr
     
   })._then({
+    
     [state] {
-      //OATPP_LOGD("Connection Processor", "Connection finished");
+
       if(state->connectionState->keepAlive){
-        //OATPP_LOGD("CP", "try-keep-alive");
-        oatpp::async::Error error {RETURN_KEEP_ALIVE, false};
+        oatpp::async::Error error { RETURN_KEEP_ALIVE, false };
         return oatpp::async::Action(error);
       }
       return oatpp::async::Action(nullptr);
+      
     }, nullptr
+    
   });
   
 }

@@ -48,34 +48,6 @@ void AsyncHttpConnectionHandler::Task::run(){
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
-  /*
-  while(true) {
-    
-    Backlog::Entry* entry = backlog.popFront();
-    if(entry != nullptr) {
-      auto& state = entry->connectionState;
-      auto response = HttpProcessor::processRequest(m_router, state->connection, m_errorHandler,
-                                                    state->ioBuffer->getData(),
-                                                    state->ioBuffer->getSize(),
-                                                    state->inStream,
-                                                    state->keepAlive);
-      if(response) {
-        state->outStream->setBufferPosition(0, 0);
-        response->send(state->outStream);
-        state->outStream->flush();
-      }
-      
-      if(state->keepAlive){
-        backlog.pushBack(entry);
-      } else {
-        delete entry;
-      }
-    } else {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    
-  }
-   */
   
 }
 
@@ -95,7 +67,6 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
     [this, state]{
       return HttpProcessor::processRequestAsync(m_router.get(), m_errorHandler, state);
     }, [] (const oatpp::async::Error& error) {
-      //OATPP_LOGD("AsyncHttpConnectionHandler", "received error");
       if(error.error == HttpProcessor::RETURN_KEEP_ALIVE) {
         return oatpp::async::Action::_repeat();
       }
