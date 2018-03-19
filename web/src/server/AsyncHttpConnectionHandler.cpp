@@ -97,7 +97,7 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
     }, [] (const oatpp::async::Error& error) {
       //OATPP_LOGD("AsyncHttpConnectionHandler", "received error");
       if(error.error == HttpProcessor::RETURN_KEEP_ALIVE) {
-        return oatpp::async::Action::_retry();
+        return oatpp::async::Action::_repeat();
       }
       return oatpp::async::Action(nullptr);
     }

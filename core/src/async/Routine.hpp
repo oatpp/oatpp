@@ -18,6 +18,7 @@
 namespace oatpp { namespace async {
   
 class Action; // FWD
+class Routine; // FWD
   
 struct Error {
 public:
@@ -34,8 +35,69 @@ public:
   ErrorHandler errorHandler;
 };
   
+class RoutineBuilder {
+  friend Action;
+  friend Processor;
+private:
+  mutable Routine* m_routine;
+public:
+  
+  RoutineBuilder();
+  RoutineBuilder(const RoutineBuilder& other);
+  
+  ~RoutineBuilder();
+  
+  RoutineBuilder& _then(const Block& block);
+  
+};
+  
+class Action {
+  friend Processor;
+public:
+  static const v_int32 TYPE_NONE;
+  static const v_int32 TYPE_REPEAT;
+  static const v_int32 TYPE_WAIT_RETRY;
+  static const v_int32 TYPE_RETURN;
+  static const v_int32 TYPE_ABORT;
+  static const v_int32 TYPE_ERROR;
+  static const v_int32 TYPE_ROUTINE;
+public:
+  static Action& _repeat();
+  static Action& _wait_retry();
+  static Action& _return();
+  static Action& _abort();
+private:
+  void null(){
+    m_type = TYPE_NONE;
+    m_routine = nullptr;
+  }
+private:
+  v_int32 m_type;
+  Error m_error;
+  Routine* m_routine;
+private:
+  Action(v_int32 type);
+public:
+  Action();
+  Action(const Error& error);
+  Action(const RoutineBuilder& routine);
+  Action(std::nullptr_t nullp);
+  
+  ~Action();
+  
+  Error& getError();
+  bool isErrorAction();
+  v_int32 getType();
+  bool isNone() {
+    return m_type == TYPE_NONE;
+  }
+  
+};
+  
 class Routine {
   friend Processor;
+public:
+  typedef RoutineBuilder Builder;
 private:
   Routine* m_parent;
 public:
@@ -45,116 +107,14 @@ public:
   {}
   
   Stack<Block> blocks;
-  
-public:
-  
-  class Builder {
-    friend Action;
-    friend Processor;
-  private:
-    mutable Routine* m_routine;
-  public:
-    
-    Builder()
-      : m_routine(new Routine())
-    {}
-    
-    Builder(const Builder& other)
-      : m_routine(other.m_routine)
-    {
-      other.m_routine = nullptr;
-    }
-    
-    ~Builder() {
-      if(m_routine != nullptr) {
-        delete m_routine;
-      }
-    }
-    
-    Builder& _then(const Block& block){
-      m_routine->blocks.pushBack(block);
-      return *this;
-    }
-    
-  };
-  
+  Action pendingAction;
+
 public:
   
   static Builder _do(const Block& block){
     Builder builder;
     builder._then(block);
     return builder;
-  }
-  
-};
-  
-class Action {
-  friend Processor;
-public:
-  static const v_int32 TYPE_RETRY;
-  static const v_int32 TYPE_RETURN;
-  static const v_int32 TYPE_ABORT;
-  static const v_int32 TYPE_ERROR;
-  static const v_int32 TYPE_ROUTINE;
-public:
-  static Action& _retry() {
-    static Action a(TYPE_RETRY);
-    return a;
-  }
-  static Action& _return(){
-    static Action a(TYPE_RETURN);
-    return a;
-  }
-  static Action& _abort(){
-    static Action a(TYPE_ABORT);
-    return a;
-  }
-private:
-  v_int32 m_type;
-  Error m_error;
-  Routine* m_routine;
-private:
-  Action(v_int32 type)
-    : m_type(type)
-  {}
-public:
-  
-  Action(const Error& error)
-    : m_type (TYPE_ERROR)
-    , m_error(error)
-    , m_routine(nullptr)
-  {}
-  
-  Action(const Routine::Builder& routine)
-    : m_type(TYPE_ROUTINE)
-    , m_error({nullptr, false})
-    , m_routine(routine.m_routine)
-  {
-    routine.m_routine = nullptr;
-  }
-  
-  Action(std::nullptr_t nullp)
-    : m_type(TYPE_ROUTINE)
-    , m_error({nullptr, false})
-    , m_routine(new Routine())
-  {}
-  
-  ~Action() {
-    if(m_routine != nullptr){
-      delete m_routine;
-    }
-  }
-  
-  Error& getError(){
-    return m_error;
-  }
-  
-  bool isErrorAction(){
-    return m_type == TYPE_ERROR;
-  }
-  
-  v_int32 getType(){
-    return m_type;
   }
   
 };

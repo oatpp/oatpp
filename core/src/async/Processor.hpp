@@ -37,12 +37,16 @@ private:
     oatpp::concurrency::SpinLock::Atom m_atom;
     Entry* m_first;
     Entry* m_last;
+    v_int32 m_count;
+    v_int32 m_max;
   public:
     
     Queue()
       : m_atom(false)
       , m_first(nullptr)
       , m_last(nullptr)
+      , m_count(0)
+      , m_max(0)
     {}
     
     Entry* peekFront() {
@@ -57,6 +61,7 @@ private:
         if(m_first == nullptr) {
           m_last = nullptr;
         }
+        m_count --;
       }
       return result;
     }
@@ -72,6 +77,7 @@ private:
       if(m_last == nullptr) {
         m_last = entry;
       }
+      m_count ++;
     }
     
     void pushBack(Routine* routine) {
@@ -88,6 +94,32 @@ private:
         m_first = entry;
         m_last = entry;
       }
+      m_count ++;
+      if(m_count > m_max) {
+        m_max = m_count;
+        //OATPP_LOGD("queue", "size=%d", m_max);
+      }
+    }
+    
+    v_int32 getCount(){
+      return m_count;
+    }
+    
+    static void moveEntryToQueue(Queue& from, Queue& to, Queue::Entry* curr, Queue::Entry* prev){
+      //OATPP_LOGD("proc", "moved to fast");
+      if(prev == nullptr) {
+        to.pushFront(from.popFront());
+      } else if(curr->next == nullptr) {
+        to.pushBack(curr);
+        from.m_last = prev;
+        prev->next = nullptr;
+        from.m_count --;
+      } else {
+        prev->next = curr->next;
+        to.pushBack(curr);
+        from.m_count --;
+      }
+      
     }
     
   };
@@ -120,8 +152,11 @@ private:
   }
   
   void doAction(Action& a){
-    if(a.getType() == Action::TYPE_RETRY) {
+    if(a.getType() == Action::TYPE_REPEAT) {
       m_queue.pushBack(m_queue.popFront());
+      return;
+    } else if(a.getType() == Action::TYPE_WAIT_RETRY) {
+      m_queueSlow.pushBack(m_queue.popFront());
       return;
     } else if(a.getType() == Action::TYPE_RETURN) {
       auto entry = m_queue.popFront();
@@ -184,10 +219,70 @@ private:
     }
   }
   
+  
+  
+  bool auditQueueSlow(){
+    
+    m_auditTimer = 0;
+    
+    Queue::Entry* curr = m_queueSlow.peekFront();
+    Queue::Entry* prev = nullptr;
+    bool hasActions = false;
+    while (curr != nullptr) {
+      
+      auto& block = curr->routine->blocks.peek();
+      
+      try{
+        Action action = block.function();
+        if(action.getType() != Action::TYPE_WAIT_RETRY){
+          curr->routine->pendingAction = action;
+          action.null();
+          Queue::moveEntryToQueue(m_queueSlow, m_queue, curr, prev);
+          hasActions = true;
+          if(prev != nullptr) {
+            curr = prev;
+          } else {
+            curr = m_queueSlow.peekFront();
+          }
+        }
+      } catch(...) {
+        Error error {"Unknown", true };
+        curr->routine->pendingAction = error;
+        Queue::moveEntryToQueue(m_queueSlow, m_queue, curr, prev);
+        hasActions = true;
+        if(prev != nullptr) {
+          curr = prev;
+        } else {
+          curr = m_queueSlow.peekFront();
+        }
+      }
+      
+      prev = curr;
+      if(curr != nullptr) {
+        curr = curr->next;
+      }
+    }
+    
+    return hasActions;
+    
+  }
+  
+  void checkAudit(){
+    m_auditTimer ++;
+    if(m_auditTimer > 100) {
+      auditQueueSlow();
+    }
+  }
+  
 private:
   Queue m_queue;
-  
+  Queue m_queueSlow;
+  v_int32 m_auditTimer; // in cycles
 public:
+  
+  Processor()
+    : m_auditTimer(0)
+  {}
   
   void addRoutine(const Routine::Builder& routine){
     m_queue.pushBack(routine.m_routine);
@@ -202,6 +297,19 @@ public:
       auto r = entry->routine;
       if(r->blocks.isEmpty()){
         returnFromCurrentRoutine();
+        checkAudit();
+        return true;
+      }
+      
+      if(!r->pendingAction.isNone()) {
+        Action action = r->pendingAction;
+        r->pendingAction.null();
+        if(action.isErrorAction()){
+          propagateError(action.getError());
+        } else {
+          doAction(action);
+        }
+        checkAudit();
         return true;
       }
       
@@ -218,9 +326,13 @@ public:
         Error error {"Unknown", true };
         propagateError(error);
       }
+      
+      checkAudit();
       return true;
+      
     }
-    return false;
+    
+    return auditQueueSlow();
     
   }
   

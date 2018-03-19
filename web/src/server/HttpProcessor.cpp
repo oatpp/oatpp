@@ -159,11 +159,13 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
       : connectionState(pConnectionState)
       , ioBuffer(pConnectionState->ioBuffer->getData())
       , ioBufferSize(pConnectionState->ioBuffer->getSize())
+      , retries(0)
     {}
     const std::shared_ptr<ConnectionState>& connectionState;
     void* ioBuffer;
     v_int32 ioBufferSize;
     oatpp::os::io::Library::v_size readCount;
+    v_int32 retries;
   };
   
   auto state = std::make_shared<LocaleState>(connectionState);
@@ -172,12 +174,19 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
     
     [state] {
       
+      //static std::atomic<v_int32> maxRetries(0);
+      
       state->readCount = state->connectionState->connection->read(state->ioBuffer, state->ioBufferSize);
       if(state->readCount > 0) {
-        //OATPP_LOGD("FR", "line=%s", (const char*) state->ioBuffer);
         return oatpp::async::Action(nullptr);
       } else if(state->readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-        return oatpp::async::Action::_retry();
+        /*
+        state->retries ++;
+        if(state->retries > maxRetries){
+          maxRetries = state->retries;
+          OATPP_LOGD("Retry", "max=%d", maxRetries.load());
+        }*/
+        return oatpp::async::Action::_wait_retry();
       }
       return oatpp::async::Action::_abort();
     }, nullptr
