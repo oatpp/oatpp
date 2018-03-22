@@ -27,6 +27,7 @@
 
 #include "./Stream.hpp"
 #include "../buffer/IOBuffer.hpp"
+#include "../../async/Routine.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
   
@@ -78,6 +79,7 @@ public:
   
   os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
   os::io::Library::v_size flush();
+  oatpp::async::Action flushAsync();
   
   void setBufferPosition(v_bufferSize pos, v_bufferSize posEnd){
     m_pos = pos;

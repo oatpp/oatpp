@@ -55,6 +55,10 @@ Action& Action::_abort(){
   static Action a(TYPE_ABORT);
   return a;
 }
+Action& Action::_continue(){
+  static Action a(nullptr);
+  return a;
+}
 
 Action::Action(v_int32 type)
   : m_type(type)
@@ -83,7 +87,7 @@ Action::Action(const Routine::Builder& routine)
 Action::Action(std::nullptr_t nullp)
   : m_type(TYPE_ROUTINE)
   , m_error({nullptr, false})
-  , m_routine(new Routine())
+  , m_routine(nullptr)
 {}
   
 Action::~Action() {

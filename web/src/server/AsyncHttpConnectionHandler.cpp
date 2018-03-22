@@ -70,7 +70,7 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
       if(error.error == HttpProcessor::RETURN_KEEP_ALIVE) {
         return oatpp::async::Action::_repeat();
       }
-      return oatpp::async::Action(nullptr);
+      return oatpp::async::Action::_abort();
     }
   });
   

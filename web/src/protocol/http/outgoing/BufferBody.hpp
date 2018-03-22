@@ -57,6 +57,16 @@ public:
     stream->write(m_buffer);
   }
   
+  Action writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override {
+    auto readCount = stream->write(m_buffer);
+    if(readCount > 0) {
+      return oatpp::async::Action::_continue();
+    } else if(readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+      return oatpp::async::Action::_wait_retry();
+    }
+    return oatpp::async::Action::_abort();
+  }
+  
 };
   
 }}}}}

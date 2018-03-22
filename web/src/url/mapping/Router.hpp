@@ -54,11 +54,11 @@ public:
       , matchMap(pMatchMap)
     {}
     
-    ReturnType processUrl(const Param& param){
+    ReturnType processUrl(const Param& param) const {
       return m_subscriber->processUrl(param);
     }
     
-    bool isNull(){
+    bool isNull() const {
       return m_subscriber == nullptr;
     }
     

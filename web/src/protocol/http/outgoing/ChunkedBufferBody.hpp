@@ -35,6 +35,8 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 class ChunkedBufferBody : public oatpp::base::Controllable, public Body {
 public:
+  static const char* ERROR_FAILED_TO_WRITE_DATA;
+public:
   OBJECT_POOL(Http_Outgoing_ChunkedBufferBody_Pool, ChunkedBufferBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_ChunkedBufferBody_Pool, ChunkedBufferBody, 32)
 protected:
@@ -82,6 +84,82 @@ public:
     } else {
       m_buffer->flushToStream(stream);
     }
+  }
+  
+  Action writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override {
+    if(m_chunked){
+
+      struct LocalState {
+        LocalState(const std::shared_ptr<OutputStream>& pStream,
+                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks>& pChunks,
+                   oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* pCurr)
+        : stream(pStream)
+        , chunks(pChunks)
+        , curr(pCurr)
+        , whileState(0)
+        {}
+        std::shared_ptr<OutputStream> stream;
+        std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> chunks;
+        oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* curr;
+        v_int32 whileState; ///< introduced for optimization only
+      };
+      
+      auto chunks = m_buffer->getChunks();
+      auto state = std::make_shared<LocalState>(stream, chunks, chunks->getFirstNode());
+      
+      return oatpp::async::Routine::_do({
+        [state] {
+          
+          auto curr = state->curr;
+          
+          if(curr == nullptr) {
+            state->whileState = 3;
+          }
+          
+          if(state->whileState == 0) {
+            auto res = state->stream->write(oatpp::utils::conversion::primitiveToStr(curr->getData()->size, "%X\r\n"));
+            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+              return oatpp::async::Action::_wait_retry();
+            } else if(res < 1) {
+              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
+            }
+            state->whileState = 1;
+          } else if(state->whileState == 1) {
+            auto res = state->stream->write(curr->getData()->data, curr->getData()->size);
+            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+              return oatpp::async::Action::_wait_retry();
+            } else if(res < curr->getData()->size) {
+              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
+            }
+            state->whileState = 2;
+          } else if(state->whileState == 2) {
+            auto res = state->stream->write("\r\n", 2);
+            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+              return oatpp::async::Action::_wait_retry();
+            } else if(res < 2) {
+              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
+            }
+            state->whileState = 3;
+          } else if(state->whileState == 3) {
+            auto res = state->stream->write("0\r\n\r\n", 5);
+            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+              return oatpp::async::Action::_wait_retry();
+            } else if(res < 5) {
+              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
+            }
+            return oatpp::async::Action::_continue();
+          }
+          
+          state->curr = curr->getNext();
+          return oatpp::async::Action::_repeat();
+          
+        }, nullptr
+      });
+      
+    } else {
+      return m_buffer->flushToStreamAsync(stream);
+    }
+    
   }
   
 };

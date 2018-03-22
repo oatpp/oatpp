@@ -53,6 +53,7 @@ private:
 private:
   
   void abortCurrentRoutine();
+  Routine* returnFromRoutine(Routine* from);
   void returnFromCurrentRoutine();
   void doAction(Action& a);
   void propagateError(Error& error);

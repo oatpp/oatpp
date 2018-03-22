@@ -27,16 +27,29 @@
 
 #include "../../../../../../oatpp-lib/core/src/data/stream/Stream.hpp"
 #include "../../../../../../oatpp-lib/core/src/collection/ListMap.hpp"
+#include "../../../../../../oatpp-lib/core/src/async/Routine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 class Body {
 protected:
+  typedef oatpp::async::Action Action;
+protected:
   typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
   virtual void declareHeaders(const std::shared_ptr<Headers>& headers) = 0;
+  
+  /**
+   *  Do not call this method if stream::write is non blocking!
+   *  For fast (not network) BLOCKING streams only!!!
+   */
   virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
+  
+  /**
+   *  For NON blocking streams only!!!
+   */
+  virtual Action writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
 };
   
 }}}}}

@@ -90,14 +90,30 @@ void Processor::abortCurrentRoutine(){
   delete entry;
 }
 
+Routine* Processor::returnFromRoutine(Routine* from) {
+  
+  auto curr = from->m_parent;
+  delete from;
+  while (curr != nullptr) {
+    if(curr->blocks.isEmpty()){
+      auto parent = curr->m_parent;
+      delete curr;
+      curr = parent;
+    } else {
+      return curr;
+    }
+  }
+  
+  return nullptr;
+  
+}
+  
 void Processor::returnFromCurrentRoutine(){
   //OATPP_LOGD("R", "_return");
   auto entry = m_queue.popFront();
-  auto routine = entry->routine->m_parent;
-  delete entry->routine;
-  if(routine != nullptr) {
-    entry->routine = routine;
-    routine->blocks.popNoData();
+  entry->routine = returnFromRoutine(entry->routine);
+  if(entry->routine != nullptr) {
+    entry->routine->blocks.popNoData();
     m_queue.pushBack(entry);
   } else {
     delete entry;
@@ -107,25 +123,15 @@ void Processor::returnFromCurrentRoutine(){
 void Processor::doAction(Action& a){
   if(a.getType() == Action::TYPE_REPEAT) {
     m_queue.pushBack(m_queue.popFront());
-    return;
   } else if(a.getType() == Action::TYPE_WAIT_RETRY) {
     m_queueSlow.pushBack(m_queue.popFront());
-    return;
   } else if(a.getType() == Action::TYPE_RETURN) {
-    auto entry = m_queue.popFront();
-    auto routine = entry->routine->m_parent;
-    delete entry->routine;
-    delete entry;
-    if(routine != nullptr) {
-      m_queue.pushBack(routine);
-    }
-    return;
+    returnFromCurrentRoutine();
   } else if(a.getType() == Action::TYPE_ABORT){
     abortCurrentRoutine();
-    return;
   } else if(a.getType() == Action::TYPE_ROUTINE) {
     auto entry = m_queue.popFront();
-    if(!a.m_routine->blocks.isEmpty()){
+    if(a.m_routine != nullptr && !a.m_routine->blocks.isEmpty()){
       Routine* r = a.m_routine;
       a.m_routine = nullptr;
       r->m_parent = entry->routine;
@@ -134,9 +140,9 @@ void Processor::doAction(Action& a){
       entry->routine->blocks.popNoData();
     }
     m_queue.pushBack(entry);
-    return;
+  } else {
+    throw std::runtime_error("Invalid action type");
   }
-  throw std::runtime_error("Invalid action type");
 }
 
 void Processor::propagateError(Error& error){

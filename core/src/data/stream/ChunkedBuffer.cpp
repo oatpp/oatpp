@@ -26,6 +26,8 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
+const char* ChunkedBuffer::ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA";
+  
 const char* const ChunkedBuffer::CHUNK_POOL_NAME = "ChunkedBuffer_Chunk_Pool";
 
 const os::io::Library::v_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
@@ -206,6 +208,64 @@ bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
     curr = curr->next;
   }
   return true;
+}
+  
+oatpp::async::Action ChunkedBuffer::flushToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
+  
+  struct LocalState{
+    LocalState(const std::shared_ptr<OutputStream> pStream,
+               ChunkEntry* pCurr,
+               os::io::Library::v_size pPosition)
+      : stream(pStream)
+      , curr(pCurr)
+      , position(pPosition)
+    {}
+    const std::shared_ptr<OutputStream> stream;
+    ChunkEntry* curr;
+    os::io::Library::v_size position;
+  };
+  
+  auto state = std::make_shared<LocalState>(stream, m_firstEntry, m_size);
+  
+  return oatpp::async::Routine::_do({
+    
+    [state] {
+      
+      if(state->curr == nullptr) {
+        return oatpp::async::Action::_return();
+      }
+      
+      if(state->position > CHUNK_ENTRY_SIZE) {
+        auto res = state->stream->write(state->curr->chunk, CHUNK_ENTRY_SIZE);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+          return oatpp::async::Action::_wait_retry();
+        } else if(res != CHUNK_ENTRY_SIZE) {
+          oatpp::async::Error e(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+          return oatpp::async::Action(e);
+        }
+        state->position -= res;
+      } else {
+        auto res = state->stream->write(state->curr->chunk, state->position);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+          return oatpp::async::Action::_wait_retry();
+        } else if(res != state->position) {
+          oatpp::async::Error e(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+          return oatpp::async::Action(e);
+        }
+        state->position -= res;
+      }
+      
+      state->curr = state->curr->next;
+      
+      if(state->curr == nullptr) {
+        return oatpp::async::Action::_return();
+      }
+      return oatpp::async::Action::_repeat();
+    }
+    , nullptr
+    
+  });
+  
 }
   
 std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {

@@ -22,8 +22,20 @@ class Routine; // FWD
   
 struct Error {
 public:
+  
+  Error()
+    : error(nullptr)
+    , isExceptionThrown(false)
+  {}
+  
+  Error(const char* pError, bool isException = false)
+    : error(pError)
+    , isExceptionThrown(isException)
+  {}
+  
   const char* error;
   bool isExceptionThrown;
+  
 };
   
 struct Block {
@@ -53,6 +65,7 @@ public:
   
 class Action {
   friend Processor;
+  friend Routine;
 public:
   static const v_int32 TYPE_NONE;
   static const v_int32 TYPE_REPEAT;
@@ -66,6 +79,7 @@ public:
   static Action& _wait_retry();
   static Action& _return();
   static Action& _abort();
+  static Action& _continue();
 private:
   void null(){
     m_type = TYPE_NONE;
@@ -77,8 +91,9 @@ private:
   Routine* m_routine;
 private:
   Action(v_int32 type);
-public:
   Action();
+public:
+  
   Action(const Error& error);
   Action(const RoutineBuilder& routine);
   Action(std::nullptr_t nullp);

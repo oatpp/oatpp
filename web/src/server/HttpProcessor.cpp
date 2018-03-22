@@ -98,54 +98,104 @@ HttpProcessor::processRequest(HttpRouter* router,
   
 }
 
-std::shared_ptr<protocol::http::outgoing::Response>
-HttpProcessor::getResponse(HttpRouter* router,
-                           oatpp::os::io::Library::v_size firstReadCount,
-                           const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                           const std::shared_ptr<ConnectionState>& connectionState) {
+oatpp::async::Action
+HttpProcessor::getResponseAsync(HttpRouter* router,
+                                oatpp::os::io::Library::v_size firstReadCount,
+                                const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                                const std::shared_ptr<ConnectionState>& connectionState,
+                                std::shared_ptr<protocol::http::outgoing::Response>& response) {
   
-  oatpp::parser::ParsingCaret caret((p_char8) connectionState->ioBuffer->getData(), connectionState->ioBuffer->getSize());
-  auto line = protocol::http::Protocol::parseRequestStartingLine(caret);
+  struct LocalState {
+    LocalState(HttpRouter* pRouter,
+               oatpp::os::io::Library::v_size pFirstReadCount,
+               std::shared_ptr<protocol::http::outgoing::Response>& pResponse)
+      : router(pRouter)
+      , firstReadCount(pFirstReadCount)
+      , response(pResponse)
+    {}
+    HttpRouter* router;
+    oatpp::os::io::Library::v_size firstReadCount;
+    std::shared_ptr<protocol::http::outgoing::Response>& response;
+  };
   
-  if(!line){
-    return errorHandler->handleError(protocol::http::Status::CODE_400, "Can't read starting line");
-  }
+  auto state = std::make_shared<LocalState>(router, firstReadCount, response);
   
-  auto route = router->getRoute(line->method, line->path);
+  return oatpp::async::Routine::_do({
+    
+    [state, errorHandler, connectionState] {
+      
+      oatpp::parser::ParsingCaret caret((p_char8) connectionState->ioBuffer->getData(), connectionState->ioBuffer->getSize());
+      auto line = protocol::http::Protocol::parseRequestStartingLine(caret);
+      
+      if(!line){
+        state->response = errorHandler->handleError(protocol::http::Status::CODE_400, "Can't read starting line");
+        return oatpp::async::Action::_return();
+      }
+      
+      auto route = state->router->getRoute(line->method, line->path);
+      
+      if(route.isNull()) {
+        state->response = errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+        return oatpp::async::Action::_return();
+      }
+      
+      oatpp::web::protocol::http::Status error;
+      auto headers = protocol::http::Protocol::parseHeaders(caret, error);
+      
+      if(error.code != 0){
+        state->response = errorHandler->handleError(error, " Can't parse headers");
+        return oatpp::async::Action::_return();
+      }
+      
+      auto bodyStream = connectionState->inStream;
+      bodyStream->setBufferPosition(caret.getPosition(), (v_int32) state->firstReadCount);
+      
+      auto request = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream);
+      
+      return oatpp::async::Action(oatpp::async::Routine::_do({
+        
+        [state, request, route] {
+          
+          state->response = route.processUrl(request); // TODO // Should be async here
+          return oatpp::async::Action::_continue();
+          
+        }, [state, errorHandler] (const oatpp::async::Error& error) {
+          
+          if(error.isExceptionThrown) {
+            try{
+              throw;
+            } catch (HttpError& error) {
+              state->response = errorHandler->handleError(error.getStatus(), error.getMessage());
+            } catch (std::exception& error) {
+              state->response = errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+            } catch (...) {
+              state->response = errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+            }
+          } else {
+            state->response = errorHandler->handleError(protocol::http::Status::CODE_500, error.error);
+          }
+          
+          return oatpp::async::Action::_continue();
+        }
+        
+      })._then({
+        
+        [state, connectionState, request] {
+          state->response->headers->putIfNotExists(protocol::http::Header::SERVER,
+                                                   protocol::http::Header::Value::SERVER);
+          
+          connectionState->keepAlive = HttpProcessor::considerConnectionKeepAlive(request, state->response);
+          return oatpp::async::Action::_return();
+        }, nullptr
+        
+      }));
+      
+    }, nullptr
+    
+  });
   
-  if(!route.isNull()) {
-    
-    oatpp::web::protocol::http::Status error;
-    auto headers = protocol::http::Protocol::parseHeaders(caret, error);
-    
-    if(error.code != 0){
-      return errorHandler->handleError(error, " Can't parse headers");
-    }
-    
-    auto bodyStream = connectionState->inStream;
-    bodyStream->setBufferPosition(caret.getPosition(), (v_int32) firstReadCount);
-    
-    auto request = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream);
-    std::shared_ptr<protocol::http::outgoing::Response> response;
-    try{
-      response = route.processUrl(request);
-    } catch (HttpError& error) {
-      return errorHandler->handleError(error.getStatus(), error.getMessage());
-    } catch (std::exception& error) {
-      return errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    } catch (...) {
-      return errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
-    }
-    
-    response->headers->putIfNotExists(protocol::http::Header::SERVER,
-                                      protocol::http::Header::Value::SERVER);
-    
-    connectionState->keepAlive = HttpProcessor::considerConnectionKeepAlive(request, response);
-    return response;
-    
-  } else {
-    return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-  }
+  
+  
 }
   
 oatpp::async::Action
@@ -159,13 +209,13 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
       : connectionState(pConnectionState)
       , ioBuffer(pConnectionState->ioBuffer->getData())
       , ioBufferSize(pConnectionState->ioBuffer->getSize())
-      , retries(0)
+      , response(nullptr)
     {}
     const std::shared_ptr<ConnectionState>& connectionState;
     void* ioBuffer;
     v_int32 ioBufferSize;
     oatpp::os::io::Library::v_size readCount;
-    v_int32 retries;
+    std::shared_ptr<protocol::http::outgoing::Response> response;
   };
   
   auto state = std::make_shared<LocaleState>(connectionState);
@@ -176,7 +226,7 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
       
       state->readCount = state->connectionState->connection->read(state->ioBuffer, state->ioBufferSize);
       if(state->readCount > 0) {
-        return oatpp::async::Action(nullptr);
+        return oatpp::async::Action::_continue();
       } else if(state->readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
         return oatpp::async::Action::_wait_retry();
       }
@@ -188,20 +238,23 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
     
     [state, router, errorHandler] {
       
-      auto response = getResponse(router, state->readCount, errorHandler, state->connectionState);
-      
       return oatpp::async::Routine::_do({
         
-        [state, response] {
-          state->connectionState->outStream->setBufferPosition(0, 0);
-          return response->sendAsync(state->connectionState->outStream);
+        [state, router, errorHandler] {
+          return getResponseAsync(router, state->readCount, errorHandler, state->connectionState, state->response);
         }, nullptr
         
       })._then({
         
         [state] {
-          state->connectionState->outStream->flush();
-          return nullptr;
+          state->connectionState->outStream->setBufferPosition(0, 0);
+          return state->response->sendAsync(state->connectionState->outStream);
+        }, nullptr
+        
+      })._then({
+        
+        [state] {
+          return state->connectionState->outStream->flushAsync();
         }, nullptr
         
       });
@@ -213,10 +266,10 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
     [state] {
 
       if(state->connectionState->keepAlive){
-        oatpp::async::Error error { RETURN_KEEP_ALIVE, false };
+        oatpp::async::Error error(RETURN_KEEP_ALIVE);
         return oatpp::async::Action(error);
       }
-      return oatpp::async::Action(nullptr);
+      return oatpp::async::Action::_return();
       
     }, nullptr
     

@@ -26,6 +26,7 @@ class HttpProcessor {
 public:
   static const char* RETURN_KEEP_ALIVE;
 public:
+  
   class ConnectionState {
   public:
     SHARED_OBJECT_POOL(ConnectionState_Pool, ConnectionState, 32)
@@ -45,11 +46,12 @@ public:
   
 private:
   
-  static std::shared_ptr<protocol::http::outgoing::Response>
-  getResponse(HttpRouter* router,
-              oatpp::os::io::Library::v_size firstReadCount,
-              const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-              const std::shared_ptr<ConnectionState>& connectionState);
+  static oatpp::async::Action
+  getResponseAsync(HttpRouter* router,
+                   oatpp::os::io::Library::v_size firstReadCount,
+                   const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                   const std::shared_ptr<ConnectionState>& connectionState,
+                   std::shared_ptr<protocol::http::outgoing::Response>& response);
   
 public:
   static bool considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,

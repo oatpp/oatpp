@@ -24,3 +24,8 @@
 
 #include "ChunkedBufferBody.hpp"
 
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+
+const char* ChunkedBufferBody::ERROR_FAILED_TO_WRITE_DATA = "ERROR_FAILED_TO_WRITE_DATA";
+  
+}}}}}
