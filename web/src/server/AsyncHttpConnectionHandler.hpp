@@ -25,6 +25,8 @@
 #ifndef oatpp_web_server_AsyncHttpConnectionHandler_hpp
 #define oatpp_web_server_AsyncHttpConnectionHandler_hpp
 
+#include "./HttpProcessor.hpp"
+
 #include "./handler/ErrorHandler.hpp"
 
 #include "./HttpRouter.hpp"
@@ -40,36 +42,35 @@
 
 #include "../../../../oatpp-lib/core/src/data/stream/StreamBufferedProxy.hpp"
 #include "../../../../oatpp-lib/core/src/data/buffer/IOBuffer.hpp"
-
-#include "../../../../oatpp-lib/core/src/async/Processor.hpp"
+#include "../../../../oatpp-lib/core/src/async/Processor2.hpp"
 
 namespace oatpp { namespace web { namespace server {
   
 class AsyncHttpConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
 private:
   
-  class Task : public base::Controllable, public concurrency::Runnable{
-  private:
-    HttpRouter* m_router;
-    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    oatpp::async::Processor m_processor;
+  class Task : public base::Controllable, public concurrency::Runnable {
   public:
-    Task(HttpRouter* router,
-         const std::shared_ptr<handler::ErrorHandler>& errorHandler)
-      : m_router(router)
-      , m_errorHandler(errorHandler)
+    typedef oatpp::collection::LinkedList<std::shared_ptr<HttpProcessor::ConnectionState>> Connections;
+  private:
+    void consumeConnections(oatpp::async::Processor2& processor);
+  private:
+    oatpp::concurrency::SpinLock::Atom m_atom;
+    Connections m_connections;
+  public:
+    Task()
     {}
   public:
     
-    static std::shared_ptr<Task> createShared(HttpRouter* router,
-                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-      return std::shared_ptr<Task>(new Task(router, errorHandler));
+    static std::shared_ptr<Task> createShared(){
+      return std::make_shared<Task>();
     }
     
     void run() override;
     
-    oatpp::async::Processor& getProcessor(){
-      return m_processor;
+    void addConnection(const std::shared_ptr<HttpProcessor::ConnectionState>& connectionState){
+      oatpp::concurrency::SpinLock lock(m_atom);
+      m_connections.pushBack(connectionState);
     }
     
   };
@@ -89,7 +90,7 @@ public:
   {
     m_tasks = new std::shared_ptr<Task>[m_threadCount];
     for(v_int32 i = 0; i < m_threadCount; i++) {
-      auto task = Task::createShared(m_router.get(), m_errorHandler);
+      auto task = Task::createShared();
       m_tasks[i] = task;
       concurrency::Thread thread(task);
       thread.detach();

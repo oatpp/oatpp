@@ -277,4 +277,59 @@ HttpProcessor::processRequestAsync(HttpRouter* router,
   
 }
   
+// HttpProcessor2
+  
+HttpProcessor2::Action2 HttpProcessor2::parseRequest(v_int32 readCount) {
+  
+  oatpp::parser::ParsingCaret caret((p_char8) m_ioBuffer->getData(), readCount);
+  auto line = protocol::http::Protocol::parseRequestStartingLine(caret);
+  
+  if(!line){
+    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_400, "Can't read starting line");
+    return yieldTo(&HttpProcessor2::onResponseFormed);
+  }
+  
+  auto route = m_router->getRoute(line->method, line->path);
+  
+  if(route.isNull()) {
+    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+    return yieldTo(&HttpProcessor2::onResponseFormed);
+  }
+  
+  oatpp::web::protocol::http::Status error;
+  auto headers = protocol::http::Protocol::parseHeaders(caret, error);
+  
+  if(error.code != 0){
+    m_currentResponse = m_errorHandler->handleError(error, " Can't parse headers");
+    return yieldTo(&HttpProcessor2::onResponseFormed);
+  }
+  
+  auto bodyStream = m_inStream;
+  bodyStream->setBufferPosition(caret.getPosition(), readCount);
+  
+  m_currentRequest = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream);
+  return yieldTo(&HttpProcessor2::onRequestFormed);
+}
+  
+HttpProcessor2::Action2 HttpProcessor2::act() {
+  
+  auto readCount = m_connection->read(m_ioBuffer->getData(), m_ioBuffer->getSize());
+  if(readCount > 0) {
+    parseRequest((v_int32)readCount);
+    
+  } else if(readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+    return waitRetry();
+  }
+  return abort();
+  
+}
+  
+HttpProcessor2::Action2 HttpProcessor2::onRequestFormed() {
+  return finish();
+}
+  
+HttpProcessor2::Action2 HttpProcessor2::onResponseFormed() {
+  return finish();
+}
+  
 }}}

@@ -10,11 +10,13 @@
 #define oatpp_async_Coroutine_hpp
 
 #include "../collection/FastQueue.hpp"
+#include "../base/memory/MemoryPool.hpp"
 #include "../base/Environment.hpp"
 
 namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
+class Processor2; // FWD
   
 class Error2 {
 public:
@@ -30,17 +32,23 @@ public:
 };
   
 class Action2 {
+  friend Processor2;
   friend AbstractCoroutine;
 public:
   typedef Action2 (AbstractCoroutine::*FunctionPtr)();
 public:
-  static const v_int32 TYPE_COROUTINE;
-  static const v_int32 TYPE_YIELD_TO;
-  static const v_int32 TYPE_WAIT_RETRY;
-  static const v_int32 TYPE_REPEAT;
-  static const v_int32 TYPE_FINISH;
-  static const v_int32 TYPE_ABORT;
-  static const v_int32 TYPE_ERROR;
+  static constexpr const v_int32 TYPE_COROUTINE = 0;
+  static constexpr const v_int32 TYPE_YIELD_TO = 1;
+  static constexpr const v_int32 TYPE_WAIT_RETRY = 2;
+  static constexpr const v_int32 TYPE_REPEAT = 3;
+  static constexpr const v_int32 TYPE_FINISH = 4;
+  static constexpr const v_int32 TYPE_ABORT = 5;
+  static constexpr const v_int32 TYPE_ERROR = 6;
+public:
+  static const Action2 _WAIT_RETRY;
+  static const Action2 _REPEAT;
+  static const Action2 _FINISH;
+  static const Action2 _ABORT;
 private:
   v_int32 m_type;
   AbstractCoroutine* m_coroutine;
@@ -71,6 +79,8 @@ public:
 };
   
 class AbstractCoroutine {
+  friend oatpp::collection::FastQueue<AbstractCoroutine>;
+  friend Processor2;
 public:
   typedef Action2 Action2;
   typedef Action2 (AbstractCoroutine::*FunctionPtr)();
@@ -81,25 +91,43 @@ private:
   
   const Action2& takeAction(const Action2& action){
     
-    if(action.m_type == Action2::TYPE_COROUTINE) {
-      action.m_coroutine->m_parent = _CP;
-      _CP = action.m_coroutine;
-      _CP->m_returnFP = action.m_functionPtr;
-      _FP = action.m_coroutine->_FP;
-    } else if(action.m_type == Action2::TYPE_FINISH) {
-      do {
-      _FP = _CP->m_returnFP;
-      _CP->free();
-      _CP = _CP->m_parent; // Should be fine here. As free() - return of the pointer to Bench. (Memory not changed)
-      } while (_FP == nullptr && _CP != nullptr);
-    } else if(action.m_type == Action2::TYPE_YIELD_TO) {
-      _FP = action.m_functionPtr;
-    } else if(action.m_type == Action2::TYPE_ABORT) {
-      while (_CP != nullptr) {
-        _CP->free();
-        _CP = _CP->m_parent;
-      }
-    }
+    switch (action.m_type) {
+
+      case Action2::TYPE_COROUTINE:
+          action.m_coroutine->m_parent = _CP;
+          _CP = action.m_coroutine;
+          _FP = action.m_coroutine->_FP;
+        break;
+        
+      case Action2::TYPE_FINISH:
+          if(_CP == this) {
+            _CP = nullptr;
+            return action;
+          }
+          do {
+            _CP->free();
+            _CP = _CP->m_parent; // Should be fine here. As free() - return of the pointer to Bench. (Memory not changed)
+            takeAction(_CP->m_savedAction);
+          } while (_FP == nullptr && _CP != this);
+          if(_FP == nullptr &&_CP == this) {
+            _CP = nullptr;
+            return action;
+          }
+        break;
+        
+      case Action2::TYPE_YIELD_TO:
+          _FP = action.m_functionPtr;
+        break;
+        
+      case Action2::TYPE_ABORT:
+          while (_CP != this) {
+            _CP->free();
+            _CP = _CP->m_parent;
+          }
+          _CP = nullptr;
+        break;
+        
+    };
     
     return action;
     
@@ -107,15 +135,23 @@ private:
   
 private:
   AbstractCoroutine* m_parent = nullptr;
-  FunctionPtr m_returnFP = nullptr; // should be set by processor on startCoroutine
+protected:
+  Action2 m_savedAction = Action2::_FINISH;
 public:
   
   Action2 iterate() {
-    //try {
-      return takeAction(_CP->call(_FP));
-    //} catch (...) {
-      
-    //}
+    return takeAction(_CP->call(_FP));
+  };
+  
+  Action2 iterate(v_int32 numIterations) {
+    Action2 action(Action2::TYPE_FINISH, nullptr, nullptr);
+    for(v_int32 i = 0; i < numIterations; i++) {
+      action = takeAction(_CP->call(_FP));
+      if(action.m_type == Action2::TYPE_WAIT_RETRY || _CP == nullptr) {
+        return action;
+      }
+    }
+    return action;
   };
   
   virtual ~AbstractCoroutine(){
@@ -139,10 +175,10 @@ template<class T>
 class Coroutine : public AbstractCoroutine {
 public:
   typedef Action2 (T::*Function)();
-  typedef oatpp::collection::Bench<T> Bench;
+  typedef oatpp::base::memory::Bench<T> Bench;
 public:
   static Bench& getBench(){
-    static thread_local Bench bench(1024);
+    static thread_local Bench bench(512);
     return bench;
   }
 public:
@@ -160,30 +196,31 @@ public:
     Coroutine<T>::getBench().free(static_cast<T*>(this));
   }
   
-  template<typename C, typename F, typename ... Args>
-  Action2 startCoroutine(F returnToFunction, Args... args) {
+  template<typename C, typename ... Args>
+  Action2 startCoroutine(const Action2& actionOnReturn, Args... args) {
+    m_savedAction = actionOnReturn;
     C* coroutine = C::getBench().obtain(args...);
-    return Action2(Action2::TYPE_COROUTINE, coroutine, static_cast<FunctionPtr>(returnToFunction));
+    return Action2(Action2::TYPE_COROUTINE, coroutine, nullptr);
   }
   
-  Action2 yieldTo(Function function) {
+  Action2 yieldTo(Function function) const {
     return Action2(Action2::TYPE_YIELD_TO, nullptr, static_cast<FunctionPtr>(function));
   }
   
-  Action2 waitRetry() {
-    return Action2(Action2::TYPE_WAIT_RETRY, nullptr, nullptr);
+  const Action2& waitRetry() const {
+    return Action2::_WAIT_RETRY;
   }
   
-  Action2 repeat() {
-    return Action2(Action2::TYPE_REPEAT, nullptr, nullptr);
+  const Action2& repeat() const {
+    return Action2::_REPEAT;
   }
   
-  Action2 finish() {
-    return Action2(Action2::TYPE_FINISH, nullptr, nullptr);
+  const Action2& finish() const {
+    return Action2::_FINISH;
   }
   
-  Action2 abort() {
-    return Action2(Action2::TYPE_ABORT, nullptr, nullptr);
+  const Action2& abort() const {
+    return Action2::_ABORT;
   }
   
   Action2 error(const char* message) {

@@ -10,12 +10,9 @@
 
 namespace oatpp { namespace async {
   
-const v_int32 Action2::TYPE_COROUTINE = 0;
-const v_int32 Action2::TYPE_YIELD_TO = 1;
-const v_int32 Action2::TYPE_WAIT_RETRY = 2;
-const v_int32 Action2::TYPE_REPEAT = 3;
-const v_int32 Action2::TYPE_FINISH = 4;
-const v_int32 Action2::TYPE_ABORT = 5;
-const v_int32 Action2::TYPE_ERROR = 6;
+const Action2 Action2::_WAIT_RETRY(TYPE_WAIT_RETRY, nullptr, nullptr);
+const Action2 Action2::_REPEAT(TYPE_REPEAT, nullptr, nullptr);
+const Action2 Action2::_FINISH(TYPE_FINISH, nullptr, nullptr);
+const Action2 Action2::_ABORT(TYPE_ABORT, nullptr, nullptr);
   
 }}

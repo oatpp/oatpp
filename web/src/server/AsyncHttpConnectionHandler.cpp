@@ -24,8 +24,6 @@
 
 #include "./AsyncHttpConnectionHandler.hpp"
 
-#include "./HttpProcessor.hpp"
-
 #include "../protocol/http/outgoing/ChunkedBufferBody.hpp"
 
 #include "../protocol/http/incoming/Request.hpp"
@@ -41,10 +39,41 @@
 
 namespace oatpp { namespace web { namespace server {
   
+void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processor2& processor) {
+  
+  class ConnectionCoroutine : public oatpp::async::Coroutine<ConnectionCoroutine> {
+  public:
+    
+    ConnectionCoroutine(const std::shared_ptr<HttpProcessor::ConnectionState>& pState)
+      : state(pState)
+    {}
+    
+    std::shared_ptr<HttpProcessor::ConnectionState> state;
+    
+    Action2 act() override {
+      return finish();
+    };
+    
+  };
+  
+  oatpp::concurrency::SpinLock lock(m_atom);
+  
+  auto curr = m_connections.getFirstNode();
+  while (curr != nullptr) {
+    processor.addCoroutine(ConnectionCoroutine::getBench().obtain(curr->getData()));
+    curr = curr->getNext();
+  }
+  
+}
+  
 void AsyncHttpConnectionHandler::Task::run(){
   
+  oatpp::async::Processor2 processor;
+  
   while(true) {
-    while (m_processor.iterate()) {
+    consumeConnections(processor);
+    while (processor.iterate(100)) {
+      consumeConnections(processor);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -74,7 +103,7 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
     }
   });
   
-  task->getProcessor().addRoutine(routine);
+  task->addConnection(state);
   
   m_taskBalancer ++;
   

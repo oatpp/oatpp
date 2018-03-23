@@ -37,6 +37,8 @@ public:
   OBJECT_POOL(Outgoing_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Request_Pool, Request, 32)
 public:
+  Request() {}
+  
   Request(const base::String::PtrWrapper& pMethod,
           const base::String::PtrWrapper& pPath,
           const std::shared_ptr<Headers>& pHeaders,
@@ -46,6 +48,7 @@ public:
     , headers((!pHeaders) ? (Headers::createShared()) : (pHeaders))
     , body(pBody)
   {}
+  
 public:
   
   static std::shared_ptr<Request> createShared(const base::String::PtrWrapper& method,

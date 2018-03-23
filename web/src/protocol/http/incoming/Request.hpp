@@ -36,6 +36,7 @@ public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 public:
+  Request(){}
   Request(const std::shared_ptr<http::RequestStartingLine>& pStartingLine,
           const std::shared_ptr<url::mapping::Pattern::MatchMap>& pPathVariables,
           const std::shared_ptr<http::Protocol::Headers>& pHeaders,
@@ -54,10 +55,10 @@ public:
     return Shared_Incoming_Request_Pool::allocateShared(startingLine, pathVariables, headers, bodyStream);
   }
   
-  const std::shared_ptr<http::RequestStartingLine> startingLine;
-  const std::shared_ptr<url::mapping::Pattern::MatchMap> pathVariables;
-  const std::shared_ptr<http::Protocol::Headers> headers;
-  const std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
+  std::shared_ptr<http::RequestStartingLine> startingLine;
+  std::shared_ptr<url::mapping::Pattern::MatchMap> pathVariables;
+  std::shared_ptr<http::Protocol::Headers> headers;
+  std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
   
   base::String::PtrWrapper getHeader(const base::String::PtrWrapper& headerName) const{
     auto entry = headers->find(headerName);
