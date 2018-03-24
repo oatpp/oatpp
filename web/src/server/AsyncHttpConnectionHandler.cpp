@@ -41,28 +41,23 @@ namespace oatpp { namespace web { namespace server {
   
 void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processor2& processor) {
   
-  class ConnectionCoroutine : public oatpp::async::Coroutine<ConnectionCoroutine> {
-  public:
-    
-    ConnectionCoroutine(const std::shared_ptr<HttpProcessor::ConnectionState>& pState)
-      : state(pState)
-    {}
-    
-    std::shared_ptr<HttpProcessor::ConnectionState> state;
-    
-    Action2 act() override {
-      return finish();
-    };
-    
-  };
-  
   oatpp::concurrency::SpinLock lock(m_atom);
   
   auto curr = m_connections.getFirstNode();
   while (curr != nullptr) {
-    processor.addCoroutine(ConnectionCoroutine::getBench().obtain(curr->getData()));
+    
+    auto coroutine = HttpProcessor2::getBench().obtain(m_router,
+                                                       m_errorHandler,
+                                                       curr->getData()->connection,
+                                                       curr->getData()->ioBuffer,
+                                                       curr->getData()->outStream,
+                                                       curr->getData()->inStream);
+    
+    processor.addCoroutine(coroutine);
     curr = curr->getNext();
   }
+  
+  m_connections.clear();
   
 }
   
@@ -75,6 +70,7 @@ void AsyncHttpConnectionHandler::Task::run(){
     while (processor.iterate(100)) {
       consumeConnections(processor);
     }
+    //OATPP_LOGD("task", "sleeping");
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   
@@ -91,17 +87,6 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
   state->outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
   state->inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, ioBuffer);
   state->keepAlive = true;
-  
-  auto routine = oatpp::async::Routine::_do({
-    [this, state]{
-      return HttpProcessor::processRequestAsync(m_router.get(), m_errorHandler, state);
-    }, [] (const oatpp::async::Error& error) {
-      if(error.error == HttpProcessor::RETURN_KEEP_ALIVE) {
-        return oatpp::async::Action::_repeat();
-      }
-      return oatpp::async::Action::_abort();
-    }
-  });
   
   task->addConnection(state);
   

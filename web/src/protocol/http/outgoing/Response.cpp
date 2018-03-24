@@ -58,60 +58,67 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream){
   
 }
   
-oatpp::async::Action Response::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
+oatpp::async::Action2 Response::sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                          const oatpp::async::Action2& actionOnFinish,
+                                          const std::shared_ptr<data::stream::OutputStream>& stream){
   
-  auto buffer = oatpp::data::stream::ChunkedBuffer::createShared();
-  
-  auto _this = this->getSharedPtr<Response>();
-  
-  return oatpp::async::Routine::_do({
+  class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
+  private:
+    std::shared_ptr<Response> m_response;
+    std::shared_ptr<data::stream::OutputStream> m_stream;
+    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
+  public:
     
-    [_this, stream, buffer] {
-      
-      if(_this->body){
-        _this->body->declareHeaders(_this->headers);
+    SendAsyncCoroutine(const std::shared_ptr<Response>& response,
+                       const std::shared_ptr<data::stream::OutputStream>& stream)
+      : m_response(response)
+      , m_stream(stream)
+      , m_buffer(oatpp::data::stream::ChunkedBuffer::createShared())
+    {}
+    
+    Action2 act() {
+    
+      if(m_response->body){
+        m_response->body->declareHeaders(m_response->headers);
       } else {
-        _this->headers->put(Header::CONTENT_LENGTH, "0");
+        m_response->headers->put(Header::CONTENT_LENGTH, "0");
       }
       
-      buffer->write("HTTP/1.1 ", 9);
-      buffer->writeAsString(_this->status.code);
-      buffer->write(" ", 1);
-      buffer->OutputStream::write(_this->status.description);
-      buffer->write("\r\n", 2);
+      m_buffer->write("HTTP/1.1 ", 9);
+      m_buffer->writeAsString(m_response->status.code);
+      m_buffer->write(" ", 1);
+      m_buffer->OutputStream::write(m_response->status.description);
+      m_buffer->write("\r\n", 2);
       
-      auto curr = _this->headers->getFirstEntry();
+      auto curr = m_response->headers->getFirstEntry();
       while(curr != nullptr){
-        buffer->write(curr->getKey()->getData(), curr->getKey()->getSize());
-        buffer->write(": ", 2);
-        buffer->write(curr->getValue()->getData(), curr->getValue()->getSize());
-        buffer->write("\r\n", 2);
+        m_buffer->write(curr->getKey()->getData(), curr->getKey()->getSize());
+        m_buffer->write(": ", 2);
+        m_buffer->write(curr->getValue()->getData(), curr->getValue()->getSize());
+        m_buffer->write("\r\n", 2);
         curr = curr->getNext();
       }
       
-      buffer->write("\r\n", 2);
+      m_buffer->write("\r\n", 2);
       
-      return oatpp::async::Action::_continue();
-      
-    }, nullptr
+      return yieldTo(&SendAsyncCoroutine::writeHeaders);
     
-  })._then({
+    }
     
-    [stream, buffer] {
-      return buffer->flushToStreamAsync(stream);
-    }, nullptr
+    Action2 writeHeaders() {
+      return m_buffer->flushToStreamAsync(this, yieldTo(&SendAsyncCoroutine::writeBody), m_stream);
+    }
     
-  })._then({
-    
-    [_this, stream] {
-      if(_this->body) {
-        return _this->body->writeToStreamAsync(stream);
-      } else {
-        return oatpp::async::Action::_return();
+    Action2 writeBody() {
+      if(m_response->body) {
+        return m_response->body->writeToStreamAsync(this, finish(), m_stream);
       }
-    }, nullptr
+      return finish();
+    }
     
-  });
+  };
+  
+  return parentCoroutine->startCoroutine<SendAsyncCoroutine>(actionOnFinish, getSharedPtr<Response>(), stream);
   
 }
   

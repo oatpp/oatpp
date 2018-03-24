@@ -27,7 +27,7 @@
 
 #include "./Body.hpp"
 #include "./../Http.hpp"
-#include "../../../../../core/src/async/Routine.hpp"
+#include "../../../../../core/src/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
@@ -57,7 +57,9 @@ public:
   
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);
   
-  oatpp::async::Action sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  oatpp::async::Action2 sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                  const oatpp::async::Action2& actionOnFinish,
+                                  const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };
   

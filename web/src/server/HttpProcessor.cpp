@@ -198,85 +198,6 @@ HttpProcessor::getResponseAsync(HttpRouter* router,
   
 }
   
-oatpp::async::Action
-HttpProcessor::processRequestAsync(HttpRouter* router,
-                                   const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                                   const std::shared_ptr<ConnectionState>& connectionState)
-{
-  
-  struct LocaleState {
-    LocaleState(const std::shared_ptr<ConnectionState>& pConnectionState)
-      : connectionState(pConnectionState)
-      , ioBuffer(pConnectionState->ioBuffer->getData())
-      , ioBufferSize(pConnectionState->ioBuffer->getSize())
-      , response(nullptr)
-    {}
-    const std::shared_ptr<ConnectionState>& connectionState;
-    void* ioBuffer;
-    v_int32 ioBufferSize;
-    oatpp::os::io::Library::v_size readCount;
-    std::shared_ptr<protocol::http::outgoing::Response> response;
-  };
-  
-  auto state = std::make_shared<LocaleState>(connectionState);
-  
-  return oatpp::async::Routine::_do({
-    
-    [state] {
-      
-      state->readCount = state->connectionState->connection->read(state->ioBuffer, state->ioBufferSize);
-      if(state->readCount > 0) {
-        return oatpp::async::Action::_continue();
-      } else if(state->readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-        return oatpp::async::Action::_wait_retry();
-      }
-      return oatpp::async::Action::_abort();
-      
-    }, nullptr
-    
-  })._then({
-    
-    [state, router, errorHandler] {
-      
-      return oatpp::async::Routine::_do({
-        
-        [state, router, errorHandler] {
-          return getResponseAsync(router, state->readCount, errorHandler, state->connectionState, state->response);
-        }, nullptr
-        
-      })._then({
-        
-        [state] {
-          state->connectionState->outStream->setBufferPosition(0, 0);
-          return state->response->sendAsync(state->connectionState->outStream);
-        }, nullptr
-        
-      })._then({
-        
-        [state] {
-          return state->connectionState->outStream->flushAsync();
-        }, nullptr
-        
-      });
-      
-    }, nullptr
-    
-  })._then({
-    
-    [state] {
-
-      if(state->connectionState->keepAlive){
-        oatpp::async::Error error(RETURN_KEEP_ALIVE);
-        return oatpp::async::Action(error);
-      }
-      return oatpp::async::Action::_return();
-      
-    }, nullptr
-    
-  });
-  
-}
-  
 // HttpProcessor2
   
 HttpProcessor2::Action2 HttpProcessor2::parseRequest(v_int32 readCount) {
@@ -289,9 +210,9 @@ HttpProcessor2::Action2 HttpProcessor2::parseRequest(v_int32 readCount) {
     return yieldTo(&HttpProcessor2::onResponseFormed);
   }
   
-  auto route = m_router->getRoute(line->method, line->path);
+  m_currentRoute = m_router->getRoute(line->method, line->path);
   
-  if(route.isNull()) {
+  if(m_currentRoute.isNull()) {
     m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
     return yieldTo(&HttpProcessor2::onResponseFormed);
   }
@@ -307,29 +228,45 @@ HttpProcessor2::Action2 HttpProcessor2::parseRequest(v_int32 readCount) {
   auto bodyStream = m_inStream;
   bodyStream->setBufferPosition(caret.getPosition(), readCount);
   
-  m_currentRequest = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream);
+  m_currentRequest = protocol::http::incoming::Request::createShared(line, m_currentRoute.matchMap, headers, bodyStream);
   return yieldTo(&HttpProcessor2::onRequestFormed);
 }
   
 HttpProcessor2::Action2 HttpProcessor2::act() {
-  
   auto readCount = m_connection->read(m_ioBuffer->getData(), m_ioBuffer->getSize());
   if(readCount > 0) {
-    parseRequest((v_int32)readCount);
-    
+    return parseRequest((v_int32)readCount);
   } else if(readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
     return waitRetry();
   }
   return abort();
-  
 }
-  
+
 HttpProcessor2::Action2 HttpProcessor2::onRequestFormed() {
-  return finish();
+  m_currentResponse = m_currentRoute.processUrl(m_currentRequest); // TODO make async
+  return yieldTo(&HttpProcessor2::onResponseFormed);
+}
+
+HttpProcessor2::Action2 HttpProcessor2::onResponseFormed() {
+  
+  m_currentResponse->headers->putIfNotExists(protocol::http::Header::SERVER,
+                                             protocol::http::Header::Value::SERVER);
+  
+  m_keepAlive = HttpProcessor::considerConnectionKeepAlive(m_currentRequest, m_currentResponse);
+  m_outStream->setBufferPosition(0, 0);
+  return m_currentResponse->sendAsync(this, yieldTo(&HttpProcessor2::doFlush), m_outStream);
+  
+}
+
+HttpProcessor2::Action2 HttpProcessor2::doFlush() {
+  return m_outStream->flushAsync(this, yieldTo(&HttpProcessor2::onRequestDone));
 }
   
-HttpProcessor2::Action2 HttpProcessor2::onResponseFormed() {
-  return finish();
+HttpProcessor2::Action2 HttpProcessor2::onRequestDone() {
+  if(m_keepAlive) {
+    return yieldTo(&HttpProcessor2::act);
+  }
+  return abort();
 }
   
 }}}

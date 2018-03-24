@@ -135,7 +135,6 @@ private:
   
 private:
   AbstractCoroutine* m_parent = nullptr;
-protected:
   Action2 m_savedAction = Action2::_FINISH;
 public:
   
@@ -160,6 +159,13 @@ public:
   virtual Action2 act() = 0;
   virtual Action2 call(FunctionPtr ptr) = 0;
   virtual void free() = 0;
+  
+  template<typename C, typename ... Args>
+  Action2 startCoroutine(const Action2& actionOnReturn, Args... args) {
+    m_savedAction = actionOnReturn;
+    C* coroutine = C::getBench().obtain(args...);
+    return Action2(Action2::TYPE_COROUTINE, coroutine, nullptr);
+  }
   
   bool finished(){
     return _CP == nullptr;
@@ -194,13 +200,6 @@ public:
   
   virtual void free() override {
     Coroutine<T>::getBench().free(static_cast<T*>(this));
-  }
-  
-  template<typename C, typename ... Args>
-  Action2 startCoroutine(const Action2& actionOnReturn, Args... args) {
-    m_savedAction = actionOnReturn;
-    C* coroutine = C::getBench().obtain(args...);
-    return Action2(Action2::TYPE_COROUTINE, coroutine, nullptr);
   }
   
   Action2 yieldTo(Function function) const {

@@ -49,6 +49,11 @@ public:
     UrlSubscriber* m_subscriber;
   public:
     
+    Route()
+      : m_subscriber(nullptr)
+      , matchMap(nullptr)
+    {}
+    
     Route(UrlSubscriber* subscriber, const std::shared_ptr<Pattern::MatchMap>& pMatchMap)
       : m_subscriber(subscriber)
       , matchMap(pMatchMap)
@@ -62,7 +67,7 @@ public:
       return m_subscriber == nullptr;
     }
     
-    const std::shared_ptr<Pattern::MatchMap> matchMap;
+    std::shared_ptr<Pattern::MatchMap> matchMap;
     
   };
 

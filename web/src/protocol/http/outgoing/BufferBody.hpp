@@ -57,14 +57,38 @@ public:
     stream->write(m_buffer);
   }
   
-  Action writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override {
-    auto readCount = stream->write(m_buffer);
-    if(readCount > 0) {
-      return oatpp::async::Action::_continue();
-    } else if(readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-      return oatpp::async::Action::_wait_retry();
+public:
+  
+  class WriteToStreamCoroutine : public oatpp::async::Coroutine<WriteToStreamCoroutine> {
+  private:
+    std::shared_ptr<BufferBody> m_body;
+    std::shared_ptr<OutputStream> m_stream;
+  public:
+    
+    WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
+                           const std::shared_ptr<OutputStream>& stream)
+      : m_body(body)
+      , m_stream(stream)
+    {}
+    
+    Action2 act() override {
+      auto readCount = m_stream->write(m_body->m_buffer);
+      if(readCount > 0) {
+        return finish();
+      } else if(readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+        return waitRetry();
+      }
+      return abort();
     }
-    return oatpp::async::Action::_abort();
+    
+  };
+  
+public:
+  
+  Action2 writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                             const Action2& actionOnReturn,
+                             const std::shared_ptr<OutputStream>& stream) override {
+    return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnReturn, getSharedPtr<BufferBody>(), stream);
   }
   
 };

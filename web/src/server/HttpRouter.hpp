@@ -38,7 +38,7 @@ public:
     std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
     std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
   > Subscriber;
-protected:
+public:
   typedef oatpp::web::url::mapping::Router<
     std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
     std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>

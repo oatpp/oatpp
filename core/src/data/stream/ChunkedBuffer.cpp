@@ -210,61 +210,64 @@ bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
   return true;
 }
   
-oatpp::async::Action ChunkedBuffer::flushToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
-  
-  struct LocalState{
-    LocalState(const std::shared_ptr<OutputStream> pStream,
-               ChunkEntry* pCurr,
-               os::io::Library::v_size pPosition)
-      : stream(pStream)
-      , curr(pCurr)
-      , position(pPosition)
+oatpp::async::Action2 ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                        const oatpp::async::Action2& actionOnFinish,
+                                                        const std::shared_ptr<OutputStream>& stream) {
+ 
+  class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
+  private:
+    std::shared_ptr<ChunkedBuffer> m_chunkedBuffer;
+    std::shared_ptr<OutputStream> m_stream;
+    ChunkEntry* m_currEntry;
+    os::io::Library::v_size m_bytesLeft;
+  public:
+    
+    FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
+                   const std::shared_ptr<OutputStream>& stream)
+      : m_chunkedBuffer(chunkedBuffer)
+      , m_stream(stream)
+      , m_currEntry(chunkedBuffer->m_firstEntry)
+      , m_bytesLeft(chunkedBuffer->m_size)
     {}
-    const std::shared_ptr<OutputStream> stream;
-    ChunkEntry* curr;
-    os::io::Library::v_size position;
+    
+    Action2 act() override {
+      
+      if(m_currEntry == nullptr) {
+        return finish();
+      }
+      
+      if(m_bytesLeft > CHUNK_ENTRY_SIZE) {
+        auto res = m_stream->write(m_currEntry->chunk, CHUNK_ENTRY_SIZE);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+          return waitRetry();
+        } else if(res != CHUNK_ENTRY_SIZE) {
+          return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+        }
+        m_bytesLeft -= res;
+      } else {
+        auto res = m_stream->write(m_currEntry->chunk, m_bytesLeft);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+          return waitRetry();
+        } else if(res != m_bytesLeft) {
+          return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+        }
+        m_bytesLeft -= res;
+      }
+      
+      m_currEntry = m_currEntry->next;
+      
+      if(m_currEntry == nullptr) {
+        return finish();
+      }
+      return repeat();
+      
+    }
+    
   };
   
-  auto state = std::make_shared<LocalState>(stream, m_firstEntry, m_size);
-  
-  return oatpp::async::Routine::_do({
-    
-    [state] {
-      
-      if(state->curr == nullptr) {
-        return oatpp::async::Action::_return();
-      }
-      
-      if(state->position > CHUNK_ENTRY_SIZE) {
-        auto res = state->stream->write(state->curr->chunk, CHUNK_ENTRY_SIZE);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-          return oatpp::async::Action::_wait_retry();
-        } else if(res != CHUNK_ENTRY_SIZE) {
-          oatpp::async::Error e(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
-          return oatpp::async::Action(e);
-        }
-        state->position -= res;
-      } else {
-        auto res = state->stream->write(state->curr->chunk, state->position);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-          return oatpp::async::Action::_wait_retry();
-        } else if(res != state->position) {
-          oatpp::async::Error e(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
-          return oatpp::async::Action(e);
-        }
-        state->position -= res;
-      }
-      
-      state->curr = state->curr->next;
-      
-      if(state->curr == nullptr) {
-        return oatpp::async::Action::_return();
-      }
-      return oatpp::async::Action::_repeat();
-    }
-    , nullptr
-    
-  });
+  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish,
+                                                         getSharedPtr<ChunkedBuffer>(),
+                                                         stream);
   
 }
   

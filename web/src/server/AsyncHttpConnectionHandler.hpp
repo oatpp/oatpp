@@ -57,13 +57,21 @@ private:
   private:
     oatpp::concurrency::SpinLock::Atom m_atom;
     Connections m_connections;
+  private:
+    HttpRouter* m_router;
+    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   public:
-    Task()
+    Task(HttpRouter* router,
+         const std::shared_ptr<handler::ErrorHandler>& errorHandler)
+      : m_atom(false)
+      , m_router(router)
+      , m_errorHandler(errorHandler)
     {}
   public:
     
-    static std::shared_ptr<Task> createShared(){
-      return std::make_shared<Task>();
+    static std::shared_ptr<Task> createShared(HttpRouter* router,
+                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler){
+      return std::make_shared<Task>(router, errorHandler);
     }
     
     void run() override;
@@ -90,7 +98,7 @@ public:
   {
     m_tasks = new std::shared_ptr<Task>[m_threadCount];
     for(v_int32 i = 0; i < m_threadCount; i++) {
-      auto task = Task::createShared();
+      auto task = Task::createShared(m_router.get(), m_errorHandler);
       m_tasks[i] = task;
       concurrency::Thread thread(task);
       thread.detach();

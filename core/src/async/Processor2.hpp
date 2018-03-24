@@ -24,9 +24,14 @@ private:
     while (curr != nullptr) {
       
       const Action2& action = curr->iterate();
-      if(action.m_type != Action2::TYPE_WAIT_RETRY) {
-        m_waitingQueue.pushBack(m_activeQueue.popFront());
-        hasActions = true;
+      if(action.m_type == Action2::TYPE_ABORT) {
+        m_waitingQueue.removeEntry(curr, prev);
+        if(prev != nullptr) {
+          curr = prev;
+        } else {
+          curr = m_waitingQueue.first;
+        }
+      } else if(action.m_type != Action2::TYPE_WAIT_RETRY) {
         oatpp::collection::FastQueue<AbstractCoroutine>::moveEntry(m_waitingQueue, m_activeQueue, curr, prev);
         hasActions = true;
         if(prev != nullptr) {
@@ -45,9 +50,21 @@ private:
     return hasActions;
   }
   
+  bool countdownToSleep(){
+    ++ m_sleepCountdown;
+    if(m_sleepCountdown > 1000) {
+      return checkWaitingQueue();
+    }
+    checkWaitingQueue();
+    std::this_thread::yield();
+    return true;
+  }
+  
 private:
   oatpp::collection::FastQueue<AbstractCoroutine> m_activeQueue;
   oatpp::collection::FastQueue<AbstractCoroutine> m_waitingQueue;
+private:
+  v_int32 m_sleepCountdown = 0;
 public:
 
   void addCoroutine(AbstractCoroutine* coroutine) {
@@ -61,6 +78,8 @@ public:
       auto CP = m_activeQueue.first;
       if(CP == nullptr) {
         break;
+      } else {
+        m_sleepCountdown = 0;
       }
       if(!CP->finished()) {
         const Action2& action = CP->iterate();
@@ -70,10 +89,9 @@ public:
       } else {
         m_activeQueue.popFrontNoData();
       }
-      
     }
     
-    return (m_activeQueue.first != nullptr);
+    return ((m_activeQueue.first != nullptr) || countdownToSleep());
     
   }
   

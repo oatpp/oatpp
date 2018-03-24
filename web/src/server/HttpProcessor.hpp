@@ -67,11 +67,6 @@ public:
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                  bool& keepAlive);
   
-  static oatpp::async::Action
-  processRequestAsync(HttpRouter* router,
-                      const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                      const std::shared_ptr<ConnectionState>& state);
-  
 };
   
 class HttpProcessor2 : public oatpp::async::Coroutine<HttpProcessor2> {
@@ -104,6 +99,7 @@ private:
   std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
   bool m_keepAlive;
 private:
+  oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
   std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
   std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
 public:
@@ -116,6 +112,7 @@ public:
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
     : m_router(router)
     , m_errorHandler(errorHandler)
+    , m_connection(connection)
     , m_ioBuffer(ioBuffer)
     , m_outStream(outStream)
     , m_inStream(inStream)
@@ -126,6 +123,8 @@ public:
   
   Action2 onRequestFormed();
   Action2 onResponseFormed();
+  Action2 doFlush();
+  Action2 onRequestDone();
   
 };
   

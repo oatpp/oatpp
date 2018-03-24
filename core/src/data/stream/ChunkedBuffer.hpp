@@ -28,7 +28,7 @@
 #include "./Stream.hpp"
 
 #include "../../collection/LinkedList.hpp"
-#include "../../async/Routine.hpp"
+#include "../../async/Coroutine.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
   
@@ -157,7 +157,9 @@ public:
   }
 
   bool flushToStream(const std::shared_ptr<OutputStream>& stream);
-  oatpp::async::Action flushToStreamAsync(const std::shared_ptr<OutputStream>& stream);
+  oatpp::async::Action2 flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                           const oatpp::async::Action2& actionOnFinish,
+                                           const std::shared_ptr<OutputStream>& stream);
   
   std::shared_ptr<Chunks> getChunks();
 

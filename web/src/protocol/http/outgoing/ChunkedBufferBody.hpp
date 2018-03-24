@@ -86,80 +86,80 @@ public:
     }
   }
   
-  Action writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override {
-    if(m_chunked){
-
-      struct LocalState {
-        LocalState(const std::shared_ptr<OutputStream>& pStream,
-                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks>& pChunks,
-                   oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* pCurr)
-        : stream(pStream)
-        , chunks(pChunks)
-        , curr(pCurr)
-        , whileState(0)
-        {}
-        std::shared_ptr<OutputStream> stream;
-        std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> chunks;
-        oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* curr;
-        v_int32 whileState; ///< introduced for optimization only
-      };
+public:
+  
+  class WriteToStreamCoroutine : public oatpp::async::Coroutine<WriteToStreamCoroutine> {
+  private:
+    std::shared_ptr<ChunkedBufferBody> m_body;
+    std::shared_ptr<OutputStream> m_stream;
+    std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> m_chunks;
+    oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* m_currChunk;
+    v_int32 m_whileState;
+  public:
+    
+    WriteToStreamCoroutine(const std::shared_ptr<ChunkedBufferBody>& body,
+                           const std::shared_ptr<OutputStream>& stream)
+      : m_body(body)
+      , m_stream(stream)
+      , m_chunks(m_body->m_buffer->getChunks())
+      , m_currChunk(m_chunks->getFirstNode())
+      , m_whileState(0)
+    {}
+    
+    Action2 act() override {
       
-      auto chunks = m_buffer->getChunks();
-      auto state = std::make_shared<LocalState>(stream, chunks, chunks->getFirstNode());
+      if(m_currChunk == nullptr) {
+        m_whileState = 3;
+      }
       
-      return oatpp::async::Routine::_do({
-        [state] {
-          
-          auto curr = state->curr;
-          
-          if(curr == nullptr) {
-            state->whileState = 3;
-          }
-          
-          if(state->whileState == 0) {
-            auto res = state->stream->write(oatpp::utils::conversion::primitiveToStr(curr->getData()->size, "%X\r\n"));
-            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-              return oatpp::async::Action::_wait_retry();
-            } else if(res < 1) {
-              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
-            }
-            state->whileState = 1;
-          } else if(state->whileState == 1) {
-            auto res = state->stream->write(curr->getData()->data, curr->getData()->size);
-            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-              return oatpp::async::Action::_wait_retry();
-            } else if(res < curr->getData()->size) {
-              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
-            }
-            state->whileState = 2;
-          } else if(state->whileState == 2) {
-            auto res = state->stream->write("\r\n", 2);
-            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-              return oatpp::async::Action::_wait_retry();
-            } else if(res < 2) {
-              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
-            }
-            state->whileState = 3;
-          } else if(state->whileState == 3) {
-            auto res = state->stream->write("0\r\n\r\n", 5);
-            if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-              return oatpp::async::Action::_wait_retry();
-            } else if(res < 5) {
-              return oatpp::async::Action(oatpp::async::Error(ERROR_FAILED_TO_WRITE_DATA));
-            }
-            return oatpp::async::Action::_continue();
-          }
-          
-          state->curr = curr->getNext();
-          return oatpp::async::Action::_repeat();
-          
-        }, nullptr
-      });
+      if(m_whileState == 0) {
+        auto res = m_stream->write(oatpp::utils::conversion::primitiveToStr(m_currChunk->getData()->size, "%X\r\n"));
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+          return waitRetry();
+        } else if(res < 1) {
+          return error(ERROR_FAILED_TO_WRITE_DATA);
+        }
+        m_whileState = 1;
+      } else if(m_whileState == 1) {
+        auto res = m_stream->write(m_currChunk->getData()->data, m_currChunk->getData()->size);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+          return waitRetry();
+        } else if(res < m_currChunk->getData()->size) {
+          return error(ERROR_FAILED_TO_WRITE_DATA);
+        }
+        m_whileState = 2;
+      } else if(m_whileState == 2) {
+        auto res = m_stream->write("\r\n", 2);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+          return waitRetry();
+        } else if(res < 2) {
+          return error(ERROR_FAILED_TO_WRITE_DATA);
+        }
+        m_whileState = 3;
+      } else if(m_whileState == 3) {
+        auto res = m_stream->write("0\r\n\r\n", 5);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+          return waitRetry();
+        } else if(res < 5) {
+          return error(ERROR_FAILED_TO_WRITE_DATA);
+        }
+        return finish();
+      }
       
-    } else {
-      return m_buffer->flushToStreamAsync(stream);
+      m_currChunk = m_currChunk->getNext();
+      return repeat();
     }
     
+  };
+  
+  Action2 writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                             const Action2& actionOnFinish,
+                             const std::shared_ptr<OutputStream>& stream) override {
+    if(m_chunked) {
+      return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnFinish, getSharedPtr<ChunkedBufferBody>(), stream);
+    } else {
+      return m_buffer->flushToStreamAsync(parentCoroutine, actionOnFinish, stream);
+    }
   }
   
 };

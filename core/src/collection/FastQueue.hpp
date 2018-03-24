@@ -39,6 +39,7 @@ public:
   }
   
   void pushBack(T* entry) {
+    entry->_ref = nullptr;
     if(last == nullptr) {
       first = entry;
       last = entry;
@@ -64,6 +65,21 @@ public:
       last = nullptr;
     }
     result->free();
+  }
+  
+  void removeEntry(T* entry, T* prevEntry){
+    
+    if(prevEntry == nullptr) {
+      popFrontNoData();
+    } else if(entry->_ref == nullptr) {
+      prevEntry->_ref = nullptr;
+      last = prevEntry;
+      entry->free();
+    } else {
+      prevEntry->_ref = entry->_ref;
+      entry->free();
+    }
+    
   }
   
   static void moveEntry(FastQueue& fromQueue, FastQueue& toQueue, T* entry, T* prevEntry){

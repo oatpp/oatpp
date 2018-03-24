@@ -98,32 +98,42 @@ os::io::Library::v_size OutputStreamBufferedProxy::flush() {
   return 0;
 }
   
-oatpp::async::Action OutputStreamBufferedProxy::flushAsync() {
+oatpp::async::Action2 OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                            const oatpp::async::Action2& actionOnFinish) {
   
-  auto _this = this->getSharedPtr<OutputStreamBufferedProxy>();
-  
-  return oatpp::async::Routine::_do({
-    [_this] {
+  class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
+  private:
+    std::shared_ptr<OutputStreamBufferedProxy> m_stream;
+  public:
+    
+    FlushCoroutine(const std::shared_ptr<OutputStreamBufferedProxy>& stream)
+      : m_stream(stream)
+    {}
+    
+    Action2 act() override {
       
-      auto amount = _this->m_posEnd - _this->m_pos;
+      auto amount = m_stream->m_posEnd - m_stream->m_pos;
       if(amount > 0){
-        os::io::Library::v_size result = _this->m_outputStream->write(&_this->m_buffer[_this->m_pos], amount);
+        os::io::Library::v_size result = m_stream->m_outputStream->write(&m_stream->m_buffer[m_stream->m_pos], amount);
         if(result == amount){
-          _this->m_pos = 0;
-          _this->m_posEnd = 0;
-          return oatpp::async::Action::_return();
+          m_stream->m_pos = 0;
+          m_stream->m_posEnd = 0;
+          return finish();
         } else if(result == IOStream::ERROR_TRY_AGAIN) {
-          return oatpp::async::Action::_wait_retry();
+          return waitRetry();
         } else if(result > 0){
-          _this->m_pos += (v_bufferSize) result;
+          m_stream->m_pos += (v_bufferSize) result;
         }
-        return oatpp::async::Action(oatpp::async::Error("OutputStreamBufferedProxy. Failed to flush all data"));
+        return error("OutputStreamBufferedProxy. Failed to flush all data");
       }
-      return oatpp::async::Action::_return();
+      return finish();
       
-    }, nullptr
-  });
-
+    }
+    
+  };
+  
+  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish, getSharedPtr<OutputStreamBufferedProxy>());
+  
 }
   
 os::io::Library::v_size InputStreamBufferedProxy::read(void *data, os::io::Library::v_size count) {

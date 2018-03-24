@@ -27,13 +27,13 @@
 
 #include "../../../../../../oatpp-lib/core/src/data/stream/Stream.hpp"
 #include "../../../../../../oatpp-lib/core/src/collection/ListMap.hpp"
-#include "../../../../../../oatpp-lib/core/src/async/Routine.hpp"
+#include "../../../../../../oatpp-lib/core/src/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 class Body {
 protected:
-  typedef oatpp::async::Action Action;
+  typedef oatpp::async::Action2 Action2;
 protected:
   typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
@@ -46,10 +46,10 @@ public:
    */
   virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
   
-  /**
-   *  For NON blocking streams only!!!
-   */
-  virtual Action writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
+  virtual Action2 writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                     const Action2& actionOnReturn,
+                                     const std::shared_ptr<OutputStream>& stream) = 0;
+  
 };
   
 }}}}}
