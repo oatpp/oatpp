@@ -98,8 +98,8 @@ os::io::Library::v_size OutputStreamBufferedProxy::flush() {
   return 0;
 }
   
-oatpp::async::Action2 OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                            const oatpp::async::Action2& actionOnFinish) {
+oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                            const oatpp::async::Action& actionOnFinish) {
   
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
   private:
@@ -110,7 +110,7 @@ oatpp::async::Action2 OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstra
       : m_stream(stream)
     {}
     
-    Action2 act() override {
+    Action act() override {
       
       auto amount = m_stream->m_posEnd - m_stream->m_pos;
       if(amount > 0){

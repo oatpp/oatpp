@@ -39,19 +39,19 @@
 
 namespace oatpp { namespace web { namespace server {
   
-void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processor2& processor) {
+void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processor& processor) {
   
   oatpp::concurrency::SpinLock lock(m_atom);
   
   auto curr = m_connections.getFirstNode();
   while (curr != nullptr) {
     
-    auto coroutine = HttpProcessor2::getBench().obtain(m_router,
-                                                       m_errorHandler,
-                                                       curr->getData()->connection,
-                                                       curr->getData()->ioBuffer,
-                                                       curr->getData()->outStream,
-                                                       curr->getData()->inStream);
+    auto coroutine = HttpProcessor::Coroutine::getBench().obtain(m_router,
+                                                                 m_errorHandler,
+                                                                 curr->getData()->connection,
+                                                                 curr->getData()->ioBuffer,
+                                                                 curr->getData()->outStream,
+                                                                 curr->getData()->inStream);
     
     processor.addCoroutine(coroutine);
     curr = curr->getNext();
@@ -63,7 +63,7 @@ void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processo
   
 void AsyncHttpConnectionHandler::Task::run(){
   
-  oatpp::async::Processor2 processor;
+  oatpp::async::Processor processor;
   
   while(true) {
     consumeConnections(processor);
@@ -86,7 +86,6 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
   state->ioBuffer = ioBuffer;
   state->outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
   state->inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, ioBuffer);
-  state->keepAlive = true;
   
   task->addConnection(state);
   

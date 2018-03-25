@@ -106,7 +106,7 @@ public:
       , m_whileState(0)
     {}
     
-    Action2 act() override {
+    Action act() override {
       
       if(m_currChunk == nullptr) {
         m_whileState = 3;
@@ -152,8 +152,8 @@ public:
     
   };
   
-  Action2 writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                             const Action2& actionOnFinish,
+  Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                             const Action& actionOnFinish,
                              const std::shared_ptr<OutputStream>& stream) override {
     if(m_chunked) {
       return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnFinish, getSharedPtr<ChunkedBufferBody>(), stream);

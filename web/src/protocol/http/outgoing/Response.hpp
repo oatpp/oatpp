@@ -57,8 +57,8 @@ public:
   
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);
   
-  oatpp::async::Action2 sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                  const oatpp::async::Action2& actionOnFinish,
+  oatpp::async::Action sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                  const oatpp::async::Action& actionOnFinish,
                                   const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };

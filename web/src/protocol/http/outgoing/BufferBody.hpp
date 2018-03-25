@@ -71,7 +71,7 @@ public:
       , m_stream(stream)
     {}
     
-    Action2 act() override {
+    Action act() override {
       auto readCount = m_stream->write(m_body->m_buffer);
       if(readCount > 0) {
         return finish();
@@ -85,8 +85,8 @@ public:
   
 public:
   
-  Action2 writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                             const Action2& actionOnReturn,
+  Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                             const Action& actionOnReturn,
                              const std::shared_ptr<OutputStream>& stream) override {
     return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnReturn, getSharedPtr<BufferBody>(), stream);
   }

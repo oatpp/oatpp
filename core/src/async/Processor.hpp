@@ -1,83 +1,53 @@
-//
-//  Processor.hpp
-//  crud
-//
-//  Created by Leonid on 3/17/18.
-//  Copyright © 2018 oatpp. All rights reserved.
-//
+/***************************************************************************
+ *
+ * Project         _____    __   ____   _      _
+ *                (  _  )  /__\ (_  _)_| |_  _| |_
+ *                 )(_)(  /(__)\  )( (_   _)(_   _)
+ *                (_____)(__)(__)(__)  |_|    |_|
+ *
+ *
+ * Copyright 2018-present, Leonid Stryzhevskyi, <lganzzzo@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ***************************************************************************/
 
 #ifndef oatpp_async_Processor_hpp
 #define oatpp_async_Processor_hpp
 
-#include "./Routine.hpp"
-#include "../concurrency/SpinLock.hpp"
+#include "./Coroutine.hpp"
+#include "../collection/FastQueue.hpp"
 
 namespace oatpp { namespace async {
   
 class Processor {
+private:
+  
+  bool checkWaitingQueue();
+  bool countdownToSleep();
+  
+private:
+  oatpp::collection::FastQueue<AbstractCoroutine> m_activeQueue;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_waitingQueue;
+private:
+  v_int32 m_sleepCountdown = 0;
 public:
-  Processor& getThreadLocalProcessor(){
-    static thread_local Processor processor;
-    return processor;
-  }
-private:
-  
-  class Queue {
-  public:
-    class Entry {
-    public:
-      Entry(Routine* pRoutine, Entry* pNext)
-        : routine(pRoutine)
-        , next(pNext)
-      {}
-      Routine* routine;
-      Entry* next;
-    };
-  private:
-    oatpp::concurrency::SpinLock::Atom m_atom;
-    Entry* m_first;
-    Entry* m_last;
-  public:
-    
-    Queue();
-    Entry* peekFront();
-    Entry* popFront();
-    void pushFront(Routine* routine);
-    void pushFront(Entry* entry);
-    void pushBack(Routine* routine);
-    void pushBack(Entry* entry);
-    static void moveEntryToQueue(Queue& from, Queue& to, Queue::Entry* curr, Queue::Entry* prev);
-    
-  };
-  
-private:
-  
-  void abortCurrentRoutine();
-  Routine* returnFromRoutine(Routine* from);
-  void returnFromCurrentRoutine();
-  void doAction(Action& a);
-  void propagateError(Error& error);
-  bool auditQueueSlow();
-  bool countDownToSleep();
-  void checkAudit();
-  
-private:
-  Queue m_queue;
-  Queue m_queueSlow;
-  v_int32 m_auditTimer; // in iterations
-  v_int32 m_sleepCountDown; // in iterations
-public:
-  
-  Processor()
-    : m_auditTimer(0)
-    , m_sleepCountDown(0)
-  {}
-  
-  void addRoutine(const Routine::Builder& routineBuilder);
-  bool iterate();
+
+  void addCoroutine(AbstractCoroutine* coroutine);
+  bool iterate(v_int32 numIterations);
   
 };
   
 }}
 
-#endif /* Processor_hpp */
+#endif /* oatpp_async_Processor_hpp */

@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 class Body {
 protected:
-  typedef oatpp::async::Action2 Action2;
+  typedef oatpp::async::Action Action;
 protected:
   typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
@@ -46,8 +46,8 @@ public:
    */
   virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
   
-  virtual Action2 writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                     const Action2& actionOnReturn,
+  virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                     const Action& actionOnReturn,
                                      const std::shared_ptr<OutputStream>& stream) = 0;
   
 };

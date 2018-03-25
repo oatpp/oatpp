@@ -42,7 +42,7 @@
 
 #include "../../../../oatpp-lib/core/src/data/stream/StreamBufferedProxy.hpp"
 #include "../../../../oatpp-lib/core/src/data/buffer/IOBuffer.hpp"
-#include "../../../../oatpp-lib/core/src/async/Processor2.hpp"
+#include "../../../../oatpp-lib/core/src/async/Processor.hpp"
 
 namespace oatpp { namespace web { namespace server {
   
@@ -53,7 +53,7 @@ private:
   public:
     typedef oatpp::collection::LinkedList<std::shared_ptr<HttpProcessor::ConnectionState>> Connections;
   private:
-    void consumeConnections(oatpp::async::Processor2& processor);
+    void consumeConnections(oatpp::async::Processor& processor);
   private:
     oatpp::concurrency::SpinLock::Atom m_atom;
     Connections m_connections;

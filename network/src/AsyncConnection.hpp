@@ -11,7 +11,6 @@
 
 #include "../../../oatpp-lib/core/src/base/memory/ObjectPool.hpp"
 #include "../../../oatpp-lib/core/src/data/stream/Stream.hpp"
-#include "../../../oatpp-lib/core/src/async/Routine.hpp"
 #include "../../../oatpp-lib/core/src/os/io/Library.hpp"
 
 namespace oatpp { namespace network {
