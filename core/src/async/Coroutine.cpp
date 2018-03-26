@@ -31,4 +31,31 @@ const Action Action::_REPEAT(TYPE_REPEAT, nullptr, nullptr);
 const Action Action::_FINISH(TYPE_FINISH, nullptr, nullptr);
 const Action Action::_ABORT(TYPE_ABORT, nullptr, nullptr);
   
+Action::Action(v_int32 type,
+       AbstractCoroutine* coroutine,
+       FunctionPtr functionPtr)
+  : m_type(type)
+  , m_coroutine(coroutine)
+  , m_functionPtr(functionPtr)
+  , m_error(Error(nullptr))
+{}
+
+Action::Action(const Error& error)
+  : m_type(TYPE_ERROR)
+  , m_coroutine(nullptr)
+  , m_functionPtr(nullptr)
+  , m_error(error)
+{}
+
+bool Action::isError(){
+  return m_type == TYPE_ERROR;
+}
+
+void Action::free() {
+  if(m_coroutine != nullptr) {
+    m_coroutine->free();
+    m_coroutine = nullptr;
+  }
+}
+  
 }}

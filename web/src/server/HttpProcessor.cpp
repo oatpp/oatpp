@@ -154,12 +154,12 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   
   m_keepAlive = HttpProcessor::considerConnectionKeepAlive(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0);
-  return m_currentResponse->sendAsync(this, yieldTo(&HttpProcessor::Coroutine::doFlush), m_outStream);
+  return m_currentResponse->sendAsync(this,
+                                      m_outStream->flushAsync(
+                                                              this,
+                                                              yieldTo(&HttpProcessor::Coroutine::onRequestDone)),
+                                      m_outStream);
   
-}
-
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::doFlush() {
-  return m_outStream->flushAsync(this, yieldTo(&HttpProcessor::Coroutine::onRequestDone));
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {

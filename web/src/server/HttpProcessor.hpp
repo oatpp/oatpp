@@ -81,7 +81,6 @@ public:
     
     Action onRequestFormed();
     Action onResponseFormed();
-    Action doFlush();
     Action onRequestDone();
     
   };

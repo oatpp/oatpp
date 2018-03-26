@@ -70,27 +70,16 @@ private:
   AbstractCoroutine* m_coroutine;
   FunctionPtr m_functionPtr;
   Error m_error;
+protected:
+  void free();
 public:
   
   Action(v_int32 type,
-          AbstractCoroutine* coroutine,
-          FunctionPtr functionPtr)
-    : m_type(type)
-    , m_coroutine(coroutine)
-    , m_functionPtr(functionPtr)
-    , m_error(Error(nullptr))
-  {}
+         AbstractCoroutine* coroutine,
+         FunctionPtr functionPtr);
   
-  Action(const Error& error)
-    : m_type(TYPE_ERROR)
-    , m_coroutine(nullptr)
-    , m_functionPtr(nullptr)
-    , m_error(error)
-  {}
-  
-  bool isError(){
-    return m_type == TYPE_ERROR;
-  }
+  Action(const Error& error);
+  bool isError();
   
 };
   
@@ -100,6 +89,25 @@ class AbstractCoroutine {
 public:
   typedef Action Action;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
+public:
+  
+  class MemberCaller {
+  private:
+    void* m_objectPtr;
+  public:
+    
+    MemberCaller(void* objectPtr)
+      : m_objectPtr(objectPtr)
+    {}
+    
+    template<typename ReturnType, typename T, typename ...Args>
+    ReturnType call(ReturnType (T::*f)(), Args... args){
+      MemberCaller* caller = static_cast<MemberCaller*>(m_objectPtr);
+      return (caller->*reinterpret_cast<ReturnType (MemberCaller::*)(Args...)>(f))(args...);
+    }
+    
+  };
+  
 private:
   AbstractCoroutine* _CP = this;
   FunctionPtr _FP = &AbstractCoroutine::act;
@@ -120,14 +128,12 @@ private:
             _CP = nullptr;
             return action;
           }
-          do {
-            _CP->free();
-            _CP = _CP->m_parent; // Should be fine here. As free() - return of the pointer to Bench. (Memory not changed)
-            takeAction(_CP->m_savedAction);
-          } while (_FP == nullptr && _CP != this);
-          if(_FP == nullptr &&_CP == this) {
-            _CP = nullptr;
-            return action;
+          {
+            AbstractCoroutine* savedCP = _CP;
+            _CP = _CP->m_parent;
+            takeAction(savedCP->m_parentReturnAction);
+            savedCP->m_parentReturnAction.m_coroutine = nullptr;
+            savedCP->free();
           }
         break;
         
@@ -151,7 +157,8 @@ private:
   
 private:
   AbstractCoroutine* m_parent = nullptr;
-  Action m_savedAction = Action::_FINISH;
+protected:
+  Action m_parentReturnAction = Action::_FINISH;
 public:
   
   Action iterate() {
@@ -170,24 +177,38 @@ public:
   };
   
   virtual ~AbstractCoroutine(){
+    m_parentReturnAction.free();
   }
   
   virtual Action act() = 0;
   virtual Action call(FunctionPtr ptr) = 0;
   virtual void free() = 0;
+  virtual MemberCaller getMemberCaller() const = 0;
+  
+  template<typename ...Args>
+  Action callWithParams(FunctionPtr ptr, Args... args) {
+    return getMemberCaller().call<Action>(ptr, args...);
+  }
   
   template<typename C, typename ... Args>
   Action startCoroutine(const Action& actionOnReturn, Args... args) {
-    m_savedAction = actionOnReturn;
     C* coroutine = C::getBench().obtain(args...);
+    coroutine->m_parentReturnAction = actionOnReturn;
     return Action(Action::TYPE_COROUTINE, coroutine, nullptr);
   }
   
-  bool finished(){
+  template<typename C, typename T, typename ... CallbackArgs, typename ...Args>
+  Action startCoroutineForResult(Action (T::*function)(CallbackArgs...), Args... args) {
+    C* coroutine = C::getBench().obtain(args...);
+    coroutine->m_callback = reinterpret_cast<FunctionPtr>(function);
+    return Action(Action::TYPE_COROUTINE, coroutine, nullptr);
+  }
+  
+  bool finished() const {
     return _CP == nullptr;
   }
   
-  AbstractCoroutine* getParent(){
+  AbstractCoroutine* getParent() const {
     return m_parent;
   }
   
@@ -204,18 +225,18 @@ public:
     return bench;
   }
 public:
-  static FunctionPtr castFunctionPtr(Function function){
-    return static_cast<FunctionPtr>(function);
-  }
-public:
   
-  virtual Action call(FunctionPtr ptr) override {
+  Action call(FunctionPtr ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
   
-  virtual void free() override {
+  void free() override {
     Coroutine<T>::getBench().free(static_cast<T*>(this));
+  }
+  
+  MemberCaller getMemberCaller() const override {
+    return MemberCaller((void*) this);
   }
   
   Action yieldTo(Function function) const {
@@ -231,6 +252,63 @@ public:
   }
   
   const Action& finish() const {
+    return Action::_FINISH;
+  }
+  
+  const Action& abort() const {
+    return Action::_ABORT;
+  }
+  
+  Action error(const char* message) {
+    return Action(Error(message));
+  }
+  
+};
+  
+
+  
+template<class T, typename ...Args>
+class CoroutineWithResult : public AbstractCoroutine {
+  friend AbstractCoroutine;
+public:
+  typedef Action (T::*Function)();
+  typedef oatpp::base::memory::Bench<T> Bench;
+public:
+  static Bench& getBench(){
+    static thread_local Bench bench(512);
+    return bench;
+  }
+private:
+  FunctionPtr m_callback;
+public:
+  
+  virtual Action call(FunctionPtr ptr) override {
+    Function f = static_cast<Function>(ptr);
+    return (static_cast<T*>(this)->*f)();
+  }
+  
+  virtual void free() override {
+    CoroutineWithResult<T, Args...>::getBench().free(static_cast<T*>(this));
+  }
+  
+  MemberCaller getMemberCaller() const override {
+    return MemberCaller((void*) this);
+  }
+  
+  Action yieldTo(Function function) const {
+    return Action(Action::TYPE_YIELD_TO, nullptr, static_cast<FunctionPtr>(function));
+  }
+  
+  const Action& waitRetry() const {
+    return Action::_WAIT_RETRY;
+  }
+  
+  const Action& repeat() const {
+    return Action::_REPEAT;
+  }
+  
+  const Action& _return(Args... args) {
+    m_parentReturnAction = getParent()->callWithParams(m_callback, args...);
     return Action::_FINISH;
   }
   
