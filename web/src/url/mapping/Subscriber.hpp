@@ -26,13 +26,20 @@
 #define oatpp_network_url_Subscriber_hpp
 
 #include "../../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
+#include "../../../../../oatpp-lib/core/src/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   
 template<class Param, class ReturnType>
 class Subscriber {
 public:
+  typedef oatpp::async::Action Action;
+  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const ReturnType&);
+public:
   virtual ReturnType processUrl(const Param& param) = 0;
+  virtual Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                 AsyncCallback callback,
+                                 const Param& param) = 0;
 };
   
 }}}}

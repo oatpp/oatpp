@@ -153,8 +153,8 @@ public:
   };
   
   Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                             const Action& actionOnFinish,
-                             const std::shared_ptr<OutputStream>& stream) override {
+                            const Action& actionOnFinish,
+                            const std::shared_ptr<OutputStream>& stream) override {
     if(m_chunked) {
       return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnFinish, getSharedPtr<ChunkedBufferBody>(), stream);
     } else {

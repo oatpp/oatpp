@@ -34,7 +34,7 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
   
 class ObjectMapper : public oatpp::base::Controllable, public oatpp::data::mapping::ObjectMapper {
 private:
-  static Info& getMapperInfo(){
+  static Info& getMapperInfo() {
     static Info info("application/json");
     return info;
   }
@@ -54,13 +54,13 @@ public:
   }
   
   void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-             const oatpp::data::mapping::type::AbstractPtrWrapper& variant) override {
+             const oatpp::data::mapping::type::AbstractPtrWrapper& variant) const override {
     Serializer::serialize(stream, variant);
   }
   
   oatpp::data::mapping::type::AbstractPtrWrapper
   read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
-       const oatpp::data::mapping::type::Type* const type) override {
+       const oatpp::data::mapping::type::Type* const type) const override {
     return Deserializer::deserialize(caret, deserializerConfig, type);
   }
   

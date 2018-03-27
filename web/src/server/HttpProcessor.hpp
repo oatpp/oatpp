@@ -80,6 +80,7 @@ public:
     Action act() override;
     
     Action onRequestFormed();
+    Action onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response);
     Action onResponseFormed();
     Action onRequestDone();
     

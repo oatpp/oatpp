@@ -252,8 +252,7 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
     setEndpointInfo(#NAME, info); \
   } \
   return info; \
-} \
-\
+}
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH, LIST)  \
 \
@@ -268,6 +267,7 @@ std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         this, \
                                                         Z__ENDPOINT_METHOD_##NAME(this), \
+                                                        nullptr, \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME());
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH, LIST) \
@@ -298,6 +298,7 @@ std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         this, \
                                                         Z__ENDPOINT_METHOD_##NAME(this), \
+                                                        nullptr, \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME());
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, LIST) \
@@ -337,3 +338,65 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, P
 #define ENDPOINT(METHOD, PATH, NAME, ...) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
 
+// ENDPOINT ASYNC MACRO // ------------------------------------------------------
+
+/**
+ *  1 - Method to obtain endpoint call function ptr
+ *  2 - Endpoint info singleton
+ */
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
+template<class T> \
+static typename Handler<T>::MethodAsync Z__ENDPOINT_METHOD_##NAME(T* controller) { \
+  return &T::Z__PROXY_METHOD_##NAME; \
+} \
+\
+std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
+  std::shared_ptr<Endpoint::Info> info = getEndpointInfo(#NAME); \
+  if(!info){ \
+    info = Endpoint::Info::createShared(); \
+    setEndpointInfo(#NAME, info); \
+  } \
+  return info; \
+}
+
+/**
+ *  1 - Endpoint info instance
+ *  2 - Endpoint instance
+ */
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL(NAME, METHOD, PATH)  \
+\
+std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
+  auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
+  info->name = #NAME; \
+  info->path = PATH; \
+  info->method = METHOD; \
+  return info; \
+} \
+\
+const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+                                                                    this, \
+                                                                    nullptr, \
+                                                                    Z__ENDPOINT_METHOD_##NAME(this), \
+                                                                    Z__CREATE_ENDPOINT_INFO_##NAME());
+
+
+#define ENDPOINT_ASYNC(METHOD, PATH, NAME) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL(NAME, METHOD, PATH) \
+\
+oatpp::async::Action Z__PROXY_METHOD_##NAME(oatpp::async::AbstractCoroutine* parentCoroutine, \
+                                            oatpp::web::server::api::ApiController::AsyncCallback asyncCallback, \
+                                            const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
+{ \
+  return parentCoroutine->startCoroutineForResult<NAME>(asyncCallback, this, __request); \
+} \
+\
+class NAME : public HandlerCoroutine<NAME, __ControllerType>
+
+#define ENDPOINT_ASYNC_INIT(NAME) \
+public: \
+\
+  NAME(__ControllerType* pController, \
+       const std::shared_ptr<IncomingRequest>& pRequest) \
+    : HandlerCoroutine(pController, pRequest) \
+  {}

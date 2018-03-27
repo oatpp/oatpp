@@ -63,6 +63,12 @@ public:
       return m_subscriber->processUrl(param);
     }
     
+    oatpp::async::Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                         typename UrlSubscriber::AsyncCallback callback,
+                                         const Param& param) const {
+      return m_subscriber->processUrlAsync(parentCoroutine, callback, param);
+    }
+    
     bool isNull() const {
       return m_subscriber == nullptr;
     }

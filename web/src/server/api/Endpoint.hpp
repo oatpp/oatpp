@@ -95,7 +95,7 @@ public:
 public:
   
   static std::shared_ptr<Endpoint> createShared(const std::shared_ptr<RequestHandler>& handler,
-                                          const std::shared_ptr<Info>& info){
+                                                const std::shared_ptr<Info>& info){
     return std::shared_ptr<Endpoint>(new Endpoint(handler, info));
   }
   

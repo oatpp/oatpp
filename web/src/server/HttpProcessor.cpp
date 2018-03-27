@@ -16,16 +16,20 @@ const char* HttpProcessor::RETURN_KEEP_ALIVE = "RETURN_KEEP_ALIVE";
 bool HttpProcessor::considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                                const std::shared_ptr<protocol::http::outgoing::Response>& response){
   
-  auto& inKeepAlive = request->headers->get(protocol::http::Header::CONNECTION, nullptr);
-  
-  if(!inKeepAlive.isNull() && base::String::equalsCI_FAST(inKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
-    if(response->headers->putIfNotExists(protocol::http::Header::CONNECTION, inKeepAlive)){
-      return true;
-    } else {
-      auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
-      return (!outKeepAlive.isNull() && base::String::equalsCI_FAST(outKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
+  if(request) {
+    auto& inKeepAlive = request->headers->get(protocol::http::Header::CONNECTION, nullptr);
+    
+    if(!inKeepAlive.isNull() && base::String::equalsCI_FAST(inKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
+      if(response->headers->putIfNotExists(protocol::http::Header::CONNECTION, inKeepAlive)){
+        return true;
+      } else {
+        auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
+        return (!outKeepAlive.isNull() && base::String::equalsCI_FAST(outKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
+      }
     }
-  } else if(!response->headers->putIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE)) {
+  }
+  
+  if(!response->headers->putIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE)) {
     auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
     return (!outKeepAlive.isNull() && base::String::equalsCI_FAST(outKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
   }
@@ -143,15 +147,20 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
-  m_currentResponse = m_currentRoute.processUrl(m_currentRequest); // TODO make async
-  return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+  HttpRouter::BranchRouter::UrlSubscriber::AsyncCallback callback =
+  static_cast<HttpRouter::BranchRouter::UrlSubscriber::AsyncCallback>(&HttpProcessor::Coroutine::onResponse);
+  return m_currentRoute.processUrlAsync(this, callback, m_currentRequest);
 }
 
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
+  m_currentResponse = response;
+  return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+}
+  
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   
   m_currentResponse->headers->putIfNotExists(protocol::http::Header::SERVER,
                                              protocol::http::Header::Value::SERVER);
-  
   m_keepAlive = HttpProcessor::considerConnectionKeepAlive(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0);
   return m_currentResponse->sendAsync(this,

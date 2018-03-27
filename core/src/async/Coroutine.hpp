@@ -197,9 +197,9 @@ public:
     return Action(Action::TYPE_COROUTINE, coroutine, nullptr);
   }
   
-  template<typename C, typename T, typename ... CallbackArgs, typename ...Args>
-  Action startCoroutineForResult(Action (T::*function)(CallbackArgs...), Args... args) {
-    C* coroutine = C::getBench().obtain(args...);
+  template<typename CoroutineType, typename ParentCoroutineType, typename ... CallbackArgs, typename ...Args>
+  Action startCoroutineForResult(Action (ParentCoroutineType::*function)(CallbackArgs...), Args... args) {
+    CoroutineType* coroutine = CoroutineType::getBench().obtain(args...);
     coroutine->m_callback = reinterpret_cast<FunctionPtr>(function);
     return Action(Action::TYPE_COROUTINE, coroutine, nullptr);
   }
