@@ -84,6 +84,8 @@ public:
     Action onResponseFormed();
     Action onRequestDone();
     
+    Action handleError(const oatpp::async::Error& error) override;
+    
   };
   
 public:

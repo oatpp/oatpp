@@ -178,4 +178,21 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   return abort();
 }
   
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oatpp::async::Error& error) {
+  if (error.isExceptionThrown) {
+    try{
+      throw;
+    } catch (HttpError& error) {
+      m_currentResponse = m_errorHandler->handleError(error.getStatus(), error.getMessage());
+    } catch (std::exception& error) {
+      m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+    } catch (...) {
+      m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+    }
+  } else {
+    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.message);
+  }
+  return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+}
+  
 }}}

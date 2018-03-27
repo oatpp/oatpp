@@ -113,7 +113,7 @@ private:
   FunctionPtr _FP = &AbstractCoroutine::act;
   AbstractCoroutine* _ref = nullptr;
   
-  const Action& takeAction(const Action& action){
+  Action takeAction(const Action& action){
     
     switch (action.m_type) {
 
@@ -131,9 +131,10 @@ private:
           {
             AbstractCoroutine* savedCP = _CP;
             _CP = _CP->m_parent;
-            takeAction(savedCP->m_parentReturnAction);
+            Action a = takeAction(savedCP->m_parentReturnAction);
             savedCP->m_parentReturnAction.m_coroutine = nullptr;
             savedCP->free();
+            return a;
           }
         break;
         
@@ -149,6 +150,25 @@ private:
           _CP = nullptr;
         break;
         
+      case Action::TYPE_ERROR:
+        Action a = action;
+        do {
+          a = _CP->handleError(a.m_error);
+          if(a.m_type == Action::TYPE_ERROR) {
+            if(_CP == this) {
+              _CP = nullptr;
+              return a;
+            } else {
+              _CP->free();
+              _CP = _CP->m_parent;
+            }
+          } else {
+            a = takeAction(a);
+          }
+        } while (a.m_type == Action::TYPE_ERROR && _CP != nullptr);
+        return a;
+        break;
+        
     };
     
     return action;
@@ -162,10 +182,14 @@ protected:
 public:
   
   Action iterate() {
-    return takeAction(_CP->call(_FP));
+    try {
+      return takeAction(_CP->call(_FP));
+    } catch (...) {
+      return takeAction(Action(Error("Exception", true)));
+    }
   };
   
-  Action iterate(v_int32 numIterations) {
+  /*Action iterate(v_int32 numIterations) {
     Action action(Action::TYPE_FINISH, nullptr, nullptr);
     for(v_int32 i = 0; i < numIterations; i++) {
       action = takeAction(_CP->call(_FP));
@@ -174,7 +198,7 @@ public:
       }
     }
     return action;
-  };
+  };*/
   
   virtual ~AbstractCoroutine(){
     m_parentReturnAction.free();
@@ -184,6 +208,10 @@ public:
   virtual Action call(FunctionPtr ptr) = 0;
   virtual void free() = 0;
   virtual MemberCaller getMemberCaller() const = 0;
+  
+  virtual Action handleError(const Error& error) {
+    return error;
+  }
   
   template<typename ...Args>
   Action callWithParams(FunctionPtr ptr, Args... args) {
