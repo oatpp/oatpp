@@ -39,6 +39,8 @@
 namespace oatpp { namespace web { namespace server { namespace api {
   
 class ApiController : public oatpp::base::Controllable {
+protected:
+  typedef ApiController __ControllerType;
 public:
   typedef oatpp::web::server::HttpRouter Router;
   typedef oatpp::web::protocol::http::outgoing::ResponseFactory OutgoingResponseFactory;
@@ -59,6 +61,23 @@ public:
   typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
   
 protected:
+  typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
+protected:
+  
+  template<class CoroutineT, class ControllerT>
+  class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, std::shared_ptr<OutgoingResponse>> {
+  public:
+    
+    HandlerCoroutine(ControllerT* pController,
+                     const std::shared_ptr<protocol::http::incoming::Request>& pRequest)
+      : controller(pController)
+      , request(pRequest)
+    {}
+    
+    const ControllerT* controller;
+    std::shared_ptr<protocol::http::incoming::Request> request;
+    
+  };
   
   template<class T>
   class Handler :
@@ -69,22 +88,39 @@ protected:
   > {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
+    typedef Action (T::*MethodAsync)(oatpp::async::AbstractCoroutine*,
+                                     AsyncCallback callback,
+                                     const std::shared_ptr<protocol::http::incoming::Request>&);
   private:
     T* m_controller;
     Method m_method;
+    MethodAsync m_methodAsync;
   protected:
-    Handler(T* controller, Method method)
+    Handler(T* controller, Method method, MethodAsync methodAsync)
       : m_controller(controller)
       , m_method(method)
+      , m_methodAsync(methodAsync)
     {}
   public:
     
-    static std::shared_ptr<Handler> createShared(T* controller, Method method){
-      return std::shared_ptr<Handler>(new Handler(controller, method));
+    static std::shared_ptr<Handler> createShared(T* controller, Method method, MethodAsync methodAsync){
+      return std::shared_ptr<Handler>(new Handler(controller, method, methodAsync));
     }
     
     std::shared_ptr<OutgoingResponse> processUrl(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       return (m_controller->*m_method)(request);
+    }
+    
+    Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                           AsyncCallback callback,
+                           const std::shared_ptr<protocol::http::incoming::Request>& request) override {
+      if(m_methodAsync != nullptr) {
+        return (m_controller->*m_methodAsync)(parentCoroutine, callback, request);
+      } else {
+        return parentCoroutine->callWithParams(reinterpret_cast<oatpp::async::AbstractCoroutine::FunctionPtr>(callback),
+                                               m_controller->handleError(Status::CODE_500,
+                                                                         "Using Async model for non async enpoint"));
+      }
     }
     
   };
@@ -106,8 +142,9 @@ public:
   static std::shared_ptr<Endpoint> createEndpoint(const std::shared_ptr<Endpoints>& endpoints,
                                                   T* controller,
                                                   typename Handler<T>::Method method,
+                                                  typename Handler<T>::MethodAsync methodAsync,
                                                   const std::shared_ptr<Endpoint::Info>& info){
-    auto handler = Handler<T>::createShared(controller, method);
+    auto handler = Handler<T>::createShared(controller, method, methodAsync);
     auto endpoint = Endpoint::createShared(handler, info);
     endpoints->pushBack(endpoint);
     return endpoint;
@@ -145,30 +182,30 @@ public:
     }
   }
   
-  std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper(){
+  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const {
     return m_defaultObjectMapper;
   }
   
   // Helper methods
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const oatpp::base::String::PtrWrapper& str) {
+                                                   const oatpp::base::String::PtrWrapper& str) const {
     return OutgoingResponseFactory::createShared(status, str);
   }
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) {
+                                                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const {
     return OutgoingResponseFactory::createShared(status, chunkedBuffer);
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
                                                       const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
-                                                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) {
+                                                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto) {
+                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto) const {
     return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
   }
   

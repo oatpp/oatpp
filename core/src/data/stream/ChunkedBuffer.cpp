@@ -26,6 +26,8 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
+const char* ChunkedBuffer::ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA";
+  
 const char* const ChunkedBuffer::CHUNK_POOL_NAME = "ChunkedBuffer_Chunk_Pool";
 
 const os::io::Library::v_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
@@ -206,6 +208,67 @@ bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
     curr = curr->next;
   }
   return true;
+}
+  
+oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                        const oatpp::async::Action& actionOnFinish,
+                                                        const std::shared_ptr<OutputStream>& stream) {
+ 
+  class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
+  private:
+    std::shared_ptr<ChunkedBuffer> m_chunkedBuffer;
+    std::shared_ptr<OutputStream> m_stream;
+    ChunkEntry* m_currEntry;
+    os::io::Library::v_size m_bytesLeft;
+  public:
+    
+    FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
+                   const std::shared_ptr<OutputStream>& stream)
+      : m_chunkedBuffer(chunkedBuffer)
+      , m_stream(stream)
+      , m_currEntry(chunkedBuffer->m_firstEntry)
+      , m_bytesLeft(chunkedBuffer->m_size)
+    {}
+    
+    Action act() override {
+      
+      if(m_currEntry == nullptr) {
+        return finish();
+      }
+      
+      if(m_bytesLeft > CHUNK_ENTRY_SIZE) {
+        auto res = m_stream->write(m_currEntry->chunk, CHUNK_ENTRY_SIZE);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+          return waitRetry();
+        } else if(res != CHUNK_ENTRY_SIZE) {
+          return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+        }
+        m_bytesLeft -= res;
+      } else {
+        auto res = m_stream->write(m_currEntry->chunk, m_bytesLeft);
+        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
+          return waitRetry();
+        } else if(res != m_bytesLeft) {
+          return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+        }
+        m_bytesLeft -= res;
+      }
+      
+      m_currEntry = m_currEntry->next;
+      
+      if(m_currEntry == nullptr) {
+        return finish();
+      }
+      return repeat();
+      
+    }
+    
+  };
+  
+  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish,
+                                                         getSharedPtr<ChunkedBuffer>(),
+                                                         stream);
+  
 }
   
 std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {

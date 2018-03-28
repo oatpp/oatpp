@@ -22,46 +22,40 @@
  *
  ***************************************************************************/
 
-#include "./Connection.hpp"
+#include "Coroutine.hpp"
 
-#include <sys/socket.h>
-#include <thread>
-#include <chrono>
+namespace oatpp { namespace async {
+  
+const Action Action::_WAIT_RETRY(TYPE_WAIT_RETRY, nullptr, nullptr);
+const Action Action::_REPEAT(TYPE_REPEAT, nullptr, nullptr);
+const Action Action::_FINISH(TYPE_FINISH, nullptr, nullptr);
+const Action Action::_ABORT(TYPE_ABORT, nullptr, nullptr);
+  
+Action::Action(v_int32 type,
+       AbstractCoroutine* coroutine,
+       FunctionPtr functionPtr)
+  : m_type(type)
+  , m_coroutine(coroutine)
+  , m_functionPtr(functionPtr)
+  , m_error(Error(nullptr))
+{}
 
-namespace oatpp { namespace network {
+Action::Action(const Error& error)
+  : m_type(TYPE_ERROR)
+  , m_coroutine(nullptr)
+  , m_functionPtr(nullptr)
+  , m_error(error)
+{}
 
-Connection::Connection(Library::v_handle handle)
-  : m_handle(handle)
-{
+bool Action::isError(){
+  return m_type == TYPE_ERROR;
 }
 
-Connection::~Connection(){
-  close();
+void Action::free() {
+  if(m_coroutine != nullptr) {
+    m_coroutine->free();
+    m_coroutine = nullptr;
+  }
 }
-
-Connection::Library::v_size Connection::write(const void *buff, Library::v_size count){
-  return Library::handle_write(m_handle, buff, count);
-}
-
-Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
-  return Library::handle_read(m_handle, buff, count);
-}
-
-v_int32 Connection::shutdown(){
-  return ::shutdown(m_handle, SHUT_RDWR);
-}
-
-v_int32 Connection::shutdownRead(){
-  return ::shutdown(m_handle, SHUT_RD);
-}
-
-v_int32 Connection::shutdownWrite(){
-  return ::shutdown(m_handle, SHUT_WR);
-}
-
-void Connection::close(){
-  Library::handle_close(m_handle);
-}
-
-
+  
 }}

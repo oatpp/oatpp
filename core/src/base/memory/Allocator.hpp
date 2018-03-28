@@ -92,7 +92,7 @@ public:
     return pool;
   }
 public:
-  ThreadLocalPoolSharedObjectAllocator(const ThreadLocalPoolSharedObjectAllocator& info)
+  ThreadLocalPoolSharedObjectAllocator(const AllocatorPoolInfo& info)
     : m_poolInfo(info)
   {};
   

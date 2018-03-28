@@ -27,6 +27,10 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
+os::io::Library::v_size IOStream::ERROR_NOTHING_TO_READ = -1001;
+os::io::Library::v_size IOStream::ERROR_CLOSED = -1002;
+os::io::Library::v_size IOStream::ERROR_TRY_AGAIN = -1003;
+  
 os::io::Library::v_size OutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);

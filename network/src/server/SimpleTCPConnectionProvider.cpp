@@ -24,6 +24,7 @@
 
 #include "./SimpleTCPConnectionProvider.hpp"
 
+#include "../AsyncConnection.hpp"
 #include "../Connection.hpp"
 
 #include "../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
@@ -69,7 +70,7 @@ oatpp::os::io::Library::v_handle SimpleTCPConnectionProvider::instantiateServer(
     return -1 ;
   }
   
-  ret = listen(serverHandle, 128);
+  ret = listen(serverHandle, 10000);
   if(ret < 0) {
     oatpp::os::io::Library::handle_close(serverHandle);
     return -1 ;
@@ -97,9 +98,18 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     }
   }
   
-  fcntl(handle, F_SETFL, 0);//O_NONBLOCK);
+  int flags = 0;
+  if(m_nonBlocking) {
+    flags |= O_NONBLOCK;
+  }
   
-  return Connection::createShared(handle);
+  fcntl(handle, F_SETFL, flags);
+  
+  if(m_nonBlocking) {
+    return AsyncConnection::createShared(handle);
+  } else {
+    return Connection::createShared(handle);
+  }
   
 }
 

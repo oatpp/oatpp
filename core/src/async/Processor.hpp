@@ -22,46 +22,32 @@
  *
  ***************************************************************************/
 
-#include "./Connection.hpp"
+#ifndef oatpp_async_Processor_hpp
+#define oatpp_async_Processor_hpp
 
-#include <sys/socket.h>
-#include <thread>
-#include <chrono>
+#include "./Coroutine.hpp"
+#include "../collection/FastQueue.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace async {
+  
+class Processor {
+private:
+  
+  bool checkWaitingQueue();
+  bool countdownToSleep();
+  
+private:
+  oatpp::collection::FastQueue<AbstractCoroutine> m_activeQueue;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_waitingQueue;
+private:
+  v_int32 m_sleepCountdown = 0;
+public:
 
-Connection::Connection(Library::v_handle handle)
-  : m_handle(handle)
-{
-}
-
-Connection::~Connection(){
-  close();
-}
-
-Connection::Library::v_size Connection::write(const void *buff, Library::v_size count){
-  return Library::handle_write(m_handle, buff, count);
-}
-
-Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
-  return Library::handle_read(m_handle, buff, count);
-}
-
-v_int32 Connection::shutdown(){
-  return ::shutdown(m_handle, SHUT_RDWR);
-}
-
-v_int32 Connection::shutdownRead(){
-  return ::shutdown(m_handle, SHUT_RD);
-}
-
-v_int32 Connection::shutdownWrite(){
-  return ::shutdown(m_handle, SHUT_WR);
-}
-
-void Connection::close(){
-  Library::handle_close(m_handle);
-}
-
-
+  void addCoroutine(AbstractCoroutine* coroutine);
+  bool iterate(v_int32 numIterations);
+  
+};
+  
 }}
+
+#endif /* oatpp_async_Processor_hpp */

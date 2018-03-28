@@ -28,10 +28,13 @@
 #include "./Stream.hpp"
 
 #include "../../collection/LinkedList.hpp"
+#include "../../async/Coroutine.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
   
 class ChunkedBuffer : public oatpp::base::Controllable, public OutputStream {
+public:
+  static const char* ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA;
 public:
   OBJECT_POOL(ChunkedBuffer_Pool, ChunkedBuffer, 32)
   SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Pool, ChunkedBuffer, 32)
@@ -154,6 +157,9 @@ public:
   }
 
   bool flushToStream(const std::shared_ptr<OutputStream>& stream);
+  oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                           const oatpp::async::Action& actionOnFinish,
+                                           const std::shared_ptr<OutputStream>& stream);
   
   std::shared_ptr<Chunks> getChunks();
 

@@ -34,15 +34,11 @@ namespace oatpp { namespace web { namespace server {
   
 class HttpRouter : public oatpp::base::Controllable {
 public:
-  typedef oatpp::web::url::mapping::Subscriber<
-    std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
-    std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
-  > Subscriber;
-protected:
   typedef oatpp::web::url::mapping::Router<
     std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
     std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
   > BranchRouter;
+  typedef BranchRouter::UrlSubscriber Subscriber;
   typedef oatpp::collection::ListMap<oatpp::base::String::PtrWrapper, std::shared_ptr<BranchRouter>> BranchMap;
 protected:
   std::shared_ptr<BranchMap> m_branchMap;

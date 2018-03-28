@@ -49,20 +49,31 @@ public:
     UrlSubscriber* m_subscriber;
   public:
     
+    Route()
+      : m_subscriber(nullptr)
+      , matchMap(nullptr)
+    {}
+    
     Route(UrlSubscriber* subscriber, const std::shared_ptr<Pattern::MatchMap>& pMatchMap)
       : m_subscriber(subscriber)
       , matchMap(pMatchMap)
     {}
     
-    ReturnType processUrl(const Param& param){
+    ReturnType processUrl(const Param& param) const {
       return m_subscriber->processUrl(param);
     }
     
-    bool isNull(){
+    oatpp::async::Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                         typename UrlSubscriber::AsyncCallback callback,
+                                         const Param& param) const {
+      return m_subscriber->processUrlAsync(parentCoroutine, callback, param);
+    }
+    
+    bool isNull() const {
       return m_subscriber == nullptr;
     }
     
-    const std::shared_ptr<Pattern::MatchMap> matchMap;
+    std::shared_ptr<Pattern::MatchMap> matchMap;
     
   };
 
