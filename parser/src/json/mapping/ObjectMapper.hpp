@@ -28,7 +28,7 @@
 #include "./Serializer.hpp"
 #include "./Deserializer.hpp"
 
-#include "../../../../../oatpp-lib/core/src/data/mapping/ObjectMapper.hpp"
+#include "../../../../../oatpp/core/src/data/mapping/ObjectMapper.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   

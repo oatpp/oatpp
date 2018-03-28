@@ -26,7 +26,7 @@
 #define oatpp_web_protocol_http_incoming_BodyDecoder_hpp
 
 #include "../Http.hpp"
-#include "../../../../../../oatpp-lib/core/src/data/mapping/ObjectMapper.hpp"
+#include "../../../../../../oatpp/core/src/data/mapping/ObjectMapper.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   

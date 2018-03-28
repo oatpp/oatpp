@@ -27,8 +27,8 @@
 #include "../AsyncConnection.hpp"
 #include "../Connection.hpp"
 
-#include "../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
-#include "../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../oatpp/core/src/utils/ConversionUtils.hpp"
+#include "../../../../oatpp/core/test/Checker.hpp"
 
 #include <fcntl.h>
 #include <netdb.h>

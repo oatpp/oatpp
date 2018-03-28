@@ -25,7 +25,7 @@
 #include "DeserializerTest.hpp"
 
 #include "../../../src/json/mapping/ObjectMapper.hpp"
-#include "../../../../../oatpp-lib/core/src/macro/codegen.hpp"
+#include "../../../../../oatpp/core/src/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
 

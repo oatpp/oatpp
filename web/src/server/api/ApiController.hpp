@@ -32,7 +32,7 @@
 
 #include "../../url/mapping/Router.hpp"
 #include "../../protocol/http/outgoing/ResponseFactory.hpp"
-#include "../../../../../oatpp-lib/core/src/collection/LinkedList.hpp"
+#include "../../../../../oatpp/core/src/collection/LinkedList.hpp"
 
 #include <unordered_map>
 

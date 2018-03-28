@@ -24,12 +24,12 @@
 
 #include "DTOMapperPerfTest.hpp"
 
-#include "../../../../../oatpp-lib/core/src/macro/basic.hpp"
-#include "../../../../../oatpp-lib/core/src/macro/codegen.hpp"
+#include "../../../../../oatpp/core/src/macro/basic.hpp"
+#include "../../../../../oatpp/core/src/macro/codegen.hpp"
 
 #include "../../../src/json/mapping/ObjectMapper.hpp"
 
-#include "../../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../../oatpp/core/test/Checker.hpp"
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
   

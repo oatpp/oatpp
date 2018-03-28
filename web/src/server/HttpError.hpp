@@ -26,7 +26,7 @@
 #define oatpp_web_server_HttpError_hpp
 
 #include "../protocol/http/Http.hpp"
-#include "../../../../oatpp-lib/core/src/base/String.hpp"
+#include "../../../../oatpp/core/src/base/String.hpp"
 
 namespace oatpp { namespace web { namespace server {
   

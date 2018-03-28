@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#include "../../../../../oatpp-lib/core/src/macro/basic.hpp"
-#include "../../../../../oatpp-lib/core/src/macro/codegen.hpp"
+#include "../../../../../oatpp/core/src/macro/basic.hpp"
+#include "../../../../../oatpp/core/src/macro/codegen.hpp"
 
 #define OATPP_MACRO_API_CLIENT_PARAM_MACRO(MACRO, TYPE, NAME, PARAM_LIST) MACRO(TYPE, NAME, PARAM_LIST)
 #define OATPP_MACRO_API_CLIENT_PARAM_TYPE(MACRO, TYPE, NAME, PARAM_LIST) TYPE

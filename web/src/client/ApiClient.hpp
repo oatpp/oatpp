@@ -32,18 +32,18 @@
 #include "../protocol/http/outgoing/DtoBody.hpp"
 #include "../protocol/http/outgoing/BufferBody.hpp"
 
-#include "../../../../oatpp-lib/core/src/data/stream/ChunkedBuffer.hpp"
+#include "../../../../oatpp/core/src/data/stream/ChunkedBuffer.hpp"
 
-#include "../../../../oatpp-lib/core/src/data/mapping/type/Primitive.hpp"
-#include "../../../../oatpp-lib/core/src/data/mapping/type/Type.hpp"
-#include "../../../../oatpp-lib/core/src/data/mapping/ObjectMapper.hpp"
+#include "../../../../oatpp/core/src/data/mapping/type/Primitive.hpp"
+#include "../../../../oatpp/core/src/data/mapping/type/Type.hpp"
+#include "../../../../oatpp/core/src/data/mapping/ObjectMapper.hpp"
 
-#include "../../../../oatpp-lib/core/src/collection/ListMap.hpp"
+#include "../../../../oatpp/core/src/collection/ListMap.hpp"
 
-#include "../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
+#include "../../../../oatpp/core/src/utils/ConversionUtils.hpp"
 
-#include "../../../../oatpp-lib/core/src/base/Controllable.hpp"
-#include "../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
+#include "../../../../oatpp/core/src/base/Controllable.hpp"
+#include "../../../../oatpp/core/src/base/PtrWrapper.hpp"
 
 #include <string>
 #include <list>

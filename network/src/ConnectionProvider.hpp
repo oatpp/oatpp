@@ -25,7 +25,7 @@
 #ifndef oatpp_netword_ConnectionsProvider_hpp
 #define oatpp_netword_ConnectionsProvider_hpp
 
-#include "../../../oatpp-lib/core/src/data/stream/Stream.hpp"
+#include "../../../oatpp/core/src/data/stream/Stream.hpp"
 
 namespace oatpp { namespace network {
   

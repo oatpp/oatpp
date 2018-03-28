@@ -31,9 +31,9 @@
 
 #include "./HttpError.hpp"
 
-#include "../../../../oatpp-lib/network/src/AsyncConnection.hpp"
+#include "../../../../oatpp/network/src/AsyncConnection.hpp"
 
-#include "../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../oatpp/core/test/Checker.hpp"
 
 #include <errno.h>
 

@@ -32,14 +32,14 @@
 #include "../protocol/http/incoming/Request.hpp"
 #include "../protocol/http/outgoing/Response.hpp"
 
-#include "../../../../oatpp-lib/network/src/server/Server.hpp"
-#include "../../../../oatpp-lib/network/src/Connection.hpp"
+#include "../../../../oatpp/network/src/server/Server.hpp"
+#include "../../../../oatpp/network/src/Connection.hpp"
 
-#include "../../../../oatpp-lib/core/src/concurrency/Thread.hpp"
-#include "../../../../oatpp-lib/core/src/concurrency/Runnable.hpp"
+#include "../../../../oatpp/core/src/concurrency/Thread.hpp"
+#include "../../../../oatpp/core/src/concurrency/Runnable.hpp"
 
-#include "../../../../oatpp-lib/core/src/data/stream/StreamBufferedProxy.hpp"
-#include "../../../../oatpp-lib/core/src/data/buffer/IOBuffer.hpp"
+#include "../../../../oatpp/core/src/data/stream/StreamBufferedProxy.hpp"
+#include "../../../../oatpp/core/src/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace server {
   

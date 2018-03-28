@@ -26,7 +26,7 @@
 #define oatpp_web_client_HttpRequestExecutor_hpp
 
 #include "./RequestExecutor.hpp"
-#include "../../../../oatpp-lib/network/src/ConnectionProvider.hpp"
+#include "../../../../oatpp/network/src/ConnectionProvider.hpp"
 
 namespace oatpp { namespace web { namespace client {
   

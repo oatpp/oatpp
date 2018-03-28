@@ -9,9 +9,9 @@
 #ifndef oatpp_network_AsyncConnection_hpp
 #define oatpp_network_AsyncConnection_hpp
 
-#include "../../../oatpp-lib/core/src/base/memory/ObjectPool.hpp"
-#include "../../../oatpp-lib/core/src/data/stream/Stream.hpp"
-#include "../../../oatpp-lib/core/src/os/io/Library.hpp"
+#include "../../../oatpp/core/src/base/memory/ObjectPool.hpp"
+#include "../../../oatpp/core/src/data/stream/Stream.hpp"
+#include "../../../oatpp/core/src/os/io/Library.hpp"
 
 namespace oatpp { namespace network {
   

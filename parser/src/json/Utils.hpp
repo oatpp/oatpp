@@ -25,8 +25,8 @@
 #ifndef oatpp_parser_json_Utils_hpp
 #define oatpp_parser_json_Utils_hpp
 
-#include "../../../../oatpp-lib/core/src/parser/ParsingCaret.hpp"
-#include "../../../../oatpp-lib/core/src/base/String.hpp"
+#include "../../../../oatpp/core/src/parser/ParsingCaret.hpp"
+#include "../../../../oatpp/core/src/base/String.hpp"
 
 #include <string>
 

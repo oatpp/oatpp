@@ -29,15 +29,15 @@
 
 #include "./ConnectionHandler.hpp"
 
-#include "../../../../oatpp-lib/core/src/concurrency/Runnable.hpp"
+#include "../../../../oatpp/core/src/concurrency/Runnable.hpp"
 
-#include "../../../../oatpp-lib/core/src/base/String.hpp"
+#include "../../../../oatpp/core/src/base/String.hpp"
 
-#include "../../../../oatpp-lib/core/src/os/io/Library.hpp"
+#include "../../../../oatpp/core/src/os/io/Library.hpp"
 
-#include "../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
-#include "../../../../oatpp-lib/core/src/base/Controllable.hpp"
-#include "../../../../oatpp-lib/core/src/base/Environment.hpp"
+#include "../../../../oatpp/core/src/base/PtrWrapper.hpp"
+#include "../../../../oatpp/core/src/base/Controllable.hpp"
+#include "../../../../oatpp/core/src/base/Environment.hpp"
 
 #include <atomic>
 

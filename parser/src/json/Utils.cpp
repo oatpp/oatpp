@@ -24,8 +24,8 @@
 
 #include "Utils.hpp"
 
-#include "../../../../oatpp-lib/encoding/src/Unicode.hpp"
-#include "../../../../oatpp-lib/encoding/src/Hex.hpp"
+#include "../../../../oatpp/encoding/src/Unicode.hpp"
+#include "../../../../oatpp/encoding/src/Hex.hpp"
 
 namespace oatpp { namespace parser { namespace json{
   

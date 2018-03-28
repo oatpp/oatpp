@@ -25,10 +25,10 @@
 #ifndef oatpp_encoding_Hex_hpp
 #define oatpp_encoding_Hex_hpp
 
-#include "../../../oatpp-lib/core/src/data/stream/Stream.hpp"
+#include "../../../oatpp/core/src/data/stream/Stream.hpp"
 
-#include "../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
-#include "../../../oatpp-lib/core/src/base/Environment.hpp"
+#include "../../../oatpp/core/src/base/PtrWrapper.hpp"
+#include "../../../oatpp/core/src/base/Environment.hpp"
 
 namespace oatpp { namespace encoding {
   

@@ -28,8 +28,8 @@
 #include "../Http.hpp"
 #include "./ChunkedBufferBody.hpp"
 
-#include "../../../../../../oatpp-lib/core/src/data/mapping/ObjectMapper.hpp"
-#include "../../../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
+#include "../../../../../../oatpp/core/src/data/mapping/ObjectMapper.hpp"
+#include "../../../../../../oatpp/core/src/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   

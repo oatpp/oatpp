@@ -25,7 +25,7 @@
 #include "./Deserializer.hpp"
 
 #include "../Utils.hpp"
-#include "../../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
+#include "../../../../../oatpp/core/src/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

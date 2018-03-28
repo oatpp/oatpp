@@ -25,7 +25,7 @@
 #ifndef oatpp_test_encoding_UnicodeTest_hpp
 #define oatpp_test_encoding_UnicodeTest_hpp
 
-#include "../../../oatpp-lib/core/test/UnitTest.hpp"
+#include "../../../oatpp/core/test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace encoding {
   

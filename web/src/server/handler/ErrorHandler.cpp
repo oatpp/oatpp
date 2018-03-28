@@ -25,7 +25,7 @@
 #include "./ErrorHandler.hpp"
 
 #include "../../protocol/http/outgoing/ChunkedBufferBody.hpp"
-#include "../../../../../oatpp-lib/core/src/data/stream/ChunkedBuffer.hpp"
+#include "../../../../../oatpp/core/src/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
   

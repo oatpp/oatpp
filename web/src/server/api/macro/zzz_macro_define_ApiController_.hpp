@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#include "../../../../../../oatpp-lib/core/src/macro/basic.hpp"
-#include "../../../../../../oatpp-lib/core/src/macro/codegen.hpp"
+#include "../../../../../../oatpp/core/src/macro/basic.hpp"
+#include "../../../../../../oatpp/core/src/macro/codegen.hpp"
 
 #define OATPP_MACRO_API_CONTROLLER_PARAM_MACRO(MACRO, INFO, TYPE, NAME, PARAM_LIST) MACRO(TYPE, NAME, PARAM_LIST)
 #define OATPP_MACRO_API_CONTROLLER_PARAM_INFO(MACRO, INFO, TYPE, NAME, PARAM_LIST) INFO(TYPE, NAME, PARAM_LIST)

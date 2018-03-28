@@ -16,9 +16,9 @@
 #include "../protocol/http/incoming/Request.hpp"
 #include "../protocol/http/outgoing/Response.hpp"
 
-#include "../../../../oatpp-lib/core/src/data/stream/StreamBufferedProxy.hpp"
+#include "../../../../oatpp/core/src/data/stream/StreamBufferedProxy.hpp"
 
-#include "../../../../oatpp-lib/core/src/async/Processor.hpp"
+#include "../../../../oatpp/core/src/async/Processor.hpp"
 
 namespace oatpp { namespace web { namespace server {
   

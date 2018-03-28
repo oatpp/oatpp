@@ -25,15 +25,15 @@
 #ifndef oatpp_network_Connection_hpp
 #define oatpp_network_Connection_hpp
 
-#include "../../../oatpp-lib/core/src/base/memory/ObjectPool.hpp"
+#include "../../../oatpp/core/src/base/memory/ObjectPool.hpp"
 
-#include "../../../oatpp-lib/core/src/data/stream/Stream.hpp"
+#include "../../../oatpp/core/src/data/stream/Stream.hpp"
 
-#include "../../../oatpp-lib/core/src/base/Controllable.hpp"
-#include "../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
-#include "../../../oatpp-lib/core/src/base/Environment.hpp"
+#include "../../../oatpp/core/src/base/Controllable.hpp"
+#include "../../../oatpp/core/src/base/PtrWrapper.hpp"
+#include "../../../oatpp/core/src/base/Environment.hpp"
 
-#include "../../../oatpp-lib/core/src/os/io/Library.hpp"
+#include "../../../oatpp/core/src/os/io/Library.hpp"
 
 namespace oatpp { namespace network {
   

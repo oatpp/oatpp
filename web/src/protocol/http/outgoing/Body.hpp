@@ -25,9 +25,9 @@
 #ifndef oatpp_web_protocol_http_outgoing_Body_hpp
 #define oatpp_web_protocol_http_outgoing_Body_hpp
 
-#include "../../../../../../oatpp-lib/core/src/data/stream/Stream.hpp"
-#include "../../../../../../oatpp-lib/core/src/collection/ListMap.hpp"
-#include "../../../../../../oatpp-lib/core/src/async/Coroutine.hpp"
+#include "../../../../../../oatpp/core/src/data/stream/Stream.hpp"
+#include "../../../../../../oatpp/core/src/collection/ListMap.hpp"
+#include "../../../../../../oatpp/core/src/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   

@@ -26,8 +26,8 @@
 
 #include "../Connection.hpp"
 
-#include "../../../../oatpp-lib/core/src/data/stream/ChunkedBuffer.hpp"
-#include "../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../oatpp/core/src/data/stream/ChunkedBuffer.hpp"
+#include "../../../../oatpp/core/test/Checker.hpp"
 
 #include <fcntl.h>
 #include <netdb.h>

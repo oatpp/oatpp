@@ -25,7 +25,7 @@
 #ifndef oatpp_test_parser_json_mapping_DTOMapperPerfTest_hpp
 #define oatpp_test_parser_json_mapping_DTOMapperPerfTest_hpp
 
-#include "../../../../../oatpp-lib/core/test/UnitTest.hpp"
+#include "../../../../../oatpp/core/test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
   

@@ -24,8 +24,8 @@
 
 #include "BodyDecoder.hpp"
 
-#include "../../../../../../oatpp-lib/core/src/data/stream/StreamBufferedProxy.hpp"
-#include "../../../../../../oatpp-lib/core/src/utils/ConversionUtils.hpp"
+#include "../../../../../../oatpp/core/src/data/stream/StreamBufferedProxy.hpp"
+#include "../../../../../../oatpp/core/src/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

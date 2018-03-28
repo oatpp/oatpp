@@ -33,7 +33,7 @@
 
 #include "./HttpError.hpp"
 
-#include "../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../oatpp/core/test/Checker.hpp"
 
 #include <errno.h>
 

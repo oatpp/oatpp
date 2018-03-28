@@ -25,13 +25,13 @@
 #ifndef oatpp_network_http_Protocol_hpp
 #define oatpp_network_http_Protocol_hpp
 
-#include "../../../../../oatpp-lib/network/src/Connection.hpp"
+#include "../../../../../oatpp/network/src/Connection.hpp"
 
-#include "../../../../../oatpp-lib/core/src/parser/ParsingCaret.hpp"
+#include "../../../../../oatpp/core/src/parser/ParsingCaret.hpp"
 
-#include "../../../../../oatpp-lib/core/src/data/stream/Delegate.hpp"
-#include "../../../../../oatpp-lib/core/src/collection/ListMap.hpp"
-#include "../../../../../oatpp-lib/core/src/base/String.hpp"
+#include "../../../../../oatpp/core/src/data/stream/Delegate.hpp"
+#include "../../../../../oatpp/core/src/collection/ListMap.hpp"
+#include "../../../../../oatpp/core/src/base/String.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   

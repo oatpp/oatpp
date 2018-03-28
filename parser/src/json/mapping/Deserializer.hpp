@@ -25,15 +25,15 @@
 #ifndef oatpp_parser_json_mapping_Deserializer_hpp
 #define oatpp_parser_json_mapping_Deserializer_hpp
 
-#include "../../../../../oatpp-lib/core/src/data/mapping/type/List.hpp"
-#include "../../../../../oatpp-lib/core/src/data/mapping/type/Object.hpp"
-#include "../../../../../oatpp-lib/core/src/data/mapping/type/Primitive.hpp"
-#include "../../../../../oatpp-lib/core/src/data/mapping/type/Type.hpp"
+#include "../../../../../oatpp/core/src/data/mapping/type/List.hpp"
+#include "../../../../../oatpp/core/src/data/mapping/type/Object.hpp"
+#include "../../../../../oatpp/core/src/data/mapping/type/Primitive.hpp"
+#include "../../../../../oatpp/core/src/data/mapping/type/Type.hpp"
 
-#include "../../../../../oatpp-lib/core/src/parser/ParsingCaret.hpp"
+#include "../../../../../oatpp/core/src/parser/ParsingCaret.hpp"
 
-#include "../../../../../oatpp-lib/core/src/collection/LinkedList.hpp"
-#include "../../../../../oatpp-lib/core/src/base/String.hpp"
+#include "../../../../../oatpp/core/src/collection/LinkedList.hpp"
+#include "../../../../../oatpp/core/src/base/String.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   

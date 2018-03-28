@@ -24,7 +24,7 @@
 
 #include "Server.hpp"
 
-#include "../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../oatpp/core/test/Checker.hpp"
 
 #include <thread>
 #include <chrono>

@@ -24,9 +24,9 @@
 
 #include "Pattern.hpp"
 
-#include "../../../../../oatpp-lib/core/src/parser/ParsingCaret.hpp"
+#include "../../../../../oatpp/core/src/parser/ParsingCaret.hpp"
 
-#include "../../../../../oatpp-lib/core/src/data/stream/ChunkedBuffer.hpp"
+#include "../../../../../oatpp/core/src/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
 

@@ -28,13 +28,13 @@
 #include "./Subscriber.hpp"
 #include "./Pattern.hpp"
 
-#include "../../../../../oatpp-lib/core/src/collection/LinkedList.hpp"
+#include "../../../../../oatpp/core/src/collection/LinkedList.hpp"
 
-#include "../../../../../oatpp-lib/core/src/base/String.hpp"
+#include "../../../../../oatpp/core/src/base/String.hpp"
 
-#include "../../../../../oatpp-lib/core/src/base/PtrWrapper.hpp"
-#include "../../../../../oatpp-lib/core/src/base/Controllable.hpp"
-#include "../../../../../oatpp-lib/core/src/base/Environment.hpp"
+#include "../../../../../oatpp/core/src/base/PtrWrapper.hpp"
+#include "../../../../../oatpp/core/src/base/Controllable.hpp"
+#include "../../../../../oatpp/core/src/base/Environment.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   

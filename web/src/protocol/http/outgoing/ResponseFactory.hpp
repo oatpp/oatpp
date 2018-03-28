@@ -27,9 +27,9 @@
 
 #include "./Response.hpp"
 
-#include "../../../../../../oatpp-lib/core/src/data/mapping/ObjectMapper.hpp"
-#include "../../../../../../oatpp-lib/core/src/data/mapping/type/Type.hpp"
-#include "../../../../../../oatpp-lib/core/src/data/stream/ChunkedBuffer.hpp"
+#include "../../../../../../oatpp/core/src/data/mapping/ObjectMapper.hpp"
+#include "../../../../../../oatpp/core/src/data/mapping/type/Type.hpp"
+#include "../../../../../../oatpp/core/src/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   

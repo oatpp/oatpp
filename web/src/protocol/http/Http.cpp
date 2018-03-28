@@ -24,7 +24,7 @@
 
 #include "./Http.hpp"
 
-#include "../../../../../oatpp-lib/core/test/Checker.hpp"
+#include "../../../../../oatpp/core/test/Checker.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
