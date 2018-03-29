@@ -220,6 +220,9 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
     std::shared_ptr<OutputStream> m_stream;
     ChunkEntry* m_currEntry;
     os::io::Library::v_size m_bytesLeft;
+    const void* m_currData;
+    os::io::Library::v_size m_currDataSize;
+    Action m_nextAction;
   public:
     
     FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
@@ -228,6 +231,9 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
       , m_stream(stream)
       , m_currEntry(chunkedBuffer->m_firstEntry)
       , m_bytesLeft(chunkedBuffer->m_size)
+      , m_currData(nullptr)
+      , m_currDataSize(0)
+      , m_nextAction(Action(Action::TYPE_FINISH, nullptr, nullptr))
     {}
     
     Action act() override {
@@ -237,30 +243,35 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
       }
       
       if(m_bytesLeft > CHUNK_ENTRY_SIZE) {
-        auto res = m_stream->write(m_currEntry->chunk, CHUNK_ENTRY_SIZE);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-          return waitRetry();
-        } else if(res != CHUNK_ENTRY_SIZE) {
-          return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
-        }
-        m_bytesLeft -= res;
+        m_currData = m_currEntry->chunk;
+        m_currDataSize = CHUNK_ENTRY_SIZE;
+        m_nextAction = yieldTo(&FlushCoroutine::act);
+        m_currEntry = m_currEntry->next;
+        return yieldTo(&FlushCoroutine::writeCurrData);
       } else {
-        auto res = m_stream->write(m_currEntry->chunk, m_bytesLeft);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-          return waitRetry();
-        } else if(res != m_bytesLeft) {
-          return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
-        }
+        m_currData = m_currEntry->chunk;
+        m_currDataSize = m_bytesLeft;
+        m_nextAction = yieldTo(&FlushCoroutine::act);
+        m_currEntry = m_currEntry->next;
+        return yieldTo(&FlushCoroutine::writeCurrData);
+      }
+      
+    }
+    
+    Action writeCurrData() {
+      auto res = m_stream->write(m_currData, m_currDataSize);
+      if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+        return waitRetry();
+      } else if( res < 0) {
+        return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
+      } else if(res < m_currDataSize) {
+        m_currData = &((p_char8) m_currData)[res];
+        m_currDataSize = m_currDataSize - res;
         m_bytesLeft -= res;
+        return repeat();
       }
-      
-      m_currEntry = m_currEntry->next;
-      
-      if(m_currEntry == nullptr) {
-        return finish();
-      }
-      return repeat();
-      
+      m_bytesLeft -= res;
+      return m_nextAction;
     }
     
   };

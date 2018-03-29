@@ -93,7 +93,10 @@ public:
     std::shared_ptr<OutputStream> m_stream;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> m_chunks;
     oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* m_currChunk;
-    v_int32 m_whileState;
+    const void* m_currData;
+    v_int32 m_currDataSize;
+    Action m_nextAction;
+    v_char8 m_buffer[16];
   public:
     
     WriteToStreamCoroutine(const std::shared_ptr<ChunkedBufferBody>& body,
@@ -102,51 +105,59 @@ public:
       , m_stream(stream)
       , m_chunks(m_body->m_buffer->getChunks())
       , m_currChunk(m_chunks->getFirstNode())
-      , m_whileState(0)
+      , m_currData(nullptr)
+      , m_currDataSize(0)
+      , m_nextAction(Action(Action::TYPE_FINISH, nullptr, nullptr))
     {}
     
     Action act() override {
-      
       if(m_currChunk == nullptr) {
-        m_whileState = 3;
+        return yieldTo(&WriteToStreamCoroutine::writeEndOfChunks);
       }
-      
-      if(m_whileState == 0) {
-        auto res = m_stream->write(oatpp::utils::conversion::primitiveToStr(m_currChunk->getData()->size, "%X\r\n"));
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-          return waitRetry();
-        } else if(res < 1) {
-          return error(ERROR_FAILED_TO_WRITE_DATA);
-        }
-        m_whileState = 1;
-      } else if(m_whileState == 1) {
-        auto res = m_stream->write(m_currChunk->getData()->data, m_currChunk->getData()->size);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-          return waitRetry();
-        } else if(res < m_currChunk->getData()->size) {
-          return error(ERROR_FAILED_TO_WRITE_DATA);
-        }
-        m_whileState = 2;
-      } else if(m_whileState == 2) {
-        auto res = m_stream->write("\r\n", 2);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-          return waitRetry();
-        } else if(res < 2) {
-          return error(ERROR_FAILED_TO_WRITE_DATA);
-        }
-        m_whileState = 3;
-      } else if(m_whileState == 3) {
-        auto res = m_stream->write("0\r\n\r\n", 5);
-        if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-          return waitRetry();
-        } else if(res < 5) {
-          return error(ERROR_FAILED_TO_WRITE_DATA);
-        }
-        return finish();
-      }
-      
+      return yieldTo(&WriteToStreamCoroutine::writeChunkSize);
+    }
+    
+    Action writeChunkSize() {
+      m_currDataSize = oatpp::utils::conversion::primitiveToCharSequence(m_currChunk->getData()->size, m_buffer, "%X\r\n");
+      m_currData = m_buffer;
+      m_nextAction = yieldTo(&WriteToStreamCoroutine::writeChunkData);
+      return yieldTo(&WriteToStreamCoroutine::writeCurrData);
+    }
+    
+    Action writeChunkData() {
+      m_currData = m_currChunk->getData()->data;
+      m_currDataSize = (v_int32) m_currChunk->getData()->size;
+      m_nextAction = yieldTo(&WriteToStreamCoroutine::writeChunkSeparator);
+      return yieldTo(&WriteToStreamCoroutine::writeCurrData);
+    }
+    
+    Action writeChunkSeparator() {
+      m_currData = (void*) "\r\n";
+      m_currDataSize = 2;
       m_currChunk = m_currChunk->getNext();
-      return repeat();
+      m_nextAction = yieldTo(&WriteToStreamCoroutine::act);
+      return yieldTo(&WriteToStreamCoroutine::writeCurrData);
+    }
+    
+    Action writeEndOfChunks() {
+      m_currData = (void*) "0\r\n\r\n";
+      m_currDataSize = 5;
+      m_nextAction = finish();
+      return yieldTo(&WriteToStreamCoroutine::writeCurrData);
+    }
+    
+    Action writeCurrData() {
+      auto res = m_stream->write(m_currData, m_currDataSize);
+      if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
+        return waitRetry();
+      } else if( res < 0) {
+        return error(ERROR_FAILED_TO_WRITE_DATA);
+      } else if(res < m_currDataSize) {
+        m_currData = &((p_char8) m_currData)[res];
+        m_currDataSize = m_currDataSize - (v_int32) res;
+        return repeat();
+      }
+      return m_nextAction;
     }
     
   };
