@@ -25,7 +25,7 @@
 #include "MemoryPoolTest.hpp"
 
 #include "oatpp/core/base/memory/MemoryPool.hpp"
-#include "Checker.hpp"
+#include "oatpp/test/Checker.hpp"
 
 namespace oatpp { namespace test { namespace memory {
 

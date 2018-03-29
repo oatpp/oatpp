@@ -25,7 +25,7 @@
 #ifndef oatpp_test_base_collection_LinkedListTest_hpp
 #define oatpp_test_base_collection_LinkedListTest_hpp
 
-#include "UnitTest.hpp"
+#include "oatpp/test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace collection {
   

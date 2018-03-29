@@ -25,7 +25,7 @@
 #ifndef test_memory_MemoryPoolTest_hpp
 #define test_memory_MemoryPoolTest_hpp
 
-#include "UnitTest.hpp"
+#include "oatpp/test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace memory {
   

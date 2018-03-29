@@ -25,7 +25,7 @@
 #ifndef PerfTest_hpp
 #define PerfTest_hpp
 
-#include "UnitTest.hpp"
+#include "oatpp/test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace memory {
   

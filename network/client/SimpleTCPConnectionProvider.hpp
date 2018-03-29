@@ -25,7 +25,7 @@
 #ifndef oatpp_netword_client_SimpleTCPConnectionProvider_hpp
 #define oatpp_netword_client_SimpleTCPConnectionProvider_hpp
 
-#include "ConnectionProvider.hpp"
+#include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/base/String.hpp"

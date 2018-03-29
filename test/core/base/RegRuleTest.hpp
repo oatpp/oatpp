@@ -25,7 +25,7 @@
 #ifndef oatpp_test_base_RegRuleTest_hpp
 #define oatpp_test_base_RegRuleTest_hpp
 
-#include "UnitTest.hpp"
+#include "oatpp/test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace base {
   
