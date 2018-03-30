@@ -38,7 +38,7 @@ StringPtrWrapper::operator std::string() const {
   if(m_ptr){
     return m_ptr->std_str();
   }
-  return nullptr;
+  return "";
 }
   
 namespace __class {

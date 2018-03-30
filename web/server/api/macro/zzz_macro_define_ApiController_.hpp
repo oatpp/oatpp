@@ -191,7 +191,7 @@ info->body.type = oatpp::data::mapping::type::__class::String::getType();
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, NAME, PARAM_LIST) \
 TYPE NAME; \
-__request->readBodyToDTO(NAME, getDefaultObjectMapper()); \
+__request->readBodyToDto(NAME, getDefaultObjectMapper()); \
 if(NAME.isNull()) { \
   return ApiController::handleError(Status::CODE_400, "Missing valid body parameter '" #NAME "'"); \
 }
