@@ -40,22 +40,28 @@ Connection::~Connection(){
 }
 
 Connection::Library::v_size Connection::write(const void *buff, Library::v_size count){
+  errno = 0;
   auto result = Library::handle_write(m_handle, buff, count);
-  if(result < 0) {
+  if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return ERROR_TRY_AGAIN; // For async io. In case socket is non_blocking
+      return ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
+    } else if(e == EINTR) {
+      return ERROR_IO_RETRY;
     }
   }
   return result;
 }
 
 Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
+  errno = 0;
   auto result = Library::handle_read(m_handle, buff, count);
-  if(result < 0) {
+  if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return ERROR_TRY_AGAIN; // For async io. In case socket is non_blocking
+      return ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
+    } else if(e == EINTR) {
+      return ERROR_IO_RETRY;
     }
   }
   return result;

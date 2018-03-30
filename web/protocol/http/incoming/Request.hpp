@@ -89,7 +89,7 @@ public:
   }
   
   template<class Type>
-  typename Type::PtrWrapper readBodyToDTO(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+  typename Type::PtrWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));
   }
@@ -99,6 +99,27 @@ public:
                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     objectWrapper = objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));
+  }
+  
+  // Async
+  
+  oatpp::async::Action streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                       const oatpp::async::Action& actionOnReturn,
+                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+    return protocol::http::incoming::BodyDecoder::decodeAsync(parentCoroutine, actionOnReturn, headers, bodyStream, toStream);
+  }
+  
+  template<typename ParentCoroutineType>
+  oatpp::async::Action readBodyToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                             oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::base::String::PtrWrapper&)) const {
+    return protocol::http::incoming::BodyDecoder::decodeToStringAsync(parentCoroutine, callback, headers, bodyStream);
+  }
+  
+  template<class DtoType, typename ParentCoroutineType>
+  oatpp::async::Action readBodyToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                          oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::PtrWrapper&),
+                                          const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+    return protocol::http::incoming::BodyDecoder::decodeToDtoAsync<DtoType>(parentCoroutine, callback, headers, bodyStream, objectMapper);
   }
   
 };

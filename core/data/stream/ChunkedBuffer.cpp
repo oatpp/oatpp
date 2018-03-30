@@ -247,31 +247,21 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
         m_currDataSize = CHUNK_ENTRY_SIZE;
         m_nextAction = yieldTo(&FlushCoroutine::act);
         m_currEntry = m_currEntry->next;
+        m_bytesLeft -= m_currDataSize;
         return yieldTo(&FlushCoroutine::writeCurrData);
       } else {
         m_currData = m_currEntry->chunk;
         m_currDataSize = m_bytesLeft;
         m_nextAction = yieldTo(&FlushCoroutine::act);
         m_currEntry = m_currEntry->next;
+        m_bytesLeft -= m_currDataSize;
         return yieldTo(&FlushCoroutine::writeCurrData);
       }
       
     }
     
     Action writeCurrData() {
-      auto res = m_stream->write(m_currData, m_currDataSize);
-      if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-        return waitRetry();
-      } else if( res < 0) {
-        return error(ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA);
-      } else if(res < m_currDataSize) {
-        m_currData = &((p_char8) m_currData)[res];
-        m_currDataSize = m_currDataSize - res;
-        m_bytesLeft -= res;
-        return repeat();
-      }
-      m_bytesLeft -= res;
-      return m_nextAction;
+      return IOStream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
     }
     
   };

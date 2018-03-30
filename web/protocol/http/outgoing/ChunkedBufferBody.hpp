@@ -94,7 +94,7 @@ public:
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> m_chunks;
     oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* m_currChunk;
     const void* m_currData;
-    v_int32 m_currDataSize;
+    oatpp::os::io::Library::v_size m_currDataSize;
     Action m_nextAction;
     v_char8 m_buffer[16];
   public:
@@ -147,17 +147,7 @@ public:
     }
     
     Action writeCurrData() {
-      auto res = m_stream->write(m_currData, m_currDataSize);
-      if(res == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN) {
-        return waitRetry();
-      } else if( res < 0) {
-        return error(ERROR_FAILED_TO_WRITE_DATA);
-      } else if(res < m_currDataSize) {
-        m_currData = &((p_char8) m_currData)[res];
-        m_currDataSize = m_currDataSize - (v_int32) res;
-        return repeat();
-      }
-      return m_nextAction;
+      return oatpp::data::stream::IOStream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
     }
     
   };

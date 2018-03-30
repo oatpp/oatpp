@@ -62,22 +62,20 @@ public:
   private:
     std::shared_ptr<BufferBody> m_body;
     std::shared_ptr<OutputStream> m_stream;
+    const void* m_currData;
+    oatpp::os::io::Library::v_size m_currDataSize;
   public:
     
     WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
                            const std::shared_ptr<OutputStream>& stream)
       : m_body(body)
       , m_stream(stream)
+      , m_currData(m_body->m_buffer->getData())
+      , m_currDataSize(m_body->m_buffer->getSize())
     {}
     
     Action act() override {
-      auto readCount = m_stream->write(m_body->m_buffer);
-      if(readCount > 0) {
-        return finish();
-      } else if(readCount == oatpp::data::stream::IOStream::ERROR_TRY_AGAIN){
-        return waitRetry();
-      }
-      return abort();
+      return oatpp::data::stream::IOStream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
     }
     
   };

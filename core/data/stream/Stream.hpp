@@ -25,14 +25,14 @@
 #ifndef oatpp_data_Stream
 #define oatpp_data_Stream
 
-#include "oatpp/core/base/memory/ObjectPool.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp/core/base/String.hpp"
 
-#include "oatpp/core/os/io/Library.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 
 #include "oatpp/core/base/PtrWrapper.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/os/io/Library.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
   
@@ -68,11 +68,35 @@ public:
   
 class IOStream : public InputStream, public OutputStream {
 public:
-  static os::io::Library::v_size ERROR_NOTHING_TO_READ;
-  static os::io::Library::v_size ERROR_CLOSED;
-  static os::io::Library::v_size ERROR_TRY_AGAIN;
+  constexpr static os::io::Library::v_size ERROR_IO_NOTHING_TO_READ = -1001;
+  constexpr static os::io::Library::v_size ERROR_IO_WAIT_RETRY = -1002;
+  constexpr static os::io::Library::v_size ERROR_IO_RETRY = -1003;
+  
+  constexpr static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_DATA";
+  constexpr static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA = "ERROR_ASYNC_FAILED_TO_READ_DATA";
+  
 public:
   typedef os::io::Library::v_size v_size;
+  
+  /**
+   *  Async write data withot starting new Coroutine.
+   *  Should be called from a separate Coroutine method
+   */
+  static oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                                   const void*& data,
+                                                   os::io::Library::v_size& size,
+                                                   const oatpp::async::Action& nextAction);
+  
+  static oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+                                                      void*& data,
+                                                      os::io::Library::v_size& bytesLeftToRead,
+                                                      const oatpp::async::Action& nextAction);
+  
+  static oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+                                                           void*& data,
+                                                           os::io::Library::v_size& bytesLeftToRead,
+                                                           const oatpp::async::Action& nextAction);
+  
 };
 
 class CompoundIOStream : public oatpp::base::Controllable, public IOStream {
@@ -126,6 +150,13 @@ void transfer(const std::shared_ptr<InputStream>& fromStream,
               oatpp::os::io::Library::v_size transferSize,
               void* buffer,
               oatpp::os::io::Library::v_size bufferSize);
+  
+oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                   const oatpp::async::Action& actionOnReturn,
+                                   const std::shared_ptr<InputStream>& fromStream,
+                                   const std::shared_ptr<OutputStream>& toStream,
+                                   oatpp::os::io::Library::v_size transferSize,
+                                   const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
   
 }}}
 

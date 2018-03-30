@@ -61,6 +61,9 @@ public:
   }
   
   void declareHeaders(const std::shared_ptr<Headers>& headers) override {
+    if(m_dto.isNull()) {
+      throw std::runtime_error("Sending null object");
+    }
     m_objectMapper->write(m_buffer, m_dto);
     ChunkedBufferBody::declareHeaders(headers);
     headers->putIfNotExists(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);

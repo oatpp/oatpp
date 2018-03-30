@@ -119,7 +119,7 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
           m_stream->m_pos = 0;
           m_stream->m_posEnd = 0;
           return finish();
-        } else if(result == IOStream::ERROR_TRY_AGAIN) {
+        } else if(result == IOStream::ERROR_IO_WAIT_RETRY) {
           return waitRetry();
         } else if(result > 0){
           m_stream->m_pos += (v_bufferSize) result;
@@ -178,7 +178,7 @@ os::io::Library::v_size InputStreamBufferedProxy::read(void *data, os::io::Libra
       m_pos = 0;
       m_posEnd = 0;
       os::io::Library::v_size bigResult = read(&((p_char8) data) [result], count - result);
-      if(bigResult > 0){
+      if(bigResult > 0 || result == 0){
         return bigResult + result;
       } else {
         //m_hasError = true;
