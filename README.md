@@ -24,4 +24,5 @@ Grab any project from [examples](https://github.com/oatpp/oatpp-examples), and f
 ### Examples:
 
 - [CRUD](https://github.com/oatpp/oatpp-examples/tree/master/crud) - Example project of how-to create basic CRUD endpoints
+- [AsyncApi](https://github.com/oatpp/oatpp-examples/tree/master/AsyncApi) - Example project of how-to use asynchronous API for handling large number of simultaneous connections
 - [ApiClient-Demo](https://github.com/oatpp/oatpp-examples/tree/master/ApiClient-Demo) - Example project of how-to use Retrofit-like client wrapper (ApiClient) and how it works
