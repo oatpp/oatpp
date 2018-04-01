@@ -25,6 +25,8 @@
 #include "./Http.hpp"
 
 #include "oatpp/test/Checker.hpp"
+#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
@@ -112,9 +114,125 @@ const char* const Header::TRANSFER_ENCODING = "Transfer-Encoding";
 const char* const Header::CONTENT_ENCODING = "Content-Encoding";
 const char* const Header::CONTENT_LENGTH = "Content-Length";
 const char* const Header::CONTENT_TYPE = "Content-Type";
+const char* const Header::CONTENT_RANGE = "Content-Range";
+const char* const Header::RANGE = "Range";
 const char* const Header::HOST = "Host";
 const char* const Header::USER_AGENT = "User-Agent";
 const char* const Header::SERVER = "Server";
+  
+oatpp::base::String::PtrWrapper Range::toString() const {
+  oatpp::data::stream::ChunkedBuffer stream;
+  stream.write(units->getData(), units->getSize());
+  stream.write("=", 1);
+  stream.writeAsString((v_int64) start);
+  stream.write("-", 1);
+  stream.writeAsString((v_int64) end);
+  return stream.toString();
+}
+
+Range Range::parse(oatpp::parser::ParsingCaret& caret) {
+  
+  oatpp::parser::ParsingCaret::Label unitsLabel(caret);
+  
+  if(caret.findChar('=')) {
+    unitsLabel.end();
+    caret.inc();
+  } else {
+    caret.setError("'=' - expected");
+    return Range();
+  }
+  
+  oatpp::parser::ParsingCaret::Label startLabel(caret);
+  if(caret.findChar('-')) {
+    startLabel.end();
+    caret.inc();
+  } else {
+    caret.setError("'-' - expected");
+    return Range();
+  }
+  
+  oatpp::parser::ParsingCaret::Label endLabel(caret);
+  caret.findRN();
+  endLabel.end();
+  
+  oatpp::os::io::Library::v_size start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
+  oatpp::os::io::Library::v_size end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  return Range(unitsLabel.toString(true), start, end);
+  
+}
+
+Range Range::parse(const std::shared_ptr<oatpp::base::String>& str) {
+  oatpp::parser::ParsingCaret caret(str);
+  return parse(caret);
+}
+
+oatpp::base::String::PtrWrapper ContentRange::toString() const {
+  oatpp::data::stream::ChunkedBuffer stream;
+  stream.write(units->getData(), units->getSize());
+  stream.write(" ", 1);
+  stream.writeAsString((v_int64) start);
+  stream.write("-", 1);
+  stream.writeAsString((v_int64) end);
+  stream.write("/", 1);
+  if(isSizeKnown) {
+    stream.writeAsString((v_int64) size);
+  } else {
+    stream.write("*", 1);
+  }
+  return stream.toString();
+}
+
+ContentRange ContentRange::parse(oatpp::parser::ParsingCaret& caret) {
+  
+  oatpp::parser::ParsingCaret::Label unitsLabel(caret);
+  
+  if(caret.findChar(' ')) {
+    unitsLabel.end();
+    caret.inc();
+  } else {
+    caret.setError("' ' - expected");
+    return ContentRange();
+  }
+  
+  oatpp::parser::ParsingCaret::Label startLabel(caret);
+  if(caret.findChar('-')) {
+    startLabel.end();
+    caret.inc();
+  } else {
+    caret.setError("'-' - expected");
+    return ContentRange();
+  }
+  
+  oatpp::parser::ParsingCaret::Label endLabel(caret);
+  if(caret.findChar('/')) {
+    endLabel.end();
+    caret.inc();
+  } else {
+    caret.setError("'/' - expected");
+    return ContentRange();
+  }
+  
+  oatpp::parser::ParsingCaret::Label sizeLabel(caret);
+  caret.findRN();
+  sizeLabel.end();
+  
+  oatpp::os::io::Library::v_size start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
+  oatpp::os::io::Library::v_size end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  oatpp::os::io::Library::v_size size = 0;
+  bool isSizeKnown = false;
+  if(sizeLabel.getData()[0] != '*') {
+    isSizeKnown = true;
+    size = oatpp::utils::conversion::strToInt64((const char*) sizeLabel.getData());
+  }
+  
+  return ContentRange(unitsLabel.toString(true), start, end, size, isSizeKnown);
+  
+}
+
+ContentRange ContentRange::parse(const std::shared_ptr<oatpp::base::String>& str) {
+  oatpp::parser::ParsingCaret caret(str);
+  return parse(caret);
+}
   
 std::shared_ptr<RequestStartingLine> Protocol::parseRequestStartingLine(oatpp::parser::ParsingCaret& caret) {
   

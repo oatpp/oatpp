@@ -48,6 +48,10 @@ Connection::Library::v_size Connection::write(const void *buff, Library::v_size 
       return ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
       return ERROR_IO_RETRY;
+    } else if(e == EPIPE) {
+      return ERROR_IO_PIPE;
+    } else {
+      //OATPP_LOGD("Connection", "write errno=%d", e);
     }
   }
   return result;
@@ -62,6 +66,10 @@ Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
       return ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
       return ERROR_IO_RETRY;
+    } else if(e == EPIPE) {
+      return ERROR_IO_PIPE;
+    } else {
+      //OATPP_LOGD("Connection", "write errno=%d", e);
     }
   }
   return result;

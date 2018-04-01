@@ -76,7 +76,7 @@ public:
     return nullptr;
   }
   
-  std::shared_ptr<base::String> getPathTail() const{
+  base::String::PtrWrapper getPathTail() const{
     return pathVariables->tail;
   }
   

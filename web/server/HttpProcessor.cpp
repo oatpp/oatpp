@@ -155,6 +155,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
   auto readCount = m_connection->read(m_ioBuffer->getData(), m_ioBuffer->getSize());
   if(readCount > 0) {
+    m_currentResponse = nullptr;
     return parseRequest((v_int32)readCount);
   } else if(readCount == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
     return waitRetry();
@@ -195,6 +196,14 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oatpp::async::Error& error) {
+  if(m_currentResponse) {
+    if(error.isExceptionThrown) {
+      OATPP_LOGD("Server", "onHandleError. Forwarding error. %s", "Unknown");
+    } else {
+      OATPP_LOGD("Server", "onHandleError. Forwarding error. %s", error.message);
+    }
+    return error;
+  }
   if (error.isExceptionThrown) {
     try{
       throw;

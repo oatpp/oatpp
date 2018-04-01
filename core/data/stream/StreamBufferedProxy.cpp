@@ -52,6 +52,8 @@ os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::i
       os::io::Library::v_size bigResult = write(&((p_char8) data)[spaceLeft], count - spaceLeft);
       if(bigResult > 0) {
         return bigResult + spaceLeft;
+      } else if(bigResult < 0) {
+        return bigResult;
       } else {
         return spaceLeft;
       }
@@ -59,6 +61,8 @@ os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::i
     
     if(writeResult > 0){
       m_pos += (v_bufferSize) writeResult;
+    } else if(writeResult < 0) {
+      return writeResult;
     }
     
     return spaceLeft;
@@ -178,11 +182,10 @@ os::io::Library::v_size InputStreamBufferedProxy::read(void *data, os::io::Libra
       m_pos = 0;
       m_posEnd = 0;
       os::io::Library::v_size bigResult = read(&((p_char8) data) [result], count - result);
-      if(bigResult > 0 || result == 0){
+      if(bigResult > 0){
         return bigResult + result;
-      } else {
-        //m_hasError = true;
-        //m_errno = errno;
+      } else if(bigResult < 0) {
+        return bigResult;
       }
       
       return result;

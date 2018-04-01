@@ -141,9 +141,81 @@ public:
   static const char* const CONTENT_ENCODING;    // "Content-Encoding"
   static const char* const CONTENT_LENGTH;      // "Content-Length"
   static const char* const CONTENT_TYPE;        // "Content-Type"
+  static const char* const CONTENT_RANGE;       // "Content-Range"
+  static const char* const RANGE;               // "Range"
   static const char* const HOST;                // "Host"
   static const char* const USER_AGENT;          // "User-Agent"
   static const char* const SERVER;              // "Server"
+};
+  
+class Range {
+public:
+  constexpr static const char* UNIT_BYTES = "bytes";
+private:
+  Range()
+    : units(nullptr)
+  {}
+public:
+  
+  Range(const oatpp::base::String::PtrWrapper& pUnits,
+        const oatpp::os::io::Library::v_size& pStart,
+        const oatpp::os::io::Library::v_size& pEnd)
+    : units(pUnits)
+    , start(pStart)
+    , end(pEnd)
+  {}
+  
+  oatpp::base::String::PtrWrapper units;
+  oatpp::os::io::Library::v_size start;
+  oatpp::os::io::Library::v_size end;
+  
+  oatpp::base::String::PtrWrapper toString() const;
+  
+  bool isValid() const {
+    return units.get() != nullptr;
+  }
+  
+  static Range parse(oatpp::parser::ParsingCaret& caret);
+  static Range parse(const std::shared_ptr<oatpp::base::String>& str);
+  
+};
+  
+class ContentRange {
+public:
+  constexpr static const char* UNIT_BYTES = "bytes";
+private:
+  ContentRange()
+    : units(nullptr)
+  {}
+public:
+  
+  ContentRange(const oatpp::base::String::PtrWrapper& pUnits,
+               const oatpp::os::io::Library::v_size& pStart,
+               const oatpp::os::io::Library::v_size& pEnd,
+               const oatpp::os::io::Library::v_size& pSize,
+               bool pIsSizeKnown)
+    : units(pUnits)
+    , start(pStart)
+    , end(pEnd)
+    , size(pSize)
+    , isSizeKnown(pIsSizeKnown)
+  {}
+  
+  oatpp::base::String::PtrWrapper units;
+  oatpp::os::io::Library::v_size start;
+  oatpp::os::io::Library::v_size end;
+  oatpp::os::io::Library::v_size size;
+  bool isSizeKnown;
+  
+  oatpp::base::String::PtrWrapper toString() const;
+  
+  bool isValid() const {
+    return units.get() != nullptr;
+  }
+  
+  static ContentRange parse(oatpp::parser::ParsingCaret& caret);
+  static ContentRange parse(const std::shared_ptr<oatpp::base::String>& str);
+  
 };
   
 class RequestStartingLine : public base::Controllable {
@@ -164,7 +236,6 @@ public:
   std::shared_ptr<base::String> protocol;
   
 };
-  
   
 class ResponseStartingLine : public base::Controllable {
 public:

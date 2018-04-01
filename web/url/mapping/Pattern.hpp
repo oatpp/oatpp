@@ -58,7 +58,7 @@ public:
     }
     
     const std::shared_ptr<Variables> variables;
-    const std::shared_ptr<base::String> tail;
+    const base::String::PtrWrapper tail;
     
   };
   

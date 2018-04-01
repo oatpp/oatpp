@@ -75,11 +75,19 @@ oatpp::async::Action IOStream::writeDataAsyncInline(oatpp::data::stream::OutputS
                                                     const void*& data,
                                                     os::io::Library::v_size& size,
                                                     const oatpp::async::Action& nextAction) {
-  auto res = stream->write(data, size);
+  os::io::Library::v_size chunkSize;
+  if(size > oatpp::data::buffer::IOBuffer::BUFFER_SIZE){
+    chunkSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+  } else {
+    chunkSize = size;
+  }
+  auto res = stream->write(data, chunkSize);
   if(res == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
   } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
     return oatpp::async::Action::_REPEAT;
+  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE) {
+    return oatpp::async::Action::_ABORT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(ERROR_ASYNC_FAILED_TO_WRITE_DATA));
   } else if(res < size) {
@@ -99,6 +107,8 @@ oatpp::async::Action IOStream::readSomeDataAsyncInline(oatpp::data::stream::Inpu
     return oatpp::async::Action::_WAIT_RETRY;
   } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
     return oatpp::async::Action::_REPEAT;
+  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE) {
+    return oatpp::async::Action::_ABORT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(ERROR_ASYNC_FAILED_TO_READ_DATA));
   } else if(res < bytesLeftToRead) {
@@ -119,6 +129,8 @@ oatpp::async::Action IOStream::readExactSizeDataAsyncInline(oatpp::data::stream:
     return oatpp::async::Action::_WAIT_RETRY;
   } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
     return oatpp::async::Action::_REPEAT;
+  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE) {
+    return oatpp::async::Action::_ABORT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(ERROR_ASYNC_FAILED_TO_READ_DATA));
   } else if(res < bytesLeftToRead) {
