@@ -39,7 +39,11 @@ Library::v_size Library::handle_read(v_handle handle, void *buf, v_size count){
 }
 
 Library::v_size Library::handle_write(v_handle handle, const void *buf, v_size count){
-  return write(handle, buf, count);
+  v_int32 flags = 0;
+#ifdef MSG_NOSIGNAL
+  flags |= MSG_NOSIGNAL;
+#endif
+  return send(handle, buf, count, flags);
 }
 
 }}}

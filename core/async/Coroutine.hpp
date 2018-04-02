@@ -87,7 +87,7 @@ class AbstractCoroutine {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
 public:
-  typedef Action Action;
+  typedef oatpp::async::Action Action;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
   

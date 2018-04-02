@@ -31,7 +31,7 @@
 #include <atomic>
 #include <list>
 #include <unordered_map>
-
+#include <cstring>
 //#define OATPP_DISABLE_POOL_ALLOCATIONS
 
 //#ifndef OATPP_MEMORY_POOL_SHARDING
@@ -201,7 +201,7 @@ private:
     
     v_int32 newSize = m_size + m_growSize;
     T** newIndex = new T*[newSize];
-    memcmp(newIndex, m_index, m_size);
+    std::memcpy(newIndex, m_index, m_size);
     
     Block* b = new Block(new v_char8 [m_growSize * sizeof(T)], m_blocks);
     m_blocks = b;

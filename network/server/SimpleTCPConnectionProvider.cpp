@@ -61,11 +61,6 @@ oatpp::os::io::Library::v_handle SimpleTCPConnectionProvider::instantiateServer(
     OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for accepting socket", "SO_REUSEADDR");
   }
   
-  ret = setsockopt(serverHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
-  if(ret < 0) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for accepting socket", "SO_NOSIGPIPE");
-  }
-  
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
   
   if(ret != 0) {
@@ -102,11 +97,13 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     }
   }
   
+#ifdef SO_NOSIGPIPE
   int yes = 1;
   v_int32 ret = setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for accepting socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for socket", "SO_NOSIGPIPE");
   }
+#endif
   
   int flags = 0;
   if(m_nonBlocking) {

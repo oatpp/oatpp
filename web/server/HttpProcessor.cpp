@@ -198,11 +198,11 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oatpp::async::Error& error) {
   if(m_currentResponse) {
     if(error.isExceptionThrown) {
-      OATPP_LOGD("Server", "onHandleError. Forwarding error. %s", "Unknown");
+      OATPP_LOGD("Server", "Unhandled exception. Dropping connection");
     } else {
-      OATPP_LOGD("Server", "onHandleError. Forwarding error. %s", error.message);
+      OATPP_LOGD("Server", "Unhandled error. '%s'. Dropping connection", error.message);
     }
-    return error;
+    return abort();
   }
   if (error.isExceptionThrown) {
     try{
