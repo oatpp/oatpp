@@ -159,6 +159,8 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
     return parseRequest((v_int32)readCount);
   } else if(readCount == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
     return waitRetry();
+  } else if(readCount == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
+    return repeat();
   }
   return abort();
 }

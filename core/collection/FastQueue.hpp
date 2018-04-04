@@ -65,6 +65,13 @@ public:
     }
   }
   
+  void round(){
+    last->_ref = first;
+    last = first;
+    first = first->_ref;
+    last->_ref = nullptr;
+  }
+  
   T* popFront() {
     T* result = first;
     first = first->_ref;
@@ -95,7 +102,6 @@ public:
       prevEntry->_ref = entry->_ref;
       entry->free();
     }
-    
   }
   
   static void moveEntry(FastQueue& fromQueue, FastQueue& toQueue, T* entry, T* prevEntry){

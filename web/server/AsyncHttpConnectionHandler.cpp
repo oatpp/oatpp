@@ -51,7 +51,7 @@ void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processo
                                                                  curr->getData()->outStream,
                                                                  curr->getData()->inStream);
     
-    processor.addCoroutine(coroutine);
+    processor.addWaitingCoroutine(coroutine);
     curr = curr->getNext();
   }
   

@@ -31,7 +31,6 @@ bool Processor::checkWaitingQueue() {
   AbstractCoroutine* curr = m_waitingQueue.first;
   AbstractCoroutine* prev = nullptr;
   while (curr != nullptr) {
-    
     const Action& action = curr->iterate();
     if(action.m_type == Action::TYPE_ABORT) {
       m_waitingQueue.removeEntry(curr, prev);
@@ -54,23 +53,38 @@ bool Processor::checkWaitingQueue() {
     if(curr != nullptr) {
       curr = curr->_ref;
     }
-    
   }
   return hasActions;
 }
 
-bool Processor::countdownToSleep() {
-  ++ m_sleepCountdown;
-  if(m_sleepCountdown > 1000) {
-    return checkWaitingQueue();
+bool Processor::considerCheckWaitingQueue(bool immediate) {
+  
+  if(immediate) {
+    ++ m_sleepCountdown;
+    if(m_sleepCountdown > 1000) {
+      std::this_thread::yield();
+      return checkWaitingQueue();
+    }
+  } else {
+    m_sleepCountdown = 0;
+    
+    if(m_checkWaitingQueueCountdown < 10){
+      ++ m_checkWaitingQueueCountdown;
+      return true;
+    }
+    m_checkWaitingQueueCountdown = 0;
   }
   checkWaitingQueue();
-  std::this_thread::yield();
   return true;
+  
 }
   
 void Processor::addCoroutine(AbstractCoroutine* coroutine) {
   m_activeQueue.pushBack(coroutine);
+}
+  
+void Processor::addWaitingCoroutine(AbstractCoroutine* coroutine) {
+  m_waitingQueue.pushBack(coroutine);
 }
 
 bool Processor::iterate(v_int32 numIterations) {
@@ -80,20 +94,20 @@ bool Processor::iterate(v_int32 numIterations) {
     auto CP = m_activeQueue.first;
     if(CP == nullptr) {
       break;
-    } else {
-      m_sleepCountdown = 0;
     }
     if(!CP->finished()) {
       const Action& action = CP->iterate();
       if(action.m_type == Action::TYPE_WAIT_RETRY) {
         m_waitingQueue.pushBack(m_activeQueue.popFront());
+      } else {
+        m_activeQueue.round();
       }
     } else {
       m_activeQueue.popFrontNoData();
     }
   }
   
-  return ((m_activeQueue.first != nullptr) || countdownToSleep());
+  return (considerCheckWaitingQueue(m_activeQueue.first == nullptr));
   
 }
   

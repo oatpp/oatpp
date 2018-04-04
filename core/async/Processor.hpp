@@ -34,16 +34,18 @@ class Processor {
 private:
   
   bool checkWaitingQueue();
-  bool countdownToSleep();
+  bool considerCheckWaitingQueue(bool immediate);
   
 private:
   oatpp::collection::FastQueue<AbstractCoroutine> m_activeQueue;
   oatpp::collection::FastQueue<AbstractCoroutine> m_waitingQueue;
 private:
   v_int32 m_sleepCountdown = 0;
+  v_int32 m_checkWaitingQueueCountdown = 0;
 public:
 
   void addCoroutine(AbstractCoroutine* coroutine);
+  void addWaitingCoroutine(AbstractCoroutine* coroutine);
   bool iterate(v_int32 numIterations);
   
 };
