@@ -64,17 +64,8 @@ typedef v_float64 * p_float64;
 typedef float v_float32;
 typedef v_float32* p_float32;
 
-typedef v_int64 v_timeMillis;
-
 typedef std::atomic_int_fast64_t v_atomicCounter;
 typedef v_int64 v_counter;
-
-const v_int32 MIN_INT_32 = -2147483648;
-const v_int32 MAX_INT_32 = 2147483647;
-
-//const v_int64 MIN_INT_64 = -9223372036854775808;
-const v_int64 MAX_INT_64 = 9223372036854775807;
-const v_int64 MIN_INT_64 = - MAX_INT_64 - 1;
 
 namespace oatpp { namespace base{
   
