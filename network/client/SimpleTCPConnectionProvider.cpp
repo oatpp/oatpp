@@ -68,4 +68,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   
 }
 
+oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                                     AsyncCallback callback) {
+  throw std::runtime_error("oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync not implemented");
+}
+  
 }}}

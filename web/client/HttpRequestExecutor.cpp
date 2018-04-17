@@ -91,15 +91,52 @@ HttpRequestExecutor::execute(const String::PtrWrapper& method,
     }
     
     auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
-                                                                               ioBuffer,
-                                                                               caret.getPosition(),
-                                                                               (v_int32) readCount);
+                                                                                  ioBuffer,
+                                                                                  caret.getPosition(),
+                                                                                  (v_int32) readCount);
     
     return Response::createShared(line->statusCode, line->description, headers, bodyStream);
     
   }
   
   return nullptr;
+  
+}
+  
+oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                       AsyncCallback callback,
+                                                       const String::PtrWrapper& method,
+                                                       const String::PtrWrapper& path,
+                                                       const std::shared_ptr<Headers>& headers,
+                                                       const std::shared_ptr<Body>& body) {
+  
+  class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, std::shared_ptr<HttpRequestExecutor::Response>> {
+  private:
+    String::PtrWrapper m_method;
+    String::PtrWrapper m_path;
+    std::shared_ptr<Headers> m_headers;
+    std::shared_ptr<Body> m_body;
+  private:
+    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+  public:
+    
+    ExecutorCoroutine(const String::PtrWrapper& method,
+                      const String::PtrWrapper& path,
+                      const std::shared_ptr<Headers>& headers,
+                      const std::shared_ptr<Body>& body)
+      : m_method(method)
+      , m_path(path)
+      , m_headers(headers)
+      , m_body(body)
+    {}
+    
+    Action act() override {
+      return _return(nullptr);
+    }
+    
+  };
+  
+  return parentCoroutine->startCoroutineForResult<ExecutorCoroutine>(callback, method, path, headers, body);
   
 }
   

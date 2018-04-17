@@ -26,12 +26,22 @@
 #define oatpp_netword_ConnectionsProvider_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace network {
-  
-class ServerConnectionProvider {
+
+class ConnectionProvider {
 public:
   typedef oatpp::data::stream::IOStream IOStream;
+  typedef oatpp::async::Action Action;
+  typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<IOStream>&);
+public:
+  virtual std::shared_ptr<IOStream> getConnection() = 0;
+  virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                    AsyncCallback callback) = 0;
+};
+  
+class ServerConnectionProvider : public ConnectionProvider {
 protected:
   v_word16 m_port;
 public:
@@ -39,18 +49,14 @@ public:
   ServerConnectionProvider(v_word16 port)
     : m_port(port)
   {}
-  
-  virtual std::shared_ptr<IOStream> getConnection() = 0;
-  
+
   v_word16 getPort(){
     return m_port;
   }
   
 };
   
-class ClientConnectionProvider {
-public:
-  typedef oatpp::data::stream::IOStream IOStream;
+class ClientConnectionProvider : public ConnectionProvider {
 protected:
   oatpp::base::String::PtrWrapper m_host;
   v_word16 m_port;
@@ -60,8 +66,6 @@ public:
     : m_host(host)
     , m_port(port)
   {}
-  
-  virtual std::shared_ptr<IOStream> getConnection() = 0;
   
   oatpp::base::String::PtrWrapper getHost() {
     return m_host;

@@ -49,6 +49,13 @@ public:
                                     const std::shared_ptr<Headers>& headers,
                                     const std::shared_ptr<Body>& body) override;
   
+  Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                      AsyncCallback callback,
+                      const String::PtrWrapper& method,
+                      const String::PtrWrapper& path,
+                      const std::shared_ptr<Headers>& headers,
+                      const std::shared_ptr<Body>& body) override;
+  
 };
   
 }}}
