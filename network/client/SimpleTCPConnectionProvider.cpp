@@ -128,7 +128,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
     Action doConnect() {
       errno = 0;
       auto res = connect(m_clientHandle, (struct sockaddr *)&m_client, sizeof(m_client));
-      if(res == 0) {
+      if(res == 0 || errno == EISCONN) {
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {

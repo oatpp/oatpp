@@ -78,6 +78,8 @@ public:
   typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
 public:
   typedef oatpp::web::protocol::http::incoming::Response Response;
+public:
+  typedef RequestExecutor::AsyncCallback AsyncCallback;
 protected:
   
   class PathSegment {
@@ -157,7 +159,7 @@ protected:
   }
   
   virtual oatpp::async::Action executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                   RequestExecutor::AsyncCallback callback,
+                                                   AsyncCallback callback,
                                                    const oatpp::base::String::PtrWrapper& method,
                                                    const PathPattern& pathPattern,
                                                    const std::shared_ptr<StringToParamMap>& headers,
