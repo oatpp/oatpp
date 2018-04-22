@@ -127,6 +127,13 @@ oatpp::async::Action BodyDecoder::doChunkedDecodingAsync(oatpp::async::AbstractC
     void* m_skipData;
     os::io::Library::v_size m_skipSize;
     bool m_done = false;
+  private:
+    void prepareSkipRN() {
+      m_skipData = &m_lineBuffer[0];
+      m_skipSize = 2;
+      m_currLineLength = 0;
+      m_lineEnding = false;
+    }
   public:
     
     ChunkedDecoder(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
@@ -148,7 +155,7 @@ oatpp::async::Action BodyDecoder::doChunkedDecodingAsync(oatpp::async::AbstractC
       } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
         return oatpp::async::Action::_REPEAT;
       } else if( res < 0) {
-        return oatpp::async::Action(oatpp::async::Error("[BodyDecoder::ChunkedDecoder] Can't read line char"));
+        return error("[BodyDecoder::ChunkedDecoder] Can't read line char");
       }
       return yieldTo(&ChunkedDecoder::onLineCharRead);
     }
@@ -180,17 +187,15 @@ oatpp::async::Action BodyDecoder::doChunkedDecodingAsync(oatpp::async::AbstractC
     Action onLineRead() {
       os::io::Library::v_size countToRead = std::strtol((const char*) m_lineBuffer, nullptr, 16);
       if(countToRead > 0) {
+        prepareSkipRN();
         return oatpp::data::stream::transferAsync(this, yieldTo(&ChunkedDecoder::skipRN), m_fromStream, m_toStream, countToRead, m_buffer);
       }
       m_done = true;
+      prepareSkipRN();
       return yieldTo(&ChunkedDecoder::skipRN);
     }
     
     Action skipRN() {
-      m_skipData = &m_lineBuffer[0];
-      m_skipSize = 2;
-      m_currLineLength = 0;
-      m_lineEnding = false;
       if(m_done) {
         return oatpp::data::stream::IOStream::readExactSizeDataAsyncInline(m_fromStream.get(),
                                                                            m_skipData,

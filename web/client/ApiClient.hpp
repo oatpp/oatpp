@@ -78,6 +78,8 @@ public:
   typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
 public:
   typedef oatpp::web::protocol::http::incoming::Response Response;
+public:
+  typedef RequestExecutor::AsyncCallback AsyncCallback;
 protected:
   
   class PathSegment {
@@ -131,25 +133,46 @@ public:
   
 protected:
   
-  virtual std::shared_ptr<Response> formatAndExecuteRequest(const oatpp::base::String::PtrWrapper& method,
-                                                            const PathPattern& pathPattern,
-                                                            const std::shared_ptr<StringToParamMap>& headers,
-                                                            const std::shared_ptr<StringToParamMap>& pathParams,
-                                                            const std::shared_ptr<StringToParamMap>& queryParams,
-                                                            const std::shared_ptr<RequestExecutor::Body>& body) {
-    
-    auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-    
-    formatPath(stream.get(), pathPattern, pathParams);
-    
+  virtual oatpp::base::String::PtrWrapper formatPath(const PathPattern& pathPattern,
+                                                     const std::shared_ptr<StringToParamMap>& pathParams,
+                                                     const std::shared_ptr<StringToParamMap>& queryParams) {
+    oatpp::data::stream::ChunkedBuffer stream;
+    formatPath(&stream, pathPattern, pathParams);
     if(queryParams) {
-      addPathQueryParams(stream.get(), queryParams);
+      addPathQueryParams(&stream, queryParams);
     }
+    return stream.toString();
+  }
+  
+  virtual std::shared_ptr<Response> executeRequest(const oatpp::base::String::PtrWrapper& method,
+                                                   const PathPattern& pathPattern,
+                                                   const std::shared_ptr<StringToParamMap>& headers,
+                                                   const std::shared_ptr<StringToParamMap>& pathParams,
+                                                   const std::shared_ptr<StringToParamMap>& queryParams,
+                                                   const std::shared_ptr<RequestExecutor::Body>& body) {
     
     return m_requestExecutor->execute(method,
-                                      stream->toString(),
+                                      formatPath(pathPattern, pathParams, queryParams),
                                       convertParamsMap(headers),
                                       body);
+    
+  }
+  
+  virtual oatpp::async::Action executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                   AsyncCallback callback,
+                                                   const oatpp::base::String::PtrWrapper& method,
+                                                   const PathPattern& pathPattern,
+                                                   const std::shared_ptr<StringToParamMap>& headers,
+                                                   const std::shared_ptr<StringToParamMap>& pathParams,
+                                                   const std::shared_ptr<StringToParamMap>& queryParams,
+                                                   const std::shared_ptr<RequestExecutor::Body>& body) {
+    
+    return m_requestExecutor->executeAsync(parentCoroutine,
+                                           callback,
+                                           method,
+                                           formatPath(pathPattern, pathParams, queryParams),
+                                           convertParamsMap(headers),
+                                           body);
     
   }
   

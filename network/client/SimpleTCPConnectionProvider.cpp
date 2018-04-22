@@ -58,7 +58,15 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     return nullptr;
   }
   
-  if (connect(clientHandle, (struct sockaddr *)&client, sizeof(client)) < 0 ) {
+#ifdef SO_NOSIGPIPE
+  int yes = 1;
+  v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
+  if(ret < 0) {
+    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for socket", "SO_NOSIGPIPE");
+  }
+#endif
+  
+  if (connect(clientHandle, (struct sockaddr *)&client, sizeof(client)) != 0 ) {
     oatpp::os::io::Library::handle_close(clientHandle);
     OATPP_LOGD("SimpleTCPConnectionProvider", "Could not connect");
     return nullptr;
@@ -68,4 +76,73 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   
 }
 
+oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                                     AsyncCallback callback) {
+  
+  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, std::shared_ptr<oatpp::data::stream::IOStream>> {
+  private:
+    oatpp::base::String::PtrWrapper m_host;
+    v_int32 m_port;
+    oatpp::os::io::Library::v_handle m_clientHandle;
+    struct sockaddr_in m_client;
+  public:
+    
+    ConnectCoroutine(const oatpp::base::String::PtrWrapper& host, v_int32 port)
+      : m_host(host)
+      , m_port(port)
+    {}
+    
+    Action act() override {
+      
+      struct hostent* host = gethostbyname((const char*) m_host->getData());
+      
+      if ((host == NULL) || (host->h_addr == NULL)) {
+        return error("Error retrieving DNS information.");
+      }
+      
+      bzero(&m_client, sizeof(m_client));
+      m_client.sin_family = AF_INET;
+      m_client.sin_port = htons(m_port);
+      memcpy(&m_client.sin_addr, host->h_addr, host->h_length);
+      
+      m_clientHandle = socket(AF_INET, SOCK_STREAM, 0);
+      
+      if (m_clientHandle < 0) {
+        return error("Error creating socket.");
+      }
+      
+      fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
+      
+#ifdef SO_NOSIGPIPE
+      int yes = 1;
+      v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
+      if(ret < 0) {
+        OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for socket", "SO_NOSIGPIPE");
+      }
+#endif
+      
+      return yieldTo(&ConnectCoroutine::doConnect);
+      
+    }
+    
+    Action doConnect() {
+      errno = 0;
+      auto res = connect(m_clientHandle, (struct sockaddr *)&m_client, sizeof(m_client));
+      if(res == 0 || errno == EISCONN) {
+        return _return(oatpp::network::Connection::createShared(m_clientHandle));
+      }
+      if(errno == EALREADY || errno == EINPROGRESS) {
+        return waitRetry();
+      } else if(errno == EINTR) {
+        return repeat();
+      }
+      return error("Can't connect");
+    }
+    
+  };
+  
+  return parentCoroutine->startCoroutineForResult<ConnectCoroutine>(callback, m_host, m_port);
+  
+}
+  
 }}}

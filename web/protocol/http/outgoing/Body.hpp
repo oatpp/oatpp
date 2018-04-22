@@ -47,8 +47,8 @@ public:
   virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
   
   virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                     const Action& actionOnReturn,
-                                     const std::shared_ptr<OutputStream>& stream) = 0;
+                                    const Action& actionOnReturn,
+                                    const std::shared_ptr<OutputStream>& stream) = 0;
   
 };
   

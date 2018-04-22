@@ -45,6 +45,7 @@ public:
   }
   
   std::shared_ptr<IOStream> getConnection() override;
+  Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback) override;
   
 };
   
