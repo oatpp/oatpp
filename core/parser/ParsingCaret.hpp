@@ -76,6 +76,14 @@ public:
       return toString(true);
     }
     
+    std::string std_str(){
+      v_int32 end = m_end;
+      if(end == -1){
+        end = m_caret.m_pos;
+      }
+      return std::string((const char*) (&m_caret.m_data[m_start]), end - m_start);
+    }
+    
   };
 private:
   p_char8		m_data;
