@@ -38,7 +38,7 @@ os::io::Library::v_size FIFOBuffer::availableToRead() {
 
 os::io::Library::v_size FIFOBuffer::availableToWrite() {
   if(m_canRead && m_writePosition == m_readPosition) {
-    return false;
+    return 0;
   }
   if(m_writePosition < m_readPosition) {
     return m_readPosition - m_writePosition;
