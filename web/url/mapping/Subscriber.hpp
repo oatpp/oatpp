@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_network_url_Subscriber_hpp
-#define oatpp_network_url_Subscriber_hpp
+#ifndef oatpp_web_mapping_url_Subscriber_hpp
+#define oatpp_web_mapping_url_Subscriber_hpp
 
 #include "oatpp/core/base/PtrWrapper.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
@@ -44,4 +44,4 @@ public:
   
 }}}}
 
-#endif /* oatpp_network_url_Subscriber_hpp */
+#endif /* oatpp_web_mapping_url_Subscriber_hpp */
