@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef network_url_Pattern_hpp
-#define network_url_Pattern_hpp
+#ifndef oatpp_web_url_mapping_Pattern_hpp
+#define oatpp_web_url_mapping_Pattern_hpp
 
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -111,4 +111,4 @@ public:
   
 }}}}
 
-#endif /* Pattern_hpp */
+#endif /* oatpp_web_url_mapping_Pattern_hpp */

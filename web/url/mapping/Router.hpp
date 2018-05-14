@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef network_url_Router_hpp
-#define network_url_Router_hpp
+#ifndef oatpp_web_url_mapping_Router_hpp
+#define oatpp_web_url_mapping_Router_hpp
 
 #include "./Subscriber.hpp"
 #include "./Pattern.hpp"
@@ -143,4 +143,4 @@ public:
   
 }}}}
 
-#endif /* Router_hpp */
+#endif /* oatpp_web_url_mapping_Router_hpp */
