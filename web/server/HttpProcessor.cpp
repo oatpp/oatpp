@@ -58,6 +58,7 @@ std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(HttpRouter* router,
                               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                              RequestInterceptors* requestInterceptors,
                               void* buffer,
                               v_int32 bufferSize,
                               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
@@ -91,7 +92,17 @@ HttpProcessor::processRequest(HttpRouter* router,
       auto request = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream);
       std::shared_ptr<protocol::http::outgoing::Response> response;
       try{
-        response = route.processUrl(request);
+        auto currInterceptor = requestInterceptors->getFirstNode();
+        while (currInterceptor != nullptr) {
+          response = currInterceptor->getData()->intercept(request);
+          if(response) {
+            break;
+          }
+          currInterceptor = currInterceptor->getNext();
+        }
+        if(!response) {
+          response = route.processUrl(request);
+        }
       } catch (HttpError& error) {
         return errorHandler->handleError(error.getStatus(), error.getMessage());
       } catch (std::exception& error) {
@@ -149,6 +160,16 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 
   bodyStream->setBufferPosition(caret.getPosition(), readCount);
   
   m_currentRequest = protocol::http::incoming::Request::createShared(line, m_currentRoute.matchMap, headers, bodyStream);
+  
+  auto currInterceptor = m_requestInterceptors->getFirstNode();
+  while (currInterceptor != nullptr) {
+    m_currentResponse = currInterceptor->getData()->intercept(m_currentRequest);
+    if(m_currentResponse) {
+      return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+    }
+    currInterceptor = currInterceptor->getNext();
+  }
+  
   return yieldTo(&HttpProcessor::Coroutine::onRequestFormed);
 }
   

@@ -25,6 +25,7 @@
 #ifndef oatpp_web_server_HttpConnectionHandler_hpp
 #define oatpp_web_server_HttpConnectionHandler_hpp
 
+#include "./HttpProcessor.hpp"
 #include "./handler/ErrorHandler.hpp"
 #include "./HttpRouter.hpp"
 
@@ -49,21 +50,24 @@ private:
     HttpRouter* m_router;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    
+    HttpProcessor::RequestInterceptors* m_requestInterceptors;
   public:
     Task(HttpRouter* router,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         const std::shared_ptr<handler::ErrorHandler>& errorHandler)
+         const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+         HttpProcessor::RequestInterceptors* requestInterceptors)
       : m_router(router)
       , m_connection(connection)
       , m_errorHandler(errorHandler)
+      , m_requestInterceptors(requestInterceptors)
     {}
   public:
     
     static std::shared_ptr<Task> createShared(HttpRouter* router,
-                                        const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                        const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-      return std::shared_ptr<Task>(new Task(router, connection, errorHandler));
+                                              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                                              HttpProcessor::RequestInterceptors* requestInterceptors){
+      return std::make_shared<Task>(router, connection, errorHandler, requestInterceptors);
     }
     
     void run() override;
@@ -73,6 +77,7 @@ private:
 private:
   std::shared_ptr<HttpRouter> m_router;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+  HttpProcessor::RequestInterceptors m_requestInterceptors;
   
 public:
   HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
@@ -90,6 +95,10 @@ public:
     if(!m_errorHandler) {
       m_errorHandler = handler::DefaultErrorHandler::createShared();
     }
+  }
+  
+  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
+    m_requestInterceptors.pushBack(interceptor);
   }
   
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
