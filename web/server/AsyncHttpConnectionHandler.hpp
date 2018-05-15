@@ -57,10 +57,10 @@ private:
   private:
     oatpp::concurrency::SpinLock::Atom m_atom;
     Connections m_connections;
-    HttpProcessor::RequestInterceptors* m_requestInterceptors;
   private:
     HttpRouter* m_router;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+    HttpProcessor::RequestInterceptors* m_requestInterceptors;
   public:
     Task(HttpRouter* router,
          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
