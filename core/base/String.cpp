@@ -288,6 +288,10 @@ oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String
   return String::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
 }
   
+oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& a, const oatpp::base::PtrWrapper<String>& b) {
+  return String::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
+}
+  
 std::shared_ptr<String> operator + (const char* a, const std::shared_ptr<String>& b){
   return String::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
 }

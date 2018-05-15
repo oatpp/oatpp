@@ -28,11 +28,7 @@
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/collection/LinkedList.hpp"
 
-#include "oatpp/core/base/String.hpp"
-
-#include "oatpp/core/base/PtrWrapper.hpp"
-#include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/parser/ParsingCaret.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   
@@ -49,7 +45,8 @@ public:
     {}
   public:
     
-    static std::shared_ptr<MatchMap> createShared(const std::shared_ptr<Variables>& vars, const std::shared_ptr<base::String>& tail){
+    static std::shared_ptr<MatchMap> createShared(const std::shared_ptr<Variables>& vars,
+                                                  const std::shared_ptr<base::String>& tail){
       return std::shared_ptr<MatchMap>(new MatchMap(vars, tail));
     }
     
@@ -87,6 +84,8 @@ private:
   
 private:
   std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<Part>>> m_parts;
+private:
+  v_char8 findSysChar(oatpp::parser::ParsingCaret& caret);
 protected:
   Pattern()
     : m_parts(oatpp::collection::LinkedList<std::shared_ptr<Part>>::createShared())

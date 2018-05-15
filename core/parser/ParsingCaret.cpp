@@ -129,13 +129,20 @@ namespace oatpp { namespace parser {
   }
   
   bool ParsingCaret::findNotSpaceChar(){
-    
     while(m_pos < m_size){
       if(m_data[m_pos] != ' ')
         return true;
       m_pos ++;
     }
-    
+    return false;
+  }
+  
+  bool ParsingCaret::skipChar(v_char8 c) {
+    while(m_pos < m_size){
+      if(m_data[m_pos] != c)
+        return true;
+      m_pos ++;
+    }
     return false;
   }
   

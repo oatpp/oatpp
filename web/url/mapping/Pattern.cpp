@@ -24,7 +24,6 @@
 
 #include "Pattern.hpp"
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
@@ -32,7 +31,6 @@ namespace oatpp { namespace web { namespace url { namespace mapping {
 const char* Pattern::Part::FUNCTION_CONST = "const";
 const char* Pattern::Part::FUNCTION_VAR = "var";
 const char* Pattern::Part::FUNCTION_ANY_END = "tail";
-
 
 std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_int32 size){
   
@@ -108,13 +106,26 @@ std::shared_ptr<Pattern> Pattern::parse(const base::String::PtrWrapper& data){
   return parse(data->getData(), data->getSize());
 }
   
+v_char8 Pattern::findSysChar(oatpp::parser::ParsingCaret& caret) {
+  auto data = caret.getData();
+  for (v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
+    v_char8 a = data[i];
+    if(a == '/' || a == '?') {
+      caret.setPosition(i);
+      return a;
+    }
+  }
+  caret.setPosition(caret.getSize());
+  return 0;
+}
+  
 std::shared_ptr<Pattern::MatchMap> Pattern::match(p_char8 url, v_int32 size){
   
-  auto caret = parser::ParsingCaret::createShared(url, size);
+  oatpp::parser::ParsingCaret caret(url, size);
   
   if(m_parts->count() == 0){
     
-    if(caret->findCharNotFromSet("/")){
+    if(caret.skipChar('/')){
       return nullptr;
     }
     
@@ -130,45 +141,52 @@ std::shared_ptr<Pattern::MatchMap> Pattern::match(p_char8 url, v_int32 size){
   while(curr != nullptr){
     const std::shared_ptr<Part>& part = curr->getData();
     curr = curr->getNext();
-    caret->findCharNotFromSet("/");
+    caret.skipChar('/');
     
     if(part->function == Part::FUNCTION_CONST){
-      if(!caret->proceedIfFollowsText(part->text->getData(), part->text->getSize())){
+      
+      if(!caret.proceedIfFollowsText(part->text->getData(), part->text->getSize())){
         return nullptr;
       }
       
-      if(caret->canContinue() && !caret->isAtChar('/')){
+      if(caret.canContinue() && !caret.isAtChar('/')){
+        if(caret.isAtChar('?') && (curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END)) {
+          tail = base::String::createShared(caret.getCurrData(), size - caret.getPosition(), true);
+          return MatchMap::createShared(vars, tail);
+        }
         return nullptr;
       }
       
     }else if(part->function == Part::FUNCTION_ANY_END){
-      if(size > caret->getPosition()){
-        tail = base::String::createShared(caret->getCurrData(), size - caret->getPosition(), true);
+      if(size > caret.getPosition()){
+        tail = base::String::createShared(caret.getCurrData(), size - caret.getPosition(), true);
       }
       return MatchMap::createShared(vars, tail);
     }else if(part->function == Part::FUNCTION_VAR){
-      if(!caret->canContinue()){
+      
+      if(!caret.canContinue()){
         return nullptr;
       }
       
-      p_char8 data = caret->getCurrData();
-      v_int32 pos = caret->getPosition();
-      caret->findChar('/');
-      
-      auto value = base::String::createShared(data, caret->getPosition() - pos, true);
-      const std::shared_ptr<base::String>& text = part->text;
-      vars->put(base::String::createShared(text->getData(), text->getSize(), true), value);
-      
-      if(curr == nullptr && caret->canContinue() && caret->findCharNotFromSet("/")){
-        return nullptr;
+      oatpp::parser::ParsingCaret::Label label(caret);
+      v_char8 a = findSysChar(caret);
+      if(a == '?') {
+        if(curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END) {
+          vars->put(base::String::createShared(part->text.get(), true), label.toString());
+          tail = base::String::createShared(caret.getCurrData(), size - caret.getPosition(), true);
+          return MatchMap::createShared(vars, tail);
+        }
+        caret.findChar('/');
       }
+      
+      vars->put(base::String::createShared(part->text.get(), true), label.toString());
       
     }
     
   }
   
-  caret->findCharNotFromSet("/");
-  if(caret->canContinue()){
+  caret.skipChar('/');
+  if(caret.canContinue()){
     return nullptr;
   }
   

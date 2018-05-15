@@ -118,6 +118,7 @@ public:
   void inc(v_int32 amount);
   
   bool findNotBlankChar(); //  findCharNotFromSet(" \n\r\t");
+  bool skipChar(v_char8 c);
   
   bool findNotSpaceChar();
   bool findChar(v_char8 c);
