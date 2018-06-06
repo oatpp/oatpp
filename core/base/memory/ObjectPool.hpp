@@ -100,7 +100,7 @@ static void* operator new(std::size_t sz) { \
 \
 static void operator delete(void* ptr, std::size_t sz) { \
   if(sz != sizeof(TYPE)){ \
-    throw std::runtime_error("wrong object size"); \
+    oatpp::base::Environment::log(2, #POOL_NAME, "[ERROR|CRITICAL]: MemoryPool malfunction. Deleting object of wrong size"); \
   } \
   oatpp::base::memory::MemoryPool::free(ptr); \
 } \
@@ -136,7 +136,7 @@ static void* operator new(std::size_t sz) { \
 \
 static void operator delete(void* ptr, std::size_t sz) { \
   if(sz != sizeof(TYPE)){ \
-    throw std::runtime_error("wrong object size"); \
+    oatpp::base::Environment::log(2, #POOL_NAME, "[ERROR|CRITICAL]: MemoryPool malfunction. Deleting object of wrong size"); \
   } \
   oatpp::base::memory::MemoryPool::free(ptr); \
 } \

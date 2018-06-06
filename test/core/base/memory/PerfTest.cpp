@@ -46,7 +46,7 @@ namespace {
     
     static void operator delete(void* ptr, std::size_t sz) {
       if(sz != sizeof(TestBase)){
-        throw std::runtime_error("wrong object size");
+        oatpp::base::Environment::log(2, "PerfTest::TestBase", "[ERROR|CRITICAL]: MemoryPool malfunction. Deleting object of wrong size"); \
       }
       ::operator delete(ptr);
     }
