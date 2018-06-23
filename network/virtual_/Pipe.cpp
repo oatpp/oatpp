@@ -36,7 +36,7 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
   if(m_nonBlocking) {
     oatpp::concurrency::SpinLock spinLock(pipe.m_atom);
     if(pipe.m_buffer.availableToRead() > 0) {
-      auto result = pipe.read(data, count);
+      auto result = pipe.m_buffer.read(data, count);
       pipe.m_writeCondition.notify_one();
       return result;
     } else {
@@ -60,7 +60,7 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
     return oatpp::data::stream::IOStream::ERROR_IO_RETRY;
   }
   
-  auto result = pipe.read(data, count);
+  auto result = pipe.m_buffer.read(data, count);
   
   lock.unlock();
   pipe.m_writeCondition.notify_one();
@@ -78,7 +78,7 @@ os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v
   if(m_nonBlocking) {
     oatpp::concurrency::SpinLock spinLock(pipe.m_atom);
     if(pipe.m_buffer.availableToWrite() > 0) {
-      auto result = pipe.write(data, count);
+      auto result = pipe.m_buffer.write(data, count);
       pipe.m_readCondition.notify_one();
       return result;
     } else {
@@ -102,7 +102,7 @@ os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v
     return oatpp::data::stream::IOStream::ERROR_IO_RETRY;
   }
   
-  auto result = pipe.write(data, count);
+  auto result = pipe.m_buffer.write(data, count);
   
   lock.unlock();
   pipe.m_readCondition.notify_one();

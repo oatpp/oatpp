@@ -22,43 +22,47 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_network_Connection_hpp
-#define oatpp_network_Connection_hpp
+#ifndef oatpp_network_virtual__Socket_hpp
+#define oatpp_network_virtual__Socket_hpp
 
-#include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "Pipe.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace network { namespace virtual_ {
   
-class Connection : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
+class Socket : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
 public:
-  typedef oatpp::os::io::Library Library;
-public:
-  OBJECT_POOL(Connection_Pool, Connection, 32);
-  SHARED_OBJECT_POOL(Shared_Connection_Pool, Connection, 32);
+  OBJECT_POOL(Socket_Pool, Socket, 32)
+  SHARED_OBJECT_POOL(Shared_Socket_Pool, Socket, 32)
 private:
-  Library::v_handle m_handle;
-public:
-  Connection(Library::v_handle handle);
+  std::shared_ptr<Pipe::Reader> m_pipeReader;
+  std::shared_ptr<Pipe::Writer> m_pipeWriter;
 public:
   
-  static std::shared_ptr<Connection> createShared(Library::v_handle handle){
-    return Shared_Connection_Pool::allocateShared(handle);
+  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override {
+    if(m_pipeReader) {
+      return m_pipeReader->read(data, count);
+    }
+    return -1;
   }
   
-  ~Connection();
+  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override {
+    if(m_pipeWriter) {
+      return m_pipeWriter->write(data, count);
+    }
+    return -1;
+  }
   
-  Library::v_size write(const void *buff, Library::v_size count) override;
-  Library::v_size read(void *buff, Library::v_size count) override;
+  bool isConnected() {
+    return m_pipeReader && m_pipeWriter;
+  }
   
-  void close();
-  
-  Library::v_handle getHandle(){
-    return m_handle;
+  void close() {
+    m_pipeReader.reset();
+    m_pipeWriter.reset();
   }
   
 };
   
-}}
+}}}
 
-#endif /* oatpp_network_Connection_hpp */
+#endif /* oatpp_network_virtual__Socket_hpp */

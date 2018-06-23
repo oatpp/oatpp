@@ -35,7 +35,7 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
 
-class Pipe : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
+class Pipe : public oatpp::base::Controllable {
 public:
   OBJECT_POOL(Pipe_Pool, Pipe, 32)
   SHARED_OBJECT_POOL(Shared_Pipe_Pool, Pipe, 32)
