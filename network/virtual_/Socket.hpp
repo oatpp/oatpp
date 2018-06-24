@@ -22,26 +22,47 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mapping_url_Subscriber_hpp
-#define oatpp_web_mapping_url_Subscriber_hpp
+#ifndef oatpp_network_virtual__Socket_hpp
+#define oatpp_network_virtual__Socket_hpp
 
-#include "oatpp/core/base/PtrWrapper.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "Pipe.hpp"
 
-namespace oatpp { namespace web { namespace url { namespace mapping {
+namespace oatpp { namespace network { namespace virtual_ {
   
-template<class Param, class ReturnType>
-class Subscriber {
+class Socket : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
 public:
-  typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const ReturnType&);
+  OBJECT_POOL(Socket_Pool, Socket, 32)
+  SHARED_OBJECT_POOL(Shared_Socket_Pool, Socket, 32)
+private:
+  std::shared_ptr<Pipe::Reader> m_pipeReader;
+  std::shared_ptr<Pipe::Writer> m_pipeWriter;
 public:
-  virtual ReturnType processUrl(const Param& param) = 0;
-  virtual Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 AsyncCallback callback,
-                                 const Param& param) = 0;
+  
+  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override {
+    if(m_pipeReader) {
+      return m_pipeReader->read(data, count);
+    }
+    return -1;
+  }
+  
+  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override {
+    if(m_pipeWriter) {
+      return m_pipeWriter->write(data, count);
+    }
+    return -1;
+  }
+  
+  bool isConnected() {
+    return m_pipeReader && m_pipeWriter;
+  }
+  
+  void close() {
+    m_pipeReader.reset();
+    m_pipeWriter.reset();
+  }
+  
 };
   
-}}}}
+}}}
 
-#endif /* oatpp_web_mapping_url_Subscriber_hpp */
+#endif /* oatpp_network_virtual__Socket_hpp */

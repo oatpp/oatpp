@@ -125,6 +125,8 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
           return finish();
         } else if(result == IOStream::ERROR_IO_WAIT_RETRY) {
           return waitRetry();
+        } else if(result == IOStream::ERROR_IO_RETRY) {
+            return repeat();
         } else if(result > 0){
           m_stream->m_pos += (v_bufferSize) result;
         }

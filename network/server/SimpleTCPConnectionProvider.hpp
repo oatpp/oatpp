@@ -52,11 +52,21 @@ public:
     return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(port, nonBlocking));
   }
   
+  ~SimpleTCPConnectionProvider() {
+    oatpp::os::io::Library::handle_close(m_serverHandle);
+  }
+  
   std::shared_ptr<IOStream> getConnection() override;
   
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                             AsyncCallback callback) override {
-    throw std::runtime_error("oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync not implemented");
+    /**
+     *  No need to implement this.
+     *  For Asynchronous IO in oatpp it is considered to be a good practice
+     *  to accept connections in a seperate thread with the blocking accept()
+     *  and then process connections in Asynchronous manner with non-blocking read/write
+     */
+    throw std::runtime_error("oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync not implemented.");
   }
   
 };

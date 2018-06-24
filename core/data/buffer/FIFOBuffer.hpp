@@ -22,26 +22,43 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mapping_url_Subscriber_hpp
-#define oatpp_web_mapping_url_Subscriber_hpp
+#ifndef oatpp_data_buffer_FIFOBuffer_hpp
+#define oatpp_data_buffer_FIFOBuffer_hpp
 
-#include "oatpp/core/base/PtrWrapper.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "./IOBuffer.hpp"
+#include "oatpp/core/os/io/Library.hpp"
 
-namespace oatpp { namespace web { namespace url { namespace mapping {
+namespace oatpp { namespace data{ namespace buffer {
   
-template<class Param, class ReturnType>
-class Subscriber {
+class FIFOBuffer : public oatpp::base::Controllable {
 public:
-  typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const ReturnType&);
+  OBJECT_POOL(FIFOBuffer_Pool, FIFOBuffer, 32)
+  SHARED_OBJECT_POOL(Shared_FIFOBuffer_Pool, FIFOBuffer, 32)
+private:
+  bool m_canRead;
+  os::io::Library::v_size m_readPosition;
+  os::io::Library::v_size m_writePosition;
+  IOBuffer m_buffer;
 public:
-  virtual ReturnType processUrl(const Param& param) = 0;
-  virtual Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 AsyncCallback callback,
-                                 const Param& param) = 0;
+  FIFOBuffer()
+    : m_canRead(false)
+    , m_readPosition(0)
+    , m_writePosition(0)
+  {}
+public:
+  
+  static std::shared_ptr<FIFOBuffer> createShared(){
+    return Shared_FIFOBuffer_Pool::allocateShared();
+  }
+  
+  os::io::Library::v_size availableToRead();
+  os::io::Library::v_size availableToWrite();
+  
+  os::io::Library::v_size read(void *data, os::io::Library::v_size count);
+  os::io::Library::v_size write(const void *data, os::io::Library::v_size count);
+  
 };
   
-}}}}
+}}}
 
-#endif /* oatpp_web_mapping_url_Subscriber_hpp */
+#endif /* FIFOBuffer_hpp */

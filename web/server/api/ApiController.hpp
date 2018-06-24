@@ -30,6 +30,8 @@
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
+#include "oatpp/web/protocol/http/incoming/Response.hpp"
+#include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -44,8 +46,10 @@ protected:
 public:
   typedef oatpp::web::server::HttpRouter Router;
   typedef oatpp::web::protocol::http::outgoing::ResponseFactory OutgoingResponseFactory;
-  typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
+  typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
+  typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
+  typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::Status Status;
   typedef oatpp::web::protocol::http::Header Header;
   typedef oatpp::web::server::api::Endpoint Endpoint;

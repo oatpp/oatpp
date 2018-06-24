@@ -22,26 +22,4 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mapping_url_Subscriber_hpp
-#define oatpp_web_mapping_url_Subscriber_hpp
-
-#include "oatpp/core/base/PtrWrapper.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-
-namespace oatpp { namespace web { namespace url { namespace mapping {
-  
-template<class Param, class ReturnType>
-class Subscriber {
-public:
-  typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const ReturnType&);
-public:
-  virtual ReturnType processUrl(const Param& param) = 0;
-  virtual Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 AsyncCallback callback,
-                                 const Param& param) = 0;
-};
-  
-}}}}
-
-#endif /* oatpp_web_mapping_url_Subscriber_hpp */
+#include "Interceptor.hpp"

@@ -36,6 +36,7 @@ public:
   typedef oatpp::async::Action Action;
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<IOStream>&);
 public:
+  virtual ~ConnectionProvider() {}
   virtual std::shared_ptr<IOStream> getConnection() = 0;
   virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                     AsyncCallback callback) = 0;

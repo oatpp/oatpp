@@ -27,6 +27,7 @@
 
 #include "./HttpRouter.hpp"
 
+#include "./handler/Interceptor.hpp"
 #include "./handler/ErrorHandler.hpp"
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
@@ -40,6 +41,8 @@ namespace oatpp { namespace web { namespace server {
 class HttpProcessor {
 public:
   static const char* RETURN_KEEP_ALIVE;
+public:
+  typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
 public:
   
   class ConnectionState {
@@ -66,6 +69,7 @@ public:
   private:
     HttpRouter* m_router;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+    RequestInterceptors* m_requestInterceptors;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
     std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_outStream;
@@ -79,12 +83,14 @@ public:
     
     Coroutine(HttpRouter* router,
               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+              RequestInterceptors* requestInterceptors,
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
               const std::shared_ptr<oatpp::data::buffer::IOBuffer>& ioBuffer,
               const std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy>& outStream,
               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
       : m_router(router)
       , m_errorHandler(errorHandler)
+      , m_requestInterceptors(requestInterceptors)
       , m_connection(connection)
       , m_ioBuffer(ioBuffer)
       , m_outStream(outStream)
@@ -111,6 +117,7 @@ public:
   processRequest(HttpRouter* router,
                  const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                  const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                 RequestInterceptors* requestInterceptors,
                  void* buffer,
                  v_int32 bufferSize,
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,

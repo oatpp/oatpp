@@ -60,18 +60,22 @@ private:
   private:
     HttpRouter* m_router;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+    HttpProcessor::RequestInterceptors* m_requestInterceptors;
   public:
     Task(HttpRouter* router,
-         const std::shared_ptr<handler::ErrorHandler>& errorHandler)
+         const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+         HttpProcessor::RequestInterceptors* requestInterceptors)
       : m_atom(false)
       , m_router(router)
       , m_errorHandler(errorHandler)
+      , m_requestInterceptors(requestInterceptors)
     {}
   public:
     
     static std::shared_ptr<Task> createShared(HttpRouter* router,
-                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-      return std::make_shared<Task>(router, errorHandler);
+                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                                              HttpProcessor::RequestInterceptors* requestInterceptors){
+      return std::make_shared<Task>(router, errorHandler, requestInterceptors);
     }
     
     void run() override;
@@ -86,6 +90,7 @@ private:
 private:
   std::shared_ptr<HttpRouter> m_router;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+  HttpProcessor::RequestInterceptors m_requestInterceptors;
   v_int32 m_taskBalancer;
   v_int32 m_threadCount;
   std::shared_ptr<Task>* m_tasks;
@@ -98,7 +103,7 @@ public:
   {
     m_tasks = new std::shared_ptr<Task>[m_threadCount];
     for(v_int32 i = 0; i < m_threadCount; i++) {
-      auto task = Task::createShared(m_router.get(), m_errorHandler);
+      auto task = Task::createShared(m_router.get(), m_errorHandler, &m_requestInterceptors);
       m_tasks[i] = task;
       concurrency::Thread thread(task);
       thread.detach();
@@ -119,6 +124,10 @@ public:
     if(!m_errorHandler) {
       m_errorHandler = handler::DefaultErrorHandler::createShared();
     }
+  }
+  
+  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
+    m_requestInterceptors.pushBack(interceptor);
   }
   
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;

@@ -22,26 +22,37 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mapping_url_Subscriber_hpp
-#define oatpp_web_mapping_url_Subscriber_hpp
+#ifndef oatpp_web_server_handler_Interceptor_hpp
+#define oatpp_web_server_handler_Interceptor_hpp
 
-#include "oatpp/core/base/PtrWrapper.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/web/protocol/http/incoming/Request.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace url { namespace mapping {
+namespace oatpp { namespace web { namespace server { namespace handler {
   
-template<class Param, class ReturnType>
-class Subscriber {
+class RequestInterceptor {
 public:
-  typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const ReturnType&);
+  typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
+  typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
 public:
-  virtual ReturnType processUrl(const Param& param) = 0;
-  virtual Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 AsyncCallback callback,
-                                 const Param& param) = 0;
+  
+  /**
+   *
+   *  This method should not do any "heavy" nor I/O operations
+   *  as it is used for both "Simple" and "Async" API
+   *  NOT FOR I/O operations!!!
+   *
+   *  - return nullptr to continue.
+   *  - return OutgoingResponse to send response immediately
+   *
+   *  possible usage ex: return 301 - redirect if needed
+   *
+   */
+  virtual std::shared_ptr<OutgoingResponse> intercept(std::shared_ptr<IncomingRequest>& request) = 0;
+  
 };
   
 }}}}
 
-#endif /* oatpp_web_mapping_url_Subscriber_hpp */
+#endif /* oatpp_web_server_handler_Interceptor_hpp */

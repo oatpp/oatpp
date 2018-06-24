@@ -203,6 +203,7 @@ public:
   
 oatpp::base::PtrWrapper<String> operator + (const char* a, const oatpp::base::PtrWrapper<String>& b);
 oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& b, const char* a);
+oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& a, const oatpp::base::PtrWrapper<String>& b);
 
 std::shared_ptr<String> operator + (const char* a, const std::shared_ptr<String>& b);
 std::shared_ptr<String> operator + (const std::shared_ptr<String>& b, const char* a);

@@ -136,6 +136,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       } else if(errno == EINTR) {
         return repeat();
       }
+      oatpp::os::io::Library::handle_close(m_clientHandle);
       return error("Can't connect");
     }
     

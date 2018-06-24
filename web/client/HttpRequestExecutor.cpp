@@ -57,7 +57,7 @@ HttpRequestExecutor::execute(const String::PtrWrapper& method,
   }
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
-  request->headers->put(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getHost());
+  request->headers->putIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getHost());
   
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
   

@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include "./HttpConnectionHandler.hpp"
-#include "./HttpProcessor.hpp"
 #include "./HttpError.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/ChunkedBufferBody.hpp"
@@ -49,7 +48,7 @@ void HttpConnectionHandler::Task::run(){
   
   do {
     
-    auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, buffer, bufferSize, inStream, keepAlive);
+    auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
     if(response) {
       outStream->setBufferPosition(0, 0);
       response->send(outStream);
@@ -63,7 +62,7 @@ void HttpConnectionHandler::Task::run(){
 }
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
-  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler));
+  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors));
   thread.detach();
 }
 

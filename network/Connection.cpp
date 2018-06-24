@@ -79,5 +79,4 @@ void Connection::close(){
   Library::handle_close(m_handle);
 }
 
-
 }}
