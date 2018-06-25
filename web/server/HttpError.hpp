@@ -26,18 +26,18 @@
 #define oatpp_web_server_HttpError_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace web { namespace server {
   
 class HttpError : public std::runtime_error {
 private:
   oatpp::web::protocol::http::Status m_status;
-  oatpp::base::String::PtrWrapper m_message;
+  oatpp::String m_message;
 public:
   
   HttpError(const oatpp::web::protocol::http::Status& status,
-            const oatpp::base::String::PtrWrapper& message)
+            const oatpp::String& message)
     :std::runtime_error(status.description)
     , m_status(status)
     , m_message(message)
@@ -47,7 +47,7 @@ public:
     return m_status;
   }
   
-  oatpp::base::String::PtrWrapper& getMessage(){
+  oatpp::String& getMessage(){
     return m_message;
   }
   

@@ -25,7 +25,7 @@
 #include "RegRuleTest.hpp"
 
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace base {
   
@@ -61,7 +61,7 @@ namespace {
     
   };
   
-  typedef oatpp::base::String String;
+  typedef oatpp::String String;
   
   template<typename T>
   using PtrWrapper = oatpp::base::PtrWrapper<T>;
@@ -72,7 +72,6 @@ namespace {
   template<typename T>
   using TypePtrWrapper = oatpp::data::mapping::type::PtrWrapper<T, oatpp::data::mapping::type::__class::Void>;
   
-  typedef oatpp::data::mapping::type::StringPtrWrapper StringPtrWrapper;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;
@@ -84,61 +83,61 @@ namespace {
 bool RegRuleTest::onRun() {
   
   {
-    String::PtrWrapper reg1("");
-    String::PtrWrapper reg2(reg1);
+    String reg1("");
+    String reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    String::PtrWrapper reg3(std::move(reg1));
+    String reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
-    String::PtrWrapper reg4 = String::createShared(100);
+    String reg4 = String(100);
   }
   
   {
-    String::PtrWrapper reg1("");
-    base::PtrWrapper<String> reg2(reg1);
+    String reg1("");
+    String reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    base::PtrWrapper<String> reg3(std::move(reg1));
+    String reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
-    base::PtrWrapper<String> reg4 = String::createShared(100) + "Leonid";
+    String reg4 = String(100) + "Leonid";
   }
   
   {
-    base::PtrWrapper<String> reg1 = String::createShared(100);
-    String::PtrWrapper reg2(reg1);
+    String reg1 = String(100);
+    String reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    String::PtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-  }
-  
-  {
-    String::PtrWrapper reg1(String::createShared(100) + "Leonid");
-    StringPtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    StringPtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-    StringPtrWrapper reg4 = String::createShared(100);
-  }
-  
-  {
-    StringPtrWrapper reg1 = String::createShared(100);
-    String::PtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    String::PtrWrapper reg3(std::move(reg1));
+    String reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
   }
   
   {
-    base::PtrWrapper<String> reg1 = String::createShared(100);
-    StringPtrWrapper reg2(reg1);
+    String reg1(String(100) + "Leonid");
+    String reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    StringPtrWrapper reg3(std::move(reg1));
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(reg1.isNull());
+    String reg4 = String(100);
+  }
+  
+  {
+    String reg1 = String(100);
+    String reg2(reg1);
+    OATPP_ASSERT(!reg1.isNull());
+    String reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
   }
   
   {
-    StringPtrWrapper reg1 = String::createShared(100);
-    base::PtrWrapper<String> reg2(reg1);
+    String reg1 = String(100);
+    String reg2(reg1);
     OATPP_ASSERT(!reg1.isNull());
-    base::PtrWrapper<String> reg3(std::move(reg1));
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(reg1.isNull());
+  }
+  
+  {
+    String reg1 = String(100);
+    String reg2(reg1);
+    OATPP_ASSERT(!reg1.isNull());
+    String reg3(std::move(reg1));
     OATPP_ASSERT(reg1.isNull());
   }
 

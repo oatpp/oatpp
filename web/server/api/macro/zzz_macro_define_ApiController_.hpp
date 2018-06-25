@@ -85,13 +85,13 @@ if(!__param_validation_check_##NAME){ \
 auto __param_str_val_##NAME = __request->getHeader(OATPP_MACRO_FIRSTARG PARAM_LIST); \
 if(__param_str_val_##NAME.isNull()){ \
   return ApiController::handleError(Status::CODE_400, \
-  oatpp::base::String::createShared("Missing HEADER parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
+  oatpp::String("Missing HEADER parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
 } \
 bool __param_validation_check_##NAME; \
 TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
-                                    oatpp::base::String::createShared("Invalid HEADER parameter '") + \
+                                    oatpp::String("Invalid HEADER parameter '") + \
                                     OATPP_MACRO_FIRSTARG PARAM_LIST + \
                                     "'. Expected type is '" #TYPE "'"); \
 }
@@ -139,13 +139,13 @@ if(!__param_validation_check_##NAME){ \
 auto __param_str_val_##NAME = __request->getPathVariable(OATPP_MACRO_FIRSTARG PARAM_LIST); \
 if(__param_str_val_##NAME.isNull()){ \
   return ApiController::handleError(Status::CODE_400, \
-  oatpp::base::String::createShared("Missing PATH parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
+  oatpp::String("Missing PATH parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
 } \
 bool __param_validation_check_##NAME; \
 TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
-                                    oatpp::base::String::createShared("Invalid PATH parameter '") + \
+                                    oatpp::String("Invalid PATH parameter '") + \
                                     OATPP_MACRO_FIRSTARG PARAM_LIST + \
                                     "'. Expected type is '" #TYPE "'"); \
 }

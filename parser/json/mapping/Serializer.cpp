@@ -31,7 +31,7 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
 void Serializer::writeString(oatpp::data::stream::OutputStream* stream,
                              void* object,
                              Property* field) {
-  auto value = oatpp::base::static_wrapper_cast<String>(field->get(object));
+  auto value = oatpp::base::static_wrapper_cast<oatpp::base::StrBuffer>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
@@ -68,7 +68,7 @@ void Serializer::writeListOfString(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<String>(curr->getData());
+    auto value = oatpp::base::static_wrapper_cast<oatpp::base::StrBuffer>(curr->getData());
     
     if(first){
       first = false;

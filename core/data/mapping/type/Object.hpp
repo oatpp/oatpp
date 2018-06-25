@@ -32,7 +32,7 @@
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 #include "oatpp/core/base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
@@ -59,7 +59,7 @@ namespace __class {
   
 class Object : public oatpp::base::Controllable {
 public:
-  typedef oatpp::data::mapping::type::StringPtrWrapper String;
+  typedef oatpp::String String;
   typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
   typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
   typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;

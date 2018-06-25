@@ -31,7 +31,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 std::shared_ptr<Response>
-ResponseFactory::createShared(const Status& status, const oatpp::base::String::PtrWrapper& text) {
+ResponseFactory::createShared(const Status& status, const oatpp::String& text) {
   return Response::createShared(status, BufferBody::createShared(text));
 }
 

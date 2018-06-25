@@ -24,42 +24,37 @@
 
 #include "./Primitive.hpp"
 
+#include "oatpp/core/utils/ConversionUtils.hpp"
+
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
-StringPtrWrapper::StringPtrWrapper(const std::shared_ptr<oatpp::base::String>& ptr, const type::Type* const valueType)
-  : oatpp::data::mapping::type::PtrWrapper<oatpp::base::String, __class::String>(ptr)
+String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType)
+  : oatpp::data::mapping::type::PtrWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
 {
   if(type::__class::String::getType() != valueType) {
     throw std::runtime_error("Value type does not match");
   }
 }
   
-StringPtrWrapper::operator std::string() const {
-  if(m_ptr){
-    return m_ptr->std_str();
-  }
-  return "";
-}
-  
 namespace __class {
   
-  type::Int32::PtrWrapper Int32::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
+  type::Int32::PtrWrapper Int32::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
   
-  type::Int64::PtrWrapper Int64::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
+  type::Int64::PtrWrapper Int64::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt64(str, success);
   }
   
-  type::Float32::PtrWrapper Float32::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
+  type::Float32::PtrWrapper Float32::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToFloat32(str, success);
   }
   
-  type::Float64::PtrWrapper Float64::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
+  type::Float64::PtrWrapper Float64::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToFloat64(str, success);
   }
   
-  type::Boolean::PtrWrapper Boolean::parseFromString(const oatpp::base::String::PtrWrapper& str, bool& success) {
+  type::Boolean::PtrWrapper Boolean::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToBool(str, success);
   }
   

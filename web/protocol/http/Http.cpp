@@ -120,7 +120,7 @@ const char* const Header::HOST = "Host";
 const char* const Header::USER_AGENT = "User-Agent";
 const char* const Header::SERVER = "Server";
   
-oatpp::base::String::PtrWrapper Range::toString() const {
+oatpp::String Range::toString() const {
   oatpp::data::stream::ChunkedBuffer stream;
   stream.write(units->getData(), units->getSize());
   stream.write("=", 1);
@@ -161,12 +161,12 @@ Range Range::parse(oatpp::parser::ParsingCaret& caret) {
   
 }
 
-Range Range::parse(const std::shared_ptr<oatpp::base::String>& str) {
+Range Range::parse(const oatpp::String& str) {
   oatpp::parser::ParsingCaret caret(str);
   return parse(caret);
 }
 
-oatpp::base::String::PtrWrapper ContentRange::toString() const {
+oatpp::String ContentRange::toString() const {
   oatpp::data::stream::ChunkedBuffer stream;
   stream.write(units->getData(), units->getSize());
   stream.write(" ", 1);
@@ -229,7 +229,7 @@ ContentRange ContentRange::parse(oatpp::parser::ParsingCaret& caret) {
   
 }
 
-ContentRange ContentRange::parse(const std::shared_ptr<oatpp::base::String>& str) {
+ContentRange ContentRange::parse(const oatpp::String& str) {
   oatpp::parser::ParsingCaret caret(str);
   return parse(caret);
 }
@@ -299,7 +299,7 @@ std::shared_ptr<ResponseStartingLine> Protocol::parseResponseStartingLine(oatpp:
   
 }
   
-std::shared_ptr<oatpp::base::String> Protocol::parseHeaderName(oatpp::parser::ParsingCaret& caret) {
+oatpp::String Protocol::parseHeaderName(oatpp::parser::ParsingCaret& caret) {
   p_char8 data = caret.getData();
   oatpp::parser::ParsingCaret::Label label(caret);
   for(v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {

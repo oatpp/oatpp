@@ -41,8 +41,8 @@
 namespace oatpp { namespace web { namespace client {
   
 std::shared_ptr<HttpRequestExecutor::Response>
-HttpRequestExecutor::execute(const String::PtrWrapper& method,
-                             const String::PtrWrapper& path,
+HttpRequestExecutor::execute(const String& method,
+                             const String& path,
                              const std::shared_ptr<Headers>& headers,
                              const std::shared_ptr<Body>& body) {
   
@@ -105,16 +105,16 @@ HttpRequestExecutor::execute(const String::PtrWrapper& method,
   
 oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                        AsyncCallback callback,
-                                                       const String::PtrWrapper& method,
-                                                       const String::PtrWrapper& path,
+                                                       const String& method,
+                                                       const String& path,
                                                        const std::shared_ptr<Headers>& headers,
                                                        const std::shared_ptr<Body>& body) {
   
   class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, std::shared_ptr<HttpRequestExecutor::Response>> {
   private:
     std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
-    String::PtrWrapper m_method;
-    String::PtrWrapper m_path;
+    String m_method;
+    String m_path;
     std::shared_ptr<Headers> m_headers;
     std::shared_ptr<Body> m_body;
   private:
@@ -125,8 +125,8 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
   public:
     
     ExecutorCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
-                      const String::PtrWrapper& method,
-                      const String::PtrWrapper& path,
+                      const String& method,
+                      const String& path,
                       const std::shared_ptr<Headers>& headers,
                       const std::shared_ptr<Body>& body)
       : m_connectionProvider(connectionProvider)

@@ -25,7 +25,8 @@
 #ifndef oatpp_utils_ConversionUtils_hpp
 #define oatpp_utils_ConversionUtils_hpp
 
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/base/PtrWrapper.hpp"
 #include "oatpp/core/base/Controllable.hpp"
@@ -36,15 +37,15 @@
 namespace oatpp { namespace utils { namespace conversion {
   
   v_int32 strToInt32(const char* str);
-  v_int32 strToInt32(const base::PtrWrapper<base::String>& str, bool& success);
+  v_int32 strToInt32(const oatpp::String& str, bool& success);
   v_int64 strToInt64(const char* str);
-  v_int64 strToInt64(const base::PtrWrapper<base::String>& str, bool& success);
+  v_int64 strToInt64(const oatpp::String& str, bool& success);
   
   v_int32 int32ToCharSequence(v_int32 value, p_char8 data);
   v_int32 int64ToCharSequence(v_int64 value, p_char8 data);
   
-  base::PtrWrapper<base::String> int32ToStr(v_int32 value);
-  base::PtrWrapper<base::String> int64ToStr(v_int64 value);
+  oatpp::String int32ToStr(v_int32 value);
+  oatpp::String int64ToStr(v_int64 value);
   
   std::string int32ToStdStr(v_int32 value);
   std::string int64ToStdStr(v_int64 value);
@@ -55,29 +56,48 @@ namespace oatpp { namespace utils { namespace conversion {
   }
   
   template<typename T>
-  base::PtrWrapper<base::String> primitiveToStr(T value, const char* pattern){
+  oatpp::String primitiveToStr(T value, const char* pattern){
     v_char8 buff [100];
     v_int32 size = primitiveToCharSequence(value, &buff[0], pattern);
     if(size > 0){
-      return base::String::createShared(&buff[0], size, true);
+      return oatpp::String(&buff[0], size, true);
     }
-    return base::PtrWrapper<base::String>::empty();
+    return oatpp::String::empty();
   }
   
   v_float32 strToFloat32(const char* str);
-  v_float32 strToFloat32(const base::PtrWrapper<base::String>& str, bool& success);
+  v_float32 strToFloat32(const oatpp::String& str, bool& success);
   v_float64 strToFloat64(const char* str);
-  v_float64 strToFloat64(const base::PtrWrapper<base::String>& str, bool& success);
+  v_float64 strToFloat64(const oatpp::String& str, bool& success);
   
   v_int32 float32ToCharSequence(v_float32 value, p_char8 data);
   v_int32 float64ToCharSequence(v_float64 value, p_char8 data);
   
-  base::PtrWrapper<base::String> float32ToStr(v_float32 value);
-  base::PtrWrapper<base::String> float64ToStr(v_float64 value);
+  oatpp::String float32ToStr(v_float32 value);
+  oatpp::String float64ToStr(v_float64 value);
   
-  base::PtrWrapper<base::String> boolToStr(bool value);
-  bool strToBool(const base::PtrWrapper<base::String>& str, bool& success);
+  oatpp::String boolToStr(bool value);
+  bool strToBool(const oatpp::String& str, bool& success);
   
+  template<class T>
+  oatpp::String
+  primitiveToStr(const oatpp::data::mapping::type::PolymorphicWrapper<T>& primitive) {
+    auto type = primitive.valueType;
+    if(type == oatpp::data::mapping::type::__class::String::getType()) {
+      return std::static_pointer_cast<oatpp::base::StrBuffer>(primitive.getPtr());
+    } else if(type == oatpp::data::mapping::type::__class::Int32::getType()) {
+      return utils::conversion::int32ToStr(static_cast<oatpp::data::mapping::type::Int32*>(primitive.get())->getValue());
+    } else if(type == oatpp::data::mapping::type::__class::Int64::getType()) {
+      return utils::conversion::int64ToStr(static_cast<oatpp::data::mapping::type::Int64*>(primitive.get())->getValue());
+    } else if(type == oatpp::data::mapping::type::__class::Float32::getType()) {
+      return utils::conversion::float32ToStr(static_cast<oatpp::data::mapping::type::Float32*>(primitive.get())->getValue());
+    } else if(type == oatpp::data::mapping::type::__class::Float64::getType()) {
+      return utils::conversion::float64ToStr(static_cast<oatpp::data::mapping::type::Float64*>(primitive.get())->getValue());
+    } else if(type == oatpp::data::mapping::type::__class::Boolean::getType()) {
+      return utils::conversion::boolToStr(static_cast<oatpp::data::mapping::type::Boolean*>(primitive.get())->getValue());
+    }
+    throw std::runtime_error("[oatpp::utils::conversion::primitiveToStr]: Invalid primitive type");
+  }
   
 }}}
 

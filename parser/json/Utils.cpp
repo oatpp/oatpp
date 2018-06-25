@@ -200,13 +200,13 @@ v_int32 Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
   }
 }
   
-std::shared_ptr<Utils::String> Utils::escapeString(p_char8 data, v_int32 size) {
+oatpp::String Utils::escapeString(p_char8 data, v_int32 size) {
   v_int32 safeSize;
   v_int32 escapedSize = calcEscapedStringSize(data, size, safeSize);
   if(escapedSize == size) {
-    return String::createShared(data, size, true);
+    return String(data, size, true);
   }
-  auto result = String::createShared(escapedSize);
+  auto result = String(escapedSize);
   v_int32 i = 0;
   p_char8 resultData = result->getData();
   v_int32 pos = 0;
@@ -322,14 +322,14 @@ void Utils::unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultDat
   
 }
   
-std::shared_ptr<Utils::String> Utils::unescapeString(p_char8 data, v_int32 size,
+oatpp::String Utils::unescapeString(p_char8 data, v_int32 size,
                                                      const char* & error, v_int32& errorPosition) {
   
   v_int32 unescapedSize = calcUnescapedStringSize(data, size, error, errorPosition);
   if(error != nullptr){
     return nullptr;
   }
-  auto result = String::createShared(unescapedSize);
+  auto result = String(unescapedSize);
   if(unescapedSize == size) {
     std::memcpy(result->getData(), data, size);
   } else {
@@ -385,7 +385,7 @@ p_char8 Utils::preparseString(const std::shared_ptr<ParsingCaret>& caret, v_int3
   
 }
   
-std::shared_ptr<Utils::String> Utils::parseString(const std::shared_ptr<ParsingCaret>& caret) {
+oatpp::String Utils::parseString(const std::shared_ptr<ParsingCaret>& caret) {
   
   v_int32 size;
   p_char8 data = preparseString(caret, size);

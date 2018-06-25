@@ -31,7 +31,7 @@
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 #include "oatpp/core/base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {

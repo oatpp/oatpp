@@ -170,7 +170,7 @@ bool DTOMapperTest::onRun(){
   auto obj = mapper->readFromCaret<Test>(caret);
   
   OATPP_ASSERT(obj->_string.isNull() == false);
-  OATPP_ASSERT(obj->_string->equals(test1->_string));
+  OATPP_ASSERT(obj->_string.equals(test1->_string));
   
   OATPP_ASSERT(obj->_int32.isNull() == false);
   OATPP_ASSERT(obj->_int32->getValue() == test1->_int32->getValue());

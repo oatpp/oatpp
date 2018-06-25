@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace client {
   
 class RequestExecutor {
 public:
-  typedef oatpp::base::String String;
+  typedef oatpp::String String;
   typedef oatpp::async::Action Action;
 public:
   typedef oatpp::web::protocol::http::Protocol::Headers Headers;
@@ -43,15 +43,15 @@ public:
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Response>&);
 public:
   
-  virtual std::shared_ptr<Response> execute(const String::PtrWrapper& method,
-                                            const String::PtrWrapper& path,
+  virtual std::shared_ptr<Response> execute(const String& method,
+                                            const String& path,
                                             const std::shared_ptr<Headers>& headers,
                                             const std::shared_ptr<Body>& body) = 0;
   
   virtual Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                               AsyncCallback callback,
-                              const String::PtrWrapper& method,
-                              const String::PtrWrapper& path,
+                              const String& method,
+                              const String& path,
                               const std::shared_ptr<Headers>& headers,
                               const std::shared_ptr<Body>& body) = 0;
   

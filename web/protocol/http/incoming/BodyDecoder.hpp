@@ -34,7 +34,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 class BodyDecoder {
 private:
   
-  class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, std::shared_ptr<oatpp::base::String>> {
+  class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, oatpp::String> {
   private:
     std::shared_ptr<Protocol::Headers> m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
@@ -104,7 +104,7 @@ public:
                      const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
   
-  static std::shared_ptr<oatpp::base::String>
+  static oatpp::String
   decodeToString(const std::shared_ptr<Protocol::Headers>& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) {
     auto chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
@@ -130,7 +130,7 @@ public:
   template<typename ParentCoroutineType>
   static oatpp::async::Action
   decodeToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                      oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::base::String::PtrWrapper&),
+                      oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&),
                       const std::shared_ptr<Protocol::Headers>& headers,
                       const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) {
     return parentCoroutine->startCoroutineForResult<ToStringDecoder>(callback, headers, bodyStream);

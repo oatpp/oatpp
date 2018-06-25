@@ -34,7 +34,7 @@
 #include "oatpp/core/parser/ParsingCaret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   
@@ -64,7 +64,7 @@ public:
   };
   
 public:
-  typedef oatpp::base::String String;
+  typedef oatpp::String String;
 private:
   
   static void writeString(oatpp::data::stream::OutputStream* stream,

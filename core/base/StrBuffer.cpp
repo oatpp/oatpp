@@ -22,17 +22,17 @@
  *
  ***************************************************************************/
 
-#include "String.hpp"
+#include "StrBuffer.hpp"
 
 namespace oatpp { namespace base {
   
-void String::set(const void* data, v_int32 size, bool hasOwnData) {
+void StrBuffer::set(const void* data, v_int32 size, bool hasOwnData) {
   m_data = (p_char8) data;
   m_size = size;
   m_hasOwnData = hasOwnData;
 }
   
-void String::setAndCopy(const void* data, const void* originData, v_int32 size){
+void StrBuffer::setAndCopy(const void* data, const void* originData, v_int32 size){
   m_data = (p_char8) data;
   m_size = size;
   //m_hasOwnData = false;
@@ -42,17 +42,17 @@ void String::setAndCopy(const void* data, const void* originData, v_int32 size){
   m_data[size] = 0;
 }
 
-std::shared_ptr<String> String::allocShared(const void* data, v_int32 size, bool copyAsOwnData) {
+std::shared_ptr<StrBuffer> StrBuffer::allocShared(const void* data, v_int32 size, bool copyAsOwnData) {
   if(copyAsOwnData) {
     memory::AllocationExtras extras(size + 1);
-    const auto& ptr = memory::allocateSharedWithExtras<String>(extras);
+    const auto& ptr = memory::allocateSharedWithExtras<StrBuffer>(extras);
     ptr->setAndCopy(extras.extraPtr, data, size);
     return ptr;
   }
-  return std::make_shared<String>(data, size, copyAsOwnData);
+  return std::make_shared<StrBuffer>(data, size, copyAsOwnData);
 }
   
-p_char8 String::allocString(const void* originData, v_int32 size, bool copyAsOwnData) {
+p_char8 StrBuffer::allocStrBuffer(const void* originData, v_int32 size, bool copyAsOwnData) {
   if(copyAsOwnData) {
     p_char8 data = new v_char8[size + 1];
     data[size] = 0;
@@ -64,102 +64,94 @@ p_char8 String::allocString(const void* originData, v_int32 size, bool copyAsOwn
   return (p_char8) originData;
 }
   
-String::~String() {
+StrBuffer::~StrBuffer() {
   if(m_hasOwnData) {
     delete [] m_data;
   }
   m_data = nullptr;
 }
   
-std::shared_ptr<String> String::createShared(const void* data, v_int32 size, bool copyAsOwnData) {
+std::shared_ptr<StrBuffer> StrBuffer::createShared(const void* data, v_int32 size, bool copyAsOwnData) {
   return allocShared(data, size, copyAsOwnData);
 }
   
-std::shared_ptr<String> String::createShared(const char* data, bool copyAsOwnData) {
+std::shared_ptr<StrBuffer> StrBuffer::createShared(const char* data, bool copyAsOwnData) {
   return allocShared(data, (v_int32) std::strlen(data), copyAsOwnData);
 }
 
-std::shared_ptr<String> String::createShared(String* other, bool copyAsOwnData) {
+std::shared_ptr<StrBuffer> StrBuffer::createShared(StrBuffer* other, bool copyAsOwnData) {
   return allocShared(other->getData(), other->getSize(), copyAsOwnData);
 }
 
-std::shared_ptr<String> String::createShared(v_int32 size) {
+std::shared_ptr<StrBuffer> StrBuffer::createShared(v_int32 size) {
   return allocShared(nullptr, size, true);
 }
 
-std::shared_ptr<String> String::createSharedConcatenated(const void* data1, v_int32 size1, const void* data2, v_int32 size2) {
+std::shared_ptr<StrBuffer> StrBuffer::createSharedConcatenated(const void* data1, v_int32 size1, const void* data2, v_int32 size2) {
   const auto& ptr = allocShared(nullptr, size1 + size2, true);
   std::memcpy(ptr->m_data, data1, size1);
   std::memcpy(ptr->m_data + size1, data2, size2);
   return ptr;
 }
   
-p_char8 String::getData() const {
+p_char8 StrBuffer::getData() const {
   return m_data;
 }
 
-v_int32 String::getSize() const {
+v_int32 StrBuffer::getSize() const {
   return m_size;
 }
 
-const char* String::c_str() const {
+const char* StrBuffer::c_str() const {
   return (const char*) m_data;
 }
   
-std::string String::std_str() const {
+std::string StrBuffer::std_str() const {
   return std::string((const char*) m_data, m_size);
 }
   
-bool String::hasOwnData() const {
+bool StrBuffer::hasOwnData() const {
   return m_hasOwnData;
 }
   
-std::shared_ptr<String> String::toLowerCase() const {
+std::shared_ptr<StrBuffer> StrBuffer::toLowerCase() const {
   const auto& ptr = allocShared(m_data, m_size, true);
   lowerCase(ptr->m_data, ptr->m_size);
   return ptr;
 }
 
-std::shared_ptr<String> String::toUpperCase() const {
+std::shared_ptr<StrBuffer> StrBuffer::toUpperCase() const {
   const auto& ptr = allocShared(m_data, m_size, true);
   upperCase(ptr->m_data, ptr->m_size);
   return ptr;
 }
   
-bool String::equals(const void* data, v_int32 size) const {
+bool StrBuffer::equals(const void* data, v_int32 size) const {
   if(m_size == size) {
     return equals(m_data, data, size);
   }
   return false;
 }
 
-bool String::equals(const char* data) const {
+bool StrBuffer::equals(const char* data) const {
   if(m_size == (v_int32) std::strlen(data)) {
     return equals(m_data, data, m_size);
   }
   return false;
 }
 
-bool String::equals(String* other) const {
-  return equals((String*) this, other);
-}
-  
-bool String::equals(const String::PtrWrapper& other) const {
-  return equals((String*) this, other.get());
+bool StrBuffer::equals(StrBuffer* other) const {
+  return equals((StrBuffer*) this, other);
 }
 
-bool String::equals(const std::shared_ptr<String>& other) const {
-  return equals((String*) this, other.get());
-}
-
-bool String::startsWith(const void* data, v_int32 size) const {
+bool StrBuffer::startsWith(const void* data, v_int32 size) const {
   if(m_size >= size) {
     return equals(m_data, data, size);
   }
   return false;
 }
 
-bool String::startsWith(const char* data) const {
+bool StrBuffer::startsWith(const char* data) const {
   v_int32 length = (v_int32) std::strlen(data);
   if(m_size >= length) {
     return equals(m_data, data, length);
@@ -167,7 +159,7 @@ bool String::startsWith(const char* data) const {
   return false;
 }
 
-bool String::startsWith(String* data) const {
+bool StrBuffer::startsWith(StrBuffer* data) const {
   if(m_size >= data->m_size) {
     return equals(m_data, data, data->m_size);
   }
@@ -176,11 +168,11 @@ bool String::startsWith(String* data) const {
   
 // static
   
-v_int32 String::compare(const void* data1, const void* data2, v_int32 size) {
+v_int32 StrBuffer::compare(const void* data1, const void* data2, v_int32 size) {
   return std::memcmp(data1, data2, size);
 }
 
-v_int32 String::compare(String* str1, String* str2) {
+v_int32 StrBuffer::compare(StrBuffer* str1, StrBuffer* str2) {
   if(str1 == str2) {
     return 0;
   }
@@ -191,25 +183,25 @@ v_int32 String::compare(String* str1, String* str2) {
   }
 }
 
-bool String::equals(const void* data1, const void* data2, v_int32 size) {
+bool StrBuffer::equals(const void* data1, const void* data2, v_int32 size) {
   return (data1 == data2) || (std::memcmp(data1, data2, size) == 0);
 }
   
-bool String::equals(const char* data1, const char* data2) {
+bool StrBuffer::equals(const char* data1, const char* data2) {
   if(data1 == data2) return true;
   if(data1 == nullptr && data2 == nullptr) return false;
   v_int32 size = (v_int32) std::strlen(data1);
   return (size == (v_int32) std::strlen(data2) && std::memcmp(data1, data2, size) == 0);
 }
   
-bool String::equals(String* str1, String* str2) {
+bool StrBuffer::equals(StrBuffer* str1, StrBuffer* str2) {
   return  (str1 == str2) ||
           (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
             (str1->m_data == str2->m_data || std::memcmp(str1->m_data, str2->m_data, str1->m_size) == 0)
           );
 }
 
-bool String::equalsCI(const void* data1, const void* data2, v_int32 size) {
+bool StrBuffer::equalsCI(const void* data1, const void* data2, v_int32 size) {
   for(v_int32 i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data1) [i];
     v_char8 b = ((p_char8) data2) [i];
@@ -222,21 +214,21 @@ bool String::equalsCI(const void* data1, const void* data2, v_int32 size) {
   return true;
 }
   
-bool String::equalsCI(const char* data1, const char* data2) {
+bool StrBuffer::equalsCI(const char* data1, const char* data2) {
   if(data1 == data2) return true;
   if(data1 == nullptr && data2 == nullptr) return false;
   v_int32 size = (v_int32) std::strlen(data1);
   return (size == (v_int32) std::strlen(data2) && equalsCI(data1, data2, size) == 0);
 }
   
-bool String::equalsCI(String* str1, String* str2) {
+bool StrBuffer::equalsCI(StrBuffer* str1, StrBuffer* str2) {
   return  (str1 == str2) ||
           (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
             (str1->m_data == str2->m_data || equalsCI(str1->m_data, str2->m_data, str1->m_size))
           );
 }
 
-bool String::equalsCI_FAST(const void* data1, const void* data2, v_int32 size) {
+bool StrBuffer::equalsCI_FAST(const void* data1, const void* data2, v_int32 size) {
   for(v_int32 i = 0; i < size; i++) {
     if((((p_char8) data1) [i] | 32) != (((p_char8) data2) [i] | 32)) {
       return false;
@@ -245,33 +237,33 @@ bool String::equalsCI_FAST(const void* data1, const void* data2, v_int32 size) {
   return true;
 }
   
-bool String::equalsCI_FAST(const char* data1, const char* data2) {
+bool StrBuffer::equalsCI_FAST(const char* data1, const char* data2) {
   if(data1 == data2) return true;
   if(data1 == nullptr && data2 == nullptr) return false;
   v_int32 size = (v_int32) std::strlen(data1);
   return (size == (v_int32) std::strlen(data2) && equalsCI_FAST(data1, data2, size) == 0);
 }
 
-bool String::equalsCI_FAST(String* str1, String* str2) {
+bool StrBuffer::equalsCI_FAST(StrBuffer* str1, StrBuffer* str2) {
   return  (str1 == str2) ||
   (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
    (str1->m_data == str2->m_data || equalsCI_FAST(str1->m_data, str2->m_data, str1->m_size))
    );
 }
   
-bool String::equalsCI_FAST(const String::PtrWrapper& str1, const char* str2) {
+bool StrBuffer::equalsCI_FAST(StrBuffer* str1, const char* str2) {
   v_int32 len = (v_int32) std::strlen(str2);
   return (str1->getSize() == len && equalsCI_FAST(str1->m_data, str2, str1->m_size));
 }
 
-void String::lowerCase(const void* data, v_int32 size) {
+void StrBuffer::lowerCase(const void* data, v_int32 size) {
   for(v_int32 i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data)[i];
     if(a >= 'A' && a <= 'Z') ((p_char8) data)[i] = a | 32;
   }
 }
 
-void String::upperCase(const void* data, v_int32 size) {
+void StrBuffer::upperCase(const void* data, v_int32 size) {
   for(v_int32 i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data)[i];
     if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;
@@ -279,25 +271,26 @@ void String::upperCase(const void* data, v_int32 size) {
 }
   
 // Operator
-  
-oatpp::base::PtrWrapper<String> operator + (const char* a, const oatpp::base::PtrWrapper<String>& b){
-  return String::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
+/*
+oatpp::base::PtrWrapper<StrBuffer> operator + (const char* a, const oatpp::base::PtrWrapper<StrBuffer>& b){
+  return StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
 }
   
-oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& b, const char* a){
-  return String::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
+oatpp::base::PtrWrapper<StrBuffer> operator + (const oatpp::base::PtrWrapper<StrBuffer>& b, const char* a){
+  return StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
 }
   
-oatpp::base::PtrWrapper<String> operator + (const oatpp::base::PtrWrapper<String>& a, const oatpp::base::PtrWrapper<String>& b) {
-  return String::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
+oatpp::base::PtrWrapper<StrBuffer> operator + (const oatpp::base::PtrWrapper<StrBuffer>& a, const oatpp::base::PtrWrapper<StrBuffer>& b) {
+  return StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
 }
   
-std::shared_ptr<String> operator + (const char* a, const std::shared_ptr<String>& b){
-  return String::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
+std::shared_ptr<StrBuffer> operator + (const char* a, const std::shared_ptr<StrBuffer>& b){
+  return StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
 }
   
-std::shared_ptr<String> operator + (const std::shared_ptr<String>& b, const char* a){
-  return String::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
+std::shared_ptr<StrBuffer> operator + (const std::shared_ptr<StrBuffer>& b, const char* a){
+  return StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
 }
-  
+ */
+ 
 }}

@@ -33,7 +33,7 @@
 #include "oatpp/core/parser/ParsingCaret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   
@@ -47,7 +47,7 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   
 private:
-  typedef oatpp::data::mapping::type::StringPtrWrapper String;
+  typedef oatpp::data::mapping::type::String String;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;

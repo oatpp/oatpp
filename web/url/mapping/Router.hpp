@@ -30,7 +30,7 @@
 
 #include "oatpp/core/collection/LinkedList.hpp"
 
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/base/PtrWrapper.hpp"
 #include "oatpp/core/base/Controllable.hpp"
@@ -108,14 +108,14 @@ public:
     return std::shared_ptr<Router>(new Router());
   }
   
-  void addSubscriber(const base::String::PtrWrapper& urlPattern,
+  void addSubscriber(const oatpp::String& urlPattern,
                      const std::shared_ptr<UrlSubscriber>& subscriber){
     auto pattern = Pattern::parse(urlPattern);
     auto pair = Pair::createShared(pattern, subscriber);
     m_subscribers->pushBack(pair);
   }
   
-  Route getRoute(const base::String::PtrWrapper& url){
+  Route getRoute(const oatpp::String& url){
     auto curr = m_subscribers->getFirstNode();
     while(curr != nullptr) {
       const std::shared_ptr<Pair>& pair = curr->getData();

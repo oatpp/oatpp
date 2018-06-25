@@ -149,10 +149,10 @@ public:
                                         os::io::Library::v_size pos,
                                         os::io::Library::v_size count);
 
-  std::shared_ptr<oatpp::base::String> getSubstring(os::io::Library::v_size pos,
+  oatpp::String getSubstring(os::io::Library::v_size pos,
                                            os::io::Library::v_size count);
 
-  std::shared_ptr<oatpp::base::String> toString() {
+  oatpp::String toString() {
     return getSubstring(0, m_size);
   }
 

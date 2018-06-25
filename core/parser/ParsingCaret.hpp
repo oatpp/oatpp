@@ -26,7 +26,7 @@
 #define oatpp_parser_ParsingCaret_hpp
 
 #include "oatpp/core/collection/LinkedList.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser {
   
@@ -64,15 +64,15 @@ public:
       return m_end - m_start;
     }
     
-    std::shared_ptr<oatpp::base::String> toString(bool saveAsOwnData){
+    oatpp::String toString(bool saveAsOwnData){
       v_int32 end = m_end;
       if(end == -1){
         end = m_caret.m_pos;
       }
-      return oatpp::base::String::createShared(&m_caret.m_data[m_start], end - m_start, saveAsOwnData);
+      return oatpp::String(&m_caret.m_data[m_start], end - m_start, saveAsOwnData);
     }
     
-    std::shared_ptr<oatpp::base::String> toString(){
+    oatpp::String toString(){
       return toString(true);
     }
     
@@ -93,12 +93,12 @@ private:
 public:
   ParsingCaret(const char* text);
   ParsingCaret(p_char8 parseData, v_int32 dataSize);
-  ParsingCaret(const std::shared_ptr<base::String>& str);
+  ParsingCaret(const oatpp::String& str);
 public:
   
   static std::shared_ptr<ParsingCaret> createShared(const char* text);
   static std::shared_ptr<ParsingCaret> createShared(p_char8 parseData, v_int32 dataSize);
-  static std::shared_ptr<ParsingCaret> createShared(const std::shared_ptr<base::String>& str);
+  static std::shared_ptr<ParsingCaret> createShared(const oatpp::String& str);
 
   virtual ~ParsingCaret();
   
@@ -153,10 +153,10 @@ public:
   bool proceedIfFollowsWord(const char* text); // not increases pos if false
   bool proceedIfFollowsWord(p_char8 text, v_int32 textSize); // not increases pos if false
   
-  std::shared_ptr<base::String> parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData);
-  std::shared_ptr<base::String> parseName(bool saveAsOwnData);
+  oatpp::String parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData);
+  oatpp::String parseName(bool saveAsOwnData);
   
-  std::shared_ptr<base::String> findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<base::String>>>& list);
+  oatpp::String findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<oatpp::String>>& list);
   
   bool notAtCharFromSet(const char* set) const;
   bool notAtCharFromSet(p_char8 set, v_int32 setSize) const;

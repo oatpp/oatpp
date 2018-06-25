@@ -50,7 +50,7 @@ namespace oatpp { namespace parser {
     , m_error(nullptr)
   {}
   
-  ParsingCaret::ParsingCaret(const std::shared_ptr<base::String>& str)
+  ParsingCaret::ParsingCaret(const oatpp::String& str)
     : m_data(str->getData())
     , m_size(str->getSize())
     , m_pos(0)
@@ -65,7 +65,7 @@ namespace oatpp { namespace parser {
     return std::shared_ptr<ParsingCaret>(new ParsingCaret(parseData, dataSize));
   }
   
-  std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const std::shared_ptr<base::String>& str){
+  std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const oatpp::String& str){
     return std::shared_ptr<ParsingCaret>(new ParsingCaret(str->getData(), str->getSize()));
   }
   
@@ -277,7 +277,7 @@ namespace oatpp { namespace parser {
     
     if(len > 0){
       
-      auto str = base::String::createShared(&m_data[ipos], len, true);
+      auto str = oatpp::String(&m_data[ipos], len, true);
       v_int32 result = atoi((const char*)str->getData());
       
       if(negative){
@@ -442,7 +442,7 @@ namespace oatpp { namespace parser {
     
   }
   
-  std::shared_ptr<base::String> ParsingCaret::parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData){
+  oatpp::String ParsingCaret::parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData){
     
     if(m_data[m_pos] == openChar){
       
@@ -455,7 +455,7 @@ namespace oatpp { namespace parser {
         if(m_data[m_pos] == escapeChar){
           m_pos++;
         }else if(m_data[m_pos] == closeChar){
-          std::shared_ptr<base::String> result = base::String::createShared(&m_data[ipos], m_pos - ipos, saveAsOwnData);
+          oatpp::String result = oatpp::String(&m_data[ipos], m_pos - ipos, saveAsOwnData);
           m_pos++;
           return result;
         }
@@ -473,7 +473,7 @@ namespace oatpp { namespace parser {
     
   }
   
-  std::shared_ptr<base::String> ParsingCaret::parseName(bool saveAsOwnData){
+  oatpp::String ParsingCaret::parseName(bool saveAsOwnData){
     
     v_int32 ipos = m_pos;
     while(m_pos < m_size){
@@ -488,7 +488,7 @@ namespace oatpp { namespace parser {
       }else{
         
         if(ipos < m_pos){
-          return base::String::createShared(&m_data[ipos], m_pos - ipos, saveAsOwnData);
+          return oatpp::String(&m_data[ipos], m_pos - ipos, saveAsOwnData);
         }else{
           m_error = ERROR_NAME_EXPECTED;
           return nullptr;
@@ -499,7 +499,7 @@ namespace oatpp { namespace parser {
     }
     
     if(ipos < m_pos){
-      return base::String::createShared(&m_data[ipos], m_pos - ipos, saveAsOwnData);
+      return oatpp::String(&m_data[ipos], m_pos - ipos, saveAsOwnData);
     }else{
       m_error = ERROR_NAME_EXPECTED;
       return nullptr;
@@ -507,7 +507,7 @@ namespace oatpp { namespace parser {
     
   }
   
-  std::shared_ptr<oatpp::base::String> ParsingCaret::findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<oatpp::base::String>>>& list){
+  oatpp::String ParsingCaret::findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<oatpp::String>>& list){
     
     while(m_pos < m_size){
       
