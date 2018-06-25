@@ -32,7 +32,7 @@ namespace oatpp { namespace web { namespace url {
   
 class Parser {
 public:
-  typedef oatpp::collection::ListMap<oatpp::base::String::PtrWrapper, oatpp::base::String::PtrWrapper> Parameters;
+  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Parameters;
 public:
   
   /**
@@ -45,7 +45,7 @@ public:
    *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
    *  and put that params to Parameters map
    */
-  static void parseQueryParamsToMap(Parameters& params, const oatpp::base::String::PtrWrapper& str);
+  static void parseQueryParamsToMap(Parameters& params, const oatpp::String& str);
   
   /**
    *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by ParsingCaret
@@ -55,7 +55,7 @@ public:
   /**
    *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
    */
-  static std::shared_ptr<Parameters> parseQueryParams(const oatpp::base::String::PtrWrapper& str);
+  static std::shared_ptr<Parameters> parseQueryParams(const oatpp::String& str);
   
 };
   

@@ -46,7 +46,7 @@ void Parser::parseQueryParamsToMap(Parameters& params, oatpp::parser::ParsingCar
   
 }
 
-void Parser::parseQueryParamsToMap(Parameters& params, const oatpp::base::String::PtrWrapper& str) {
+void Parser::parseQueryParamsToMap(Parameters& params, const oatpp::String& str) {
   oatpp::parser::ParsingCaret caret(str.getPtr());
   parseQueryParamsToMap(params, caret);
 }
@@ -57,7 +57,7 @@ std::shared_ptr<Parser::Parameters> Parser::parseQueryParams(oatpp::parser::Pars
   return params;
 }
 
-std::shared_ptr<Parser::Parameters> Parser::parseQueryParams(const oatpp::base::String::PtrWrapper& str) {
+std::shared_ptr<Parser::Parameters> Parser::parseQueryParams(const oatpp::String& str) {
   auto params = Parameters::createShared();
   parseQueryParamsToMap(*params, str);
   return params;
