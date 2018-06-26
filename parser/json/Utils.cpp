@@ -355,14 +355,14 @@ std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size,
   return result;
 }
   
-p_char8 Utils::preparseString(const std::shared_ptr<ParsingCaret>& caret, v_int32& size){
+p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
   
-  if(caret->canContinueAtChar('"', 1)){
+  if(caret.canContinueAtChar('"', 1)){
     
-    const p_char8 data = caret->getData();
-    v_int32 pos = caret->getPosition();
+    const p_char8 data = caret.getData();
+    v_int32 pos = caret.getPosition();
     v_int32 pos0 = pos;
-    v_int32 length = caret->getSize();
+    v_int32 length = caret.getSize();
     
     while (pos < length) {
       v_char8 a = data[pos];
@@ -375,33 +375,33 @@ p_char8 Utils::preparseString(const std::shared_ptr<ParsingCaret>& caret, v_int3
         pos ++;
       }
     }
-    caret->setPosition(caret->getSize());
-    caret->setError(ERROR_PARSER_QUOTE_EXPECTED);
+    caret.setPosition(caret.getSize());
+    caret.setError(ERROR_PARSER_QUOTE_EXPECTED);
   } else {
-    caret->setError(ERROR_PARSER_QUOTE_EXPECTED);
+    caret.setError(ERROR_PARSER_QUOTE_EXPECTED);
   }
   
   return nullptr;
   
 }
   
-oatpp::String Utils::parseString(const std::shared_ptr<ParsingCaret>& caret) {
+oatpp::String Utils::parseString(ParsingCaret& caret) {
   
   v_int32 size;
   p_char8 data = preparseString(caret, size);
   
   if(data != nullptr) {
   
-    v_int32 pos = caret->getPosition();
+    v_int32 pos = caret.getPosition();
     
     const char* error;
     v_int32 errorPosition;
     auto result = unescapeString(data, size, error, errorPosition);
     if(error != nullptr){
-      caret->setError(error);
-      caret->setPosition(pos + errorPosition);
+      caret.setError(error);
+      caret.setPosition(pos + errorPosition);
     } else {
-      caret->setPosition(pos + size + 1);
+      caret.setPosition(pos + size + 1);
     }
     
     return result;
@@ -412,23 +412,23 @@ oatpp::String Utils::parseString(const std::shared_ptr<ParsingCaret>& caret) {
   
 }
   
-std::string Utils::parseStringToStdString(const std::shared_ptr<ParsingCaret>& caret){
+std::string Utils::parseStringToStdString(ParsingCaret& caret){
   
   v_int32 size;
   p_char8 data = preparseString(caret, size);
   
   if(data != nullptr) {
     
-    v_int32 pos = caret->getPosition();
+    v_int32 pos = caret.getPosition();
     
     const char* error;
     v_int32 errorPosition;
     const std::string& result = unescapeStringToStdString(data, size, error, errorPosition);
     if(error != nullptr){
-      caret->setError(error);
-      caret->setPosition(pos + errorPosition);
+      caret.setError(error);
+      caret.setPosition(pos + errorPosition);
     } else {
-      caret->setPosition(pos + size + 1);
+      caret.setPosition(pos + size + 1);
     }
     
     return result;

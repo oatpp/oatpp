@@ -81,39 +81,39 @@ public:
   static const char* const ERROR_PARSER_ARRAY_SCOPE_CLOSE;
 private:
   
-  static void skipScope(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret, v_char8 charOpen, v_char8 charClose);
-  static void skipString(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static void skipToken(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static void skipValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
+  static void skipScope(oatpp::parser::ParsingCaret& caret, v_char8 charOpen, v_char8 charClose);
+  static void skipString(oatpp::parser::ParsingCaret& caret);
+  static void skipToken(oatpp::parser::ParsingCaret& caret);
+  static void skipValue(oatpp::parser::ParsingCaret& caret);
   
-  static AbstractObjectWrapper readStringValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static AbstractObjectWrapper readInt32Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static AbstractObjectWrapper readInt64Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static AbstractObjectWrapper readFloat32Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static AbstractObjectWrapper readFloat64Value(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
-  static AbstractObjectWrapper readBooleanValue(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret);
+  static AbstractObjectWrapper readStringValue(oatpp::parser::ParsingCaret& caret);
+  static AbstractObjectWrapper readInt32Value(oatpp::parser::ParsingCaret& caret);
+  static AbstractObjectWrapper readInt64Value(oatpp::parser::ParsingCaret& caret);
+  static AbstractObjectWrapper readFloat32Value(oatpp::parser::ParsingCaret& caret);
+  static AbstractObjectWrapper readFloat64Value(oatpp::parser::ParsingCaret& caret);
+  static AbstractObjectWrapper readBooleanValue(oatpp::parser::ParsingCaret& caret);
   static AbstractObjectWrapper readObjectValue(const Type* const type,
-                                               const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+                                               oatpp::parser::ParsingCaret& caret,
                                                const std::shared_ptr<Config>& config);
   static AbstractObjectWrapper readListValue(const Type* const type,
-                                             const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+                                             oatpp::parser::ParsingCaret& caret,
                                              const std::shared_ptr<Config>& config);
   
   static AbstractObjectWrapper readValue(const Type* const type,
-                                         const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+                                         oatpp::parser::ParsingCaret& caret,
                                          const std::shared_ptr<Config>& config);
   
   static AbstractObjectWrapper readList(const Type* const type,
-                                        const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+                                        oatpp::parser::ParsingCaret& caret,
                                         const std::shared_ptr<Config>& config);
   
   static AbstractObjectWrapper readObject(const Type* const type,
-                                          const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+                                          oatpp::parser::ParsingCaret& caret,
                                           const std::shared_ptr<Config>& config);
   
 public:
   
-  static AbstractObjectWrapper deserialize(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+  static AbstractObjectWrapper deserialize(oatpp::parser::ParsingCaret& caret,
                                            const std::shared_ptr<Config>& config,
                                            const Type* const type) {
     if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){

@@ -113,11 +113,6 @@ public:
     return empty;
   }
   
-/*  bool equals(const String& other) const {
-    return m_ptr->equals(other.get());
-  }
- */
-  
   bool operator==(const String &other) const {
     return m_ptr->equals(other.get());
   }

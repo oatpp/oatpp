@@ -59,7 +59,7 @@ public:
   }
   
   oatpp::data::mapping::type::AbstractObjectWrapper
-  read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+  read(oatpp::parser::ParsingCaret& caret,
        const oatpp::data::mapping::type::Type* const type) const override {
     return Deserializer::deserialize(caret, deserializerConfig, type);
   }

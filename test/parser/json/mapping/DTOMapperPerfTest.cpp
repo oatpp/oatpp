@@ -83,9 +83,9 @@ bool DTOMapperPerfTest::onRun() {
   
   {
     PerformanceChecker checker("Deserializer");
-    auto caret = oatpp::parser::ParsingCaret::createShared(test1_Text);
+    oatpp::parser::ParsingCaret caret(test1_Text);
     for(v_int32 i = 0; i < numIterations; i ++) {
-      caret->setPosition(0);
+      caret.setPosition(0);
       mapper->readFromCaret<Test1>(caret);
     }
   }

@@ -46,7 +46,7 @@ private:
   static v_int32 calcEscapedStringSize(p_char8 data, v_int32 size, v_int32& safeSize);
   static v_int32 calcUnescapedStringSize(p_char8 data, v_int32 size, const char* & error, v_int32& errorPosition);
   static void unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultData);
-  static p_char8 preparseString(const std::shared_ptr<ParsingCaret>& caret, v_int32& size);
+  static p_char8 preparseString(ParsingCaret& caret, v_int32& size);
 public:
   
   static String escapeString(p_char8 data, v_int32 size);
@@ -54,8 +54,8 @@ public:
   static std::string unescapeStringToStdString(p_char8 data, v_int32 size,
                                                const char* & error, v_int32& errorPosition);
   
-  static String parseString(const std::shared_ptr<ParsingCaret>& caret);
-  static std::string parseStringToStdString(const std::shared_ptr<ParsingCaret>& caret);
+  static String parseString(ParsingCaret& caret);
+  static std::string parseStringToStdString(ParsingCaret& caret);
   
 };
   

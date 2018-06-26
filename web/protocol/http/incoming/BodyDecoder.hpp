@@ -79,7 +79,12 @@ private:
     }
     
     oatpp::async::Action onDecoded() {
-      auto dto = m_objectMapper->readFromString<Type>(m_chunkedBuffer->toString());
+      auto body = m_chunkedBuffer->toString();
+      oatpp::parser::ParsingCaret caret(body);
+      auto dto = m_objectMapper->readFromCaret<Type>(caret);
+      if(caret.hasError()) {
+        return this->error(caret.getError());
+      }
       return this->_return(dto);
     }
     

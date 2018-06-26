@@ -60,7 +60,7 @@ public:
   virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
                      const type::AbstractObjectWrapper& variant) const = 0;
   
-  virtual type::AbstractObjectWrapper read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+  virtual type::AbstractObjectWrapper read(oatpp::parser::ParsingCaret& caret,
                                            const type::Type* const type) const = 0;
   
   oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const {
@@ -70,7 +70,7 @@ public:
   }
   
   template<class Class>
-  typename Class::ObjectWrapper readFromCaret(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret) const {
+  typename Class::ObjectWrapper readFromCaret(oatpp::parser::ParsingCaret& caret) const {
     auto type = Class::ObjectWrapper::Class::getType();
     return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
   }
@@ -78,7 +78,7 @@ public:
   template<class Class>
   typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {
     auto type = Class::ObjectWrapper::Class::getType();
-    auto caret = oatpp::parser::ParsingCaret::createShared(str.getPtr());
+    oatpp::parser::ParsingCaret caret(str);
     return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
   }
   
