@@ -38,23 +38,23 @@ String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::T
   
 namespace __class {
   
-  type::Int32::PtrWrapper Int32::parseFromString(const oatpp::String& str, bool& success) {
+  type::Int32 Int32::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
   
-  type::Int64::PtrWrapper Int64::parseFromString(const oatpp::String& str, bool& success) {
+  type::Int64 Int64::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt64(str, success);
   }
   
-  type::Float32::PtrWrapper Float32::parseFromString(const oatpp::String& str, bool& success) {
+  type::Float32 Float32::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToFloat32(str, success);
   }
   
-  type::Float64::PtrWrapper Float64::parseFromString(const oatpp::String& str, bool& success) {
+  type::Float64 Float64::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToFloat64(str, success);
   }
   
-  type::Boolean::PtrWrapper Boolean::parseFromString(const oatpp::String& str, bool& success) {
+  type::Boolean Boolean::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToBool(str, success);
   }
   

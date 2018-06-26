@@ -129,7 +129,7 @@ Deserializer::AbstractPtrWrapper Deserializer::readInt32Value(const std::shared_
   if(caret->proceedIfFollowsText("null")){
     return AbstractPtrWrapper(Int32::PtrWrapper::Class::getType());
   } else {
-    return AbstractPtrWrapper(Int32::createAbstract(caret->parseInt32()), Int32::PtrWrapper::Class::getType());
+    return AbstractPtrWrapper(Int32::ObjectType::createAbstract(caret->parseInt32()), Int32::PtrWrapper::Class::getType());
   }
 }
 
@@ -137,7 +137,7 @@ Deserializer::AbstractPtrWrapper Deserializer::readInt64Value(const std::shared_
   if(caret->proceedIfFollowsText("null")){
     return AbstractPtrWrapper(Int64::PtrWrapper::Class::getType());
   } else {
-    return AbstractPtrWrapper(Int64::createAbstract(caret->parseInt64()), Int64::PtrWrapper::Class::getType());
+    return AbstractPtrWrapper(Int64::ObjectType::createAbstract(caret->parseInt64()), Int64::PtrWrapper::Class::getType());
   }
 }
 
@@ -145,7 +145,7 @@ Deserializer::AbstractPtrWrapper Deserializer::readFloat32Value(const std::share
   if(caret->proceedIfFollowsText("null")){
     return AbstractPtrWrapper(Float32::PtrWrapper::Class::getType());
   } else {
-    return AbstractPtrWrapper(Float32::createAbstract(caret->parseFloat32()), Float32::PtrWrapper::Class::getType());
+    return AbstractPtrWrapper(Float32::ObjectType::createAbstract(caret->parseFloat32()), Float32::PtrWrapper::Class::getType());
   }
 }
 
@@ -153,7 +153,7 @@ Deserializer::AbstractPtrWrapper Deserializer::readFloat64Value(const std::share
   if(caret->proceedIfFollowsText("null")){
     return AbstractPtrWrapper(Float64::PtrWrapper::Class::getType());
   } else {
-    return AbstractPtrWrapper(Float64::createAbstract(caret->parseFloat64()), Float64::PtrWrapper::Class::getType());
+    return AbstractPtrWrapper(Float64::ObjectType::createAbstract(caret->parseFloat64()), Float64::PtrWrapper::Class::getType());
   }
 }
 
@@ -161,7 +161,7 @@ Deserializer::AbstractPtrWrapper Deserializer::readBooleanValue(const std::share
   if(caret->proceedIfFollowsText("null")){
     return AbstractPtrWrapper(Boolean::PtrWrapper::Class::getType());
   } else {
-    return AbstractPtrWrapper(Boolean::createAbstract(caret->parseBoolean("true", "false")), Boolean::PtrWrapper::Class::getType());
+    return AbstractPtrWrapper(Boolean::ObjectType::createAbstract(caret->parseBoolean("true", "false")), Boolean::PtrWrapper::Class::getType());
   }
 }
   

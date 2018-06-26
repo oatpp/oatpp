@@ -58,11 +58,11 @@ public:
 public:
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;
   typedef oatpp::data::mapping::type::String String;
-  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
+  typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::data::mapping::type::Float32 Float32;
+  typedef oatpp::data::mapping::type::Float64 Float64;
+  typedef oatpp::data::mapping::type::Boolean Boolean;
   
 protected:
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);

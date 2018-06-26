@@ -86,15 +86,15 @@ namespace oatpp { namespace utils { namespace conversion {
     if(type == oatpp::data::mapping::type::__class::String::getType()) {
       return std::static_pointer_cast<oatpp::base::StrBuffer>(primitive.getPtr());
     } else if(type == oatpp::data::mapping::type::__class::Int32::getType()) {
-      return utils::conversion::int32ToStr(static_cast<oatpp::data::mapping::type::Int32*>(primitive.get())->getValue());
+      return utils::conversion::int32ToStr(static_cast<oatpp::data::mapping::type::Int32::ObjectType*>(primitive.get())->getValue());
     } else if(type == oatpp::data::mapping::type::__class::Int64::getType()) {
-      return utils::conversion::int64ToStr(static_cast<oatpp::data::mapping::type::Int64*>(primitive.get())->getValue());
+      return utils::conversion::int64ToStr(static_cast<oatpp::data::mapping::type::Int64::ObjectType*>(primitive.get())->getValue());
     } else if(type == oatpp::data::mapping::type::__class::Float32::getType()) {
-      return utils::conversion::float32ToStr(static_cast<oatpp::data::mapping::type::Float32*>(primitive.get())->getValue());
+      return utils::conversion::float32ToStr(static_cast<oatpp::data::mapping::type::Float32::ObjectType*>(primitive.get())->getValue());
     } else if(type == oatpp::data::mapping::type::__class::Float64::getType()) {
-      return utils::conversion::float64ToStr(static_cast<oatpp::data::mapping::type::Float64*>(primitive.get())->getValue());
+      return utils::conversion::float64ToStr(static_cast<oatpp::data::mapping::type::Float64::ObjectType*>(primitive.get())->getValue());
     } else if(type == oatpp::data::mapping::type::__class::Boolean::getType()) {
-      return utils::conversion::boolToStr(static_cast<oatpp::data::mapping::type::Boolean*>(primitive.get())->getValue());
+      return utils::conversion::boolToStr(static_cast<oatpp::data::mapping::type::Boolean::ObjectType*>(primitive.get())->getValue());
     }
     throw std::runtime_error("[oatpp::utils::conversion::primitiveToStr]: Invalid primitive type");
   }

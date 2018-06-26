@@ -214,11 +214,11 @@ public:
 };
 
 
-typedef Primitive<v_int32, __class::Int32> Int32;
-typedef Primitive<v_int64, __class::Int64> Int64;
-typedef Primitive<v_float32, __class::Float32> Float32;
-typedef Primitive<v_float64, __class::Float64> Float64;
-typedef Primitive<bool, __class::Boolean> Boolean;
+typedef Primitive<v_int32, __class::Int32>::PtrWrapper Int32;
+typedef Primitive<v_int64, __class::Int64>::PtrWrapper Int64;
+typedef Primitive<v_float32, __class::Float32>::PtrWrapper Float32;
+typedef Primitive<v_float64, __class::Float64>::PtrWrapper Float64;
+typedef Primitive<bool, __class::Boolean>::PtrWrapper Boolean;
   
 namespace __class {
   
@@ -247,7 +247,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Int32::PtrWrapper parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    static type::Int32 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
@@ -260,7 +260,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Int64::PtrWrapper parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    static type::Int64 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
@@ -273,7 +273,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Float32::PtrWrapper parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    static type::Float32 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
@@ -286,7 +286,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Float64::PtrWrapper parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    static type::Float64 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
@@ -299,7 +299,7 @@ namespace __class {
       return &type;
     }
     
-    static type::Boolean::PtrWrapper parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    static type::Boolean parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
