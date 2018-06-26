@@ -277,7 +277,7 @@ namespace oatpp { namespace parser {
     
     if(len > 0){
       
-      auto str = oatpp::String(&m_data[ipos], len, true);
+      auto str = oatpp::String((const char*)&m_data[ipos], len, true);
       v_int32 result = atoi((const char*)str->getData());
       
       if(negative){
@@ -455,7 +455,7 @@ namespace oatpp { namespace parser {
         if(m_data[m_pos] == escapeChar){
           m_pos++;
         }else if(m_data[m_pos] == closeChar){
-          oatpp::String result = oatpp::String(&m_data[ipos], m_pos - ipos, saveAsOwnData);
+          oatpp::String result = oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
           m_pos++;
           return result;
         }
@@ -488,7 +488,7 @@ namespace oatpp { namespace parser {
       }else{
         
         if(ipos < m_pos){
-          return oatpp::String(&m_data[ipos], m_pos - ipos, saveAsOwnData);
+          return oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
         }else{
           m_error = ERROR_NAME_EXPECTED;
           return nullptr;
@@ -499,7 +499,7 @@ namespace oatpp { namespace parser {
     }
     
     if(ipos < m_pos){
-      return oatpp::String(&m_data[ipos], m_pos - ipos, saveAsOwnData);
+      return oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
     }else{
       m_error = ERROR_NAME_EXPECTED;
       return nullptr;

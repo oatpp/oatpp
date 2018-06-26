@@ -57,11 +57,11 @@ public:
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
   {}
   
-  String(const void* data, v_int32 size, bool copyAsOwnData = true)
+  String(const char* data, v_int32 size, bool copyAsOwnData = true)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
   {}
   
-  String(const void* data1, v_int32 size1, const void* data2, v_int32 size2)
+  String(const char* data1, v_int32 size1, const char* data2, v_int32 size2)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
   {}
   

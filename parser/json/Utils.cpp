@@ -204,7 +204,7 @@ oatpp::String Utils::escapeString(p_char8 data, v_int32 size) {
   v_int32 safeSize;
   v_int32 escapedSize = calcEscapedStringSize(data, size, safeSize);
   if(escapedSize == size) {
-    return String(data, size, true);
+    return String((const char*)data, size, true);
   }
   auto result = String(escapedSize);
   v_int32 i = 0;

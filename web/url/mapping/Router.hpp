@@ -69,8 +69,8 @@ public:
       return m_subscriber->processUrlAsync(parentCoroutine, callback, param);
     }
     
-    bool isNull() const {
-      return m_subscriber == nullptr;
+    explicit operator bool() const {
+      return m_subscriber != nullptr;
     }
     
     std::shared_ptr<Pattern::MatchMap> matchMap;

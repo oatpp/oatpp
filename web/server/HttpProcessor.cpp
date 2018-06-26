@@ -77,7 +77,7 @@ HttpProcessor::processRequest(HttpRouter* router,
     
     auto route = router->getRoute(line->method, line->path);
     
-    if(!route.isNull()) {
+    if(route) {
       
       oatpp::web::protocol::http::Status error;
       auto headers = protocol::http::Protocol::parseHeaders(caret, error);
@@ -143,7 +143,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 
   
   m_currentRoute = m_router->getRoute(line->method, line->path);
   
-  if(m_currentRoute.isNull()) {
+  if(!m_currentRoute) {
     m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }

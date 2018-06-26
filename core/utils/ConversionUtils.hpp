@@ -60,7 +60,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [100];
     v_int32 size = primitiveToCharSequence(value, &buff[0], pattern);
     if(size > 0){
-      return oatpp::String(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
     return oatpp::String::empty();
   }

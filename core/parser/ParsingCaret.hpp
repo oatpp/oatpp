@@ -69,7 +69,7 @@ public:
       if(end == -1){
         end = m_caret.m_pos;
       }
-      return oatpp::String(&m_caret.m_data[m_start], end - m_start, saveAsOwnData);
+      return oatpp::String((const char*)&m_caret.m_data[m_start], end - m_start, saveAsOwnData);
     }
     
     oatpp::String toString(){

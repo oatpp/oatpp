@@ -44,6 +44,9 @@ public:
     return std::shared_ptr<HttpRequestExecutor>(new HttpRequestExecutor(connectionProvider));
   }
   
+  /**
+   *  throws RequestExecutionError
+   */
   std::shared_ptr<Response> execute(const String& method,
                                     const String& path,
                                     const std::shared_ptr<Headers>& headers,

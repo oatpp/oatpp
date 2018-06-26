@@ -72,7 +72,7 @@ TYPE NAME = __request;
 
 #define OATPP_MACRO_API_CONTROLLER_HEADER_0(TYPE, NAME, PARAM_LIST) \
 auto __param_str_val_##NAME = __request->getHeader(#NAME); \
-if(__param_str_val_##NAME.isNull()){ \
+if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing HEADER parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
@@ -83,7 +83,7 @@ if(!__param_validation_check_##NAME){ \
 
 #define OATPP_MACRO_API_CONTROLLER_HEADER_1(TYPE, NAME, PARAM_LIST) \
 auto __param_str_val_##NAME = __request->getHeader(OATPP_MACRO_FIRSTARG PARAM_LIST); \
-if(__param_str_val_##NAME.isNull()){ \
+if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
   oatpp::String("Missing HEADER parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
 } \
@@ -126,7 +126,7 @@ OATPP_MACRO_API_CONTROLLER_HEADER_INFO_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, OATPP
 
 #define OATPP_MACRO_API_CONTROLLER_PATH_0(TYPE, NAME, PARAM_LIST) \
 auto __param_str_val_##NAME = __request->getPathVariable(#NAME); \
-if(__param_str_val_##NAME.isNull()){ \
+if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing PATH parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
@@ -137,7 +137,7 @@ if(!__param_validation_check_##NAME){ \
 
 #define OATPP_MACRO_API_CONTROLLER_PATH_1(TYPE, NAME, PARAM_LIST) \
 auto __param_str_val_##NAME = __request->getPathVariable(OATPP_MACRO_FIRSTARG PARAM_LIST); \
-if(__param_str_val_##NAME.isNull()){ \
+if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
   oatpp::String("Missing PATH parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
 } \
@@ -192,7 +192,7 @@ info->body.type = oatpp::data::mapping::type::__class::String::getType();
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, NAME, PARAM_LIST) \
 TYPE NAME; \
 __request->readBodyToDto(NAME, getDefaultObjectMapper()); \
-if(NAME.isNull()) { \
+if(!NAME) { \
   return ApiController::handleError(Status::CODE_400, "Missing valid body parameter '" #NAME "'"); \
 }
 

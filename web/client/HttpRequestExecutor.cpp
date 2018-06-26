@@ -46,14 +46,11 @@ HttpRequestExecutor::execute(const String& method,
                              const std::shared_ptr<Headers>& headers,
                              const std::shared_ptr<Body>& body) {
   
-  //auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-  //stream << "/" << path;
-  //ENV::log("HTTP_EXECUTOR", "Execute: '%s'", (const char*) stream->toStringAsString()->getData());
-  
   auto connection = m_connectionProvider->getConnection();
   
   if(!connection){
-    return nullptr; // TODO ERROR HERE
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: ConnectionProvider failed to provide Connection");
   }
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
@@ -65,41 +62,37 @@ HttpRequestExecutor::execute(const String& method,
   request->send(upStream);
   upStream->flush();
   
-  //auto upStream = oatpp::data::stream::ChunkedBuffer::createShared();
-  //request->send(upStream);
-  //ENV::log("request", "request:'%s'\n", (const char*) upStream->toStringAsString()->getData());
-  //upStream->flushToStream(connection);
-  
   auto readCount = connection->read(ioBuffer->getData(), ioBuffer->getSize());
   
-  //((p_char8) ioBuffer->getData())[readCount] = 0;
-  //ENV::log("asd", "response='%s'", (const char*) ioBuffer->getData());
-  
-  if(readCount > 0) {
+  if(readCount == 0) {
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_NO_RESPONSE,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: No response from server");
+  } else if(readCount < 0) {
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_READ_RESPONSE,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to read response. Check out the RequestExecutionError::getReadErrorCode() for more information", (v_int32) readCount);
+  }
     
-    oatpp::parser::ParsingCaret caret((p_char8) ioBuffer->getData(), ioBuffer->getSize());
-    auto line = protocol::http::Protocol::parseResponseStartingLine(caret);
-    if(!line){
-      return nullptr; // TODO ERROR HERE
-    }
-    
-    oatpp::web::protocol::http::Status error;
-    auto headers = protocol::http::Protocol::parseHeaders(caret, error);
-    
-    if(error.code != 0){
-      return nullptr; // TODO ERROR HERE
-    }
-    
-    auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
-                                                                                  ioBuffer,
-                                                                                  caret.getPosition(),
-                                                                                  (v_int32) readCount);
-    
-    return Response::createShared(line->statusCode, line->description, headers, bodyStream);
-    
+  oatpp::parser::ParsingCaret caret((p_char8) ioBuffer->getData(), ioBuffer->getSize());
+  auto line = protocol::http::Protocol::parseResponseStartingLine(caret);
+  if(!line){
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid starting line");
   }
   
-  return nullptr;
+  oatpp::web::protocol::http::Status error;
+  auto responseHeaders = protocol::http::Protocol::parseHeaders(caret, error);
+  
+  if(error.code != 0){
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_HEADERS,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid headers section");
+  }
+  
+  auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
+                                                                                ioBuffer,
+                                                                                caret.getPosition(),
+                                                                                (v_int32) readCount);
+  
+  return Response::createShared(line->statusCode, line->description, responseHeaders, bodyStream);
   
 }
   

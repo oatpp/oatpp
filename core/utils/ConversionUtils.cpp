@@ -64,7 +64,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [100];
     v_int32 size = int32ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return oatpp::String(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
     return oatpp::String::empty();
   }
@@ -73,7 +73,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [100];
     v_int32 size = int64ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return oatpp::String(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
     return oatpp::String::empty();
   }
@@ -132,7 +132,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [100];
     v_int32 size = float32ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return oatpp::String(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
     return oatpp::String::empty();
   }
@@ -141,16 +141,16 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [100];
     v_int32 size = float32ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return oatpp::String(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
     return oatpp::String::empty();
   }
   
   oatpp::String boolToStr(bool value) {
     if(value){
-      return oatpp::String((p_char8)"true", 4, false);
+      return oatpp::String("true", 4, false);
     } else {
-      return oatpp::String((p_char8)"false", 5, false);
+      return oatpp::String("false", 5, false);
     }
   }
   
