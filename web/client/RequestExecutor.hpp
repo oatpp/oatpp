@@ -52,8 +52,8 @@ public:
     constexpr static const v_int32 ERROR_CODE_NO_RESPONSE = 5;
   private:
     v_int32 m_errorCode;
-    v_int32 m_readErrorCode;
     const char* m_message;
+    v_int32 m_readErrorCode;
   public:
     
     RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode = 0)
