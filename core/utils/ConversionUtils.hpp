@@ -28,7 +28,7 @@
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/Types.hpp"
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 #include "oatpp/core/base/Controllable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 

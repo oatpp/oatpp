@@ -25,7 +25,7 @@
 #ifndef oatpp_data_type_Type_hpp
 #define oatpp_data_type_Type_hpp
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+#include "oatpp/core/base/Controllable.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -43,46 +43,116 @@ namespace __class {
   };
 }
   
+template<class T>
+class BasicPtrWrapper {
+protected:
+  std::shared_ptr<T> m_ptr;
+public:
+  
+  BasicPtrWrapper() {}
+  
+  BasicPtrWrapper(const std::shared_ptr<T>& ptr)
+    : m_ptr(ptr)
+  {}
+  
+  BasicPtrWrapper(std::shared_ptr<T>&& ptr)
+    : m_ptr(std::move(ptr))
+  {}
+  
+  BasicPtrWrapper(const BasicPtrWrapper& other)
+    : m_ptr(other.m_ptr)
+  {}
+  
+  BasicPtrWrapper(BasicPtrWrapper&& other)
+  : m_ptr(std::move(other.m_ptr))
+  {}
+  
+  BasicPtrWrapper& operator = (const BasicPtrWrapper& other){
+    m_ptr = other.m_ptr;
+    return *this;
+  }
+  
+  BasicPtrWrapper& operator = (BasicPtrWrapper&& other){
+    m_ptr = std::move(other.m_ptr);
+    return *this;
+  }
+  
+  T* operator->() const {
+    return m_ptr.operator->();
+  }
+  
+  T* get() const {
+    return m_ptr.get();
+  }
+  
+  std::shared_ptr<T> getPtr() const {
+    return m_ptr;
+  }
+  
+  bool isNull() const {
+    return m_ptr.get() == nullptr;
+  }
+  
+  static const BasicPtrWrapper& empty(){
+    static BasicPtrWrapper empty;
+    return empty;
+  }
+  
+  inline bool operator == (const BasicPtrWrapper& other){
+    return m_ptr.get() == other.m_ptr.get();
+  }
+  
+  inline bool operator != (const BasicPtrWrapper& other){
+    return m_ptr.get() != other.m_ptr.get();
+  }
+  
+};
+
+template<class T, class F>
+inline BasicPtrWrapper<T> static_wrapper_cast(const F& from){
+  return BasicPtrWrapper<T>(std::static_pointer_cast<T>(from.getPtr()));
+}
+  
 template <class T>
-class PolymorphicWrapper : public oatpp::base::PtrWrapper<T> {
+class PolymorphicWrapper : public BasicPtrWrapper<T> {
 public:
   typedef T ObjectType;
 public:
   typedef __class::Void Class;
 public:
-  PolymorphicWrapper(const oatpp::base::PtrWrapper<T>& other, const Type* const type)
-    : oatpp::base::PtrWrapper<T>(other)
+  PolymorphicWrapper(const BasicPtrWrapper<T>& other, const Type* const type)
+    : BasicPtrWrapper<T>(other)
     , valueType(type)
   {}
   
-  PolymorphicWrapper(oatpp::base::PtrWrapper<T>&& other, const Type* const type)
-    : oatpp::base::PtrWrapper<T>(std::move(other))
+  PolymorphicWrapper(BasicPtrWrapper<T>&& other, const Type* const type)
+    : BasicPtrWrapper<T>(std::move(other))
     , valueType(type)
   {}
 public:
   
   PolymorphicWrapper()
-    : oatpp::base::PtrWrapper<T>() 
+    : BasicPtrWrapper<T>()
     , valueType(Class::getType())
   {}
   
   PolymorphicWrapper(const Type* const type)
-    : oatpp::base::PtrWrapper<T>()
+    : BasicPtrWrapper<T>()
     , valueType(type)
   {}
   
   PolymorphicWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
-    : oatpp::base::PtrWrapper<T>(ptr)
+    : BasicPtrWrapper<T>(ptr)
     , valueType(type)
   {}
   
   PolymorphicWrapper(const PolymorphicWrapper& other)
-    : oatpp::base::PtrWrapper<T>(other)
+    : BasicPtrWrapper<T>(other)
     , valueType(other.valueType)
   {}
   
   PolymorphicWrapper(PolymorphicWrapper&& other)
-    : oatpp::base::PtrWrapper<T>(std::move(other))
+    : BasicPtrWrapper<T>(std::move(other))
     , valueType(other.valueType)
   {}
   
@@ -90,23 +160,23 @@ public:
     return PolymorphicWrapper();
   }
   
-  PolymorphicWrapper& operator=(const oatpp::base::PtrWrapper<T>& other){
-    oatpp::base::PtrWrapper<T>::operator = (other);
+  PolymorphicWrapper& operator=(const BasicPtrWrapper<T>& other){
+    BasicPtrWrapper<T>::operator = (other);
     return *this;
   }
   
-  PolymorphicWrapper& operator=(const oatpp::base::PtrWrapper<T>&& other){
-    oatpp::base::PtrWrapper<T>::operator = (std::move(other));
+  PolymorphicWrapper& operator=(const BasicPtrWrapper<T>&& other){
+    BasicPtrWrapper<T>::operator = (std::move(other));
     return *this;
   }
   
   PolymorphicWrapper& operator=(const PolymorphicWrapper<T>& other){
-    oatpp::base::PtrWrapper<T>::operator = (other);
+    BasicPtrWrapper<T>::operator = (other);
     return *this;
   }
   
   PolymorphicWrapper& operator=(const PolymorphicWrapper<T>&& other){
-    oatpp::base::PtrWrapper<T>::operator = (std::move(other));
+    BasicPtrWrapper<T>::operator = (std::move(other));
     return *this;
   }
   
@@ -142,11 +212,11 @@ public:
     : PolymorphicWrapper<T>(ptr, Class::getType())
   {}
   
-  PtrWrapper(const oatpp::base::PtrWrapper<T>& other)
+  PtrWrapper(const BasicPtrWrapper<T>& other)
     : PolymorphicWrapper<T>(other, Class::getType())
   {}
   
-  PtrWrapper(oatpp::base::PtrWrapper<T>&& other)
+  PtrWrapper(BasicPtrWrapper<T>&& other)
     : PolymorphicWrapper<T>(std::move(other), Class::getType())
   {}
   
@@ -154,7 +224,7 @@ public:
     return PtrWrapper();
   }
   
-  PtrWrapper& operator=(const oatpp::base::PtrWrapper<T>& other){
+  PtrWrapper& operator=(const BasicPtrWrapper<T>& other){
     if(this->valueType != other.valueType){
       OATPP_LOGE("PtrWrapper", "Invalid class cast");
       throw std::runtime_error("[oatpp::data::mapping::type::PtrWrapper]: Invalid class cast");
@@ -163,7 +233,7 @@ public:
     return *this;
   }
   
-  PtrWrapper& operator=(const oatpp::base::PtrWrapper<T>&& other){
+  PtrWrapper& operator=(const BasicPtrWrapper<T>&& other){
     if(this->valueType != other.valueType){
       OATPP_LOGE("PtrWrapper", "Invalid class cast");
       throw std::runtime_error("[oatpp::data::mapping::type::PtrWrapper]: Invalid class cast");
@@ -203,15 +273,15 @@ public:
     const char* const name;
     const Type* const type;
     
-    void set(void* object, const oatpp::base::PtrWrapper<oatpp::base::Controllable>& value) {
-      oatpp::base::PtrWrapper<oatpp::base::Controllable>* property =
-      (oatpp::base::PtrWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
+    void set(void* object, const BasicPtrWrapper<oatpp::base::Controllable>& value) {
+      BasicPtrWrapper<oatpp::base::Controllable>* property =
+      (BasicPtrWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
       *property = value;
     }
     
-    oatpp::base::PtrWrapper<oatpp::base::Controllable> get(void* object) {
-      oatpp::base::PtrWrapper<oatpp::base::Controllable>* property =
-      (oatpp::base::PtrWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
+    BasicPtrWrapper<oatpp::base::Controllable> get(void* object) {
+      BasicPtrWrapper<oatpp::base::Controllable>* property =
+      (BasicPtrWrapper<oatpp::base::Controllable>*)(((v_int64) object) + offset);
       return *property;
     }
     

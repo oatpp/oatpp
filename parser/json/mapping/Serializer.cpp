@@ -31,7 +31,7 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
 void Serializer::writeString(oatpp::data::stream::OutputStream* stream,
                              void* object,
                              Property* field) {
-  auto value = oatpp::base::static_wrapper_cast<oatpp::base::StrBuffer>(field->get(object));
+  auto value = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
@@ -49,7 +49,7 @@ void Serializer::writeObject(oatpp::data::stream::OutputStream* stream,
                              void* object,
                              Property* field){
   
-  auto value = oatpp::base::static_wrapper_cast<Object>(field->get(object));
+  auto value = oatpp::data::mapping::type::static_wrapper_cast<Object>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
@@ -68,7 +68,7 @@ void Serializer::writeListOfString(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<oatpp::base::StrBuffer>(curr->getData());
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(curr->getData());
     
     if(first){
       first = false;
@@ -100,7 +100,7 @@ void Serializer::writeListOfObject(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<Object>(curr->getData());
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<Object>(curr->getData());
     
     if(first){
       first = false;
@@ -129,7 +129,7 @@ void Serializer::writeListOfList(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<AbstractList>(curr->getData());
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(curr->getData());
     
     if(first){
       first = false;
@@ -180,7 +180,7 @@ void Serializer::writeListCollection(oatpp::data::stream::OutputStream* stream,
 void Serializer::writeList(oatpp::data::stream::OutputStream* stream,
                            void* object,
                            Property* field){
-  auto value = oatpp::base::static_wrapper_cast<AbstractList>(field->get(object));
+  auto value = oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);

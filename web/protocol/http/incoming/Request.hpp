@@ -95,7 +95,7 @@ public:
   }
   
   template<class Type>
-  void readBodyToDto(oatpp::base::PtrWrapper<Type>& objectWrapper,
+  void readBodyToDto(oatpp::data::mapping::type::BasicPtrWrapper<Type>& objectWrapper,
                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     objectWrapper = objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));

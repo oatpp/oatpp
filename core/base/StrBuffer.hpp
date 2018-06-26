@@ -27,7 +27,6 @@
 
 #include "memory/ObjectPool.hpp"
 #include "./Controllable.hpp"
-#include "./PtrWrapper.hpp"
 
 #include <cstring> // c
 
@@ -143,9 +142,9 @@ public:
 };
   
 /*
-oatpp::base::PtrWrapper<StrBuffer> operator + (const char* a, const oatpp::base::PtrWrapper<StrBuffer>& b);
-oatpp::base::PtrWrapper<StrBuffer> operator + (const oatpp::base::PtrWrapper<StrBuffer>& b, const char* a);
-oatpp::base::PtrWrapper<StrBuffer> operator + (const oatpp::base::PtrWrapper<StrBuffer>& a, const oatpp::base::PtrWrapper<StrBuffer>& b);
+oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const char* a, const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b);
+oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b, const char* a);
+oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& a, const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b);
 
 std::shared_ptr<StrBuffer> operator + (const char* a, const std::shared_ptr<StrBuffer>& b);
 std::shared_ptr<StrBuffer> operator + (const std::shared_ptr<StrBuffer>& b, const char* a);

@@ -272,15 +272,15 @@ void StrBuffer::upperCase(const void* data, v_int32 size) {
   
 // Operator
 /*
-oatpp::base::PtrWrapper<StrBuffer> operator + (const char* a, const oatpp::base::PtrWrapper<StrBuffer>& b){
+oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const char* a, const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b){
   return StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
 }
   
-oatpp::base::PtrWrapper<StrBuffer> operator + (const oatpp::base::PtrWrapper<StrBuffer>& b, const char* a){
+oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b, const char* a){
   return StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
 }
   
-oatpp::base::PtrWrapper<StrBuffer> operator + (const oatpp::base::PtrWrapper<StrBuffer>& a, const oatpp::base::PtrWrapper<StrBuffer>& b) {
+oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& a, const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b) {
   return StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
 }
   

@@ -64,7 +64,7 @@ namespace {
   typedef oatpp::String String;
   
   template<typename T>
-  using PtrWrapper = oatpp::base::PtrWrapper<T>;
+  using PtrWrapper = oatpp::data::mapping::type::BasicPtrWrapper<T>;
   
   template<typename T>
   using PolymorphicWrapper = oatpp::data::mapping::type::PolymorphicWrapper<T>;

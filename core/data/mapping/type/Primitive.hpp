@@ -31,7 +31,7 @@
 #include "oatpp/core/base/Controllable.hpp"
 #include "oatpp/core/base/StrBuffer.hpp"
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -91,12 +91,12 @@ public:
   }
   
   String& operator = (const String& other){
-    oatpp::base::PtrWrapper<oatpp::base::StrBuffer>::operator=(other);
+    BasicPtrWrapper<oatpp::base::StrBuffer>::operator=(other);
     return *this;
   }
   
   String& operator = (String&& other){
-    oatpp::base::PtrWrapper<oatpp::base::StrBuffer>::operator=(std::move(other));
+    BasicPtrWrapper<oatpp::base::StrBuffer>::operator=(std::move(other));
     return *this;
   }
   

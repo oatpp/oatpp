@@ -32,7 +32,7 @@
 #include "oatpp/core/concurrency/Runnable.hpp"
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 #include "oatpp/core/base/Controllable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 

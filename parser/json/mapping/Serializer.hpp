@@ -75,7 +75,7 @@ private:
   static void writeSimpleData(oatpp::data::stream::OutputStream* stream,
                               void* object,
                               Property* field){
-    auto value = oatpp::base::static_wrapper_cast<T>(field->get(object));
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<T>(field->get(object));
     stream->writeChar('\"');
     stream->write(field->name);
     stream->write("\": ", 3);
@@ -101,7 +101,7 @@ private:
     auto curr = list->getFirstNode();
     while(curr != nullptr){
       
-      auto value = oatpp::base::static_wrapper_cast<T>(curr->getData());
+      auto value = oatpp::data::mapping::type::static_wrapper_cast<T>(curr->getData());
       
       if(first){
         first = false;

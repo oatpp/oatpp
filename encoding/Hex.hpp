@@ -27,7 +27,7 @@
 
 #include "oatpp/core/data/stream/Stream.hpp"
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace encoding {

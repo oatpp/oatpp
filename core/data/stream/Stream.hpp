@@ -31,7 +31,7 @@
 
 #include "oatpp/core/async/Coroutine.hpp"
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 #include "oatpp/core/os/io/Library.hpp"
 
 namespace oatpp { namespace data{ namespace stream {

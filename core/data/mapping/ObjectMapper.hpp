@@ -72,14 +72,14 @@ public:
   template<class Class>
   typename Class::PtrWrapper readFromCaret(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret) const {
     auto type = Class::PtrWrapper::Class::getType();
-    return oatpp::base::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
+    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
   }
   
   template<class Class>
   typename Class::PtrWrapper readFromString(const oatpp::String& str) const {
     auto type = Class::PtrWrapper::Class::getType();
     auto caret = oatpp::parser::ParsingCaret::createShared(str.getPtr());
-    return oatpp::base::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
+    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
   }
   
 };
