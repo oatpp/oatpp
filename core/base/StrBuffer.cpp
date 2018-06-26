@@ -269,28 +269,5 @@ void StrBuffer::upperCase(const void* data, v_int32 size) {
     if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;
   }
 }
-  
-// Operator
-/*
-oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const char* a, const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b){
-  return StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
-}
-  
-oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b, const char* a){
-  return StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
-}
-  
-oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& a, const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b) {
-  return StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
-}
-  
-std::shared_ptr<StrBuffer> operator + (const char* a, const std::shared_ptr<StrBuffer>& b){
-  return StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
-}
-  
-std::shared_ptr<StrBuffer> operator + (const std::shared_ptr<StrBuffer>& b, const char* a){
-  return StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
-}
- */
  
 }}

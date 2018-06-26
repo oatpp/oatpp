@@ -100,14 +100,6 @@ public:
     return *this;
   }
   
-  String operator + (const char* str) const{
-    return oatpp::base::StrBuffer::createSharedConcatenated(m_ptr->getData(), m_ptr->getSize(), str, (v_int32) std::strlen(str));
-  }
-  
-  String operator + (const String& other) const{
-    return oatpp::base::StrBuffer::createSharedConcatenated(m_ptr->getData(), m_ptr->getSize(), other->getData(), other->getSize());
-  }
-  
   static const String& empty(){
     static String empty;
     return empty;
@@ -122,6 +114,10 @@ public:
   }
   
 };
+  
+String operator + (const char* a, const String& b);
+String operator + (const String& b, const char* a);
+String operator + (const String& a, const String& b);
   
 template<typename ValueType, class Clazz>
 class Primitive : public oatpp::base::Controllable {

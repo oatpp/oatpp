@@ -141,15 +141,6 @@ public:
   
 };
   
-/*
-oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const char* a, const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b);
-oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b, const char* a);
-oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& a, const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b);
-
-std::shared_ptr<StrBuffer> operator + (const char* a, const std::shared_ptr<StrBuffer>& b);
-std::shared_ptr<StrBuffer> operator + (const std::shared_ptr<StrBuffer>& b, const char* a);
- */
-  
 }}
   
 #endif /* oatpp_base_StrBuffer_hpp */

@@ -36,6 +36,18 @@ String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::T
   }
 }
   
+String operator + (const char* a, const String& b) {
+  return oatpp::base::StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
+}
+
+String operator + (const String& b, const char* a) {
+  return oatpp::base::StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
+}
+
+String operator + (const String& a, const String& b) {
+  return oatpp::base::StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
+}
+  
 namespace __class {
   
   type::Int32 Int32::parseFromString(const oatpp::String& str, bool& success) {
