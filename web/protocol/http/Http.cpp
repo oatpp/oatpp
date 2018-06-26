@@ -100,8 +100,8 @@ const Status Status::CODE_511(511, "Network Authentication Required");
 const char* const Header::Value::CONNECTION_CLOSE = "close";
 const char* const Header::Value::CONNECTION_KEEP_ALIVE = "keep-alive";
   
-const char* const Header::Value::SERVER = "oatpp/0.18";
-const char* const Header::Value::USER_AGENT = "oatpp/0.18";
+const char* const Header::Value::SERVER = "oatpp/" OATPP_VERSION;
+const char* const Header::Value::USER_AGENT = "oatpp/" OATPP_VERSION;
   
 const char* const Header::Value::TRANSFER_ENCODING_CHUNKED = "chunked";
   
