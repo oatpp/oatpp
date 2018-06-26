@@ -46,9 +46,9 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
     
     DTO_FIELD(String, _string);
     DTO_FIELD(Int32, _int32);
-    DTO_FIELD(List<Int32>::PtrWrapper, _list);
+    DTO_FIELD(List<Int32>::ObjectWrapper, _list);
     
-    static PtrWrapper createTestInstance(){
+    static ObjectWrapper createTestInstance(){
       auto result = Test1::createShared();
       result->_string = "String Field";
       result->_int32 = 5;

@@ -272,15 +272,15 @@ void StrBuffer::upperCase(const void* data, v_int32 size) {
   
 // Operator
 /*
-oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const char* a, const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b){
+oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const char* a, const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b){
   return StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
 }
   
-oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b, const char* a){
+oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b, const char* a){
   return StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
 }
   
-oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& a, const oatpp::data::mapping::type::BasicPtrWrapper<StrBuffer>& b) {
+oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer> operator + (const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& a, const oatpp::data::mapping::type::PolymorphicWrapper<StrBuffer>& b) {
   return StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
 }
   

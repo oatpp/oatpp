@@ -27,6 +27,8 @@
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/Types.hpp"
 
+#include <unordered_map>
+
 namespace oatpp { namespace test { namespace base {
   
 namespace {
@@ -64,13 +66,13 @@ namespace {
   typedef oatpp::String String;
   
   template<typename T>
-  using PtrWrapper = oatpp::data::mapping::type::BasicPtrWrapper<T>;
+  using ObjectWrapper = oatpp::data::mapping::type::PolymorphicWrapper<T>;
   
   template<typename T>
   using PolymorphicWrapper = oatpp::data::mapping::type::PolymorphicWrapper<T>;
   
   template<typename T>
-  using TypePtrWrapper = oatpp::data::mapping::type::PtrWrapper<T, oatpp::data::mapping::type::__class::Void>;
+  using TypeObjectWrapper = oatpp::data::mapping::type::ObjectWrapper<T, oatpp::data::mapping::type::__class::Void>;
   
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
@@ -85,61 +87,71 @@ bool RegRuleTest::onRun() {
   {
     String reg1("");
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
     String reg4 = String(100);
   }
   
   {
     String reg1("");
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
     String reg4 = String(100) + "Leonid";
   }
   
   {
     String reg1 = String(100);
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
   }
   
   {
     String reg1(String(100) + "Leonid");
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
     String reg4 = String(100);
   }
   
   {
     String reg1 = String(100);
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
   }
   
   {
     String reg1 = String(100);
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
   }
   
   {
     String reg1 = String(100);
     String reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
+    OATPP_ASSERT(reg1);
     String reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    OATPP_ASSERT(!reg1);
   }
+
+  std::unordered_map<String, String> map;
+  
+  map["str_1"] = "val_1";
+  map["str_2"] = "val_2";
+  map["str_3"] = "val_3";
+  
+  OATPP_ASSERT(map.find("str_1")->second == "val_1");
+  OATPP_ASSERT(map.find("str_2")->second == "val_2");
+  OATPP_ASSERT(map.find("str_3")->second == "val_3");
 
   return true;
 }

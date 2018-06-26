@@ -39,7 +39,7 @@ public:
   static std::shared_ptr<Response> createShared(const Status& status, const oatpp::String& text);
   static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& segBuffer);
   static std::shared_ptr<Response> createShared(const Status& status,
-                              const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
+                              const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                               oatpp::data::mapping::ObjectMapper* objectMapper);
   
 };

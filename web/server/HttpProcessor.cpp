@@ -35,19 +35,19 @@ bool HttpProcessor::considerConnectionKeepAlive(const std::shared_ptr<protocol::
   if(request) {
     auto& inKeepAlive = request->headers->get(protocol::http::Header::CONNECTION, nullptr);
     
-    if(!inKeepAlive.isNull() && oatpp::base::StrBuffer::equalsCI_FAST(inKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
+    if(inKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(inKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
       if(response->headers->putIfNotExists(protocol::http::Header::CONNECTION, inKeepAlive)){
         return true;
       } else {
         auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
-        return (!outKeepAlive.isNull() && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
+        return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
       }
     }
   }
   
   if(!response->headers->putIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE)) {
     auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
-    return (!outKeepAlive.isNull() && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
+    return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
   }
   
   return false;

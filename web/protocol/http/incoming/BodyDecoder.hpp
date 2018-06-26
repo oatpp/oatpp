@@ -58,7 +58,7 @@ private:
   };
   
   template<class Type>
-  class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, typename Type::PtrWrapper> {
+  class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, typename Type::ObjectWrapper> {
   private:
     std::shared_ptr<Protocol::Headers> m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
@@ -113,7 +113,7 @@ public:
   }
   
   template<class Type>
-  static typename Type::PtrWrapper decodeToDto(const std::shared_ptr<Protocol::Headers>& headers,
+  static typename Type::ObjectWrapper decodeToDto(const std::shared_ptr<Protocol::Headers>& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper){
     return objectMapper->readFromString<Type>(decodeToString(headers, bodyStream));
@@ -139,7 +139,7 @@ public:
   template<class DtoType, typename ParentCoroutineType>
   static oatpp::async::Action
   decodeToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                   oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::PtrWrapper&),
+                   oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),
                    const std::shared_ptr<Protocol::Headers>& headers,
                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                    const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) {

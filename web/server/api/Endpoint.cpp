@@ -33,15 +33,15 @@ oatpp::String Endpoint::Info::toString() {
   
   stream << "\nEndpoint\n";
   
-  if(!name.isNull()) {
+  if(name) {
     stream << "name: '" << name << "'\n";
   }
   
-  if(!path.isNull()){
+  if(path){
     stream << "path: '" << path << "'\n";
   }
   
-  if(!method.isNull()){
+  if(method){
     stream << "method: '" << method << "'\n";
   }
   

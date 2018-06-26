@@ -47,7 +47,7 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   
   typedef oatpp::data::mapping::type::List<
-    oatpp::data::mapping::type::AbstractPtrWrapper
+    oatpp::data::mapping::type::AbstractObjectWrapper
   > AbstractList;
 public:
   
@@ -79,7 +79,7 @@ private:
     stream->writeChar('\"');
     stream->write(field->name);
     stream->write("\": ", 3);
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       stream->writeAsString(value.get()->getValue());
@@ -109,7 +109,7 @@ private:
         stream->write(", ", 2);
       }
       
-      if(value.isNull()){
+      if(!value){
         stream->write("null", 4);
       } else {
         stream->writeAsString(value.get()->getValue());
@@ -145,7 +145,7 @@ private:
 public:
   
   static void serialize(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                        const oatpp::data::mapping::type::AbstractPtrWrapper& object){
+                        const oatpp::data::mapping::type::AbstractObjectWrapper& object){
     auto type = object.valueType;
     if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
       writeObject(stream.get(), type, static_cast<Object*>(object.get()));

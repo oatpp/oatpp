@@ -44,7 +44,7 @@ class TestChild : public DTO {
   
   DTO_INIT(TestChild, DTO)
   
-  static PtrWrapper createShared(const char* name, const char* secondName){
+  static ObjectWrapper createShared(const char* name, const char* secondName){
     auto result = createShared();
     result->name = name;
     result->secondName = secondName;
@@ -67,18 +67,18 @@ class Test : public DTO {
   DTO_FIELD(Float64, _float64);
   DTO_FIELD(Boolean, _boolean);
   
-  DTO_FIELD(List<String>::PtrWrapper, _list_string) = List<String>::createShared();
-  DTO_FIELD(List<Int32>::PtrWrapper, _list_int32) = List<Int32>::createShared();
-  DTO_FIELD(List<Int64>::PtrWrapper, _list_int64) = List<Int64>::createShared();
-  DTO_FIELD(List<Float32>::PtrWrapper, _list_float32) = List<Float32>::createShared();
-  DTO_FIELD(List<Float64>::PtrWrapper, _list_float64) = List<Float64>::createShared();
-  DTO_FIELD(List<Boolean>::PtrWrapper, _list_boolean) = List<Boolean>::createShared();
+  DTO_FIELD(List<String>::ObjectWrapper, _list_string) = List<String>::createShared();
+  DTO_FIELD(List<Int32>::ObjectWrapper, _list_int32) = List<Int32>::createShared();
+  DTO_FIELD(List<Int64>::ObjectWrapper, _list_int64) = List<Int64>::createShared();
+  DTO_FIELD(List<Float32>::ObjectWrapper, _list_float32) = List<Float32>::createShared();
+  DTO_FIELD(List<Float64>::ObjectWrapper, _list_float64) = List<Float64>::createShared();
+  DTO_FIELD(List<Boolean>::ObjectWrapper, _list_boolean) = List<Boolean>::createShared();
   
-  DTO_FIELD(List<TestChild::PtrWrapper>::PtrWrapper, _list_object) = List<TestChild::PtrWrapper>::createShared();
-  DTO_FIELD(List<List<TestChild::PtrWrapper>::PtrWrapper>::PtrWrapper, _list_list_object) = List<List<TestChild::PtrWrapper>::PtrWrapper>::createShared();
+  DTO_FIELD(List<TestChild::ObjectWrapper>::ObjectWrapper, _list_object) = List<TestChild::ObjectWrapper>::createShared();
+  DTO_FIELD(List<List<TestChild::ObjectWrapper>::ObjectWrapper>::ObjectWrapper, _list_list_object) = List<List<TestChild::ObjectWrapper>::ObjectWrapper>::createShared();
   
-  DTO_FIELD(Test::PtrWrapper, obj1);
-  DTO_FIELD(TestChild::PtrWrapper, child1);
+  DTO_FIELD(Test::ObjectWrapper, obj1);
+  DTO_FIELD(TestChild::ObjectWrapper, child1);
   
 };
   
@@ -90,7 +90,7 @@ bool DTOMapperTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
-  Test::PtrWrapper test1 = Test::createShared();
+  Test::ObjectWrapper test1 = Test::createShared();
   
   test1->_string = "string value";
   test1->_int32 = 32;
@@ -137,9 +137,9 @@ bool DTOMapperTest::onRun(){
   test1->_list_object->pushBack(TestChild::createShared("child", "2"));
   test1->_list_object->pushBack(TestChild::createShared("child", "3"));
   
-  auto l1 = DTO::List<TestChild::PtrWrapper>::createShared();
-  auto l2 = DTO::List<TestChild::PtrWrapper>::createShared();
-  auto l3 = DTO::List<TestChild::PtrWrapper>::createShared();
+  auto l1 = DTO::List<TestChild::ObjectWrapper>::createShared();
+  auto l2 = DTO::List<TestChild::ObjectWrapper>::createShared();
+  auto l3 = DTO::List<TestChild::ObjectWrapper>::createShared();
   
   l1->pushBack(TestChild::createShared("list_1", "item_1"));
   l1->pushBack(TestChild::createShared("list_1", "item_2"));
@@ -169,22 +169,22 @@ bool DTOMapperTest::onRun(){
   auto caret = oatpp::parser::ParsingCaret::createShared(result);
   auto obj = mapper->readFromCaret<Test>(caret);
   
-  OATPP_ASSERT(obj->_string.isNull() == false);
-  OATPP_ASSERT(obj->_string.equals(test1->_string));
+  OATPP_ASSERT(obj->_string);
+  OATPP_ASSERT(obj->_string == test1->_string);
   
-  OATPP_ASSERT(obj->_int32.isNull() == false);
+  OATPP_ASSERT(obj->_int32);
   OATPP_ASSERT(obj->_int32->getValue() == test1->_int32->getValue());
   
-  OATPP_ASSERT(obj->_int64.isNull() == false);
+  OATPP_ASSERT(obj->_int64);
   OATPP_ASSERT(obj->_int64->getValue() == test1->_int64->getValue());
   
-  OATPP_ASSERT(obj->_float32.isNull() == false);
+  OATPP_ASSERT(obj->_float32);
   OATPP_ASSERT(obj->_float32->getValue() == test1->_float32->getValue());
   
-  OATPP_ASSERT(obj->_float64.isNull() == false);
+  OATPP_ASSERT(obj->_float64);
   OATPP_ASSERT(obj->_float64->getValue() == test1->_float64->getValue());
   
-  OATPP_ASSERT(obj->_boolean.isNull() == false);
+  OATPP_ASSERT(obj->_boolean);
   OATPP_ASSERT(obj->_boolean->getValue() == test1->_boolean->getValue());
   
   result = mapper->writeToString(obj);

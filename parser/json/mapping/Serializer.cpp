@@ -35,7 +35,7 @@ void Serializer::writeString(oatpp::data::stream::OutputStream* stream,
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
-  if(value.isNull()){
+  if(!value){
     stream->write("null", 4);
   } else {
     auto encodedValue = Utils::escapeString(value->getData(), value->getSize());
@@ -53,7 +53,7 @@ void Serializer::writeObject(oatpp::data::stream::OutputStream* stream,
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
-  if(value.isNull()){
+  if(!value){
     stream->write("null", 4);
   } else {
     writeObject(stream, field->type, value.get());
@@ -76,7 +76,7 @@ void Serializer::writeListOfString(oatpp::data::stream::OutputStream* stream,
       stream->write(", ", 2);
     }
     
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       auto encodedValue = Utils::escapeString(value->getData(), value->getSize());
@@ -108,7 +108,7 @@ void Serializer::writeListOfObject(oatpp::data::stream::OutputStream* stream,
       stream->write(", ", 2);
     }
     
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       writeObject(stream, type, value.get());
@@ -137,7 +137,7 @@ void Serializer::writeListOfList(oatpp::data::stream::OutputStream* stream,
       stream->write(", ", 2);
     }
     
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       writeListCollection(stream, value.get(), type);
@@ -184,7 +184,7 @@ void Serializer::writeList(oatpp::data::stream::OutputStream* stream,
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
-  if(value.isNull()){
+  if(!value){
     stream->write("null", 4);
   } else {
     writeListCollection(stream, value.get(), field->type);

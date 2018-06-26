@@ -203,13 +203,13 @@ public:
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
+                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto) const {
+                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
     return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
   }
   

@@ -79,8 +79,8 @@ void ApiClient::formatPath(oatpp::data::stream::OutputStream* stream,
       stream->write(seg.text.data(), seg.text.size());
     } else {
       auto key = oatpp::String((p_char8) seg.text.data(), (v_int32) seg.text.length(), false);
-      auto& param = params->get(key, oatpp::data::mapping::type::AbstractPtrWrapper::empty());
-      if(param.isNull()){
+      auto& param = params->get(key, oatpp::data::mapping::type::AbstractObjectWrapper::empty());
+      if(!param){
         OATPP_LOGD(TAG, "Path parameter '%s' not provided in the api call", (const char*) seg.text.c_str());
         throw std::runtime_error("[oatpp::web::client::ApiClient]: Path parameter missing");
       }

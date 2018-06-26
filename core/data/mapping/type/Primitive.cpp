@@ -29,7 +29,7 @@
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
 String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType)
-  : oatpp::data::mapping::type::PtrWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
+  : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
 {
   if(type::__class::String::getType() != valueType) {
     throw std::runtime_error("Value type does not match");

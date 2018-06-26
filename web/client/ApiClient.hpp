@@ -57,7 +57,7 @@ public:
 protected:
   typedef oatpp::collection::ListMap<
     oatpp::String,
-    oatpp::data::mapping::type::AbstractPtrWrapper
+    oatpp::data::mapping::type::AbstractObjectWrapper
   > StringToParamMap;
 protected:
   typedef std::unordered_map<std::string, oatpp::String> PathVariablesMap;

@@ -32,8 +32,6 @@
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/Types.hpp"
-
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -59,7 +57,7 @@ namespace __class {
   
 class Object : public oatpp::base::Controllable {
 public:
-  typedef oatpp::String String;
+  typedef oatpp::data::mapping::type::String String;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;
