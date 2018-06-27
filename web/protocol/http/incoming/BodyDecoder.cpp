@@ -88,12 +88,12 @@ void BodyDecoder::decode(const std::shared_ptr<Protocol::Headers>& headers,
                          const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
   
   auto transferEncoding = headers->get(Header::TRANSFER_ENCODING, nullptr);
-  if(!transferEncoding.isNull() && transferEncoding->equals(Header::Value::TRANSFER_ENCODING_CHUNKED)) {
+  if(transferEncoding && transferEncoding->equals(Header::Value::TRANSFER_ENCODING_CHUNKED)) {
     doChunkedDecoding(bodyStream, toStream);
   } else {
     oatpp::os::io::Library::v_size contentLength = 0;
     auto contentLengthStr = headers->get(Header::CONTENT_LENGTH, nullptr);
-    if(contentLengthStr.isNull()) {
+    if(!contentLengthStr) {
       return; // DO NOTHING // it is an empty or invalid body
     } else {
       bool success;
@@ -221,12 +221,12 @@ oatpp::async::Action BodyDecoder::decodeAsync(oatpp::async::AbstractCoroutine* p
                                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
   auto transferEncoding = headers->get(Header::TRANSFER_ENCODING, nullptr);
-  if(!transferEncoding.isNull() && transferEncoding->equals(Header::Value::TRANSFER_ENCODING_CHUNKED)) {
+  if(transferEncoding && transferEncoding->equals(Header::Value::TRANSFER_ENCODING_CHUNKED)) {
     return doChunkedDecodingAsync(parentCoroutine, actionOnReturn, bodyStream, toStream);
   } else {
     oatpp::os::io::Library::v_size contentLength = 0;
     auto contentLengthStr = headers->get(Header::CONTENT_LENGTH, nullptr);
-    if(contentLengthStr.isNull()) {
+    if(!contentLengthStr) {
       return actionOnReturn; // DO NOTHING // it is an empty or invalid body
     } else {
       bool success;

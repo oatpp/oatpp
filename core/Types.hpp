@@ -22,28 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef ResponseFactory_hpp
-#define ResponseFactory_hpp
+#ifndef oatpp_Types_hpp
+#define oatpp_Types_hpp
 
-#include "./Response.hpp"
+#include "oatpp/core/data/mapping/type/Object.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+namespace oatpp {
+  
+  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::data::mapping::type::Float32 Float32;
+  typedef oatpp::data::mapping::type::Float64 Float64;
+  typedef oatpp::data::mapping::type::Boolean Boolean;
+  
+}
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
-class ResponseFactory {
-public:
-  
-  static std::shared_ptr<Response> createShared(const Status& status, const oatpp::String& text);
-  static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& segBuffer);
-  static std::shared_ptr<Response> createShared(const Status& status,
-                              const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                              oatpp::data::mapping::ObjectMapper* objectMapper);
-  
-};
-  
-}}}}}
-
-#endif /* ResponseFactory_hpp */
+#endif /* oatpp_Types_hpp */

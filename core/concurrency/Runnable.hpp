@@ -25,7 +25,7 @@
 #ifndef concurrency_Runnable_hpp
 #define concurrency_Runnable_hpp
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 
 namespace oatpp { namespace concurrency {
 

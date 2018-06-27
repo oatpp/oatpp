@@ -43,7 +43,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 
 #include <string>
 #include <list>
@@ -56,26 +56,26 @@ public:
   static constexpr const char* const TAG = "Client";
 protected:
   typedef oatpp::collection::ListMap<
-    oatpp::base::String::PtrWrapper,
-    oatpp::data::mapping::type::AbstractPtrWrapper
+    oatpp::String,
+    oatpp::data::mapping::type::AbstractObjectWrapper
   > StringToParamMap;
 protected:
-  typedef std::unordered_map<std::string, std::shared_ptr<oatpp::base::String>> PathVariablesMap;
+  typedef std::unordered_map<std::string, oatpp::String> PathVariablesMap;
 private:
   typedef oatpp::collection::ListMap<
-    oatpp::base::String::PtrWrapper,
-    oatpp::base::String::PtrWrapper
+    oatpp::String,
+    oatpp::String
   > StringToStringMap;
 public:
   typedef oatpp::web::protocol::http::Status Status;
   typedef oatpp::web::protocol::http::Header Header;
 public:
-  typedef oatpp::data::mapping::type::StringPtrWrapper String;
-  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
+  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::data::mapping::type::Float32 Float32;
+  typedef oatpp::data::mapping::type::Float64 Float64;
+  typedef oatpp::data::mapping::type::Boolean Boolean;
 public:
   typedef oatpp::web::protocol::http::incoming::Response Response;
 public:
@@ -133,7 +133,7 @@ public:
   
 protected:
   
-  virtual oatpp::base::String::PtrWrapper formatPath(const PathPattern& pathPattern,
+  virtual oatpp::String formatPath(const PathPattern& pathPattern,
                                                      const std::shared_ptr<StringToParamMap>& pathParams,
                                                      const std::shared_ptr<StringToParamMap>& queryParams) {
     oatpp::data::stream::ChunkedBuffer stream;
@@ -144,7 +144,7 @@ protected:
     return stream.toString();
   }
   
-  virtual std::shared_ptr<Response> executeRequest(const oatpp::base::String::PtrWrapper& method,
+  virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const PathPattern& pathPattern,
                                                    const std::shared_ptr<StringToParamMap>& headers,
                                                    const std::shared_ptr<StringToParamMap>& pathParams,
@@ -160,7 +160,7 @@ protected:
   
   virtual oatpp::async::Action executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                    AsyncCallback callback,
-                                                   const oatpp::base::String::PtrWrapper& method,
+                                                   const oatpp::String& method,
                                                    const PathPattern& pathPattern,
                                                    const std::shared_ptr<StringToParamMap>& headers,
                                                    const std::shared_ptr<StringToParamMap>& pathParams,

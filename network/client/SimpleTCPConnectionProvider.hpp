@@ -28,19 +28,19 @@
 #include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace client {
   
 class SimpleTCPConnectionProvider : public base::Controllable, public ClientConnectionProvider {
 public:
-  SimpleTCPConnectionProvider(const oatpp::base::String::PtrWrapper& host, v_int32 port)
+  SimpleTCPConnectionProvider(const oatpp::String& host, v_int32 port)
     : ClientConnectionProvider(host, port)
   {}
 public:
   
   static std::shared_ptr<SimpleTCPConnectionProvider>
-  createShared(const oatpp::base::String::PtrWrapper& host, v_int32 port){
+  createShared(const oatpp::String& host, v_int32 port){
     return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(host, port));
   }
   

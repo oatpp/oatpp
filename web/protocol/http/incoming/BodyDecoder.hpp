@@ -34,7 +34,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 class BodyDecoder {
 private:
   
-  class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, std::shared_ptr<oatpp::base::String>> {
+  class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, oatpp::String> {
   private:
     std::shared_ptr<Protocol::Headers> m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
@@ -58,7 +58,7 @@ private:
   };
   
   template<class Type>
-  class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, typename Type::PtrWrapper> {
+  class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, typename Type::ObjectWrapper> {
   private:
     std::shared_ptr<Protocol::Headers> m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
@@ -79,7 +79,12 @@ private:
     }
     
     oatpp::async::Action onDecoded() {
-      auto dto = m_objectMapper->readFromString<Type>(m_chunkedBuffer->toString());
+      auto body = m_chunkedBuffer->toString();
+      oatpp::parser::ParsingCaret caret(body);
+      auto dto = m_objectMapper->readFromCaret<Type>(caret);
+      if(caret.hasError()) {
+        return this->error(caret.getError());
+      }
       return this->_return(dto);
     }
     
@@ -104,7 +109,7 @@ public:
                      const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
   
-  static std::shared_ptr<oatpp::base::String>
+  static oatpp::String
   decodeToString(const std::shared_ptr<Protocol::Headers>& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) {
     auto chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
@@ -113,7 +118,7 @@ public:
   }
   
   template<class Type>
-  static typename Type::PtrWrapper decodeToDto(const std::shared_ptr<Protocol::Headers>& headers,
+  static typename Type::ObjectWrapper decodeToDto(const std::shared_ptr<Protocol::Headers>& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper){
     return objectMapper->readFromString<Type>(decodeToString(headers, bodyStream));
@@ -130,7 +135,7 @@ public:
   template<typename ParentCoroutineType>
   static oatpp::async::Action
   decodeToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                      oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::base::String::PtrWrapper&),
+                      oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&),
                       const std::shared_ptr<Protocol::Headers>& headers,
                       const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) {
     return parentCoroutine->startCoroutineForResult<ToStringDecoder>(callback, headers, bodyStream);
@@ -139,7 +144,7 @@ public:
   template<class DtoType, typename ParentCoroutineType>
   static oatpp::async::Action
   decodeToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                   oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::PtrWrapper&),
+                   oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),
                    const std::shared_ptr<Protocol::Headers>& headers,
                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                    const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) {

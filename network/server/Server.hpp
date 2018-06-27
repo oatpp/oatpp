@@ -31,8 +31,8 @@
 
 #include "oatpp/core/concurrency/Runnable.hpp"
 
-#include "oatpp/core/base/String.hpp"
-#include "oatpp/core/base/PtrWrapper.hpp"
+#include "oatpp/core/Types.hpp"
+
 #include "oatpp/core/base/Controllable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
@@ -56,7 +56,7 @@ private:
   
   std::atomic<v_int32> m_status;
   
-  std::shared_ptr<base::String> m_port;
+  oatpp::String m_port;
   
   std::shared_ptr<ServerConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;

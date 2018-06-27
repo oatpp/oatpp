@@ -28,7 +28,7 @@
 #include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 #include "oatpp/core/os/io/Library.hpp"
 
 namespace oatpp { namespace network { namespace server {

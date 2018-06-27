@@ -30,7 +30,7 @@
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 
 #include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 
 #include <thread>
 #include <atomic>

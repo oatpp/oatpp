@@ -59,16 +59,16 @@ public:
   
 class ClientConnectionProvider : public ConnectionProvider {
 protected:
-  oatpp::base::String::PtrWrapper m_host;
+  oatpp::String m_host;
   v_word16 m_port;
 public:
   
-  ClientConnectionProvider(const oatpp::base::String::PtrWrapper& host, v_word16 port)
+  ClientConnectionProvider(const oatpp::String& host, v_word16 port)
     : m_host(host)
     , m_port(port)
   {}
   
-  oatpp::base::String::PtrWrapper getHost() {
+  oatpp::String getHost() {
     return m_host;
   }
   

@@ -28,20 +28,20 @@
 
 namespace oatpp { namespace web { namespace server { namespace api {
 
-oatpp::base::PtrWrapper<oatpp::base::String> Endpoint::Info::toString() {
+oatpp::String Endpoint::Info::toString() {
   auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
   
   stream << "\nEndpoint\n";
   
-  if(!name.isNull()) {
+  if(name) {
     stream << "name: '" << name << "'\n";
   }
   
-  if(!path.isNull()){
+  if(path){
     stream << "path: '" << path << "'\n";
   }
   
-  if(!method.isNull()){
+  if(method){
     stream << "method: '" << method << "'\n";
   }
   

@@ -137,7 +137,7 @@ oatpp::async::Action IOStream::readExactSizeDataAsyncInline(oatpp::data::stream:
 // Functions
   
 const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const base::String::PtrWrapper& str) {
+(const std::shared_ptr<OutputStream>& s, const oatpp::String& str) {
   s->write(str);
   return s;
 }

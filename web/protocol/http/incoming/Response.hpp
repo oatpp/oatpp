@@ -36,7 +36,7 @@ public:
   SHARED_OBJECT_POOL(Shared_Incoming_Response_Pool, Response, 32)
 public:
   Response(v_int32 pStatusCode,
-           const oatpp::base::String::PtrWrapper& pStatusDescription,
+           const oatpp::String& pStatusDescription,
            const std::shared_ptr<http::Protocol::Headers>& pHeaders,
            const std::shared_ptr<oatpp::data::stream::InputStream>& pBodyStream)
     : statusCode(pStatusCode)
@@ -47,14 +47,14 @@ public:
 public:
   
   static std::shared_ptr<Response> createShared(v_int32 statusCode,
-                                          const oatpp::base::String::PtrWrapper& statusDescription,
+                                          const oatpp::String& statusDescription,
                                           const std::shared_ptr<http::Protocol::Headers>& headers,
                                           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) {
     return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream);
   }
   
   const v_int32 statusCode;
-  const oatpp::base::String::PtrWrapper statusDescription;
+  const oatpp::String statusDescription;
   const std::shared_ptr<http::Protocol::Headers> headers;
   const std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
   
@@ -62,12 +62,12 @@ public:
     protocol::http::incoming::BodyDecoder::decode(headers, bodyStream, toStream);
   }
   
-  oatpp::base::String::PtrWrapper readBodyToString() const {
+  oatpp::String readBodyToString() const {
     return protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream);
   }
   
   template<class Type>
-  typename Type::PtrWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+  typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>
     (protocol::http::incoming::BodyDecoder::decodeToString(headers, bodyStream));
   }
@@ -82,13 +82,13 @@ public:
   
   template<typename ParentCoroutineType>
   oatpp::async::Action readBodyToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                             oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::base::String::PtrWrapper&)) const {
+                                             oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&)) const {
     return protocol::http::incoming::BodyDecoder::decodeToStringAsync(parentCoroutine, callback, headers, bodyStream);
   }
   
   template<class DtoType, typename ParentCoroutineType>
   oatpp::async::Action readBodyToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::PtrWrapper&),
+                                          oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),
                                           const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return protocol::http::incoming::BodyDecoder::decodeToDtoAsync<DtoType>(parentCoroutine, callback, headers, bodyStream, objectMapper);
   }

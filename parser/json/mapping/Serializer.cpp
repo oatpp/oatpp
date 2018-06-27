@@ -31,11 +31,11 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
 void Serializer::writeString(oatpp::data::stream::OutputStream* stream,
                              void* object,
                              Property* field) {
-  auto value = oatpp::base::static_wrapper_cast<String>(field->get(object));
+  auto value = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
-  if(value.isNull()){
+  if(!value){
     stream->write("null", 4);
   } else {
     auto encodedValue = Utils::escapeString(value->getData(), value->getSize());
@@ -49,11 +49,11 @@ void Serializer::writeObject(oatpp::data::stream::OutputStream* stream,
                              void* object,
                              Property* field){
   
-  auto value = oatpp::base::static_wrapper_cast<Object>(field->get(object));
+  auto value = oatpp::data::mapping::type::static_wrapper_cast<Object>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
-  if(value.isNull()){
+  if(!value){
     stream->write("null", 4);
   } else {
     writeObject(stream, field->type, value.get());
@@ -68,7 +68,7 @@ void Serializer::writeListOfString(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<String>(curr->getData());
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(curr->getData());
     
     if(first){
       first = false;
@@ -76,7 +76,7 @@ void Serializer::writeListOfString(oatpp::data::stream::OutputStream* stream,
       stream->write(", ", 2);
     }
     
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       auto encodedValue = Utils::escapeString(value->getData(), value->getSize());
@@ -100,7 +100,7 @@ void Serializer::writeListOfObject(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<Object>(curr->getData());
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<Object>(curr->getData());
     
     if(first){
       first = false;
@@ -108,7 +108,7 @@ void Serializer::writeListOfObject(oatpp::data::stream::OutputStream* stream,
       stream->write(", ", 2);
     }
     
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       writeObject(stream, type, value.get());
@@ -129,7 +129,7 @@ void Serializer::writeListOfList(oatpp::data::stream::OutputStream* stream,
   auto curr = list->getFirstNode();
   while(curr != nullptr){
     
-    auto value = oatpp::base::static_wrapper_cast<AbstractList>(curr->getData());
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(curr->getData());
     
     if(first){
       first = false;
@@ -137,7 +137,7 @@ void Serializer::writeListOfList(oatpp::data::stream::OutputStream* stream,
       stream->write(", ", 2);
     }
     
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       writeListCollection(stream, value.get(), type);
@@ -160,15 +160,15 @@ void Serializer::writeListCollection(oatpp::data::stream::OutputStream* stream,
   if(itemTypeName == oatpp::data::mapping::type::__class::String::CLASS_NAME){
     writeListOfString(stream, list);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME) {
-    writeListOfSimpleData<oatpp::data::mapping::type::Int32>(stream, list);
+    writeListOfSimpleData<oatpp::data::mapping::type::Int32::ObjectType>(stream, list);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME) {
-    writeListOfSimpleData<oatpp::data::mapping::type::Int64>(stream, list);
+    writeListOfSimpleData<oatpp::data::mapping::type::Int64::ObjectType>(stream, list);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::Float32::CLASS_NAME) {
-    writeListOfSimpleData<oatpp::data::mapping::type::Float32>(stream, list);
+    writeListOfSimpleData<oatpp::data::mapping::type::Float32::ObjectType>(stream, list);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::Float64::CLASS_NAME) {
-    writeListOfSimpleData<oatpp::data::mapping::type::Float64>(stream, list);
+    writeListOfSimpleData<oatpp::data::mapping::type::Float64::ObjectType>(stream, list);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME) {
-    writeListOfSimpleData<oatpp::data::mapping::type::Boolean>(stream, list);
+    writeListOfSimpleData<oatpp::data::mapping::type::Boolean::ObjectType>(stream, list);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
     writeListOfObject(stream, list, itemType);
   } else if(itemTypeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
@@ -180,11 +180,11 @@ void Serializer::writeListCollection(oatpp::data::stream::OutputStream* stream,
 void Serializer::writeList(oatpp::data::stream::OutputStream* stream,
                            void* object,
                            Property* field){
-  auto value = oatpp::base::static_wrapper_cast<AbstractList>(field->get(object));
+  auto value = oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(field->get(object));
   stream->writeChar('\"');
   stream->write(field->name);
   stream->write("\": ", 3);
-  if(value.isNull()){
+  if(!value){
     stream->write("null", 4);
   } else {
     writeListCollection(stream, value.get(), field->type);
@@ -214,15 +214,15 @@ void Serializer::writeObject(oatpp::data::stream::OutputStream* stream,
     if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME){
       writeString(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME) {
-      writeSimpleData<oatpp::data::mapping::type::Int32>(stream, object, field);
+      writeSimpleData<oatpp::data::mapping::type::Int32::ObjectType>(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME) {
-      writeSimpleData<oatpp::data::mapping::type::Int64>(stream, object, field);
+      writeSimpleData<oatpp::data::mapping::type::Int64::ObjectType>(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::Float32::CLASS_NAME) {
-      writeSimpleData<oatpp::data::mapping::type::Float32>(stream, object, field);
+      writeSimpleData<oatpp::data::mapping::type::Float32::ObjectType>(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::Float64::CLASS_NAME) {
-      writeSimpleData<oatpp::data::mapping::type::Float64>(stream, object, field);
+      writeSimpleData<oatpp::data::mapping::type::Float64::ObjectType>(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME) {
-      writeSimpleData<oatpp::data::mapping::type::Boolean>(stream, object, field);
+      writeSimpleData<oatpp::data::mapping::type::Boolean::ObjectType>(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
       writeObject(stream, object, field);
     } else if(typeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {

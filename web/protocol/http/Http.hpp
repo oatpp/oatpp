@@ -31,7 +31,7 @@
 
 #include "oatpp/core/data/stream/Delegate.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
@@ -157,7 +157,7 @@ private:
   {}
 public:
   
-  Range(const oatpp::base::String::PtrWrapper& pUnits,
+  Range(const oatpp::String& pUnits,
         const oatpp::os::io::Library::v_size& pStart,
         const oatpp::os::io::Library::v_size& pEnd)
     : units(pUnits)
@@ -165,18 +165,18 @@ public:
     , end(pEnd)
   {}
   
-  oatpp::base::String::PtrWrapper units;
+  oatpp::String units;
   oatpp::os::io::Library::v_size start;
   oatpp::os::io::Library::v_size end;
   
-  oatpp::base::String::PtrWrapper toString() const;
+  oatpp::String toString() const;
   
   bool isValid() const {
     return units.get() != nullptr;
   }
   
   static Range parse(oatpp::parser::ParsingCaret& caret);
-  static Range parse(const std::shared_ptr<oatpp::base::String>& str);
+  static Range parse(const oatpp::String& str);
   
 };
   
@@ -189,7 +189,7 @@ private:
   {}
 public:
   
-  ContentRange(const oatpp::base::String::PtrWrapper& pUnits,
+  ContentRange(const oatpp::String& pUnits,
                const oatpp::os::io::Library::v_size& pStart,
                const oatpp::os::io::Library::v_size& pEnd,
                const oatpp::os::io::Library::v_size& pSize,
@@ -201,20 +201,20 @@ public:
     , isSizeKnown(pIsSizeKnown)
   {}
   
-  oatpp::base::String::PtrWrapper units;
+  oatpp::String units;
   oatpp::os::io::Library::v_size start;
   oatpp::os::io::Library::v_size end;
   oatpp::os::io::Library::v_size size;
   bool isSizeKnown;
   
-  oatpp::base::String::PtrWrapper toString() const;
+  oatpp::String toString() const;
   
   bool isValid() const {
     return units.get() != nullptr;
   }
   
   static ContentRange parse(oatpp::parser::ParsingCaret& caret);
-  static ContentRange parse(const std::shared_ptr<oatpp::base::String>& str);
+  static ContentRange parse(const oatpp::String& str);
   
 };
   
@@ -231,9 +231,9 @@ public:
     return Shared_RequestStartingLine_Pool::allocateShared();
   }
   
-  std::shared_ptr<base::String> method; // GET, POST ...
-  std::shared_ptr<base::String> path;
-  std::shared_ptr<base::String> protocol;
+  oatpp::String method; // GET, POST ...
+  oatpp::String path;
+  oatpp::String protocol;
   
 };
   
@@ -250,17 +250,17 @@ public:
     return Shared_ResponseStartingLine_Pool::allocateShared();
   }
   
-  std::shared_ptr<base::String> protocol;
+  oatpp::String protocol;
   v_int32 statusCode;
-  std::shared_ptr<base::String> description;
+  oatpp::String description;
   
 };
   
 class Protocol {
 public:
-  typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
+  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
 private:
-  static std::shared_ptr<oatpp::base::String> parseHeaderName(oatpp::parser::ParsingCaret& caret);
+  static oatpp::String parseHeaderName(oatpp::parser::ParsingCaret& caret);
 public:
   
   static std::shared_ptr<RequestStartingLine> parseRequestStartingLine(oatpp::parser::ParsingCaret& caret);
