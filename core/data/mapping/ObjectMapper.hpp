@@ -58,28 +58,28 @@ public:
   }
   
   virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                     const type::AbstractPtrWrapper& variant) const = 0;
+                     const type::AbstractObjectWrapper& variant) const = 0;
   
-  virtual type::AbstractPtrWrapper read(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret,
+  virtual type::AbstractObjectWrapper read(oatpp::parser::ParsingCaret& caret,
                                            const type::Type* const type) const = 0;
   
-  std::shared_ptr<oatpp::base::String> writeToString(const type::AbstractPtrWrapper& variant) const {
+  oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const {
     auto stream = stream::ChunkedBuffer::createShared();
     write(stream, variant);
     return stream->toString();
   }
   
   template<class Class>
-  typename Class::PtrWrapper readFromCaret(const std::shared_ptr<oatpp::parser::ParsingCaret>& caret) const {
-    auto type = Class::PtrWrapper::Class::getType();
-    return oatpp::base::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
+  typename Class::ObjectWrapper readFromCaret(oatpp::parser::ParsingCaret& caret) const {
+    auto type = Class::ObjectWrapper::Class::getType();
+    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
   }
   
   template<class Class>
-  typename Class::PtrWrapper readFromString(const oatpp::base::String::PtrWrapper& str) const {
-    auto type = Class::PtrWrapper::Class::getType();
-    auto caret = oatpp::parser::ParsingCaret::createShared(str.getPtr());
-    return oatpp::base::static_wrapper_cast<typename Class::PtrWrapper::ObjectType>(read(caret, type));
+  typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {
+    auto type = Class::ObjectWrapper::Class::getType();
+    oatpp::parser::ParsingCaret caret(str);
+    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
   }
   
 };

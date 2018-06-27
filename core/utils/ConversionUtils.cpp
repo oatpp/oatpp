@@ -33,7 +33,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return (v_int32) std::strtol(str, &end, 10);
   }
   
-  v_int32 strToInt32(const base::PtrWrapper<base::String>& str, bool& success){
+  v_int32 strToInt32(const oatpp::String& str, bool& success){
     char* end;
     v_int32 result = (v_int32) std::strtol((const char*)str->getData(), &end, 10);
     success = (((v_int64)end - (v_int64)str->getData()) == str->getSize());
@@ -45,7 +45,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return std::strtoll(str, &end, 10);
   }
   
-  v_int64 strToInt64(const base::PtrWrapper<base::String>& str, bool& success){
+  v_int64 strToInt64(const oatpp::String& str, bool& success){
     char* end;
     v_int64 result = std::strtoll((const char*)str->getData(), &end, 10);
     success = (((v_int64)end - (v_int64)str->getData()) == str->getSize());
@@ -60,22 +60,22 @@ namespace oatpp { namespace utils { namespace conversion {
     return sprintf((char*)data, "%lld", value);
   }
   
-  base::PtrWrapper<base::String> int32ToStr(v_int32 value){
+  oatpp::String int32ToStr(v_int32 value){
     v_char8 buff [100];
     v_int32 size = int32ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return base::String::createShared(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
-    return base::PtrWrapper<base::String>::empty();
+    return oatpp::String::empty();
   }
   
-  base::PtrWrapper<base::String> int64ToStr(v_int64 value){
+  oatpp::String int64ToStr(v_int64 value){
     v_char8 buff [100];
     v_int32 size = int64ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return base::String::createShared(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
-    return base::PtrWrapper<base::String>::empty();
+    return oatpp::String::empty();
   }
   
   std::string int32ToStdStr(v_int32 value){
@@ -101,7 +101,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return std::strtof(str, &end);
   }
   
-  v_float32 strToFloat32(const base::PtrWrapper<base::String>& str, bool& success) {
+  v_float32 strToFloat32(const oatpp::String& str, bool& success) {
     char* end;
     v_float32 result = std::strtof((const char*)str->getData(), &end);
     success = (((v_int64)end - (v_int64)str->getData()) == str->getSize());
@@ -113,7 +113,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return std::strtod(str, &end);
   }
   
-  v_float64 strToFloat64(const base::PtrWrapper<base::String>& str, bool& success) {
+  v_float64 strToFloat64(const oatpp::String& str, bool& success) {
     char* end;
     v_float64 result = std::strtod((const char*)str->getData(), &end);
     success = (((v_int64)end - (v_int64)str->getData()) == str->getSize());
@@ -128,33 +128,33 @@ namespace oatpp { namespace utils { namespace conversion {
     return sprintf((char*)data, "%f", value);
   }
   
-  base::PtrWrapper<base::String> float32ToStr(v_float32 value){
+  oatpp::String float32ToStr(v_float32 value){
     v_char8 buff [100];
     v_int32 size = float32ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return base::String::createShared(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
-    return base::PtrWrapper<base::String>::empty();
+    return oatpp::String::empty();
   }
   
-  base::PtrWrapper<base::String> float64ToStr(v_float64 value){
+  oatpp::String float64ToStr(v_float64 value){
     v_char8 buff [100];
     v_int32 size = float32ToCharSequence(value, &buff[0]);
     if(size > 0){
-      return base::String::createShared(&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size, true);
     }
-    return base::PtrWrapper<base::String>::empty();
+    return oatpp::String::empty();
   }
   
-  base::PtrWrapper<base::String> boolToStr(bool value) {
+  oatpp::String boolToStr(bool value) {
     if(value){
-      return base::String::createShared((p_char8)"true", 4, false);
+      return oatpp::String("true", 4, false);
     } else {
-      return base::String::createShared((p_char8)"false", 5, false);
+      return oatpp::String("false", 5, false);
     }
   }
   
-  bool strToBool(const base::PtrWrapper<base::String>& str, bool& success) {
+  bool strToBool(const oatpp::String& str, bool& success) {
     if(str->equals((p_char8)"true", 4)){
       success = true;
       return true;

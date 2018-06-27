@@ -36,14 +36,14 @@ public:
   OBJECT_POOL(Http_Outgoing_BufferBody_Pool, BufferBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_BufferBody_Pool, BufferBody, 32)
 private:
-  oatpp::base::String::PtrWrapper m_buffer;
+  oatpp::String m_buffer;
 public:
-  BufferBody(const oatpp::base::String::PtrWrapper& buffer)
+  BufferBody(const oatpp::String& buffer)
     : m_buffer(buffer)
   {}
 public:
   
-  static std::shared_ptr<BufferBody> createShared(const oatpp::base::String::PtrWrapper& buffer) {
+  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer) {
     return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
   }
   

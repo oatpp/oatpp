@@ -44,15 +44,18 @@ public:
     return std::shared_ptr<HttpRequestExecutor>(new HttpRequestExecutor(connectionProvider));
   }
   
-  std::shared_ptr<Response> execute(const String::PtrWrapper& method,
-                                    const String::PtrWrapper& path,
+  /**
+   *  throws RequestExecutionError
+   */
+  std::shared_ptr<Response> execute(const String& method,
+                                    const String& path,
                                     const std::shared_ptr<Headers>& headers,
                                     const std::shared_ptr<Body>& body) override;
   
   Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                       AsyncCallback callback,
-                      const String::PtrWrapper& method,
-                      const String::PtrWrapper& path,
+                      const String& method,
+                      const String& path,
                       const std::shared_ptr<Headers>& headers,
                       const std::shared_ptr<Body>& body) override;
   

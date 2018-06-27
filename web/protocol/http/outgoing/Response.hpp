@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 class Response : public oatpp::base::Controllable {
 public:
-  typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
+  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
 public:
   OBJECT_POOL(Outgoing_Response_Pool, Response, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Response_Pool, Response, 32)

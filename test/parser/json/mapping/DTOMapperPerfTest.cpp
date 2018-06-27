@@ -46,9 +46,9 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
     
     DTO_FIELD(String, _string);
     DTO_FIELD(Int32, _int32);
-    DTO_FIELD(List<Int32>::PtrWrapper, _list);
+    DTO_FIELD(List<Int32>::ObjectWrapper, _list);
     
-    static PtrWrapper createTestInstance(){
+    static ObjectWrapper createTestInstance(){
       auto result = Test1::createShared();
       result->_string = "String Field";
       result->_int32 = 5;
@@ -83,9 +83,9 @@ bool DTOMapperPerfTest::onRun() {
   
   {
     PerformanceChecker checker("Deserializer");
-    auto caret = oatpp::parser::ParsingCaret::createShared(test1_Text);
+    oatpp::parser::ParsingCaret caret(test1_Text);
     for(v_int32 i = 0; i < numIterations; i ++) {
-      caret->setPosition(0);
+      caret.setPosition(0);
       mapper->readFromCaret<Test1>(caret);
     }
   }

@@ -123,7 +123,7 @@ private:
     Entry* curr = m_first;
     
     while(curr != nullptr){
-      if(key->equals(curr->key)){
+      if(key == curr->key){
         return curr;
       }
       curr = curr->next;

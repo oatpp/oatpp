@@ -27,11 +27,11 @@
 
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
 
-#include "oatpp/core/base/PtrWrapper.hpp"
+
 #include "oatpp/core/os/io/Library.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
@@ -45,7 +45,7 @@ public:
     return write((p_char8)data, std::strlen(data));
   }
   
-  os::io::Library::v_size write(const oatpp::base::PtrWrapper<oatpp::base::String>& str){
+  os::io::Library::v_size write(const oatpp::String& str){
     return write(str->getData(), str->getSize());
   }
   
@@ -131,7 +131,7 @@ public:
 };
   
 const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const base::String::PtrWrapper& str);
+(const std::shared_ptr<OutputStream>& s, const oatpp::String& str);
 
 const std::shared_ptr<OutputStream>& operator <<
 (const std::shared_ptr<OutputStream>& s, const char* str);

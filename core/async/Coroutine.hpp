@@ -206,6 +206,12 @@ public:
   
   virtual Action act() = 0;
   virtual Action call(FunctionPtr ptr) = 0;
+  
+  /**
+   *  Internal function. Should free Coroutine on MemoryPool/Bench
+   *  free() also calls virtual destructor:
+   *  Coroutine::free() --> Bench::free(Coroutine* coroutine) { ... coroutine->~Coroutine(); ... }
+   */
   virtual void free() = 0;
   virtual MemberCaller getMemberCaller() const = 0;
   
@@ -292,8 +298,6 @@ public:
   }
   
 };
-  
-
   
 template<class T, typename ...Args>
 class CoroutineWithResult : public AbstractCoroutine {

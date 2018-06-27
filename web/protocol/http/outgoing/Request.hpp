@@ -39,8 +39,8 @@ public:
 public:
   Request() {}
   
-  Request(const base::String::PtrWrapper& pMethod,
-          const base::String::PtrWrapper& pPath,
+  Request(const oatpp::String& pMethod,
+          const oatpp::String& pPath,
           const std::shared_ptr<Headers>& pHeaders,
           const std::shared_ptr<Body>& pBody)
     : method(pMethod)
@@ -51,15 +51,15 @@ public:
   
 public:
   
-  static std::shared_ptr<Request> createShared(const base::String::PtrWrapper& method,
-                                         const base::String::PtrWrapper& path,
+  static std::shared_ptr<Request> createShared(const oatpp::String& method,
+                                         const oatpp::String& path,
                                          const std::shared_ptr<Headers>& headers,
                                          const std::shared_ptr<Body>& body) {
     return Shared_Outgoing_Request_Pool::allocateShared(method, path, headers, body);
   }
   
-  const base::String::PtrWrapper method;
-  const base::String::PtrWrapper path;
+  const oatpp::String method;
+  const oatpp::String path;
   
   const std::shared_ptr<Headers> headers;
   const std::shared_ptr<Body> body;

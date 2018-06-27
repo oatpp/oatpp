@@ -25,7 +25,9 @@
 #include "RegRuleTest.hpp"
 
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace test { namespace base {
   
@@ -61,18 +63,17 @@ namespace {
     
   };
   
-  typedef oatpp::base::String String;
+  typedef oatpp::String String;
   
   template<typename T>
-  using PtrWrapper = oatpp::base::PtrWrapper<T>;
+  using ObjectWrapper = oatpp::data::mapping::type::PolymorphicWrapper<T>;
   
   template<typename T>
   using PolymorphicWrapper = oatpp::data::mapping::type::PolymorphicWrapper<T>;
   
   template<typename T>
-  using TypePtrWrapper = oatpp::data::mapping::type::PtrWrapper<T, oatpp::data::mapping::type::__class::Void>;
+  using TypeObjectWrapper = oatpp::data::mapping::type::ObjectWrapper<T, oatpp::data::mapping::type::__class::Void>;
   
-  typedef oatpp::data::mapping::type::StringPtrWrapper StringPtrWrapper;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;
@@ -84,63 +85,73 @@ namespace {
 bool RegRuleTest::onRun() {
   
   {
-    String::PtrWrapper reg1("");
-    String::PtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    String::PtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-    String::PtrWrapper reg4 = String::createShared(100);
+    String reg1("");
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
+    String reg4 = String(100);
   }
   
   {
-    String::PtrWrapper reg1("");
-    base::PtrWrapper<String> reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    base::PtrWrapper<String> reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-    base::PtrWrapper<String> reg4 = String::createShared(100) + "Leonid";
+    String reg1("");
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
+    String reg4 = String(100) + "Leonid";
   }
   
   {
-    base::PtrWrapper<String> reg1 = String::createShared(100);
-    String::PtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    String::PtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    String reg1 = String(100);
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
   }
   
   {
-    String::PtrWrapper reg1(String::createShared(100) + "Leonid");
-    StringPtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    StringPtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
-    StringPtrWrapper reg4 = String::createShared(100);
+    String reg1(String(100) + "Leonid");
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
+    String reg4 = String(100);
   }
   
   {
-    StringPtrWrapper reg1 = String::createShared(100);
-    String::PtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    String::PtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    String reg1 = String(100);
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
   }
   
   {
-    base::PtrWrapper<String> reg1 = String::createShared(100);
-    StringPtrWrapper reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    StringPtrWrapper reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    String reg1 = String(100);
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
   }
   
   {
-    StringPtrWrapper reg1 = String::createShared(100);
-    base::PtrWrapper<String> reg2(reg1);
-    OATPP_ASSERT(!reg1.isNull());
-    base::PtrWrapper<String> reg3(std::move(reg1));
-    OATPP_ASSERT(reg1.isNull());
+    String reg1 = String(100);
+    String reg2(reg1);
+    OATPP_ASSERT(reg1);
+    String reg3(std::move(reg1));
+    OATPP_ASSERT(!reg1);
   }
+
+  std::unordered_map<String, String> map;
+  
+  map["str_1"] = "val_1";
+  map["str_2"] = "val_2";
+  map["str_3"] = "val_3";
+  
+  OATPP_ASSERT(map.find("str_1")->second == "val_1");
+  OATPP_ASSERT(map.find("str_2")->second == "val_2");
+  OATPP_ASSERT(map.find("str_3")->second == "val_3");
 
   return true;
 }

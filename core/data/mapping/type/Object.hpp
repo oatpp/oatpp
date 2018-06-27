@@ -32,8 +32,6 @@
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Controllable.hpp"
-#include "oatpp/core/base/String.hpp"
-#include "oatpp/core/base/PtrWrapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -59,12 +57,12 @@ namespace __class {
   
 class Object : public oatpp::base::Controllable {
 public:
-  typedef oatpp::data::mapping::type::StringPtrWrapper String;
-  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
+  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::data::mapping::type::Float32 Float32;
+  typedef oatpp::data::mapping::type::Float64 Float64;
+  typedef oatpp::data::mapping::type::Boolean Boolean;
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
 protected:

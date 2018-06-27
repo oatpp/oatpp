@@ -30,6 +30,8 @@
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
+#include "oatpp/web/protocol/http/incoming/Response.hpp"
+#include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -44,8 +46,10 @@ protected:
 public:
   typedef oatpp::web::server::HttpRouter Router;
   typedef oatpp::web::protocol::http::outgoing::ResponseFactory OutgoingResponseFactory;
-  typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
+  typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
+  typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
+  typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::Status Status;
   typedef oatpp::web::protocol::http::Header Header;
   typedef oatpp::web::server::api::Endpoint Endpoint;
@@ -53,12 +57,12 @@ public:
   
 public:
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;
-  typedef oatpp::data::mapping::type::StringPtrWrapper String;
-  typedef oatpp::data::mapping::type::Int32::PtrWrapper Int32;
-  typedef oatpp::data::mapping::type::Int64::PtrWrapper Int64;
-  typedef oatpp::data::mapping::type::Float32::PtrWrapper Float32;
-  typedef oatpp::data::mapping::type::Float64::PtrWrapper Float64;
-  typedef oatpp::data::mapping::type::Boolean::PtrWrapper Boolean;
+  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::data::mapping::type::Float32 Float32;
+  typedef oatpp::data::mapping::type::Float64 Float64;
+  typedef oatpp::data::mapping::type::Boolean Boolean;
   
 protected:
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
@@ -171,7 +175,7 @@ public:
     return m_endpointInfo[endpointName];
   }
   
-  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const base::String::PtrWrapper& message) {
+  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const oatpp::String& message) {
     return m_errorHandler->handleError(status, message);
   }
   
@@ -189,7 +193,7 @@ public:
   // Helper methods
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const oatpp::base::String::PtrWrapper& str) const {
+                                                   const oatpp::String& str) const {
     return OutgoingResponseFactory::createShared(status, str);
   }
   
@@ -199,13 +203,13 @@ public:
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto,
+                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
   }
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractPtrWrapper& dto) const {
+                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
     return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
   }
   

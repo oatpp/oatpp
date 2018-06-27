@@ -22,28 +22,4 @@
  *
  ***************************************************************************/
 
-#ifndef ResponseFactory_hpp
-#define ResponseFactory_hpp
-
-#include "./Response.hpp"
-
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
-class ResponseFactory {
-public:
-  
-  static std::shared_ptr<Response> createShared(const Status& status, const oatpp::String& text);
-  static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& segBuffer);
-  static std::shared_ptr<Response> createShared(const Status& status,
-                              const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                              oatpp::data::mapping::ObjectMapper* objectMapper);
-  
-};
-  
-}}}}}
-
-#endif /* ResponseFactory_hpp */
+#include "Socket.hpp"

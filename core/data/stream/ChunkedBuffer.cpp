@@ -181,9 +181,9 @@ os::io::Library::v_size ChunkedBuffer::readSubstring(void *buffer,
   
 }
   
-std::shared_ptr<oatpp::base::String> ChunkedBuffer::getSubstring(os::io::Library::v_size pos,
+oatpp::String ChunkedBuffer::getSubstring(os::io::Library::v_size pos,
                                                         os::io::Library::v_size count){
-  auto str = oatpp::base::String::createShared((v_int32) count);
+  auto str = oatpp::String((v_int32) count);
   readSubstring(str->getData(), pos, count);
   return str;
 }

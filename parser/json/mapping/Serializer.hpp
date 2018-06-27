@@ -34,7 +34,7 @@
 #include "oatpp/core/parser/ParsingCaret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   
@@ -47,7 +47,7 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   
   typedef oatpp::data::mapping::type::List<
-    oatpp::data::mapping::type::AbstractPtrWrapper
+    oatpp::data::mapping::type::AbstractObjectWrapper
   > AbstractList;
 public:
   
@@ -64,7 +64,7 @@ public:
   };
   
 public:
-  typedef oatpp::base::String String;
+  typedef oatpp::String String;
 private:
   
   static void writeString(oatpp::data::stream::OutputStream* stream,
@@ -75,11 +75,11 @@ private:
   static void writeSimpleData(oatpp::data::stream::OutputStream* stream,
                               void* object,
                               Property* field){
-    auto value = oatpp::base::static_wrapper_cast<T>(field->get(object));
+    auto value = oatpp::data::mapping::type::static_wrapper_cast<T>(field->get(object));
     stream->writeChar('\"');
     stream->write(field->name);
     stream->write("\": ", 3);
-    if(value.isNull()){
+    if(!value){
       stream->write("null", 4);
     } else {
       stream->writeAsString(value.get()->getValue());
@@ -101,7 +101,7 @@ private:
     auto curr = list->getFirstNode();
     while(curr != nullptr){
       
-      auto value = oatpp::base::static_wrapper_cast<T>(curr->getData());
+      auto value = oatpp::data::mapping::type::static_wrapper_cast<T>(curr->getData());
       
       if(first){
         first = false;
@@ -109,7 +109,7 @@ private:
         stream->write(", ", 2);
       }
       
-      if(value.isNull()){
+      if(!value){
         stream->write("null", 4);
       } else {
         stream->writeAsString(value.get()->getValue());
@@ -145,7 +145,7 @@ private:
 public:
   
   static void serialize(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                        const oatpp::data::mapping::type::AbstractPtrWrapper& object){
+                        const oatpp::data::mapping::type::AbstractObjectWrapper& object){
     auto type = object.valueType;
     if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
       writeObject(stream.get(), type, static_cast<Object*>(object.get()));

@@ -35,7 +35,7 @@ class Body {
 protected:
   typedef oatpp::async::Action Action;
 protected:
-  typedef oatpp::collection::ListMap<base::String::PtrWrapper, base::String::PtrWrapper> Headers;
+  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
   virtual void declareHeaders(const std::shared_ptr<Headers>& headers) = 0;

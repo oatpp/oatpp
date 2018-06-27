@@ -81,13 +81,13 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, std::shared_ptr<oatpp::data::stream::IOStream>> {
   private:
-    oatpp::base::String::PtrWrapper m_host;
+    oatpp::String m_host;
     v_int32 m_port;
     oatpp::os::io::Library::v_handle m_clientHandle;
     struct sockaddr_in m_client;
   public:
     
-    ConnectCoroutine(const oatpp::base::String::PtrWrapper& host, v_int32 port)
+    ConnectCoroutine(const oatpp::String& host, v_int32 port)
       : m_host(host)
       , m_port(port)
     {}
@@ -136,6 +136,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       } else if(errno == EINTR) {
         return repeat();
       }
+      oatpp::os::io::Library::handle_close(m_clientHandle);
       return error("Can't connect");
     }
     

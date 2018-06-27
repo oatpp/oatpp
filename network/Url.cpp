@@ -28,15 +28,15 @@
 
 namespace oatpp { namespace network {
   
-std::shared_ptr<oatpp::base::String> Url::Parser::parseScheme(oatpp::parser::ParsingCaret& caret) {
+oatpp::String Url::Parser::parseScheme(oatpp::parser::ParsingCaret& caret) {
   v_int32 pos0 = caret.getPosition();
   caret.findChar(':');
   v_int32 size = caret.getPosition() - pos0;
   if(size > 0) {
     v_char8 buff[size];
     std::memcpy(buff, &caret.getData()[pos0], size);
-    oatpp::base::String::lowerCase(buff, size);
-    return oatpp::base::String::createShared(buff, size, true);
+    oatpp::base::StrBuffer::lowerCase(buff, size);
+    return oatpp::String((const char*)buff, size, true);
   }
   return nullptr;
 }
@@ -75,11 +75,11 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::ParsingCaret& caret) {
   Url::Authority result;
   
   if(atPos > -1) {
-    result.userInfo = oatpp::base::String::createShared(&data[pos0], atPos - pos0, true);
+    result.userInfo = oatpp::String((const char*)&data[pos0], atPos - pos0, true);
   }
   
   if(portPos > hostPos) {
-    result.host = oatpp::base::String::createShared(&data[hostPos], portPos - 1 - hostPos, true);
+    result.host = oatpp::String((const char*)&data[hostPos], portPos - 1 - hostPos, true);
     char* end;
     result.port = (v_int32) std::strtol((const char*)&data[portPos], &end, 10);
     bool success = (((v_int64)end - (v_int64)&data[portPos]) == pos - portPos);
@@ -87,14 +87,14 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::ParsingCaret& caret) {
       caret.setError("Invalid port string");
     }
   } else {
-    result.host = oatpp::base::String::createShared(&data[hostPos], pos - pos0, true);
+    result.host = oatpp::String((const char*)&data[hostPos], pos - pos0, true);
   }
   
   return result;
   
 }
 
-std::shared_ptr<oatpp::base::String> Url::Parser::parsePath(oatpp::parser::ParsingCaret& caret) {
+oatpp::String Url::Parser::parsePath(oatpp::parser::ParsingCaret& caret) {
   oatpp::parser::ParsingCaret::Label label(caret);
   caret.findCharFromSet((p_char8)"?#", 2);
   if(label.getSize() > 0) {
@@ -123,7 +123,7 @@ void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::
   
 }
 
-void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, const oatpp::base::String::PtrWrapper& str) {
+void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, const oatpp::String& str) {
   oatpp::parser::ParsingCaret caret(str.getPtr());
   parseQueryParamsToMap(params, caret);
 }
@@ -134,7 +134,7 @@ std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(oatpp::parser::Pa
   return params;
 }
 
-std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(const oatpp::base::String::PtrWrapper& str) {
+std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(const oatpp::String& str) {
   auto params = Url::Parameters::createShared();
   parseQueryParamsToMap(*params, str);
   return params;

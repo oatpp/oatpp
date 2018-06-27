@@ -22,28 +22,47 @@
  *
  ***************************************************************************/
 
-#ifndef ResponseFactory_hpp
-#define ResponseFactory_hpp
+#ifndef oatpp_network_virtual__Socket_hpp
+#define oatpp_network_virtual__Socket_hpp
 
-#include "./Response.hpp"
+#include "Pipe.hpp"
 
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp { namespace network { namespace virtual_ {
   
-class ResponseFactory {
+class Socket : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
+public:
+  OBJECT_POOL(Socket_Pool, Socket, 32)
+  SHARED_OBJECT_POOL(Shared_Socket_Pool, Socket, 32)
+private:
+  std::shared_ptr<Pipe::Reader> m_pipeReader;
+  std::shared_ptr<Pipe::Writer> m_pipeWriter;
 public:
   
-  static std::shared_ptr<Response> createShared(const Status& status, const oatpp::String& text);
-  static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& segBuffer);
-  static std::shared_ptr<Response> createShared(const Status& status,
-                              const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                              oatpp::data::mapping::ObjectMapper* objectMapper);
+  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override {
+    if(m_pipeReader) {
+      return m_pipeReader->read(data, count);
+    }
+    return -1;
+  }
+  
+  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override {
+    if(m_pipeWriter) {
+      return m_pipeWriter->write(data, count);
+    }
+    return -1;
+  }
+  
+  bool isConnected() {
+    return m_pipeReader && m_pipeWriter;
+  }
+  
+  void close() {
+    m_pipeReader.reset();
+    m_pipeWriter.reset();
+  }
   
 };
   
-}}}}}
+}}}
 
-#endif /* ResponseFactory_hpp */
+#endif /* oatpp_network_virtual__Socket_hpp */

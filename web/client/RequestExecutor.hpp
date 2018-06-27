@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace client {
   
 class RequestExecutor {
 public:
-  typedef oatpp::base::String String;
+  typedef oatpp::String String;
   typedef oatpp::async::Action Action;
 public:
   typedef oatpp::web::protocol::http::Protocol::Headers Headers;
@@ -43,15 +43,57 @@ public:
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Response>&);
 public:
   
-  virtual std::shared_ptr<Response> execute(const String::PtrWrapper& method,
-                                            const String::PtrWrapper& path,
+  class RequestExecutionError : public std::runtime_error {
+  public:
+    constexpr static const v_int32 ERROR_CODE_CANT_CONNECT = 1;
+    constexpr static const v_int32 ERROR_CODE_CANT_PARSE_STARTING_LINE = 2;
+    constexpr static const v_int32 ERROR_CODE_CANT_PARSE_HEADERS = 3;
+    constexpr static const v_int32 ERROR_CODE_CANT_READ_RESPONSE = 4;
+    constexpr static const v_int32 ERROR_CODE_NO_RESPONSE = 5;
+  private:
+    v_int32 m_errorCode;
+    const char* m_message;
+    v_int32 m_readErrorCode;
+  public:
+    
+    RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode = 0)
+      :std::runtime_error(message)
+      , m_errorCode(errorCode)
+      , m_message(message)
+      , m_readErrorCode(readErrorCode)
+    {}
+    
+    v_int32 getErrorCode() const {
+      return m_errorCode;
+    }
+    
+    const char* getMessage() const {
+      return m_message;
+    }
+    
+    /**
+     *  This value is valid if errorCode == ERROR_CODE_CANT_READ_RESPONSE
+     *  For more information about the read error you get check out:
+     *  - oatpp::data::stream::IOStream for possible error codes
+     *  - implementation of Connection provided by your ConnectionProvider for implementation-specific behaviour
+     */
+    v_int32 getReadErrorCode() const {
+      return m_readErrorCode;
+    }
+    
+  };
+  
+public:
+  
+  virtual std::shared_ptr<Response> execute(const String& method,
+                                            const String& path,
                                             const std::shared_ptr<Headers>& headers,
                                             const std::shared_ptr<Body>& body) = 0;
   
   virtual Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                               AsyncCallback callback,
-                              const String::PtrWrapper& method,
-                              const String::PtrWrapper& path,
+                              const String& method,
+                              const String& path,
                               const std::shared_ptr<Headers>& headers,
                               const std::shared_ptr<Body>& body) = 0;
   

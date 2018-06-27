@@ -27,18 +27,18 @@
 
 #include "oatpp/core/parser/ParsingCaret.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
-#include "oatpp/core/base/String.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network {
   
 class Url : public oatpp::base::Controllable {
 public:
-  typedef oatpp::collection::ListMap<oatpp::base::String::PtrWrapper, oatpp::base::String::PtrWrapper> Parameters;
+  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Parameters;
 public:
   
   struct Authority {
-    std::shared_ptr<oatpp::base::String> userInfo;
-    std::shared_ptr<oatpp::base::String> host;
+    oatpp::String userInfo;
+    oatpp::String host;
     v_int32 port = -1;
   };
   
@@ -53,7 +53,7 @@ public:
      *  returns lowercase string before ':' char
      *  caret should be at the first char of the scheme
      */
-    static std::shared_ptr<oatpp::base::String> parseScheme(oatpp::parser::ParsingCaret& caret);
+    static oatpp::String parseScheme(oatpp::parser::ParsingCaret& caret);
     
     /**
      *  parse utl authority components.
@@ -67,7 +67,7 @@ public:
      *  parse path of the url
      *  caret should be at the first char of the path
      */
-    static std::shared_ptr<oatpp::base::String> parsePath(oatpp::parser::ParsingCaret& caret);
+    static oatpp::String parsePath(oatpp::parser::ParsingCaret& caret);
     
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by ParsingCaret
@@ -79,7 +79,7 @@ public:
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
      *  and put that params to Parameters map
      */
-    static void parseQueryParamsToMap(Url::Parameters& params, const oatpp::base::String::PtrWrapper& str);
+    static void parseQueryParamsToMap(Url::Parameters& params, const oatpp::String& str);
     
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by ParsingCaret
@@ -89,7 +89,7 @@ public:
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
      */
-    static std::shared_ptr<Url::Parameters> parseQueryParams(const oatpp::base::String::PtrWrapper& str);
+    static std::shared_ptr<Url::Parameters> parseQueryParams(const oatpp::String& str);
     
     /**
      *  parse Url
@@ -101,9 +101,9 @@ public:
   
 public:
   
-  std::shared_ptr<oatpp::base::String> scheme;
+  oatpp::String scheme;
   Authority authority;
-  std::shared_ptr<oatpp::base::String> path;
+  oatpp::String path;
   std::shared_ptr<Parameters> queryParams;
   
 };

@@ -200,13 +200,13 @@ v_int32 Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
   }
 }
   
-std::shared_ptr<Utils::String> Utils::escapeString(p_char8 data, v_int32 size) {
+oatpp::String Utils::escapeString(p_char8 data, v_int32 size) {
   v_int32 safeSize;
   v_int32 escapedSize = calcEscapedStringSize(data, size, safeSize);
   if(escapedSize == size) {
-    return String::createShared(data, size, true);
+    return String((const char*)data, size, true);
   }
-  auto result = String::createShared(escapedSize);
+  auto result = String(escapedSize);
   v_int32 i = 0;
   p_char8 resultData = result->getData();
   v_int32 pos = 0;
@@ -322,14 +322,14 @@ void Utils::unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultDat
   
 }
   
-std::shared_ptr<Utils::String> Utils::unescapeString(p_char8 data, v_int32 size,
+oatpp::String Utils::unescapeString(p_char8 data, v_int32 size,
                                                      const char* & error, v_int32& errorPosition) {
   
   v_int32 unescapedSize = calcUnescapedStringSize(data, size, error, errorPosition);
   if(error != nullptr){
     return nullptr;
   }
-  auto result = String::createShared(unescapedSize);
+  auto result = String(unescapedSize);
   if(unescapedSize == size) {
     std::memcpy(result->getData(), data, size);
   } else {
@@ -355,14 +355,14 @@ std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size,
   return result;
 }
   
-p_char8 Utils::preparseString(const std::shared_ptr<ParsingCaret>& caret, v_int32& size){
+p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
   
-  if(caret->canContinueAtChar('"', 1)){
+  if(caret.canContinueAtChar('"', 1)){
     
-    const p_char8 data = caret->getData();
-    v_int32 pos = caret->getPosition();
+    const p_char8 data = caret.getData();
+    v_int32 pos = caret.getPosition();
     v_int32 pos0 = pos;
-    v_int32 length = caret->getSize();
+    v_int32 length = caret.getSize();
     
     while (pos < length) {
       v_char8 a = data[pos];
@@ -375,33 +375,33 @@ p_char8 Utils::preparseString(const std::shared_ptr<ParsingCaret>& caret, v_int3
         pos ++;
       }
     }
-    caret->setPosition(caret->getSize());
-    caret->setError(ERROR_PARSER_QUOTE_EXPECTED);
+    caret.setPosition(caret.getSize());
+    caret.setError(ERROR_PARSER_QUOTE_EXPECTED);
   } else {
-    caret->setError(ERROR_PARSER_QUOTE_EXPECTED);
+    caret.setError(ERROR_PARSER_QUOTE_EXPECTED);
   }
   
   return nullptr;
   
 }
   
-std::shared_ptr<Utils::String> Utils::parseString(const std::shared_ptr<ParsingCaret>& caret) {
+oatpp::String Utils::parseString(ParsingCaret& caret) {
   
   v_int32 size;
   p_char8 data = preparseString(caret, size);
   
   if(data != nullptr) {
   
-    v_int32 pos = caret->getPosition();
+    v_int32 pos = caret.getPosition();
     
     const char* error;
     v_int32 errorPosition;
     auto result = unescapeString(data, size, error, errorPosition);
     if(error != nullptr){
-      caret->setError(error);
-      caret->setPosition(pos + errorPosition);
+      caret.setError(error);
+      caret.setPosition(pos + errorPosition);
     } else {
-      caret->setPosition(pos + size + 1);
+      caret.setPosition(pos + size + 1);
     }
     
     return result;
@@ -412,23 +412,23 @@ std::shared_ptr<Utils::String> Utils::parseString(const std::shared_ptr<ParsingC
   
 }
   
-std::string Utils::parseStringToStdString(const std::shared_ptr<ParsingCaret>& caret){
+std::string Utils::parseStringToStdString(ParsingCaret& caret){
   
   v_int32 size;
   p_char8 data = preparseString(caret, size);
   
   if(data != nullptr) {
     
-    v_int32 pos = caret->getPosition();
+    v_int32 pos = caret.getPosition();
     
     const char* error;
     v_int32 errorPosition;
     const std::string& result = unescapeStringToStdString(data, size, error, errorPosition);
     if(error != nullptr){
-      caret->setError(error);
-      caret->setPosition(pos + errorPosition);
+      caret.setError(error);
+      caret.setPosition(pos + errorPosition);
     } else {
-      caret->setPosition(pos + size + 1);
+      caret.setPosition(pos + size + 1);
     }
     
     return result;

@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <stdexcept>
 
+#define OATPP_VERSION "0.18.6"
 
 #define OATPP_ASSERT(EXP) \
 if(!(EXP)) { \

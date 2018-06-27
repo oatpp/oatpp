@@ -72,73 +72,73 @@ bool DeserializerTest::onRun(){
   
   auto obj1 = mapper->readFromString<Test1>("{}");
   
-  OATPP_ASSERT(obj1.isNull() == false);
-  OATPP_ASSERT(obj1->strF.isNull());
+  OATPP_ASSERT(obj1);
+  OATPP_ASSERT(!obj1->strF);
   
   obj1 = mapper->readFromString<Test1>("{\"strF\":\"value1\"}");
   
-  OATPP_ASSERT(obj1.isNull() == false);
-  OATPP_ASSERT(obj1->strF.isNull() == false);
+  OATPP_ASSERT(obj1);
+  OATPP_ASSERT(obj1->strF);
   OATPP_ASSERT(obj1->strF->equals("value1"));
   
   obj1 = mapper->readFromString<Test1>("{\n\r\t\f\"strF\"\n\r\t\f:\n\r\t\f\"value1\"\n\r\t\f}");
   
-  OATPP_ASSERT(obj1.isNull() == false);
-  OATPP_ASSERT(obj1->strF.isNull() == false);
+  OATPP_ASSERT(obj1);
+  OATPP_ASSERT(obj1->strF);
   OATPP_ASSERT(obj1->strF->equals("value1"));
   
   auto obj2 = mapper->readFromString<Test2>("{\"int32F\": null}");
   
-  OATPP_ASSERT(obj2.isNull() == false);
-  OATPP_ASSERT(obj2->int32F.isNull() == true);
+  OATPP_ASSERT(obj2);
+  OATPP_ASSERT(!obj2->int32F);
   
   obj2 = mapper->readFromString<Test2>("{\"int32F\": 32}");
   
-  OATPP_ASSERT(obj2.isNull() == false);
+  OATPP_ASSERT(obj2);
   OATPP_ASSERT(obj2->int32F->getValue() == 32);
   
   obj2 = mapper->readFromString<Test2>("{\"int32F\":    -32}");
   
-  OATPP_ASSERT(obj2.isNull() == false);
+  OATPP_ASSERT(obj2);
   OATPP_ASSERT(obj2->int32F->getValue() == -32);
   
   auto obj3 = mapper->readFromString<Test3>("{\"float32F\": null}");
   
-  OATPP_ASSERT(obj3.isNull() == false);
-  OATPP_ASSERT(obj3->float32F.isNull() == true);
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(!obj3->float32F);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": 32}");
   
-  OATPP_ASSERT(obj3.isNull() == false);
+  OATPP_ASSERT(obj3);
   OATPP_ASSERT(obj3->float32F->getValue() == 32);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e1}");
   
-  OATPP_ASSERT(obj3.isNull() == false);
-  OATPP_ASSERT(obj3->float32F.isNull() == false);
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(obj3->float32F);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e+1 }");
   
-  OATPP_ASSERT(obj3.isNull() == false);
-  OATPP_ASSERT(obj3->float32F.isNull() == false);
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(obj3->float32F);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e-1 }");
   
-  OATPP_ASSERT(obj3.isNull() == false);
-  OATPP_ASSERT(obj3->float32F.isNull() == false);
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(obj3->float32F);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": -1.32E-1 }");
   
-  OATPP_ASSERT(obj3.isNull() == false);
-  OATPP_ASSERT(obj3->float32F.isNull() == false);
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(obj3->float32F);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": -1.32E1 }");
   
-  OATPP_ASSERT(obj3.isNull() == false);
-  OATPP_ASSERT(obj3->float32F.isNull() == false);
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(obj3->float32F);
   
   auto list = mapper->readFromString<Test1::List<Test1::Int32>>("[1, 2, 3]");
-  OATPP_ASSERT(list.isNull() == false);
+  OATPP_ASSERT(list);
   OATPP_ASSERT(list->count() == 3);
   OATPP_ASSERT(list->get(0)->getValue() == 1);
   OATPP_ASSERT(list->get(1)->getValue() == 2);

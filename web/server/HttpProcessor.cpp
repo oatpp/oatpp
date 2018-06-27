@@ -35,19 +35,19 @@ bool HttpProcessor::considerConnectionKeepAlive(const std::shared_ptr<protocol::
   if(request) {
     auto& inKeepAlive = request->headers->get(protocol::http::Header::CONNECTION, nullptr);
     
-    if(!inKeepAlive.isNull() && base::String::equalsCI_FAST(inKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
+    if(inKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(inKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
       if(response->headers->putIfNotExists(protocol::http::Header::CONNECTION, inKeepAlive)){
         return true;
       } else {
         auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
-        return (!outKeepAlive.isNull() && base::String::equalsCI_FAST(outKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
+        return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
       }
     }
   }
   
   if(!response->headers->putIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE)) {
     auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
-    return (!outKeepAlive.isNull() && base::String::equalsCI_FAST(outKeepAlive, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
+    return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
   }
   
   return false;
@@ -77,7 +77,7 @@ HttpProcessor::processRequest(HttpRouter* router,
     
     auto route = router->getRoute(line->method, line->path);
     
-    if(!route.isNull()) {
+    if(route) {
       
       oatpp::web::protocol::http::Status error;
       auto headers = protocol::http::Protocol::parseHeaders(caret, error);
@@ -143,7 +143,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 
   
   m_currentRoute = m_router->getRoute(line->method, line->path);
   
-  if(m_currentRoute.isNull()) {
+  if(!m_currentRoute) {
     m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
