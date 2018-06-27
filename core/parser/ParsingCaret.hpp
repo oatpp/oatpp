@@ -52,7 +52,12 @@ public:
       , m_end(-1)
     {}
     
-    void end(){
+    void start() {
+      m_start = m_caret.m_pos;
+      m_end = -1;
+    }
+    
+    void end() {
       m_end = m_caret.m_pos;
     }
     
@@ -61,6 +66,9 @@ public:
     }
     
     v_int32 getSize(){
+      if(m_end == -1) {
+        return m_caret.m_pos - m_start;
+      }
       return m_end - m_start;
     }
     
@@ -155,6 +163,8 @@ public:
   
   std::shared_ptr<base::String> parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData);
   std::shared_ptr<base::String> parseName(bool saveAsOwnData);
+  
+  bool findText(p_char8 text, v_int32 textSize);
   
   std::shared_ptr<base::String> findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<base::String>>>& list);
   

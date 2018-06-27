@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <cstdlib>
+#include <algorithm>
 
 namespace oatpp { namespace parser {
   
@@ -505,6 +506,11 @@ namespace oatpp { namespace parser {
       return nullptr;
     }
     
+  }
+  
+  bool ParsingCaret::findText(p_char8 text, v_int32 textSize) {
+    m_pos = (v_int32)(std::search(&m_data[m_pos], &m_data[m_size], text, text + textSize) - m_data);
+    return m_pos != m_size;
   }
   
   std::shared_ptr<oatpp::base::String> ParsingCaret::findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<oatpp::base::String>>>& list){
