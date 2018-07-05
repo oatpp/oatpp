@@ -28,6 +28,7 @@
 #include "./Type.hpp"
 
 #include "./Primitive.hpp"
+#include "./ListMap.hpp"
 #include "./List.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
@@ -65,6 +66,8 @@ public:
   typedef oatpp::data::mapping::type::Boolean Boolean;
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
+  template <class Value>
+  using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
 protected:
   static Type::Properties* Z__CLASS_EXTEND(Type::Properties* map, Type::Properties* extensionMap) {
     map->insert(extensionMap->begin(), extensionMap->end());

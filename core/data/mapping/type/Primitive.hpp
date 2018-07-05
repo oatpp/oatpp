@@ -174,12 +174,17 @@ public:
       return *this;
     }
     
+    ObjectWrapper& operator = (const ObjectWrapper &other){
+      this->m_ptr = other.m_ptr;
+      return *this;
+    }
+    
     bool operator==(const ObjectWrapper &other) const {
-      return getValue() == other->getValue();
+      return this->m_ptr->getValue() == other->getValue();
     }
     
     bool operator!=(const ObjectWrapper &other) const {
-      return getValue() != other->getValue();
+      return this->m_ptr->getValue() != other->getValue();
     }
     
     inline operator ValueType() const {

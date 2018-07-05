@@ -48,8 +48,10 @@ private:
   static void unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultData);
   static p_char8 preparseString(ParsingCaret& caret, v_int32& size);
 public:
-  
-  static String escapeString(p_char8 data, v_int32 size);
+  /**
+   *  if(copyAsOwnData == false && escapedString == initialString) then result string will point to initial data
+   */
+  static String escapeString(p_char8 data, v_int32 size, bool copyAsOwnData = true);
   static String unescapeString(p_char8 data, v_int32 size, const char* & error, v_int32& errorPosition);
   static std::string unescapeStringToStdString(p_char8 data, v_int32 size,
                                                const char* & error, v_int32& errorPosition);

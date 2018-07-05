@@ -185,6 +185,16 @@ Deserializer::AbstractObjectWrapper Deserializer::readListValue(const Type* cons
   }
 }
   
+Deserializer::AbstractObjectWrapper Deserializer::readListMapValue(const Type* const type,
+                                                                   oatpp::parser::ParsingCaret& caret,
+                                                                   const std::shared_ptr<Config>& config){
+  if(caret.proceedIfFollowsText("null")){
+    return AbstractObjectWrapper::empty();
+  } else {
+    return readListMap(type, caret, config);
+  }
+}
+  
 Deserializer::AbstractObjectWrapper Deserializer::readValue(const Type* const type,
                                                   oatpp::parser::ParsingCaret& caret,
                                                   const std::shared_ptr<Config>& config){
@@ -206,6 +216,8 @@ Deserializer::AbstractObjectWrapper Deserializer::readValue(const Type* const ty
     return readObjectValue(type, caret, config);
   } else if(typeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
     return readListValue(type, caret, config);
+  } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
+    return readListMapValue(type, caret, config);
   } else {
     skipValue(caret);
   }
@@ -256,6 +268,63 @@ Deserializer::AbstractObjectWrapper Deserializer::readList(const Type* type,
   
 }
   
+Deserializer::AbstractObjectWrapper Deserializer::readListMap(const Type* type,
+                                                              oatpp::parser::ParsingCaret& caret,
+                                                              const std::shared_ptr<Config>& config){
+  
+  if(caret.canContinueAtChar('{', 1)) {
+    
+    auto mapWrapper = type->creator();
+    oatpp::data::mapping::type::PolymorphicWrapper<AbstractListMap>
+    map(std::static_pointer_cast<AbstractListMap>(mapWrapper.getPtr()), mapWrapper.valueType);
+    
+    auto it = type->params.begin();
+    Type* keyType = *it ++;
+    if(keyType->name != oatpp::data::mapping::type::__class::String::CLASS_NAME){
+      throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Invalid json map key. Key should be String");
+    }
+    Type* valueType = *it;
+    
+    while (!caret.isAtChar('}') && caret.canContinue()) {
+      
+      caret.findNotBlankChar();
+      auto key = Utils::parseString(caret);
+      if(caret.hasError()){
+        return AbstractObjectWrapper::empty();
+      }
+      
+      caret.findNotBlankChar();
+      if(!caret.canContinueAtChar(':', 1)){
+        caret.setError(ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING);
+        return AbstractObjectWrapper::empty();
+      }
+      
+      caret.findNotBlankChar();
+      
+      map->putPolymorphicItem(key, readValue(valueType, caret, config));
+      
+      caret.findNotBlankChar();
+      caret.canContinueAtChar(',', 1);
+      
+    }
+    
+    if(!caret.canContinueAtChar('}', 1)){
+      if(!caret.hasError()){
+        caret.setError(ERROR_PARSER_OBJECT_SCOPE_CLOSE);
+      }
+      return AbstractObjectWrapper::empty();
+    }
+    
+    return AbstractObjectWrapper(map.getPtr(), map.valueType);
+    
+  } else {
+    caret.setError(ERROR_PARSER_OBJECT_SCOPE_OPEN);
+  }
+  
+  return AbstractObjectWrapper::empty();
+  
+}
+  
 Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
                                                    oatpp::parser::ParsingCaret& caret,
                                                    const std::shared_ptr<Config>& config){
@@ -303,7 +372,7 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
       caret.findNotBlankChar();
       caret.canContinueAtChar(',', 1);
       
-    };
+    }
     
     if(!caret.canContinueAtChar('}', 1)){
       if(!caret.hasError()){

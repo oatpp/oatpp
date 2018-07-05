@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_type_List_hpp
-#define oatpp_data_type_List_hpp
+#ifndef oatpp_data_mapping_type_List_hpp
+#define oatpp_data_mapping_type_List_hpp
 
 #include "./Type.hpp"
 
@@ -101,4 +101,4 @@ namespace __class {
   
 }}}}
 
-#endif /* List_hpp */
+#endif /* oatpp_data_mapping_type_List_hpp */

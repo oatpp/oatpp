@@ -200,11 +200,11 @@ v_int32 Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
   }
 }
   
-oatpp::String Utils::escapeString(p_char8 data, v_int32 size) {
+oatpp::String Utils::escapeString(p_char8 data, v_int32 size, bool copyAsOwnData) {
   v_int32 safeSize;
   v_int32 escapedSize = calcEscapedStringSize(data, size, safeSize);
   if(escapedSize == size) {
-    return String((const char*)data, size, true);
+    return String((const char*)data, size, copyAsOwnData);
   }
   auto result = String(escapedSize);
   v_int32 i = 0;
@@ -322,8 +322,7 @@ void Utils::unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultDat
   
 }
   
-oatpp::String Utils::unescapeString(p_char8 data, v_int32 size,
-                                                     const char* & error, v_int32& errorPosition) {
+oatpp::String Utils::unescapeString(p_char8 data, v_int32 size, const char* & error, v_int32& errorPosition) {
   
   v_int32 unescapedSize = calcUnescapedStringSize(data, size, error, errorPosition);
   if(error != nullptr){
@@ -339,8 +338,8 @@ oatpp::String Utils::unescapeString(p_char8 data, v_int32 size,
   
 }
   
-std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size,
-                                             const char* & error, v_int32& errorPosition){
+std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size, const char* & error, v_int32& errorPosition){
+  
   v_int32 unescapedSize = calcUnescapedStringSize(data, size, error, errorPosition);
   if(error != nullptr){
     return "";
@@ -353,6 +352,7 @@ std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size,
     unescapeStringToBuffer(data, size, (p_char8) result.data());
   }
   return result;
+  
 }
   
 p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){

@@ -55,6 +55,7 @@ private:
   typedef oatpp::data::mapping::type::Boolean Boolean;
   
   typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
+  typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractListMap;
   
 public:
   
@@ -99,6 +100,10 @@ private:
                                              oatpp::parser::ParsingCaret& caret,
                                              const std::shared_ptr<Config>& config);
   
+  static AbstractObjectWrapper readListMapValue(const Type* const type,
+                                                oatpp::parser::ParsingCaret& caret,
+                                                const std::shared_ptr<Config>& config);
+  
   static AbstractObjectWrapper readValue(const Type* const type,
                                          oatpp::parser::ParsingCaret& caret,
                                          const std::shared_ptr<Config>& config);
@@ -106,6 +111,10 @@ private:
   static AbstractObjectWrapper readList(const Type* const type,
                                         oatpp::parser::ParsingCaret& caret,
                                         const std::shared_ptr<Config>& config);
+  
+  static AbstractObjectWrapper readListMap(const Type* const type,
+                                           oatpp::parser::ParsingCaret& caret,
+                                           const std::shared_ptr<Config>& config);
   
   static AbstractObjectWrapper readObject(const Type* const type,
                                           oatpp::parser::ParsingCaret& caret,
@@ -120,6 +129,8 @@ public:
       return readObject(type, caret, config);
     } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
       return readList(type, caret, config);
+    } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
+      return readListMap(type, caret, config);
     }
     return AbstractObjectWrapper::empty();
   }

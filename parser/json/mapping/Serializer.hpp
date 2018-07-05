@@ -25,6 +25,7 @@
 #ifndef oatpp_parser_json_mapping_Serializer_hpp
 #define oatpp_parser_json_mapping_Serializer_hpp
 
+#include "oatpp/core/data/mapping/type/ListMap.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
@@ -45,10 +46,16 @@ public:
   typedef oatpp::data::mapping::type::Type::Properties Properties;
   
   typedef oatpp::data::mapping::type::Object Object;
+  typedef oatpp::String String;
   
   typedef oatpp::data::mapping::type::List<
     oatpp::data::mapping::type::AbstractObjectWrapper
   > AbstractList;
+  
+  typedef oatpp::data::mapping::type::ListMap<
+    oatpp::data::mapping::type::AbstractObjectWrapper,
+    oatpp::data::mapping::type::AbstractObjectWrapper
+  > AbstractListMap;
 public:
   
   class Config : public oatpp::base::Controllable {
@@ -65,9 +72,10 @@ public:
     
   };
   
-public:
-  typedef oatpp::String String;
 private:
+  
+  static void writeStringValue(oatpp::data::stream::OutputStream* stream, p_char8 data, v_int32 size);
+  static void writeStringValue(oatpp::data::stream::OutputStream* stream, const char* data);
   
   static void writeString(oatpp::data::stream::OutputStream* stream,
                           void* object,
@@ -81,14 +89,12 @@ private:
                               const std::shared_ptr<Config>& config){
     auto value = oatpp::data::mapping::type::static_wrapper_cast<T>(field->get(object));
     if(value) {
-      stream->writeChar('\"');
-      stream->write(field->name);
-      stream->write("\": ", 3);
+      writeStringValue(stream, field->name);
+      stream->write(": ", 2);
       stream->writeAsString(value.get()->getValue());
     } else if(config->includeNullFields) {
-      stream->writeChar('\"');
-      stream->write(field->name);
-      stream->write("\": null", 7);
+      writeStringValue(stream, field->name);
+      stream->write(": null", 6);
     }
   }
   
@@ -137,6 +143,11 @@ private:
                               const Type* const type,
                               const std::shared_ptr<Config>& config);
   
+  static void writeListOfListMap(oatpp::data::stream::OutputStream* stream,
+                                 AbstractList* list,
+                                 const Type* const type,
+                                 const std::shared_ptr<Config>& config);
+  
   static void writeListCollection(oatpp::data::stream::OutputStream* stream,
                                   AbstractList* list,
                                   const Type* const type,
@@ -146,6 +157,66 @@ private:
                         void* object,
                         Property* field,
                         const std::shared_ptr<Config>& config);
+  
+  static void writeListMapOfString(oatpp::data::stream::OutputStream* stream,
+                                   AbstractListMap* map,
+                                   const std::shared_ptr<Config>& config);
+  
+  template<class T>
+  static void writeListMapOfSimpleData(oatpp::data::stream::OutputStream* stream,
+                                       AbstractListMap* map,
+                                       const std::shared_ptr<Config>& config){
+    stream->writeChar('{');
+    bool first = true;
+    auto curr = map->getFirstEntry();
+    while(curr != nullptr){
+      
+      auto value = oatpp::data::mapping::type::static_wrapper_cast<T>(curr->getValue());
+      if(value) {
+        (first) ? first = false : stream->write(", ", 2);
+        auto key = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(curr->getKey());
+        writeStringValue(stream, key->getData(), key->getSize());
+        stream->write(": ", 2);
+        stream->writeAsString(value.get()->getValue());
+      } else if(config->includeNullFields) {
+        (first) ? first = false : stream->write(", ", 2);
+        auto key = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(curr->getKey());
+        writeStringValue(stream, key->getData(), key->getSize());
+        stream->write(": null", 6);
+      }
+      
+      curr = curr->getNext();
+      
+    }
+    
+    stream->writeChar('}');
+    
+  }
+  
+  static void writeListMapOfObject(oatpp::data::stream::OutputStream* stream,
+                                   AbstractListMap* map,
+                                   const Type* const type,
+                                   const std::shared_ptr<Config>& config);
+  
+  static void writeListMapOfList(oatpp::data::stream::OutputStream* stream,
+                                 AbstractListMap* map,
+                                 const Type* const type,
+                                 const std::shared_ptr<Config>& config);
+  
+  static void writeListMapOfListMap(oatpp::data::stream::OutputStream* stream,
+                                    AbstractListMap* map,
+                                    const Type* const type,
+                                    const std::shared_ptr<Config>& config);
+  
+  static void writeListMapCollection(oatpp::data::stream::OutputStream* stream,
+                                     AbstractListMap* map,
+                                     const Type* const type,
+                                     const std::shared_ptr<Config>& config);
+  
+  static void writeListMap(oatpp::data::stream::OutputStream* stream,
+                           void* object,
+                           Property* field,
+                           const std::shared_ptr<Config>& config);
   
   static void writeObject(oatpp::data::stream::OutputStream* stream,
                           const Type* const type,
@@ -162,6 +233,8 @@ public:
       writeObject(stream.get(), type, static_cast<Object*>(object.get()), config);
     } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
       writeListCollection(stream.get(), static_cast<AbstractList*>(object.get()), type, config);
+    } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
+      writeListMapCollection(stream.get(), static_cast<AbstractListMap*>(object.get()), type, config);
     } else {
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
     }
