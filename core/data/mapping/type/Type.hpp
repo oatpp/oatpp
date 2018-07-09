@@ -159,6 +159,10 @@ public:
     : PolymorphicWrapper<T>(Class::getType())
   {}
   
+  ObjectWrapper(std::nullptr_t nullptrt)
+    : PolymorphicWrapper<T>(nullptr, Class::getType())
+  {}
+  
   ObjectWrapper(const std::shared_ptr<T>& ptr)
     : PolymorphicWrapper<T>(ptr, Class::getType())
   {}
