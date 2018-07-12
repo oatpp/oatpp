@@ -182,13 +182,14 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
+template<typename ParentCoroutineType>\
 oatpp::async::Action NAME(\
   oatpp::async::AbstractCoroutine* parentCoroutine, \
-  oatpp::web::client::RequestExecutor::AsyncCallback callback \
+  oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&) \
 ) { \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
   return executeRequestAsync(parentCoroutine, \
-                             callback, \
+                             static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(callback), \
                              METHOD, \
                              Z_getPathPattern_##NAME(PATH), \
                              nullptr, \
@@ -203,18 +204,20 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
+template<typename ParentCoroutineType>\
 oatpp::async::Action NAME(\
   oatpp::async::AbstractCoroutine* parentCoroutine, \
-  oatpp::web::client::RequestExecutor::AsyncCallback callback, \
+  oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&), \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) void* __reserved = nullptr \
 ) { \
+  auto __callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(callback); \
   auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __queryParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, LIST) \
   return executeRequestAsync(parentCoroutine, \
-                             callback, \
+                             __callback, \
                              METHOD, \
                              Z_getPathPattern_##NAME(PATH), \
                              __headers, \
