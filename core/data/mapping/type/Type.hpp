@@ -114,6 +114,10 @@ public:
     return m_ptr.get();
   }
   
+  void setPtr(const std::shared_ptr<T>& ptr) {
+    m_ptr = ptr;
+  }
+  
   std::shared_ptr<T> getPtr() const {
     return m_ptr;
   }
@@ -257,6 +261,11 @@ public:
     }
     
     AbstractObjectWrapper get(void* object) {
+      AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+      return *property;
+    }
+    
+    AbstractObjectWrapper& getAsRef(void* object) {
       AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
       return *property;
     }

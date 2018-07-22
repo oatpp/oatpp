@@ -31,6 +31,8 @@
 namespace oatpp {
   
   typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::mapping::type::Int8 Int8;
+  typedef oatpp::data::mapping::type::Int16 Int16;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;
