@@ -332,7 +332,7 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
   if(caret.canContinueAtChar('{', 1)) {
     
     auto object = type->creator();
-    auto fieldsMap = type->properties;
+    const auto& fieldsMap = type->properties->getMap();
     
     while (!caret.isAtChar('}') && caret.canContinue()) {
       
@@ -342,8 +342,8 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
         return AbstractObjectWrapper::empty();
       }
       
-      auto fieldIterator = fieldsMap->find(key);
-      if(fieldIterator != fieldsMap->end()){
+      auto fieldIterator = fieldsMap.find(key);
+      if(fieldIterator != fieldsMap.end()){
         
         caret.findNotBlankChar();
         if(!caret.canContinueAtChar(':', 1)){

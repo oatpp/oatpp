@@ -206,7 +206,33 @@ public:
   typedef AbstractObjectWrapper (*Creator)();
 public:
   class Property; // FWD
-  typedef std::unordered_map<std::string, Property*> Properties;
+public:
+  
+  class Properties {
+  private:
+    std::unordered_map<std::string, Property*> m_map;
+    std::list<Property*> m_list;
+  public:
+    
+    void pushBack(Property* property);
+    void pushFrontAll(Properties* properties);
+    
+    /**
+     *  get properties as unordered map for random access
+     */
+    const std::unordered_map<std::string, Property*>& getMap() const {
+      return m_map;
+    }
+    
+    /**
+     *  get properties in ordered way
+     */
+    const std::list<Property*>& getList() const {
+      return m_list;
+    }
+    
+  };
+  //typedef std::unordered_map<std::string, Property*> Properties;
 public:
   
   class Property {
@@ -214,15 +240,12 @@ public:
     const v_int64 offset;
   public:
     
-    Property(std::unordered_map<std::string, Property*>* pMap,
-             v_int64 pOffset,
-             const char* pName,
-             Type* pType)
+    Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType)
       : offset(pOffset)
       , name(pName)
       , type(pType)
     {
-      pMap->insert({name, this});
+      properties->pushBack(this);
     }
     
     const char* const name;

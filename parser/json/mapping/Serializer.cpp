@@ -400,10 +400,9 @@ void Serializer::writeObject(oatpp::data::stream::OutputStream* stream,
   
   stream->writeChar('{');
   bool first = true;
-  auto fieldsMap = type->properties;
-  for (auto const& iterator : *fieldsMap) {
+  auto fields = type->properties->getList();
+  for (auto const& field : fields) {
     
-    auto field = iterator.second;
     auto abstractValue = field->get(object);
     if(abstractValue) {
       (first) ? first = false : stream->write(", ", 2);

@@ -31,14 +31,21 @@
 \
 public: \
   typedef TYPE_NAME Z__CLASS; \
+  typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
   typedef oatpp::data::mapping::type::ObjectWrapper<Z__CLASS, oatpp::data::mapping::type::__class::Object<Z__CLASS>> ObjectWrapper; \
 public: \
   OBJECT_POOL(DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
   SHARED_OBJECT_POOL(SHARED_DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
+protected: \
+  oatpp::data::mapping::type::Type::Properties* Z__CLASS_INIT_FIELDS(oatpp::data::mapping::type::Type::Properties* properties, \
+                                                                     oatpp::data::mapping::type::Type::Properties* extensionProperties) { \
+    static oatpp::data::mapping::type::Type::Properties* ptr = Z__CLASS_EXTEND(properties, extensionProperties); \
+    return ptr; \
+  } \
 public: \
   TYPE_NAME() \
   { \
-    Z__CLASS_EXTEND(Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), TYPE_EXTEND::Z__CLASS_GET_FIELDS_MAP()); \
+    Z__CLASS_INIT_FIELDS(Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), TYPE_EXTEND::Z__CLASS_GET_FIELDS_MAP()); \
   } \
 public: \
 \

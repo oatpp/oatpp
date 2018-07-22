@@ -36,4 +36,14 @@ namespace __class {
   
 }
   
+void Type::Properties::pushBack(Property* property) {
+  m_map.insert({property->name, property});
+  m_list.push_back(property);
+}
+  
+void Type::Properties::pushFrontAll(Properties* properties) {
+  m_map.insert(properties->m_map.begin(), properties->m_map.end());
+  m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
+}
+  
 }}}}

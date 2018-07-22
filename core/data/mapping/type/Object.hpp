@@ -59,6 +59,8 @@ namespace __class {
 class Object : public oatpp::base::Controllable {
 public:
   typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::mapping::type::Int8 Int8;
+  typedef oatpp::data::mapping::type::Int16 Int16;
   typedef oatpp::data::mapping::type::Int32 Int32;
   typedef oatpp::data::mapping::type::Int64 Int64;
   typedef oatpp::data::mapping::type::Float32 Float32;
@@ -69,10 +71,12 @@ public:
   template <class Value>
   using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
 protected:
-  static Type::Properties* Z__CLASS_EXTEND(Type::Properties* map, Type::Properties* extensionMap) {
-    map->insert(extensionMap->begin(), extensionMap->end());
-    return extensionMap;
+  
+  static Type::Properties* Z__CLASS_EXTEND(Type::Properties* properties, Type::Properties* extensionProperties) {
+    properties->pushFrontAll(extensionProperties);
+    return properties;
   }
+  
 public:
   
   static oatpp::data::mapping::type::Type::Properties* Z__CLASS_GET_FIELDS_MAP(){

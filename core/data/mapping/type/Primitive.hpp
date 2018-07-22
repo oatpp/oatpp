@@ -38,6 +38,8 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 namespace __class {
   
   class String; // FWD
+  class Int8; // FWD
+  class Int16; // FWD
   class Int32; // FWD
   class Int64; // FWD
   class Float32; // FWD
@@ -226,6 +228,8 @@ public:
   
 };
 
+typedef Primitive<v_int8, __class::Int8>::ObjectWrapper Int8;
+typedef Primitive<v_int16, __class::Int16>::ObjectWrapper Int16;
 typedef Primitive<v_int32, __class::Int32>::ObjectWrapper Int32;
 typedef Primitive<v_int64, __class::Int64>::ObjectWrapper Int64;
 typedef Primitive<v_float32, __class::Float32>::ObjectWrapper Float32;
@@ -247,6 +251,32 @@ namespace __class {
       success = true;
       return str;
     }
+    
+  };
+  
+  class Int8 {
+  public:
+    constexpr static const char* const CLASS_NAME = "Int8";
+    
+    static Type* getType(){
+      static Type type(CLASS_NAME);
+      return &type;
+    }
+    
+    static type::Int8 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    
+  };
+  
+  class Int16 {
+  public:
+    constexpr static const char* const CLASS_NAME = "Int16";
+    
+    static Type* getType(){
+      static Type type(CLASS_NAME);
+      return &type;
+    }
+    
+    static type::Int16 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   

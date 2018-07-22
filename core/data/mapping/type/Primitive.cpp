@@ -50,6 +50,14 @@ String operator + (const String& a, const String& b) {
   
 namespace __class {
   
+  type::Int8 Int8::parseFromString(const oatpp::String& str, bool& success) {
+    return utils::conversion::strToInt32(str, success);
+  }
+  
+  type::Int16 Int16::parseFromString(const oatpp::String& str, bool& success) {
+    return utils::conversion::strToInt32(str, success);
+  }
+  
   type::Int32 Int32::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
