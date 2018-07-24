@@ -46,14 +46,14 @@ namespace __class {
   
 }
   
-template<class T>
-class List : public oatpp::collection::LinkedList<T> {
-  friend __class::List<T>;
+template<class T, class Class>
+class ListTypeTemplate : public oatpp::collection::LinkedList<T> {
+  friend Class;
 public:
-  typedef oatpp::data::mapping::type::ObjectWrapper<List, __class::List<T>> ObjectWrapper;
+  typedef oatpp::data::mapping::type::ObjectWrapper<ListTypeTemplate, Class> ObjectWrapper;
 public:
-  OBJECT_POOL(DTO_LIST_POOL, List, 32)
-  SHARED_OBJECT_POOL(SHARED_DTO_LIST_POOL, List, 32)
+  OBJECT_POOL(DTO_LIST_POOL, ListTypeTemplate, 32)
+  SHARED_OBJECT_POOL(SHARED_DTO_LIST_POOL, ListTypeTemplate, 32)
 protected:
   
   static AbstractObjectWrapper Z__CLASS_OBJECT_CREATOR(){
@@ -61,7 +61,7 @@ protected:
   }
   
   static Type* Z__CLASS_GET_TYPE(){
-    static Type type(__class::AbstractList::CLASS_NAME, &Z__CLASS_OBJECT_CREATOR);
+    static Type type(Class::CLASS_NAME, &Z__CLASS_OBJECT_CREATOR);
     if(type.params.empty()){
       type.params.push_back(T::Class::getType());
     }
@@ -69,7 +69,7 @@ protected:
   }
   
 public:
-  List()
+  ListTypeTemplate()
   {}
 public:
   
@@ -83,11 +83,14 @@ public:
   }
   
 };
+
+template<class T>
+using List = ListTypeTemplate<T, __class::List<T>>;
   
 namespace __class {
   
   template<class T>
-  class List : public AbstractList{
+  class List : public AbstractList {
   public:
     
     static Type* getType(){
