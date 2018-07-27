@@ -172,7 +172,7 @@ public:
   {}
   
   ObjectWrapper(const PolymorphicWrapper<T>& other)
-    : PolymorphicWrapper<T>(other.m_ptr, Class::getType())
+    : PolymorphicWrapper<T>(other.getPtr(), Class::getType())
   {}
   
   ObjectWrapper(PolymorphicWrapper<T>&& other)
