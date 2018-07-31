@@ -118,6 +118,14 @@ public:
   v_int32 code;
   const char* description;
   
+  bool operator==(const Status& other) const {
+    return this->code == other.code;
+  }
+  
+  bool operator!=(const Status& other) const {
+    return this->code != other.code;
+  }
+  
 };
   
 class Header {
@@ -270,5 +278,20 @@ public:
 };
   
 }}}}
+
+namespace std {
+  
+  template<>
+  struct hash<oatpp::web::protocol::http::Status> {
+    
+    typedef oatpp::web::protocol::http::Status argument_type;
+    typedef v_word32 result_type;
+    
+    result_type operator()(oatpp::web::protocol::http::Status const& s) const noexcept {
+      return s.code;
+    }
+    
+  };
+}
 
 #endif /* oatpp_network_http_Protocol_hpp */

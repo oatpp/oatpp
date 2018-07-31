@@ -30,7 +30,7 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 namespace __class {
   
   Type* Void::getType(){
-    static Type type(CLASS_NAME);
+    static Type type(CLASS_NAME, nullptr);
     return &type;
   }
   

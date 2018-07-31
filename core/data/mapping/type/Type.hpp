@@ -274,25 +274,29 @@ public:
   
 public:
   
-  Type(const char* pName)
+  Type(const char* pName, const char* pNameQualifier)
     : name(pName)
+    , nameQualifier(pNameQualifier)
     , creator(nullptr)
     , properties(nullptr)
   {}
   
-  Type(const char* pName, Creator pCreator)
+  Type(const char* pName, const char* pNameQualifier, Creator pCreator)
     : name(pName)
+    , nameQualifier(pNameQualifier)
     , creator(pCreator)
     , properties(nullptr)
   {}
   
-  Type(const char* pName, Creator pCreator, Properties* pProperties)
+  Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
     : name(pName)
+    , nameQualifier(pNameQualifier)
     , creator(pCreator)
     , properties(pProperties)
   {}
   
   const char* const name;
+  const char* const nameQualifier;
   std::list<Type*> params;
   
   const Creator creator;

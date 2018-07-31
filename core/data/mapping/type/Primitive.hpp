@@ -243,7 +243,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "String";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -259,7 +259,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Int8";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -272,7 +272,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Int16";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -285,7 +285,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Int32";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -298,7 +298,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Int64";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -311,7 +311,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Float32";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -324,7 +324,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Float64";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     
@@ -337,7 +337,7 @@ namespace __class {
     constexpr static const char* const CLASS_NAME = "Boolean";
     
     static Type* getType(){
-      static Type type(CLASS_NAME);
+      static Type type(CLASS_NAME, nullptr);
       return &type;
     }
     

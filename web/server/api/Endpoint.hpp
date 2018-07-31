@@ -31,6 +31,7 @@
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 
 #include <list>
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace server { namespace api {
   
@@ -45,8 +46,7 @@ public:
   class Info : public oatpp::base::Controllable {
   public:
     
-    class Param {
-    public:
+    struct Param {
       
       Param()
         : name(nullptr)
@@ -63,6 +63,12 @@ public:
       oatpp::data::mapping::type::Type* type;
       
     };
+    
+    struct ContentTypeAndSchema {
+      const char* contentType;
+      oatpp::data::mapping::type::Type* schema;
+    };
+    
   public:
     Info()
     {}
@@ -72,18 +78,37 @@ public:
     }
     
     oatpp::String name;
+    oatpp::String summary;
+    oatpp::String description;
     oatpp::String path;
     oatpp::String method;
     
     Param body;
+    const char* bodyContentType;
+    
+    std::list<ContentTypeAndSchema> consumes;
     
     std::list<Param> headers;
     std::list<Param> pathParams;
     std::list<Param> queryParams;
     
-    std::list<Param> returnTypes;
+    /**
+     *  ResponseCode to {ContentType, Type} mapping.
+     *  Example responses[Status::CODE_200] = {"application/json", MyDto::ObjectWrapper::Class::getType()};
+     */
+    std::unordered_map<oatpp::web::protocol::http::Status, ContentTypeAndSchema> responses;
     
     oatpp::String toString();
+    
+    template<class T>
+    void addConsumes(const char* contentType) {
+      consumes.push_back({contentType, T::Class::getType()});
+    }
+    
+    template<class T>
+    void addResponse(const oatpp::web::protocol::http::Status& status, const char* contentType) {
+      responses[status] = {contentType, T::Class::getType()};
+    }
     
   };
 public:

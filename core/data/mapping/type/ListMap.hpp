@@ -57,7 +57,7 @@ protected:
   }
   
   static Type* Z__CLASS_GET_TYPE(){
-    static Type type(__class::AbstractListMap::CLASS_NAME, &Z__CLASS_OBJECT_CREATOR);
+    static Type type(__class::AbstractListMap::CLASS_NAME, nullptr, &Z__CLASS_OBJECT_CREATOR);
     if(type.params.empty()){
       type.params.push_back(Key::Class::getType());
       type.params.push_back(Value::Class::getType());

@@ -63,7 +63,10 @@ public:
   typedef oatpp::data::mapping::type::Float32 Float32;
   typedef oatpp::data::mapping::type::Float64 Float64;
   typedef oatpp::data::mapping::type::Boolean Boolean;
-  
+  template <class T>
+  using List = oatpp::data::mapping::type::List<T>;
+  template <class Value>
+  using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
 protected:
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
 protected:

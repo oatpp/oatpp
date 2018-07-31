@@ -61,7 +61,7 @@ protected:
   }
   
   static Type* Z__CLASS_GET_TYPE(){
-    static Type type(Class::CLASS_NAME, &Z__CLASS_OBJECT_CREATOR);
+    static Type type(Class::CLASS_NAME, nullptr, &Z__CLASS_OBJECT_CREATOR);
     if(type.params.empty()){
       type.params.push_back(T::Class::getType());
     }

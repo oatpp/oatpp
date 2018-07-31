@@ -28,7 +28,6 @@
 // Defaults
 
 #define DTO_INIT(TYPE_NAME, TYPE_EXTEND) \
-\
 public: \
   typedef TYPE_NAME Z__CLASS; \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
@@ -64,8 +63,9 @@ public: \
 \
   static oatpp::data::mapping::type::Type* Z__CLASS_GET_TYPE(){ \
     static oatpp::data::mapping::type::Type type(oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME, \
-                                           &Z__CLASS_OBJECT_CREATOR, \
-                                           Z__CLASS_GET_FIELDS_MAP()); \
+                                                 #TYPE_NAME, \
+                                                 &Z__CLASS_OBJECT_CREATOR, \
+                                                 Z__CLASS_GET_FIELDS_MAP()); \
     return &type; \
   }
 
