@@ -22,31 +22,56 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_algorithm_CRC32_hpp
-#define oatpp_algorithm_CRC32_hpp
-
-#include "oatpp/core/base/Environment.hpp"
-
-#include "oatpp/encoding/Hex.hpp"
+#include "CRC.hpp"
 
 namespace oatpp { namespace algorithm {
   
-class CRC32 {
-public:
-  static const p_word32 TABLE_04C11DB7;
-public:
-
-  static v_word32 bitReverse(v_word32 poly);
+const p_word32 CRC32::TABLE_04C11DB7 = generateTable(0x04C11DB7);
   
-  /**
-   *  Generates v_word32 table[256] for polynomial
-   */
-  static p_word32 generateTable(v_word32 poly);
+v_word32 CRC32::bitReverse(v_word32 poly) {
+  v_word32 result = 0;
+  for(v_int32 i = 0; i < 32; i ++) {
+    if((poly & (1 << i)) > 0) {
+      result |= 1 << (31 - i);
+    }
+  }
+  return result;
+}
   
-  static v_word32 calc(const void *buffer, v_int32 size, v_word32 crc = 0, v_word32 initValue = 0xFFFFFFFF, v_word32 xorOut = 0xFFFFFFFF, p_word32 table = TABLE_04C11DB7);
+p_word32 CRC32::generateTable(v_word32 poly) {
   
-};
+  p_word32 result = new v_word32[256];
+  v_word32 polyReverse = bitReverse(poly);
+  v_word32 value;
+  
+  for(v_int32 i = 0; i < 256; i++) {
+    value = i;
+    for (v_int32 bit = 0; bit < 8; bit++) {
+      if (value & 1) {
+        value = (value >> 1) ^ polyReverse;
+      } else {
+        value = (value >> 1);
+      }
+    }
     
+    result[i] = value;
+    
+  }
+  
+  return result;
+  
+}
+  
+v_word32 CRC32::calc(const void *buffer, v_int32 size, v_word32 crc, v_word32 initValue, v_word32 xorOut, p_word32 table) {
+  
+  p_word8 data = (p_word8) buffer;
+  crc = crc ^ initValue;
+  
+  for(v_int32 i = 0; i < size; i++) {
+    crc = table[(crc & 0xFF) ^ data[i]] ^ (crc >> 8);
+  }
+  
+  return crc ^ xorOut;
+}
+  
 }}
-
-#endif /* oatpp_algorithm_CRC32_hpp */

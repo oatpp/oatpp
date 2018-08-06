@@ -140,7 +140,7 @@ public:
   
 template<class T, class F>
 inline PolymorphicWrapper<T> static_wrapper_cast(const F& from){
-  return PolymorphicWrapper<T>(std::static_pointer_cast<T>(from.getPtr()));
+  return PolymorphicWrapper<T>(std::static_pointer_cast<T>(from.getPtr()), from.valueType);
 }
   
 template <class T, class Clazz>
