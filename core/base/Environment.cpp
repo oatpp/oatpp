@@ -143,6 +143,9 @@ void Environment::log(v_int32 priority, const std::string& tag, const std::strin
 }
   
 void Environment::logFormatted(v_int32 priority, const std::string& tag, const char* message, ...) {
+  if(message == nullptr) {
+    message = "[null]";
+  }
   char buffer[4097];
   va_list args;
   va_start (args, message);
