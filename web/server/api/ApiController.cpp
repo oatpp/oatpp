@@ -23,3 +23,66 @@
  ***************************************************************************/
 
 #include "./ApiController.hpp"
+
+namespace oatpp { namespace web { namespace server { namespace api {
+  
+void ApiController::addEndpointsToRouter(const std::shared_ptr<Router>& router){
+  auto node = m_endpoints->getFirstNode();
+  while (node != nullptr) {
+    auto endpoint = node->getData();
+    router->addSubscriber(endpoint->info->method, endpoint->info->path, endpoint->handler);
+    node = node->getNext();
+  }
+}
+
+std::shared_ptr<ApiController::Endpoints> ApiController::getEndpoints() {
+  return m_endpoints;
+}
+
+void ApiController::setEndpointInfo(const std::string& endpointName, const std::shared_ptr<Endpoint::Info>& info){
+  m_endpointInfo[endpointName] = info;
+}
+
+std::shared_ptr<ApiController::Endpoint::Info> ApiController::getEndpointInfo(const std::string& endpointName) {
+  return m_endpointInfo[endpointName];
+}
+
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(const Status& status, const oatpp::String& message) const {
+  if(m_errorHandler) {
+    return m_errorHandler->handleError(status, message);
+  }
+  throw oatpp::web::server::HttpError(status, message);
+}
+
+void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
+  m_errorHandler = errorHandler;
+}
+
+const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& ApiController::getDefaultObjectMapper() const {
+  return m_defaultObjectMapper;
+}
+
+// Helper methods
+
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status,
+                                                                               const oatpp::String& str) const {
+  return OutgoingResponseFactory::createShared(status, str);
+}
+
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status,
+                                                                               const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const {
+  return OutgoingResponseFactory::createShared(status, chunkedBuffer);
+}
+
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
+                                                                                  const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
+                                                                                  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+  return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
+}
+
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
+                                                                                  const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
+  return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
+}
+  
+}}}}

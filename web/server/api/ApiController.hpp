@@ -27,6 +27,7 @@
 
 #include "./Endpoint.hpp"
 
+#include "oatpp/web/server/HttpError.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
@@ -71,6 +72,9 @@ protected:
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
 protected:
   
+  /**
+   * Endpoint Coroutine base class
+   */
   template<class CoroutineT, class ControllerT>
   class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, std::shared_ptr<OutgoingResponse>> {
   public:
@@ -86,13 +90,11 @@ protected:
     
   };
   
+  /**
+   * Handler which subscribes to specific URL in Router and delegates calls endpoints 
+   */
   template<class T>
-  class Handler :
-  public oatpp::base::Controllable,
-  public oatpp::web::url::mapping::Subscriber<
-    std::shared_ptr<protocol::http::incoming::Request>,
-    std::shared_ptr<protocol::http::outgoing::Response>
-  > {
+  class Handler : public oatpp::base::Controllable, public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
     typedef Action (T::*MethodAsync)(oatpp::async::AbstractCoroutine*,
@@ -140,7 +142,7 @@ protected:
 public:
   ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper)
     : m_endpoints(Endpoints::createShared())
-    , m_errorHandler(handler::DefaultErrorHandler::createShared())
+    , m_errorHandler(nullptr)
     , m_defaultObjectMapper(defaultObjectMapper)
   {}
 public:
@@ -157,64 +159,56 @@ public:
     return endpoint;
   }
   
-  void addEndpointsToRouter(const std::shared_ptr<Router>& router){
-    auto node = m_endpoints->getFirstNode();
-    while (node != nullptr) {
-      auto endpoint = node->getData();
-      router->addSubscriber(endpoint->info->method, endpoint->info->path, endpoint->handler);
-      node = node->getNext();
-    }
-  }
+  /**
+   * Subscribes all created endpoint-handlers to corresponding URLs in Router
+   */
+  void addEndpointsToRouter(const std::shared_ptr<Router>& router);
   
-  std::shared_ptr<Endpoints> getEndpoints() {
-    return m_endpoints;
-  }
+  /**
+   * Get list of Endpoints created via ENDPOINT macro
+   */
+  std::shared_ptr<Endpoints> getEndpoints();
   
-  void setEndpointInfo(const std::string& endpointName, const std::shared_ptr<Endpoint::Info>& info){
-    m_endpointInfo[endpointName] = info;
-  }
+  /**
+   * Set endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
+   * Info should be set before call to addEndpointsToRouter();
+   */
+  void setEndpointInfo(const std::string& endpointName, const std::shared_ptr<Endpoint::Info>& info);
   
-  std::shared_ptr<Endpoint::Info> getEndpointInfo(const std::string& endpointName) {
-    return m_endpointInfo[endpointName];
-  }
+  /**
+   * Get endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
+   */
+  std::shared_ptr<Endpoint::Info> getEndpointInfo(const std::string& endpointName);
   
-  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const oatpp::String& message) {
-    return m_errorHandler->handleError(status, message);
-  }
+  /**
+   * [under discussion]
+   * Do not use it directly. This method is under discussion.
+   * Currently return Response created by ErrorHandler or throws HttpError if ErrorHandler is null
+   */
+  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const oatpp::String& message) const;
   
-  void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-    m_errorHandler = errorHandler;
-    if(!m_errorHandler) {
-      m_errorHandler = handler::DefaultErrorHandler::createShared();
-    }
-  }
+  /**
+   * [under discussion]
+   * Set error handler to handle calls to handleError
+   */
+  void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
   
-  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const {
-    return m_defaultObjectMapper;
-  }
+  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const;
   
   // Helper methods
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const oatpp::String& str) const {
-    return OutgoingResponseFactory::createShared(status, str);
-  }
+                                                   const oatpp::String& str) const;
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const {
-    return OutgoingResponseFactory::createShared(status, chunkedBuffer);
-  }
+                                                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const;
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
                                                       const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
-  }
+                                                      const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const;
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
-    return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
-  }
+                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const;
   
 };
 
