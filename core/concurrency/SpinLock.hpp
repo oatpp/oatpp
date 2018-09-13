@@ -34,10 +34,15 @@ class SpinLock {
 public:
   typedef std::atomic<bool> Atom;
 private:
-  Atom& m_atom;
+  Atom* m_atom;
 public:
+  
   SpinLock(Atom& atom);
   ~SpinLock();
+  
+  static void lock(Atom& atom);
+  static void unlock(Atom& atom);
+  
 };
   
 }}
