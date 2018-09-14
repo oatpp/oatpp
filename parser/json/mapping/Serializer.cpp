@@ -102,6 +102,11 @@ void Serializer::writeObject(oatpp::data::stream::OutputStream* stream, const Po
   
 void Serializer::writeValue(oatpp::data::stream::OutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config) {
 
+  if(!polymorph) {
+    stream->write("null", 4);
+    return;
+  }
+  
   const char* typeName = polymorph.valueType->name;
   
   if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME) {
