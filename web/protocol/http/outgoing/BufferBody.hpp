@@ -53,7 +53,17 @@ public:
   }
   
   void writeToStream(const std::shared_ptr<OutputStream>& stream) override {
-    stream->write(m_buffer);
+    oatpp::os::io::Library::v_size progress = 0;
+    while (progress < m_buffer->getSize()) {
+      auto res = stream->write(&m_buffer->getData()[progress], m_buffer->getSize() - progress);
+      if(res < 0) {
+        if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE ||
+           (res != oatpp::data::stream::IOStream::ERROR_IO_RETRY && res != oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY)) {
+          return;
+        }
+      }
+      progress += res;
+    }
   }
   
 public:
