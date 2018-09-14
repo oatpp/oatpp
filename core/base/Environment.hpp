@@ -25,6 +25,8 @@
 #ifndef oatpp_base_Environment_hpp
 #define oatpp_base_Environment_hpp
 
+#include "./Config.hpp"
+
 #include <stdio.h>
 #include <atomic>
 #include <mutex>
@@ -32,7 +34,7 @@
 #include <unordered_map>
 #include <stdexcept>
 
-#define OATPP_VERSION "0.18.6"
+#define OATPP_VERSION "0.18.9"
 
 #define OATPP_ASSERT(EXP) \
 if(!(EXP)) { \
