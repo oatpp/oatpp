@@ -47,6 +47,9 @@ public:
   void addCoroutine(AbstractCoroutine* coroutine);
   void addWaitingCoroutine(AbstractCoroutine* coroutine);
   bool iterate(v_int32 numIterations);
+  bool isEmpty() {
+    return m_activeQueue.first == nullptr && m_waitingQueue.first == nullptr;
+  }
   
 };
   

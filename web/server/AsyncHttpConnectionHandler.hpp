@@ -44,6 +44,9 @@
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/async/Processor.hpp"
 
+#include <mutex>
+#include <condition_variable>
+
 namespace oatpp { namespace web { namespace server {
   
 class AsyncHttpConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
@@ -61,6 +64,8 @@ private:
     HttpRouter* m_router;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
     HttpProcessor::RequestInterceptors* m_requestInterceptors;
+    std::mutex m_taskMutex;
+    std::condition_variable m_taskCondition;
   public:
     Task(HttpRouter* router,
          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
@@ -83,6 +88,7 @@ private:
     void addConnection(const std::shared_ptr<HttpProcessor::ConnectionState>& connectionState){
       oatpp::concurrency::SpinLock lock(m_atom);
       m_connections.pushBack(connectionState);
+      m_taskCondition.notify_one();
     }
     
   };
@@ -91,7 +97,7 @@ private:
   std::shared_ptr<HttpRouter> m_router;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   HttpProcessor::RequestInterceptors m_requestInterceptors;
-  v_int32 m_taskBalancer;
+  std::atomic<v_int32> m_taskBalancer;
   v_int32 m_threadCount;
   std::shared_ptr<Task>* m_tasks;
 public:
