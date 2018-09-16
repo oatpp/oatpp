@@ -261,7 +261,7 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
     }
     
     Action writeCurrData() {
-      return IOStream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
+      return oatpp::data::stream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
     }
     
   };

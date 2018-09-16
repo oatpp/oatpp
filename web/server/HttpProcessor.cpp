@@ -121,7 +121,7 @@ HttpProcessor::processRequest(HttpRouter* router,
       return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
     }
     
-  } if(readCount == oatpp::data::stream::IOStream::ERROR_IO_NOTHING_TO_READ) {
+  } if(readCount == oatpp::data::stream::Errors::ERROR_IO_NOTHING_TO_READ) {
     keepAlive = true;
   }
   
@@ -178,9 +178,9 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
   if(readCount > 0) {
     m_currentResponse = nullptr;
     return parseRequest((v_int32)readCount);
-  } else if(readCount == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
+  } else if(readCount == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
     return waitRetry();
-  } else if(readCount == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
+  } else if(readCount == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
     return repeat();
   }
   return abort();

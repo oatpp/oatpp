@@ -30,7 +30,7 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
   
   Pipe& pipe = *m_pipe;
   if(!pipe.m_alive) {
-    return oatpp::data::stream::IOStream::ERROR_IO_PIPE;
+    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
   }
   
   if(m_nonBlocking) {
@@ -40,7 +40,7 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
       pipe.m_writeCondition.notify_one();
       return result;
     } else {
-      return oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY;
+      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
     }
   }
   
@@ -53,11 +53,11 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
     lock.unlock();
     pipe.m_writeCondition.notify_all();
     pipe.m_readCondition.notify_all();
-    return oatpp::data::stream::IOStream::ERROR_IO_PIPE;
+    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
   }
   
   if(pipe.m_buffer.availableToRead() == 0) {
-    return oatpp::data::stream::IOStream::ERROR_IO_RETRY;
+    return oatpp::data::stream::Errors::ERROR_IO_RETRY;
   }
   
   auto result = pipe.m_buffer.read(data, count);
@@ -72,7 +72,7 @@ os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v
   
   Pipe& pipe = *m_pipe;
   if(!pipe.m_alive) {
-    return oatpp::data::stream::IOStream::ERROR_IO_PIPE;
+    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
   }
   
   if(m_nonBlocking) {
@@ -82,7 +82,7 @@ os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v
       pipe.m_readCondition.notify_one();
       return result;
     } else {
-      return oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY;
+      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
     }
   }
   
@@ -95,11 +95,11 @@ os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v
     lock.unlock();
     pipe.m_writeCondition.notify_all();
     pipe.m_readCondition.notify_all();
-    return oatpp::data::stream::IOStream::ERROR_IO_PIPE;
+    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
   }
   
   if(pipe.m_buffer.availableToWrite() == 0) {
-    return oatpp::data::stream::IOStream::ERROR_IO_RETRY;
+    return oatpp::data::stream::Errors::ERROR_IO_RETRY;
   }
   
   auto result = pipe.m_buffer.write(data, count);

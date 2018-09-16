@@ -147,7 +147,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     }
     
     Action readResponse() {
-      return oatpp::data::stream::IOStream::
+      return oatpp::data::stream::
       readSomeDataAsyncInline(m_connection.get(), m_bufferPointer, m_bufferBytesLeftToRead, yieldTo(&ExecutorCoroutine::parseResponse));
     }
     

@@ -47,23 +47,13 @@ public:
     return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
   }
   
-  void declareHeaders(const std::shared_ptr<Headers>& headers) override {
+  void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept override {
     headers->put(oatpp::web::protocol::http::Header::CONTENT_LENGTH,
                  oatpp::utils::conversion::int32ToStr(m_buffer->getSize()));
   }
   
-  void writeToStream(const std::shared_ptr<OutputStream>& stream) override {
-    oatpp::os::io::Library::v_size progress = 0;
-    while (progress < m_buffer->getSize()) {
-      auto res = stream->write(&m_buffer->getData()[progress], m_buffer->getSize() - progress);
-      if(res < 0) {
-        if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE ||
-           (res != oatpp::data::stream::IOStream::ERROR_IO_RETRY && res != oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY)) {
-          return;
-        }
-      }
-      progress += res;
-    }
+  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override {
+    oatpp::data::stream::writeExactSizeData(stream.get(), m_buffer->getData(), m_buffer->getSize());
   }
   
 public:
@@ -85,7 +75,7 @@ public:
     {}
     
     Action act() override {
-      return oatpp::data::stream::IOStream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
+      return oatpp::data::stream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
     }
     
   };

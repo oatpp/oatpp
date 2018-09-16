@@ -45,11 +45,11 @@ Connection::Library::v_size Connection::write(const void *buff, Library::v_size 
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
+      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
-      return ERROR_IO_RETRY;
+      return oatpp::data::stream::Errors::ERROR_IO_RETRY;
     } else if(e == EPIPE) {
-      return ERROR_IO_PIPE;
+      return oatpp::data::stream::Errors::ERROR_IO_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
     }
@@ -63,11 +63,11 @@ Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
+      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
-      return ERROR_IO_RETRY;
+      return oatpp::data::stream::Errors::ERROR_IO_RETRY;
     } else if(e == ECONNRESET) {
-      return ERROR_IO_PIPE;
+      return oatpp::data::stream::Errors::ERROR_IO_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
     }

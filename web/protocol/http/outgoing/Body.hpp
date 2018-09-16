@@ -38,13 +38,16 @@ protected:
   typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
-  virtual void declareHeaders(const std::shared_ptr<Headers>& headers) = 0;
   
   /**
-   *  Do not call this method if stream::write is non blocking!
-   *  For fast (not network) BLOCKING streams only!!!
+   * declare headers describing body
    */
-  virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
+  virtual void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept = 0;
+  
+  /**
+   * write content to stream
+   */
+  virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept = 0;
   
   virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                     const Action& actionOnReturn,

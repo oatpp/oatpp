@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
-void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream){
+void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   
   if(body){
     body->declareHeaders(headers);

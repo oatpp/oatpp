@@ -150,9 +150,9 @@ oatpp::async::Action BodyDecoder::doChunkedDecodingAsync(oatpp::async::AbstractC
     
     Action readLineChar() {
       auto res = m_fromStream->read(&m_lineChar, 1);
-      if(res == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
+      if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
         return oatpp::async::Action::_WAIT_RETRY;
-      } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
+      } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
         return oatpp::async::Action::_REPEAT;
       } else if( res < 0) {
         return error("[BodyDecoder::ChunkedDecoder] Can't read line char");
@@ -197,12 +197,12 @@ oatpp::async::Action BodyDecoder::doChunkedDecodingAsync(oatpp::async::AbstractC
     
     Action skipRN() {
       if(m_done) {
-        return oatpp::data::stream::IOStream::readExactSizeDataAsyncInline(m_fromStream.get(),
+        return oatpp::data::stream::readExactSizeDataAsyncInline(m_fromStream.get(),
                                                                            m_skipData,
                                                                            m_skipSize,
                                                                            finish());
       } else {
-        return oatpp::data::stream::IOStream::readExactSizeDataAsyncInline(m_fromStream.get(),
+        return oatpp::data::stream::readExactSizeDataAsyncInline(m_fromStream.get(),
                                                                            m_skipData,
                                                                            m_skipSize,
                                                                            yieldTo(&ChunkedDecoder::readLineChar));

@@ -71,69 +71,6 @@ os::io::Library::v_size OutputStream::writeAsString(bool value) {
   }
 }
   
-oatpp::async::Action IOStream::writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                                    const void*& data,
-                                                    os::io::Library::v_size& size,
-                                                    const oatpp::async::Action& nextAction) {
-  auto res = stream->write(data, size);
-  if(res == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
-    return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
-    return oatpp::async::Action::_REPEAT;
-  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE) {
-    return oatpp::async::Action::_ABORT;
-  } else if( res < 0) {
-    return oatpp::async::Action(oatpp::async::Error(ERROR_ASYNC_FAILED_TO_WRITE_DATA));
-  } else if(res < size) {
-    data = &((p_char8) data)[res];
-    size = size - res;
-    return oatpp::async::Action::_REPEAT;
-  }
-  return nextAction;
-}
-  
-oatpp::async::Action IOStream::readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
-                                                       void*& data,
-                                                       os::io::Library::v_size& bytesLeftToRead,
-                                                       const oatpp::async::Action& nextAction) {
-  auto res = stream->read(data, bytesLeftToRead);
-  if(res == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
-    return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
-    return oatpp::async::Action::_REPEAT;
-  } else if( res < 0) {
-    return oatpp::async::Action(oatpp::async::Error(ERROR_ASYNC_FAILED_TO_READ_DATA));
-  } else if(res < bytesLeftToRead) {
-    data = &((p_char8) data)[res];
-    bytesLeftToRead -= res;
-    return nextAction;
-  }
-  bytesLeftToRead -= res;
-  return nextAction;
-}
-  
-oatpp::async::Action IOStream::readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
-                                                            void*& data,
-                                                            os::io::Library::v_size& bytesLeftToRead,
-                                                            const oatpp::async::Action& nextAction) {
-  auto res = stream->read(data, bytesLeftToRead);
-  if(res == oatpp::data::stream::IOStream::ERROR_IO_WAIT_RETRY) {
-    return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_RETRY) {
-    return oatpp::async::Action::_REPEAT;
-  } else if(res == oatpp::data::stream::IOStream::ERROR_IO_PIPE) {
-    return oatpp::async::Action::_ABORT;
-  } else if( res < 0) {
-    return oatpp::async::Action(oatpp::async::Error(ERROR_ASYNC_FAILED_TO_READ_DATA));
-  } else if(res < bytesLeftToRead) {
-    data = &((p_char8) data)[res];
-    bytesLeftToRead -= res;
-    return oatpp::async::Action::_REPEAT;
-  }
-  bytesLeftToRead -= res;
-  return nextAction;
-}
-  
 // Functions
   
 const std::shared_ptr<OutputStream>& operator <<
@@ -247,7 +184,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doRead() {
-      return oatpp::data::stream::IOStream::readSomeDataAsyncInline(m_fromStream.get(),
+      return oatpp::data::stream::readSomeDataAsyncInline(m_fromStream.get(),
                                                                     m_readBufferPtr,
                                                                     m_bytesLeft,
                                                                     yieldTo(&TransferCoroutine::prepareWrite));
@@ -260,7 +197,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doWrite() {
-      return oatpp::data::stream::IOStream::writeDataAsyncInline(m_toStream.get(),
+      return oatpp::data::stream::writeDataAsyncInline(m_toStream.get(),
                                                                  m_writeBufferPtr,
                                                                  m_bytesLeft,
                                                                  yieldTo(&TransferCoroutine::act));
@@ -270,6 +207,85 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
   
   return parentCoroutine->startCoroutine<TransferCoroutine>(actionOnReturn, fromStream, toStream, transferSize, buffer);
   
+}
+  
+oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                          const void*& data,
+                                          os::io::Library::v_size& size,
+                                          const oatpp::async::Action& nextAction) {
+  auto res = stream->write(data, size);
+  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+    return oatpp::async::Action::_WAIT_RETRY;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+    return oatpp::async::Action::_REPEAT;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+    return oatpp::async::Action::_ABORT;
+  } else if( res < 0) {
+    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
+  } else if(res < size) {
+    data = &((p_char8) data)[res];
+    size = size - res;
+    return oatpp::async::Action::_REPEAT;
+  }
+  return nextAction;
+}
+
+oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+                                             void*& data,
+                                             os::io::Library::v_size& bytesLeftToRead,
+                                             const oatpp::async::Action& nextAction) {
+  auto res = stream->read(data, bytesLeftToRead);
+  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+    return oatpp::async::Action::_WAIT_RETRY;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+    return oatpp::async::Action::_REPEAT;
+  } else if( res < 0) {
+    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
+  } else if(res < bytesLeftToRead) {
+    data = &((p_char8) data)[res];
+    bytesLeftToRead -= res;
+    return nextAction;
+  }
+  bytesLeftToRead -= res;
+  return nextAction;
+}
+
+oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+                                                  void*& data,
+                                                  os::io::Library::v_size& bytesLeftToRead,
+                                                  const oatpp::async::Action& nextAction) {
+  auto res = stream->read(data, bytesLeftToRead);
+  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+    return oatpp::async::Action::_WAIT_RETRY;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+    return oatpp::async::Action::_REPEAT;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+    return oatpp::async::Action::_ABORT;
+  } else if( res < 0) {
+    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
+  } else if(res < bytesLeftToRead) {
+    data = &((p_char8) data)[res];
+    bytesLeftToRead -= res;
+    return oatpp::async::Action::_REPEAT;
+  }
+  bytesLeftToRead -= res;
+  return nextAction;
+}
+  
+oatpp::os::io::Library::v_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, os::io::Library::v_size size) {
+  const char* buffer = (char*)data;
+  oatpp::os::io::Library::v_size progress = 0;
+  while (progress < size) {
+    auto res = stream->write(&buffer[progress], size - progress);
+    if(res <= 0) { // if res == 0 then probably stream handles write() error incorrectly. return.
+      if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE ||
+         (res != oatpp::data::stream::Errors::ERROR_IO_RETRY && res != oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY)) {
+        return progress;
+      }
+    }
+    progress += res;
+  }
+  return progress;
 }
   
 }}}

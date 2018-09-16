@@ -36,9 +36,24 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
+class Errors {
+public:
+  constexpr static os::io::Library::v_size ERROR_IO_NOTHING_TO_READ = -1001;
+  constexpr static os::io::Library::v_size ERROR_IO_WAIT_RETRY = -1002;
+  constexpr static os::io::Library::v_size ERROR_IO_RETRY = -1003;
+  constexpr static os::io::Library::v_size ERROR_IO_PIPE = -1004;
+  
+  constexpr static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_DATA";
+  constexpr static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA = "ERROR_ASYNC_FAILED_TO_READ_DATA";
+};
+  
 class OutputStream {
 public:
   
+  /**
+   * Write data to stream up to count bytes, and return number of bytes actually written
+   * It is a legal case if return result < count. Caller should handle this!
+   */
   virtual os::io::Library::v_size write(const void *data, os::io::Library::v_size count) = 0;
   
   os::io::Library::v_size write(const char* data){
@@ -63,41 +78,16 @@ public:
   
 class InputStream {
 public:
+  /**
+   * Read data from stream up to count bytes, and return number of bytes actually read
+   * It is a legal case if return result < count. Caller should handle this!
+   */
   virtual os::io::Library::v_size read(void *data, os::io::Library::v_size count) = 0;
 };
   
 class IOStream : public InputStream, public OutputStream {
 public:
-  constexpr static os::io::Library::v_size ERROR_IO_NOTHING_TO_READ = -1001;
-  constexpr static os::io::Library::v_size ERROR_IO_WAIT_RETRY = -1002;
-  constexpr static os::io::Library::v_size ERROR_IO_RETRY = -1003;
-  constexpr static os::io::Library::v_size ERROR_IO_PIPE = -1004;
-  
-  constexpr static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_DATA";
-  constexpr static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA = "ERROR_ASYNC_FAILED_TO_READ_DATA";
-  
-public:
   typedef os::io::Library::v_size v_size;
-  
-  /**
-   *  Async write data withot starting new Coroutine.
-   *  Should be called from a separate Coroutine method
-   */
-  static oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                                   const void*& data,
-                                                   os::io::Library::v_size& size,
-                                                   const oatpp::async::Action& nextAction);
-  
-  static oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
-                                                      void*& data,
-                                                      os::io::Library::v_size& bytesLeftToRead,
-                                                      const oatpp::async::Action& nextAction);
-  
-  static oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
-                                                           void*& data,
-                                                           os::io::Library::v_size& bytesLeftToRead,
-                                                           const oatpp::async::Action& nextAction);
-  
 };
 
 class CompoundIOStream : public oatpp::base::Controllable, public IOStream {
@@ -145,19 +135,51 @@ const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputSt
 const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_float64 value);
 
 const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, bool value);
-  
+
+/**
+ * Read bytes from @fromStream" and write to @toStream" using @buffer of size @bufferSize
+ */
 void transfer(const std::shared_ptr<InputStream>& fromStream,
               const std::shared_ptr<OutputStream>& toStream,
               oatpp::os::io::Library::v_size transferSize,
               void* buffer,
               oatpp::os::io::Library::v_size bufferSize);
   
+/**
+ * Same as transfer but asynchronous
+ */
 oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                    const oatpp::async::Action& actionOnReturn,
                                    const std::shared_ptr<InputStream>& fromStream,
                                    const std::shared_ptr<OutputStream>& toStream,
                                    oatpp::os::io::Library::v_size transferSize,
                                    const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
+  
+/**
+ *  Async write data withot starting new Coroutine.
+ *  Should be called from a separate Coroutine method
+ */
+oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                          const void*& data,
+                                          os::io::Library::v_size& size,
+                                          const oatpp::async::Action& nextAction);
+
+oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+                                             void*& data,
+                                             os::io::Library::v_size& bytesLeftToRead,
+                                             const oatpp::async::Action& nextAction);
+
+oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+                                                  void*& data,
+                                                  os::io::Library::v_size& bytesLeftToRead,
+                                                  const oatpp::async::Action& nextAction);
+
+/**
+ * Write exact amount of bytes to stream.
+ * returns exact amount of bytes was written.
+ * return result can be < size only in case of some disaster like broken pipe
+ */
+oatpp::os::io::Library::v_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, os::io::Library::v_size size);
   
 }}}
 

@@ -58,7 +58,7 @@ public:
     return Shared_Http_Outgoing_ChunkedBufferBody_Pool::allocateShared(buffer, chunked);
   }
   
-  void declareHeaders(const std::shared_ptr<Headers>& headers) override {
+  void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept override {
     if(m_chunked){
       headers->put(oatpp::web::protocol::http::Header::TRANSFER_ENCODING,
                    oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED);
@@ -68,7 +68,7 @@ public:
     }
   }
   
-  void writeToStream(const std::shared_ptr<OutputStream>& stream) override {
+  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override {
     if(m_chunked){
       auto chunks = m_buffer->getChunks();
       auto curr = chunks->getFirstNode();
@@ -147,7 +147,7 @@ public:
     }
     
     Action writeCurrData() {
-      return oatpp::data::stream::IOStream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
+      return oatpp::data::stream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
     }
     
   };
