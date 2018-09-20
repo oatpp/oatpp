@@ -45,10 +45,18 @@ void HttpConnectionHandler::Task::run(){
   auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection, buffer, bufferSize);
   
   bool keepAlive = true;
-  
   do {
+  
+    std::shared_ptr<protocol::http::outgoing::Response> response;
     
-    auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
+    {
+      PriorityController::PriorityLine priorityLine = m_priorityController->getLine();
+      priorityLine.wait();
+      
+      response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
+    }
+    //auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
+    
     if(response) {
       outStream->setBufferPosition(0, 0);
       response->send(outStream);
@@ -62,7 +70,7 @@ void HttpConnectionHandler::Task::run(){
 }
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
-  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors));
+  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors, &m_priorityController));
   thread.detach();
 }
 
