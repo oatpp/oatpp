@@ -34,8 +34,6 @@
 #include <cstring>
 //#define OATPP_DISABLE_POOL_ALLOCATIONS
 
-//#ifndef OATPP_MEMORY_POOL_SHARDING
-
 namespace oatpp { namespace base { namespace  memory {
   
 class MemoryPool {

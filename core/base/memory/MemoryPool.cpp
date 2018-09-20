@@ -32,7 +32,7 @@ std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
   
 ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
-  : m_shardsCount(10)
+  : m_shardsCount(OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT)
   , m_shards(new MemoryPool*[m_shardsCount])
 {
   for(v_int32 i = 0; i < m_shardsCount; i++){

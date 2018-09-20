@@ -44,11 +44,18 @@ void StrBuffer::setAndCopy(const void* data, const void* originData, v_int32 siz
 
 std::shared_ptr<StrBuffer> StrBuffer::allocShared(const void* data, v_int32 size, bool copyAsOwnData) {
   if(copyAsOwnData) {
+    //OATPP_LOGD("StrBuffer", "allocating. size=%d, str='%s'", size, data);
     memory::AllocationExtras extras(size + 1);
-    const auto& ptr = memory::allocateSharedWithExtras<StrBuffer>(extras);
+    std::shared_ptr<StrBuffer> ptr;
+    if(size > 100) {
+      ptr = memory::allocateSharedWithExtras<StrBuffer>(extras);
+    } else {
+      ptr = poolAllocateSharedWithExtras<StrBuffer>(extras, getSmallStringPool());
+    }
     ptr->setAndCopy(extras.extraPtr, data, size);
     return ptr;
   }
+  //OATPP_LOGD("StrBuffer", "making. size=%d, str='%s'", size, data);
   return std::make_shared<StrBuffer>(data, size, copyAsOwnData);
 }
   

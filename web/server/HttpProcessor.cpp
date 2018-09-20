@@ -33,10 +33,10 @@ bool HttpProcessor::considerConnectionKeepAlive(const std::shared_ptr<protocol::
                                                const std::shared_ptr<protocol::http::outgoing::Response>& response){
   
   if(request) {
-    auto& inKeepAlive = request->headers->get(protocol::http::Header::CONNECTION, nullptr);
+    auto& inKeepAlive = request->headers->get(oatpp::String(protocol::http::Header::CONNECTION, false), nullptr);
     
     if(inKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(inKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE)) {
-      if(response->headers->putIfNotExists(protocol::http::Header::CONNECTION, inKeepAlive)){
+      if(response->headers->putIfNotExists(oatpp::String(protocol::http::Header::CONNECTION, false), inKeepAlive)){
         return true;
       } else {
         auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
@@ -45,8 +45,8 @@ bool HttpProcessor::considerConnectionKeepAlive(const std::shared_ptr<protocol::
     }
   }
   
-  if(!response->headers->putIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE)) {
-    auto& outKeepAlive = response->headers->get(protocol::http::Header::CONNECTION, nullptr);
+  if(!response->headers->putIfNotExists(oatpp::String(protocol::http::Header::CONNECTION, false), oatpp::String(protocol::http::Header::Value::CONNECTION_CLOSE, false))) {
+    auto& outKeepAlive = response->headers->get(oatpp::String(protocol::http::Header::CONNECTION, false), nullptr);
     return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), protocol::http::Header::Value::CONNECTION_KEEP_ALIVE));
   }
   
@@ -111,8 +111,8 @@ HttpProcessor::processRequest(HttpRouter* router,
         return errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
       }
       
-      response->headers->putIfNotExists(protocol::http::Header::SERVER,
-                                        protocol::http::Header::Value::SERVER);
+      response->headers->putIfNotExists(oatpp::String(protocol::http::Header::SERVER, false),
+                                        oatpp::String(protocol::http::Header::Value::SERVER, false));
       
       keepAlive = HttpProcessor::considerConnectionKeepAlive(request, response);
       return response;
