@@ -24,6 +24,7 @@
 
 #include "MemoryPool.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/concurrency/Thread.hpp"
 
 namespace oatpp { namespace base { namespace  memory {
 
@@ -48,8 +49,7 @@ ThreadDistributedMemoryPool::~ThreadDistributedMemoryPool(){
 }
 
 void* ThreadDistributedMemoryPool::obtain() {
-  static std::atomic<v_word16> base(0);
-  static thread_local v_int16 index = (++base) % m_shardsCount;
+  static thread_local v_int16 index = oatpp::concurrency::Thread::getThisThreadId() % m_shardsCount;
   return m_shards[index]->obtain();
 }
   

@@ -33,9 +33,14 @@
 
 #include <errno.h>
 
+//#include <sched.h>
+//#include <pthread.h>
+
 namespace oatpp { namespace web { namespace server {
   
 void HttpConnectionHandler::Task::run(){
+  
+  //OATPP_LOGD("thread", "running on cpu %d", sched_getcpu());
   
   //oatpp::test::PerformanceChecker checker("task checker");
   
@@ -71,6 +76,19 @@ void HttpConnectionHandler::Task::run(){
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
   concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors, &m_priorityController));
+  
+  /*
+  cpu_set_t cpuset;
+  CPU_ZERO(&cpuset);
+  CPU_SET(oatpp::concurrency::Thread::getSuggestedCpuIndex(3), &cpuset);
+  
+  int rc = pthread_setaffinity_np(thread.getThread()->native_handle(), sizeof(cpu_set_t), &cpuset);
+  
+  if (rc != 0) {
+    OATPP_LOGD("task", "setting cpu error %d", rc);
+  }
+  */
+   
   thread.detach();
 }
 
