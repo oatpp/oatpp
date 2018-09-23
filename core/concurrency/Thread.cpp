@@ -38,12 +38,19 @@ v_int32 Thread::getThreadSuggestedCpuIndex(std::thread::id threadId, v_int32 cpu
 }
 
 v_int32 Thread::assignThreadToCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
+  return assignThreadToCpuRange(nativeHandle, cpuIndex, cpuIndex);
+}
+  
+v_int32 Thread::assignThreadToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu) {
 #if defined(_GNU_SOURCE)
   
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
-  CPU_SET(cpuIndex, &cpuset);
   
+  for(v_int32 i = fromCpu; i <= toCpu; i++) {
+    CPU_SET(cpuIndex, &cpuset);
+  }
+    
   v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
   
   if (result != 0) {

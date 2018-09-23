@@ -32,7 +32,7 @@ oatpp::concurrency::SpinLock::Atom MemoryPool::POOLS_ATOM(false);
 std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
   
-ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_word32 shardsCount)
+ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
   : m_shardsCount(shardsCount)
   , m_shards(new MemoryPool*[m_shardsCount])
 {
@@ -50,7 +50,7 @@ ThreadDistributedMemoryPool::~ThreadDistributedMemoryPool(){
 
 void* ThreadDistributedMemoryPool::obtain() {
   static std::hash<std::thread::id> hashFunction;
-  static thread_local v_word32 hash = hashFunction(std::this_thread::get_id()) % m_shardsCount;
+  static thread_local v_int32 hash = hashFunction(std::this_thread::get_id()) % m_shardsCount;
   return m_shards[hash]->obtain();
 }
   

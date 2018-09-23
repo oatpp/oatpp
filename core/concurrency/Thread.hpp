@@ -44,6 +44,7 @@ private:
 public:
   static v_int32 getThreadSuggestedCpuIndex(std::thread::id threadId, v_int32 cpuCount);
   static v_int32 assignThreadToCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
+  static v_int32 assignThreadToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu);
   static v_int32 getHardwareConcurrency();
 private:
   std::thread m_thread;
