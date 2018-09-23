@@ -44,6 +44,11 @@
 //#define OATPP_DISABLE_POOL_ALLOCATIONS
 
 /**
+ * Predefined value for function oatpp::concurrency::Thread::getHardwareConcurrency();
+ */
+//#define OATPP_THREAD_HARDWARE_CONCURRENCY 2
+
+/**
  * Number of shards of ThreadDistributedMemoryPool (Default pool for many oatpp objects)
  * Higher number reduces threads racing for resources on each shard.
  */

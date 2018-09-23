@@ -23,4 +23,55 @@
  ***************************************************************************/
 
 #include "Thread.hpp"
+#include <atomic>
+
+#if defined(_GNU_SOURCE)
+  #include <pthread.h>
+#endif
+
+namespace oatpp { namespace concurrency {
+  
+v_int32 Thread::getThreadSuggestedCpuIndex(std::thread::id threadId, v_int32 cpuCount) {
+  static std::hash<std::thread::id> hashFunction;
+  static thread_local v_int32 lock = hashFunction(std::this_thread::get_id()) % OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
+  return lock % cpuCount;
+}
+
+v_int32 Thread::assignThreadToCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
+#if defined(_GNU_SOURCE)
+  
+  cpu_set_t cpuset;
+  CPU_ZERO(&cpuset);
+  CPU_SET(cpuIndex, &cpuset);
+  
+  v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
+  
+  if (result != 0) {
+    OATPP_LOGD("[oatpp::concurrency::Thread::assignThreadToCpu(...)]", "error code - %d", result);
+  }
+  
+  return result;
+#else
+  return -1;
+#endif
+}
+  
+v_int32 Thread::calcHardwareConcurrency() {
+#if !defined(OATPP_THREAD_HARDWARE_CONCURRENCY)
+  v_int32 concurrency = std::thread::hardware_concurrency();
+  if(concurrency == 0) {
+    concurrency = 1;
+  }
+  return concurrency;
+#else
+  return OATPP_THREAD_HARDWARE_CONCURRENCY;
+#endif
+}
+  
+v_int32 Thread::getHardwareConcurrency() {
+  static v_int32 concurrency = calcHardwareConcurrency();
+  return concurrency;
+}
+  
+}}
 

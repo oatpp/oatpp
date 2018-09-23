@@ -171,10 +171,11 @@ public:
   
 class ThreadDistributedMemoryPool {
 private:
-  v_int32 m_shardsCount;
+  v_word32 m_shardsCount;
   MemoryPool** m_shards;
 public:
-  ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize);
+  ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,
+                              v_word32 shardsCount = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT);
   virtual ~ThreadDistributedMemoryPool();
   void* obtain();
 };

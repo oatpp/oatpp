@@ -52,15 +52,7 @@ void HttpConnectionHandler::Task::run(){
   bool keepAlive = true;
   do {
   
-    std::shared_ptr<protocol::http::outgoing::Response> response;
-    
-    {
-      PriorityController::PriorityLine priorityLine = m_priorityController->getLine();
-      priorityLine.wait();
-      
-      response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
-    }
-    //auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
+    auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
     
     if(response) {
       outStream->setBufferPosition(0, 0);
@@ -75,20 +67,17 @@ void HttpConnectionHandler::Task::run(){
 }
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
-  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors, &m_priorityController));
   
-  /*
-  cpu_set_t cpuset;
-  CPU_ZERO(&cpuset);
-  CPU_SET(oatpp::concurrency::Thread::getSuggestedCpuIndex(3), &cpuset);
+  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors));
   
-  int rc = pthread_setaffinity_np(thread.getThread()->native_handle(), sizeof(cpu_set_t), &cpuset);
-  
-  if (rc != 0) {
-    OATPP_LOGD("task", "setting cpu error %d", rc);
+  v_int32 concurrency = oatpp::concurrency::Thread::getHardwareConcurrency();
+  if(concurrency > 1) {
+    concurrency -= 1;
   }
-  */
-   
+  
+  v_int32 cpu = oatpp::concurrency::Thread::getThreadSuggestedCpuIndex(thread.getStdThread()->get_id(), concurrency);
+  oatpp::concurrency::Thread::assignThreadToCpu(thread.getStdThread()->native_handle(), cpu);
+  
   thread.detach();
 }
 

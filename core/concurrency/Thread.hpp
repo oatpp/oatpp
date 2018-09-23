@@ -31,9 +31,7 @@
 
 #include "oatpp/core/base/Controllable.hpp"
 
-
 #include <thread>
-#include <atomic>
 
 namespace oatpp { namespace concurrency {
   
@@ -41,19 +39,12 @@ class Thread : public base::Controllable {
 public:
   OBJECT_POOL(Thread_Pool, Thread, 32)
   SHARED_OBJECT_POOL(Shared_Thread_Pool, Thread, 32)
+private:
+  static v_int32 calcHardwareConcurrency();
 public:
-  
-  static v_word32 getThisThreadId() {
-    static std::atomic<v_word32> base(0);
-    static thread_local v_int32 index = (base ++);
-    return index;
-  }
-  
-  static v_word32 getSuggestedCpuIndex(v_word32 cpuCount) {
-    v_word32 lockIndex = getThisThreadId() % OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
-    return lockIndex % cpuCount;
-  }
-  
+  static v_int32 getThreadSuggestedCpuIndex(std::thread::id threadId, v_int32 cpuCount);
+  static v_int32 assignThreadToCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
+  static v_int32 getHardwareConcurrency();
 private:
   std::thread m_thread;
 public:
@@ -78,7 +69,7 @@ public:
     m_thread.detach();
   }
   
-  std::thread* getThread() {
+  std::thread* getStdThread() {
     return &m_thread;
   }
   
