@@ -33,7 +33,7 @@ namespace oatpp { namespace concurrency {
   
 v_int32 Thread::getThreadSuggestedCpuIndex(std::thread::id threadId, v_int32 cpuCount) {
   static std::hash<std::thread::id> hashFunction;
-  static thread_local v_int32 lock = hashFunction(std::this_thread::get_id()) % OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
+  v_int32 lock = hashFunction(threadId) % OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
   return lock % cpuCount;
 }
 
