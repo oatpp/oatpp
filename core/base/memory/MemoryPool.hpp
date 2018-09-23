@@ -171,7 +171,7 @@ public:
   
 class ThreadDistributedMemoryPool {
 private:
-  v_word32 m_shardsCount;
+  v_int32 m_shardsCount;
   MemoryPool** m_shards;
 public:
   ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,

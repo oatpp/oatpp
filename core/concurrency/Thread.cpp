@@ -48,7 +48,7 @@ v_int32 Thread::assignThreadToCpuRange(std::thread::native_handle_type nativeHan
   CPU_ZERO(&cpuset);
   
   for(v_int32 i = fromCpu; i <= toCpu; i++) {
-    CPU_SET(cpuIndex, &cpuset);
+    CPU_SET(i, &cpuset);
   }
     
   v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
