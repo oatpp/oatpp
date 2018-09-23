@@ -75,7 +75,7 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
     concurrency -= 1;
   }
   
-  oatpp::concurrency::Thread::assignThreadToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency);
+  oatpp::concurrency::Thread::assignThreadToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency - 1);
   
   thread.detach();
 }
