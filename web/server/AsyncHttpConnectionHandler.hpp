@@ -101,11 +101,11 @@ private:
   v_int32 m_threadCount;
   std::shared_ptr<Task>* m_tasks;
 public:
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = 2)
     : m_router(router)
     , m_errorHandler(handler::DefaultErrorHandler::createShared())
     , m_taskBalancer(0)
-    , m_threadCount(2)
+    , m_threadCount(threadCount)
   {
     m_tasks = new std::shared_ptr<Task>[m_threadCount];
     for(v_int32 i = 0; i < m_threadCount; i++) {

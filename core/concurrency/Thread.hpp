@@ -28,7 +28,6 @@
 #include "./Runnable.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
-
 #include "oatpp/core/base/Controllable.hpp"
 
 #include <thread>
@@ -42,10 +41,25 @@ public:
 private:
   static v_int32 calcHardwareConcurrency();
 public:
-  static v_int32 getThreadSuggestedCpuIndex(std::thread::id threadId, v_int32 cpuCount);
-  static v_int32 assignThreadToCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
-  static v_int32 assignThreadToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu);
+  
+  /**
+   * Set thread affinity one thread
+   */
+  static v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
+  
+  /**
+   * Set thread affinity [fromCpu..toCpu].
+   * from and to indexes included
+   */
+  static v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu);
+  
+  /**
+   * returns OATPP_THREAD_HARDWARE_CONCURRENCY config value if set.
+   * else return std::thread::hardware_concurrency()
+   * else return 1
+   */
   static v_int32 getHardwareConcurrency();
+  
 private:
   std::thread m_thread;
 public:

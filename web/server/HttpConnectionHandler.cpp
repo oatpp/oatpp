@@ -29,23 +29,13 @@
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-#include "oatpp/test/Checker.hpp"
-
-#include <errno.h>
-
-//#include <sched.h>
-//#include <pthread.h>
-
 namespace oatpp { namespace web { namespace server {
   
 void HttpConnectionHandler::Task::run(){
   
-  //OATPP_LOGD("thread", "running on cpu %d", sched_getcpu());
-  
-  //oatpp::test::PerformanceChecker checker("task checker");
-  
   v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
   v_char8 buffer [bufferSize];
+  
   auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, buffer, bufferSize);
   auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection, buffer, bufferSize);
   
@@ -68,14 +58,17 @@ void HttpConnectionHandler::Task::run(){
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
   
+  /* Create working thread */
   concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors));
   
+  /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
   v_int32 concurrency = oatpp::concurrency::Thread::getHardwareConcurrency();
   if(concurrency > 1) {
     concurrency -= 1;
   }
   
-  oatpp::concurrency::Thread::assignThreadToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency - 1);
+  /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
+  oatpp::concurrency::Thread::setThreadAffinityToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
   
   thread.detach();
 }

@@ -160,6 +160,39 @@ public:
   }
   
 };
+  
+template<class T, class P>
+class CustomPoolSharedObjectAllocator {
+public:
+  typedef T value_type;
+public:
+  AllocationExtras& m_info;
+  P* m_pool;
+public:
+  
+  CustomPoolSharedObjectAllocator(AllocationExtras& info, P* pool)
+    : m_info(info)
+    , m_pool(pool)
+  {};
+  
+  template<typename U>
+  CustomPoolSharedObjectAllocator(const CustomPoolSharedObjectAllocator<U, P>& other)
+    : m_info(other.m_info)
+    , m_pool(other.m_pool)
+  {};
+  
+  T* allocate(std::size_t n) {
+    void* mem = m_pool->obtain();
+    m_info.baseSize = sizeof(T);
+    m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
+    return static_cast<T*>(mem);
+  }
+  
+  void deallocate(T* ptr, size_t n) {
+    oatpp::base::memory::MemoryPool::free(ptr);
+  }
+  
+};
 
 template <typename T, typename U>
 inline bool operator == (const SharedObjectAllocator<T>&, const SharedObjectAllocator<U>&) {
@@ -175,6 +208,13 @@ template<typename T, typename ... Args>
 static std::shared_ptr<T> allocateSharedWithExtras(AllocationExtras& extras, Args... args){
   typedef SharedObjectAllocator<T> _Allocator;
   _Allocator allocator(extras);
+  return std::allocate_shared<T, _Allocator>(allocator, args...);
+}
+  
+template<typename T, typename P, typename ... Args>
+static std::shared_ptr<T> customPoolAllocateSharedWithExtras(AllocationExtras& extras, P* pool, Args... args){
+  typedef CustomPoolSharedObjectAllocator<T, P> _Allocator;
+  _Allocator allocator(extras, pool);
   return std::allocate_shared<T, _Allocator>(allocator, args...);
 }
   

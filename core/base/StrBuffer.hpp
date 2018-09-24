@@ -32,179 +32,27 @@
 
 namespace oatpp { namespace base {
 
-class StrBuffer : public oatpp::base::Controllable {
-public:
-  
-  class SmStringPool {
-  private:
-    
-    class EntryHeader {
-    public:
-      
-      EntryHeader(SmStringPool* pPool, EntryHeader* pNext)
-        : pool(pPool)
-        , next(pNext)
-      {}
-      
-      SmStringPool* pool;
-      EntryHeader* next;
-      
-    };
-    
-  private:
-    
-    void allocChunk() {
-      v_int32 entryBlockSize = sizeof(EntryHeader) + m_entrySize;
-      v_int32 chunkMemSize = entryBlockSize * m_chunkSize;
-      p_char8 mem = new v_char8[chunkMemSize];
-      m_chunks.push_back(mem);
-      for(v_int32 i = 0; i < m_chunkSize; i++){
-        EntryHeader* entry = new (mem + i * entryBlockSize) EntryHeader(this, m_rootEntry);
-        m_rootEntry = entry;
-      }
-    }
-    
-  private:
-    std::string m_name;
-    v_int32 m_entrySize;
-    v_int32 m_chunkSize;
-    std::list<p_char8> m_chunks;
-    EntryHeader* m_rootEntry;
-    oatpp::concurrency::SpinLock::Atom m_atom;
-    v_int32 m_objectsCount;
-  public:
-    
-    SmStringPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
-      : m_name(name)
-      , m_entrySize(entrySize)
-      , m_chunkSize(chunkSize)
-      , m_rootEntry(nullptr)
-      , m_atom(false)
-      , m_objectsCount(0)
-    {
-      allocChunk();
-    }
-    
-    ~SmStringPool() {
-      auto it = m_chunks.begin();
-      while (it != m_chunks.end()) {
-        p_char8 chunk = *it;
-        delete [] chunk;
-        it++;
-      }
-    }
-    
-    void* obtain() {
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
-      return new v_char8[m_entrySize];
-#else
-      //oatpp::concurrency::SpinLock lock(m_atom);
-      if(m_rootEntry != nullptr) {
-        auto entry = m_rootEntry;
-        m_rootEntry = m_rootEntry->next;
-        ++ m_objectsCount;
-        return ((p_char8) entry) + sizeof(EntryHeader);
-      } else {
-        allocChunk();
-        if(m_rootEntry == nullptr) {
-          throw std::runtime_error("oatpp::base::memory::MemoryPool: Unable to allocate entry");
-        }
-        auto entry = m_rootEntry;
-        m_rootEntry = m_rootEntry->next;
-        ++ m_objectsCount;
-        return ((p_char8) entry) + sizeof(EntryHeader);
-      }
-#endif
-    }
-    
-    void freeByEntryHeader(EntryHeader* entry) {
-        oatpp::concurrency::SpinLock lock(m_atom);
-        entry->next = m_rootEntry;
-        m_rootEntry = entry;
-        -- m_objectsCount;
-    }
-    
-    static void free(void* entry) {
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
-      delete [] ((p_char8) entry);
-#else
-      EntryHeader* header = (EntryHeader*)(((p_char8) entry) - sizeof (EntryHeader));
-      header->pool->freeByEntryHeader(header);
-#endif
-    }
-    
-    std::string getName(){
-      return m_name;
-    }
-    
-    v_int32 getEntrySize(){
-      return m_entrySize;
-    }
-    
-    v_int64 getSize(){
-      return m_chunks.size() * m_chunkSize;
-    }
-    
-    v_int32 getObjectsCount(){
-      return m_objectsCount;
-    }
-    
-  };
-  
-  typedef oatpp::base::memory::AllocationExtras AllocationExtras;
-  
-  template<class T, class P>
-  class SmStringPoolSharedObjectAllocator {
-  public:
-    typedef T value_type;
-  public:
-    AllocationExtras& m_info;
-    P* m_pool;
-  public:
-    
-    SmStringPoolSharedObjectAllocator(AllocationExtras& info, P* pool)
-    : m_info(info)
-    , m_pool(pool)
-    {};
-    
-    template<typename U>
-    SmStringPoolSharedObjectAllocator(const SmStringPoolSharedObjectAllocator<U, P>& other)
-      : m_info(other.m_info)
-      , m_pool(other.m_pool)
-    {};
-    
-    T* allocate(std::size_t n) {
-      void* mem;
-      //OATPP_LOGD("Allocator", "Pool. Size=%d", sizeWanted);
-      mem = m_pool->obtain();
-      m_info.baseSize = sizeof(T);
-      m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
-      return static_cast<T*>(mem);
-    }
-    
-    void deallocate(T* ptr, size_t n) {
-      //OATPP_LOGD("Allocator", "Free Pool");
-      //oatpp::base::memory::MemoryPool::free(ptr);
-      SmStringPool::free(ptr);
-    }
-    
-  };
-  
-  template<typename T, typename P, typename ... Args>
-  static std::shared_ptr<T> poolAllocateSharedWithExtras(AllocationExtras& extras, P* pool, Args... args){
-    typedef SmStringPoolSharedObjectAllocator<T, P> _Allocator;
-    _Allocator allocator(extras, pool);
-    return std::allocate_shared<T, _Allocator>(allocator, args...);
-  }
-  
-public:
-  OBJECT_POOL_THREAD_LOCAL(StrBuffer_Pool, StrBuffer, 32)
+class StrBuffer : public oatpp::base::Controllable {  
 private:
-  static SmStringPool* getSmallStringPool() {
-    static thread_local SmStringPool pool("Small_String_Pool", 200, 32);
-    //static oatpp::base::memory::ThreadDistributedMemoryPool pool("Small_String_Pool", 300, 128);
+
+  static constexpr v_int32 SM_STRING_POOL_ENTRY_SIZE = 256;
+  
+  static oatpp::base::memory::ThreadDistributedMemoryPool* getSmallStringPool() {
+    static oatpp::base::memory::ThreadDistributedMemoryPool pool("Small_String_Pool", SM_STRING_POOL_ENTRY_SIZE, 16);
     return &pool;
   }
+  
+  static v_int32 getSmStringBaseSize() {
+    memory::AllocationExtras extras(0);
+    auto ptr = memory::customPoolAllocateSharedWithExtras<StrBuffer>(extras, getSmallStringPool());
+    return extras.baseSize;
+  }
+  
+  static v_int32 getSmStringSize() {
+    static v_int32 size = SM_STRING_POOL_ENTRY_SIZE - getSmStringBaseSize();
+    return size;
+  }
+
 private:
   p_char8 m_data;
   v_int32 m_size;

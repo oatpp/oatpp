@@ -46,7 +46,7 @@
 /**
  * Predefined value for function oatpp::concurrency::Thread::getHardwareConcurrency();
  */
-//#define OATPP_THREAD_HARDWARE_CONCURRENCY 2
+//#define OATPP_THREAD_HARDWARE_CONCURRENCY 4
 
 /**
  * Number of shards of ThreadDistributedMemoryPool (Default pool for many oatpp objects)
