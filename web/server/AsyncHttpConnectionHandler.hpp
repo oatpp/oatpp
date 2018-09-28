@@ -101,7 +101,8 @@ private:
   v_int32 m_threadCount;
   std::shared_ptr<Task>* m_tasks;
 public:
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = 2)
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                             v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT)
     : m_router(router)
     , m_errorHandler(handler::DefaultErrorHandler::createShared())
     , m_taskBalancer(0)
