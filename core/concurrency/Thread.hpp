@@ -28,12 +28,9 @@
 #include "./Runnable.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
-
 #include "oatpp/core/base/Controllable.hpp"
 
-
 #include <thread>
-#include <atomic>
 
 namespace oatpp { namespace concurrency {
   
@@ -41,6 +38,28 @@ class Thread : public base::Controllable {
 public:
   OBJECT_POOL(Thread_Pool, Thread, 32)
   SHARED_OBJECT_POOL(Shared_Thread_Pool, Thread, 32)
+private:
+  static v_int32 calcHardwareConcurrency();
+public:
+  
+  /**
+   * Set thread affinity one thread
+   */
+  static v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
+  
+  /**
+   * Set thread affinity [fromCpu..toCpu].
+   * from and to indexes included
+   */
+  static v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu);
+  
+  /**
+   * returns OATPP_THREAD_HARDWARE_CONCURRENCY config value if set.
+   * else return std::thread::hardware_concurrency()
+   * else return 1
+   */
+  static v_int32 getHardwareConcurrency();
+  
 private:
   std::thread m_thread;
 public:
@@ -63,6 +82,10 @@ public:
   
   void detach(){
     m_thread.detach();
+  }
+  
+  std::thread* getStdThread() {
+    return &m_thread;
   }
   
 };

@@ -38,6 +38,32 @@
 //#define OATPP_DISABLE_ENV_OBJECT_COUNTERS
 
 /**
+ * Define this to disable memory-pool allocations.
+ * This will make oatpp::base::memory::MemoryPool, method obtain and free call new and delete directly
+ */
+//#define OATPP_DISABLE_POOL_ALLOCATIONS
+
+/**
+ * Predefined value for function oatpp::concurrency::Thread::getHardwareConcurrency();
+ */
+//#define OATPP_THREAD_HARDWARE_CONCURRENCY 4
+
+/**
+ * Number of shards of ThreadDistributedMemoryPool (Default pool for many oatpp objects)
+ * Higher number reduces threads racing for resources on each shard.
+ */
+#ifndef OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT
+  #define OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT 10
+#endif
+
+/**
+ * AsyncHttpConnectionHandler default number of threads
+ */
+#ifndef OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT
+  #define OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT 2
+#endif
+
+/**
  * DISABLE logs level V
  */
 //#define OATPP_DISABLE_LOGV

@@ -48,7 +48,7 @@ public:
   }
   
   void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept override {
-    headers->put(oatpp::web::protocol::http::Header::CONTENT_LENGTH,
+    headers->put(oatpp::String(oatpp::web::protocol::http::Header::CONTENT_LENGTH, false),
                  oatpp::utils::conversion::int32ToStr(m_buffer->getSize()));
   }
   

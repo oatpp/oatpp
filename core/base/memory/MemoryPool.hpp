@@ -34,8 +34,6 @@
 #include <cstring>
 //#define OATPP_DISABLE_POOL_ALLOCATIONS
 
-//#ifndef OATPP_MEMORY_POOL_SHARDING
-
 namespace oatpp { namespace base { namespace  memory {
   
 class MemoryPool {
@@ -62,18 +60,7 @@ private:
   };
   
 private:
-  
-  void allocChunk() {
-    v_int32 entryBlockSize = sizeof(EntryHeader) + m_entrySize;
-    v_int32 chunkMemSize = entryBlockSize * m_chunkSize;
-    p_char8 mem = new v_char8[chunkMemSize];
-    m_chunks.push_back(mem);
-    for(v_int32 i = 0; i < m_chunkSize; i++){
-      EntryHeader* entry = new (mem + i * entryBlockSize) EntryHeader(this, m_id, m_rootEntry);
-      m_rootEntry = entry;
-    }
-  }
-  
+  void allocChunk();
 private:
   std::string m_name;
   v_int32 m_entrySize;
@@ -110,64 +97,16 @@ public:
     POOLS.erase(m_id);
   }
   
-  void* obtain() {
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
-    return new v_char8[m_entrySize];
-#else
-    oatpp::concurrency::SpinLock lock(m_atom);
-    if(m_rootEntry != nullptr) {
-      auto entry = m_rootEntry;
-      m_rootEntry = m_rootEntry->next;
-      ++ m_objectsCount;
-      return ((p_char8) entry) + sizeof(EntryHeader);
-    } else {
-      allocChunk();
-      if(m_rootEntry == nullptr) {
-        throw std::runtime_error("oatpp::base::memory::MemoryPool: Unable to allocate entry");
-      }
-      auto entry = m_rootEntry;
-      m_rootEntry = m_rootEntry->next;
-      ++ m_objectsCount;
-      return ((p_char8) entry) + sizeof(EntryHeader);
-    }
-#endif
-  }
+  void* obtain();
+  void* obtainLockFree();
   
-  void freeByEntryHeader(EntryHeader* entry) {
-    if(entry->poolId == m_id) {
-      oatpp::concurrency::SpinLock lock(m_atom);
-      entry->next = m_rootEntry;
-      m_rootEntry = entry;
-      -- m_objectsCount;
-    } else {
-      throw std::runtime_error("oatpp::base::memory::MemoryPool: Invalid EntryHeader");
-    }
-  }
+  void freeByEntryHeader(EntryHeader* entry);
+  static void free(void* entry);
   
-  static void free(void* entry) {
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
-    delete [] ((p_char8) entry);
-#else
-    EntryHeader* header = (EntryHeader*)(((p_char8) entry) - sizeof (EntryHeader));
-    header->pool->freeByEntryHeader(header);
-#endif
-  }
-  
-  std::string getName(){
-    return m_name;
-  }
-  
-  v_int32 getEntrySize(){
-    return m_entrySize;
-  }
-  
-  v_int64 getSize(){
-    return m_chunks.size() * m_chunkSize;
-  }
-  
-  v_int32 getObjectsCount(){
-    return m_objectsCount;
-  }
+  std::string getName();
+  v_int32 getEntrySize();
+  v_int64 getSize();
+  v_int32 getObjectsCount();
   
 };
   
@@ -176,7 +115,8 @@ private:
   v_int32 m_shardsCount;
   MemoryPool** m_shards;
 public:
-  ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize);
+  ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,
+                              v_int32 shardsCount = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT);
   virtual ~ThreadDistributedMemoryPool();
   void* obtain();
 };

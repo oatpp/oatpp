@@ -45,6 +45,7 @@ namespace oatpp { namespace web { namespace server {
   
 class HttpConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
 private:
+  
   class Task : public base::Controllable, public concurrency::Runnable{
   private:
     HttpRouter* m_router;
@@ -66,7 +67,7 @@ private:
     static std::shared_ptr<Task> createShared(HttpRouter* router,
                                               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                                              HttpProcessor::RequestInterceptors* requestInterceptors){
+                                              HttpProcessor::RequestInterceptors* requestInterceptors) {
       return std::make_shared<Task>(router, connection, errorHandler, requestInterceptors);
     }
     
@@ -78,7 +79,6 @@ private:
   std::shared_ptr<HttpRouter> m_router;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   HttpProcessor::RequestInterceptors m_requestInterceptors;
-  
 public:
   HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
     : m_router(router)

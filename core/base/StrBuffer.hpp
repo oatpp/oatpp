@@ -32,9 +32,27 @@
 
 namespace oatpp { namespace base {
 
-class StrBuffer : public oatpp::base::Controllable {
-public:
-  OBJECT_POOL_THREAD_LOCAL(StrBuffer_Pool, StrBuffer, 32)
+class StrBuffer : public oatpp::base::Controllable {  
+private:
+
+  static constexpr v_int32 SM_STRING_POOL_ENTRY_SIZE = 256;
+  
+  static oatpp::base::memory::ThreadDistributedMemoryPool* getSmallStringPool() {
+    static oatpp::base::memory::ThreadDistributedMemoryPool pool("Small_String_Pool", SM_STRING_POOL_ENTRY_SIZE, 16);
+    return &pool;
+  }
+  
+  static v_int32 getSmStringBaseSize() {
+    memory::AllocationExtras extras(0);
+    auto ptr = memory::customPoolAllocateSharedWithExtras<StrBuffer>(extras, getSmallStringPool());
+    return extras.baseSize;
+  }
+  
+  static v_int32 getSmStringSize() {
+    static v_int32 size = SM_STRING_POOL_ENTRY_SIZE - getSmStringBaseSize();
+    return size;
+  }
+
 private:
   p_char8 m_data;
   v_int32 m_size;

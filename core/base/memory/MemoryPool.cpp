@@ -24,15 +24,110 @@
 
 #include "MemoryPool.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/concurrency/Thread.hpp"
 
 namespace oatpp { namespace base { namespace  memory {
 
+void MemoryPool::allocChunk() {
+  v_int32 entryBlockSize = sizeof(EntryHeader) + m_entrySize;
+  v_int32 chunkMemSize = entryBlockSize * m_chunkSize;
+  p_char8 mem = new v_char8[chunkMemSize];
+  m_chunks.push_back(mem);
+  for(v_int32 i = 0; i < m_chunkSize; i++){
+    EntryHeader* entry = new (mem + i * entryBlockSize) EntryHeader(this, m_id, m_rootEntry);
+    m_rootEntry = entry;
+  }
+}
+  
+void* MemoryPool::obtain() {
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+  return new v_char8[m_entrySize];
+#else
+  oatpp::concurrency::SpinLock lock(m_atom);
+  if(m_rootEntry != nullptr) {
+    auto entry = m_rootEntry;
+    m_rootEntry = m_rootEntry->next;
+    ++ m_objectsCount;
+    return ((p_char8) entry) + sizeof(EntryHeader);
+  } else {
+    allocChunk();
+    if(m_rootEntry == nullptr) {
+      throw std::runtime_error("[oatpp::base::memory::MemoryPool:obtain()]: Unable to allocate entry");
+    }
+    auto entry = m_rootEntry;
+    m_rootEntry = m_rootEntry->next;
+    ++ m_objectsCount;
+    return ((p_char8) entry) + sizeof(EntryHeader);
+  }
+#endif
+}
+  
+void* MemoryPool::obtainLockFree() {
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+  return new v_char8[m_entrySize];
+#else
+  if(m_rootEntry != nullptr) {
+    auto entry = m_rootEntry;
+    m_rootEntry = m_rootEntry->next;
+    ++ m_objectsCount;
+    return ((p_char8) entry) + sizeof(EntryHeader);
+  } else {
+    allocChunk();
+    if(m_rootEntry == nullptr) {
+      throw std::runtime_error("[oatpp::base::memory::MemoryPool:obtainLockFree()]: Unable to allocate entry");
+    }
+    auto entry = m_rootEntry;
+    m_rootEntry = m_rootEntry->next;
+    ++ m_objectsCount;
+    return ((p_char8) entry) + sizeof(EntryHeader);
+  }
+#endif
+}
+
+void MemoryPool::freeByEntryHeader(EntryHeader* entry) {
+  if(entry->poolId == m_id) {
+    oatpp::concurrency::SpinLock lock(m_atom);
+    entry->next = m_rootEntry;
+    m_rootEntry = entry;
+    -- m_objectsCount;
+  } else {
+    throw std::runtime_error("oatpp::base::memory::MemoryPool: Invalid EntryHeader");
+  }
+}
+
+void MemoryPool::free(void* entry) {
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+  delete [] ((p_char8) entry);
+#else
+  EntryHeader* header = (EntryHeader*)(((p_char8) entry) - sizeof (EntryHeader));
+  header->pool->freeByEntryHeader(header);
+#endif
+}
+
+std::string MemoryPool::getName(){
+  return m_name;
+}
+
+v_int32 MemoryPool::getEntrySize(){
+  return m_entrySize;
+}
+
+v_int64 MemoryPool::getSize(){
+  return m_chunks.size() * m_chunkSize;
+}
+
+v_int32 MemoryPool::getObjectsCount(){
+  return m_objectsCount;
+}
+  
+  
+  
 oatpp::concurrency::SpinLock::Atom MemoryPool::POOLS_ATOM(false);
 std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
   
-ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
-  : m_shardsCount(10)
+ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
+  : m_shardsCount(shardsCount)
   , m_shards(new MemoryPool*[m_shardsCount])
 {
   for(v_int32 i = 0; i < m_shardsCount; i++){

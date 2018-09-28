@@ -22,28 +22,28 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_outgoing_ResponseFactory_hpp
-#define oatpp_web_protocol_http_outgoing_ResponseFactory_hpp
+#ifndef oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
+#define oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
 
-#include "./Response.hpp"
-
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/web/protocol/http/incoming/Request.hpp"
+#include "oatpp/web/protocol/http/outgoing/Response.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
-class ResponseFactory {
+class CommunicationUtils {
 public:
   
-  static std::shared_ptr<Response> createShared(const Status& status, const oatpp::String& text);
-  static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& segBuffer);
-  static std::shared_ptr<Response> createShared(const Status& status,
-                              const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                              oatpp::data::mapping::ObjectMapper* objectMapper);
+  /**
+   * Consider keep connection alive taking into account request headers, response headers and protocol version.
+   * Corresponding header will be set to response if not existed before
+   * return true - keep-alive
+   * return false - close
+   */
+  static bool considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
+                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
   
 };
   
 }}}}}
 
-#endif /* oatpp_web_protocol_http_outgoing_ResponseFactory_hpp */
+#endif /* CommunicationUtils_hpp */

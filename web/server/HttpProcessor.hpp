@@ -110,8 +110,6 @@ public:
   };
   
 public:
-  static bool considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
   
   static std::shared_ptr<protocol::http::outgoing::Response>
   processRequest(HttpRouter* router,
