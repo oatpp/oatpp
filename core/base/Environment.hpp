@@ -154,6 +154,8 @@ public:
   static void* getComponent(const std::string& typeName);
   static void* getComponent(const std::string& typeName, const std::string& componentName);
   
+  static v_int64 getMicroTickCount();
+  
 };
   
 #ifndef OATPP_DISABLE_LOGV

@@ -57,24 +57,18 @@ bool Processor::checkWaitingQueue() {
   return hasActions;
 }
 
-bool Processor::considerCheckWaitingQueue(bool immediate) {
+bool Processor::considerContinueImmediately() {
   
-  if(immediate) {
-    ++ m_sleepCountdown;
-    if(m_sleepCountdown > 1000) {
-      std::this_thread::yield();
-      return checkWaitingQueue();
-    }
-  } else {
-    m_sleepCountdown = 0;
-    
-    if(m_checkWaitingQueueCountdown < 10){
-      ++ m_checkWaitingQueueCountdown;
-      return true;
-    }
-    m_checkWaitingQueueCountdown = 0;
+  bool hasAction = checkWaitingQueue();
+  
+  if(hasAction) {
+    m_inactivityTick = 0;
+  } else if(m_inactivityTick == 0) {
+    m_inactivityTick = oatpp::base::Environment::getMicroTickCount();
+  } else if(oatpp::base::Environment::getMicroTickCount() - m_inactivityTick > 1000 * 100 /* 100 millis */) {
+    return m_activeQueue.first != nullptr;
   }
-  checkWaitingQueue();
+  
   return true;
   
 }
@@ -107,7 +101,7 @@ bool Processor::iterate(v_int32 numIterations) {
     }
   }
   
-  return (considerCheckWaitingQueue(m_activeQueue.first == nullptr));
+  return considerContinueImmediately();
   
 }
   

@@ -29,11 +29,11 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                                      const std::shared_ptr<protocol::http::outgoing::Response>& response){
   
-  /* Set keep-alive to value specified in the client's request, if no Connection header present in response. */
-  /* Set keep-alive to value specified in response otherwise */
   if(request) {
-    auto& inKeepAlive = request->headers->get(String(Header::CONNECTION, false), nullptr);
     
+    /* Set keep-alive to value specified in the client's request, if no Connection header present in response. */
+    /* Set keep-alive to value specified in response otherwise */
+    auto& inKeepAlive = request->headers->get(String(Header::CONNECTION, false), nullptr);
     if(inKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(inKeepAlive.get(), Header::Value::CONNECTION_KEEP_ALIVE)) {
       if(response->headers->putIfNotExists(String(Header::CONNECTION, false), inKeepAlive)){
         return true;
@@ -42,18 +42,19 @@ bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<proto
         return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), Header::Value::CONNECTION_KEEP_ALIVE));
       }
     }
-  }
-  
-  /* If protocol == HTTP/1.1 */
-  /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
-  /* Set keep-alive to value specified in response otherwise */
-  String& protocol = request->startingLine->protocol;
-  if(protocol && oatpp::base::StrBuffer::equalsCI_FAST(protocol.get(), "HTTP/1.1")) {
-    if(!response->headers->putIfNotExists(String(Header::CONNECTION, false), String(Header::Value::CONNECTION_KEEP_ALIVE, false))) {
-      auto& outKeepAlive = response->headers->get(String(Header::CONNECTION, false), nullptr);
-      return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), Header::Value::CONNECTION_KEEP_ALIVE));
+    
+    /* If protocol == HTTP/1.1 */
+    /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
+    /* Set keep-alive to value specified in response otherwise */
+    String& protocol = request->startingLine->protocol;
+    if(protocol && oatpp::base::StrBuffer::equalsCI_FAST(protocol.get(), "HTTP/1.1")) {
+      if(!response->headers->putIfNotExists(String(Header::CONNECTION, false), String(Header::Value::CONNECTION_KEEP_ALIVE, false))) {
+        auto& outKeepAlive = response->headers->get(String(Header::CONNECTION, false), nullptr);
+        return (outKeepAlive && oatpp::base::StrBuffer::equalsCI_FAST(outKeepAlive.get(), Header::Value::CONNECTION_KEEP_ALIVE));
+      }
+      return true;
     }
-    return true;
+    
   }
   
   /* If protocol != HTTP/1.1 */

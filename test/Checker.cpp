@@ -26,13 +26,6 @@
 
 namespace oatpp { namespace test {
   
-v_int64 PerformanceChecker::getMicroTickCount(){
-  std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>
-  (std::chrono::system_clock::now().time_since_epoch());
-  return ms.count();
-}
-  
-  
 ThreadLocalObjectsChecker::ThreadLocalObjectsChecker(const char* tag)
   : m_tag(tag)
   , m_objectsCount(oatpp::base::Environment::getThreadLocalObjectsCount())

@@ -30,24 +30,22 @@
 namespace oatpp { namespace test {
   
 class PerformanceChecker {
-public:
-  static v_int64 getMicroTickCount();
 private:
   const char* m_tag;
   v_int64 m_ticks;
 public:
   PerformanceChecker(const char* tag)
     : m_tag(tag)
-    , m_ticks(getMicroTickCount())
+    , m_ticks(oatpp::base::Environment::getMicroTickCount())
   {}
   
   ~PerformanceChecker(){
-    v_int64 elapsedTicks = getMicroTickCount() - m_ticks;
+    v_int64 elapsedTicks = oatpp::base::Environment::getMicroTickCount() - m_ticks;
     OATPP_LOGD(m_tag, "%d(micro)", elapsedTicks);
   }
   
   v_int64 getElapsedTicks(){
-    return getMicroTickCount() - m_ticks;
+    return oatpp::base::Environment::getMicroTickCount() - m_ticks;
   }
     
 };

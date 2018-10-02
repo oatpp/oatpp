@@ -204,4 +204,10 @@ void* Environment::getComponent(const std::string& typeName, const std::string& 
   return componentIt->second;
 }
   
+v_int64 Environment::getMicroTickCount(){
+  std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>
+  (std::chrono::system_clock::now().time_since_epoch());
+  return ms.count();
+}
+  
 }}

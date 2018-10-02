@@ -69,20 +69,22 @@ void AsyncHttpConnectionHandler::Task::run(){
     /* Load all waiting connections into processor */
     consumeConnections(processor);
     
-    /* Process all, and check for incoming connections once in 100 iterations */
-    while (processor.iterate(100)) {
+    /* Process all, and check for incoming connections once in 1000 iterations */
+    while (processor.iterate(1000)) {
       consumeConnections(processor);
     }
     
     std::unique_lock<std::mutex> lock(m_taskMutex);
     if(processor.isEmpty()) {
       /* No tasks in the processor. Wait for incoming connections */
+      //OATPP_LOGD("proc", "waiting for new connections");
       while (m_connections.getFirstNode() == nullptr) {
         m_taskCondition.wait(lock);
       }
     } else {
       /* There is still something in slow queue. Wait and get back to processing */
       /* Waiting for IO is not Applicable here as slow queue may contain NON-IO tasks */
+      //OATPP_LOGD("proc", "waiting slow queue");
       m_taskCondition.wait_for(lock, std::chrono::milliseconds(10));
     }
     
