@@ -130,7 +130,7 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
         } else if(result > 0){
           m_stream->m_pos += (v_bufferSize) result;
         }
-        return error("OutputStreamBufferedProxy. Failed to flush all data");
+        return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - Failed to flush all data");
       }
       return finish();
       

@@ -198,9 +198,9 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oatpp::async::Error& error) {
   if(m_currentResponse) {
     if(error.isExceptionThrown) {
-      OATPP_LOGD("Server", "Unhandled exception. Dropping connection");
+      OATPP_LOGE("Server", "Unhandled exception. Dropping connection");
     } else {
-      OATPP_LOGD("Server", "Unhandled error. '%s'. Dropping connection", error.message);
+      OATPP_LOGE("Server", "Unhandled error. '%s'. Dropping connection", error.message);
     }
     return abort();
   }
