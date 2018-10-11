@@ -40,7 +40,8 @@ namespace __class {
   
   class AbstractObject {
   public:
-    constexpr static const char* const CLASS_NAME = "Object";
+    static const char* const CLASS_NAME_NONCONSTEXPR;
+    constexpr static const char* const * const CLASS_NAME = &CLASS_NAME_NONCONSTEXPR;
   };
   
   template<class T>

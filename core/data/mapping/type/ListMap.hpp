@@ -34,7 +34,8 @@ namespace __class {
   
   class AbstractListMap {
   public:
-    constexpr static const char* const CLASS_NAME = "ListMap";
+    static const char* const CLASS_NAME_NONCONSTEXPR;
+    constexpr static const char* const * const CLASS_NAME = &CLASS_NAME_NONCONSTEXPR;
   };
   
   template<class Key, class Value>

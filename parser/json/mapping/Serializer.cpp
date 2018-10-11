@@ -107,31 +107,31 @@ void Serializer::writeValue(oatpp::data::stream::OutputStream* stream, const Abs
     return;
   }
   
-  const char* typeName = polymorph.valueType->name;
+  const char* const * typeNamePtr = polymorph.valueType->namePtr;
   
-  if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME) {
+  if(typeNamePtr == oatpp::data::mapping::type::__class::String::CLASS_NAME) {
     auto str = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(polymorph);
     writeString(stream, str->getData(), str->getSize());
-  } else if(typeName == oatpp::data::mapping::type::__class::Int8::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Int8::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int8::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Int16::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Int16::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int16::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Int32::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int32::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Int64::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int64::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Float32::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Float32::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Float32::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Float64::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Float64::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Float64::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Boolean::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
     writeList(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
     // TODO Assert that key is String
     writeFieldsMap(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
     writeObject(stream, oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
   } else {
     if(config->throwOnUnknownTypes) {

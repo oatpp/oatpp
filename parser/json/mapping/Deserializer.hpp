@@ -125,11 +125,11 @@ public:
   static AbstractObjectWrapper deserialize(oatpp::parser::ParsingCaret& caret,
                                            const std::shared_ptr<Config>& config,
                                            const Type* const type) {
-    if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
+    if(type->namePtr == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
       return readObject(type, caret, config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
+    } else if(type->namePtr == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
       return readList(type, caret, config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
+    } else if(type->namePtr == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
       return readListMap(type, caret, config);
     }
     return AbstractObjectWrapper::empty();

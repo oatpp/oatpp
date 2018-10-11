@@ -199,24 +199,24 @@ Deserializer::AbstractObjectWrapper Deserializer::readValue(const Type* const ty
                                                   oatpp::parser::ParsingCaret& caret,
                                                   const std::shared_ptr<Config>& config){
   
-  auto typeName = type->name;
-  if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME){
+  auto typeNamePtr = type->namePtr;
+  if(typeNamePtr == oatpp::data::mapping::type::__class::String::CLASS_NAME){
     return readStringValue(caret);
-  } else if(typeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Int32::CLASS_NAME){
     return readInt32Value(caret);
-  } else if(typeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Int64::CLASS_NAME){
     return readInt64Value(caret);
-  } else if(typeName == oatpp::data::mapping::type::__class::Float32::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Float32::CLASS_NAME){
     return readFloat32Value(caret);
-  } else if(typeName == oatpp::data::mapping::type::__class::Float64::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Float64::CLASS_NAME){
     return readFloat64Value(caret);
-  } else if(typeName == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME){
     return readBooleanValue(caret);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
     return readObjectValue(type, caret, config);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
     return readListValue(type, caret, config);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
+  } else if(typeNamePtr == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
     return readListMapValue(type, caret, config);
   } else {
     skipValue(caret);
@@ -280,7 +280,7 @@ Deserializer::AbstractObjectWrapper Deserializer::readListMap(const Type* type,
     
     auto it = type->params.begin();
     Type* keyType = *it ++;
-    if(keyType->name != oatpp::data::mapping::type::__class::String::CLASS_NAME){
+    if(keyType->namePtr != oatpp::data::mapping::type::__class::String::CLASS_NAME){
       throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Invalid json map key. Key should be String");
     }
     Type* valueType = *it;
