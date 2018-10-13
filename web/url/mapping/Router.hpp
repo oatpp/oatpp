@@ -80,7 +80,7 @@ public:
 public:
   
   class Pair : public base::Controllable{
-  protected:
+  public:
     Pair(const std::shared_ptr<Pattern>& pPattern, const std::shared_ptr<UrlSubscriber>& pSubscriber)
       : pattern(pPattern)
       , subscriber(pSubscriber)
@@ -88,7 +88,7 @@ public:
   public:
     
     static std::shared_ptr<Pair> createShared(const std::shared_ptr<Pattern>& pattern, const std::shared_ptr<UrlSubscriber>& subscriber){
-      return std::shared_ptr<Pair>(new Pair(pattern, subscriber));
+      return std::make_shared<Pair>(pattern, subscriber);
     }
     
     const std::shared_ptr<Pattern> pattern;
@@ -98,14 +98,14 @@ public:
   
 private:
   std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<Pair>>> m_subscribers;
-protected:
+public:
   Router()
     : m_subscribers(oatpp::collection::LinkedList<std::shared_ptr<Pair>>::createShared())
   {}
 public:
   
   static std::shared_ptr<Router> createShared(){
-    return std::shared_ptr<Router>(new Router());
+    return std::make_shared<Router>();
   }
   
   void addSubscriber(const oatpp::String& urlPattern,

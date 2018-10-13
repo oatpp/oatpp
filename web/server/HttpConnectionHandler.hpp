@@ -87,7 +87,7 @@ public:
 public:
   
   static std::shared_ptr<HttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router){
-    return std::shared_ptr<HttpConnectionHandler>(new HttpConnectionHandler(router));
+    return std::make_shared<HttpConnectionHandler>(router);
   }
   
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){

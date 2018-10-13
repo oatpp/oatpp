@@ -48,18 +48,6 @@ OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_STRING, OATPP_M
 #define BODY_DTO(TYPE, NAME) \
 OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_DTO, OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO, TYPE, NAME, ())
 
-// INIT // ------------------------------------------------------
-
-#define REST_CONTROLLER_INIT(NAME) \
-public: \
-  NAME() \
-  {} \
-public: \
-\
-  static std::shared_ptr<NAME> createShared(){ \
-    return std::shared_ptr<>(new NAME(); \
-    return object->getSharedPtr<NAME>(); \
-  }
 
 // REQUEST MACRO // ------------------------------------------------------
 

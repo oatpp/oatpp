@@ -58,13 +58,13 @@ public:
 public:
   
   class Config : public oatpp::base::Controllable {
-  protected:
+  public:
     Config()
     {}
   public:
     
     static std::shared_ptr<Config> createShared(){
-      return std::shared_ptr<Config>(new Config());
+      return std::make_shared<Config>();
     }
     
     bool includeNullFields = true;

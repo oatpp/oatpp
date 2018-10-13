@@ -49,7 +49,7 @@ public:
 public:
   
   static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool nonBlocking = false){
-    return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(port, nonBlocking));
+    return std::make_shared<SimpleTCPConnectionProvider>(port, nonBlocking);
   }
   
   ~SimpleTCPConnectionProvider() {

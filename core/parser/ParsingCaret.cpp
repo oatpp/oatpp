@@ -59,15 +59,15 @@ namespace oatpp { namespace parser {
   {}
   
   std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const char* text){
-    return std::shared_ptr<ParsingCaret>(new ParsingCaret(text));
+    return std::make_shared<ParsingCaret>(text);
   }
   
   std::shared_ptr<ParsingCaret> ParsingCaret::createShared(p_char8 parseData, v_int32 dataSize){
-    return std::shared_ptr<ParsingCaret>(new ParsingCaret(parseData, dataSize));
+    return std::make_shared<ParsingCaret>(parseData, dataSize);
   }
   
   std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const oatpp::String& str){
-    return std::shared_ptr<ParsingCaret>(new ParsingCaret(str->getData(), str->getSize()));
+    return std::make_shared<ParsingCaret>(str->getData(), str->getSize());
   }
   
   ParsingCaret::~ParsingCaret(){

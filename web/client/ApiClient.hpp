@@ -128,7 +128,7 @@ public:
   
   static std::shared_ptr<ApiClient> createShared(const std::shared_ptr<RequestExecutor>& requestExecutor,
                                            const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) {
-    return std::shared_ptr<ApiClient>(new ApiClient(requestExecutor, objectMapper));
+    return std::make_shared<ApiClient>(requestExecutor, objectMapper);
   }
   
 protected:

@@ -43,7 +43,7 @@ public:
   virtual ~Controllable();
   
   static std::shared_ptr<Controllable> createShared(){
-    return std::shared_ptr<Controllable>(new Controllable);
+    return std::make_shared<Controllable>();
   }
   
 };

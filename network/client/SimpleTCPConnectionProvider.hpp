@@ -41,7 +41,7 @@ public:
   
   static std::shared_ptr<SimpleTCPConnectionProvider>
   createShared(const oatpp::String& host, v_int32 port){
-    return std::shared_ptr<SimpleTCPConnectionProvider>(new SimpleTCPConnectionProvider(host, port));
+    return std::make_shared<SimpleTCPConnectionProvider>(host, port);
   }
   
   std::shared_ptr<IOStream> getConnection() override;
