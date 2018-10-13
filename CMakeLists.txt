@@ -232,7 +232,7 @@ if(OATPP_BUILD_TESTS)
     enable_testing()
 
     add_executable(oatppAllTests
-        test/AllTestsMain.cpp.cpp
+        test/AllTestsMain.cpp
         test/Checker.cpp
         test/Checker.hpp
         test/UnitTest.cpp
