@@ -2,7 +2,7 @@
 
 - Website: [https://oatpp.io](https://oatpp.io)
 - Docs: [https://oatpp.io/docs/start](https://oatpp.io/docs/start)
-- Benchmarks: [https://oatpp.io/benchmark/aws](https://oatpp.io/benchmark/aws)
+- Benchmarks: [https://oatpp.io/benchmark/digital-ocean](https://oatpp.io/benchmark/digital-ocean)
 
 Zero-Dependency. Performance oriented web-service-development framework.
 Organic. Pure C++.
