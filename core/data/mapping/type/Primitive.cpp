@@ -28,6 +28,15 @@
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
+  const char* const __class::String::CLASS_NAME_NONCONSTEXPR = "String";
+  const char* const __class::Int8::CLASS_NAME_NONCONSTEXPR = "Int8";
+  const char* const __class::Int16::CLASS_NAME_NONCONSTEXPR = "Int16";
+  const char* const __class::Int32::CLASS_NAME_NONCONSTEXPR = "Int32";
+  const char* const __class::Int64::CLASS_NAME_NONCONSTEXPR = "Int64";
+  const char* const __class::Float32::CLASS_NAME_NONCONSTEXPR = "Float32";
+  const char* const __class::Float64::CLASS_NAME_NONCONSTEXPR = "Float64";
+  const char* const __class::Boolean::CLASS_NAME_NONCONSTEXPR = "Boolean";
+
 String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType)
   : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
 {

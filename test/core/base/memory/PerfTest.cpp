@@ -77,7 +77,7 @@ namespace {
     {}
     
     static std::shared_ptr<Task> createShared(const std::shared_ptr<TestBase>& shared){
-      return std::shared_ptr<Task>(new Task(shared));
+      return std::make_shared<Task>(shared);
     }
     
     void run() override {

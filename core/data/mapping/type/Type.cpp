@@ -26,7 +26,9 @@
 
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
+  const char* const __class::Void::CLASS_NAME_NONCONSTEXPR = "Void";
+
 namespace __class {
   
   Type* Void::getType(){

@@ -104,7 +104,7 @@ protected:
     T* m_controller;
     Method m_method;
     MethodAsync m_methodAsync;
-  protected:
+  public:
     Handler(T* controller, Method method, MethodAsync methodAsync)
       : m_controller(controller)
       , m_method(method)
@@ -113,7 +113,7 @@ protected:
   public:
     
     static std::shared_ptr<Handler> createShared(T* controller, Method method, MethodAsync methodAsync){
-      return std::shared_ptr<Handler>(new Handler(controller, method, methodAsync));
+      return std::make_shared<Handler>(controller, method, methodAsync);
     }
     
     std::shared_ptr<OutgoingResponse> processUrl(const std::shared_ptr<protocol::http::incoming::Request>& request) override {

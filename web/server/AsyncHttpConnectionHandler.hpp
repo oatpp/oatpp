@@ -119,7 +119,7 @@ public:
 public:
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router){
-    return std::shared_ptr<AsyncHttpConnectionHandler>(new AsyncHttpConnectionHandler(router));
+    return std::make_shared<AsyncHttpConnectionHandler>(router);
   }
   
   ~AsyncHttpConnectionHandler(){

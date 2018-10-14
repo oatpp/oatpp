@@ -53,14 +53,14 @@ protected:
     return entry->getValue();
   }
   
-protected:
+public:
   HttpRouter()
     : m_branchMap(BranchMap::createShared())
   {}
 public:
   
   static std::shared_ptr<HttpRouter> createShared() {
-    return std::shared_ptr<HttpRouter>(new HttpRouter());
+    return std::make_shared<HttpRouter>();
   }
   
   void addSubscriber(const oatpp::String& method,

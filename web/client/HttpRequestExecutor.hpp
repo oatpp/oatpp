@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace client {
 class HttpRequestExecutor : public oatpp::base::Controllable, public RequestExecutor {
 protected:
   std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
-protected:
+public:
   HttpRequestExecutor(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider)
     : m_connectionProvider(connectionProvider)
   {}
@@ -41,7 +41,7 @@ public:
   
   static std::shared_ptr<HttpRequestExecutor>
   createShared(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider){
-    return std::shared_ptr<HttpRequestExecutor>(new HttpRequestExecutor(connectionProvider));
+    return std::make_shared<HttpRequestExecutor>(connectionProvider);
   }
   
   /**

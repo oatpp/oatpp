@@ -38,7 +38,8 @@ namespace __class {
   
   class AbstractList {
   public:
-    constexpr static const char* const CLASS_NAME = "List";
+   static const char* const CLASS_NAME_NONCONSTEXPR;
+    constexpr static const char* const * const CLASS_NAME = &CLASS_NAME_NONCONSTEXPR;
   };
   
   template<class T>

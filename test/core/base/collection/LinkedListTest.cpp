@@ -42,7 +42,7 @@ public:
 public:
   
   static std::shared_ptr<TestObject> createShared2(){
-    return std::shared_ptr<TestObject>(new TestObject);
+    return std::make_shared<TestObject>();
   }
   
   static std::shared_ptr<TestObject> createShared(){

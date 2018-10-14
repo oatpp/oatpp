@@ -50,7 +50,7 @@ public:
   static std::shared_ptr<ObjectMapper>
   createShared(const std::shared_ptr<Serializer::Config>& serializerConfig = Serializer::Config::createShared(),
          const std::shared_ptr<Deserializer::Config>& deserializerConfig = Deserializer::Config::createShared()){
-    return std::shared_ptr<ObjectMapper>(new ObjectMapper(serializerConfig, deserializerConfig));
+    return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
   }
   
   void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,

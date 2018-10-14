@@ -23,3 +23,10 @@
  ***************************************************************************/
 
 #include "./List.hpp"
+
+
+namespace oatpp { namespace data { namespace mapping { namespace type {
+
+  const char* const __class::AbstractList::CLASS_NAME_NONCONSTEXPR = "List";
+
+}}}}

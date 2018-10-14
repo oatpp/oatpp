@@ -81,7 +81,7 @@ public:
   
   static std::shared_ptr<Server> createShared(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
                                         const std::shared_ptr<ConnectionHandler>& connectionHandler){
-    return std::shared_ptr<Server>(new Server(connectionProvider, connectionHandler));
+    return std::make_shared<Server>(connectionProvider, connectionHandler);
   }
   
   void run() override;

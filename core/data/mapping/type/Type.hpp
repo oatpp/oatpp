@@ -38,7 +38,8 @@ class Type; // FWD
 namespace __class {
   class Void {
   public:
-    constexpr static const char* const CLASS_NAME = "Void";
+    static const char* const CLASS_NAME_NONCONSTEXPR;
+    constexpr static const char* const * const CLASS_NAME = &CLASS_NAME_NONCONSTEXPR;
     static Type* getType();
   };
 }
@@ -274,27 +275,31 @@ public:
   
 public:
   
-  Type(const char* pName, const char* pNameQualifier)
-    : name(pName)
+  Type(const char* const * pNamePtr, const char* pNameQualifier)
+    : namePtr(pNamePtr)
+    , name(*pNamePtr)
     , nameQualifier(pNameQualifier)
     , creator(nullptr)
     , properties(nullptr)
   {}
   
-  Type(const char* pName, const char* pNameQualifier, Creator pCreator)
-    : name(pName)
+  Type(const char* const * pNamePtr, const char* pNameQualifier, Creator pCreator)
+    : namePtr(pNamePtr)
+    , name(*pNamePtr)
     , nameQualifier(pNameQualifier)
     , creator(pCreator)
     , properties(nullptr)
   {}
   
-  Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
-    : name(pName)
+  Type(const char* const * pNamePtr, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
+    : namePtr(pNamePtr)
+    , name(*pNamePtr)
     , nameQualifier(pNameQualifier)
     , creator(pCreator)
     , properties(pProperties)
   {}
   
+  const char* const * const namePtr;
   const char* const name;
   const char* const nameQualifier;
   std::list<Type*> params;

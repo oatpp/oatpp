@@ -23,3 +23,10 @@
  ***************************************************************************/
 
 #include "./Object.hpp"
+
+
+namespace oatpp { namespace data { namespace mapping { namespace type {
+
+  const char* const __class::AbstractObject::CLASS_NAME_NONCONSTEXPR = "Object";
+
+}}}}

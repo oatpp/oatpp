@@ -38,7 +38,7 @@ public:
   class MatchMap : public base::Controllable{
   public:
     typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Variables;
-  protected:
+  public:
     MatchMap(const std::shared_ptr<Variables>& vars, const oatpp::String& urlTail)
       : variables(vars)
       , tail(urlTail)
@@ -47,7 +47,7 @@ public:
     
     static std::shared_ptr<MatchMap> createShared(const std::shared_ptr<Variables>& vars,
                                                   const oatpp::String& tail){
-      return std::shared_ptr<MatchMap>(new MatchMap(vars, tail));
+      return std::make_shared<MatchMap>(vars, tail);
     }
     
     const Variables::Entry* getVariable(const oatpp::String& key){
@@ -62,7 +62,7 @@ public:
 private:
   
   class Part : public base::Controllable{
-  protected:
+  public:
     Part(const char* pFunction, const oatpp::String& pText)
       : function(pFunction)
       , text(pText)
@@ -74,7 +74,7 @@ private:
     static const char* FUNCTION_ANY_END;
     
     static std::shared_ptr<Part> createShared(const char* function, const oatpp::String& text){
-      return std::shared_ptr<Part>(new Part(function, text));
+      return std::make_shared<Part>(function, text);
     }
     
     const char* function;
@@ -86,14 +86,14 @@ private:
   std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<Part>>> m_parts;
 private:
   v_char8 findSysChar(oatpp::parser::ParsingCaret& caret);
-protected:
+public:
   Pattern()
     : m_parts(oatpp::collection::LinkedList<std::shared_ptr<Part>>::createShared())
   {}
 public:
   
   static std::shared_ptr<Pattern> createShared(){
-    return std::shared_ptr<Pattern>(new Pattern());
+    return std::make_shared<Pattern>();
   }
   
   static std::shared_ptr<Pattern> parse(p_char8 data, v_int32 size);

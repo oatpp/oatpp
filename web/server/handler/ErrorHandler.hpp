@@ -46,7 +46,7 @@ public:
 public:
   
   static std::shared_ptr<DefaultErrorHandler> createShared() {
-    return std::shared_ptr<DefaultErrorHandler>(new DefaultErrorHandler());
+    return std::make_shared<DefaultErrorHandler>();
   }
   
   std::shared_ptr<protocol::http::outgoing::Response>

@@ -50,7 +50,7 @@ public: \
 public: \
   static std::shared_ptr<NAME> createShared(const std::shared_ptr<oatpp::web::client::RequestExecutor>& requestExecutor, \
                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper){ \
-    return std::shared_ptr<NAME>(new NAME(requestExecutor, objectMapper)); \
+    return std::make_shared<NAME>(requestExecutor, objectMapper); \
   }
 
 // HEADER MACRO

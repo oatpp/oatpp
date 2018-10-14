@@ -74,7 +74,7 @@ public:
     {}
   public:
     static std::shared_ptr<Info> createShared(){
-      return std::shared_ptr<Info>(new Info());
+      return std::make_shared<Info>();
     }
     
     oatpp::String name;
@@ -121,7 +121,7 @@ public:
   
   static std::shared_ptr<Endpoint> createShared(const std::shared_ptr<RequestHandler>& handler,
                                                 const std::shared_ptr<Info>& info){
-    return std::shared_ptr<Endpoint>(new Endpoint(handler, info));
+    return std::make_shared<Endpoint>(handler, info);
   }
   
   const std::shared_ptr<RequestHandler> handler;

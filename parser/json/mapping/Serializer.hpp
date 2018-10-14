@@ -58,13 +58,13 @@ public:
 public:
   
   class Config : public oatpp::base::Controllable {
-  protected:
+  public:
     Config()
     {}
   public:
     
     static std::shared_ptr<Config> createShared(){
-      return std::shared_ptr<Config>(new Config());
+      return std::make_shared<Config>();
     }
     
     bool includeNullFields = true;
@@ -98,11 +98,11 @@ public:
                         const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
                         const std::shared_ptr<Config>& config){
     auto type = polymorph.valueType;
-    if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
+    if(type->namePtr == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
       writeObject(stream.get(), oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
+    } else if(type->namePtr == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
       writeList(stream.get(), oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
+    } else if(type->namePtr == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
       writeFieldsMap(stream.get(), oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
     } else {
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
