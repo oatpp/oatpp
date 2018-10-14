@@ -27,6 +27,6 @@
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
-  constexpr const char* const __class::AbstractListMap::CLASS_NAME_NONCONSTEXPR = "ListMap";
+  const char* const __class::AbstractListMap::CLASS_NAME_NONCONSTEXPR = "ListMap";
 
 }}}}

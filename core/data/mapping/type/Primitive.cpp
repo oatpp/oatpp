@@ -28,14 +28,14 @@
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
-  constexpr const char* const __class::String::CLASS_NAME_NONCONSTEXPR = "String";
-  constexpr const char* const __class::Int8::CLASS_NAME_NONCONSTEXPR = "Int8";
-  constexpr const char* const __class::Int16::CLASS_NAME_NONCONSTEXPR = "Int16";
-  constexpr const char* const __class::Int32::CLASS_NAME_NONCONSTEXPR = "Int32";
-  constexpr const char* const __class::Int64::CLASS_NAME_NONCONSTEXPR = "Int64";
-  constexpr const char* const __class::Float32::CLASS_NAME_NONCONSTEXPR = "Float32";
-  constexpr const char* const __class::Float64::CLASS_NAME_NONCONSTEXPR = "Float64";
-  constexpr const char* const __class::Boolean::CLASS_NAME_NONCONSTEXPR = "Boolean";
+  const char* const __class::String::CLASS_NAME_NONCONSTEXPR = "String";
+  const char* const __class::Int8::CLASS_NAME_NONCONSTEXPR = "Int8";
+  const char* const __class::Int16::CLASS_NAME_NONCONSTEXPR = "Int16";
+  const char* const __class::Int32::CLASS_NAME_NONCONSTEXPR = "Int32";
+  const char* const __class::Int64::CLASS_NAME_NONCONSTEXPR = "Int64";
+  const char* const __class::Float32::CLASS_NAME_NONCONSTEXPR = "Float32";
+  const char* const __class::Float64::CLASS_NAME_NONCONSTEXPR = "Float64";
+  const char* const __class::Boolean::CLASS_NAME_NONCONSTEXPR = "Boolean";
 
 String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType)
   : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
