@@ -37,14 +37,50 @@ ENV::log("macro", "param: %d/%d: '%s'", INDEX, COUNT, #X);
 #define OATPP_MACRO_HAS_ARGS_ARR(...) OATPP_MACRO__NUM_ARGS(__VA_ARGS__, true, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// BEGIN(Detect empty macro)
+// Please note:
+// this code is taken from
+// https://gustedt.wordpress.com/2010/06/08/detect-empty-macro-arguments/
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+// #define OATPP_MACRO_HAS_ARGS(...) OATPP_MACRO_HAS_ARGS_ARR(L, ##__VA_ARGS__)
+
+#define OATPP_MACRO_TRIGGER_PARENTHESIS_(...) ,
+
+#define OATPP_MACRO_ISEMPTY(...) \
+OATPP_MACRO_ISEMPTY_( \
+/* test if there is just one argument, eventually an empty one */ \
+OATPP_MACRO_HAS_ARGS_ARR(__VA_ARGS__), \
+/* test if OATPP_MACRO_TRIGGER_PARENTHESIS_ together with the argument adds a comma */ \
+OATPP_MACRO_HAS_ARGS_ARR(OATPP_MACRO_TRIGGER_PARENTHESIS_ __VA_ARGS__), \
+/* test if the argument together with a parenthesis adds a comma */ \
+OATPP_MACRO_HAS_ARGS_ARR(__VA_ARGS__ (/*empty*/)), \
+/* test if placing it between OATPP_MACRO_TRIGGER_PARENTHESIS_ and the parenthesis adds a comma */ \
+OATPP_MACRO_HAS_ARGS_ARR(OATPP_MACRO_TRIGGER_PARENTHESIS_ __VA_ARGS__ (/*empty*/)) \
+)
+
+#define OATPP_MACRO_PASTE5(_0, _1, _2, _3, _4) _0 ## _1 ## _2 ## _3 ## _4
+#define OATPP_MACRO_ISEMPTY_(_0, _1, _2, _3) OATPP_MACRO_HAS_ARGS_ARR(OATPP_MACRO_PASTE5(OATPP_MACRO_IS_EMPTY_CASE_, _0, _1, _2, _3))
+#define OATPP_MACRO_IS_EMPTY_CASE_0001 ,
+
+#define OATPP_MACRO_HAS_ARGS_NOT_1 0
+#define OATPP_MACRO_HAS_ARGS_NOT_0 1
+#define OATPP_MACRO_HAS_ARGS__(X) OATPP_MACRO_HAS_ARGS_NOT_ ## X
+#define OATPP_MACRO_HAS_ARGS_(X) OATPP_MACRO_HAS_ARGS__(X)
+#define OATPP_MACRO_HAS_ARGS(...) OATPP_MACRO_HAS_ARGS_(OATPP_MACRO_ISEMPTY(__VA_ARGS__))
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// END(Detect empty macro)
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define OATPP_MACRO_CONCAT(X,Y) OATPP_MACRO_CONCAT(X,Y)
 #define OATPP_MACRO_CONCAT2(X,Y) X##Y
 #define OATPP_MACRO_CONCAT_2 OATPP_MACRO_CONCAT
 #define OATPP_MACRO_CONCAT_3(X,Y,Z) OATPP_MACRO_CONCAT(X,OATPP_MACRO_CONCAT(Y,Z))
 
 #define OATPP_MACRO_STR(X) #X
-
-#define OATPP_MACRO_HAS_ARGS(...) OATPP_MACRO_HAS_ARGS_ARR(L, ##__VA_ARGS__)
 
 #define OATPP_MACRO_EXPAND(X) X
 #define OATPP_MACRO_FIRSTARG(X, ...) X
