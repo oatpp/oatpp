@@ -14,7 +14,7 @@ Organic. Pure C++.
 - **Asynchronous server (High performance. Handle 30K+ simultaneous connections)**
 - Multithreaded server (Simple API)
 - Connection agnostic. (Use whatever transport. Whatever SSL backend. Whatever sockets, pipes, files. etc. It cares about HTTP stream only)
-- REST framework
+- REST framework (with ability to autodocument endpoints see [oatpp-swagger](https://github.com/oatpp/oatpp-swagger))
 - Retrofit-like client wrapper (Use whatever request executor for example cURL, or minimalistic one provided out of the box)
 - Object mapping (Fast object serialization-deserialization. Currently JSON, more formats comes shortly)
 - Simple dependency injection framework
@@ -147,6 +147,20 @@ ENDPOINT_ASYNC("POST", "demo/api_async/json", PostJSONAsync) {
 ```
 $ curl -X POST "localhost:8001/demo/api_async/json" -d '{"message": "hello json post"}'
 dtoMessage: hello json post
+```
+
+### Swagger documentation
+
+```c++
+ENDPOINT_INFO(createUser) {
+  info->summary = "Create new User";
+  info->addConsumes<UserDto::ObjectWrapper>("application/json");
+  info->addResponse<UserDto::ObjectWrapper>(Status::CODE_200, "application/json");
+}
+ENDPOINT("POST", "demo/api/users", createUser,
+         BODY_DTO(UserDto::ObjectWrapper, userDto)) {
+  return createDtoResponse(Status::CODE_200, m_database->createUser(userDto));
+}
 ```
 
 ## How to start
