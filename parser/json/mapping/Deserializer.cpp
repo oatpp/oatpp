@@ -219,7 +219,12 @@ Deserializer::AbstractObjectWrapper Deserializer::readValue(const Type* const ty
   } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
     return readListMapValue(type, caret, config);
   } else {
-    skipValue(caret);
+    OATPP_LOGD("test", "unknown type '%s'", typeName);
+    OATPP_LOGD("test", "string type name '%s'", oatpp::data::mapping::type::__class::String::CLASS_NAME);
+    OATPP_LOGD("test", "unknown type addr %d", typeName);
+    OATPP_LOGD("test", "string type addr %d", oatpp::data::mapping::type::__class::String::CLASS_NAME);
+    throw std::runtime_error("unknown type");
+    //skipValue(caret);
   }
   
   return AbstractObjectWrapper::empty();
@@ -357,7 +362,14 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
         caret.findNotBlankChar();
         
         auto field = fieldIterator->second;
-        field->set(object.get(), readValue(field->type, caret, config));
+        auto value = readValue(field->type, caret, config);
+        if(!value){
+          OATPP_LOGD("test", "value is null");
+        }
+        if(value.get() == nullptr) {
+          OATPP_LOGD("test", "strange if not called");
+        }
+        field->set(object.get(), value);
         
       } else if (config->allowUnknownFields) {
         OATPP_LOGD("test", "unknown field '%s'", key.c_str());
