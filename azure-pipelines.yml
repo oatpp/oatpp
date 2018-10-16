@@ -3,6 +3,7 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+jobs:
 - job: ubuntu_16_04
   displayName: 'Build - Ubuntu 16.04'
   continueOnError: false
