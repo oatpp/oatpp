@@ -3,14 +3,24 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-pool:
-  vmImage: 'Ubuntu 16.04'
+- job: ubuntu_16_04
+  displayName: 'Build - Ubuntu 16.04'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+  steps:
+    - task: CMake@1
+      inputs:
+      cmakeArgs: '-DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON'
+    - script: make
+      displayName: 'make'
+    - script: make test ARGS="-V"
+      displayName: 'test'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+##- job: macOS
+##  displayName: 'Build - macOS-10.13'
+##  continueOnError: false
+##  pool:
+##    vmImage: 'macOS-10.13'
