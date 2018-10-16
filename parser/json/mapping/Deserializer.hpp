@@ -125,6 +125,13 @@ public:
   static AbstractObjectWrapper deserialize(oatpp::parser::ParsingCaret& caret,
                                            const std::shared_ptr<Config>& config,
                                            const Type* const type) {
+    
+    OATPP_LOGD("test", "type->name='%s'", type->name);
+    OATPP_LOGD("test", "__class='%s'", oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME);
+    
+    OATPP_LOGD("test", "type->name addr=%d", type->name);
+    OATPP_LOGD("test", "__class addr=%d", oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME);
+    
     if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
       return readObject(type, caret, config);
     } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){

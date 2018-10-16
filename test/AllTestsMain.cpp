@@ -30,10 +30,10 @@ public:
 };
 
 void runTests() {
-  OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
-  OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
-  OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
-  OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  //OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
+  //OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
+  //OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
+  //OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
