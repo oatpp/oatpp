@@ -14,11 +14,15 @@ jobs:
   steps:
     - task: CMake@1
       inputs:
-      cmakeArgs: '-DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON'
-    - script: make
-      displayName: 'make'
-    - script: make test ARGS="-V"
-      displayName: 'test'
+      cmakeArgs: 
+    - script: |
+        cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON
+        make
+      displayName: 'CMake'
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
 
 ##- job: macOS
 ##  displayName: 'Build - macOS-10.13'
