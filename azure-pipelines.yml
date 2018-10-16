@@ -13,8 +13,6 @@ jobs:
     clean: all
   steps:
     - task: CMake@1
-      inputs:
-      cmakeArgs: 
     - script: |
         cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON
         make
