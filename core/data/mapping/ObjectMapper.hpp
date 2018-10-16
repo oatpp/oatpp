@@ -80,7 +80,7 @@ public:
     auto type = Class::ObjectWrapper::Class::getType();
     oatpp::parser::ParsingCaret caret(str);
     auto result = oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
-    if(caret.hasError()) {
+    if(caret.hasError() || result.get() == nullptr ) {
       OATPP_LOGD("test", "caret->hasError '%s', %d", caret.getError(), caret.getPosition());
     }
     return result;
