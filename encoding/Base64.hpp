@@ -49,16 +49,16 @@ public:
   /**
    *  Alphabet is array of 65 chars. 64 chars encoding chars, and 65th padding char
    */
-  constexpr static const char* ALPHABET_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-  constexpr static const char* ALPHABET_BASE64_URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
-  constexpr static const char* ALPHABET_BASE64_URL_SAFE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-";
+  static const char* const ALPHABET_BASE64;
+  static const char* const ALPHABET_BASE64_URL;
+  static const char* const ALPHABET_BASE64_URL_SAFE;
   
   /**
    *  alphabet auxiliary chars - last 3 chars of alphabet including padding char.
    */
-  constexpr static const char* ALPHABET_BASE64_AUXILIARY_CHARS = "+/=";
-  constexpr static const char* ALPHABET_BASE64_URL_AUXILIARY_CHARS = "-_=";
-  constexpr static const char* ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS = "._-";
+  static const char* const ALPHABET_BASE64_AUXILIARY_CHARS;
+  static const char* const ALPHABET_BASE64_URL_AUXILIARY_CHARS;
+  static const char* const ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS;
   
   /**
    *  Returns size of encoding result of a string of the given size

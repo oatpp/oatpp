@@ -38,7 +38,7 @@ class Type; // FWD
 namespace __class {
   class Void {
   public:
-    constexpr static const char* const CLASS_NAME = "Void";
+    static const char* const CLASS_NAME;
     static Type* getType();
   };
 }

@@ -26,6 +26,14 @@
 
 namespace oatpp { namespace encoding {
   
+const char* const Base64::ALPHABET_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+const char* const Base64::ALPHABET_BASE64_URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
+const char* const Base64::ALPHABET_BASE64_URL_SAFE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-";
+
+const char* const Base64::ALPHABET_BASE64_AUXILIARY_CHARS = "+/=";
+const char* const Base64::ALPHABET_BASE64_URL_AUXILIARY_CHARS = "-_=";
+const char* const Base64::ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS = "._-";
+  
 v_char8 Base64::getAlphabetCharIndex(v_char8 a, const char* auxiliaryChars) {
   if(a >= 'A' && a <='Z') {
     return a - 'A';

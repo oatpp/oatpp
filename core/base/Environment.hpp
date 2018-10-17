@@ -34,12 +34,14 @@
 #include <unordered_map>
 #include <stdexcept>
 
+#include <stdlib.h>
+
 #define OATPP_VERSION "0.18.9"
 
 #define OATPP_ASSERT(EXP) \
 if(!(EXP)) { \
   OATPP_LOGE("ASSERT[FAILED]", #EXP); \
-  throw std::runtime_error("ASSERT[FAILED]:" #EXP); \
+  exit(EXIT_FAILURE); \
 }
 
 typedef unsigned char v_char8;

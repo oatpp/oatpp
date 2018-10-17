@@ -22,12 +22,19 @@
  *
  ***************************************************************************/
 
-#include "./List.hpp"
+#ifndef oatpp_test_encoding_Base64Test_hpp
+#define oatpp_test_encoding_Base64Test_hpp
 
-namespace oatpp { namespace data { namespace mapping { namespace type {
+#include "oatpp/test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace encoding {
   
-namespace __class {
-  const char* const AbstractList::CLASS_NAME = "List";
-}
+class Base64Test : public UnitTest{
+public:
+  Base64Test():UnitTest("TEST[encoding::Base64Test]"){}
+  bool onRun() override;
+};
   
-}}}}
+}}}
+
+#endif /* oatpp_test_encoding_Base64Test_hpp */

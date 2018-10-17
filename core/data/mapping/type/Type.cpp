@@ -29,6 +29,8 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
   
 namespace __class {
   
+  const char* const Void::CLASS_NAME = "Void";
+  
   Type* Void::getType(){
     static Type type(CLASS_NAME, nullptr);
     return &type;

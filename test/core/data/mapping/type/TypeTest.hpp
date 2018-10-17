@@ -22,12 +22,21 @@
  *
  ***************************************************************************/
 
-#include "./List.hpp"
+#ifndef oatpp_test_core_data_mapping_type_TypeTest_hpp
+#define oatpp_test_core_data_mapping_type_TypeTest_hpp
 
-namespace oatpp { namespace data { namespace mapping { namespace type {
+#include "oatpp/test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
   
-namespace __class {
-  const char* const AbstractList::CLASS_NAME = "List";
-}
+class TypeTest : public UnitTest{
+public:
   
-}}}}
+  TypeTest():UnitTest("TEST[core::data::mapping::type::TypeTest]"){}
+  bool onRun() override;
+  
+};
+  
+}}}}}}
+
+#endif /* oatpp_test_core_data_mapping_type_TypeTest_hpp */

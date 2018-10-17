@@ -158,7 +158,7 @@ public:
   
 class Range {
 public:
-  constexpr static const char* UNIT_BYTES = "bytes";
+  static const char* const UNIT_BYTES;
 private:
   Range()
     : units(nullptr)
@@ -190,7 +190,7 @@ public:
   
 class ContentRange {
 public:
-  constexpr static const char* UNIT_BYTES = "bytes";
+  static const char* const UNIT_BYTES;
 private:
   ContentRange()
     : units(nullptr)

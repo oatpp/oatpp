@@ -43,8 +43,8 @@ public:
   constexpr static os::io::Library::v_size ERROR_IO_RETRY = -1003;
   constexpr static os::io::Library::v_size ERROR_IO_PIPE = -1004;
   
-  constexpr static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_DATA";
-  constexpr static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA = "ERROR_ASYNC_FAILED_TO_READ_DATA";
+  static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA;
+  static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA;
 };
   
 class OutputStream {
