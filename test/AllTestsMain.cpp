@@ -1,12 +1,15 @@
 
+#include "oatpp/test/parser/json/mapping/DeserializerTest.hpp"
+#include "oatpp/test/parser/json/mapping/DTOMapperPerfTest.hpp"
+#include "oatpp/test/parser/json/mapping/DTOMapperTest.hpp"
+
+#include "oatpp/test/encoding/UnicodeTest.hpp"
+#include "oatpp/test/encoding/Base64Test.hpp"
+
 #include "oatpp/test/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/test/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/test/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/test/core/base/memory/PerfTest.hpp"
-#include "oatpp/test/encoding/UnicodeTest.hpp"
-#include "oatpp/test/parser/json/mapping/DeserializerTest.hpp"
-#include "oatpp/test/parser/json/mapping/DTOMapperPerfTest.hpp"
-#include "oatpp/test/parser/json/mapping/DTOMapperTest.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -33,14 +36,15 @@ public:
 };
 
 void runTests() {
-  //OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
-  //OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
-  //OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
-  //OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
+  OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
+  OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
+  OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
+  OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
 }
   
 }

@@ -17,7 +17,7 @@ jobs:
         mv `ls -A | grep -v oatpp` ./oatpp/
     - task: CMake@1
     - script: |
-        cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON
+        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON
         make
       displayName: 'CMake'
       workingDirectory: oatpp

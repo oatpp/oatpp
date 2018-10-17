@@ -22,30 +22,19 @@
  *
  ***************************************************************************/
 
-#include "./Type.hpp"
+#ifndef oatpp_test_encoding_Base64Test_hpp
+#define oatpp_test_encoding_Base64Test_hpp
 
+#include "oatpp/test/UnitTest.hpp"
 
-namespace oatpp { namespace data { namespace mapping { namespace type {
+namespace oatpp { namespace test { namespace encoding {
   
-namespace __class {
+class Base64Test : public UnitTest{
+public:
+  Base64Test():UnitTest("TEST[encoding::Base64Test]"){}
+  bool onRun() override;
+};
   
-  const char* const Void::CLASS_NAME = "Void";
-  
-  Type* Void::getType(){
-    static Type type(CLASS_NAME, nullptr);
-    return &type;
-  }
-  
-}
-  
-void Type::Properties::pushBack(Property* property) {
-  m_map.insert({property->name, property});
-  m_list.push_back(property);
-}
-  
-void Type::Properties::pushFrontAll(Properties* properties) {
-  m_map.insert(properties->m_map.begin(), properties->m_map.end());
-  m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
-}
-  
-}}}}
+}}}
+
+#endif /* oatpp_test_encoding_Base64Test_hpp */

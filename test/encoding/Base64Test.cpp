@@ -22,30 +22,33 @@
  *
  ***************************************************************************/
 
-#include "./Type.hpp"
+#include "Base64Test.hpp"
 
+#include "oatpp/encoding/Base64.hpp"
 
-namespace oatpp { namespace data { namespace mapping { namespace type {
+namespace oatpp { namespace test { namespace encoding {
   
-namespace __class {
+bool Base64Test::onRun() {
+
+  oatpp::String message = "oat++ web framework";
+  oatpp::String messageEncoded = "b2F0Kysgd2ViIGZyYW1ld29yaw==";
   
-  const char* const Void::CLASS_NAME = "Void";
-  
-  Type* Void::getType(){
-    static Type type(CLASS_NAME, nullptr);
-    return &type;
+  {
+    oatpp::String encoded = oatpp::encoding::Base64::encode(message);
+    OATPP_LOGD(TAG, "encoded='%s'", encoded->c_str());
+    OATPP_ASSERT(encoded->equals(messageEncoded.get()));
+    oatpp::String decoded = oatpp::encoding::Base64::decode(encoded);
+    OATPP_ASSERT(message->equals(decoded.get()));
   }
   
+  {
+    oatpp::String encoded = oatpp::encoding::Base64::encode(message, oatpp::encoding::Base64::ALPHABET_BASE64_URL_SAFE);
+    OATPP_LOGD(TAG, "encoded='%s'", encoded->c_str());
+    oatpp::String decoded = oatpp::encoding::Base64::decode(encoded, oatpp::encoding::Base64::ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS);
+    OATPP_ASSERT(message->equals(decoded.get()));
+  }
+  
+  return true;
 }
   
-void Type::Properties::pushBack(Property* property) {
-  m_map.insert({property->name, property});
-  m_list.push_back(property);
-}
-  
-void Type::Properties::pushFrontAll(Properties* properties) {
-  m_map.insert(properties->m_map.begin(), properties->m_map.end());
-  m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
-}
-  
-}}}}
+}}}

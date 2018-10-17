@@ -27,6 +27,9 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
+const char* const Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_DATA";
+const char* const Errors::ERROR_ASYNC_FAILED_TO_READ_DATA = "ERROR_ASYNC_FAILED_TO_READ_DATA";
+  
 os::io::Library::v_size OutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);

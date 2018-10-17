@@ -219,7 +219,6 @@ Deserializer::AbstractObjectWrapper Deserializer::readValue(const Type* const ty
   } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
     return readListMapValue(type, caret, config);
   } else {
-    OATPP_LOGD("test", "value skipped of type: '%s'", typeName);
     skipValue(caret);
   }
   
