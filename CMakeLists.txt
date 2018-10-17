@@ -245,6 +245,8 @@ if(OATPP_BUILD_TESTS)
         test/core/base/memory/PerfTest.hpp
         test/core/base/RegRuleTest.cpp
         test/core/base/RegRuleTest.hpp
+        test/core/data/mapping/type/TypeTest.cpp
+        test/core/data/mapping/type/TypeTest.hpp
         test/encoding/UnicodeTest.cpp
         test/encoding/UnicodeTest.hpp
         test/parser/json/mapping/DeserializerTest.cpp

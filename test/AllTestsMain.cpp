@@ -1,3 +1,5 @@
+
+#include "oatpp/test/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/test/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/test/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/test/core/base/memory/PerfTest.hpp"
@@ -34,6 +36,7 @@ void runTests() {
   //OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   //OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
   //OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
