@@ -132,6 +132,7 @@ public:
     } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
       return readListMap(type, caret, config);
     }
+    OATPP_LOGD("test", "unknown type '%s'", type->name);
     return AbstractObjectWrapper::empty();
   }
   
