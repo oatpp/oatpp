@@ -70,22 +70,16 @@ bool DeserializerTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
-  OATPP_LOGD("test", "case 1");
-  
   auto obj1 = mapper->readFromString<Test1>("{}");
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(!obj1->strF);
-  
-  OATPP_LOGD("test", "case 2");
   
   obj1 = mapper->readFromString<Test1>("{\"strF\":\"value1\"}");
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(obj1->strF);
   OATPP_ASSERT(obj1->strF->equals("value1"));
-  
-  OATPP_LOGD("test", "case 3");
   
   obj1 = mapper->readFromString<Test1>("{\n\r\t\f\"strF\"\n\r\t\f:\n\r\t\f\"value1\"\n\r\t\f}");
   
