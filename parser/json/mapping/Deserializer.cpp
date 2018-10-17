@@ -219,12 +219,7 @@ Deserializer::AbstractObjectWrapper Deserializer::readValue(const Type* const ty
   } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
     return readListMapValue(type, caret, config);
   } else {
-    OATPP_LOGD("test", "unknown type '%s'", typeName);
-    OATPP_LOGD("test", "string type name '%s'", oatpp::data::mapping::type::__class::String::CLASS_NAME);
-    OATPP_LOGD("test", "unknown type addr %d", typeName);
-    OATPP_LOGD("test", "string type addr %d", oatpp::data::mapping::type::__class::String::CLASS_NAME);
-    throw std::runtime_error("unknown type");
-    //skipValue(caret);
+    skipValue(caret);
   }
   
   return AbstractObjectWrapper::empty();
@@ -339,8 +334,6 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
     auto object = type->creator();
     const auto& fieldsMap = type->properties->getMap();
     
-    OATPP_LOGD("test", "fieldsMap size=%d", fieldsMap.size());
-    
     while (!caret.isAtChar('}') && caret.canContinue()) {
       
       caret.findNotBlankChar();
@@ -351,10 +344,9 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
       
       auto fieldIterator = fieldsMap.find(key);
       if(fieldIterator != fieldsMap.end()){
-        OATPP_LOGD("test", "field found '%s'", key.c_str());
+        
         caret.findNotBlankChar();
         if(!caret.canContinueAtChar(':', 1)){
-          OATPP_LOGD("test", "error '%s'", ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING);
           caret.setError(ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING);
           return AbstractObjectWrapper::empty();
         }
@@ -362,17 +354,9 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
         caret.findNotBlankChar();
         
         auto field = fieldIterator->second;
-        auto value = readValue(field->type, caret, config);
-        if(!value){
-          OATPP_LOGD("test", "value is null");
-        }
-        if(value.get() == nullptr) {
-          OATPP_LOGD("test", "strange if not called");
-        }
-        field->set(object.get(), value);
+        field->set(object.get(), readValue(field->type, caret, config));
         
       } else if (config->allowUnknownFields) {
-        OATPP_LOGD("test", "unknown field '%s'", key.c_str());
         caret.findNotBlankChar();
         if(!caret.canContinueAtChar(':', 1)){
           caret.setError(ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING);
@@ -381,7 +365,6 @@ Deserializer::AbstractObjectWrapper Deserializer::readObject(const Type* type,
         caret.findNotBlankChar();
         skipValue(caret);
       } else {
-        OATPP_LOGD("test", "error '%s'", ERROR_PARSER_OBJECT_SCOPE_UNKNOWN_FIELD);
         caret.setError(ERROR_PARSER_OBJECT_SCOPE_UNKNOWN_FIELD);
         return AbstractObjectWrapper::empty();
       }
