@@ -1,4 +1,4 @@
-# oat++
+# oat++ [![oatpp build status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp)](https://dev.azure.com/lganzzzo/lganzzzo/_build?definitionId=1)
 
 - Website: [https://oatpp.io](https://oatpp.io)
 - Docs: [https://oatpp.io/docs/start](https://oatpp.io/docs/start)
