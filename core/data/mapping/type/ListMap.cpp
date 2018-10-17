@@ -23,3 +23,11 @@
  ***************************************************************************/
 
 #include "ListMap.hpp"
+
+namespace oatpp { namespace data { namespace mapping { namespace type {
+  
+namespace __class {
+  const char* const AbstractListMap::CLASS_NAME = "ListMap";
+}
+  
+}}}}
