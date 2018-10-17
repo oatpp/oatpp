@@ -13,6 +13,7 @@
 
 #include <iostream>
 
+#ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 namespace {
 
 class Logger : public oatpp::base::Logger {
@@ -44,7 +45,6 @@ void runTests() {
   
 }
 
-#ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 int main() {
   
   oatpp::base::Environment::init();

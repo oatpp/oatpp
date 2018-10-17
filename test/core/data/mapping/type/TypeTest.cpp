@@ -40,18 +40,22 @@ namespace {
     DTO_INIT(TestDto, DTO)
     
     DTO_FIELD(String, _string);
+    DTO_FIELD(Int8, _int8);
+    DTO_FIELD(Int16, _int16);
     DTO_FIELD(Int32, _int32);
     DTO_FIELD(Int64, _int64);
     DTO_FIELD(Float32, _float32);
     DTO_FIELD(Float64, _float64);
     DTO_FIELD(Boolean, _boolean);
     
-    DTO_FIELD(List<String>::ObjectWrapper, _list_string) = List<String>::createShared();
-    DTO_FIELD(List<Int32>::ObjectWrapper, _list_int32) = List<Int32>::createShared();
-    DTO_FIELD(List<Int64>::ObjectWrapper, _list_int64) = List<Int64>::createShared();
-    DTO_FIELD(List<Float32>::ObjectWrapper, _list_float32) = List<Float32>::createShared();
-    DTO_FIELD(List<Float64>::ObjectWrapper, _list_float64) = List<Float64>::createShared();
-    DTO_FIELD(List<Boolean>::ObjectWrapper, _list_boolean) = List<Boolean>::createShared();
+    DTO_FIELD(List<String>::ObjectWrapper, _list_string);
+    DTO_FIELD(List<Int32>::ObjectWrapper, _list_int32);
+    DTO_FIELD(List<Int64>::ObjectWrapper, _list_int64);
+    DTO_FIELD(List<Float32>::ObjectWrapper, _list_float32);
+    DTO_FIELD(List<Float64>::ObjectWrapper, _list_float64);
+    DTO_FIELD(List<Boolean>::ObjectWrapper, _list_boolean);
+    
+    DTO_FIELD(Fields<String>::ObjectWrapper, _map_string_string);
     
     DTO_FIELD(TestDto::ObjectWrapper, obj1);
     
@@ -67,6 +71,12 @@ bool TypeTest::onRun() {
   
   OATPP_LOGD(TAG, "type: '%s'", obj->_string.valueType->name);
   OATPP_ASSERT(obj->_string.valueType->name == oatpp::data::mapping::type::__class::String::CLASS_NAME);
+  
+  OATPP_LOGD(TAG, "type: '%s'", obj->_int8.valueType->name);
+  OATPP_ASSERT(obj->_int8.valueType->name == oatpp::data::mapping::type::__class::Int8::CLASS_NAME);
+  
+  OATPP_LOGD(TAG, "type: '%s'", obj->_int16.valueType->name);
+  OATPP_ASSERT(obj->_int16.valueType->name == oatpp::data::mapping::type::__class::Int16::CLASS_NAME);
   
   OATPP_LOGD(TAG, "type: '%s'", obj->_int32.valueType->name);
   OATPP_ASSERT(obj->_int32.valueType->name == oatpp::data::mapping::type::__class::Int32::CLASS_NAME);
@@ -100,6 +110,9 @@ bool TypeTest::onRun() {
   
   OATPP_LOGD(TAG, "type: '%s'", obj->_list_boolean.valueType->name);
   OATPP_ASSERT(obj->_list_boolean.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
+  
+  OATPP_LOGD(TAG, "type: '%s'", obj->_map_string_string.valueType->name);
+  OATPP_ASSERT(obj->_map_string_string.valueType->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME);
   
   OATPP_LOGD(TAG, "type: '%s'", obj->obj1.valueType->name);
   OATPP_ASSERT(obj->obj1.valueType->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME);

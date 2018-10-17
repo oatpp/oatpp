@@ -240,7 +240,7 @@ namespace __class {
   
   class String {
   public:
-    constexpr static const char* const CLASS_NAME = "String";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -256,7 +256,7 @@ namespace __class {
   
   class Int8 {
   public:
-    constexpr static const char* const CLASS_NAME = "Int8";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -269,7 +269,7 @@ namespace __class {
   
   class Int16 {
   public:
-    constexpr static const char* const CLASS_NAME = "Int16";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -282,7 +282,7 @@ namespace __class {
   
   class Int32 {
   public:
-    constexpr static const char* const CLASS_NAME = "Int32";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -295,7 +295,7 @@ namespace __class {
   
   class Int64 {
   public:
-    constexpr static const char* const CLASS_NAME = "Int64";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -308,7 +308,7 @@ namespace __class {
   
   class Float32 {
   public:
-    constexpr static const char* const CLASS_NAME = "Float32";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -321,7 +321,7 @@ namespace __class {
   
   class Float64 {
   public:
-    constexpr static const char* const CLASS_NAME = "Float64";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);
@@ -334,7 +334,7 @@ namespace __class {
   
   class Boolean {
   public:
-    constexpr static const char* const CLASS_NAME = "Boolean";
+    static const char* const CLASS_NAME;
     
     static Type* getType(){
       static Type type(CLASS_NAME, nullptr);

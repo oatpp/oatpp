@@ -50,6 +50,15 @@ String operator + (const String& a, const String& b) {
   
 namespace __class {
   
+  const char* const String::CLASS_NAME = "String";
+  const char* const Int8::CLASS_NAME = "Int8";
+  const char* const Int16::CLASS_NAME = "Int16";
+  const char* const Int32::CLASS_NAME = "Int32";
+  const char* const Int64::CLASS_NAME = "Int64";
+  const char* const Float32::CLASS_NAME = "Float32";
+  const char* const Float64::CLASS_NAME = "Float64";
+  const char* const Boolean::CLASS_NAME = "Boolean";
+  
   type::Int8 Int8::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
