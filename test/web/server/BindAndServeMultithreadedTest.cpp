@@ -46,7 +46,7 @@ namespace oatpp { namespace test { namespace web { namespace server {
 namespace {
   
   const v_word16 TEST_SERVER_PORT = 48000;
-  bool m_serverRunning = false;
+  std::atomic<bool> m_serverRunning(false);
   std::mutex m_testMutex;
   std::condition_variable m_testCondition;
   
@@ -94,7 +94,6 @@ bool BindAndServeMultithreadedTest::onRun() {
   // Start Server
   std::thread serverThread([server] {
     {
-      std::lock_guard<std::mutex> lk(m_testMutex);
       m_serverRunning = true;
       m_testCondition.notify_one();
     }
@@ -103,14 +102,14 @@ bool BindAndServeMultithreadedTest::onRun() {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Run Test
-  std::thread testThread([server] {
+  std::thread testThread([server, connectionProvider] {
     std::unique_lock<std::mutex> lock(m_testMutex);
     while(!m_serverRunning){
       m_testCondition.wait(lock);
     }
     
-    auto connectionProvider = oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", TEST_SERVER_PORT);
-    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionProvider);
+    auto clientConnectionProvider = oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", TEST_SERVER_PORT);
+    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvider);
     
     auto response = requestExecutor->execute("GET", "/", nullptr, nullptr);
     OATPP_ASSERT(response);
@@ -120,17 +119,14 @@ bool BindAndServeMultithreadedTest::onRun() {
     OATPP_ASSERT(body->equals(TEST_SERVER_RESPONSE));
     
     server->stop();
-    
-    try{
-      requestExecutor->execute("GET", "/", nullptr, nullptr);
-    } catch(...) {
-      // do nothing
-    }
+    connectionProvider->close();
     
   });
   
   serverThread.join();
   testThread.join();
+  
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   
   return true;
 }

@@ -69,6 +69,10 @@ public:
     throw std::runtime_error("oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync not implemented.");
   }
   
+  void close() {
+    oatpp::os::io::Library::handle_close(m_serverHandle);
+  }
+  
 };
   
 }}}
