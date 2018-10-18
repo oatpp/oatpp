@@ -257,6 +257,8 @@ if(OATPP_BUILD_TESTS)
         test/parser/json/mapping/DTOMapperPerfTest.hpp
         test/parser/json/mapping/DTOMapperTest.cpp
         test/parser/json/mapping/DTOMapperTest.hpp
+        test/web/server/BindAndServeMultithreadedTest.cpp
+        test/web/server/BindAndServeMultithreadedTest.hpp
     )
     target_link_libraries(oatppAllTests PRIVATE oatpp)
     set_target_properties(oatppAllTests PROPERTIES
