@@ -121,6 +121,12 @@ bool BindAndServeMultithreadedTest::onRun() {
     server->stop();
     connectionProvider->close();
     
+    try{
+      requestExecutor->execute("GET", "/", nullptr, nullptr);
+    } catch(...) {
+      // do nothing
+    }
+    
   });
   
   serverThread.join();
