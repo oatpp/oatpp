@@ -10,6 +10,8 @@
 #include "oatpp/test/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/test/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/test/core/base/memory/PerfTest.hpp"
+#include "oatpp/test/core/base/CommandLineArgumentsTest.hpp"
+#include "oatpp/test/core/base/RegRuleTest.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -36,6 +38,8 @@ public:
 };
 
 void runTests() {
+  OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
+  OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
