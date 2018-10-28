@@ -245,10 +245,10 @@ if(OATPP_BUILD_TESTS)
         test/core/base/memory/MemoryPoolTest.hpp
         test/core/base/memory/PerfTest.cpp
         test/core/base/memory/PerfTest.hpp
-        test/core/base/memory/CommandLineArgumentsTest.cpp
-        test/core/base/memory/CommandLineArgumentsTest.hpp
         test/core/base/RegRuleTest.cpp
         test/core/base/RegRuleTest.hpp
+        test/core/base/CommandLineArgumentsTest.cpp
+        test/core/base/CommandLineArgumentsTest.hpp
         test/core/data/mapping/type/TypeTest.cpp
         test/core/data/mapping/type/TypeTest.hpp
         test/encoding/UnicodeTest.cpp
