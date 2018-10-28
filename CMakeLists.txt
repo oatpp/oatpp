@@ -35,6 +35,8 @@ add_library(oatpp
     core/base/memory/ObjectPool.hpp
     core/base/StrBuffer.cpp
     core/base/StrBuffer.hpp
+    core/base/CommandLineArguments.cpp
+    core/base/CommandLineArguments.hpp
     core/collection/FastQueue.cpp
     core/collection/FastQueue.hpp
     core/collection/LinkedList.cpp
@@ -243,6 +245,8 @@ if(OATPP_BUILD_TESTS)
         test/core/base/memory/MemoryPoolTest.hpp
         test/core/base/memory/PerfTest.cpp
         test/core/base/memory/PerfTest.hpp
+        test/core/base/memory/CommandLineArgumentsTest.cpp
+        test/core/base/memory/CommandLineArgumentsTest.hpp
         test/core/base/RegRuleTest.cpp
         test/core/base/RegRuleTest.hpp
         test/core/data/mapping/type/TypeTest.cpp
