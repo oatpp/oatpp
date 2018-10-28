@@ -24,7 +24,7 @@
 
 #include "CommandLineArguments.hpp"
 
-#include <string.h>
+#include <cstring>
 
 namespace oatpp { namespace base {
   
