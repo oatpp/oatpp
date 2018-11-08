@@ -134,7 +134,7 @@ oatpp::os::io::Library::v_size transfer(const std::shared_ptr<InputStream>& from
     if(readResult > 0) {
       auto writeReasul = writeExactSizeData(toStream.get(), buffer, readResult);
       if(writeReasul != readResult) {
-        throw new std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
+        throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
       }
       progress += readResult;
     } else {
@@ -183,11 +183,13 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     {}
     
     Action act() override {
-      
-      if(m_progress == m_transferSize) {
-        return finish();
-      } else if(m_progress > m_transferSize) {
-        throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_progress > m_transferSize");
+      /* m_transferSize == 0 - is a legal state. */
+      if(m_transferSize > 0) {
+        if(m_progress == m_transferSize) {
+          return finish();
+        } else if(m_progress > m_transferSize) {
+          throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_progress > m_transferSize");
+        }
       } else if(m_transferSize < 0) {
         throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_transferSize < 0");
       }
@@ -222,6 +224,15 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
                                                        m_writeBufferPtr,
                                                        m_bytesLeft,
                                                        yieldTo(&TransferCoroutine::act));
+    }
+    
+    Action handleError(const oatpp::async::Error& error) override {
+      if(!error.isExceptionThrown && error.message == Errors::ERROR_ASYNC_FAILED_TO_READ_DATA) {
+        if(m_transferSize == 0) {
+          return finish();
+        }
+      }
+      return error;
     }
     
   };

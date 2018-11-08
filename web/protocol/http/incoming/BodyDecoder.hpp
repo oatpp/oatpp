@@ -36,13 +36,13 @@ private:
   
   class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, oatpp::String> {
   private:
-    BodyDecoder* m_decoder;
+    const BodyDecoder* m_decoder;
     std::shared_ptr<Protocol::Headers> m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
   public:
     
-    ToStringDecoder(BodyDecoder* decoder,
+    ToStringDecoder(const BodyDecoder* decoder,
                     const std::shared_ptr<Protocol::Headers>& headers,
                     const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream)
       : m_decoder(decoder)
@@ -63,22 +63,25 @@ private:
   template<class Type>
   class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, typename Type::ObjectWrapper> {
   private:
+    const BodyDecoder* m_decoder;
     std::shared_ptr<Protocol::Headers> m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
     std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_objectMapper;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
   public:
     
-    ToDtoDecoder(const std::shared_ptr<Protocol::Headers>& headers,
+    ToDtoDecoder(const BodyDecoder* decoder,
+                 const std::shared_ptr<Protocol::Headers>& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper)
-      : m_headers(headers)
+      : m_decoder(decoder)
+      , m_headers(headers)
       , m_bodyStream(bodyStream)
       , m_objectMapper(objectMapper)
     {}
     
     oatpp::async::Action act() override {
-      return decodeAsync(this, this->yieldTo(&ToDtoDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
+      return m_decoder->decodeAsync(this, this->yieldTo(&ToDtoDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
     }
     
     oatpp::async::Action onDecoded() {
@@ -133,7 +136,7 @@ public:
                                         const std::shared_ptr<Protocol::Headers>& headers,
                                         const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                         const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return parentCoroutine->startCoroutineForResult<ToDtoDecoder<DtoType>>(callback, headers, bodyStream, objectMapper);
+    return parentCoroutine->startCoroutineForResult<ToDtoDecoder<DtoType>>(callback, this, headers, bodyStream, objectMapper);
   }
   
 };
