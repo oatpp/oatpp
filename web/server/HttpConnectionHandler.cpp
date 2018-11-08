@@ -42,7 +42,7 @@ void HttpConnectionHandler::Task::run(){
   bool keepAlive = true;
   do {
   
-    auto response = HttpProcessor::processRequest(m_router, m_connection, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
+    auto response = HttpProcessor::processRequest(m_router, m_connection, m_bodyDecoder, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
     
     if(response) {
       outStream->setBufferPosition(0, 0);
@@ -59,7 +59,7 @@ void HttpConnectionHandler::Task::run(){
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
   
   /* Create working thread */
-  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_errorHandler, &m_requestInterceptors));
+  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_bodyDecoder, m_errorHandler, &m_requestInterceptors));
   
   /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
   v_int32 concurrency = oatpp::concurrency::Thread::getHardwareConcurrency();

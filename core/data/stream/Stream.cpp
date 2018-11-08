@@ -117,21 +117,35 @@ const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputSt
   return s;
 }
   
-void transfer(const std::shared_ptr<InputStream>& fromStream,
-              const std::shared_ptr<OutputStream>& toStream,
-              oatpp::os::io::Library::v_size transferSize,
-              void* buffer,
-              oatpp::os::io::Library::v_size bufferSize) {
+oatpp::os::io::Library::v_size transfer(const std::shared_ptr<InputStream>& fromStream,
+                                        const std::shared_ptr<OutputStream>& toStream,
+                                        oatpp::os::io::Library::v_size transferSize,
+                                        void* buffer,
+                                        oatpp::os::io::Library::v_size bufferSize) {
   
-  while (transferSize > 0) {
-    oatpp::os::io::Library::v_size desiredReadCount = transferSize;
-    if(desiredReadCount > bufferSize){
+  oatpp::os::io::Library::v_size progress = 0;
+  
+  while (transferSize == 0 || progress < transferSize) {
+    oatpp::os::io::Library::v_size desiredReadCount = transferSize - progress;
+    if(transferSize == 0 || desiredReadCount > bufferSize){
       desiredReadCount = bufferSize;
     }
-    auto readCount = fromStream->read(buffer, desiredReadCount);
-    toStream->write(buffer, readCount);
-    transferSize -= readCount;
+    auto readResult = fromStream->read(buffer, desiredReadCount);
+    if(readResult > 0) {
+      auto writeReasul = writeExactSizeData(toStream.get(), buffer, readResult);
+      if(writeReasul != readResult) {
+        throw new std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
+      }
+      progress += readResult;
+    } else {
+      if(readResult == oatpp::data::stream::Errors::ERROR_IO_RETRY || readResult == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+        continue;
+      }
+      return progress;
+    }
   }
+  
+  return progress;
   
 }
   
@@ -147,6 +161,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     std::shared_ptr<InputStream> m_fromStream;
     std::shared_ptr<OutputStream> m_toStream;
     oatpp::os::io::Library::v_size m_transferSize;
+    oatpp::os::io::Library::v_size m_progress;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
     
     oatpp::os::io::Library::v_size m_desiredReadCount;
@@ -163,19 +178,22 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
       : m_fromStream(fromStream)
       , m_toStream(toStream)
       , m_transferSize(transferSize)
+      , m_progress(0)
       , m_buffer(buffer)
     {}
     
     Action act() override {
       
-      if(m_transferSize == 0) {
+      if(m_progress == m_transferSize) {
         return finish();
+      } else if(m_progress > m_transferSize) {
+        throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_progress > m_transferSize");
       } else if(m_transferSize < 0) {
-        throw std::runtime_error("Invalid stream::TransferCoroutine state");
+        throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_transferSize < 0");
       }
       
-      m_desiredReadCount = m_transferSize;
-      if(m_desiredReadCount > m_buffer->getSize()){
+      m_desiredReadCount = m_transferSize - m_progress;
+      if(m_transferSize == 0 || m_desiredReadCount > m_buffer->getSize()){
         m_desiredReadCount = m_buffer->getSize();
       }
       
@@ -188,22 +206,22 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     
     Action doRead() {
       return oatpp::data::stream::readSomeDataAsyncInline(m_fromStream.get(),
-                                                                    m_readBufferPtr,
-                                                                    m_bytesLeft,
-                                                                    yieldTo(&TransferCoroutine::prepareWrite));
+                                                          m_readBufferPtr,
+                                                          m_bytesLeft,
+                                                          yieldTo(&TransferCoroutine::prepareWrite));
     }
     
     Action prepareWrite() {
       m_bytesLeft = m_desiredReadCount - m_bytesLeft;
-      m_transferSize -= m_bytesLeft;
+      m_progress += m_bytesLeft;
       return yieldTo(&TransferCoroutine::doWrite);
     }
     
     Action doWrite() {
       return oatpp::data::stream::writeDataAsyncInline(m_toStream.get(),
-                                                                 m_writeBufferPtr,
-                                                                 m_bytesLeft,
-                                                                 yieldTo(&TransferCoroutine::act));
+                                                       m_writeBufferPtr,
+                                                       m_bytesLeft,
+                                                       yieldTo(&TransferCoroutine::act));
     }
     
   };
@@ -276,18 +294,25 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
 }
   
 oatpp::os::io::Library::v_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, os::io::Library::v_size size) {
+  
   const char* buffer = (char*)data;
   oatpp::os::io::Library::v_size progress = 0;
+  
   while (progress < size) {
+    
     auto res = stream->write(&buffer[progress], size - progress);
-    if(res <= 0) { // if res == 0 then probably stream handles write() error incorrectly. return.
-      if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE ||
-         (res != oatpp::data::stream::Errors::ERROR_IO_RETRY && res != oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY)) {
-        return progress;
+    
+    if(res > 0) {
+      progress += res;
+    } else { // if res == 0 then probably stream handles write() error incorrectly. return.
+      if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+        continue;
       }
+      return progress;
     }
-    progress += res;
+    
   }
+  
   return progress;
 }
   

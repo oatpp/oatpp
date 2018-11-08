@@ -138,12 +138,15 @@ const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputSt
 
 /**
  * Read bytes from @fromStream" and write to @toStream" using @buffer of size @bufferSize
+ * transfer up to transferSize or until error if transferSize == 0
+ * throws in case readCount != writeCount
  */
-void transfer(const std::shared_ptr<InputStream>& fromStream,
-              const std::shared_ptr<OutputStream>& toStream,
-              oatpp::os::io::Library::v_size transferSize,
-              void* buffer,
-              oatpp::os::io::Library::v_size bufferSize);
+oatpp::os::io::Library::v_size transfer(const std::shared_ptr<InputStream>& fromStream,
+                                        const std::shared_ptr<OutputStream>& toStream,
+                                        oatpp::os::io::Library::v_size transferSize,
+                                        void* buffer,
+                                        oatpp::os::io::Library::v_size bufferSize);
+  
   
 /**
  * Same as transfer but asynchronous

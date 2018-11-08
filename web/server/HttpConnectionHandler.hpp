@@ -29,6 +29,8 @@
 #include "./handler/ErrorHandler.hpp"
 #include "./HttpRouter.hpp"
 
+#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
+
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 
@@ -50,15 +52,18 @@ private:
   private:
     HttpRouter* m_router;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
     HttpProcessor::RequestInterceptors* m_requestInterceptors;
   public:
     Task(HttpRouter* router,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
          HttpProcessor::RequestInterceptors* requestInterceptors)
       : m_router(router)
       , m_connection(connection)
+      , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
       , m_requestInterceptors(requestInterceptors)
     {}
@@ -66,9 +71,10 @@ private:
     
     static std::shared_ptr<Task> createShared(HttpRouter* router,
                                               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                                               HttpProcessor::RequestInterceptors* requestInterceptors) {
-      return std::make_shared<Task>(router, connection, errorHandler, requestInterceptors);
+      return std::make_shared<Task>(router, connection, bodyDecoder, errorHandler, requestInterceptors);
     }
     
     void run() override;
@@ -77,11 +83,13 @@ private:
   
 private:
   std::shared_ptr<HttpRouter> m_router;
+  std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   HttpProcessor::RequestInterceptors m_requestInterceptors;
 public:
   HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
     : m_router(router)
+    , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
     , m_errorHandler(handler::DefaultErrorHandler::createShared())
   {}
 public:

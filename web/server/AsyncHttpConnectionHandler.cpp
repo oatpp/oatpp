@@ -45,6 +45,7 @@ void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processo
   while (curr != nullptr) {
     
     auto coroutine = HttpProcessor::Coroutine::getBench().obtain(m_router,
+                                                                 m_bodyDecoder,
                                                                  m_errorHandler,
                                                                  m_requestInterceptors,
                                                                  curr->getData()->connection,
