@@ -273,6 +273,11 @@ public:
   
   static std::shared_ptr<RequestStartingLine> parseRequestStartingLine(oatpp::parser::ParsingCaret& caret);
   static std::shared_ptr<ResponseStartingLine> parseResponseStartingLine(oatpp::parser::ParsingCaret& caret);
+  
+  /**
+   * Parse header and store it in headers map
+   */
+  static void parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error);
   static std::shared_ptr<Headers> parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error);
   
 };

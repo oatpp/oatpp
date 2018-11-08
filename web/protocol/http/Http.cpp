@@ -316,31 +316,35 @@ oatpp::String Protocol::parseHeaderName(oatpp::parser::ParsingCaret& caret) {
   return nullptr;
 }
 
+void Protocol::parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error) {
+  caret.findNotSpaceChar();
+  auto name = parseHeaderName(caret);
+  if(name) {
+    caret.findNotSpaceChar();
+    if(!caret.canContinueAtChar(':', 1)) {
+      error = Status::CODE_400;
+      return;
+    }
+    caret.findNotSpaceChar();
+    oatpp::parser::ParsingCaret::Label label(caret);
+    caret.findRN();
+    headers.put(name, label.toString(true));
+    caret.skipRN();
+  } else {
+    error = Status::CODE_431;
+    return;
+  }
+}
   
 std::shared_ptr<Protocol::Headers> Protocol::parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error) {
   
   auto headers = Headers::createShared();
   
   while (!caret.isAtRN()) {
-    
-    caret.findNotSpaceChar();
-    auto name = parseHeaderName(caret);
-    if(name) {
-      caret.findNotSpaceChar();
-      if(!caret.canContinueAtChar(':', 1)) {
-        error = Status::CODE_400;
-        return nullptr;
-      }
-      caret.findNotSpaceChar();
-      oatpp::parser::ParsingCaret::Label label(caret);
-      caret.findRN();
-      headers->put(name, label.toString(true));
-      caret.skipRN();
-    } else {
-      error = Status::CODE_431;
+    parseOneHeader(*headers, caret, error);
+    if(error.code != 0) {
       return nullptr;
     }
-    
   }
   
   caret.skipRN();
