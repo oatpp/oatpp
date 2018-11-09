@@ -31,6 +31,8 @@
 
 #include "./HttpRouter.hpp"
 
+#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
+
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 
@@ -62,25 +64,29 @@ private:
     Connections m_connections;
   private:
     HttpRouter* m_router;
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
     HttpProcessor::RequestInterceptors* m_requestInterceptors;
     std::mutex m_taskMutex;
     std::condition_variable m_taskCondition;
   public:
     Task(HttpRouter* router,
+         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
          HttpProcessor::RequestInterceptors* requestInterceptors)
       : m_atom(false)
       , m_router(router)
+      , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
       , m_requestInterceptors(requestInterceptors)
     {}
   public:
     
     static std::shared_ptr<Task> createShared(HttpRouter* router,
+                                              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                                               HttpProcessor::RequestInterceptors* requestInterceptors){
-      return std::make_shared<Task>(router, errorHandler, requestInterceptors);
+      return std::make_shared<Task>(router, bodyDecoder, errorHandler, requestInterceptors);
     }
     
     void run() override;
@@ -108,9 +114,14 @@ public:
     , m_taskBalancer(0)
     , m_threadCount(threadCount)
   {
+    
+    // TODO make bodyDecoder configurable here
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> bodyDecoder =
+    std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>();
+    
     m_tasks = new std::shared_ptr<Task>[m_threadCount];
     for(v_int32 i = 0; i < m_threadCount; i++) {
-      auto task = Task::createShared(m_router.get(), m_errorHandler, &m_requestInterceptors);
+      auto task = Task::createShared(m_router.get(), bodyDecoder, m_errorHandler, &m_requestInterceptors);
       m_tasks[i] = task;
       concurrency::Thread thread(task);
       thread.detach();

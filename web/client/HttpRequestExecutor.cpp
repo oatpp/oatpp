@@ -92,7 +92,7 @@ HttpRequestExecutor::execute(const String& method,
                                                                                 caret.getPosition(),
                                                                                 (v_int32) readCount);
   
-  return Response::createShared(line->statusCode, line->description, responseHeaders, bodyStream);
+  return Response::createShared(line->statusCode, line->description, responseHeaders, bodyStream, m_bodyDecoder);
   
 }
   
@@ -110,6 +110,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     String m_path;
     std::shared_ptr<Headers> m_headers;
     std::shared_ptr<Body> m_body;
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
@@ -121,12 +122,14 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
                       const String& method,
                       const String& path,
                       const std::shared_ptr<Headers>& headers,
-                      const std::shared_ptr<Body>& body)
+                      const std::shared_ptr<Body>& body,
+                      const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder)
       : m_connectionProvider(connectionProvider)
       , m_method(method)
       , m_path(path)
       , m_headers(headers)
       , m_body(body)
+      , m_bodyDecoder(bodyDecoder)
     {}
     
     Action act() override {
@@ -175,7 +178,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
                                                                                       caret.getPosition(),
                                                                                       (v_int32) readCount);
         
-        return _return(Response::createShared(line->statusCode, line->description, headers, bodyStream));
+        return _return(Response::createShared(line->statusCode, line->description, headers, bodyStream, m_bodyDecoder));
         
       }
       
@@ -185,7 +188,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     
   };
   
-  return parentCoroutine->startCoroutineForResult<ExecutorCoroutine>(callback, m_connectionProvider, method, path, headers, body);
+  return parentCoroutine->startCoroutineForResult<ExecutorCoroutine>(callback, m_connectionProvider, method, path, headers, body, m_bodyDecoder);
   
 }
   

@@ -68,6 +68,7 @@ public:
     Action parseRequest(v_int32 readCount);
   private:
     HttpRouter* m_router;
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
     RequestInterceptors* m_requestInterceptors;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
@@ -82,6 +83,7 @@ public:
   public:
     
     Coroutine(HttpRouter* router,
+              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
               RequestInterceptors* requestInterceptors,
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
@@ -89,6 +91,7 @@ public:
               const std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy>& outStream,
               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
       : m_router(router)
+      , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
       , m_requestInterceptors(requestInterceptors)
       , m_connection(connection)
@@ -114,6 +117,7 @@ public:
   static std::shared_ptr<protocol::http::outgoing::Response>
   processRequest(HttpRouter* router,
                  const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                 const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                  const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                  RequestInterceptors* requestInterceptors,
                  void* buffer,

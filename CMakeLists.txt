@@ -126,6 +126,8 @@ add_library(oatpp
     web/protocol/http/Http.hpp
     web/protocol/http/incoming/BodyDecoder.cpp
     web/protocol/http/incoming/BodyDecoder.hpp
+    web/protocol/http/incoming/SimpleBodyDecoder.cpp
+    web/protocol/http/incoming/SimpleBodyDecoder.hpp
     web/protocol/http/incoming/Request.cpp
     web/protocol/http/incoming/Request.hpp
     web/protocol/http/incoming/Response.cpp

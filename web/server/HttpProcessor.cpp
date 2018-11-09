@@ -34,6 +34,7 @@ const char* HttpProcessor::RETURN_KEEP_ALIVE = "RETURN_KEEP_ALIVE";
 std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(HttpRouter* router,
                               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                               RequestInterceptors* requestInterceptors,
                               void* buffer,
@@ -66,7 +67,7 @@ HttpProcessor::processRequest(HttpRouter* router,
       auto bodyStream = inStream;
       bodyStream->setBufferPosition(caret.getPosition(), (v_int32) readCount);
       
-      auto request = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream);
+      auto request = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream, bodyDecoder);
       std::shared_ptr<protocol::http::outgoing::Response> response;
       try{
         auto currInterceptor = requestInterceptors->getFirstNode();
@@ -136,7 +137,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 
   auto bodyStream = m_inStream;
   bodyStream->setBufferPosition(caret.getPosition(), readCount);
   
-  m_currentRequest = protocol::http::incoming::Request::createShared(line, m_currentRoute.matchMap, headers, bodyStream);
+  m_currentRequest = protocol::http::incoming::Request::createShared(line, m_currentRoute.matchMap, headers, bodyStream, m_bodyDecoder);
   
   auto currInterceptor = m_requestInterceptors->getFirstNode();
   while (currInterceptor != nullptr) {
