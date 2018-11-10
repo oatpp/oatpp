@@ -40,7 +40,20 @@ public:
   typedef oatpp::web::protocol::http::incoming::Response Response;
   typedef oatpp::web::protocol::http::outgoing::Body Body;
 public:
+  
+  /**
+   * ConnectionHandle is always specific to a RequestExecutor
+   * You can't pass ConnectionHandle retrieved by one RequestExecutor implementation
+   * to another
+   */
+  class ConnectionHandle {
+  public:
+    virtual ~ConnectionHandle() {}
+  };
+  
+public:
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Response>&);
+  typedef Action (oatpp::async::AbstractCoroutine::*AsyncConnectionCallback)(const std::shared_ptr<ConnectionHandle>&);
 public:
   
   class RequestExecutionError : public std::runtime_error {
@@ -85,17 +98,29 @@ public:
   
 public:
   
+  /**
+   * Obtain ConnectionHandle which then can be passed to execute()
+   */
+  virtual std::shared_ptr<ConnectionHandle> getConnection() = 0;
+  
+  /**
+   * Same as getConnection but Async
+   */
+  virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncConnectionCallback callback) = 0;
+  
   virtual std::shared_ptr<Response> execute(const String& method,
                                             const String& path,
                                             const std::shared_ptr<Headers>& headers,
-                                            const std::shared_ptr<Body>& body) = 0;
+                                            const std::shared_ptr<Body>& body,
+                                            const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
   
   virtual Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                               AsyncCallback callback,
                               const String& method,
                               const String& path,
                               const std::shared_ptr<Headers>& headers,
-                              const std::shared_ptr<Body>& body) = 0;
+                              const std::shared_ptr<Body>& body,
+                              const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
   
 };
   

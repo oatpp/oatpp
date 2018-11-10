@@ -33,9 +33,19 @@
 namespace oatpp { namespace web { namespace client {
   
 class HttpRequestExecutor : public oatpp::base::Controllable, public RequestExecutor {
+private:
+  typedef oatpp::web::protocol::http::Header Header;
 protected:
   std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
   std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
+public:
+  class HttpConnectionHandle : public ConnectionHandle {
+  public:
+    HttpConnectionHandle(const std::shared_ptr<oatpp::network::ConnectionProvider::IOStream>& stream)
+      : connection(stream)
+    {}
+    std::shared_ptr<oatpp::network::ConnectionProvider::IOStream> connection;
+  };
 public:
   HttpRequestExecutor(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
                       const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder =
@@ -52,20 +62,26 @@ public:
     return std::make_shared<HttpRequestExecutor>(connectionProvider, bodyDecoder);
   }
   
+  std::shared_ptr<ConnectionHandle> getConnection() override;
+  
+  Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncConnectionCallback callback) override;
+  
   /**
    *  throws RequestExecutionError
    */
   std::shared_ptr<Response> execute(const String& method,
                                     const String& path,
                                     const std::shared_ptr<Headers>& headers,
-                                    const std::shared_ptr<Body>& body) override;
+                                    const std::shared_ptr<Body>& body,
+                                    const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) override;
   
   Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                       AsyncCallback callback,
                       const String& method,
                       const String& path,
                       const std::shared_ptr<Headers>& headers,
-                      const std::shared_ptr<Body>& body) override;
+                      const std::shared_ptr<Body>& body,
+                      const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) override;
   
 };
   
