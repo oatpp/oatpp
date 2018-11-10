@@ -75,8 +75,6 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   return oatpp::network::Connection::createShared(clientHandle);
   
 }
-  
-#include <netinet/tcp.h>
 
 oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                                      AsyncCallback callback) {
@@ -131,8 +129,6 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       errno = 0;
       auto res = connect(m_clientHandle, (struct sockaddr *)&m_client, sizeof(m_client));
       if(res == 0 || errno == EISCONN) {
-        int flags = 1;
-        setsockopt(m_clientHandle, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
