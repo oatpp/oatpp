@@ -75,6 +75,8 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   return oatpp::network::Connection::createShared(clientHandle);
   
 }
+  
+#include <netinet/tcp.h>
 
 oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                                      AsyncCallback callback) {
@@ -97,7 +99,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       struct hostent* host = gethostbyname((const char*) m_host->getData());
       
       if ((host == NULL) || (host->h_addr == NULL)) {
-        return error("Error retrieving DNS information.");
+        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error retrieving DNS information.");
       }
       
       bzero(&m_client, sizeof(m_client));
@@ -108,7 +110,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       m_clientHandle = socket(AF_INET, SOCK_STREAM, 0);
       
       if (m_clientHandle < 0) {
-        return error("Error creating socket.");
+        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error creating socket.");
       }
       
       fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
@@ -129,6 +131,8 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       errno = 0;
       auto res = connect(m_clientHandle, (struct sockaddr *)&m_client, sizeof(m_client));
       if(res == 0 || errno == EISCONN) {
+        int flags = 1;
+        setsockopt(m_clientHandle, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof(flags));
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
@@ -137,7 +141,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
         return repeat();
       }
       oatpp::os::io::Library::handle_close(m_clientHandle);
-      return error("Can't connect");
+      return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Can't connect");
     }
     
   };

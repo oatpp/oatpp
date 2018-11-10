@@ -135,14 +135,17 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
-std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME() { \
+std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME( \
+  const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
+) { \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
   return executeRequest(METHOD, \
                         Z_getPathPattern_##NAME(PATH), \
                         nullptr, \
                         nullptr, \
                         nullptr, \
-                        body); \
+                        body, \
+                        __connectionHandle); \
 }
 
 #define OATPP_API_CALL_1(NAME, METHOD, PATH, LIST) \
@@ -152,7 +155,8 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
 } \
 \
 std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME(\
-OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) void* __reserved = nullptr \
+OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
+  const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
@@ -164,7 +168,8 @@ OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) void* __reserved = 
                         __headers, \
                         __pathParams, \
                         __queryParams, \
-                        __body); \
+                        __body, \
+                        __connectionHandle); \
 }
 
 #define OATPP_API_CALL_(X, NAME, METHOD, PATH, LIST) OATPP_API_CALL_##X(NAME, METHOD, PATH, LIST)
@@ -185,7 +190,8 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
 template<typename ParentCoroutineType>\
 oatpp::async::Action NAME(\
   oatpp::async::AbstractCoroutine* parentCoroutine, \
-  oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&) \
+  oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&), \
+  const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
   return executeRequestAsync(parentCoroutine, \
@@ -195,7 +201,8 @@ oatpp::async::Action NAME(\
                              nullptr, \
                              nullptr, \
                              nullptr, \
-                             body); \
+                             body, \
+                             __connectionHandle); \
 }
 
 #define OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, LIST) \
@@ -208,7 +215,8 @@ template<typename ParentCoroutineType>\
 oatpp::async::Action NAME(\
   oatpp::async::AbstractCoroutine* parentCoroutine, \
   oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&), \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) void* __reserved = nullptr \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
+  const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   auto __callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(callback); \
   auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
@@ -223,7 +231,8 @@ oatpp::async::Action NAME(\
                              __headers, \
                              __pathParams, \
                              __queryParams, \
-                             __body); \
+                             __body, \
+                             __connectionHandle); \
 }
 
 #define OATPP_API_CALL_ASYNC_(X, NAME, METHOD, PATH, LIST) OATPP_API_CALL_ASYNC_##X(NAME, METHOD, PATH, LIST)

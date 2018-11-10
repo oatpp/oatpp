@@ -144,17 +144,30 @@ protected:
     return stream.toString();
   }
   
+public:
+  
+  virtual std::shared_ptr<RequestExecutor::ConnectionHandle> getConnection() {
+    return m_requestExecutor->getConnection();
+  }
+  
+  virtual oatpp::async::Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, RequestExecutor::AsyncConnectionCallback callback) {
+    return m_requestExecutor->getConnectionAsync(parentCoroutine, callback);
+  }
+
+  
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const PathPattern& pathPattern,
                                                    const std::shared_ptr<StringToParamMap>& headers,
                                                    const std::shared_ptr<StringToParamMap>& pathParams,
                                                    const std::shared_ptr<StringToParamMap>& queryParams,
-                                                   const std::shared_ptr<RequestExecutor::Body>& body) {
+                                                   const std::shared_ptr<RequestExecutor::Body>& body,
+                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr) {
     
     return m_requestExecutor->execute(method,
                                       formatPath(pathPattern, pathParams, queryParams),
                                       convertParamsMap(headers),
-                                      body);
+                                      body,
+                                      connectionHandle);
     
   }
   
@@ -165,14 +178,16 @@ protected:
                                                    const std::shared_ptr<StringToParamMap>& headers,
                                                    const std::shared_ptr<StringToParamMap>& pathParams,
                                                    const std::shared_ptr<StringToParamMap>& queryParams,
-                                                   const std::shared_ptr<RequestExecutor::Body>& body) {
+                                                   const std::shared_ptr<RequestExecutor::Body>& body,
+                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr) {
     
     return m_requestExecutor->executeAsync(parentCoroutine,
                                            callback,
                                            method,
                                            formatPath(pathPattern, pathParams, queryParams),
                                            convertParamsMap(headers),
-                                           body);
+                                           body,
+                                           connectionHandle);
     
   }
   

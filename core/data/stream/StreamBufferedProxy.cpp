@@ -115,25 +115,27 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
     {}
     
     Action act() override {
-      
       auto amount = m_stream->m_posEnd - m_stream->m_pos;
       if(amount > 0){
         os::io::Library::v_size result = m_stream->m_outputStream->write(&m_stream->m_buffer[m_stream->m_pos], amount);
-        if(result == amount){
+        if(result == amount) {
           m_stream->m_pos = 0;
           m_stream->m_posEnd = 0;
           return finish();
         } else if(result == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
-          return waitRetry();
+          return oatpp::async::Action::_WAIT_RETRY;
         } else if(result == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
-            return repeat();
-        } else if(result > 0){
+          return oatpp::async::Action::_REPEAT;
+        } else if(result == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - oatpp::data::stream::Errors::ERROR_IO_PIPE");
+        } else if( result < 0) {
+          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - Failed to flush all data");
+        } else if(result < amount) {
           m_stream->m_pos += (v_bufferSize) result;
+          return oatpp::async::Action::_REPEAT;
         }
-        return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - Failed to flush all data");
       }
       return finish();
-      
     }
     
   };
