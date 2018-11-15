@@ -25,40 +25,42 @@
 #ifndef oatpp_network_virtual__Socket_hpp
 #define oatpp_network_virtual__Socket_hpp
 
-#include "Pipe.hpp"
+#include "./Pipe.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
   
 class Socket : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
-public:
-  OBJECT_POOL(Socket_Pool, Socket, 32)
-  SHARED_OBJECT_POOL(Shared_Socket_Pool, Socket, 32)
 private:
-  std::shared_ptr<Pipe::Reader> m_pipeReader;
-  std::shared_ptr<Pipe::Writer> m_pipeWriter;
+  std::shared_ptr<Pipe> m_pipeIn;
+  std::shared_ptr<Pipe> m_pipeOut;
+public:
+  Socket(const std::shared_ptr<Pipe>& pipeIn, const std::shared_ptr<Pipe>& pipeOut)
+    : m_pipeIn(pipeIn)
+    , m_pipeOut(pipeOut)
+  {}
 public:
   
+  static std::shared_ptr<Socket> createShared(const std::shared_ptr<Pipe>& pipeIn, const std::shared_ptr<Pipe>& pipeOut) {
+    return std::make_shared<Socket>(pipeIn, pipeOut);
+  }
+  
+  ~Socket() {
+    close();
+  }
+  
   os::io::Library::v_size read(void *data, os::io::Library::v_size count) override {
-    if(m_pipeReader) {
-      return m_pipeReader->read(data, count);
-    }
-    return -1;
+    return m_pipeIn->getReader()->read(data, count);
   }
   
   os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override {
-    if(m_pipeWriter) {
-      return m_pipeWriter->write(data, count);
-    }
-    return -1;
-  }
-  
-  bool isConnected() {
-    return m_pipeReader && m_pipeWriter;
+    return m_pipeOut->getWriter()->write(data, count);
   }
   
   void close() {
-    m_pipeReader.reset();
-    m_pipeWriter.reset();
+    m_pipeIn->close();
+    m_pipeOut->close();
+    m_pipeIn.reset();
+    m_pipeOut.reset();
   }
   
 };

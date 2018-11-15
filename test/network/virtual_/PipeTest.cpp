@@ -131,8 +131,6 @@ namespace {
     
   }
   
-  
-  
 }
   
 bool PipeTest::onRun() {

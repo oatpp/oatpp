@@ -34,14 +34,14 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
   if(m_nonBlocking) {
     if(pipe.m_buffer.availableToRead() > 0) {
       result = pipe.m_buffer.read(data, count);
-    } else if(pipe.m_alive) {
+    } else if(pipe.m_open) {
       result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
     } else {
       result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
-    while (pipe.m_buffer.availableToRead() == 0 && pipe.m_alive) {
+    while (pipe.m_buffer.availableToRead() == 0 && pipe.m_open) {
       pipe.m_conditionWrite.notify_one();
       pipe.m_conditionRead.wait(lock);
     }
@@ -66,18 +66,18 @@ os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v
   if(m_nonBlocking) {
     if(pipe.m_buffer.availableToWrite() > 0) {
       result = pipe.m_buffer.write(data, count);
-    } else if(pipe.m_alive) {
+    } else if(pipe.m_open) {
       result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
     } else {
       result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
-    while (pipe.m_buffer.availableToWrite() == 0 && pipe.m_alive) {
+    while (pipe.m_buffer.availableToWrite() == 0 && pipe.m_open) {
       pipe.m_conditionRead.notify_one();
       pipe.m_conditionWrite.wait(lock);
     }
-    if (pipe.m_alive && pipe.m_buffer.availableToWrite() > 0) {
+    if (pipe.m_open && pipe.m_buffer.availableToWrite() > 0) {
       result = pipe.m_buffer.write(data, count);
     } else {
       result = oatpp::data::stream::Errors::ERROR_IO_PIPE;

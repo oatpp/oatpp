@@ -77,7 +77,7 @@ public:
   };
   
 private:
-  bool m_alive;
+  bool m_open;
   Writer m_writer;
   Reader m_reader;
   oatpp::data::buffer::FIFOBuffer m_buffer;
@@ -87,7 +87,7 @@ private:
 public:
   
   Pipe()
-    : m_alive(true)
+    : m_open(true)
     , m_writer(this)
     , m_reader(this)
   {}
@@ -102,6 +102,10 @@ public:
   
   Reader* getReader() {
     return &m_reader;
+  }
+  
+  void close() {
+    m_open = false;
   }
   
 };

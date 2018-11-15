@@ -108,6 +108,8 @@ add_library(oatpp
     network/virtual_/Pipe.hpp
     network/virtual_/Socket.cpp
     network/virtual_/Socket.hpp
+    network/virtual_/Interface.cpp
+    network/virtual_/Interface.hpp
     parser/json/mapping/Deserializer.cpp
     parser/json/mapping/Deserializer.hpp
     parser/json/mapping/ObjectMapper.cpp
@@ -265,6 +267,8 @@ if(OATPP_BUILD_TESTS)
         test/parser/json/mapping/DTOMapperTest.hpp
         test/network/virtual_/PipeTest.cpp
         test/network/virtual_/PipeTest.hpp
+        test/network/virtual_/InterfaceTest.cpp
+        test/network/virtual_/InterfaceTest.hpp
     )
     target_link_libraries(oatppAllTests PRIVATE oatpp)
     set_target_properties(oatppAllTests PROPERTIES
