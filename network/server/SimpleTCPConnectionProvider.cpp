@@ -35,9 +35,17 @@
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 
-
 namespace oatpp { namespace network { namespace server {
 
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking)
+  : m_port(port)
+  , m_nonBlocking(nonBlocking)
+{
+  m_serverHandle = instantiateServer();
+  setProperty(PROPERTY_HOST, "localhost");
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
+}
+  
 oatpp::os::io::Library::v_handle SimpleTCPConnectionProvider::instantiateServer(){
   
   oatpp::os::io::Library::v_handle serverHandle;

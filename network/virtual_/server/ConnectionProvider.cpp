@@ -22,27 +22,14 @@
  *
  ***************************************************************************/
 
-#include "./ConnectionProvider.hpp"
+#include "ConnectionProvider.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace network { namespace virtual_ { namespace server {
   
-const char* const ConnectionProvider::PROPERTY_HOST = "host";
-const char* const ConnectionProvider::PROPERTY_PORT = "port";
+std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
+  auto socket = m_interface->accept();
+  socket->setNonBlocking(false);
+  return socket;
+}
 
-void ConnectionProvider::setProperty(const oatpp::String& key, const oatpp::String& value) {
-  m_properties[key] = value;
-}
-  
-const std::unordered_map<oatpp::String, oatpp::String>& ConnectionProvider::getProperties() {
-  return m_properties;
-}
-  
-oatpp::String ConnectionProvider::getProperty(const oatpp::String& key) {
-  auto it = m_properties.find(key);
-  if(it == m_properties.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-  
-}}
+}}}}

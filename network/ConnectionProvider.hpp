@@ -27,55 +27,60 @@
 
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
+#include <unordered_map>
 
 namespace oatpp { namespace network {
 
+/**
+ * Abstract ConnectionProvider.
+ * It may be anything that returns oatpp::data::stream::IOStream
+ * User of ConnectionProvider should care about IOStream only.
+ * All other properties are optional
+ */
 class ConnectionProvider {
+public:
+  static const char* const PROPERTY_HOST;
+  static const char* const PROPERTY_PORT;
 public:
   typedef oatpp::data::stream::IOStream IOStream;
   typedef oatpp::async::Action Action;
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<IOStream>&);
+private:
+  std::unordered_map<oatpp::String, oatpp::String> m_properties;
+protected:
+  /**
+   * Set optional property
+   */
+  void setProperty(const oatpp::String& key, const oatpp::String& value);
 public:
   virtual ~ConnectionProvider() {}
   virtual std::shared_ptr<IOStream> getConnection() = 0;
   virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                     AsyncCallback callback) = 0;
+  
+  /**
+   * Some optional properties that user might want to know.
+   * All properties are optional and user should not rely on this
+   */
+  const std::unordered_map<oatpp::String, oatpp::String>& getProperties();
+  
+  /**
+   * Get optional property
+   */
+  oatpp::String getProperty(const oatpp::String& key);
+  
 };
   
+/**
+ * No properties here. It is just a logical division
+ */
 class ServerConnectionProvider : public ConnectionProvider {
-protected:
-  v_word16 m_port;
-public:
-  
-  ServerConnectionProvider(v_word16 port)
-    : m_port(port)
-  {}
-
-  v_word16 getPort(){
-    return m_port;
-  }
-  
 };
-  
+
+/**
+ * No properties here. It is just a logical division
+ */
 class ClientConnectionProvider : public ConnectionProvider {
-protected:
-  oatpp::String m_host;
-  v_word16 m_port;
-public:
-  
-  ClientConnectionProvider(const oatpp::String& host, v_word16 port)
-    : m_host(host)
-    , m_port(port)
-  {}
-  
-  oatpp::String getHost() {
-    return m_host;
-  }
-  
-  v_word16 getPort(){
-    return m_port;
-  }
-  
 };
   
 }}

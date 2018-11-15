@@ -96,9 +96,10 @@ HttpRequestExecutor::execute(const String& method,
   }
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
-  request->headers->putIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getHost());
-  request->headers->putIfNotExists(oatpp::web::protocol::http::Header::CONNECTION,
-                                   oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
+  request->headers->putIfNotExists(oatpp::String(oatpp::web::protocol::http::Header::HOST, false),
+                                   m_connectionProvider->getProperty(oatpp::String("host", false)));
+  request->headers->putIfNotExists(oatpp::String(oatpp::web::protocol::http::Header::CONNECTION, false),
+                                   oatpp::String(oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE, false));
   
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
   
@@ -197,7 +198,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
       m_connection = connection;
       auto request = oatpp::web::protocol::http::outgoing::Request::createShared(m_method, m_path, m_headers, m_body);
-      request->headers->putIfNotExists(String(Header::HOST, false), m_connectionProvider->getHost());
+      request->headers->putIfNotExists(String(Header::HOST, false), m_connectionProvider->getProperty(String("host", false)));
       request->headers->putIfNotExists(String(Header::CONNECTION, false), String(Header::Value::CONNECTION_KEEP_ALIVE, false));
       m_ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
       auto upStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);

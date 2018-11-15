@@ -26,7 +26,7 @@
 
 #include "oatpp/network/Connection.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
+#include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/test/Checker.hpp"
 
 #include <fcntl.h>
@@ -35,6 +35,14 @@
 #include <sys/socket.h>
 
 namespace oatpp { namespace network { namespace client {
+
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& host, v_word16 port)
+  : m_host(host)
+  , m_port(port)
+{
+  setProperty(PROPERTY_HOST, m_host);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
+}
   
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
   

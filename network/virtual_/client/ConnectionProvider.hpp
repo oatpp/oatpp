@@ -22,27 +22,33 @@
  *
  ***************************************************************************/
 
-#include "./ConnectionProvider.hpp"
+#ifndef oatpp_network_virtual__client_ConnectionProvider_hpp
+#define oatpp_network_virtual__client_ConnectionProvider_hpp
 
-namespace oatpp { namespace network {
-  
-const char* const ConnectionProvider::PROPERTY_HOST = "host";
-const char* const ConnectionProvider::PROPERTY_PORT = "port";
+#include "oatpp/network/virtual_/Interface.hpp"
+#include "oatpp/network/ConnectionProvider.hpp"
 
-void ConnectionProvider::setProperty(const oatpp::String& key, const oatpp::String& value) {
-  m_properties[key] = value;
-}
+namespace oatpp { namespace network { namespace virtual_ { namespace client {
   
-const std::unordered_map<oatpp::String, oatpp::String>& ConnectionProvider::getProperties() {
-  return m_properties;
-}
+class ConnectionProvider : public oatpp::network::ClientConnectionProvider {
+private:
+  std::shared_ptr<virtual_::Interface> m_interface;
+public:
   
-oatpp::String ConnectionProvider::getProperty(const oatpp::String& key) {
-  auto it = m_properties.find(key);
-  if(it == m_properties.end()) {
-    return nullptr;
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
+  : m_interface(interface)
+  {
+    setProperty(PROPERTY_HOST, m_interface->getName());
+    setProperty(PROPERTY_PORT, "0");
   }
-  return it->second;
-}
   
-}}
+  std::shared_ptr<IOStream> getConnection() override;
+  
+  Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                            AsyncCallback callback) override;
+  
+};
+  
+}}}}
+
+#endif /* oatpp_network_virtual__client_ConnectionProvider_hpp */

@@ -22,34 +22,24 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_server_SimpleTCPConnectionProvider_hpp
-#define oatpp_netword_server_SimpleTCPConnectionProvider_hpp
+#ifndef oatpp_network_virtual__server_ConnectionProvider_hpp
+#define oatpp_network_virtual__server_ConnectionProvider_hpp
 
+#include "oatpp/network/virtual_/Interface.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/os/io/Library.hpp"
-
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace network { namespace virtual_ { namespace server {
   
-class SimpleTCPConnectionProvider : public base::Controllable, public ServerConnectionProvider {
+class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
-  v_word16 m_port;
-  bool m_nonBlocking;
-  oatpp::os::io::Library::v_handle m_serverHandle;
-private:
-  oatpp::os::io::Library::v_handle instantiateServer();
-public:
-  SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking = false);
+  std::shared_ptr<virtual_::Interface> m_interface;
 public:
   
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool nonBlocking = false){
-    return std::make_shared<SimpleTCPConnectionProvider>(port, nonBlocking);
-  }
-  
-  ~SimpleTCPConnectionProvider() {
-    oatpp::os::io::Library::handle_close(m_serverHandle);
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
+    : m_interface(interface)
+  {
+    setProperty(PROPERTY_HOST, m_interface->getName());
+    setProperty(PROPERTY_PORT, "0");
   }
   
   std::shared_ptr<IOStream> getConnection() override;
@@ -64,15 +54,11 @@ public:
      *
      *  It may be implemented later
      */
-    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()] not implemented.");
-  }
-  
-  v_word16 getPort(){
-    return m_port;
+    throw std::runtime_error("[oatpp::network::virtual_::server::ConnectionProvider::getConnectionAsync()] not implemented.");
   }
   
 };
   
-}}}
+}}}}
 
-#endif /* oatpp_netword_server_SimpleTCPConnectionProvider_hpp */
+#endif /* oatpp_network_virtual__server_ConnectionProvider_hpp */
