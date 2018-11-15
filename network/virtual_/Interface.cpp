@@ -27,7 +27,10 @@
 namespace oatpp { namespace network { namespace virtual_ {
   
 void Interface::ConnectionSubmission::setSocket(const std::shared_ptr<Socket>& socket) {
-  m_socket = socket;
+  {
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_socket = socket;
+  }
   m_condition.notify_one();
 }
 
@@ -63,13 +66,26 @@ std::shared_ptr<Socket> Interface::acceptSubmission(const std::shared_ptr<Connec
   
 std::shared_ptr<Interface::ConnectionSubmission> Interface::connect() {
   auto submission = std::make_shared<ConnectionSubmission>();
-  
   {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_submissions.pushBack(submission);
   }
-  
   m_condition.notify_one();
+  return submission;
+}
+  
+std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking() {
+  std::shared_ptr<ConnectionSubmission> submission;
+  {
+    std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+    if(lock.owns_lock()) {
+      submission = std::make_shared<ConnectionSubmission>();
+      m_submissions.pushBack(submission);
+    }
+  }
+  if(submission) {
+    m_condition.notify_one();
+  }
   return submission;
 }
 
@@ -82,8 +98,8 @@ std::shared_ptr<Socket> Interface::accept() {
 }
 
 std::shared_ptr<Socket> Interface::acceptNonBlocking() {
-  std::lock_guard<std::mutex> lock(m_mutex);
-  if(m_submissions.getFirstNode() == nullptr) {
+  std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+  if(lock.owns_lock() && m_submissions.getFirstNode() != nullptr) {
     return acceptSubmission(m_submissions.popFront());
   }
   return nullptr;

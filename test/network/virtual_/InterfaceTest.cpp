@@ -31,10 +31,11 @@
 
 namespace oatpp { namespace test { namespace network { namespace virtual_ {
   
-typedef oatpp::network::virtual_::Interface Interface;
-typedef oatpp::network::virtual_::Socket Socket;
-  
 namespace {
+  
+  typedef oatpp::network::virtual_::Interface Interface;
+  typedef oatpp::network::virtual_::Socket Socket;
+  typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::concurrency::Thread>> ThreadList;
   
   class ClientTask : public oatpp::concurrency::Runnable {
   private:
@@ -49,9 +50,8 @@ namespace {
     {}
     
     void run() override {
-      
-      auto submition = m_interface->connect();
-      auto socket = submition->getSocket();
+      auto submission = m_interface->connect();
+      auto socket = submission->getSocket();
       
       auto res = oatpp::data::stream::writeExactSizeData(socket.get(), m_dataSample->getData(), m_dataSample->getSize());
       OATPP_ASSERT(res == m_dataSample->getSize());
@@ -114,10 +114,16 @@ namespace {
     {}
     
     void run() override {
+      ThreadList threadList;
       for(v_int32 i = 0; i < m_numTasks; i++) {
         auto socket = m_interface->accept();
         auto task = oatpp::concurrency::Thread::createShared(std::make_shared<ServerTask>(socket, m_dataSample));
-        task->detach();
+        threadList.pushBack(task);
+      }
+      auto curr = threadList.getFirstNode();
+      while (curr != nullptr) {
+        curr->getData()->join();
+        curr = curr->getNext();
       }
     }
     
@@ -127,21 +133,27 @@ namespace {
   
 bool InterfaceTest::onRun() {
   
-  oatpp::String dataSample = "asldkjfbsalkfdbaslkdfasldkfbaslkdfn flkv dsfna;sdfnalskdjfnaq orqw[eptgejgp.,mnbvcxzqwertyuiop[';lkjhgfdsazxcvbnm,.";
+  oatpp::String dataSample = "1234567890-=][poiuytrewqasdfghjkl;'/.,mnbvcxzzxcvbnm,./';lkjhgfdsaqwertyuiop][=-0987654321";
   
-  auto interface = Interface::createShared();
+  auto interface = Interface::createShared("virtualhost");
   v_int32 numTasks = 100;
+  
+  ThreadList threadList;
   
   auto server = oatpp::concurrency::Thread::createShared(std::make_shared<Server>(interface, dataSample, numTasks));
   
   for(v_int32 i = 0; i < numTasks; i++) {
     auto clientTask = oatpp::concurrency::Thread::createShared(std::make_shared<ClientTask>(interface, dataSample));
-    clientTask->detach();
+    threadList.pushBack(clientTask);
+  }
+  
+  auto curr = threadList.getFirstNode();
+  while (curr != nullptr) {
+    curr->getData()->join();
+    curr = curr->getNext();
   }
   
   server->join();
-  
-  std::this_thread::sleep_for(std::chrono::seconds(5));
   
   return true;
 }

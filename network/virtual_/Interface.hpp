@@ -54,18 +54,29 @@ public:
 private:
   std::shared_ptr<Socket> acceptSubmission(const std::shared_ptr<ConnectionSubmission>& submission);
 private:
+  oatpp::String m_name;
   std::mutex m_mutex;
   std::condition_variable m_condition;
   oatpp::collection::LinkedList<std::shared_ptr<ConnectionSubmission>> m_submissions;
 public:
+  Interface(const oatpp::String& name)
+    : m_name(name)
+  {}
+public:
   
-  static std::shared_ptr<Interface> createShared() {
-    return std::make_shared<Interface>();
+  static std::shared_ptr<Interface> createShared(const oatpp::String& name) {
+    return std::make_shared<Interface>(name);
   }
   
   std::shared_ptr<ConnectionSubmission> connect();
+  std::shared_ptr<ConnectionSubmission> connectNonBlocking();
+  
   std::shared_ptr<Socket> accept();
   std::shared_ptr<Socket> acceptNonBlocking();
+  
+  oatpp::String getName() {
+    return m_name;
+  }
   
 };
   
