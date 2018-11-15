@@ -24,13 +24,124 @@
 
 #include "InterfaceTest.hpp"
 
+#include "oatpp/network/virtual_/Interface.hpp"
+
+#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/concurrency/Thread.hpp"
+
 namespace oatpp { namespace test { namespace network { namespace virtual_ {
   
+typedef oatpp::network::virtual_::Interface Interface;
+typedef oatpp::network::virtual_::Socket Socket;
+  
 namespace {
+  
+  class ClientTask : public oatpp::concurrency::Runnable {
+  private:
+    std::shared_ptr<Interface> m_interface;
+    oatpp::String m_dataSample;
+  public:
+    
+    ClientTask(const std::shared_ptr<Interface>& interface,
+               const oatpp::String& dataSample)
+      : m_interface(interface)
+      , m_dataSample(dataSample)
+    {}
+    
+    void run() override {
+      
+      auto submition = m_interface->connect();
+      auto socket = submition->getSocket();
+      
+      auto res = oatpp::data::stream::writeExactSizeData(socket.get(), m_dataSample->getData(), m_dataSample->getSize());
+      OATPP_ASSERT(res == m_dataSample->getSize());
+      
+      v_char8 buffer[100];
+      auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
+      res = oatpp::data::stream::transfer(socket, stream, 2, buffer, 100);
+      
+      OATPP_ASSERT(res == 2);
+      OATPP_ASSERT(stream->getSize() == res);
+      OATPP_ASSERT(stream->toString() == "OK");
+      
+      //OATPP_LOGD("client", "finished - OK");
+      
+    }
+    
+  };
+  
+  class ServerTask : public oatpp::concurrency::Runnable {
+  private:
+    std::shared_ptr<Socket> m_socket;
+    oatpp::String m_dataSample;
+  public:
+    
+    ServerTask(const std::shared_ptr<Socket>& socket,
+               const oatpp::String& dataSample)
+      : m_socket(socket)
+      , m_dataSample(dataSample)
+    {}
+    
+    void run() override {
+      v_char8 buffer[100];
+      auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
+      auto res = oatpp::data::stream::transfer(m_socket, stream, m_dataSample->getSize(), buffer, 100);
+      
+      OATPP_ASSERT(res == m_dataSample->getSize());
+      OATPP_ASSERT(stream->getSize() == res);
+      OATPP_ASSERT(stream->toString() == m_dataSample);
+      
+      res = oatpp::data::stream::writeExactSizeData(m_socket.get(), "OK", 2);
+      
+      OATPP_ASSERT(res == 2);
+    }
+    
+  };
+  
+  class Server : public oatpp::concurrency::Runnable {
+  private:
+    std::shared_ptr<Interface> m_interface;
+    oatpp::String m_dataSample;
+    v_int32 m_numTasks;
+  public:
+    
+    Server(const std::shared_ptr<Interface>& interface,
+           const oatpp::String& dataSample,
+           v_int32 numTasks)
+      : m_interface(interface)
+      , m_dataSample(dataSample)
+      , m_numTasks(numTasks)
+    {}
+    
+    void run() override {
+      for(v_int32 i = 0; i < m_numTasks; i++) {
+        auto socket = m_interface->accept();
+        auto task = oatpp::concurrency::Thread::createShared(std::make_shared<ServerTask>(socket, m_dataSample));
+        task->detach();
+      }
+    }
+    
+  };
   
 }
   
 bool InterfaceTest::onRun() {
+  
+  oatpp::String dataSample = "asldkjfbsalkfdbaslkdfasldkfbaslkdfn flkv dsfna;sdfnalskdjfnaq orqw[eptgejgp.,mnbvcxzqwertyuiop[';lkjhgfdsazxcvbnm,.";
+  
+  auto interface = Interface::createShared();
+  v_int32 numTasks = 100;
+  
+  auto server = oatpp::concurrency::Thread::createShared(std::make_shared<Server>(interface, dataSample, numTasks));
+  
+  for(v_int32 i = 0; i < numTasks; i++) {
+    auto clientTask = oatpp::concurrency::Thread::createShared(std::make_shared<ClientTask>(interface, dataSample));
+    clientTask->detach();
+  }
+  
+  server->join();
+  
+  std::this_thread::sleep_for(std::chrono::seconds(5));
   
   return true;
 }

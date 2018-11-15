@@ -23,3 +23,27 @@
  ***************************************************************************/
 
 #include "Socket.hpp"
+
+namespace oatpp { namespace network { namespace virtual_ {
+  
+os::io::Library::v_size Socket::read(void *data, os::io::Library::v_size count) {
+  return m_pipeIn->getReader()->read(data, count);
+}
+
+os::io::Library::v_size Socket::write(const void *data, os::io::Library::v_size count) {
+  return m_pipeOut->getWriter()->write(data, count);
+}
+
+void Socket::setNonBlocking(bool nonBlocking) {
+  m_pipeIn->getReader()->setNonBlocking(nonBlocking);
+  m_pipeOut->getWriter()->setNonBlocking(nonBlocking);
+}
+
+void Socket::close() {
+  m_pipeIn->close();
+  m_pipeOut->close();
+  m_pipeIn.reset();
+  m_pipeOut.reset();
+}
+  
+}}}

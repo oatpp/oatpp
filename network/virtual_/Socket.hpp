@@ -48,20 +48,12 @@ public:
     close();
   }
   
-  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override {
-    return m_pipeIn->getReader()->read(data, count);
-  }
+  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
+  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
   
-  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override {
-    return m_pipeOut->getWriter()->write(data, count);
-  }
+  void setNonBlocking(bool nonBlocking);
   
-  void close() {
-    m_pipeIn->close();
-    m_pipeOut->close();
-    m_pipeIn.reset();
-    m_pipeOut.reset();
-  }
+  void close();
   
 };
   

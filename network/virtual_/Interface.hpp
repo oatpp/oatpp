@@ -42,82 +42,30 @@ public:
     bool m_pending;
   public:
     
-    ConnectionSubmission()
-      : m_pending(true)
-    {}
+    ConnectionSubmission() : m_pending(true) {}
     
-    void setSocket(const std::shared_ptr<Socket>& socket) {
-      m_socket = socket;
-      m_condition.notify_one();
-    }
-    
-    std::shared_ptr<Socket> getSocket() {
-      std::unique_lock<std::mutex> lock(m_mutex);
-      while (!m_socket && m_pending) {
-        m_condition.wait(lock);
-      }
-      return m_socket;
-    }
-    
-    std::shared_ptr<Socket> getSocketNonBlocking() {
-      return m_socket;
-    }
-    
-    bool isPending() {
-      return m_pending;
-    }
+    void setSocket(const std::shared_ptr<Socket>& socket);
+    std::shared_ptr<Socket> getSocket();
+    std::shared_ptr<Socket> getSocketNonBlocking();
+    bool isPending();
     
   };
 
 private:
-  
-  std::shared_ptr<Socket> acceptSubmission(const std::shared_ptr<ConnectionSubmission>& submission) {
-    
-    auto pipeIn = Pipe::createShared();
-    auto pipeOut = Pipe::createShared();
-    
-    auto serverSocket = Socket::createShared(pipeIn, pipeOut);
-    auto clientSocket = Socket::createShared(pipeOut, pipeIn);
-    
-    submission->setSocket(clientSocket);
-    
-    return serverSocket;
-    
-  }
-  
+  std::shared_ptr<Socket> acceptSubmission(const std::shared_ptr<ConnectionSubmission>& submission);
 private:
   std::mutex m_mutex;
   std::condition_variable m_condition;
   oatpp::collection::LinkedList<std::shared_ptr<ConnectionSubmission>> m_submissions;
 public:
   
-  std::shared_ptr<ConnectionSubmission> connect() {
-    auto submission = std::make_shared<ConnectionSubmission>();
-    
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_submissions.pushBack(submission);
-    }
-    
-    m_condition.notify_one();
-    return submission;
+  static std::shared_ptr<Interface> createShared() {
+    return std::make_shared<Interface>();
   }
   
-  std::shared_ptr<Socket> accept() {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    while (m_submissions.getFirstNode() == nullptr) {
-      m_condition.wait(lock);
-    }
-    return acceptSubmission(m_submissions.popFront());
-  }
-  
-  std::shared_ptr<Socket> acceptNonBlocking() {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    if(m_submissions.getFirstNode() == nullptr) {
-      return acceptSubmission(m_submissions.popFront());
-    }
-    return nullptr;
-  }
+  std::shared_ptr<ConnectionSubmission> connect();
+  std::shared_ptr<Socket> accept();
+  std::shared_ptr<Socket> acceptNonBlocking();
   
 };
   
