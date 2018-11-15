@@ -27,6 +27,7 @@
 namespace oatpp { namespace data{ namespace buffer {
   
 os::io::Library::v_size FIFOBuffer::availableToRead() {
+  oatpp::concurrency::SpinLock lock(m_atom);
   if(!m_canRead) {
     return 0;
   }
@@ -37,6 +38,7 @@ os::io::Library::v_size FIFOBuffer::availableToRead() {
 }
 
 os::io::Library::v_size FIFOBuffer::availableToWrite() {
+  oatpp::concurrency::SpinLock lock(m_atom);
   if(m_canRead && m_writePosition == m_readPosition) {
     return 0;
   }
@@ -47,6 +49,8 @@ os::io::Library::v_size FIFOBuffer::availableToWrite() {
 }
 
 os::io::Library::v_size FIFOBuffer::read(void *data, os::io::Library::v_size count) {
+  
+  oatpp::concurrency::SpinLock lock(m_atom);
   
   if(!m_canRead) {
     return 0;
@@ -96,6 +100,8 @@ os::io::Library::v_size FIFOBuffer::read(void *data, os::io::Library::v_size cou
 }
 
 os::io::Library::v_size FIFOBuffer::write(const void *data, os::io::Library::v_size count) {
+  
+  oatpp::concurrency::SpinLock lock(m_atom);
   
   if(m_canRead && m_writePosition == m_readPosition) {
     return 0;

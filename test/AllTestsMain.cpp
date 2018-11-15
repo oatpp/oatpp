@@ -1,4 +1,6 @@
 
+#include "oatpp/test/network/virtual_/PipeTest.hpp"
+
 #include "oatpp/test/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/test/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/test/parser/json/mapping/DTOMapperTest.hpp"
@@ -49,6 +51,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
 }
   
 }

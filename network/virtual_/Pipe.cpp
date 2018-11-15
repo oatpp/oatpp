@@ -29,41 +29,31 @@ namespace oatpp { namespace network { namespace virtual_ {
 os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size count) {
   
   Pipe& pipe = *m_pipe;
-  if(!pipe.m_alive) {
-    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
-  }
+  oatpp::os::io::Library::v_size result;
   
   if(m_nonBlocking) {
-    oatpp::concurrency::SpinLock spinLock(pipe.m_atom);
     if(pipe.m_buffer.availableToRead() > 0) {
-      auto result = pipe.m_buffer.read(data, count);
-      pipe.m_writeCondition.notify_one();
-      return result;
+      result = pipe.m_buffer.read(data, count);
+    } else if(pipe.m_alive) {
+      result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
     } else {
-      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
+      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+    }
+  } else {
+    std::unique_lock<std::mutex> lock(pipe.m_mutex);
+    while (pipe.m_buffer.availableToRead() == 0 && pipe.m_alive) {
+      pipe.m_conditionWrite.notify_one();
+      pipe.m_conditionRead.wait(lock);
+    }
+    if (pipe.m_buffer.availableToRead() > 0) {
+      result = pipe.m_buffer.read(data, count);
+    } else {
+      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
     }
   }
   
-  std::unique_lock<std::mutex> lock(pipe.m_readMutex);
-  pipe.m_readCondition.wait(lock, [&pipe] {return (pipe.m_buffer.availableToRead() > 0 || !pipe.m_alive);});
+  pipe.m_conditionWrite.notify_one();
   
-  oatpp::concurrency::SpinLock spinLock(pipe.m_atom);
-  
-  if(!pipe.m_alive) {
-    lock.unlock();
-    pipe.m_writeCondition.notify_all();
-    pipe.m_readCondition.notify_all();
-    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
-  }
-  
-  if(pipe.m_buffer.availableToRead() == 0) {
-    return oatpp::data::stream::Errors::ERROR_IO_RETRY;
-  }
-  
-  auto result = pipe.m_buffer.read(data, count);
-  
-  lock.unlock();
-  pipe.m_writeCondition.notify_one();
   return result;
   
 }
@@ -71,41 +61,31 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
 os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v_size count) {
   
   Pipe& pipe = *m_pipe;
-  if(!pipe.m_alive) {
-    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
-  }
+  oatpp::os::io::Library::v_size result;
   
   if(m_nonBlocking) {
-    oatpp::concurrency::SpinLock spinLock(pipe.m_atom);
     if(pipe.m_buffer.availableToWrite() > 0) {
-      auto result = pipe.m_buffer.write(data, count);
-      pipe.m_readCondition.notify_one();
-      return result;
+      result = pipe.m_buffer.write(data, count);
+    } else if(pipe.m_alive) {
+      result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
     } else {
-      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
+      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+    }
+  } else {
+    std::unique_lock<std::mutex> lock(pipe.m_mutex);
+    while (pipe.m_buffer.availableToWrite() == 0 && pipe.m_alive) {
+      pipe.m_conditionRead.notify_one();
+      pipe.m_conditionWrite.wait(lock);
+    }
+    if (pipe.m_alive && pipe.m_buffer.availableToWrite() > 0) {
+      result = pipe.m_buffer.write(data, count);
+    } else {
+      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
     }
   }
   
-  std::unique_lock<std::mutex> lock(pipe.m_writeMutex);
-  pipe.m_writeCondition.wait(lock, [&pipe] {return (pipe.m_buffer.availableToWrite() > 0 || !pipe.m_alive);});
+  pipe.m_conditionRead.notify_one();
   
-  oatpp::concurrency::SpinLock spinLock(pipe.m_atom);
-  
-  if(!pipe.m_alive) {
-    lock.unlock();
-    pipe.m_writeCondition.notify_all();
-    pipe.m_readCondition.notify_all();
-    return oatpp::data::stream::Errors::ERROR_IO_PIPE;
-  }
-  
-  if(pipe.m_buffer.availableToWrite() == 0) {
-    return oatpp::data::stream::Errors::ERROR_IO_RETRY;
-  }
-  
-  auto result = pipe.m_buffer.write(data, count);
-  
-  lock.unlock();
-  pipe.m_readCondition.notify_one();
   return result;
   
 }

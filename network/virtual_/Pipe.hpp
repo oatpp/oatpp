@@ -37,27 +37,17 @@ namespace oatpp { namespace network { namespace virtual_ {
 
 class Pipe : public oatpp::base::Controllable {
 public:
-  OBJECT_POOL(Pipe_Pool, Pipe, 32)
-  SHARED_OBJECT_POOL(Shared_Pipe_Pool, Pipe, 32)
-public:
   
-  class Reader : public oatpp::base::Controllable, public oatpp::data::stream::InputStream {
-  public:
-    OBJECT_POOL(Pipe_Reader_Pool, Pipe, 32)
-    SHARED_OBJECT_POOL(Shared_Pipe_Reader_Pool, Reader, 32)
+  class Reader : public oatpp::data::stream::InputStream {
   private:
-    std::shared_ptr<Pipe> m_pipe;
+    Pipe* m_pipe;
     bool m_nonBlocking;
   public:
-    Reader(const std::shared_ptr<Pipe>& pipe, bool nonBlocking = false)
+    
+    Reader(Pipe* pipe, bool nonBlocking = false)
       : m_pipe(pipe)
       , m_nonBlocking(nonBlocking)
     {}
-  public:
-    
-    static std::shared_ptr<Reader> createShared(const std::shared_ptr<Pipe>& pipe, bool nonBlocking = false){
-      return Shared_Pipe_Reader_Pool::allocateShared(pipe, nonBlocking);
-    }
     
     void setNonBlocking(bool nonBlocking) {
       m_nonBlocking = nonBlocking;
@@ -67,23 +57,16 @@ public:
     
   };
   
-  class Writer : public oatpp::base::Controllable, public oatpp::data::stream::OutputStream {
-  public:
-    OBJECT_POOL(Pipe_Writer_Pool, Pipe, 32)
-    SHARED_OBJECT_POOL(Shared_Pipe_Writer_Pool, Writer, 32)
+  class Writer : public oatpp::data::stream::OutputStream {
   private:
-    std::shared_ptr<Pipe> m_pipe;
+    Pipe* m_pipe;
     bool m_nonBlocking;
   public:
-    Writer(const std::shared_ptr<Pipe>& pipe, bool nonBlocking = false)
+    
+    Writer(Pipe* pipe, bool nonBlocking = false)
       : m_pipe(pipe)
       , m_nonBlocking(nonBlocking)
     {}
-  public:
-    
-    static std::shared_ptr<Writer> createShared(const std::shared_ptr<Pipe>& pipe, bool nonBlocking = false){
-      return Shared_Pipe_Writer_Pool::allocateShared(pipe, nonBlocking);
-    }
     
     void setNonBlocking(bool nonBlocking) {
       m_nonBlocking = nonBlocking;
@@ -94,26 +77,31 @@ public:
   };
   
 private:
-  oatpp::data::buffer::FIFOBuffer m_buffer;
   bool m_alive;
-  oatpp::concurrency::SpinLock::Atom m_atom;
-  std::mutex m_readMutex;
-  std::condition_variable m_readCondition;
-  std::mutex m_writeMutex;
-  std::condition_variable m_writeCondition;
+  Writer m_writer;
+  Reader m_reader;
+  oatpp::data::buffer::FIFOBuffer m_buffer;
+  std::mutex m_mutex;
+  std::condition_variable m_conditionRead;
+  std::condition_variable m_conditionWrite;
 public:
   
   Pipe()
     : m_alive(true)
-    , m_atom(false)
+    , m_writer(this)
+    , m_reader(this)
   {}
   
-  std::shared_ptr<Reader> getReader(bool nonBlocking = false) {
-    return Reader::createShared(getSharedPtr<Pipe>(), nonBlocking);
+  static std::shared_ptr<Pipe> createShared(){
+    return std::make_shared<Pipe>();
   }
   
-  std::shared_ptr<Writer> getWriter(bool nonBlocking = false) {
-    return Writer::createShared(getSharedPtr<Pipe>(), nonBlocking);
+  Writer* getWriter() {
+    return &m_writer;
+  }
+  
+  Reader* getReader() {
+    return &m_reader;
   }
   
 };

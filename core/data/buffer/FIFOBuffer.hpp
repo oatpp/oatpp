@@ -26,6 +26,7 @@
 #define oatpp_data_buffer_FIFOBuffer_hpp
 
 #include "./IOBuffer.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/os/io/Library.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
@@ -39,11 +40,13 @@ private:
   os::io::Library::v_size m_readPosition;
   os::io::Library::v_size m_writePosition;
   IOBuffer m_buffer;
+  oatpp::concurrency::SpinLock::Atom m_atom;
 public:
   FIFOBuffer()
     : m_canRead(false)
     , m_readPosition(0)
     , m_writePosition(0)
+    , m_atom(false)
   {}
 public:
   
