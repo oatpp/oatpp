@@ -33,13 +33,26 @@ namespace oatpp { namespace network { namespace virtual_ { namespace server {
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
+  os::io::Library::v_size m_maxAvailableToRead;
+  os::io::Library::v_size m_maxAvailableToWrite;
 public:
   
   ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
     : m_interface(interface)
+    , m_maxAvailableToRead(-1)
+    , m_maxAvailableToWrite(-1)
   {
     setProperty(PROPERTY_HOST, m_interface->getName());
     setProperty(PROPERTY_PORT, "0");
+  }
+  
+  /**
+   * this one used for testing purposes only
+   * set to -1 in order to ignore this value
+   */
+  void setSocketMaxAvailableToReadWrtie(os::io::Library::v_size maxToRead, os::io::Library::v_size maxToWrite) {
+    m_maxAvailableToRead = maxToRead;
+    m_maxAvailableToWrite = maxToWrite;
   }
   
   std::shared_ptr<IOStream> getConnection() override;

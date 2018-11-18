@@ -26,7 +26,15 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
   
+void Pipe::Reader::setMaxAvailableToRead(os::io::Library::v_size maxAvailableToRead) {
+  m_maxAvailableToRead = maxAvailableToRead;
+}
+  
 os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size count) {
+  
+  if(m_maxAvailableToRead > -1 && count > m_maxAvailableToRead) {
+    count = m_maxAvailableToRead;
+  }
   
   Pipe& pipe = *m_pipe;
   oatpp::os::io::Library::v_size result;
@@ -58,7 +66,15 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
   
 }
 
+void Pipe::Writer::setMaxAvailableToWrite(os::io::Library::v_size maxAvailableToWrite) {
+  m_maxAvailableToWrtie = maxAvailableToWrite;
+}
+  
 os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v_size count) {
+  
+  if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
+    count = m_maxAvailableToWrtie;
+  }
   
   Pipe& pipe = *m_pipe;
   oatpp::os::io::Library::v_size result;

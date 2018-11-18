@@ -48,6 +48,12 @@ public:
     close();
   }
   
+  /**
+   * this one used for testing purposes only
+   * set to -1 in order to ignore this value
+   */
+  void setMaxAvailableToReadWrtie(os::io::Library::v_size maxToRead, os::io::Library::v_size maxToWrite);
+  
   os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
   os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
   

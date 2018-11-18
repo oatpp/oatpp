@@ -42,16 +42,28 @@ public:
   private:
     Pipe* m_pipe;
     bool m_nonBlocking;
+    
+    /**
+     * this one used for testing purposes only
+     */
+    os::io::Library::v_size m_maxAvailableToRead;
   public:
     
     Reader(Pipe* pipe, bool nonBlocking = false)
       : m_pipe(pipe)
       , m_nonBlocking(nonBlocking)
+      , m_maxAvailableToRead(-1)
     {}
     
     void setNonBlocking(bool nonBlocking) {
       m_nonBlocking = nonBlocking;
     }
+    
+    /**
+     * this one used for testing purposes only
+     * set to -1 in order to ignore this value
+     */
+    void setMaxAvailableToRead(os::io::Library::v_size maxAvailableToRead);
     
     os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
     
@@ -61,16 +73,28 @@ public:
   private:
     Pipe* m_pipe;
     bool m_nonBlocking;
+    
+    /**
+     * this one used for testing purposes only
+     */
+    os::io::Library::v_size m_maxAvailableToWrtie;
   public:
     
     Writer(Pipe* pipe, bool nonBlocking = false)
       : m_pipe(pipe)
       , m_nonBlocking(nonBlocking)
+      , m_maxAvailableToWrtie(-1)
     {}
     
     void setNonBlocking(bool nonBlocking) {
       m_nonBlocking = nonBlocking;
     }
+    
+    /**
+     * this one used for testing purposes only
+     * set to -1 in order to ignore this value
+     */
+    void setMaxAvailableToWrite(os::io::Library::v_size maxAvailableToWrite);
     
     os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
     

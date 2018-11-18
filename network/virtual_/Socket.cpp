@@ -26,6 +26,11 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
   
+void Socket::setMaxAvailableToReadWrtie(os::io::Library::v_size maxToRead, os::io::Library::v_size maxToWrite) {
+  m_pipeIn->getReader()->setMaxAvailableToRead(maxToRead);
+  m_pipeOut->getWriter()->setMaxAvailableToWrite(maxToWrite);
+}
+  
 os::io::Library::v_size Socket::read(void *data, os::io::Library::v_size count) {
   return m_pipeIn->getReader()->read(data, count);
 }

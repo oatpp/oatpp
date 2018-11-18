@@ -30,6 +30,7 @@ std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection(
   auto submission = m_interface->connect();
   auto socket = submission->getSocket();
   socket->setNonBlocking(false);
+  socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
   return socket;
 }
   
@@ -38,11 +39,17 @@ oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::Abstra
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, std::shared_ptr<oatpp::data::stream::IOStream>> {
   private:
     std::shared_ptr<virtual_::Interface> m_interface;
+    os::io::Library::v_size m_maxAvailableToRead;
+    os::io::Library::v_size m_maxAvailableToWrite;
     std::shared_ptr<virtual_::Interface::ConnectionSubmission> m_submission;
   public:
     
-    ConnectCoroutine(const std::shared_ptr<virtual_::Interface>& interface)
+    ConnectCoroutine(const std::shared_ptr<virtual_::Interface>& interface,
+                     os::io::Library::v_size maxAvailableToRead,
+                     os::io::Library::v_size maxAvailableToWrite)
       : m_interface(interface)
+      , m_maxAvailableToRead(maxAvailableToRead)
+      , m_maxAvailableToWrite(maxAvailableToWrite)
     {}
     
     Action act() override {
@@ -57,6 +64,7 @@ oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::Abstra
       auto socket = m_submission->getSocketNonBlocking();
       if(socket) {
         socket->setNonBlocking(true);
+        socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
         return _return(socket);
       }
       return waitRetry();
@@ -64,7 +72,7 @@ oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::Abstra
     
   };
   
-  return parentCoroutine->startCoroutineForResult<ConnectCoroutine>(callback, m_interface);
+  return parentCoroutine->startCoroutineForResult<ConnectCoroutine>(callback, m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
   
 }
   
