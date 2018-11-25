@@ -41,6 +41,9 @@ os::io::Library::v_size RequestHeadersReader::readHeadersSection(const std::shar
     v_int32 desiredToRead = m_bufferSize;
     if(progress + desiredToRead > m_maxHeadersSize) {
       desiredToRead = m_maxHeadersSize - progress;
+      if(desiredToRead <= 0) {
+        return -1;
+      }
     }
     
     res = connection->read(m_buffer, desiredToRead);
@@ -81,10 +84,100 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(const std::shared
     auto headersText = buffer.toString();
     oatpp::parser::ParsingCaret caret (headersText);
     http::Status status;
-    http::Protocol::parseHeadersLabels(result.headers, headersText.getPtr(), caret, status);
+    http::Protocol::parseRequestStartingLineStruct(result.startingLine, headersText.getPtr(), caret, status);
+    if(status.code == 0) {
+      http::Protocol::parseHeadersLabels(result.headers, headersText.getPtr(), caret, status);
+    }
   }
   
   return result;
+  
+}
+  
+  
+RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                                    AsyncCallback callback,
+                                                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+{
+  
+  class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, Result> {
+  private:
+    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    p_char8 m_buffer;
+    v_int32 m_bufferSize;
+    v_int32 m_maxHeadersSize;
+    v_word32 m_accumulator;
+    v_int32 m_progress;
+    RequestHeadersReader::Result m_result;
+    oatpp::data::stream::ChunkedBuffer m_bufferStream;
+  public:
+    
+    ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                    p_char8 buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
+      : m_connection(connection)
+      , m_buffer(buffer)
+      , m_bufferSize(bufferSize)
+      , m_maxHeadersSize(maxHeadersSize)
+      , m_accumulator(0)
+      , m_progress(0)
+    {}
+    
+    Action act() override {
+      
+      v_int32 desiredToRead = m_bufferSize;
+      if(m_progress + desiredToRead > m_maxHeadersSize) {
+        desiredToRead = m_maxHeadersSize - m_progress;
+        if(desiredToRead <= 0) {
+          return error("Headers section is too large");
+        }
+      }
+      
+      auto res = m_connection->read(m_buffer, desiredToRead);
+      if(res > 0) {
+        m_bufferStream.write(m_buffer, res);
+        
+        for(v_int32 i = 0; i < res; i ++) {
+          m_accumulator <<= 8;
+          m_accumulator |= m_buffer[i];
+          if(m_accumulator == SECTION_END) {
+            m_result.bufferPosStart = i + 1;
+            m_result.bufferPosEnd = (v_int32) res;
+            return yieldTo(&ReaderCoroutine::parseHeaders);
+          }
+        }
+        
+        return waitRetry();
+        
+      } else if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+        return waitRetry();
+      } else {
+        return abort();
+      }
+      
+    }
+    
+    Action parseHeaders() {
+      
+      auto headersText = m_bufferStream.toString();
+      oatpp::parser::ParsingCaret caret (headersText);
+      http::Status status;
+      http::Protocol::parseRequestStartingLineStruct(m_result.startingLine, headersText.getPtr(), caret, status);
+      if(status.code == 0) {
+        http::Protocol::parseHeadersLabels(m_result.headers, headersText.getPtr(), caret, status);
+        if(status.code == 0) {
+          return _return(m_result);
+        } else {
+          return error("error occurred while parsing headers");
+        }
+      } else {
+        return error("can't parse starting line");
+      }
+      
+    }
+    
+  };
+  
+  return parentCoroutine->startCoroutineForResult<ReaderCoroutine>(callback, connection, m_buffer, m_bufferSize, m_maxHeadersSize);
   
 }
 

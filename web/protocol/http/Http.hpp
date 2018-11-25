@@ -291,6 +291,11 @@ public:
   static void parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error);
   static std::shared_ptr<Headers> parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error);
   
+  static void parseRequestStartingLineStruct(RequestStartingLineStruct& line,
+                                             const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                             oatpp::parser::ParsingCaret& caret,
+                                             Status& error);
+  
   static void parseOneHeaderLabel(HeadersLabels& headers,
                                   const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                   oatpp::parser::ParsingCaret& caret,

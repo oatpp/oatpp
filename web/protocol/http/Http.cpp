@@ -367,6 +367,40 @@ std::shared_ptr<Protocol::Headers> Protocol::parseHeaders(oatpp::parser::Parsing
   
 }
   
+void Protocol::parseRequestStartingLineStruct(RequestStartingLineStruct& line,
+                                              const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                              oatpp::parser::ParsingCaret& caret,
+                                              Status& error) {
+  
+  oatpp::parser::ParsingCaret::Label methodLabel(caret);
+  if(caret.findChar(' ')){
+    line.method = oatpp::data::share::MemoryLabel(headersText, methodLabel.getData(), methodLabel.getSize());
+    caret.inc();
+  } else {
+    error = Status::CODE_400;
+    return;
+  }
+  
+  oatpp::parser::ParsingCaret::Label pathLabel(caret);
+  if(caret.findChar(' ')){
+    line.path = oatpp::data::share::MemoryLabel(headersText, pathLabel.getData(), pathLabel.getSize());
+    caret.inc();
+  } else {
+    error = Status::CODE_400;
+    return;
+  }
+  
+  oatpp::parser::ParsingCaret::Label protocolLabel(caret);
+  if(caret.findRN()){
+    line.protocol = oatpp::data::share::MemoryLabel(headersText, protocolLabel.getData(), protocolLabel.getSize());
+    caret.skipRN();
+  } else {
+    error = Status::CODE_400;
+    return;
+  }
+  
+}
+  
 void Protocol::parseOneHeaderLabel(HeadersLabels& headers,
                                    const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                    oatpp::parser::ParsingCaret& caret,

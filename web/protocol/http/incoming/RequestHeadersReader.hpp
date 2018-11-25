@@ -26,10 +26,15 @@
 #define oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   
 class RequestHeadersReader {
+public:
+  typedef oatpp::async::Action Action;
+private:
+  static constexpr v_int32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 public:
   
   struct Result {
@@ -38,6 +43,9 @@ public:
     v_int32 bufferPosStart;
     v_int32 bufferPosEnd;
   };
+  
+public:
+  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const Result&);
 private:
   os::io::Library::v_size readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                              oatpp::data::stream::OutputStream* bufferStream,
@@ -49,6 +57,9 @@ private:
 public:
   
   Result readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, http::Status& error);
+  Action readHeadersAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                          AsyncCallback callback,
+                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
   
 };
   
