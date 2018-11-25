@@ -46,6 +46,10 @@ public:
     setProperty(PROPERTY_PORT, "0");
   }
   
+  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface) {
+    return std::make_shared<ConnectionProvider>(interface);
+  }
+  
   /**
    * this one used for testing purposes only
    * set to -1 in order to ignore this value

@@ -315,6 +315,21 @@ oatpp::String Protocol::parseHeaderName(oatpp::parser::ParsingCaret& caret) {
   }
   return nullptr;
 }
+  
+oatpp::data::share::StringKeyLabelCI_FAST Protocol::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                                                         oatpp::parser::ParsingCaret& caret) {
+  p_char8 data = caret.getData();
+  for(v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
+    v_char8 a = data[i];
+    if(a == ':' || a == ' '){
+      oatpp::data::share::StringKeyLabelCI_FAST label(headersText, &data[caret.getPosition()], i - caret.getPosition());
+      caret.setPosition(i);
+      return label;
+      
+    }
+  }
+  return oatpp::data::share::StringKeyLabelCI_FAST(nullptr, nullptr, 0);
+}
 
 void Protocol::parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error) {
   caret.findNotSpaceChar();
@@ -349,6 +364,45 @@ std::shared_ptr<Protocol::Headers> Protocol::parseHeaders(oatpp::parser::Parsing
   
   caret.skipRN();
   return headers;
+  
+}
+  
+void Protocol::parseOneHeaderLabel(HeadersLabels& headers,
+                                   const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                   oatpp::parser::ParsingCaret& caret,
+                                   Status& error) {
+  caret.findNotSpaceChar();
+  auto name = parseHeaderNameLabel(headersText, caret);
+  if(name.getData() != nullptr) {
+    caret.findNotSpaceChar();
+    if(!caret.canContinueAtChar(':', 1)) {
+      error = Status::CODE_400;
+      return;
+    }
+    caret.findNotSpaceChar();
+    v_int32 valuePos0 = caret.getPosition();
+    caret.findRN();
+    headers[name] = oatpp::data::share::MemoryLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0);
+    caret.skipRN();
+  } else {
+    error = Status::CODE_431;
+    return;
+  }
+}
+
+void Protocol::parseHeadersLabels(HeadersLabels& headers,
+                                  const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                  oatpp::parser::ParsingCaret& caret,
+                                  Status& error) {
+  
+  while (!caret.isAtRN()) {
+    parseOneHeaderLabel(headers, headersText, caret, error);
+    if(error.code != 0) {
+      return;
+    }
+  }
+  
+  caret.skipRN();
   
 }
 

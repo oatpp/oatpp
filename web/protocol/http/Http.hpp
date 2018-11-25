@@ -28,10 +28,12 @@
 #include "oatpp/network/Connection.hpp"
 
 #include "oatpp/core/parser/ParsingCaret.hpp"
-
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/stream/Delegate.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
@@ -264,11 +266,20 @@ public:
   
 };
   
+struct RequestStartingLineStruct {
+  oatpp::data::share::MemoryLabel method; // GET, POST ...
+  oatpp::data::share::MemoryLabel path;
+  oatpp::data::share::MemoryLabel protocol;
+};
+  
 class Protocol {
 public:
   typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
+  typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::MemoryLabel> HeadersLabels;
 private:
   static oatpp::String parseHeaderName(oatpp::parser::ParsingCaret& caret);
+  static oatpp::data::share::StringKeyLabelCI_FAST parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                                                        oatpp::parser::ParsingCaret& caret);
 public:
   
   static std::shared_ptr<RequestStartingLine> parseRequestStartingLine(oatpp::parser::ParsingCaret& caret);
@@ -279,6 +290,16 @@ public:
    */
   static void parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error);
   static std::shared_ptr<Headers> parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error);
+  
+  static void parseOneHeaderLabel(HeadersLabels& headers,
+                                  const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                  oatpp::parser::ParsingCaret& caret,
+                                  Status& error);
+  
+  static void parseHeadersLabels(HeadersLabels& headers,
+                                 const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                 oatpp::parser::ParsingCaret& caret,
+                                 Status& error);
   
 };
   
