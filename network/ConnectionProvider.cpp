@@ -33,11 +33,11 @@ void ConnectionProvider::setProperty(const oatpp::String& key, const oatpp::Stri
   m_properties[key] = value;
 }
   
-const std::unordered_map<oatpp::String, oatpp::String>& ConnectionProvider::getProperties() {
+const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& ConnectionProvider::getProperties() {
   return m_properties;
 }
   
-oatpp::String ConnectionProvider::getProperty(const oatpp::String& key) {
+oatpp::data::share::StringKeyLabel ConnectionProvider::getProperty(const oatpp::String& key) {
   auto it = m_properties.find(key);
   if(it == m_properties.end()) {
     return nullptr;

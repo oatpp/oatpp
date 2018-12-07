@@ -32,23 +32,23 @@ void Request::send(const std::shared_ptr<data::stream::OutputStream>& stream){
   if(body){
     body->declareHeaders(headers);
   } else {
-    headers->put(Header::CONTENT_LENGTH, "0");
+    headers[Header::CONTENT_LENGTH] = "0";
   }
   
-  stream->write(method);
+  stream->write(method.getData(), method.getSize());
   stream->write(" /", 2);
-  stream->write(path);
+  stream->write(path.getData(), path.getSize());
   stream->write(" ", 1);
   stream->write("HTTP/1.1", 8);
   stream->write("\r\n", 2);
   
-  auto curr = headers->getFirstEntry();
-  while(curr != nullptr){
-    stream->write(curr->getKey()->getData(), curr->getKey()->getSize());
+  auto it = headers.begin();
+  while(it != headers.end()){
+    stream->write(it->first.getData(), it->first.getSize());
     stream->write(": ", 2);
-    stream->write(curr->getValue()->getData(), curr->getValue()->getSize());
+    stream->write(it->second.getData(), it->second.getSize());
     stream->write("\r\n", 2);
-    curr = curr->getNext();
+    it ++;
   }
   
   stream->write("\r\n", 2);
@@ -81,23 +81,23 @@ oatpp::async::Action Request::sendAsync(oatpp::async::AbstractCoroutine* parentC
       if(m_request->body){
         m_request->body->declareHeaders(m_request->headers);
       } else {
-        m_request->headers->put(Header::CONTENT_LENGTH, "0");
+        m_request->headers[Header::CONTENT_LENGTH] = "0";
       }
       
-      m_buffer->data::stream::OutputStream::write(m_request->method);
+      m_buffer->data::stream::OutputStream::write(m_request->method.getData(), m_request->method.getSize());
       m_buffer->write(" /", 2);
-      m_buffer->data::stream::OutputStream::write(m_request->path);
+      m_buffer->data::stream::OutputStream::write(m_request->path.getData(), m_request->path.getSize());
       m_buffer->write(" ", 1);
       m_buffer->write("HTTP/1.1", 8);
       m_buffer->write("\r\n", 2);
       
-      auto curr = m_request->headers->getFirstEntry();
-      while(curr != nullptr){
-        m_buffer->write(curr->getKey()->getData(), curr->getKey()->getSize());
+      auto it = m_request->headers.begin();
+      while(it != m_request->headers.end()){
+        m_buffer->write(it->first.getData(), it->first.getSize());
         m_buffer->write(": ", 2);
-        m_buffer->write(curr->getValue()->getData(), curr->getValue()->getSize());
+        m_buffer->write(it->second.getData(), it->second.getSize());
         m_buffer->write("\r\n", 2);
-        curr = curr->getNext();
+        it++;
       }
       
       m_buffer->write("\r\n", 2);

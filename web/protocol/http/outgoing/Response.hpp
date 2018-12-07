@@ -33,27 +33,47 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 class Response : public oatpp::base::Controllable {
 public:
-  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
+  typedef http::Protocol::Headers Headers;
 public:
   OBJECT_POOL(Outgoing_Response_Pool, Response, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Response_Pool, Response, 32)
+private:
+  Status m_status;
+  Headers m_headers;
+  std::shared_ptr<Body> m_body;
 public:
-  Response(const Status& pStatus,
-           const std::shared_ptr<Body>& pBody)
-    : status(pStatus)
-    , headers(Headers::createShared())
-    , body(pBody)
+  Response(const Status& status,
+           const std::shared_ptr<Body>& body)
+    : m_status(status)
+    , m_body(body)
   {}
 public:
   
   static std::shared_ptr<Response> createShared(const Status& status,
-                                          const std::shared_ptr<Body>& body) {
+                                                const std::shared_ptr<Body>& body) {
     return Shared_Outgoing_Response_Pool::allocateShared(status, body);
   }
   
-  const Status status;
-  const std::shared_ptr<Headers> headers;
-  const std::shared_ptr<Body> body;
+  Status getStatus() {
+    return m_status;
+  }
+  
+  Headers& getHeaders() {
+    return m_headers;
+  }
+  
+  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+    m_headers[key] = value;
+  }
+  
+  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+    auto it = m_headers.find(key);
+    if(it == m_headers.end()) {
+      m_headers.insert({key, value});
+      return true;
+    }
+    return false;
+  }
   
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);
   

@@ -78,6 +78,8 @@ public:
 class StringKeyLabel : public MemoryLabel {
 public:
   
+  StringKeyLabel() : MemoryLabel() {};
+  
   StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size);
   StringKeyLabel(const char* constText);
   StringKeyLabel(const oatpp::String& str);
@@ -94,6 +96,8 @@ public:
   
 class StringKeyLabelCI : public MemoryLabel {
 public:
+  
+  StringKeyLabelCI() : MemoryLabel() {};
   
   StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size);
   StringKeyLabelCI(const char* constText);

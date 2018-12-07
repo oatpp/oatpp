@@ -33,7 +33,7 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   if(body){
     body->declareHeaders(headers);
   } else {
-    headers->put(Header::CONTENT_LENGTH, "0");
+    headers[Header::CONTENT_LENGTH] = "0";
   }
   
   stream->write("HTTP/1.1 ", 9);
@@ -42,13 +42,13 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   stream->OutputStream::write(status.description);
   stream->write("\r\n", 2);
   
-  auto curr = headers->getFirstEntry();
-  while(curr != nullptr){
-    stream->write(curr->getKey()->getData(), curr->getKey()->getSize());
+  auto it = headers.begin();
+  while(it != headers.end()) {
+    stream->write(it->first.getData(), it->first.getSize());
     stream->write(": ", 2);
-    stream->write(curr->getValue()->getData(), curr->getValue()->getSize());
+    stream->write(it->second.getData(), it->second.getSize());
     stream->write("\r\n", 2);
-    curr = curr->getNext();
+    it ++;
   }
   
   stream->write("\r\n", 2);
@@ -81,7 +81,7 @@ oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parent
       if(m_response->body){
         m_response->body->declareHeaders(m_response->headers);
       } else {
-        m_response->headers->put(Header::CONTENT_LENGTH, "0");
+        m_response->headers[Header::CONTENT_LENGTH] = "0";
       }
       
       m_buffer->write("HTTP/1.1 ", 9);
@@ -90,13 +90,13 @@ oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parent
       m_buffer->OutputStream::write(m_response->status.description);
       m_buffer->write("\r\n", 2);
       
-      auto curr = m_response->headers->getFirstEntry();
-      while(curr != nullptr){
-        m_buffer->write(curr->getKey()->getData(), curr->getKey()->getSize());
+      auto it = m_response->headers.begin();
+      while(it != m_response->headers.end()) {
+        m_buffer->write(it->first.getData(), it->first.getSize());
         m_buffer->write(": ", 2);
-        m_buffer->write(curr->getValue()->getData(), curr->getValue()->getSize());
+        m_buffer->write(it->second.getData(), it->second.getSize());
         m_buffer->write("\r\n", 2);
-        curr = curr->getNext();
+        it ++;
       }
       
       m_buffer->write("\r\n", 2);

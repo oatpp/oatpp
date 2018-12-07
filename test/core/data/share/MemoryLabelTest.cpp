@@ -118,42 +118,14 @@ bool MemoryLabelTest::onRun() {
     
     {
       
-      oatpp::test::PerformanceChecker timer("timer1");
-      
-      for(v_int32 i = 0; i < iterationsCount; i ++) {
-      
-        oatpp::parser::ParsingCaret caret(headersText);
-        oatpp::web::protocol::http::Status status;
-        auto headers = oatpp::web::protocol::http::Protocol::parseHeaders(caret, status);
-        
-        OATPP_ASSERT(status.code == 0);
-        OATPP_ASSERT(headers->count() == 10);
-        
-        OATPP_ASSERT(headers->get("header0", nullptr) == "value0");
-        OATPP_ASSERT(headers->get("header1", nullptr) == "value1");
-        OATPP_ASSERT(headers->get("header2", nullptr) == "value2");
-        OATPP_ASSERT(headers->get("header3", nullptr) == "value3");
-        OATPP_ASSERT(headers->get("header4", nullptr) == "value4");
-        OATPP_ASSERT(headers->get("header5", nullptr) == "value5");
-        OATPP_ASSERT(headers->get("header6", nullptr) == "value6");
-        OATPP_ASSERT(headers->get("header7", nullptr) == "value7");
-        OATPP_ASSERT(headers->get("header8", nullptr) == "value8");
-        OATPP_ASSERT(headers->get("header9", nullptr) == "value9");
-        
-      }
-      
-    }
-    
-    {
-      
-      oatpp::test::PerformanceChecker timer("timer2");
+      oatpp::test::PerformanceChecker timer("timer");
       
       for(v_int32 i = 0; i < iterationsCount; i ++) {
         
         oatpp::parser::ParsingCaret caret(headersText);
         oatpp::web::protocol::http::Status status;
-        oatpp::web::protocol::http::Protocol::HeadersLabels headers;
-        oatpp::web::protocol::http::Protocol::parseHeadersLabels(headers, headersText.getPtr(), caret, status);
+        oatpp::web::protocol::http::Protocol::Headers headers;
+        oatpp::web::protocol::http::Protocol::parseHeaders(headers, headersText.getPtr(), caret, status);
         
         OATPP_ASSERT(status.code == 0);
         OATPP_ASSERT(headers.size() == 10);

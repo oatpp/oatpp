@@ -42,8 +42,8 @@ DefaultErrorHandler::handleError(const protocol::http::Status& status, const oat
   auto response = protocol::http::outgoing::Response::createShared
   (status, protocol::http::outgoing::ChunkedBufferBody::createShared(stream));
   
-  response->headers->put(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
-  response->headers->put(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
+  response->putHeader(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
+  response->putHeader(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
   
   return response;
   

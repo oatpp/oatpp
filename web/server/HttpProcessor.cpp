@@ -42,102 +42,76 @@ HttpProcessor::processRequest(HttpRouter* router,
                               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                               bool& keepAlive) {
   
-  keepAlive = false;
-  auto readCount = connection->read(buffer, bufferSize);
-  if(readCount > 0) {
-    
-    oatpp::parser::ParsingCaret caret((p_char8)buffer, bufferSize);
-    auto line = protocol::http::Protocol::parseRequestStartingLine(caret);
-    
-    if(!line){
-      return errorHandler->handleError(protocol::http::Status::CODE_400, "Can't read starting line");
-    }
-    
-    auto route = router->getRoute(line->method, line->path);
-    
-    if(route) {
-      
-      oatpp::web::protocol::http::Status error;
-      auto headers = protocol::http::Protocol::parseHeaders(caret, error);
-      
-      if(error.code != 0){
-        return errorHandler->handleError(error, " Can't parse headers");
-      }
-      
-      auto bodyStream = inStream;
-      bodyStream->setBufferPosition(caret.getPosition(), (v_int32) readCount);
-      
-      auto request = protocol::http::incoming::Request::createShared(line, route.matchMap, headers, bodyStream, bodyDecoder);
-      std::shared_ptr<protocol::http::outgoing::Response> response;
-      try{
-        auto currInterceptor = requestInterceptors->getFirstNode();
-        while (currInterceptor != nullptr) {
-          response = currInterceptor->getData()->intercept(request);
-          if(response) {
-            break;
-          }
-          currInterceptor = currInterceptor->getNext();
-        }
-        if(!response) {
-          response = route.processUrl(request);
-        }
-      } catch (HttpError& error) {
-        return errorHandler->handleError(error.getStatus(), error.getMessage());
-      } catch (std::exception& error) {
-        return errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-      } catch (...) {
-        return errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
-      }
-      
-      response->headers->putIfNotExists(oatpp::String(protocol::http::Header::SERVER, false),
-                                        oatpp::String(protocol::http::Header::Value::SERVER, false));
-      
-      keepAlive = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionKeepAlive(request, response);
-      return response;
-      
-    } else {
-      return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-    }
-    
-  } if(readCount == oatpp::data::stream::Errors::ERROR_IO_NOTHING_TO_READ) {
-    keepAlive = true;
+  RequestHeadersReader headersReader(buffer, bufferSize, 4096);
+  oatpp::web::protocol::http::Status error;
+  auto headersReadResult = headersReader.readHeaders(connection, error);
+  
+  if(error.code != 0) {
+    return errorHandler->handleError(error, "Invalid request headers");
   }
   
-  return nullptr;
+  auto route = router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
+  
+  if(!route) {
+    return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+  }
+  
+  auto& bodyStream = inStream;
+  bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
+  
+  auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
+                                                                 route.matchMap,
+                                                                 headersReadResult.headers,
+                                                                 bodyStream,
+                                                                 bodyDecoder);
+  
+  std::shared_ptr<protocol::http::outgoing::Response> response;
+  try{
+    auto currInterceptor = requestInterceptors->getFirstNode();
+    while (currInterceptor != nullptr) {
+      response = currInterceptor->getData()->intercept(request);
+      if(response) {
+        break;
+      }
+      currInterceptor = currInterceptor->getNext();
+    }
+    if(!response) {
+      response = route.processUrl(request);
+    }
+  } catch (HttpError& error) {
+    return errorHandler->handleError(error.getStatus(), error.getMessage());
+  } catch (std::exception& error) {
+    return errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+  } catch (...) {
+    return errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+  }
+  
+  response->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
+  
+  keepAlive = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionKeepAlive(request, response);
+  return response;
   
 }
   
 // HttpProcessor::Coroutine
   
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 readCount) {
+oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHeadersReader::Result& headersReadResult) {
   
-  oatpp::parser::ParsingCaret caret((p_char8) m_ioBuffer->getData(), readCount);
-  auto line = protocol::http::Protocol::parseRequestStartingLine(caret);
-  
-  if(!line){
-    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_400, "Can't read starting line");
-    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
-  }
-  
-  m_currentRoute = m_router->getRoute(line->method, line->path);
+  m_currentRoute = m_router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
   
   if(!m_currentRoute) {
     m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
   
-  oatpp::web::protocol::http::Status error;
-  auto headers = protocol::http::Protocol::parseHeaders(caret, error);
+  auto& bodyStream = m_inStream;
+  bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
   
-  if(error.code != 0){
-    m_currentResponse = m_errorHandler->handleError(error, " Can't parse headers");
-    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
-  }
-  
-  auto bodyStream = m_inStream;
-  bodyStream->setBufferPosition(caret.getPosition(), readCount);
-  
-  m_currentRequest = protocol::http::incoming::Request::createShared(line, m_currentRoute.matchMap, headers, bodyStream, m_bodyDecoder);
+  auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
+                                                                 m_currentRoute.matchMap,
+                                                                 headersReadResult.headers,
+                                                                 bodyStream,
+                                                                 m_bodyDecoder);
   
   auto currInterceptor = m_requestInterceptors->getFirstNode();
   while (currInterceptor != nullptr) {
@@ -149,19 +123,13 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseRequest(v_int32 
   }
   
   return yieldTo(&HttpProcessor::Coroutine::onRequestFormed);
+  
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  auto readCount = m_connection->read(m_ioBuffer->getData(), m_ioBuffer->getSize());
-  if(readCount > 0) {
-    m_currentResponse = nullptr;
-    return parseRequest((v_int32)readCount);
-  } else if(readCount == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
-    return waitRetry();
-  } else if(readCount == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
-    return repeat();
-  }
-  return abort();
+  RequestHeadersReader::AsyncCallback callback = static_cast<RequestHeadersReader::AsyncCallback>(&HttpProcessor::Coroutine::onHeadersParsed);
+  RequestHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
+  return headersReader.readHeadersAsync(this, callback, m_connection);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
@@ -177,8 +145,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   
-  m_currentResponse->headers->putIfNotExists(protocol::http::Header::SERVER,
-                                             protocol::http::Header::Value::SERVER);
+  m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_keepAlive = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionKeepAlive(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0);
   return m_currentResponse->sendAsync(this,

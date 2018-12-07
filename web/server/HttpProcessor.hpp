@@ -30,6 +30,8 @@
 #include "./handler/Interceptor.hpp"
 #include "./handler/ErrorHandler.hpp"
 
+#include "oatpp/web/protocol/http/incoming/RequestHeadersReader.hpp"
+
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 
@@ -43,6 +45,7 @@ public:
   static const char* RETURN_KEEP_ALIVE;
 public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
+  typedef oatpp::web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
 public:
   
   class ConnectionState {
@@ -64,8 +67,6 @@ public:
 public:
   
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
-  private:
-    Action parseRequest(v_int32 readCount);
   private:
     HttpRouter* m_router;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
@@ -102,6 +103,8 @@ public:
     {}
     
     Action act() override;
+    
+    Action onHeadersParsed(const RequestHeadersReader::Result& headersReadResult);
     
     Action onRequestFormed();
     Action onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response);

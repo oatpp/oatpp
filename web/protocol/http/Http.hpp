@@ -228,83 +228,45 @@ public:
   
 };
   
-class RequestStartingLine : public base::Controllable {
-public:
-  OBJECT_POOL(RequestStartingLine_Pool, RequestStartingLine, 32)
-  SHARED_OBJECT_POOL(Shared_RequestStartingLine_Pool, RequestStartingLine, 32)
-public:
-  RequestStartingLine()
-  {}
-public:
-  
-  static std::shared_ptr<RequestStartingLine> createShared(){
-    return Shared_RequestStartingLine_Pool::allocateShared();
-  }
-  
-  oatpp::String method; // GET, POST ...
-  oatpp::String path;
-  oatpp::String protocol;
-  
+struct RequestStartingLine {
+  oatpp::data::share::StringKeyLabel method; // GET, POST ...
+  oatpp::data::share::StringKeyLabel path;
+  oatpp::data::share::StringKeyLabel protocol;
 };
   
-class ResponseStartingLine : public base::Controllable {
-public:
-  OBJECT_POOL(ResponseStartingLine_Pool, ResponseStartingLine, 32)
-  SHARED_OBJECT_POOL(Shared_ResponseStartingLine_Pool, ResponseStartingLine, 32)
-public:
-  ResponseStartingLine()
-  {}
-public:
-  
-  static std::shared_ptr<ResponseStartingLine> createShared(){
-    return Shared_ResponseStartingLine_Pool::allocateShared();
-  }
-  
-  oatpp::String protocol;
+struct ResponseStartingLine {
+  oatpp::data::share::StringKeyLabel protocol;
   v_int32 statusCode;
-  oatpp::String description;
-  
-};
-  
-struct RequestStartingLineStruct {
-  oatpp::data::share::MemoryLabel method; // GET, POST ...
-  oatpp::data::share::MemoryLabel path;
-  oatpp::data::share::MemoryLabel protocol;
+  oatpp::data::share::StringKeyLabel description;
 };
   
 class Protocol {
 public:
-  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
-  typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::MemoryLabel> HeadersLabels;
+  typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
 private:
-  static oatpp::String parseHeaderName(oatpp::parser::ParsingCaret& caret);
   static oatpp::data::share::StringKeyLabelCI_FAST parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                                                         oatpp::parser::ParsingCaret& caret);
 public:
   
-  static std::shared_ptr<RequestStartingLine> parseRequestStartingLine(oatpp::parser::ParsingCaret& caret);
-  static std::shared_ptr<ResponseStartingLine> parseResponseStartingLine(oatpp::parser::ParsingCaret& caret);
+  static void parseRequestStartingLine(RequestStartingLine& line,
+                                       const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                       oatpp::parser::ParsingCaret& caret,
+                                       Status& error);
   
-  /**
-   * Parse header and store it in headers map
-   */
-  static void parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error);
-  static std::shared_ptr<Headers> parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error);
+  static void parseResponseStartingLine(ResponseStartingLine& line,
+                                        const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                        oatpp::parser::ParsingCaret& caret,
+                                        Status& error);
   
-  static void parseRequestStartingLineStruct(RequestStartingLineStruct& line,
-                                             const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
-                                             oatpp::parser::ParsingCaret& caret,
-                                             Status& error);
+  static void parseOneHeader(Headers& headers,
+                             const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                             oatpp::parser::ParsingCaret& caret,
+                             Status& error);
   
-  static void parseOneHeaderLabel(HeadersLabels& headers,
-                                  const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
-                                  oatpp::parser::ParsingCaret& caret,
-                                  Status& error);
-  
-  static void parseHeadersLabels(HeadersLabels& headers,
-                                 const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
-                                 oatpp::parser::ParsingCaret& caret,
-                                 Status& error);
+  static void parseHeaders(Headers& headers,
+                           const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                           oatpp::parser::ParsingCaret& caret,
+                           Status& error);
   
 };
   
