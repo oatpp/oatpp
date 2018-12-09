@@ -56,7 +56,7 @@ os::io::Library::v_size ResponseHeadersReader::readHeadersSection(const std::sha
         if(accumulator == sectionEnd) {
           result.bufferPosStart = i + 1;
           result.bufferPosEnd = (v_int32) res;
-          break;
+          return res;
         }
       }
       

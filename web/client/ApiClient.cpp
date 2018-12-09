@@ -113,18 +113,16 @@ void ApiClient::addPathQueryParams(oatpp::data::stream::OutputStream* stream,
 }
 
 oatpp::web::protocol::http::Protocol::Headers ApiClient::convertParamsMap(const std::shared_ptr<StringToParamMap>& params) {
-  
   oatpp::web::protocol::http::Protocol::Headers result;
-  
-  auto curr = params->getFirstEntry();
-  
-  while (curr != nullptr) {
-    result[curr->getKey()] = oatpp::utils::conversion::primitiveToStr(curr->getValue());
-    curr = curr->getNext();
+  if(params) {
+    auto curr = params->getFirstEntry();
+    
+    while (curr != nullptr) {
+      result[curr->getKey()] = oatpp::utils::conversion::primitiveToStr(curr->getValue());
+      curr = curr->getNext();
+    }
   }
-  
   return result;
-  
 }
   
   
