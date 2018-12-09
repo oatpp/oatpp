@@ -62,7 +62,7 @@ public:
     , m_maxHeadersSize(maxHeadersSize)
   {}
   
-  Result readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, http::Status& error);
+  Result readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, http::HttpError::Info& error);
   Action readHeadersAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                           AsyncCallback callback,
                           const std::shared_ptr<oatpp::data::stream::IOStream>& connection);

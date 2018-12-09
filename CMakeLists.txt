@@ -124,6 +124,8 @@ add_library(oatpp
     web/client/HttpRequestExecutor.hpp
     web/client/RequestExecutor.cpp
     web/client/RequestExecutor.hpp
+    web/protocol/CommunicationError.cpp
+    web/protocol/CommunicationError.hpp
     web/protocol/http/Http.cpp
     web/protocol/http/Http.hpp
     web/protocol/http/incoming/BodyDecoder.cpp
@@ -162,8 +164,6 @@ add_library(oatpp
     web/server/handler/Interceptor.hpp
     web/server/HttpConnectionHandler.cpp
     web/server/HttpConnectionHandler.hpp
-    web/server/HttpError.cpp
-    web/server/HttpError.hpp
     web/server/HttpProcessor.cpp
     web/server/HttpProcessor.hpp
     web/server/HttpRouter.cpp

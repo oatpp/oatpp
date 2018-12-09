@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include "HttpProcessor.hpp"
-#include "./HttpError.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp"
 
@@ -43,11 +42,16 @@ HttpProcessor::processRequest(HttpRouter* router,
                               bool& keepAlive) {
   
   RequestHeadersReader headersReader(buffer, bufferSize, 4096);
-  oatpp::web::protocol::http::Status error;
+  oatpp::web::protocol::http::HttpError::Info error;
   auto headersReadResult = headersReader.readHeaders(connection, error);
   
-  if(error.code != 0) {
-    return errorHandler->handleError(error, "Invalid request headers");
+  if(error.status.code != 0) {
+    return errorHandler->handleError(error.status, "Invalid request headers");
+  }
+  
+  if(error.ioStatus < 0) {
+    keepAlive = false;
+    return nullptr;
   }
   
   auto route = router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
@@ -78,8 +82,8 @@ HttpProcessor::processRequest(HttpRouter* router,
     if(!response) {
       response = route.processUrl(request);
     }
-  } catch (HttpError& error) {
-    return errorHandler->handleError(error.getStatus(), error.getMessage());
+  } catch (oatpp::web::protocol::http::HttpError& error) {
+    return errorHandler->handleError(error.getInfo().status, error.getMessage());
   } catch (std::exception& error) {
     return errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
   } catch (...) {
@@ -175,8 +179,8 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oat
   if (error.isExceptionThrown) {
     try{
       throw;
-    } catch (HttpError& error) {
-      m_currentResponse = m_errorHandler->handleError(error.getStatus(), error.getMessage());
+    } catch (oatpp::web::protocol::http::HttpError& error) {
+      m_currentResponse = m_errorHandler->handleError(error.getInfo().status, error.getMessage());
     } catch (std::exception& error) {
       m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
     } catch (...) {

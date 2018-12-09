@@ -52,7 +52,7 @@ bool FullTest::onRun() {
   auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
   auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
   
-  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(20, -1);
+  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 10);
   
   auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
@@ -72,9 +72,13 @@ bool FullTest::onRun() {
     
     for(v_int32 i = 0; i < 1; i ++) {
     
-      auto response = client->getRoot();
-      auto text = response->readBodyToString();
-      OATPP_LOGD("client", "body='%s'", text->c_str());
+      try {
+        auto response = client->getRoot();
+        auto text = response->readBodyToString();
+        OATPP_LOGD("client", "body='%s'", text->c_str());
+      } catch(std::runtime_error e) {
+        OATPP_LOGD("client", "error='%s'", e.what());
+      }
       
     }
     

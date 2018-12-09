@@ -27,7 +27,6 @@
 
 #include "./Endpoint.hpp"
 
-#include "oatpp/web/server/HttpError.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"

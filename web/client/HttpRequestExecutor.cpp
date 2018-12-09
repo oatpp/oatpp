@@ -107,12 +107,17 @@ HttpRequestExecutor::execute(const String& method,
   upStream->flush();
   
   oatpp::web::protocol::http::incoming::ResponseHeadersReader headerReader(ioBuffer->getData(), ioBuffer->getSize(), 4096);
-  oatpp::web::protocol::http::Status error;
+  oatpp::web::protocol::http::HttpError::Info error;
   const auto& result = headerReader.readHeaders(connection, error);
   
-  if(error.code != 0) {
+  if(error.status.code != 0) {
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid response headers");
+  }
+  
+  if(error.ioStatus < 0) {
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to read response.");
   }
   
   auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,

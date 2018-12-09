@@ -26,6 +26,11 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
+bool CommunicationUtils::headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value) {
+  v_int32 size = (v_int32) std::strlen(value);
+  return size == headerValue.getSize() && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), value, size);
+}
+  
 bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                                      const std::shared_ptr<protocol::http::outgoing::Response>& response){
   
@@ -34,13 +39,12 @@ bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<proto
     /* Set keep-alive to value specified in the client's request, if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
     auto it = request->headers.find(Header::CONNECTION);
-    if(it != request->headers.end() && oatpp::base::StrBuffer::equalsCI_FAST((const char*) it->second.getData(), Header::Value::CONNECTION_KEEP_ALIVE)) {
+    if(it != request->headers.end() && headerEqualsCI_FAST(it->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
       if(response->putHeaderIfNotExists(Header::CONNECTION, it->second)){
         return true;
       } else {
         auto outKeepAlive = response->getHeaders().find(Header::CONNECTION);
-        return (outKeepAlive != response->getHeaders().end() &&
-                oatpp::base::StrBuffer::equalsCI_FAST((const char*)outKeepAlive->second.getData(), Header::Value::CONNECTION_KEEP_ALIVE));
+        return (outKeepAlive != response->getHeaders().end() && headerEqualsCI_FAST(outKeepAlive->second, Header::Value::CONNECTION_KEEP_ALIVE));
       }
     }
     
@@ -48,11 +52,10 @@ bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<proto
     /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
     auto& protocol = request->startingLine.protocol;
-    if(protocol.getData() != nullptr && oatpp::base::StrBuffer::equalsCI_FAST((const char*) protocol.getData(), "HTTP/1.1")) {
+    if(protocol.getData() != nullptr && headerEqualsCI_FAST(protocol, "HTTP/1.1")) {
       if(!response->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE)) {
         auto outKeepAlive = response->getHeaders().find(Header::CONNECTION);
-        return (outKeepAlive != response->getHeaders().end() &&
-                oatpp::base::StrBuffer::equalsCI_FAST((const char*) outKeepAlive->second.getData(), Header::Value::CONNECTION_KEEP_ALIVE));
+        return (outKeepAlive != response->getHeaders().end() && headerEqualsCI_FAST(outKeepAlive->second, Header::Value::CONNECTION_KEEP_ALIVE));
       }
       return true;
     }
@@ -64,8 +67,7 @@ bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<proto
   /* Set keep-alive to value specified in response otherwise */
   if(!response->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_CLOSE)) {
     auto outKeepAlive = response->getHeaders().find(Header::CONNECTION);
-    return (outKeepAlive != response->getHeaders().end() &&
-            oatpp::base::StrBuffer::equalsCI_FAST((const char*)outKeepAlive->second.getData(), Header::Value::CONNECTION_KEEP_ALIVE));
+    return (outKeepAlive != response->getHeaders().end() && headerEqualsCI_FAST(outKeepAlive->second, Header::Value::CONNECTION_KEEP_ALIVE));
   }
   
   return false;

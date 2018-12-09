@@ -22,10 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_network_http_Protocol_hpp
-#define oatpp_network_http_Protocol_hpp
+#ifndef oatpp_web_protocol_http_Http_hpp
+#define oatpp_web_protocol_http_Http_hpp
 
 #include "oatpp/network/Connection.hpp"
+
+#include "oatpp/web/protocol/CommunicationError.hpp"
 
 #include "oatpp/core/parser/ParsingCaret.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
@@ -129,6 +131,22 @@ public:
   }
   
 };
+  
+class HttpError : public protocol::ProtocolError<Status> {
+public:
+  
+  HttpError(const Info& info, const oatpp::String& message)
+    : protocol::ProtocolError<Status>(info, message)
+  {}
+  
+  HttpError(const Status& status, const oatpp::String& message)
+    : protocol::ProtocolError<Status>(Info(0, status), message)
+  {}
+  
+};
+  
+#define OATPP_ASSERT_HTTP(COND, STATUS, MESSAGE) \
+if(!(COND)) { throw oatpp::web::protocol::http::HttpError(STATUS, MESSAGE); }
   
 class Header {
 public:
@@ -287,4 +305,4 @@ namespace std {
   };
 }
 
-#endif /* oatpp_network_http_Protocol_hpp */
+#endif /* oatpp_web_protocol_http_Http_hpp */

@@ -73,14 +73,14 @@ os::io::Library::v_size RequestHeadersReader::readHeadersSection(const std::shar
 }
   
 RequestHeadersReader::Result RequestHeadersReader::readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                                               http::Status& error) {
+                                                               http::HttpError::Info& error) {
   
   RequestHeadersReader::Result result;
   
   oatpp::data::stream::ChunkedBuffer buffer;
-  auto res = readHeadersSection(connection, &buffer, result);
+  error.ioStatus = readHeadersSection(connection, &buffer, result);
   
-  if(res > 0) {
+  if(error.ioStatus > 0) {
     auto headersText = buffer.toString();
     oatpp::parser::ParsingCaret caret (headersText);
     http::Status status;

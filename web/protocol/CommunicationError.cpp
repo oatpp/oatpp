@@ -22,4 +22,22 @@
  *
  ***************************************************************************/
 
-#include "HttpError.hpp"
+#include "CommunicationError.hpp"
+
+namespace oatpp { namespace web { namespace protocol {
+  
+CommunicationError::CommunicationError(oatpp::os::io::Library::v_size ioStatus, const oatpp::String& message)
+  :std::runtime_error(message->std_str())
+  , m_ioStatus(ioStatus)
+  , m_message(message)
+{}
+  
+oatpp::os::io::Library::v_size CommunicationError::getIOStatus() {
+  return m_ioStatus;
+}
+
+oatpp::String& CommunicationError::getMessage(){
+  return m_message;
+}
+  
+}}}

@@ -28,7 +28,6 @@
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/web/server/HttpError.hpp"
 
 #include "oatpp/network/Connection.hpp"
 #include "oatpp/test/Checker.hpp"
