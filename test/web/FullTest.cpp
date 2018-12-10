@@ -25,6 +25,8 @@
 #include "FullTest.hpp"
 
 #include "oatpp/test/web/app/Client.hpp"
+
+#include "oatpp/test/web/app/ControllerAsync.hpp"
 #include "oatpp/test/web/app/Controller.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
@@ -52,7 +54,8 @@ bool FullTest::onRun() {
   auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
   auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
   
-  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 10);
+  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(-1, -1);
+  clientConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
   
   auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
@@ -70,7 +73,7 @@ bool FullTest::onRun() {
   
   std::thread clientThread([client]{
     
-    for(v_int32 i = 0; i < 1; i ++) {
+    for(v_int32 i = 0; i < 10; i ++) {
     
       try {
         auto response = client->getRoot();
