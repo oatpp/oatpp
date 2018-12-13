@@ -22,16 +22,15 @@
  *
  ***************************************************************************/
 
-#include "FullTest.hpp"
+#include "FullAsyncTest.hpp"
 
 #include "oatpp/test/web/app/Client.hpp"
 
 #include "oatpp/test/web/app/ControllerAsync.hpp"
-#include "oatpp/test/web/app/Controller.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 
-#include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -42,22 +41,22 @@
 
 namespace oatpp { namespace test { namespace web {
   
-bool FullTest::onRun() {
+bool FullAsyncTest::onRun() {
   
   auto interface = oatpp::network::virtual_::Interface::createShared("virtualhost");
   
   auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
   auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
   
-  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(-1, -1);
+  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
   clientConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
   
   auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
   auto router = oatpp::web::server::HttpRouter::createShared();
-  auto connectionHandler = oatpp::web::server::HttpConnectionHandler::createShared(router);
+  auto connectionHandler = oatpp::web::server::AsyncHttpConnectionHandler::createShared(router);
   
-  auto controller = app::Controller::createShared(objectMapper);
+  auto controller = app::ControllerAsync::createShared(objectMapper);
   controller->addEndpointsToRouter(router);
   
   auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvider);
@@ -66,10 +65,10 @@ bool FullTest::onRun() {
   
   auto server = oatpp::network::server::Server::createShared(serverConnectionProvider, connectionHandler);
   
-  std::thread clientThread([client, server]{
+  std::thread clientThread([client, server, connectionHandler]{
     
     for(v_int32 i = 0; i < 10; i ++) {
-    
+      
       try {
         auto response = client->getRoot();
         auto text = response->readBodyToString();
@@ -81,6 +80,7 @@ bool FullTest::onRun() {
     }
     
     try {
+      connectionHandler->stop();
       server->stop();
       client->getRoot();
       OATPP_LOGD("client", "stoped");
@@ -96,6 +96,8 @@ bool FullTest::onRun() {
   
   clientThread.join();
   serverThread.join();
+  
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   return true;
 }

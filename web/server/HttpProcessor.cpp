@@ -111,11 +111,11 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
   auto& bodyStream = m_inStream;
   bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
   
-  auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
-                                                                 m_currentRoute.matchMap,
-                                                                 headersReadResult.headers,
-                                                                 bodyStream,
-                                                                 m_bodyDecoder);
+  m_currentRequest = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
+                                                                     m_currentRoute.matchMap,
+                                                                     headersReadResult.headers,
+                                                                     bodyStream,
+                                                                     m_bodyDecoder);
   
   auto currInterceptor = m_requestInterceptors->getFirstNode();
   while (currInterceptor != nullptr) {
