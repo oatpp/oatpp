@@ -196,9 +196,8 @@ public:
       T result = node->data;
       destroyNode(node);
       return result;
-    }else{
-      return T::empty();
     }
+    throw std::runtime_error("[oatpp::collection::LinkedList::popFront()]: index out of bounds");
   }
 
   const T& getFirst() const{

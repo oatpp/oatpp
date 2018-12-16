@@ -25,5 +25,24 @@
 #include "./ConnectionProvider.hpp"
 
 namespace oatpp { namespace network {
+  
+const char* const ConnectionProvider::PROPERTY_HOST = "host";
+const char* const ConnectionProvider::PROPERTY_PORT = "port";
 
+void ConnectionProvider::setProperty(const oatpp::String& key, const oatpp::String& value) {
+  m_properties[key] = value;
+}
+  
+const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& ConnectionProvider::getProperties() {
+  return m_properties;
+}
+  
+oatpp::data::share::StringKeyLabel ConnectionProvider::getProperty(const oatpp::String& key) {
+  auto it = m_properties.find(key);
+  if(it == m_properties.end()) {
+    return nullptr;
+  }
+  return it->second;
+}
+  
 }}

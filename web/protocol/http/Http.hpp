@@ -22,16 +22,20 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_network_http_Protocol_hpp
-#define oatpp_network_http_Protocol_hpp
+#ifndef oatpp_web_protocol_http_Http_hpp
+#define oatpp_web_protocol_http_Http_hpp
 
 #include "oatpp/network/Connection.hpp"
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/web/protocol/CommunicationError.hpp"
 
+#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/stream/Delegate.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
@@ -127,6 +131,22 @@ public:
   }
   
 };
+  
+class HttpError : public protocol::ProtocolError<Status> {
+public:
+  
+  HttpError(const Info& info, const oatpp::String& message)
+    : protocol::ProtocolError<Status>(info, message)
+  {}
+  
+  HttpError(const Status& status, const oatpp::String& message)
+    : protocol::ProtocolError<Status>(Info(0, status), message)
+  {}
+  
+};
+  
+#define OATPP_ASSERT_HTTP(COND, STATUS, MESSAGE) \
+if(!(COND)) { throw oatpp::web::protocol::http::HttpError(STATUS, MESSAGE); }
   
 class Header {
 public:
@@ -226,59 +246,45 @@ public:
   
 };
   
-class RequestStartingLine : public base::Controllable {
-public:
-  OBJECT_POOL(RequestStartingLine_Pool, RequestStartingLine, 32)
-  SHARED_OBJECT_POOL(Shared_RequestStartingLine_Pool, RequestStartingLine, 32)
-public:
-  RequestStartingLine()
-  {}
-public:
-  
-  static std::shared_ptr<RequestStartingLine> createShared(){
-    return Shared_RequestStartingLine_Pool::allocateShared();
-  }
-  
-  oatpp::String method; // GET, POST ...
-  oatpp::String path;
-  oatpp::String protocol;
-  
+struct RequestStartingLine {
+  oatpp::data::share::StringKeyLabel method; // GET, POST ...
+  oatpp::data::share::StringKeyLabel path;
+  oatpp::data::share::StringKeyLabel protocol;
 };
   
-class ResponseStartingLine : public base::Controllable {
-public:
-  OBJECT_POOL(ResponseStartingLine_Pool, ResponseStartingLine, 32)
-  SHARED_OBJECT_POOL(Shared_ResponseStartingLine_Pool, ResponseStartingLine, 32)
-public:
-  ResponseStartingLine()
-  {}
-public:
-  
-  static std::shared_ptr<ResponseStartingLine> createShared(){
-    return Shared_ResponseStartingLine_Pool::allocateShared();
-  }
-  
-  oatpp::String protocol;
+struct ResponseStartingLine {
+  oatpp::data::share::StringKeyLabel protocol;
   v_int32 statusCode;
-  oatpp::String description;
-  
+  oatpp::data::share::StringKeyLabel description;
 };
   
 class Protocol {
 public:
-  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
+  typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
 private:
-  static oatpp::String parseHeaderName(oatpp::parser::ParsingCaret& caret);
+  static oatpp::data::share::StringKeyLabelCI_FAST parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                                                        oatpp::parser::ParsingCaret& caret);
 public:
   
-  static std::shared_ptr<RequestStartingLine> parseRequestStartingLine(oatpp::parser::ParsingCaret& caret);
-  static std::shared_ptr<ResponseStartingLine> parseResponseStartingLine(oatpp::parser::ParsingCaret& caret);
+  static void parseRequestStartingLine(RequestStartingLine& line,
+                                       const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                       oatpp::parser::ParsingCaret& caret,
+                                       Status& error);
   
-  /**
-   * Parse header and store it in headers map
-   */
-  static void parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error);
-  static std::shared_ptr<Headers> parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error);
+  static void parseResponseStartingLine(ResponseStartingLine& line,
+                                        const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                        oatpp::parser::ParsingCaret& caret,
+                                        Status& error);
+  
+  static void parseOneHeader(Headers& headers,
+                             const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                             oatpp::parser::ParsingCaret& caret,
+                             Status& error);
+  
+  static void parseHeaders(Headers& headers,
+                           const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                           oatpp::parser::ParsingCaret& caret,
+                           Status& error);
   
 };
   
@@ -299,4 +305,4 @@ namespace std {
   };
 }
 
-#endif /* oatpp_network_http_Protocol_hpp */
+#endif /* oatpp_web_protocol_http_Http_hpp */

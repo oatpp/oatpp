@@ -27,7 +27,6 @@
 
 #include "./Endpoint.hpp"
 
-#include "oatpp/web/server/HttpError.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
@@ -117,7 +116,11 @@ protected:
     }
     
     std::shared_ptr<OutgoingResponse> processUrl(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
-      return (m_controller->*m_method)(request);
+      if(m_method != nullptr) {
+        return (m_controller->*m_method)(request);
+      } else {
+        return m_controller->handleError(Status::CODE_500, "Using simple model for Async endpoint");
+      }
     }
     
     Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,

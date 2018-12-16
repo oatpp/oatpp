@@ -51,7 +51,7 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(cons
   if(m_errorHandler) {
     return m_errorHandler->handleError(status, message);
   }
-  throw oatpp::web::server::HttpError(status, message);
+  throw oatpp::web::protocol::http::HttpError(status, message);
 }
 
 void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){

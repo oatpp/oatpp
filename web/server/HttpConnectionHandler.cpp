@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include "./HttpConnectionHandler.hpp"
-#include "./HttpError.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/ChunkedBufferBody.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"

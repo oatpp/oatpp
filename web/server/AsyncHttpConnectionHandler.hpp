@@ -63,6 +63,7 @@ private:
     oatpp::concurrency::SpinLock::Atom m_atom;
     Connections m_connections;
   private:
+    bool m_isRunning;
     HttpRouter* m_router;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
@@ -75,6 +76,7 @@ private:
          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
          HttpProcessor::RequestInterceptors* requestInterceptors)
       : m_atom(false)
+      , m_isRunning(true)
       , m_router(router)
       , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
@@ -95,6 +97,10 @@ private:
       oatpp::concurrency::SpinLock lock(m_atom);
       m_connections.pushBack(connectionState);
       m_taskCondition.notify_one();
+    }
+    
+    void stop() {
+      m_isRunning = false;
     }
     
   };
@@ -149,6 +155,12 @@ public:
   }
   
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+  
+  void stop() {
+    for(v_int32 i = 0; i < m_threadCount; i ++) {
+      m_tasks[i]->stop();
+    }
+  }
   
 };
   

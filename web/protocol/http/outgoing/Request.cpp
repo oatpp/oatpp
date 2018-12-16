@@ -29,31 +29,31 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 void Request::send(const std::shared_ptr<data::stream::OutputStream>& stream){
   
-  if(body){
-    body->declareHeaders(headers);
+  if(m_body){
+    m_body->declareHeaders(m_headers);
   } else {
-    headers->put(Header::CONTENT_LENGTH, "0");
+    m_headers[Header::CONTENT_LENGTH] = "0";
   }
   
-  stream->write(method);
+  stream->write(m_method.getData(), m_method.getSize());
   stream->write(" /", 2);
-  stream->write(path);
+  stream->write(m_path.getData(), m_path.getSize());
   stream->write(" ", 1);
   stream->write("HTTP/1.1", 8);
   stream->write("\r\n", 2);
   
-  auto curr = headers->getFirstEntry();
-  while(curr != nullptr){
-    stream->write(curr->getKey()->getData(), curr->getKey()->getSize());
+  auto it = m_headers.begin();
+  while(it != m_headers.end()){
+    stream->write(it->first.getData(), it->first.getSize());
     stream->write(": ", 2);
-    stream->write(curr->getValue()->getData(), curr->getValue()->getSize());
+    stream->write(it->second.getData(), it->second.getSize());
     stream->write("\r\n", 2);
-    curr = curr->getNext();
+    it ++;
   }
   
   stream->write("\r\n", 2);
-  if(body) {
-    body->writeToStream(stream);
+  if(m_body) {
+    m_body->writeToStream(stream);
   }
   
 }
@@ -78,26 +78,26 @@ oatpp::async::Action Request::sendAsync(oatpp::async::AbstractCoroutine* parentC
     
     Action act() {
       
-      if(m_request->body){
-        m_request->body->declareHeaders(m_request->headers);
+      if(m_request->m_body){
+        m_request->m_body->declareHeaders(m_request->m_headers);
       } else {
-        m_request->headers->put(Header::CONTENT_LENGTH, "0");
+        m_request->m_headers[Header::CONTENT_LENGTH] = "0";
       }
       
-      m_buffer->data::stream::OutputStream::write(m_request->method);
+      m_buffer->write(m_request->m_method.getData(), m_request->m_method.getSize());
       m_buffer->write(" /", 2);
-      m_buffer->data::stream::OutputStream::write(m_request->path);
+      m_buffer->write(m_request->m_path.getData(), m_request->m_path.getSize());
       m_buffer->write(" ", 1);
       m_buffer->write("HTTP/1.1", 8);
       m_buffer->write("\r\n", 2);
       
-      auto curr = m_request->headers->getFirstEntry();
-      while(curr != nullptr){
-        m_buffer->write(curr->getKey()->getData(), curr->getKey()->getSize());
+      auto it = m_request->m_headers.begin();
+      while(it != m_request->m_headers.end()){
+        m_buffer->write(it->first.getData(), it->first.getSize());
         m_buffer->write(": ", 2);
-        m_buffer->write(curr->getValue()->getData(), curr->getValue()->getSize());
+        m_buffer->write(it->second.getData(), it->second.getSize());
         m_buffer->write("\r\n", 2);
-        curr = curr->getNext();
+        it++;
       }
       
       m_buffer->write("\r\n", 2);
@@ -111,8 +111,8 @@ oatpp::async::Action Request::sendAsync(oatpp::async::AbstractCoroutine* parentC
     }
     
     Action writeBody() {
-      if(m_request->body) {
-        return m_request->body->writeToStreamAsync(this, finish(), m_stream);
+      if(m_request->m_body) {
+        return m_request->m_body->writeToStreamAsync(this, finish(), m_stream);
       }
       return finish();
     }

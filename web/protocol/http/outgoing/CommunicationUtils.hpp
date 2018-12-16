@@ -31,6 +31,8 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 class CommunicationUtils {
+private:
+  static bool headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value);
 public:
   
   /**

@@ -106,7 +106,7 @@ private:
   void addPathQueryParams(oatpp::data::stream::OutputStream* stream,
                           const std::shared_ptr<StringToParamMap>& params);
   
-  std::shared_ptr<StringToStringMap> convertParamsMap(const std::shared_ptr<StringToParamMap>& params);
+  oatpp::web::protocol::http::Protocol::Headers convertParamsMap(const std::shared_ptr<StringToParamMap>& params);
   
 protected:
   

@@ -24,6 +24,7 @@
 
 #include "HttpRequestExecutor.hpp"
 
+#include "oatpp/web/protocol/http/incoming/ResponseHeadersReader.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
@@ -79,7 +80,7 @@ HttpRequestExecutor::Action HttpRequestExecutor::getConnectionAsync(oatpp::async
 std::shared_ptr<HttpRequestExecutor::Response>
 HttpRequestExecutor::execute(const String& method,
                              const String& path,
-                             const std::shared_ptr<Headers>& headers,
+                             const Headers& headers,
                              const std::shared_ptr<Body>& body,
                              const std::shared_ptr<ConnectionHandle>& connectionHandle) {
   
@@ -96,9 +97,8 @@ HttpRequestExecutor::execute(const String& method,
   }
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
-  request->headers->putIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getHost());
-  request->headers->putIfNotExists(oatpp::web::protocol::http::Header::CONNECTION,
-                                   oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
+  request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
+  request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
   
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
   
@@ -106,37 +106,28 @@ HttpRequestExecutor::execute(const String& method,
   request->send(upStream);
   upStream->flush();
   
-  auto readCount = connection->read(ioBuffer->getData(), ioBuffer->getSize());
+  oatpp::web::protocol::http::incoming::ResponseHeadersReader headerReader(ioBuffer->getData(), ioBuffer->getSize(), 4096);
+  oatpp::web::protocol::http::HttpError::Info error;
+  const auto& result = headerReader.readHeaders(connection, error);
   
-  if(readCount == 0) {
-    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_NO_RESPONSE,
-                                "[oatpp::web::client::HttpRequestExecutor::execute()]: No response from server");
-  } else if(readCount < 0) {
-    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_READ_RESPONSE,
-                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to read response. Check out the RequestExecutionError::getReadErrorCode() for more information", (v_int32) readCount);
-  }
-    
-  oatpp::parser::ParsingCaret caret((p_char8) ioBuffer->getData(), ioBuffer->getSize());
-  auto line = protocol::http::Protocol::parseResponseStartingLine(caret);
-  if(!line){
+  if(error.status.code != 0) {
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
-                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid starting line");
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid response headers");
   }
   
-  oatpp::web::protocol::http::Status error;
-  auto responseHeaders = protocol::http::Protocol::parseHeaders(caret, error);
-  
-  if(error.code != 0){
-    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_HEADERS,
-                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid headers section");
+  if(error.ioStatus < 0) {
+    throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
+                                "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to read response.");
   }
   
   auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
                                                                                 ioBuffer,
-                                                                                caret.getPosition(),
-                                                                                (v_int32) readCount);
+                                                                                result.bufferPosStart,
+                                                                                result.bufferPosEnd);
   
-  return Response::createShared(line->statusCode, line->description, responseHeaders, bodyStream, m_bodyDecoder);
+  return Response::createShared(result.startingLine.statusCode,
+                                result.startingLine.description.toString(),
+                                result.headers, bodyStream, m_bodyDecoder);
   
 }
   
@@ -144,16 +135,18 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
                                                        AsyncCallback callback,
                                                        const String& method,
                                                        const String& path,
-                                                       const std::shared_ptr<Headers>& headers,
+                                                       const Headers& headers,
                                                        const std::shared_ptr<Body>& body,
                                                        const std::shared_ptr<ConnectionHandle>& connectionHandle) {
+  
+  typedef protocol::http::incoming::ResponseHeadersReader ResponseHeadersReader;
   
   class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, std::shared_ptr<HttpRequestExecutor::Response>> {
   private:
     std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
     String m_method;
     String m_path;
-    std::shared_ptr<Headers> m_headers;
+    Headers m_headers;
     std::shared_ptr<Body> m_body;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<ConnectionHandle> m_connectionHandle;
@@ -167,7 +160,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     ExecutorCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
                       const String& method,
                       const String& path,
-                      const std::shared_ptr<Headers>& headers,
+                      const Headers& headers,
                       const std::shared_ptr<Body>& body,
                       const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                       const std::shared_ptr<ConnectionHandle>& connectionHandle)
@@ -197,8 +190,8 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
       m_connection = connection;
       auto request = oatpp::web::protocol::http::outgoing::Request::createShared(m_method, m_path, m_headers, m_body);
-      request->headers->putIfNotExists(String(Header::HOST, false), m_connectionProvider->getHost());
-      request->headers->putIfNotExists(String(Header::CONNECTION, false), String(Header::Value::CONNECTION_KEEP_ALIVE, false));
+      request->putHeaderIfNotExists(Header::HOST, m_connectionProvider->getProperty("host"));
+      request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
       auto upStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);
       m_bufferPointer = m_ioBuffer->getData();
@@ -207,39 +200,21 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     }
     
     Action readResponse() {
-      return oatpp::data::stream::
-      readSomeDataAsyncInline(m_connection.get(), m_bufferPointer, m_bufferBytesLeftToRead, yieldTo(&ExecutorCoroutine::parseResponse));
+      ResponseHeadersReader::AsyncCallback callback = static_cast<ResponseHeadersReader::AsyncCallback>(&ExecutorCoroutine::onHeadersParsed);
+      ResponseHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
+      return headersReader.readHeadersAsync(this, callback, m_connection);
     }
     
-    Action parseResponse() {
+    Action onHeadersParsed(const ResponseHeadersReader::Result& result) {
       
-      os::io::Library::v_size readCount = m_ioBuffer->getSize() - m_bufferBytesLeftToRead;
+      auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection,
+                                                                                    m_ioBuffer,
+                                                                                    result.bufferPosStart,
+                                                                                    result.bufferPosEnd);
       
-      if(readCount > 0) {
-        
-        oatpp::parser::ParsingCaret caret((p_char8) m_ioBuffer->getData(), m_ioBuffer->getSize());
-        auto line = protocol::http::Protocol::parseResponseStartingLine(caret);
-        if(!line){
-          return error("Invalid starting line");
-        }
-        
-        oatpp::web::protocol::http::Status err;
-        auto headers = protocol::http::Protocol::parseHeaders(caret, err);
-        
-        if(err.code != 0){
-          return error("can't parse headers");
-        }
-        
-        auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection,
-                                                                                      m_ioBuffer,
-                                                                                      caret.getPosition(),
-                                                                                      (v_int32) readCount);
-        
-        return _return(Response::createShared(line->statusCode, line->description, headers, bodyStream, m_bodyDecoder));
-        
-      }
-      
-      return error("Read zero bytes from Response");
+      return _return(Response::createShared(result.startingLine.statusCode,
+                                            result.startingLine.description.toString(),
+                                            result.headers, bodyStream, m_bodyDecoder));
       
     }
     

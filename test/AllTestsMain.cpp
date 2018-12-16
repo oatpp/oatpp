@@ -1,4 +1,12 @@
 
+#include "oatpp/test/web/FullTest.hpp"
+#include "oatpp/test/web/FullAsyncTest.hpp"
+
+#include "oatpp/test/network/virtual_/PipeTest.hpp"
+#include "oatpp/test/network/virtual_/InterfaceTest.hpp"
+
+#include "oatpp/test/core/data/share/MemoryLabelTest.hpp"
+
 #include "oatpp/test/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/test/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/test/parser/json/mapping/DTOMapperTest.hpp"
@@ -49,6 +57,11 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
+  OATPP_RUN_TEST(oatpp::test::web::FullTest);
+  OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
 }
   
 }

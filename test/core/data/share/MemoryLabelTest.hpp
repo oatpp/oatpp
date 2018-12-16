@@ -22,4 +22,21 @@
  *
  ***************************************************************************/
 
-#include "HttpError.hpp"
+#ifndef oatpp_test_core_data_share_MemoryLabelTest_hpp
+#define oatpp_test_core_data_share_MemoryLabelTest_hpp
+
+#include "oatpp/test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace core { namespace data { namespace share {
+  
+class MemoryLabelTest : public UnitTest{
+public:
+  
+  MemoryLabelTest():UnitTest("TEST[core::data::share::MemoryLabelTest]"){}
+  bool onRun() override;
+  
+};
+  
+}}}}}
+
+#endif /* oatpp_test_core_data_share_MemoryLabelTest_hpp */

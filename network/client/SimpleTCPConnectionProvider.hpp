@@ -33,19 +33,27 @@
 namespace oatpp { namespace network { namespace client {
   
 class SimpleTCPConnectionProvider : public base::Controllable, public ClientConnectionProvider {
+protected:
+  oatpp::String m_host;
+  v_word16 m_port;
 public:
-  SimpleTCPConnectionProvider(const oatpp::String& host, v_int32 port)
-    : ClientConnectionProvider(host, port)
-  {}
+  SimpleTCPConnectionProvider(const oatpp::String& host, v_word16 port);
 public:
   
-  static std::shared_ptr<SimpleTCPConnectionProvider>
-  createShared(const oatpp::String& host, v_int32 port){
+  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_word16 port){
     return std::make_shared<SimpleTCPConnectionProvider>(host, port);
   }
   
   std::shared_ptr<IOStream> getConnection() override;
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback) override;
+  
+  oatpp::String getHost() {
+    return m_host;
+  }
+  
+  v_word16 getPort(){
+    return m_port;
+  }
   
 };
   

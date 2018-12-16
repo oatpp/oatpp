@@ -58,13 +58,11 @@ public:
     return Shared_Http_Outgoing_ChunkedBufferBody_Pool::allocateShared(buffer, chunked);
   }
   
-  void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept override {
+  void declareHeaders(Headers& headers) noexcept override {
     if(m_chunked){
-      headers->put(oatpp::web::protocol::http::Header::TRANSFER_ENCODING,
-                   oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED);
+      headers[oatpp::web::protocol::http::Header::TRANSFER_ENCODING] = oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED;
     } else {
-      headers->put(oatpp::web::protocol::http::Header::CONTENT_LENGTH,
-                   oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
+      headers[oatpp::web::protocol::http::Header::CONTENT_LENGTH] = oatpp::utils::conversion::int64ToStr(m_buffer->getSize());
     }
   }
   

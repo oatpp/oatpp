@@ -37,13 +37,13 @@ private:
   class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, oatpp::String> {
   private:
     const BodyDecoder* m_decoder;
-    std::shared_ptr<Protocol::Headers> m_headers;
+    Protocol::Headers m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
   public:
     
     ToStringDecoder(const BodyDecoder* decoder,
-                    const std::shared_ptr<Protocol::Headers>& headers,
+                    const Protocol::Headers& headers,
                     const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream)
       : m_decoder(decoder)
       , m_headers(headers)
@@ -64,14 +64,14 @@ private:
   class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, typename Type::ObjectWrapper> {
   private:
     const BodyDecoder* m_decoder;
-    std::shared_ptr<Protocol::Headers> m_headers;
+    Protocol::Headers m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
     std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_objectMapper;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
   public:
     
     ToDtoDecoder(const BodyDecoder* decoder,
-                 const std::shared_ptr<Protocol::Headers>& headers,
+                 Protocol::Headers& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper)
       : m_decoder(decoder)
@@ -98,17 +98,17 @@ private:
   
 public:
   
-  virtual void decode(const std::shared_ptr<Protocol::Headers>& headers,
+  virtual void decode(const Protocol::Headers& headers,
                       const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const = 0;
   
   virtual oatpp::async::Action decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                            const oatpp::async::Action& actionOnReturn,
-                                           const std::shared_ptr<Protocol::Headers>& headers,
+                                           const Protocol::Headers& headers,
                                            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                            const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const = 0;
   
-  oatpp::String decodeToString(const std::shared_ptr<Protocol::Headers>& headers,
+  oatpp::String decodeToString(const Protocol::Headers& headers,
                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) const {
     auto chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
     decode(headers, bodyStream, chunkedBuffer);
@@ -116,7 +116,7 @@ public:
   }
   
   template<class Type>
-  typename Type::ObjectWrapper decodeToDto(const std::shared_ptr<Protocol::Headers>& headers,
+  typename Type::ObjectWrapper decodeToDto(const Protocol::Headers& headers,
                                            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                            const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>(decodeToString(headers, bodyStream));
@@ -125,7 +125,7 @@ public:
   template<typename ParentCoroutineType>
   oatpp::async::Action decodeToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                            oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&),
-                                           const std::shared_ptr<Protocol::Headers>& headers,
+                                           const Protocol::Headers& headers,
                                            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream) const {
     return parentCoroutine->startCoroutineForResult<ToStringDecoder>(callback, this, headers, bodyStream);
   }
@@ -133,7 +133,7 @@ public:
   template<class DtoType, typename ParentCoroutineType>
   oatpp::async::Action decodeToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                         oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),
-                                        const std::shared_ptr<Protocol::Headers>& headers,
+                                        const Protocol::Headers& headers,
                                         const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                         const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return parentCoroutine->startCoroutineForResult<ToDtoDecoder<DtoType>>(callback, this, headers, bodyStream, objectMapper);

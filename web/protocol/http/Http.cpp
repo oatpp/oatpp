@@ -237,118 +237,118 @@ ContentRange ContentRange::parse(const oatpp::String& str) {
   return parse(caret);
 }
   
-std::shared_ptr<RequestStartingLine> Protocol::parseRequestStartingLine(oatpp::parser::ParsingCaret& caret) {
+oatpp::data::share::StringKeyLabelCI_FAST Protocol::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                                                         oatpp::parser::ParsingCaret& caret) {
+  p_char8 data = caret.getData();
+  for(v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
+    v_char8 a = data[i];
+    if(a == ':' || a == ' '){
+      oatpp::data::share::StringKeyLabelCI_FAST label(headersText, &data[caret.getPosition()], i - caret.getPosition());
+      caret.setPosition(i);
+      return label;
+      
+    }
+  }
+  return oatpp::data::share::StringKeyLabelCI_FAST(nullptr, nullptr, 0);
+}
   
-  auto line = RequestStartingLine::createShared();
+void Protocol::parseRequestStartingLine(RequestStartingLine& line,
+                                        const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                        oatpp::parser::ParsingCaret& caret,
+                                        Status& error) {
+  
   oatpp::parser::ParsingCaret::Label methodLabel(caret);
   if(caret.findChar(' ')){
-    line->method = methodLabel.toString(true);
+    line.method = oatpp::data::share::StringKeyLabel(headersText, methodLabel.getData(), methodLabel.getSize());
     caret.inc();
   } else {
-    caret.setError("Invalid starting line");
-    return nullptr;
+    error = Status::CODE_400;
+    return;
   }
   
   oatpp::parser::ParsingCaret::Label pathLabel(caret);
   if(caret.findChar(' ')){
-    line->path = pathLabel.toString(true);
+    line.path = oatpp::data::share::StringKeyLabel(headersText, pathLabel.getData(), pathLabel.getSize());
     caret.inc();
   } else {
-    caret.setError("Invalid starting line");
-    return nullptr;
+    error = Status::CODE_400;
+    return;
   }
   
   oatpp::parser::ParsingCaret::Label protocolLabel(caret);
   if(caret.findRN()){
-    line->protocol = protocolLabel.toString(true);
+    line.protocol = oatpp::data::share::StringKeyLabel(headersText, protocolLabel.getData(), protocolLabel.getSize());
     caret.skipRN();
   } else {
-    caret.setError("Invalid starting line");
-    return nullptr;
+    error = Status::CODE_400;
+    return;
   }
-  
-  return line;
   
 }
-
-std::shared_ptr<ResponseStartingLine> Protocol::parseResponseStartingLine(oatpp::parser::ParsingCaret& caret) {
   
-  auto line = ResponseStartingLine::createShared();
+void Protocol::parseResponseStartingLine(ResponseStartingLine& line,
+                                         const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                         oatpp::parser::ParsingCaret& caret,
+                                         Status& error) {
+  
   oatpp::parser::ParsingCaret::Label protocolLabel(caret);
   if(caret.findChar(' ')){
-    line->protocol = protocolLabel.toString(true);
+    line.protocol = oatpp::data::share::StringKeyLabel(headersText, protocolLabel.getData(), protocolLabel.getSize());
     caret.inc();
-    if(!line->protocol->startsWith((p_char8)"HTTP", 4)){
-      caret.setError("Unknown protocol");
-      return nullptr;
-    }
   } else {
-    caret.setError("Invalid starting line");
-    return nullptr;
+    error = Status::CODE_400;
+    return;
   }
   
-  line->statusCode = caret.parseInt32();
+  line.statusCode = caret.parseInt32();
   
   oatpp::parser::ParsingCaret::Label descriptionLabel(caret);
   if(caret.findRN()){
-    line->description = descriptionLabel.toString(true);
+    line.description = oatpp::data::share::StringKeyLabel(headersText, descriptionLabel.getData(), descriptionLabel.getSize());
     caret.skipRN();
   } else {
-    caret.setError("Invalid starting line");
-    return nullptr;
+    error = Status::CODE_400;
+    return;
   }
-  
-  return line;
   
 }
   
-oatpp::String Protocol::parseHeaderName(oatpp::parser::ParsingCaret& caret) {
-  p_char8 data = caret.getData();
-  oatpp::parser::ParsingCaret::Label label(caret);
-  for(v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
-    v_char8 a = data[i];
-    if(a == ':' || a == ' '){
-      caret.setPosition(i);
-      label.end();
-      return label.toString(true);
-    }
-  }
-  return nullptr;
-}
-
-void Protocol::parseOneHeader(Headers& headers, oatpp::parser::ParsingCaret& caret, Status& error) {
+void Protocol::parseOneHeader(Headers& headers,
+                              const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                              oatpp::parser::ParsingCaret& caret,
+                              Status& error) {
   caret.findNotSpaceChar();
-  auto name = parseHeaderName(caret);
-  if(name) {
+  auto name = parseHeaderNameLabel(headersText, caret);
+  if(name.getData() != nullptr) {
     caret.findNotSpaceChar();
     if(!caret.canContinueAtChar(':', 1)) {
       error = Status::CODE_400;
       return;
     }
     caret.findNotSpaceChar();
-    oatpp::parser::ParsingCaret::Label label(caret);
+    v_int32 valuePos0 = caret.getPosition();
     caret.findRN();
-    headers.put(name, label.toString(true));
+    headers[name] = oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0);
     caret.skipRN();
   } else {
     error = Status::CODE_431;
     return;
   }
 }
-  
-std::shared_ptr<Protocol::Headers> Protocol::parseHeaders(oatpp::parser::ParsingCaret& caret, Status& error) {
-  
-  auto headers = Headers::createShared();
+
+void Protocol::parseHeaders(Headers& headers,
+                            const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                            oatpp::parser::ParsingCaret& caret,
+                            Status& error) {
   
   while (!caret.isAtRN()) {
-    parseOneHeader(*headers, caret, error);
+    parseOneHeader(headers, headersText, caret, error);
     if(error.code != 0) {
-      return nullptr;
+      return;
     }
   }
   
   caret.skipRN();
-  return headers;
   
 }
 

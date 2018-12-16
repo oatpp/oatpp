@@ -22,40 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_HttpError_hpp
-#define oatpp_web_server_HttpError_hpp
+#ifndef oatpp_test_web_FullAsyncTest_hpp
+#define oatpp_test_web_FullAsyncTest_hpp
 
-#include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/test/UnitTest.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp { namespace test { namespace web {
   
-class HttpError : public std::runtime_error {
-private:
-  oatpp::web::protocol::http::Status m_status;
-  oatpp::String m_message;
+class FullAsyncTest : public UnitTest {
 public:
   
-  HttpError(const oatpp::web::protocol::http::Status& status,
-            const oatpp::String& message)
-    :std::runtime_error(status.description)
-    , m_status(status)
-    , m_message(message)
-  {}
-  
-  oatpp::web::protocol::http::Status getStatus() {
-    return m_status;
-  }
-  
-  oatpp::String& getMessage(){
-    return m_message;
-  }
+  FullAsyncTest():UnitTest("TEST[web::FullAsyncTest]"){}
+  bool onRun() override;
   
 };
   
-#define OATPP_ASSERT_HTTP(COND, STATUS, MESSAGE) \
-if(!(COND)) { throw oatpp::web::server::HttpError(STATUS, MESSAGE); }
-  
 }}}
 
-#endif /* oatpp_web_server_HttpError_hpp */
+#endif /* oatpp_test_web_FullAsyncTest_hpp */
