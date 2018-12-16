@@ -43,13 +43,13 @@ private:
                                                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
 public:
   
-  void decode(const std::shared_ptr<Protocol::Headers>& headers,
+  void decode(const Protocol::Headers& headers,
               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
   
   oatpp::async::Action decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                    const oatpp::async::Action& actionOnReturn,
-                                   const std::shared_ptr<Protocol::Headers>& headers,
+                                   const Protocol::Headers& headers,
                                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                    const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
   

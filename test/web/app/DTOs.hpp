@@ -22,30 +22,26 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
-#define oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
+#ifndef oatpp_test_web_app_DTOs_hpp
+#define oatpp_test_web_app_DTOs_hpp
 
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/core/data/mapping/type/Object.hpp"
+#include "oatpp/core/macro/codegen.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp { namespace test { namespace web { namespace app {
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+class TestDto : public oatpp::data::mapping::type::Object {
   
-class CommunicationUtils {
-private:
-  static bool headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value);
-public:
+  DTO_INIT(TestDto, Object)
   
-  /**
-   * Consider keep connection alive taking into account request headers, response headers and protocol version.
-   * Corresponding header will be set to response if not existed before
-   * return true - keep-alive
-   * return false - close
-   */
-  static bool considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
+  DTO_FIELD(String, testValue);
   
 };
-  
-}}}}}
 
-#endif /* CommunicationUtils_hpp */
+#include OATPP_CODEGEN_END(DTO)
+  
+}}}}
+
+#endif /* oatpp_test_web_app_DTOs_hpp */

@@ -83,21 +83,21 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
   
 }
 
-void SimpleBodyDecoder::decode(const std::shared_ptr<Protocol::Headers>& headers,
+void SimpleBodyDecoder::decode(const Protocol::Headers& headers,
                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
   
-  auto transferEncoding = headers->get(Header::TRANSFER_ENCODING, nullptr);
-  if(transferEncoding && transferEncoding->equals(Header::Value::TRANSFER_ENCODING_CHUNKED)) {
+  auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
+  if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     doChunkedDecoding(bodyStream, toStream);
   } else {
     oatpp::os::io::Library::v_size contentLength = 0;
-    auto contentLengthStr = headers->get(Header::CONTENT_LENGTH, nullptr);
-    if(!contentLengthStr) {
+    auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
+    if(contentLengthStrIt == headers.end()) {
       return; // DO NOTHING // it is an empty or invalid body
     } else {
       bool success;
-      contentLength = oatpp::utils::conversion::strToInt64(contentLengthStr, success);
+      contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
       if(!success){
         return; // it is an invalid request/response
       }
@@ -217,20 +217,20 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
 
 oatpp::async::Action SimpleBodyDecoder::decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                     const oatpp::async::Action& actionOnReturn,
-                                                    const std::shared_ptr<Protocol::Headers>& headers,
+                                                    const Protocol::Headers& headers,
                                                     const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                     const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-  auto transferEncoding = headers->get(Header::TRANSFER_ENCODING, nullptr);
-  if(transferEncoding && transferEncoding->equals(Header::Value::TRANSFER_ENCODING_CHUNKED)) {
+  auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
+  if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     return doChunkedDecodingAsync(parentCoroutine, actionOnReturn, bodyStream, toStream);
   } else {
     oatpp::os::io::Library::v_size contentLength = 0;
-    auto contentLengthStr = headers->get(Header::CONTENT_LENGTH, nullptr);
-    if(!contentLengthStr) {
+    auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
+    if(contentLengthStrIt == headers.end()) {
       return actionOnReturn; // DO NOTHING // it is an empty or invalid body
     } else {
       bool success;
-      contentLength = oatpp::utils::conversion::strToInt64(contentLengthStr, success);
+      contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
       if(!success){
         return oatpp::async::Action(oatpp::async::Error("Invalid 'Content-Length' Header"));
       }

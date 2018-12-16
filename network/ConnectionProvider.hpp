@@ -25,6 +25,7 @@
 #ifndef oatpp_netword_ConnectionsProvider_hpp
 #define oatpp_netword_ConnectionsProvider_hpp
 
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 #include <unordered_map>
@@ -46,7 +47,7 @@ public:
   typedef oatpp::async::Action Action;
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<IOStream>&);
 private:
-  std::unordered_map<oatpp::String, oatpp::String> m_properties;
+  std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel> m_properties;
 protected:
   /**
    * Set optional property
@@ -62,12 +63,12 @@ public:
    * Some optional properties that user might want to know.
    * All properties are optional and user should not rely on this
    */
-  const std::unordered_map<oatpp::String, oatpp::String>& getProperties();
+  const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& getProperties();
   
   /**
    * Get optional property
    */
-  oatpp::String getProperty(const oatpp::String& key);
+  oatpp::data::share::StringKeyLabel getProperty(const oatpp::String& key);
   
 };
   

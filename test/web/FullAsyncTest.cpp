@@ -22,16 +22,15 @@
  *
  ***************************************************************************/
 
-#include "FullTest.hpp"
+#include "FullAsyncTest.hpp"
 
 #include "oatpp/test/web/app/Client.hpp"
 
 #include "oatpp/test/web/app/ControllerAsync.hpp"
-#include "oatpp/test/web/app/Controller.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 
-#include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -42,7 +41,7 @@
 
 namespace oatpp { namespace test { namespace web {
   
-bool FullTest::onRun() {
+bool FullAsyncTest::onRun() {
   
   auto interface = oatpp::network::virtual_::Interface::createShared("virtualhost");
   
@@ -55,9 +54,9 @@ bool FullTest::onRun() {
   auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
   auto router = oatpp::web::server::HttpRouter::createShared();
-  auto connectionHandler = oatpp::web::server::HttpConnectionHandler::createShared(router);
+  auto connectionHandler = oatpp::web::server::AsyncHttpConnectionHandler::createShared(router);
   
-  auto controller = app::Controller::createShared(objectMapper);
+  auto controller = app::ControllerAsync::createShared(objectMapper);
   controller->addEndpointsToRouter(router);
   
   auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvider);
@@ -66,40 +65,43 @@ bool FullTest::onRun() {
   
   auto server = oatpp::network::server::Server::createShared(serverConnectionProvider, connectionHandler);
   
-  std::thread clientThread([client, server, objectMapper]{
+  std::thread clientThread([client, server, connectionHandler, objectMapper]{
     
     for(v_int32 i = 0; i < 10; i ++) {
       
       { /* test simple GET */
         auto response = client->getRoot();
         auto value = response->readBodyToString();
-        OATPP_ASSERT(value == "Hello World!!!");
+        OATPP_ASSERT(value == "Hello World Async!!!");
       }
       
       { /* test GET with path parameter */
-        auto response = client->getWithParams("my_test_param");
+        auto response = client->getWithParams("my_test_param-Async");
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
-        OATPP_ASSERT(dto->testValue == "my_test_param");
+        OATPP_ASSERT(dto->testValue == "my_test_param-Async");
       }
       
       { /* test GET with header parameter */
-        auto response = client->getWithHeaders("my_test_header");
+        auto response = client->getWithHeaders("my_test_header-Async");
+        //auto str = response->readBodyToString();
+        //OATPP_LOGE("AAA", "code=%d, str='%s'", response->statusCode, str->c_str());
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
-        OATPP_ASSERT(dto->testValue == "my_test_header");
+        OATPP_ASSERT(dto->testValue == "my_test_header-Async");
       }
       
       { /* test POST with body */
-        auto response = client->postBody("my_test_body");
+        auto response = client->postBody("my_test_body-Async");
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
-        OATPP_ASSERT(dto->testValue == "my_test_body");
+        OATPP_ASSERT(dto->testValue == "my_test_body-Async");
       }
       
     }
     
     try {
+      connectionHandler->stop();
       server->stop();
       client->getRoot(); // wake blocking server accept
     } catch(std::runtime_error e) {
@@ -114,6 +116,8 @@ bool FullTest::onRun() {
   
   clientThread.join();
   serverThread.join();
+  
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   return true;
 }

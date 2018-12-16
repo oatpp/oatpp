@@ -110,7 +110,7 @@ public:
   
   virtual std::shared_ptr<Response> execute(const String& method,
                                             const String& path,
-                                            const std::shared_ptr<Headers>& headers,
+                                            const Headers& headers,
                                             const std::shared_ptr<Body>& body,
                                             const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
   
@@ -118,7 +118,7 @@ public:
                               AsyncCallback callback,
                               const String& method,
                               const String& path,
-                              const std::shared_ptr<Headers>& headers,
+                              const Headers& headers,
                               const std::shared_ptr<Body>& body,
                               const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
   

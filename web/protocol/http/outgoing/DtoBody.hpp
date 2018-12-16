@@ -60,12 +60,16 @@ public:
     return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, chunked);
   }
   
-  void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept override {
+  void declareHeaders(Headers& headers) noexcept override {
     if(m_dto) {
       m_objectMapper->write(m_buffer, m_dto);
     }
     ChunkedBufferBody::declareHeaders(headers);
-    headers->putIfNotExists(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
+    
+    auto it = headers.find(Header::CONTENT_TYPE);
+    if(it == headers.end()) {
+      headers[Header::CONTENT_TYPE] = m_objectMapper->getInfo().http_content_type;
+    }
   }
   
 };

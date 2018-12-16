@@ -22,4 +22,21 @@
  *
  ***************************************************************************/
 
-#include "HttpError.hpp"
+#ifndef oatpp_test_web_FullAsyncTest_hpp
+#define oatpp_test_web_FullAsyncTest_hpp
+
+#include "oatpp/test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace web {
+  
+class FullAsyncTest : public UnitTest {
+public:
+  
+  FullAsyncTest():UnitTest("TEST[web::FullAsyncTest]"){}
+  bool onRun() override;
+  
+};
+  
+}}}
+
+#endif /* oatpp_test_web_FullAsyncTest_hpp */

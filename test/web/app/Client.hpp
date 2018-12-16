@@ -36,6 +36,9 @@ class Client : public oatpp::web::client::ApiClient {
   API_CLIENT_INIT(Client)
   
   API_CALL("GET", "/", getRoot)
+  API_CALL("GET", "params/{param}", getWithParams, PATH(String, param))
+  API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
+  API_CALL("POST", "body", postBody, BODY_STRING(String, body))
   
 #include OATPP_CODEGEN_END(ApiClient)
 };

@@ -90,7 +90,7 @@ os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::i
 os::io::Library::v_size OutputStreamBufferedProxy::flush() {
   auto amount = m_posEnd - m_pos;
   if(amount > 0){
-    os::io::Library::v_size result = m_outputStream->write(&m_buffer[m_pos], amount);
+    os::io::Library::v_size result = stream::writeExactSizeData(m_outputStream.get(), &m_buffer[m_pos], amount);
     if(result == amount){
       m_pos = 0;
       m_posEnd = 0;

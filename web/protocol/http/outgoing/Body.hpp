@@ -25,6 +25,8 @@
 #ifndef oatpp_web_protocol_http_outgoing_Body_hpp
 #define oatpp_web_protocol_http_outgoing_Body_hpp
 
+#include "oatpp/web/protocol/http/Http.hpp"
+
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
@@ -35,14 +37,14 @@ class Body {
 protected:
   typedef oatpp::async::Action Action;
 protected:
-  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Headers;
+  typedef http::Protocol::Headers Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
   
   /**
    * declare headers describing body
    */
-  virtual void declareHeaders(const std::shared_ptr<Headers>& headers) noexcept = 0;
+  virtual void declareHeaders(Headers& headers) noexcept = 0;
   
   /**
    * write content to stream

@@ -22,27 +22,22 @@
  *
  ***************************************************************************/
 
-#include "./ConnectionProvider.hpp"
+#include "CommunicationError.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace web { namespace protocol {
   
-const char* const ConnectionProvider::PROPERTY_HOST = "host";
-const char* const ConnectionProvider::PROPERTY_PORT = "port";
+CommunicationError::CommunicationError(oatpp::os::io::Library::v_size ioStatus, const oatpp::String& message)
+  :std::runtime_error(message->std_str())
+  , m_ioStatus(ioStatus)
+  , m_message(message)
+{}
+  
+oatpp::os::io::Library::v_size CommunicationError::getIOStatus() {
+  return m_ioStatus;
+}
 
-void ConnectionProvider::setProperty(const oatpp::String& key, const oatpp::String& value) {
-  m_properties[key] = value;
+oatpp::String& CommunicationError::getMessage(){
+  return m_message;
 }
   
-const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& ConnectionProvider::getProperties() {
-  return m_properties;
-}
-  
-oatpp::data::share::StringKeyLabel ConnectionProvider::getProperty(const oatpp::String& key) {
-  auto it = m_properties.find(key);
-  if(it == m_properties.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-  
-}}
+}}}

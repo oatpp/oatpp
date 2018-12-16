@@ -129,7 +129,12 @@ public:
   }
   
   void close() {
-    m_open = false;
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_open = false;
+    }
+    m_conditionRead.notify_one();
+    m_conditionWrite.notify_one();
   }
   
 };

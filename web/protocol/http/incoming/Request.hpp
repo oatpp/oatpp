@@ -40,9 +40,9 @@ public:
     : bodyDecoder(pBodyDecoder)
   {}
   
-  Request(const std::shared_ptr<http::RequestStartingLine>& pStartingLine,
+  Request(const http::RequestStartingLine& pStartingLine,
           const std::shared_ptr<url::mapping::Pattern::MatchMap>& pPathVariables,
-          const std::shared_ptr<http::Protocol::Headers>& pHeaders,
+          const http::Protocol::Headers& pHeaders,
           const std::shared_ptr<oatpp::data::stream::InputStream>& pBodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& pBodyDecoder)
     : startingLine(pStartingLine)
@@ -53,17 +53,17 @@ public:
   {}
 public:
   
-  static std::shared_ptr<Request> createShared(const std::shared_ptr<http::RequestStartingLine>& startingLine,
+  static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
                                                const std::shared_ptr<url::mapping::Pattern::MatchMap>& pathVariables,
-                                               const std::shared_ptr<http::Protocol::Headers>& headers,
+                                               const http::Protocol::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
     return Shared_Incoming_Request_Pool::allocateShared(startingLine, pathVariables, headers, bodyStream, bodyDecoder);
   }
   
-  std::shared_ptr<http::RequestStartingLine> startingLine;
+  http::RequestStartingLine startingLine;
   std::shared_ptr<url::mapping::Pattern::MatchMap> pathVariables;
-  std::shared_ptr<http::Protocol::Headers> headers;
+  http::Protocol::Headers headers;
   std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
   
   /**
@@ -73,9 +73,9 @@ public:
   std::shared_ptr<const http::incoming::BodyDecoder> bodyDecoder;
   
   oatpp::String getHeader(const oatpp::String& headerName) const{
-    auto entry = headers->find(headerName);
-    if(entry != nullptr) {
-      return entry->getValue();
+    auto it = headers.find(headerName);
+    if(it != headers.end()) {
+      return it->second.toString();
     }
     return nullptr;
   }

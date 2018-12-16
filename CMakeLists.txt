@@ -9,7 +9,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
 
-add_library(oatpp 
+add_library(oatpp
     algorithm/CRC.cpp
     algorithm/CRC.hpp
     codegen/codegen_define_ApiClient_.hpp
@@ -18,25 +18,27 @@ add_library(oatpp
     codegen/codegen_undef_ApiClient_.hpp
     codegen/codegen_undef_ApiController_.hpp
     codegen/codegen_undef_DTO_.hpp
+    core/Types.cpp
+    core/Types.hpp
     core/async/Coroutine.cpp
     core/async/Coroutine.hpp
     core/async/Processor.cpp
     core/async/Processor.hpp
+    core/base/CommandLineArguments.cpp
+    core/base/CommandLineArguments.hpp
     core/base/Config.hpp
     core/base/Controllable.cpp
     core/base/Controllable.hpp
     core/base/Environment.cpp
     core/base/Environment.hpp
+    core/base/StrBuffer.cpp
+    core/base/StrBuffer.hpp
     core/base/memory/Allocator.cpp
     core/base/memory/Allocator.hpp
     core/base/memory/MemoryPool.cpp
     core/base/memory/MemoryPool.hpp
     core/base/memory/ObjectPool.cpp
     core/base/memory/ObjectPool.hpp
-    core/base/StrBuffer.cpp
-    core/base/StrBuffer.hpp
-    core/base/CommandLineArguments.cpp
-    core/base/CommandLineArguments.hpp
     core/collection/FastQueue.cpp
     core/collection/FastQueue.hpp
     core/collection/LinkedList.cpp
@@ -65,6 +67,8 @@ add_library(oatpp
     core/data/mapping/type/Primitive.hpp
     core/data/mapping/type/Type.cpp
     core/data/mapping/type/Type.hpp
+    core/data/share/MemoryLabel.cpp
+    core/data/share/MemoryLabel.hpp
     core/data/stream/ChunkedBuffer.cpp
     core/data/stream/ChunkedBuffer.hpp
     core/data/stream/Delegate.cpp
@@ -80,8 +84,6 @@ add_library(oatpp
     core/os/io/Library.hpp
     core/parser/ParsingCaret.cpp
     core/parser/ParsingCaret.hpp
-    core/Types.cpp
-    core/Types.hpp
     core/utils/ConversionUtils.cpp
     core/utils/ConversionUtils.hpp
     encoding/Base64.cpp
@@ -90,50 +92,60 @@ add_library(oatpp
     encoding/Hex.hpp
     encoding/Unicode.cpp
     encoding/Unicode.hpp
-    network/client/SimpleTCPConnectionProvider.cpp
-    network/client/SimpleTCPConnectionProvider.hpp
     network/Connection.cpp
     network/Connection.hpp
     network/ConnectionProvider.cpp
     network/ConnectionProvider.hpp
+    network/Url.cpp
+    network/Url.hpp
+    network/client/SimpleTCPConnectionProvider.cpp
+    network/client/SimpleTCPConnectionProvider.hpp
     network/server/ConnectionHandler.cpp
     network/server/ConnectionHandler.hpp
     network/server/Server.cpp
     network/server/Server.hpp
     network/server/SimpleTCPConnectionProvider.cpp
     network/server/SimpleTCPConnectionProvider.hpp
-    network/Url.cpp
-    network/Url.hpp
+    network/virtual_/Interface.cpp
+    network/virtual_/Interface.hpp
     network/virtual_/Pipe.cpp
     network/virtual_/Pipe.hpp
     network/virtual_/Socket.cpp
     network/virtual_/Socket.hpp
-    network/virtual_/Interface.cpp
-    network/virtual_/Interface.hpp
+    network/virtual_/client/ConnectionProvider.cpp
+    network/virtual_/client/ConnectionProvider.hpp
+    network/virtual_/server/ConnectionProvider.cpp
+    network/virtual_/server/ConnectionProvider.hpp
+    parser/json/Utils.cpp
+    parser/json/Utils.hpp
     parser/json/mapping/Deserializer.cpp
     parser/json/mapping/Deserializer.hpp
     parser/json/mapping/ObjectMapper.cpp
     parser/json/mapping/ObjectMapper.hpp
     parser/json/mapping/Serializer.cpp
     parser/json/mapping/Serializer.hpp
-    parser/json/Utils.cpp
-    parser/json/Utils.hpp
     web/client/ApiClient.cpp
     web/client/ApiClient.hpp
     web/client/HttpRequestExecutor.cpp
     web/client/HttpRequestExecutor.hpp
     web/client/RequestExecutor.cpp
     web/client/RequestExecutor.hpp
+    web/protocol/CommunicationError.cpp
+    web/protocol/CommunicationError.hpp
     web/protocol/http/Http.cpp
     web/protocol/http/Http.hpp
     web/protocol/http/incoming/BodyDecoder.cpp
     web/protocol/http/incoming/BodyDecoder.hpp
-    web/protocol/http/incoming/SimpleBodyDecoder.cpp
-    web/protocol/http/incoming/SimpleBodyDecoder.hpp
     web/protocol/http/incoming/Request.cpp
     web/protocol/http/incoming/Request.hpp
+    web/protocol/http/incoming/RequestHeadersReader.cpp
+    web/protocol/http/incoming/RequestHeadersReader.hpp
     web/protocol/http/incoming/Response.cpp
     web/protocol/http/incoming/Response.hpp
+    web/protocol/http/incoming/ResponseHeadersReader.cpp
+    web/protocol/http/incoming/ResponseHeadersReader.hpp
+    web/protocol/http/incoming/SimpleBodyDecoder.cpp
+    web/protocol/http/incoming/SimpleBodyDecoder.hpp
     web/protocol/http/outgoing/Body.cpp
     web/protocol/http/outgoing/Body.hpp
     web/protocol/http/outgoing/BufferBody.cpp
@@ -150,24 +162,22 @@ add_library(oatpp
     web/protocol/http/outgoing/Response.hpp
     web/protocol/http/outgoing/ResponseFactory.cpp
     web/protocol/http/outgoing/ResponseFactory.hpp
-    web/server/api/ApiController.cpp
-    web/server/api/ApiController.hpp
-    web/server/api/Endpoint.cpp
-    web/server/api/Endpoint.hpp
     web/server/AsyncHttpConnectionHandler.cpp
     web/server/AsyncHttpConnectionHandler.hpp
-    web/server/handler/ErrorHandler.cpp
-    web/server/handler/ErrorHandler.hpp
-    web/server/handler/Interceptor.cpp
-    web/server/handler/Interceptor.hpp
     web/server/HttpConnectionHandler.cpp
     web/server/HttpConnectionHandler.hpp
-    web/server/HttpError.cpp
-    web/server/HttpError.hpp
     web/server/HttpProcessor.cpp
     web/server/HttpProcessor.hpp
     web/server/HttpRouter.cpp
     web/server/HttpRouter.hpp
+    web/server/api/ApiController.cpp
+    web/server/api/ApiController.hpp
+    web/server/api/Endpoint.cpp
+    web/server/api/Endpoint.hpp
+    web/server/handler/ErrorHandler.cpp
+    web/server/handler/ErrorHandler.hpp
+    web/server/handler/Interceptor.cpp
+    web/server/handler/Interceptor.hpp
     web/url/mapping/Pattern.cpp
     web/url/mapping/Pattern.hpp
     web/url/mapping/Router.cpp
@@ -243,32 +253,43 @@ if(OATPP_BUILD_TESTS)
         test/Checker.hpp
         test/UnitTest.cpp
         test/UnitTest.hpp
+        test/core/base/CommandLineArgumentsTest.cpp
+        test/core/base/CommandLineArgumentsTest.hpp
+        test/core/base/RegRuleTest.cpp
+        test/core/base/RegRuleTest.hpp
         test/core/base/collection/LinkedListTest.cpp
         test/core/base/collection/LinkedListTest.hpp
         test/core/base/memory/MemoryPoolTest.cpp
         test/core/base/memory/MemoryPoolTest.hpp
         test/core/base/memory/PerfTest.cpp
         test/core/base/memory/PerfTest.hpp
-        test/core/base/RegRuleTest.cpp
-        test/core/base/RegRuleTest.hpp
-        test/core/base/CommandLineArgumentsTest.cpp
-        test/core/base/CommandLineArgumentsTest.hpp
         test/core/data/mapping/type/TypeTest.cpp
         test/core/data/mapping/type/TypeTest.hpp
-        test/encoding/UnicodeTest.cpp
-        test/encoding/UnicodeTest.hpp
+        test/core/data/share/MemoryLabelTest.cpp
+        test/core/data/share/MemoryLabelTest.hpp
         test/encoding/Base64Test.cpp
         test/encoding/Base64Test.hpp
-        test/parser/json/mapping/DeserializerTest.cpp
-        test/parser/json/mapping/DeserializerTest.hpp
+        test/encoding/UnicodeTest.cpp
+        test/encoding/UnicodeTest.hpp
+        test/network/virtual_/InterfaceTest.cpp
+        test/network/virtual_/InterfaceTest.hpp
+        test/network/virtual_/PipeTest.cpp
+        test/network/virtual_/PipeTest.hpp
         test/parser/json/mapping/DTOMapperPerfTest.cpp
         test/parser/json/mapping/DTOMapperPerfTest.hpp
         test/parser/json/mapping/DTOMapperTest.cpp
         test/parser/json/mapping/DTOMapperTest.hpp
-        test/network/virtual_/PipeTest.cpp
-        test/network/virtual_/PipeTest.hpp
-        test/network/virtual_/InterfaceTest.cpp
-        test/network/virtual_/InterfaceTest.hpp
+        test/parser/json/mapping/DeserializerTest.cpp
+        test/parser/json/mapping/DeserializerTest.hpp
+        test/web/FullAsyncTest.cpp
+        test/web/FullAsyncTest.hpp
+        test/web/FullTest.cpp
+        test/web/FullTest.hpp
+        test/web/app/.DS_Store
+        test/web/app/Client.hpp
+        test/web/app/Controller.hpp
+        test/web/app/ControllerAsync.hpp
+        test/web/app/DTOs.hpp
     )
     target_link_libraries(oatppAllTests PRIVATE oatpp)
     set_target_properties(oatppAllTests PROPERTIES

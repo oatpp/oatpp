@@ -22,15 +22,15 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp
-#define oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp
+#ifndef oatpp_web_protocol_http_incoming_ResponseHeadersReader_hpp
+#define oatpp_web_protocol_http_incoming_ResponseHeadersReader_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   
-class RequestHeadersReader {
+class ResponseHeadersReader {
 public:
   typedef oatpp::async::Action Action;
 private:
@@ -38,7 +38,7 @@ private:
 public:
   
   struct Result {
-    http::RequestStartingLine startingLine;
+    http::ResponseStartingLine startingLine;
     http::Protocol::Headers headers;
     v_int32 bufferPosStart;
     v_int32 bufferPosEnd;
@@ -56,7 +56,7 @@ private:
   v_int32 m_maxHeadersSize;
 public:
   
-  RequestHeadersReader(void* buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
+  ResponseHeadersReader(void* buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
     : m_buffer((p_char8) buffer)
     , m_bufferSize(bufferSize)
     , m_maxHeadersSize(maxHeadersSize)
@@ -71,4 +71,4 @@ public:
   
 }}}}}
 
-#endif /* oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp */
+#endif /* oatpp_web_protocol_http_incoming_ResponseHeadersReader_hpp */
