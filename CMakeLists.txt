@@ -285,7 +285,6 @@ if(OATPP_BUILD_TESTS)
         test/web/FullAsyncTest.hpp
         test/web/FullTest.cpp
         test/web/FullTest.hpp
-        test/web/app/.DS_Store
         test/web/app/Client.hpp
         test/web/app/Controller.hpp
         test/web/app/ControllerAsync.hpp
