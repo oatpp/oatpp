@@ -36,7 +36,7 @@
 
 #include <stdlib.h>
 
-#define OATPP_VERSION "0.18.9"
+#define OATPP_VERSION "0.18.12"
 
 #define OATPP_ASSERT(EXP) \
 if(!(EXP)) { \
