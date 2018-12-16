@@ -22,27 +22,26 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_app_Client_hpp
-#define oatpp_test_web_app_Client_hpp
+#ifndef oatpp_test_web_app_DTOs_hpp
+#define oatpp_test_web_app_DTOs_hpp
 
-#include "oatpp/web/client/ApiClient.hpp"
+#include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+class TestDto : public oatpp::data::mapping::type::Object {
   
-class Client : public oatpp::web::client::ApiClient {
-#include OATPP_CODEGEN_BEGIN(ApiClient)
+  DTO_INIT(TestDto, Object)
   
-  API_CLIENT_INIT(Client)
+  DTO_FIELD(String, testValue);
   
-  API_CALL("GET", "/", getRoot)
-  API_CALL("GET", "params/{param}", getWithParams, PATH(String, param))
-  API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
-  API_CALL("POST", "body", postBody, BODY_STRING(String, body))
-  
-#include OATPP_CODEGEN_END(ApiClient)
 };
+
+#include OATPP_CODEGEN_END(DTO)
   
 }}}}
 
-#endif /* oatpp_test_web_app_Client_hpp */
+#endif /* oatpp_test_web_app_DTOs_hpp */

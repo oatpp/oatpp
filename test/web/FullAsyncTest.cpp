@@ -65,16 +65,37 @@ bool FullAsyncTest::onRun() {
   
   auto server = oatpp::network::server::Server::createShared(serverConnectionProvider, connectionHandler);
   
-  std::thread clientThread([client, server, connectionHandler]{
+  std::thread clientThread([client, server, connectionHandler, objectMapper]{
     
     for(v_int32 i = 0; i < 10; i ++) {
       
-      try {
+      { /* test simple GET */
         auto response = client->getRoot();
-        auto text = response->readBodyToString();
-        OATPP_LOGD("client", "body='%s'", text->c_str());
-      } catch(std::runtime_error e) {
-        OATPP_LOGD("client", "error='%s'", e.what());
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Hello World Async!!!");
+      }
+      
+      { /* test GET with path parameter */
+        auto response = client->getWithParams("my_test_param-Async");
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "my_test_param-Async");
+      }
+      
+      { /* test GET with header parameter */
+        auto response = client->getWithHeaders("my_test_header-Async");
+        //auto str = response->readBodyToString();
+        //OATPP_LOGE("AAA", "code=%d, str='%s'", response->statusCode, str->c_str());
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "my_test_header-Async");
+      }
+      
+      { /* test POST with body */
+        auto response = client->postBody("my_test_body-Async");
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "my_test_body-Async");
       }
       
     }
@@ -82,10 +103,9 @@ bool FullAsyncTest::onRun() {
     try {
       connectionHandler->stop();
       server->stop();
-      client->getRoot();
-      OATPP_LOGD("client", "stoped");
+      client->getRoot(); // wake blocking server accept
     } catch(std::runtime_error e) {
-      OATPP_LOGD("client", "stoped with e");
+      // DO NOTHING
     }
     
   });

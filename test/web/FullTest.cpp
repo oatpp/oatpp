@@ -49,7 +49,7 @@ bool FullTest::onRun() {
   auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
   auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
   
-  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(-1, -1);
+  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
   clientConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
   
   auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
@@ -66,26 +66,44 @@ bool FullTest::onRun() {
   
   auto server = oatpp::network::server::Server::createShared(serverConnectionProvider, connectionHandler);
   
-  std::thread clientThread([client, server]{
+  std::thread clientThread([client, server, objectMapper]{
     
     for(v_int32 i = 0; i < 10; i ++) {
-    
-      try {
+      
+      { /* test simple GET */
         auto response = client->getRoot();
-        auto text = response->readBodyToString();
-        OATPP_LOGD("client", "body='%s'", text->c_str());
-      } catch(std::runtime_error e) {
-        OATPP_LOGD("client", "error='%s'", e.what());
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Hello World!!!");
+      }
+      
+      { /* test GET with path parameter */
+        auto response = client->getWithParams("my_test_param");
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "my_test_param");
+      }
+      
+      { /* test GET with header parameter */
+        auto response = client->getWithHeaders("my_test_header");
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "my_test_header");
+      }
+      
+      { /* test POST with body */
+        auto response = client->postBody("my_test_body");
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "my_test_body");
       }
       
     }
     
     try {
       server->stop();
-      client->getRoot();
-      OATPP_LOGD("client", "stoped");
+      client->getRoot(); // wake blocking server accept
     } catch(std::runtime_error e) {
-      OATPP_LOGD("client", "stoped with e");
+      // DO NOTHING
     }
     
   });
