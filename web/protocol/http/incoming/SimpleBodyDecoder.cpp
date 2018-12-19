@@ -102,7 +102,9 @@ void SimpleBodyDecoder::decode(const Protocol::Headers& headers,
         return; // it is an invalid request/response
       }
       auto buffer = oatpp::data::buffer::IOBuffer::createShared();
-      oatpp::data::stream::transfer(bodyStream, toStream, contentLength, buffer->getData(), buffer->getSize());
+      if(contentLength > 0) {
+        oatpp::data::stream::transfer(bodyStream, toStream, contentLength, buffer->getData(), buffer->getSize());
+      }
     }
   }
   
@@ -234,12 +236,16 @@ oatpp::async::Action SimpleBodyDecoder::decodeAsync(oatpp::async::AbstractCorout
       if(!success){
         return oatpp::async::Action(oatpp::async::Error("Invalid 'Content-Length' Header"));
       }
-      return oatpp::data::stream::transferAsync(parentCoroutine,
-                                                actionOnReturn,
-                                                bodyStream,
-                                                toStream,
-                                                contentLength,
-                                                oatpp::data::buffer::IOBuffer::createShared());
+      if(contentLength > 0) {
+        return oatpp::data::stream::transferAsync(parentCoroutine,
+                                                  actionOnReturn,
+                                                  bodyStream,
+                                                  toStream,
+                                                  contentLength,
+                                                  oatpp::data::buffer::IOBuffer::createShared());
+      } else {
+        return actionOnReturn; // DO NOTHING
+      }
     }
   }
 }
