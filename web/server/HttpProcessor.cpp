@@ -46,17 +46,19 @@ HttpProcessor::processRequest(HttpRouter* router,
   auto headersReadResult = headersReader.readHeaders(connection, error);
   
   if(error.status.code != 0) {
+    keepAlive = false;
     return errorHandler->handleError(error.status, "Invalid request headers");
   }
   
-  if(error.ioStatus < 0) {
+  if(error.ioStatus <= 0) {
     keepAlive = false;
-    return nullptr;
+    return nullptr; // connection is in invalid state. should be dropped
   }
   
   auto route = router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
   
   if(!route) {
+    keepAlive = false;
     return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
   }
   
