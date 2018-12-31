@@ -36,12 +36,14 @@ public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 public:
+  /*
   Request(const std::shared_ptr<const http::incoming::BodyDecoder>& pBodyDecoder)
     : bodyDecoder(pBodyDecoder)
   {}
+   */
   
   Request(const http::RequestStartingLine& pStartingLine,
-          const std::shared_ptr<url::mapping::Pattern::MatchMap>& pPathVariables,
+          const url::mapping::Pattern::MatchMap& pPathVariables,
           const http::Protocol::Headers& pHeaders,
           const std::shared_ptr<oatpp::data::stream::InputStream>& pBodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& pBodyDecoder)
@@ -54,7 +56,7 @@ public:
 public:
   
   static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
-                                               const std::shared_ptr<url::mapping::Pattern::MatchMap>& pathVariables,
+                                               const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Protocol::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
@@ -62,7 +64,7 @@ public:
   }
   
   http::RequestStartingLine startingLine;
-  std::shared_ptr<url::mapping::Pattern::MatchMap> pathVariables;
+  url::mapping::Pattern::MatchMap pathVariables;
   http::Protocol::Headers headers;
   std::shared_ptr<oatpp::data::stream::InputStream> bodyStream;
   
@@ -80,16 +82,12 @@ public:
     return nullptr;
   }
   
-  oatpp::String getPathVariable(const oatpp::String& name) const{
-    auto entry = pathVariables->getVariable(name);
-    if(entry != nullptr) {
-      return entry->getValue();
-    }
-    return nullptr;
+  oatpp::String getPathVariable(const oatpp::data::share::StringKeyLabel& name) const {
+    return pathVariables.getVariable(name);
   }
   
-  oatpp::String getPathTail() const{
-    return pathVariables->tail;
+  oatpp::String getPathTail() const {
+    return pathVariables.getTail();
   }
   
   void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {

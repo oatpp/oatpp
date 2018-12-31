@@ -25,37 +25,48 @@
 #ifndef oatpp_web_url_mapping_Pattern_hpp
 #define oatpp_web_url_mapping_Pattern_hpp
 
-#include "oatpp/core/collection/ListMap.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+
 #include "oatpp/core/collection/LinkedList.hpp"
 
 #include "oatpp/core/parser/ParsingCaret.hpp"
 
+#include <unordered_map>
+
 namespace oatpp { namespace web { namespace url { namespace mapping {
   
 class Pattern : public base::Controllable{
+private:
+  typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
   
   class MatchMap : public base::Controllable{
+    friend Pattern;
   public:
-    typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Variables;
+    typedef std::unordered_map<StringKeyLabel, StringKeyLabel> Variables;
+  private:
+    Variables m_variables;
+    StringKeyLabel m_tail;
   public:
-    MatchMap(const std::shared_ptr<Variables>& vars, const oatpp::String& urlTail)
-      : variables(vars)
-      , tail(urlTail)
+    
+    MatchMap() {}
+    
+    MatchMap(const Variables& vars, const StringKeyLabel& urlTail)
+      : m_variables(vars)
+      , m_tail(urlTail)
     {}
-  public:
     
-    static std::shared_ptr<MatchMap> createShared(const std::shared_ptr<Variables>& vars,
-                                                  const oatpp::String& tail){
-      return std::make_shared<MatchMap>(vars, tail);
+    oatpp::String getVariable(const StringKeyLabel& key) const {
+      auto it = m_variables.find(key);
+      if(it != m_variables.end()) {
+        return it->second.toString();
+      }
+      return nullptr;
     }
     
-    const Variables::Entry* getVariable(const oatpp::String& key){
-      return variables->find(key);
+    oatpp::String getTail() const {
+      return m_tail.toString();
     }
-    
-    const std::shared_ptr<Variables> variables;
-    const oatpp::String tail;
     
   };
   
@@ -100,9 +111,7 @@ public:
   static std::shared_ptr<Pattern> parse(const char* data);
   static std::shared_ptr<Pattern> parse(const oatpp::String& data);
   
-  std::shared_ptr<MatchMap> match(p_char8 url, v_int32 size);
-  std::shared_ptr<MatchMap> match(const char* url);
-  std::shared_ptr<MatchMap> match(const oatpp::String& url);
+  bool match(const StringKeyLabel& url, MatchMap& matchMap);
   
   oatpp::String toString();
   

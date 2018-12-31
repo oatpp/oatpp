@@ -119,22 +119,19 @@ v_char8 Pattern::findSysChar(oatpp::parser::ParsingCaret& caret) {
   return 0;
 }
   
-std::shared_ptr<Pattern::MatchMap> Pattern::match(p_char8 url, v_int32 size){
+bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
-  oatpp::parser::ParsingCaret caret(url, size);
+  oatpp::parser::ParsingCaret caret(url.getData(), url.getSize());
   
   if(m_parts->count() == 0){
     
     if(caret.skipChar('/')){
-      return nullptr;
+      return false;
     }
     
-    return MatchMap::createShared(MatchMap::Variables::createShared(), nullptr);
+    return true;
     
   }
-  
-  auto vars = MatchMap::Variables::createShared();
-  oatpp::String tail;
   
   auto curr = m_parts->getFirstNode();
   
@@ -146,40 +143,40 @@ std::shared_ptr<Pattern::MatchMap> Pattern::match(p_char8 url, v_int32 size){
     if(part->function == Part::FUNCTION_CONST){
       
       if(!caret.proceedIfFollowsText(part->text->getData(), part->text->getSize())){
-        return nullptr;
+        return false;
       }
       
       if(caret.canContinue() && !caret.isAtChar('/')){
         if(caret.isAtChar('?') && (curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END)) {
-          tail = oatpp::String((const char*)caret.getCurrData(), size - caret.getPosition(), true);
-          return MatchMap::createShared(vars, tail);
+          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+          return true;
         }
-        return nullptr;
+        return false;
       }
       
     }else if(part->function == Part::FUNCTION_ANY_END){
-      if(size > caret.getPosition()){
-        tail = oatpp::String((const char*)caret.getCurrData(), size - caret.getPosition(), true);
+      if(caret.getSize() > caret.getPosition()){
+        matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
       }
-      return MatchMap::createShared(vars, tail);
+      return true;
     }else if(part->function == Part::FUNCTION_VAR){
       
       if(!caret.canContinue()){
-        return nullptr;
+        return false;
       }
       
       oatpp::parser::ParsingCaret::Label label(caret);
       v_char8 a = findSysChar(caret);
       if(a == '?') {
         if(curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END) {
-          vars->put(oatpp::String(part->text), label.toString());
-          tail = oatpp::String((const char*)caret.getCurrData(), size - caret.getPosition(), true);
-          return MatchMap::createShared(vars, tail);
+          matchMap.m_variables[part->text] = StringKeyLabel(url.getMemoryHandle(), label.getData(), label.getSize());
+          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+          return true;
         }
         caret.findChar('/');
       }
       
-      vars->put(oatpp::String(part->text), label.toString());
+      matchMap.m_variables[part->text] = StringKeyLabel(url.getMemoryHandle(), label.getData(), label.getSize());
       
     }
     
@@ -187,19 +184,11 @@ std::shared_ptr<Pattern::MatchMap> Pattern::match(p_char8 url, v_int32 size){
   
   caret.skipChar('/');
   if(caret.canContinue()){
-    return nullptr;
+    return false;
   }
   
-  return MatchMap::createShared(vars, tail);
+  return true;
   
-}
-  
-std::shared_ptr<Pattern::MatchMap> Pattern::match(const char* url){
-  return match((p_char8) url, (v_int32) std::strlen(url));
-}
-
-std::shared_ptr<Pattern::MatchMap> Pattern::match(const oatpp::String& url){
-  return match(url->getData(), url->getSize());
 }
 
 oatpp::String Pattern::toString() {

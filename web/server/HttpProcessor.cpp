@@ -55,7 +55,7 @@ HttpProcessor::processRequest(HttpRouter* router,
     return nullptr; // connection is in invalid state. should be dropped
   }
   
-  auto route = router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
+  auto route = router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
   
   if(!route) {
     keepAlive = false;

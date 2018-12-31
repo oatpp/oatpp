@@ -42,6 +42,8 @@ template<class Param, class ReturnType>
 class Router : public base::Controllable{
 public:
   typedef Subscriber<Param, ReturnType> UrlSubscriber;
+private:
+  typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
   
   class Route {
@@ -51,10 +53,9 @@ public:
     
     Route()
       : m_subscriber(nullptr)
-      , matchMap(nullptr)
     {}
     
-    Route(UrlSubscriber* subscriber, const std::shared_ptr<Pattern::MatchMap>& pMatchMap)
+    Route(UrlSubscriber* subscriber, const Pattern::MatchMap& pMatchMap)
       : m_subscriber(subscriber)
       , matchMap(pMatchMap)
     {}
@@ -73,7 +74,7 @@ public:
       return m_subscriber != nullptr;
     }
     
-    std::shared_ptr<Pattern::MatchMap> matchMap;
+    Pattern::MatchMap matchMap;
     
   };
 
@@ -115,18 +116,17 @@ public:
     m_subscribers->pushBack(pair);
   }
   
-  Route getRoute(const oatpp::String& url){
+  Route getRoute(const StringKeyLabel& url){
     auto curr = m_subscribers->getFirstNode();
     while(curr != nullptr) {
       const std::shared_ptr<Pair>& pair = curr->getData();
       curr = curr->getNext();
-      
-      auto match = pair->pattern->match(url); // new match object is created here
-      if(match){
+      Pattern::MatchMap match;
+      if(pair->pattern->match(url, match)) {
         return Route(pair->subscriber.get(), match);
       }
     }
-    return Route(nullptr, nullptr);
+    return Route();
   }
   
   void logRouterMappings() {
