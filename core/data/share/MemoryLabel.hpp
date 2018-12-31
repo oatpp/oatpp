@@ -56,6 +56,10 @@ public:
     return m_size;
   }
   
+  std::shared_ptr<base::StrBuffer> getMemoryHandle() const {
+    return m_memoryHandle;
+  }
+  
   bool equals(const char* data) const {
     v_int32 size = (v_int32) std::strlen(data);
     return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
