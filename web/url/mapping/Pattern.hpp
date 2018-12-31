@@ -40,7 +40,7 @@ private:
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
   
-  class MatchMap : public base::Controllable{
+  class MatchMap {
     friend Pattern;
   public:
     typedef std::unordered_map<StringKeyLabel, StringKeyLabel> Variables;
