@@ -99,6 +99,14 @@ public:
     return nullptr;
   }
   
+  /**
+   * Load data from file and store in StrBuffer.
+   * If file not found return nullptr
+   */
+  static std::shared_ptr<StrBuffer> loadFromFile(const char* filename);
+  
+  void saveToFile(const char* filename);
+  
   p_char8 getData() const;
   v_int32 getSize() const;
   
