@@ -24,6 +24,8 @@
 
 #include "StrBuffer.hpp"
 
+#include <fstream>
+
 namespace oatpp { namespace base {
   
 void StrBuffer::set(const void* data, v_int32 size, bool hasOwnData) {
@@ -97,6 +99,25 @@ std::shared_ptr<StrBuffer> StrBuffer::createSharedConcatenated(const void* data1
   std::memcpy(ptr->m_data, data1, size1);
   std::memcpy(ptr->m_data + size1, data2, size2);
   return ptr;
+}
+  
+std::shared_ptr<StrBuffer> StrBuffer::loadFromFile(const char* filename) {
+  std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
+  if (file.is_open()) {
+    auto result = createShared((v_int32) file.tellg());
+    file.seekg(0, std::ios::beg);
+    file.read((char*)result->getData(), result->getSize());
+    file.close();
+    return result;
+    
+  }
+  return nullptr;
+}
+
+void StrBuffer::saveToFile(const char* filename) {
+  std::ofstream fs(filename, std::ios::out | std::ios::binary);
+  fs.write((const char*)m_data, m_size);
+  fs.close();
 }
   
 p_char8 StrBuffer::getData() const {
