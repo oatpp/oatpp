@@ -37,7 +37,7 @@
 namespace oatpp { namespace async {
   
 class Executor {
-public:
+private:
   
   class TaskSubmission {
   public:
