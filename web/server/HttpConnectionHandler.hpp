@@ -31,10 +31,7 @@
 
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
-
-#include "oatpp/network/server/Server.hpp"
+#include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/network/Connection.hpp"
 
 #include "oatpp/core/concurrency/Thread.hpp"

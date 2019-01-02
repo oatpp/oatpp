@@ -38,6 +38,7 @@
 #include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
+#include "oatpp/network/server/Server.hpp"
 
 namespace oatpp { namespace test { namespace web {
   

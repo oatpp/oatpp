@@ -35,74 +35,21 @@
 #include <errno.h>
 
 namespace oatpp { namespace web { namespace server {
-  
-void AsyncHttpConnectionHandler::Task::consumeConnections(oatpp::async::Processor& processor) {
-  
-  oatpp::concurrency::SpinLock lock(m_atom);
-  
-  auto curr = m_connections.getFirstNode();
-  while (curr != nullptr) {
-    
-    auto coroutine = HttpProcessor::Coroutine::getBench().obtain(m_router,
-                                                                 m_bodyDecoder,
-                                                                 m_errorHandler,
-                                                                 m_requestInterceptors,
-                                                                 curr->getData()->connection,
-                                                                 curr->getData()->ioBuffer,
-                                                                 curr->getData()->outStream,
-                                                                 curr->getData()->inStream);
-    
-    processor.addWaitingCoroutine(coroutine);
-    curr = curr->getNext();
-  }
-  
-  m_connections.clear();
-  
-}
-  
-void AsyncHttpConnectionHandler::Task::run(){
-  
-  oatpp::async::Processor processor;
-  
-  while(m_isRunning) {
-    
-    /* Load all waiting connections into processor */
-    consumeConnections(processor);
-    
-    /* Process all, and check for incoming connections once in 1000 iterations */
-    while (processor.iterate(1000)) {
-      consumeConnections(processor);
-    }
-    
-    std::unique_lock<std::mutex> lock(m_taskMutex);
-    if(processor.isEmpty()) {
-      /* No tasks in the processor. Wait for incoming connections */
-      m_taskCondition.wait_for(lock, std::chrono::milliseconds(500));
-    } else {
-      /* There is still something in slow queue. Wait and get back to processing */
-      /* Waiting for IO is not Applicable here as slow queue may contain NON-IO tasks */
-      //OATPP_LOGD("proc", "waiting slow queue");
-      m_taskCondition.wait_for(lock, std::chrono::milliseconds(10));
-    }
-    
-  }
-  
-}
 
 void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
   
-  auto task = m_tasks[m_taskBalancer % m_threadCount];
-  
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
-  auto state = HttpProcessor::ConnectionState::createShared();
-  state->connection = connection;
-  state->ioBuffer = ioBuffer;
-  state->outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
-  state->inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, ioBuffer);
+  auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
+  auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, ioBuffer);
   
-  task->addConnection(state);
-  
-  m_taskBalancer ++;
+  m_executor.execute<HttpProcessor::Coroutine>(m_router.get(),
+                                               m_bodyDecoder,
+                                               m_errorHandler,
+                                               &m_requestInterceptors,
+                                               connection,
+                                               ioBuffer,
+                                               outStream,
+                                               inStream);
   
 }
   
