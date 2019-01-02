@@ -24,6 +24,8 @@ add_library(oatpp
     core/async/Coroutine.hpp
     core/async/Processor.cpp
     core/async/Processor.hpp
+    core/async/Executor.cpp
+    core/async/Executor.hpp
     core/base/CommandLineArguments.cpp
     core/base/CommandLineArguments.hpp
     core/base/Config.hpp

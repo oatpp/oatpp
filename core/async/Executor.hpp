@@ -33,6 +33,8 @@
 #include "oatpp/core/collection/LinkedList.hpp"
 
 #include <tuple>
+#include <mutex>
+#include <condition_variable>
 
 namespace oatpp { namespace async {
   
