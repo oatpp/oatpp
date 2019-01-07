@@ -34,6 +34,7 @@
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp"
 
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/async/Processor.hpp"
@@ -41,8 +42,6 @@
 namespace oatpp { namespace web { namespace server {
   
 class HttpProcessor {
-public:
-  static const char* RETURN_KEEP_ALIVE;
 public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
   typedef oatpp::web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
@@ -76,7 +75,7 @@ public:
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
     std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_outStream;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
-    bool m_keepAlive;
+    v_int32 m_connectionState;
   private:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
@@ -99,7 +98,7 @@ public:
       , m_ioBuffer(ioBuffer)
       , m_outStream(outStream)
       , m_inStream(inStream)
-      , m_keepAlive(true)
+      , m_connectionState(oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
     {}
     
     Action act() override;
@@ -126,7 +125,7 @@ public:
                  void* buffer,
                  v_int32 bufferSize,
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-                 bool& keepAlive);
+                 v_int32& connectionState);
   
 };
   

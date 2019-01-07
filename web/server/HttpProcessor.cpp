@@ -24,11 +24,7 @@
 
 #include "HttpProcessor.hpp"
 
-#include "oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp"
-
 namespace oatpp { namespace web { namespace server {
-  
-const char* HttpProcessor::RETURN_KEEP_ALIVE = "RETURN_KEEP_ALIVE";
 
 std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(HttpRouter* router,
@@ -39,26 +35,26 @@ HttpProcessor::processRequest(HttpRouter* router,
                               void* buffer,
                               v_int32 bufferSize,
                               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-                              bool& keepAlive) {
+                              v_int32& connectionState) {
   
   RequestHeadersReader headersReader(buffer, bufferSize, 4096);
   oatpp::web::protocol::http::HttpError::Info error;
   auto headersReadResult = headersReader.readHeaders(connection, error);
   
   if(error.status.code != 0) {
-    keepAlive = false;
+    connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
     return errorHandler->handleError(error.status, "Invalid request headers");
   }
   
   if(error.ioStatus <= 0) {
-    keepAlive = false;
+    connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
     return nullptr; // connection is in invalid state. should be dropped
   }
   
   auto route = router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
   
   if(!route) {
-    keepAlive = false;
+    connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
     return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
   }
   
@@ -94,7 +90,7 @@ HttpProcessor::processRequest(HttpRouter* router,
   
   response->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   
-  keepAlive = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionKeepAlive(request, response);
+  connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(request, response);
   return response;
   
 }
@@ -152,7 +148,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
-  m_keepAlive = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionKeepAlive(m_currentRequest, m_currentResponse);
+  m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0);
   return m_currentResponse->sendAsync(this,
                                       m_outStream->flushAsync(
@@ -163,9 +159,20 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
-  if(m_keepAlive) {
+  
+  if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
     return yieldTo(&HttpProcessor::Coroutine::act);
   }
+  
+  if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
+    auto handler = m_currentResponse->getConnectionUpgradeHandler();
+    if(handler) {
+      handler->handleConnection(m_connection);
+    } else {
+      OATPP_LOGD("[oatpp::web::server::HttpProcessor::Coroutine::onRequestDone()]", "Warning. ConnectionUpgradeHandler not set!");
+    }
+  }
+  
   return abort();
 }
   

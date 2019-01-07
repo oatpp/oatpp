@@ -29,6 +29,9 @@
 
 namespace oatpp { namespace test { namespace base {
   
+/**
+ * Test command line arguments parsing.
+ */
 class CommandLineArgumentsTest : public UnitTest{
 public:
   
