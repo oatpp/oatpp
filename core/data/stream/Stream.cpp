@@ -304,6 +304,30 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
   return nextAction;
 }
   
+oatpp::os::io::Library::v_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, os::io::Library::v_size size) {
+  
+  char* buffer = (char*) data;
+  oatpp::os::io::Library::v_size progress = 0;
+  
+  while (progress < size) {
+    
+    auto res = stream->read(&buffer[progress], size - progress);
+    
+    if(res > 0) {
+      progress += res;
+    } else { // if res == 0 then probably stream handles read() error incorrectly. return.
+      if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+        continue;
+      }
+      return progress;
+    }
+    
+  }
+  
+  return progress;
+  
+}
+  
 oatpp::os::io::Library::v_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, os::io::Library::v_size size) {
   
   const char* buffer = (char*)data;

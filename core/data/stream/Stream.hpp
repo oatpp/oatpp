@@ -178,6 +178,13 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
                                                   const oatpp::async::Action& nextAction);
 
 /**
+ * Read exact amount of bytes to stream
+ * returns exact amount of bytes was read.
+ * return result can be < size only in case of some disaster like connection reset by peer
+ */
+oatpp::os::io::Library::v_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, os::io::Library::v_size size);
+  
+/**
  * Write exact amount of bytes to stream.
  * returns exact amount of bytes was written.
  * return result can be < size only in case of some disaster like broken pipe
