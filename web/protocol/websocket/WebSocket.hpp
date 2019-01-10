@@ -25,7 +25,7 @@
 #ifndef oatpp_web_protocol_websocket_WebSocket_hpp
 #define oatpp_web_protocol_websocket_WebSocket_hpp
 
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
@@ -35,7 +35,7 @@ public:
   static constexpr v_word8 OPCODE_CONTINUATION = 0x0;
   static constexpr v_word8 OPCODE_TEXT = 0x1;
   static constexpr v_word8 OPCODE_BINARY = 0x2;
-  static constexpr v_word8 OPCODE_CONNECTION_CLOSE = 0x8;
+  static constexpr v_word8 OPCODE_CLOSE = 0x8;
   static constexpr v_word8 OPCODE_PING = 0x9;
   static constexpr v_word8 OPCODE_PONG = 0xA;
   
@@ -48,27 +48,22 @@ public:
   public:
     
     /**
-     * Called when WebSocket is connected to client/server
-     */
-    virtual void onConnected(const WebSocket& webSocket) = 0;
-    
-    /**
      * Called when "ping" frame received
      */
-    virtual void onPing(const WebSocket& webSocket) = 0;
+    virtual void onPing(const WebSocket& webSocket, const oatpp::String& message) = 0;
     
     /**
      * Called when "pong" frame received
      */
-    virtual void onPong(const WebSocket& webSocket) = 0;
+    virtual void onPong(const WebSocket& webSocket, const oatpp::String& message) = 0;
     
     /**
-     * Called when "connection close" frame received
+     * Called when "close" frame received
      */
-    virtual void onConnectionClose(const WebSocket& webSocket) = 0;
+    virtual void onClose(const WebSocket& webSocket, v_word16 code, const oatpp::String& message) = 0;
     
     /**
-     * Called when "message" frame received.
+     * Called when "text" or "binary" frame received.
      * When all data of message is read, readMessage is called again with size == 0 to
      * indicate end of the message
      */
@@ -90,26 +85,109 @@ public:
   };
   
 private:
-  void readFrameHeader(FrameHeader& frameHeader);
-  void handleFrame(v_int32 opcode, const FrameHeader& frameHeader);
-  void readPayload(const FrameHeader& frameHeader, bool callListener);
+  
+  void packHeaderBits(v_word16& bits, const FrameHeader& frameHeader, v_word8& messageLengthScenario) const;
+  void unpackHeaderBits(v_word16 bits, FrameHeader& frameHeader, v_word8& messageLen1) const;
+  
+  bool checkForContinuation(const FrameHeader& frameHeader);
+  void readFrameHeader(FrameHeader& frameHeader) const;
+  void handleFrame(const FrameHeader& frameHeader);
+  
+  /**
+   * if(shortMessageStream == nullptr) - read call readMessage() method of listener
+   * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
+   */
+  void readPayload(const FrameHeader& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const;
+
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   std::shared_ptr<Listener> m_listener;
   v_int32 m_lastOpcode;
+  mutable bool m_listening;
 public:
   
   WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
     : m_connection(connection)
     , m_listener(nullptr)
     , m_lastOpcode(-1)
+    , m_listening(false)
   {}
+  
+  std::shared_ptr<oatpp::data::stream::IOStream> getConnection() const {
+    return m_connection;
+  }
   
   void setListener(const std::shared_ptr<Listener>& listener) {
     m_listener = listener;
   }
   
+  /**
+   * Use this method if you know what you are doing.
+   * Read one frame from connection and call corresponding methods of listener.
+   * See WebSocket::setListener()
+   */
+  void iterateFrame();
+  
+  /**
+   * Blocks until stopListening() is called or error occurred
+   * Read incoming frames and call corresponding methods of listener.
+   * See WebSocket::setListener()
+   */
   void listen();
+  
+  /**
+   * Break listen loop. See WebSocket::listen()
+   */
+  void stopListening() const;
+  
+  /**
+   * Use this method if you know what you are doing.
+   * Send custom frame to peer.
+   */
+  void writeFrameHeader(const FrameHeader& frameHeader) const;
+  
+  /**
+   * Use this method if you know what you are doing.
+   * Send default frame to peer with fin, opcode and messageSize set
+   */
+  void sendFrame(bool fin, v_word8 opcode, v_int64 messageSize) const;
+  
+  /**
+   * Send one frame message with custom opcode
+   * return true on success, false on error.
+   * if false returned socket should be closed manually
+   */
+  bool sendOneFrameMessage(v_word8 opcode, const oatpp::String& message) const;
+  
+  /**
+   * throws on error and closes socket
+   */
+  void sendClose(v_word16 code, const oatpp::String& message) const;
+  
+  /**
+   * throws on error and closes socket
+   */
+  void sendClose() const;
+  
+  /**
+   * throws on error and closes socket
+   */
+  void sendPing(const oatpp::String& message) const;
+  
+  /**
+   * throws on error and closes socket
+   */
+  void sendPong(const oatpp::String& message) const;
+  
+  /**
+   * throws on error and closes socket
+   */
+  void sendOneFrameText(const oatpp::String& message) const;
+  
+  /**
+   * throws on error and closes socket
+   */
+  void sendOneFrameBinary(const oatpp::String& message) const;
   
 };
   
