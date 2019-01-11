@@ -22,19 +22,27 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_websocket_Handshaker_hpp
-#define oatpp_web_protocol_websocket_Handshaker_hpp
+#ifndef oatpp_web_protocol_websocket_Connector_hpp
+#define oatpp_web_protocol_websocket_Connector_hpp
+
+#include "./WebSocket.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 
+#include <random>
+
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
-class Handshaker {
+class Connector {
 public:
   static const char* const MAGIC_UUID;
+private:
+  /* Random used to generate "Sec-WebSocket-Key" */
+  static thread_local std::mt19937 RANDOM_GENERATOR;
+  static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
 public:
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
@@ -43,13 +51,27 @@ public:
   typedef oatpp::web::protocol::http::Protocol::Headers Headers;
   typedef oatpp::network::server::ConnectionHandler ConnectionHandler;
 private:
+  static oatpp::String generateKey();
   static oatpp::String getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key);
 public:
   
-  static std::shared_ptr<OutgoingResponse> serversideHandshake(const Headers& headers, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler);
+  /**
+   * Prepare OutgoingResponse as for websocket-handshake based on requestHeaders.
+   */
+  static std::shared_ptr<OutgoingResponse> serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler);
+  
+  /**
+   * Prepare requestHeaders for clientside websocket-handshake request
+   */
+  static void clientsideHandshake(Headers& requestHeaders);
+  
+  /**
+   *
+   */
+  static std::shared_ptr<WebSocket> clientConnect(const Headers& clientHandshakeHeaders, const std::shared_ptr<IncomingResponse>& serverResponse);
   
 };
   
 }}}}
 
-#endif /* oatpp_web_protocol_websocket_Handshaker_hpp */
+#endif /* oatpp_web_protocol_websocket_Connector_hpp */

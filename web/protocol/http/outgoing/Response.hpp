@@ -56,7 +56,7 @@ public:
     return Shared_Outgoing_Response_Pool::allocateShared(status, body);
   }
   
-  Status getStatus() {
+  const Status& getStatus() const {
     return m_status;
   }
   

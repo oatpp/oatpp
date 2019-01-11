@@ -127,7 +127,7 @@ HttpRequestExecutor::execute(const String& method,
   
   return Response::createShared(result.startingLine.statusCode,
                                 result.startingLine.description.toString(),
-                                result.headers, bodyStream, m_bodyDecoder);
+                                result.headers, bodyStream, m_bodyDecoder, connection);
   
 }
   
@@ -214,7 +214,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
       
       return _return(Response::createShared(result.startingLine.statusCode,
                                             result.startingLine.description.toString(),
-                                            result.headers, bodyStream, m_bodyDecoder));
+                                            result.headers, bodyStream, m_bodyDecoder, m_connection));
       
     }
     

@@ -42,8 +42,8 @@ v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protoc
   if(request) {
     /* Set keep-alive to value specified in the client's request, if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
-    auto it = request->headers.find(Header::CONNECTION);
-    if(it != request->headers.end() && headerEqualsCI_FAST(it->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+    auto it = request->getHeaders().find(Header::CONNECTION);
+    if(it != request->getHeaders().end() && headerEqualsCI_FAST(it->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
       if(outState != response->getHeaders().end()) {
         if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
           return CONNECTION_STATE_KEEP_ALIVE;
@@ -59,7 +59,7 @@ v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protoc
     /* If protocol == HTTP/1.1 */
     /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
-    auto& protocol = request->startingLine.protocol;
+    auto& protocol = request->getStartingLine().protocol;
     if(protocol.getData() != nullptr && headerEqualsCI_FAST(protocol, "HTTP/1.1")) {
       if(outState != response->getHeaders().end()) {
         if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
