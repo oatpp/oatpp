@@ -25,20 +25,13 @@
 #ifndef oatpp_web_protocol_websocket_WebSocket_hpp
 #define oatpp_web_protocol_websocket_WebSocket_hpp
 
+#include "./Frame.hpp"
+
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
 class WebSocket {
-public:
-  
-  static constexpr v_word8 OPCODE_CONTINUATION = 0x0;
-  static constexpr v_word8 OPCODE_TEXT = 0x1;
-  static constexpr v_word8 OPCODE_BINARY = 0x2;
-  static constexpr v_word8 OPCODE_CLOSE = 0x8;
-  static constexpr v_word8 OPCODE_PING = 0x9;
-  static constexpr v_word8 OPCODE_PONG = 0xA;
-  
 public:
   
   class Listener {
@@ -71,33 +64,17 @@ public:
     
   };
   
-public:
-  
-  struct FrameHeader {
-    bool fin;
-    bool rsv1;
-    bool rsv2;
-    bool rsv3;
-    v_word8 opcode;
-    bool hasMask;
-    v_int64 payloadLength;
-    v_word8 mask[4] = {0, 0, 0, 0};
-  };
-  
 private:
   
-  void packHeaderBits(v_word16& bits, const FrameHeader& frameHeader, v_word8& messageLengthScenario) const;
-  void unpackHeaderBits(v_word16 bits, FrameHeader& frameHeader, v_word8& messageLen1) const;
-  
-  bool checkForContinuation(const FrameHeader& frameHeader);
-  void readFrameHeader(FrameHeader& frameHeader) const;
-  void handleFrame(const FrameHeader& frameHeader);
+  bool checkForContinuation(const Frame::Header& frameHeader);
+  void readFrameHeader(Frame::Header& frameHeader) const;
+  void handleFrame(const Frame::Header& frameHeader);
   
   /**
    * if(shortMessageStream == nullptr) - read call readMessage() method of listener
    * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
    */
-  void readPayload(const FrameHeader& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const;
+  void readPayload(const Frame::Header& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const;
 
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
@@ -126,7 +103,7 @@ public:
    * Read one frame from connection and call corresponding methods of listener.
    * See WebSocket::setListener()
    */
-  void iterateFrame();
+  void iterateFrame(Frame::Header& frameHeader);
   
   /**
    * Blocks until stopListening() is called or error occurred
@@ -144,7 +121,7 @@ public:
    * Use this method if you know what you are doing.
    * Send custom frame to peer.
    */
-  void writeFrameHeader(const FrameHeader& frameHeader) const;
+  void writeFrameHeader(const Frame::Header& frameHeader) const;
   
   /**
    * Use this method if you know what you are doing.

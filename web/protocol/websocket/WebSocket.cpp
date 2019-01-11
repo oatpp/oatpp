@@ -26,44 +26,8 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
-void WebSocket::packHeaderBits(v_word16& bits, const FrameHeader& frameHeader, v_word8& messageLengthScenario) const {
-  
-  bits = 0;
-  
-  if(frameHeader.fin) bits |= 32768;
-  if(frameHeader.rsv1) bits |= 16384;
-  if(frameHeader.rsv2) bits |= 8192;
-  if(frameHeader.rsv3) bits |= 4096;
-  
-  bits |= (frameHeader.opcode & 15) << 8;
-  
-  if(frameHeader.hasMask) bits |= 128;
-  
-  if(frameHeader.payloadLength < 126) {
-    bits |= frameHeader.payloadLength & 127;
-    messageLengthScenario = 1;
-  } else if(frameHeader.payloadLength < 65536) {
-    bits |= 126;
-     messageLengthScenario = 2;
-  } else {
-    bits |= 127; // frameHeader.payloadLength > 65535
-    messageLengthScenario = 3;
-  }
-  
-}
-
-void WebSocket::unpackHeaderBits(v_word16 bits, FrameHeader& frameHeader, v_word8& messageLen1) const {
-  frameHeader.fin = (bits & 32768) > 0; // 32768
-  frameHeader.rsv1 = (bits & 16384) > 0; // 16384
-  frameHeader.rsv2 = (bits & 8192) > 0; // 8192
-  frameHeader.rsv3 = (bits & 4096) > 0; // 4096
-  frameHeader.opcode = (bits & 3840) >> 8;
-  frameHeader.hasMask = (bits & 128) > 0;
-  messageLen1 = (bits & 127);
-}
-  
-bool WebSocket::checkForContinuation(const FrameHeader& frameHeader) {
-  if(m_lastOpcode == OPCODE_TEXT || m_lastOpcode == OPCODE_BINARY) {
+bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
+  if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
     return false;
   }
   if(frameHeader.fin) {
@@ -74,7 +38,7 @@ bool WebSocket::checkForContinuation(const FrameHeader& frameHeader) {
   return true;
 }
   
-void WebSocket::readFrameHeader(FrameHeader& frameHeader) const {
+void WebSocket::readFrameHeader(Frame::Header& frameHeader) const {
   
   v_word16 bb;
   auto res = oatpp::data::stream::readExactSizeData(m_connection.get(), &bb, 2);
@@ -83,7 +47,7 @@ void WebSocket::readFrameHeader(FrameHeader& frameHeader) const {
   }
   
   v_word8 messageLen1;
-  unpackHeaderBits(ntohs(bb), frameHeader, messageLen1);
+  Frame::unpackHeaderBits(ntohs(bb), frameHeader, messageLen1);
   
   if(messageLen1 < 126) {
     frameHeader.payloadLength = messageLen1;
@@ -123,11 +87,11 @@ void WebSocket::readFrameHeader(FrameHeader& frameHeader) const {
   
 }
   
-void WebSocket::writeFrameHeader(const FrameHeader& frameHeader) const {
+void WebSocket::writeFrameHeader(const Frame::Header& frameHeader) const {
 
   v_word16 bb;
   v_word8 messageLengthScenario;
-  packHeaderBits(bb, frameHeader, messageLengthScenario);
+  Frame::packHeaderBits(bb, frameHeader, messageLengthScenario);
   
   bb = htons(bb);
   
@@ -161,7 +125,7 @@ void WebSocket::writeFrameHeader(const FrameHeader& frameHeader) const {
   
 }
   
-void WebSocket::readPayload(const FrameHeader& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const {
+void WebSocket::readPayload(const Frame::Header& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const {
   
   if(shortMessageStream && frameHeader.payloadLength > 125) {
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readPayload()]: Invalid payloadLength. See RFC-6455, section-5.5.");
@@ -209,17 +173,17 @@ void WebSocket::readPayload(const FrameHeader& frameHeader, oatpp::data::stream:
   
 }
   
-void WebSocket::handleFrame(const FrameHeader& frameHeader) {
+void WebSocket::handleFrame(const Frame::Header& frameHeader) {
   
   switch (frameHeader.opcode) {
-    case OPCODE_CONTINUATION:
+    case Frame::OPCODE_CONTINUATION:
       if(m_lastOpcode < 0) {
         throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::handleFrame()]: Invalid communication state.");
       }
       readPayload(frameHeader, nullptr);
       break;
       
-    case OPCODE_TEXT:
+    case Frame::OPCODE_TEXT:
       if(checkForContinuation(frameHeader)) {
         readPayload(frameHeader, nullptr);
       } else {
@@ -227,7 +191,7 @@ void WebSocket::handleFrame(const FrameHeader& frameHeader) {
       }
       break;
       
-    case OPCODE_BINARY:
+    case Frame::OPCODE_BINARY:
       if(checkForContinuation(frameHeader)) {
         readPayload(frameHeader, nullptr);
       } else {
@@ -235,7 +199,7 @@ void WebSocket::handleFrame(const FrameHeader& frameHeader) {
       }
       break;
       
-    case OPCODE_CLOSE:
+    case Frame::OPCODE_CLOSE:
       {
         oatpp::data::stream::ChunkedBuffer messageStream;
         readPayload(frameHeader, &messageStream);
@@ -255,7 +219,7 @@ void WebSocket::handleFrame(const FrameHeader& frameHeader) {
       }
       break;
       
-    case OPCODE_PING:
+    case Frame::OPCODE_PING:
       {
         oatpp::data::stream::ChunkedBuffer messageStream;
         readPayload(frameHeader, &messageStream);
@@ -265,7 +229,7 @@ void WebSocket::handleFrame(const FrameHeader& frameHeader) {
       }
       break;
       
-    case OPCODE_PONG:
+    case Frame::OPCODE_PONG:
       {
         oatpp::data::stream::ChunkedBuffer messageStream;
         readPayload(frameHeader, &messageStream);
@@ -282,8 +246,7 @@ void WebSocket::handleFrame(const FrameHeader& frameHeader) {
   
 }
   
-void WebSocket::iterateFrame() {
-  FrameHeader frameHeader;
+void WebSocket::iterateFrame(Frame::Header& frameHeader) {
   readFrameHeader(frameHeader);
   handleFrame(frameHeader);
 }
@@ -293,11 +256,11 @@ void WebSocket::listen() {
   m_listening = true;
   
   try {
-    FrameHeader frameHeader;
+    Frame::Header frameHeader;
     do {
       readFrameHeader(frameHeader);
       handleFrame(frameHeader);
-    } while(frameHeader.opcode != OPCODE_CLOSE && m_listening);
+    } while(frameHeader.opcode != Frame::OPCODE_CLOSE && m_listening);
   } catch(...) {
     OATPP_LOGD("[oatpp::web::protocol::websocket::WebSocket::listen()]", "Unhandled error occurred");
   }
@@ -310,7 +273,7 @@ void WebSocket::stopListening() const {
   
 void WebSocket::sendFrame(bool fin, v_word8 opcode, v_int64 messageSize) const {
   
-  oatpp::web::protocol::websocket::WebSocket::FrameHeader frame;
+  Frame::Header frame;
   frame.fin = fin;
   frame.rsv1 = false;
   frame.rsv2 = false;
@@ -346,7 +309,7 @@ void WebSocket::sendClose(v_word16 code, const oatpp::String& message) const {
     buffer.write(message->getData(), message->getSize());
   }
   
-  if(!sendOneFrameMessage(OPCODE_CLOSE, buffer.toString())) {
+  if(!sendOneFrameMessage(Frame::OPCODE_CLOSE, buffer.toString())) {
     stopListening();
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendClose(...)]: Unknown error while writing to socket.");
   }
@@ -354,35 +317,35 @@ void WebSocket::sendClose(v_word16 code, const oatpp::String& message) const {
 }
 
 void WebSocket::sendClose() const {
-  if(!sendOneFrameMessage(OPCODE_CLOSE, nullptr)) {
+  if(!sendOneFrameMessage(Frame::OPCODE_CLOSE, nullptr)) {
     stopListening();
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendClose()]: Unknown error while writing to socket.");
   }
 }
   
 void WebSocket::sendPing(const oatpp::String& message) const {
-  if(!sendOneFrameMessage(OPCODE_PING, message)) {
+  if(!sendOneFrameMessage(Frame::OPCODE_PING, message)) {
     stopListening();
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendPing()]: Unknown error while writing to socket.");
   }
 }
 
 void WebSocket::sendPong(const oatpp::String& message) const {
-  if(!sendOneFrameMessage(OPCODE_PONG, message)) {
+  if(!sendOneFrameMessage(Frame::OPCODE_PONG, message)) {
     stopListening();
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendPong()]: Unknown error while writing to socket.");
   }
 }
 
 void WebSocket::sendOneFrameText(const oatpp::String& message) const {
-  if(!sendOneFrameMessage(OPCODE_TEXT, message)) {
+  if(!sendOneFrameMessage(Frame::OPCODE_TEXT, message)) {
     stopListening();
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendOneFrameText()]: Unknown error while writing to socket.");
   }
 }
 
 void WebSocket::sendOneFrameBinary(const oatpp::String& message) const {
-  if(!sendOneFrameMessage(OPCODE_BINARY, message)) {
+  if(!sendOneFrameMessage(Frame::OPCODE_BINARY, message)) {
     stopListening();
     throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::sendOneFrameBinary()]: Unknown error while writing to socket.");
   }
