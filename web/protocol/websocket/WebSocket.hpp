@@ -29,9 +29,15 @@
 
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
+#include <random>
+
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
 class WebSocket {
+private:
+  /* Random used to generate message masks */
+  static thread_local std::mt19937 RANDOM_GENERATOR;
+  static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
 public:
   
   class Listener {
@@ -66,6 +72,8 @@ public:
   
 private:
   
+  void generateMaskForFrame(Frame::Header& frameHeader) const;
+  
   bool checkForContinuation(const Frame::Header& frameHeader);
   void readFrameHeader(Frame::Header& frameHeader) const;
   void handleFrame(const Frame::Header& frameHeader);
@@ -78,13 +86,18 @@ private:
 
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+  bool m_maskOutgoingMessages;
   std::shared_ptr<Listener> m_listener;
   v_int32 m_lastOpcode;
   mutable bool m_listening;
 public:
   
-  WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+  /**
+   * maskOutgoingMessages for servers should be false. For clients should be true
+   */
+  WebSocket(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages)
     : m_connection(connection)
+    , m_maskOutgoingMessages(maskOutgoingMessages)
     , m_listener(nullptr)
     , m_lastOpcode(-1)
     , m_listening(false)
@@ -127,14 +140,14 @@ public:
    * Use this method if you know what you are doing.
    * Send default frame to peer with fin, opcode and messageSize set
    */
-  void sendFrame(bool fin, v_word8 opcode, v_int64 messageSize) const;
+  void sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 opcode, v_int64 messageSize) const;
   
   /**
-   * Send one frame message with custom opcode
+   * Send one frame message with custom fin and opcode
    * return true on success, false on error.
    * if false returned socket should be closed manually
    */
-  bool sendOneFrameMessage(v_word8 opcode, const oatpp::String& message) const;
+  bool sendOneFrame(bool fin, v_word8 opcode, const oatpp::String& message) const;
   
   /**
    * throws on error and closes socket

@@ -119,7 +119,7 @@ std::shared_ptr<WebSocket> Connector::clientConnect(const Headers& clientHandsha
       auto clientWebsocketAccept = oatpp::encoding::Base64::encode(sha1.finalBinary());
       
       if(clientWebsocketAccept == websocketAccept) {
-        return std::make_shared<WebSocket>(serverResponse->getConnection());
+        return std::make_shared<WebSocket>(serverResponse->getConnection(), true);
       }
       
     }
