@@ -32,8 +32,6 @@ namespace oatpp { namespace web { namespace server {
 class WebSocketConnectionHandler : public oatpp::network::server::ConnectionHandler {
 public:
   
-  
-  
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override {
     
   }

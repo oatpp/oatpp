@@ -22,19 +22,19 @@
  *
  ***************************************************************************/
 
-#include "Connector.hpp"
+#include "Handshaker.hpp"
 
 #include "oatpp/algorithm/SHA1.hpp"
 #include "oatpp/encoding/Base64.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
-const char* const Connector::MAGIC_UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+const char* const Handshaker::MAGIC_UUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
   
-thread_local std::mt19937 Connector::RANDOM_GENERATOR (std::random_device{}());
-thread_local std::uniform_int_distribution<size_t> Connector::RANDOM_DISTRIBUTION (0, 255);
+thread_local std::mt19937 Handshaker::RANDOM_GENERATOR (std::random_device{}());
+thread_local std::uniform_int_distribution<size_t> Handshaker::RANDOM_DISTRIBUTION (0, 255);
   
-oatpp::String Connector::generateKey() {
+oatpp::String Handshaker::generateKey() {
   v_int32 keySize = 16;
   oatpp::String key(keySize);
   for(v_int32 i = 0; i < keySize; i ++) {
@@ -43,7 +43,7 @@ oatpp::String Connector::generateKey() {
   return oatpp::encoding::Base64::encode(key);
 }
   
-oatpp::String Connector::getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key) {
+oatpp::String Handshaker::getHeader(const Headers& headers, const oatpp::data::share::StringKeyLabelCI_FAST& key) {
   
   auto it = headers.find(key);
   if(it != headers.end()) {
@@ -54,7 +54,7 @@ oatpp::String Connector::getHeader(const Headers& headers, const oatpp::data::sh
   
 }
   
-std::shared_ptr<Connector::OutgoingResponse> Connector::serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler) {
+std::shared_ptr<Handshaker::OutgoingResponse> Handshaker::serversideHandshake(const Headers& requestHeaders, const std::shared_ptr<ConnectionHandler>& connectionUpgradeHandler) {
   
   auto version = getHeader(requestHeaders, "Sec-WebSocket-Version");
   auto upgrade = getHeader(requestHeaders, oatpp::web::protocol::http::Header::UPGRADE);
@@ -89,14 +89,14 @@ std::shared_ptr<Connector::OutgoingResponse> Connector::serversideHandshake(cons
   
 }
   
-void Connector::clientsideHandshake(Headers& requestHeaders) {
+void Handshaker::clientsideHandshake(Headers& requestHeaders) {
   requestHeaders[oatpp::web::protocol::http::Header::UPGRADE] = "websocket";
   requestHeaders[oatpp::web::protocol::http::Header::CONNECTION] = oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE;
   requestHeaders["Sec-WebSocket-Version"] = "13";
   requestHeaders["Sec-WebSocket-Key"] = generateKey();
 }
   
-std::shared_ptr<WebSocket> Connector::clientConnect(const Headers& clientHandshakeHeaders, const std::shared_ptr<IncomingResponse>& serverResponse) {
+v_int32 Handshaker::clientsideConfirmHandshake(const Headers& clientHandshakeHeaders, const std::shared_ptr<IncomingResponse>& serverResponse) {
   
   if(serverResponse->getStatusCode() == 101) {
     
@@ -119,14 +119,18 @@ std::shared_ptr<WebSocket> Connector::clientConnect(const Headers& clientHandsha
       auto clientWebsocketAccept = oatpp::encoding::Base64::encode(sha1.finalBinary());
       
       if(clientWebsocketAccept == websocketAccept) {
-        return std::make_shared<WebSocket>(serverResponse->getConnection(), true);
+        return STATUS_OK;
+      } else {
+        return STATUS_SERVER_WRONG_KEY;
       }
       
+    } else {
+      return STATUS_UNKNOWN_PROTOCOL_SUGGESTED;
     }
     
+  } else {
+    return STATUS_SERVER_ERROR;
   }
-  
-  return nullptr;
   
 }
   

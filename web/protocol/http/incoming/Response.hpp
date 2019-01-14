@@ -54,14 +54,12 @@ public:
            const oatpp::String& statusDescription,
            const http::Protocol::Headers& headers,
            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder,
-           const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
     : m_statusCode(statusCode)
     , m_statusDescription(statusDescription)
     , m_headers(headers)
     , m_bodyStream(bodyStream)
     , m_bodyDecoder(bodyDecoder)
-    , m_connection(connection)
   {}
 public:
   
@@ -69,9 +67,8 @@ public:
                                                 const oatpp::String& statusDescription,
                                                 const http::Protocol::Headers& headers,
                                                 const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder,
-                                                const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
-    return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream, bodyDecoder, connection);
+                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
+    return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream, bodyDecoder);
   }
   
   v_int32 getStatusCode() const {
@@ -92,10 +89,6 @@ public:
   
   std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const {
     return m_bodyDecoder;
-  }
-  
-  std::shared_ptr<oatpp::data::stream::IOStream> getConnection() const {
-    return m_connection;
   }
 
   void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
