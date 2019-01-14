@@ -100,7 +100,7 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
                                                                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
 {
   
-  class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, Result> {
+  class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     p_char8 m_buffer;

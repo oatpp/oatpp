@@ -33,19 +33,17 @@ namespace oatpp { namespace web { namespace client {
 class WebSocketConnector {
 public:
   typedef protocol::websocket::WebSocket WebSocket;
-  typedef oatpp::data::stream::IOStream IOStream;
+  typedef oatpp::data::stream::IOStream Connection;
+  typedef oatpp::async::Action Action;
+  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Connection>&);
 private:
   std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
   HttpRequestExecutor m_requestExecutor;
-private:
-  std::shared_ptr<IOStream> connectAndHandshake(const oatpp::String& path);
 public:
-  
   WebSocketConnector(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider)
     : m_connectionProvider(connectionProvider)
     , m_requestExecutor(connectionProvider)
   {}
-  
 public:
   
   static std::shared_ptr<WebSocketConnector> createShared(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider) {
@@ -53,15 +51,18 @@ public:
   }
   
   /**
-   * Connect to server, do websocket-handshake and return WebSocket
+   * Connect to server, do websocket-handshake and return Connection which can be then passed to
+   * WebSocket constructor
    * (Blocking call)
    */
-  WebSocket connect(const oatpp::String& path);
+  std::shared_ptr<Connection> connect(const oatpp::String& path);
   
   /**
-   * Same as connect() but return std::shared_ptr<WebSocket>
+   * Connect to server, do websocket-handshake and return Connection which can be then passed to
+   * WebSocket constructor
+   * (Async call)
    */
-  std::shared_ptr<WebSocket> connectShared(const oatpp::String& path);
+  Action connectAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback, const oatpp::String& path);
   
 };
   

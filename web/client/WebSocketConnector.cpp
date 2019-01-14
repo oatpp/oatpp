@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace web { namespace client {
   
-std::shared_ptr<WebSocketConnector::IOStream> WebSocketConnector::connectAndHandshake(const oatpp::String& path) {
+std::shared_ptr<WebSocketConnector::Connection> WebSocketConnector::connect(const oatpp::String& path) {
   
   auto connection = m_connectionProvider->getConnection();
   auto connectionHandle = std::make_shared<HttpRequestExecutor::HttpConnectionHandle>(connection);
@@ -52,12 +52,67 @@ std::shared_ptr<WebSocketConnector::IOStream> WebSocketConnector::connectAndHand
   
 }
   
-WebSocketConnector::WebSocket WebSocketConnector::connect(const oatpp::String& path) {
-  return WebSocket(connectAndHandshake(path), true);
-}
+oatpp::async::Action WebSocketConnector::connectAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                      AsyncCallback callback,
+                                                      const oatpp::String& path)
+{
   
-std::shared_ptr<WebSocketConnector::WebSocket> WebSocketConnector::connectShared(const oatpp::String& path) {
-  return std::make_shared<WebSocketConnector::WebSocket>(connectAndHandshake(path), true);
+  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<Connection>&> {
+  private:
+    std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
+    HttpRequestExecutor m_requestExecutor;
+    oatpp::String m_path;
+    std::shared_ptr<Connection> m_connection;
+    protocol::websocket::Handshaker::Headers m_handshakeHeaders;
+  public:
+    
+    ConnectCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
+                     const HttpRequestExecutor& requestExecutor,
+                     const oatpp::String path)
+      : m_connectionProvider(connectionProvider)
+      , m_requestExecutor(requestExecutor)
+      , m_path(path)
+    {}
+    
+    Action act() override {
+      oatpp::network::ClientConnectionProvider::AsyncCallback callback =
+      static_cast<oatpp::network::ClientConnectionProvider::AsyncCallback>(&ConnectCoroutine::onConnected);
+      return m_connectionProvider->getConnectionAsync(this, callback);
+    }
+    
+    Action onConnected(const std::shared_ptr<Connection>& connection) {
+      
+      m_connection = connection;
+      
+      auto connectionHandle = std::make_shared<HttpRequestExecutor::HttpConnectionHandle>(m_connection);
+      m_handshakeHeaders.clear();
+      protocol::websocket::Handshaker::clientsideHandshake(m_handshakeHeaders);
+      
+      oatpp::web::client::RequestExecutor::AsyncCallback callback =
+      static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(&ConnectCoroutine::onServerResponse);
+      return m_requestExecutor.executeAsync(this, callback, "GET", m_path, m_handshakeHeaders, nullptr, connectionHandle);
+      
+    }
+    
+    Action onServerResponse(const std::shared_ptr<protocol::http::incoming::Response>& response) {
+      auto res = protocol::websocket::Handshaker::clientsideConfirmHandshake(m_handshakeHeaders, response);
+      if(res == protocol::websocket::Handshaker::STATUS_OK) {
+        return _return(m_connection);
+      } else if(res == protocol::websocket::Handshaker::STATUS_SERVER_ERROR) {
+        throw std::runtime_error("[oatpp::web::client::WebSocketConnector::connectAsync(){ConnectCoroutine}]: Server responded with invalid code");
+      } else if(res == protocol::websocket::Handshaker::STATUS_SERVER_WRONG_KEY) {
+        throw std::runtime_error("[oatpp::web::client::WebSocketConnector::connectAsync(){ConnectCoroutine}]: Server wrong handshake key");
+      } else if(res == protocol::websocket::Handshaker::STATUS_UNKNOWN_PROTOCOL_SUGGESTED) {
+        throw std::runtime_error("[oatpp::web::client::WebSocketConnector::connectAsync(){ConnectCoroutine}]: Server response contains unexpected headers");
+      } else {
+        throw std::runtime_error("[oatpp::web::client::WebSocketConnector::connectAsync(){ConnectCoroutine}]: Unknown error");
+      }
+    }
+    
+  };
+  
+  return parentCoroutine->startCoroutineForResult<ConnectCoroutine>(callback, m_connectionProvider, m_requestExecutor, path);
+  
 }
   
 }}}
