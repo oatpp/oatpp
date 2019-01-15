@@ -26,13 +26,11 @@
 #define oatpp_web_client_WebSocketConnector_hpp
 
 #include "./HttpRequestExecutor.hpp"
-#include "oatpp/web/protocol/websocket/WebSocket.hpp"
 
 namespace oatpp { namespace web { namespace client {
   
 class WebSocketConnector {
 public:
-  typedef protocol::websocket::WebSocket WebSocket;
   typedef oatpp::data::stream::IOStream Connection;
   typedef oatpp::async::Action Action;
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Connection>&);

@@ -97,7 +97,9 @@ private:
                           const std::shared_ptr<Frame::Header>& frameHeader,
                           const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& shortMessageStream);
   
-  void handleFrame(const Frame::Header& frameHeader);
+  Action handleFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                          const Action& actionOnReturn,
+                          const std::shared_ptr<Frame::Header>& frameHeader);
   
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
@@ -118,6 +120,10 @@ public:
     , m_listening(false)
   {}
   
+  static std::shared_ptr<AsyncWebSocket> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, bool maskOutgoingMessages) {
+    return std::make_shared<AsyncWebSocket>(connection, maskOutgoingMessages);
+  }
+  
   std::shared_ptr<oatpp::data::stream::IOStream> getConnection() const {
     return m_connection;
   }
@@ -126,7 +132,32 @@ public:
     m_listener = listener;
   }
   
+  Action listenAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn);
   
+  Action writeFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                               const Action& actionOnReturn,
+                               const std::shared_ptr<Frame::Header>& frameHeader);
+  
+  Action sendFrameHeaderAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                              const Action& actionOnReturn,
+                              const std::shared_ptr<Frame::Header>& frameHeader,
+                              bool fin, v_word8 opcode, v_int64 messageSize);
+  
+  Action sendOneFrameAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                           const Action& actionOnReturn,
+                           bool fin, v_word8 opcode, const oatpp::String& message);
+  
+  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, v_word16 code, const oatpp::String& message);
+  
+  Action sendCloseAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn);
+  
+  Action sendPingAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  
+  Action sendPongAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  
+  Action sendOneFrameTextAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
+  
+  Action sendOneFrameBinaryAsync(oatpp::async::AbstractCoroutine* parentCoroutine, const Action& actionOnReturn, const oatpp::String& message);
   
 };
   

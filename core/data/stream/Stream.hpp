@@ -162,10 +162,15 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
  *  Async write data withot starting new Coroutine.
  *  Should be called from a separate Coroutine method
  */
-oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                          const void*& data,
-                                          os::io::Library::v_size& size,
-                                          const oatpp::async::Action& nextAction);
+oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                              const void*& data,
+                                              os::io::Library::v_size& size,
+                                              const oatpp::async::Action& nextAction);
+  
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                                   const void*& data,
+                                                   os::io::Library::v_size& size,
+                                                   const oatpp::async::Action& nextAction);
 
 oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                              void*& data,
