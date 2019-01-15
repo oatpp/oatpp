@@ -26,18 +26,13 @@
 #define oatpp_web_protocol_websocket_WebSocket_hpp
 
 #include "./Frame.hpp"
+#include "./Utils.hpp"
 
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
-#include <random>
 
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
 class WebSocket {
-private:
-  /* Random used to generate message masks */
-  static thread_local std::mt19937 RANDOM_GENERATOR;
-  static thread_local std::uniform_int_distribution<size_t> RANDOM_DISTRIBUTION;
 public:
   
   class Listener {
@@ -49,40 +44,39 @@ public:
     /**
      * Called when "ping" frame received
      */
-    virtual void onPing(const WebSocket& webSocket, const oatpp::String& message) = 0;
+    virtual void onPing(const WebSocket& socket, const oatpp::String& message) = 0;
     
     /**
      * Called when "pong" frame received
      */
-    virtual void onPong(const WebSocket& webSocket, const oatpp::String& message) = 0;
+    virtual void onPong(const WebSocket& socket, const oatpp::String& message) = 0;
     
     /**
      * Called when "close" frame received
      */
-    virtual void onClose(const WebSocket& webSocket, v_word16 code, const oatpp::String& message) = 0;
+    virtual void onClose(const WebSocket& socket, v_word16 code, const oatpp::String& message) = 0;
     
     /**
      * Called when "text" or "binary" frame received.
      * When all data of message is read, readMessage is called again with size == 0 to
      * indicate end of the message
      */
-    virtual v_size readMessage(const WebSocket& webSocket, p_char8 data, v_size size) = 0;
+    virtual void readMessage(const WebSocket& socket, p_char8 data, v_size size) = 0;
     
   };
   
 private:
   
-  void generateMaskForFrame(Frame::Header& frameHeader) const;
-  
   bool checkForContinuation(const Frame::Header& frameHeader);
   void readFrameHeader(Frame::Header& frameHeader) const;
-  void handleFrame(const Frame::Header& frameHeader);
   
   /**
    * if(shortMessageStream == nullptr) - read call readMessage() method of listener
    * if(shortMessageStream) - read message to shortMessageStream. Don't call listener
    */
   void readPayload(const Frame::Header& frameHeader, oatpp::data::stream::ChunkedBuffer* shortMessageStream) const;
+  
+  void handleFrame(const Frame::Header& frameHeader);
 
 private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;

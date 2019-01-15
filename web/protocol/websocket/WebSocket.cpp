@@ -26,15 +26,6 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace websocket {
   
-thread_local std::mt19937 WebSocket::RANDOM_GENERATOR (std::random_device{}());
-thread_local std::uniform_int_distribution<size_t> WebSocket::RANDOM_DISTRIBUTION (0, 255);
-  
-void WebSocket::generateMaskForFrame(Frame::Header& frameHeader) const {
-  for(v_int32 i = 0; i < 4; i ++) {
-    frameHeader.mask[i] = RANDOM_DISTRIBUTION(RANDOM_GENERATOR);
-  }
-}
-  
 bool WebSocket::checkForContinuation(const Frame::Header& frameHeader) {
   if(m_lastOpcode == Frame::OPCODE_TEXT || m_lastOpcode == Frame::OPCODE_BINARY) {
     return false;
@@ -82,17 +73,6 @@ void WebSocket::readFrameHeader(Frame::Header& frameHeader) const {
       throw std::runtime_error("[oatpp::web::protocol::websocket::WebSocket::readFrameHeader()]: Error reading frame header. Reading mask.");
     }
   }
-  
-  OATPP_LOGD("WebSocket", "fin=%d, opcode=%d, masked=%d, messageLen1=%d",
-             frameHeader.fin,
-             frameHeader.opcode,
-             frameHeader.hasMask,
-             frameHeader.payloadLength);
-  
-  OATPP_LOGD("WebSocket", "rsv1=%d, rsv2=%d, rsv3=%d",
-             frameHeader.rsv1,
-             frameHeader.rsv2,
-             frameHeader.rsv3);
   
 }
   
@@ -300,7 +280,7 @@ void WebSocket::sendFrameHeader(Frame::Header& frameHeader, bool fin, v_word8 op
   frameHeader.payloadLength = messageSize;
   
   if(frameHeader.hasMask) {
-    generateMaskForFrame(frameHeader);
+    Utils::generateMaskForFrame(frameHeader);
   }
   
   writeFrameHeader(frameHeader);
