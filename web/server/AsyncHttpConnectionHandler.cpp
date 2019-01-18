@@ -42,14 +42,14 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::d
   auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
   auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, ioBuffer);
   
-  m_executor.execute<HttpProcessor::Coroutine>(m_router.get(),
-                                               m_bodyDecoder,
-                                               m_errorHandler,
-                                               &m_requestInterceptors,
-                                               connection,
-                                               ioBuffer,
-                                               outStream,
-                                               inStream);
+  m_executor->execute<HttpProcessor::Coroutine>(m_router.get(),
+                                                m_bodyDecoder,
+                                                m_errorHandler,
+                                                &m_requestInterceptors,
+                                                connection,
+                                                ioBuffer,
+                                                outStream,
+                                                inStream);
   
 }
   
