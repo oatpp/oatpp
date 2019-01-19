@@ -154,6 +154,7 @@ public:
   public:
     static const char* const CONNECTION_CLOSE;
     static const char* const CONNECTION_KEEP_ALIVE;
+    static const char* const CONNECTION_UPGRADE;
     
     static const char* const SERVER;
     static const char* const USER_AGENT;
@@ -174,6 +175,7 @@ public:
   static const char* const HOST;                // "Host"
   static const char* const USER_AGENT;          // "User-Agent"
   static const char* const SERVER;              // "Server"
+  static const char* const UPGRADE;             // "Upgrade"
 };
   
 class Range {

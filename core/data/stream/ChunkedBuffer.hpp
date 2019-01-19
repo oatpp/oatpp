@@ -149,9 +149,14 @@ public:
                                         os::io::Library::v_size pos,
                                         os::io::Library::v_size count);
 
-  oatpp::String getSubstring(os::io::Library::v_size pos,
-                                           os::io::Library::v_size count);
+  /**
+   * return substring of the data written to stream; NOT NULL
+   */
+  oatpp::String getSubstring(os::io::Library::v_size pos, os::io::Library::v_size count);
 
+  /**
+   * return data written to stream as oatpp::String; NOT NULL
+   */
   oatpp::String toString() {
     return getSubstring(0, m_size);
   }

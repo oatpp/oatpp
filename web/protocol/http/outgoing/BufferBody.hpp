@@ -74,7 +74,7 @@ public:
     {}
     
     Action act() override {
-      return oatpp::data::stream::writeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
     }
     
   };

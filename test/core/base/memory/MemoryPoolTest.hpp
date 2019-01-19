@@ -29,6 +29,9 @@
 
 namespace oatpp { namespace test { namespace memory {
   
+/**
+ * Test memory pool allocations
+ */
 class MemoryPoolTest : public UnitTest{
 public:
   

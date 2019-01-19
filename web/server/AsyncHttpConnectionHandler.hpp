@@ -44,26 +44,41 @@ class AsyncHttpConnectionHandler : public base::Controllable, public network::se
 private:
   typedef oatpp::web::protocol::http::incoming::BodyDecoder BodyDecoder;
 private:
-  oatpp::async::Executor m_executor;
+  std::shared_ptr<oatpp::async::Executor> m_executor;
 private:
   std::shared_ptr<HttpRouter> m_router;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   HttpProcessor::RequestInterceptors m_requestInterceptors;
   std::shared_ptr<const BodyDecoder> m_bodyDecoder; // TODO make bodyDecoder configurable here
 public:
+  
   AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
                              v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT)
-    : m_executor(threadCount)
+    : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
     , m_router(router)
     , m_errorHandler(handler::DefaultErrorHandler::createShared())
     , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
   {
-    m_executor.detach(); // TODO consider making it configurable
+    m_executor->detach();
   }
+  
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                             const std::shared_ptr<oatpp::async::Executor>& executor)
+    : m_executor(executor)
+    , m_router(router)
+    , m_errorHandler(handler::DefaultErrorHandler::createShared())
+    , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
+  {}
 public:
   
-  static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router){
-    return std::make_shared<AsyncHttpConnectionHandler>(router);
+  static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
+                                                                  v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT){
+    return std::make_shared<AsyncHttpConnectionHandler>(router, threadCount);
+  }
+  
+  static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
+                                                                  const std::shared_ptr<oatpp::async::Executor>& executor){
+    return std::make_shared<AsyncHttpConnectionHandler>(router, executor);
   }
   
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
@@ -80,7 +95,7 @@ public:
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
   
   void stop() {
-    m_executor.stop();
+    m_executor->stop();
   }
   
 };

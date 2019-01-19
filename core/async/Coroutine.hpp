@@ -131,6 +131,9 @@ private:
           {
             AbstractCoroutine* savedCP = _CP;
             _CP = _CP->m_parent;
+            _FP = nullptr;
+            /* Please note that savedCP->m_parentReturnAction should not be "REPEAT nor WAIT_RETRY" */
+            /* as funtion pointer (FP) is invalidated */
             Action a = takeAction(savedCP->m_parentReturnAction);
             savedCP->m_parentReturnAction.m_coroutine = nullptr;
             savedCP->free();

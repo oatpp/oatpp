@@ -27,6 +27,7 @@
 
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
@@ -41,6 +42,7 @@ private:
   Status m_status;
   Headers m_headers;
   std::shared_ptr<Body> m_body;
+  std::shared_ptr<oatpp::network::server::ConnectionHandler> m_connectionUpgradeHandler;
 public:
   Response(const Status& status,
            const std::shared_ptr<Body>& body)
@@ -54,7 +56,7 @@ public:
     return Shared_Outgoing_Response_Pool::allocateShared(status, body);
   }
   
-  Status getStatus() {
+  const Status& getStatus() const {
     return m_status;
   }
   
@@ -73,6 +75,14 @@ public:
       return true;
     }
     return false;
+  }
+  
+  void setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
+    m_connectionUpgradeHandler = handler;
+  }
+  
+  std::shared_ptr<oatpp::network::server::ConnectionHandler> getConnectionUpgradeHandler() {
+    return m_connectionUpgradeHandler;
   }
   
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);

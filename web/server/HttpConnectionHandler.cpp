@@ -25,6 +25,7 @@
 #include "./HttpConnectionHandler.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/ChunkedBufferBody.hpp"
+#include "oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
@@ -38,10 +39,11 @@ void HttpConnectionHandler::Task::run(){
   auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, buffer, bufferSize);
   auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection, buffer, bufferSize);
   
-  bool keepAlive = true;
+  v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
+  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
   do {
   
-    auto response = HttpProcessor::processRequest(m_router, m_connection, m_bodyDecoder, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, keepAlive);
+    response = HttpProcessor::processRequest(m_router, m_connection, m_bodyDecoder, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, connectionState);
     
     if(response) {
       outStream->setBufferPosition(0, 0);
@@ -51,7 +53,16 @@ void HttpConnectionHandler::Task::run(){
       return;
     }
     
-  } while(keepAlive);
+  } while(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+  
+  if(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
+    auto handler = response->getConnectionUpgradeHandler();
+    if(handler) {
+      handler->handleConnection(m_connection);
+    } else {
+      OATPP_LOGD("[oatpp::web::server::HttpConnectionHandler::Task::run()]", "Warning. ConnectionUpgradeHandler not set!");
+    }
+  }
   
 }
   

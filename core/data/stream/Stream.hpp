@@ -162,10 +162,15 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
  *  Async write data withot starting new Coroutine.
  *  Should be called from a separate Coroutine method
  */
-oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                          const void*& data,
-                                          os::io::Library::v_size& size,
-                                          const oatpp::async::Action& nextAction);
+oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                              const void*& data,
+                                              os::io::Library::v_size& size,
+                                              const oatpp::async::Action& nextAction);
+  
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                                   const void*& data,
+                                                   os::io::Library::v_size& size,
+                                                   const oatpp::async::Action& nextAction);
 
 oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                              void*& data,
@@ -177,6 +182,13 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
                                                   os::io::Library::v_size& bytesLeftToRead,
                                                   const oatpp::async::Action& nextAction);
 
+/**
+ * Read exact amount of bytes to stream
+ * returns exact amount of bytes was read.
+ * return result can be < size only in case of some disaster like connection reset by peer
+ */
+oatpp::os::io::Library::v_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, os::io::Library::v_size size);
+  
 /**
  * Write exact amount of bytes to stream.
  * returns exact amount of bytes was written.

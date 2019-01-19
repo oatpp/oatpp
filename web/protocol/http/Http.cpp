@@ -99,6 +99,7 @@ const Status Status::CODE_511(511, "Network Authentication Required");
 
 const char* const Header::Value::CONNECTION_CLOSE = "close";
 const char* const Header::Value::CONNECTION_KEEP_ALIVE = "keep-alive";
+const char* const Header::Value::CONNECTION_UPGRADE = "Upgrade";
   
 const char* const Header::Value::SERVER = "oatpp/" OATPP_VERSION;
 const char* const Header::Value::USER_AGENT = "oatpp/" OATPP_VERSION;
@@ -119,6 +120,7 @@ const char* const Header::RANGE = "Range";
 const char* const Header::HOST = "Host";
 const char* const Header::USER_AGENT = "User-Agent";
 const char* const Header::SERVER = "Server";
+const char* const Header::UPGRADE = "Upgrade";
   
 const char* const Range::UNIT_BYTES = "bytes";
 const char* const ContentRange::UNIT_BYTES = "bytes";

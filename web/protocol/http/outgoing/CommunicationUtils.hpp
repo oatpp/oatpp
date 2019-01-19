@@ -31,6 +31,10 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 class CommunicationUtils {
+public:
+  static constexpr v_int32 CONNECTION_STATE_CLOSE = 0;
+  static constexpr v_int32 CONNECTION_STATE_KEEP_ALIVE = 1;
+  static constexpr v_int32 CONNECTION_STATE_UPGRADE = 2;
 private:
   static bool headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value);
 public:
@@ -38,11 +42,10 @@ public:
   /**
    * Consider keep connection alive taking into account request headers, response headers and protocol version.
    * Corresponding header will be set to response if not existed before
-   * return true - keep-alive
-   * return false - close
+   * return one of (CONNECTION_STATE_CLOSE, CONNECTION_STATE_KEEP_ALIVE, CONNECTION_STATE_UPGRADE)
    */
-  static bool considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
+  static v_int32 considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
+                                         const std::shared_ptr<protocol::http::outgoing::Response>& response);
   
 };
   

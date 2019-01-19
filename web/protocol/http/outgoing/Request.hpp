@@ -64,11 +64,11 @@ public:
     return Shared_Outgoing_Request_Pool::allocateShared(method, path, headers, body);
   }
   
-  oatpp::data::share::StringKeyLabel getMethod() {
+  const oatpp::data::share::StringKeyLabel& getMethod() const {
     return m_method;
   }
   
-  oatpp::data::share::StringKeyLabel getPath() {
+  const oatpp::data::share::StringKeyLabel& getPath() const {
     return m_path;
   }
   

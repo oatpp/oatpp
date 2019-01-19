@@ -220,10 +220,10 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doWrite() {
-      return oatpp::data::stream::writeDataAsyncInline(m_toStream.get(),
-                                                       m_writeBufferPtr,
-                                                       m_bytesLeft,
-                                                       yieldTo(&TransferCoroutine::act));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_toStream.get(),
+                                                                m_writeBufferPtr,
+                                                                m_bytesLeft,
+                                                                yieldTo(&TransferCoroutine::act));
     }
     
     Action handleError(const oatpp::async::Error& error) override {
@@ -241,10 +241,10 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
   
 }
   
-oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                          const void*& data,
-                                          os::io::Library::v_size& size,
-                                          const oatpp::async::Action& nextAction) {
+oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                              const void*& data,
+                                              os::io::Library::v_size& size,
+                                              const oatpp::async::Action& nextAction) {
   auto res = stream->write(data, size);
   if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
@@ -252,11 +252,36 @@ oatpp::async::Action writeDataAsyncInline(oatpp::data::stream::OutputStream* str
     return oatpp::async::Action::_REPEAT;
   } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
     return oatpp::async::Action::_ABORT;
-  } else if( res < 0) {
+  } else if(res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
-  } else if(res < size) {
-    data = &((p_char8) data)[res];
-    size = size - res;
+  }
+  data = &((p_char8) data)[res];
+  size = size - res;
+  if(res < size && res > 0) {
+    return oatpp::async::Action::_REPEAT;
+  }
+  return nextAction;
+}
+  
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+                                              const void*& data,
+                                              os::io::Library::v_size& size,
+                                              const oatpp::async::Action& nextAction) {
+  auto res = stream->write(data, size);
+  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+    return oatpp::async::Action::_WAIT_RETRY;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+    return oatpp::async::Action::_REPEAT;
+  } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+    return oatpp::async::Action::_ABORT;
+  } else if(res < 0) {
+    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
+  } else if(res == 0) {
+    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
+  }
+  data = &((p_char8) data)[res];
+  size = size - res;
+  if(res < size) {
     return oatpp::async::Action::_REPEAT;
   }
   return nextAction;
@@ -273,11 +298,9 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* s
     return oatpp::async::Action::_REPEAT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
-  } else if(res < bytesLeftToRead) {
-    data = &((p_char8) data)[res];
-    bytesLeftToRead -= res;
-    return nextAction;
-  }
+  } 
+  // res == 0 is not an error here
+  data = &((p_char8) data)[res];
   bytesLeftToRead -= res;
   return nextAction;
 }
@@ -295,13 +318,39 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
     return oatpp::async::Action::_ABORT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
-  } else if(res < bytesLeftToRead) {
-    data = &((p_char8) data)[res];
-    bytesLeftToRead -= res;
+  } else if(res == 0) { // Connection is probably closed or eof is reached
+    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
+  }
+  data = &((p_char8) data)[res];
+  bytesLeftToRead -= res;
+  if(res < bytesLeftToRead) {
     return oatpp::async::Action::_REPEAT;
   }
-  bytesLeftToRead -= res;
   return nextAction;
+}
+  
+oatpp::os::io::Library::v_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, os::io::Library::v_size size) {
+  
+  char* buffer = (char*) data;
+  oatpp::os::io::Library::v_size progress = 0;
+  
+  while (progress < size) {
+    
+    auto res = stream->read(&buffer[progress], size - progress);
+    
+    if(res > 0) {
+      progress += res;
+    } else { // if res == 0 then probably stream handles read() error incorrectly. return.
+      if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+        continue;
+      }
+      return progress;
+    }
+    
+  }
+  
+  return progress;
+  
 }
   
 oatpp::os::io::Library::v_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, os::io::Library::v_size size) {

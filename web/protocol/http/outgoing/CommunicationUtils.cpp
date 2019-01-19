@@ -31,33 +31,46 @@ bool CommunicationUtils::headerEqualsCI_FAST(const oatpp::data::share::MemoryLab
   return size == headerValue.getSize() && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), value, size);
 }
   
-bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                                     const std::shared_ptr<protocol::http::outgoing::Response>& response){
+v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
+                                                    const std::shared_ptr<protocol::http::outgoing::Response>& response){
+  
+  auto outState = response->getHeaders().find(Header::CONNECTION);
+  if(outState != response->getHeaders().end() && headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_UPGRADE)) {
+    return CONNECTION_STATE_UPGRADE;
+  }
   
   if(request) {
-    
     /* Set keep-alive to value specified in the client's request, if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
-    auto it = request->headers.find(Header::CONNECTION);
-    if(it != request->headers.end() && headerEqualsCI_FAST(it->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
-      if(response->putHeaderIfNotExists(Header::CONNECTION, it->second)){
-        return true;
+    auto it = request->getHeaders().find(Header::CONNECTION);
+    if(it != request->getHeaders().end() && headerEqualsCI_FAST(it->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+      if(outState != response->getHeaders().end()) {
+        if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+          return CONNECTION_STATE_KEEP_ALIVE;
+        } else {
+          return CONNECTION_STATE_CLOSE;
+        }
       } else {
-        auto outKeepAlive = response->getHeaders().find(Header::CONNECTION);
-        return (outKeepAlive != response->getHeaders().end() && headerEqualsCI_FAST(outKeepAlive->second, Header::Value::CONNECTION_KEEP_ALIVE));
+        response->putHeader(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
+        return CONNECTION_STATE_KEEP_ALIVE;
       }
     }
     
     /* If protocol == HTTP/1.1 */
     /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
-    auto& protocol = request->startingLine.protocol;
+    auto& protocol = request->getStartingLine().protocol;
     if(protocol.getData() != nullptr && headerEqualsCI_FAST(protocol, "HTTP/1.1")) {
-      if(!response->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE)) {
-        auto outKeepAlive = response->getHeaders().find(Header::CONNECTION);
-        return (outKeepAlive != response->getHeaders().end() && headerEqualsCI_FAST(outKeepAlive->second, Header::Value::CONNECTION_KEEP_ALIVE));
+      if(outState != response->getHeaders().end()) {
+        if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+          return CONNECTION_STATE_KEEP_ALIVE;
+        } else {
+          return CONNECTION_STATE_CLOSE;
+        }
+      } else {
+        response->putHeader(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
+        return CONNECTION_STATE_KEEP_ALIVE;
       }
-      return true;
     }
     
   }
@@ -65,12 +78,18 @@ bool CommunicationUtils::considerConnectionKeepAlive(const std::shared_ptr<proto
   /* If protocol != HTTP/1.1 */
   /* Set default Connection header value (Close), if no Connection header present in response. */
   /* Set keep-alive to value specified in response otherwise */
-  if(!response->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_CLOSE)) {
-    auto outKeepAlive = response->getHeaders().find(Header::CONNECTION);
-    return (outKeepAlive != response->getHeaders().end() && headerEqualsCI_FAST(outKeepAlive->second, Header::Value::CONNECTION_KEEP_ALIVE));
+  if(outState != response->getHeaders().end()) {
+    if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+      return CONNECTION_STATE_KEEP_ALIVE;
+    } else {
+      return CONNECTION_STATE_CLOSE;
+    }
+  } else {
+    response->putHeader(Header::CONNECTION, Header::Value::CONNECTION_CLOSE);
+    return CONNECTION_STATE_CLOSE;
   }
   
-  return false;
+  return CONNECTION_STATE_CLOSE;
   
 }
   
