@@ -9,6 +9,8 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
 
+message("oatpp version: '${oatpp_VERSION}'")
+
 add_subdirectory(src)
 
 if(OATPP_BUILD_TESTS)
