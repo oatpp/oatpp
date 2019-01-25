@@ -184,7 +184,6 @@ set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
-        VERSION ${oatpp_VERSION}
 )
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
@@ -195,7 +194,6 @@ target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
 target_include_directories(oatpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 #######################################################################################################
@@ -211,14 +209,12 @@ set_target_properties(oatpp-test PROPERTIES
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
-        VERSION ${oatpp_VERSION}
 )
 
 target_link_libraries(oatpp-test PUBLIC oatpp)
 
 target_include_directories(oatpp-test PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 add_dependencies(oatpp-test oatpp)
@@ -227,78 +223,5 @@ add_dependencies(oatpp-test oatpp)
 ## INSTALL TARGETS
 
 if(OATPP_INSTALL)
-
-    #######################################################################################
-    ## Set module properties
-    ## all oatpp modules should have the same installation procedure
-    ##
-    ## installation tree:
-    ##
-    ## prefix/
-    ##  |
-    ##  |- include/<module-name>-<version>/<module-name>
-    ##   - lib/
-    ##       |
-    ##       |- cmake/<module-name>-<version>/
-    ##       |    |
-    ##       |    |- <module-name>Config.cmake
-    ##       |     - <module-name>ConfigVersion.cmake
-    ##       |
-    ##       |- <module-name>-<version>/
-    ##            |
-    ##            |- lib1.a
-    ##            |- lib2.a
-    ##             - ...
-    ##
-    ######################################################################################
-
-    set(OATPP_MODULE_NAME "oatpp" CACHE STRING "oatpp module name")
-    set(OATPP_MODULE_VERSION "${oatpp_VERSION}" CACHE STRING "oatpp module version")
-    set(OATPP_MODULE_LIBRARIES
-            "oatpp;oatpp-test" ## list libraries to find when find_package is called
-            CACHE INTERNAL "oatpp module libraries"
-    )
-
-    #######################################################################################
-
-    include(GNUInstallDirs)
-
-    install(TARGETS oatpp oatpp-test
-            EXPORT "${OATPP_MODULE_NAME}Targets"
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/oatpp-${OATPP_MODULE_VERSION}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/oatpp-${OATPP_MODULE_VERSION}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/oatpp-${OATPP_MODULE_VERSION}
-    )
-
-    install(DIRECTORY oatpp oatpp-test
-            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/oatpp-${OATPP_MODULE_VERSION}/${OATPP_MODULE_NAME}
-            FILES_MATCHING PATTERN "*.hpp"
-    )
-
-    install(EXPORT "${OATPP_MODULE_NAME}Targets"
-            FILE "${OATPP_MODULE_NAME}Targets.cmake"
-            NAMESPACE oatpp::
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/oatpp-${OATPP_MODULE_VERSION}
-    )
-
-    include(CMakePackageConfigHelpers)
-
-    write_basic_package_version_file("${OATPP_MODULE_NAME}ConfigVersion.cmake"
-            VERSION ${OATPP_MODULE_VERSION}
-            COMPATIBILITY ExactVersion ## Use exact version matching.
-    )
-
-    ## Take package.cmake.in file in this direcory as a template
-
-    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/package.cmake.in
-            "${OATPP_MODULE_NAME}Config.cmake"
-            INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/oatpp-${OATPP_MODULE_VERSION}"
-            PATH_VARS OATPP_MODULE_NAME OATPP_MODULE_VERSION OATPP_MODULE_LIBRARIES
-            NO_CHECK_REQUIRED_COMPONENTS_MACRO
-    )
-
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${OATPP_MODULE_NAME}Config.cmake" "${CMAKE_CURRENT_BINARY_DIR}/${OATPP_MODULE_NAME}ConfigVersion.cmake"
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/oatpp-${OATPP_MODULE_VERSION}"
-    )
-
+    include("module-install.cmake")
 endif()

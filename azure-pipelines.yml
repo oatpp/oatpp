@@ -12,20 +12,15 @@ jobs:
   workspace:
     clean: all
   steps:
-    - script: |
-        mkdir oatpp
-        mv `ls -A | grep -v oatpp` ./oatpp/
     - task: CMake@1
     - script: |
         cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON
         make
       displayName: 'CMake'
-      workingDirectory: oatpp
 
     - script: |
         make test ARGS="-V"
       displayName: 'Test'
-      workingDirectory: oatpp
 
 - job: macOS
   displayName: 'Build - macOS-10.13'
@@ -35,18 +30,12 @@ jobs:
   workspace:
     clean: all
   steps:
-    - script: |
-        mkdir oatpp
-        mv `ls -A | grep -v oatpp` ./oatpp/
     - task: CMake@1
     - script: |
         cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON
         make
       displayName: 'CMake'
-      workingDirectory: oatpp
 
     - script: |
         make test ARGS="-V"
       displayName: 'Test'
-      workingDirectory: oatpp
-
