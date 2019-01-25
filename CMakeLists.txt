@@ -29,3 +29,7 @@ if(OATPP_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+if(OATPP_INSTALL)
+    include("cmake/module-install.cmake")
+endif()

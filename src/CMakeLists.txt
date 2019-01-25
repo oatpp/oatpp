@@ -218,10 +218,3 @@ target_include_directories(oatpp-test PUBLIC
 )
 
 add_dependencies(oatpp-test oatpp)
-
-#######################################################################################################
-## INSTALL TARGETS
-
-if(OATPP_INSTALL)
-    include("module-install.cmake")
-endif()

@@ -45,6 +45,14 @@ set(OATPP_MODULE_LIBRARIES
 )
 
 #######################################################################################
+## calc directories to install (relative to this script)
+## dirs should be in ( relative ../src/<dirs>)
+
+foreach(CURR_DIR ${OATPP_THIS_MODULE_DIRECTORIES})
+    list(APPEND OATPP_DIRS_TO_INSTALL ${CMAKE_CURRENT_LIST_DIR}/../src/${CURR_DIR})
+endforeach()
+
+#######################################################################################
 
 include(GNUInstallDirs)
 
@@ -56,7 +64,7 @@ install(TARGETS ${OATPP_THIS_MODULE_TARGETS}
         INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/oatpp-${OATPP_MODULE_VERSION}/${OATPP_MODULE_NAME}"
 )
 
-install(DIRECTORY ${OATPP_THIS_MODULE_DIRECTORIES}
+install(DIRECTORY ${OATPP_DIRS_TO_INSTALL}
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/oatpp-${OATPP_MODULE_VERSION}/${OATPP_MODULE_NAME}"
         FILES_MATCHING PATTERN "*.hpp"
 )
@@ -77,7 +85,7 @@ write_basic_package_version_file("${OATPP_MODULE_NAME}ConfigVersion.cmake"
 ## Take module-config.cmake.in file in this direcory as a template
 
 configure_package_config_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/module-config.cmake.in"
+            "${CMAKE_CURRENT_LIST_DIR}/module-config.cmake.in"
             "${OATPP_MODULE_NAME}Config.cmake"
         INSTALL_DESTINATION
             "${CMAKE_INSTALL_LIBDIR}/cmake/${OATPP_MODULE_NAME}-${OATPP_MODULE_VERSION}"
