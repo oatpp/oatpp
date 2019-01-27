@@ -1,18 +1,16 @@
 path_classifiers:
   generated:
-    - exclude: "oatpp/*" # don't tag oatpp sources as generated
+    - exclude: "src/*"  # don't tag oatpp sources as generated
   library:
-    - exclude: "oatpp/*" # don't tag oatpp sources as library
+    - exclude: "src/*"  # don't tag oatpp sources as library
   template:
-    - exclude: "oatpp/*" # don't tag oatpp sources as template
+    - exclude: "src/*"  # don't tag oatpp sources as template
   test: 
-    - exclude: "oatpp/*" # don't tag oatpp sources as test
-    - oatpp/test         # tag test folder only as test
+    - exclude: "src/*"  # don't tag oatpp sources as test
+    - test              # tag test folder only as test
   docs:
     - README.md
     - LICENSE.txt
 extraction:
   cpp:
-    after_prepare:    
-      - mkdir oatpp # oatpp must be stored in the "oatpp" dir name.
-      - mv `ls -A | grep -v oatpp` ./oatpp/
+
