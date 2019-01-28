@@ -37,12 +37,15 @@ message("\n#####################################################################
 ## Set cache variables to configure module-config.cmake.in template
 ## via call to configure_package_config_file
 
+include(GNUInstallDirs)
+
 set(OATPP_MODULE_NAME ${OATPP_THIS_MODULE_NAME} CACHE STRING "oatpp module name")
 set(OATPP_MODULE_VERSION "${OATPP_THIS_MODULE_VERSION}" CACHE STRING "oatpp module version")
 set(OATPP_MODULE_LIBRARIES
         "${OATPP_THIS_MODULE_LIBRARIES}" ## list libraries to find when find_package is called
         CACHE INTERNAL "oatpp module libraries"
 )
+set(OATPP_MODULE_LIBDIR ${CMAKE_INSTALL_LIBDIR} CACHE STRING "lib folder name")
 
 #######################################################################################
 ## calc directories to install (relative to this script)
@@ -53,8 +56,6 @@ foreach(CURR_DIR ${OATPP_THIS_MODULE_DIRECTORIES})
 endforeach()
 
 #######################################################################################
-
-include(GNUInstallDirs)
 
 install(TARGETS ${OATPP_THIS_MODULE_TARGETS}
         EXPORT "${OATPP_MODULE_NAME}Targets"
@@ -93,6 +94,7 @@ configure_package_config_file(
             OATPP_MODULE_NAME
             OATPP_MODULE_VERSION
             OATPP_MODULE_LIBRARIES
+            OATPP_MODULE_LIBDIR
         NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 
