@@ -38,24 +38,19 @@ namespace oatpp { namespace parser {
   const char* const ParsingCaret::ERROR_NAME_EXPECTED = "ERROR_NAME_EXPECTED";
   
   ParsingCaret::ParsingCaret(const char* text)
-    : m_data((p_char8)text)
-    , m_size((v_int32) std::strlen(text))
-    , m_pos(0)
-    , m_error(nullptr)
+    : ParsingCaret((p_char8)text, (v_int32) std::strlen(text))
   {}
   
   ParsingCaret::ParsingCaret(p_char8 parseData, v_int32 dataSize)
     : m_data(parseData)
     , m_size(dataSize)
     , m_pos(0)
-    , m_error(nullptr)
+    , m_errorMessage(nullptr)
+    , m_errorCode(0)
   {}
   
   ParsingCaret::ParsingCaret(const oatpp::String& str)
-    : m_data(str->getData())
-    , m_size(str->getSize())
-    , m_pos(0)
-    , m_error(nullptr)
+    : ParsingCaret(str->getData(), str->getSize())
   {}
   
   std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const char* text){
@@ -93,20 +88,26 @@ namespace oatpp { namespace parser {
     return m_pos;
   }
   
-  void ParsingCaret::setError(const char* error){
-    m_error = error;
+  void ParsingCaret::setError(const char* errorMessage, v_int32 errorCode){
+    m_errorMessage = errorMessage;
+    m_errorCode = errorCode;
   }
   
-  const char* ParsingCaret::getError(){
-    return m_error;
+  const char* ParsingCaret::getErrorMessage() {
+    return m_errorMessage;
+  }
+
+  v_int32 ParsingCaret::getErrorCode() {
+    return m_errorCode;
   }
   
   bool ParsingCaret::hasError(){
-    return m_error != nullptr;
+    return m_errorMessage != nullptr;
   }
   
   void ParsingCaret::clearError(){
-    m_error = nullptr;
+    m_errorMessage = nullptr;
+    m_errorCode = 0;
   }
   
   void ParsingCaret::inc(){
@@ -257,13 +258,13 @@ namespace oatpp { namespace parser {
     if(negative){
       
       if(!allowNegative){
-        m_error = ERROR_INVALID_INTEGER;
+        m_errorMessage = ERROR_INVALID_INTEGER;
         return 0;
       }
       
       inc();
       if(findNotSpaceChar() == false){
-        m_error = ERROR_INVALID_INTEGER;
+        m_errorMessage = ERROR_INVALID_INTEGER;
         return 0;
       }
     }
@@ -288,7 +289,7 @@ namespace oatpp { namespace parser {
       return result;
       
     }else{
-      m_error = ERROR_INVALID_INTEGER;
+      m_errorMessage = ERROR_INVALID_INTEGER;
       return 0;
     }
     
@@ -299,7 +300,7 @@ namespace oatpp { namespace parser {
     char* start = (char*)&m_data[m_pos];
     v_int32 result = (v_float32) std::strtol(start, &end, 10);
     if(start == end){
-      m_error = ERROR_INVALID_INTEGER;
+      m_errorMessage = ERROR_INVALID_INTEGER;
     }
     m_pos = (v_int32)((v_int64) end - (v_int64) m_data);
     return result;
@@ -310,7 +311,7 @@ namespace oatpp { namespace parser {
     char* start = (char*)&m_data[m_pos];
     v_int64 result = std::strtol(start, &end, 10);
     if(start == end){
-      m_error = ERROR_INVALID_INTEGER;
+      m_errorMessage = ERROR_INVALID_INTEGER;
     }
     m_pos = (v_int32)((v_int64) end - (v_int64) m_data);
     return result;
@@ -321,7 +322,7 @@ namespace oatpp { namespace parser {
     char* start = (char*)&m_data[m_pos];
     v_float32 result = std::strtof(start , &end);
     if(start == end){
-      m_error = ERROR_INVALID_FLOAT;
+      m_errorMessage = ERROR_INVALID_FLOAT;
     }
     m_pos = (v_int32)((v_int64) end - (v_int64) m_data);
     return result;
@@ -332,7 +333,7 @@ namespace oatpp { namespace parser {
     char* start = (char*)&m_data[m_pos];
     v_float64 result = std::strtod(start , &end);
     if(start == end){
-      m_error = ERROR_INVALID_FLOAT;
+      m_errorMessage = ERROR_INVALID_FLOAT;
     }
     m_pos = (v_int32)((v_int64) end - (v_int64) m_data);
     return result;
@@ -464,10 +465,10 @@ namespace oatpp { namespace parser {
         m_pos++;
       }
       
-      m_error = ERROR_NO_CLOSE_TAG;
+      m_errorMessage = ERROR_NO_CLOSE_TAG;
       
     }else{
-      m_error = ERROR_NO_OPEN_TAG;
+      m_errorMessage = ERROR_NO_OPEN_TAG;
     }
     
     return nullptr;
@@ -491,7 +492,7 @@ namespace oatpp { namespace parser {
         if(ipos < m_pos){
           return oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
         }else{
-          m_error = ERROR_NAME_EXPECTED;
+          m_errorMessage = ERROR_NAME_EXPECTED;
           return nullptr;
         }
         
@@ -502,7 +503,7 @@ namespace oatpp { namespace parser {
     if(ipos < m_pos){
       return oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
     }else{
-      m_error = ERROR_NAME_EXPECTED;
+      m_errorMessage = ERROR_NAME_EXPECTED;
       return nullptr;
     }
     
@@ -566,12 +567,12 @@ namespace oatpp { namespace parser {
   }
   
   bool ParsingCaret::canContinueAtChar(v_char8 c) const{
-    return m_pos < m_size && m_error == 0 && m_data[m_pos] == c;
+    return m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c;
   }
   
   bool ParsingCaret::canContinueAtChar(v_char8 c, v_int32 skipChars){
     
-    if(m_pos < m_size && m_error == 0 && m_data[m_pos] == c){
+    if(m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c){
       m_pos = m_pos + skipChars;
       return true;
     }
@@ -579,7 +580,7 @@ namespace oatpp { namespace parser {
   }
   
   bool ParsingCaret::canContinue() const{
-    return m_pos < m_size && m_error == 0;
+    return m_pos < m_size && m_errorMessage == nullptr;
   }
   
   bool ParsingCaret::isEnd() const{

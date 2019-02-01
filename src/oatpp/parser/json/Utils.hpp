@@ -34,10 +34,38 @@ namespace oatpp { namespace parser { namespace json{
   
 class Utils {
 public:
+
+  /**
+   * ERROR_INVALID_ESCAPED_CHAR = "ERROR_INVALID_ESCAPED_CHAR"
+   */
   static const char* const ERROR_INVALID_ESCAPED_CHAR;
+
+  /**
+   * ERROR_INVALID_SURROGATE_PAIR = "ERROR_INVALID_SURROGATE_PAIR"
+   */
   static const char* const ERROR_INVALID_SURROGATE_PAIR;
-  
+
+  /**
+   * ERROR_PARSER_QUOTE_EXPECTED = "'\"' - EXPECTED"
+   */
   static const char* const ERROR_PARSER_QUOTE_EXPECTED;
+
+  /**
+   * ERROR_CODE_INVALID_ESCAPED_CHAR = 1
+   */
+  static constexpr v_int32 ERROR_CODE_INVALID_ESCAPED_CHAR = 1;
+
+  /**
+   * ERROR_CODE_INVALID_SURROGATE_PAIR = 2
+   */
+  static constexpr v_int32 ERROR_CODE_INVALID_SURROGATE_PAIR = 2;
+
+  /**
+   * "'\"' - EXPECTED"
+   * ERROR_CODE_PARSER_QUOTE_EXPECTED = 3
+   */
+  static constexpr v_int32 ERROR_CODE_PARSER_QUOTE_EXPECTED = 3;
+
 public:
   typedef oatpp::String String;
   typedef oatpp::parser::ParsingCaret ParsingCaret;

@@ -179,7 +179,10 @@ add_library(oatpp
         oatpp/web/url/mapping/Router.hpp
         oatpp/web/url/mapping/Subscriber.cpp
         oatpp/web/url/mapping/Subscriber.hpp
+        oatpp/core/parser/ParsingError.cpp
+        oatpp/core/parser/ParsingError.hpp
 )
+
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF

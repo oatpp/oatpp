@@ -72,14 +72,39 @@ public:
     bool allowUnknownFields = true;
     
   };
-  
+
 public:
-  static const char* const ERROR_PARSER_OBJECT_SCOPE_OPEN;
-  static const char* const ERROR_PARSER_OBJECT_SCOPE_CLOSE;
-  static const char* const ERROR_PARSER_OBJECT_SCOPE_UNKNOWN_FIELD;
-  static const char* const ERROR_PARSER_OBJECT_SCOPE_COLON_MISSING;
-  static const char* const ERROR_PARSER_ARRAY_SCOPE_OPEN;
-  static const char* const ERROR_PARSER_ARRAY_SCOPE_CLOSE;
+
+  /**
+   * "'{' - expected"
+   */
+  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_OPEN = 1;
+
+  /**
+   * "'}' - expected"
+   */
+  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_CLOSE = 2;
+
+  /**
+   * "Unknown field"
+   */
+  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD = 3;
+
+  /**
+   * "':' - expected"
+   */
+  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_COLON_MISSING = 4;
+
+  /**
+   * "'[' - expected"
+   */
+  static constexpr v_int32 ERROR_CODE_ARRAY_SCOPE_OPEN = 5;
+
+  /**
+   * "']' - expected"
+   */
+  static constexpr v_int32 ERROR_CODE_ARRAY_SCOPE_CLOSE = 6;
+
 private:
   
   static void skipScope(oatpp::parser::ParsingCaret& caret, v_char8 charOpen, v_char8 charClose);
