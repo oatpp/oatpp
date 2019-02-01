@@ -37,7 +37,13 @@ typedef oatpp::data::mapping::type::Object DTO;
 typedef oatpp::parser::ParsingCaret ParsingCaret;
 typedef oatpp::parser::json::mapping::Serializer Serializer;
 typedef oatpp::parser::json::mapping::Deserializer Deserializer;
-  
+
+class EmptyDto : public DTO {
+
+  DTO_INIT(EmptyDto, DTO)
+
+};
+
 class Test1 : public DTO {
   
   DTO_INIT(Test1, DTO)
@@ -60,6 +66,16 @@ class Test3 : public DTO {
   
   DTO_FIELD(Float32, float32F);
   
+};
+
+class Test4 : public DTO {
+
+  DTO_INIT(Test4, DTO)
+
+  DTO_FIELD(EmptyDto::ObjectWrapper, object);
+  DTO_FIELD(List<EmptyDto::ObjectWrapper>::ObjectWrapper, list);
+  DTO_FIELD(Fields<EmptyDto::ObjectWrapper>::ObjectWrapper, map);
+
 };
   
 #include OATPP_CODEGEN_END(DTO)
@@ -143,6 +159,22 @@ bool DeserializerTest::onRun(){
   OATPP_ASSERT(list->get(0)->getValue() == 1);
   OATPP_ASSERT(list->get(1)->getValue() == 2);
   OATPP_ASSERT(list->get(2)->getValue() == 3);
+
+  // Empty test
+
+  auto obj4 = mapper->readFromString<Test4>("{\"object\": {}, \"list\": [], \"map\": {}}");
+  OATPP_ASSERT(obj4);
+  OATPP_ASSERT(obj4->object);
+  OATPP_ASSERT(obj4->list);
+  OATPP_ASSERT(obj4->list->count() == 0);
+  OATPP_ASSERT(obj4->map->count() == 0);
+
+  obj4 = mapper->readFromString<Test4>("{\"object\": {\n\r\t}, \"list\": [\n\r\t], \"map\": {\n\r\t}}");
+  OATPP_ASSERT(obj4);
+  OATPP_ASSERT(obj4->object);
+  OATPP_ASSERT(obj4->list);
+  OATPP_ASSERT(obj4->list->count() == 0);
+  OATPP_ASSERT(obj4->map->count() == 0);
   
   return true;
 }

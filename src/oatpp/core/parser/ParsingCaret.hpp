@@ -97,7 +97,8 @@ private:
   p_char8		m_data;
   v_int32		m_size;
   v_int32		m_pos;
-  const char* m_error;
+  const char* m_errorMessage;
+  v_int32   m_errorCode; // optional
 public:
   ParsingCaret(const char* text);
   ParsingCaret(p_char8 parseData, v_int32 dataSize);
@@ -117,8 +118,10 @@ public:
   void setPosition(v_int32 position);
   v_int32 getPosition();
 
-  void setError(const char* error);
-  const char* getError();
+  void setError(const char* errorMessage, v_int32 errorCode = 0);
+
+  const char* getErrorMessage();
+  v_int32 getErrorCode();
   bool hasError();
   void clearError();
   

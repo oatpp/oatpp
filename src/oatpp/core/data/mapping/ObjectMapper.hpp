@@ -33,6 +33,7 @@
 #include "oatpp/core/data/stream/Stream.hpp"
 
 #include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/parser/ParsingError.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
   
@@ -68,18 +69,34 @@ public:
     write(stream, variant);
     return stream->toString();
   }
-  
+
+  /**
+   * If nullptr is returned - check caret.getError()
+   * @tparam Class
+   * @param caret
+   * @return
+   */
   template<class Class>
   typename Class::ObjectWrapper readFromCaret(oatpp::parser::ParsingCaret& caret) const {
     auto type = Class::ObjectWrapper::Class::getType();
     return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
   }
-  
+
+  /**
+   * This method will throw on error
+   * @tparam Class
+   * @param str
+   * @return
+   */
   template<class Class>
   typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {
     auto type = Class::ObjectWrapper::Class::getType();
     oatpp::parser::ParsingCaret caret(str);
-    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
+    auto result = oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
+    if(!result) {
+      throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
+    }
+    return result;
   }
   
 };

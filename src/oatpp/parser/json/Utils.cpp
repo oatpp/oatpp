@@ -28,7 +28,7 @@
 #include "oatpp/encoding/Hex.hpp"
 
 namespace oatpp { namespace parser { namespace json{
-  
+
 const char* const Utils::ERROR_INVALID_ESCAPED_CHAR = "ERROR_INVALID_ESCAPED_CHAR";
 const char* const Utils::ERROR_INVALID_SURROGATE_PAIR = "ERROR_INVALID_SURROGATE_PAIR";
 const char* const Utils::ERROR_PARSER_QUOTE_EXPECTED = "'\"' - EXPECTED";
@@ -376,9 +376,9 @@ p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
       }
     }
     caret.setPosition(caret.getSize());
-    caret.setError(ERROR_PARSER_QUOTE_EXPECTED);
+    caret.setError("[oatpp::parser::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
   } else {
-    caret.setError(ERROR_PARSER_QUOTE_EXPECTED);
+    caret.setError("[oatpp::parser::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
   }
   
   return nullptr;
@@ -398,7 +398,7 @@ oatpp::String Utils::parseString(ParsingCaret& caret) {
     v_int32 errorPosition;
     auto result = unescapeString(data, size, error, errorPosition);
     if(error != nullptr){
-      caret.setError(error);
+      caret.setError("[oatpp::parser::json::Utils::parseString()]: Error. Call to unescapeString() failed");
       caret.setPosition(pos + errorPosition);
     } else {
       caret.setPosition(pos + size + 1);
@@ -425,7 +425,7 @@ std::string Utils::parseStringToStdString(ParsingCaret& caret){
     v_int32 errorPosition;
     const std::string& result = unescapeStringToStdString(data, size, error, errorPosition);
     if(error != nullptr){
-      caret.setError(error);
+      caret.setError("[oatpp::parser::json::Utils::parseStringToStdString()]: Error. Call to unescapeStringToStdString() failed");
       caret.setPosition(pos + errorPosition);
     } else {
       caret.setPosition(pos + size + 1);
