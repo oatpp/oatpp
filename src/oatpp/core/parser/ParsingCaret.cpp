@@ -36,6 +36,48 @@ namespace oatpp { namespace parser {
   const char* const ParsingCaret::ERROR_NO_OPEN_TAG = "ERROR_NO_OPEN_TAG";
   const char* const ParsingCaret::ERROR_NO_CLOSE_TAG = "ERROR_NO_CLOSE_TAG";
   const char* const ParsingCaret::ERROR_NAME_EXPECTED = "ERROR_NAME_EXPECTED";
+
+
+  void ParsingCaret::Label::start() {
+    m_start = m_caret->m_pos;
+    m_end = -1;
+  }
+
+  void ParsingCaret::Label::end() {
+    m_end = m_caret->m_pos;
+  }
+
+  p_char8 ParsingCaret::Label::getData(){
+    return &m_caret->m_data[m_start];
+  }
+
+  v_int32 ParsingCaret::Label::getSize(){
+    if(m_end == -1) {
+      return m_caret->m_pos - m_start;
+    }
+    return m_end - m_start;
+  }
+
+  oatpp::String ParsingCaret::Label::toString(bool saveAsOwnData){
+    v_int32 end = m_end;
+    if(end == -1){
+      end = m_caret->m_pos;
+    }
+    return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start, saveAsOwnData);
+  }
+
+  oatpp::String ParsingCaret::Label::toString(){
+    return toString(true);
+  }
+
+  std::string ParsingCaret::Label::std_str(){
+    v_int32 end = m_end;
+    if(end == -1){
+      end = m_caret->m_pos;
+    }
+    return std::string((const char*) (&m_caret->m_data[m_start]), end - m_start);
+  }
+
   
   ParsingCaret::ParsingCaret(const char* text)
     : ParsingCaret((p_char8)text, (v_int32) std::strlen(text))

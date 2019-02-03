@@ -41,57 +41,40 @@ public:
 public:
   class Label {
   private:
-    ParsingCaret& m_caret;
+    ParsingCaret* m_caret;
     v_int32 m_start;
     v_int32 m_end;
   public:
     
     Label(ParsingCaret& caret)
-      : m_caret(caret)
+      : m_caret(&caret)
       , m_start(caret.m_pos)
       , m_end(-1)
     {}
     
-    void start() {
-      m_start = m_caret.m_pos;
-      m_end = -1;
-    }
+    void start();
+    void end();
+    p_char8 getData();
+    v_int32 getSize();
+    oatpp::String toString(bool saveAsOwnData);
+    oatpp::String toString();
+    std::string std_str();
     
-    void end() {
-      m_end = m_caret.m_pos;
+  };
+
+  class PositionSaveGuard {
+  private:
+    ParsingCaret& m_caret;
+    v_int32 m_savedPosition;
+  public:
+    PositionSaveGuard(ParsingCaret& caret)
+      : m_caret(caret)
+      , m_savedPosition(caret.m_pos)
+    {}
+
+    ~PositionSaveGuard() {
+      m_caret.m_pos = m_savedPosition;
     }
-    
-    p_char8 getData(){
-      return &m_caret.m_data[m_start];
-    }
-    
-    v_int32 getSize(){
-      if(m_end == -1) {
-        return m_caret.m_pos - m_start;
-      }
-      return m_end - m_start;
-    }
-    
-    oatpp::String toString(bool saveAsOwnData){
-      v_int32 end = m_end;
-      if(end == -1){
-        end = m_caret.m_pos;
-      }
-      return oatpp::String((const char*)&m_caret.m_data[m_start], end - m_start, saveAsOwnData);
-    }
-    
-    oatpp::String toString(){
-      return toString(true);
-    }
-    
-    std::string std_str(){
-      v_int32 end = m_end;
-      if(end == -1){
-        end = m_caret.m_pos;
-      }
-      return std::string((const char*) (&m_caret.m_data[m_start]), end - m_start);
-    }
-    
   };
 private:
   p_char8		m_data;
