@@ -46,7 +46,7 @@ void HttpConnectionHandler::Task::run(){
     response = HttpProcessor::processRequest(m_router, m_connection, m_bodyDecoder, m_errorHandler, m_requestInterceptors, buffer, bufferSize, inStream, connectionState);
     
     if(response) {
-      outStream->setBufferPosition(0, 0);
+      outStream->setBufferPosition(0, 0, false);
       response->send(outStream);
       outStream->flush();
     } else {

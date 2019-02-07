@@ -31,9 +31,9 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 class SimpleBodyDecoder : public BodyDecoder {
 private:
-  static os::io::Library::v_size readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
+  static data::v_io_size readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                                           p_char8 buffer,
-                                          os::io::Library::v_size maxLineSize);
+                                          data::v_io_size maxLineSize);
   static void doChunkedDecoding(const std::shared_ptr<oatpp::data::stream::InputStream>& from,
                                 const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
   

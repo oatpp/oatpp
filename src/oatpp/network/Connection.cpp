@@ -24,13 +24,14 @@
 
 #include "./Connection.hpp"
 
+#include <unistd.h>
 #include <sys/socket.h>
 #include <thread>
 #include <chrono>
 
 namespace oatpp { namespace network {
 
-Connection::Connection(Library::v_handle handle)
+Connection::Connection(data::v_io_handle handle)
   : m_handle(handle)
 {
 }
@@ -39,17 +40,24 @@ Connection::~Connection(){
   close();
 }
 
-Connection::Library::v_size Connection::write(const void *buff, Library::v_size count){
+data::v_io_size Connection::write(const void *buff, data::v_io_size count){
+
   errno = 0;
-  auto result = Library::handle_write(m_handle, buff, count);
+
+  v_int32 flags = 0;
+#ifdef MSG_NOSIGNAL
+  flags |= MSG_NOSIGNAL;
+#endif
+  auto result = ::send(m_handle, buff, count, flags);
+
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
+      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
-      return oatpp::data::stream::Errors::ERROR_IO_RETRY;
+      return data::IOError::RETRY;
     } else if(e == EPIPE) {
-      return oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      return data::IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
     }
@@ -57,17 +65,17 @@ Connection::Library::v_size Connection::write(const void *buff, Library::v_size 
   return result;
 }
 
-Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
+data::v_io_size Connection::read(void *buff, data::v_io_size count){
   errno = 0;
-  auto result = Library::handle_read(m_handle, buff, count);
+  auto result = ::read(m_handle, buff, count);
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY; // For async io. In case socket is non_blocking
+      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
-      return oatpp::data::stream::Errors::ERROR_IO_RETRY;
+      return data::IOError::RETRY;
     } else if(e == ECONNRESET) {
-      return oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      return data::IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
     }
@@ -76,7 +84,7 @@ Connection::Library::v_size Connection::read(void *buff, Library::v_size count){
 }
 
 void Connection::close(){
-  Library::handle_close(m_handle);
+  ::close(m_handle);
 }
 
 }}

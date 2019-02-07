@@ -31,12 +31,12 @@ namespace oatpp { namespace data{ namespace stream {
   
 class WriterDelegate {
 public:
-  virtual os::io::Library::v_size writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
+  virtual data::v_io_size writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
 };
   
 class ReaderDelegate {
 public:
-  virtual os::io::Library::v_size readFromStream(const std::shared_ptr<InputStream>& stream) = 0;
+  virtual data::v_io_size readFromStream(const std::shared_ptr<InputStream>& stream) = 0;
 };
   
 }}}

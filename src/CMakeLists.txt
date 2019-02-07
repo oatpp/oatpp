@@ -46,6 +46,7 @@ add_library(oatpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
         oatpp/core/concurrency/Thread.hpp
+        oatpp/core/data/IODefinitions.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp
         oatpp/core/data/buffer/FIFOBuffer.hpp
         oatpp/core/data/buffer/IOBuffer.cpp
@@ -75,8 +76,6 @@ add_library(oatpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp
-        oatpp/core/os/io/Library.cpp
-        oatpp/core/os/io/Library.hpp
         oatpp/core/parser/ParsingCaret.cpp
         oatpp/core/parser/ParsingCaret.hpp
         oatpp/core/utils/ConversionUtils.cpp

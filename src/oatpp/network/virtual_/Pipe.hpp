@@ -26,7 +26,9 @@
 #define oatpp_network_virtual__Pipe_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
+
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
@@ -46,7 +48,7 @@ public:
     /**
      * this one used for testing purposes only
      */
-    os::io::Library::v_size m_maxAvailableToRead;
+    data::v_io_size m_maxAvailableToRead;
   public:
     
     Reader(Pipe* pipe, bool nonBlocking = false)
@@ -63,9 +65,9 @@ public:
      * this one used for testing purposes only
      * set to -1 in order to ignore this value
      */
-    void setMaxAvailableToRead(os::io::Library::v_size maxAvailableToRead);
+    void setMaxAvailableToRead(data::v_io_size maxAvailableToRead);
     
-    os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
+    data::v_io_size read(void *data, data::v_io_size count) override;
     
   };
   
@@ -77,7 +79,7 @@ public:
     /**
      * this one used for testing purposes only
      */
-    os::io::Library::v_size m_maxAvailableToWrtie;
+    data::v_io_size m_maxAvailableToWrtie;
   public:
     
     Writer(Pipe* pipe, bool nonBlocking = false)
@@ -94,9 +96,9 @@ public:
      * this one used for testing purposes only
      * set to -1 in order to ignore this value
      */
-    void setMaxAvailableToWrite(os::io::Library::v_size maxAvailableToWrite);
+    void setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite);
     
-    os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
+    data::v_io_size write(const void *data, data::v_io_size count) override;
     
   };
   
@@ -104,7 +106,10 @@ private:
   bool m_open;
   Writer m_writer;
   Reader m_reader;
-  oatpp::data::buffer::FIFOBuffer m_buffer;
+
+  oatpp::data::buffer::IOBuffer m_buffer;
+  oatpp::data::buffer::SynchronizedFIFOBuffer m_fifo;
+
   std::mutex m_mutex;
   std::condition_variable m_conditionRead;
   std::condition_variable m_conditionWrite;
@@ -114,6 +119,8 @@ public:
     : m_open(true)
     , m_writer(this)
     , m_reader(this)
+    , m_buffer()
+    , m_fifo(m_buffer.getData(), m_buffer.getSize())
   {}
   
   static std::shared_ptr<Pipe> createShared(){

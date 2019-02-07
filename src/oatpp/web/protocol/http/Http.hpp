@@ -188,16 +188,16 @@ private:
 public:
   
   Range(const oatpp::String& pUnits,
-        const oatpp::os::io::Library::v_size& pStart,
-        const oatpp::os::io::Library::v_size& pEnd)
+        const oatpp::data::v_io_size& pStart,
+        const oatpp::data::v_io_size& pEnd)
     : units(pUnits)
     , start(pStart)
     , end(pEnd)
   {}
   
   oatpp::String units;
-  oatpp::os::io::Library::v_size start;
-  oatpp::os::io::Library::v_size end;
+  oatpp::data::v_io_size start;
+  oatpp::data::v_io_size end;
   
   oatpp::String toString() const;
   
@@ -220,9 +220,9 @@ private:
 public:
   
   ContentRange(const oatpp::String& pUnits,
-               const oatpp::os::io::Library::v_size& pStart,
-               const oatpp::os::io::Library::v_size& pEnd,
-               const oatpp::os::io::Library::v_size& pSize,
+               const oatpp::data::v_io_size& pStart,
+               const oatpp::data::v_io_size& pEnd,
+               const oatpp::data::v_io_size& pSize,
                bool pIsSizeKnown)
     : units(pUnits)
     , start(pStart)
@@ -232,9 +232,9 @@ public:
   {}
   
   oatpp::String units;
-  oatpp::os::io::Library::v_size start;
-  oatpp::os::io::Library::v_size end;
-  oatpp::os::io::Library::v_size size;
+  oatpp::data::v_io_size start;
+  oatpp::data::v_io_size end;
+  oatpp::data::v_io_size size;
   bool isSizeKnown;
   
   oatpp::String toString() const;

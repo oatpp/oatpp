@@ -39,7 +39,7 @@ private:
   static constexpr const char* TAG = "test::web::app::ControllerAsync";
 public:
   ControllerAsync(const std::shared_ptr<ObjectMapper>& objectMapper)
-  : oatpp::web::server::api::ApiController(objectMapper)
+    : oatpp::web::server::api::ApiController(objectMapper)
   {}
 public:
   
@@ -104,6 +104,22 @@ public:
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
     }
     
+  };
+
+  ENDPOINT_ASYNC("POST", "echo", Echo) {
+
+    ENDPOINT_ASYNC_INIT(Echo)
+
+    Action act() {
+      OATPP_LOGD(TAG, "POST body(echo). Reading body...");
+      return request->readBodyToStringAsync(this, &Echo::onBodyRead);
+    }
+
+    Action onBodyRead(const String& body) {
+      OATPP_LOGD(TAG, "POST echo size=%d", body->getSize());
+      return _return(controller->createResponse(Status::CODE_200, body));
+    }
+
   };
   
 #include OATPP_CODEGEN_END(ApiController)

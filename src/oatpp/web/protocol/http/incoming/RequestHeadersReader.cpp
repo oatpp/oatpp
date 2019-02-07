@@ -28,14 +28,14 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-os::io::Library::v_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                                  oatpp::data::stream::OutputStream* bufferStream,
                                                                  Result& result) {
   
   v_word32 sectionEnd = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
   v_word32 accumulator = 0;
   v_int32 progress = 0;
-  os::io::Library::v_size res;
+  data::v_io_size res;
   while (true) {
     
     v_int32 desiredToRead = m_bufferSize;
@@ -60,7 +60,7 @@ os::io::Library::v_size RequestHeadersReader::readHeadersSection(const std::shar
         }
       }
       
-    } else if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+    } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
       continue;
     } else {
       break;
@@ -148,7 +148,7 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
         
         return waitRetry();
         
-      } else if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+      } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
         return waitRetry();
       } else {
         return abort();

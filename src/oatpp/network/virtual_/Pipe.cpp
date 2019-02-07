@@ -26,37 +26,37 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
   
-void Pipe::Reader::setMaxAvailableToRead(os::io::Library::v_size maxAvailableToRead) {
+void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
   
-os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size count) {
+data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   
   if(m_maxAvailableToRead > -1 && count > m_maxAvailableToRead) {
     count = m_maxAvailableToRead;
   }
   
   Pipe& pipe = *m_pipe;
-  oatpp::os::io::Library::v_size result;
+  oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
-    if(pipe.m_buffer.availableToRead() > 0) {
-      result = pipe.m_buffer.read(data, count);
+    if(pipe.m_fifo.availableToRead() > 0) {
+      result = pipe.m_fifo.read(data, count);
     } else if(pipe.m_open) {
-      result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
+      result = data::IOError::WAIT_RETRY;
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
-    while (pipe.m_buffer.availableToRead() == 0 && pipe.m_open) {
+    while (pipe.m_fifo.availableToRead() == 0 && pipe.m_open) {
       pipe.m_conditionWrite.notify_one();
       pipe.m_conditionRead.wait(lock);
     }
-    if (pipe.m_buffer.availableToRead() > 0) {
-      result = pipe.m_buffer.read(data, count);
+    if (pipe.m_fifo.availableToRead() > 0) {
+      result = pipe.m_fifo.read(data, count);
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   }
   
@@ -66,37 +66,37 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
   
 }
 
-void Pipe::Writer::setMaxAvailableToWrite(os::io::Library::v_size maxAvailableToWrite) {
+void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
   m_maxAvailableToWrtie = maxAvailableToWrite;
 }
   
-os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v_size count) {
+data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   
   if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
     count = m_maxAvailableToWrtie;
   }
   
   Pipe& pipe = *m_pipe;
-  oatpp::os::io::Library::v_size result;
+  oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
-    if(pipe.m_buffer.availableToWrite() > 0) {
-      result = pipe.m_buffer.write(data, count);
+    if(pipe.m_fifo.availableToWrite() > 0) {
+      result = pipe.m_fifo.write(data, count);
     } else if(pipe.m_open) {
-      result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
+      result = data::IOError::WAIT_RETRY;
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
-    while (pipe.m_buffer.availableToWrite() == 0 && pipe.m_open) {
+    while (pipe.m_fifo.availableToWrite() == 0 && pipe.m_open) {
       pipe.m_conditionRead.notify_one();
       pipe.m_conditionWrite.wait(lock);
     }
-    if (pipe.m_open && pipe.m_buffer.availableToWrite() > 0) {
-      result = pipe.m_buffer.write(data, count);
+    if (pipe.m_open && pipe.m_fifo.availableToWrite() > 0) {
+      result = pipe.m_fifo.write(data, count);
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   }
   

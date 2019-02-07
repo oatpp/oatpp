@@ -59,7 +59,9 @@ HttpProcessor::processRequest(HttpRouter* router,
   }
   
   auto& bodyStream = inStream;
-  bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
+  bodyStream->setBufferPosition(headersReadResult.bufferPosStart,
+                                headersReadResult.bufferPosEnd,
+                                headersReadResult.bufferPosStart != headersReadResult.bufferPosEnd);
   
   auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                  route.matchMap,
@@ -107,7 +109,9 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
   }
   
   auto& bodyStream = m_inStream;
-  bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
+  bodyStream->setBufferPosition(headersReadResult.bufferPosStart,
+                                headersReadResult.bufferPosEnd,
+                                headersReadResult.bufferPosStart != headersReadResult.bufferPosEnd);
   
   m_currentRequest = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                      m_currentRoute.matchMap,
@@ -149,7 +153,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
-  m_outStream->setBufferPosition(0, 0);
+  m_outStream->setBufferPosition(0, 0, false);
   return m_currentResponse->sendAsync(this,
                                       m_outStream->flushAsync(
                                                               this,

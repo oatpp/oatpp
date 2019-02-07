@@ -33,12 +33,14 @@ namespace oatpp { namespace network { namespace virtual_ { namespace server {
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
-  os::io::Library::v_size m_maxAvailableToRead;
-  os::io::Library::v_size m_maxAvailableToWrite;
+  bool m_nonBlocking;
+  data::v_io_size m_maxAvailableToRead;
+  data::v_io_size m_maxAvailableToWrite;
 public:
   
-  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false)
     : m_interface(interface)
+    , m_nonBlocking(nonBlocking)
     , m_maxAvailableToRead(-1)
     , m_maxAvailableToWrite(-1)
   {
@@ -46,15 +48,15 @@ public:
     setProperty(PROPERTY_PORT, "0");
   }
   
-  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface) {
-    return std::make_shared<ConnectionProvider>(interface);
+  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false) {
+    return std::make_shared<ConnectionProvider>(interface, nonBlocking);
   }
   
   /**
    * this one used for testing purposes only
    * set to -1 in order to ignore this value
    */
-  void setSocketMaxAvailableToReadWrtie(os::io::Library::v_size maxToRead, os::io::Library::v_size maxToWrite) {
+  void setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite) {
     m_maxAvailableToRead = maxToRead;
     m_maxAvailableToWrite = maxToWrite;
   }

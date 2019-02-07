@@ -47,7 +47,7 @@ public:
 public:
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const Result&);
 private:
-  os::io::Library::v_size readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+  data::v_io_size readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                              oatpp::data::stream::OutputStream* bufferStream,
                                              Result& result);
 private:

@@ -33,6 +33,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
+#include <unistd.h>
 
 namespace oatpp { namespace network { namespace server {
 
@@ -44,10 +45,14 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool non
   setProperty(PROPERTY_HOST, "localhost");
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
 }
+
+SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
+  ::close(m_serverHandle);
+}
   
-oatpp::os::io::Library::v_handle SimpleTCPConnectionProvider::instantiateServer(){
+oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   
-  oatpp::os::io::Library::v_handle serverHandle;
+  oatpp::data::v_io_handle serverHandle;
   v_int32 ret;
   int yes = 1;
   
@@ -71,14 +76,14 @@ oatpp::os::io::Library::v_handle SimpleTCPConnectionProvider::instantiateServer(
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
   
   if(ret != 0) {
-    oatpp::os::io::Library::handle_close(serverHandle);
+    ::close(serverHandle);
     throw std::runtime_error("Can't bind to address");
     return -1 ;
   }
   
   ret = listen(serverHandle, 10000);
   if(ret < 0) {
-    oatpp::os::io::Library::handle_close(serverHandle);
+    ::close(serverHandle);
     return -1 ;
   }
   
@@ -92,7 +97,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   
   //oatpp::test::PerformanceChecker checker("Accept Checker");
   
-  oatpp::os::io::Library::v_handle handle = accept(m_serverHandle, nullptr, nullptr);
+  oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
   
   if (handle < 0) {
     v_int32 error = errno;

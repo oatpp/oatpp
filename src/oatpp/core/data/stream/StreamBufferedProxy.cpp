@@ -26,183 +26,37 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::io::Library::v_size count) {
-  if(m_pos == 0){
-    
-    v_bufferSize spaceLeft = m_bufferSize - m_posEnd;
-    if(spaceLeft > count){
-      memcpy(&m_buffer[m_posEnd], data, count);
-      m_posEnd += (v_bufferSize) count;
-      return count;
-    }
-    
-    if(m_posEnd == 0) {
-      return m_outputStream->write(data, count);
-    }
-    
-    if(spaceLeft > 0){
-      memcpy(&m_buffer[m_posEnd], data, spaceLeft);
-      m_posEnd = m_bufferSize;
-    }
-    
-    os::io::Library::v_size writeResult = m_outputStream->write(m_buffer, m_bufferSize);
-    
-    if(writeResult == m_bufferSize){
-      m_posEnd = 0;
-      os::io::Library::v_size bigResult = write(&((p_char8) data)[spaceLeft], count - spaceLeft);
-      if(bigResult > 0) {
-        return bigResult + spaceLeft;
-      } else if(bigResult < 0) {
-        return bigResult;
-      } else {
-        return spaceLeft;
-      }
-    }
-    
-    if(writeResult > 0){
-      m_pos += (v_bufferSize) writeResult;
-    } else if(writeResult < 0) {
-      return writeResult;
-    }
-    
-    return spaceLeft;
-    
+data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_size count) {
+  if(m_buffer.availableToWrite() > 0) {
+    return m_buffer.write(data, count);
   } else {
-    auto amount = m_posEnd - m_pos;
-    if(amount > 0){
-      os::io::Library::v_size result = m_outputStream->write(&m_buffer[m_pos], amount);
-      if(result == amount){
-        m_pos = 0;
-        m_posEnd = 0;
-        return write(data, count);
-      } else if(result > 0){
-        m_pos += (v_bufferSize) result;
-        return 0;
-      }
-      return result;
+    auto bytesFlushed = m_buffer.readAndWriteToStream(*m_outputStream, m_buffer.getBufferSize());
+    if(bytesFlushed > 0) {
+      return m_buffer.write(data, count);
     }
-    m_pos = 0;
-    m_posEnd = 0;
-    return write(data, count);
+    return bytesFlushed;
   }
 }
 
-os::io::Library::v_size OutputStreamBufferedProxy::flush() {
-  auto amount = m_posEnd - m_pos;
-  if(amount > 0){
-    os::io::Library::v_size result = stream::writeExactSizeData(m_outputStream.get(), &m_buffer[m_pos], amount);
-    if(result == amount){
-      m_pos = 0;
-      m_posEnd = 0;
-    } else if(result > 0){
-      m_pos += (v_bufferSize) result;
-    }
-    return result;
-  }
-  return 0;
+data::v_io_size OutputStreamBufferedProxy::flush() {
+  return m_buffer.flushToStream(*m_outputStream);
 }
   
 oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                             const oatpp::async::Action& actionOnFinish) {
-  
-  class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
-  private:
-    std::shared_ptr<OutputStreamBufferedProxy> m_stream;
-  public:
-    
-    FlushCoroutine(const std::shared_ptr<OutputStreamBufferedProxy>& stream)
-      : m_stream(stream)
-    {}
-    
-    Action act() override {
-      auto amount = m_stream->m_posEnd - m_stream->m_pos;
-      if(amount > 0){
-        os::io::Library::v_size result = m_stream->m_outputStream->write(&m_stream->m_buffer[m_stream->m_pos], amount);
-        if(result == amount) {
-          m_stream->m_pos = 0;
-          m_stream->m_posEnd = 0;
-          return finish();
-        } else if(result == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
-          return oatpp::async::Action::_WAIT_RETRY;
-        } else if(result == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
-          return oatpp::async::Action::_REPEAT;
-        } else if(result == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
-          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - oatpp::data::stream::Errors::ERROR_IO_PIPE");
-        } else if( result < 0) {
-          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - Failed to flush all data");
-        } else if(result < amount) {
-          m_stream->m_pos += (v_bufferSize) result;
-          return oatpp::async::Action::_REPEAT;
-        }
-      }
-      return finish();
-    }
-    
-  };
-  
-  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish, getSharedPtr<OutputStreamBufferedProxy>());
-  
+  return m_buffer.flushToStreamAsync(parentCoroutine, actionOnFinish, *m_outputStream);
 }
   
-os::io::Library::v_size InputStreamBufferedProxy::read(void *data, os::io::Library::v_size count) {
+data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {
   
-  if (m_pos == 0 && m_posEnd == 0) {
-  
-    if(count > m_bufferSize){
-      //if(m_hasError){
-      //  errno = m_errno;
-      //  return -1;
-      //}
-      return m_inputStream->read(data, count);
-    } else {
-      //if(m_hasError){
-      //  errno = m_errno;
-      //  return -1;
-      //}
-      m_posEnd = (v_bufferSize) m_inputStream->read(m_buffer, m_bufferSize);
-      v_bufferSize result;
-      if(m_posEnd > count){
-        result = (v_bufferSize) count;
-        m_pos = result;
-      } else {
-        result = m_posEnd;
-        m_posEnd = 0;
-        m_pos = 0;
-        if(result < 0) {
-          return result;
-        }
-      }
-      std::memcpy(data, m_buffer, result);
-      return result;
-      
-    }
-    
+  if(m_buffer.availableToRead() > 0) {
+    return m_buffer.read(data, count);
   } else {
-    v_bufferSize result = m_posEnd - m_pos;
-    if(count > result){
-      
-      std::memcpy(data, &m_buffer[m_pos], result);
-      
-      m_pos = 0;
-      m_posEnd = 0;
-      os::io::Library::v_size bigResult = read(&((p_char8) data) [result], count - result);
-      if(bigResult > 0){
-        return bigResult + result;
-      } else if(bigResult < 0) {
-        return bigResult;
-      }
-      
-      return result;
-      
-    } else {
-      std::memcpy(data, &m_buffer[m_pos], count);
-      m_pos += (v_bufferSize) count;
-      if(m_pos == m_posEnd){
-        m_pos = 0;
-        m_posEnd = 0;
-      }
-      return count;
+    auto bytesBuffered = m_buffer.readFromStreamAndWrite(*m_inputStream, m_buffer.getBufferSize());
+    if(bytesBuffered > 0) {
+      return m_buffer.read(data, count);
     }
+    return bytesBuffered;
   }
   
 }

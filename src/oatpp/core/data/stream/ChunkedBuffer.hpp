@@ -42,9 +42,9 @@ public:
   
   static const char* const CHUNK_POOL_NAME;
   
-  static const os::io::Library::v_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
-  static const os::io::Library::v_size CHUNK_ENTRY_SIZE;
-  static const os::io::Library::v_size CHUNK_CHUNK_SIZE;
+  static const data::v_io_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
+  static const data::v_io_size CHUNK_ENTRY_SIZE;
+  static const data::v_io_size CHUNK_CHUNK_SIZE;
 
   static oatpp::base::memory::ThreadDistributedMemoryPool& getSegemntPool(){
     static oatpp::base::memory::ThreadDistributedMemoryPool pool(CHUNK_POOL_NAME,
@@ -81,17 +81,17 @@ public:
     SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Chunk_Pool, Chunk, 32)
   public:
     
-    Chunk(void* pData, os::io::Library::v_size pSize)
+    Chunk(void* pData, data::v_io_size pSize)
       : data(pData)
       , size(pSize)
     {}
     
-    static std::shared_ptr<Chunk> createShared(void* data, os::io::Library::v_size size){
+    static std::shared_ptr<Chunk> createShared(void* data, data::v_io_size size){
       return Shared_ChunkedBuffer_Chunk_Pool::allocateShared(data, size);
     }
     
     const void* data;
-    const os::io::Library::v_size size;
+    const data::v_io_size size;
     
   };
   
@@ -99,8 +99,8 @@ public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<Chunk>> Chunks;
 private:
   
-  os::io::Library::v_size m_size;
-  os::io::Library::v_size m_chunkPos;
+  data::v_io_size m_size;
+  data::v_io_size m_chunkPos;
   ChunkEntry* m_firstEntry;
   ChunkEntry* m_lastEntry;
   
@@ -109,20 +109,20 @@ private:
   ChunkEntry* obtainNewEntry();
   void freeEntry(ChunkEntry* entry);
   
-  os::io::Library::v_size writeToEntry(ChunkEntry* entry,
+  data::v_io_size writeToEntry(ChunkEntry* entry,
                                        const void *data,
-                                       os::io::Library::v_size count,
-                                       os::io::Library::v_size& outChunkPos);
+                                       data::v_io_size count,
+                                       data::v_io_size& outChunkPos);
   
-  os::io::Library::v_size writeToEntryFrom(ChunkEntry* entry,
-                                           os::io::Library::v_size inChunkPos,
+  data::v_io_size writeToEntryFrom(ChunkEntry* entry,
+                                           data::v_io_size inChunkPos,
                                            const void *data,
-                                           os::io::Library::v_size count,
-                                           os::io::Library::v_size& outChunkPos);
+                                           data::v_io_size count,
+                                           data::v_io_size& outChunkPos);
   
   ChunkEntry* getChunkForPosition(ChunkEntry* fromChunk,
-                                      os::io::Library::v_size pos,
-                                      os::io::Library::v_size& outChunkPos);
+                                      data::v_io_size pos,
+                                      data::v_io_size& outChunkPos);
   
 public:
   
@@ -143,16 +143,16 @@ public:
     return Shared_ChunkedBuffer_Pool::allocateShared();
   }
 
-  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
+  data::v_io_size write(const void *data, data::v_io_size count) override;
 
-  os::io::Library::v_size readSubstring(void *buffer,
-                                        os::io::Library::v_size pos,
-                                        os::io::Library::v_size count);
+  data::v_io_size readSubstring(void *buffer,
+                                        data::v_io_size pos,
+                                        data::v_io_size count);
 
   /**
    * return substring of the data written to stream; NOT NULL
    */
-  oatpp::String getSubstring(os::io::Library::v_size pos, os::io::Library::v_size count);
+  oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
 
   /**
    * return data written to stream as oatpp::String; NOT NULL
@@ -168,7 +168,7 @@ public:
   
   std::shared_ptr<Chunks> getChunks();
 
-  os::io::Library::v_size getSize();
+  data::v_io_size getSize();
   void clear();
 
 };

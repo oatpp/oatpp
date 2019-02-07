@@ -46,7 +46,7 @@ bool FullAsyncTest::onRun() {
   
   auto interface = oatpp::network::virtual_::Interface::createShared("virtualhost");
   
-  auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
+  auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true);
   auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
   
   serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
@@ -70,20 +70,20 @@ bool FullAsyncTest::onRun() {
     
     for(v_int32 i = 0; i < 10; i ++) {
       
-      { /* test simple GET */
+      { // test simple GET
         auto response = client->getRoot();
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World Async!!!");
       }
       
-      { /* test GET with path parameter */
+      { // test GET with path parameter
         auto response = client->getWithParams("my_test_param-Async");
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_param-Async");
       }
       
-      { /* test GET with header parameter */
+      { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header-Async");
         //auto str = response->readBodyToString();
         //OATPP_LOGE("AAA", "code=%d, str='%s'", response->statusCode, str->c_str());
@@ -92,11 +92,23 @@ bool FullAsyncTest::onRun() {
         OATPP_ASSERT(dto->testValue == "my_test_header-Async");
       }
       
-      { /* test POST with body */
+      { // test POST with body
         auto response = client->postBody("my_test_body-Async");
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body-Async");
+      }
+
+      { // test Big Echo with body
+        oatpp::data::stream::ChunkedBuffer stream;
+        for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
+          stream.write("0123456789", 10);
+        }
+        auto data = stream.toString();
+        auto response = client->echoBody(data);
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData);
+        OATPP_ASSERT(returnedData == data);
       }
       
     }

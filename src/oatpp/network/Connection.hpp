@@ -32,28 +32,26 @@ namespace oatpp { namespace network {
   
 class Connection : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
 public:
-  typedef oatpp::os::io::Library Library;
-public:
   OBJECT_POOL(Connection_Pool, Connection, 32);
   SHARED_OBJECT_POOL(Shared_Connection_Pool, Connection, 32);
 private:
-  Library::v_handle m_handle;
+  data::v_io_handle m_handle;
 public:
-  Connection(Library::v_handle handle);
+  Connection(data::v_io_handle handle);
 public:
   
-  static std::shared_ptr<Connection> createShared(Library::v_handle handle){
+  static std::shared_ptr<Connection> createShared(data::v_io_handle handle){
     return Shared_Connection_Pool::allocateShared(handle);
   }
   
   ~Connection();
   
-  Library::v_size write(const void *buff, Library::v_size count) override;
-  Library::v_size read(void *buff, Library::v_size count) override;
+  data::v_io_size write(const void *buff, data::v_io_size count) override;
+  data::v_io_size read(void *buff, data::v_io_size count) override;
   
   void close();
   
-  Library::v_handle getHandle(){
+  data::v_io_handle getHandle(){
     return m_handle;
   }
   
