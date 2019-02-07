@@ -25,44 +25,120 @@
 #ifndef oatpp_data_buffer_FIFOBuffer_hpp
 #define oatpp_data_buffer_FIFOBuffer_hpp
 
-#include "./IOBuffer.hpp"
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/data/IODefinitions.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 
-namespace oatpp { namespace data{ namespace buffer {
-  
-class FIFOBuffer : public oatpp::base::Controllable {
-public:
-  OBJECT_POOL(FIFOBuffer_Pool, FIFOBuffer, 32)
-  SHARED_OBJECT_POOL(Shared_FIFOBuffer_Pool, FIFOBuffer, 32)
+namespace oatpp { namespace data { namespace buffer {
+
+/**
+ * FIFO operations over the buffer
+ * !FIFOBuffer is NOT an IOStream despite having similar APIs!
+ */
+class FIFOBuffer {
 private:
-  bool m_canRead;
+  p_char8 m_buffer;
+  v_io_size m_bufferSize;
   data::v_io_size m_readPosition;
   data::v_io_size m_writePosition;
-  IOBuffer m_buffer;
-  oatpp::concurrency::SpinLock::Atom m_atom;
+  bool m_canRead;
 public:
-  FIFOBuffer()
-    : m_canRead(false)
-    , m_readPosition(0)
-    , m_writePosition(0)
-    , m_atom(false)
-  {}
-public:
-  
-  static std::shared_ptr<FIFOBuffer> createShared(){
-    return Shared_FIFOBuffer_Pool::allocateShared();
-  }
-  
-  data::v_io_size availableToRead();
-  data::v_io_size availableToWrite();
-  
+
+  FIFOBuffer(void* buffer, v_io_size bufferSize,
+             data::v_io_size readPosition, data::v_io_size writePosition,
+             bool canRead);
+
+  FIFOBuffer(void* buffer, v_io_size bufferSize);
+
+  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead);
+
+  data::v_io_size availableToRead() const;
+  data::v_io_size availableToWrite() const;
+
+  data::v_io_size getBufferSize() const;
+
+  /**
+   * read up to count bytes from the buffer to data
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   *
+   */
   data::v_io_size read(void *data, data::v_io_size count);
+
+  /**
+   * write up to count bytes from data to buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
   data::v_io_size write(const void *data, data::v_io_size count);
+
+
+  /**
+   * call read and then write bytes read to output stream
+   * @param stream
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  data::v_io_size readAndWriteToStream(data::stream::OutputStream& stream, data::v_io_size count);
+
+  /**
+   * call stream.read() and then write bytes read to buffer
+   * @param stream
+   * @param count
+   * @return
+   */
+  data::v_io_size readFromStreamAndWrite(data::stream::InputStream& stream, data::v_io_size count);
+
+  /**
+   * flush all availableToRead bytes to stream
+   * @param stream
+   * @return
+   */
+  data::v_io_size flushToStream(data::stream::OutputStream& stream);
+
+  /**
+   * flush all availableToRead bytes to stream in asynchronous manner
+   * @param parentCoroutine
+   * @param actionOnFinish
+   * @return
+   */
+  oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                          const oatpp::async::Action& actionOnFinish,
+                                          data::stream::OutputStream& stream);
+
   
 };
 
-class SynchronizedFIFOBuffer : public FIFOBuffer {
+/**
+ * Same as FIFOBuffer + synchronization with SpinLock
+ */
+class SynchronizedFIFOBuffer {
+private:
+  FIFOBuffer m_fifo;
+  oatpp::concurrency::SpinLock::Atom m_atom;
+public:
+
+  SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize,
+                         data::v_io_size readPosition, data::v_io_size writePosition,
+                         bool canRead);
+
+  SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize);
+
+  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead);
+
+  data::v_io_size availableToRead();
+  data::v_io_size availableToWrite();
+
+  data::v_io_size getBufferSize() const;
+
+  data::v_io_size read(void *data, data::v_io_size count);
+  data::v_io_size write(const void *data, data::v_io_size count);
+
+  /* No implementation of other methods */
+  /* User should implement his own synchronization for other methods */
 
 };
   

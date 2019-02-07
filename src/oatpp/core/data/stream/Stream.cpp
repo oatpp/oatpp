@@ -264,9 +264,9 @@ oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream*
 }
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                              const void*& data,
-                                              data::v_io_size& size,
-                                              const oatpp::async::Action& nextAction) {
+                                                   const void*& data,
+                                                   data::v_io_size& size,
+                                                   const oatpp::async::Action& nextAction) {
   auto res = stream->write(data, size);
   if(res == data::IOError::WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
@@ -359,7 +359,7 @@ oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* str
   oatpp::data::v_io_size progress = 0;
   
   while (progress < size) {
-    
+
     auto res = stream->write(&buffer[progress], size - progress);
     
     if(res > 0) {

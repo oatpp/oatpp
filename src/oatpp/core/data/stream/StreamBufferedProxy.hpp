@@ -26,6 +26,7 @@
 #define oatpp_data_stream_StreamBufferedProxy_hpp
 
 #include "Stream.hpp"
+#include "oatpp/core/data/buffer/FIFOBuffer.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
@@ -40,10 +41,7 @@ public:
 private:
   std::shared_ptr<OutputStream> m_outputStream;
   std::shared_ptr<oatpp::data::buffer::IOBuffer> m_bufferPtr;
-  p_char8 m_buffer;
-  v_bufferSize m_bufferSize;
-  v_bufferSize m_pos;
-  v_bufferSize m_posEnd;
+  buffer::FIFOBuffer m_buffer;
 public:
   OutputStreamBufferedProxy(const std::shared_ptr<OutputStream>& outputStream,
                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& bufferPtr,
@@ -51,10 +49,7 @@ public:
                             v_bufferSize bufferSize)
     : m_outputStream(outputStream)
     , m_bufferPtr(bufferPtr)
-    , m_buffer(buffer)
-    , m_bufferSize(bufferSize)
-    , m_pos(0)
-    , m_posEnd(0)
+    , m_buffer(buffer, bufferSize)
   {}
 public:
   
@@ -81,10 +76,9 @@ public:
   data::v_io_size flush();
   oatpp::async::Action flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                    const oatpp::async::Action& actionOnFinish);
-  
-  void setBufferPosition(v_bufferSize pos, v_bufferSize posEnd){
-    m_pos = pos;
-    m_posEnd = posEnd;
+
+  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
+    m_buffer.setBufferPosition(readPosition, writePosition, canRead);
   }
   
 };

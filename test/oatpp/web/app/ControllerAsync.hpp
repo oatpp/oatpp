@@ -108,11 +108,11 @@ public:
 
   ENDPOINT_ASYNC("POST", "echo", Echo) {
 
-  ENDPOINT_ASYNC_INIT(Echo)
+    ENDPOINT_ASYNC_INIT(Echo)
 
     Action act() {
       OATPP_LOGD(TAG, "POST body(echo). Reading body...");
-      return request->readBodyToStringAsync(this, &PostBody::onBodyRead);
+      return request->readBodyToStringAsync(this, &Echo::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {

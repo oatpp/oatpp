@@ -40,8 +40,8 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
-    if(pipe.m_buffer.availableToRead() > 0) {
-      result = pipe.m_buffer.read(data, count);
+    if(pipe.m_fifo.availableToRead() > 0) {
+      result = pipe.m_fifo.read(data, count);
     } else if(pipe.m_open) {
       result = data::IOError::WAIT_RETRY;
     } else {
@@ -49,12 +49,12 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
-    while (pipe.m_buffer.availableToRead() == 0 && pipe.m_open) {
+    while (pipe.m_fifo.availableToRead() == 0 && pipe.m_open) {
       pipe.m_conditionWrite.notify_one();
       pipe.m_conditionRead.wait(lock);
     }
-    if (pipe.m_buffer.availableToRead() > 0) {
-      result = pipe.m_buffer.read(data, count);
+    if (pipe.m_fifo.availableToRead() > 0) {
+      result = pipe.m_fifo.read(data, count);
     } else {
       result = data::IOError::BROKEN_PIPE;
     }
@@ -80,8 +80,8 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
-    if(pipe.m_buffer.availableToWrite() > 0) {
-      result = pipe.m_buffer.write(data, count);
+    if(pipe.m_fifo.availableToWrite() > 0) {
+      result = pipe.m_fifo.write(data, count);
     } else if(pipe.m_open) {
       result = data::IOError::WAIT_RETRY;
     } else {
@@ -89,12 +89,12 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
-    while (pipe.m_buffer.availableToWrite() == 0 && pipe.m_open) {
+    while (pipe.m_fifo.availableToWrite() == 0 && pipe.m_open) {
       pipe.m_conditionRead.notify_one();
       pipe.m_conditionWrite.wait(lock);
     }
-    if (pipe.m_open && pipe.m_buffer.availableToWrite() > 0) {
-      result = pipe.m_buffer.write(data, count);
+    if (pipe.m_open && pipe.m_fifo.availableToWrite() > 0) {
+      result = pipe.m_fifo.write(data, count);
     } else {
       result = data::IOError::BROKEN_PIPE;
     }

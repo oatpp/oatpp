@@ -26,7 +26,9 @@
 #define oatpp_network_virtual__Pipe_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
+
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
@@ -104,7 +106,10 @@ private:
   bool m_open;
   Writer m_writer;
   Reader m_reader;
-  oatpp::data::buffer::FIFOBuffer m_buffer;
+
+  oatpp::data::buffer::IOBuffer m_buffer;
+  oatpp::data::buffer::SynchronizedFIFOBuffer m_fifo;
+
   std::mutex m_mutex;
   std::condition_variable m_conditionRead;
   std::condition_variable m_conditionWrite;
@@ -114,6 +119,8 @@ public:
     : m_open(true)
     , m_writer(this)
     , m_reader(this)
+    , m_buffer()
+    , m_fifo(m_buffer.getData(), m_buffer.getSize())
   {}
   
   static std::shared_ptr<Pipe> createShared(){

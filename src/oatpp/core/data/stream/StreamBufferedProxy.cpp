@@ -27,121 +27,24 @@
 namespace oatpp { namespace data{ namespace stream {
   
 data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_size count) {
-  if(m_pos == 0){
-    
-    v_bufferSize spaceLeft = m_bufferSize - m_posEnd;
-    if(spaceLeft > count){
-      memcpy(&m_buffer[m_posEnd], data, count);
-      m_posEnd += (v_bufferSize) count;
-      return count;
-    }
-    
-    if(m_posEnd == 0) {
-      return m_outputStream->write(data, count);
-    }
-    
-    if(spaceLeft > 0){
-      memcpy(&m_buffer[m_posEnd], data, spaceLeft);
-      m_posEnd = m_bufferSize;
-    }
-    
-    data::v_io_size writeResult = m_outputStream->write(m_buffer, m_bufferSize);
-    
-    if(writeResult == m_bufferSize){
-      m_posEnd = 0;
-      data::v_io_size bigResult = write(&((p_char8) data)[spaceLeft], count - spaceLeft);
-      if(bigResult > 0) {
-        return bigResult + spaceLeft;
-      } else if(bigResult < 0) {
-        return bigResult;
-      } else {
-        return spaceLeft;
-      }
-    }
-    
-    if(writeResult > 0){
-      m_pos += (v_bufferSize) writeResult;
-    } else if(writeResult < 0) {
-      return writeResult;
-    }
-    
-    return spaceLeft;
-    
+  if(m_buffer.availableToWrite() > 0) {
+    return m_buffer.write(data, count);
   } else {
-    auto amount = m_posEnd - m_pos;
-    if(amount > 0){
-      data::v_io_size result = m_outputStream->write(&m_buffer[m_pos], amount);
-      if(result == amount){
-        m_pos = 0;
-        m_posEnd = 0;
-        return write(data, count);
-      } else if(result > 0){
-        m_pos += (v_bufferSize) result;
-        return 0;
-      }
-      return result;
+    auto bytesFlushed = m_buffer.readAndWriteToStream(*m_outputStream, m_buffer.getBufferSize());
+    if(bytesFlushed > 0) {
+      return m_buffer.write(data, count);
     }
-    m_pos = 0;
-    m_posEnd = 0;
-    return write(data, count);
+    return bytesFlushed;
   }
 }
 
 data::v_io_size OutputStreamBufferedProxy::flush() {
-  auto amount = m_posEnd - m_pos;
-  if(amount > 0){
-    data::v_io_size result = stream::writeExactSizeData(m_outputStream.get(), &m_buffer[m_pos], amount);
-    if(result == amount){
-      m_pos = 0;
-      m_posEnd = 0;
-    } else if(result > 0){
-      m_pos += (v_bufferSize) result;
-    }
-    return result;
-  }
-  return 0;
+  return m_buffer.flushToStream(*m_outputStream);
 }
   
 oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                             const oatpp::async::Action& actionOnFinish) {
-  
-  class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
-  private:
-    std::shared_ptr<OutputStreamBufferedProxy> m_stream;
-  public:
-    
-    FlushCoroutine(const std::shared_ptr<OutputStreamBufferedProxy>& stream)
-      : m_stream(stream)
-    {}
-    
-    Action act() override {
-      auto amount = m_stream->m_posEnd - m_stream->m_pos;
-      if(amount > 0){
-        data::v_io_size result = m_stream->m_outputStream->write(&m_stream->m_buffer[m_stream->m_pos], amount);
-        if(result == amount) {
-          m_stream->m_pos = 0;
-          m_stream->m_posEnd = 0;
-          return finish();
-        } else if(result == data::IOError::WAIT_RETRY) {
-          return oatpp::async::Action::_WAIT_RETRY;
-        } else if(result == data::IOError::RETRY) {
-          return oatpp::async::Action::_REPEAT;
-        } else if(result == data::IOError::BROKEN_PIPE) {
-          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - data::IOError::BROKEN_PIPE");
-        } else if( result < 0) {
-          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - Failed to flush all data");
-        } else if(result < amount) {
-          m_stream->m_pos += (v_bufferSize) result;
-          return oatpp::async::Action::_REPEAT;
-        }
-      }
-      return finish();
-    }
-    
-  };
-  
-  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish, getSharedPtr<OutputStreamBufferedProxy>());
-  
+  return m_buffer.flushToStreamAsync(parentCoroutine, actionOnFinish, *m_outputStream);
 }
   
 data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {

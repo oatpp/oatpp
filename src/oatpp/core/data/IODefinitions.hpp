@@ -36,7 +36,7 @@ typedef int v_io_handle;
  * v_io_size.
  *
  * Possible return values:
- * On Success - [0..max_int64]
+ * On Success - [1..max_int64]
  * On Error - IOError values.
  *
  * All other values are considered to be a fatal error.
@@ -44,7 +44,22 @@ typedef int v_io_handle;
  */
 typedef v_int64 v_io_size;
 
+/**
+ * Final set of possible I/O operation error values.
+ * I/O operation should not return any other error values.
+ */
 enum IOError : v_io_size {
+
+  /**
+   * In oatpp 0 is considered to be an Error as for I/O operation size
+   *
+   * As for argument value 0 should be handled separately of the main flow.
+   *
+   * As for return value 0 should not be returned.
+   * I/O method should return an error describing a reason why I/O is empty instead of a zero itself.
+   * if zero is returned, client should treat it like a bad api implementation and as an error in the flow.
+   */
+  ZERO_VALUE = 0,
 
   /**
    * I/O operation is not possible any more
