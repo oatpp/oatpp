@@ -152,9 +152,9 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
     
     Action readLineChar() {
       auto res = m_fromStream->read(&m_lineChar, 1);
-      if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+      if(res == data::IOError::WAIT_RETRY) {
         return oatpp::async::Action::_WAIT_RETRY;
-      } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+      } else if(res == data::IOError::RETRY) {
         return oatpp::async::Action::_REPEAT;
       } else if( res < 0) {
         return error("[BodyDecoder::ChunkedDecoder] Can't read line char");

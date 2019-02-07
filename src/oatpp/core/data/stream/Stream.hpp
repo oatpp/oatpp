@@ -34,11 +34,6 @@ namespace oatpp { namespace data{ namespace stream {
   
 class Errors {
 public:
-  constexpr static data::v_io_size ERROR_IO_NOTHING_TO_READ = -1001;
-  constexpr static data::v_io_size ERROR_IO_WAIT_RETRY = -1002;
-  constexpr static data::v_io_size ERROR_IO_RETRY = -1003;
-  constexpr static data::v_io_size ERROR_IO_PIPE = -1004;
-  
   static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA;
   static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA;
 };

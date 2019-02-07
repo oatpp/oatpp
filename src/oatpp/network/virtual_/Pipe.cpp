@@ -43,9 +43,9 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
     if(pipe.m_buffer.availableToRead() > 0) {
       result = pipe.m_buffer.read(data, count);
     } else if(pipe.m_open) {
-      result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
+      result = data::IOError::WAIT_RETRY;
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
@@ -56,7 +56,7 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
     if (pipe.m_buffer.availableToRead() > 0) {
       result = pipe.m_buffer.read(data, count);
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   }
   
@@ -83,9 +83,9 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
     if(pipe.m_buffer.availableToWrite() > 0) {
       result = pipe.m_buffer.write(data, count);
     } else if(pipe.m_open) {
-      result = oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY;
+      result = data::IOError::WAIT_RETRY;
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
@@ -96,7 +96,7 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
     if (pipe.m_open && pipe.m_buffer.availableToWrite() > 0) {
       result = pipe.m_buffer.write(data, count);
     } else {
-      result = oatpp::data::stream::Errors::ERROR_IO_PIPE;
+      result = data::IOError::BROKEN_PIPE;
     }
   }
   

@@ -122,12 +122,12 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
           m_stream->m_pos = 0;
           m_stream->m_posEnd = 0;
           return finish();
-        } else if(result == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+        } else if(result == data::IOError::WAIT_RETRY) {
           return oatpp::async::Action::_WAIT_RETRY;
-        } else if(result == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+        } else if(result == data::IOError::RETRY) {
           return oatpp::async::Action::_REPEAT;
-        } else if(result == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
-          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - oatpp::data::stream::Errors::ERROR_IO_PIPE");
+        } else if(result == data::IOError::BROKEN_PIPE) {
+          return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - data::IOError::BROKEN_PIPE");
         } else if( result < 0) {
           return error("[oatpp::data::stream::OutputStreamBufferedProxy::flushAsync()]: Error - Failed to flush all data");
         } else if(result < amount) {

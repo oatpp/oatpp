@@ -138,7 +138,7 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
       }
       progress += readResult;
     } else {
-      if(readResult == oatpp::data::stream::Errors::ERROR_IO_RETRY || readResult == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+      if(readResult == data::IOError::RETRY || readResult == data::IOError::WAIT_RETRY) {
         continue;
       }
       return progress;
@@ -246,11 +246,11 @@ oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream*
                                               data::v_io_size& size,
                                               const oatpp::async::Action& nextAction) {
   auto res = stream->write(data, size);
-  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+  if(res == data::IOError::WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+  } else if(res == data::IOError::RETRY) {
     return oatpp::async::Action::_REPEAT;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+  } else if(res == data::IOError::BROKEN_PIPE) {
     return oatpp::async::Action::_ABORT;
   } else if(res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
@@ -268,11 +268,11 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputSt
                                               data::v_io_size& size,
                                               const oatpp::async::Action& nextAction) {
   auto res = stream->write(data, size);
-  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+  if(res == data::IOError::WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+  } else if(res == data::IOError::RETRY) {
     return oatpp::async::Action::_REPEAT;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+  } else if(res == data::IOError::BROKEN_PIPE) {
     return oatpp::async::Action::_ABORT;
   } else if(res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
@@ -292,9 +292,9 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* s
                                              data::v_io_size& bytesLeftToRead,
                                              const oatpp::async::Action& nextAction) {
   auto res = stream->read(data, bytesLeftToRead);
-  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+  if(res == data::IOError::WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+  } else if(res == data::IOError::RETRY) {
     return oatpp::async::Action::_REPEAT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
@@ -310,11 +310,11 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
                                                   data::v_io_size& bytesLeftToRead,
                                                   const oatpp::async::Action& nextAction) {
   auto res = stream->read(data, bytesLeftToRead);
-  if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+  if(res == data::IOError::WAIT_RETRY) {
     return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+  } else if(res == data::IOError::RETRY) {
     return oatpp::async::Action::_REPEAT;
-  } else if(res == oatpp::data::stream::Errors::ERROR_IO_PIPE) {
+  } else if(res == data::IOError::BROKEN_PIPE) {
     return oatpp::async::Action::_ABORT;
   } else if( res < 0) {
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
@@ -341,7 +341,7 @@ oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* strea
     if(res > 0) {
       progress += res;
     } else { // if res == 0 then probably stream handles read() error incorrectly. return.
-      if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+      if(res == data::IOError::RETRY || res == data::IOError::WAIT_RETRY) {
         continue;
       }
       return progress;
@@ -365,7 +365,7 @@ oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* str
     if(res > 0) {
       progress += res;
     } else { // if res == 0 then probably stream handles write() error incorrectly. return.
-      if(res == oatpp::data::stream::Errors::ERROR_IO_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
+      if(res == data::IOError::RETRY || res == data::IOError::WAIT_RETRY) {
         continue;
       }
       return progress;

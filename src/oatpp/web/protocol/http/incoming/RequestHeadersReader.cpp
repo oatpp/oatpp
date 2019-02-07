@@ -60,7 +60,7 @@ data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<o
         }
       }
       
-    } else if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+    } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
       continue;
     } else {
       break;
@@ -148,7 +148,7 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
         
         return waitRetry();
         
-      } else if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY || res == oatpp::data::stream::Errors::ERROR_IO_RETRY) {
+      } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
         return waitRetry();
       } else {
         return abort();
