@@ -155,15 +155,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
                                    const std::shared_ptr<OutputStream>& toStream,
                                    oatpp::data::v_io_size transferSize,
                                    const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
-  
-/**
- *  Async write data withot starting new Coroutine.
- *  Should be called from a separate Coroutine method
- */
-oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                              const void*& data,
-                                              data::v_io_size& size,
-                                              const oatpp::async::Action& nextAction);
+
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
                                                    const void*& data,

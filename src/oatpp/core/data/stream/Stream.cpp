@@ -241,28 +241,6 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
   
 }
   
-oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
-                                              const void*& data,
-                                              data::v_io_size& size,
-                                              const oatpp::async::Action& nextAction) {
-  auto res = stream->write(data, size);
-  if(res == data::IOError::WAIT_RETRY) {
-    return oatpp::async::Action::_WAIT_RETRY;
-  } else if(res == data::IOError::RETRY) {
-    return oatpp::async::Action::_REPEAT;
-  } else if(res == data::IOError::BROKEN_PIPE) {
-    return oatpp::async::Action::_ABORT;
-  } else if(res < 0) {
-    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
-  }
-  data = &((p_char8) data)[res];
-  size = size - res;
-  if(res < size && res > 0) {
-    return oatpp::async::Action::_REPEAT;
-  }
-  return nextAction;
-}
-  
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
                                                    const void*& data,
                                                    data::v_io_size& size,
@@ -280,10 +258,11 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputSt
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA));
   }
   data = &((p_char8) data)[res];
-  size = size - res;
   if(res < size) {
+    size = size - res;
     return oatpp::async::Action::_REPEAT;
   }
+  size = size - res;
   return nextAction;
 }
 
@@ -322,10 +301,11 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
     return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_FAILED_TO_READ_DATA));
   }
   data = &((p_char8) data)[res];
-  bytesLeftToRead -= res;
   if(res < bytesLeftToRead) {
+    bytesLeftToRead -= res;
     return oatpp::async::Action::_REPEAT;
   }
+  bytesLeftToRead -= res;
   return nextAction;
 }
   

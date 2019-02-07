@@ -69,7 +69,7 @@ bool FullAsyncTest::onRun() {
   std::thread clientThread([client, server, connectionHandler, objectMapper]{
     
     for(v_int32 i = 0; i < 10; i ++) {
-      /*
+      
       { // test simple GET
         auto response = client->getRoot();
         auto value = response->readBodyToString();
@@ -98,7 +98,7 @@ bool FullAsyncTest::onRun() {
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body-Async");
       }
-      */
+
       { // test Big Echo with body
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
