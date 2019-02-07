@@ -123,7 +123,8 @@ HttpRequestExecutor::execute(const String& method,
   auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
                                                                                 ioBuffer,
                                                                                 result.bufferPosStart,
-                                                                                result.bufferPosEnd);
+                                                                                result.bufferPosEnd,
+                                                                                result.bufferPosStart != result.bufferPosEnd);
   
   return Response::createShared(result.startingLine.statusCode,
                                 result.startingLine.description.toString(),
@@ -210,7 +211,8 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
       auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection,
                                                                                     m_ioBuffer,
                                                                                     result.bufferPosStart,
-                                                                                    result.bufferPosEnd);
+                                                                                    result.bufferPosEnd,
+                                                                                    result.bufferPosStart != result.bufferPosEnd);
       
       return _return(Response::createShared(result.startingLine.statusCode,
                                             result.startingLine.description.toString(),

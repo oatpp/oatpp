@@ -98,6 +98,18 @@ bool FullTest::onRun() {
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body");
       }
+
+      { // test Big Echo with body
+        oatpp::data::stream::ChunkedBuffer stream;
+        for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
+          stream.write("0123456789", 10);
+        }
+        auto data = stream.toString();
+        auto response = client->echoBody(data);
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData);
+        OATPP_ASSERT(returnedData == data);
+      }
       
     }
     

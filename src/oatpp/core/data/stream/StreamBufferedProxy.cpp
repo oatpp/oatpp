@@ -49,63 +49,14 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
   
 data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {
   
-  if (m_pos == 0 && m_posEnd == 0) {
-  
-    if(count > m_bufferSize){
-      //if(m_hasError){
-      //  errno = m_errno;
-      //  return -1;
-      //}
-      return m_inputStream->read(data, count);
-    } else {
-      //if(m_hasError){
-      //  errno = m_errno;
-      //  return -1;
-      //}
-      m_posEnd = (v_bufferSize) m_inputStream->read(m_buffer, m_bufferSize);
-      v_bufferSize result;
-      if(m_posEnd > count){
-        result = (v_bufferSize) count;
-        m_pos = result;
-      } else {
-        result = m_posEnd;
-        m_posEnd = 0;
-        m_pos = 0;
-        if(result < 0) {
-          return result;
-        }
-      }
-      std::memcpy(data, m_buffer, result);
-      return result;
-      
-    }
-    
+  if(m_buffer.availableToRead() > 0) {
+    return m_buffer.read(data, count);
   } else {
-    v_bufferSize result = m_posEnd - m_pos;
-    if(count > result){
-      
-      std::memcpy(data, &m_buffer[m_pos], result);
-      
-      m_pos = 0;
-      m_posEnd = 0;
-      data::v_io_size bigResult = read(&((p_char8) data) [result], count - result);
-      if(bigResult > 0){
-        return bigResult + result;
-      } else if(bigResult < 0) {
-        return bigResult;
-      }
-      
-      return result;
-      
-    } else {
-      std::memcpy(data, &m_buffer[m_pos], count);
-      m_pos += (v_bufferSize) count;
-      if(m_pos == m_posEnd){
-        m_pos = 0;
-        m_posEnd = 0;
-      }
-      return count;
+    auto bytesBuffered = m_buffer.readFromStreamAndWrite(*m_inputStream, m_buffer.getBufferSize());
+    if(bytesBuffered > 0) {
+      return m_buffer.read(data, count);
     }
+    return bytesBuffered;
   }
   
 }

@@ -59,7 +59,9 @@ HttpProcessor::processRequest(HttpRouter* router,
   }
   
   auto& bodyStream = inStream;
-  bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
+  bodyStream->setBufferPosition(headersReadResult.bufferPosStart,
+                                headersReadResult.bufferPosEnd,
+                                headersReadResult.bufferPosStart != headersReadResult.bufferPosEnd);
   
   auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                  route.matchMap,
@@ -107,7 +109,9 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
   }
   
   auto& bodyStream = m_inStream;
-  bodyStream->setBufferPosition(headersReadResult.bufferPosStart, headersReadResult.bufferPosEnd);
+  bodyStream->setBufferPosition(headersReadResult.bufferPosStart,
+                                headersReadResult.bufferPosEnd,
+                                headersReadResult.bufferPosStart != headersReadResult.bufferPosEnd);
   
   m_currentRequest = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                      m_currentRoute.matchMap,

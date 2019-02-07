@@ -77,6 +77,12 @@ public:
     return createDtoResponse(Status::CODE_200, dto);
   }
 
+  ENDPOINT("POST", "echo", echo,
+           BODY_STRING(String, body)) {
+    OATPP_LOGD(TAG, "POST body(echo) size=%d", body->getSize());
+    return createResponse(Status::CODE_200, body);
+  }
+
 #include OATPP_CODEGEN_END(ApiController)
   
 };
