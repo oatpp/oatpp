@@ -34,15 +34,22 @@ namespace oatpp { namespace data{ namespace stream {
 
 class Errors {
 public:
-  /**
-   * deprecated
-   */
-  static const char* const ERROR_ASYNC_FAILED_TO_WRITE_DATA;
 
   /**
-   * deprecated
+   * IOError::BROKEN_PIPE returned
    */
-  static const char* const ERROR_ASYNC_FAILED_TO_READ_DATA;
+  static const char* const ERROR_ASYNC_BROKEN_PIPE;
+
+  /**
+   * IOError::ZERO_VALUE value returned
+   */
+  static const char* const ERROR_ASYNC_BAD_RESULT;
+
+  /**
+   * Error code returned is not from IOError enum
+   */
+  static const char* const ERROR_ASYNC_UNKNOWN_CODE;
+
 };
   
 class OutputStream {
