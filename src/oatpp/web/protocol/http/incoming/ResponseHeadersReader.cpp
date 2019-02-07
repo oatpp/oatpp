@@ -28,14 +28,14 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   
-os::io::Library::v_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+data::v_io_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                                   oatpp::data::stream::OutputStream* bufferStream,
                                                                   Result& result) {
   
   v_word32 sectionEnd = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
   v_word32 accumulator = 0;
   v_int32 progress = 0;
-  os::io::Library::v_size res;
+  data::v_io_size res;
   while (true) {
     
     v_int32 desiredToRead = m_bufferSize;

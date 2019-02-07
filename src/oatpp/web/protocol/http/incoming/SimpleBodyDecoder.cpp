@@ -29,12 +29,12 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   
-os::io::Library::v_size SimpleBodyDecoder::readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
+data::v_io_size SimpleBodyDecoder::readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                                                     p_char8 buffer,
-                                                    os::io::Library::v_size maxLineSize) {
+                                                    data::v_io_size maxLineSize) {
   
   v_char8 a;
-  os::io::Library::v_size count = 0;
+  data::v_io_size count = 0;
   while (fromStream->read(&a, 1) > 0) {
     if(a != '\r') {
       if(count + 1 > maxLineSize) {
@@ -62,7 +62,7 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
   
   v_int32 maxLineSize = 8; // 0xFFFFFFFF 4Gb for chunk
   v_char8 lineBuffer[maxLineSize + 1];
-  os::io::Library::v_size countToRead;
+  data::v_io_size countToRead;
   
   do {
     
@@ -91,7 +91,7 @@ void SimpleBodyDecoder::decode(const Protocol::Headers& headers,
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     doChunkedDecoding(bodyStream, toStream);
   } else {
-    oatpp::os::io::Library::v_size contentLength = 0;
+    oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
     if(contentLengthStrIt == headers.end()) {
       return; // DO NOTHING // it is an empty or invalid body
@@ -127,7 +127,7 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
     bool m_lineEnding;
     v_char8 m_lineBuffer [16]; // used max 8
     void* m_skipData;
-    os::io::Library::v_size m_skipSize;
+    data::v_io_size m_skipSize;
     bool m_done = false;
   private:
     void prepareSkipRN() {
@@ -187,7 +187,7 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
     }
     
     Action onLineRead() {
-      os::io::Library::v_size countToRead = std::strtol((const char*) m_lineBuffer, nullptr, 16);
+      data::v_io_size countToRead = std::strtol((const char*) m_lineBuffer, nullptr, 16);
       if(countToRead > 0) {
         prepareSkipRN();
         return oatpp::data::stream::transferAsync(this, yieldTo(&ChunkedDecoder::skipRN), m_fromStream, m_toStream, countToRead, m_buffer);
@@ -226,7 +226,7 @@ oatpp::async::Action SimpleBodyDecoder::decodeAsync(oatpp::async::AbstractCorout
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     return doChunkedDecodingAsync(parentCoroutine, actionOnReturn, bodyStream, toStream);
   } else {
-    oatpp::os::io::Library::v_size contentLength = 0;
+    oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
     if(contentLengthStrIt == headers.end()) {
       return actionOnReturn; // DO NOTHING // it is an empty or invalid body

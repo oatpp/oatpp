@@ -27,7 +27,7 @@
 
 #include "./IOBuffer.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/os/io/Library.hpp"
+#include "oatpp/core/data/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
   
@@ -37,8 +37,8 @@ public:
   SHARED_OBJECT_POOL(Shared_FIFOBuffer_Pool, FIFOBuffer, 32)
 private:
   bool m_canRead;
-  os::io::Library::v_size m_readPosition;
-  os::io::Library::v_size m_writePosition;
+  data::v_io_size m_readPosition;
+  data::v_io_size m_writePosition;
   IOBuffer m_buffer;
   oatpp::concurrency::SpinLock::Atom m_atom;
 public:
@@ -54,12 +54,16 @@ public:
     return Shared_FIFOBuffer_Pool::allocateShared();
   }
   
-  os::io::Library::v_size availableToRead();
-  os::io::Library::v_size availableToWrite();
+  data::v_io_size availableToRead();
+  data::v_io_size availableToWrite();
   
-  os::io::Library::v_size read(void *data, os::io::Library::v_size count);
-  os::io::Library::v_size write(const void *data, os::io::Library::v_size count);
+  data::v_io_size read(void *data, data::v_io_size count);
+  data::v_io_size write(const void *data, data::v_io_size count);
   
+};
+
+class SynchronizedFIFOBuffer : public FIFOBuffer {
+
 };
   
 }}}

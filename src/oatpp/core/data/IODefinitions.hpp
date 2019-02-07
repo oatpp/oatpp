@@ -22,28 +22,50 @@
  *
  ***************************************************************************/
 
-#include "Library.hpp"
+#ifndef oatpp_data_IODefinitions_hpp
+#define oatpp_data_IODefinitions_hpp
 
-#include <memory>
-#include <unistd.h>
-#include <sys/socket.h>
+#include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace os { namespace io {
-  
-v_int32 Library::handle_close(v_handle handle){
-  return close(handle);
-}
-  
-Library::v_size Library::handle_read(v_handle handle, void *buf, v_size count){
-  return read(handle, buf, count);
-}
+namespace oatpp { namespace data {
 
-Library::v_size Library::handle_write(v_handle handle, const void *buf, v_size count){
-  v_int32 flags = 0;
-#ifdef MSG_NOSIGNAL
-  flags |= MSG_NOSIGNAL;
-#endif
-  return send(handle, buf, count, flags);
-}
+typedef int v_io_handle;
 
-}}}
+/**
+ * All I/O buffer operations (like read/write(buffer, size)) should return
+ * v_io_size.
+ *
+ * Possible return values:
+ * On Success - [0..max_int64]
+ * On Error - IOError values.
+ *
+ * All other values are considered to be a fatal error.
+ * application should be terminated.
+ */
+typedef v_int64 v_io_size;
+
+enum IOError : v_io_size {
+
+  /**
+   * I/O operation is not possible any more
+   * Client should give up trying and free all related resources
+   */
+  BROKEN_PIPE = -1001,
+
+  /**
+   * I/O operation was interrupted because of some reason
+   * Client may retry immediately
+   */
+  RETRY = -1002,
+
+  /**
+   * I/O operation is not currently available due to some reason
+   * Client should wait then retry
+   */
+  WAIT_RETRY = -1003
+
+};
+
+}}
+
+#endif //oatpp_data_IODefinitions_hpp

@@ -46,7 +46,7 @@ public:
     /**
      * this one used for testing purposes only
      */
-    os::io::Library::v_size m_maxAvailableToRead;
+    data::v_io_size m_maxAvailableToRead;
   public:
     
     Reader(Pipe* pipe, bool nonBlocking = false)
@@ -63,9 +63,9 @@ public:
      * this one used for testing purposes only
      * set to -1 in order to ignore this value
      */
-    void setMaxAvailableToRead(os::io::Library::v_size maxAvailableToRead);
+    void setMaxAvailableToRead(data::v_io_size maxAvailableToRead);
     
-    os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
+    data::v_io_size read(void *data, data::v_io_size count) override;
     
   };
   
@@ -77,7 +77,7 @@ public:
     /**
      * this one used for testing purposes only
      */
-    os::io::Library::v_size m_maxAvailableToWrtie;
+    data::v_io_size m_maxAvailableToWrtie;
   public:
     
     Writer(Pipe* pipe, bool nonBlocking = false)
@@ -94,9 +94,9 @@ public:
      * this one used for testing purposes only
      * set to -1 in order to ignore this value
      */
-    void setMaxAvailableToWrite(os::io::Library::v_size maxAvailableToWrite);
+    void setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite);
     
-    os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
+    data::v_io_size write(const void *data, data::v_io_size count) override;
     
   };
   

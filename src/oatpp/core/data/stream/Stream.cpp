@@ -30,7 +30,7 @@ namespace oatpp { namespace data{ namespace stream {
 const char* const Errors::ERROR_ASYNC_FAILED_TO_WRITE_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_DATA";
 const char* const Errors::ERROR_ASYNC_FAILED_TO_READ_DATA = "ERROR_ASYNC_FAILED_TO_READ_DATA";
   
-os::io::Library::v_size OutputStream::writeAsString(v_int32 value){
+data::v_io_size OutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -39,7 +39,7 @@ os::io::Library::v_size OutputStream::writeAsString(v_int32 value){
   return 0;
 }
 
-os::io::Library::v_size OutputStream::writeAsString(v_int64 value){
+data::v_io_size OutputStream::writeAsString(v_int64 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -48,7 +48,7 @@ os::io::Library::v_size OutputStream::writeAsString(v_int64 value){
   return 0;
 }
 
-os::io::Library::v_size OutputStream::writeAsString(v_float32 value){
+data::v_io_size OutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -57,7 +57,7 @@ os::io::Library::v_size OutputStream::writeAsString(v_float32 value){
   return 0;
 }
 
-os::io::Library::v_size OutputStream::writeAsString(v_float64 value){
+data::v_io_size OutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -66,7 +66,7 @@ os::io::Library::v_size OutputStream::writeAsString(v_float64 value){
   return 0;
 }
   
-os::io::Library::v_size OutputStream::writeAsString(bool value) {
+data::v_io_size OutputStream::writeAsString(bool value) {
   if(value){
     return write("true", 4);
   } else {
@@ -117,16 +117,16 @@ const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputSt
   return s;
 }
   
-oatpp::os::io::Library::v_size transfer(const std::shared_ptr<InputStream>& fromStream,
+oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
                                         const std::shared_ptr<OutputStream>& toStream,
-                                        oatpp::os::io::Library::v_size transferSize,
+                                        oatpp::data::v_io_size transferSize,
                                         void* buffer,
-                                        oatpp::os::io::Library::v_size bufferSize) {
+                                        oatpp::data::v_io_size bufferSize) {
   
-  oatpp::os::io::Library::v_size progress = 0;
+  oatpp::data::v_io_size progress = 0;
   
   while (transferSize == 0 || progress < transferSize) {
-    oatpp::os::io::Library::v_size desiredReadCount = transferSize - progress;
+    oatpp::data::v_io_size desiredReadCount = transferSize - progress;
     if(transferSize == 0 || desiredReadCount > bufferSize){
       desiredReadCount = bufferSize;
     }
@@ -153,27 +153,27 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
                                    const oatpp::async::Action& actionOnReturn,
                                    const std::shared_ptr<InputStream>& fromStream,
                                    const std::shared_ptr<OutputStream>& toStream,
-                                   oatpp::os::io::Library::v_size transferSize,
+                                   oatpp::data::v_io_size transferSize,
                                    const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
   
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
   private:
     std::shared_ptr<InputStream> m_fromStream;
     std::shared_ptr<OutputStream> m_toStream;
-    oatpp::os::io::Library::v_size m_transferSize;
-    oatpp::os::io::Library::v_size m_progress;
+    oatpp::data::v_io_size m_transferSize;
+    oatpp::data::v_io_size m_progress;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
     
-    oatpp::os::io::Library::v_size m_desiredReadCount;
+    oatpp::data::v_io_size m_desiredReadCount;
     void* m_readBufferPtr;
     const void* m_writeBufferPtr;
-    oatpp::os::io::Library::v_size m_bytesLeft;
+    oatpp::data::v_io_size m_bytesLeft;
     
   public:
     
     TransferCoroutine(const std::shared_ptr<InputStream>& fromStream,
                       const std::shared_ptr<OutputStream>& toStream,
-                      oatpp::os::io::Library::v_size transferSize,
+                      oatpp::data::v_io_size transferSize,
                       const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
       : m_fromStream(fromStream)
       , m_toStream(toStream)
@@ -243,7 +243,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
   
 oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
                                               const void*& data,
-                                              os::io::Library::v_size& size,
+                                              data::v_io_size& size,
                                               const oatpp::async::Action& nextAction) {
   auto res = stream->write(data, size);
   if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
@@ -265,7 +265,7 @@ oatpp::async::Action writeSomeDataAsyncInline(oatpp::data::stream::OutputStream*
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
                                               const void*& data,
-                                              os::io::Library::v_size& size,
+                                              data::v_io_size& size,
                                               const oatpp::async::Action& nextAction) {
   auto res = stream->write(data, size);
   if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
@@ -289,7 +289,7 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputSt
 
 oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                              void*& data,
-                                             os::io::Library::v_size& bytesLeftToRead,
+                                             data::v_io_size& bytesLeftToRead,
                                              const oatpp::async::Action& nextAction) {
   auto res = stream->read(data, bytesLeftToRead);
   if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
@@ -307,7 +307,7 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* s
 
 oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                                   void*& data,
-                                                  os::io::Library::v_size& bytesLeftToRead,
+                                                  data::v_io_size& bytesLeftToRead,
                                                   const oatpp::async::Action& nextAction) {
   auto res = stream->read(data, bytesLeftToRead);
   if(res == oatpp::data::stream::Errors::ERROR_IO_WAIT_RETRY) {
@@ -329,10 +329,10 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
   return nextAction;
 }
   
-oatpp::os::io::Library::v_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, os::io::Library::v_size size) {
+oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, data::v_io_size size) {
   
   char* buffer = (char*) data;
-  oatpp::os::io::Library::v_size progress = 0;
+  oatpp::data::v_io_size progress = 0;
   
   while (progress < size) {
     
@@ -353,10 +353,10 @@ oatpp::os::io::Library::v_size readExactSizeData(oatpp::data::stream::InputStrea
   
 }
   
-oatpp::os::io::Library::v_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, os::io::Library::v_size size) {
+oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, data::v_io_size size) {
   
   const char* buffer = (char*)data;
-  oatpp::os::io::Library::v_size progress = 0;
+  oatpp::data::v_io_size progress = 0;
   
   while (progress < size) {
     

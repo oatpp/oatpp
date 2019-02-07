@@ -77,8 +77,8 @@ public:
                                                                  bufferSize);
   }
   
-  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
-  os::io::Library::v_size flush();
+  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size flush();
   oatpp::async::Action flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                    const oatpp::async::Action& actionOnFinish);
   
@@ -166,7 +166,7 @@ public:
                                                                 positionEnd);
   }
   
-  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
+  data::v_io_size read(void *data, data::v_io_size count) override;
   
   void setBufferPosition(v_bufferSize pos, v_bufferSize posEnd){
     m_pos = pos;

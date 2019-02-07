@@ -52,10 +52,10 @@ public:
    * this one used for testing purposes only
    * set to -1 in order to ignore this value
    */
-  void setMaxAvailableToReadWrtie(os::io::Library::v_size maxToRead, os::io::Library::v_size maxToWrite);
+  void setMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite);
   
-  os::io::Library::v_size read(void *data, os::io::Library::v_size count) override;
-  os::io::Library::v_size write(const void *data, os::io::Library::v_size count) override;
+  data::v_io_size read(void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, data::v_io_size count) override;
   
   void setNonBlocking(bool nonBlocking);
   

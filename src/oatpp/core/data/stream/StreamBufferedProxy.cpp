@@ -26,7 +26,7 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::io::Library::v_size count) {
+data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_size count) {
   if(m_pos == 0){
     
     v_bufferSize spaceLeft = m_bufferSize - m_posEnd;
@@ -45,11 +45,11 @@ os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::i
       m_posEnd = m_bufferSize;
     }
     
-    os::io::Library::v_size writeResult = m_outputStream->write(m_buffer, m_bufferSize);
+    data::v_io_size writeResult = m_outputStream->write(m_buffer, m_bufferSize);
     
     if(writeResult == m_bufferSize){
       m_posEnd = 0;
-      os::io::Library::v_size bigResult = write(&((p_char8) data)[spaceLeft], count - spaceLeft);
+      data::v_io_size bigResult = write(&((p_char8) data)[spaceLeft], count - spaceLeft);
       if(bigResult > 0) {
         return bigResult + spaceLeft;
       } else if(bigResult < 0) {
@@ -70,7 +70,7 @@ os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::i
   } else {
     auto amount = m_posEnd - m_pos;
     if(amount > 0){
-      os::io::Library::v_size result = m_outputStream->write(&m_buffer[m_pos], amount);
+      data::v_io_size result = m_outputStream->write(&m_buffer[m_pos], amount);
       if(result == amount){
         m_pos = 0;
         m_posEnd = 0;
@@ -87,10 +87,10 @@ os::io::Library::v_size OutputStreamBufferedProxy::write(const void *data, os::i
   }
 }
 
-os::io::Library::v_size OutputStreamBufferedProxy::flush() {
+data::v_io_size OutputStreamBufferedProxy::flush() {
   auto amount = m_posEnd - m_pos;
   if(amount > 0){
-    os::io::Library::v_size result = stream::writeExactSizeData(m_outputStream.get(), &m_buffer[m_pos], amount);
+    data::v_io_size result = stream::writeExactSizeData(m_outputStream.get(), &m_buffer[m_pos], amount);
     if(result == amount){
       m_pos = 0;
       m_posEnd = 0;
@@ -117,7 +117,7 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
     Action act() override {
       auto amount = m_stream->m_posEnd - m_stream->m_pos;
       if(amount > 0){
-        os::io::Library::v_size result = m_stream->m_outputStream->write(&m_stream->m_buffer[m_stream->m_pos], amount);
+        data::v_io_size result = m_stream->m_outputStream->write(&m_stream->m_buffer[m_stream->m_pos], amount);
         if(result == amount) {
           m_stream->m_pos = 0;
           m_stream->m_posEnd = 0;
@@ -144,7 +144,7 @@ oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::Abstrac
   
 }
   
-os::io::Library::v_size InputStreamBufferedProxy::read(void *data, os::io::Library::v_size count) {
+data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {
   
   if (m_pos == 0 && m_posEnd == 0) {
   
@@ -185,7 +185,7 @@ os::io::Library::v_size InputStreamBufferedProxy::read(void *data, os::io::Libra
       
       m_pos = 0;
       m_posEnd = 0;
-      os::io::Library::v_size bigResult = read(&((p_char8) data) [result], count - result);
+      data::v_io_size bigResult = read(&((p_char8) data) [result], count - result);
       if(bigResult > 0){
         return bigResult + result;
       } else if(bigResult < 0) {

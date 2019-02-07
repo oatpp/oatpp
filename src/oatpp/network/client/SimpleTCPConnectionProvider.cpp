@@ -32,6 +32,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 namespace oatpp { namespace network { namespace client {
 
@@ -58,7 +59,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   client.sin_port = htons(m_port);
   memcpy(&client.sin_addr, host->h_addr, host->h_length);
   
-  oatpp::os::io::Library::v_handle clientHandle = socket(AF_INET, SOCK_STREAM, 0);
+  oatpp::data::v_io_handle clientHandle = socket(AF_INET, SOCK_STREAM, 0);
   
   if (clientHandle < 0) {
     OATPP_LOGD("SimpleTCPConnectionProvider", "Error creating socket.");
@@ -74,7 +75,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 #endif
   
   if (connect(clientHandle, (struct sockaddr *)&client, sizeof(client)) != 0 ) {
-    oatpp::os::io::Library::handle_close(clientHandle);
+    ::close(clientHandle);
     OATPP_LOGD("SimpleTCPConnectionProvider", "Could not connect");
     return nullptr;
   }
@@ -90,7 +91,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
   private:
     oatpp::String m_host;
     v_int32 m_port;
-    oatpp::os::io::Library::v_handle m_clientHandle;
+    oatpp::data::v_io_handle m_clientHandle;
     struct sockaddr_in m_client;
   public:
     
@@ -143,7 +144,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       } else if(errno == EINTR) {
         return repeat();
       }
-      oatpp::os::io::Library::handle_close(m_clientHandle);
+      ::close(m_clientHandle);
       return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Can't connect");
     }
     

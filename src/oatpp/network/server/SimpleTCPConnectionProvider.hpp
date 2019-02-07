@@ -29,7 +29,6 @@
 
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/os/io/Library.hpp"
 
 namespace oatpp { namespace network { namespace server {
   
@@ -37,9 +36,9 @@ class SimpleTCPConnectionProvider : public base::Controllable, public ServerConn
 private:
   v_word16 m_port;
   bool m_nonBlocking;
-  oatpp::os::io::Library::v_handle m_serverHandle;
+  oatpp::data::v_io_handle m_serverHandle;
 private:
-  oatpp::os::io::Library::v_handle instantiateServer();
+  oatpp::data::v_io_handle instantiateServer();
 public:
   SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking = false);
 public:
@@ -48,9 +47,7 @@ public:
     return std::make_shared<SimpleTCPConnectionProvider>(port, nonBlocking);
   }
   
-  ~SimpleTCPConnectionProvider() {
-    oatpp::os::io::Library::handle_close(m_serverHandle);
-  }
+  ~SimpleTCPConnectionProvider();
   
   std::shared_ptr<IOStream> getConnection() override;
   

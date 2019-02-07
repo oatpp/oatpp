@@ -26,18 +26,18 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
   
-void Pipe::Reader::setMaxAvailableToRead(os::io::Library::v_size maxAvailableToRead) {
+void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
   
-os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size count) {
+data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   
   if(m_maxAvailableToRead > -1 && count > m_maxAvailableToRead) {
     count = m_maxAvailableToRead;
   }
   
   Pipe& pipe = *m_pipe;
-  oatpp::os::io::Library::v_size result;
+  oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
     if(pipe.m_buffer.availableToRead() > 0) {
@@ -66,18 +66,18 @@ os::io::Library::v_size Pipe::Reader::read(void *data, os::io::Library::v_size c
   
 }
 
-void Pipe::Writer::setMaxAvailableToWrite(os::io::Library::v_size maxAvailableToWrite) {
+void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
   m_maxAvailableToWrtie = maxAvailableToWrite;
 }
   
-os::io::Library::v_size Pipe::Writer::write(const void *data, os::io::Library::v_size count) {
+data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   
   if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
     count = m_maxAvailableToWrtie;
   }
   
   Pipe& pipe = *m_pipe;
-  oatpp::os::io::Library::v_size result;
+  oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
     if(pipe.m_buffer.availableToWrite() > 0) {

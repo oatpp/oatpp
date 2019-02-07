@@ -36,15 +36,11 @@
 #include "oatpp/core/base/Controllable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
-#include "oatpp/core/os/io/Library.hpp"
-
 #include <atomic>
 
 namespace oatpp { namespace network { namespace server {
 
 class Server : public base::Controllable, public concurrency::Runnable{
-public:
-  typedef oatpp::os::io::Library Library;
 private:
 
   void mainLoop();

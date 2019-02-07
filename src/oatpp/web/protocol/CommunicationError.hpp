@@ -25,19 +25,18 @@
 #ifndef oatpp_web_protocol_CommunicationError_hpp
 #define oatpp_web_protocol_CommunicationError_hpp
 
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/os/io/Library.hpp"
+#include "oatpp/core/data/IODefinitions.hpp"
 
 namespace oatpp { namespace web { namespace protocol {
   
 class CommunicationError : public std::runtime_error {
 private:
-  oatpp::os::io::Library::v_size m_ioStatus;
+  oatpp::data::v_io_size m_ioStatus;
   oatpp::String m_message;
 public:
   
-  CommunicationError(oatpp::os::io::Library::v_size ioStatus, const oatpp::String& message);
-  oatpp::os::io::Library::v_size getIOStatus();
+  CommunicationError(oatpp::data::v_io_size ioStatus, const oatpp::String& message);
+  oatpp::data::v_io_size getIOStatus();
   oatpp::String& getMessage();
   
 };
@@ -52,12 +51,12 @@ public:
       : ioStatus(0)
     {}
     
-    Info(oatpp::os::io::Library::v_size pIOStatus, const Status& pStatus)
+    Info(oatpp::data::v_io_size pIOStatus, const Status& pStatus)
       : ioStatus(pIOStatus)
       , status(pStatus)
     {}
     
-    oatpp::os::io::Library::v_size ioStatus;
+    oatpp::data::v_io_size ioStatus;
     Status status;
     
   };

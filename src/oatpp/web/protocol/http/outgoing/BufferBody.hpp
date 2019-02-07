@@ -62,7 +62,7 @@ public:
     std::shared_ptr<BufferBody> m_body;
     std::shared_ptr<OutputStream> m_stream;
     const void* m_currData;
-    oatpp::os::io::Library::v_size m_currDataSize;
+    oatpp::data::v_io_size m_currDataSize;
   public:
     
     WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,

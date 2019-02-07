@@ -154,7 +154,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
     void* m_bufferPointer;
-    os::io::Library::v_size m_bufferBytesLeftToRead;
+    data::v_io_size m_bufferBytesLeftToRead;
   public:
     
     ExecutorCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,

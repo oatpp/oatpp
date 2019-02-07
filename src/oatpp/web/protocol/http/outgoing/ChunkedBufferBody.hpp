@@ -92,7 +92,7 @@ public:
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> m_chunks;
     oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* m_currChunk;
     const void* m_currData;
-    oatpp::os::io::Library::v_size m_currDataSize;
+    oatpp::data::v_io_size m_currDataSize;
     Action m_nextAction;
     v_char8 m_buffer[16];
   public:
