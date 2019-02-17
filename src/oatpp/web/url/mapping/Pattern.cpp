@@ -106,7 +106,7 @@ std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
   return parse(data->getData(), data->getSize());
 }
   
-v_char8 Pattern::findSysChar(oatpp::parser::ParsingCaret& caret) {
+v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   auto data = caret.getData();
   for (v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
     v_char8 a = data[i];
@@ -121,7 +121,7 @@ v_char8 Pattern::findSysChar(oatpp::parser::ParsingCaret& caret) {
   
 bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
-  oatpp::parser::ParsingCaret caret(url.getData(), url.getSize());
+  oatpp::parser::Caret caret(url.getData(), url.getSize());
   
   if(m_parts->count() == 0){
     
@@ -142,7 +142,7 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
     
     if(part->function == Part::FUNCTION_CONST){
       
-      if(!caret.proceedIfFollowsText(part->text->getData(), part->text->getSize())){
+      if(!caret.isAtText(part->text->getData(), part->text->getSize(), true)){
         return false;
       }
       
@@ -165,7 +165,7 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
         return false;
       }
       
-      oatpp::parser::ParsingCaret::Label label(caret);
+      oatpp::parser::Caret::Label label(caret);
       v_char8 a = findSysChar(caret);
       if(a == '?') {
         if(curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END) {

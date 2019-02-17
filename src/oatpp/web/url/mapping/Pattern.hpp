@@ -29,7 +29,7 @@
 
 #include "oatpp/core/collection/LinkedList.hpp"
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
 #include <unordered_map>
 
@@ -96,7 +96,7 @@ private:
 private:
   std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<Part>>> m_parts;
 private:
-  v_char8 findSysChar(oatpp::parser::ParsingCaret& caret);
+  v_char8 findSysChar(oatpp::parser::Caret& caret);
 public:
   Pattern()
     : m_parts(oatpp::collection::LinkedList<std::shared_ptr<Part>>::createShared())

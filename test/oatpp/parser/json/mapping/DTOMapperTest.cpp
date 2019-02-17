@@ -166,7 +166,7 @@ bool DTOMapperTest::onRun(){
   OATPP_LOGD(TAG, "...");
   
   auto config = oatpp::parser::json::mapping::Deserializer::Config::createShared();
-  oatpp::parser::ParsingCaret caret(result);
+  oatpp::parser::Caret caret(result);
   auto obj = mapper->readFromCaret<Test>(caret);
   
   OATPP_ASSERT(obj->_string);

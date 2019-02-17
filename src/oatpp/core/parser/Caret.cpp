@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include "ParsingCaret.hpp"
+#include "Caret.hpp"
 
 #include <stdlib.h>
 #include <cstdlib>
@@ -30,35 +30,74 @@
 
 namespace oatpp { namespace parser {
   
-  const char* const ParsingCaret::ERROR_INVALID_INTEGER = "ERROR_INVALID_INTEGER";
-  const char* const ParsingCaret::ERROR_INVALID_FLOAT = "ERROR_INVALID_FLOAT";
-  const char* const ParsingCaret::ERROR_INVALID_BOOLEAN = "ERROR_INVALID_BOOLEAN";
-  const char* const ParsingCaret::ERROR_NO_OPEN_TAG = "ERROR_NO_OPEN_TAG";
-  const char* const ParsingCaret::ERROR_NO_CLOSE_TAG = "ERROR_NO_CLOSE_TAG";
-  const char* const ParsingCaret::ERROR_NAME_EXPECTED = "ERROR_NAME_EXPECTED";
+  const char* const Caret::ERROR_INVALID_INTEGER = "ERROR_INVALID_INTEGER";
+  const char* const Caret::ERROR_INVALID_FLOAT = "ERROR_INVALID_FLOAT";
+  const char* const Caret::ERROR_INVALID_BOOLEAN = "ERROR_INVALID_BOOLEAN";
+  const char* const Caret::ERROR_NO_OPEN_TAG = "ERROR_NO_OPEN_TAG";
+  const char* const Caret::ERROR_NO_CLOSE_TAG = "ERROR_NO_CLOSE_TAG";
+  const char* const Caret::ERROR_NAME_EXPECTED = "ERROR_NAME_EXPECTED";
 
+/////////////////////////////////////////////////////////////////////////////////
+// Caret::Label
 
-  void ParsingCaret::Label::start() {
+  Caret::Label::Label(Caret& caret)
+    : m_caret(&caret)
+    , m_start(caret.m_pos)
+    , m_end(-1)
+  {}
+
+  void Caret::Label::start() {
     m_start = m_caret->m_pos;
     m_end = -1;
   }
 
-  void ParsingCaret::Label::end() {
+  void Caret::Label::end() {
     m_end = m_caret->m_pos;
   }
 
-  p_char8 ParsingCaret::Label::getData(){
+  p_char8 Caret::Label::getData(){
     return &m_caret->m_data[m_start];
   }
 
-  v_int32 ParsingCaret::Label::getSize(){
+  v_int32 Caret::Label::getSize(){
     if(m_end == -1) {
       return m_caret->m_pos - m_start;
     }
     return m_end - m_start;
   }
 
-  oatpp::String ParsingCaret::Label::toString(bool saveAsOwnData){
+/////////////////////////////////////////////////////////////////////////////////
+// Caret::StateSaveGuard
+
+Caret::StateSaveGuard::StateSaveGuard(Caret& caret)
+  : m_caret(caret)
+  , m_savedPosition(caret.m_pos)
+  , m_savedErrorMessage(caret.m_errorMessage)
+  , m_savedErrorCode(caret.m_errorCode)
+{}
+
+    Caret::StateSaveGuard::~StateSaveGuard() {
+  m_caret.m_pos = m_savedPosition;
+  m_caret.m_errorMessage = m_savedErrorMessage;
+  m_caret.m_errorCode = m_savedErrorCode;
+}
+
+v_int32 Caret::StateSaveGuard::getSavedPosition() {
+  return m_savedPosition;
+}
+
+const char* Caret::StateSaveGuard::getSavedErrorMessage() {
+  return m_savedErrorMessage;
+}
+
+v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
+  return m_savedErrorCode;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Caret
+
+  oatpp::String Caret::Label::toString(bool saveAsOwnData){
     v_int32 end = m_end;
     if(end == -1){
       end = m_caret->m_pos;
@@ -66,11 +105,11 @@ namespace oatpp { namespace parser {
     return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start, saveAsOwnData);
   }
 
-  oatpp::String ParsingCaret::Label::toString(){
+  oatpp::String Caret::Label::toString(){
     return toString(true);
   }
 
-  std::string ParsingCaret::Label::std_str(){
+  std::string Caret::Label::std_str(){
     v_int32 end = m_end;
     if(end == -1){
       end = m_caret->m_pos;
@@ -79,11 +118,11 @@ namespace oatpp { namespace parser {
   }
 
   
-  ParsingCaret::ParsingCaret(const char* text)
-    : ParsingCaret((p_char8)text, (v_int32) std::strlen(text))
+  Caret::Caret(const char* text)
+    : Caret((p_char8)text, (v_int32) std::strlen(text))
   {}
   
-  ParsingCaret::ParsingCaret(p_char8 parseData, v_int32 dataSize)
+  Caret::Caret(p_char8 parseData, v_int32 dataSize)
     : m_data(parseData)
     , m_size(dataSize)
     , m_pos(0)
@@ -91,76 +130,76 @@ namespace oatpp { namespace parser {
     , m_errorCode(0)
   {}
   
-  ParsingCaret::ParsingCaret(const oatpp::String& str)
-    : ParsingCaret(str->getData(), str->getSize())
+  Caret::Caret(const oatpp::String& str)
+    : Caret(str->getData(), str->getSize())
   {}
   
-  std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const char* text){
-    return std::make_shared<ParsingCaret>(text);
+  std::shared_ptr<Caret> Caret::createShared(const char* text){
+    return std::make_shared<Caret>(text);
   }
   
-  std::shared_ptr<ParsingCaret> ParsingCaret::createShared(p_char8 parseData, v_int32 dataSize){
-    return std::make_shared<ParsingCaret>(parseData, dataSize);
+  std::shared_ptr<Caret> Caret::createShared(p_char8 parseData, v_int32 dataSize){
+    return std::make_shared<Caret>(parseData, dataSize);
   }
   
-  std::shared_ptr<ParsingCaret> ParsingCaret::createShared(const oatpp::String& str){
-    return std::make_shared<ParsingCaret>(str->getData(), str->getSize());
+  std::shared_ptr<Caret> Caret::createShared(const oatpp::String& str){
+    return std::make_shared<Caret>(str->getData(), str->getSize());
   }
   
-  ParsingCaret::~ParsingCaret(){
+  Caret::~Caret(){
   }
   
-  p_char8 ParsingCaret::getData(){
+  p_char8 Caret::getData(){
     return m_data;
   }
   
-  p_char8 ParsingCaret::getCurrData(){
+  p_char8 Caret::getCurrData(){
     return &m_data[m_pos];
   }
   
-  v_int32 ParsingCaret::getSize(){
+  v_int32 Caret::getSize(){
     return m_size;
   }
   
-  void ParsingCaret::setPosition(v_int32 position){
+  void Caret::setPosition(v_int32 position){
     m_pos = position;
   }
   
-  v_int32 ParsingCaret::getPosition(){
+  v_int32 Caret::getPosition(){
     return m_pos;
   }
   
-  void ParsingCaret::setError(const char* errorMessage, v_int32 errorCode){
+  void Caret::setError(const char* errorMessage, v_int32 errorCode){
     m_errorMessage = errorMessage;
     m_errorCode = errorCode;
   }
   
-  const char* ParsingCaret::getErrorMessage() {
+  const char* Caret::getErrorMessage() {
     return m_errorMessage;
   }
 
-  v_int32 ParsingCaret::getErrorCode() {
+  v_int32 Caret::getErrorCode() {
     return m_errorCode;
   }
   
-  bool ParsingCaret::hasError(){
+  bool Caret::hasError(){
     return m_errorMessage != nullptr;
   }
   
-  void ParsingCaret::clearError(){
+  void Caret::clearError(){
     m_errorMessage = nullptr;
     m_errorCode = 0;
   }
   
-  void ParsingCaret::inc(){
+  void Caret::inc(){
     m_pos ++;
   }
   
-  void ParsingCaret::inc(v_int32 amount){
+  void Caret::inc(v_int32 amount){
     m_pos+= amount;
   }
   
-  bool ParsingCaret::findNotBlankChar(){
+  bool Caret::skipBlankChars(){
     
     while(m_pos < m_size){
       v_char8 a = m_data[m_pos];
@@ -172,16 +211,7 @@ namespace oatpp { namespace parser {
     return false;
   }
   
-  bool ParsingCaret::findNotSpaceChar(){
-    while(m_pos < m_size){
-      if(m_data[m_pos] != ' ')
-        return true;
-      m_pos ++;
-    }
-    return false;
-  }
-  
-  bool ParsingCaret::skipChar(v_char8 c) {
+  bool Caret::skipChar(v_char8 c) {
     while(m_pos < m_size){
       if(m_data[m_pos] != c)
         return true;
@@ -190,7 +220,7 @@ namespace oatpp { namespace parser {
     return false;
   }
   
-  bool ParsingCaret::findChar(v_char8 c){
+  bool Caret::findChar(v_char8 c){
     
     while(m_pos < m_size){
       if(m_data[m_pos] == c)
@@ -201,11 +231,11 @@ namespace oatpp { namespace parser {
     return false;
   }
   
-  bool ParsingCaret::findCharNotFromSet(const char* set){
+  bool Caret::findCharNotFromSet(const char* set){
     return findCharNotFromSet((p_char8)set, (v_int32) std::strlen(set));
   }
   
-  bool ParsingCaret::findCharNotFromSet(p_char8 set, v_int32 setSize){
+  bool Caret::findCharNotFromSet(p_char8 set, v_int32 setSize){
     
     while(m_pos < m_size){
       if(notAtCharFromSet(set, setSize)){
@@ -218,11 +248,11 @@ namespace oatpp { namespace parser {
     
   }
   
-  v_int32 ParsingCaret::findCharFromSet(const char* set){
+  v_int32 Caret::findCharFromSet(const char* set){
     return findCharFromSet((p_char8) set, (v_int32) std::strlen(set));
   }
   
-  v_int32 ParsingCaret::findCharFromSet(p_char8 set, v_int32 setSize){
+  v_int32 Caret::findCharFromSet(p_char8 set, v_int32 setSize){
     
     while(m_pos < m_size){
       
@@ -240,34 +270,7 @@ namespace oatpp { namespace parser {
     
   }
   
-  bool ParsingCaret::findNextLine(){
-    
-    bool nlFound = false;
-    
-    while(m_pos < m_size){
-      
-      if(nlFound){
-        
-        if(m_data[m_pos] != '\n' && m_data[m_pos] != '\r'){
-          return true;
-        }
-        
-      }else{
-        
-        if(m_data[m_pos] == '\n' || m_data[m_pos] == '\r'){
-          nlFound = true;
-        }
-        
-      }
-      
-      m_pos ++;
-    }
-    
-    return false;
-    
-  }
-  
-  bool ParsingCaret::findRN() {
+  bool Caret::findRN() {
     
     while(m_pos < m_size){
       if(m_data[m_pos] == '\r'){
@@ -281,7 +284,7 @@ namespace oatpp { namespace parser {
     return false;
   }
   
-  bool ParsingCaret::skipRN() {
+  bool Caret::skipRN() {
     if(m_pos + 1 < m_size && m_data[m_pos] == '\r' && m_data[m_pos + 1] == '\n'){
       m_pos += 2;
       return true;
@@ -289,58 +292,63 @@ namespace oatpp { namespace parser {
     return false;
   }
   
-  bool ParsingCaret::isAtRN() {
+  bool Caret::isAtRN() {
     return (m_pos + 1 < m_size && m_data[m_pos] == '\r' && m_data[m_pos + 1] == '\n');
   }
-  
-  v_int32 ParsingCaret::parseInteger(bool allowNegative){
-    
-    bool negative = m_data[m_pos] == '-';
-    
-    if(negative){
-      
-      if(!allowNegative){
-        m_errorMessage = ERROR_INVALID_INTEGER;
-        return 0;
+
+
+  bool Caret::findROrN() {
+    while(m_pos < m_size) {
+      v_char8 a = m_data[m_pos];
+      if(a == '\r' || a == '\n') {
+        return true;
       }
-      
-      inc();
-      if(findNotSpaceChar() == false){
-        m_errorMessage = ERROR_INVALID_INTEGER;
-        return 0;
-      }
-    }
-    
-    v_int32 ipos = m_pos;
-    
-    while(m_pos < m_size && m_data[m_pos] >= '0' && m_data[m_pos] <= '9'){
       m_pos ++;
     }
-    
-    v_int32 len = m_pos - ipos;
-    
-    if(len > 0){
-      
-      auto str = oatpp::String((const char*)&m_data[ipos], len, true);
-      v_int32 result = atoi((const char*)str->getData());
-      
-      if(negative){
-        result = - result;
+    return false;
+  }
+
+  bool Caret::skipRNOrN() {
+    if(m_pos < m_size - 1 && m_data[m_pos] == '\r' && m_data[m_pos + 1] == '\n') {
+      m_pos += 2;
+      return true;
+    }
+    if(m_pos < m_size && m_data[m_pos] == '\n') {
+      m_pos ++;
+      return true;
+    }
+    return false;
+  }
+
+  bool Caret::skipAllRsAndNs() {
+    bool skipped = false;
+    while(m_pos < m_size) {
+      v_char8 a = m_data[m_pos];
+      if(a == '\r' || a == '\n') {
+        m_pos ++;
+        skipped = true;
+      } else {
+        break;
       }
-      
-      return result;
-      
-    }else{
-      m_errorMessage = ERROR_INVALID_INTEGER;
-      return 0;
     }
-    
+    return skipped;
   }
-  
-  v_int32 ParsingCaret::parseInt32(){
+
+  long int Caret::parseInt(int base) {
     char* end;
     char* start = (char*)&m_data[m_pos];
-    v_int32 result = (v_float32) std::strtol(start, &end, 10);
+    long int result = std::strtol(start, &end, base);
+    if(start == end){
+      m_errorMessage = ERROR_INVALID_INTEGER;
+    }
+    m_pos = (v_int32)((v_int64) end - (v_int64) m_data);
+    return result;
+  }
+
+  unsigned long int Caret::parseUnsignedInt(int base) {
+    char* end;
+    char* start = (char*)&m_data[m_pos];
+    long int result = std::strtoul(start, &end, base);
     if(start == end){
       m_errorMessage = ERROR_INVALID_INTEGER;
     }
@@ -348,18 +356,7 @@ namespace oatpp { namespace parser {
     return result;
   }
   
-  v_int64 ParsingCaret::parseInt64(){
-    char* end;
-    char* start = (char*)&m_data[m_pos];
-    v_int64 result = std::strtol(start, &end, 10);
-    if(start == end){
-      m_errorMessage = ERROR_INVALID_INTEGER;
-    }
-    m_pos = (v_int32)((v_int64) end - (v_int64) m_data);
-    return result;
-  }
-  
-  v_float32 ParsingCaret::parseFloat32(){
+  v_float32 Caret::parseFloat32(){
     char* end;
     char* start = (char*)&m_data[m_pos];
     v_float32 result = std::strtof(start , &end);
@@ -370,7 +367,7 @@ namespace oatpp { namespace parser {
     return result;
   }
   
-  v_float64 ParsingCaret::parseFloat64(){
+  v_float64 Caret::parseFloat64(){
     char* end;
     char* start = (char*)&m_data[m_pos];
     v_float64 result = std::strtod(start , &end);
@@ -381,21 +378,11 @@ namespace oatpp { namespace parser {
     return result;
   }
   
-  bool ParsingCaret::parseBoolean(const char* trueText, const char* falseText){
-    if(proceedIfFollowsText(trueText)){
-      return true;
-    } else if(proceedIfFollowsText(falseText)){
-      return false;
-    }
-    setError(ERROR_INVALID_BOOLEAN);
-    return false;
+  bool Caret::isAtText(const char* text, bool skipIfTrue){
+    return isAtText((p_char8)text, (v_int32) std::strlen(text), skipIfTrue);
   }
   
-  bool ParsingCaret::proceedIfFollowsText(const char* text){
-    return proceedIfFollowsText((p_char8)text, (v_int32) std::strlen(text));
-  }
-  
-  bool ParsingCaret::proceedIfFollowsText(p_char8 text, v_int32 textSize){
+  bool Caret::isAtText(p_char8 text, v_int32 textSize, bool skipIfTrue){
     
     if(textSize <= m_size - m_pos){
       
@@ -406,8 +393,10 @@ namespace oatpp { namespace parser {
         }
         
       }
-      
-      m_pos = m_pos + textSize;
+
+      if(skipIfTrue) {
+        m_pos = m_pos + textSize;
+      }
       
       return true;
       
@@ -417,11 +406,11 @@ namespace oatpp { namespace parser {
     
   }
   
-  bool ParsingCaret::proceedIfFollowsTextNCS(const char* text){
-    return proceedIfFollowsTextNCS((p_char8)text, (v_int32) std::strlen(text));
+  bool Caret::isAtTextNCS(const char* text, bool skipIfTrue){
+    return isAtTextNCS((p_char8)text, (v_int32) std::strlen(text), skipIfTrue);
   }
   
-  bool ParsingCaret::proceedIfFollowsTextNCS(p_char8 text, v_int32 textSize){
+  bool Caret::isAtTextNCS(p_char8 text, v_int32 textSize, bool skipIfTrue){
     
     if(textSize <= m_size - m_pos){
       
@@ -443,8 +432,10 @@ namespace oatpp { namespace parser {
         }
         
       }
-      
-      m_pos = m_pos + textSize;
+
+      if(skipIfTrue) {
+        m_pos = m_pos + textSize;
+      }
       
       return true;
       
@@ -454,39 +445,7 @@ namespace oatpp { namespace parser {
     
   }
   
-  bool ParsingCaret::proceedIfFollowsWord(const char* text){
-    return proceedIfFollowsWord((p_char8)text, (v_int32) std::strlen(text));
-  }
-  
-  bool ParsingCaret::proceedIfFollowsWord(p_char8 text, v_int32 textSize){
-    
-    if(textSize <= m_size - m_pos){
-      
-      for(v_int32 i = 0; i < textSize; i++){
-        
-        if(text[i] != m_data[m_pos + i]){
-          return false;
-        }
-        
-      }
-      
-      v_char8 a = m_data[m_pos + textSize];
-      
-      if(!(a >= '0' && a <= '9') && !(a >= 'a' && a <= 'z') &&
-         !(a >= 'A' && a <= 'Z') && a != '_'){
-        
-        m_pos = m_pos + textSize;
-        return true;
-        
-      }
-      
-    }
-    
-    return false;
-    
-  }
-  
-  oatpp::String ParsingCaret::parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData){
+  oatpp::String Caret::parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData){
     
     if(m_data[m_pos] == openChar){
       
@@ -517,7 +476,7 @@ namespace oatpp { namespace parser {
     
   }
   
-  oatpp::String ParsingCaret::parseName(bool saveAsOwnData){
+  oatpp::String Caret::parseName(bool saveAsOwnData){
     
     v_int32 ipos = m_pos;
     while(m_pos < m_size){
@@ -551,36 +510,16 @@ namespace oatpp { namespace parser {
     
   }
   
-  bool ParsingCaret::findText(p_char8 text, v_int32 textSize) {
+  bool Caret::findText(p_char8 text, v_int32 textSize) {
     m_pos = (v_int32)(std::search(&m_data[m_pos], &m_data[m_size], text, text + textSize) - m_data);
     return m_pos != m_size;
   }
   
-  oatpp::String ParsingCaret::findTextFromList(const std::shared_ptr<oatpp::collection::LinkedList<oatpp::String>>& list){
-    
-    while(m_pos < m_size){
-      
-      auto currNode = list->getFirstNode();
-      while(currNode != nullptr){
-        auto str = currNode->getData();
-        if(proceedIfFollowsText(str->getData(), str->getSize())){
-          return str;
-        }
-        currNode = currNode->getNext();
-      }
-      
-      m_pos++;
-    }
-    
-    return nullptr;
-    
-  }
-  
-  bool ParsingCaret::notAtCharFromSet(const char* set) const{
+  bool Caret::notAtCharFromSet(const char* set) const{
     return notAtCharFromSet((p_char8)set, (v_int32) std::strlen(set));
   }
   
-  bool ParsingCaret::notAtCharFromSet(p_char8 set, v_int32 setSize) const{
+  bool Caret::notAtCharFromSet(p_char8 set, v_int32 setSize) const{
     
     v_char8 a = m_data[m_pos];
     
@@ -594,25 +533,25 @@ namespace oatpp { namespace parser {
     
   }
   
-  bool ParsingCaret::isAtChar(v_char8 c) const{
+  bool Caret::isAtChar(v_char8 c) const{
     return m_data[m_pos] == c;
   }
   
-  bool ParsingCaret::isAtBlankChar() const{
+  bool Caret::isAtBlankChar() const{
     v_char8 a = m_data[m_pos];
     return (a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\b' || a == '\f');
   }
   
-  bool ParsingCaret::isAtDigitChar() const{
+  bool Caret::isAtDigitChar() const{
     v_char8 a = m_data[m_pos];
     return (a >= '0' && a <= '9');
   }
   
-  bool ParsingCaret::canContinueAtChar(v_char8 c) const{
+  bool Caret::canContinueAtChar(v_char8 c) const{
     return m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c;
   }
   
-  bool ParsingCaret::canContinueAtChar(v_char8 c, v_int32 skipChars){
+  bool Caret::canContinueAtChar(v_char8 c, v_int32 skipChars){
     
     if(m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c){
       m_pos = m_pos + skipChars;
@@ -621,11 +560,11 @@ namespace oatpp { namespace parser {
     return false;
   }
   
-  bool ParsingCaret::canContinue() const{
+  bool Caret::canContinue() const{
     return m_pos < m_size && m_errorMessage == nullptr;
   }
   
-  bool ParsingCaret::isEnd() const{
+  bool Caret::isEnd() const{
     return m_pos >= m_size;
   }
   
