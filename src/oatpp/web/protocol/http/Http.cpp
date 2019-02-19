@@ -135,9 +135,8 @@ oatpp::String Range::toString() const {
 }
 
 Range Range::parse(oatpp::parser::Caret& caret) {
-  
-  oatpp::parser::Caret::Label unitsLabel(caret);
-  
+
+  auto unitsLabel = caret.putLabel();
   if(caret.findChar('=')) {
     unitsLabel.end();
     caret.inc();
@@ -145,8 +144,8 @@ Range Range::parse(oatpp::parser::Caret& caret) {
     caret.setError("'=' - expected");
     return Range();
   }
-  
-  oatpp::parser::Caret::Label startLabel(caret);
+
+  auto startLabel = caret.putLabel();
   if(caret.findChar('-')) {
     startLabel.end();
     caret.inc();
@@ -154,8 +153,8 @@ Range Range::parse(oatpp::parser::Caret& caret) {
     caret.setError("'-' - expected");
     return Range();
   }
-  
-  oatpp::parser::Caret::Label endLabel(caret);
+
+  auto endLabel = caret.putLabel();
   caret.findRN();
   endLabel.end();
   
@@ -187,9 +186,8 @@ oatpp::String ContentRange::toString() const {
 }
 
 ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
-  
-  oatpp::parser::Caret::Label unitsLabel(caret);
-  
+
+  auto unitsLabel = caret.putLabel();
   if(caret.findChar(' ')) {
     unitsLabel.end();
     caret.inc();
@@ -197,8 +195,8 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
     caret.setError("' ' - expected");
     return ContentRange();
   }
-  
-  oatpp::parser::Caret::Label startLabel(caret);
+
+  auto startLabel = caret.putLabel();
   if(caret.findChar('-')) {
     startLabel.end();
     caret.inc();
@@ -206,8 +204,8 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
     caret.setError("'-' - expected");
     return ContentRange();
   }
-  
-  oatpp::parser::Caret::Label endLabel(caret);
+
+  auto endLabel = caret.putLabel();
   if(caret.findChar('/')) {
     endLabel.end();
     caret.inc();
@@ -215,8 +213,8 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
     caret.setError("'/' - expected");
     return ContentRange();
   }
-  
-  oatpp::parser::Caret::Label sizeLabel(caret);
+
+  auto sizeLabel = caret.putLabel();
   caret.findRN();
   sizeLabel.end();
   
@@ -241,7 +239,7 @@ ContentRange ContentRange::parse(const oatpp::String& str) {
 oatpp::data::share::StringKeyLabelCI_FAST Protocol::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                                                          oatpp::parser::Caret& caret) {
   p_char8 data = caret.getData();
-  for(v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
+  for(v_int32 i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = data[i];
     if(a == ':' || a == ' '){
       oatpp::data::share::StringKeyLabelCI_FAST label(headersText, &data[caret.getPosition()], i - caret.getPosition());
@@ -257,8 +255,8 @@ void Protocol::parseRequestStartingLine(RequestStartingLine& line,
                                         const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                         oatpp::parser::Caret& caret,
                                         Status& error) {
-  
-  oatpp::parser::Caret::Label methodLabel(caret);
+
+  auto methodLabel = caret.putLabel();
   if(caret.findChar(' ')){
     line.method = oatpp::data::share::StringKeyLabel(headersText, methodLabel.getData(), methodLabel.getSize());
     caret.inc();
@@ -266,8 +264,8 @@ void Protocol::parseRequestStartingLine(RequestStartingLine& line,
     error = Status::CODE_400;
     return;
   }
-  
-  oatpp::parser::Caret::Label pathLabel(caret);
+
+  auto pathLabel = caret.putLabel();
   if(caret.findChar(' ')){
     line.path = oatpp::data::share::StringKeyLabel(headersText, pathLabel.getData(), pathLabel.getSize());
     caret.inc();
@@ -275,8 +273,8 @@ void Protocol::parseRequestStartingLine(RequestStartingLine& line,
     error = Status::CODE_400;
     return;
   }
-  
-  oatpp::parser::Caret::Label protocolLabel(caret);
+
+  auto protocolLabel = caret.putLabel();
   if(caret.findRN()){
     line.protocol = oatpp::data::share::StringKeyLabel(headersText, protocolLabel.getData(), protocolLabel.getSize());
     caret.skipRN();
@@ -291,8 +289,8 @@ void Protocol::parseResponseStartingLine(ResponseStartingLine& line,
                                          const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                          oatpp::parser::Caret& caret,
                                          Status& error) {
-  
-  oatpp::parser::Caret::Label protocolLabel(caret);
+
+  auto protocolLabel = caret.putLabel();
   if(caret.findChar(' ')){
     line.protocol = oatpp::data::share::StringKeyLabel(headersText, protocolLabel.getData(), protocolLabel.getSize());
     caret.inc();
@@ -302,8 +300,8 @@ void Protocol::parseResponseStartingLine(ResponseStartingLine& line,
   }
   
   line.statusCode = caret.parseInt();
-  
-  oatpp::parser::Caret::Label descriptionLabel(caret);
+
+  auto descriptionLabel = caret.putLabel();
   if(caret.findRN()){
     line.description = oatpp::data::share::StringKeyLabel(headersText, descriptionLabel.getData(), descriptionLabel.getSize());
     caret.skipRN();

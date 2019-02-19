@@ -50,7 +50,7 @@ public:
     v_int32 m_end;
   public:
     
-    Label(Caret& caret);
+    Label(Caret* caret);
     
     void start();
     void end();
@@ -59,6 +59,8 @@ public:
     oatpp::String toString(bool saveAsOwnData);
     oatpp::String toString();
     std::string std_str();
+
+    explicit operator bool() const;
     
   };
 
@@ -96,37 +98,154 @@ public:
   static std::shared_ptr<Caret> createShared(const oatpp::String& str);
 
   virtual ~Caret();
-  
+
+  /**
+   * Get pointer to a data, passed to Caret constructor
+   * @return
+   */
   p_char8 getData();
+
+  /**
+   * Same as &getData()[position]
+   * @return
+   */
   p_char8 getCurrData();
-  v_int32 getSize();
-  
+
+  /**
+   * Get size of a data
+   * @return
+   */
+  v_int32 getDataSize();
+
+  /**
+   * Set caret position relative to data
+   * @param position
+   */
   void setPosition(v_int32 position);
+
+  /**
+   * Get caret position relative to data
+   * @return
+   */
   v_int32 getPosition();
 
+  /**
+   * Set error message and error code.
+   * Note that once error message is set, methods canContinue... will return false
+   * @param errorMessage
+   * @param errorCode
+   */
   void setError(const char* errorMessage, v_int32 errorCode = 0);
 
+  /**
+   * Get error message
+   * @return error message
+   */
   const char* getErrorMessage();
+
+  /**
+   * Get error code
+   * @return error code
+   */
   v_int32 getErrorCode();
+
+  /**
+   * Check if error is set for the Caret
+   * @return
+   */
   bool hasError();
+
+  /**
+   * Clear error message and error code
+   */
   void clearError();
-  
+
+  /**
+   * Create Label(this);
+   * @return Label
+   */
+  Label putLabel();
+
+  /**
+   * Increase caret position by one
+   */
   void inc();
+
+  /**
+   * Increase caret position by amount
+   * @param amount
+   */
   void inc(v_int32 amount);
-  
+
+  /**
+   * Skip chars: [' ', '\t', '\n', '\r','\f']
+   * @return true if other char found
+   */
   bool skipBlankChars();
 
+  /**
+   * Skip char
+   * @param c
+   * @return true if other char found
+   */
   bool skipChar(v_char8 c);
+
+  /**
+   * Find char. Position will be set to a found char. If
+   * no such char found - position will be set to a dataSize;
+   * @param c
+   * @return true if found
+   */
   bool findChar(v_char8 c);
-  
-  bool findCharNotFromSet(const char* set);
-  bool findCharNotFromSet(p_char8 set, v_int32 setSize);
-  
+
+  /**
+   * Skip chars defined by set.
+   * ex. skipCharsFromSet("abc") - will skip all 'a', 'b', 'c' chars
+   * @param set
+   * @return true if other char found
+   */
+  bool skipCharsFromSet(const char* set);
+
+  /**
+   * Skip chars defined by set.
+   * ex. skipCharsFromSet("abc", 3) - will skip all 'a', 'b', 'c' chars
+   * @param set
+   * @param setSize
+   * @return true if other char found
+   */
+  bool skipCharsFromSet(p_char8 set, v_int32 setSize);
+
+  /**
+   * Find one of chars defined by set.
+   * @param set
+   * @return char found or -1 if no char found
+   */
   v_int32 findCharFromSet(const char* set);
+
+  /**
+   * Find one of chars defined by set.
+   * @param set
+   * @param setSize
+   * @return char found or -1 if no char found
+   */
   v_int32 findCharFromSet(p_char8 set, v_int32 setSize);
 
+  /**
+   * Find "\r\n" chars
+   * @return true if found
+   */
   bool findRN();
+
+  /**
+   * Skip "\r\n"
+   * @return True if position changes. False if caret not at "\r\n"
+   */
   bool skipRN();
+
+  /**
+   * Check if caret at "\r\n" chars
+   * @return
+   */
   bool isAtRN();
 
   /**
@@ -223,22 +342,83 @@ public:
    * @return
    */
   bool isAtTextNCS(p_char8 text, v_int32 textSize, bool skipIfTrue = false);
-  
-  oatpp::String parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData);
-  oatpp::String parseName(bool saveAsOwnData);
-  
+
+  /**
+   * Parse enclosed string.
+   * ex. for data "'let\'s go'" parseStringEnclosed('\'', '\'', '\\')
+   * will return Label to "let\'s go" without enclosing '\'' chars
+   * @param openChar
+   * @param closeChar
+   * @param escapeChar
+   * @return
+   */
+  Label parseStringEnclosed(char openChar, char closeChar, char escapeChar);
+
+  /**
+   * Find text and set position to found text
+   * @param text
+   * @param textSize
+   * @return true if found
+   */
   bool findText(p_char8 text, v_int32 textSize);
-  
-  bool notAtCharFromSet(const char* set) const;
-  bool notAtCharFromSet(p_char8 set, v_int32 setSize) const;
+
+  /**
+   * Check if caret is at char defined by set
+   * ex. isAtCharFromSet("abc") - will return true for 'a', 'b', 'c' chars
+   * @param set
+   * @return
+   */
+  bool isAtCharFromSet(const char* set) const;
+
+  /**
+   * Check if caret is at char defined by set
+   * ex. isAtCharFromSet("abc", 3) - will return true for 'a', 'b', 'c' chars
+   * @param set
+   * @param setSize
+   * @return
+   */
+  bool isAtCharFromSet(p_char8 set, v_int32 setSize) const;
+
+  /**
+   * Check if caret is at char
+   * @param c
+   * @return
+   */
   bool isAtChar(v_char8 c) const;
+
+  /**
+   * Check if caret is at one of chars [' ', '\t', '\n', '\r','\f']
+   * @return
+   */
   bool isAtBlankChar() const;
+
+  /**
+   * Check if caret is at digit
+   * @return
+   */
   bool isAtDigitChar() const;
+
+  /**
+   * Check if caret is at char, and no error is set
+   * @param c
+   * @return
+   */
   bool canContinueAtChar(v_char8 c) const;
+
+  /**
+   * Check if caret is at char, and no error is set.
+   * If true inc position by skipChars
+   * @param c
+   * @param skipChars
+   * @return
+   */
   bool canContinueAtChar(v_char8 c, v_int32 skipChars);
-  
+
+  /**
+   * Check if caret position < dataSize and not error is set
+   * @return
+   */
   bool canContinue() const;
-  bool isEnd() const;
 
 };
   

@@ -51,7 +51,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   v_int32 atPos = -1;
   v_int32 portPos = -1;
   
-  while (pos < caret.getSize()) {
+  while (pos < caret.getDataSize()) {
     v_char8 a = data[pos];
     if(a == '@') {
       atPos = pos;
@@ -95,7 +95,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
 }
 
 oatpp::String Url::Parser::parsePath(oatpp::parser::Caret& caret) {
-  oatpp::parser::Caret::Label label(caret);
+  auto label = caret.putLabel();
   caret.findCharFromSet((p_char8)"?#", 2);
   if(label.getSize() > 0) {
     return label.toString(true);
@@ -109,11 +109,11 @@ void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::
     
     do {
       caret.inc();
-      oatpp::parser::Caret::Label nameLabel(caret);
+      auto nameLabel = caret.putLabel();
       if(caret.findChar('=')) {
         nameLabel.end();
         caret.inc();
-        oatpp::parser::Caret::Label valueLabel(caret);
+        auto valueLabel = caret.putLabel();
         caret.findChar('&');
         params.put(nameLabel.toString(), valueLabel.toString());
       }

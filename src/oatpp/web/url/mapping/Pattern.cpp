@@ -108,14 +108,14 @@ std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
   
 v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   auto data = caret.getData();
-  for (v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
+  for (v_int32 i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = data[i];
     if(a == '/' || a == '?') {
       caret.setPosition(i);
       return a;
     }
   }
-  caret.setPosition(caret.getSize());
+  caret.setPosition(caret.getDataSize());
   return 0;
 }
   
@@ -148,15 +148,15 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
       
       if(caret.canContinue() && !caret.isAtChar('/')){
         if(caret.isAtChar('?') && (curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END)) {
-          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
           return true;
         }
         return false;
       }
       
     }else if(part->function == Part::FUNCTION_ANY_END){
-      if(caret.getSize() > caret.getPosition()){
-        matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+      if(caret.getDataSize() > caret.getPosition()){
+        matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
       }
       return true;
     }else if(part->function == Part::FUNCTION_VAR){
@@ -164,13 +164,13 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
       if(!caret.canContinue()){
         return false;
       }
-      
-      oatpp::parser::Caret::Label label(caret);
+
+      auto label = caret.putLabel();
       v_char8 a = findSysChar(caret);
       if(a == '?') {
         if(curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END) {
           matchMap.m_variables[part->text] = StringKeyLabel(url.getMemoryHandle(), label.getData(), label.getSize());
-          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
           return true;
         }
         caret.findChar('/');

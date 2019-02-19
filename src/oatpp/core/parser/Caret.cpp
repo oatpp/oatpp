@@ -40,9 +40,9 @@ namespace oatpp { namespace parser {
 /////////////////////////////////////////////////////////////////////////////////
 // Caret::Label
 
-  Caret::Label::Label(Caret& caret)
-    : m_caret(&caret)
-    , m_start(caret.m_pos)
+  Caret::Label::Label(Caret* caret)
+    : m_caret(caret)
+    , m_start(caret->m_pos)
     , m_end(-1)
   {}
 
@@ -64,6 +64,30 @@ namespace oatpp { namespace parser {
       return m_caret->m_pos - m_start;
     }
     return m_end - m_start;
+  }
+
+  oatpp::String Caret::Label::toString(bool saveAsOwnData){
+    v_int32 end = m_end;
+    if(end == -1){
+      end = m_caret->m_pos;
+    }
+    return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start, saveAsOwnData);
+  }
+
+  oatpp::String Caret::Label::toString(){
+    return toString(true);
+  }
+
+  std::string Caret::Label::std_str(){
+    v_int32 end = m_end;
+    if(end == -1){
+      end = m_caret->m_pos;
+    }
+    return std::string((const char*) (&m_caret->m_data[m_start]), end - m_start);
+  }
+
+  Caret::Label::operator bool() const {
+    return m_caret != nullptr;
   }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -97,27 +121,6 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
 /////////////////////////////////////////////////////////////////////////////////
 // Caret
 
-  oatpp::String Caret::Label::toString(bool saveAsOwnData){
-    v_int32 end = m_end;
-    if(end == -1){
-      end = m_caret->m_pos;
-    }
-    return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start, saveAsOwnData);
-  }
-
-  oatpp::String Caret::Label::toString(){
-    return toString(true);
-  }
-
-  std::string Caret::Label::std_str(){
-    v_int32 end = m_end;
-    if(end == -1){
-      end = m_caret->m_pos;
-    }
-    return std::string((const char*) (&m_caret->m_data[m_start]), end - m_start);
-  }
-
-  
   Caret::Caret(const char* text)
     : Caret((p_char8)text, (v_int32) std::strlen(text))
   {}
@@ -157,7 +160,7 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
     return &m_data[m_pos];
   }
   
-  v_int32 Caret::getSize(){
+  v_int32 Caret::getDataSize(){
     return m_size;
   }
   
@@ -182,13 +185,17 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
     return m_errorCode;
   }
   
-  bool Caret::hasError(){
+  bool Caret::hasError() {
     return m_errorMessage != nullptr;
   }
   
-  void Caret::clearError(){
+  void Caret::clearError() {
     m_errorMessage = nullptr;
     m_errorCode = 0;
+  }
+
+  Caret::Label Caret::putLabel() {
+    return Label(this);
   }
   
   void Caret::inc(){
@@ -231,14 +238,14 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
     return false;
   }
   
-  bool Caret::findCharNotFromSet(const char* set){
-    return findCharNotFromSet((p_char8)set, (v_int32) std::strlen(set));
+  bool Caret::skipCharsFromSet(const char* set){
+    return skipCharsFromSet((p_char8)set, (v_int32) std::strlen(set));
   }
   
-  bool Caret::findCharNotFromSet(p_char8 set, v_int32 setSize){
+  bool Caret::skipCharsFromSet(p_char8 set, v_int32 setSize){
     
     while(m_pos < m_size){
-      if(notAtCharFromSet(set, setSize)){
+      if(!isAtCharFromSet(set, setSize)){
         return true;
       }
       m_pos++;
@@ -445,68 +452,33 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
     
   }
   
-  oatpp::String Caret::parseStringEnclosed(char openChar, char closeChar, char escapeChar, bool saveAsOwnData){
+  Caret::Label Caret::parseStringEnclosed(char openChar, char closeChar, char escapeChar){
     
-    if(m_data[m_pos] == openChar){
+    if(canContinueAtChar(openChar, 1)){
       
-      m_pos++;
-      
-      v_int32 ipos = m_pos;
-      
+      auto label = putLabel();
       while(canContinue()){
-        
-        if(m_data[m_pos] == escapeChar){
+
+        v_char8 a = m_data[m_pos];
+
+        if(a == escapeChar){
           m_pos++;
-        }else if(m_data[m_pos] == closeChar){
-          oatpp::String result = oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
+        } else if(a == closeChar){
+          label.end();
           m_pos++;
-          return result;
+          return label;
         }
         
         m_pos++;
       }
-      
+
       m_errorMessage = ERROR_NO_CLOSE_TAG;
-      
+
     }else{
       m_errorMessage = ERROR_NO_OPEN_TAG;
     }
     
-    return nullptr;
-    
-  }
-  
-  oatpp::String Caret::parseName(bool saveAsOwnData){
-    
-    v_int32 ipos = m_pos;
-    while(m_pos < m_size){
-      
-      v_char8 a = m_data[m_pos];
-      
-      if(  (a >= '0' && a <= '9')||
-         (a >= 'a' && a <= 'z')||
-         (a >= 'A' && a <= 'Z')||
-         (a == '_')){
-        m_pos ++;
-      }else{
-        
-        if(ipos < m_pos){
-          return oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
-        }else{
-          m_errorMessage = ERROR_NAME_EXPECTED;
-          return nullptr;
-        }
-        
-      }
-      
-    }
-    
-    if(ipos < m_pos){
-      return oatpp::String((const char*)&m_data[ipos], m_pos - ipos, saveAsOwnData);
-    }else{
-      m_errorMessage = ERROR_NAME_EXPECTED;
-      return nullptr;
-    }
+    return Label(nullptr);
     
   }
   
@@ -514,22 +486,22 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
     m_pos = (v_int32)(std::search(&m_data[m_pos], &m_data[m_size], text, text + textSize) - m_data);
     return m_pos != m_size;
   }
-  
-  bool Caret::notAtCharFromSet(const char* set) const{
-    return notAtCharFromSet((p_char8)set, (v_int32) std::strlen(set));
+
+  bool Caret::isAtCharFromSet(const char* set) const{
+    return isAtCharFromSet((p_char8)set, (v_int32) std::strlen(set));
   }
   
-  bool Caret::notAtCharFromSet(p_char8 set, v_int32 setSize) const{
+  bool Caret::isAtCharFromSet(p_char8 set, v_int32 setSize) const{
     
     v_char8 a = m_data[m_pos];
     
     for(v_int32 i = 0; i < setSize; i++){
       if(a == set[i]){
-        return false;
+        return true;
       }
     }
     
-    return true;
+    return false;
     
   }
   
@@ -563,10 +535,5 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
   bool Caret::canContinue() const{
     return m_pos < m_size && m_errorMessage == nullptr;
   }
-  
-  bool Caret::isEnd() const{
-    return m_pos >= m_size;
-  }
-  
   
 }}

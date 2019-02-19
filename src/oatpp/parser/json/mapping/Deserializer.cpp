@@ -32,7 +32,7 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
 void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_char8 charClose){
   
   p_char8 data = caret.getData();
-  v_int32 size = caret.getSize();
+  v_int32 size = caret.getDataSize();
   v_int32 pos = caret.getPosition();
   v_int32 scopeCounter = 0;
   
@@ -65,7 +65,7 @@ void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_ch
   
 void Deserializer::skipString(oatpp::parser::Caret& caret){
   p_char8 data = caret.getData();
-  v_int32 size = caret.getSize();
+  v_int32 size = caret.getDataSize();
   v_int32 pos = caret.getPosition();
   v_int32 scopeCounter = 0;
   while(pos < size){
@@ -85,7 +85,7 @@ void Deserializer::skipString(oatpp::parser::Caret& caret){
   
 void Deserializer::skipToken(oatpp::parser::Caret& caret){
   p_char8 data = caret.getData();
-  v_int32 size = caret.getSize();
+  v_int32 size = caret.getDataSize();
   v_int32 pos = caret.getPosition();
   while(pos < size){
     v_char8 a = data[pos];
