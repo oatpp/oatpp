@@ -42,7 +42,7 @@ namespace oatpp { namespace parser {
 
   Caret::Label::Label(Caret* caret)
     : m_caret(caret)
-    , m_start(caret->m_pos)
+    , m_start((caret != nullptr) ? caret->m_pos : -1)
     , m_end(-1)
   {}
 
@@ -480,6 +480,10 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
     
     return Label(nullptr);
     
+  }
+
+  bool Caret::findText(const char* text) {
+    return findText((p_char8) text, (v_int32) std::strlen(text));
   }
   
   bool Caret::findText(p_char8 text, v_int32 textSize) {

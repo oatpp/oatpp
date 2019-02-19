@@ -357,6 +357,13 @@ public:
   /**
    * Find text and set position to found text
    * @param text
+   * @return true if found
+   */
+  bool findText(const char* text);
+
+  /**
+   * Find text and set position to found text
+   * @param text
    * @param textSize
    * @return true if found
    */

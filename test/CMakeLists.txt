@@ -37,6 +37,8 @@ add_executable(oatppAllTests
         oatpp/web/app/Controller.hpp
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
+        oatpp/core/parser/CaretTest.cpp
+        oatpp/core/parser/CaretTest.hpp
 )
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
