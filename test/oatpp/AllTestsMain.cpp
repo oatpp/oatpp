@@ -48,16 +48,13 @@ public:
 };
 
 void runTests() {
-  /*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
-  */
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
-  /*
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
@@ -68,7 +65,6 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
-   */
 }
   
 }
