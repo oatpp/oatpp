@@ -32,7 +32,7 @@
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/parser/ParsingError.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
@@ -61,7 +61,7 @@ public:
   virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
                      const type::AbstractObjectWrapper& variant) const = 0;
   
-  virtual type::AbstractObjectWrapper read(oatpp::parser::ParsingCaret& caret,
+  virtual type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
                                            const type::Type* const type) const = 0;
   
   oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const {
@@ -77,7 +77,7 @@ public:
    * @return
    */
   template<class Class>
-  typename Class::ObjectWrapper readFromCaret(oatpp::parser::ParsingCaret& caret) const {
+  typename Class::ObjectWrapper readFromCaret(oatpp::parser::Caret& caret) const {
     auto type = Class::ObjectWrapper::Class::getType();
     return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
   }
@@ -91,7 +91,7 @@ public:
   template<class Class>
   typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {
     auto type = Class::ObjectWrapper::Class::getType();
-    oatpp::parser::ParsingCaret caret(str);
+    oatpp::parser::Caret caret(str);
     auto result = oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
     if(!result) {
       throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());

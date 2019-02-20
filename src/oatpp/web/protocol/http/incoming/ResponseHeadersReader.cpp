@@ -82,7 +82,7 @@ ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shar
   
   if(error.ioStatus > 0) {
     auto headersText = buffer.toString();
-    oatpp::parser::ParsingCaret caret (headersText);
+    oatpp::parser::Caret caret (headersText);
     http::Status status;
     http::Protocol::parseResponseStartingLine(result.startingLine, headersText.getPtr(), caret, status);
     if(status.code == 0) {
@@ -159,7 +159,7 @@ ResponseHeadersReader::Action ResponseHeadersReader::readHeadersAsync(oatpp::asy
     Action parseHeaders() {
       
       auto headersText = m_bufferStream.toString();
-      oatpp::parser::ParsingCaret caret (headersText);
+      oatpp::parser::Caret caret (headersText);
       http::Status status;
       http::Protocol::parseResponseStartingLine(m_result.startingLine, headersText.getPtr(), caret, status);
       if(status.code == 0) {

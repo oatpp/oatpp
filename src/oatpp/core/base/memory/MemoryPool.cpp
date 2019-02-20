@@ -91,7 +91,9 @@ void MemoryPool::freeByEntryHeader(EntryHeader* entry) {
     m_rootEntry = entry;
     -- m_objectsCount;
   } else {
-    throw std::runtime_error("oatpp::base::memory::MemoryPool: Invalid EntryHeader");
+    OATPP_LOGD("[oatpp::base::memory::MemoryPool::freeByEntryHeader()]",
+      "Error. Invalid EntryHeader. Expected poolId=%d, entry poolId=%d", m_id, entry->poolId);
+    throw std::runtime_error("[oatpp::base::memory::MemoryPool::freeByEntryHeader()]: Invalid EntryHeader");
   }
 }
 

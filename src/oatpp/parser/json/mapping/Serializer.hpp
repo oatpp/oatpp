@@ -32,7 +32,7 @@
 #include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/Types.hpp"

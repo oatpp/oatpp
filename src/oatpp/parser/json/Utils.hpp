@@ -25,7 +25,7 @@
 #ifndef oatpp_parser_json_Utils_hpp
 #define oatpp_parser_json_Utils_hpp
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <string>
@@ -68,7 +68,7 @@ public:
 
 public:
   typedef oatpp::String String;
-  typedef oatpp::parser::ParsingCaret ParsingCaret;
+  typedef oatpp::parser::Caret ParsingCaret;
 private:
   static v_int32 escapeUtf8Char(p_char8 sequence, p_char8 buffer);
   static v_int32 calcEscapedStringSize(p_char8 data, v_int32 size, v_int32& safeSize);

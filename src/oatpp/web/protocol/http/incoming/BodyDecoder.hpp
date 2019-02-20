@@ -86,7 +86,7 @@ private:
     
     oatpp::async::Action onDecoded() {
       auto body = m_chunkedBuffer->toString();
-      oatpp::parser::ParsingCaret caret(body);
+      oatpp::parser::Caret caret(body);
       auto dto = m_objectMapper->readFromCaret<Type>(caret);
       if(caret.hasError()) {
         return this->error(caret.getErrorMessage());

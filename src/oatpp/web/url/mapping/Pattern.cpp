@@ -106,22 +106,22 @@ std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
   return parse(data->getData(), data->getSize());
 }
   
-v_char8 Pattern::findSysChar(oatpp::parser::ParsingCaret& caret) {
+v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   auto data = caret.getData();
-  for (v_int32 i = caret.getPosition(); i < caret.getSize(); i++) {
+  for (v_int32 i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = data[i];
     if(a == '/' || a == '?') {
       caret.setPosition(i);
       return a;
     }
   }
-  caret.setPosition(caret.getSize());
+  caret.setPosition(caret.getDataSize());
   return 0;
 }
   
 bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
-  oatpp::parser::ParsingCaret caret(url.getData(), url.getSize());
+  oatpp::parser::Caret caret(url.getData(), url.getSize());
   
   if(m_parts->count() == 0){
     
@@ -142,21 +142,21 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
     
     if(part->function == Part::FUNCTION_CONST){
       
-      if(!caret.proceedIfFollowsText(part->text->getData(), part->text->getSize())){
+      if(!caret.isAtText(part->text->getData(), part->text->getSize(), true)){
         return false;
       }
       
       if(caret.canContinue() && !caret.isAtChar('/')){
         if(caret.isAtChar('?') && (curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END)) {
-          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
           return true;
         }
         return false;
       }
       
     }else if(part->function == Part::FUNCTION_ANY_END){
-      if(caret.getSize() > caret.getPosition()){
-        matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+      if(caret.getDataSize() > caret.getPosition()){
+        matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
       }
       return true;
     }else if(part->function == Part::FUNCTION_VAR){
@@ -164,13 +164,13 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
       if(!caret.canContinue()){
         return false;
       }
-      
-      oatpp::parser::ParsingCaret::Label label(caret);
+
+      auto label = caret.putLabel();
       v_char8 a = findSysChar(caret);
       if(a == '?') {
         if(curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END) {
           matchMap.m_variables[part->text] = StringKeyLabel(url.getMemoryHandle(), label.getData(), label.getSize());
-          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getSize() - caret.getPosition());
+          matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
           return true;
         }
         caret.findChar('/');

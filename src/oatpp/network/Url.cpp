@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace network {
   
-oatpp::String Url::Parser::parseScheme(oatpp::parser::ParsingCaret& caret) {
+oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   v_int32 pos0 = caret.getPosition();
   caret.findChar(':');
   v_int32 size = caret.getPosition() - pos0;
@@ -41,7 +41,7 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::ParsingCaret& caret) {
   return nullptr;
 }
 
-Url::Authority Url::Parser::parseAuthority(oatpp::parser::ParsingCaret& caret) {
+Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   
   p_char8 data = caret.getData();
   v_int32 pos0 = caret.getPosition();
@@ -51,7 +51,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::ParsingCaret& caret) {
   v_int32 atPos = -1;
   v_int32 portPos = -1;
   
-  while (pos < caret.getSize()) {
+  while (pos < caret.getDataSize()) {
     v_char8 a = data[pos];
     if(a == '@') {
       atPos = pos;
@@ -94,8 +94,8 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::ParsingCaret& caret) {
   
 }
 
-oatpp::String Url::Parser::parsePath(oatpp::parser::ParsingCaret& caret) {
-  oatpp::parser::ParsingCaret::Label label(caret);
+oatpp::String Url::Parser::parsePath(oatpp::parser::Caret& caret) {
+  auto label = caret.putLabel();
   caret.findCharFromSet((p_char8)"?#", 2);
   if(label.getSize() > 0) {
     return label.toString(true);
@@ -103,17 +103,17 @@ oatpp::String Url::Parser::parsePath(oatpp::parser::ParsingCaret& caret) {
   return nullptr;
 }
 
-void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::ParsingCaret& caret) {
+void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::Caret& caret) {
   
   if(caret.findChar('?')) {
     
     do {
       caret.inc();
-      oatpp::parser::ParsingCaret::Label nameLabel(caret);
+      auto nameLabel = caret.putLabel();
       if(caret.findChar('=')) {
         nameLabel.end();
         caret.inc();
-        oatpp::parser::ParsingCaret::Label valueLabel(caret);
+        auto valueLabel = caret.putLabel();
         caret.findChar('&');
         params.put(nameLabel.toString(), valueLabel.toString());
       }
@@ -124,11 +124,11 @@ void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::
 }
 
 void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, const oatpp::String& str) {
-  oatpp::parser::ParsingCaret caret(str.getPtr());
+  oatpp::parser::Caret caret(str.getPtr());
   parseQueryParamsToMap(params, caret);
 }
 
-std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(oatpp::parser::ParsingCaret& caret) {
+std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(oatpp::parser::Caret& caret) {
   auto params = Url::Parameters::createShared();
   parseQueryParamsToMap(*params, caret);
   return params;
@@ -140,11 +140,11 @@ std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(const oatpp::Stri
   return params;
 }
 
-Url Url::Parser::parseUrl(oatpp::parser::ParsingCaret& caret) {
+Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
   Url result;
   result.scheme = parseScheme(caret);
   if(caret.canContinueAtChar(':', 1)) {
-    if(caret.proceedIfFollowsText((p_char8)"//", 2)) {
+    if(caret.isAtText((p_char8)"//", 2, true)) {
       if(!caret.isAtChar('/')) {
         result.authority = parseAuthority(caret);
       }

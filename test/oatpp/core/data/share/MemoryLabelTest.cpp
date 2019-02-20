@@ -121,7 +121,7 @@ bool MemoryLabelTest::onRun() {
       
       for(v_int32 i = 0; i < iterationsCount; i ++) {
         
-        oatpp::parser::ParsingCaret caret(headersText);
+        oatpp::parser::Caret caret(headersText);
         oatpp::web::protocol::http::Status status;
         oatpp::web::protocol::http::Protocol::Headers headers;
         oatpp::web::protocol::http::Protocol::parseHeaders(headers, headersText.getPtr(), caret, status);

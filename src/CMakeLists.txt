@@ -76,8 +76,8 @@ add_library(oatpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp
-        oatpp/core/parser/ParsingCaret.cpp
-        oatpp/core/parser/ParsingCaret.hpp
+        oatpp/core/parser/Caret.cpp
+        oatpp/core/parser/Caret.hpp
         oatpp/core/utils/ConversionUtils.cpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/encoding/Base64.cpp

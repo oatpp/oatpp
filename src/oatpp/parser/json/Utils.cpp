@@ -362,7 +362,7 @@ p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
     const p_char8 data = caret.getData();
     v_int32 pos = caret.getPosition();
     v_int32 pos0 = pos;
-    v_int32 length = caret.getSize();
+    v_int32 length = caret.getDataSize();
     
     while (pos < length) {
       v_char8 a = data[pos];
@@ -375,7 +375,7 @@ p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
         pos ++;
       }
     }
-    caret.setPosition(caret.getSize());
+    caret.setPosition(caret.getDataSize());
     caret.setError("[oatpp::parser::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
   } else {
     caret.setError("[oatpp::parser::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);

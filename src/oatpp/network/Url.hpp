@@ -25,7 +25,7 @@
 #ifndef oatpp_network_Url_hpp
 #define oatpp_network_Url_hpp
 
-#include "oatpp/core/parser/ParsingCaret.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
 
@@ -53,7 +53,7 @@ public:
      *  returns lowercase string before ':' char
      *  caret should be at the first char of the scheme
      */
-    static oatpp::String parseScheme(oatpp::parser::ParsingCaret& caret);
+    static oatpp::String parseScheme(oatpp::parser::Caret& caret);
     
     /**
      *  parse utl authority components.
@@ -61,19 +61,19 @@ public:
      *  inclusion of password in userinfo is deprecated and ignored here
      *  caret should be at the first char of the authority (not at "//")
      */
-    static Url::Authority parseAuthority(oatpp::parser::ParsingCaret& caret);
+    static Url::Authority parseAuthority(oatpp::parser::Caret& caret);
     
     /**
      *  parse path of the url
      *  caret should be at the first char of the path
      */
-    static oatpp::String parsePath(oatpp::parser::ParsingCaret& caret);
+    static oatpp::String parsePath(oatpp::parser::Caret& caret);
     
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by ParsingCaret
      *  and put that params to Parameters map
      */
-    static void parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::ParsingCaret& caret);
+    static void parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::Caret& caret);
     
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
@@ -84,7 +84,7 @@ public:
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by ParsingCaret
      */
-    static std::shared_ptr<Url::Parameters> parseQueryParams(oatpp::parser::ParsingCaret& caret);
+    static std::shared_ptr<Url::Parameters> parseQueryParams(oatpp::parser::Caret& caret);
     
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
@@ -94,7 +94,7 @@ public:
     /**
      *  parse Url
      */
-    static Url parseUrl(oatpp::parser::ParsingCaret& caret);
+    static Url parseUrl(oatpp::parser::Caret& caret);
     
     
   };
