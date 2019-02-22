@@ -51,7 +51,7 @@ public:
   static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false) {
     return std::make_shared<ConnectionProvider>(interface, nonBlocking);
   }
-  
+
   /**
    * this one used for testing purposes only
    * set to -1 in order to ignore this value
@@ -60,6 +60,8 @@ public:
     m_maxAvailableToRead = maxToRead;
     m_maxAvailableToWrite = maxToWrite;
   }
+
+  void close() override;
   
   std::shared_ptr<IOStream> getConnection() override;
   

@@ -47,7 +47,13 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool non
 }
 
 SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
-  ::close(m_serverHandle);
+  close();
+}
+
+void SimpleTCPConnectionProvider::close() {
+  if(m_serverHandle != 0) {
+    ::close(m_serverHandle);
+  }
 }
   
 oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){

@@ -22,19 +22,4 @@
  *
  ***************************************************************************/
 
-#include "ConnectionProvider.hpp"
-
-namespace oatpp { namespace network { namespace virtual_ { namespace server {
-
-void ConnectionProvider::close() {
-  //
-}
-
-std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
-  auto socket = m_interface->accept();
-  socket->setNonBlocking(m_nonBlocking);
-  socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
-  return socket;
-}
-
-}}}}
+#include "ClientServerTestRunner.hpp"

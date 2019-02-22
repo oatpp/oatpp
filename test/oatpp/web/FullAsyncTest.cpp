@@ -121,7 +121,7 @@ void FullAsyncTest::onRun() {
     try {
       connectionHandler->stop();
       server->stop();
-      client->getRoot(); // wake blocking server accept
+      client->getConnection(); // wake blocking server accept
     } catch(std::runtime_error e) {
       // DO NOTHING
     }

@@ -94,7 +94,7 @@ public:
   
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
   
-  void stop() {
+  void stop() override {
     m_executor->stop();
   }
   

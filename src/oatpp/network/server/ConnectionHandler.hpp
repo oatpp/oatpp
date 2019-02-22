@@ -32,7 +32,17 @@ namespace oatpp { namespace network { namespace server {
   
 class ConnectionHandler {
 public:
+
+  /**
+   * Handle provided connection here
+   * @param connection
+   */
   virtual void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) = 0;
+
+  /**
+   * Stop all threads here
+   */
+  virtual void stop() = 0;
 };
   
 }}}

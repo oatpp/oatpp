@@ -107,6 +107,10 @@ public:
   }
   
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+
+  void stop() override {
+    // DO NOTHING
+  }
   
 };
   

@@ -48,6 +48,8 @@ public:
   }
   
   ~SimpleTCPConnectionProvider();
+
+  void close() override;
   
   std::shared_ptr<IOStream> getConnection() override;
   
