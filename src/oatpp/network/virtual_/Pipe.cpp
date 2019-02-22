@@ -40,17 +40,21 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
-    if(pipe.m_fifo.availableToRead() > 0) {
-      result = pipe.m_fifo.read(data, count);
-    } else if(pipe.m_open) {
-      result = data::IOError::WAIT_RETRY;
+    std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
+    if(lock.owns_lock()) {
+      if (pipe.m_fifo.availableToRead() > 0) {
+        result = pipe.m_fifo.read(data, count);
+      } else if (pipe.m_open) {
+        result = data::IOError::WAIT_RETRY;
+      } else {
+        result = data::IOError::BROKEN_PIPE;
+      }
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = data::IOError::WAIT_RETRY;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
     while (pipe.m_fifo.availableToRead() == 0 && pipe.m_open) {
-      pipe.m_conditionWrite.notify_one();
       pipe.m_conditionRead.wait(lock);
     }
     if (pipe.m_fifo.availableToRead() > 0) {
@@ -75,22 +79,26 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
     count = m_maxAvailableToWrtie;
   }
-  
+
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
   if(m_nonBlocking) {
-    if(pipe.m_fifo.availableToWrite() > 0) {
-      result = pipe.m_fifo.write(data, count);
-    } else if(pipe.m_open) {
-      result = data::IOError::WAIT_RETRY;
+    std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
+    if(lock.owns_lock()) {
+      if (pipe.m_fifo.availableToWrite() > 0) {
+        result = pipe.m_fifo.write(data, count);
+      } else if (pipe.m_open) {
+        result = data::IOError::WAIT_RETRY;
+      } else {
+        result = data::IOError::BROKEN_PIPE;
+      }
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = data::IOError::WAIT_RETRY;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
     while (pipe.m_fifo.availableToWrite() == 0 && pipe.m_open) {
-      pipe.m_conditionRead.notify_one();
       pipe.m_conditionWrite.wait(lock);
     }
     if (pipe.m_open && pipe.m_fifo.availableToWrite() > 0) {

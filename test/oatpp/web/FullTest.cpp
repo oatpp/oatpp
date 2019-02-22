@@ -50,9 +50,12 @@ bool FullTest::onRun() {
   
   auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
   auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
-  
-  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
-  clientConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
+
+  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(123, 11);
+  clientConnectionProvider->setSocketMaxAvailableToReadWrtie(12421, 21312);
+
+  //serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
+  //clientConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
   
   auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
@@ -70,7 +73,7 @@ bool FullTest::onRun() {
   
   std::thread clientThread([client, server, objectMapper]{
     
-    for(v_int32 i = 0; i < 10; i ++) {
+    for(v_int32 i = 0; i < 1000; i ++) {
 
       { // test simple GET
         auto response = client->getRoot();
