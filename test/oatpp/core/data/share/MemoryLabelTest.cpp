@@ -158,8 +158,7 @@ bool MemoryLabelTest::onRun() {
       }
       
     }
-     
-    
+
   }
     
   return true;

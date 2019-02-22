@@ -48,7 +48,7 @@ std::shared_ptr<StrBuffer> StrBuffer::allocShared(const void* data, v_int32 size
   if(copyAsOwnData) {
     memory::AllocationExtras extras(size + 1);
     std::shared_ptr<StrBuffer> ptr;
-    if(size > getSmStringSize()) {
+    if(size + 1 > getSmStringSize()) {
       ptr = memory::allocateSharedWithExtras<StrBuffer>(extras);
     } else {
       ptr = memory::customPoolAllocateSharedWithExtras<StrBuffer>(extras, getSmallStringPool());
