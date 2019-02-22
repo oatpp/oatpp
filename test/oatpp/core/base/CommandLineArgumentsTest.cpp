@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace test { namespace base {
   
-bool CommandLineArgumentsTest::onRun() {
+void CommandLineArgumentsTest::onRun() {
   
   /* -k -c 100 -n 500000 "http://127.0.0.1:8000/" */
   int argc = 6;
@@ -57,8 +57,7 @@ bool CommandLineArgumentsTest::onRun() {
   
   OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-n"), "500000") == 0);
   OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("--non-existing", "default"), "default") == 0);
-  
-  return true;
+
 }
   
 }}}

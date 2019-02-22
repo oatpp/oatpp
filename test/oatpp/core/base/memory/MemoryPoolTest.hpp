@@ -36,7 +36,7 @@ class MemoryPoolTest : public UnitTest{
 public:
   
   MemoryPoolTest():UnitTest("TEST[base::memory::MemoryPoolTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

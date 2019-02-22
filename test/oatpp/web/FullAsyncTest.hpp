@@ -33,7 +33,7 @@ class FullAsyncTest : public UnitTest {
 public:
   
   FullAsyncTest():UnitTest("TEST[web::FullAsyncTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

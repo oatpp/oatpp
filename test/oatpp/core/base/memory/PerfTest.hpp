@@ -33,7 +33,7 @@ class PerfTest : public UnitTest{
 public:
   
   PerfTest():UnitTest("TEST[base::memory::PerfTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

@@ -131,7 +131,7 @@ namespace {
   
 }
   
-bool InterfaceTest::onRun() {
+void InterfaceTest::onRun() {
   
   oatpp::String dataSample = "1234567890-=][poiuytrewqasdfghjkl;'/.,mnbvcxzzxcvbnm,./';lkjhgfdsaqwertyuiop][=-0987654321";
   
@@ -154,8 +154,7 @@ bool InterfaceTest::onRun() {
   }
   
   server->join();
-  
-  return true;
+
 }
   
 }}}}

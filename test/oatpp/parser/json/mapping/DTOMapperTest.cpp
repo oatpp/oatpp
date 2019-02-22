@@ -86,7 +86,7 @@ class Test : public DTO {
   
 }
   
-bool DTOMapperTest::onRun(){
+void DTOMapperTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
@@ -190,8 +190,7 @@ bool DTOMapperTest::onRun(){
   result = mapper->writeToString(obj);
   
   OATPP_LOGD(TAG, "json='%s'", (const char*) result->getData());
-  
-  return true;
+
 }
   
 #include OATPP_CODEGEN_END(DTO)

@@ -42,7 +42,7 @@
 
 namespace oatpp { namespace test { namespace web {
   
-bool FullAsyncTest::onRun() {
+void FullAsyncTest::onRun() {
   
   auto interface = oatpp::network::virtual_::Interface::createShared("virtualhost");
   
@@ -136,8 +136,7 @@ bool FullAsyncTest::onRun() {
   serverThread.join();
   
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  
-  return true;
+
 }
   
 }}}

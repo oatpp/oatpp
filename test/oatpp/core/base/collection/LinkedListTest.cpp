@@ -85,7 +85,7 @@ void testStdListPerformance(v_int32 iterationsCount){
   
 }
   
-bool LinkedListTest::onRun() {
+void LinkedListTest::onRun() {
   
   
   v_int32 iterationsCount = 100000;
@@ -103,8 +103,7 @@ bool LinkedListTest::onRun() {
       testStdListPerformance(iterationsCount);
     }
   }
-  
-  return true;
+
 }
   
 }}}

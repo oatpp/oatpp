@@ -33,7 +33,7 @@
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace share {
   
-bool MemoryLabelTest::onRun() {
+void MemoryLabelTest::onRun() {
   
   oatpp::String sharedData = "big text goes here";
   oatpp::String key1 = "key1";
@@ -140,9 +140,7 @@ bool MemoryLabelTest::onRun() {
         OATPP_ASSERT(headers["header7"].equals("value7", 6));
         OATPP_ASSERT(headers["header8"].equals("value8", 6));
         OATPP_ASSERT(headers["header9"].equals("value9", 6));
-        
-        
-        /*
+
         OATPP_ASSERT(headers["header0"].equals("value0"));
         OATPP_ASSERT(headers["header1"].equals("value1"));
         OATPP_ASSERT(headers["header2"].equals("value2"));
@@ -153,15 +151,13 @@ bool MemoryLabelTest::onRun() {
         OATPP_ASSERT(headers["header7"].equals("value7"));
         OATPP_ASSERT(headers["header8"].equals("value8"));
         OATPP_ASSERT(headers["header9"].equals("value9"));
-        */
          
       }
       
     }
 
   }
-    
-  return true;
+
 }
   
 }}}}}

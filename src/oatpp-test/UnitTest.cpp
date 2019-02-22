@@ -24,48 +24,36 @@
 
 #include "UnitTest.hpp"
 
-#include "oatpp/core/base/memory/MemoryPool.hpp" // delete
-#include "oatpp/core/base/Controllable.hpp" // delete
+#include "oatpp/core/base/memory/MemoryPool.hpp"
 
 #include <chrono>
 
 namespace oatpp { namespace test {
 
-v_int64 UnitTest::getTickCount(){
-  std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(
-    std::chrono::system_clock::now().time_since_epoch()
-  );
+void UnitTest::run(v_int32 times) {
   
-  return ms.count();
-  
-}
-  
-bool UnitTest::run(v_int32 times) {
-  
-  OATPP_LOGD(TAG, "START...");
+  OATPP_LOGD(TAG, "\033[1mSTART\033[0m...");
   
   v_counter objectsCount = base::Environment::getObjectsCount();
   v_counter objectsCreated = base::Environment::getObjectsCreated();
   
-  v_int64 ticks = getTickCount();
-  
-  bool result = true;
+  v_int64 ticks = base::Environment::getMicroTickCount();
   
   for(v_int32 i = 0; i < times; i++){
-    result = onRun();
+    onRun();
   }
   
-  v_int64 millis = getTickCount() - ticks;
+  v_int64 millis = base::Environment::getMicroTickCount() - ticks;
   
   v_counter leakingObjects = base::Environment::getObjectsCount() - objectsCount;
   v_counter objectsCreatedPerTest = base::Environment::getObjectsCreated() - objectsCreated;
   
-  if(leakingObjects == 0 && result == true){
-    OATPP_LOGD(TAG, "FINISHED - success");
-    OATPP_LOGD(TAG, "%d(micro), %d(objs)\n", millis, objectsCreatedPerTest);
+  if(leakingObjects == 0){
+    OATPP_LOGD(TAG, "\033[1mFINISHED\033[0m - \033[1;32msuccess!\033[0m");
+    OATPP_LOGD(TAG, "\033[33m%d(micro), %d(objs)\033[0m\n", millis, objectsCreatedPerTest);
   }else{
-    result = false;
-    OATPP_LOGD(TAG, "FINISHED - failed, leakingObjects = %d", leakingObjects);
+
+    OATPP_LOGD(TAG, "\033[1mFINISHED\033[0m - \033[1;31mfailed\033[0m, leakingObjects = %d", leakingObjects);
     
     auto POOLS = oatpp::base::memory::MemoryPool::POOLS;
     auto it = POOLS.begin();
@@ -75,9 +63,6 @@ bool UnitTest::run(v_int32 times) {
       it ++;
     }
   }
-  
-  OATPP_ASSERT(result);
-  return result;
   
 }
 

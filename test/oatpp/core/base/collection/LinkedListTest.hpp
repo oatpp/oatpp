@@ -33,7 +33,7 @@ class LinkedListTest : public UnitTest{
 public:
   
   LinkedListTest():UnitTest("TEST[oatpp::collection::LinkedListTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

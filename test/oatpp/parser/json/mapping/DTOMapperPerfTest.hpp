@@ -33,7 +33,7 @@ class DTOMapperPerfTest : public UnitTest{
 public:
   
   DTOMapperPerfTest():UnitTest("TEST[parser::json::mapping::DTOMapperPerfTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

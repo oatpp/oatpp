@@ -36,7 +36,7 @@ class CommandLineArgumentsTest : public UnitTest{
 public:
   
   CommandLineArgumentsTest():UnitTest("TEST[base::CommandLineArgumentsTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

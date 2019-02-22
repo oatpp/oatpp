@@ -33,7 +33,7 @@ class CaretTest : public UnitTest{
 public:
 
   CaretTest():UnitTest("TEST[parser::CaretTest]"){}
-  bool onRun() override;
+  void onRun() override;
 
 };
 

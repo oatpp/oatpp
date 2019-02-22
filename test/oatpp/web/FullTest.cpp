@@ -44,7 +44,7 @@
 
 namespace oatpp { namespace test { namespace web {
   
-bool FullTest::onRun() {
+void FullTest::onRun() {
   
   auto interface = oatpp::network::virtual_::Interface::createShared("virtualhost");
   
@@ -131,8 +131,7 @@ bool FullTest::onRun() {
   
   clientThread.join();
   serverThread.join();
-  
-  return true;
+
 }
   
 }}}

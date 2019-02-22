@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace test { namespace encoding {
   
-bool Base64Test::onRun() {
+void Base64Test::onRun() {
 
   oatpp::String message = "oat++ web framework";
   oatpp::String messageEncoded = "b2F0Kysgd2ViIGZyYW1ld29yaw==";
@@ -47,8 +47,7 @@ bool Base64Test::onRun() {
     oatpp::String decoded = oatpp::encoding::Base64::decode(encoded, oatpp::encoding::Base64::ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS);
     OATPP_ASSERT(message->equals(decoded.get()));
   }
-  
-  return true;
+
 }
   
 }}}

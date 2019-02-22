@@ -33,7 +33,7 @@ class DeserializerTest : public UnitTest{
 public:
   
   DeserializerTest():UnitTest("TEST[parser::json::mapping::DeserializerTestTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   
