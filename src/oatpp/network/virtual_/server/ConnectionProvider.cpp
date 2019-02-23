@@ -27,13 +27,16 @@
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
 void ConnectionProvider::close() {
-  //
+  m_open = false;
+  m_interface->notifyAcceptors();
 }
 
 std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
-  auto socket = m_interface->accept();
-  socket->setNonBlocking(m_nonBlocking);
-  socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+  auto socket = m_interface->accept(m_open);
+  if(socket) {
+    socket->setNonBlocking(m_nonBlocking);
+    socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+  }
   return socket;
 }
 

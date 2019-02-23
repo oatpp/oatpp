@@ -34,6 +34,7 @@ class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
   bool m_nonBlocking;
+  bool m_open;
   data::v_io_size m_maxAvailableToRead;
   data::v_io_size m_maxAvailableToWrite;
 public:
@@ -41,6 +42,7 @@ public:
   ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false)
     : m_interface(interface)
     , m_nonBlocking(nonBlocking)
+    , m_open(true)
     , m_maxAvailableToRead(-1)
     , m_maxAvailableToWrite(-1)
   {
@@ -75,7 +77,7 @@ public:
      *
      *  It may be implemented later
      */
-    throw std::runtime_error("[oatpp::network::virtual_::server::ConnectionProvider::getConnectionAsync()] not implemented.");
+    throw std::runtime_error("[oatpp::network::virtual_::server::ConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
   }
   
 };

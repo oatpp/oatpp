@@ -33,6 +33,8 @@
 
 #include "oatpp/core/macro/component.hpp"
 
+#include <list>
+
 namespace oatpp { namespace test { namespace web {
 
 class ClientServerTestRunner {
@@ -40,6 +42,7 @@ public:
   typedef oatpp::web::server::HttpRouter HttpRouter;
   typedef oatpp::web::server::api::ApiController ApiController;
 private:
+  std::list<std::shared_ptr<ApiController>> m_controllers;
   OATPP_COMPONENT(std::shared_ptr<HttpRouter>, m_router);
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, m_connectionProvider);
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, m_connectionHandler);
@@ -51,6 +54,7 @@ public:
 
   void addController(const std::shared_ptr<ApiController>& controller) {
     controller->addEndpointsToRouter(m_router);
+    m_controllers.push_back(controller);
   }
 
   template<typename Lambda>
