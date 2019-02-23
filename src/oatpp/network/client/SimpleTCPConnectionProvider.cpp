@@ -50,7 +50,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   struct sockaddr_in client;
   
   if ((host == NULL) || (host->h_addr == NULL)) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Error retrieving DNS information.");
+    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Error. Can't retrieve DNS information.");
     return nullptr;
   }
   
@@ -62,7 +62,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   oatpp::data::v_io_handle clientHandle = socket(AF_INET, SOCK_STREAM, 0);
   
   if (clientHandle < 0) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Error creating socket.");
+    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Error. Can't create socket.");
     return nullptr;
   }
   
@@ -70,13 +70,13 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   int yes = 1;
   v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
   
   if (connect(clientHandle, (struct sockaddr *)&client, sizeof(client)) != 0 ) {
     ::close(clientHandle);
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Could not connect");
+    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Error. Could not connect.");
     return nullptr;
   }
   
@@ -105,7 +105,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       struct hostent* host = gethostbyname((const char*) m_host->getData());
       
       if ((host == NULL) || (host->h_addr == NULL)) {
-        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error retrieving DNS information.");
+        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't retrieve DNS information.");
       }
       
       bzero(&m_client, sizeof(m_client));
@@ -116,7 +116,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       m_clientHandle = socket(AF_INET, SOCK_STREAM, 0);
       
       if (m_clientHandle < 0) {
-        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error creating socket.");
+        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't create socket.");
       }
       
       fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
@@ -125,7 +125,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       int yes = 1;
       v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
       if(ret < 0) {
-        OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for socket", "SO_NOSIGPIPE");
+        OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
       }
 #endif
       
@@ -145,7 +145,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
         return repeat();
       }
       ::close(m_clientHandle);
-      return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Can't connect");
+      return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
     }
     
   };

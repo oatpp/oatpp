@@ -92,7 +92,7 @@ namespace {
   
 }
   
-bool PerfTest::onRun() {
+void PerfTest::onRun() {
   
   v_int32 iterations = 1;
   v_int32 threadCount = 100;
@@ -122,8 +122,7 @@ bool PerfTest::onRun() {
      */
     
   }
-  
-  return true;
+
 }
   
 }}}

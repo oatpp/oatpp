@@ -133,7 +133,7 @@ namespace {
   
 }
   
-bool PipeTest::onRun() {
+void PipeTest::onRun() {
   
   auto pipe = Pipe::createShared();
 
@@ -143,8 +143,7 @@ bool PipeTest::onRun() {
   runTransfer(pipe, chunkCount, true, false);
   runTransfer(pipe, chunkCount, false, true);
   runTransfer(pipe, chunkCount, true, true);
-  
-  return true;
+
 }
   
 }}}}

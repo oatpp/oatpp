@@ -32,7 +32,7 @@ namespace oatpp { namespace test { namespace network { namespace virtual_ {
 class InterfaceTest : public UnitTest {
 public:
   InterfaceTest():UnitTest("TEST[network::virtual_::InterfaceTest]"){}
-  bool onRun() override;
+  void onRun() override;
 };
   
 }}}}

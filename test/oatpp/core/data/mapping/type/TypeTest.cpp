@@ -65,7 +65,7 @@ namespace {
   
 }
   
-bool TypeTest::onRun() {
+void TypeTest::onRun() {
   
   auto obj = TestDto::createShared();
   
@@ -117,7 +117,6 @@ bool TypeTest::onRun() {
   OATPP_LOGD(TAG, "type: '%s'", obj->obj1.valueType->name);
   OATPP_ASSERT(obj->obj1.valueType->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME);
 
-  return true;
 }
   
 }}}}}}

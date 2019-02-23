@@ -32,7 +32,7 @@ namespace oatpp { namespace test { namespace encoding {
 class Base64Test : public UnitTest{
 public:
   Base64Test():UnitTest("TEST[encoding::Base64Test]"){}
-  bool onRun() override;
+  void onRun() override;
 };
   
 }}}

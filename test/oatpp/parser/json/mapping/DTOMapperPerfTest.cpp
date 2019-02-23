@@ -65,7 +65,7 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
   
 }
   
-bool DTOMapperPerfTest::onRun() {
+void DTOMapperPerfTest::onRun() {
   
   v_int32 numIterations = 1000000;
   
@@ -89,7 +89,7 @@ bool DTOMapperPerfTest::onRun() {
       mapper->readFromCaret<Test1>(caret);
     }
   }
-  return true;
+
 }
   
 }}}}}

@@ -82,7 +82,7 @@ namespace {
   
 }
 
-bool RegRuleTest::onRun() {
+void RegRuleTest::onRun() {
   
   {
     String reg1("");
@@ -153,7 +153,6 @@ bool RegRuleTest::onRun() {
   OATPP_ASSERT(map.find("str_2")->second == "val_2");
   OATPP_ASSERT(map.find("str_3")->second == "val_3");
 
-  return true;
 }
   
 }}}

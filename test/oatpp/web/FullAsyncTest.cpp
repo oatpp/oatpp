@@ -35,59 +35,102 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
+#include "oatpp/network/server/SimpleTCPConnectionProvider.hpp"
+#include "oatpp/network/client/SimpleTCPConnectionProvider.hpp"
+
 #include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
-#include "oatpp/network/server/Server.hpp"
+
+#include "oatpp/core/macro/component.hpp"
+
+#include "oatpp-test/web/ClientServerTestRunner.hpp"
 
 namespace oatpp { namespace test { namespace web {
-  
-bool FullAsyncTest::onRun() {
-  
-  auto interface = oatpp::network::virtual_::Interface::createShared("virtualhost");
-  
-  auto serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true);
-  auto clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
-  
-  serverConnectionProvider->setSocketMaxAvailableToReadWrtie(123, 11);
-  clientConnectionProvider->setSocketMaxAvailableToReadWrtie(12421, 21312);
 
-  //serverConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
-  //clientConnectionProvider->setSocketMaxAvailableToReadWrtie(1, 1);
+namespace {
+
+//#define OATPP_TEST_USE_PORT 8123
+
+class TestComponent {
+public:
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
+    return oatpp::network::virtual_::Interface::createShared("virtualhost");
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {
+#ifdef OATPP_TEST_USE_PORT
+    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT, true /* nonBlocking */);
+#else
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
+    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true /* nonBlocking */);
+#endif
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, httpRouter)([] {
+    return oatpp::web::server::HttpRouter::createShared();
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, serverConnectionHandler)([] {
+    OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router);
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
+    return oatpp::parser::json::mapping::ObjectMapper::createShared();
+  }());
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider)([this] {
+#ifdef OATPP_TEST_USE_PORT
+    return oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", OATPP_TEST_USE_PORT);
+#else
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
+    return oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
+#endif
+  }());
+
+};
+
+}
   
-  auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
-  
-  auto router = oatpp::web::server::HttpRouter::createShared();
-  auto connectionHandler = oatpp::web::server::AsyncHttpConnectionHandler::createShared(router);
-  
-  auto controller = app::ControllerAsync::createShared(objectMapper);
-  controller->addEndpointsToRouter(router);
-  
-  auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvider);
-  
-  auto client = app::Client::createShared(requestExecutor, objectMapper);
-  
-  auto server = oatpp::network::server::Server::createShared(serverConnectionProvider, connectionHandler);
-  
-  std::thread clientThread([client, server, connectionHandler, objectMapper]{
-    
-    for(v_int32 i = 0; i < 1000; i ++) {
+void FullAsyncTest::onRun() {
+
+  TestComponent component;
+
+  oatpp::test::web::ClientServerTestRunner runner;
+
+  runner.addController(app::ControllerAsync::createShared());
+
+  runner.run([] {
+
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
+
+    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvider);
+    auto client = app::Client::createShared(requestExecutor, objectMapper);
+
+    auto connection = client->getConnection();
+
+    v_int32 iterationsStep = 1000;
+
+    for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
       
       { // test simple GET
-        auto response = client->getRoot();
+        auto response = client->getRoot(connection);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World Async!!!");
       }
       
       { // test GET with path parameter
-        auto response = client->getWithParams("my_test_param-Async");
+        auto response = client->getWithParams("my_test_param-Async", connection);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_param-Async");
       }
       
       { // test GET with header parameter
-        auto response = client->getWithHeaders("my_test_header-Async");
+        auto response = client->getWithHeaders("my_test_header-Async", connection);
         //auto str = response->readBodyToString();
         //OATPP_LOGE("AAA", "code=%d, str='%s'", response->statusCode, str->c_str());
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
@@ -96,7 +139,7 @@ bool FullAsyncTest::onRun() {
       }
       
       { // test POST with body
-        auto response = client->postBody("my_test_body-Async");
+        auto response = client->postBody("my_test_body-Async", connection);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body-Async");
@@ -108,36 +151,22 @@ bool FullAsyncTest::onRun() {
           stream.write("0123456789", 10);
         }
         auto data = stream.toString();
-        auto response = client->echoBody(data);
+        auto response = client->echoBody(data, connection);
 
         auto returnedData = response->readBodyToString();
 
         OATPP_ASSERT(returnedData);
         OATPP_ASSERT(returnedData == data);
       }
+
+      if((i + 1) % iterationsStep == 0) {
+        OATPP_LOGD("i", "%d", i + 1);
+      }
       
     }
     
-    try {
-      connectionHandler->stop();
-      server->stop();
-      client->getRoot(); // wake blocking server accept
-    } catch(std::runtime_error e) {
-      // DO NOTHING
-    }
-    
-  });
-  
-  std::thread serverThread([server]{
-    server->run();
-  });
-  
-  clientThread.join();
-  serverThread.join();
-  
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  
-  return true;
+  }, std::chrono::minutes(10));
+
 }
   
 }}}

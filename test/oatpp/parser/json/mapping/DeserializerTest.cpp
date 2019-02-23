@@ -82,7 +82,7 @@ class Test4 : public DTO {
   
 }
   
-bool DeserializerTest::onRun(){
+void DeserializerTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
@@ -175,8 +175,7 @@ bool DeserializerTest::onRun(){
   OATPP_ASSERT(obj4->list);
   OATPP_ASSERT(obj4->list->count() == 0);
   OATPP_ASSERT(obj4->map->count() == 0);
-  
-  return true;
+
 }
   
 }}}}}

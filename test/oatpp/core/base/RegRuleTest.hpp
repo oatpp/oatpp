@@ -33,7 +33,7 @@ class RegRuleTest : public UnitTest{
 public:
   
   RegRuleTest():UnitTest("TEST[base::RegRuleTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

@@ -58,7 +58,7 @@ void writeBinaryInt(v_int32 value){
 
 // 38327
   
-bool UnicodeTest::onRun(){
+void UnicodeTest::onRun(){
   
   v_char8 buff[128];
   v_int32 cnt;
@@ -130,8 +130,7 @@ bool UnicodeTest::onRun(){
     check = oatpp::encoding::Unicode::utf16SurrogatePairToCode(high, low);
     OATPP_ASSERT(code == check);
   }
-  
-  return true;
+
 }
   
 }}}

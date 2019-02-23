@@ -151,7 +151,7 @@ void testPool(v_int32 objectsNumber, v_int32 garbageNumber, v_int32 chunkSize){
   
 }
   
-bool MemoryPoolTest::onRun() {
+void MemoryPoolTest::onRun() {
   
   const v_int32 objectsNumber = 1000000;
   const v_int32 garbageNumber = 1000000;
@@ -189,8 +189,6 @@ bool MemoryPoolTest::onRun() {
       doStackAlloc();
     }
   }
-  
-  return true;
   
 }
 
