@@ -40,6 +40,7 @@ namespace oatpp { namespace network { namespace server {
 SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking)
   : m_port(port)
   , m_nonBlocking(nonBlocking)
+  , m_closed(false)
 {
   m_serverHandle = instantiateServer();
   setProperty(PROPERTY_HOST, "localhost");
@@ -51,7 +52,8 @@ SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
 }
 
 void SimpleTCPConnectionProvider::close() {
-  if(m_serverHandle != 0) {
+  if(!m_closed) {
+    m_closed = true;
     ::close(m_serverHandle);
   }
 }
@@ -108,7 +110,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     if(error == EAGAIN || error == EWOULDBLOCK){
       return nullptr;
     } else {
-      OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Error. %d", error);
+      if(!m_closed) { // m_serverHandle==0 if ConnectionProvider was closed. Not an error.
+        OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Error. %d", error);
+      }
       return nullptr;
     }
   }

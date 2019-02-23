@@ -206,7 +206,6 @@ add_library(oatpp-test
         oatpp-test/Checker.hpp
         oatpp-test/UnitTest.cpp
         oatpp-test/UnitTest.hpp
-        oatpp-test/web/ClientServerTestRunner.cpp
         oatpp-test/web/ClientServerTestRunner.hpp
 )
 

@@ -34,9 +34,15 @@
 #include "oatpp/core/macro/component.hpp"
 
 #include <list>
+#include <chrono>
+#include <mutex>
+#include <condition_variable>
 
 namespace oatpp { namespace test { namespace web {
 
+/**
+ * Helper class to run Client-Server tests
+ */
 class ClientServerTestRunner {
 public:
   typedef oatpp::web::server::HttpRouter HttpRouter;
@@ -52,39 +58,75 @@ public:
     return m_router;
   }
 
+  /**
+   * Add controller's endpoints to router
+   * @param controller
+   */
   void addController(const std::shared_ptr<ApiController>& controller) {
     controller->addEndpointsToRouter(m_router);
     m_controllers.push_back(controller);
   }
 
+  /**
+   * Start server, execute code block passed as lambda, stop server.
+   * @tparam Lambda
+   * @param lambda
+   * @param timeout
+   */
   template<typename Lambda>
-  void run(const Lambda& lambda) {
+  void run(
+    const Lambda& lambda,
+    const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::hours(12)
+  ) {
+
+    auto startTime = std::chrono::system_clock::now();
+    bool running = true;
+    std::mutex timeoutMutex;
+    std::condition_variable timeoutCondition;
 
     oatpp::network::server::Server server(m_connectionProvider, m_connectionHandler);
-
-    OATPP_LOGD("Server", "Running on port %s...", m_connectionProvider->getProperty("port").toString()->c_str());
-
-    std::thread clientThread([this, &server, &lambda]{
-
-      lambda();
-
-      try {
-        server.stop();
-        m_connectionHandler->stop();
-        m_connectionProvider->close();
-      } catch(std::runtime_error e) {
-        // DO NOTHING
-      }
-
-    });
+    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %lld(micro)\033[0m",
+               m_connectionProvider->getProperty("port").toString()->c_str(),
+               timeout.count());
 
     std::thread serverThread([&server]{
       server.run();
     });
 
-    clientThread.join();
-    serverThread.join();
+    std::thread clientThread([this, &server, &lambda]{
 
+      lambda();
+
+      server.stop();
+      m_connectionHandler->stop();
+      m_connectionProvider->close();
+
+    });
+
+    std::thread timerThread([&timeout, &startTime, &running, &timeoutMutex, &timeoutCondition]{
+
+      auto end = startTime + timeout;
+      std::unique_lock<std::mutex> lock(timeoutMutex);
+      while(running) {
+        timeoutCondition.wait_for(lock, std::chrono::seconds(1));
+        std::chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - startTime;
+        OATPP_ASSERT("ClientServerTestRunner: Error. Timeout." && elapsed < timeout);
+      }
+
+    });
+
+    serverThread.join();
+    clientThread.join();
+
+    std::chrono::duration<v_int64, std::micro> elapsed = std::chrono::system_clock::now() - startTime;
+    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mFinished with time %lld(micro). Stopping server...\033[0m", elapsed.count());
+
+    running = false;
+    timeoutCondition.notify_one();
+
+    timerThread.join();
+
+    // Wait for worker threads are finished
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   }

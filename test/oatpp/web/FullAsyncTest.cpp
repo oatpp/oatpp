@@ -50,7 +50,7 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
-//#define OATPP_TEST_USE_REAL_PORT
+//#define OATPP_TEST_USE_PORT 8123
 
 class TestComponent {
 public:
@@ -60,14 +60,11 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {
-#ifdef OATPP_TEST_USE_REAL_PORT
-    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(8000, true /* nonBlocking */);
+#ifdef OATPP_TEST_USE_PORT
+    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT, true /* nonBlocking */);
 #else
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    auto provider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true /* nonBlocking */);
-    //provider->setSocketMaxAvailableToReadWrtie(123, 11);
-    provider->setSocketMaxAvailableToReadWrtie(-1, -1);
-    return provider;
+    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true /* nonBlocking */);
 #endif
   }());
 
@@ -85,14 +82,11 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider)([this] {
-#ifdef OATPP_TEST_USE_REAL_PORT
-    return oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", 8000);
+#ifdef OATPP_TEST_USE_PORT
+    return oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", OATPP_TEST_USE_PORT);
 #else
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    auto provider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
-    //provider->setSocketMaxAvailableToReadWrtie(12421, 21312);
-    provider->setSocketMaxAvailableToReadWrtie(-1, -1);
-    return provider;
+    return oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
 #endif
   }());
 
@@ -171,7 +165,7 @@ void FullAsyncTest::onRun() {
       
     }
     
-  });
+  }, std::chrono::minutes(10));
 
 }
   

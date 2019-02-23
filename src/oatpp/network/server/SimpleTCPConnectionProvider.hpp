@@ -36,6 +36,7 @@ class SimpleTCPConnectionProvider : public base::Controllable, public ServerConn
 private:
   v_word16 m_port;
   bool m_nonBlocking;
+  bool m_closed;
   oatpp::data::v_io_handle m_serverHandle;
 private:
   oatpp::data::v_io_handle instantiateServer();
