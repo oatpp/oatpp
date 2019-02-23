@@ -109,7 +109,7 @@ public:
       std::unique_lock<std::mutex> lock(timeoutMutex);
       while(running) {
         timeoutCondition.wait_for(lock, std::chrono::seconds(1));
-        std::chrono::duration<double, std::milli> elapsed = std::chrono::system_clock::now() - startTime;
+        auto elapsed = std::chrono::system_clock::now() - startTime;
         OATPP_ASSERT("ClientServerTestRunner: Error. Timeout." && elapsed < timeout);
       }
 
@@ -118,7 +118,7 @@ public:
     serverThread.join();
     clientThread.join();
 
-    std::chrono::duration<v_int64, std::micro> elapsed = std::chrono::system_clock::now() - startTime;
+    auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - startTime);
     OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mFinished with time %lld(micro). Stopping server...\033[0m", elapsed.count());
 
     running = false;
@@ -127,7 +127,7 @@ public:
     timerThread.join();
 
     // Wait for worker threads are finished
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
   }
 
