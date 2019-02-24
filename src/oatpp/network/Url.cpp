@@ -110,12 +110,15 @@ void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::
     do {
       caret.inc();
       auto nameLabel = caret.putLabel();
-      if(caret.findChar('=')) {
+      v_int32 charFound = caret.findCharFromSet("=&");
+      if(charFound == '=') {
         nameLabel.end();
         caret.inc();
         auto valueLabel = caret.putLabel();
         caret.findChar('&');
-        params.put(nameLabel.toString(), valueLabel.toString());
+        params[nameLabel.toString()] = valueLabel.toString();
+      } else {
+        params[nameLabel.toString()] = oatpp::String("", false);
       }
     } while (caret.canContinueAtChar('&'));
     
@@ -128,33 +131,74 @@ void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, const oatpp::St
   parseQueryParamsToMap(params, caret);
 }
 
-std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(oatpp::parser::Caret& caret) {
-  auto params = Url::Parameters::createShared();
-  parseQueryParamsToMap(*params, caret);
+Url::Parameters Url::Parser::parseQueryParams(oatpp::parser::Caret& caret) {
+  Url::Parameters params;
+  parseQueryParamsToMap(params, caret);
   return params;
 }
 
-std::shared_ptr<Url::Parameters> Url::Parser::parseQueryParams(const oatpp::String& str) {
-  auto params = Url::Parameters::createShared();
-  parseQueryParamsToMap(*params, str);
+Url::Parameters Url::Parser::parseQueryParams(const oatpp::String& str) {
+  Url::Parameters params;
+  parseQueryParamsToMap(params, str);
   return params;
+}
+
+Url::ParametersAsLabels Url::Parser::labelQueryParams(const oatpp::String& str) {
+
+  Url::ParametersAsLabels params;
+  oatpp::parser::Caret caret(str);
+
+  if(caret.findChar('?')) {
+
+    do {
+      caret.inc();
+      auto nameLabel = caret.putLabel();
+      v_int32 charFound = caret.findCharFromSet("=&");
+      if(charFound == '=') {
+        nameLabel.end();
+        caret.inc();
+        auto valueLabel = caret.putLabel();
+        caret.findChar('&');
+        params[StringKeyLabel(str.getPtr(), nameLabel.getData(), nameLabel.getSize())] =
+               StringKeyLabel(str.getPtr(), valueLabel.getData(), valueLabel.getSize());
+      } else {
+        params[StringKeyLabel(str.getPtr(), nameLabel.getData(), nameLabel.getSize())] = "";
+      }
+    } while (caret.canContinueAtChar('&'));
+
+  }
+
+  return params;
+
 }
 
 Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
+
   Url result;
-  result.scheme = parseScheme(caret);
-  if(caret.canContinueAtChar(':', 1)) {
-    if(caret.isAtText((p_char8)"//", 2, true)) {
-      if(!caret.isAtChar('/')) {
-        result.authority = parseAuthority(caret);
-      }
-      result.path = parsePath(caret);
-      result.queryParams = parseQueryParams(caret);
-    } else {
-      result.authority = parseAuthority(caret);
-    }
+
+  if(caret.findChar(':')) {
+    caret.setPosition(0);
+    result.scheme = parseScheme(caret);
+    caret.canContinueAtChar(':', 1);
+  } else {
+    caret.setPosition(0);
   }
+
+  caret.isAtText((p_char8)"//", 2, true);
+
+  if(!caret.isAtChar('/')) {
+    result.authority = parseAuthority(caret);
+  }
+
+  result.path = parsePath(caret);
+  result.queryParams = parseQueryParams(caret);
+
   return result;
+}
+
+Url Url::Parser::parseUrl(const oatpp::String& str) {
+  oatpp::parser::Caret caret(str);
+  return parseUrl(caret);
 }
   
 }}

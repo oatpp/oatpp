@@ -19,6 +19,8 @@ add_executable(oatppAllTests
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
+        oatpp/network/UrlTest.cpp
+        oatpp/network/UrlTest.hpp
         oatpp/network/virtual_/InterfaceTest.cpp
         oatpp/network/virtual_/InterfaceTest.hpp
         oatpp/network/virtual_/PipeTest.cpp

@@ -68,17 +68,28 @@ public:
   bool equals(const void* data, v_int32 size) const {
     return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
   }
-  
+
+  /**
+   * Create oatpp::String from memory label
+   * @return oatpp::String(data, size)
+   */
   oatpp::String toString() const {
     return oatpp::String((const char*) m_data, m_size, true);
   }
-  
-  std::string toStdString() const {
+
+  /**
+   * Create std::string from memory label
+   * @return std::string(data, size)
+   */
+  std::string std_str() const {
     return std::string((const char*) m_data, m_size);
   }
   
 };
-  
+
+/**
+ * MemoryLabel which can be used as a key in unordered_map
+ */
 class StringKeyLabel : public MemoryLabel {
 public:
   
@@ -97,7 +108,10 @@ public:
   }
   
 };
-  
+
+/**
+ * MemoryLabel which can be used as a case-insensitive key in unordered_map
+ */
 class StringKeyLabelCI : public MemoryLabel {
 public:
   
@@ -116,7 +130,12 @@ public:
   }
   
 };
-  
+
+/**
+ * MemoryLabel which can be used as a case-insensitive-fast key in unordered_map.
+ * CI_FAST - is appropriate for strings consisting of [a..z] + [A..Z] only.
+ * for other symbols undefined collisions may occur.
+ */
 class StringKeyLabelCI_FAST : public MemoryLabel {
 public:
   
