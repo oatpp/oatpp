@@ -28,6 +28,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/web/url/mapping/Pattern.hpp"
+#include "oatpp/network/Url.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   
@@ -36,16 +37,22 @@ public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 private:
+  struct StdStringComp {
+    public:
+      bool operator()(const std::string& a, const std::string& b) const { return a.compare(b) > 0; }
+  };
   http::RequestStartingLine m_startingLine;
   url::mapping::Pattern::MatchMap m_pathVariables;
   http::Protocol::Headers m_headers;
   std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
+  std::shared_ptr<std::unordered_map<std::string, oatpp::String>> m_queryParams;
   
   /**
    * Request should be preconfigured with default BodyDecoder.
    * Custom BodyDecoder can be set on demand
    */
   std::shared_ptr<const http::incoming::BodyDecoder> m_bodyDecoder;
+  
 public:
   /*
   Request(const std::shared_ptr<const http::incoming::BodyDecoder>& pBodyDecoder)
@@ -57,13 +64,24 @@ public:
           const url::mapping::Pattern::MatchMap& pathVariables,
           const http::Protocol::Headers& headers,
           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-          const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
+          const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder
+         )
     : m_startingLine(startingLine)
     , m_pathVariables(pathVariables)
     , m_headers(headers)
     , m_bodyStream(bodyStream)
     , m_bodyDecoder(bodyDecoder)
-  {}
+  {
+    m_queryParams = std::make_shared<std::unordered_map<std::string, oatpp::String>>();
+    auto params = oatpp::network::Url::Parser::parseQueryParams(pathVariables.getTail());
+    auto param = params->getFirstEntry();
+    while(param != nullptr) {
+      std::string key = param->getKey().get()->std_str();
+      oatpp::String value = param->getValue();
+      (*m_queryParams)[key] = value;
+      param = param->getNext();
+    }
+  }
 public:
   
   static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
@@ -108,6 +126,24 @@ public:
   
   oatpp::String getPathTail() const {
     return m_pathVariables.getTail();
+  }
+  
+  oatpp::String getQueryParameter(const std::string& key) const {
+    auto iter = m_queryParams->find(key);
+    if (iter == m_queryParams->end()) {
+      return nullptr;
+    } else {
+      return iter->second;
+    }
+  }
+  
+  oatpp::String getQueryParameter(std::string key, oatpp::String& _value) {
+      auto value = getQueryParameter(key);
+      return value == nullptr ? _value : value;
+  }
+  
+  std::shared_ptr<const std::unordered_map<std::string, oatpp::String>> getQueryParameters() {
+    return m_queryParams;
   }
   
   void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {

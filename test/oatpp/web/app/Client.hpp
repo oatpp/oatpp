@@ -37,6 +37,7 @@ class Client : public oatpp::web::client::ApiClient {
   
   API_CALL("GET", "/", getRoot)
   API_CALL("GET", "params/{param}", getWithParams, PATH(String, param))
+  API_CALL("GET", "queries", getWithQueries, QUERY(String, name), QUERY(Int32, age))
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))

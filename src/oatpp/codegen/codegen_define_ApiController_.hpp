@@ -21,7 +21,6 @@
  * limitations under the License.
  *
  ***************************************************************************/
-
 #include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -42,6 +41,12 @@ OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_HEADER, OATPP_MACRO_
 #define PATH(TYPE, NAME, ...) \
 OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_PATH, OATPP_MACRO_API_CONTROLLER_PATH_INFO, TYPE, NAME, (__VA_ARGS__))
 
+#define QUERIES(TYPE, NAME) \
+OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_QUERIES, OATPP_MACRO_API_CONTROLLER_QUERIES_INFO, TYPE, NAME, ())
+
+#define QUERY(TYPE, NAME, ...) \
+OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_QUERY, OATPP_MACRO_API_CONTROLLER_QUERY_INFO, TYPE, NAME, (__VA_ARGS__))
+
 #define BODY_STRING(TYPE, NAME) \
 OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_STRING, OATPP_MACRO_API_CONTROLLER_BODY_STRING_INFO, TYPE, NAME, ())
 
@@ -55,6 +60,7 @@ OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_DTO, OATPP_MACR
 TYPE NAME = __request;
 
 #define OATPP_MACRO_API_CONTROLLER_REQUEST_INFO(TYPE, NAME, PARAM_LIST)
+
 
 // HEADER MACRO // ------------------------------------------------------
 
@@ -163,6 +169,67 @@ OATPP_MACRO_API_CONTROLLER_PATH_INFO_CHOOSER (TYPE, NAME, PARAM_LIST, HAS_ARGS)
 
 #define OATPP_MACRO_API_CONTROLLER_PATH_INFO(TYPE, NAME, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_PATH_INFO_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, OATPP_MACRO_HAS_ARGS PARAM_LIST);
+
+// QUERIES MACRO // ------------------------------------------------------
+
+#define OATPP_MACRO_API_CONTROLLER_QUERIES(TYPE, NAME, PARAM_LIST) \
+TYPE NAME = __request->getQueryParameters();
+
+#define OATPP_MACRO_API_CONTROLLER_QUERIES_INFO(TYPE, NAME, PARAM_LIST)
+
+// QUERY MACRO // ------------------------------------------------------
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_0(TYPE, NAME, PARAM_LIST) \
+auto __param_str_val_##NAME = __request->getQueryParameter(#NAME); \
+if(!__param_str_val_##NAME){ \
+  return ApiController::handleError(Status::CODE_400, "Missing QUERY parameter '" #NAME "'"); \
+} \
+bool __param_validation_check_##NAME; \
+TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+if(!__param_validation_check_##NAME){ \
+  return ApiController::handleError(Status::CODE_400, "Invalid QUERY parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
+}
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_1(TYPE, NAME, PARAM_LIST) \
+auto __param_str_val_##NAME = __request->getQueryParameter(OATPP_MACRO_FIRSTARG PARAM_LIST); \
+if(!__param_str_val_##NAME){ \
+  return ApiController::handleError(Status::CODE_400, \
+  oatpp::String("Missing QUERY parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \
+} \
+bool __param_validation_check_##NAME; \
+TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+if(!__param_validation_check_##NAME){ \
+  return ApiController::handleError(Status::CODE_400, \
+                                    oatpp::String("Invalid QUERY parameter '") + \
+                                    OATPP_MACRO_FIRSTARG PARAM_LIST + \
+                                    "'. Expected type is '" #TYPE "'"); \
+}
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_CHOOSER(TYPE, NAME, PARAM_LIST, HAS_ARGS) \
+OATPP_MACRO_API_CONTROLLER_QUERY_##HAS_ARGS (TYPE, NAME, PARAM_LIST)
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, HAS_ARGS) \
+OATPP_MACRO_API_CONTROLLER_QUERY_CHOOSER (TYPE, NAME, PARAM_LIST, HAS_ARGS)
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY(TYPE, NAME, PARAM_LIST) \
+OATPP_MACRO_API_CONTROLLER_QUERY_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, OATPP_MACRO_HAS_ARGS PARAM_LIST);
+
+// __INFO
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_0(TYPE, NAME, PARAM_LIST) \
+info->queryParams.push_back(Endpoint::Info::Param(#NAME, TYPE::Class::getType()));
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_1(TYPE, NAME, PARAM_LIST) \
+info->queryParams.push_back(Endpoint::Info::Param(OATPP_MACRO_FIRSTARG PARAM_LIST, TYPE::Class::getType()));
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_CHOOSER(TYPE, NAME, PARAM_LIST, HAS_ARGS) \
+OATPP_MACRO_API_CONTROLLER_QUERY_INFO_##HAS_ARGS (TYPE, NAME, PARAM_LIST)
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, HAS_ARGS) \
+OATPP_MACRO_API_CONTROLLER_QUERY_INFO_CHOOSER (TYPE, NAME, PARAM_LIST, HAS_ARGS)
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO(TYPE, NAME, PARAM_LIST) \
+OATPP_MACRO_API_CONTROLLER_QUERY_INFO_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, OATPP_MACRO_HAS_ARGS PARAM_LIST);
 
 // BODY_STRING MACRO // ------------------------------------------------------
 

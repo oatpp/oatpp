@@ -25,6 +25,7 @@
 #ifndef oatpp_test_web_app_Controller_hpp
 #define oatpp_test_web_app_Controller_hpp
 
+#include <sstream>
 #include "./DTOs.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -58,6 +59,22 @@ public:
     OATPP_LOGD(TAG, "GET params/%s", param->c_str());
     auto dto = TestDto::createShared();
     dto->testValue = param;
+    return createDtoResponse(Status::CODE_200, dto);
+  }
+  
+  ENDPOINT("GET", "queries/*", getWithQueries,
+           QUERIES(QueryParameters, queries), QUERY(String, name), QUERY(Int32, age)) {
+    std::ostringstream builder;
+    for (auto i = queries->begin(); i != queries->end(); ++i) {
+      if (i != queries->begin()) {
+        builder << "&";
+      }
+      builder << i->first << "=" << i->second->std_str();
+    }
+    auto queryString = builder.str();
+    OATPP_LOGD(TAG, "GET queries?%s =>(name=%s, age=%d)", queryString.c_str(), name->c_str(), age->getValue());
+    auto dto = TestDto::createShared();
+    dto->testValue = queryString.c_str();
     return createDtoResponse(Status::CODE_200, dto);
   }
   

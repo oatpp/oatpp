@@ -88,6 +88,13 @@ bool FullTest::onRun() {
         OATPP_ASSERT(dto->testValue == "my_test_param");
       }
       
+      { // test GET with query parameters
+        auto response = client->getWithQueries("oatpp", 1);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "age=1&name=oatpp");
+      }
+      
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header");
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
