@@ -30,7 +30,9 @@
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network {
-  
+
+
+// TODO - refactor to use oatpp::data::share::MemoryLabel
 class Url : public oatpp::base::Controllable {
 public:
   typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Parameters;

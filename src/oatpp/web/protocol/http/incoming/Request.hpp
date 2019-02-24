@@ -37,22 +37,21 @@ public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 private:
-  struct StdStringComp {
-    public:
-      bool operator()(const std::string& a, const std::string& b) const { return a.compare(b) > 0; }
-  };
+
   http::RequestStartingLine m_startingLine;
   url::mapping::Pattern::MatchMap m_pathVariables;
   http::Protocol::Headers m_headers;
   std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
-  std::shared_ptr<std::unordered_map<std::string, oatpp::String>> m_queryParams;
+
+  mutable bool m_queryParamsParsed; // used for lazy parsing of QueryParams
+  mutable http::Protocol::QueryParams m_queryParams;
   
   /**
    * Request should be preconfigured with default BodyDecoder.
    * Custom BodyDecoder can be set on demand
    */
   std::shared_ptr<const http::incoming::BodyDecoder> m_bodyDecoder;
-  
+
 public:
   /*
   Request(const std::shared_ptr<const http::incoming::BodyDecoder>& pBodyDecoder)
@@ -65,23 +64,14 @@ public:
           const http::Protocol::Headers& headers,
           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder
-         )
+  )
     : m_startingLine(startingLine)
     , m_pathVariables(pathVariables)
     , m_headers(headers)
     , m_bodyStream(bodyStream)
     , m_bodyDecoder(bodyDecoder)
-  {
-    m_queryParams = std::make_shared<std::unordered_map<std::string, oatpp::String>>();
-    auto params = oatpp::network::Url::Parser::parseQueryParams(pathVariables.getTail());
-    auto param = params->getFirstEntry();
-    while(param != nullptr) {
-      std::string key = param->getKey().get()->std_str();
-      oatpp::String value = param->getValue();
-      (*m_queryParams)[key] = value;
-      param = param->getNext();
-    }
-  }
+    , m_queryParamsParsed(false)
+  {}
 public:
   
   static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
@@ -99,7 +89,26 @@ public:
   const url::mapping::Pattern::MatchMap& getPathVariables() const {
     return m_pathVariables;
   }
-  
+
+  /**
+   * Get map of url query parameters.
+   * Query parameters will be lazy parsed from url "tail"
+   * Please note: lazy parsing of query parameters is not thread-safe!
+   * @return map<key, value> for "&key=value"
+   */
+  const http::Protocol::QueryParams& getQueryParameters() const {
+    if(!m_queryParamsParsed) {
+      auto params = oatpp::network::Url::Parser::parseQueryParams(m_pathVariables.getTail());
+      auto param = params->getFirstEntry();
+      while(param != nullptr) {
+        m_queryParams[param->getKey()] = param->getValue();
+        param = param->getNext();
+      }
+      m_queryParamsParsed = true;
+    }
+    return m_queryParams;
+  }
+
   const http::Protocol::Headers& getHeaders() const {
     return m_headers;
   }
@@ -128,22 +137,18 @@ public:
     return m_pathVariables.getTail();
   }
   
-  oatpp::String getQueryParameter(const std::string& key) const {
-    auto iter = m_queryParams->find(key);
-    if (iter == m_queryParams->end()) {
+  oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const {
+    auto iter = getQueryParameters().find(name);
+    if (iter == getQueryParameters().end()) {
       return nullptr;
     } else {
-      return iter->second;
+      return iter->second.toString();
     }
   }
   
-  oatpp::String getQueryParameter(std::string key, oatpp::String& _value) {
-      auto value = getQueryParameter(key);
-      return value == nullptr ? _value : value;
-  }
-  
-  std::shared_ptr<const std::unordered_map<std::string, oatpp::String>> getQueryParameters() {
-    return m_queryParams;
+  oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const {
+      auto value = getQueryParameter(name);
+      return value ? value : defaultValue;
   }
   
   void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
