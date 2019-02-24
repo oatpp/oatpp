@@ -77,43 +77,105 @@ data::v_io_size OutputStream::writeAsString(bool value) {
   
 // Functions
   
-const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const oatpp::String& str) {
-  s->write(str);
+OutputStream& operator << (OutputStream& s, const oatpp::String& str) {
+  if(str) {
+    s.write(str);
+  } else {
+    s.write("[<String(null)>]");
+  }
   return s;
 }
 
-const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const char* str) {
-  s->write(str);
+OutputStream& operator << (OutputStream& s, const Int8& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Int8(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const Int16& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Int16(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const Int32& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Int32(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const Int64& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Int64(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const Float32& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Float32(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const Float64& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Float64(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const Boolean& value) {
+  if(value.getPtr()) { // use getPtr() here to avoid false to nullptr conversion
+    return operator << (s, value->getValue());
+  }
+  s.write("[<Boolean(null)>]");
+  return s;
+}
+
+OutputStream& operator << (OutputStream& s, const char* str) {
+  if(str != nullptr) {
+    s.write(str);
+  } else {
+    s.write("[<char*(null)>]");
+  }
   return s;
 }
   
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_int32 value) {
-  s->writeAsString(value);
+OutputStream& operator << (OutputStream& s, v_int32 value) {
+  s.writeAsString(value);
   return s;
 }
 
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_int64 value) {
-  s->writeAsString(value);
+OutputStream& operator << (OutputStream& s, v_int64 value) {
+  s.writeAsString(value);
   return s;
 }
 
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_float32 value) {
-  s->writeAsString(value);
+OutputStream& operator << (OutputStream& s, v_float32 value) {
+  s.writeAsString(value);
   return s;
 }
 
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_float64 value) {
-  s->writeAsString(value);
+OutputStream& operator << (OutputStream& s, v_float64 value) {
+  s.writeAsString(value);
   return s;
 }
 
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, bool value) {
+OutputStream& operator << (OutputStream& s, bool value) {
   if(value) {
-    s->OutputStream::write("true");
+    s.OutputStream::write("true");
   } else {
-    s->OutputStream::write("false");
+    s.OutputStream::write("false");
   }
   return s;
 }

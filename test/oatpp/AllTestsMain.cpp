@@ -6,6 +6,7 @@
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
 #include "oatpp/network/UrlTest.hpp"
 
+#include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
@@ -49,25 +50,28 @@ public:
 };
 
 void runTests() {
-
-  /*
+  
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
+
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
+
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
+
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
-*/
 
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
-
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 

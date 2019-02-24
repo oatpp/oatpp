@@ -33,12 +33,10 @@ std::shared_ptr<protocol::http::outgoing::Response>
 DefaultErrorHandler::handleError(const protocol::http::Status& status, const oatpp::String& message) {
   
   auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-  stream << "server=" << protocol::http::Header::Value::SERVER << "\n";
-  stream << "code=";
-  stream->writeAsString(status.code);
-  stream << "\n";
-  stream << "description=" << status.description << "\n";
-  stream << "message=" << message << "\n";
+  *stream << "server=" << protocol::http::Header::Value::SERVER << "\n";
+  *stream << "code=" << status.code << "\n";
+  *stream << "description=" << status.description << "\n";
+  *stream << "message=" << message << "\n";
   auto response = protocol::http::outgoing::Response::createShared
   (status, protocol::http::outgoing::ChunkedBufferBody::createShared(stream));
   
