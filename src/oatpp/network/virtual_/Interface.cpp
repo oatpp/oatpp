@@ -89,10 +89,13 @@ std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking()
   return submission;
 }
 
-std::shared_ptr<Socket> Interface::accept() {
+std::shared_ptr<Socket> Interface::accept(const bool& waitingHandle) {
   std::unique_lock<std::mutex> lock(m_mutex);
-  while (m_submissions.getFirstNode() == nullptr) {
+  while (waitingHandle && m_submissions.getFirstNode() == nullptr) {
     m_condition.wait(lock);
+  }
+  if(!waitingHandle) {
+    return nullptr;
   }
   return acceptSubmission(m_submissions.popFront());
 }
@@ -103,6 +106,10 @@ std::shared_ptr<Socket> Interface::acceptNonBlocking() {
     return acceptSubmission(m_submissions.popFront());
   }
   return nullptr;
+}
+
+void Interface::notifyAcceptors() {
+  m_condition.notify_all();
 }
   
 }}}

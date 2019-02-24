@@ -32,7 +32,7 @@ namespace oatpp { namespace test { namespace parser {
     typedef oatpp::parser::Caret Caret;
   }
 
-bool CaretTest::onRun() {
+void CaretTest::onRun() {
 
   {
     Caret caret(" \t\n\r\f \t\n\r\f \t\n\r\fhello!\t\n\r\f");
@@ -82,7 +82,6 @@ bool CaretTest::onRun() {
     OATPP_ASSERT(caret.getPosition() == caret.getDataSize());
   }
 
-  return true;
 }
 
 }}}

@@ -33,7 +33,7 @@ class MemoryLabelTest : public UnitTest{
 public:
   
   MemoryLabelTest():UnitTest("TEST[core::data::share::MemoryLabelTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

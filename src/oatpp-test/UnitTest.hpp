@@ -41,15 +41,13 @@ public:
   virtual ~UnitTest(){
   }
   
-  v_int64 getTickCount();
-  
-  bool run(v_int32 times);
+  void run(v_int32 times);
 
-  bool run(){
-    return run(1);
+  void run(){
+    run(1);
   }
   
-  virtual bool onRun() = 0;
+  virtual void onRun() = 0;
   
   template<class T>
   static void runTest(v_int32 times){

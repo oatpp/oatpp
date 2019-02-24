@@ -65,6 +65,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
+
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
 

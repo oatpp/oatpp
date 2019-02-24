@@ -70,9 +70,21 @@ public:
   
   std::shared_ptr<ConnectionSubmission> connect();
   std::shared_ptr<ConnectionSubmission> connectNonBlocking();
-  
-  std::shared_ptr<Socket> accept();
+
+  /**
+   *
+   * @param waitingHandle
+   * @return
+   */
+  std::shared_ptr<Socket> accept(const bool& waitingHandle = true);
+
   std::shared_ptr<Socket> acceptNonBlocking();
+
+  /**
+   * Notify all threads that are waiting on accept().
+   * Those threads that have waitingHandle changed to false will be unblocked.
+   */
+  void notifyAcceptors();
   
   oatpp::String getName() {
     return m_name;

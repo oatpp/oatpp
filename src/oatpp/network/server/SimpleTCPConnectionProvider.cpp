@@ -40,6 +40,7 @@ namespace oatpp { namespace network { namespace server {
 SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking)
   : m_port(port)
   , m_nonBlocking(nonBlocking)
+  , m_closed(false)
 {
   m_serverHandle = instantiateServer();
   setProperty(PROPERTY_HOST, "localhost");
@@ -47,7 +48,14 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool non
 }
 
 SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
-  ::close(m_serverHandle);
+  close();
+}
+
+void SimpleTCPConnectionProvider::close() {
+  if(!m_closed) {
+    m_closed = true;
+    ::close(m_serverHandle);
+  }
 }
   
 oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
@@ -70,14 +78,14 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for accepting socket", "SO_REUSEADDR");
+    OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Warning. Failed to set %s for accepting socket", "SO_REUSEADDR");
   }
   
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
   
   if(ret != 0) {
     ::close(serverHandle);
-    throw std::runtime_error("Can't bind to address");
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Can't bind to address.");
     return -1 ;
   }
   
@@ -94,9 +102,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 }
   
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
-  
-  //oatpp::test::PerformanceChecker checker("Accept Checker");
-  
+
   oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
   
   if (handle < 0) {
@@ -104,7 +110,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     if(error == EAGAIN || error == EWOULDBLOCK){
       return nullptr;
     } else {
-      OATPP_LOGD("Server", "Error: %d", error);
+      if(!m_closed) { // m_serverHandle==0 if ConnectionProvider was closed. Not an error.
+        OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Error. %d", error);
+      }
       return nullptr;
     }
   }
@@ -113,7 +121,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   int yes = 1;
   v_int32 ret = setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("SimpleTCPConnectionProvider", "Warning failed to set %s for socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
   

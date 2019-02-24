@@ -36,6 +36,7 @@ class SimpleTCPConnectionProvider : public base::Controllable, public ServerConn
 private:
   v_word16 m_port;
   bool m_nonBlocking;
+  bool m_closed;
   oatpp::data::v_io_handle m_serverHandle;
 private:
   oatpp::data::v_io_handle instantiateServer();
@@ -48,6 +49,8 @@ public:
   }
   
   ~SimpleTCPConnectionProvider();
+
+  void close() override;
   
   std::shared_ptr<IOStream> getConnection() override;
   
@@ -61,7 +64,7 @@ public:
      *
      *  It may be implemented later
      */
-    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()] not implemented.");
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
   }
   
   v_word16 getPort(){

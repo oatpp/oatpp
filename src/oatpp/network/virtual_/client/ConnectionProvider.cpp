@@ -25,7 +25,11 @@
 #include "ConnectionProvider.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
-  
+
+void ConnectionProvider::close() {
+
+}
+
 std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
   auto submission = m_interface->connect();
   auto socket = submission->getSocket();

@@ -33,7 +33,7 @@ class TypeTest : public UnitTest{
 public:
   
   TypeTest():UnitTest("TEST[core::data::mapping::type::TypeTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
   

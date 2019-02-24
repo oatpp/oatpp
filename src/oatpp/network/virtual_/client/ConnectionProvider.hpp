@@ -58,6 +58,8 @@ public:
     m_maxAvailableToRead = maxToRead;
     m_maxAvailableToWrite = maxToWrite;
   }
+
+  void close() override;
   
   std::shared_ptr<IOStream> getConnection() override;
   

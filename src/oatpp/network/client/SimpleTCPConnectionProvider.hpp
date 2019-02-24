@@ -43,7 +43,11 @@ public:
   static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_word16 port){
     return std::make_shared<SimpleTCPConnectionProvider>(host, port);
   }
-  
+
+  void close() override {
+    // DO NOTHING
+  }
+
   std::shared_ptr<IOStream> getConnection() override;
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback) override;
   

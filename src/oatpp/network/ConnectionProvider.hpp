@@ -55,9 +55,15 @@ protected:
   void setProperty(const oatpp::String& key, const oatpp::String& value);
 public:
   virtual ~ConnectionProvider() {}
+
   virtual std::shared_ptr<IOStream> getConnection() = 0;
   virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                     AsyncCallback callback) = 0;
+
+  /**
+   * Should close all handles here.
+   */
+  virtual void close() = 0;
   
   /**
    * Some optional properties that user might want to know.

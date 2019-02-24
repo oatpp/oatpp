@@ -33,7 +33,7 @@ class FullTest : public UnitTest {
 public:
   
   FullTest():UnitTest("TEST[web::FullTest]"){}
-  bool onRun() override;
+  void onRun() override;
   
 };
 

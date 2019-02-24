@@ -32,7 +32,7 @@ namespace oatpp { namespace test { namespace encoding {
 class UnicodeTest : public UnitTest{
 public:
   UnicodeTest():UnitTest("TEST[encoding::UnicodeTest]"){}
-  bool onRun() override;
+  void onRun() override;
 };
   
 }}}

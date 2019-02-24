@@ -43,7 +43,7 @@ public:
   {}
 public:
   
-  static std::shared_ptr<ControllerAsync> createShared(const std::shared_ptr<ObjectMapper>& objectMapper){
+  static std::shared_ptr<ControllerAsync> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
     return std::make_shared<ControllerAsync>(objectMapper);
   }
   
@@ -54,56 +54,56 @@ public:
     ENDPOINT_ASYNC_INIT(Root)
     
     Action act() {
-      OATPP_LOGD(TAG, "GET '/'");
+      //OATPP_LOGD(TAG, "GET '/'");
       return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
     }
-    
+
   };
-  
+
   ENDPOINT_ASYNC("GET", "params/{param}", GetWithParams) {
-    
+
     ENDPOINT_ASYNC_INIT(GetWithParams)
-    
+
     Action act() {
       auto param = request->getPathVariable("param");
-      OATPP_LOGD(TAG, "GET params/%s", param->c_str());
+      //OATPP_LOGD(TAG, "GET params/%s", param->c_str());
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
     }
-    
+
   };
-  
+
   ENDPOINT_ASYNC("GET", "headers", GetWithHeaders) {
-    
+
     ENDPOINT_ASYNC_INIT(GetWithHeaders)
-    
+
     Action act() {
       auto param = request->getHeader("X-TEST-HEADER");
-      OATPP_LOGD(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
+      //OATPP_LOGD(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
     }
-    
+
   };
-  
+
   ENDPOINT_ASYNC("POST", "body", PostBody) {
-    
+
     ENDPOINT_ASYNC_INIT(PostBody)
-    
+
     Action act() {
-      OATPP_LOGD(TAG, "POST body. Reading body...");
+      //OATPP_LOGD(TAG, "POST body. Reading body...");
       return request->readBodyToStringAsync(this, &PostBody::onBodyRead);
     }
-    
+
     Action onBodyRead(const String& body) {
-      OATPP_LOGD(TAG, "POST body %s", body->c_str());
+      //OATPP_LOGD(TAG, "POST body %s", body->c_str());
       auto dto = TestDto::createShared();
       dto->testValue = body;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
     }
-    
+
   };
 
   ENDPOINT_ASYNC("POST", "echo", Echo) {
@@ -111,12 +111,12 @@ public:
     ENDPOINT_ASYNC_INIT(Echo)
 
     Action act() {
-      OATPP_LOGD(TAG, "POST body(echo). Reading body...");
+      //OATPP_LOGD(TAG, "POST body(echo). Reading body...");
       return request->readBodyToStringAsync(this, &Echo::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {
-      OATPP_LOGD(TAG, "POST echo size=%d", body->getSize());
+      //OATPP_LOGD(TAG, "POST echo size=%d", body->getSize());
       return _return(controller->createResponse(Status::CODE_200, body));
     }
 
