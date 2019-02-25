@@ -125,21 +125,22 @@ public:
     
 };
   
-const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const oatpp::String& str);
+OutputStream& operator << (OutputStream& s, const oatpp::String& str);
+OutputStream& operator << (OutputStream& s, const Int8& value);
+OutputStream& operator << (OutputStream& s, const Int16& value);
+OutputStream& operator << (OutputStream& s, const Int32& value);
+OutputStream& operator << (OutputStream& s, const Int64& value);
+OutputStream& operator << (OutputStream& s, const Float32& value);
+OutputStream& operator << (OutputStream& s, const Float64& value);
+OutputStream& operator << (OutputStream& s, const Boolean& value);
 
-const std::shared_ptr<OutputStream>& operator <<
-(const std::shared_ptr<OutputStream>& s, const char* str);
-  
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_int32 value);
+OutputStream& operator << (OutputStream& s, const char* str);
+OutputStream& operator << (OutputStream& s, v_int32 value);
+OutputStream& operator << (OutputStream& s, v_int64 value);
+OutputStream& operator << (OutputStream& s, v_float32 value);
+OutputStream& operator << (OutputStream& s, v_float64 value);
+OutputStream& operator << (OutputStream& s, bool value);
 
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_int64 value);
-
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_float32 value);
-
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, v_float64 value);
-
-const std::shared_ptr<OutputStream>& operator << (const std::shared_ptr<OutputStream>& s, bool value);
 
 /**
  * Read bytes from @fromStream" and write to @toStream" using @buffer of size @bufferSize

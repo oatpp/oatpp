@@ -139,7 +139,7 @@ namespace oatpp { namespace utils { namespace conversion {
   
   oatpp::String float64ToStr(v_float64 value){
     v_char8 buff [100];
-    v_int32 size = float32ToCharSequence(value, &buff[0]);
+    v_int32 size = float64ToCharSequence(value, &buff[0]);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }

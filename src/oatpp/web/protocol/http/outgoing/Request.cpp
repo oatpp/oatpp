@@ -26,7 +26,55 @@
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+Request::Request() {}
+
+Request::Request(const oatpp::data::share::StringKeyLabel& method,
+                 const oatpp::data::share::StringKeyLabel& path,
+                 const Headers& headers,
+                 const std::shared_ptr<Body>& body)
+  : m_method(method)
+  , m_path(path)
+  , m_headers(headers)
+  , m_body(body)
+{}
+
+std::shared_ptr<Request> Request::createShared(const oatpp::data::share::StringKeyLabel& method,
+                                               const oatpp::data::share::StringKeyLabel& path,
+                                               const Headers& headers,
+                                               const std::shared_ptr<Body>& body) {
+  return Shared_Outgoing_Request_Pool::allocateShared(method, path, headers, body);
+}
+
+const oatpp::data::share::StringKeyLabel& Request::getMethod() const {
+  return m_method;
+}
+
+const oatpp::data::share::StringKeyLabel& Request::getPath() const {
+  return m_path;
+}
+
+protocol::http::Protocol::Headers& Request::getHeaders() {
+  return m_headers;
+}
+
+void Request::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers[key] = value;
+}
+
+bool Request::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  auto it = m_headers.find(key);
+  if(it == m_headers.end()) {
+    m_headers.insert({key, value});
+    return true;
+  }
+  return false;
+}
+
+std::shared_ptr<Body> Request::getBody() {
+  return m_body;
+}
+
 void Request::send(const std::shared_ptr<data::stream::OutputStream>& stream){
   
   if(m_body){

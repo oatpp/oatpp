@@ -118,12 +118,14 @@ void FullTest::onRun() {
 
       { // test simple GET
         auto response = client->getRoot(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World!!!");
       }
 
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_param");
@@ -131,6 +133,7 @@ void FullTest::onRun() {
 
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_header");
@@ -138,6 +141,7 @@ void FullTest::onRun() {
 
       { // test POST with body
         auto response = client->postBody("my_test_body", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body");
@@ -150,6 +154,7 @@ void FullTest::onRun() {
         }
         auto data = stream.toString();
         auto response = client->echoBody(data, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto returnedData = response->readBodyToString();
         OATPP_ASSERT(returnedData);
         OATPP_ASSERT(returnedData == data);

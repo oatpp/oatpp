@@ -125,7 +125,7 @@ private:
                                       data::v_io_size& outChunkPos);
   
 public:
-  
+
   ChunkedBuffer()
     : m_size(0)
     , m_chunkPos(0)
@@ -136,6 +136,11 @@ public:
   ~ChunkedBuffer() {
     clear();
   }
+
+public:
+
+  ChunkedBuffer(const ChunkedBuffer&) = delete;
+  ChunkedBuffer& operator=(const ChunkedBuffer&) = delete;
   
 public:
 

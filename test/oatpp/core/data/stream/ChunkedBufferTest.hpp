@@ -22,27 +22,22 @@
  *
  ***************************************************************************/
 
-#include "BodyDecoder.hpp"
+#ifndef oatpp_test_core_data_stream_ChunkedBufferTest_hpp
+#define oatpp_test_core_data_stream_ChunkedBufferTest_hpp
 
+#include "oatpp-test/UnitTest.hpp"
 
+namespace oatpp { namespace test { namespace core { namespace data { namespace stream {
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+class ChunkedBufferTest : public UnitTest{
+public:
 
-BodyDecoder::ToStringDecoder::ToStringDecoder(const BodyDecoder* decoder,
-                                              const Protocol::Headers& headers,
-                                              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream)
-  : m_decoder(decoder)
-  , m_headers(headers)
-  , m_bodyStream(bodyStream)
-  , m_chunkedBuffer(oatpp::data::stream::ChunkedBuffer::createShared())
-{}
+  ChunkedBufferTest():UnitTest("TEST[core::data::stream::ChunkedBufferTest]"){}
+  void onRun() override;
 
-async::Action BodyDecoder::ToStringDecoder::act() {
-  return m_decoder->decodeAsync(this, yieldTo(&ToStringDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
-}
-
-async::Action BodyDecoder::ToStringDecoder::onDecoded() {
-  return _return(m_chunkedBuffer->toString());
-}
+};
 
 }}}}}
+
+
+#endif //oatpp_test_core_data_stream_ChunkedBufferTest_hpp

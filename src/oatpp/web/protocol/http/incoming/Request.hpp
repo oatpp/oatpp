@@ -30,7 +30,10 @@
 #include "oatpp/web/url/mapping/Pattern.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
-  
+
+/**
+ * Class http::incoming::Request AKA IncomingRequest represents client's incoming request
+ */
 class Request : public oatpp::base::Controllable {
 public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
@@ -41,108 +44,140 @@ private:
   http::Protocol::Headers m_headers;
   std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
   
-  /**
+  /*
    * Request should be preconfigured with default BodyDecoder.
    * Custom BodyDecoder can be set on demand
    */
   std::shared_ptr<const http::incoming::BodyDecoder> m_bodyDecoder;
 public:
-  /*
-  Request(const std::shared_ptr<const http::incoming::BodyDecoder>& pBodyDecoder)
-    : bodyDecoder(pBodyDecoder)
-  {}
-   */
   
   Request(const http::RequestStartingLine& startingLine,
           const url::mapping::Pattern::MatchMap& pathVariables,
           const http::Protocol::Headers& headers,
           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-          const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
-    : m_startingLine(startingLine)
-    , m_pathVariables(pathVariables)
-    , m_headers(headers)
-    , m_bodyStream(bodyStream)
-    , m_bodyDecoder(bodyDecoder)
-  {}
+          const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 public:
   
   static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
                                                const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Protocol::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                               const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
-    return Shared_Incoming_Request_Pool::allocateShared(startingLine, pathVariables, headers, bodyStream, bodyDecoder);
-  }
-  
-  const http::RequestStartingLine& getStartingLine() const {
-    return m_startingLine;
-  }
-  
-  const url::mapping::Pattern::MatchMap& getPathVariables() const {
-    return m_pathVariables;
-  }
-  
-  const http::Protocol::Headers& getHeaders() const {
-    return m_headers;
-  }
-  
-  std::shared_ptr<oatpp::data::stream::InputStream> getBodyStream() const {
-    return m_bodyStream;
-  }
-  
-  std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const {
-    return m_bodyDecoder;
-  }
-  
-  oatpp::String getHeader(const oatpp::String& headerName) const{
-    auto it = m_headers.find(headerName);
-    if(it != m_headers.end()) {
-      return it->second.toString();
-    }
-    return nullptr;
-  }
-  
-  oatpp::String getPathVariable(const oatpp::data::share::StringKeyLabel& name) const {
-    return m_pathVariables.getVariable(name);
-  }
-  
-  oatpp::String getPathTail() const {
-    return m_pathVariables.getTail();
-  }
-  
-  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-    m_bodyDecoder->decode(m_headers, m_bodyStream, toStream);
-  }
-  
-  oatpp::String readBodyToString() const {
-    return m_bodyDecoder->decodeToString(m_headers, m_bodyStream);
-  }
-  
+                                               const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
+
+  /**
+   * Get request starting line. (method, path, protocol)
+   * @return starting line structure
+   */
+  const http::RequestStartingLine& getStartingLine() const;
+
+  /**
+   * Get path variables according to path-pattern.
+   * Ex. given request path="/sum/19/1" for path-pattern="/sum/{a}/{b}"
+   * getPathVariables().getVariable("a") == 19, getPathVariables().getVariable("b") == 1.
+   *
+   * @return url MatchMap
+   */
+  const url::mapping::Pattern::MatchMap& getPathVariables() const;
+
+  /**
+   * Get request's headers map
+   * @return Headers map
+   */
+  const http::Protocol::Headers& getHeaders() const;
+
+  /**
+   * Get request's body stream
+   * @return body stream
+   */
+  std::shared_ptr<oatpp::data::stream::InputStream> getBodyStream() const;
+
+  /**
+   * Get body decoder.
+   * @return Body decoder
+   */
+  std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const;
+
+  /**
+   * Get header value
+   * @param headerName
+   * @return header value
+   */
+  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
+
+  /**
+   * Get path variable according to path-pattern
+   * @param name
+   * @return matched value for path-pattern
+   */
+  oatpp::String getPathVariable(const oatpp::data::share::StringKeyLabel& name) const;
+
+  /**
+   * Get path tail according to path-pattern
+   * Ex. given request path="/hello/path/tail" for path-pattern="/hello/\*"
+   * tail == "path/tail"
+   * note '/' symbol is required before '*'
+   * @return matched tail-value for path-pattern
+   */
+  oatpp::String getPathTail() const;
+
+  /**
+   * Stream content of the body-stream to toStream
+   * @param toStream
+   */
+  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+
+  /**
+   * Transfer body stream to string
+   * @return body as string
+   */
+  oatpp::String readBodyToString() const;
+
+  /**
+   * Transfer body to String and parse it as DTO
+   * @tparam Type
+   * @param objectMapper
+   * @return DTO
+   */
   template<class Type>
   typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
   }
   
-  template<class Type>
-  void readBodyToDto(oatpp::data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
-                     const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
-  }
-  
   // Async
-  
+
+  /**
+   * Transfer body stream to toStream Async
+   * @param parentCoroutine
+   * @param actionOnReturn
+   * @param toStream
+   * @return Start Coroutine Action
+   */
   oatpp::async::Action streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                        const oatpp::async::Action& actionOnReturn,
-                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-    return m_bodyDecoder->decodeAsync(parentCoroutine, actionOnReturn, m_headers, m_bodyStream, toStream);
-  }
-  
+                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+
+  /**
+   * Transfer body stream to string Async
+   * @tparam ParentCoroutineType
+   * @param parentCoroutine
+   * @param callback
+   * @return Start Coroutine Action
+   */
   template<typename ParentCoroutineType>
   oatpp::async::Action readBodyToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                              oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&)) const {
     return m_bodyDecoder->decodeToStringAsync(parentCoroutine, callback, m_headers, m_bodyStream);
   }
-  
+
+  /**
+   * Transfer body to String and parse it as DTO
+   * @tparam DtoType
+   * @tparam ParentCoroutineType
+   * @param parentCoroutine
+   * @param callback
+   * @param objectMapper
+   * @return Start Coroutine Action
+   */
   template<class DtoType, typename ParentCoroutineType>
   oatpp::async::Action readBodyToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                           oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),
