@@ -142,6 +142,19 @@ public:
   typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
   }
+
+  /**
+   * Transfer body to String and parse it as DTO
+   * (used in ApiController's codegens)
+   * @tparam Type
+   * @param objectMapper
+   * @return DTO
+   */
+  template<class Type>
+  void readBodyToDto(oatpp::data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
+                     const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
+  }
   
   // Async
 
