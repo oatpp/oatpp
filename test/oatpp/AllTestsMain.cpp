@@ -50,7 +50,7 @@ public:
 };
 
 void runTests() {
-  
+
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 

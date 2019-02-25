@@ -38,22 +38,12 @@ public:
 private:
   oatpp::String m_buffer;
 public:
-  BufferBody(const oatpp::String& buffer)
-    : m_buffer(buffer)
-  {}
+  BufferBody(const oatpp::String& buffer);
 public:
   
-  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer) {
-    return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
-  }
-  
-  void declareHeaders(Headers& headers) noexcept override {
-    headers[oatpp::web::protocol::http::Header::CONTENT_LENGTH] = oatpp::utils::conversion::int32ToStr(m_buffer->getSize());
-  }
-  
-  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override {
-    oatpp::data::stream::writeExactSizeData(stream.get(), m_buffer->getData(), m_buffer->getSize());
-  }
+  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer);
+  void declareHeaders(Headers& headers) noexcept override;
+  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override;
   
 public:
   
@@ -66,16 +56,9 @@ public:
   public:
     
     WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
-                           const std::shared_ptr<OutputStream>& stream)
-      : m_body(body)
-      , m_stream(stream)
-      , m_currData(m_body->m_buffer->getData())
-      , m_currDataSize(m_body->m_buffer->getSize())
-    {}
+                           const std::shared_ptr<OutputStream>& stream);
     
-    Action act() override {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
-    }
+    Action act() override;
     
   };
   
@@ -83,9 +66,7 @@ public:
   
   Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                              const Action& actionOnReturn,
-                             const std::shared_ptr<OutputStream>& stream) override {
-    return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnReturn, getSharedPtr<BufferBody>(), stream);
-  }
+                             const std::shared_ptr<OutputStream>& stream) override;
   
 };
   

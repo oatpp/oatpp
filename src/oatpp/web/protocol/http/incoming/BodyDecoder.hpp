@@ -39,24 +39,15 @@ private:
     const BodyDecoder* m_decoder;
     Protocol::Headers m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
+    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer;
   public:
     
     ToStringDecoder(const BodyDecoder* decoder,
                     const Protocol::Headers& headers,
-                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream)
-      : m_decoder(decoder)
-      , m_headers(headers)
-      , m_bodyStream(bodyStream)
-    {}
+                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream);
     
-    Action act() override {
-      return m_decoder->decodeAsync(this, yieldTo(&ToStringDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
-    }
-    
-    Action onDecoded() {
-      return _return(m_chunkedBuffer->toString());
-    }
+    Action act() override;
+    Action onDecoded();
     
   };
   

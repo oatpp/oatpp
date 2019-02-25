@@ -44,46 +44,22 @@ private:
   std::shared_ptr<Body> m_body;
   std::shared_ptr<oatpp::network::server::ConnectionHandler> m_connectionUpgradeHandler;
 public:
-  Response(const Status& status,
-           const std::shared_ptr<Body>& body)
-    : m_status(status)
-    , m_body(body)
-  {}
+  Response(const Status& status, const std::shared_ptr<Body>& body);
 public:
   
-  static std::shared_ptr<Response> createShared(const Status& status,
-                                                const std::shared_ptr<Body>& body) {
-    return Shared_Outgoing_Response_Pool::allocateShared(status, body);
-  }
+  static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<Body>& body);
   
-  const Status& getStatus() const {
-    return m_status;
-  }
+  const Status& getStatus() const;
   
-  Headers& getHeaders() {
-    return m_headers;
-  }
+  Headers& getHeaders();
   
-  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-    m_headers[key] = value;
-  }
+  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
   
-  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-    auto it = m_headers.find(key);
-    if(it == m_headers.end()) {
-      m_headers.insert({key, value});
-      return true;
-    }
-    return false;
-  }
+  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
   
-  void setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
-    m_connectionUpgradeHandler = handler;
-  }
+  void setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler);
   
-  std::shared_ptr<oatpp::network::server::ConnectionHandler> getConnectionUpgradeHandler() {
-    return m_connectionUpgradeHandler;
-  }
+  std::shared_ptr<oatpp::network::server::ConnectionHandler> getConnectionUpgradeHandler();
   
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);
   

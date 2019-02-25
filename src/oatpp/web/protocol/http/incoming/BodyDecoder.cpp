@@ -28,6 +28,21 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
+BodyDecoder::ToStringDecoder::ToStringDecoder(const BodyDecoder* decoder,
+                                              const Protocol::Headers& headers,
+                                              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream)
+  : m_decoder(decoder)
+  , m_headers(headers)
+  , m_bodyStream(bodyStream)
+  , m_chunkedBuffer(oatpp::data::stream::ChunkedBuffer::createShared())
+{}
 
+async::Action BodyDecoder::ToStringDecoder::act() {
+  return m_decoder->decodeAsync(this, yieldTo(&ToStringDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
+}
+
+async::Action BodyDecoder::ToStringDecoder::onDecoded() {
+  return _return(m_chunkedBuffer->toString());
+}
 
 }}}}}

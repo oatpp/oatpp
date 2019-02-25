@@ -27,7 +27,47 @@
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+Response::Response(const Status& status,
+                   const std::shared_ptr<Body>& body)
+  : m_status(status)
+  , m_body(body)
+{}
+
+std::shared_ptr<Response> Response::createShared(const Status& status,
+                                                 const std::shared_ptr<Body>& body) {
+  return Shared_Outgoing_Response_Pool::allocateShared(status, body);
+}
+
+const Status& Response::getStatus() const {
+  return m_status;
+}
+
+protocol::http::Protocol::Headers& Response::getHeaders() {
+  return m_headers;
+}
+
+void Response::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers[key] = value;
+}
+
+bool Response::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  auto it = m_headers.find(key);
+  if(it == m_headers.end()) {
+    m_headers.insert({key, value});
+    return true;
+  }
+  return false;
+}
+
+void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
+  m_connectionUpgradeHandler = handler;
+}
+
+std::shared_ptr<oatpp::network::server::ConnectionHandler> Response::getConnectionUpgradeHandler() {
+  return m_connectionUpgradeHandler;
+}
+
 void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   
   if(m_body){
