@@ -173,14 +173,14 @@ OATPP_MACRO_API_CONTROLLER_PATH_INFO_CHOOSER_EXP(TYPE, NAME, PARAM_LIST, OATPP_M
 // QUERIES MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_QUERIES(TYPE, NAME, PARAM_LIST) \
-TYPE NAME = __request->getQueryParameters();
+TYPE NAME = __request->getQueryParams();
 
 #define OATPP_MACRO_API_CONTROLLER_QUERIES_INFO(TYPE, NAME, PARAM_LIST)
 
 // QUERY MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_0(TYPE, NAME, PARAM_LIST) \
-auto __param_str_val_##NAME = __request->getQueryParameter(#NAME); \
+auto __param_str_val_##NAME = __request->getQueryParam(#NAME); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing QUERY parameter '" #NAME "'"); \
 } \
@@ -191,7 +191,7 @@ if(!__param_validation_check_##NAME){ \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_1(TYPE, NAME, PARAM_LIST) \
-auto __param_str_val_##NAME = __request->getQueryParameter(OATPP_MACRO_FIRSTARG PARAM_LIST); \
+auto __param_str_val_##NAME = __request->getQueryParam(OATPP_MACRO_FIRSTARG PARAM_LIST); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
   oatpp::String("Missing QUERY parameter '") + OATPP_MACRO_FIRSTARG PARAM_LIST + "'"); \

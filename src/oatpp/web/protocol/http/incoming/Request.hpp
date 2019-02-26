@@ -96,7 +96,7 @@ public:
    * Please note: lazy parsing of query parameters is not thread-safe!
    * @return map<key, value> for "&key=value"
    */
-  const http::Protocol::QueryParams& getQueryParameters() const {
+  const http::Protocol::QueryParams& getQueryParams() const {
     if(!m_queryParamsParsed) {
       auto params = oatpp::network::Url::Parser::parseQueryParams(m_pathVariables.getTail());
       auto param = params->getFirstEntry();
@@ -137,17 +137,17 @@ public:
     return m_pathVariables.getTail();
   }
   
-  oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const {
-    auto iter = getQueryParameters().find(name);
-    if (iter == getQueryParameters().end()) {
+  oatpp::String getQueryParam(const oatpp::data::share::StringKeyLabel& name) const {
+    auto iter = getQueryParams().find(name);
+    if (iter == getQueryParams().end()) {
       return nullptr;
     } else {
       return iter->second.toString();
     }
   }
   
-  oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const {
-      auto value = getQueryParameter(name);
+  oatpp::String getQueryParam(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const {
+      auto value = getQueryParam(name);
       return value ? value : defaultValue;
   }
   

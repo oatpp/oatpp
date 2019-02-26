@@ -35,7 +35,7 @@ ENDPOINT("GET", "demo/api/hello", hello) {
 }
 ```
 
-### Pass parameters to endpoint
+### Pass path parameters to endpoint
 
 ```c++
 ENDPOINT("GET", "demo/api/param/{param}", getWithParams,
@@ -44,7 +44,27 @@ ENDPOINT("GET", "demo/api/param/{param}", getWithParams,
 }
 ```
 
+### Pass query parameters to endpoint
+
+```c++
+ENDPOINT("GET", "demo/api/queries", getWithQueryParams,
+         QUERY(String, param1), QUERY(Int32, param2)) {
+  return createResponse(Status::CODE_200, "param1=" + param1 + "&param2=" + oatpp::utils::conversion::int32ToStr(param2));
+}
+```
+
+### Process query parameters as `map` in endpoint(**NOT THREAD SAFE**)
+
+```c++
+ENDPOINT("GET", "demo/api/queries", getWithQueryParamsAsMap,
+         QUERIES(QueryParams, params)) {
+  std::cout << "param1="params["param1"].toStdString() << std::endl;
+  std::cout << "param2="params["param2"].toStdString() << std::endl;
+  return createResponse(Status::CODE_200, "param1=" + params["param1"] + "&param2=" + params["param2"]);
+}
+
 ### Return JSON
+
 
 ```c++
 ENDPOINT("GET", "demo/api/json", getJson) {
