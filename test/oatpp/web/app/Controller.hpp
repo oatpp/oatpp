@@ -52,13 +52,13 @@ public:
 #include OATPP_CODEGEN_BEGIN(ApiController)
   
   ENDPOINT("GET", "/", root) {
-    OATPP_LOGD(TAG, "GET '/'");
+    //OATPP_LOGD(TAG, "GET '/'");
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
   
   ENDPOINT("GET", "params/{param}", getWithParams,
            PATH(String, param)) {
-    OATPP_LOGD(TAG, "GET params/%s", param->c_str());
+    //OATPP_LOGD(TAG, "GET params/%s", param->c_str());
     auto dto = TestDto::createShared();
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
@@ -74,7 +74,7 @@ public:
       builder << i->first.toStdString() << "=" << i->second.toStdString();
     }
     auto queryString = builder.str();
-    OATPP_LOGD(TAG, "GET queries?%s =>(name=%s, age=%d)", queryString.c_str(), name->c_str(), age->getValue());
+    //OATPP_LOGD(TAG, "GET queries?%s =>(name=%s, age=%d)", queryString.c_str(), name->c_str(), age->getValue());
     auto dto = TestDto::createShared();
 
     // return ordered key-value string instead of unordered from builder
@@ -84,7 +84,7 @@ public:
   
   ENDPOINT("GET", "headers", getWithHeaders,
            HEADER(String, param, "X-TEST-HEADER")) {
-    OATPP_LOGD(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
+    //OATPP_LOGD(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
     auto dto = TestDto::createShared();
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
@@ -92,7 +92,7 @@ public:
   
   ENDPOINT("POST", "body", postBody,
            BODY_STRING(String, body)) {
-    OATPP_LOGD(TAG, "POST body %s", body->c_str());
+    //OATPP_LOGD(TAG, "POST body %s", body->c_str());
     auto dto = TestDto::createShared();
     dto->testValue = body;
     return createDtoResponse(Status::CODE_200, dto);
@@ -100,7 +100,7 @@ public:
 
   ENDPOINT("POST", "echo", echo,
            BODY_STRING(String, body)) {
-    OATPP_LOGD(TAG, "POST body(echo) size=%d", body->getSize());
+    //OATPP_LOGD(TAG, "POST body(echo) size=%d", body->getSize());
     return createResponse(Status::CODE_200, body);
   }
 
