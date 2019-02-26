@@ -52,9 +52,9 @@ public:
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::Status Status;
   typedef oatpp::web::protocol::http::Header Header;
+  typedef oatpp::web::protocol::http::Protocol::QueryParams QueryParams;
   typedef oatpp::web::server::api::Endpoint Endpoint;
   typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
-  typedef std::shared_ptr<const std::unordered_map<std::string, oatpp::String>> QueryParameters;
   
 public:
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;

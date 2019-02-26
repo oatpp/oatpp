@@ -25,12 +25,14 @@
 #ifndef oatpp_test_web_app_Controller_hpp
 #define oatpp_test_web_app_Controller_hpp
 
-#include <sstream>
 #include "./DTOs.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
+
+#include <sstream>
 
 namespace oatpp { namespace test { namespace web { namespace app {
 
@@ -62,19 +64,21 @@ public:
     return createDtoResponse(Status::CODE_200, dto);
   }
   
-  ENDPOINT("GET", "queries/*", getWithQueries,
-           QUERIES(QueryParameters, queries), QUERY(String, name), QUERY(Int32, age)) {
+  ENDPOINT("GET", "queries", getWithQueries,
+           QUERIES(QueryParams, queries), QUERY(String, name), QUERY(Int32, age)) {
     std::ostringstream builder;
-    for (auto i = queries->begin(); i != queries->end(); ++i) {
-      if (i != queries->begin()) {
+    for (auto i = queries.begin(); i != queries.end(); ++i) {
+      if (i != queries.begin()) {
         builder << "&";
       }
-      builder << i->first << "=" << i->second->std_str();
+      builder << i->first.toStdString() << "=" << i->second.toStdString();
     }
     auto queryString = builder.str();
     OATPP_LOGD(TAG, "GET queries?%s =>(name=%s, age=%d)", queryString.c_str(), name->c_str(), age->getValue());
     auto dto = TestDto::createShared();
-    dto->testValue = queryString.c_str();
+
+    // return ordered key-value string instead of unordered from builder
+    dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(age->getValue());
     return createDtoResponse(Status::CODE_200, dto);
   }
   
