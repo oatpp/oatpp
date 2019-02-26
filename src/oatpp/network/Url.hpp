@@ -25,9 +25,12 @@
 #ifndef oatpp_network_Url_hpp
 #define oatpp_network_Url_hpp
 
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace network {
 
@@ -35,7 +38,10 @@ namespace oatpp { namespace network {
 // TODO - refactor to use oatpp::data::share::MemoryLabel
 class Url : public oatpp::base::Controllable {
 public:
-  typedef oatpp::collection::ListMap<oatpp::String, oatpp::String> Parameters;
+  typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
+public:
+  typedef std::unordered_map<oatpp::String, oatpp::String> Parameters;
+  typedef std::unordered_map<StringKeyLabel, StringKeyLabel> ParametersAsLabels;
 public:
   
   struct Authority {
@@ -58,7 +64,7 @@ public:
     static oatpp::String parseScheme(oatpp::parser::Caret& caret);
     
     /**
-     *  parse utl authority components.
+     *  parse url authority components.
      *  userinfo is not parsed into login and password separately as
      *  inclusion of password in userinfo is deprecated and ignored here
      *  caret should be at the first char of the authority (not at "//")
@@ -86,18 +92,34 @@ public:
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by ParsingCaret
      */
-    static std::shared_ptr<Url::Parameters> parseQueryParams(oatpp::parser::Caret& caret);
+    static Url::Parameters parseQueryParams(oatpp::parser::Caret& caret);
     
     /**
      *  parse query params in form of "?<paramName>=<paramValue>&<paramName>=<paramValue>..." referred by str
      */
-    static std::shared_ptr<Url::Parameters> parseQueryParams(const oatpp::String& str);
-    
+    static Url::Parameters parseQueryParams(const oatpp::String& str);
+
     /**
-     *  parse Url
+     * Same as parseQueryParams() but use StringKeyLabel instead of a String.
+     * Zero allocations. Use this method for better performance.
+     * @param str
+     * @return std::unordered_map<StringKeyLabel, StringKeyLabel>
+     */
+    static ParametersAsLabels labelQueryParams(const oatpp::String& str);
+
+    /**
+     * Parse Url
+     * @param caret
+     * @return parsed URL structure
      */
     static Url parseUrl(oatpp::parser::Caret& caret);
-    
+
+    /**
+     * Parse Url
+     * @param str
+     * @return parsed URL structure
+     */
+    static Url parseUrl(const oatpp::String& str);
     
   };
   
@@ -106,7 +128,7 @@ public:
   oatpp::String scheme;
   Authority authority;
   oatpp::String path;
-  std::shared_ptr<Parameters> queryParams;
+  Parameters queryParams;
   
 };
   

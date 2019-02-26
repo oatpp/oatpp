@@ -65,20 +65,19 @@ public:
   }
   
   ENDPOINT("GET", "queries", getWithQueries,
-           QUERIES(QueryParams, queries), QUERY(String, name), QUERY(Int32, age)) {
-    std::ostringstream builder;
-    for (auto i = queries.begin(); i != queries.end(); ++i) {
-      if (i != queries.begin()) {
-        builder << "&";
-      }
-      builder << i->first.toStdString() << "=" << i->second.toStdString();
-    }
-    auto queryString = builder.str();
-    OATPP_LOGD(TAG, "GET queries?%s =>(name=%s, age=%d)", queryString.c_str(), name->c_str(), age->getValue());
+           QUERY(String, name), QUERY(Int32, age)) {
     auto dto = TestDto::createShared();
-
-    // return ordered key-value string instead of unordered from builder
     dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(age->getValue());
+    return createDtoResponse(Status::CODE_200, dto);
+  }
+
+  ENDPOINT("GET", "queries/map", getWithQueriesMap,
+           QUERIES(QueryParams, queries)) {
+    auto dto = TestDto::createShared();
+    dto->testMap = dto->testMap->createShared();
+    for(auto& it : queries) {
+      dto->testMap->put(it.first.toString(), it.second.toString());
+    }
     return createDtoResponse(Status::CODE_200, dto);
   }
   

@@ -22,30 +22,22 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_app_Client_hpp
-#define oatpp_test_web_app_Client_hpp
+#ifndef oatpp_test_core_data_stream_ChunkedBufferTest_hpp
+#define oatpp_test_core_data_stream_ChunkedBufferTest_hpp
 
-#include "oatpp/web/client/ApiClient.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace app {
-  
-class Client : public oatpp::web::client::ApiClient {
-#include OATPP_CODEGEN_BEGIN(ApiClient)
-  
-  API_CLIENT_INIT(Client)
-  
-  API_CALL("GET", "/", getRoot)
-  API_CALL("GET", "params/{param}", getWithParams, PATH(String, param))
-  API_CALL("GET", "queries", getWithQueries, QUERY(String, name), QUERY(Int32, age))
-  API_CALL("GET", "queries/map", getWithQueriesMap, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
-  API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
-  API_CALL("POST", "body", postBody, BODY_STRING(String, body))
-  API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
-  
-#include OATPP_CODEGEN_END(ApiClient)
+namespace oatpp { namespace test { namespace core { namespace data { namespace stream {
+
+class ChunkedBufferTest : public UnitTest{
+public:
+
+  ChunkedBufferTest():UnitTest("TEST[core::data::stream::ChunkedBufferTest]"){}
+  void onRun() override;
+
 };
-  
-}}}}
 
-#endif /* oatpp_test_web_app_Client_hpp */
+}}}}}
+
+
+#endif //oatpp_test_core_data_stream_ChunkedBufferTest_hpp

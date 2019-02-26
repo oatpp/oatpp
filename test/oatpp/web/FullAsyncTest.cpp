@@ -118,12 +118,14 @@ void FullAsyncTest::onRun() {
       
       { // test simple GET
         auto response = client->getRoot(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World Async!!!");
       }
       
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param-Async", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_param-Async");
@@ -131,8 +133,7 @@ void FullAsyncTest::onRun() {
       
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header-Async", connection);
-        //auto str = response->readBodyToString();
-        //OATPP_LOGE("AAA", "code=%d, str='%s'", response->statusCode, str->c_str());
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_header-Async");
@@ -140,6 +141,7 @@ void FullAsyncTest::onRun() {
       
       { // test POST with body
         auto response = client->postBody("my_test_body-Async", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body-Async");
@@ -152,6 +154,7 @@ void FullAsyncTest::onRun() {
         }
         auto data = stream.toString();
         auto response = client->echoBody(data, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
 
         auto returnedData = response->readBodyToString();
 

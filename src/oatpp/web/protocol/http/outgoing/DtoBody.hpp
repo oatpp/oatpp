@@ -42,35 +42,17 @@ private:
 public:
   DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
           oatpp::data::mapping::ObjectMapper* objectMapper,
-          bool chunked)
-    : ChunkedBufferBody(oatpp::data::stream::ChunkedBuffer::createShared(), chunked)
-    , m_dto(dto)
-    , m_objectMapper(objectMapper)
-  {}
+          bool chunked);
 public:
   
   static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                         oatpp::data::mapping::ObjectMapper* objectMapper) {
-    return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, false);
-  }
+                                         oatpp::data::mapping::ObjectMapper* objectMapper);
   
   static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                          oatpp::data::mapping::ObjectMapper* objectMapper,
-                                         bool chunked) {
-    return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, chunked);
-  }
+                                         bool chunked);
   
-  void declareHeaders(Headers& headers) noexcept override {
-    if(m_dto) {
-      m_objectMapper->write(m_buffer, m_dto);
-    }
-    ChunkedBufferBody::declareHeaders(headers);
-    
-    auto it = headers.find(Header::CONTENT_TYPE);
-    if(it == headers.end()) {
-      headers[Header::CONTENT_TYPE] = m_objectMapper->getInfo().http_content_type;
-    }
-  }
+  void declareHeaders(Headers& headers) noexcept override;
   
 };
 

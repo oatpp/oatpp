@@ -43,55 +43,31 @@ private:
   std::shared_ptr<Body> m_body;
 public:
   
-  Request() {}
+  Request();
   
   Request(const oatpp::data::share::StringKeyLabel& method,
           const oatpp::data::share::StringKeyLabel& path,
           const Headers& headers,
-          const std::shared_ptr<Body>& body)
-    : m_method(method)
-    , m_path(path)
-    , m_headers(headers)
-    , m_body(body)
-  {}
+          const std::shared_ptr<Body>& body);
   
 public:
   
   static std::shared_ptr<Request> createShared(const oatpp::data::share::StringKeyLabel& method,
                                                const oatpp::data::share::StringKeyLabel& path,
                                                const Headers& headers,
-                                               const std::shared_ptr<Body>& body) {
-    return Shared_Outgoing_Request_Pool::allocateShared(method, path, headers, body);
-  }
+                                               const std::shared_ptr<Body>& body);
   
-  const oatpp::data::share::StringKeyLabel& getMethod() const {
-    return m_method;
-  }
+  const oatpp::data::share::StringKeyLabel& getMethod() const;
   
-  const oatpp::data::share::StringKeyLabel& getPath() const {
-    return m_path;
-  }
+  const oatpp::data::share::StringKeyLabel& getPath() const;
   
-  Headers& getHeaders() {
-    return m_headers;
-  }
+  Headers& getHeaders();
   
-  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-    m_headers[key] = value;
-  }
+  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
   
-  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-    auto it = m_headers.find(key);
-    if(it == m_headers.end()) {
-      m_headers.insert({key, value});
-      return true;
-    }
-    return false;
-  }
+  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
   
-  std::shared_ptr<Body> getBody() {
-    return m_body;
-  }
+  std::shared_ptr<Body> getBody();
   
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);
   

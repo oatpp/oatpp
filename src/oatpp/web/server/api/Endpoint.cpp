@@ -29,7 +29,7 @@
 namespace oatpp { namespace web { namespace server { namespace api {
 
 oatpp::String Endpoint::Info::toString() {
-  auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
+  oatpp::data::stream::ChunkedBuffer stream;
   
   stream << "\nEndpoint\n";
   
@@ -61,7 +61,7 @@ oatpp::String Endpoint::Info::toString() {
     stream << "pathParam: '" << param.name << "', type: '" << param.type->name << "'\n";
   }
   
-  return stream->toString();
+  return stream.toString();
 }
 
 }}}}

@@ -29,7 +29,10 @@
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
-  
+
+/**
+ * Class http::incoming::Response AKA IncomingResponse represents server's incoming response
+ */
 class Response : public oatpp::base::Controllable {
 public:
   OBJECT_POOL(Incoming_Response_Pool, Response, 32)
@@ -54,50 +57,28 @@ public:
            const oatpp::String& statusDescription,
            const http::Protocol::Headers& headers,
            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
-    : m_statusCode(statusCode)
-    , m_statusDescription(statusDescription)
-    , m_headers(headers)
-    , m_bodyStream(bodyStream)
-    , m_bodyDecoder(bodyDecoder)
-  {}
+           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 public:
   
   static std::shared_ptr<Response> createShared(v_int32 statusCode,
                                                 const oatpp::String& statusDescription,
                                                 const http::Protocol::Headers& headers,
                                                 const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
-    return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream, bodyDecoder);
-  }
+                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
   
-  v_int32 getStatusCode() const {
-    return m_statusCode;
-  }
+  v_int32 getStatusCode() const;
   
-  oatpp::String getStatusDescription() const {
-    return m_statusDescription;
-  }
+  oatpp::String getStatusDescription() const;
   
-  const http::Protocol::Headers& getHeaders() const {
-    return m_headers;
-  }
+  const http::Protocol::Headers& getHeaders() const;
   
-  std::shared_ptr<oatpp::data::stream::InputStream> getBodyStream() const {
-    return m_bodyStream;
-  }
+  std::shared_ptr<oatpp::data::stream::InputStream> getBodyStream() const;
   
-  std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const {
-    return m_bodyDecoder;
-  }
+  std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const;
 
-  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-    m_bodyDecoder->decode(m_headers, m_bodyStream, toStream);
-  }
+  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
   
-  oatpp::String readBodyToString() const {
-    return m_bodyDecoder->decodeToString(m_headers, m_bodyStream);
-  }
+  oatpp::String readBodyToString() const;
   
   template<class Type>
   typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
@@ -108,9 +89,7 @@ public:
   
   oatpp::async::Action streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                        const oatpp::async::Action& actionOnReturn,
-                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-    return m_bodyDecoder->decodeAsync(parentCoroutine, actionOnReturn, m_headers, m_bodyStream, toStream);
-  }
+                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
   
   template<typename ParentCoroutineType>
   oatpp::async::Action readBodyToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,

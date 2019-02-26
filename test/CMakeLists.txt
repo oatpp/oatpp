@@ -15,10 +15,14 @@ add_executable(oatppAllTests
         oatpp/core/data/mapping/type/TypeTest.hpp
         oatpp/core/data/share/MemoryLabelTest.cpp
         oatpp/core/data/share/MemoryLabelTest.hpp
+        oatpp/core/data/stream/ChunkedBufferTest.cpp
+        oatpp/core/data/stream/ChunkedBufferTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
+        oatpp/network/UrlTest.cpp
+        oatpp/network/UrlTest.hpp
         oatpp/network/virtual_/InterfaceTest.cpp
         oatpp/network/virtual_/InterfaceTest.hpp
         oatpp/network/virtual_/PipeTest.cpp
