@@ -34,7 +34,11 @@
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace server { namespace api {
-  
+
+/**
+ * Endpoint - class which holds information about endpoint.
+ * It holds API documentation info, and pointer to RequestHandler
+ */
 class Endpoint : public oatpp::base::Controllable {
 public:
   typedef oatpp::web::url::mapping::Subscriber<
@@ -42,40 +46,71 @@ public:
     std::shared_ptr<protocol::http::outgoing::Response>
   > RequestHandler;
 public:
-  
+
+  /**
+   * Info holds API documentation information about endpoint
+   */
   class Info : public oatpp::base::Controllable {
   public:
-    
+
+    /**
+     * Param holds info about parameter
+     */
     struct Param {
       
-      Param()
-        : name(nullptr)
-        , type(nullptr)
-      {}
-      
-      Param(const char* pName,
-            oatpp::data::mapping::type::Type* pType)
-        : name(pName)
-        , type(pType)
-      {}
-      
-      const char* name;
+      Param();
+      Param(const oatpp::String& pName, oatpp::data::mapping::type::Type* pType);
+
+      oatpp::String name;
       oatpp::data::mapping::type::Type* type;
+
+      oatpp::String description;
+      oatpp::Boolean required = true;
+      oatpp::Boolean deprecated = false;
+      oatpp::Boolean allowEmptyValue;
       
     };
-    
+
+    /**
+     * Parameters container
+     */
+    class Params {
+    private:
+      std::list<oatpp::String> m_order;
+      std::unordered_map<oatpp::String, Param> m_params;
+    public:
+
+      const std::list<oatpp::String>& getOrder() const;
+
+      /**
+       * Add parameter name to list order
+       * @param name
+       * @return new or existing parameter
+       */
+      Param& add(const oatpp::String& name);
+
+      /**
+       * Get or add param by name
+       * @param name
+       * @return
+       */
+      Param& operator [](const oatpp::String& name);
+
+    };
+
+    /**
+     * Info about content type and schema
+     */
     struct ContentTypeAndSchema {
-      const char* contentType;
+      oatpp::String contentType;
       oatpp::data::mapping::type::Type* schema;
     };
     
   public:
-    Info()
-    {}
-  public:
-    static std::shared_ptr<Info> createShared(){
-      return std::make_shared<Info>();
-    }
+
+    Info();
+
+    static std::shared_ptr<Info> createShared();
     
     oatpp::String name;
     oatpp::String summary;
@@ -84,13 +119,13 @@ public:
     oatpp::String method;
     
     Param body;
-    const char* bodyContentType;
+    oatpp::String bodyContentType;
     
     std::list<ContentTypeAndSchema> consumes;
-    
-    std::list<Param> headers;
-    std::list<Param> pathParams;
-    std::list<Param> queryParams;
+
+    Params headers;
+    Params pathParams;
+    Params queryParams;
     
     /**
      *  ResponseCode to {ContentType, Type} mapping.
@@ -101,28 +136,22 @@ public:
     oatpp::String toString();
     
     template<class T>
-    void addConsumes(const char* contentType) {
+    void addConsumes(const oatpp::String& contentType) {
       consumes.push_back({contentType, T::Class::getType()});
     }
     
     template<class T>
-    void addResponse(const oatpp::web::protocol::http::Status& status, const char* contentType) {
+    void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType) {
       responses[status] = {contentType, T::Class::getType()};
     }
     
   };
 public:
-  Endpoint(const std::shared_ptr<RequestHandler>& pHandler,
-           const std::shared_ptr<Info>& pInfo)
-    : handler(pHandler)
-    , info(pInfo)
-  {}
-public:
+
+  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::shared_ptr<Info>& pInfo);
   
   static std::shared_ptr<Endpoint> createShared(const std::shared_ptr<RequestHandler>& handler,
-                                                const std::shared_ptr<Info>& info){
-    return std::make_shared<Endpoint>(handler, info);
-  }
+                                                const std::shared_ptr<Info>& info);
   
   const std::shared_ptr<RequestHandler> handler;
   const std::shared_ptr<Info> info;
