@@ -1,6 +1,7 @@
 
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
+#include "oatpp/web/server/api/ApiControllerTest.hpp"
 
 #include "oatpp/network/virtual_/PipeTest.hpp"
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
@@ -75,6 +76,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
+  OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
 

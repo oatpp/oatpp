@@ -87,7 +87,7 @@ public:
        * @param name
        * @return new or existing parameter
        */
-      Param& add(const oatpp::String& name);
+      Param& add(const oatpp::String& name, oatpp::data::mapping::type::Type* type);
 
       /**
        * Get or add param by name

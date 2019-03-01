@@ -43,10 +43,11 @@ const std::list<oatpp::String>& Endpoint::Info::Params::getOrder() const {
   return m_order;
 }
 
-Endpoint::Info::Param& Endpoint::Info::Params::add(const oatpp::String& name) {
+Endpoint::Info::Param& Endpoint::Info::Params::add(const oatpp::String& name, oatpp::data::mapping::type::Type* type) {
   m_order.push_back(name);
   Endpoint::Info::Param& param = operator [](name);
   param.name = name;
+  param.type = type;
   return param;
 }
 
