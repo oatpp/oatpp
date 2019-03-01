@@ -90,6 +90,17 @@ public:
       Param& add(const oatpp::String& name, oatpp::data::mapping::type::Type* type);
 
       /**
+       * Add parameter name to list order
+       * @tparam T
+       * @param name
+       * @return new or existing parameter
+       */
+      template<class T>
+      Param& add(const oatpp::String& name) {
+        return add(name, T::Class::getType());
+      }
+
+      /**
        * Get or add param by name
        * @param name
        * @return
