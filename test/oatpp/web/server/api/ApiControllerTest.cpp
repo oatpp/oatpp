@@ -56,13 +56,22 @@ public:
 
   ENDPOINT_INFO(pathParams) {
     info->pathParams["param1"].description = "this is param1";
-    info->queryParams.add("q1", String::Class::getType()).description = "query param";
-    info->headers.add("X-TEST-HEADER", String::Class::getType()).description = "TEST-HEADER-PARAM";
+    info->queryParams.add<String>("q1").description = "query param";
+    info->headers.add<String>("X-TEST-HEADER").description = "TEST-HEADER-PARAM";
   }
   ENDPOINT("GET", "path/{param1}/{param2}", pathParams,
            PATH(String, param1),
            PATH(String, param2)) {
     return createResponse(Status::CODE_200, "test2");
+  }
+
+  ENDPOINT_INFO(queryParams) {
+    info->queryParams["param1"].description = "this is param1";
+  }
+  ENDPOINT("GET", "query", queryParams,
+           QUERY(String, param1),
+           QUERY(String, param2)) {
+    return createResponse(Status::CODE_200, "test3");
   }
 
 #include OATPP_CODEGEN_END(ApiController)
@@ -99,7 +108,7 @@ void ApiControllerTest::onRun() {
     auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
     response->send(stream);
 
-    OATPP_LOGD(TAG, "response=\n---\n%s\n---\n", stream->toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream->toString()->c_str());
 
   }
 
@@ -126,7 +135,28 @@ void ApiControllerTest::onRun() {
     auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
     response->send(stream);
 
-    OATPP_LOGD(TAG, "response=\n---\n%s\n---\n", stream->toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream->toString()->c_str());
+
+  }
+
+  {
+    auto endpoint = controller.Z__ENDPOINT_queryParams;
+    OATPP_ASSERT(endpoint);
+    OATPP_ASSERT(!endpoint->info->summary);
+
+    OATPP_ASSERT(endpoint->info->queryParams["param1"].name == "param1");
+    OATPP_ASSERT(endpoint->info->queryParams["param1"].description == "this is param1");
+
+    OATPP_ASSERT(endpoint->info->queryParams["param2"].name == "param2");
+    OATPP_ASSERT(!endpoint->info->queryParams["param2"].description);
+
+    auto response = controller.queryParams("p1", "p2");
+    OATPP_ASSERT(response->getStatus().code == 200);
+
+    auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
+    response->send(stream);
+
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream->toString()->c_str());
 
   }
 

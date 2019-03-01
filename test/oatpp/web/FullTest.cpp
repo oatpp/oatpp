@@ -131,6 +131,26 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testValue == "my_test_param");
       }
 
+      { // test GET with query parameters
+        auto response = client->getWithQueries("oatpp", 1, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "name=oatpp&age=1");
+      }
+
+      { // test GET with query parameters
+        auto response = client->getWithQueriesMap("value1", 32, 0.32, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testMap);
+        OATPP_ASSERT(dto->testMap->count() == 3);
+        OATPP_ASSERT(dto->testMap->get("key1", "") == "value1");
+        OATPP_ASSERT(dto->testMap->get("key2", "") == "32");
+        OATPP_ASSERT(dto->testMap->get("key3", "") == oatpp::utils::conversion::float32ToStr(0.32));
+      }
+
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);

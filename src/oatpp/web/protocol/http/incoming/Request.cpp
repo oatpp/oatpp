@@ -36,6 +36,7 @@ Request::Request(const http::RequestStartingLine& startingLine,
   , m_headers(headers)
   , m_bodyStream(bodyStream)
   , m_bodyDecoder(bodyDecoder)
+  , m_queryParamsParsed(false)
 {}
 
 std::shared_ptr<Request> Request::createShared(const http::RequestStartingLine& startingLine,
@@ -56,6 +57,28 @@ const url::mapping::Pattern::MatchMap& Request::getPathVariables() const {
 
 const http::Protocol::Headers& Request::getHeaders() const {
   return m_headers;
+}
+
+const http::Protocol::QueryParams& Request::getQueryParameters() const {
+  if(!m_queryParamsParsed) {
+    m_queryParams = oatpp::network::Url::Parser::labelQueryParams(m_pathVariables.getTail());
+    m_queryParamsParsed = true;
+  }
+  return m_queryParams;
+}
+
+oatpp::String Request::getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const {
+  auto iter = getQueryParameters().find(name);
+  if (iter == getQueryParameters().end()) {
+    return nullptr;
+  } else {
+    return iter->second.toString();
+  }
+}
+
+oatpp::String Request::getQueryParameter(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const {
+  auto value = getQueryParameter(name);
+  return value ? value : defaultValue;
 }
 
 std::shared_ptr<oatpp::data::stream::InputStream> Request::getBodyStream() const {
