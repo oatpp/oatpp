@@ -28,6 +28,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/web/url/mapping/Pattern.hpp"
+#include "oatpp/network/Url.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -39,6 +40,7 @@ public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 private:
+
   http::RequestStartingLine m_startingLine;
   url::mapping::Pattern::MatchMap m_pathVariables;
   http::Protocol::Headers m_headers;
@@ -49,6 +51,10 @@ private:
    * Custom BodyDecoder can be set on demand
    */
   std::shared_ptr<const http::incoming::BodyDecoder> m_bodyDecoder;
+
+  mutable bool m_queryParamsParsed; // used for lazy parsing of QueryParams
+  mutable http::Protocol::QueryParams m_queryParams;
+
 public:
   
   Request(const http::RequestStartingLine& startingLine,
@@ -63,6 +69,29 @@ public:
                                                const http::Protocol::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
+
+  /**
+   * Get map of url query parameters.
+   * Query parameters will be lazy parsed from url "tail"
+   * Please note: lazy parsing of query parameters is not thread-safe!
+   * @return map<key, value> for "&key=value"
+   */
+  const http::Protocol::QueryParams& getQueryParameters() const;
+
+  /**
+   * Get query parameter value by name
+   * @param name
+   * @return query parameter value
+   */
+  oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const;
+
+  /**
+   *
+   * @param name
+   * @param defaultValue
+   * @return query parameter value or defaultValue if no such parameter found
+   */
+  oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const;
 
   /**
    * Get request starting line. (method, path, protocol)
