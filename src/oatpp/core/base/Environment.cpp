@@ -136,6 +136,25 @@ void Environment::setLogger(Logger* logger){
   m_logger = logger;
 }
 
+void Environment::printCompilationConfig() {
+
+#ifdef OATPP_DISABLE_ENV_OBJECT_COUNTERS
+  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS");
+#endif
+
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_POOL_ALLOCATIONS");
+#endif
+
+#ifdef OATPP_THREAD_HARDWARE_CONCURRENCY
+  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY=%d", OATPP_THREAD_HARDWARE_CONCURRENCY);
+#endif
+
+  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=%d", OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT);
+  OATPP_LOGD("oatpp/Config", "OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT=%d\n", OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT);
+
+}
+
 void Environment::log(v_int32 priority, const std::string& tag, const std::string& message) {
   if(m_logger != nullptr) {
     m_logger->log(priority, tag, message);

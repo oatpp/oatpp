@@ -53,7 +53,7 @@ private:
 public:
   
   AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
-                             v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT)
+                             v_int32 threadCount = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT)
     : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
     , m_router(router)
     , m_errorHandler(handler::DefaultErrorHandler::createShared())
@@ -72,7 +72,7 @@ public:
 public:
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
-                                                                  v_int32 threadCount = OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT){
+                                                                  v_int32 threadCount = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT){
     return std::make_shared<AsyncHttpConnectionHandler>(router, threadCount);
   }
   

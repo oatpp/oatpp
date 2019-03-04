@@ -29,6 +29,9 @@
 namespace oatpp { namespace base { namespace  memory {
 
 void MemoryPool::allocChunk() {
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+  // DO NOTHING
+#else
   v_int32 entryBlockSize = sizeof(EntryHeader) + m_entrySize;
   v_int32 chunkMemSize = entryBlockSize * m_chunkSize;
   p_char8 mem = new v_char8[chunkMemSize];
@@ -37,6 +40,7 @@ void MemoryPool::allocChunk() {
     EntryHeader* entry = new (mem + i * entryBlockSize) EntryHeader(this, m_id, m_rootEntry);
     m_rootEntry = entry;
   }
+#endif
 }
   
 void* MemoryPool::obtain() {

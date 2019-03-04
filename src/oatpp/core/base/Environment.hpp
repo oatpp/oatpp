@@ -143,6 +143,8 @@ public:
   static v_counter getThreadLocalObjectsCreated();
   
   static void setLogger(Logger* logger);
+
+  static void printCompilationConfig();
   
   static void log(v_int32 priority, const std::string& tag, const std::string& message);
   static void logFormatted(v_int32 priority, const std::string& tag, const char* message, ...);

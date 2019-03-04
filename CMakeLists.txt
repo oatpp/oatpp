@@ -21,6 +21,52 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
 
+###################################################################################################
+## COMPILATION CONFIG #############################################################################
+###################################################################################################
+
+option(OATPP_DISABLE_ENV_OBJECT_COUNTERS "Disable object counting for Release builds for better performance" OFF)
+option(OATPP_DISABLE_POOL_ALLOCATIONS "This will make oatpp::base::memory::MemoryPool, method obtain and free call new and delete directly" OFF)
+
+set(OATPP_THREAD_HARDWARE_CONCURRENCY "AUTO" CACHE STRING "Predefined value for function oatpp::concurrency::Thread::getHardwareConcurrency()")
+set(OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT "10" CACHE STRING "Number of shards of ThreadDistributedMemoryPool")
+set(OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT "2" CACHE STRING "oatpp::async::Executor default number of threads")
+
+## Print config ##################################################################################
+
+message("\n############################################################################")
+message("## oatpp module compilation config:\n")
+
+message("OATPP_DISABLE_ENV_OBJECT_COUNTERS=${OATPP_DISABLE_ENV_OBJECT_COUNTERS}")
+message("OATPP_DISABLE_POOL_ALLOCATIONS=${OATPP_DISABLE_POOL_ALLOCATIONS}")
+message("OATPP_THREAD_HARDWARE_CONCURRENCY=${OATPP_THREAD_HARDWARE_CONCURRENCY}")
+message("OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=${OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT}")
+message("OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT=${OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT}")
+
+## Set definitions ###############################################################################
+
+if(OATPP_DISABLE_ENV_OBJECT_COUNTERS)
+    add_definitions(-DOATPP_DISABLE_ENV_OBJECT_COUNTERS)
+endif()
+
+if(OATPP_DISABLE_POOL_ALLOCATIONS)
+    add_definitions (-DOATPP_DISABLE_POOL_ALLOCATIONS)
+endif()
+
+set(AUTO_VALUE AUTO)
+if(NOT OATPP_THREAD_HARDWARE_CONCURRENCY STREQUAL AUTO_VALUE)
+    add_definitions (-DOATPP_THREAD_HARDWARE_CONCURRENCY=${OATPP_THREAD_HARDWARE_CONCURRENCY})
+endif()
+
+add_definitions (
+        -DOATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=${OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT}
+        -DOATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT=${OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT}
+)
+
+message("\n############################################################################\n")
+
+###################################################################################################
+
 message("oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
 
 add_subdirectory(src)
