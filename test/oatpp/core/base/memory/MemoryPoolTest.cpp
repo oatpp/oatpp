@@ -122,11 +122,13 @@ void testPool(v_int32 objectsNumber, v_int32 garbageNumber, v_int32 chunkSize){
   }
   
   doGarbageAllocs(pool, garbageNumber);
-  
+#ifndef OATPP_DISABLE_POOL_ALLOCATIONS
   for(v_int32 i = 0; i < objectsNumber; i++){
     OATPP_ASSERT(objects[i]->a == -100);
   }
-  
+#else
+  OATPP_LOGV("TEST[base::memory::MemoryPoolTest]", "\033[35mWARNING. 'OATPP_DISABLE_POOL_ALLOCATIONS' flag is ON. Assertions disabled.\033[0m");
+#endif
   delete [] objects;
   
   OATPP_ASSERT(pool.getObjectsCount() == 0);

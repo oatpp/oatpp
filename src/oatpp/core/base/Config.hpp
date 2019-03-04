@@ -57,10 +57,10 @@
 #endif
 
 /**
- * AsyncHttpConnectionHandler default number of threads
+ * oatpp::async::Executor default number of threads
  */
-#ifndef OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT
-  #define OATPP_ASYNC_HTTP_CONNECTION_HANDLER_THREAD_NUM_DEFAULT 2
+#ifndef OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT
+  #define OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT 2
 #endif
 
 /**

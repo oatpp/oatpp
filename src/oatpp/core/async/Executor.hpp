@@ -123,7 +123,7 @@ private:
   std::atomic<v_word32> m_balancer;
 public:
   
-  Executor(v_int32 threadsCount)
+  Executor(v_int32 threadsCount = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT)
     : m_threadsCount(threadsCount)
     , m_threads(new std::shared_ptr<oatpp::concurrency::Thread>[m_threadsCount])
     , m_processors(new std::shared_ptr<SubmissionProcessor>[m_threadsCount])
