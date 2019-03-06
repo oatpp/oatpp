@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 /**
  * Class http::incoming::Response AKA IncomingResponse represents server's incoming response
  */
-class Response : public oatpp::base::Controllable {
+class Response : public oatpp::base::Countable {
 public:
   OBJECT_POOL(Incoming_Response_Pool, Response, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Response_Pool, Response, 32)

@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
-class Request : public oatpp::base::Controllable {
+class Request : public oatpp::base::Countable, public std::enable_shared_from_this<Request> {
 public:
   typedef protocol::http::Protocol::Headers Headers;
 public:

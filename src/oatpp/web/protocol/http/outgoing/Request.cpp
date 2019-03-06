@@ -167,7 +167,7 @@ oatpp::async::Action Request::sendAsync(oatpp::async::AbstractCoroutine* parentC
     
   };
   
-  return parentCoroutine->startCoroutine<SendAsyncCoroutine>(actionOnFinish, getSharedPtr<Request>(), stream);
+  return parentCoroutine->startCoroutine<SendAsyncCoroutine>(actionOnFinish, shared_from_this(), stream);
   
 }
   

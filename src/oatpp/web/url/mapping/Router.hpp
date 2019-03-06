@@ -33,13 +33,13 @@
 #include "oatpp/core/Types.hpp"
 
 
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   
 template<class Param, class ReturnType>
-class Router : public base::Controllable{
+class Router : public base::Countable{
 public:
   typedef Subscriber<Param, ReturnType> UrlSubscriber;
 private:
@@ -80,7 +80,7 @@ public:
 
 public:
   
-  class Pair : public base::Controllable{
+  class Pair : public base::Countable{
   public:
     Pair(const std::shared_ptr<Pattern>& pPattern, const std::shared_ptr<UrlSubscriber>& pSubscriber)
       : pattern(pPattern)

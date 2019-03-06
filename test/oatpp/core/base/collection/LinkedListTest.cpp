@@ -33,7 +33,7 @@ namespace oatpp { namespace test { namespace collection {
   
 namespace {
   
-class TestObject : public oatpp::base::Controllable {
+class TestObject : public oatpp::base::Countable {
 public:
   SHARED_OBJECT_POOL(TestObject_Pool2, TestObject, 32)
 public:

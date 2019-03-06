@@ -96,26 +96,17 @@ private:
     std::mutex m_taskMutex;
     std::condition_variable m_taskCondition;
   public:
-    SubmissionProcessor()
-      : m_atom(false)
-      , m_isRunning(true)
-    {}
+    SubmissionProcessor();
   public:
     
     void run() override;
-    
-    void stop() {
-      m_isRunning = false;
-    }
-    
-    void addTaskSubmission(const std::shared_ptr<TaskSubmission>& task){
-      oatpp::concurrency::SpinLock lock(m_atom);
-      m_pendingTasks.pushBack(task);
-      m_taskCondition.notify_one();
-    }
+    void stop();
+    void addTaskSubmission(const std::shared_ptr<TaskSubmission>& task);
     
   };
-  
+
+public:
+  static const v_int32 THREAD_NUM_DEFAULT;
 private:
   v_int32 m_threadsCount;
   std::shared_ptr<oatpp::concurrency::Thread>* m_threads;
@@ -123,40 +114,15 @@ private:
   std::atomic<v_word32> m_balancer;
 public:
   
-  Executor(v_int32 threadsCount = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT)
-    : m_threadsCount(threadsCount)
-    , m_threads(new std::shared_ptr<oatpp::concurrency::Thread>[m_threadsCount])
-    , m_processors(new std::shared_ptr<SubmissionProcessor>[m_threadsCount])
-  {
-    for(v_int32 i = 0; i < m_threadsCount; i ++) {
-      auto processor = std::make_shared<SubmissionProcessor>();
-      m_processors[i] = processor;
-      m_threads[i] = oatpp::concurrency::Thread::createShared(processor);
-    }
-  }
+  Executor(v_int32 threadsCount = THREAD_NUM_DEFAULT);
   
-  ~Executor() {
-    delete [] m_processors;
-    delete [] m_threads;
-  }
+  ~Executor();
   
-  void join() {
-    for(v_int32 i = 0; i < m_threadsCount; i ++) {
-      m_threads[i]->join();
-    }
-  }
+  void join();
   
-  void detach() {
-    for(v_int32 i = 0; i < m_threadsCount; i ++) {
-      m_threads[i]->detach();
-    }
-  }
+  void detach();
   
-  void stop() {
-    for(v_int32 i = 0; i < m_threadsCount; i ++) {
-      m_processors[i]->stop();
-    }
-  }
+  void stop();
   
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {

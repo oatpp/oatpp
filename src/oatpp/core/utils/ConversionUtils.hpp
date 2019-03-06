@@ -29,7 +29,7 @@
 #include "oatpp/core/Types.hpp"
 
 
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 #include <string>

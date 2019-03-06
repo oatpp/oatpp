@@ -42,7 +42,7 @@
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 
 #include <string>
@@ -51,7 +51,7 @@
 
 namespace oatpp { namespace web { namespace client {
   
-class ApiClient : public oatpp::base::Controllable {
+class ApiClient : public oatpp::base::Countable {
 public:
   static constexpr const char* const TAG = "Client";
 protected:

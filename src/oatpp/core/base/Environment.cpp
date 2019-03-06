@@ -31,22 +31,20 @@ namespace oatpp { namespace base {
 
 Logger* Environment::m_logger = nullptr;
 std::unordered_map<std::string, std::unordered_map<std::string, void*>> Environment::m_components;
-  
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
+
 v_atomicCounter Environment::m_objectsCount(0);
 v_atomicCounter Environment::m_objectsCreated(0);
 thread_local v_counter Environment::m_threadLocalObjectsCount = 0;
 thread_local v_counter Environment::m_threadLocalObjectsCreated = 0;
-#endif
 
 void Environment::init(){
   checkTypes();
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
+
   m_objectsCount = 0;
   m_objectsCreated = 0;
   m_threadLocalObjectsCount = 0;
   m_threadLocalObjectsCreated = 0;
-#endif
+
   if(m_components.size() > 0) {
     throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Components were created before call to Environment::init()");
   }
@@ -82,51 +80,31 @@ void Environment::checkTypes(){
 }
 
 void Environment::incObjects(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   m_objectsCount ++;
   m_objectsCreated ++;
   m_threadLocalObjectsCount ++;
   m_threadLocalObjectsCreated ++;
-#endif
 }
 
 void Environment::decObjects(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   m_objectsCount --;
   m_threadLocalObjectsCount --;
-#endif
 }
 
 v_counter Environment::getObjectsCount(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   return m_objectsCount;
-#else
-  return 0;
-#endif
 }
 
 v_counter Environment::getObjectsCreated(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   return m_objectsCreated;
-#else
-  return 0;
-#endif
 }
   
 v_counter Environment::getThreadLocalObjectsCount(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   return m_threadLocalObjectsCount;
-#else
-  return 0;
-#endif
 }
 
 v_counter Environment::getThreadLocalObjectsCreated(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   return m_threadLocalObjectsCreated;
-#else
-  return 0;
-#endif
 }
 
 void Environment::setLogger(Logger* logger){

@@ -35,7 +35,7 @@
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   
-class Pattern : public base::Controllable{
+class Pattern : public base::Countable{
 private:
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
@@ -72,7 +72,7 @@ public:
   
 private:
   
-  class Part : public base::Controllable{
+  class Part : public base::Countable{
   public:
     Part(const char* pFunction, const oatpp::String& pText)
       : function(pFunction)

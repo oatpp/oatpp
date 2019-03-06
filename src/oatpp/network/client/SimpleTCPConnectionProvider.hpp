@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace network { namespace client {
   
-class SimpleTCPConnectionProvider : public base::Controllable, public ClientConnectionProvider {
+class SimpleTCPConnectionProvider : public base::Countable, public ClientConnectionProvider {
 protected:
   oatpp::String m_host;
   v_word16 m_port;

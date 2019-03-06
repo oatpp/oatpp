@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace web { namespace server {
   
-class HttpRouter : public oatpp::base::Controllable {
+class HttpRouter : public oatpp::base::Countable {
 private:
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:

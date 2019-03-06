@@ -22,23 +22,20 @@
  *
  ***************************************************************************/
 
-#include "Controllable.hpp"
-#include "Controllable.hpp"
+#ifndef oatpp_base_Countable
+#define oatpp_base_Countable
+
+#include <memory>
+#include "./Environment.hpp"
 
 namespace oatpp { namespace base{
-
-const char* Controllable::TAG = "Controllable";
   
-Controllable::Controllable() {
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
-  Environment::incObjects();
-#endif
-}
-
-Controllable::~Controllable(){
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
-  Environment::decObjects();
-#endif
-}
+class Countable {
+public:
+  Countable();
+  virtual ~Countable();
+};
   
 }}
+
+#endif /* oatpp_base_Countable */

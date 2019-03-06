@@ -95,7 +95,7 @@ public:
   typedef data::v_io_size v_size;
 };
 
-class CompoundIOStream : public oatpp::base::Controllable, public IOStream {
+class CompoundIOStream : public oatpp::base::Countable, public IOStream {
 public:
   OBJECT_POOL(CompoundIOStream_Pool, CompoundIOStream, 32);
   SHARED_OBJECT_POOL(Shared_CompoundIOStream_Pool, CompoundIOStream, 32);

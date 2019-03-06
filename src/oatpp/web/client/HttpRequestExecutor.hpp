@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace web { namespace client {
   
-class HttpRequestExecutor : public oatpp::base::Controllable, public RequestExecutor {
+class HttpRequestExecutor : public oatpp::base::Countable, public RequestExecutor {
 private:
   typedef oatpp::web::protocol::http::Header Header;
 protected:

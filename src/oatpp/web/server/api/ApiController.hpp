@@ -40,7 +40,7 @@
 
 namespace oatpp { namespace web { namespace server { namespace api {
   
-class ApiController : public oatpp::base::Controllable {
+class ApiController : public oatpp::base::Countable {
 protected:
   typedef ApiController __ControllerType;
 public:
@@ -94,7 +94,7 @@ protected:
    * Handler which subscribes to specific URL in Router and delegates calls endpoints 
    */
   template<class T>
-  class Handler : public oatpp::base::Controllable, public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
+  class Handler : public oatpp::base::Countable, public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
     typedef Action (T::*MethodAsync)(oatpp::async::AbstractCoroutine*,

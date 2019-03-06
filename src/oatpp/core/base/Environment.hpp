@@ -78,16 +78,12 @@ public:
   virtual void log(v_int32 priority, const std::string& tag, const std::string& message) = 0;
 };
   
-//#define OATPP_DISABLE_ENV_OBJECT_COUNTERS
-  
 class Environment{
 private:
-#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   static v_atomicCounter m_objectsCount;
   static v_atomicCounter m_objectsCreated;
   static thread_local v_counter m_threadLocalObjectsCount;
   static thread_local v_counter m_threadLocalObjectsCreated;
-#endif
 private:
   static Logger* m_logger;
   static void checkTypes();

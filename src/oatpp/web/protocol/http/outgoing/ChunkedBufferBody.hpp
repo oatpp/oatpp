@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
-class ChunkedBufferBody : public oatpp::base::Controllable, public Body {
+class ChunkedBufferBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<ChunkedBufferBody> {
 public:
   static const char* ERROR_FAILED_TO_WRITE_DATA;
 public:

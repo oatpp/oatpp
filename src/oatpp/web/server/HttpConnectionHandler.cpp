@@ -30,7 +30,28 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace server {
-  
+
+HttpConnectionHandler::Task::Task(HttpRouter* router,
+                                  const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                  const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
+                                  const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                                  HttpProcessor::RequestInterceptors* requestInterceptors)
+  : m_router(router)
+  , m_connection(connection)
+  , m_bodyDecoder(bodyDecoder)
+  , m_errorHandler(errorHandler)
+  , m_requestInterceptors(requestInterceptors)
+{}
+
+std::shared_ptr<HttpConnectionHandler::Task>
+HttpConnectionHandler::Task::createShared(HttpRouter* router,
+                                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                          const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
+                                          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                                          HttpProcessor::RequestInterceptors* requestInterceptors) {
+  return std::make_shared<Task>(router, connection, bodyDecoder, errorHandler, requestInterceptors);
+}
+
 void HttpConnectionHandler::Task::run(){
   
   v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
@@ -65,6 +86,27 @@ void HttpConnectionHandler::Task::run(){
   }
   
 }
+
+HttpConnectionHandler::HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
+  : m_router(router)
+  , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
+  , m_errorHandler(handler::DefaultErrorHandler::createShared())
+{}
+
+std::shared_ptr<HttpConnectionHandler> HttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router){
+  return std::make_shared<HttpConnectionHandler>(router);
+}
+
+void HttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
+  m_errorHandler = errorHandler;
+  if(!m_errorHandler) {
+    m_errorHandler = handler::DefaultErrorHandler::createShared();
+  }
+}
+
+void HttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
+  m_requestInterceptors.pushBack(interceptor);
+}
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
   
@@ -81,6 +123,10 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
   oatpp::concurrency::Thread::setThreadAffinityToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
   
   thread.detach();
+}
+
+void HttpConnectionHandler::stop() {
+  // DO NOTHING
 }
 
 }}}

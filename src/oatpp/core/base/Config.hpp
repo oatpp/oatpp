@@ -31,7 +31,7 @@
 #define oatpp_base_Config_hpp
 
 /**
- * If NOT DISABLED, counting of all object of class oatpp::base::Controllable is enabled
+ * If NOT DISABLED, counting of all object of class oatpp::base::Countable is enabled
  * for debug purposes and detection of memory leaks.
  * Disable object counting for Release builds using '-D OATPP_DISABLE_ENV_OBJECT_COUNTERS' flag for better performance
  */

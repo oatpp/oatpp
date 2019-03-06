@@ -22,32 +22,20 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_base_Controllable
-#define oatpp_base_Controllable
-
-#include <memory>
-#include "./Environment.hpp"
+#include "Countable.hpp"
 
 namespace oatpp { namespace base{
   
-class Controllable : public std::enable_shared_from_this<Controllable> {
-private:
-  static const char* TAG;
-public:
-  template<class T>
-  std::shared_ptr<T> getSharedPtr() {
-    return std::static_pointer_cast<T>(shared_from_this());
-  }
-public:
-  Controllable();
-  virtual ~Controllable();
-  
-  static std::shared_ptr<Controllable> createShared(){
-    return std::make_shared<Controllable>();
-  }
-  
-};
+Countable::Countable() {
+#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
+  Environment::incObjects();
+#endif
+}
+
+Countable::~Countable(){
+#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
+  Environment::decObjects();
+#endif
+}
   
 }}
-
-#endif /* oatpp_base_Controllable */

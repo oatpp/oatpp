@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
-class Response : public oatpp::base::Controllable {
+class Response : public oatpp::base::Countable, public std::enable_shared_from_this<Response> {
 public:
   typedef http::Protocol::Headers Headers;
 public:

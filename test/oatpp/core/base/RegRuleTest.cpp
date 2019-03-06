@@ -33,7 +33,7 @@ namespace oatpp { namespace test { namespace base {
   
 namespace {
   
-  class BaseClass : public oatpp::base::Controllable {
+  class BaseClass : public oatpp::base::Countable {
   public:
     
     template<class T>

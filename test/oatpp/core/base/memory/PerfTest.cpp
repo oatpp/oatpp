@@ -53,7 +53,7 @@ namespace {
     
   };
   
-  class TestChild : public oatpp::base::Controllable, public TestBase {
+  class TestChild : public oatpp::base::Countable, public TestBase {
   public:
     
     static void* operator new(std::size_t sz) {
@@ -67,7 +67,7 @@ namespace {
     
   };
   
-  class Task : public oatpp::concurrency::Runnable, public oatpp::base::Controllable {
+  class Task : public oatpp::concurrency::Runnable, public oatpp::base::Countable {
   private:
     std::shared_ptr<TestBase> m_shared;
   public:

@@ -25,24 +25,23 @@
 #ifndef oatpp_web_server_AsyncHttpConnectionHandler_hpp
 #define oatpp_web_server_AsyncHttpConnectionHandler_hpp
 
-#include "./HttpProcessor.hpp"
-#include "./handler/ErrorHandler.hpp"
-#include "./HttpRouter.hpp"
+#include "oatpp/web/server/HttpProcessor.hpp"
+#include "oatpp/web/server/HttpRouter.hpp"
+#include "oatpp/web/server/handler/ErrorHandler.hpp"
+#include "oatpp/web/server/handler/Interceptor.hpp"
 
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 
 #include "oatpp/network/server/ConnectionHandler.hpp"
-#include "oatpp/network/Connection.hpp"
-
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/async/Executor.hpp"
 
 namespace oatpp { namespace web { namespace server {
   
-class AsyncHttpConnectionHandler : public base::Controllable, public network::server::ConnectionHandler {
+class AsyncHttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
   typedef oatpp::web::protocol::http::incoming::BodyDecoder BodyDecoder;
+public:
+  static const v_int32 THREAD_NUM_DEFAULT;
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
 private:
@@ -51,52 +50,26 @@ private:
   HttpProcessor::RequestInterceptors m_requestInterceptors;
   std::shared_ptr<const BodyDecoder> m_bodyDecoder; // TODO make bodyDecoder configurable here
 public:
-  
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
-                             v_int32 threadCount = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT)
-    : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
-    , m_router(router)
-    , m_errorHandler(handler::DefaultErrorHandler::createShared())
-    , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
-  {
-    m_executor->detach();
-  }
-  
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
-                             const std::shared_ptr<oatpp::async::Executor>& executor)
-    : m_executor(executor)
-    , m_router(router)
-    , m_errorHandler(handler::DefaultErrorHandler::createShared())
-    , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
-  {}
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = THREAD_NUM_DEFAULT);
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor);
 public:
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
-                                                                  v_int32 threadCount = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT){
-    return std::make_shared<AsyncHttpConnectionHandler>(router, threadCount);
-  }
+                                                                  v_int32 threadCount = THREAD_NUM_DEFAULT);
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
-                                                                  const std::shared_ptr<oatpp::async::Executor>& executor){
-    return std::make_shared<AsyncHttpConnectionHandler>(router, executor);
-  }
+                                                                  const std::shared_ptr<oatpp::async::Executor>& executor);
   
-  void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-    m_errorHandler = errorHandler;
-    if(!m_errorHandler) {
-      m_errorHandler = handler::DefaultErrorHandler::createShared();
-    }
-  }
+  void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
   
-  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
-    m_requestInterceptors.pushBack(interceptor);
-  }
+  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
   
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
-  
-  void stop() override {
-    m_executor->stop();
-  }
+
+  /**
+   * Will call m_executor.stop()
+   */
+  void stop() override;
   
 };
   

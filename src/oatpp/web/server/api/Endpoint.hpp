@@ -39,7 +39,7 @@ namespace oatpp { namespace web { namespace server { namespace api {
  * Endpoint - class which holds information about endpoint.
  * It holds API documentation info, and pointer to RequestHandler
  */
-class Endpoint : public oatpp::base::Controllable {
+class Endpoint : public oatpp::base::Countable {
 public:
   typedef oatpp::web::url::mapping::Subscriber<
     std::shared_ptr<protocol::http::incoming::Request>,
@@ -50,7 +50,7 @@ public:
   /**
    * Info holds API documentation information about endpoint
    */
-  class Info : public oatpp::base::Controllable {
+  class Info : public oatpp::base::Countable {
   public:
 
     /**

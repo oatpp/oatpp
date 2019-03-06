@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace network { namespace server {
   
-class SimpleTCPConnectionProvider : public base::Controllable, public ServerConnectionProvider {
+class SimpleTCPConnectionProvider : public base::Countable, public ServerConnectionProvider {
 private:
   v_word16 m_port;
   bool m_nonBlocking;

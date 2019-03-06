@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-class OutputStreamBufferedProxy : public oatpp::base::Controllable, public OutputStream {
+class OutputStreamBufferedProxy : public oatpp::base::Countable, public OutputStream {
 public:
   OBJECT_POOL(OutputStreamBufferedProxy_Pool, OutputStreamBufferedProxy, 32)
   SHARED_OBJECT_POOL(Shared_OutputStreamBufferedProxy_Pool, OutputStreamBufferedProxy, 32)
@@ -83,7 +83,7 @@ public:
   
 };
   
-class InputStreamBufferedProxy : public oatpp::base::Controllable, public InputStream {
+class InputStreamBufferedProxy : public oatpp::base::Countable, public InputStream {
 public:
   OBJECT_POOL(InputStreamBufferedProxy_Pool, InputStreamBufferedProxy, 32)
   SHARED_OBJECT_POOL(Shared_InputStreamBufferedProxy_Pool, InputStreamBufferedProxy, 32)
