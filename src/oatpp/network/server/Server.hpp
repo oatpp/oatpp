@@ -33,14 +33,14 @@
 
 #include "oatpp/core/Types.hpp"
 
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 #include <atomic>
 
 namespace oatpp { namespace network { namespace server {
 
-class Server : public base::Controllable, public concurrency::Runnable{
+class Server : public base::Countable, public concurrency::Runnable{
 private:
 
   void mainLoop();

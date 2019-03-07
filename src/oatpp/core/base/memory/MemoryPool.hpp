@@ -32,7 +32,6 @@
 #include <list>
 #include <unordered_map>
 #include <cstring>
-//#define OATPP_DISABLE_POOL_ALLOCATIONS
 
 namespace oatpp { namespace base { namespace  memory {
   
@@ -115,8 +114,10 @@ private:
   v_int32 m_shardsCount;
   MemoryPool** m_shards;
 public:
+  static const v_int32 SHARDS_COUNT_DEFAULT;
+public:
   ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,
-                              v_int32 shardsCount = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT);
+                              v_int32 shardsCount = SHARDS_COUNT_DEFAULT);
   virtual ~ThreadDistributedMemoryPool();
   void* obtain();
 };

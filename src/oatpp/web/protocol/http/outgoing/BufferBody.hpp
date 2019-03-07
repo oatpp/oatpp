@@ -31,7 +31,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
-class BufferBody : public oatpp::base::Controllable, public Body {
+class BufferBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<BufferBody> {
 public:
   OBJECT_POOL(Http_Outgoing_BufferBody_Pool, BufferBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_BufferBody_Pool, BufferBody, 32)

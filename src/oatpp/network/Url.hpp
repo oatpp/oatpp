@@ -36,7 +36,7 @@ namespace oatpp { namespace network {
 
 
 // TODO - refactor to use oatpp::data::share::MemoryLabel
-class Url : public oatpp::base::Controllable {
+class Url : public oatpp::base::Countable {
 public:
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:

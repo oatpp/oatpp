@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-class ChunkedBuffer : public oatpp::base::Controllable, public OutputStream {
+class ChunkedBuffer : public oatpp::base::Countable, public OutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
 public:
   static const char* ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA;
 public:
@@ -75,7 +75,7 @@ private:
   
 public:
   
-  class Chunk : public oatpp::base::Controllable {
+  class Chunk : public oatpp::base::Countable {
   public:
     OBJECT_POOL(ChunkedBuffer_Chunk_Pool, Chunk, 32)
     SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Chunk_Pool, Chunk, 32)

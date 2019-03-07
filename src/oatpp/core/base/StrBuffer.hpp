@@ -26,13 +26,13 @@
 #define oatpp_base_StrBuffer_hpp
 
 #include "memory/ObjectPool.hpp"
-#include "./Controllable.hpp"
+#include "./Countable.hpp"
 
 #include <cstring> // c
 
 namespace oatpp { namespace base {
 
-class StrBuffer : public oatpp::base::Controllable {  
+class StrBuffer : public oatpp::base::Countable {  
 private:
 
   static constexpr v_int32 SM_STRING_POOL_ENTRY_SIZE = 256;

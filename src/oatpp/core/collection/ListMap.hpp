@@ -26,12 +26,12 @@
 #define oatpp_collection_ListMap_hpp
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace collection {
   
 template<class K, class V>
-class ListMap : public oatpp::base::Controllable {
+class ListMap : public oatpp::base::Countable {
 public:
   OBJECT_POOL(ListMap_Pool, ListMap, 32)
   SHARED_OBJECT_POOL(Shared_ListMap_Pool, ListMap, 32)

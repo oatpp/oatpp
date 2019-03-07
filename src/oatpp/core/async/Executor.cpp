@@ -25,7 +25,14 @@
 #include "Executor.hpp"
 
 namespace oatpp { namespace async {
-  
+
+const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
+
+Executor::SubmissionProcessor::SubmissionProcessor()
+  : m_atom(false)
+  , m_isRunning(true)
+{}
+
 void Executor::SubmissionProcessor::consumeTasks() {
   oatpp::concurrency::SpinLock lock(m_atom);
   auto curr = m_pendingTasks.getFirstNode();
@@ -61,6 +68,52 @@ void Executor::SubmissionProcessor::run(){
     
   }
   
+}
+
+void Executor::SubmissionProcessor::stop() {
+  m_isRunning = false;
+}
+
+void Executor::SubmissionProcessor::addTaskSubmission(const std::shared_ptr<TaskSubmission>& task){
+  oatpp::concurrency::SpinLock lock(m_atom);
+  m_pendingTasks.pushBack(task);
+  m_taskCondition.notify_one();
+}
+
+
+Executor::Executor(v_int32 threadsCount)
+  : m_threadsCount(threadsCount)
+  , m_threads(new std::shared_ptr<oatpp::concurrency::Thread>[m_threadsCount])
+  , m_processors(new std::shared_ptr<SubmissionProcessor>[m_threadsCount])
+{
+  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+    auto processor = std::make_shared<SubmissionProcessor>();
+    m_processors[i] = processor;
+    m_threads[i] = oatpp::concurrency::Thread::createShared(processor);
+  }
+}
+
+Executor::~Executor() {
+  delete [] m_processors;
+  delete [] m_threads;
+}
+
+void Executor::join() {
+  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+    m_threads[i]->join();
+  }
+}
+
+void Executor::detach() {
+  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+    m_threads[i]->detach();
+  }
+}
+
+void Executor::stop() {
+  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+    m_processors[i]->stop();
+  }
 }
   
 }}

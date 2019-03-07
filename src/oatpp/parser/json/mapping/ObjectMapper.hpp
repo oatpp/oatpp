@@ -32,7 +32,7 @@
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   
-class ObjectMapper : public oatpp::base::Controllable, public oatpp::data::mapping::ObjectMapper {
+class ObjectMapper : public oatpp::base::Countable, public oatpp::data::mapping::ObjectMapper {
 private:
   static Info& getMapperInfo() {
     static Info info("application/json");

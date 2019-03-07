@@ -39,7 +39,7 @@ public:
   
 };
   
-class DefaultErrorHandler : public oatpp::base::Controllable, public ErrorHandler {
+class DefaultErrorHandler : public oatpp::base::Countable, public ErrorHandler {
 public:
   DefaultErrorHandler()
   {}

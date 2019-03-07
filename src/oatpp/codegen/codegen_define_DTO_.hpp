@@ -74,11 +74,11 @@ public: \
 #define OATPP_MACRO_DTO_FIELD_0(TYPE, NAME, LIST) \
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
-  Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Controllable*>(this), \
+  Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
                             (oatpp::data::mapping::type::AbstractObjectWrapper*)(&NAME)); \
 \
 static oatpp::data::mapping::type::Type::Property* \
-Z__CLASS_GET_FIELD_##NAME(oatpp::base::Controllable* _this, \
+Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
                           oatpp::data::mapping::type::AbstractObjectWrapper* _reg) { \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
@@ -93,11 +93,11 @@ TYPE NAME
 #define OATPP_MACRO_DTO_FIELD_1(TYPE, NAME, LIST) \
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
-  Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Controllable*>(this), \
+  Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
                             (oatpp::data::mapping::type::AbstractObjectWrapper*)(&NAME)); \
 \
 static oatpp::data::mapping::type::Type::Property* \
-Z__CLASS_GET_FIELD_##NAME(oatpp::base::Controllable* _this, \
+Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
                           oatpp::data::mapping::type::AbstractObjectWrapper* _reg) { \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \

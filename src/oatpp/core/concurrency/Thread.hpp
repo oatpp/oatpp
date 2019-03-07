@@ -28,13 +28,13 @@
 #include "./Runnable.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 #include <thread>
 
 namespace oatpp { namespace concurrency {
   
-class Thread : public base::Controllable {
+class Thread : public base::Countable {
 public:
   OBJECT_POOL(Thread_Pool, Thread, 32)
   SHARED_OBJECT_POOL(Shared_Thread_Pool, Thread, 32)

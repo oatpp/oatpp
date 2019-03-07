@@ -29,7 +29,7 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
   
-class Socket : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
+class Socket : public oatpp::base::Countable, public oatpp::data::stream::IOStream {
 private:
   std::shared_ptr<Pipe> m_pipeIn;
   std::shared_ptr<Pipe> m_pipeOut;

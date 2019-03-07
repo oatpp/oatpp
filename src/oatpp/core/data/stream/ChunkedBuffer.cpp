@@ -267,7 +267,7 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
   };
   
   return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish,
-                                                         getSharedPtr<ChunkedBuffer>(),
+                                                         shared_from_this(),
                                                          stream);
   
 }

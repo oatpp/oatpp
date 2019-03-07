@@ -31,7 +31,7 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
   
-class Interface : public oatpp::base::Controllable {
+class Interface : public oatpp::base::Countable {
 public:
   
   class ConnectionSubmission {

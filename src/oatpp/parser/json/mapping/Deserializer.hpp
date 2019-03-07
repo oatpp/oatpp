@@ -59,7 +59,7 @@ private:
   
 public:
   
-  class Config : public oatpp::base::Controllable {
+  class Config : public oatpp::base::Countable {
   public:
     Config()
     {}

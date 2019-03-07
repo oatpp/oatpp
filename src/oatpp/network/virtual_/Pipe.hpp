@@ -37,7 +37,7 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
 
-class Pipe : public oatpp::base::Controllable {
+class Pipe : public oatpp::base::Countable {
 public:
   
   class Reader : public oatpp::data::stream::InputStream {

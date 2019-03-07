@@ -32,7 +32,7 @@
 #include "./List.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -56,7 +56,7 @@ namespace __class {
   
 }
   
-class Object : public oatpp::base::Controllable {
+class Object : public oatpp::base::Countable {
 public:
   typedef oatpp::data::mapping::type::String String;
   typedef oatpp::data::mapping::type::Int8 Int8;

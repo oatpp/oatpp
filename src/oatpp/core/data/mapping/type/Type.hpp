@@ -25,7 +25,7 @@
 #ifndef oatpp_data_type_Type_hpp
 #define oatpp_data_type_Type_hpp
 
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -102,8 +102,8 @@ public:
     return *this;
   }
   
-  inline operator PolymorphicWrapper<oatpp::base::Controllable>() const {
-    return PolymorphicWrapper<oatpp::base::Controllable>(this->m_ptr, valueType);
+  inline operator PolymorphicWrapper<oatpp::base::Countable>() const {
+    return PolymorphicWrapper<oatpp::base::Countable>(this->m_ptr, valueType);
   }
   
   T* operator->() const {
@@ -203,7 +203,7 @@ public:
   
 };
   
-typedef PolymorphicWrapper<oatpp::base::Controllable> AbstractObjectWrapper;
+typedef PolymorphicWrapper<oatpp::base::Countable> AbstractObjectWrapper;
   
 class Type {
 public:

@@ -35,7 +35,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 /**
  * Class http::incoming::Request AKA IncomingRequest represents client's incoming request
  */
-class Request : public oatpp::base::Controllable {
+class Request : public oatpp::base::Countable {
 public:
   OBJECT_POOL(Incoming_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)

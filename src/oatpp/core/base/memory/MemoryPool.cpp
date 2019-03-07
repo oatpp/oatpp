@@ -125,12 +125,12 @@ v_int64 MemoryPool::getSize(){
 v_int32 MemoryPool::getObjectsCount(){
   return m_objectsCount;
 }
-  
-  
-  
+
 oatpp::concurrency::SpinLock::Atom MemoryPool::POOLS_ATOM(false);
 std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
+
+const v_int32 ThreadDistributedMemoryPool::SHARDS_COUNT_DEFAULT = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
   
 ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
   : m_shardsCount(shardsCount)

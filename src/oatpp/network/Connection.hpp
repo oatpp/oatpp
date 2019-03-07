@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace network {
   
-class Connection : public oatpp::base::Controllable, public oatpp::data::stream::IOStream {
+class Connection : public oatpp::base::Countable, public oatpp::data::stream::IOStream {
 public:
   OBJECT_POOL(Connection_Pool, Connection, 32);
   SHARED_OBJECT_POOL(Shared_Connection_Pool, Connection, 32);

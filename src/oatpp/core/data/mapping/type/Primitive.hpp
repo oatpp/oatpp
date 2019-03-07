@@ -28,7 +28,7 @@
 #include "./Type.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/StrBuffer.hpp"
 
 
@@ -126,7 +126,7 @@ String operator + (const String& b, const char* a);
 String operator + (const String& a, const String& b);
   
 template<typename ValueType, class Clazz>
-class Primitive : public oatpp::base::Controllable {
+class Primitive : public oatpp::base::Countable {
 public:
   OBJECT_POOL(Primitive_Type_Pool, Primitive, 32)
   SHARED_OBJECT_POOL(Shared_Primitive_Type_Pool, Primitive, 32)
@@ -214,8 +214,8 @@ public:
     return Shared_Primitive_Type_Pool::allocateShared(value);
   }
   
-  static std::shared_ptr<Controllable> createAbstract(const ValueType& value){
-    return std::static_pointer_cast<Controllable>(Shared_Primitive_Type_Pool::allocateShared(value));
+  static std::shared_ptr<Countable> createAbstract(const ValueType& value){
+    return std::static_pointer_cast<Countable>(Shared_Primitive_Type_Pool::allocateShared(value));
   }
   
   void setValue(const ValueType& value) {
@@ -379,4 +379,4 @@ namespace std {
   };
 }
 
-#endif /* oatpp_base_controllable_PrimitiveDataTypes_hpp */
+#endif /* oatpp_base_Countable_PrimitiveDataTypes_hpp */

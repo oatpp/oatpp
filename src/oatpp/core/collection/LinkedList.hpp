@@ -28,13 +28,13 @@
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 
 
-#include "oatpp/core/base/Controllable.hpp"
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace collection {
 
 template<class T>
-class LinkedList : public base::Controllable {
+class LinkedList : public base::Countable {
 public:
   OBJECT_POOL(LinkedList_Pool, LinkedList, 32)
   SHARED_OBJECT_POOL(Shared_LinkedList_Pool, LinkedList, 32)
@@ -177,7 +177,7 @@ public:
   }
   
   void insertAfterNode(const T& data, LinkedListNode* currentNode){
-    LinkedListNode* node = new LinkedListNode(data, currentNode->next);
+    LinkedListNode* node = createNode(data, currentNode->next);
     currentNode->next = node;
     if(currentNode == m_last){
       m_last = node;

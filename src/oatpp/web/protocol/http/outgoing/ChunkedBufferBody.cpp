@@ -122,7 +122,7 @@ async::Action ChunkedBufferBody::writeToStreamAsync(oatpp::async::AbstractCorout
                                                     const Action& actionOnFinish,
                                                     const std::shared_ptr<OutputStream>& stream) {
   if(m_chunked) {
-    return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnFinish, getSharedPtr<ChunkedBufferBody>(), stream);
+    return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnFinish, shared_from_this(), stream);
   } else {
     return m_buffer->flushToStreamAsync(parentCoroutine, actionOnFinish, stream);
   }
