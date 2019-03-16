@@ -86,7 +86,7 @@ public:
   oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const;
 
   /**
-   *
+   * Get query parameter value by name with defaultValue
    * @param name
    * @param defaultValue
    * @return query parameter value or defaultValue if no such parameter found
@@ -100,8 +100,8 @@ public:
   const http::RequestStartingLine& getStartingLine() const;
 
   /**
-   * Get path variables according to path-pattern.
-   * Ex. given request path="/sum/19/1" for path-pattern="/sum/{a}/{b}"
+   * Get path variables according to path-pattern. <br>
+   * Ex. given request path="/sum/19/1" for path-pattern="/sum/{a}/{b}" <br>
    * getPathVariables().getVariable("a") == 19, getPathVariables().getVariable("b") == 1.
    *
    * @return url MatchMap

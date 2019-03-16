@@ -33,32 +33,74 @@ namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
 class Processor; // FWD
-  
+
+/**
+ * Class to hold and communicate errors between Coroutines
+ */
 class Error {
 public:
 
-  Error(const char* pMessage, bool pIsExceptionThrown = false)
-    : message(pMessage)
-    , isExceptionThrown(pIsExceptionThrown)
-  {}
-  
+  /**
+   * Constructor.
+   * @param pMessage - Error message.
+   * @param pIsExceptionThrown - Indicate that this error is a result of thrown exception.
+   */
+  Error(const char* pMessage, bool pIsExceptionThrown = false);
+
+  /**
+   * Error message
+   */
   const char* message;
+
+  /**
+   * Indicates that this error is a result of thrown exception. Re-throw if true to catch original exception.
+   */
   bool isExceptionThrown;
   
 };
-  
+
+/**
+ * Class Action represents an asynchronous action.
+ */
 class Action {
   friend Processor;
   friend AbstractCoroutine;
 public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
+  /**
+   * Indicate that Action is to start coroutine. Value = 0.
+   */
   static constexpr const v_int32 TYPE_COROUTINE = 0;
+
+  /**
+   * Indicate that Action is to YIELD control to other method of Coroutine. Value = 1.
+   */
   static constexpr const v_int32 TYPE_YIELD_TO = 1;
+
+  /**
+   * Indicate that Action is to WAIT and then RETRY call to current method of Coroutine. Value = 2.
+   */
   static constexpr const v_int32 TYPE_WAIT_RETRY = 2;
+
+  /**
+   * Indicate that Action is to REPEAT call to current method of Coroutine. Value = 3.
+   */
   static constexpr const v_int32 TYPE_REPEAT = 3;
+
+  /**
+   * Indicate that Action is to FINISH current Coroutine and return control to a caller-Coroutine. Value = 4.
+   */
   static constexpr const v_int32 TYPE_FINISH = 4;
+
+  /**
+   * Deprecated
+   */
   static constexpr const v_int32 TYPE_ABORT = 5;
+
+  /**
+   * Indicate that Error occurred
+   */
   static constexpr const v_int32 TYPE_ERROR = 6;
 public:
   static const Action _WAIT_RETRY;

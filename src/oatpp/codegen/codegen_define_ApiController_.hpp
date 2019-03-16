@@ -390,12 +390,19 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT_(X, NAME, METHOD, PATH, LIST)
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, LIST) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, PATH, LIST)
 
+/**
+ * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
+ * @METHOD - Http method ("GET", "POST", "PUT", etc.)
+ * @PATH - Path to endpoint (without host)
+ * @NAME - Name of the generated method
+ * @return - std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
+ */
 #define ENDPOINT(METHOD, PATH, NAME, ...) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
 
 // ENDPOINT ASYNC MACRO // ------------------------------------------------------
 
-/**
+/*
  *  1 - Method to obtain endpoint call function ptr
  *  2 - Endpoint info singleton
  */
@@ -414,7 +421,7 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
   return info; \
 }
 
-/**
+/*
  *  1 - Endpoint info instance
  *  2 - Endpoint instance
  */
@@ -434,7 +441,13 @@ const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints,
                                                                     Z__ENDPOINT_METHOD_##NAME(this), \
                                                                     Z__CREATE_ENDPOINT_INFO_##NAME());
 
-
+/**
+ * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Asynchronous Endpoint.
+ * @METHOD - Http method ("GET", "POST", "PUT", etc.)
+ * @PATH - Path to endpoint (without host)
+ * @NAME - Name of the generated method
+ * @return - oatpp::async::Action
+ */
 #define ENDPOINT_ASYNC(METHOD, PATH, NAME) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL(NAME, METHOD, PATH) \
@@ -448,6 +461,10 @@ oatpp::async::Action Z__PROXY_METHOD_##NAME(oatpp::async::AbstractCoroutine* par
 \
 class NAME : public HandlerCoroutine<NAME, __ControllerType>
 
+/**
+ * Auxiliary codegen macro for `ENDPOINT_ASYNC` to generate correct constructor for Asynchronous Endpoint Coroutine.
+ * @NAME - Name of the endpoint. Exact the same name as was passed to `ENDPOINT_ASYNC` macro.
+ */
 #define ENDPOINT_ASYNC_INIT(NAME) \
 public: \
 \

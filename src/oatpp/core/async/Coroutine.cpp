@@ -25,12 +25,19 @@
 #include "Coroutine.hpp"
 
 namespace oatpp { namespace async {
-  
+
 const Action Action::_WAIT_RETRY(TYPE_WAIT_RETRY, nullptr, nullptr);
 const Action Action::_REPEAT(TYPE_REPEAT, nullptr, nullptr);
 const Action Action::_FINISH(TYPE_FINISH, nullptr, nullptr);
 const Action Action::_ABORT(TYPE_ABORT, nullptr, nullptr);
-  
+
+Error::Error(const char* pMessage, bool pIsExceptionThrown = false)
+  : message(pMessage)
+  , isExceptionThrown(pIsExceptionThrown)
+{}
+
+
+
 Action::Action(v_int32 type,
        AbstractCoroutine* coroutine,
        FunctionPtr functionPtr)

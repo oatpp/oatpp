@@ -27,6 +27,11 @@
 
 // Defaults
 
+/**
+ * Codegen macoro to be used in `oatpp::data::mapping::type::Object` to generate required fields/methods/constructors for DTO object.
+ * @TYPE_NAME - name of the DTO class.
+ * @TYPE_EXTEND - name of the parent DTO class. If DTO extends `oatpp::data::mapping::type::Object` TYPE_EXETENDS should be `Object`.
+ */
 #define DTO_INIT(TYPE_NAME, TYPE_EXTEND) \
 public: \
   typedef TYPE_NAME Z__CLASS; \
@@ -113,6 +118,12 @@ TYPE NAME
 #define OATPP_MACRO_DTO_FIELD__(X, TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD_(X, TYPE, NAME, LIST)
 #define OATPP_MACRO_DTO_FIELD___(TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD__(OATPP_MACRO_HAS_ARGS LIST, TYPE, NAME, LIST)
 
+/**
+ * Codegen macro to generate fields of DTO object.
+ * @TYPE - type of the field.
+ * @NAME - name of the field.
+ * @QUALIFIER_NAME - additional (optional) field to specify serialized name of the field. If not specified it will be same as NAME.
+ */
 #define DTO_FIELD(TYPE, NAME, ...) \
 OATPP_MACRO_DTO_FIELD___(TYPE, NAME, (__VA_ARGS__))
 
