@@ -426,7 +426,7 @@ public:
 
   /**
    * Free Coroutine instance.
-   * See `AbstractCoroutine::free()`
+   * See &l:AbstractCoroutine::free ();.
    */
   void free() override {
     Coroutine<T>::getBench().free(static_cast<T*>(this));
@@ -523,7 +523,7 @@ public:
 
   /**
    * Free Coroutine instance.
-   * See `AbstractCoroutine::free()`
+   * See &l:AbstractCoroutine::free ();.
    */
   virtual void free() override {
     CoroutineWithResult<T, Args...>::getBench().free(static_cast<T*>(this));

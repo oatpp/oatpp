@@ -36,12 +36,12 @@ namespace oatpp { namespace base{
 class Countable {
 public:
   /**
-   * Constructor. Increment counter calling `oatpp::base::Environment::incObjects()`.
+   * Constructor. Increment counter calling &id:oatpp::base::Environment::incObjects;.
    */
   Countable();
 
   /**
-   * Virtual destructor. Decrement counter calling `oatpp::base::Environment::decObjects()`.
+   * Virtual destructor. Decrement counter calling &id:oatpp::base::Environment::decObjects;.
    */
   virtual ~Countable();
 };

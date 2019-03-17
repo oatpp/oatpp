@@ -40,7 +40,7 @@ namespace oatpp { namespace async {
 
 /**
  * Asynchronous Executor.<br>
- * Executes coroutines in multiple `oatpp::async::Processor`
+ * Executes coroutines in multiple &id:oatpp::async::Processor;
  * allocating one thread per processor.
  */
 class Executor {
