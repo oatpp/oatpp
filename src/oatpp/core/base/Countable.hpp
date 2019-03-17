@@ -29,10 +29,20 @@
 #include "./Environment.hpp"
 
 namespace oatpp { namespace base{
-  
+
+/**
+ * Class instantiations of which can be counted.
+ */
 class Countable {
 public:
+  /**
+   * Constructor. Increment counter calling `oatpp::base::Environment::incObjects()`.
+   */
   Countable();
+
+  /**
+   * Virtual destructor. Decrement counter calling `oatpp::base::Environment::decObjects()`.
+   */
   virtual ~Countable();
 };
   

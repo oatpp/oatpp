@@ -29,7 +29,11 @@
 #include "oatpp/core/collection/FastQueue.hpp"
 
 namespace oatpp { namespace async {
-  
+
+/**
+ * Asynchronous Processor.<br>
+ * Responsible for processing and managing multiple Coroutines.
+ */
 class Processor {
 private:
   
@@ -43,9 +47,29 @@ private:
   v_int64 m_inactivityTick = 0;
 public:
 
+  /**
+   * Add Coroutine to processor.
+   * @param coroutine - pointer to Coroutine.
+   */
   void addCoroutine(AbstractCoroutine* coroutine);
+
+  /**
+   * Add Coroutine to processor in "waiting queue"
+   * @param coroutine
+   */
   void addWaitingCoroutine(AbstractCoroutine* coroutine);
+
+  /**
+   * Iterate Coroutines.
+   * @param numIterations - number of iterations.
+   * @return - `true` if there are active Coroutines.
+   */
   bool iterate(v_int32 numIterations);
+
+  /**
+   * Check if there is no more Coroutines in processor.
+   * @return - `true` if all coroutines in all queues are finished.
+   */
   bool isEmpty() {
     return m_activeQueue.first == nullptr && m_waitingQueue.first == nullptr;
   }

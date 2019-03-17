@@ -29,37 +29,63 @@
 
 namespace oatpp { namespace base {
 
+/**
+ * Class for storing and managing Command Line arguments.
+ */
 class CommandLineArguments {
 public:
-  
+
+  /**
+   * Command Line arguments parser.
+   */
   class Parser {
   public:
-    
+
     /**
-     * returns true if getArgumentIndex(argName) >= 0
+     * Check the specified argument is present among command line arguments.
+     * @param argc - count of arguments in argv array.
+     * @param argv - array of arguments.
+     * @param argName - name of the target argument.
+     * @return - `true` if `getArgumentIndex(argName) >= 0`
      */
     static bool hasArgument(int argc, const char * argv[], const char* argName);
     
     /**
      * get index of the argument with the name == argName
      */
-    static v_int32 getArgumentIndex(int argc, const char * argv[], const char* argName);
-    
+
     /**
-     * return argument wich starts with the prefix
-     * ex:
-     * for cmd = "-k -c 1000 -n 100 'http://127.0.0.1:8000/'"
-     * getArgumentWhichStartsWith("http") == http://127.0.0.1:8000/
-     * if no argument found defaultValue returned
+     * Get index of the argument specified by name in the argv[] array.
+     * @param argc - count of arguments in argv array.
+     * @param argv - array of arguments.
+     * @param argName - name of the target argument.
+     * @return - index of the argument in argv[] array. -1 if there is no such argument.
+     */
+    static v_int32 getArgumentIndex(int argc, const char * argv[], const char* argName);
+
+    /**
+     * Get argument which starts with the prefix. <br>
+     * Example: <br>
+     * For command line: `-k -c 1000 -n 100 http://127.0.0.1:8000/` <br>
+     * `getArgumentWhichStartsWith("http") == http://127.0.0.1:8000/`
+     * @param argc - count of arguments in argv array.
+     * @param argv - array of arguments.
+     * @param argNamePrefix - prefix to search.
+     * @param defaultValue - default value to return in case not found.
+     * @return - argument which starts with the specified prefix.
      */
     static const char* getArgumentStartingWith(int argc, const char * argv[], const char* argNamePrefix, const char* defaultValue = nullptr);
-    
+
     /**
-     * return value preceded by the argument
-     * ex:
-     * for cmd = "-k -c 1000 -n 100"
-     * getNamedArgumentValue("-c") == "1000"
-     * getNamedArgumentValue("-n") == "100"
+     * Get value preceded by the argument. <br>
+     * Example: <br>
+     * For command line: `-k -c 1000 -n 100` <br>
+     * `getNamedArgumentValue("-c") == "1000"`, `getNamedArgumentValue("-n") == "100"`
+     * @param argc - count of arguments in argv array.
+     * @param argv - array of arguments.
+     * @param argName - name of the preceded argument.
+     * @param defaultValue - default value to return in case not found.
+     * @return - value preceded by the argument.
      */
     static const char* getNamedArgumentValue(int argc, const char * argv[], const char* argName, const char* defaultValue = nullptr);
     
@@ -69,29 +95,59 @@ private:
   int m_argc;
   const char ** m_argv;
 public:
-  
-  CommandLineArguments()
-    : m_argc(0)
-    , m_argv(nullptr)
-  {}
-  
-  CommandLineArguments(int argc, const char * argv[])
-    : m_argc(argc)
-    , m_argv(argv)
-  {}
-  
+
+  /**
+   * Default constructor.
+   */
+  CommandLineArguments();
+
+  /**
+   * Constructor.
+   * @param argc - count of arguments in argv[] array.
+   * @param argv - array of arguments.
+   */
+  CommandLineArguments(int argc, const char * argv[]);
+
+  /**
+   * Check the specified argument is present.
+   * @param argName - name of the target argument.
+   * @return - `true` if present.
+   */
   bool hasArgument(const char* argName) {
     return Parser::hasArgument(m_argc, m_argv, argName);
   }
-  
+
+  /**
+   * Get index of the argument specified by name.
+   * @param argName - name of the target argument.
+   * @return - index of the argument in argv[] array. -1 if there is no such argument.
+   */
   v_int32 getArgumentIndex(const char* argName) {
     return Parser::getArgumentIndex(m_argc, m_argv, argName);
   }
-  
+
+  /**
+   * Get argument which starts with the prefix. <br>
+   * Example: <br>
+   * For command line: `-k -c 1000 -n 100 'http://127.0.0.1:8000/'` <br>
+   * `getArgumentWhichStartsWith("http") == http://127.0.0.1:8000/`
+   * @param argNamePrefix - prefix to search.
+   * @param defaultValue - default value to return in case not found.
+   * @return - argument which starts with the specified prefix. defaultValue if not found.
+   */
   const char* getArgumentStartingWith(const char* argNamePrefix, const char* defaultValue = nullptr) {
     return Parser::getArgumentStartingWith(m_argc, m_argv, argNamePrefix, defaultValue);
   }
-  
+
+  /**
+   * Get value preceded by the argument. <br>
+   * Example: <br>
+   * For command line: `-k -c 1000 -n 100` <br>
+   * `getNamedArgumentValue("-c") == "1000"`, `getNamedArgumentValue("-n") == "100"`
+   * @param argName - name of the preceded argument.
+   * @param defaultValue - default value to return in case not found.
+   * @return - value preceded by the argument. defaultValue if not found.
+   */
   const char* getNamedArgumentValue(const char* argName, const char* defaultValue = nullptr) {
     return Parser::getNamedArgumentValue(m_argc, m_argv, argName, defaultValue);
   }

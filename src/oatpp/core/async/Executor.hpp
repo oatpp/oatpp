@@ -37,7 +37,12 @@
 #include <condition_variable>
 
 namespace oatpp { namespace async {
-  
+
+/**
+ * Asynchronous Executor.<br>
+ * Executes coroutines in multiple `oatpp::async::Processor`
+ * allocating one thread per processor.
+ */
 class Executor {
 private:
   
@@ -47,7 +52,7 @@ private:
     virtual AbstractCoroutine* createCoroutine() = 0;
   };
   
-  /**
+  /*
    * Sequence generating templates
    * used to convert tuple to parameters pack
    * Example: expand SequenceGenerator<3>:
@@ -106,6 +111,9 @@ private:
   };
 
 public:
+  /**
+   * Default number of threads to run coroutines.
+   */
   static const v_int32 THREAD_NUM_DEFAULT;
 private:
   v_int32 m_threadsCount;
@@ -113,17 +121,40 @@ private:
   std::shared_ptr<SubmissionProcessor>* m_processors;
   std::atomic<v_word32> m_balancer;
 public:
-  
+
+  /**
+   * Constructor.
+   * @param threadsCount - Number of threads to run coroutines.
+   */
   Executor(v_int32 threadsCount = THREAD_NUM_DEFAULT);
-  
+
+  /**
+   * Non-virtual Destructor.
+   */
   ~Executor();
-  
+
+  /**
+   * Join all worker-threads.
+   */
   void join();
-  
+
+  /**
+   * Detach all worker-threads.
+   */
   void detach();
-  
+
+  /**
+   * Stop Executor. <br>
+   * After all worker-threads are stopped. Join should unblock.
+   */
   void stop();
-  
+
+  /**
+   * Execute Coroutine.
+   * @tparam CoroutineType - type of coroutine to execute.
+   * @tparam Args - types of arguments to be passed to Coroutine constructor.
+   * @param params - actual arguments to be passed to Coroutine constructor.
+   */
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
     auto processor = m_processors[m_balancer % m_threadsCount];

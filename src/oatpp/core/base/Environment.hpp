@@ -71,13 +71,31 @@ typedef std::atomic_int_fast64_t v_atomicCounter;
 typedef v_int64 v_counter;
 
 namespace oatpp { namespace base{
-  
+
+/**
+ * Interface for system-wide Logger.<br>
+ * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGE`, `OATPP_DISABLE_LOGD` should come here.
+ */
 class Logger {
 public:
+  /**
+   * Virtual Destructor.
+   */
   virtual ~Logger() = default;
+
+  /**
+   * Log message with priority, tag, message.
+   * @param priority - priority channel of the message.
+   * @param tag - tag of the log message.
+   * @param message - message.
+   */
   virtual void log(v_int32 priority, const std::string& tag, const std::string& message) = 0;
 };
-  
+
+/**
+ * Class to manage application environment.<br>
+ * Manage object counters, manage components, and do system health-checks.
+ */
 class Environment{
 private:
   static v_atomicCounter m_objectsCount;
@@ -90,7 +108,11 @@ private:
 private:
   static std::unordered_map<std::string, std::unordered_map<std::string, void*>> m_components;
 public:
-  
+
+  /**
+   * Class representing system component.
+   * @tparam T - component type.
+   */
   template <typename T>
   class Component {
   private:
@@ -98,7 +120,12 @@ public:
     std::string m_name;
     T m_object;
   public:
-    
+
+    /**
+     * Constructor.
+     * @param name - component name.
+     * @param object - component object.
+     */
     Component(const std::string& name, const T& object)
       : m_type(typeid(T).name())
       , m_name(name)
@@ -106,15 +133,26 @@ public:
     {
       Environment::registerComponent(m_type, m_name, &m_object);
     }
-    
+
+    /**
+     * Constructor.
+     * @param object - component object.
+     */
     Component(const T& object)
       : Component("NoName", object)
     {}
-    
+
+    /**
+     * Non-virtual Destructor.
+     */
     ~Component() {
       Environment::unregisterComponent(m_type, m_name);
     }
-    
+
+    /**
+     * Get object stored in the component.
+     * @return - object.
+     */
     T getObject() {
       return m_object;
     }
@@ -125,29 +163,106 @@ private:
   static void registerComponent(const std::string& typeName, const std::string& componentName, void* component);
   static void unregisterComponent(const std::string& typeName, const std::string& componentName);
 public:
-  
+
+  /**
+   * Initialize environment and do basic health-checks.
+   */
   static void init();
+
+  /**
+   * De-initialize environment and do basic health-checks.
+   * Check for memory leaks.
+   */
   static void destroy();
-  
+
+  /**
+   * increment counter of objects.
+   */
   static void incObjects();
+
+  /**
+   * decrement counter of objects.
+   */
   static void decObjects();
-  
+
+  /**
+   * Get count of objects currently allocated and stored in the memory.
+   * @return
+   */
   static v_counter getObjectsCount();
+
+  /**
+   * Get count of objects created for a whole system lifetime.
+   * @return - count of objects.
+   */
   static v_counter getObjectsCreated();
-  
+
+  /**
+   * Same as `getObjectsCount()` but `thread_local`
+   * @return - count of objects.
+   */
   static v_counter getThreadLocalObjectsCount();
+
+  /**
+   * Same as `getObjectsCreated()` but `thread_local`
+   * @return - count of objects.
+   */
   static v_counter getThreadLocalObjectsCreated();
-  
+
+  /**
+   * Set environment logger.
+   * @param logger - pointer to logger.
+   */
   static void setLogger(Logger* logger);
 
+  /**
+   * Print debug information of compilation config.<br>
+   * Print values for: <br>
+   * - `OATPP_DISABLE_ENV_OBJECT_COUNTERS`<br>
+   * - `OATPP_DISABLE_POOL_ALLOCATIONS`<br>
+   * - `OATPP_THREAD_HARDWARE_CONCURRENCY`<br>
+   * - `OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT`<br>
+   * - `OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT`
+   */
   static void printCompilationConfig();
-  
+
+  /**
+   * Call `Logger::log()`
+   * @param priority - priority channel of the message.
+   * @param tag - tag of the log message.
+   * @param message - message.
+   */
   static void log(v_int32 priority, const std::string& tag, const std::string& message);
+
+  /**
+   * Format message and call `Logger::log()`<br>
+   * Message is formatted using `vsnprintf` method.
+   * @param priority - priority channel of the message.
+   * @param tag - tag of the log message.
+   * @param message - message.
+   * @param ... - format arguments.
+   */
   static void logFormatted(v_int32 priority, const std::string& tag, const char* message, ...);
-  
+
+  /**
+   * Get component object by typeName.
+   * @param typeName - type name of the component.
+   * @return - pointer to a component object.
+   */
   static void* getComponent(const std::string& typeName);
+
+  /**
+   * Get component object by typeName and componentName.
+   * @param typeName - type name of the component.
+   * @param componentName - component qualifier name.
+   * @return - pointer to a component object.
+   */
   static void* getComponent(const std::string& typeName, const std::string& componentName);
-  
+
+  /**
+   * Get ticks count in microseconds.
+   * @return - ticks count in microseconds.
+   */
   static v_int64 getMicroTickCount();
   
 };

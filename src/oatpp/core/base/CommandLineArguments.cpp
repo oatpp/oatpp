@@ -27,6 +27,16 @@
 #include <cstring>
 
 namespace oatpp { namespace base {
+
+CommandLineArguments::CommandLineArguments()
+  : m_argc(0)
+  , m_argv(nullptr)
+{}
+
+CommandLineArguments::CommandLineArguments(int argc, const char * argv[])
+  : m_argc(argc)
+  , m_argv(argv)
+{}
   
 bool CommandLineArguments::Parser::hasArgument(int argc, const char * argv[], const char* argName) {
   return getArgumentIndex(argc, argv, argName) >= 0;

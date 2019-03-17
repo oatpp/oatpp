@@ -70,7 +70,19 @@ p_char8 StrBuffer::allocStrBuffer(const void* originData, v_int32 size, bool cop
   }
   return (p_char8) originData;
 }
-  
+
+StrBuffer::StrBuffer()
+  : m_data((p_char8)"[<nullptr>]")
+  , m_size(11)
+  , m_hasOwnData(false)
+{}
+
+StrBuffer::StrBuffer(const void* data, v_int32 size, bool copyAsOwnData)
+  : m_data(allocStrBuffer(data, size, copyAsOwnData))
+  , m_size(size)
+  , m_hasOwnData(copyAsOwnData)
+{}
+
 StrBuffer::~StrBuffer() {
   if(m_hasOwnData) {
     delete [] m_data;
