@@ -31,9 +31,16 @@
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+/**
+ * Class which stores information of outgoing http Response.
+ */
 class Response : public oatpp::base::Countable, public std::enable_shared_from_this<Response> {
 public:
+  /**
+   * Convenience typedef for Headers. <br>
+   * See &id:oatpp::web::protocol::http::Protocol::Headers;
+   */
   typedef http::Protocol::Headers Headers;
 public:
   OBJECT_POOL(Outgoing_Response_Pool, Response, 32)
@@ -44,13 +51,32 @@ private:
   std::shared_ptr<Body> m_body;
   std::shared_ptr<oatpp::network::server::ConnectionHandler> m_connectionUpgradeHandler;
 public:
+  /**
+   * Constructor.
+   * @param status - http status.
+   * @param body - response body.
+   */
   Response(const Status& status, const std::shared_ptr<Body>& body);
 public:
-  
+
+  /**
+   * Create shared outgoing response with status and body.
+   * @param status - http status.
+   * @param body - response body.
+   * @return
+   */
   static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<Body>& body);
-  
+
+  /**
+   * Get status.
+   * @return - http status.
+   */
   const Status& getStatus() const;
-  
+
+  /**
+   * Get headers.
+   * @return - &id:oatpp::web::protocol::http::Protocol::Headers;
+   */
   Headers& getHeaders();
   
   void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);

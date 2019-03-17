@@ -22,6 +22,26 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains "undefs" for ApiController code generating macro. <br>
+ * Usage:<br>
+ *
+ * ```cpp
+ * #include OATPP_CODEGEN_BEGIN(ApiController)
+ * ...
+ * // Generated Endpoints.
+ * ...
+ * #include OATPP_CODEGEN_END(ApiController)
+ * ```
+ *
+ *
+ * *For details see:*
+ * <ul>
+ *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
+ *   <li>&id:oatpp::web::server::api::ApiController;</li>
+ * </ul>
+ */
+
 #undef OATPP_MACRO_API_CONTROLLER_PARAM_MACRO
 #undef OATPP_MACRO_API_CONTROLLER_PARAM_INFO
 #undef OATPP_MACRO_API_CONTROLLER_PARAM_TYPE

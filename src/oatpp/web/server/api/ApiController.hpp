@@ -39,7 +39,11 @@
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace server { namespace api {
-  
+
+/**
+ * Class responsible for implementation and management of endpoints.<br>
+ * For details see [ApiController](https://oatpp.io/docs/components/api-controller/).
+ */
 class ApiController : public oatpp::base::Countable {
 protected:
   typedef ApiController __ControllerType;
@@ -72,7 +76,7 @@ protected:
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
 protected:
   
-  /**
+  /*
    * Endpoint Coroutine base class
    */
   template<class CoroutineT, class ControllerT>
@@ -90,7 +94,7 @@ protected:
     
   };
   
-  /**
+  /*
    * Handler which subscribes to specific URL in Router and delegates calls endpoints 
    */
   template<class T>

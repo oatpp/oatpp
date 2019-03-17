@@ -22,6 +22,26 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains "undefs" for ApiClient code generating macro. <br>
+ * Usage:<br>
+ *
+ * ```cpp
+ * #include OATPP_CODEGEN_BEGIN(ApiClient)
+ * ...
+ * // Generated API-Calls.
+ * ...
+ * #include OATPP_CODEGEN_END(ApiClient)
+ * ```
+ *
+ *
+ * *For details see:*
+ * <ul>
+ *   <li>[ApiClient component](https://oatpp.io/docs/components/api-client/)</li>
+ *   <li>&id:oatpp::web::client::ApiClient;</li>
+ * </ul>
+ */
+
 #undef OATPP_MACRO_API_CLIENT_PARAM_MACRO
 #undef OATPP_MACRO_API_CLIENT_PARAM_TYPE
 #undef OATPP_MACRO_API_CLIENT_PARAM_NAME

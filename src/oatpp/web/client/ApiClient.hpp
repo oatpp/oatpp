@@ -50,7 +50,10 @@
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace client {
-  
+
+/**
+ * ApiClient class provides convenient Retrofit-like interface over the oatpp::web::client::RequestExecutor.
+ */
 class ApiClient : public oatpp::base::Countable {
 public:
   static constexpr const char* const TAG = "Client";

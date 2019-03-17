@@ -25,7 +25,22 @@
 #include "Checker.hpp"
 
 namespace oatpp { namespace test {
-  
+
+PerformanceChecker::PerformanceChecker(const char* tag)
+  : m_tag(tag)
+  , m_ticks(oatpp::base::Environment::getMicroTickCount())
+{}
+
+PerformanceChecker::~PerformanceChecker(){
+  v_int64 elapsedTicks = oatpp::base::Environment::getMicroTickCount() - m_ticks;
+  OATPP_LOGD(m_tag, "%d(micro)", elapsedTicks);
+}
+
+v_int64 PerformanceChecker::getElapsedTicks(){
+  return oatpp::base::Environment::getMicroTickCount() - m_ticks;
+}
+
+
 ThreadLocalObjectsChecker::ThreadLocalObjectsChecker(const char* tag)
   : m_tag(tag)
   , m_objectsCount(oatpp::base::Environment::getThreadLocalObjectsCount())

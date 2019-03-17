@@ -28,27 +28,51 @@
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test {
-  
+
+/**
+ * Base class for unit tests.
+ */
 class UnitTest{
 protected:
   const char* const TAG;
 public:
 
+  /**
+   * Constructor.
+   * @param testTAG - tag used for logs.
+   */
   UnitTest(const char* testTAG)
     : TAG(testTAG)
   {}
-  
-  virtual ~UnitTest(){
-  }
-  
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~UnitTest() = default;
+
+  /**
+   * Run this test repeatedly for specified number of times.
+   * @param times - number of times to run this test.
+   */
   void run(v_int32 times);
 
+  /**
+   * Run this test.
+   */
   void run(){
     run(1);
   }
-  
+
+  /**
+   * Override this method. It should contain test logic.
+   */
   virtual void onRun() = 0;
-  
+
+  /**
+   * Run this test repeatedly for specified number of times.
+   * @tparam T - Test class.
+   * @param times - number of times to run this test.
+   */
   template<class T>
   static void runTest(v_int32 times){
     T test;
@@ -57,7 +81,13 @@ public:
   
 };
 
-#define OATPP_RUN_TEST(TEST) oatpp::test::UnitTest::runTest<TEST>(1)
+/**
+ * Convenience macro to run test. <br>
+ * Usage Example:<br>
+ * `OATPP_RUN_TEST(oatpp::test::web::FullTest);`
+ */
+#define OATPP_RUN_TEST(TEST) \
+oatpp::test::UnitTest::runTest<TEST>(1)
   
 }}
 

@@ -35,26 +35,101 @@
 #include <string>
 
 namespace oatpp { namespace utils { namespace conversion {
-  
+
+  /**
+   * String to 32-bit integer.
+   * @param str - string as `const char*`.
+   * @return - 32-bit integer value.
+   */
   v_int32 strToInt32(const char* str);
+
+  /**
+   * String to 32-bit integer.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 32-bit integer value.
+   */
   v_int32 strToInt32(const oatpp::String& str, bool& success);
+
+  /**
+   * String to 64-bit integer.
+   * @param str - string as `const char*`.
+   * @return - 64-bit integer value.
+   */
   v_int64 strToInt64(const char* str);
+
+  /**
+   * String to 64-bit integer.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 64-bit integer value.
+   */
   v_int64 strToInt64(const oatpp::String& str, bool& success);
-  
+
+  /**
+   * Convert 32-bit integer to it's string representation.
+   * @param value - 32-bit integer value.
+   * @param data - buffer to write data to.
+   * @return - length of the resultant string.
+   */
   v_int32 int32ToCharSequence(v_int32 value, p_char8 data);
+
+ /**
+  * Convert 64-bit integer to it's string representation.
+  * @param value - 64-bit integer value.
+  * @param data - buffer to write data to.
+  * @return - length of the resultant string.
+  */
   v_int32 int64ToCharSequence(v_int64 value, p_char8 data);
-  
+
+  /**
+   * Convert 32-bit integer to it's string representation.
+   * @param value - 32-bit integer value.
+   * @return - value as `oatpp::String`
+   */
   oatpp::String int32ToStr(v_int32 value);
+
+  /**
+   * Convert 64-bit integer to it's string representation.
+   * @param value - 64-bit integer value.
+   * @return - value as `oatpp::String`
+   */
   oatpp::String int64ToStr(v_int64 value);
-  
+
+  /**
+   * Convert 32-bit integer to it's string representation.
+   * @param value - 32-bit integer value.
+   * @return - value as `std::string`
+   */
   std::string int32ToStdStr(v_int32 value);
+
+  /**
+   * Convert 64-bit integer to it's string representation.
+   * @param value - 64-bit integer value.
+   * @return - value as `std::string`
+   */
   std::string int64ToStdStr(v_int64 value);
-  
+
+  /**
+   * Write value of primitive type (int, float, etc.) as it's string representation with pattern.
+   * @tparam T - primitive value type (int, float, etc.).
+   * @param value - actual value.
+   * @param data - buffer to write data to.
+   * @param pattern - pattern as for `sprintf`.
+   * @return - length of the resultant string.
+   */
   template<typename T>
   v_int32 primitiveToCharSequence(T value, p_char8 data, const char* pattern){
     return sprintf((char*)data, pattern, value);
   }
-  
+
+  /**
+   * Write value of primitive type (int, float, etc.) as it's string representation with pattern.
+   * @tparam T - primitive value type (int, float, etc.).
+   * @param value - actual value.
+   * @param pattern - pattern as for `sprintf`.
+   * @return - length of the resultant string.
+   */
   template<typename T>
   oatpp::String primitiveToStr(T value, const char* pattern){
     v_char8 buff [100];
@@ -64,21 +139,88 @@ namespace oatpp { namespace utils { namespace conversion {
     }
     return oatpp::String::empty();
   }
-  
+
+  /**
+   * String to 32-bit float.
+   * @param str - string as `const char*`.
+   * @return - 32-bit float value.
+   */
   v_float32 strToFloat32(const char* str);
+
+  /**
+   * String to 32-bit float.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 32-bit float value.
+   */
   v_float32 strToFloat32(const oatpp::String& str, bool& success);
+
+  /**
+   * String to 64-bit float.
+   * @param str - string as `const char*`.
+   * @return - 64-bit float value.
+   */
   v_float64 strToFloat64(const char* str);
+
+  /**
+   * String to 64-bit float.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 64-bit float value.
+   */
   v_float64 strToFloat64(const oatpp::String& str, bool& success);
-  
+
+  /**
+   * Convert 32-bit float to it's string representation.
+   * @param value - 32-bit float value.
+   * @param data - buffer to write data to.
+   * @return - length of the resultant string.
+   */
   v_int32 float32ToCharSequence(v_float32 value, p_char8 data);
+
+  /**
+   * Convert 64-bit float to it's string representation.
+   * @param value - 64-bit float value.
+   * @param data - buffer to write data to.
+   * @return - length of the resultant string.
+   */
   v_int32 float64ToCharSequence(v_float64 value, p_char8 data);
-  
+
+  /**
+   * Convert 32-bit float to it's string representation.
+   * @param value - 32-bit float value.
+   * @return - value as `oatpp::String`
+   */
   oatpp::String float32ToStr(v_float32 value);
+
+  /**
+   * Convert 64-bit float to it's string representation.
+   * @param value - 64-bit float value.
+   * @return - value as `oatpp::String`
+   */
   oatpp::String float64ToStr(v_float64 value);
-  
+
+  /**
+   * Convert boolean to it's string representation.
+   * @param value - boolean value.
+   * @return - value as `oatpp::String`;
+   */
   oatpp::String boolToStr(bool value);
+
+  /**
+   * parse string to boolean value.
+   * @param str - string to parse.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - boolean value.
+   */
   bool strToBool(const oatpp::String& str, bool& success);
-  
+
+  /**
+   * Write value of oatpp-primitive type (oatpp::Int32, oatpp::Int64, oatpp::Boolean, etc.) as it's string representation.
+   * @tparam T - oatpp-primitive type (oatpp::Int32, oatpp::Int64, oatpp::Boolean, etc.).
+   * @param primitive - ObjectWrapper.
+   * @return - value as string.
+   */
   template<class T>
   oatpp::String
   primitiveToStr(const oatpp::data::mapping::type::PolymorphicWrapper<T>& primitive) {

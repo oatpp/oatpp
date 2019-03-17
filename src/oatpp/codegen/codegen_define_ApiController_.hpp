@@ -21,6 +21,27 @@
  * limitations under the License.
  *
  ***************************************************************************/
+
+/**[info]
+ * This file contains "defines" for ApiController code generating macro. <br>
+ * Usage:<br>
+ *
+ * ```cpp
+ * #include OATPP_CODEGEN_BEGIN(ApiController)
+ * ...
+ * // Generated Endpoints.
+ * ...
+ * #include OATPP_CODEGEN_END(ApiController)
+ * ```
+ *
+ *
+ * *For details see:*
+ * <ul>
+ *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
+ *   <li>&id:oatpp::web::server::api::ApiController;</li>
+ * </ul>
+ */
+
 #include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -392,10 +413,10 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, P
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
- * @METHOD - Http method ("GET", "POST", "PUT", etc.)
- * @PATH - Path to endpoint (without host)
- * @NAME - Name of the generated method
- * @return - std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
+ * @param METHOD - Http method ("GET", "POST", "PUT", etc.).
+ * @param PATH - Path to endpoint (without host).
+ * @param NAME - Name of the generated method.
+ * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
  */
 #define ENDPOINT(METHOD, PATH, NAME, ...) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
@@ -443,10 +464,10 @@ const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints,
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Asynchronous Endpoint.
- * @METHOD - Http method ("GET", "POST", "PUT", etc.)
- * @PATH - Path to endpoint (without host)
- * @NAME - Name of the generated method
- * @return - oatpp::async::Action
+ * @param METHOD - Http method ("GET", "POST", "PUT", etc.).
+ * @param PATH - Path to endpoint (without host).
+ * @param NAME - Name of the generated method.
+ * @return - &id:oatpp::async::Action;.
  */
 #define ENDPOINT_ASYNC(METHOD, PATH, NAME) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
