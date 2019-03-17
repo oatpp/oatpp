@@ -28,6 +28,31 @@
 
 namespace oatpp { namespace base { namespace  memory {
 
+MemoryPool::MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
+  : m_name(name)
+  , m_entrySize(entrySize)
+  , m_chunkSize(chunkSize)
+  , m_id(++poolIdCounter)
+  , m_rootEntry(nullptr)
+  , m_atom(false)
+  , m_objectsCount(0)
+{
+  allocChunk();
+  oatpp::concurrency::SpinLock lock(POOLS_ATOM);
+  POOLS[m_id] = this;
+}
+
+MemoryPool::~MemoryPool() {
+  auto it = m_chunks.begin();
+  while (it != m_chunks.end()) {
+    p_char8 chunk = *it;
+    delete [] chunk;
+    it++;
+  }
+  oatpp::concurrency::SpinLock lock(POOLS_ATOM);
+  POOLS.erase(m_id);
+}
+
 void MemoryPool::allocChunk() {
 #ifdef OATPP_DISABLE_POOL_ALLOCATIONS
   // DO NOTHING
