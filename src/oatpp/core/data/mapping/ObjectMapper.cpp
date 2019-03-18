@@ -23,3 +23,21 @@
  ***************************************************************************/
 
 #include "ObjectMapper.hpp"
+
+namespace oatpp { namespace data { namespace mapping {
+
+ObjectMapper::ObjectMapper(const Info& info)
+  : m_info(info)
+{}
+
+const ObjectMapper::Info& ObjectMapper::getInfo() const {
+  return m_info;
+}
+
+oatpp::String ObjectMapper::writeToString(const type::AbstractObjectWrapper& variant) const {
+  auto stream = stream::ChunkedBuffer::createShared();
+  write(stream, variant);
+  return stream->toString();
+}
+
+}}}

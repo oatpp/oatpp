@@ -36,45 +36,80 @@
 #include "oatpp/core/parser/ParsingError.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
-  
+
+/**
+ * Abstract ObjectMapper class.
+ */
 class ObjectMapper {
 public:
+
+  /**
+   * Metadata for ObjectMapper.
+   */
   class Info {
   public:
+
+    /**
+     * Constructor.
+     * @param _http_content_type
+     */
     Info(const char* _http_content_type)
       : http_content_type(_http_content_type)
     {}
+
+    /**
+     * Value for Content-Type http header when DTO is serialized via specified ObjectMapper.
+     */
     const char* const http_content_type;
+
   };
 private:
   Info m_info;
 public:
-  
-  ObjectMapper(const Info& info)
-    : m_info(info)
-  {}
-  
-  const Info& getInfo() const {
-    return m_info;
-  }
-  
-  virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                     const type::AbstractObjectWrapper& variant) const = 0;
-  
-  virtual type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
-                                           const type::Type* const type) const = 0;
-  
-  oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const {
-    auto stream = stream::ChunkedBuffer::createShared();
-    write(stream, variant);
-    return stream->toString();
-  }
 
   /**
+   * Constructor.
+   * @param info - Metadata for ObjectMapper.
+   */
+  ObjectMapper(const Info& info);
+
+  /**
+   * Get ObjectMapper metadata.
+   * @return - ObjectMapper metadata.
+   */
+  const Info& getInfo() const;
+
+  /**
+   * Serialize object to stream. Implement this method.
+   * @param stream - &id:oatpp::data::stream::OutputStream; to serialize object to.
+   * @param variant - Object to serialize.
+   */
+  virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+                     const type::AbstractObjectWrapper& variant) const = 0;
+
+  /**
+   * Deserialize object. Implement this method.
+   * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
+   * @param type - pointer to object type. See &id:oatpp::data::mapping::type::Type;.
+   * @return - deserialized object wrapped in &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   */
+  virtual mapping::type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
+                                                    const mapping::type::Type* const type) const = 0;
+
+  /**
+   * Serialize object to String.
+   * @param variant - Object to serialize.
+   * @return - serialized object as &id:oatpp::String;.
+   */
+  oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const;
+
+  /**
+   * Deserialize object.
    * If nullptr is returned - check caret.getError()
-   * @tparam Class
-   * @param caret
-   * @return
+   * @tparam Class - object class.
+   * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
+   * @return - deserialized Object.
+   * @throws - depends on implementation.
    */
   template<class Class>
   typename Class::ObjectWrapper readFromCaret(oatpp::parser::Caret& caret) const {
@@ -83,10 +118,12 @@ public:
   }
 
   /**
-   * This method will throw on error
-   * @tparam Class
-   * @param str
-   * @return
+   * Deserialize object.
+   * @tparam Class - object class.
+   * @param str - serialized data.
+   * @return - deserialized Object.
+   * @throws - &id:oatpp::parser::ParsingError;
+   * @throws - depends on implementation.
    */
   template<class Class>
   typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {

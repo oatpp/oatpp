@@ -30,14 +30,36 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace client {
-  
+
+/**
+ * Abstract RequestExecutor.
+ * RequestExecutor is class responsible for making http requests.
+ */
 class RequestExecutor {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::String;.
+   */
   typedef oatpp::String String;
+
+  /**
+   * Convenience typedef for &id:oatpp::async::Action;.
+   */
   typedef oatpp::async::Action Action;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Protocol::Headers;.
+   */
   typedef oatpp::web::protocol::http::Protocol::Headers Headers;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   typedef oatpp::web::protocol::http::incoming::Response Response;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Body;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Body Body;
 public:
   
@@ -55,65 +77,114 @@ public:
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<Response>&);
   typedef Action (oatpp::async::AbstractCoroutine::*AsyncConnectionCallback)(const std::shared_ptr<ConnectionHandle>&);
 public:
-  
+
+  /**
+   * Class representing Request Execution Error.
+   */
   class RequestExecutionError : public std::runtime_error {
   public:
+    /**
+     * Error code for "can't connect" error.
+     */
     constexpr static const v_int32 ERROR_CODE_CANT_CONNECT = 1;
+
+    /**
+     * Error code for "can't parse starting line" error.
+     */
     constexpr static const v_int32 ERROR_CODE_CANT_PARSE_STARTING_LINE = 2;
+
+    /**
+     * Error code for "can't parse headers" error.
+     */
     constexpr static const v_int32 ERROR_CODE_CANT_PARSE_HEADERS = 3;
+
+    /**
+     * Error code for "can't read response" error.
+     */
     constexpr static const v_int32 ERROR_CODE_CANT_READ_RESPONSE = 4;
+
+    /**
+     * Error code for "no response" error.
+     */
     constexpr static const v_int32 ERROR_CODE_NO_RESPONSE = 5;
   private:
     v_int32 m_errorCode;
     const char* m_message;
     v_int32 m_readErrorCode;
   public:
-    
-    RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode = 0)
-      :std::runtime_error(message)
-      , m_errorCode(errorCode)
-      , m_message(message)
-      , m_readErrorCode(readErrorCode)
-    {}
-    
-    v_int32 getErrorCode() const {
-      return m_errorCode;
-    }
-    
-    const char* getMessage() const {
-      return m_message;
-    }
+
+    /**
+     * Constructor.
+     * @param errorCode - error code.
+     * @param message - error message.
+     * @param readErrorCode - io error code.
+     */
+    RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode = 0);
+
+    /**
+     * Get error code.
+     * @return - error code.
+     */
+    v_int32 getErrorCode() const;
+
+    /**
+     * Get error message.
+     * @return - error message.
+     */
+    const char* getMessage() const;
     
     /**
      *  This value is valid if errorCode == ERROR_CODE_CANT_READ_RESPONSE
      *  For more information about the read error you get check out:
-     *  - oatpp::data::stream::IOStream for possible error codes
-     *  - implementation of Connection provided by your ConnectionProvider for implementation-specific behaviour
+     *  - &id:oatpp::data::stream::IOStream; for possible error codes.
+     *  - Implementation-specific behaviour of corresponding Connection and ConnectionProvider.
      */
-    v_int32 getReadErrorCode() const {
-      return m_readErrorCode;
-    }
+    v_int32 getReadErrorCode() const;
     
   };
   
 public:
-  
+
   /**
-   * Obtain ConnectionHandle which then can be passed to execute()
+   * Obtain &l:RequestExecutor::ConnectionHandle; which then can be passed to &l:RequestExecutor::execute ();.
+   * @return std::shared_ptr to &l:RequestExecutor::ConnectionHandle;.
    */
   virtual std::shared_ptr<ConnectionHandle> getConnection() = 0;
-  
+
   /**
-   * Same as getConnection but Async
+   * Same as &l:RequestExecutor::getConnection (); but Async.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - function pointer to asynchronous callback.
+   * @return - &id:oatpp::async::Action;.
    */
   virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncConnectionCallback callback) = 0;
-  
+
+  /**
+   * Execute http request.
+   * @param method - http method ["GET", "POST", "PUT", etc.].
+   * @param path - path to resource.
+   * @param headers - headers map.
+   * @param body - `std::shared_ptr` to Body object.
+   * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;
+   * @return - &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   virtual std::shared_ptr<Response> execute(const String& method,
                                             const String& path,
                                             const Headers& headers,
                                             const std::shared_ptr<Body>& body,
                                             const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
-  
+
+  /**
+   * Same as &l:RequestExecutor::execute (); but Async.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - function pointer to asynchronous callback.
+   * @param method - http method ["GET", "POST", "PUT", etc.].
+   * @param path - path to resource.
+   * @param headers - headers map.
+   * @param body - `std::shared_ptr` to Body object.
+   * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;
+   * @return - &id:oatpp::async::Action;.
+   */
   virtual Action executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                               AsyncCallback callback,
                               const String& method,
