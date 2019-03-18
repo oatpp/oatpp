@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace client {
 
 /**
  * Abstract RequestExecutor.
- * RequestExecutor is class responsible for making http requests.
+ * RequestExecutor is class responsible for making remote requests.
  */
 class RequestExecutor {
 public:
@@ -64,7 +64,7 @@ public:
 public:
   
   /**
-   * ConnectionHandle is always specific to a RequestExecutor
+   * ConnectionHandle is always specific to a RequestExecutor.
    * You can't pass ConnectionHandle retrieved by one RequestExecutor implementation
    * to another
    */
@@ -134,10 +134,12 @@ public:
     const char* getMessage() const;
     
     /**
-     *  This value is valid if errorCode == ERROR_CODE_CANT_READ_RESPONSE
+     *  This value is valid if errorCode == &l:RequestExecutor::RequestExecutionError::ERROR_CODE_CANT_READ_RESPONSE; <br>
      *  For more information about the read error you get check out:
-     *  - &id:oatpp::data::stream::IOStream; for possible error codes.
-     *  - Implementation-specific behaviour of corresponding Connection and ConnectionProvider.
+     *  <ul>
+     *    <li>&id:oatpp::data::stream::IOStream; for possible error codes.</li>
+     *    <li>Implementation-specific behaviour of corresponding Connection and ConnectionProvider.</li>
+     *  </ul>
      */
     v_int32 getReadErrorCode() const;
     
@@ -160,11 +162,11 @@ public:
   virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncConnectionCallback callback) = 0;
 
   /**
-   * Execute http request.
-   * @param method - http method ["GET", "POST", "PUT", etc.].
+   * Execute request.
+   * @param method - method ex: ["GET", "POST", "PUT", etc.].
    * @param path - path to resource.
-   * @param headers - headers map.
-   * @param body - `std::shared_ptr` to Body object.
+   * @param headers - headers map &l:RequestExecutor::Headers;.
+   * @param body - `std::shared_ptr` to &l:RequestExecutor::Body; object.
    * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;
    * @return - &id:oatpp::web::protocol::http::incoming::Response;.
    */
@@ -178,10 +180,10 @@ public:
    * Same as &l:RequestExecutor::execute (); but Async.
    * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
    * @param callback - function pointer to asynchronous callback.
-   * @param method - http method ["GET", "POST", "PUT", etc.].
+   * @param method - method ex: ["GET", "POST", "PUT", etc.].
    * @param path - path to resource.
-   * @param headers - headers map.
-   * @param body - `std::shared_ptr` to Body object.
+   * @param headers - headers map &l:RequestExecutor::Headers;.
+   * @param body - `std::shared_ptr` to &l:RequestExecutor::Body; object.
    * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;
    * @return - &id:oatpp::async::Action;.
    */

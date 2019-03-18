@@ -70,18 +70,56 @@ private:
     oatpp::String
   > StringToStringMap;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Status;.
+   */
   typedef oatpp::web::protocol::http::Status Status;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Header;.
+   */
   typedef oatpp::web::protocol::http::Header Header;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::String;.
+   */
   typedef oatpp::data::mapping::type::String String;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
+   */
   typedef oatpp::data::mapping::type::Int32 Int32;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
+   */
   typedef oatpp::data::mapping::type::Int64 Int64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
+   */
   typedef oatpp::data::mapping::type::Float32 Float32;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Float64;.
+   */
   typedef oatpp::data::mapping::type::Float64 Float64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
+   */
   typedef oatpp::data::mapping::type::Boolean Boolean;
 public:
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   typedef oatpp::web::protocol::http::incoming::Response Response;
 public:
+
+  /**
+   * Convenience typedef for &id:oatpp::web::client::RequestExecutor::AsyncCallback;.
+   */
   typedef RequestExecutor::AsyncCallback AsyncCallback;
 protected:
   
