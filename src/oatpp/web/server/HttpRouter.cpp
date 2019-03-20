@@ -23,3 +23,42 @@
  ***************************************************************************/
 
 #include "HttpRouter.hpp"
+
+namespace oatpp { namespace web { namespace server {
+
+HttpRouter::HttpRouter()
+{}
+
+const std::shared_ptr<HttpRouter::BranchRouter>& HttpRouter::getBranch(const StringKeyLabel& name){
+  auto it = m_branchMap.find(name);
+  if(it == m_branchMap.end()){
+    m_branchMap[name] = BranchRouter::createShared();
+  }
+  return m_branchMap[name];
+}
+
+std::shared_ptr<HttpRouter> HttpRouter::createShared() {
+  return std::make_shared<HttpRouter>();
+}
+
+void HttpRouter::addSubscriber(const oatpp::String& method,
+                               const oatpp::String& urlPattern,
+                               const std::shared_ptr<Subscriber>& subscriber) {
+  getBranch(method)->addSubscriber(urlPattern, subscriber);
+}
+
+HttpRouter::BranchRouter::Route HttpRouter::getRoute(const StringKeyLabel& method, const StringKeyLabel& url){
+  auto it = m_branchMap.find(method);
+  if(it != m_branchMap.end()) {
+    return m_branchMap[method]->getRoute(url);
+  }
+  return BranchRouter::Route();
+}
+
+void HttpRouter::logRouterMappings() {
+  for(auto it : m_branchMap) {
+    it.second->logRouterMappings();
+  }
+}
+
+}}}

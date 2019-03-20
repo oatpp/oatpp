@@ -124,6 +124,64 @@ oatpp::web::protocol::http::Protocol::Headers ApiClient::convertParamsMap(const 
   }
   return result;
 }
-  
-  
+
+oatpp::String ApiClient::formatPath(const PathPattern& pathPattern,
+                                    const std::shared_ptr<StringToParamMap>& pathParams,
+                                    const std::shared_ptr<StringToParamMap>& queryParams)
+{
+  oatpp::data::stream::ChunkedBuffer stream;
+  formatPath(&stream, pathPattern, pathParams);
+  if(queryParams) {
+    addPathQueryParams(&stream, queryParams);
+  }
+  return stream.toString();
+}
+
+
+std::shared_ptr<RequestExecutor::ConnectionHandle> ApiClient::getConnection() {
+  return m_requestExecutor->getConnection();
+}
+
+oatpp::async::Action ApiClient::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, RequestExecutor::AsyncConnectionCallback callback) {
+  return m_requestExecutor->getConnectionAsync(parentCoroutine, callback);
+}
+
+
+std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::String& method,
+                                                               const PathPattern& pathPattern,
+                                                               const std::shared_ptr<StringToParamMap>& headers,
+                                                               const std::shared_ptr<StringToParamMap>& pathParams,
+                                                               const std::shared_ptr<StringToParamMap>& queryParams,
+                                                               const std::shared_ptr<RequestExecutor::Body>& body,
+                                                               const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle) {
+
+  return m_requestExecutor->execute(method,
+                                    formatPath(pathPattern, pathParams, queryParams),
+                                    convertParamsMap(headers),
+                                    body,
+                                    connectionHandle);
+
+}
+
+oatpp::async::Action ApiClient::executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                                    AsyncCallback callback,
+                                                    const oatpp::String& method,
+                                                    const PathPattern& pathPattern,
+                                                    const std::shared_ptr<StringToParamMap>& headers,
+                                                    const std::shared_ptr<StringToParamMap>& pathParams,
+                                                    const std::shared_ptr<StringToParamMap>& queryParams,
+                                                    const std::shared_ptr<RequestExecutor::Body>& body,
+                                                    const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle) {
+
+  return m_requestExecutor->executeAsync(parentCoroutine,
+                                         callback,
+                                         method,
+                                         formatPath(pathPattern, pathParams, queryParams),
+                                         convertParamsMap(headers),
+                                         body,
+                                         connectionHandle);
+
+}
+
+
 }}}

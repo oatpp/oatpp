@@ -31,57 +31,78 @@
 #include "oatpp/web/url/mapping/Router.hpp"
 
 namespace oatpp { namespace web { namespace server {
-  
+
+/**
+ * HttpRouter is responsible for routing http requests by method and path-pattern.
+ */
 class HttpRouter : public oatpp::base::Countable {
 private:
+  /**
+   * Convenience typedef for &id:oatpp::data::share::StringKeyLabel;.
+   */
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
+  /**
+   * &id:oatpp::web::url::mapping::Router; of &id:oatpp::web::protocol::http::incoming::Request; and
+   * &id:oatpp::web::protocol::http::outgoing::Response;. Meaning router for Subscribers which accept
+   * incoming request as an input parameter and return outgoing request as an output parameter.
+   */
   typedef oatpp::web::url::mapping::Router<
     std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
     std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
   > BranchRouter;
+
+  /**
+   * Subscriber which accept
+   * incoming request as an input parameter and return outgoing request as an output parameter.
+   * See &l:HttpRouter::BranchRouter;.
+   */
   typedef BranchRouter::UrlSubscriber Subscriber;
+
+  /**
+   * Http method to &l:HttpRouter::BranchRouter; map.
+   * Meaning that for each http method like ["GET", "POST", ...] there is a separate &l:HttpRouter::BranchRouter;.
+   */
   typedef std::unordered_map<StringKeyLabel, std::shared_ptr<BranchRouter>> BranchMap;
 protected:
   BranchMap m_branchMap;
 protected:
   
-  const std::shared_ptr<BranchRouter>& getBranch(const StringKeyLabel& name){
-    auto it = m_branchMap.find(name);
-    if(it == m_branchMap.end()){
-      m_branchMap[name] = BranchRouter::createShared();
-    }
-    return m_branchMap[name];
-  }
+  const std::shared_ptr<BranchRouter>& getBranch(const StringKeyLabel& name);
   
 public:
-  HttpRouter() {}
-public:
-  
-  static std::shared_ptr<HttpRouter> createShared() {
-    return std::make_shared<HttpRouter>();
-  }
-  
-  void addSubscriber(const oatpp::String& method,
-                     const oatpp::String& urlPattern,
-                     const std::shared_ptr<Subscriber>& subscriber) {
-    getBranch(method)->addSubscriber(urlPattern, subscriber);
-  }
-  
-  BranchRouter::Route getRoute(const StringKeyLabel& method,
-                               const StringKeyLabel& url){
-    auto it = m_branchMap.find(method);
-    if(it != m_branchMap.end()) {
-      return m_branchMap[method]->getRoute(url);
-    }
-    return BranchRouter::Route();
-  }
-  
-  void logRouterMappings() {
-    for(auto it : m_branchMap) {
-      it.second->logRouterMappings();
-    }
-  }
+
+  /**
+   * Constructor.
+   */
+  HttpRouter();
+
+  /**
+   * Create shared HttpRouter.
+   * @return - `std::shared_ptr` to HttpRouter.
+   */
+  static std::shared_ptr<HttpRouter> createShared();
+
+  /**
+   * Add url pattern Subscriber (handler for all requests resolved by specified url-pattern).
+   * @param method - http method like ["GET", "POST", etc.].
+   * @param urlPattern - url path pattern. ex.: `"/path/to/resource/with/{param1}/{param2}"`.
+   * @param subscriber - &l:HttpRouter::Subscriber;.
+   */
+  void addSubscriber(const oatpp::String& method, const oatpp::String& urlPattern, const std::shared_ptr<Subscriber>& subscriber);
+
+  /**
+   * Resolve http method and path to &id:oatpp::web::url::mapping::Router::Route;
+   * @param method - http method like ["GET", "POST", etc.].
+   * @param url - url path. "Path" part of url only.
+   * @return - &id:oatpp::web::url::mapping::Router::Route;.
+   */
+  BranchRouter::Route getRoute(const StringKeyLabel& method, const StringKeyLabel& url);
+
+  /**
+   * Print out all router mapping.
+   */
+  void logRouterMappings();
   
 };
   

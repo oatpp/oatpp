@@ -29,26 +29,51 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
-  
+
+/**
+ * Error Handler.
+ */
 class ErrorHandler {
 public:
-  
+
+  /**
+   * Implement this method!
+   * @param status - &id:oatpp::web::protocol::http::Status;.
+   * @param message- &id:oatpp::String;.
+   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
   virtual
   std::shared_ptr<protocol::http::outgoing::Response>
   handleError(const protocol::http::Status& status, const oatpp::String& message) = 0;
   
 };
-  
+
+/**
+ * Default Error Handler.
+ */
 class DefaultErrorHandler : public oatpp::base::Countable, public ErrorHandler {
 public:
+  /**
+   * Constructor.
+   */
   DefaultErrorHandler()
   {}
 public:
-  
+
+  /**
+   * Create shared DefaultErrorHandler.
+   * @return - `std::shared_ptr` to DefaultErrorHandler.
+   */
   static std::shared_ptr<DefaultErrorHandler> createShared() {
     return std::make_shared<DefaultErrorHandler>();
   }
-  
+
+  /**
+   * Implementation of &l:ErrorHandler::handleError ();
+   * @param status - &id:oatpp::web::protocol::http::Status;.
+   * @param message - &id:oatpp::String;.
+   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
   std::shared_ptr<protocol::http::outgoing::Response>
   handleError(const protocol::http::Status& status, const oatpp::String& message) override;
   

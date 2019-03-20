@@ -36,7 +36,10 @@
 #include "oatpp/core/async/Executor.hpp"
 
 namespace oatpp { namespace web { namespace server {
-  
+
+/**
+ * Asynchronous &id:oatpp::network::server::ConnectionHandler; for handling http communication.
+ */
 class AsyncHttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
   typedef oatpp::web::protocol::http::incoming::BodyDecoder BodyDecoder;

@@ -29,15 +29,19 @@
 
 namespace oatpp { namespace data {
 
+/**
+ * Represents I/O handle (ex.: file descriptor).
+ */
 typedef int v_io_handle;
 
 /**
- * All I/O buffer operations (like read/write(buffer, size)) should return
- * v_io_size.
+ * All I/O buffer operations (like read/write(buffer, size)) should return v_io_size. <br>
  *
  * Possible return values:
- * On Success - [1..max_int64]
- * On Error - IOError values.
+ * <ul>
+ *   <li>**On Success** - [1..max_int64].</li>
+ *   <li>**On Error** - IOError values.</li>
+ * </ul>
  *
  * All other values are considered to be a fatal error.
  * application should be terminated.

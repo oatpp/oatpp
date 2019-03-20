@@ -29,7 +29,10 @@
 #include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace network {
-  
+
+/**
+ * TCP Connection implementation. Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
+ */
 class Connection : public oatpp::base::Countable, public oatpp::data::stream::IOStream {
 public:
   OBJECT_POOL(Connection_Pool, Connection, 32);
@@ -37,20 +40,53 @@ public:
 private:
   data::v_io_handle m_handle;
 public:
+  /**
+   * Constructor.
+   * @param handle - file descriptor (socket handle). See &id:oatpp::data::v_io_handle;.
+   */
   Connection(data::v_io_handle handle);
 public:
-  
+
+  /**
+   * Create shared Connection.
+   * @param handle - file descriptor (socket handle). See &id:oatpp::data::v_io_handle;.
+   * @return - shared_ptr to Connection.
+   */
   static std::shared_ptr<Connection> createShared(data::v_io_handle handle){
     return Shared_Connection_Pool::allocateShared(handle);
   }
-  
+
+  /**
+   * Virtual Destructor (See &id:oatpp::base::Countable;).
+   * Close socket handle.
+   */
   ~Connection();
-  
+
+  /**
+   * Implementation of &id:oatpp::data::stream::IOStream::write;.
+   * @param buff - buffer containing data to write.
+   * @param count - bytes count you want to write.
+   * @return - actual amount of bytes written. See &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size write(const void *buff, data::v_io_size count) override;
+
+  /**
+   * Implementation of &id:oatpp::data::stream::IOStream::read;.
+   * @param buff - buffer to read data to.
+   * @param count - buffer size.
+   * @return - actual amount of bytes read. See &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size read(void *buff, data::v_io_size count) override;
-  
+
+  /**
+   * Close socket handle.
+   */
   void close();
-  
+
+  /**
+   * Get socket handle.
+   * @return - socket handle. &id:oatpp::data::v_io_handle;.
+   */
   data::v_io_handle getHandle(){
     return m_handle;
   }

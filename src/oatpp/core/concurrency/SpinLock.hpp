@@ -30,17 +30,40 @@
 
 namespace oatpp { namespace concurrency {
 
+/**
+ * SpinLock implementation based on atomic.
+ */
 class SpinLock {
 public:
+  /**
+   * Convenience typedef for atomic bool.
+   */
   typedef std::atomic<bool> Atom;
 private:
   Atom* m_atom;
 public:
-  
+
+  /**
+   * Constructor. Lock on construction.
+   * @param atom - atomic boolean.
+   */
   SpinLock(Atom& atom);
+
+  /**
+   * Non virtual destructor. Unlock on destruction.
+   */
   ~SpinLock();
-  
+
+  /**
+   * Spin-Lock using atomic boolean.
+   * @param atom - atomic boolean.
+   */
   static void lock(Atom& atom);
+
+  /**
+   * Spin-Unlock using atomic boolean.
+   * @param atom - atomic boolean.
+   */
   static void unlock(Atom& atom);
   
 };

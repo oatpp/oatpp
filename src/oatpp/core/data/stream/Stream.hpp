@@ -51,45 +51,110 @@ public:
   static const char* const ERROR_ASYNC_UNKNOWN_CODE;
 
 };
-  
+
+/**
+ * Output Stream.
+ */
 class OutputStream {
 public:
-  
+
   /**
    * Write data to stream up to count bytes, and return number of bytes actually written
    * It is a legal case if return result < count. Caller should handle this!
+   * @param data - data to write.
+   * @param count - number of bytes to write.
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
   virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
-  
+
+  /**
+   * Same as `write((p_char8)data, std::strlen(data));`.
+   * @param data - data to write.
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size write(const char* data){
     return write((p_char8)data, std::strlen(data));
   }
-  
+
+  /**
+   * Same as `write(str->getData(), str->getSize());`
+   * @param str - data to write.
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size write(const oatpp::String& str){
     return write(str->getData(), str->getSize());
   }
-  
+
+  /**
+   * Same as `write(&c, 1);`.
+   * @param c - one char to write.
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size writeChar(v_char8 c){
     return write(&c, 1);
   }
-  
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
   data::v_io_size writeAsString(v_int32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
   data::v_io_size writeAsString(v_int64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
   data::v_io_size writeAsString(v_float32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
   data::v_io_size writeAsString(v_float64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
   data::v_io_size writeAsString(bool value);
   
 };
-  
+
+/**
+ * Input Stream.
+ */
 class InputStream {
 public:
+
   /**
    * Read data from stream up to count bytes, and return number of bytes actually read
    * It is a legal case if return result < count. Caller should handle this!
+   * @param data - buffer to read dat to.
+   * @param count - size of the buffer.
+   * @return - actual number of bytes read.
    */
   virtual data::v_io_size read(void *data, data::v_io_size count) = 0;
 };
-  
+
+/**
+ * I/O Stream.
+ */
 class IOStream : public InputStream, public OutputStream {
 public:
   typedef data::v_io_size v_size;
