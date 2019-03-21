@@ -30,6 +30,12 @@
 
 namespace oatpp { namespace base { namespace memory {
 
+/**
+ * Macro to declare object pool class which uses &id:oatpp::base::memory::PoolSharedObjectAllocator; to allocate objects.
+ * @param NAME - name of the memory pool.
+ * @param TYPE - type of the object.
+ * @param CHUNK_SIZE - chunk size for &id:oatpp::base::memory::MemoryPool;.
+ */
 #define SHARED_OBJECT_POOL(NAME, TYPE, CHUNK_SIZE) \
 class NAME { \
 public: \
@@ -54,7 +60,12 @@ public: \
   \
 };
 
-
+/**
+ * Macro to declare object pool class which uses &id:oatpp::base::memory::ThreadLocalPoolSharedObjectAllocator; to allocate objects.
+ * @param NAME - name of the memory pool.
+ * @param TYPE - type of the object.
+ * @param CHUNK_SIZE - chunk size for &id:oatpp::base::memory::MemoryPool;.
+ */
 #define SHARED_OBJECT_POOL_THREAD_LOCAL(NAME, TYPE, CHUNK_SIZE) \
 class NAME { \
 public: \
@@ -78,7 +89,15 @@ public: \
   } \
   \
 };
-  
+
+/**
+ * Macro to declare: &id:oatpp::base::memory::MemoryPool; for object, plus class-specific operators
+ * `static void* operator new(std::size_t sz)`, `static void operator delete(void* ptr, std::size_t sz)`,
+ * `static void* operator new(std::size_t sz, void* entry)`, `static void operator delete(void* ptr, void* entry)`.
+ * @param NAME - name of the memory pool.
+ * @param TYPE - type of the object.
+ * @param CHUNK_SIZE - chunk size for &id:oatpp::base::memory::MemoryPool;.
+ */
 #define OBJECT_POOL(POOL_NAME, TYPE, CHUNK_SIZE)  \
 class POOL_NAME { \
 public: \
@@ -115,6 +134,14 @@ static void* operator new(std::size_t sz, void* entry) { \
 static void operator delete(void* ptr, void* entry) { \
 }
 
+/**
+ * Macro to declare: `thread_local` &id:oatpp::base::memory::MemoryPool; for object, plus class-specific operators
+ * `static void* operator new(std::size_t sz)`, `static void operator delete(void* ptr, std::size_t sz)`,
+ * `static void* operator new(std::size_t sz, void* entry)`, `static void operator delete(void* ptr, void* entry)`.
+ * @param NAME - name of the memory pool.
+ * @param TYPE - type of the object.
+ * @param CHUNK_SIZE - chunk size for &id:oatpp::base::memory::MemoryPool;.
+ */
 #define OBJECT_POOL_THREAD_LOCAL(POOL_NAME, TYPE, CHUNK_SIZE)  \
 class POOL_NAME { \
 public: \

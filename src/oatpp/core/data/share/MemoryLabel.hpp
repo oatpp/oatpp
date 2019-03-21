@@ -31,7 +31,9 @@
 namespace oatpp { namespace data { namespace share {
   
 /**
- * MemoryLabel represent a part of the whole memory buffer refered by handle
+ * MemoryLabel represent a part of the whole memory buffer refered by handle.
+ * Advantage of MemoryLabel use is that you may just "label" some data instead of allocating buffer for it's copy.
+ * You may allocate separate buffer for data copy later once you need it.
  */
 class MemoryLabel {
 protected:
@@ -39,32 +41,66 @@ protected:
   p_char8 m_data;
   v_int32 m_size;
 public:
-  
+
+  /**
+   * Default constructor. Null MemoryLabel.
+   */
   MemoryLabel()
     : m_memoryHandle(nullptr)
     , m_data(nullptr)
     , m_size(0)
   {}
-  
+
+  /**
+   * Constructor.
+   * @param memHandle - memory handle. `std::shared_ptr` to buffer pointed by a memory label.
+   * @param data - pointer to data.
+   * @param size - size of the data in bytes.
+   */
   MemoryLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size);
-  
+
+  /**
+   * Get pointer to labeled data.
+   * @return - pointer to data.
+   */
   p_char8 getData() const {
     return m_data;
   }
-  
+
+  /**
+   * Get data size.
+   * @return - size of the data.
+   */
   v_int32 getSize() const {
     return m_size;
   }
-  
+
+  /**
+   * Get memory handle which this memory label holds.
+   * @return - `std::shared_ptr` to &id:oatpp::base::StrBuffer;.
+   */
   std::shared_ptr<base::StrBuffer> getMemoryHandle() const {
     return m_memoryHandle;
   }
-  
+
+  /**
+   * Check if labeled data equals to data specified.
+   * Data is compared using &id:oatpp::base::StrBuffer::equals;.
+   * @param data - data to compare with labeled data.
+   * @return - `true` if equals.
+   */
   bool equals(const char* data) const {
     v_int32 size = (v_int32) std::strlen(data);
     return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
   }
-  
+
+  /**
+   * Check if labeled data equals to data specified.
+   * Data is compared using &id:oatpp::base::StrBuffer::equals;.
+   * @param data - data to compare with labeled data.
+   * @param size - data size.
+   * @return - `true` if equals.
+   */
   bool equals(const void* data, v_int32 size) const {
     return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
   }

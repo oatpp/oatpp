@@ -43,27 +43,70 @@ public:
   static const char* const ERROR_NAME_EXPECTED;
 public:
 
+  /**
+   * Class to label parsing data.
+   */
   class Label {
   private:
     Caret* m_caret;
     v_int32 m_start;
     v_int32 m_end;
   public:
-    
+
+    /**
+     * Constructor.
+     * @param caret.
+     */
     Label(Caret* caret);
-    
+
+    /**
+     * Set current caret position as a starting point for label.
+     */
     void start();
+
+    /**
+     * Fix current caret position as an end point for label.
+     */
     void end();
+
+    /**
+     * Get pointer to a labeled data.
+     * @return
+     */
     p_char8 getData();
+
+    /**
+     * Get size of labeled data.
+     * @return
+     */
     v_int32 getSize();
+
+    /**
+     * Create &id:oatpp::String; from labeled data.
+     * @param saveAsOwnData - `true` - allocate new memory block for string. `false` - string will point to the same data as label.
+     * @return - &id:oatpp::String;.
+     */
     oatpp::String toString(bool saveAsOwnData);
+
+    /**
+     * Same as`toString(true).`
+     * @return - &id:oatpp::String;.
+     */
     oatpp::String toString();
+
+    /**
+     * Create `std::string` from labeled data.
+     * @return - `std::string`.
+     */
     std::string std_str();
 
     explicit operator bool() const;
     
   };
 
+  /**
+   * Caret state saver guard.
+   */
   class StateSaveGuard {
   private:
     Caret& m_caret;
@@ -72,11 +115,33 @@ public:
     v_int32 m_savedErrorCode;
   public:
 
+    /**
+     * Constructor.
+     * @param caret.
+     */
     StateSaveGuard(Caret& caret);
+
+    /**
+     * Destructor. Restore saved state.
+     */
     ~StateSaveGuard();
 
+    /**
+     * Get caret saved position.
+     * @return
+     */
     v_int32 getSavedPosition();
+
+    /**
+     * Get caret saved error message.
+     * @return
+     */
     const char* getSavedErrorMessage();
+
+    /**
+     * Get caret saved error code.
+     * @return
+     */
     v_int32 getSavedErrorCode();
 
   };

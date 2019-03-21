@@ -34,6 +34,13 @@ const v_int32 Server::STATUS_RUNNING = 1;
 const v_int32 Server::STATUS_STOPPING = 2;
 const v_int32 Server::STATUS_DONE = 3;
 
+Server::Server(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
+               const std::shared_ptr<ConnectionHandler>& connectionHandler)
+  : m_status(STATUS_CREATED)
+  , m_connectionProvider(connectionProvider)
+  , m_connectionHandler(connectionHandler)
+{}
+
 void Server::mainLoop(){
   
   setStatus(STATUS_CREATED, STATUS_RUNNING);
