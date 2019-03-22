@@ -25,7 +25,25 @@
 #include "IOBuffer.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
-  
-const v_int32 IOBuffer::BUFFER_SIZE = 4096;
+
+IOBuffer::IOBuffer()
+  : m_entry(getBufferPool().obtain())
+{}
+
+std::shared_ptr<IOBuffer> IOBuffer::createShared(){
+  return Shared_IOBuffer_Pool::allocateShared();
+}
+
+IOBuffer::~IOBuffer() {
+  oatpp::base::memory::MemoryPool::free(m_entry);
+}
+
+void* IOBuffer::getData(){
+  return m_entry;
+}
+
+v_int32 IOBuffer::getSize(){
+  return BUFFER_SIZE;
+}
   
 }}}

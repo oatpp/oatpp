@@ -113,5 +113,34 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   return result;
   
 }
+
+Pipe::Pipe()
+  : m_open(true)
+  , m_writer(this)
+  , m_reader(this)
+  , m_buffer()
+  , m_fifo(m_buffer.getData(), m_buffer.getSize())
+{}
+
+std::shared_ptr<Pipe> Pipe::createShared(){
+  return std::make_shared<Pipe>();
+}
+
+Pipe::Writer* Pipe::getWriter() {
+  return &m_writer;
+}
+
+Pipe::Reader* Pipe::getReader() {
+  return &m_reader;
+}
+
+void Pipe::close() {
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_open = false;
+  }
+  m_conditionRead.notify_one();
+  m_conditionWrite.notify_one();
+}
   
 }}}

@@ -31,30 +31,66 @@
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace client {
-  
+
+/**
+ * Simple provider of clinet TCP connections.
+ */
 class SimpleTCPConnectionProvider : public base::Countable, public ClientConnectionProvider {
 protected:
   oatpp::String m_host;
   v_word16 m_port;
 public:
+  /**
+   * Constructor.
+   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
+   * @param port - server port.
+   */
   SimpleTCPConnectionProvider(const oatpp::String& host, v_word16 port);
 public:
-  
+
+  /**
+   * Create shared client SimpleTCPConnectionProvider.
+   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
+   * @param port - server port.
+   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
+   */
   static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_word16 port){
     return std::make_shared<SimpleTCPConnectionProvider>(host, port);
   }
 
+  /**
+   * Implements &id:oatpp::network::ConnectionProvider::close;. Here does nothing.
+   */
   void close() override {
     // DO NOTHING
   }
 
+  /**
+   * Get connection.
+   * @return - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   */
   std::shared_ptr<IOStream> getConnection() override;
+
+  /**
+   * Get connection in asynchronous manner.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
+   * @param callback - pointer to callback function.
+   * @return - &id:oatpp::async::Action;.
+   */
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback) override;
-  
+
+  /**
+   * Get host name.
+   * @return - host name.
+   */
   oatpp::String getHost() {
     return m_host;
   }
-  
+
+  /**
+   * Get port.
+   * @return - port.
+   */
   v_word16 getPort(){
     return m_port;
   }

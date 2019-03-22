@@ -37,67 +37,111 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
 
+/**
+ * Virtual pipe implementation. Can be used for unidirectional data transfer between different threads of the same process. <br>
+ * Under the hood it uses &id:oatpp::data::buffer::SynchronizedFIFOBuffer; over the &id:oatpp::data::buffer::IOBuffer;.
+ */
 class Pipe : public oatpp::base::Countable {
 public:
-  
+
+  /**
+   * Pipe Reader. Extends &id:oatpp::data::stream::InputStream;.
+   * Provides read interface for the pipe. Can work in both blocking and nonblocking regime.
+   */
   class Reader : public oatpp::data::stream::InputStream {
+    friend Pipe;
   private:
     Pipe* m_pipe;
     bool m_nonBlocking;
     
-    /**
+    /*
      * this one used for testing purposes only
      */
     data::v_io_size m_maxAvailableToRead;
-  public:
+  protected:
     
     Reader(Pipe* pipe, bool nonBlocking = false)
       : m_pipe(pipe)
       , m_nonBlocking(nonBlocking)
       , m_maxAvailableToRead(-1)
     {}
-    
+
+  public:
+
+    /**
+     * Set `true` to make non-blocking reads using &l:Pipe::Reader::read ();.
+     * @param nonBlocking - `true` for nonblocking read.
+     */
     void setNonBlocking(bool nonBlocking) {
       m_nonBlocking = nonBlocking;
     }
-    
+
     /**
-     * this one used for testing purposes only
-     * set to -1 in order to ignore this value
+     * Limit the available amount of bytes to read from pipe.<br>
+     * This method is used for testing purposes only.<br>
+     * set to -1 in order to ignore this value.<br>
+     * @param maxAvailableToRead - maximum available amount of bytes to read.
      */
     void setMaxAvailableToRead(data::v_io_size maxAvailableToRead);
-    
+
+    /**
+     * Implements &id:oatpp::data::stream::InputStream::read; method.
+     * Read data from pipe.
+     * @param data - buffer to read data to.
+     * @param count - max count of bytes to read.
+     * @return - &id:oatpp::data::v_io_size;.
+     */
     data::v_io_size read(void *data, data::v_io_size count) override;
     
   };
-  
+
+  /**
+   * Pipe writer. Extends &id:oatpp::data::stream::OutputStream;.
+   * Provides write interface for the pipe. Can work in both blocking and nonblocking regime.
+   */
   class Writer : public oatpp::data::stream::OutputStream {
+    friend Pipe;
   private:
     Pipe* m_pipe;
     bool m_nonBlocking;
     
-    /**
+    /*
      * this one used for testing purposes only
      */
     data::v_io_size m_maxAvailableToWrtie;
-  public:
+  protected:
     
     Writer(Pipe* pipe, bool nonBlocking = false)
       : m_pipe(pipe)
       , m_nonBlocking(nonBlocking)
       , m_maxAvailableToWrtie(-1)
     {}
-    
+
+  public:
+
+    /**
+     * Set `true` to make non-blocking writes using &l:Pipe::Writer::write ();.
+     * @param nonBlocking - `true` for nonblocking write.
+     */
     void setNonBlocking(bool nonBlocking) {
       m_nonBlocking = nonBlocking;
     }
-    
+
     /**
-     * this one used for testing purposes only
-     * set to -1 in order to ignore this value
+     * Limit the available space for data writes in pipe.<br>
+     * This method is used for testing purposes only.<br>
+     * set to -1 in order to ignore this value.<br>
+     * @param maxAvailableToWrite - maximum available amount of bytes to write.
      */
     void setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite);
-    
+
+    /**
+     * Implements &id:oatpp::data::stream::OutputStream::write; method.
+     * Write data to pipe.
+     * @param data - data to write to pipe.
+     * @param count - data size.
+     * @return - &id:oatpp::data::v_io_size;.
+     */
     data::v_io_size write(const void *data, data::v_io_size count) override;
     
   };
@@ -114,35 +158,37 @@ private:
   std::condition_variable m_conditionRead;
   std::condition_variable m_conditionWrite;
 public:
-  
-  Pipe()
-    : m_open(true)
-    , m_writer(this)
-    , m_reader(this)
-    , m_buffer()
-    , m_fifo(m_buffer.getData(), m_buffer.getSize())
-  {}
-  
-  static std::shared_ptr<Pipe> createShared(){
-    return std::make_shared<Pipe>();
-  }
-  
-  Writer* getWriter() {
-    return &m_writer;
-  }
-  
-  Reader* getReader() {
-    return &m_reader;
-  }
-  
-  void close() {
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_open = false;
-    }
-    m_conditionRead.notify_one();
-    m_conditionWrite.notify_one();
-  }
+
+  /**
+   * Constructor.
+   */
+  Pipe();
+
+  /**
+   * Create shared pipe.
+   * @return - `std::shared_ptr` to Pipe.
+   */
+  static std::shared_ptr<Pipe> createShared();
+
+  /**
+   * Get pointer to &l:Pipe::Writer; for this pipe.
+   * There can be only one &l:Pipe::Writer; per pipe.
+   * @return - &l:Pipe::Writer;.
+   */
+  Writer* getWriter();
+
+
+  /**
+   * Get pointer to &l:Pipe::Reader; for this pipe.
+   * There can be only one &l:Pipe::Reader; per pipe.
+   * @return - &l:Pipe::Reader;.
+   */
+  Reader* getReader();
+
+  /**
+   * Mark pipe as closed.
+   */
+  void close();
   
 };
   

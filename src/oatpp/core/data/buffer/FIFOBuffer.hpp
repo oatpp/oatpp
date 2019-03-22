@@ -45,17 +45,44 @@ private:
   bool m_canRead;
 public:
 
+  /**
+   * Constructor.
+   * @param buffer - pointer to buffer used for reads/writes.
+   * @param bufferSize - buffer size.
+   * @param readPosition - initial read position in buffer.
+   * @param writePosition - initial write position in buffer.
+   * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
+   * &l:FIFOBuffer::availableToRead (); returns buffer size, and &l:FIFOBuffer::availableToWrite (); returns 0.
+   */
   FIFOBuffer(void* buffer, v_io_size bufferSize,
-             data::v_io_size readPosition, data::v_io_size writePosition,
-             bool canRead);
+             data::v_io_size readPosition = 0, data::v_io_size writePosition = 0,
+             bool canRead = false);
 
-  FIFOBuffer(void* buffer, v_io_size bufferSize);
-
+  /**
+   * Set read and write positions in buffer.
+   * @param readPosition - read position in buffer.
+   * @param writePosition - write position in buffer.
+   * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
+   * &l:FIFOBuffer::availableToRead (); returns buffer size, and &l:FIFOBuffer::availableToWrite (); returns 0.
+   */
   void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead);
 
+  /**
+   * Amount of bytes currently available to read from buffer.
+   * @return &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size availableToRead() const;
+
+  /**
+   * Amount of buffer space currently available for data writes.
+   * @return &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size availableToWrite() const;
 
+  /**
+   * Get FIFOBuffer size.
+   * @return - FIFOBuffer size.
+   */
   data::v_io_size getBufferSize() const;
 
   /**
@@ -63,7 +90,6 @@ public:
    * @param data
    * @param count
    * @return [1..count], IOErrors.
-   *
    */
   data::v_io_size read(void *data, data::v_io_size count);
 
@@ -74,7 +100,6 @@ public:
    * @return [1..count], IOErrors.
    */
   data::v_io_size write(const void *data, data::v_io_size count);
-
 
   /**
    * call read and then write bytes read to output stream
@@ -121,20 +146,54 @@ private:
   oatpp::concurrency::SpinLock::Atom m_atom;
 public:
 
+  /**
+   * Constructor.
+   * @param buffer - pointer to buffer used for reads/writes.
+   * @param bufferSize - buffer size.
+   * @param readPosition - initial read position in buffer.
+   * @param writePosition - initial write position in buffer.
+   * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
+   * &l:SynchronizedFIFOBuffer::availableToRead (); returns buffer size, and &l:SynchronizedFIFOBuffer::availableToWrite (); returns 0.
+   */
   SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize,
-                         data::v_io_size readPosition, data::v_io_size writePosition,
-                         bool canRead);
+                         data::v_io_size readPosition = 0, data::v_io_size writePosition = 0,
+                         bool canRead = false);
 
-  SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize);
-
+  /**
+   * Set read and write positions in buffer.
+   * @param readPosition - read position in buffer.
+   * @param writePosition - write position in buffer.
+   * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
+   * &l:SynchronizedFIFOBuffer::availableToRead (); returns buffer size, and &l:SynchronizedFIFOBuffer::availableToWrite (); returns 0.
+   */
   void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead);
 
+  /**
+   * Amount of bytes currently available to read from buffer.
+   * @return &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size availableToRead();
+
+  /**
+   * Amount of buffer space currently available for data writes.
+   * @return &id:oatpp::data::v_io_size;.
+   */
   data::v_io_size availableToWrite();
 
-  data::v_io_size getBufferSize() const;
-
+  /**
+   * read up to count bytes from the buffer to data
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
   data::v_io_size read(void *data, data::v_io_size count);
+
+  /**
+   * write up to count bytes from data to buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
   data::v_io_size write(const void *data, data::v_io_size count);
 
   /* No implementation of other methods */
