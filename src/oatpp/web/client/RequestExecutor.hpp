@@ -48,9 +48,9 @@ public:
   typedef oatpp::async::Action Action;
 public:
   /**
-   * Convenience typedef for &id:oatpp::web::protocol::http::Protocol::Headers;.
+   * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
    */
-  typedef oatpp::web::protocol::http::Protocol::Headers Headers;
+  typedef oatpp::web::protocol::http::Headers Headers;
 
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.

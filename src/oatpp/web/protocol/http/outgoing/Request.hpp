@@ -32,7 +32,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 class Request : public oatpp::base::Countable, public std::enable_shared_from_this<Request> {
 public:
-  typedef protocol::http::Protocol::Headers Headers;
+  typedef protocol::http::Headers Headers;
 public:
   OBJECT_POOL(Outgoing_Request_Pool, Request, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Request_Pool, Request, 32)

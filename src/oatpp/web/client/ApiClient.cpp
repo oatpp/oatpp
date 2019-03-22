@@ -112,8 +112,8 @@ void ApiClient::addPathQueryParams(oatpp::data::stream::OutputStream* stream,
   
 }
 
-oatpp::web::protocol::http::Protocol::Headers ApiClient::convertParamsMap(const std::shared_ptr<StringToParamMap>& params) {
-  oatpp::web::protocol::http::Protocol::Headers result;
+oatpp::web::protocol::http::Headers ApiClient::convertParamsMap(const std::shared_ptr<StringToParamMap>& params) {
+  oatpp::web::protocol::http::Headers result;
   if(params) {
     auto curr = params->getFirstEntry();
     

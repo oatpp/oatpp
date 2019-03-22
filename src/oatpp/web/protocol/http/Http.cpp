@@ -236,7 +236,7 @@ ContentRange ContentRange::parse(const oatpp::String& str) {
   return parse(caret);
 }
   
-oatpp::data::share::StringKeyLabelCI_FAST Protocol::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+oatpp::data::share::StringKeyLabelCI_FAST Parser::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                                                          oatpp::parser::Caret& caret) {
   p_char8 data = caret.getData();
   for(v_int32 i = caret.getPosition(); i < caret.getDataSize(); i++) {
@@ -251,7 +251,7 @@ oatpp::data::share::StringKeyLabelCI_FAST Protocol::parseHeaderNameLabel(const s
   return oatpp::data::share::StringKeyLabelCI_FAST(nullptr, nullptr, 0);
 }
   
-void Protocol::parseRequestStartingLine(RequestStartingLine& line,
+void Parser::parseRequestStartingLine(RequestStartingLine& line,
                                         const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                         oatpp::parser::Caret& caret,
                                         Status& error) {
@@ -285,7 +285,7 @@ void Protocol::parseRequestStartingLine(RequestStartingLine& line,
   
 }
   
-void Protocol::parseResponseStartingLine(ResponseStartingLine& line,
+void Parser::parseResponseStartingLine(ResponseStartingLine& line,
                                          const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                          oatpp::parser::Caret& caret,
                                          Status& error) {
@@ -312,7 +312,7 @@ void Protocol::parseResponseStartingLine(ResponseStartingLine& line,
   
 }
   
-void Protocol::parseOneHeader(Headers& headers,
+void Parser::parseOneHeader(Headers& headers,
                               const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                               oatpp::parser::Caret& caret,
                               Status& error) {
@@ -335,7 +335,7 @@ void Protocol::parseOneHeader(Headers& headers,
   }
 }
 
-void Protocol::parseHeaders(Headers& headers,
+void Parser::parseHeaders(Headers& headers,
                             const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                             oatpp::parser::Caret& caret,
                             Status& error) {

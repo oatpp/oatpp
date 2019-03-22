@@ -36,8 +36,8 @@ ResponseFactory::createShared(const Status& status, const oatpp::String& text) {
 }
 
 std::shared_ptr<Response>
-ResponseFactory::createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& segBuffer) {
-  return Response::createShared(status, ChunkedBufferBody::createShared(segBuffer));
+ResponseFactory::createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) {
+  return Response::createShared(status, ChunkedBufferBody::createShared(chunkedBuffer));
 }
 
 std::shared_ptr<Response>

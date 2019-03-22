@@ -28,7 +28,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 Request::Request(const http::RequestStartingLine& startingLine,
                  const url::mapping::Pattern::MatchMap& pathVariables,
-                 const http::Protocol::Headers& headers,
+                 const http::Headers& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                  const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
   : m_startingLine(startingLine)
@@ -41,7 +41,7 @@ Request::Request(const http::RequestStartingLine& startingLine,
 
 std::shared_ptr<Request> Request::createShared(const http::RequestStartingLine& startingLine,
                                                const url::mapping::Pattern::MatchMap& pathVariables,
-                                               const http::Protocol::Headers& headers,
+                                               const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
   return Shared_Incoming_Request_Pool::allocateShared(startingLine, pathVariables, headers, bodyStream, bodyDecoder);
@@ -55,11 +55,11 @@ const url::mapping::Pattern::MatchMap& Request::getPathVariables() const {
   return m_pathVariables;
 }
 
-const http::Protocol::Headers& Request::getHeaders() const {
+const http::Headers& Request::getHeaders() const {
   return m_headers;
 }
 
-const http::Protocol::QueryParams& Request::getQueryParameters() const {
+const http::QueryParams& Request::getQueryParameters() const {
   if(!m_queryParamsParsed) {
     m_queryParams = oatpp::network::Url::Parser::labelQueryParams(m_pathVariables.getTail());
     m_queryParamsParsed = true;

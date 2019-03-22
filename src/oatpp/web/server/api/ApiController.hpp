@@ -56,7 +56,7 @@ public:
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
   typedef oatpp::web::protocol::http::Status Status;
   typedef oatpp::web::protocol::http::Header Header;
-  typedef oatpp::web::protocol::http::Protocol::QueryParams QueryParams;
+  typedef oatpp::web::protocol::http::QueryParams QueryParams;
   typedef oatpp::web::server::api::Endpoint Endpoint;
   typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
   
@@ -120,7 +120,7 @@ protected:
       return std::make_shared<Handler>(controller, method, methodAsync);
     }
     
-    std::shared_ptr<OutgoingResponse> processUrl(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
+    std::shared_ptr<OutgoingResponse> processEvent(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_method != nullptr) {
         return (m_controller->*m_method)(request);
       } else {
@@ -128,7 +128,7 @@ protected:
       }
     }
     
-    Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+    Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                            AsyncCallback callback,
                            const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_methodAsync != nullptr) {

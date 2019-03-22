@@ -84,25 +84,25 @@ public:
     {}
 
     /**
-     * Call &id:oatpp::web::url::mapping::Subscriber::processUrl; with corresponding parameter.
+     * Call &id:oatpp::web::url::mapping::Subscriber::processEvent; with corresponding parameter.
      * @param param
      * @return - corresponding ReturnType.
      */
-    ReturnType processUrl(const Param& param) const {
-      return m_subscriber->processUrl(param);
+    ReturnType processEvent(const Param& param) const {
+      return m_subscriber->processEvent(param);
     }
 
     /**
-     * Call &id:oatpp::web::url::mapping::Subscriber::processUrlAsync; with corresponding parameter.
+     * Call &id:oatpp::web::url::mapping::Subscriber::processEventAsync; with corresponding parameter.
      * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
      * @param callback - pointer to callback function.
      * @param param
      * @return - &id:oatpp::async::Action;.
      */
-    oatpp::async::Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                         typename UrlSubscriber::AsyncCallback callback,
-                                         const Param& param) const {
-      return m_subscriber->processUrlAsync(parentCoroutine, callback, param);
+    oatpp::async::Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                           typename UrlSubscriber::AsyncCallback callback,
+                                           const Param& param) const {
+      return m_subscriber->processEventAsync(parentCoroutine, callback, param);
     }
     
     explicit operator bool() const {

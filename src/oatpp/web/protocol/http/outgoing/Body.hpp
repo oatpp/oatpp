@@ -32,25 +32,42 @@
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+/**
+ * Abstract http outgoing body.
+ * You may extend this class in order to implement custom body transferring functionality.
+ */
 class Body {
 protected:
   typedef oatpp::async::Action Action;
 protected:
-  typedef http::Protocol::Headers Headers;
+  typedef http::Headers Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
-  
+
   /**
-   * declare headers describing body
+   * Declare headers describing body.
+   * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   virtual void declareHeaders(Headers& headers) noexcept = 0;
   
   /**
    * write content to stream
    */
+
+  /**
+   * Write body content to stream.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   */
   virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept = 0;
-  
+
+  /**
+   * Same as &l:Body::writeToStream (); but async.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param actionOnReturn - action to perform once transfer is finished.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @return - &id:oatpp::async::Action;.
+   */
   virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                     const Action& actionOnReturn,
                                     const std::shared_ptr<OutputStream>& stream) = 0;

@@ -123,8 +123,8 @@ void MemoryLabelTest::onRun() {
         
         oatpp::parser::Caret caret(headersText);
         oatpp::web::protocol::http::Status status;
-        oatpp::web::protocol::http::Protocol::Headers headers;
-        oatpp::web::protocol::http::Protocol::parseHeaders(headers, headersText.getPtr(), caret, status);
+        oatpp::web::protocol::http::Headers headers;
+        oatpp::web::protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
         
         OATPP_ASSERT(status.code == 0);
         OATPP_ASSERT(headers.size() == 10);

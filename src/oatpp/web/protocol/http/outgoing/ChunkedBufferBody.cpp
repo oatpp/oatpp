@@ -33,11 +33,6 @@ ChunkedBufferBody::ChunkedBufferBody(const std::shared_ptr<oatpp::data::stream::
   , m_chunked(chunked)
 {}
 
-
-std::shared_ptr<ChunkedBufferBody> ChunkedBufferBody::createShared(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& buffer) {
-  return Shared_Http_Outgoing_ChunkedBufferBody_Pool::allocateShared(buffer, false);
-}
-
 std::shared_ptr<ChunkedBufferBody> ChunkedBufferBody::createShared(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& buffer, bool chunked) {
   return Shared_Http_Outgoing_ChunkedBufferBody_Pool::allocateShared(buffer, chunked);
 }

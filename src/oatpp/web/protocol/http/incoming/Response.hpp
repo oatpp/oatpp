@@ -40,10 +40,10 @@ public:
 private:
   v_int32 m_statusCode;
   oatpp::String m_statusDescription;
-  http::Protocol::Headers m_headers;
+  http::Headers m_headers;
   std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
   
-  /**
+  /*
    * Response should be preconfigured with default BodyDecoder.
    * Entity that created response object is responsible for providing correct BodyDecoder.
    * Custom BodyDecoder can be set on demand
@@ -53,50 +53,125 @@ private:
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   
 public:
+  /**
+   * Constructor.
+   * @param statusCode - http status code.
+   * @param statusDescription - http status description.
+   * @param headers - &id:oatpp::web::protocol::http::Headers;.
+   * @param bodyStream - &id:oatpp::data::stream::InputStream;.
+   * @param bodyDecoder - &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
+   */
   Response(v_int32 statusCode,
            const oatpp::String& statusDescription,
-           const http::Protocol::Headers& headers,
+           const http::Headers& headers,
            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
            const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 public:
-  
+
+  /**
+   * Create shared Response.
+   * @param statusCode - http status code.
+   * @param statusDescription - http status description.
+   * @param headers - &id:oatpp::web::protocol::http::Headers;.
+   * @param bodyStream - &id:oatpp::data::stream::InputStream;.
+   * @param bodyDecoder - &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
+   * @return - `std::shared_ptr` to Response.
+   */
   static std::shared_ptr<Response> createShared(v_int32 statusCode,
                                                 const oatpp::String& statusDescription,
-                                                const http::Protocol::Headers& headers,
+                                                const http::Headers& headers,
                                                 const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                 const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
-  
+
+  /**
+   * Get http status code.
+   * @return - http status code.
+   */
   v_int32 getStatusCode() const;
-  
+
+  /**
+   * Get http status description.
+   * @return - http status description.
+   */
   oatpp::String getStatusDescription() const;
-  
-  const http::Protocol::Headers& getHeaders() const;
-  
+
+  /**
+   * Get response http headers as &id:oatpp::web::protocol::http::Headers;.
+   * @return - response http headers as &id:oatpp::web::protocol::http::Headers;.
+   */
+  const http::Headers& getHeaders() const;
+
+  /**
+   * Get raw body stream.
+   * @return - raw body stream as &id:oatpp::data::stream::InputStream;.
+   */
   std::shared_ptr<oatpp::data::stream::InputStream> getBodyStream() const;
-  
+
+  /**
+   * Get body decoder configured for this response.
+   * @return - &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
+   */
   std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const;
 
+  /**
+   * Decode and transfer body to toStream.
+   * Use case example - stream huge body directly to file using relatively small buffer.
+   * @param toStream - &id:oatpp::data::stream::OutputStream;.
+   */
   void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
-  
+
+  /**
+   * Decode and read body to &id:oatpp::String;.
+   * @return - &id:oatpp::String;.
+   */
   oatpp::String readBodyToString() const;
-  
+
+  /**
+   * Read body stream, decode, and deserialize it as DTO Object (see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/)).
+   * @tparam Type - DTO object type.
+   * @param objectMapper - `std::shared_ptr` to &id:oatpp::data::mapping::ObjectMapper;.
+   * @return - deserialized DTO object.
+   */
   template<class Type>
   typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return m_bodyDecoder->decodeToDto<Type>(m_headers, m_bodyStream, objectMapper);
   }
   
   // Async
-  
+
+  /**
+   * Same as &l:Response::readBodyToDto (); but Async.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param actionOnReturn - &id:oatpp::async::Action; to do when decoding finished.
+   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @return - &id:oatpp::async::Action;.
+   */
   oatpp::async::Action streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                        const oatpp::async::Action& actionOnReturn,
                                        const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
-  
+
+  /**
+   * Same as &l:Response::readBodyToString (); but Async.
+   * @tparam ParentCoroutineType - caller coroutine type.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - pointer to callback function.
+   * @return - &id:oatpp::async::Action;.
+   */
   template<typename ParentCoroutineType>
   oatpp::async::Action readBodyToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                              oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&)) const {
     return m_bodyDecoder->decodeToStringAsync(parentCoroutine, callback, m_headers, m_bodyStream);
   }
-  
+
+  /**
+   * Same as &l:Response::readBodyToDto (); but Async.
+   * @tparam DtoType - DTO object type.
+   * @tparam ParentCoroutineType - caller coroutine type.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - pointer to callback function.
+   * @param objectMapper - `std::shared_ptr` to &id:oatpp::data::mapping::ObjectMapper;.
+   * @return -  &id:oatpp::async::Action;.
+   */
   template<class DtoType, typename ParentCoroutineType>
   oatpp::async::Action readBodyToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                           oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),

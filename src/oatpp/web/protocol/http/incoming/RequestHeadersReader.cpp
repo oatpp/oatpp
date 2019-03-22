@@ -84,9 +84,9 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(const std::shared
     auto headersText = buffer.toString();
     oatpp::parser::Caret caret (headersText);
     http::Status status;
-    http::Protocol::parseRequestStartingLine(result.startingLine, headersText.getPtr(), caret, status);
+    http::Parser::parseRequestStartingLine(result.startingLine, headersText.getPtr(), caret, status);
     if(status.code == 0) {
-      http::Protocol::parseHeaders(result.headers, headersText.getPtr(), caret, status);
+      http::Parser::parseHeaders(result.headers, headersText.getPtr(), caret, status);
     }
   }
   
@@ -161,9 +161,9 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
       auto headersText = m_bufferStream.toString();
       oatpp::parser::Caret caret (headersText);
       http::Status status;
-      http::Protocol::parseRequestStartingLine(m_result.startingLine, headersText.getPtr(), caret, status);
+      http::Parser::parseRequestStartingLine(m_result.startingLine, headersText.getPtr(), caret, status);
       if(status.code == 0) {
-        http::Protocol::parseHeaders(m_result.headers, headersText.getPtr(), caret, status);
+        http::Parser::parseHeaders(m_result.headers, headersText.getPtr(), caret, status);
         if(status.code == 0) {
           return _return(m_result);
         } else {
