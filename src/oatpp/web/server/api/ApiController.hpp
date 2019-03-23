@@ -48,25 +48,96 @@ class ApiController : public oatpp::base::Countable {
 protected:
   typedef ApiController __ControllerType;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::server::HttpRouter;.
+   */
   typedef oatpp::web::server::HttpRouter Router;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::ResponseFactory;.
+   */
   typedef oatpp::web::protocol::http::outgoing::ResponseFactory OutgoingResponseFactory;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Request;.
+   */
   typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Request;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Status;.
+   */
   typedef oatpp::web::protocol::http::Status Status;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Header;.
+   */
   typedef oatpp::web::protocol::http::Header Header;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::QueryParams;.
+   */
   typedef oatpp::web::protocol::http::QueryParams QueryParams;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::server::api::Endpoint;.
+   */
   typedef oatpp::web::server::api::Endpoint Endpoint;
+
+  /**
+   * Convenience typedef for list of &id:oatpp::web::server::api::Endpoint;.
+   */
   typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
   
 public:
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::ObjectMapper;.
+   */
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::String;.
+   */
   typedef oatpp::data::mapping::type::String String;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
+   */
   typedef oatpp::data::mapping::type::Int32 Int32;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
+   */
   typedef oatpp::data::mapping::type::Int64 Int64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
+   */
   typedef oatpp::data::mapping::type::Float32 Float32;
+
+  /**
+   * Convenience typedef for &id:atpp::data::mapping::type::Float64;.
+   */
   typedef oatpp::data::mapping::type::Float64 Float64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
+   */
   typedef oatpp::data::mapping::type::Boolean Boolean;
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
