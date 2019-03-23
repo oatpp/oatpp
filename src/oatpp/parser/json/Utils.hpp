@@ -31,38 +31,27 @@
 #include <string>
 
 namespace oatpp { namespace parser { namespace json{
-  
+
+/**
+ * Utility class for json serializer/deserializer.
+ * Used by &id:oatpp::parser::json::mapping::Serializer;, &id:oatpp::parser::json::mapping::Deserializer;.
+ */
 class Utils {
 public:
 
   /**
-   * ERROR_INVALID_ESCAPED_CHAR = "ERROR_INVALID_ESCAPED_CHAR"
-   */
-  static const char* const ERROR_INVALID_ESCAPED_CHAR;
-
-  /**
-   * ERROR_INVALID_SURROGATE_PAIR = "ERROR_INVALID_SURROGATE_PAIR"
-   */
-  static const char* const ERROR_INVALID_SURROGATE_PAIR;
-
-  /**
-   * ERROR_PARSER_QUOTE_EXPECTED = "'\"' - EXPECTED"
-   */
-  static const char* const ERROR_PARSER_QUOTE_EXPECTED;
-
-  /**
-   * ERROR_CODE_INVALID_ESCAPED_CHAR = 1
+   * ERROR_CODE_INVALID_ESCAPED_CHAR
    */
   static constexpr v_int32 ERROR_CODE_INVALID_ESCAPED_CHAR = 1;
 
   /**
-   * ERROR_CODE_INVALID_SURROGATE_PAIR = 2
+   * ERROR_CODE_INVALID_SURROGATE_PAIR
    */
   static constexpr v_int32 ERROR_CODE_INVALID_SURROGATE_PAIR = 2;
 
   /**
-   * "'\"' - EXPECTED"
-   * ERROR_CODE_PARSER_QUOTE_EXPECTED = 3
+   * '\\' - EXPECTED"
+   * ERROR_CODE_PARSER_QUOTE_EXPECTED
    */
   static constexpr v_int32 ERROR_CODE_PARSER_QUOTE_EXPECTED = 3;
 
@@ -72,19 +61,65 @@ public:
 private:
   static v_int32 escapeUtf8Char(p_char8 sequence, p_char8 buffer);
   static v_int32 calcEscapedStringSize(p_char8 data, v_int32 size, v_int32& safeSize);
-  static v_int32 calcUnescapedStringSize(p_char8 data, v_int32 size, const char* & error, v_int32& errorPosition);
+  static v_int32 calcUnescapedStringSize(p_char8 data, v_int32 size, v_int32& errorCode, v_int32& errorPosition);
   static void unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultData);
   static p_char8 preparseString(ParsingCaret& caret, v_int32& size);
 public:
+
   /**
-   *  if(copyAsOwnData == false && escapedString == initialString) then result string will point to initial data
+   * Escape string as for json standard. <br>
+   * *Note:* if(copyAsOwnData == false && escapedString == initialString) then result string will point to initial data.
+   * @param data - pointer to string to escape.
+   * @param size - data size.
+   * @param copyAsOwnData - see &id:oatpp::base::StrBuffer::StrBuffer;.
+   * @return - &id:oatpp::String;.
    */
   static String escapeString(p_char8 data, v_int32 size, bool copyAsOwnData = true);
-  static String unescapeString(p_char8 data, v_int32 size, const char* & error, v_int32& errorPosition);
-  static std::string unescapeStringToStdString(p_char8 data, v_int32 size,
-                                               const char* & error, v_int32& errorPosition);
-  
+
+  /**
+   * Unescape string as for json standard.
+   * @param data - pointer to string to unescape.
+   * @param size - data size.
+   * @param errorCode - out parameter. Error code <br>
+   * *One of:*<br>
+   * <ul>
+   *   <li>&l:Utils::ERROR_CODE_INVALID_ESCAPED_CHAR;</li>
+   *   <li>&l:Utils::ERROR_CODE_INVALID_SURROGATE_PAIR;</li>
+   *   <li>&l:Utils::ERROR_CODE_PARSER_QUOTE_EXPECTED;</li>
+   * </ul>
+   * @param errorPosition - out parameter. Error position in data.
+   * @return - &id:oatpp::String;.
+   */
+  static String unescapeString(p_char8 data, v_int32 size, v_int32& errorCode, v_int32& errorPosition);
+
+  /**
+   * Same as &l:Utils::unescapeString (); but return `std::string`.
+   * @param data - pointer to string to unescape.
+   * @param size - data size.
+   * @param errorCode - out parameter. Error code <br>
+   * *One of:*<br>
+   * <ul>
+   *   <li>&l:Utils::ERROR_CODE_INVALID_ESCAPED_CHAR;</li>
+   *   <li>&l:Utils::ERROR_CODE_INVALID_SURROGATE_PAIR;</li>
+   *   <li>&l:Utils::ERROR_CODE_PARSER_QUOTE_EXPECTED;</li>
+   * </ul>
+   * @param errorPosition - out parameter. Error position in data.
+   * @return - &id:oatpp::String;.
+   */
+  static std::string unescapeStringToStdString(p_char8 data, v_int32 size, v_int32& errorCode, v_int32& errorPosition);
+
+  /**
+   * Parse string enclosed in `"<string>"`.
+   * @param caret - &id:oatpp::parser::Caret;.
+   * @return - &id:oatpp::String;.
+   */
   static String parseString(ParsingCaret& caret);
+
+  /**
+   * Parse string enclosed in `"<string>"`.
+   * @param caret - &id:oatpp::parser::Caret;.
+   * @return - `std::string`.
+   */
   static std::string parseStringToStdString(ParsingCaret& caret);
   
 };

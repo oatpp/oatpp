@@ -24,3 +24,28 @@
 
 #include "ObjectMapper.hpp"
 
+namespace oatpp { namespace parser { namespace json { namespace mapping {
+
+ObjectMapper::ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig,
+                           const std::shared_ptr<Deserializer::Config>& pDeserializerConfig)
+  : oatpp::data::mapping::ObjectMapper(getMapperInfo())
+  , serializerConfig(pSerializerConfig)
+  , deserializerConfig(pDeserializerConfig)
+{}
+
+std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<Serializer::Config>& serializerConfig,
+                                                         const std::shared_ptr<Deserializer::Config>& deserializerConfig){
+  return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
+}
+
+void ObjectMapper::write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+                         const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const {
+  Serializer::serialize(stream, variant, serializerConfig);
+}
+
+oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(oatpp::parser::Caret& caret,
+                                                                     const oatpp::data::mapping::type::Type* const type) const {
+  return Deserializer::deserialize(caret, deserializerConfig, type);
+}
+
+}}}}

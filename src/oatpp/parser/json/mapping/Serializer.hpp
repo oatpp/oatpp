@@ -38,7 +38,11 @@
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
-  
+
+/**
+ * Json Serializer.
+ * Serializes oatpp DTO object to json. See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/).
+ */
 class Serializer {
 public:
   typedef oatpp::data::mapping::type::Type Type;
@@ -56,18 +60,37 @@ public:
   typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
   
 public:
-  
+  /**
+   * Serializer config.
+   */
   class Config : public oatpp::base::Countable {
   public:
+    /**
+     * Constructor.
+     */
     Config()
     {}
   public:
-    
+
+    /**
+     * Create shared config.
+     * @return - `std::shared_ptr` to Config.
+     */
     static std::shared_ptr<Config> createShared(){
       return std::make_shared<Config>();
     }
-    
+
+    /**
+     * Include fields with value == nullptr into serialized json.
+     */
     bool includeNullFields = true;
+
+    /**
+     * If `true` - insert string `"<unknown-type>"` in json field value in case unknown field found.
+     * Fail if `false`.
+     * Known types for this serializer are:<br>
+     * (String, Int8, Int16, Int32, Int64, Float32, Float64, Boolean, DTOs, List, Fields).
+     */
     bool throwOnUnknownTypes = true;
     
   };
@@ -93,7 +116,16 @@ private:
   static void writeValue(oatpp::data::stream::OutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config);
   
 public:
-  
+
+  /**
+   * Serialize DTO object to stream.
+   * @param stream - stream to write serialized object to. &id:oatpp::data::stream::OutputStream;. <br>
+   * **WARNING** Serializer currently does't check call results of &id:oatpp::data::stream::OutputStream::write;.
+   * Meaning that Serializer does not ensures that all data has been transferred successfully. <br>
+   * **USE** output stream with guarantee that all data being successfully written. Like &id:oatpp::data::stream::ChunkedBuffer;.
+   * @param polymorph - DTO object to serialize.
+   * @param config - &l:Serializer::Config;.
+   */
   static void serialize(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
                         const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
                         const std::shared_ptr<Config>& config){

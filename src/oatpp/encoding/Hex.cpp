@@ -27,8 +27,6 @@
 
 namespace oatpp { namespace encoding {
   
-const char* const Hex::ERROR_UNKNOWN_SYMBOL = "UNKNOWN_SYMBOL";
-  
 const v_char8 Hex::A_D[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
   /*
 const v_word16 Hex::A_W16[] = {
@@ -103,7 +101,7 @@ void Hex::writeWord32(v_word32 value, p_char8 buffer){
   writeWord16(value, buffer + 4);
 }
   
-const char* Hex::readWord16(p_char8 buffer, v_word16& value) {
+v_int32 Hex::readWord16(p_char8 buffer, v_word16& value) {
   value = 0;
   for(v_int32 i = 0; i < 4; i++){
     v_char8 a = buffer[i];
@@ -117,10 +115,10 @@ const char* Hex::readWord16(p_char8 buffer, v_word16& value) {
       return ERROR_UNKNOWN_SYMBOL;
     }
   }
-  return nullptr;
+  return 0;
 }
   
-const char* Hex::readWord32(p_char8 buffer, v_word32& value) {
+v_int32 Hex::readWord32(p_char8 buffer, v_word32& value) {
   value = 0;
   for(v_int32 i = 0; i < 8; i++){
     v_char8 a = buffer[i];
@@ -134,7 +132,7 @@ const char* Hex::readWord32(p_char8 buffer, v_word32& value) {
       return ERROR_UNKNOWN_SYMBOL;
     }
   }
-  return nullptr;
+  return 0;
 }
 
 }}
