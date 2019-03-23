@@ -34,9 +34,6 @@
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/network/Connection.hpp"
 
-#include "oatpp/core/concurrency/Thread.hpp"
-#include "oatpp/core/concurrency/Runnable.hpp"
-
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
@@ -49,7 +46,7 @@ namespace oatpp { namespace web { namespace server {
 class HttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
   
-  class Task : public base::Countable, public concurrency::Runnable{
+  class Task : public base::Countable {
   private:
     HttpRouter* m_router;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
@@ -70,7 +67,7 @@ private:
                                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                                               HttpProcessor::RequestInterceptors* requestInterceptors);
     
-    void run() override;
+    void run();
     
   };
   

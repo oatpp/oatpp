@@ -55,19 +55,18 @@ namespace {
   
   class TestChild : public oatpp::base::Countable, public TestBase {
   public:
-    
+
     static void* operator new(std::size_t sz) {
       return ::operator new(sz);
     }
-    
+
     static void operator delete(void* ptr, std::size_t sz) {
       ::operator delete(ptr);
     }
-    
-    
+
   };
   
-  class Task : public oatpp::concurrency::Runnable, public oatpp::base::Countable {
+  class Task : public oatpp::base::Countable {
   private:
     std::shared_ptr<TestBase> m_shared;
   public:
@@ -76,17 +75,10 @@ namespace {
       : m_shared(shared)
     {}
     
-    static std::shared_ptr<Task> createShared(const std::shared_ptr<TestBase>& shared){
-      return std::make_shared<Task>(shared);
-    }
-    
-    void run() override {
+    void run() {
       for(v_int32 i = 0; i < 10; i ++) {
         std::shared_ptr<TestBase> shared(new TestChild());
       }
-      /*for(v_int32 i = 0; i < 1000000; i ++) {
-        std::shared_ptr<TestClass> shared = m_shared;
-      }*/
     }
   };
   
@@ -97,29 +89,18 @@ void PerfTest::onRun() {
   v_int32 iterations = 1;
   v_int32 threadCount = 100;
   
-  OATPP_LOGD(TAG, "size=%d", sizeof(TestBase));
-  
   for(int i = 0; i < iterations; i++) {
-  
-    auto threads = oatpp::collection::LinkedList<std::shared_ptr<oatpp::concurrency::Thread>>::createShared(); ;
+
+    std::list<std::thread> threads;
     
     for(v_int32 n = 0; n < threadCount; n++) {
       std::shared_ptr<TestBase> shared;
-      std::shared_ptr<Task> task = Task::createShared(shared);
-      auto thread = oatpp::concurrency::Thread::createShared(task);
-      threads->pushBack(thread);
+      threads.push_back(std::thread(&Task::run, Task(shared)));
     }
-    
-    threads->forEach([](const std::shared_ptr<oatpp::concurrency::Thread>& thread){
-      thread->join();
-    });
-    
-    /*auto it = threads.begin();
-    while (it != threads.end()) {
-      (*it)->join();
-      it++;
+
+    for(auto& thread : threads) {
+      thread.join();
     }
-     */
     
   }
 

@@ -62,6 +62,9 @@ void UnitTest::run(v_int32 times) {
       OATPP_LOGD("Pool", "name: '%s' [%d(objs)]", pool->getName().c_str(), pool->getObjectsCount());
       it ++;
     }
+
+    exit(EXIT_FAILURE);
+
   }
   
 }

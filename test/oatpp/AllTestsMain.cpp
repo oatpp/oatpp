@@ -53,7 +53,7 @@ public:
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
-
+  
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 

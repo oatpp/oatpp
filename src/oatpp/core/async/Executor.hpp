@@ -87,7 +87,7 @@ private:
     
   };
   
-  class SubmissionProcessor : public oatpp::concurrency::Runnable {
+  class SubmissionProcessor {
   private:
     typedef oatpp::collection::LinkedList<std::shared_ptr<TaskSubmission>> Tasks;
   private:
@@ -104,7 +104,7 @@ private:
     SubmissionProcessor();
   public:
     
-    void run() override;
+    void run();
     void stop();
     void addTaskSubmission(const std::shared_ptr<TaskSubmission>& task);
     
@@ -117,8 +117,9 @@ public:
   static const v_int32 THREAD_NUM_DEFAULT;
 private:
   v_int32 m_threadsCount;
-  std::shared_ptr<oatpp::concurrency::Thread>* m_threads;
-  std::shared_ptr<SubmissionProcessor>* m_processors;
+  //std::shared_ptr<oatpp::concurrency::Thread>* m_threads;
+  std::thread* m_threads;
+  SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;
 public:
 
@@ -157,10 +158,10 @@ public:
    */
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
-    auto processor = m_processors[m_balancer % m_threadsCount];
+    auto& processor = m_processors[m_balancer % m_threadsCount];
     
     auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
-    processor->addTaskSubmission(submission);
+    processor.addTaskSubmission(submission);
     
     m_balancer ++;
   }

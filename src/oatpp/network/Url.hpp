@@ -38,7 +38,7 @@ namespace oatpp { namespace network {
 /**
  * Class holding URL information.
  */
-class Url : public oatpp::base::Countable {
+class Url {
 public:
   /**
    * Convenience typedef for &id:oatpp::data::share::StringKeyLabel;.

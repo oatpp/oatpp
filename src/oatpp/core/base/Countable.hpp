@@ -41,6 +41,12 @@ public:
   Countable();
 
   /**
+   * Copy constructor. Increment counter calling &id:oatpp::base::Environment::incObjects;.
+   * @param other
+   */
+  Countable(const Countable& other);
+
+  /**
    * Virtual destructor. Decrement counter calling &id:oatpp::base::Environment::decObjects;.
    */
   virtual ~Countable();

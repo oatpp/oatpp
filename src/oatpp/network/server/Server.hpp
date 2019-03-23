@@ -29,8 +29,6 @@
 
 #include "oatpp/network/ConnectionProvider.hpp"
 
-#include "oatpp/core/concurrency/Runnable.hpp"
-
 #include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/base/Countable.hpp"
@@ -44,7 +42,7 @@ namespace oatpp { namespace network { namespace server {
  * Server calls &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
  * to &id:oatpp::network::server::ConnectionHandler;.
  */
-class Server : public base::Countable, public concurrency::Runnable{
+class Server : public base::Countable {
 private:
 
   void mainLoop();
@@ -108,7 +106,7 @@ public:
    * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
    * to &id:oatpp::network::server::ConnectionHandler;.
    */
-  void run() override;
+  void run();
 
   /**
    * Break server loop.

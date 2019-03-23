@@ -27,7 +27,9 @@
 #include "oatpp/network/virtual_/Interface.hpp"
 
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-#include "oatpp/core/concurrency/Thread.hpp"
+
+#include <thread>
+#include <list>
 
 namespace oatpp { namespace test { namespace network { namespace virtual_ {
   
@@ -35,9 +37,9 @@ namespace {
   
   typedef oatpp::network::virtual_::Interface Interface;
   typedef oatpp::network::virtual_::Socket Socket;
-  typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::concurrency::Thread>> ThreadList;
+  typedef std::list<std::thread> ThreadList;
   
-  class ClientTask : public oatpp::concurrency::Runnable {
+  class ClientTask : public oatpp::base::Countable {
   private:
     std::shared_ptr<Interface> m_interface;
     oatpp::String m_dataSample;
@@ -49,7 +51,7 @@ namespace {
       , m_dataSample(dataSample)
     {}
     
-    void run() override {
+    void run() {
       auto submission = m_interface->connect();
       auto socket = submission->getSocket();
       
@@ -70,7 +72,7 @@ namespace {
     
   };
   
-  class ServerTask : public oatpp::concurrency::Runnable {
+  class ServerTask : public oatpp::base::Countable {
   private:
     std::shared_ptr<Socket> m_socket;
     oatpp::String m_dataSample;
@@ -82,7 +84,7 @@ namespace {
       , m_dataSample(dataSample)
     {}
     
-    void run() override {
+    void run() {
       v_char8 buffer[100];
       auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
       auto res = oatpp::data::stream::transfer(m_socket, stream, m_dataSample->getSize(), buffer, 100);
@@ -98,7 +100,7 @@ namespace {
     
   };
   
-  class Server : public oatpp::concurrency::Runnable {
+  class Server : public oatpp::base::Countable {
   private:
     std::shared_ptr<Interface> m_interface;
     oatpp::String m_dataSample;
@@ -113,17 +115,14 @@ namespace {
       , m_numTasks(numTasks)
     {}
     
-    void run() override {
+    void run() {
       ThreadList threadList;
       for(v_int32 i = 0; i < m_numTasks; i++) {
         auto socket = m_interface->accept();
-        auto task = oatpp::concurrency::Thread::createShared(std::make_shared<ServerTask>(socket, m_dataSample));
-        threadList.pushBack(task);
+        threadList.push_back(std::thread(&ServerTask::run, ServerTask(socket, m_dataSample)));
       }
-      auto curr = threadList.getFirstNode();
-      while (curr != nullptr) {
-        curr->getData()->join();
-        curr = curr->getNext();
+      for(auto& thread : threadList) {
+        thread.join();
       }
     }
     
@@ -140,20 +139,17 @@ void InterfaceTest::onRun() {
   
   ThreadList threadList;
   
-  auto server = oatpp::concurrency::Thread::createShared(std::make_shared<Server>(interface, dataSample, numTasks));
+  std::thread server(&Server::run, Server(interface, dataSample, numTasks));
   
   for(v_int32 i = 0; i < numTasks; i++) {
-    auto clientTask = oatpp::concurrency::Thread::createShared(std::make_shared<ClientTask>(interface, dataSample));
-    threadList.pushBack(clientTask);
+    threadList.push_back(std::thread(&ClientTask::run, ClientTask(interface, dataSample)));
+  }
+
+  for(auto& thread : threadList) {
+    thread.join();
   }
   
-  auto curr = threadList.getFirstNode();
-  while (curr != nullptr) {
-    curr->getData()->join();
-    curr = curr->getNext();
-  }
-  
-  server->join();
+  server.join();
 
 }
   

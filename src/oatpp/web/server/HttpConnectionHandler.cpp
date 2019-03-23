@@ -29,6 +29,8 @@
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
+#include "oatpp/core/concurrency/Thread.hpp"
+
 namespace oatpp { namespace web { namespace server {
 
 HttpConnectionHandler::Task::Task(HttpRouter* router,
@@ -111,16 +113,16 @@ void HttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler:
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
   
   /* Create working thread */
-  concurrency::Thread thread(Task::createShared(m_router.get(), connection, m_bodyDecoder, m_errorHandler, &m_requestInterceptors));
+  std::thread thread(&Task::run, Task(m_router.get(), connection, m_bodyDecoder, m_errorHandler, &m_requestInterceptors));
   
   /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
-  v_int32 concurrency = oatpp::concurrency::Thread::getHardwareConcurrency();
+  v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
   if(concurrency > 1) {
     concurrency -= 1;
   }
   
   /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
-  oatpp::concurrency::Thread::setThreadAffinityToCpuRange(thread.getStdThread()->native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
+  oatpp::concurrency::setThreadAffinityToCpuRange(thread.native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
   
   thread.detach();
 }

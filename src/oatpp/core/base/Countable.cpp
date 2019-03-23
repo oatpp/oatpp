@@ -32,6 +32,12 @@ Countable::Countable() {
 #endif
 }
 
+Countable::Countable(const Countable& other) {
+#ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
+  Environment::incObjects();
+#endif
+}
+
 Countable::~Countable(){
 #ifndef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   Environment::decObjects();
