@@ -28,14 +28,56 @@
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace encoding {
-  
+
+/**
+ * Helper class for processing unicode characters.
+ */
 class Unicode {
 public:
+  /**
+   * Get length in bytes of UTF-8 character by its first byte.
+   * @param firstByte - first byte of UTF-8 character.
+   * @return - length in bytes of UTF-8 character.
+   */
   static v_int32 getUtf8CharSequenceLength(v_char8 firstByte);
+
+  /**
+   * Get length in bytes of UTF-8 character by its code.
+   * @param code - code of UTF-8 character.
+   * @return - length in bytes of UTF-8 character.
+   */
   static v_int32 getUtf8CharSequenceLengthForCode(v_word32 code);
-  static v_int32 encodeUtf8Char(p_char8 sequence, v_int32& length); // returns code
-  static v_int32 decodeUtf8Char(v_int32 code, p_char8 buffer); // returns length
+
+  /**
+   * Get code of UTF-8 character.
+   * @param sequence - pointer to first byte of UTF-8 character.
+   * @param length - out parameter. Length in bytes of UTF-8 character.
+   * @return - code of UTF-8 character.
+   */
+  static v_int32 encodeUtf8Char(p_char8 sequence, v_int32& length);
+
+  /**
+   * Write UTF-8 character to buffer.
+   * @param code  - UTF-8 character code.
+   * @param buffer - pointer to write UTF-8 character to.
+   * @return - length in bytes of UTF-8 character.
+   */
+  static v_int32 decodeUtf8Char(v_int32 code, p_char8 buffer);
+
+  /**
+   * Get corresponding UTF-16 surrogate pair for symbol code.
+   * @param code - symbol code.
+   * @param high - out parameter. High surrogate.
+   * @param low - out parameter. Low surrogate.
+   */
   static void codeToUtf16SurrogatePair(v_int32 code, v_int16& high, v_int16& low);
+
+  /**
+   * Get symbol code of corresponding UTF-16 surrogate pair.
+   * @param high - High surrogate.
+   * @param low - Low surrogate.
+   * @return - symbol code.
+   */
   static v_int32 utf16SurrogatePairToCode(v_int16 high, v_int16 low);
 };
   
