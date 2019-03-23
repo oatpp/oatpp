@@ -33,7 +33,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 /**
- * Class http::incoming::Request AKA IncomingRequest represents client's incoming request
+ * Class http::incoming::Request AKA IncomingRequest represents client's incoming request.
  */
 class Request : public oatpp::base::Countable {
 public:

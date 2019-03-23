@@ -27,8 +27,6 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-Request::Request() {}
-
 Request::Request(const oatpp::data::share::StringKeyLabel& method,
                  const oatpp::data::share::StringKeyLabel& path,
                  const Headers& headers,
