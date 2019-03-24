@@ -23,3 +23,12 @@
  ***************************************************************************/
 
 #include "Allocator.hpp"
+
+namespace oatpp { namespace base { namespace memory {
+
+AllocatorPoolInfo::AllocatorPoolInfo(const char* pPoolName, v_int32 pPoolChunkSize)
+  : poolName(pPoolName)
+  , poolChunkSize(pPoolChunkSize)
+{}
+
+}}}

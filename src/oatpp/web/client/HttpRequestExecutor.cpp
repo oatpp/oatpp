@@ -40,7 +40,20 @@
 #include <unistd.h>
 
 namespace oatpp { namespace web { namespace client {
-  
+
+HttpRequestExecutor::HttpRequestExecutor(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
+                                         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder)
+  : m_connectionProvider(connectionProvider)
+  , m_bodyDecoder(bodyDecoder)
+{}
+
+std::shared_ptr<HttpRequestExecutor>
+HttpRequestExecutor::createShared(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
+                                  const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder)
+{
+  return std::make_shared<HttpRequestExecutor>(connectionProvider, bodyDecoder);
+}
+
 std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getConnection() {
   auto connection = m_connectionProvider->getConnection();
   if(!connection){

@@ -22,11 +22,36 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains "defines" for DTO code generating macro. <br>
+ * Usage:<br>
+ *
+ * ```cpp
+ * #include OATPP_CODEGEN_BEGIN(DTO)
+ * ...
+ * // Generated Endpoints.
+ * ...
+ * #include OATPP_CODEGEN_END(DTO)
+ * ```
+ *
+ *
+ * *For details see:*
+ * <ul>
+ *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
+ *   <li>&id:oatpp::data::mapping::type::Object;</li>
+ * </ul>
+ */
+
 #include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 // Defaults
 
+/**
+ * Codegen macoro to be used in classes extending &id:oatpp::data::mapping::type::Object; to generate required fields/methods/constructors for DTO object.
+ * @param TYPE_NAME - name of the DTO class.
+ * @param TYPE_EXTEND - name of the parent DTO class. If DTO extends &id:oatpp::data::mapping::type::Object; TYPE_EXETENDS should be `Object`.
+ */
 #define DTO_INIT(TYPE_NAME, TYPE_EXTEND) \
 public: \
   typedef TYPE_NAME Z__CLASS; \
@@ -113,6 +138,12 @@ TYPE NAME
 #define OATPP_MACRO_DTO_FIELD__(X, TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD_(X, TYPE, NAME, LIST)
 #define OATPP_MACRO_DTO_FIELD___(TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD__(OATPP_MACRO_HAS_ARGS LIST, TYPE, NAME, LIST)
 
+/**
+ * Codegen macro to generate fields of DTO object.
+ * @param TYPE - type of the field.
+ * @param NAME - name of the field.
+ * @param QUALIFIER_NAME - additional (optional) field to specify serialized name of the field. If not specified it will be same as NAME.
+ */
 #define DTO_FIELD(TYPE, NAME, ...) \
 OATPP_MACRO_DTO_FIELD___(TYPE, NAME, (__VA_ARGS__))
 

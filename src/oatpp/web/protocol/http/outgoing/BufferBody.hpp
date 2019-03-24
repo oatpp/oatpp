@@ -30,7 +30,11 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+/**
+ * Implementation of &id:oatpp::web::protocol::http::outgoing::Body; class.
+ * Implements functionality to use &id::oatpp::String; as data source for http body.
+ */
 class BufferBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<BufferBody> {
 public:
   OBJECT_POOL(Http_Outgoing_BufferBody_Pool, BufferBody, 32)
@@ -40,13 +44,31 @@ private:
 public:
   BufferBody(const oatpp::String& buffer);
 public:
-  
+
+  /**
+   * Create shared BufferBody.
+   * @param buffer - &id:oatpp::String;.
+   * @return - `std::shared_ptr` to BufferBody.
+   */
   static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer);
+
+  /**
+   * Declare `Content-Length` header.
+   * @param headers - &id:oatpp::web::protocol::http::Headers;.
+   */
   void declareHeaders(Headers& headers) noexcept override;
+
+  /**
+   * Write body data to stream.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   */
   void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override;
   
 public:
-  
+
+  /**
+   * Coroutine used to write &l:BufferBody; to &id:oatpp::data::stream::OutputStream;.
+   */
   class WriteToStreamCoroutine : public oatpp::async::Coroutine<WriteToStreamCoroutine> {
   private:
     std::shared_ptr<BufferBody> m_body;
@@ -54,7 +76,12 @@ public:
     const void* m_currData;
     oatpp::data::v_io_size m_currDataSize;
   public:
-    
+
+    /**
+     * Constructor.
+     * @param body - &l:BufferBody;.
+     * @param stream - &id:oatpp::data::stream::OutputStream;.
+     */
     WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
                            const std::shared_ptr<OutputStream>& stream);
     
@@ -63,10 +90,17 @@ public:
   };
   
 public:
-  
+
+  /**
+   * Start &l:BufferBody::WriteToStreamCoroutine; to write buffer data to stream.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
+   * @param actionOnReturn - action to do once &l:BufferBody::WriteToStreamCoroutine; is finished.
+   * @param stream - &id:oatpp::data::stream::OutputStream;.
+   * @return - &id:oatpp::async::Action;
+   */
   Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                             const Action& actionOnReturn,
-                             const std::shared_ptr<OutputStream>& stream) override;
+                            const Action& actionOnReturn,
+                            const std::shared_ptr<OutputStream>& stream) override;
   
 };
   

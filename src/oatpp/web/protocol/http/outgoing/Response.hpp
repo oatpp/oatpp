@@ -31,10 +31,17 @@
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+/**
+ * Class which stores information of outgoing http Response.
+ */
 class Response : public oatpp::base::Countable, public std::enable_shared_from_this<Response> {
 public:
-  typedef http::Protocol::Headers Headers;
+  /**
+   * Convenience typedef for Headers. <br>
+   * See &id:oatpp::web::protocol::http::Headers;
+   */
+  typedef http::Headers Headers;
 public:
   OBJECT_POOL(Outgoing_Response_Pool, Response, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Response_Pool, Response, 32)
@@ -44,28 +51,79 @@ private:
   std::shared_ptr<Body> m_body;
   std::shared_ptr<oatpp::network::server::ConnectionHandler> m_connectionUpgradeHandler;
 public:
+  /**
+   * Constructor.
+   * @param status - http status.
+   * @param body - response body.
+   */
   Response(const Status& status, const std::shared_ptr<Body>& body);
 public:
-  
+
+  /**
+   * Create shared outgoing response with status and body.
+   * @param status - http status.
+   * @param body - response body.
+   * @return
+   */
   static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<Body>& body);
-  
+
+  /**
+   * Get status.
+   * @return - http status.
+   */
   const Status& getStatus() const;
-  
+
+  /**
+   * Get headers.
+   * @return - &id:oatpp::web::protocol::http::Headers;
+   */
   Headers& getHeaders();
-  
+
+  /**
+   * Add http header.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   */
   void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
-  
+
+  /**
+   * Add http header if not already exists.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   * @return - `true` if header was added.
+   */
   bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
-  
+
+  /**
+   * Set connection upgreade header. <br>
+   * Use it together with corresponding headers being set when Response is created as: <br>
+   * Response(&id:oatpp::web::protocol::http::Status::CODE_101;, nullptr);<br>
+   * @param handler - `std::shared_ptr` to &id:oatpp::network::server::ConnectionHandler;.
+   */
   void setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler);
-  
+
+  /**
+   * Get currently set connection upgrade handler
+   * @return - `std::shared_ptr` to &id:oatpp::network::server::ConnectionHandler;.
+   */
   std::shared_ptr<oatpp::network::server::ConnectionHandler> getConnectionUpgradeHandler();
-  
+
+  /**
+   * Write this Response to stream.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   */
   void send(const std::shared_ptr<data::stream::OutputStream>& stream);
-  
+
+  /**
+   * Same as &l:Response::send (); but async.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
+   * @param actionOnFinish - action to perform once done.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @return - &id:oatpp::async::Action;.
+   */
   oatpp::async::Action sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                  const oatpp::async::Action& actionOnFinish,
-                                  const std::shared_ptr<data::stream::OutputStream>& stream);
+                                 const oatpp::async::Action& actionOnFinish,
+                                 const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };
   

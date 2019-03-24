@@ -22,6 +22,10 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains source code for basic helper macros used for code-generator.
+ */
+
 #ifndef oatpp_macro_ForEach_hpp
 #define oatpp_macro_ForEach_hpp
 

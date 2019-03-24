@@ -22,6 +22,26 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains "undefs" for DTO code generating macro. <br>
+ * Usage:<br>
+ *
+ * ```cpp
+ * #include OATPP_CODEGEN_BEGIN(DTO)
+ * ...
+ * // Generated Endpoints.
+ * ...
+ * #include OATPP_CODEGEN_END(DTO)
+ * ```
+ *
+ *
+ * *For details see:*
+ * <ul>
+ *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
+ *   <li>&id:oatpp::data::mapping::type::Object;</li>
+ * </ul>
+ */
+
 #undef DTO_INIT
 
 // Fields

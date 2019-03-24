@@ -30,17 +30,17 @@
 
 namespace oatpp { namespace concurrency {
 
-v_int32 Thread::setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
+v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
   return setThreadAffinityToCpuRange(nativeHandle, cpuIndex, cpuIndex);
 }
   
-v_int32 Thread::setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu) {
+v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 firstCpuIndex, v_int32 lastCpuIndex) {
 #if defined(_GNU_SOURCE)
   
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
   
-  for(v_int32 i = fromCpu; i <= toCpu; i++) {
+  for(v_int32 i = firstCpuIndex; i <= lastCpuIndex; i++) {
     CPU_SET(i, &cpuset);
   }
     
@@ -56,7 +56,7 @@ v_int32 Thread::setThreadAffinityToCpuRange(std::thread::native_handle_type nati
 #endif
 }
   
-v_int32 Thread::calcHardwareConcurrency() {
+v_int32 calcHardwareConcurrency() {
 #if !defined(OATPP_THREAD_HARDWARE_CONCURRENCY)
   v_int32 concurrency = std::thread::hardware_concurrency();
   if(concurrency == 0) {
@@ -69,7 +69,7 @@ v_int32 Thread::calcHardwareConcurrency() {
 #endif
 }
   
-v_int32 Thread::getHardwareConcurrency() {
+v_int32 getHardwareConcurrency() {
   static v_int32 concurrency = calcHardwareConcurrency();
   return concurrency;
 }

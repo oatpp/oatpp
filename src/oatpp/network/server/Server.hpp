@@ -29,8 +29,6 @@
 
 #include "oatpp/network/ConnectionProvider.hpp"
 
-#include "oatpp/core/concurrency/Runnable.hpp"
-
 #include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/base/Countable.hpp"
@@ -40,7 +38,11 @@
 
 namespace oatpp { namespace network { namespace server {
 
-class Server : public base::Countable, public concurrency::Runnable{
+/**
+ * Server calls &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
+ * to &id:oatpp::network::server::ConnectionHandler;.
+ */
+class Server : public base::Countable {
 private:
 
   void mainLoop();
@@ -58,32 +60,70 @@ private:
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
   
 public:
-  
-  Server(
-    const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
-    const std::shared_ptr<ConnectionHandler>& connectionHandler
-  )
-    : m_status(STATUS_CREATED)
-    , m_connectionProvider(connectionProvider)
-    , m_connectionHandler(connectionHandler)
-  {}
+
+  /**
+   * Constructor.
+   * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
+   * @param connectionHandler - &id:oatpp::network::server::ConnectionHandler;.
+   */
+  Server(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
+         const std::shared_ptr<ConnectionHandler>& connectionHandler);
   
 public:
-  
+
+  /**
+   * Status constant.
+   */
   static const v_int32 STATUS_CREATED;
+
+  /**
+   * Status constant.
+   */
   static const v_int32 STATUS_RUNNING;
+
+  /**
+   * Status constant.
+   */
   static const v_int32 STATUS_STOPPING;
+
+  /**
+   * Status constant.
+   */
   static const v_int32 STATUS_DONE;
-  
+
+  /**
+   * Create shared Server.
+   * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
+   * @param connectionHandler - &id:oatpp::network::server::ConnectionHandler;.
+   * @return - `std::shared_ptr` to Server.
+   */
   static std::shared_ptr<Server> createShared(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
-                                        const std::shared_ptr<ConnectionHandler>& connectionHandler){
+                                              const std::shared_ptr<ConnectionHandler>& connectionHandler){
     return std::make_shared<Server>(connectionProvider, connectionHandler);
   }
-  
-  void run() override;
-  
+
+  /**
+   * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
+   * to &id:oatpp::network::server::ConnectionHandler;.
+   */
+  void run();
+
+  /**
+   * Break server loop.
+   * Note: thread can still be blocked on the &l:Server::run (); call as it may be waiting for ConnectionProvider to provide connection.
+   */
   void stop();
-  
+
+  /**
+   * Get server status.
+   * @return - one of:<br>
+   * <ul>
+   *   <li>&l:Server::STATUS_CREATED;</li>
+   *   <li>&l:Server::STATUS_RUNNING;</li>
+   *   <li>&l:Server::STATUS_STOPPING;</li>
+   *   <li>&l:Server::STATUS_DONE;</li>
+   * </ul>
+   */
   v_int32 getStatus();
   
 };

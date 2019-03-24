@@ -36,20 +36,42 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 class Type; // FWD
   
 namespace __class {
+  /**
+   * Void Object Class.
+   */
   class Void {
   public:
+    /**
+     * Name of the class - CLASS_NAME = "Void".
+     */
     static const char* const CLASS_NAME;
+
+    /**
+     * Get class type information.
+     * @return - &l:Type;
+     */
     static Type* getType();
   };
 }
-  
+
+/**
+ * PolymorphicWrapper holds std::shared_ptr to object, object static type, plus object dynamic type information.
+ * @tparam T - Object Type
+ */
 template <class T>
 class PolymorphicWrapper {
 protected:
   std::shared_ptr<T> m_ptr;
 public:
+  /**
+   * Static object type
+   */
   typedef T ObjectType;
 public:
+  /**
+   * PolymorphicWrapper has no static object Class info.
+   * It treats object as of class &id:oatpp::data::mapping::type::__class::Void;.
+   */
   typedef __class::Void Class;
 public:
   
@@ -133,7 +155,11 @@ public:
   explicit operator bool() const {
     return m_ptr.operator bool();
   }
-  
+
+  /**
+   * Value type information.
+   * See &l:Type;.
+   */
   const Type* const valueType;
   
 };
@@ -142,12 +168,23 @@ template<class T, class F>
 inline PolymorphicWrapper<T> static_wrapper_cast(const F& from){
   return PolymorphicWrapper<T>(std::static_pointer_cast<T>(from.getPtr()), from.valueType);
 }
-  
+
+/**
+ * ObjectWrapper holds std::shared_ptr to object, object static type, object static class information, plus object dynamic type information.
+ * @tparam T - Object type.
+ * @tparam Clazz - Static Object class information.
+ */
 template <class T, class Clazz>
 class ObjectWrapper : public PolymorphicWrapper<T>{
 public:
+  /**
+   * Object type.
+   */
   typedef T ObjectType;
 public:
+  /**
+   * Static object class information.
+   */
   typedef Clazz Class;
 public:
   ObjectWrapper(const std::shared_ptr<T>& ptr, const type::Type* const valueType)
@@ -202,105 +239,162 @@ public:
   }
   
 };
-  
+
+/**
+ * PolymorphicWrapper over &id:oatpp::base::Countable; object.
+ */
 typedef PolymorphicWrapper<oatpp::base::Countable> AbstractObjectWrapper;
-  
+
+/**
+ * Object type data.
+ */
 class Type {
 public:
   typedef AbstractObjectWrapper (*Creator)();
 public:
   class Property; // FWD
 public:
-  
+
+  /**
+   * Object type properties table.
+   */
   class Properties {
   private:
     std::unordered_map<std::string, Property*> m_map;
     std::list<Property*> m_list;
   public:
-    
-    void pushBack(Property* property);
-    void pushFrontAll(Properties* properties);
-    
+
     /**
-     *  get properties as unordered map for random access
+     * Add property to the end of the list.
+     * @param property
+     */
+    void pushBack(Property* property);
+
+    /**
+     * Add all properties to the beginning of the list.
+     * @param properties
+     */
+    void pushFrontAll(Properties* properties);
+
+    /**
+     * Get properties as unordered map for random access.
+     * @return reference to std::unordered_map of std::string to &id:oatpp::data::mapping::type::Type::Property;*.
      */
     const std::unordered_map<std::string, Property*>& getMap() const {
       return m_map;
     }
-    
+
     /**
-     *  get properties in ordered way
+     * Get properties in ordered way.
+     * @return std::list of &id:oatpp::data::mapping::type::Type::Property;*.
      */
     const std::list<Property*>& getList() const {
       return m_list;
     }
     
   };
-  //typedef std::unordered_map<std::string, Property*> Properties;
+
 public:
-  
+
+  /**
+   * Class to map object properties.
+   */
   class Property {
   private:
     const v_int64 offset;
   public:
-    
-    Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType)
-      : offset(pOffset)
-      , name(pName)
-      , type(pType)
-    {
-      properties->pushBack(this);
-    }
-    
+
+    /**
+     * Constructor.
+     * @param properties - &l:Type::Properties;*. to push this property to.
+     * @param pOffset - memory offset of object field from object start address.
+     * @param pName - name of the property.
+     * @param pType - &l:Type; of the property.
+     */
+    Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType);
+
+    /**
+     * Property name.
+     */
     const char* const name;
+
+    /**
+     * Property type.
+     */
     const Type* const type;
-    
-    void set(void* object, const AbstractObjectWrapper& value) {
-      AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
-      *property = value;
-    }
-    
-    AbstractObjectWrapper get(void* object) {
-      AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
-      return *property;
-    }
-    
-    AbstractObjectWrapper& getAsRef(void* object) {
-      AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
-      return *property;
-    }
+
+    /**
+     * Set value of object field mapped by this property.
+     * @param object - object address.
+     * @param value - value to set.
+     */
+    void set(void* object, const AbstractObjectWrapper& value);
+
+    /**
+     * Get value of object field mapped by this property.
+     * @param object - object address.
+     * @return - value of the field.
+     */
+    AbstractObjectWrapper get(void* object);
+
+    /**
+     * Get reference to ObjectWrapper of the object field.
+     * @param object - object address.
+     * @return - reference to ObjectWrapper of the object field.
+     */
+    AbstractObjectWrapper& getAsRef(void* object);
     
   };
   
 public:
-  
-  Type(const char* pName, const char* pNameQualifier)
-    : name(pName)
-    , nameQualifier(pNameQualifier)
-    , creator(nullptr)
-    , properties(nullptr)
-  {}
-  
-  Type(const char* pName, const char* pNameQualifier, Creator pCreator)
-    : name(pName)
-    , nameQualifier(pNameQualifier)
-    , creator(pCreator)
-    , properties(nullptr)
-  {}
-  
-  Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
-    : name(pName)
-    , nameQualifier(pNameQualifier)
-    , creator(pCreator)
-    , properties(pProperties)
-  {}
-  
+
+  /**
+   * Constructor.
+   * @param pName - type name.
+   * @param pNameQualifier - type name qualifier.
+   */
+  Type(const char* pName, const char* pNameQualifier);
+
+  /**
+   * Constructor.
+   * @param pName - type name.
+   * @param pNameQualifier - type name qualifier.
+   * @param pCreator - function pointer of Creator - function to create instance of this type.
+   */
+  Type(const char* pName, const char* pNameQualifier, Creator pCreator);
+
+  /**
+   * Constructor.
+   * @param pName - type name.
+   * @param pNameQualifier - type name qualifier.
+   * @param pCreator - function pointer of Creator - function to create instance of this type.
+   * @param pProperties - pointer to type properties.
+   */
+  Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties);
+
+  /**
+   * Type name.
+   */
   const char* const name;
+
+  /**
+   * Type name qualifier.
+   */
   const char* const nameQualifier;
+
+  /**
+   * List of type parameters - for templated types.
+   */
   std::list<Type*> params;
-  
+
+  /**
+   * Creator - function to create instance of this type.
+   */
   const Creator creator;
-  
+
+  /**
+   * Pointer to type properties.
+   */
   const Properties* const properties;
   
 };

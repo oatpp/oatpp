@@ -34,18 +34,19 @@
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/network/Connection.hpp"
 
-#include "oatpp/core/concurrency/Thread.hpp"
-#include "oatpp/core/concurrency/Runnable.hpp"
-
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace server {
-  
+
+/**
+ * Simple ConnectionHandler (&id:oatpp::network::server::ConnectionHandler;) for handling HTTP communication. <br>
+ * Will create one thread per each connection to handle communication.
+ */
 class HttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
   
-  class Task : public base::Countable, public concurrency::Runnable{
+  class Task : public base::Countable {
   private:
     HttpRouter* m_router;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
@@ -66,7 +67,7 @@ private:
                                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                                               HttpProcessor::RequestInterceptors* requestInterceptors);
     
-    void run() override;
+    void run();
     
   };
   
@@ -76,14 +77,42 @@ private:
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   HttpProcessor::RequestInterceptors m_requestInterceptors;
 public:
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   */
   HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router);
 public:
-  
+
+  /**
+   * Create shared HttpConnectionHandler.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @return - `std::shared_ptr` to HttpConnectionHandler.
+   */
   static std::shared_ptr<HttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router);
 
+  /**
+   * Set root error handler for all requests coming through this Connection Handler.
+   * All unhandled errors will be handled by this error handler.
+   * @param errorHandler - &id:oatpp::web::server::handler::ErrorHandler;.
+   */
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
+
+  /**
+   * Set request interceptor. Request intercepted after route is resolved but before corresponding route subscriber is called.
+   * @param interceptor - &id:oatpp::web::server::handler::RequestInterceptor;.
+   */
   void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
+
+  /**
+   * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
+   * @param connection - &id:oatpp::data::stream::IOStream; representing connection.
+   */
   void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+
+  /**
+   * Tell all worker threads to exit when done.
+   */
   void stop() override;
   
 };

@@ -30,9 +30,16 @@
 #include "oatpp/encoding/Hex.hpp"
 
 namespace oatpp { namespace algorithm {
-  
+
+/**
+ * Implementation of CRC-32. Cyclic redundancy check algorithm.
+ */
 class CRC32 {
 public:
+
+  /**
+   * Precalculated table
+   */
   static const p_word32 TABLE_04C11DB7;
 public:
 
@@ -42,7 +49,17 @@ public:
    *  Generates v_word32 table[256] for polynomial
    */
   static p_word32 generateTable(v_word32 poly);
-  
+
+  /**
+   * Calculate CRC32 value for buffer of defined size
+   * @param buffer
+   * @param size
+   * @param crc
+   * @param initValue
+   * @param xorOut
+   * @param table
+   * @return - CRC32 value (v_word32)
+   */
   static v_word32 calc(const void *buffer, v_int32 size, v_word32 crc = 0, v_word32 initValue = 0xFFFFFFFF, v_word32 xorOut = 0xFFFFFFFF, p_word32 table = TABLE_04C11DB7);
   
 };

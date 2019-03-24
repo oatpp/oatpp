@@ -35,11 +35,6 @@ DtoBody::DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
 {}
 
 std::shared_ptr<DtoBody> DtoBody::createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                               oatpp::data::mapping::ObjectMapper* objectMapper) {
-  return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, false);
-}
-
-std::shared_ptr<DtoBody> DtoBody::createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                oatpp::data::mapping::ObjectMapper* objectMapper,
                                                bool chunked) {
   return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, chunked);

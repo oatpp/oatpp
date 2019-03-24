@@ -37,7 +37,10 @@ namespace __class {
   }
   
 }
-  
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Type::Properties
+
 void Type::Properties::pushBack(Property* property) {
   m_map.insert({property->name, property});
   m_list.push_back(property);
@@ -47,5 +50,55 @@ void Type::Properties::pushFrontAll(Properties* properties) {
   m_map.insert(properties->m_map.begin(), properties->m_map.end());
   m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Type::Property
+
+Type::Property::Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType)
+  : offset(pOffset)
+  , name(pName)
+  , type(pType)
+{
+  properties->pushBack(this);
+}
+
+void Type::Property::set(void* object, const AbstractObjectWrapper& value) {
+  AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+  *property = value;
+}
+
+AbstractObjectWrapper Type::Property::get(void* object) {
+  AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+  return *property;
+}
+
+AbstractObjectWrapper& Type::Property::getAsRef(void* object) {
+  AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+  return *property;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Type
+
+Type::Type(const char* pName, const char* pNameQualifier)
+  : name(pName)
+  , nameQualifier(pNameQualifier)
+  , creator(nullptr)
+  , properties(nullptr)
+{}
+
+Type::Type(const char* pName, const char* pNameQualifier, Creator pCreator)
+  : name(pName)
+  , nameQualifier(pNameQualifier)
+  , creator(pCreator)
+  , properties(nullptr)
+{}
+
+Type::Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
+  : name(pName)
+  , nameQualifier(pNameQualifier)
+  , creator(pCreator)
+  , properties(pProperties)
+{}
   
 }}}}

@@ -27,7 +27,6 @@
 #include "oatpp/network/virtual_/Pipe.hpp"
 
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-#include "oatpp/core/concurrency/Thread.hpp"
 
 #include "oatpp-test/Checker.hpp"
 
@@ -42,7 +41,7 @@ namespace {
   const char* DATA_CHUNK = "<0123456789/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ>";
   const data::v_io_size CHUNK_SIZE = std::strlen(DATA_CHUNK);
 
-  class WriterTask : public oatpp::concurrency::Runnable {
+  class WriterTask : public oatpp::base::Countable {
   private:
     std::shared_ptr<Pipe> m_pipe;
     v_int32 m_chunksToTransfer;
@@ -55,7 +54,7 @@ namespace {
       , m_chunksToTransfer(chunksToTransfer)
     {}
     
-    void run() override {
+    void run() {
       while (m_transferedBytes < CHUNK_SIZE * m_chunksToTransfer) {
         auto res = m_pipe->getWriter()->write(&DATA_CHUNK[m_position], CHUNK_SIZE - m_position);
         if(res > 0) {
@@ -71,7 +70,7 @@ namespace {
     
   };
   
-  class ReaderTask : public oatpp::concurrency::Runnable {
+  class ReaderTask : public oatpp::base::Countable {
   private:
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
     std::shared_ptr<Pipe> m_pipe;
@@ -86,7 +85,7 @@ namespace {
       , m_chunksToTransfer(chunksToTransfer)
     {}
     
-    void run() override {
+    void run() {
       v_char8 readBuffer[256];
       while (m_buffer->getSize() < CHUNK_SIZE * m_chunksToTransfer) {
         auto res = m_pipe->getReader()->read(readBuffer, 256);
@@ -108,12 +107,12 @@ namespace {
     {
       
       oatpp::test::PerformanceChecker timer("timer");
-      
-      auto writerThread = oatpp::concurrency::Thread::createShared(std::make_shared<WriterTask>(pipe, chunksToTransfer));
-      auto readerThread = oatpp::concurrency::Thread::createShared(std::make_shared<ReaderTask>(buffer, pipe, chunksToTransfer));
+
+      std::thread writerThread(&WriterTask::run, WriterTask(pipe, chunksToTransfer));
+      std::thread readerThread(&ReaderTask::run, ReaderTask(buffer, pipe, chunksToTransfer));
     
-      writerThread->join();
-      readerThread->join();
+      writerThread.join();
+      readerThread.join();
       
     }
     

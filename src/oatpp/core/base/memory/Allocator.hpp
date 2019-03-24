@@ -29,16 +29,35 @@
 
 namespace oatpp { namespace base { namespace memory {
 
+/**
+ * Pool Information for Pool Allocators.
+ */
 class AllocatorPoolInfo {
 public:
-  AllocatorPoolInfo(const char* pPoolName, v_int32 pPoolChunkSize)
-    : poolName(pPoolName)
-    , poolChunkSize(pPoolChunkSize)
-  {}
+  /**
+   * Constructor.
+   * @param pPoolName - memory pool name.
+   * @param pPoolChunkSize - memory pool chunk size. For more about chunk size see &id:oatpp::base::memory::MemoryPool::MemoryPool;.
+   */
+  AllocatorPoolInfo(const char* pPoolName, v_int32 pPoolChunkSize);
+
+  /**
+   * Memory pool name.
+   */
   const char* const poolName;
+
+  /**
+   * Memory pool chunk size.
+   * For more about chunk size see &id:oatpp::base::memory::MemoryPool::MemoryPool;.
+   */
   const v_int32 poolChunkSize;
 };
-  
+
+/**
+ * Allocator to allocate shared object on &id:oatpp::base::memory::MemoryPool;
+ * Used to allocate shared_ptr control block and an object in the same memory entry of the pool.
+ * @tparam T - type of the object to allocate.
+ */
 template<class T>
 class PoolSharedObjectAllocator {
 public:
@@ -79,7 +98,11 @@ template <typename T, typename U>
 inline bool operator != (const PoolSharedObjectAllocator<T>& a, const PoolSharedObjectAllocator<U>& b) {
   return !(a == b);
 }
-  
+
+/**
+ * Same as &l:PoolSharedObjectAllocator; but uses `thread_local` &id:oatpp::base::memory::MemoryPool;.
+ * @tparam T - type of the object to allocate.
+ */
 template<class T>
 class ThreadLocalPoolSharedObjectAllocator {
 public:
@@ -120,17 +143,26 @@ template <typename T, typename U>
 inline bool operator != (const ThreadLocalPoolSharedObjectAllocator<T>& a, const ThreadLocalPoolSharedObjectAllocator<U>& b) {
   return !(a == b);
 }
-  
+
+/**
+ * Extra information for, and about allocation.
+ * Used for variable-size objects allocations. (ex.: for strings).
+ */
 class AllocationExtras {
 public:
   AllocationExtras(v_int32 pExtraWanted)
-  : extraWanted(pExtraWanted)
+    : extraWanted(pExtraWanted)
   {}
   const v_int32 extraWanted;
   void* extraPtr;
   v_int32 baseSize;
 };
-  
+
+/**
+ * Allocator for shared objects.
+ * Used to allocate object and shared_ptr's control block in the same memory entry.
+ * @tparam T - type of the object to allocate.
+ */
 template<class T>
 class SharedObjectAllocator {
 public:
@@ -160,7 +192,12 @@ public:
   }
   
 };
-  
+
+/**
+ * Allocator for shared objects. Allocates objects on the pool provided.
+ * @tparam T - type of object to allocate.
+ * @tparam P - type of memory pool to allocate object on.
+ */
 template<class T, class P>
 class CustomPoolSharedObjectAllocator {
 public:
@@ -203,7 +240,7 @@ template <typename T, typename U>
 inline bool operator != (const SharedObjectAllocator<T>& a, const SharedObjectAllocator<U>& b) {
   return !(a == b);
 }
-  
+
 template<typename T, typename ... Args>
 static std::shared_ptr<T> allocateSharedWithExtras(AllocationExtras& extras, Args... args){
   typedef SharedObjectAllocator<T> _Allocator;

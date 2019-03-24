@@ -83,7 +83,7 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
   
 }
 
-void SimpleBodyDecoder::decode(const Protocol::Headers& headers,
+void SimpleBodyDecoder::decode(const Headers& headers,
                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
   
@@ -219,7 +219,7 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
 
 oatpp::async::Action SimpleBodyDecoder::decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                     const oatpp::async::Action& actionOnReturn,
-                                                    const Protocol::Headers& headers,
+                                                    const Headers& headers,
                                                     const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                     const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
   auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);

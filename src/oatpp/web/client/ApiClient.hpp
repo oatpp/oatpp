@@ -50,7 +50,10 @@
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace client {
-  
+
+/**
+ * ApiClient class provides convenient Retrofit-like interface over the oatpp::web::client::RequestExecutor.
+ */
 class ApiClient : public oatpp::base::Countable {
 public:
   static constexpr const char* const TAG = "Client";
@@ -67,18 +70,56 @@ private:
     oatpp::String
   > StringToStringMap;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Status;.
+   */
   typedef oatpp::web::protocol::http::Status Status;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Header;.
+   */
   typedef oatpp::web::protocol::http::Header Header;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::String;.
+   */
   typedef oatpp::data::mapping::type::String String;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
+   */
   typedef oatpp::data::mapping::type::Int32 Int32;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
+   */
   typedef oatpp::data::mapping::type::Int64 Int64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
+   */
   typedef oatpp::data::mapping::type::Float32 Float32;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Float64;.
+   */
   typedef oatpp::data::mapping::type::Float64 Float64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
+   */
   typedef oatpp::data::mapping::type::Boolean Boolean;
 public:
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   typedef oatpp::web::protocol::http::incoming::Response Response;
 public:
+
+  /**
+   * Convenience typedef for &id:oatpp::web::client::RequestExecutor::AsyncCallback;.
+   */
   typedef RequestExecutor::AsyncCallback AsyncCallback;
 protected:
   
@@ -106,7 +147,7 @@ private:
   void addPathQueryParams(oatpp::data::stream::OutputStream* stream,
                           const std::shared_ptr<StringToParamMap>& params);
   
-  oatpp::web::protocol::http::Protocol::Headers convertParamsMap(const std::shared_ptr<StringToParamMap>& params);
+  oatpp::web::protocol::http::Headers convertParamsMap(const std::shared_ptr<StringToParamMap>& params);
   
 protected:
   
@@ -134,42 +175,33 @@ public:
 protected:
   
   virtual oatpp::String formatPath(const PathPattern& pathPattern,
-                                                     const std::shared_ptr<StringToParamMap>& pathParams,
-                                                     const std::shared_ptr<StringToParamMap>& queryParams) {
-    oatpp::data::stream::ChunkedBuffer stream;
-    formatPath(&stream, pathPattern, pathParams);
-    if(queryParams) {
-      addPathQueryParams(&stream, queryParams);
-    }
-    return stream.toString();
-  }
+                                   const std::shared_ptr<StringToParamMap>& pathParams,
+                                   const std::shared_ptr<StringToParamMap>& queryParams);
   
 public:
-  
-  virtual std::shared_ptr<RequestExecutor::ConnectionHandle> getConnection() {
-    return m_requestExecutor->getConnection();
-  }
-  
-  virtual oatpp::async::Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, RequestExecutor::AsyncConnectionCallback callback) {
-    return m_requestExecutor->getConnectionAsync(parentCoroutine, callback);
-  }
 
-  
+  /**
+   * Call &id:oatpp::web::client::RequestExecutor::getConnection;.
+   * @return - &id:oatpp::web::client::RequestExecutor::ConnectionHandle;.
+   */
+  virtual std::shared_ptr<RequestExecutor::ConnectionHandle> getConnection();
+
+  /**
+   * Call &id:oatpp::web::client::RequestExecutor::getConnectionAsync;.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - function pointer to asynchronous callback.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, RequestExecutor::AsyncConnectionCallback callback);
+
+
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const PathPattern& pathPattern,
                                                    const std::shared_ptr<StringToParamMap>& headers,
                                                    const std::shared_ptr<StringToParamMap>& pathParams,
                                                    const std::shared_ptr<StringToParamMap>& queryParams,
                                                    const std::shared_ptr<RequestExecutor::Body>& body,
-                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr) {
-    
-    return m_requestExecutor->execute(method,
-                                      formatPath(pathPattern, pathParams, queryParams),
-                                      convertParamsMap(headers),
-                                      body,
-                                      connectionHandle);
-    
-  }
+                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
   virtual oatpp::async::Action executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                    AsyncCallback callback,
@@ -179,17 +211,7 @@ public:
                                                    const std::shared_ptr<StringToParamMap>& pathParams,
                                                    const std::shared_ptr<StringToParamMap>& queryParams,
                                                    const std::shared_ptr<RequestExecutor::Body>& body,
-                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr) {
-    
-    return m_requestExecutor->executeAsync(parentCoroutine,
-                                           callback,
-                                           method,
-                                           formatPath(pathPattern, pathParams, queryParams),
-                                           convertParamsMap(headers),
-                                           body,
-                                           connectionHandle);
-    
-  }
+                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
 };
   

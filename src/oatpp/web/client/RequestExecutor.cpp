@@ -23,3 +23,26 @@
  ***************************************************************************/
 
 #include "RequestExecutor.hpp"
+
+namespace oatpp { namespace web { namespace client {
+
+RequestExecutor::RequestExecutionError::RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode)
+  : std::runtime_error(message)
+  , m_errorCode(errorCode)
+  , m_message(message)
+  , m_readErrorCode(readErrorCode)
+{}
+
+v_int32 RequestExecutor::RequestExecutionError::getErrorCode() const {
+  return m_errorCode;
+}
+
+const char* RequestExecutor::RequestExecutionError::getMessage() const {
+  return m_message;
+}
+
+v_int32 RequestExecutor::RequestExecutionError::getReadErrorCode() const {
+  return m_readErrorCode;
+}
+
+}}}

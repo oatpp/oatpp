@@ -29,17 +29,38 @@
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
-  
-template<class Param, class ReturnType>
+
+/**
+ * Abstract subscriber which can subscribe to incoming events from &id:oatpp::web::url::mapping::Router; and process those events.
+ * @tparam Event - incoming event type.
+ * @tparam Result - result of event processing.
+ */
+template<class Event, class Result>
 class Subscriber {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::async::Action;
+   */
   typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const ReturnType&);
+  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const Result&);
 public:
-  virtual ReturnType processUrl(const Param& param) = 0;
-  virtual Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 AsyncCallback callback,
-                                 const Param& param) = 0;
+  /**
+   * Process event.
+   * @param Event - some incoming data.
+   * @return - some outgoing data.
+   */
+  virtual Result processEvent(const Event& event) = 0;
+
+  /**
+   * Process event in asynchronous manner.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - pointer to callback function.
+   * @param event - some incoming data.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                   AsyncCallback callback,
+                                   const Event& event) = 0;
 };
   
 }}}}

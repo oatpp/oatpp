@@ -37,43 +37,81 @@
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
-  
+
+/**
+ * Class responsible to map "path-pattern" to "Subscriber".
+ * @tparam Param - input parameter for Subscriber.
+ * @tparam ReturnType - output parameter of Subscriber.
+ */
 template<class Param, class ReturnType>
 class Router : public base::Countable{
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::url::mapping::Subscriber;.
+   */
   typedef Subscriber<Param, ReturnType> UrlSubscriber;
 private:
+
+  /**
+   * Convenience typedef &id:oatpp::data::share::StringKeyLabel;.
+   */
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
-  
+
+  /**
+   * Resolved "Route" for "path-pattern"
+   */
   class Route {
   private:
     UrlSubscriber* m_subscriber;
   public:
-    
+
+    /**
+     * Default constructor.
+     */
     Route()
       : m_subscriber(nullptr)
     {}
-    
+
+    /**
+     * Constructor.
+     * @param subscriber - &id:Router::UrlSubscriber;.
+     * @param pMatchMap - Match map of resolved path containing resolved path variables.
+     */
     Route(UrlSubscriber* subscriber, const Pattern::MatchMap& pMatchMap)
       : m_subscriber(subscriber)
       , matchMap(pMatchMap)
     {}
-    
-    ReturnType processUrl(const Param& param) const {
-      return m_subscriber->processUrl(param);
+
+    /**
+     * Call &id:oatpp::web::url::mapping::Subscriber::processEvent; with corresponding parameter.
+     * @param param
+     * @return - corresponding ReturnType.
+     */
+    ReturnType processEvent(const Param& param) const {
+      return m_subscriber->processEvent(param);
     }
-    
-    oatpp::async::Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                         typename UrlSubscriber::AsyncCallback callback,
-                                         const Param& param) const {
-      return m_subscriber->processUrlAsync(parentCoroutine, callback, param);
+
+    /**
+     * Call &id:oatpp::web::url::mapping::Subscriber::processEventAsync; with corresponding parameter.
+     * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
+     * @param callback - pointer to callback function.
+     * @param param
+     * @return - &id:oatpp::async::Action;.
+     */
+    oatpp::async::Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+                                           typename UrlSubscriber::AsyncCallback callback,
+                                           const Param& param) const {
+      return m_subscriber->processEventAsync(parentCoroutine, callback, param);
     }
     
     explicit operator bool() const {
       return m_subscriber != nullptr;
     }
-    
+
+    /**
+     * Match map of resolved path containing resolved path variables.
+     */
     Pattern::MatchMap matchMap;
     
   };
@@ -108,14 +146,24 @@ public:
   static std::shared_ptr<Router> createShared(){
     return std::make_shared<Router>();
   }
-  
+
+  /**
+   * Add path-pattern subscriber.
+   * @param urlPattern
+   * @param subscriber
+   */
   void addSubscriber(const oatpp::String& urlPattern,
                      const std::shared_ptr<UrlSubscriber>& subscriber){
     auto pattern = Pattern::parse(urlPattern);
     auto pair = Pair::createShared(pattern, subscriber);
     m_subscribers->pushBack(pair);
   }
-  
+
+  /**
+   * Resolve path to corresponding subscriber.
+   * @param url
+   * @return - &id:Router::Route;.
+   */
   Route getRoute(const StringKeyLabel& url){
     auto curr = m_subscribers->getFirstNode();
     while(curr != nullptr) {

@@ -33,7 +33,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 /**
- * Class http::incoming::Request AKA IncomingRequest represents client's incoming request
+ * Class http::incoming::Request AKA IncomingRequest represents client's incoming request.
  */
 class Request : public oatpp::base::Countable {
 public:
@@ -43,7 +43,7 @@ private:
 
   http::RequestStartingLine m_startingLine;
   url::mapping::Pattern::MatchMap m_pathVariables;
-  http::Protocol::Headers m_headers;
+  http::Headers m_headers;
   std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
   
   /*
@@ -53,20 +53,20 @@ private:
   std::shared_ptr<const http::incoming::BodyDecoder> m_bodyDecoder;
 
   mutable bool m_queryParamsParsed; // used for lazy parsing of QueryParams
-  mutable http::Protocol::QueryParams m_queryParams;
+  mutable http::QueryParams m_queryParams;
 
 public:
   
   Request(const http::RequestStartingLine& startingLine,
           const url::mapping::Pattern::MatchMap& pathVariables,
-          const http::Protocol::Headers& headers,
+          const http::Headers& headers,
           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 public:
   
   static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
                                                const url::mapping::Pattern::MatchMap& pathVariables,
-                                               const http::Protocol::Headers& headers,
+                                               const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 
@@ -76,7 +76,7 @@ public:
    * Please note: lazy parsing of query parameters is not thread-safe!
    * @return map<key, value> for "&key=value"
    */
-  const http::Protocol::QueryParams& getQueryParameters() const;
+  const http::QueryParams& getQueryParameters() const;
 
   /**
    * Get query parameter value by name
@@ -86,7 +86,7 @@ public:
   oatpp::String getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const;
 
   /**
-   *
+   * Get query parameter value by name with defaultValue
    * @param name
    * @param defaultValue
    * @return query parameter value or defaultValue if no such parameter found
@@ -100,8 +100,8 @@ public:
   const http::RequestStartingLine& getStartingLine() const;
 
   /**
-   * Get path variables according to path-pattern.
-   * Ex. given request path="/sum/19/1" for path-pattern="/sum/{a}/{b}"
+   * Get path variables according to path-pattern. <br>
+   * Ex. given request path="/sum/19/1" for path-pattern="/sum/{a}/{b}" <br>
    * getPathVariables().getVariable("a") == 19, getPathVariables().getVariable("b") == 1.
    *
    * @return url MatchMap
@@ -112,7 +112,7 @@ public:
    * Get request's headers map
    * @return Headers map
    */
-  const http::Protocol::Headers& getHeaders() const;
+  const http::Headers& getHeaders() const;
 
   /**
    * Get request's body stream

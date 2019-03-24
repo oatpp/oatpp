@@ -29,7 +29,12 @@
 #include "oatpp/network/ConnectionProvider.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
-  
+
+/**
+ * Provider of "virtual" connections.
+ * See &id:oatpp::network::virtual_::Interface;, &id:oatpp::network::virtual_::Socket; <br>
+ * Extends &id:oatpp::network::ServerConnectionProvider;.
+ */
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
@@ -38,38 +43,53 @@ private:
   data::v_io_size m_maxAvailableToRead;
   data::v_io_size m_maxAvailableToWrite;
 public:
-  
-  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false)
-    : m_interface(interface)
-    , m_nonBlocking(nonBlocking)
-    , m_open(true)
-    , m_maxAvailableToRead(-1)
-    , m_maxAvailableToWrite(-1)
-  {
-    setProperty(PROPERTY_HOST, m_interface->getName());
-    setProperty(PROPERTY_PORT, "0");
-  }
-  
-  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false) {
-    return std::make_shared<ConnectionProvider>(interface, nonBlocking);
-  }
 
   /**
-   * this one used for testing purposes only
-   * set to -1 in order to ignore this value
+   * Constructor.
+   * @param interface - &id:oatpp::network::virtual_::Interface;.
+   * @param nonBlocking - `true` to set non blocking regime for provided connections.
    */
-  void setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite) {
-    m_maxAvailableToRead = maxToRead;
-    m_maxAvailableToWrite = maxToWrite;
-  }
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false);
 
+  /**
+   * Create shared ConnectionProvider.
+   * @param interface - &id:oatpp::network::virtual_::Interface;.
+   * @param nonBlocking - `true` to set non blocking regime for provided connections.
+   * @return - `std::shared_ptr` to ConnectionProvider.
+   */
+  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false);
+
+  /**
+   * Limit the available amount of bytes to read from socket and limit the available amount of bytes to write to socket. <br>
+   * This method is used for testing purposes only.<br>
+   * @param maxToRead - maximum available amount of bytes to read.
+   * @param maxToWrite - maximum available amount of bytes to write.
+   */
+  void setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite);
+
+  /**
+   * Break accepting loop.
+   */
   void close() override;
-  
+
+  /**
+   * Get incoming connection.
+   * @return &id:oatpp::data::stream::IOStream;.
+   */
   std::shared_ptr<IOStream> getConnection() override;
-  
+
+  /**
+   * **NOT IMPLEMENTED!**<br>
+   * No need to implement this.<br>
+   * For Asynchronous IO in oatpp it is considered to be a good practice
+   * to accept connections in a seperate thread with the blocking accept()
+   * and then process connections in Asynchronous manner with non-blocking read/write.
+   * <br>
+   * *It may be implemented later.*
+   */
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                             AsyncCallback callback) override {
-    /**
+    /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
      *  to accept connections in a seperate thread with the blocking accept()

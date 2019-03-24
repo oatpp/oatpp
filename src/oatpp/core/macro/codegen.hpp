@@ -22,6 +22,19 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains source code for `OATPP_CODEGEN_BEGIN(NAME)` and `OATPP_CODEGEN_END(NAME)` macros. <br>
+ * <br>
+ *
+ * More about use of `OATPP_CODEGEN_BEGIN` and `OATPP_CODEGEN_BEGIN` see: <br>
+ * <ul>
+ *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
+ *   <li>[ApiClient component](https://oatpp.io/docs/components/api-client/)</li>
+ *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
+ * </ul>
+ *
+ */
+
 #ifndef codegen_hpp
 #define codegen_hpp
 

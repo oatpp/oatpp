@@ -22,6 +22,26 @@
  *
  ***************************************************************************/
 
+/**[info]
+ * This file contains "defines" for ApiClient code generating macro. <br>
+ * Usage:<br>
+ *
+ * ```cpp
+ * #include OATPP_CODEGEN_BEGIN(ApiClient)
+ * ...
+ * // Generated API-Calls.
+ * ...
+ * #include OATPP_CODEGEN_END(ApiClient)
+ * ```
+ *
+ *
+ * *For details see:*
+ * <ul>
+ *   <li>[ApiClient component](https://oatpp.io/docs/components/api-client/)</li>
+ *   <li>&id:oatpp::web::client::ApiClient;</li>
+ * </ul>
+ */
+
 #include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -41,6 +61,10 @@
 
 // INIT
 
+/**
+ * Codegen macoro to be used in classes extending &id:oatpp::web::client::ApiClient; to generate required fields/methods/constructors for ApiClient.
+ * @param NAME - name of the ApiClient class.
+ */
 #define API_CLIENT_INIT(NAME) \
 public: \
   NAME(const std::shared_ptr<oatpp::web::client::RequestExecutor>& requestExecutor, \
@@ -176,6 +200,13 @@ OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
 #define OATPP_API_CALL__(X, NAME, METHOD, PATH, LIST) OATPP_API_CALL_(X, NAME, METHOD, PATH, LIST)
 #define OATPP_API_CALL___(NAME, METHOD, PATH, LIST) OATPP_API_CALL__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, PATH, LIST)
 
+/**
+ * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate REST API-Calls.
+ * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
+ * @param PATH - Path to endpoint (without host)
+ * @param NAME - Name of the generated method
+ * @return - std::shared_ptr to &id:oatpp::web::protocol::http::incoming::Response;
+ */
 #define API_CALL(METHOD, PATH, NAME, ...) \
 OATPP_API_CALL___(NAME, METHOD, PATH, (__VA_ARGS__))
 
@@ -239,5 +270,12 @@ oatpp::async::Action NAME(\
 #define OATPP_API_CALL_ASYNC__(X, NAME, METHOD, PATH, LIST) OATPP_API_CALL_ASYNC_(X, NAME, METHOD, PATH, LIST)
 #define OATPP_API_CALL_ASYNC___(NAME, METHOD, PATH, LIST) OATPP_API_CALL_ASYNC__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, PATH, LIST)
 
+/**
+ * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate Asynchronous REST API-Calls.
+ * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
+ * @param PATH - Path to endpoint (without host)
+ * @param NAME - Name of the generated method
+ * @return - &id:oatpp::async::Action;
+ */
 #define API_CALL_ASYNC(METHOD, PATH, NAME, ...) \
 OATPP_API_CALL_ASYNC___(NAME, METHOD, PATH, (__VA_ARGS__))

@@ -31,20 +31,50 @@
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace encoding {
-  
+
+/**
+ * Utility class for hex string encoding/decoding .
+ */
 class Hex {
 public:
   static const v_char8 A_D[];
   static const v_word16 A_W16[];
 public:
- static const char* const ERROR_UNKNOWN_SYMBOL;
+  /**
+   * Unknown symbol error.
+   */
+  static constexpr v_int32 ERROR_UNKNOWN_SYMBOL = 1;
 public:
-  
+
+  /**
+   * Write value as hex string to buffer.
+   * @param value - value to write.
+   * @param buffer - buffer for resultant string.
+   */
   static void writeWord16(v_word16 value, p_char8 buffer);
+
+  /**
+   * Write value as hex string to buffer.
+   * @param value - value to write.
+   * @param buffer - buffer for resultant string.
+   */
   static void writeWord32(v_word32 value, p_char8 buffer);
-  
-  static const char* readWord16(p_char8 buffer, v_word16& value);
-  static const char* readWord32(p_char8 buffer, v_word32& value);
+
+  /**
+   * Parse 4-char hex string to int16.
+   * @param buffer - buffer containing string to parse.
+   * @param value - out parameter. Resultant value.
+   * @return - 0 on success. Negative value on failure.
+   */
+  static v_int32 readWord16(p_char8 buffer, v_word16& value);
+
+  /**
+   * Parse 8-char hex string to int32.
+   * @param buffer - buffer containing string to parse.
+   * @param value - out parameter. Resultant value.
+   * @return - 0 on success. Negative value on failure.
+   */
+  static v_int32 readWord32(p_char8 buffer, v_word32& value);
   
 };
   

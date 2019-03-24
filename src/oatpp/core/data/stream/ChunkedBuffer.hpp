@@ -31,7 +31,10 @@
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
-  
+
+/**
+ * Buffer wich can grow by chunks and implements &id:oatpp::data::stream::OutputStream; interface.
+ */
 class ChunkedBuffer : public oatpp::base::Countable, public OutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
 public:
   static const char* ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA;
@@ -126,54 +129,102 @@ private:
   
 public:
 
-  ChunkedBuffer()
-    : m_size(0)
-    , m_chunkPos(0)
-    , m_firstEntry(nullptr)
-    , m_lastEntry(nullptr)
-  {}
-  
-  ~ChunkedBuffer() {
-    clear();
-  }
+  /**
+   * Constructor.
+   */
+  ChunkedBuffer();
+
+  /**
+   * Virtual Destructor.
+   */
+  ~ChunkedBuffer();
 
 public:
 
+  /**
+   * Deleted copy constructor.
+   */
   ChunkedBuffer(const ChunkedBuffer&) = delete;
+
   ChunkedBuffer& operator=(const ChunkedBuffer&) = delete;
   
 public:
 
+  /**
+   * Create shared ChunkedBuffer.
+   * @return `std::shared_ptr` to ChunkedBuffer.
+   */
   static std::shared_ptr<ChunkedBuffer> createShared(){
     return Shared_ChunkedBuffer_Pool::allocateShared();
   }
 
+  /**
+   * Write data to ChunkedBuffer. Implementation of &id:oatpp::data::stream::OutputStream::write; method.
+   * @param data - data to write.
+   * @param count - size of data in bytes.
+   * @return - actual number of bytes written.
+   */
   data::v_io_size write(const void *data, data::v_io_size count) override;
 
-  data::v_io_size readSubstring(void *buffer,
-                                        data::v_io_size pos,
-                                        data::v_io_size count);
+  /**
+   * Read part of ChunkedBuffer to buffer.
+   * @param buffer - buffer to write data to.
+   * @param pos - starting position in ChunkedBuffer to read data from.
+   * @param count - number of bytes to read.
+   * @return - actual number of bytes read from ChunkedBuffer and written to buffer.
+   */
+  data::v_io_size readSubstring(void *buffer, data::v_io_size pos, data::v_io_size count);
 
   /**
-   * return substring of the data written to stream; NOT NULL
+   * Create &id:oatpp::String; from part of ChunkedBuffer.
+   */
+
+  /**
+   * Create &id:oatpp::String; from part of ChunkedBuffer.
+   * @param pos - starting position in ChunkedBuffer.
+   * @param count - size of bytes to write to substring.
+   * @return - &id:oatpp::String;
    */
   oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
 
   /**
-   * return data written to stream as oatpp::String; NOT NULL
+   * Create &id:oatpp::String; from all data in ChunkedBuffer.
+   * @return - &id:oatpp::String;
    */
   oatpp::String toString() {
     return getSubstring(0, m_size);
   }
 
+  /**
+   * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream;.
+   * ChunkedBuffer will not be cleared during this call!
+   * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
+   * @return - `true` if no errors occured. **will be refactored to return actual amount of bytes flushed**.
+   */
   bool flushToStream(const std::shared_ptr<OutputStream>& stream);
+
+  /**
+   * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream; in asynchronous manner.
+   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
+   * @param actionOnFinish - action to do once finished. &id:oatpp::async::Action;.
+   * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
+   * @return - &id:oatpp::async::Action;.
+   */
   oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                            const oatpp::async::Action& actionOnFinish,
                                            const std::shared_ptr<OutputStream>& stream);
   
   std::shared_ptr<Chunks> getChunks();
 
+  /**
+   * Get number of bytes written to ChunkedBuffer.
+   * @return - number of bytes written to ChunkedBuffer.
+   */
   data::v_io_size getSize();
+
+  /**
+   * Clear data in ChunkedBuffer.
+   */
   void clear();
 
 };

@@ -28,7 +28,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 Response::Response(v_int32 statusCode,
                    const oatpp::String& statusDescription,
-                   const http::Protocol::Headers& headers,
+                   const http::Headers& headers,
                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                    const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
   : m_statusCode(statusCode)
@@ -40,7 +40,7 @@ Response::Response(v_int32 statusCode,
 
 std::shared_ptr<Response> Response::createShared(v_int32 statusCode,
                                                  const oatpp::String& statusDescription,
-                                                 const http::Protocol::Headers& headers,
+                                                 const http::Headers& headers,
                                                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                  const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
   return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream, bodyDecoder);
@@ -54,7 +54,7 @@ oatpp::String Response::getStatusDescription() const {
   return m_statusDescription;
 }
 
-const http::Protocol::Headers& Response::getHeaders() const {
+const http::Headers& Response::getHeaders() const {
   return m_headers;
 }
 

@@ -36,7 +36,11 @@
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
-  
+
+/**
+ * Json deserializer.
+ * Deserializes json to oatpp DTO object. See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/).
+ */
 class Deserializer {
 public:
   typedef oatpp::data::mapping::type::Type Type;
@@ -58,17 +62,31 @@ private:
   typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractListMap;
   
 public:
-  
+
+  /**
+   * Deserializer config.
+   */
   class Config : public oatpp::base::Countable {
   public:
+    /**
+     * Constructor.
+     */
     Config()
     {}
   public:
-    
+
+    /**
+     * Create shared Config.
+     * @return - `std::shared_ptr` to Config.
+     */
     static std::shared_ptr<Config> createShared(){
       return std::make_shared<Config>();
     }
-    
+
+    /**
+     * Do not fail if unknown field is found in json.
+     * "unknown field" is the one which is not present in DTO object class.
+     */
     bool allowUnknownFields = true;
     
   };
@@ -151,7 +169,14 @@ private:
                                           const std::shared_ptr<Config>& config);
   
 public:
-  
+
+  /**
+   * Deserialize json to oatpp DTO object.
+   * @param caret - &id:oatpp::parser::Caret;.
+   * @param config - &l:Deserializer::Config;.
+   * @param type - &id:oatpp::data::mapping::type::Type;.
+   * @return - &id:oatpp::data::mapping::type::AbstractObjectWrapper; containing deserialized object.
+   */
   static AbstractObjectWrapper deserialize(oatpp::parser::Caret& caret,
                                            const std::shared_ptr<Config>& config,
                                            const Type* const type) {

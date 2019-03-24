@@ -43,7 +43,7 @@ const Status& Response::getStatus() const {
   return m_status;
 }
 
-protocol::http::Protocol::Headers& Response::getHeaders() {
+protocol::http::Headers& Response::getHeaders() {
   return m_headers;
 }
 

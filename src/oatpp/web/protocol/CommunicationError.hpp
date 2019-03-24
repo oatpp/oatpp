@@ -28,35 +28,75 @@
 #include "oatpp/core/data/IODefinitions.hpp"
 
 namespace oatpp { namespace web { namespace protocol {
-  
+
+/**
+ * Communication Error
+ */
 class CommunicationError : public std::runtime_error {
 private:
   oatpp::data::v_io_size m_ioStatus;
   oatpp::String m_message;
 public:
-  
+
+  /**
+   * Constructor.
+   * @param ioStatus - I/O error. See &id:oatpp::data::v_io_size;.
+   * @param message - error message.
+   */
   CommunicationError(oatpp::data::v_io_size ioStatus, const oatpp::String& message);
+
+  /**
+   * Get I/O error. See &id:oatpp::data::v_io_size;.
+   * @return &id:oatpp::data::v_io_size;.
+   */
   oatpp::data::v_io_size getIOStatus();
+
+  /**
+   * Get error message.
+   * @return - error message.
+   */
   oatpp::String& getMessage();
   
 };
-  
+
+/**
+ * Protocol Error template.
+ * @tparam Status - arbitrary data type.
+ */
 template<class Status>
 class ProtocolError : public CommunicationError {
 public:
-  
+
+  /**
+   * Protocol Error Info.
+   */
   struct Info {
-    
+
+    /**
+     * Default Constructor.
+     */
     Info()
       : ioStatus(0)
     {}
-    
+
+    /**
+     * Constructor.
+     * @param pIOStatus - I/O level error. See &id:oatpp::data::v_io_size;.
+     * @param pStatus - configurable arbitrary data type.
+     */
     Info(oatpp::data::v_io_size pIOStatus, const Status& pStatus)
       : ioStatus(pIOStatus)
       , status(pStatus)
     {}
-    
+
+    /**
+     * Get I/O level error.
+     */
     oatpp::data::v_io_size ioStatus;
+
+    /**
+     * Configurable arbitrary data type.
+     */
     Status status;
     
   };
@@ -64,12 +104,21 @@ public:
 private:
   Info m_info;
 public:
-  
+
+  /**
+   * Constructor.
+   * @param info - &l:ProtocolError::Info ;.
+   * @param message - error message.
+   */
   ProtocolError(const Info& info, const oatpp::String& message)
     : CommunicationError(info.ioStatus, message)
     , m_info(info)
   {}
-  
+
+  /**
+   * Get error info.
+   * @return - error info.
+   */
   Info getInfo() {
     return m_info;
   }

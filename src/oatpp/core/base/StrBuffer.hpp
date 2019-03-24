@@ -32,6 +32,9 @@
 
 namespace oatpp { namespace base {
 
+/**
+ * String buffer class.
+ */
 class StrBuffer : public oatpp::base::Countable {  
 private:
 
@@ -63,105 +66,305 @@ private:
   void setAndCopy(const void* data, const void* originData, v_int32 size);
   static std::shared_ptr<StrBuffer> allocShared(const void* data, v_int32 size, bool copyAsOwnData);
 
-  /**
-   *  Allocate memory for string or use originData
-   *  if copyAsOwnData == false return originData
+  /*
+   * Allocate memory for string or use originData<br>
+   * if copyAsOwnData == false return originData
    */
   static p_char8 allocStrBuffer(const void* originData, v_int32 size, bool copyAsOwnData);
   
 public:
-  StrBuffer()
-    : m_data((p_char8)"[<nullptr>]")
-    , m_size(11)
-    , m_hasOwnData(false)
-  {}
-  
-  StrBuffer(const void* data, v_int32 size, bool copyAsOwnData)
-    : m_data(allocStrBuffer(data, size, copyAsOwnData))
-    , m_size(size)
-    , m_hasOwnData(copyAsOwnData)
-  {}
+  /**
+   * Constructor. Default.
+   */
+  StrBuffer();
+
+  /**
+   * Constructor.
+   * @param data - pointer to data.
+   * @param size - size of the data.
+   * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
+   */
+  StrBuffer(const void* data, v_int32 size, bool copyAsOwnData);
 public:
-  
+
+  /**
+   * virtual Destructor.
+   */
   virtual ~StrBuffer();
-  
+
+  /**
+   * Create shared StrBuffer of specified size.
+   * @param size - size of the buffer.
+   * @return - shared_ptr to StrBuffer.
+   */
   static std::shared_ptr<StrBuffer> createShared(v_int32 size);
+
+  /**
+   * Create shared StrBuffer with data, size, and copyAsOwnData parameters.
+   * @param data - buffer data.
+   * @param size - size of the data.
+   * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
+   * @return - shared_ptr to StrBuffer.
+   */
   static std::shared_ptr<StrBuffer> createShared(const void* data, v_int32 size, bool copyAsOwnData = true);
+
+  /**
+   * Create shared StrBuffer with data, and copyAsOwnData parameters.
+   * @param data - buffer data.
+   * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
+   * @return - shared_ptr to StrBuffer.
+   */
   static std::shared_ptr<StrBuffer> createShared(const char* data, bool copyAsOwnData = true);
+
+  /**
+   * Create shared StrBuffer from other StrBuffer.
+   * @param other - other StrBuffer.
+   * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
+   * @return - shared_ptr to StrBuffer.
+   */
   static std::shared_ptr<StrBuffer> createShared(StrBuffer* other, bool copyAsOwnData = true);
-  
+
+  /**
+   * Create shared StrBuffer of size=size1 + size2 and data=data1 + data2.
+   * @param data1 - pointer to data1.
+   * @param size1 - size of the data1.
+   * @param data2 - pointer to data2.
+   * @param size2 - size of the data2.
+   * @return - shared_ptr to StrBuffer.
+   */
   static std::shared_ptr<StrBuffer> createSharedConcatenated(const void* data1, v_int32 size1, const void* data2, v_int32 size2);
-  
+
+  /**
+   * Create shared StrBuffer from c-string.
+   * @param data - data.
+   * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
+   * @return - shared_ptr to StrBuffer.
+   */
   static std::shared_ptr<StrBuffer> createFromCString(const char* data, bool copyAsOwnData = true) {
     if(data != nullptr) {
       return allocShared(data, (v_int32) std::strlen(data), copyAsOwnData);
     }
     return nullptr;
   }
-  
+
   /**
    * Load data from file and store in StrBuffer.
-   * If file not found return nullptr
+   * @param filename - name of the file.
+   * @return - shared_ptr to StrBuffer.
    */
   static std::shared_ptr<StrBuffer> loadFromFile(const char* filename);
-  
-  void saveToFile(const char* filename);
-  
-  p_char8 getData() const;
-  v_int32 getSize() const;
-  
-  const char* c_str() const;
-  std::string std_str() const;
-  
-  bool hasOwnData() const;
-  
+
   /**
-   *  (correct for ACII only)
+   * Save content of the buffer to file.
+   * @param filename - name of the file.
+   */
+  void saveToFile(const char* filename);
+
+  /**
+   * Get pointer to data of the buffer.
+   * @return - pointer to data of the buffer.
+   */
+  p_char8 getData() const;
+
+  /**
+   * Get buffer size.
+   * @return - buffer size.
+   */
+  v_int32 getSize() const;
+
+  /**
+   * Get pointer to data of the buffer as `const* char`.
+   * @return - pointer to data of the buffer.
+   */
+  const char* c_str() const;
+
+  /**
+   * Get copy of the buffer data as `std::string`.
+   * @return - copy of the buffer data as `std::string`.
+   */
+  std::string std_str() const;
+
+  /**
+   * Is this object is responsible for freeing buffer data.
+   * @return - true if this object is responsible for freeing buffer data.
+   */
+  bool hasOwnData() const;
+
+  /**
+   * Create lowercase copy of the buffer.<br>
+   * (correct for ASCII only)
+   * @return - copy of the buffer containing lowercase variants of ascii symbols.
    */
   std::shared_ptr<StrBuffer> toLowerCase() const;
-  
+
   /**
-   *  (correct for ACII only)
+   * Create uppercase copy of the buffer.<br>
+   * (correct for ASCII only)
+   * @return - copy of the buffer containing uppercase variants of ascii symbols.
    */
   std::shared_ptr<StrBuffer> toUpperCase() const;
-  
+
+  /**
+   * Check string equality of the buffer to data of specified size.
+   * @param data - pointer to data to be compared with the buffer data.
+   * @param size - size of the data.
+   * @return - true if all chars of buffer are same as in data, and size == this.getSize().
+   */
   bool equals(const void* data, v_int32 size) const;
+
+  /**
+   * Check string equality of the buffer to data of specified size.
+   * @param data - pointer to data to be compared with the buffer data.
+   * @return - true if all chars of buffer are same as in data, and std::strlen(data) == this.getSize().
+   */
   bool equals(const char* data) const;
+
+  /**
+   * Check string equality to other buffer.
+   * @param other - pointer to other StrBuffer to be compared with the buffer data.
+   * @return - true if all chars of one buffer are same as in other, and other.getSize() == this.getSize().
+   */
   bool equals(StrBuffer* other) const;
-  
+
+  /**
+   * Check if buffer starts with specified data, size.
+   * @param data - data as `const void*`.
+   * @param size - size of the data.
+   * @return - true if buffer starts with specified data.
+   */
   bool startsWith(const void* data, v_int32 size) const;
+
+  /**
+   * Check if buffer starts with specified data.
+   * @param data - data as `const char*`.
+   * @return - true if buffer starts with specified data.
+   */
   bool startsWith(const char* data) const;
+
+  /**
+   * Check if buffer starts with specified data.
+   * @param data - data as `StrBuffer`.
+   * @return - true if buffer starts with specified data.
+   */
   bool startsWith(StrBuffer* data) const;
   
 public:
-  
-  static v_int32 compare(const void* data1, const void* data2, v_int32 size);
-  static v_int32 compare(StrBuffer* str1, StrBuffer* str2);
-  
-  static bool equals(const void* data1, const void* data2, v_int32 size);
-  static bool equals(const char* data1, const char* data2);
-  static bool equals(StrBuffer* str1, StrBuffer* str2);
-  
-  // Case Insensitive (correct for ASCII only)
-  
-  static bool equalsCI(const void* data1, const void* data2, v_int32 size);
-  static bool equalsCI(const char* data1, const char* data2);
-  static bool equalsCI(StrBuffer* str1, StrBuffer* str2);
-  
-  // Case Insensitive Fast (ASCII only, correct compare if one of strings contains letters only)
-  
-  static bool equalsCI_FAST(const void* data1, const void* data2, v_int32 size);
-  static bool equalsCI_FAST(const char* data1, const char* data2);
-  static bool equalsCI_FAST(StrBuffer* str1, StrBuffer* str2);
-  static bool equalsCI_FAST(StrBuffer* str1, const char* str2);
-  
+
   /**
-   *  lower case chars in the buffer @data (correct for ACII only)
+   * Compare data1, data2 using `std::memcmp`.
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @param size - number of characters to compare.
+   * @return - Negative value if the first differing byte (reinterpreted as unsigned char) in data1 is less than the corresponding byte in data2.<br>
+   * ​0​ if all count bytes of data1 and data2 are equal.<br>
+   * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
+   */
+  static v_int32 compare(const void* data1, const void* data2, v_int32 size);
+
+  /**
+   * Compare data1, data2 using `std::memcmp`.
+   * @param data1 - data1 as `StrBuffer`.
+   * @param data2 - data2 as `StrBuffer`.
+   * @return - Negative value if the first differing byte (reinterpreted as unsigned char) in data1 is less than the corresponding byte in data2.<br>
+   * ​0​ if all count bytes of data1 and data2 are equal.<br>
+   * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
+   */
+  static v_int32 compare(StrBuffer* data1, StrBuffer* data2);
+
+  /**
+   * Check string equality of data1 to data2.
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @param size - number of characters to compare.
+   * @return - `true` if equals.
+   */
+  static bool equals(const void* data1, const void* data2, v_int32 size);
+
+  /**
+   * Check string equality of data1 to data2.
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @return - `true` if equals.
+   */
+  static bool equals(const char* data1, const char* data2);
+
+  /**
+   * Check string equality of str1 to str2.
+   * @param str1 - pointer to str1.
+   * @param str2 - pointer to str2.
+   * @return - `true` if equals.
+   */
+  static bool equals(StrBuffer* str1, StrBuffer* str2);
+
+  /**
+   * Check Case Insensitive string equality of data1 to data2.
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @param size - number of characters to compare.
+   * @return - `true` if equals.
+   */
+  static bool equalsCI(const void* data1, const void* data2, v_int32 size);
+
+  /**
+   * Check Case Insensitive string equality of data1 to data2.
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @return - `true` if equals.
+   */
+  static bool equalsCI(const char* data1, const char* data2);
+
+  /**
+   * Check Case Insensitive string equality of str1 to str2.
+   * @param str1 - pointer to str1.
+   * @param str2 - pointer to str2.
+   * @return - `true` if equals.
+   */
+  static bool equalsCI(StrBuffer* str1, StrBuffer* str2);
+
+  /**
+   * Check Case Insensitive string equality of data1 to data2. (ASCII only, correct compare if one of strings contains letters only)
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @param size - number of characters to compare.
+   * @return - `true` if equals.
+   */
+  static bool equalsCI_FAST(const void* data1, const void* data2, v_int32 size);
+
+  /**
+   * Check Case Insensitive string equality of data1 to data2. (ASCII only, correct compare if one of strings contains letters only)
+   * @param data1 - pointer to data1.
+   * @param data2 - pointer to data2.
+   * @return - `true` if equals.
+   */
+  static bool equalsCI_FAST(const char* data1, const char* data2);
+
+  /**
+   * Check Case Insensitive string equality of str1 to str2. (ASCII only, correct compare if one of strings contains letters only)
+   * @param str1 - pointer to str1.
+   * @param str2 - pointer to str2.
+   * @return - `true` if equals.
+   */
+  static bool equalsCI_FAST(StrBuffer* str1, StrBuffer* str2);
+
+  /**
+   * Check Case Insensitive string equality of str1 to str2. (ASCII only, correct compare if one of strings contains letters only)
+   * @param str1 - pointer to str1 as `StrBuffer`.
+   * @param str2 - pointer to str2 as `const char*`
+   * @return - `true` if equals.
+   */
+  static bool equalsCI_FAST(StrBuffer* str1, const char* str2);
+
+  /**
+   * Change characters in data to lowercase.
+   * @param data - pointer to data.
+   * @param size - size of the data.
    */
   static void lowerCase(const void* data, v_int32 size);
-  
+
   /**
-   *  upper case chars in the buffer @data (correct for ACII only)
+   * Change characters in data to uppercase.
+   * @param data - pointer to data.
+   * @param size - size of the data.
    */
   static void upperCase(const void* data, v_int32 size);
   

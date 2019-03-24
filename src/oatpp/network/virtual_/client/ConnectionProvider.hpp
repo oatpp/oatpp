@@ -29,40 +29,60 @@
 #include "oatpp/network/ConnectionProvider.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
-  
+
+/**
+ * Provider of "virtual" connections for client.
+ * See &id:oatpp::network::virtual_::Interface;, &id:oatpp::network::virtual_::Socket; <br>
+ * Extends &id:oatpp::network::ClientConnectionProvider;.
+ */
 class ConnectionProvider : public oatpp::network::ClientConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
   data::v_io_size m_maxAvailableToRead;
   data::v_io_size m_maxAvailableToWrite;
 public:
-  
-  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
-    : m_interface(interface)
-    , m_maxAvailableToRead(-1)
-    , m_maxAvailableToWrite(-1)
-  {
-    setProperty(PROPERTY_HOST, m_interface->getName());
-    setProperty(PROPERTY_PORT, "0");
-  }
-  
-  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface) {
-    return std::make_shared<ConnectionProvider>(interface);
-  }
-  
+
   /**
-   * this one used for testing purposes only
-   * set to -1 in order to ignore this value
+   * Constructor.
+   * @param interface - &id:oatpp::network::virtual_::Interface;.
+   */
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface);
+
+  /**
+   * Create shared ConnectionProvider.
+   * @param interface - &id:oatpp::network::virtual_::Interface;.
+   * @return - `std::shared_ptr` to ConnectionProvider.
+   */
+  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface);
+
+  /**
+   * Limit the available amount of bytes to read from socket and limit the available amount of bytes to write to socket. <br>
+   * This method is used for testing purposes only.<br>
+   * @param maxToRead - maximum available amount of bytes to read.
+   * @param maxToWrite - maximum available amount of bytes to write.
    */
   void setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite) {
     m_maxAvailableToRead = maxToRead;
     m_maxAvailableToWrite = maxToWrite;
   }
 
+  /**
+   * Implementation of &id:oatpp::network::ClientConnection::Close; method.
+   */
   void close() override;
-  
+
+  /**
+   * Get connection.
+   * @return - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   */
   std::shared_ptr<IOStream> getConnection() override;
-  
+
+  /**
+   * Get connection in asynchronous manner.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
+   * @param callback - pointer to callback function.
+   * @return - &id:oatpp::async::Action;.
+   */
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                             AsyncCallback callback) override;
   

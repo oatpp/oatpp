@@ -27,8 +27,6 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-Request::Request() {}
-
 Request::Request(const oatpp::data::share::StringKeyLabel& method,
                  const oatpp::data::share::StringKeyLabel& path,
                  const Headers& headers,
@@ -54,7 +52,7 @@ const oatpp::data::share::StringKeyLabel& Request::getPath() const {
   return m_path;
 }
 
-protocol::http::Protocol::Headers& Request::getHeaders() {
+protocol::http::Headers& Request::getHeaders() {
   return m_headers;
 }
 

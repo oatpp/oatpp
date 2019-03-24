@@ -28,14 +28,31 @@
 #include "./Stream.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
-  
+
+/**
+ * Stream writer delegate which can write data to stream provided.
+ */
 class WriterDelegate {
 public:
+
+  /**
+   * Write data to provided stream.
+   * @param stream - stream to write data to.
+   * @return - actual number of bytes written to stream. &id:oatpp::data::v_io_size;.
+   */
   virtual data::v_io_size writeToStream(const std::shared_ptr<OutputStream>& stream) = 0;
 };
-  
+
+/**
+ * Stream reader delegate which can read data from stream provided.
+ */
 class ReaderDelegate {
 public:
+  /**
+   * Read data from provided stream.
+   * @param stream - stream to read data from.
+   * @return - actual number of bytes read. &id:oatpp::data::v_io_size;.
+   */
   virtual data::v_io_size readFromStream(const std::shared_ptr<InputStream>& stream) = 0;
 };
   

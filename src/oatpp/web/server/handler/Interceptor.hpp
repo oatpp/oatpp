@@ -30,10 +30,20 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
-  
+
+/**
+ * RequestInterceptor.
+ */
 class RequestInterceptor {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Request;.
+   */
   typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
 public:
   

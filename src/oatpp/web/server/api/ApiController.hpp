@@ -39,30 +39,105 @@
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace server { namespace api {
-  
+
+/**
+ * Class responsible for implementation and management of endpoints.<br>
+ * For details see [ApiController](https://oatpp.io/docs/components/api-controller/).
+ */
 class ApiController : public oatpp::base::Countable {
 protected:
   typedef ApiController __ControllerType;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::server::HttpRouter;.
+   */
   typedef oatpp::web::server::HttpRouter Router;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::ResponseFactory;.
+   */
   typedef oatpp::web::protocol::http::outgoing::ResponseFactory OutgoingResponseFactory;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Request;.
+   */
   typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Request;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
+   */
   typedef oatpp::web::protocol::http::incoming::Response IncomingResponse;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Status;.
+   */
   typedef oatpp::web::protocol::http::Status Status;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Header;.
+   */
   typedef oatpp::web::protocol::http::Header Header;
-  typedef oatpp::web::protocol::http::Protocol::QueryParams QueryParams;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::QueryParams;.
+   */
+  typedef oatpp::web::protocol::http::QueryParams QueryParams;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::server::api::Endpoint;.
+   */
   typedef oatpp::web::server::api::Endpoint Endpoint;
+
+  /**
+   * Convenience typedef for list of &id:oatpp::web::server::api::Endpoint;.
+   */
   typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
   
 public:
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::ObjectMapper;.
+   */
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::String;.
+   */
   typedef oatpp::data::mapping::type::String String;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
+   */
   typedef oatpp::data::mapping::type::Int32 Int32;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
+   */
   typedef oatpp::data::mapping::type::Int64 Int64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
+   */
   typedef oatpp::data::mapping::type::Float32 Float32;
+
+  /**
+   * Convenience typedef for &id:atpp::data::mapping::type::Float64;.
+   */
   typedef oatpp::data::mapping::type::Float64 Float64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
+   */
   typedef oatpp::data::mapping::type::Boolean Boolean;
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
@@ -72,7 +147,7 @@ protected:
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
 protected:
   
-  /**
+  /*
    * Endpoint Coroutine base class
    */
   template<class CoroutineT, class ControllerT>
@@ -90,7 +165,7 @@ protected:
     
   };
   
-  /**
+  /*
    * Handler which subscribes to specific URL in Router and delegates calls endpoints 
    */
   template<class T>
@@ -116,7 +191,7 @@ protected:
       return std::make_shared<Handler>(controller, method, methodAsync);
     }
     
-    std::shared_ptr<OutgoingResponse> processUrl(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
+    std::shared_ptr<OutgoingResponse> processEvent(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_method != nullptr) {
         return (m_controller->*m_method)(request);
       } else {
@@ -124,7 +199,7 @@ protected:
       }
     }
     
-    Action processUrlAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
+    Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                            AsyncCallback callback,
                            const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_methodAsync != nullptr) {

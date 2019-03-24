@@ -29,7 +29,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 BodyDecoder::ToStringDecoder::ToStringDecoder(const BodyDecoder* decoder,
-                                              const Protocol::Headers& headers,
+                                              const Headers& headers,
                                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream)
   : m_decoder(decoder)
   , m_headers(headers)

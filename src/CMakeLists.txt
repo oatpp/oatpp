@@ -40,8 +40,6 @@ add_library(oatpp
         oatpp/core/collection/LinkedList.hpp
         oatpp/core/collection/ListMap.cpp
         oatpp/core/collection/ListMap.hpp
-        oatpp/core/concurrency/Runnable.cpp
-        oatpp/core/concurrency/Runnable.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp

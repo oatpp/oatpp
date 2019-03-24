@@ -37,16 +37,27 @@
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
 namespace __class {
-  
+
+  /**
+   * AbstractObject class.
+   */
   class AbstractObject {
   public:
     static const char* const CLASS_NAME;
   };
-  
+
+  /**
+   * Template for Object class of type T.
+   * @tparam T - object type.
+   */
   template<class T>
   class Object : public AbstractObject {
   public:
-    
+
+    /**
+     * Get type describing this class.
+     * @return - &id:oatpp::data::mapping::type::Type;
+     */
     static Type* getType(){
       static Type* type = static_cast<Type*>(T::Z__CLASS_GET_TYPE());
       return type;
@@ -55,7 +66,11 @@ namespace __class {
   };
   
 }
-  
+
+/**
+ * Base class for all DTO objects.
+ * For more info about Data Transfer Object (DTO) see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
+ */
 class Object : public oatpp::base::Countable {
 public:
   typedef oatpp::data::mapping::type::String String;

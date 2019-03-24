@@ -34,7 +34,11 @@
 #include <cstring>
 
 namespace oatpp { namespace base { namespace  memory {
-  
+
+/**
+ * Memory Pool allocates memory chunks. Each chunk consists of specified number of fixed-size entries.
+ * Entries can be obtained and freed by user. When memory pool runs out of free entries, new chunk is allocated.
+ */
 class MemoryPool {
 public:
   static oatpp::concurrency::SpinLock::Atom POOLS_ATOM;
@@ -70,58 +74,114 @@ private:
   oatpp::concurrency::SpinLock::Atom m_atom;
   v_int32 m_objectsCount;
 public:
-  
-  MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
-    : m_name(name)
-    , m_entrySize(entrySize)
-    , m_chunkSize(chunkSize)
-    , m_id(++poolIdCounter)
-    , m_rootEntry(nullptr)
-    , m_atom(false)
-    , m_objectsCount(0)
-  {
-    allocChunk();
-    oatpp::concurrency::SpinLock lock(POOLS_ATOM);
-    POOLS[m_id] = this;
-  }
-  
-  virtual ~MemoryPool() {
-    auto it = m_chunks.begin();
-    while (it != m_chunks.end()) {
-      p_char8 chunk = *it;
-      delete [] chunk;
-      it++;
-    }
-    oatpp::concurrency::SpinLock lock(POOLS_ATOM);
-    POOLS.erase(m_id);
-  }
-  
+
+  /**
+   * Constructor.
+   * @param name - name of the pool.
+   * @param entrySize - size of the entry in bytes returned in call to &l:MemoryPool::obtain ();.
+   * @param chunkSize - number of entries in one chunk.
+   */
+  MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize);
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~MemoryPool();
+
+  /**
+   * Obtain pointer to memory entry.
+   * When entry is no more needed, user must call &id:oatpp::base::memory::MemoryPool::free; and pass obtained entry pointer as a parameter.
+   * @return - pointer to memory entry.
+   */
   void* obtain();
+
+  /*
+   * Do not use it.
+   * Same as &l:MemoryPool::obtain (); but lock free. <br>
+   * TODO - check if this method is ever used.
+   * @return - pointer to memory entry.
+   */
   void* obtainLockFree();
-  
+
+  /*
+   * For internal use only.
+   * TODO - make it private.
+   * @param entry
+   */
   void freeByEntryHeader(EntryHeader* entry);
+
+  /**
+   * Free obtained earlier memory entry.
+   * This method is static, because entry "knows" to what pool it belongs.
+   * @param entry - entry obtained by call to &l:MemoryPool::obtain ();
+   */
   static void free(void* entry);
-  
+
+  /**
+   * Get name of the memory pool.
+   * @return - memory pool name as `std::string`.
+   */
   std::string getName();
+
+  /**
+   * Get size of the memory entry in bytes which can be obtained by call to &l:MemoryPool::obtain ();.
+   * @return - size of the enrty in bytes.
+   */
   v_int32 getEntrySize();
+
+  /**
+   * Get size of the memory allocated by memory pool.
+   * @return - size of the memory allocated by memory pool.
+   */
   v_int64 getSize();
+
+  /**
+   * Get number of entries currently in use.
+   * @return - number of entries currently in use.
+   */
   v_int32 getObjectsCount();
   
 };
-  
+
+/**
+ * Creates multiple MemoryPools (&l:MemoryPool;) to reduce concurrency blocking in call to &l:ThreadDistributedMemoryPool::obtain ();
+ */
 class ThreadDistributedMemoryPool {
 private:
   v_int32 m_shardsCount;
   MemoryPool** m_shards;
 public:
+
+  /**
+   * Default number of MemoryPools (&l:MemoryPool;) "shards" to create.
+   */
   static const v_int32 SHARDS_COUNT_DEFAULT;
 public:
+
+  /**
+   * Constructor.
+   * @param name - name of the memory pool.
+   * @param entrySize - size of memory pool entry.
+   * @param chunkSize - number of entries in chunk.
+   * @param shardsCount - number of MemoryPools (&l:MemoryPool;) "shards" to create.
+   */
   ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,
                               v_int32 shardsCount = SHARDS_COUNT_DEFAULT);
   virtual ~ThreadDistributedMemoryPool();
+
+  /**
+   * Obtain pointer to memory entry.
+   * When entry is no more needed, user must call &id:oatpp::base::memory::MemoryPool::free; and pass obtained entry pointer as a parameter.
+   * @return - pointer to memory entry.
+   */
   void* obtain();
+
 };
-  
+
+/**
+ * Not thread-safe pool of objects of specified type.
+ * @tparam T - object type.
+ */
 template<typename T>
 class Bench {
 private:
@@ -163,7 +223,11 @@ private:
   Block* m_blocks;
   T** m_index;
 public:
-  
+
+  /**
+   * Constructor.
+   * @param growSize - number of objects to allocate when no free objects left.
+   */
   Bench(v_int32 growSize)
     : m_growSize(growSize)
     , m_size(0)
@@ -173,7 +237,10 @@ public:
   {
     grow();
   }
-  
+
+  /**
+   * Non virtual destructor.
+   */
   ~Bench(){
     auto curr = m_blocks;
     while (curr != nullptr) {
@@ -183,7 +250,13 @@ public:
     }
     delete [] m_index;
   }
-  
+
+  /**
+   * Construct object and get pointer to constructed object.
+   * @tparam Args - arguments to be passed to object constructor.
+   * @param args - actual arguments to pass to object constructor.
+   * @return - pointer to constructed object.
+   */
   template<typename ... Args>
   T* obtain(Args... args) {
     if(m_indexPosition == m_size) {
@@ -191,7 +264,11 @@ public:
     }
     return new (m_index[m_indexPosition ++]) T(args...);
   }
-  
+
+  /**
+   * Call object destructor and put it on "bench".
+   * @param entry - object to be freed.
+   */
   void free(T* entry) {
     entry->~T();
     m_index[--m_indexPosition] = entry;

@@ -31,7 +31,12 @@
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
-  
+
+/**
+ * Json ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from JSON.
+ * See [Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/). <br>
+ * Extends &id:oatpp::base::Countable;, &id:oatpp::data::mapping::ObjectMapper;.
+ */
 class ObjectMapper : public oatpp::base::Countable, public oatpp::data::mapping::ObjectMapper {
 private:
   static Info& getMapperInfo() {
@@ -39,32 +44,50 @@ private:
     return info;
   }
 public:
-  ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig,
-               const std::shared_ptr<Deserializer::Config>& pDeserializerConfig)
-    : oatpp::data::mapping::ObjectMapper(getMapperInfo())
-    , serializerConfig(pSerializerConfig)
-    , deserializerConfig(pDeserializerConfig)
-  {}
+  /**
+   * Constructor.
+   * @param pSerializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
+   * @param pDeserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   */
+  ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig = Serializer::Config::createShared(),
+               const std::shared_ptr<Deserializer::Config>& pDeserializerConfig = Deserializer::Config::createShared());
 public:
-  
+
+  /**
+   * Create shared ObjectMapper.
+   * @param serializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
+   * @param deserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   * @return - `std::shared_ptr` to ObjectMapper.
+   */
   static std::shared_ptr<ObjectMapper>
   createShared(const std::shared_ptr<Serializer::Config>& serializerConfig = Serializer::Config::createShared(),
-         const std::shared_ptr<Deserializer::Config>& deserializerConfig = Deserializer::Config::createShared()){
-    return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
-  }
-  
+               const std::shared_ptr<Deserializer::Config>& deserializerConfig = Deserializer::Config::createShared());
+
+  /**
+   * Implementation of &id:oatpp::data::mapping::ObjectMapper::write;.
+   * @param stream - stream to write serializerd data to &id:oatpp::data::stream::OutputStream;.
+   * @param variant - object to serialize &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   */
   void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-             const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const override {
-    Serializer::serialize(stream, variant, serializerConfig);
-  }
-  
-  oatpp::data::mapping::type::AbstractObjectWrapper
-  read(oatpp::parser::Caret& caret,
-       const oatpp::data::mapping::type::Type* const type) const override {
-    return Deserializer::deserialize(caret, deserializerConfig, type);
-  }
-  
+             const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const override;
+
+  /**
+   * Implementation of &id:oatpp::data::mapping::ObjectMapper::read;.
+   * @param caret - &id:oatpp::parser::Caret;.
+   * @param type - type of resultant object &id:oatpp::data::mapping::type::Type;.
+   * @return - &id:oatpp::data::mapping::type::AbstractObjectWrapper; holding resultant object.
+   */
+  oatpp::data::mapping::type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
+                                                         const oatpp::data::mapping::type::Type* const type) const override;
+
+  /**
+   * Serializer config.
+   */
   std::shared_ptr<Serializer::Config> serializerConfig;
+
+  /**
+   * Deserializer config.
+   */
   std::shared_ptr<Deserializer::Config> deserializerConfig;
   
 };

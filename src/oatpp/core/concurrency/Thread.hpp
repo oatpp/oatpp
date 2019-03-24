@@ -25,70 +25,37 @@
 #ifndef oatpp_concurrency_Thread_hpp
 #define oatpp_concurrency_Thread_hpp
 
-#include "./Runnable.hpp"
-
-#include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/base/Countable.hpp"
-
+#include "oatpp/core/base/Environment.hpp"
 #include <thread>
 
 namespace oatpp { namespace concurrency {
-  
-class Thread : public base::Countable {
-public:
-  OBJECT_POOL(Thread_Pool, Thread, 32)
-  SHARED_OBJECT_POOL(Shared_Thread_Pool, Thread, 32)
-private:
-  static v_int32 calcHardwareConcurrency();
-public:
-  
-  /**
-   * Set thread affinity one thread
-   */
-  static v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
-  
-  /**
-   * Set thread affinity [fromCpu..toCpu].
-   * from and to indexes included
-   */
-  static v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 fromCpu, v_int32 toCpu);
-  
-  /**
-   * returns OATPP_THREAD_HARDWARE_CONCURRENCY config value if set.
-   * else return std::thread::hardware_concurrency()
-   * else return 1
-   */
-  static v_int32 getHardwareConcurrency();
-  
-private:
-  std::thread m_thread;
-public:
-  
-  Thread(const std::shared_ptr<Runnable>& runnable) {
-    m_thread = std::thread([runnable]{
-      runnable->run();
-    });
-  }
-  
-public:
-  
-  static std::shared_ptr<Thread> createShared(const std::shared_ptr<Runnable>& runnable){
-    return Shared_Thread_Pool::allocateShared(runnable);
-  }
-  
-  void join(){
-    m_thread.join();
-  }
-  
-  void detach(){
-    m_thread.detach();
-  }
-  
-  std::thread* getStdThread() {
-    return &m_thread;
-  }
-  
-};
+
+/**
+ * Set thread affinity to one CPU.
+ * @param nativeHandle - `std::thread::native_handle_type`.
+ * @param cpuIndex - index of CPU.
+ * @return - zero on success. Negative value on failure.
+ * -1 if platform that runs application does not support this call.
+ */
+v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex);
+
+/**
+ * Set thread affinity [firstCpuIndex..lastCpuIndex].
+ * @param nativeHandle - `std::thread::native_handle_type`.
+ * @param firstCpuIndex - from CPU-index.
+ * @param lastCpuIndex - to CPU-index included.
+ * @return - zero on success. Negative value on failure.
+ * -1 if platform that runs application does not support this call.
+ */
+v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 firstCpuIndex, v_int32 lastCpuIndex);
+
+/**
+ * Get hardware concurrency.
+ * @return - OATPP_THREAD_HARDWARE_CONCURRENCY config value if set <br>
+ * else return std::thread::hardware_concurrency() <br>
+ * else return 1. <br>
+ */
+v_int32 getHardwareConcurrency();
 
 }}
 

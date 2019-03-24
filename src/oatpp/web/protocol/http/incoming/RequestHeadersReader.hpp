@@ -29,18 +29,42 @@
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
-  
+
+/**
+ * Helper class to read http headers of incoming request from stream.
+ */
 class RequestHeadersReader {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::async::Action;.
+   */
   typedef oatpp::async::Action Action;
 private:
   static constexpr v_int32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 public:
-  
+
+  /**
+   * Result of headers reading and parsing.
+   */
   struct Result {
+    /**
+     * &id:oatpp::web::protocol::http::RequestStartingLine;.
+     */
     http::RequestStartingLine startingLine;
-    http::Protocol::Headers headers;
+
+    /**
+     * &id:oatpp::web::protocol::http::Headers;.
+     */
+    http::Headers headers;
+
+    /**
+     * This value represents starting position in buffer used to read data from stream for the last read operation.
+     */
     v_int32 bufferPosStart;
+
+    /**
+     * This value represents end position in buffer used to read data from stream for the last read operation.
+     */
     v_int32 bufferPosEnd;
   };
   
@@ -55,14 +79,34 @@ private:
   v_int32 m_bufferSize;
   v_int32 m_maxHeadersSize;
 public:
-  
+
+  /**
+   * Constructor.
+   * @param buffer - buffer to use to read data from stream.
+   * @param bufferSize - buffer size.
+   * @param maxHeadersSize - maximum allowed size in bytes of http headers section.
+   */
   RequestHeadersReader(void* buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
     : m_buffer((p_char8) buffer)
     , m_bufferSize(bufferSize)
     , m_maxHeadersSize(maxHeadersSize)
   {}
-  
+
+  /**
+   * Read and parse http headers from stream.
+   * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   * @param error - out parameter &id:oatpp::web::protocol::ProtocolError::Info;.
+   * @return - &l:RequestHeadersReader::Result;.
+   */
   Result readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, http::HttpError::Info& error);
+
+  /**
+   * Read and parse http headers from stream in asynchronous manner.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param callback - pointer to callback function.
+   * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   * @return - &id:oatpp::async::Action;.
+   */
   Action readHeadersAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                           AsyncCallback callback,
                           const std::shared_ptr<oatpp::data::stream::IOStream>& connection);

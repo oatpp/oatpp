@@ -33,30 +33,63 @@
 namespace oatpp { namespace network {
 
 /**
- * Abstract ConnectionProvider.
- * It may be anything that returns oatpp::data::stream::IOStream
+ * Abstract ConnectionProvider. <br>
+ * Basically it returns whatever stream (&id:oatpp::data::stream::IOStream;). <br>
  * User of ConnectionProvider should care about IOStream only.
- * All other properties are optional
+ * All other properties are optional.
  */
 class ConnectionProvider {
 public:
+  /**
+   * Predefined property key for HOST.
+   */
   static const char* const PROPERTY_HOST;
+
+  /**
+   * Predefined property key for PORT.
+   */
   static const char* const PROPERTY_PORT;
 public:
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::IOStream;.
+   */
   typedef oatpp::data::stream::IOStream IOStream;
+
+  /**
+   * Convenience typedef for &id:oatpp::async::Action;.
+   */
   typedef oatpp::async::Action Action;
   typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<IOStream>&);
 private:
   std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel> m_properties;
 protected:
-  /**
+
+  /*
    * Set optional property
    */
   void setProperty(const oatpp::String& key, const oatpp::String& value);
 public:
-  virtual ~ConnectionProvider() {}
 
+  /**
+   * Virtual default destructor.
+   */
+  virtual ~ConnectionProvider() = default;
+
+  /**
+   * Implement this method.
+   * Get IOStream representing connection to resource.
+   * @return - &id:oatpp::data::stream::IOStream;.
+   */
   virtual std::shared_ptr<IOStream> getConnection() = 0;
+
+  /**
+   * Implement this method.
+   * Obtain IOStream representing connection to resource.
+   * IOStream should be returned as a parameter to callback.
+   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
+   * @param callback - pointer to callback function.
+   * @return - &id:oatpp::async::Action;.
+   */
   virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                     AsyncCallback callback) = 0;
 
@@ -66,8 +99,8 @@ public:
   virtual void close() = 0;
   
   /**
-   * Some optional properties that user might want to know.
-   * All properties are optional and user should not rely on this
+   * Some optional properties that user might want to know. <br>
+   * Note: All properties are optional and user should not rely on this.
    */
   const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& getProperties();
   

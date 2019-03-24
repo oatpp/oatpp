@@ -36,10 +36,6 @@ FIFOBuffer::FIFOBuffer(void* buffer, v_io_size bufferSize,
   , m_canRead(canRead)
 {}
 
-FIFOBuffer::FIFOBuffer(void* buffer, v_io_size bufferSize)
-  : FIFOBuffer(buffer, bufferSize, 0, 0, false)
-{}
-
 void FIFOBuffer::setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
   m_readPosition = readPosition;
   m_writePosition = writePosition;
@@ -367,11 +363,6 @@ SynchronizedFIFOBuffer::SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSiz
   , m_atom(false)
 {}
 
-SynchronizedFIFOBuffer::SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize)
-  : m_fifo(buffer, bufferSize)
-  , m_atom(false)
-{}
-
 void SynchronizedFIFOBuffer::setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
   oatpp::concurrency::SpinLock lock(m_atom);
   m_fifo.setBufferPosition(readPosition, writePosition, canRead);
@@ -385,10 +376,6 @@ data::v_io_size SynchronizedFIFOBuffer::availableToRead() {
 data::v_io_size SynchronizedFIFOBuffer::availableToWrite() {
   oatpp::concurrency::SpinLock lock(m_atom);
   return m_fifo.availableToWrite();
-}
-
-data::v_io_size SynchronizedFIFOBuffer::getBufferSize() const {
-  return m_fifo.getBufferSize();
 }
 
 data::v_io_size SynchronizedFIFOBuffer::read(void *data, data::v_io_size count) {

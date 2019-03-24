@@ -29,6 +29,9 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
+/**
+ * Default implementation of &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
+ */
 class SimpleBodyDecoder : public BodyDecoder {
 private:
   static data::v_io_size readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
@@ -42,14 +45,29 @@ private:
                                                      const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                                                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
 public:
-  
-  void decode(const Protocol::Headers& headers,
+
+  /**
+   * Decode bodyStream and write decoded data to toStream.
+   * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
+   * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
+   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   */
+  void decode(const Headers& headers,
               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
-  
+
+  /**
+   * Same as &l:SimpleBodyDecoder::decode (); but Async.
+   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
+   * @param actionOnReturn - &id:oatpp::async::Action; to do when decoding finished.
+   * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
+   * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
+   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @return - &id:oatpp::async::Action;.
+   */
   oatpp::async::Action decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                    const oatpp::async::Action& actionOnReturn,
-                                   const Protocol::Headers& headers,
+                                   const Headers& headers,
                                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                    const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
   

@@ -29,13 +29,16 @@
 
 
 namespace oatpp { namespace network { namespace server {
-  
+
+/**
+ * Abstract ConnectionHandler.
+ */
 class ConnectionHandler {
 public:
 
   /**
    * Handle provided connection here
-   * @param connection
+   * @param connection - see &id:oatpp::data::stream::IOStream;.
    */
   virtual void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) = 0;
 

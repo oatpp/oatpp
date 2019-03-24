@@ -28,44 +28,57 @@
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
 
-
 namespace oatpp { namespace data{ namespace buffer {
-  
+
+/**
+ * Predefined buffer implementation for I/O operations.
+ * Allocates buffer bytes using &id:oatpp::base::memory::ThreadDistributedMemoryPool;.
+ */
 class IOBuffer : public oatpp::base::Countable {
 public:
   OBJECT_POOL(IOBuffer_Pool, IOBuffer, 32)
   SHARED_OBJECT_POOL(Shared_IOBuffer_Pool, IOBuffer, 32)
 public:
-  static const v_int32 BUFFER_SIZE;
+  /**
+   * Buffer size constant.
+   */
+  static constexpr v_int32 BUFFER_SIZE = 4096;
 private:
-  // TODO FastAlloc
   static oatpp::base::memory::ThreadDistributedMemoryPool& getBufferPool(){
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 32);
+    static oatpp::base::memory::ThreadDistributedMemoryPool pool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
     return pool;
   }
 private:
   void* m_entry;
 public:
-  IOBuffer()
-    : m_entry(getBufferPool().obtain())
-  {}
+  /**
+   * Constructor.
+   */
+  IOBuffer();
 public:
-  
-  static std::shared_ptr<IOBuffer> createShared(){
-    return Shared_IOBuffer_Pool::allocateShared();
-  }
-  
-  ~IOBuffer() {
-    oatpp::base::memory::MemoryPool::free(m_entry);
-  }
-  
-  void* getData(){
-    return m_entry;
-  }
-  
-  v_int32 getSize(){
-    return BUFFER_SIZE;
-  }
+
+  /**
+   * Create shared IOBuffer.
+   * @return
+   */
+  static std::shared_ptr<IOBuffer> createShared();
+
+  /**
+   * Virtual destructor.
+   */
+  ~IOBuffer();
+
+  /**
+   * Get pointer to buffer data.
+   * @return
+   */
+  void* getData();
+
+  /**
+   * Get buffer size.
+   * @return - should always return &l:IOBuffer::BUFFER_SIZE;.
+   */
+  v_int32 getSize();
   
 };
   

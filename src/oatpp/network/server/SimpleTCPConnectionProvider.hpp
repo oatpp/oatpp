@@ -31,7 +31,10 @@
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace server {
-  
+
+/**
+ * Simple provider of TCP connections.
+ */
 class SimpleTCPConnectionProvider : public base::Countable, public ServerConnectionProvider {
 private:
   v_word16 m_port;
@@ -41,22 +44,52 @@ private:
 private:
   oatpp::data::v_io_handle instantiateServer();
 public:
+  /**
+   * Constructor.
+   * @param port - port to listen for incoming connections.
+   * @param nonBlocking - set `true` to provide non-blocking &id:oatpp::data::stream::IOStream; for connection.
+   * `false` for blocking &id:oatpp::data::stream::IOStream;. Default `false`.
+   */
   SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking = false);
 public:
-  
+
+  /**
+   * Create shared SimpleTCPConnectionProvider.
+   * @param port - port to listen for incoming connections.
+   * @param nonBlocking - set `true` to provide non-blocking &id:oatpp::data::stream::IOStream; for connection.
+   * `false` for blocking &id:oatpp::data::stream::IOStream;. Default `false`.
+   */
   static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool nonBlocking = false){
     return std::make_shared<SimpleTCPConnectionProvider>(port, nonBlocking);
   }
-  
+
+  /**
+   * Virtual destructor.
+   */
   ~SimpleTCPConnectionProvider();
 
+  /**
+   * Close accept-socket.
+   */
   void close() override;
-  
+
+  /**
+   * Get incoming connection.
+   * @return &id:oatpp::data::stream::IOStream;.
+   */
   std::shared_ptr<IOStream> getConnection() override;
-  
+
+  /**
+   * No need to implement this.<br>
+   * For Asynchronous IO in oatpp it is considered to be a good practice
+   * to accept connections in a seperate thread with the blocking accept()
+   * and then process connections in Asynchronous manner with non-blocking read/write.
+   * <br>
+   * *It may be implemented later*
+   */
   Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                             AsyncCallback callback) override {
-    /**
+    /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
      *  to accept connections in a seperate thread with the blocking accept()
@@ -66,7 +99,11 @@ public:
      */
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
   }
-  
+
+  /**
+   * Get port.
+   * @return
+   */
   v_word16 getPort(){
     return m_port;
   }

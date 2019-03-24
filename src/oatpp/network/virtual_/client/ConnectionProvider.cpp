@@ -26,6 +26,19 @@
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
 
+ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
+  : m_interface(interface)
+  , m_maxAvailableToRead(-1)
+  , m_maxAvailableToWrite(-1)
+{
+  setProperty(PROPERTY_HOST, m_interface->getName());
+  setProperty(PROPERTY_PORT, "0");
+}
+
+std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::shared_ptr<virtual_::Interface>& interface) {
+  return std::make_shared<ConnectionProvider>(interface);
+}
+
 void ConnectionProvider::close() {
 
 }

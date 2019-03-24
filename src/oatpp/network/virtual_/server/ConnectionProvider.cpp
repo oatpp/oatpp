@@ -26,6 +26,26 @@
 
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
+ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking)
+  : m_interface(interface)
+  , m_nonBlocking(nonBlocking)
+  , m_open(true)
+  , m_maxAvailableToRead(-1)
+  , m_maxAvailableToWrite(-1)
+{
+  setProperty(PROPERTY_HOST, m_interface->getName());
+  setProperty(PROPERTY_PORT, "0");
+}
+
+std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking) {
+  return std::make_shared<ConnectionProvider>(interface, nonBlocking);
+}
+
+void ConnectionProvider::setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite) {
+  m_maxAvailableToRead = maxToRead;
+  m_maxAvailableToWrite = maxToWrite;
+}
+
 void ConnectionProvider::close() {
   m_open = false;
   m_interface->notifyAcceptors();

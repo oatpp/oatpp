@@ -83,13 +83,11 @@ void Executor::SubmissionProcessor::addTaskSubmission(const std::shared_ptr<Task
 
 Executor::Executor(v_int32 threadsCount)
   : m_threadsCount(threadsCount)
-  , m_threads(new std::shared_ptr<oatpp::concurrency::Thread>[m_threadsCount])
-  , m_processors(new std::shared_ptr<SubmissionProcessor>[m_threadsCount])
+  , m_threads(new std::thread[m_threadsCount])
+  , m_processors(new SubmissionProcessor[m_threadsCount])
 {
   for(v_int32 i = 0; i < m_threadsCount; i ++) {
-    auto processor = std::make_shared<SubmissionProcessor>();
-    m_processors[i] = processor;
-    m_threads[i] = oatpp::concurrency::Thread::createShared(processor);
+    m_threads[i] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
   }
 }
 
@@ -100,19 +98,19 @@ Executor::~Executor() {
 
 void Executor::join() {
   for(v_int32 i = 0; i < m_threadsCount; i ++) {
-    m_threads[i]->join();
+    m_threads[i].join();
   }
 }
 
 void Executor::detach() {
   for(v_int32 i = 0; i < m_threadsCount; i ++) {
-    m_threads[i]->detach();
+    m_threads[i].detach();
   }
 }
 
 void Executor::stop() {
   for(v_int32 i = 0; i < m_threadsCount; i ++) {
-    m_processors[i]->stop();
+    m_processors[i].stop();
   }
 }
   

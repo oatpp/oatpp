@@ -28,28 +28,40 @@
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test {
-  
+
+/**
+ * Helper class to check performance of code block.
+ */
 class PerformanceChecker {
 private:
   const char* m_tag;
   v_int64 m_ticks;
 public:
-  PerformanceChecker(const char* tag)
-    : m_tag(tag)
-    , m_ticks(oatpp::base::Environment::getMicroTickCount())
-  {}
-  
-  ~PerformanceChecker(){
-    v_int64 elapsedTicks = oatpp::base::Environment::getMicroTickCount() - m_ticks;
-    OATPP_LOGD(m_tag, "%d(micro)", elapsedTicks);
-  }
-  
-  v_int64 getElapsedTicks(){
-    return oatpp::base::Environment::getMicroTickCount() - m_ticks;
-  }
+
+  /**
+   * Constructor.
+   * @param tag - log tag.
+   */
+  PerformanceChecker(const char* tag);
+
+  /**
+   * Non virtual destructor.
+   * Will print time elapsed ticks on destruction.
+   */
+  ~PerformanceChecker();
+
+  /**
+   * Get elapsed time from checker creation.
+   * @return - ticks in microseconds.
+   */
+  v_int64 getElapsedTicks();
     
 };
-  
+
+/**
+ * Helper class to check block of code on memory leaks.
+ * Checks &id:oatpp::base::Countable; objects, and objects allocated on memory pools.
+ */
 class ThreadLocalObjectsChecker {
 private:
   class MemoryPoolData {
@@ -63,7 +75,17 @@ private:
   v_counter m_objectsCount;
   v_counter m_objectsCreated;
 public:
+
+  /**
+   * Constructor.
+   * @param tag - log tag.
+   */
   ThreadLocalObjectsChecker(const char* tag);
+
+  /**
+   * Non virtual destructor.
+   * Will halt program execution if memory leaks detected.
+   */
   ~ThreadLocalObjectsChecker();
 };
   
