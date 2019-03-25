@@ -351,4 +351,21 @@ void Parser::parseHeaders(Headers& headers,
   
 }
 
+std::unordered_set<oatpp::data::share::StringKeyLabelCI> Parser::parseHeaderValueSet(const oatpp::data::share::StringKeyLabel& headerValue, char separator) {
+
+  std::unordered_set<oatpp::data::share::StringKeyLabelCI> result;
+  oatpp::parser::Caret caret(headerValue.getData(), headerValue.getSize());
+
+  while (caret.canContinue()) {
+    caret.skipChar(' '); // skip leading space
+    auto label = caret.putLabel();
+    caret.findChar(separator); // find separator char, or end of the header value
+    result.insert(oatpp::data::share::StringKeyLabelCI(headerValue.getMemoryHandle(), label.getData(), label.getSize()));
+    caret.inc();
+  }
+
+  return result;
+
+}
+
 }}}}

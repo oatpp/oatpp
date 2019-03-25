@@ -50,7 +50,7 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
-//#define OATPP_TEST_USE_PORT 8123
+//#define OATPP_TEST_USE_PORT 8000
 
 class TestComponent {
 public:
@@ -178,6 +178,11 @@ void FullTest::onRun() {
         auto returnedData = response->readBodyToString();
         OATPP_ASSERT(returnedData);
         OATPP_ASSERT(returnedData == data);
+      }
+
+      {
+        auto response = client->headerValueSet("   VALUE_1, VALUE_2,  VALUE_3", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       if((i + 1) % iterationsStep == 0) {
