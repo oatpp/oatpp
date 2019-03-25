@@ -42,6 +42,8 @@ class Client : public oatpp::web::client::ApiClient {
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
+
+  API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
   
 #include OATPP_CODEGEN_END(ApiClient)
 };

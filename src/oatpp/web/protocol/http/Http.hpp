@@ -36,6 +36,7 @@
 #include "oatpp/core/Types.hpp"
 
 #include <unordered_map>
+#include <unordered_set>
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
 
@@ -650,6 +651,14 @@ public:
                            const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                            oatpp::parser::Caret& caret,
                            Status& error);
+
+  /**
+   * Parse header value separated by `char separator`.
+   * @param headerValue - value of the header.
+   * @param separator - separator char.
+   * @return - `std::unordered_set` of &id:oatpp::data::share::StringKeyLabelCI;.
+   */
+  static std::unordered_set<oatpp::data::share::StringKeyLabelCI> parseHeaderValueSet(const oatpp::data::share::StringKeyLabel& headerValue, char separator);
   
 };
   
