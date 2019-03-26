@@ -17,6 +17,8 @@ add_executable(oatppAllTests
         oatpp/core/data/share/MemoryLabelTest.hpp
         oatpp/core/data/stream/ChunkedBufferTest.cpp
         oatpp/core/data/stream/ChunkedBufferTest.hpp
+        oatpp/core/parser/CaretTest.cpp
+        oatpp/core/parser/CaretTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
@@ -43,8 +45,8 @@ add_executable(oatppAllTests
         oatpp/web/app/Controller.hpp
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
-        oatpp/core/parser/CaretTest.cpp
-        oatpp/core/parser/CaretTest.hpp
+        oatpp/web/FullAsyncClientTest.cpp
+        oatpp/web/FullAsyncClientTest.hpp
 )
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)

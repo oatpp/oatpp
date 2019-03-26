@@ -22,40 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_base_Countable
-#define oatpp_base_Countable
+#ifndef oatpp_test_web_FullAsyncClientTest_hpp
+#define oatpp_test_web_FullAsyncClientTest_hpp
 
-#include <memory>
-#include "./Environment.hpp"
+#include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace base{
+namespace oatpp { namespace test { namespace web {
 
-/**
- * Class instantiations of which can be counted.
- */
-class Countable {
+class FullAsyncClientTest : public UnitTest {
 public:
-  /**
-   * Constructor. Increment counter calling &id:oatpp::base::Environment::incObjects;.
-   */
-  Countable();
 
-  /**
-   * Copy constructor. Increment counter calling &id:oatpp::base::Environment::incObjects;.
-   * @param other
-   */
-  Countable(const Countable& other);
-
-  /**
-   * Virtual destructor. Decrement counter calling &id:oatpp::base::Environment::decObjects;.
-   */
-  virtual ~Countable();
-
-  Countable& operator = (Countable&) = default;
-
+  FullAsyncClientTest():UnitTest("TEST[web::FullAsyncClientTest]"){}
+  void onRun() override;
 
 };
-  
-}}
 
-#endif /* oatpp_base_Countable */
+}}}
+
+#endif /* oatpp_test_web_FullAsyncClientTest_hpp */
