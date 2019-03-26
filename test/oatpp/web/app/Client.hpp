@@ -44,6 +44,18 @@ class Client : public oatpp::web::client::ApiClient {
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
 
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
+
+
+  API_CALL_ASYNC("GET", "/", getRootAsync)
+  API_CALL_ASYNC("GET", "/", getRootAsyncWithCKA, HEADER(String, connection, "Connection"))
+  API_CALL_ASYNC("GET", "params/{param}", getWithParamsAsync, PATH(String, param))
+  API_CALL_ASYNC("GET", "queries", getWithQueriesAsync, QUERY(String, name), QUERY(Int32, age))
+  API_CALL_ASYNC("GET", "queries/map", getWithQueriesMapAsync, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
+  API_CALL_ASYNC("GET", "headers", getWithHeadersAsync, HEADER(String, param, "X-TEST-HEADER"))
+  API_CALL_ASYNC("POST", "body", postBodyAsync, BODY_STRING(String, body))
+  API_CALL_ASYNC("POST", "echo", echoBodyAsync, BODY_STRING(String, body))
+
+  API_CALL_ASYNC("GET", "header-value-set", headerValueSetAsync, HEADER(String, valueSet, "X-VALUE-SET"))
   
 #include OATPP_CODEGEN_END(ApiClient)
 };
