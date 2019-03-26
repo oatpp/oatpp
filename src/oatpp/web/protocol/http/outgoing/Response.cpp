@@ -116,7 +116,7 @@ oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parent
       , m_buffer(oatpp::data::stream::ChunkedBuffer::createShared())
     {}
     
-    Action act() {
+    Action act() override {
     
       if(m_response->m_body){
         m_response->m_body->declareHeaders(m_response->m_headers);
