@@ -164,6 +164,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     std::shared_ptr<Body> m_body;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<ConnectionHandle> m_connectionHandle;
+    std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_upstream;
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
@@ -207,10 +208,10 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
       request->putHeaderIfNotExists(Header::HOST, m_connectionProvider->getProperty("host"));
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
-      auto upStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);
+      m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);
       m_bufferPointer = m_ioBuffer->getData();
       m_bufferBytesLeftToRead = m_ioBuffer->getSize();
-      return request->sendAsync(this, upStream->flushAsync(this, yieldTo(&ExecutorCoroutine::readResponse)), upStream);
+      return request->sendAsync(this, m_upstream->flushAsync(this, yieldTo(&ExecutorCoroutine::readResponse)), m_upstream);
     }
     
     Action readResponse() {

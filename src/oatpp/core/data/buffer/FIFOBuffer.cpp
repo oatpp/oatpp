@@ -310,6 +310,11 @@ oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCorout
     {}
 
     Action act() override {
+
+      if(!m_fifo->m_canRead) {
+        return finish();
+      }
+
       if(m_fifo->m_readPosition < m_fifo->m_writePosition) {
 
         m_data1 = &m_fifo->m_buffer[m_fifo->m_readPosition];

@@ -135,6 +135,7 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
       auto res = m_connection->read(m_buffer, desiredToRead);
       if(res > 0) {
         m_bufferStream.write(m_buffer, res);
+        m_progress += res;
         
         for(v_int32 i = 0; i < res; i ++) {
           m_accumulator <<= 8;
