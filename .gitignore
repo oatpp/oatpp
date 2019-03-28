@@ -31,6 +31,10 @@
 *.out
 *.app
 
+# Mac
+
+**/.DS_Store
+
 #idea
 .idea/
 cmake-build-debug/

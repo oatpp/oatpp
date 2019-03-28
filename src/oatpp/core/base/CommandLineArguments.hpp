@@ -113,7 +113,7 @@ public:
    * @param argName - name of the target argument.
    * @return - `true` if present.
    */
-  bool hasArgument(const char* argName) {
+  bool hasArgument(const char* argName) const {
     return Parser::hasArgument(m_argc, m_argv, argName);
   }
 
@@ -122,7 +122,7 @@ public:
    * @param argName - name of the target argument.
    * @return - index of the argument in argv[] array. -1 if there is no such argument.
    */
-  v_int32 getArgumentIndex(const char* argName) {
+  v_int32 getArgumentIndex(const char* argName) const {
     return Parser::getArgumentIndex(m_argc, m_argv, argName);
   }
 
@@ -135,7 +135,7 @@ public:
    * @param defaultValue - default value to return in case not found.
    * @return - argument which starts with the specified prefix. defaultValue if not found.
    */
-  const char* getArgumentStartingWith(const char* argNamePrefix, const char* defaultValue = nullptr) {
+  const char* getArgumentStartingWith(const char* argNamePrefix, const char* defaultValue = nullptr) const {
     return Parser::getArgumentStartingWith(m_argc, m_argv, argNamePrefix, defaultValue);
   }
 
@@ -148,7 +148,7 @@ public:
    * @param defaultValue - default value to return in case not found.
    * @return - value preceded by the argument. defaultValue if not found.
    */
-  const char* getNamedArgumentValue(const char* argName, const char* defaultValue = nullptr) {
+  const char* getNamedArgumentValue(const char* argName, const char* defaultValue = nullptr) const {
     return Parser::getNamedArgumentValue(m_argc, m_argv, argName, defaultValue);
   }
   
