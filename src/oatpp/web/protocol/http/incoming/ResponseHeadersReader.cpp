@@ -168,10 +168,10 @@ ResponseHeadersReader::Action ResponseHeadersReader::readHeadersAsync(oatpp::asy
         if(status.code == 0) {
           return _return(m_result);
         } else {
-          return error("error occurred while parsing headers");
+          return error("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Error occurred while parsing headers");
         }
       } else {
-        return error("can't parse starting line");
+        return error("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Can't parse starting line");
       }
       
     }

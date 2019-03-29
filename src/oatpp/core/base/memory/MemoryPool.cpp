@@ -90,28 +90,6 @@ void* MemoryPool::obtain() {
   }
 #endif
 }
-  
-void* MemoryPool::obtainLockFree() {
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
-  return new v_char8[m_entrySize];
-#else
-  if(m_rootEntry != nullptr) {
-    auto entry = m_rootEntry;
-    m_rootEntry = m_rootEntry->next;
-    ++ m_objectsCount;
-    return ((p_char8) entry) + sizeof(EntryHeader);
-  } else {
-    allocChunk();
-    if(m_rootEntry == nullptr) {
-      throw std::runtime_error("[oatpp::base::memory::MemoryPool:obtainLockFree()]: Unable to allocate entry");
-    }
-    auto entry = m_rootEntry;
-    m_rootEntry = m_rootEntry->next;
-    ++ m_objectsCount;
-    return ((p_char8) entry) + sizeof(EntryHeader);
-  }
-#endif
-}
 
 void MemoryPool::freeByEntryHeader(EntryHeader* entry) {
   if(entry->poolId == m_id) {
@@ -156,27 +134,53 @@ std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
 
 const v_int32 ThreadDistributedMemoryPool::SHARDS_COUNT_DEFAULT = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
-  
+
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
 ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
-  : m_shardsCount(shardsCount)
-  , m_shards(new MemoryPool*[m_shardsCount])
+  : m_shardsCount(1)
+  , m_shards(new MemoryPool*[1])
+  , m_deleted(false)
 {
   for(v_int32 i = 0; i < m_shardsCount; i++){
     m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int32ToStdStr(i), entrySize, chunkSize);
   }
 }
+#else
+ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
+  : m_shardsCount(shardsCount)
+  , m_shards(new MemoryPool*[m_shardsCount])
+  , m_deleted(false)
+{
+  for(v_int32 i = 0; i < m_shardsCount; i++){
+    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int32ToStdStr(i), entrySize, chunkSize);
+  }
+}
+#endif
 
 ThreadDistributedMemoryPool::~ThreadDistributedMemoryPool(){
+  m_deleted = true;
   for(v_int32 i = 0; i < m_shardsCount; i++){
     delete m_shards[i];
   }
   delete [] m_shards;
 }
 
+#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
 void* ThreadDistributedMemoryPool::obtain() {
+  if(m_deleted) {
+    throw std::runtime_error("[oatpp::base::memory::ThreadDistributedMemoryPool::obtain()]. Error. Pool deleted.");
+  }
+  return m_shards[0]->obtain();
+}
+#else
+void* ThreadDistributedMemoryPool::obtain() {
+  if(m_deleted) {
+    throw std::runtime_error("[oatpp::base::memory::ThreadDistributedMemoryPool::obtain()]. Error. Pool deleted.");
+  }
   static std::atomic<v_word16> base(0);
   static thread_local v_int16 index = (++base) % m_shardsCount;
   return m_shards[index]->obtain();
 }
+#endif
   
 }}}
