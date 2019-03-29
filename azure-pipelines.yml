@@ -5,22 +5,10 @@
 
 jobs:
 - job: ubuntu_16_04
-  displayName: 'Build - Ubuntu 16.04'
+  displayName: 'Build - Ubuntu 16.04 - With Memory Pool'
   continueOnError: false
   pool:
-    vmImage: 'ubuntu-16.04'
-
-  strategy:
-    matrix:
-      ubuntu14:
-        containerImage: ubuntu:14.04
-      ubuntu16:
-        containerImage: ubuntu:16.04
-      ubuntu18:
-        containerImage: ubuntu:18.04
-
-  container: $[ variables['containerImage'] ]
-  
+    vmImage: 'Ubuntu 16.04'
   workspace:
     clean: all
   steps:
@@ -28,7 +16,29 @@ jobs:
         mkdir build
     - task: CMake@1
     - script: |
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON ..
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
+- job: ubuntu_16_04
+  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
         make
       displayName: 'CMake'
       workingDirectory: build
@@ -39,7 +49,7 @@ jobs:
       workingDirectory: build
 
 - job: macOS
-  displayName: 'Build - macOS-10.13'
+  displayName: 'Build - macOS-10.13 - With Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'macOS-10.13'
@@ -50,7 +60,7 @@ jobs:
         mkdir build
     - task: CMake@1
     - script: |
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON ..
+        cmake -DCMAKE_BUILD_TYPE=Release ..
         make
       displayName: 'CMake'
       workingDirectory: build
@@ -59,3 +69,26 @@ jobs:
         make test ARGS="-V"
       displayName: 'Test'
       workingDirectory: build
+
+- job: macOS
+  displayName: 'Build - macOS-10.13 - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'macOS-10.13'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
