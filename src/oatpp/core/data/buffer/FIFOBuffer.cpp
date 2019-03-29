@@ -288,13 +288,13 @@ data::v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream& stream) {
 
 oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
                                                     const oatpp::async::Action& actionOnFinish,
-                                                    data::stream::OutputStream& stream)
+                                                    const std::shared_ptr<data::stream::OutputStream>& stream)
 {
 
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
   private:
-    FIFOBuffer* m_fifo;
-    data::stream::OutputStream* m_stream;
+    std::shared_ptr<FIFOBuffer> m_fifo;
+    std::shared_ptr<data::stream::OutputStream> m_stream;
   private:
 
     const void* m_data1;
@@ -304,7 +304,7 @@ oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCorout
     data::v_io_size m_size2;
   public:
 
-    FlushCoroutine(FIFOBuffer* fifo, data::stream::OutputStream* stream)
+    FlushCoroutine(const std::shared_ptr<FIFOBuffer>& fifo, const std::shared_ptr<data::stream::OutputStream>& stream)
       : m_fifo(fifo)
       , m_stream(stream)
     {}
@@ -336,15 +336,15 @@ oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCorout
     }
 
     Action fullFlush() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream, m_data1, m_size1, yieldTo(&FlushCoroutine::beforeFinish));
+      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, m_size1, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action partialFlush1() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream, m_data1, m_size1, yieldTo(&FlushCoroutine::partialFlush2));
+      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, m_size1, yieldTo(&FlushCoroutine::partialFlush2));
     }
 
     Action partialFlush2() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream, m_data2, m_size2, yieldTo(&FlushCoroutine::beforeFinish));
+      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data2, m_size2, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action beforeFinish() {
@@ -354,7 +354,7 @@ oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCorout
 
   };
 
-  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish, this, &stream);
+  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish, shared_from_this(), stream);
 
 }
 
