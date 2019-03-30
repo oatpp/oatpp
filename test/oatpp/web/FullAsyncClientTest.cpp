@@ -210,7 +210,7 @@ void FullAsyncClientTest::onRun() {
 
     for(v_int32 i = 0; i < iterations; i++) {
       executor->execute<ClientCoroutine_getRootAsync>();
-      //executor->execute<ClientCoroutine_echoBodyAsync>();
+      executor->execute<ClientCoroutine_echoBodyAsync>();
     }
 
     while(

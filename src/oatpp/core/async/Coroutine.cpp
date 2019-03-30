@@ -78,5 +78,66 @@ v_int32 Action::getType() {
 }
 
 std::shared_ptr<const Error> AbstractCoroutine::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
-  
+
+Action AbstractCoroutine::takeAction(Action&& action) {
+
+  AbstractCoroutine* savedCP;
+
+  switch (action.m_type) {
+
+    case Action::TYPE_REPEAT: return std::forward<oatpp::async::Action>(action);
+    case Action::TYPE_WAIT_RETRY: return std::forward<oatpp::async::Action>(action);
+
+    case Action::TYPE_COROUTINE:
+      action.m_data.coroutine->m_parent = _CP;
+      action.m_data.coroutine->m_propagatedError = m_propagatedError;
+      _CP = action.m_data.coroutine;
+      _FP = action.m_data.coroutine->_FP;
+
+      return std::forward<oatpp::async::Action>(action);
+
+    case Action::TYPE_FINISH:
+      if(_CP == this) {
+        _CP = nullptr;
+        return std::forward<oatpp::async::Action>(action);
+      }
+
+      savedCP = _CP;
+      _CP = _CP->m_parent;
+      _FP = nullptr;
+      /* Please note that savedCP->m_parentReturnAction should not be "REPEAT nor WAIT_RETRY" */
+      /* as funtion pointer (FP) is invalidated */
+      action = takeAction(std::move(savedCP->m_parentReturnAction));
+      savedCP->free();
+
+      return std::forward<oatpp::async::Action>(action);
+
+    case Action::TYPE_YIELD_TO:
+      _FP = action.m_data.fptr;
+      return std::forward<oatpp::async::Action>(action);
+
+    case Action::TYPE_ERROR:
+      do {
+        action = _CP->handleError(*m_propagatedError);
+        if(action.m_type == Action::TYPE_ERROR) {
+          if(_CP == this) {
+            _CP = nullptr;
+            return std::forward<oatpp::async::Action>(action);
+          } else {
+            _CP->free();
+            _CP = _CP->m_parent;
+          }
+        } else {
+          action = takeAction(std::forward<oatpp::async::Action>(action));
+        }
+      } while (action.m_type == Action::TYPE_ERROR && _CP != nullptr);
+
+      return std::forward<oatpp::async::Action>(action);
+
+  };
+
+  throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
+
+}
+
 }}

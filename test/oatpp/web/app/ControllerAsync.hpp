@@ -54,7 +54,7 @@ public:
     ENDPOINT_ASYNC_INIT(Root)
     
     Action act() {
-      OATPP_LOGD(TAG, "GET '/'");
+      //OATPP_LOGD(TAG, "GET '/'");
       return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
     }
 

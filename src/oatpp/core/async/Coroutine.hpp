@@ -30,6 +30,8 @@
 #include "oatpp/core/base/memory/MemoryPool.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
+#include <exception>
+
 namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
@@ -183,68 +185,11 @@ private:
   AbstractCoroutine* _ref = nullptr;
 private:
   AbstractCoroutine* m_parent = nullptr;
-  std::shared_ptr<const Error>& m_propagatedError = _ERR;
+  std::shared_ptr<const Error>* m_propagatedError = &_ERR;
 protected:
   Action m_parentReturnAction = Action(Action::TYPE_FINISH);
 private:
-  
-  Action takeAction(Action&& action){
-
-    AbstractCoroutine* savedCP;
-
-    switch (action.m_type) {
-
-      case Action::TYPE_COROUTINE:
-          action.m_data.coroutine->m_parent = _CP;
-          _CP = action.m_data.coroutine;
-          _FP = action.m_data.coroutine->_FP;
-
-          return std::forward<oatpp::async::Action>(action);
-        
-      case Action::TYPE_FINISH:
-          if(_CP == this) {
-            _CP = nullptr;
-            return std::forward<oatpp::async::Action>(action);
-          }
-
-          savedCP = _CP;
-          _CP = _CP->m_parent;
-          _FP = nullptr;
-          /* Please note that savedCP->m_parentReturnAction should not be "REPEAT nor WAIT_RETRY" */
-          /* as funtion pointer (FP) is invalidated */
-          action = takeAction(std::move(savedCP->m_parentReturnAction));
-          savedCP->free();
-
-          return std::forward<oatpp::async::Action>(action);
-        
-      case Action::TYPE_YIELD_TO:
-          _FP = action.m_data.fptr;
-          return std::forward<oatpp::async::Action>(action);
-        
-      case Action::TYPE_ERROR:
-          do {
-            action = _CP->handleError(m_propagatedError);
-            if(action.m_type == Action::TYPE_ERROR) {
-              if(_CP == this) {
-                _CP = nullptr;
-                return std::forward<oatpp::async::Action>(action);
-              } else {
-                _CP->free();
-                _CP = _CP->m_parent;
-              }
-            } else {
-              action = takeAction(std::forward<oatpp::async::Action>(action));
-            }
-          } while (action.m_type == Action::TYPE_ERROR && _CP != nullptr);
-
-          return std::forward<oatpp::async::Action>(action);
-        
-    };
-    
-    throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
-    
-  }
-
+  Action takeAction(Action&& action);
 public:
 
   /**
@@ -254,8 +199,11 @@ public:
   Action iterate() {
     try {
       return takeAction(_CP->call(_FP));
+    } catch (std::exception& e) {
+      *m_propagatedError = std::make_shared<Error>(e.what());
+      return takeAction(Action(Action::TYPE_ERROR));
     } catch (...) {
-      m_propagatedError = ERROR_UNKNOWN;
+      *m_propagatedError = ERROR_UNKNOWN;
       return takeAction(Action(Action::TYPE_ERROR));
     }
   };
@@ -374,13 +322,13 @@ public:
    * @return - error reporting Action.
    */
   Action error(const std::shared_ptr<const Error>& error) {
-    m_propagatedError = error;
+    *m_propagatedError = error;
     return Action(Action::TYPE_ERROR);
   }
 
   template<class E, typename ... Args>
   Action error(Args... args) {
-    m_propagatedError = std::make_shared<E>(args...);
+    *m_propagatedError = std::make_shared<E>(args...);
     return Action(Action::TYPE_ERROR);
   }
   
