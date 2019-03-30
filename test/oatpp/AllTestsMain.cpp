@@ -30,6 +30,10 @@
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
+
+#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/Types.hpp"
+
 #include <iostream>
 
 #ifdef OATPP_ENABLE_ALL_TESTS_MAIN
@@ -54,6 +58,7 @@ public:
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
+  /*
 
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
@@ -82,6 +87,10 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
+
+  */
+
+  //OATPP_LOGD("aa", "fps=%d", sizeof(std::shared_ptr<oatpp::base::StrBuffer>));
 
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncClientTest);
 

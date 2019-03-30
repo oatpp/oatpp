@@ -195,7 +195,7 @@ public:
    * @return Start Coroutine Action
    */
   oatpp::async::Action streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                       const oatpp::async::Action& actionOnReturn,
+                                       oatpp::async::Action&& actionOnReturn,
                                        const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**

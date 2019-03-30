@@ -32,7 +32,7 @@ bool Processor::checkWaitingQueue() {
   AbstractCoroutine* prev = nullptr;
   while (curr != nullptr) {
     const Action& action = curr->iterate();
-    if(action.m_type == Action::TYPE_ABORT) {
+    if(action.m_type == Action::TYPE_FINISH) {
       m_waitingQueue.removeEntry(curr, prev);
       if(prev != nullptr) {
         curr = prev;
@@ -48,6 +48,8 @@ bool Processor::checkWaitingQueue() {
         curr = m_waitingQueue.first;
       }
     }
+
+    action.m_type = Action::TYPE_NONE;
     
     prev = curr;
     if(curr != nullptr) {
@@ -96,6 +98,7 @@ bool Processor::iterate(v_int32 numIterations) {
       } else {
         m_activeQueue.round();
       }
+      action.m_type = Action::TYPE_NONE;
     } else {
       m_activeQueue.popFrontNoData();
     }

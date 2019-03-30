@@ -41,7 +41,7 @@ private:
                                 const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
   
   static oatpp::async::Action doChunkedDecodingAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                     const oatpp::async::Action& actionOnReturn,
+                                                     oatpp::async::Action&& actionOnReturn,
                                                      const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                                                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
 public:
@@ -66,7 +66,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   oatpp::async::Action decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   const oatpp::async::Action& actionOnReturn,
+                                   oatpp::async::Action&& actionOnReturn,
                                    const Headers& headers,
                                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                    const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;

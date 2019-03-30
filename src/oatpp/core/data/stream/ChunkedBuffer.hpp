@@ -211,7 +211,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                           const oatpp::async::Action& actionOnFinish,
+                                           oatpp::async::Action&& actionOnFinish,
                                            const std::shared_ptr<OutputStream>& stream);
   
   std::shared_ptr<Chunks> getChunks();

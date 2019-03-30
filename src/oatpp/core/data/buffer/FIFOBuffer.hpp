@@ -131,7 +131,7 @@ public:
    * @return
    */
   oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          const oatpp::async::Action& actionOnFinish,
+                                          oatpp::async::Action&& actionOnFinish,
                                           const std::shared_ptr<data::stream::OutputStream>& stream);
 
   

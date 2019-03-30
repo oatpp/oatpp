@@ -115,7 +115,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   virtual oatpp::async::Action decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                           const oatpp::async::Action& actionOnReturn,
+                                           oatpp::async::Action&& actionOnReturn,
                                            const Headers& headers,
                                            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                            const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const = 0;

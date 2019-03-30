@@ -32,26 +32,6 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
-class Errors {
-public:
-
-  /**
-   * IOError::BROKEN_PIPE returned
-   */
-  static const char* const ERROR_ASYNC_BROKEN_PIPE;
-
-  /**
-   * IOError::ZERO_VALUE value returned
-   */
-  static const char* const ERROR_ASYNC_BAD_RESULT;
-
-  /**
-   * Error code returned is not from IOError enum
-   */
-  static const char* const ERROR_ASYNC_UNKNOWN_CODE;
-
-};
-
 /**
  * Output Stream.
  */
@@ -206,6 +186,10 @@ OutputStream& operator << (OutputStream& s, v_float32 value);
 OutputStream& operator << (OutputStream& s, v_float64 value);
 OutputStream& operator << (OutputStream& s, bool value);
 
+class AsyncTransferError : public oatpp::async::Error {
+public:
+  AsyncTransferError(const char* what) : oatpp::async::Error(what) {}
+};
 
 /**
  * Read bytes from @fromStream" and write to @toStream" using @buffer of size @bufferSize
@@ -223,27 +207,30 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
  * Same as transfer but asynchronous
  */
 oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   const oatpp::async::Action& actionOnReturn,
+                                   oatpp::async::Action&& actionOnReturn,
                                    const std::shared_ptr<InputStream>& fromStream,
                                    const std::shared_ptr<OutputStream>& toStream,
                                    oatpp::data::v_io_size transferSize,
                                    const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
-oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                   oatpp::data::stream::OutputStream* stream,
                                                    const void*& data,
                                                    data::v_io_size& size,
-                                                   const oatpp::async::Action& nextAction);
+                                                   oatpp::async::Action&& nextAction);
 
-oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                             oatpp::data::stream::InputStream* stream,
                                              void*& data,
                                              data::v_io_size& bytesLeftToRead,
-                                             const oatpp::async::Action& nextAction);
+                                             oatpp::async::Action&& nextAction);
 
-oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                  oatpp::data::stream::InputStream* stream,
                                                   void*& data,
                                                   data::v_io_size& bytesLeftToRead,
-                                                  const oatpp::async::Action& nextAction);
+                                                  oatpp::async::Action&& nextAction);
 
 /**
  * Read exact amount of bytes to stream

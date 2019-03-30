@@ -22,61 +22,44 @@
  *
  ***************************************************************************/
 
-#include "Coroutine.hpp"
+#ifndef oatpp_async_Error_hpp
+#define oatpp_async_Error_hpp
 
 namespace oatpp { namespace async {
 
-Action Action::clone(const Action& action) {
-  Action result(action.m_type);
-  result.m_data = action.m_data;
-  return result;
-}
+/**
+ * Class to hold and communicate errors between Coroutines
+ */
+class Error {
+private:
+  const char* m_what;
+public:
 
-Action::Action(AbstractCoroutine* coroutine)
-  : m_type(TYPE_COROUTINE)
-{
-  m_data.coroutine = coroutine;
-}
+  /**
+   * Constructor.
+   * @param what - error explanation.
+   */
+  Error(const char* what);
 
-Action::Action(FunctionPtr functionPtr)
-  : m_type(TYPE_YIELD_TO)
-{
-  m_data.fptr = functionPtr;
-}
+  /**
+   * Error explanation.
+   * @return
+   */
+  const char* what() const;
 
-Action::Action(v_int32 type)
-  : m_type(type)
-  , m_data()
-{}
-
-Action::Action(Action&& other)
-  : m_type(other.m_type)
-  , m_data(other.m_data)
-{
-  other.m_data.fptr = nullptr;
-}
-
-Action::~Action() {
-  if(m_type == TYPE_COROUTINE && m_data.coroutine != nullptr) {
-    m_data.coroutine->free();
+  /**
+   * Check if error belongs to specified class.
+   * @tparam ErrorClass
+   * @return - `true` if error is of specified class
+   */
+  template<class ErrorClass>
+  bool is() const {
+    return dynamic_cast<ErrorClass*>(this) != nullptr;
   }
-}
 
-Action& Action::operator=(Action&& other) {
-  m_type = other.m_type;
-  m_data = other.m_data;
-  other.m_data.fptr = nullptr;
-  return *this;
-}
+};
 
-bool Action::isError() {
-  return m_type == TYPE_ERROR;
-}
-
-v_int32 Action::getType() {
-  return m_type;
-}
-
-std::shared_ptr<const Error> AbstractCoroutine::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
-  
 }}
+
+
+#endif //oatpp_async_Error_hpp

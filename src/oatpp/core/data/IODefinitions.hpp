@@ -25,6 +25,7 @@
 #ifndef oatpp_data_IODefinitions_hpp
 #define oatpp_data_IODefinitions_hpp
 
+#include "oatpp/core/async/Error.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace data {
@@ -82,6 +83,27 @@ enum IOError : v_io_size {
    * Client should wait then retry
    */
   WAIT_RETRY = -1003
+
+};
+
+class AsyncIOError : public oatpp::async::Error {
+private:
+  v_io_size m_code;
+public:
+
+  AsyncIOError(const char* what, v_io_size code)
+    : oatpp::async::Error(what)
+    , m_code(code)
+  {}
+
+  AsyncIOError(v_io_size code)
+    : oatpp::async::Error("AsyncIOError")
+    , m_code(code)
+  {}
+
+  v_io_size getCode() {
+    return m_code;
+  }
 
 };
 

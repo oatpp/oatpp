@@ -13,6 +13,8 @@ add_library(oatpp
         oatpp/codegen/codegen_undef_DTO_.hpp
         oatpp/core/Types.cpp
         oatpp/core/Types.hpp
+        oatpp/core/async/Error.cpp
+        oatpp/core/async/Error.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
         oatpp/core/async/Executor.cpp

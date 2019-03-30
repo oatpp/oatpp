@@ -177,32 +177,25 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
     }
   }
   
-  return abort();
+  return finish();
 }
   
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oatpp::async::Error& error) {
-  if(m_currentResponse) {
-    if(error.isExceptionThrown) {
-      OATPP_LOGE("Server", "Unhandled exception. Dropping connection");
-    } else {
-      OATPP_LOGE("Server", "Unhandled error. '%s'. Dropping connection", error.message);
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const std::shared_ptr<const Error>& error) {
+
+  if(error) {
+
+    if(m_currentResponse) {
+      OATPP_LOGE("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '%s'. Dropping connection", error->what());
+      return Action::TYPE_ERROR;
     }
-    return abort();
+
+    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error->what());
+    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+
   }
-  if (error.isExceptionThrown) {
-    try{
-      throw;
-    } catch (oatpp::web::protocol::http::HttpError& error) {
-      m_currentResponse = m_errorHandler->handleError(error.getInfo().status, error.getMessage());
-    } catch (std::exception& error) {
-      m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    } catch (...) {
-      m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
-    }
-  } else {
-    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.message);
-  }
-  return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+
+  return Action::TYPE_ERROR;
+
 }
   
 }}}

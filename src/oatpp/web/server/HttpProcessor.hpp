@@ -110,7 +110,7 @@ public:
     Action onResponseFormed();
     Action onRequestDone();
     
-    Action handleError(const oatpp::async::Error& error) override;
+    Action handleError(const std::shared_ptr<const Error>& error) override;
     
   };
   

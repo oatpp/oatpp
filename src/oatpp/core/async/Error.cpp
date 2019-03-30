@@ -22,61 +22,16 @@
  *
  ***************************************************************************/
 
-#include "Coroutine.hpp"
+#include "Error.hpp"
 
 namespace oatpp { namespace async {
 
-Action Action::clone(const Action& action) {
-  Action result(action.m_type);
-  result.m_data = action.m_data;
-  return result;
-}
-
-Action::Action(AbstractCoroutine* coroutine)
-  : m_type(TYPE_COROUTINE)
-{
-  m_data.coroutine = coroutine;
-}
-
-Action::Action(FunctionPtr functionPtr)
-  : m_type(TYPE_YIELD_TO)
-{
-  m_data.fptr = functionPtr;
-}
-
-Action::Action(v_int32 type)
-  : m_type(type)
-  , m_data()
+Error::Error(const char* what)
+  : m_what(what)
 {}
 
-Action::Action(Action&& other)
-  : m_type(other.m_type)
-  , m_data(other.m_data)
-{
-  other.m_data.fptr = nullptr;
+const char* Error::what() const {
+  return m_what;
 }
 
-Action::~Action() {
-  if(m_type == TYPE_COROUTINE && m_data.coroutine != nullptr) {
-    m_data.coroutine->free();
-  }
-}
-
-Action& Action::operator=(Action&& other) {
-  m_type = other.m_type;
-  m_data = other.m_data;
-  other.m_data.fptr = nullptr;
-  return *this;
-}
-
-bool Action::isError() {
-  return m_type == TYPE_ERROR;
-}
-
-v_int32 Action::getType() {
-  return m_type;
-}
-
-std::shared_ptr<const Error> AbstractCoroutine::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
-  
 }}

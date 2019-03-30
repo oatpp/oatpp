@@ -69,7 +69,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                    const Action& actionOnReturn,
+                                    Action&& actionOnReturn,
                                     const std::shared_ptr<OutputStream>& stream) = 0;
   
 };
