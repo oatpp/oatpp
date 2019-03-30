@@ -46,14 +46,14 @@ Action::Action(FunctionPtr functionPtr)
 
 Action::Action(v_int32 type)
   : m_type(type)
-  , m_data()
 {}
 
 Action::Action(Action&& other)
   : m_type(other.m_type)
   , m_data(other.m_data)
 {
-  other.m_data.fptr = nullptr;
+  other.m_type = TYPE_NONE;
+  //OATPP_LOGD("aaa", "moving");
 }
 
 Action::~Action() {
@@ -85,8 +85,8 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 
   switch (action.m_type) {
 
-    case Action::TYPE_REPEAT: return std::forward<oatpp::async::Action>(action);
-    case Action::TYPE_WAIT_RETRY: return std::forward<oatpp::async::Action>(action);
+    case Action::TYPE_REPEAT: return Action::TYPE_REPEAT;//std::forward<oatpp::async::Action>(action);
+    case Action::TYPE_WAIT_RETRY: return Action::TYPE_WAIT_RETRY;//std::forward<oatpp::async::Action>(action);
 
     case Action::TYPE_COROUTINE:
       action.m_data.coroutine->m_parent = _CP;

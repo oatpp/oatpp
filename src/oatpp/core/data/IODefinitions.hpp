@@ -87,6 +87,9 @@ enum IOError : v_io_size {
 };
 
 class AsyncIOError : public oatpp::async::Error {
+public:
+  static const std::shared_ptr<const Error> ERROR_BROKEN_PIPE;
+  static const std::shared_ptr<const Error> ERROR_ZERO_VALUE;
 private:
   v_io_size m_code;
 public:
@@ -101,7 +104,7 @@ public:
     , m_code(code)
   {}
 
-  v_io_size getCode() {
+  v_io_size getCode() const {
     return m_code;
   }
 

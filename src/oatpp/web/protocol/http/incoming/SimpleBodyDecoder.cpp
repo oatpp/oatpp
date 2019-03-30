@@ -199,17 +199,9 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
     
     Action skipRN() {
       if(m_done) {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(this,
-                                                                 m_fromStream.get(),
-                                                                 m_skipData,
-                                                                 m_skipSize,
-                                                                 finish());
+        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, m_skipSize, finish());
       } else {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(this,
-                                                                 m_fromStream.get(),
-                                                                 m_skipData,
-                                                                 m_skipSize,
-                                                                 yieldTo(&ChunkedDecoder::readLineChar));
+        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, m_skipSize, yieldTo(&ChunkedDecoder::readLineChar));
       }
     }
     

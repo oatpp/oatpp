@@ -266,11 +266,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doRead() {
-      return oatpp::data::stream::readSomeDataAsyncInline(this,
-                                                          m_fromStream.get(),
-                                                          m_readBufferPtr,
-                                                          m_bytesLeft,
-                                                          yieldTo(&TransferCoroutine::prepareWrite));
+      return oatpp::data::stream::readSomeDataAsyncInline(this, m_fromStream.get(), m_readBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::prepareWrite));
     }
     
     Action prepareWrite() {
@@ -280,11 +276,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doWrite() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this,
-                                                                m_toStream.get(),
-                                                                m_writeBufferPtr,
-                                                                m_bytesLeft,
-                                                                yieldTo(&TransferCoroutine::act));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_toStream.get(), m_writeBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::act));
     }
     
     Action handleError(const std::shared_ptr<const Error>& error) override {
@@ -302,9 +294,6 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
 
 namespace {
 
-  std::shared_ptr<const AsyncIOError> ERROR_ASYNC_BROKEN_PIPE = std::make_shared<AsyncIOError>(IOError::BROKEN_PIPE);
-  std::shared_ptr<const AsyncIOError> ERROR_ASYNC_ZERO_VALUE = std::make_shared<AsyncIOError>(IOError::ZERO_VALUE);
-
   oatpp::async::Action asyncActionOnIOError(oatpp::async::AbstractCoroutine* coroutine, data::v_io_size res) {
     switch (res) {
       case IOError::WAIT_RETRY:
@@ -312,9 +301,9 @@ namespace {
       case IOError::RETRY:
         return oatpp::async::Action::TYPE_REPEAT;
       case IOError::BROKEN_PIPE:
-        return coroutine->error(ERROR_ASYNC_BROKEN_PIPE);
+        return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       case IOError::ZERO_VALUE:
-        return coroutine->error(ERROR_ASYNC_ZERO_VALUE);
+        return coroutine->error(oatpp::data::AsyncIOError::ERROR_ZERO_VALUE);
     }
     return coroutine->error<AsyncIOError>("Unknown IO Error result", res);
   }

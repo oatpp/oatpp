@@ -152,7 +152,9 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
         return waitRetry();
       } else if(res == data::IOError::BROKEN_PIPE){
-        return error<Error>("Connection Closed.");
+        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+      } else if(res == data::IOError::ZERO_VALUE){
+        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else {
         return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Error reading connection stream.");
       }

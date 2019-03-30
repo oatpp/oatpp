@@ -85,6 +85,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
+
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
 
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncClientTest);

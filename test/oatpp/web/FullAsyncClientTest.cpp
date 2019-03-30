@@ -58,7 +58,7 @@ class TestComponent {
 public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
-    return std::make_shared<oatpp::async::Executor>(1);
+    return std::make_shared<oatpp::async::Executor>(10);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
@@ -206,7 +206,7 @@ void FullAsyncClientTest::onRun() {
     ClientCoroutine_getRootAsync::SUCCESS_COUNTER = 0;
     ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = 0;
 
-    v_int32 iterations = 1;
+    v_int32 iterations = 10000;
 
     for(v_int32 i = 0; i < iterations; i++) {
       executor->execute<ClientCoroutine_getRootAsync>();

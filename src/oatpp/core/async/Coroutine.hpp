@@ -201,10 +201,10 @@ public:
       return takeAction(_CP->call(_FP));
     } catch (std::exception& e) {
       *m_propagatedError = std::make_shared<Error>(e.what());
-      return takeAction(Action(Action::TYPE_ERROR));
+      return takeAction(Action::TYPE_ERROR);
     } catch (...) {
       *m_propagatedError = ERROR_UNKNOWN;
-      return takeAction(Action(Action::TYPE_ERROR));
+      return takeAction(Action::TYPE_ERROR);
     }
   };
   

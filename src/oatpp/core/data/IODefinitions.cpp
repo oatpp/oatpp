@@ -22,49 +22,11 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_Error_hpp
-#define oatpp_async_Error_hpp
+#include "IODefinitions.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp { namespace data {
 
-/**
- * Class to hold and communicate errors between Coroutines
- */
-class Error {
-private:
-  const char* m_what;
-public:
-
-  /**
-   * Constructor.
-   * @param what - error explanation.
-   */
-  Error(const char* what);
-
-  /**
-   * Virtual destructor.
-   */
-  virtual ~Error() = default;
-
-  /**
-   * Error explanation.
-   * @return
-   */
-  const char* what() const;
-
-  /**
-   * Check if error belongs to specified class.
-   * @tparam ErrorClass
-   * @return - `true` if error is of specified class
-   */
-  template<class ErrorClass>
-  bool is() const {
-    return dynamic_cast<const ErrorClass*>(this) != nullptr;
-  }
-
-};
+const std::shared_ptr<const oatpp::async::Error> AsyncIOError::ERROR_BROKEN_PIPE = std::make_shared<AsyncIOError>(IOError::BROKEN_PIPE);
+const std::shared_ptr<const oatpp::async::Error> AsyncIOError::ERROR_ZERO_VALUE = std::make_shared<AsyncIOError>(IOError::ZERO_VALUE);
 
 }}
-
-
-#endif //oatpp_async_Error_hpp
