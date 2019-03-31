@@ -39,6 +39,11 @@ class OutputStream {
 public:
 
   /**
+   * Default virtual destructor.
+   */
+  virtual ~OutputStream() = default;
+
+  /**
    * Write data to stream up to count bytes, and return number of bytes actually written
    * It is a legal case if return result < count. Caller should handle this!
    * @param data - data to write.
@@ -121,6 +126,11 @@ public:
  */
 class InputStream {
 public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~InputStream() = default;
 
   /**
    * Read data from stream up to count bytes, and return number of bytes actually read
