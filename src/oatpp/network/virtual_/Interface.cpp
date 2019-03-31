@@ -30,6 +30,7 @@ void Interface::ConnectionSubmission::setSocket(const std::shared_ptr<Socket>& s
   {
     std::unique_lock<std::mutex> lock(m_mutex);
     m_socket = socket;
+    m_pending = false;
   }
   m_condition.notify_one();
 }

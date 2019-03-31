@@ -79,7 +79,7 @@ oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::Abstra
     
     Action obtainSocket() {
       auto socket = m_submission->getSocketNonBlocking();
-      if(socket) {
+      if(socket && !m_submission->isPending()) {
         socket->setNonBlocking(true);
         socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
         return _return(socket);
