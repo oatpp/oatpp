@@ -46,7 +46,7 @@ public:
     std::shared_ptr<Socket> m_socket;
     std::mutex m_mutex;
     std::condition_variable m_condition;
-    bool m_pending;
+    std::atomic<bool> m_pending;
   public:
 
     /**

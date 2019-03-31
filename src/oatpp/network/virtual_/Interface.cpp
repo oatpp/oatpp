@@ -48,7 +48,7 @@ std::shared_ptr<Socket> Interface::ConnectionSubmission::getSocketNonBlocking() 
 }
 
 bool Interface::ConnectionSubmission::isPending() {
-  return m_pending;
+  return m_pending.load();
 }
   
 std::shared_ptr<Socket> Interface::acceptSubmission(const std::shared_ptr<ConnectionSubmission>& submission) {
