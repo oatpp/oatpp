@@ -46,6 +46,11 @@ protected:
 public:
 
   /**
+   * Virtual destructor.
+   */
+  virtual ~Body() = default;
+
+  /**
    * Declare headers describing body.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */

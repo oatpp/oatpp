@@ -30,6 +30,8 @@
 #include "oatpp/core/base/memory/MemoryPool.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
+#include "oatpp/core/Types.hpp"
+
 #include <exception>
 
 namespace oatpp { namespace async {
@@ -148,7 +150,7 @@ public:
 /**
  * Abstract Coroutine. Base class for Coroutines. It provides state management, coroutines stack management and error reporting functionality.
  */
-class AbstractCoroutine {
+class AbstractCoroutine {// : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
 public:
@@ -179,45 +181,29 @@ public:
 private:
   static std::shared_ptr<const Error> ERROR_UNKNOWN;
 private:
-  AbstractCoroutine* _CP = this;
-  FunctionPtr _FP = &AbstractCoroutine::act;
-  std::shared_ptr<const Error> _ERR = nullptr;
-  AbstractCoroutine* _ref = nullptr;
+  AbstractCoroutine* _CP;
+  FunctionPtr _FP;
+  std::shared_ptr<const Error> _ERR;
+  AbstractCoroutine* _ref;
 private:
-  AbstractCoroutine* m_parent = nullptr;
-  std::shared_ptr<const Error>* m_propagatedError = &_ERR;
+  AbstractCoroutine* m_parent;
+  std::shared_ptr<const Error>* m_propagatedError;
 protected:
-  Action m_parentReturnAction = Action(Action::TYPE_FINISH);
+  oatpp::async::Action m_parentReturnAction;
 private:
   Action takeAction(Action&& action);
 public:
 
   /**
+   * Constructor.
+   */
+  AbstractCoroutine();
+
+  /**
    * Make one Coroutine iteration.
    * @return - control Action.
    */
-  Action iterate() {
-    try {
-      return takeAction(_CP->call(_FP));
-    } catch (std::exception& e) {
-      *m_propagatedError = std::make_shared<Error>(e.what());
-      return takeAction(Action::TYPE_ERROR);
-    } catch (...) {
-      *m_propagatedError = ERROR_UNKNOWN;
-      return takeAction(Action::TYPE_ERROR);
-    }
-  };
-  
-  /*Action iterate(v_int32 numIterations) {
-    Action action(Action::TYPE_FINISH, nullptr, nullptr);
-    for(v_int32 i = 0; i < numIterations; i++) {
-      action = takeAction(_CP->call(_FP));
-      if(action.m_type == Action::TYPE_WAIT_RETRY || _CP == nullptr) {
-        return action;
-      }
-    }
-    return action;
-  };*/
+  Action iterate();
 
   /**
    * Virtual Destructor
@@ -239,13 +225,6 @@ public:
    * @return - Action.
    */
   virtual Action call(FunctionPtr ptr) = 0;
-  
-  /**
-   *  Internal function. Should free Coroutine on MemoryPool/Bench.<br>
-   *  Method free() also calls virtual destructor:<br>
-   *  `Coroutine::free() --> Bench::free(Coroutine* coroutine) { ... coroutine->~Coroutine(); ... }`
-   */
-  virtual void free() = 0;
 
   virtual MemberCaller getMemberCaller() const = 0;
 
@@ -256,9 +235,7 @@ public:
    * @return - Action. If handleError function returns Error,
    * current coroutine will finish, return control to caller coroutine and handleError is called for caller coroutine.
    */
-  virtual Action handleError(const std::shared_ptr<const Error>& error) {
-    return Action(Action::TYPE_ERROR);
-  }
+  virtual Action handleError(const std::shared_ptr<const Error>& error);
   
   template<typename ...Args>
   Action callWithParams(FunctionPtr ptr, Args... args) {
@@ -275,7 +252,7 @@ public:
    */
   template<typename C, typename ... Args>
   Action startCoroutine(Action&& actionOnReturn, Args... args) {
-    C* coroutine = C::getBench().obtain(args...);
+    auto coroutine = new C(args...);
     coroutine->m_parentReturnAction = std::forward<oatpp::async::Action>(std::forward<oatpp::async::Action>(actionOnReturn));
     return Action(coroutine);
   }
@@ -295,7 +272,7 @@ public:
    */
   template<typename CoroutineType, typename ParentCoroutineType, typename ... CallbackArgs, typename ...Args>
   Action startCoroutineForResult(Action (ParentCoroutineType::*function)(CallbackArgs...), Args... args) {
-    CoroutineType* coroutine = CoroutineType::getBench().obtain(args...);
+    auto coroutine = new CoroutineType(args...);
     coroutine->m_callback = reinterpret_cast<FunctionPtr>(function);
     return Action(coroutine);
   }
@@ -304,27 +281,20 @@ public:
    * Check if coroutine is finished
    * @return - true if finished
    */
-  bool finished() const {
-    return _CP == nullptr;
-  }
+  bool finished() const;
 
   /**
    * Get parent coroutine
    * @return - pointer to a parent coroutine
    */
-  AbstractCoroutine* getParent() const {
-    return m_parent;
-  }
+  AbstractCoroutine* getParent() const;
 
   /**
    * Convenience method to generate error reporting Action.
    * @param message - error message.
    * @return - error reporting Action.
    */
-  Action error(const std::shared_ptr<const Error>& error) {
-    *m_propagatedError = error;
-    return Action(Action::TYPE_ERROR);
-  }
+  Action error(const std::shared_ptr<const Error>& error);
 
   template<class E, typename ... Args>
   Action error(Args... args) {
@@ -344,22 +314,16 @@ template<class T>
 class Coroutine : public AbstractCoroutine {
 public:
   typedef Action (T::*Function)();
-
-  /**
-   * Convenience typedef for Bench
-   */
-  typedef oatpp::base::memory::Bench<T> Bench;
 public:
 
-  /**
-   * Get Bench for this Coroutine type.<br>
-   * Used for system needs. End user should not use it.
-   * @return
-   */
-  static Bench& getBench(){
-    static thread_local Bench bench(512);
-    return bench;
+  static void* operator new(std::size_t sz) {
+    return ::operator new(sz);
   }
+
+  static void operator delete(void* ptr, std::size_t sz) {
+    ::operator delete(ptr);
+  }
+
 public:
 
   /**
@@ -371,14 +335,6 @@ public:
   Action call(FunctionPtr ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
-  }
-
-  /**
-   * Free Coroutine instance.
-   * See &l:AbstractCoroutine::free ();.
-   */
-  void free() override {
-    Coroutine<T>::getBench().free(static_cast<T*>(this));
   }
   
   MemberCaller getMemberCaller() const override {
@@ -432,14 +388,17 @@ class CoroutineWithResult : public AbstractCoroutine {
   friend AbstractCoroutine;
 public:
   typedef Action (T::*Function)();
-  typedef oatpp::base::memory::Bench<T> Bench;
-public:
-  static Bench& getBench(){
-    static thread_local Bench bench(512);
-    return bench;
-  }
 private:
   FunctionPtr m_callback;
+public:
+
+  static void* operator new(std::size_t sz) {
+    return ::operator new(sz);
+  }
+
+  static void operator delete(void* ptr, std::size_t sz) {
+    ::operator delete(ptr);
+  }
 public:
 
   /**
@@ -451,14 +410,6 @@ public:
   virtual Action call(FunctionPtr ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
-  }
-
-  /**
-   * Free Coroutine instance.
-   * See &l:AbstractCoroutine::free ();.
-   */
-  virtual void free() override {
-    CoroutineWithResult<T, Args...>::getBench().free(static_cast<T*>(this));
   }
   
   MemberCaller getMemberCaller() const override {

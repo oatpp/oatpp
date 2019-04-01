@@ -37,6 +37,11 @@ class ConnectionHandler {
 public:
 
   /**
+   * Virtual Destructor.
+   */
+  virtual ~ConnectionHandler() = default;
+
+  /**
    * Handle provided connection here
    * @param connection - see &id:oatpp::data::stream::IOStream;.
    */

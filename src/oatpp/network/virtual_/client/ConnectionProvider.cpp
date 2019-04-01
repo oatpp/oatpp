@@ -76,19 +76,24 @@ oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::Abstra
       }
       return waitRetry();
     }
-    
+
     Action obtainSocket() {
-      auto socket = m_submission->getSocketNonBlocking();
-      if(!m_submission->isPending()) {
+
+      if(m_submission->isValid()) {
+
+        auto socket = m_submission->getSocketNonBlocking();
+
         if(socket) {
           socket->setNonBlocking(true);
           socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
           return _return(socket);
-        } else {
-          return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
         }
+
+        return waitRetry();
       }
-      return waitRetry();
+
+      return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
+
     }
     
   };

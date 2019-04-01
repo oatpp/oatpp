@@ -58,7 +58,7 @@ Action::Action(Action&& other)
 
 Action::~Action() {
   if(m_type == TYPE_COROUTINE && m_data.coroutine != nullptr) {
-    m_data.coroutine->free();
+    delete m_data.coroutine;
   }
 }
 
@@ -78,6 +78,28 @@ v_int32 Action::getType() {
 }
 
 std::shared_ptr<const Error> AbstractCoroutine::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
+
+AbstractCoroutine::AbstractCoroutine()
+  : _CP(this)
+  , _FP(&AbstractCoroutine::act)
+  , _ERR(nullptr)
+  , _ref(nullptr)
+  , m_parent(nullptr)
+  , m_propagatedError(&_ERR)
+  , m_parentReturnAction(Action(Action::TYPE_FINISH))
+{}
+
+Action AbstractCoroutine::iterate() {
+  try {
+    return takeAction(_CP->call(_FP));
+  } catch (std::exception& e) {
+    *m_propagatedError = std::make_shared<Error>(e.what());
+    return takeAction(Action::TYPE_ERROR);
+  } catch (...) {
+    *m_propagatedError = ERROR_UNKNOWN;
+    return takeAction(Action::TYPE_ERROR);
+  }
+};
 
 Action AbstractCoroutine::takeAction(Action&& action) {
 
@@ -108,7 +130,7 @@ Action AbstractCoroutine::takeAction(Action&& action) {
       /* Please note that savedCP->m_parentReturnAction should not be "REPEAT nor WAIT_RETRY" */
       /* as funtion pointer (FP) is invalidated */
       action = takeAction(std::move(savedCP->m_parentReturnAction));
-      savedCP->free();
+      delete savedCP;
 
       return std::forward<oatpp::async::Action>(action);
 
@@ -124,8 +146,9 @@ Action AbstractCoroutine::takeAction(Action&& action) {
             _CP = nullptr;
             return std::forward<oatpp::async::Action>(action);
           } else {
-            _CP->free();
+            savedCP = _CP;
             _CP = _CP->m_parent;
+            delete savedCP;
           }
         } else {
           action = takeAction(std::forward<oatpp::async::Action>(action));
@@ -138,6 +161,27 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 
   throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
 
+}
+
+Action AbstractCoroutine::handleError(const std::shared_ptr<const Error>& error) {
+  return Action::TYPE_ERROR;
+}
+
+bool AbstractCoroutine::finished() const {
+  return _CP == nullptr;
+}
+
+/**
+ * Get parent coroutine
+ * @return - pointer to a parent coroutine
+ */
+AbstractCoroutine* AbstractCoroutine::getParent() const {
+  return m_parent;
+}
+
+Action AbstractCoroutine::error(const std::shared_ptr<const Error>& error) {
+  *m_propagatedError = error;
+  return Action::TYPE_ERROR;
 }
 
 }}

@@ -96,6 +96,11 @@ private:
 public:
 
   /**
+   * Virtual destructor.
+   */
+  virtual ~BodyDecoder() = default;
+
+  /**
    * Implement this method! Decode bodyStream and write decoded data to toStream.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
