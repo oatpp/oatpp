@@ -92,7 +92,6 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
     oatpp::String m_host;
     v_int32 m_port;
     oatpp::data::v_io_handle m_clientHandle;
-    struct sockaddr_in m_client;
   private:
     struct addrinfo* m_result;
     struct addrinfo* m_currentResult;
