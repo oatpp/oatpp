@@ -25,39 +25,19 @@
 #ifndef oatpp_async_Coroutine_hpp
 #define oatpp_async_Coroutine_hpp
 
+#include "./Error.hpp"
 #include "oatpp/core/collection/FastQueue.hpp"
 #include "oatpp/core/base/memory/MemoryPool.hpp"
 #include "oatpp/core/base/Environment.hpp"
+
+#include "oatpp/core/Types.hpp"
+
+#include <exception>
 
 namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
 class Processor; // FWD
-
-/**
- * Class to hold and communicate errors between Coroutines
- */
-class Error {
-public:
-
-  /**
-   * Constructor.
-   * @param pMessage - Error message.
-   * @param pIsExceptionThrown - Indicate that this error is a result of thrown exception.
-   */
-  Error(const char* pMessage, bool pIsExceptionThrown = false);
-
-  /**
-   * Error message
-   */
-  const char* message;
-
-  /**
-   * Indicates that this error is a result of thrown exception. Re-throw if true to catch original exception.
-   */
-  bool isExceptionThrown;
-  
-};
 
 /**
  * Class Action represents an asynchronous action.
@@ -68,96 +48,109 @@ class Action {
 public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
-  /**
-   * Indicate that Action is to start coroutine. Value = 0.
-   */
-  static constexpr const v_int32 TYPE_COROUTINE = 0;
+
+  static constexpr const v_int32 TYPE_NONE = 0;
 
   /**
-   * Indicate that Action is to YIELD control to other method of Coroutine. Value = 1.
+   * Indicate that Action is to start coroutine.
    */
-  static constexpr const v_int32 TYPE_YIELD_TO = 1;
+  static constexpr const v_int32 TYPE_COROUTINE = 1;
 
   /**
-   * Indicate that Action is to WAIT and then RETRY call to current method of Coroutine. Value = 2.
+   * Indicate that Action is to YIELD control to other method of Coroutine.
    */
-  static constexpr const v_int32 TYPE_WAIT_RETRY = 2;
+  static constexpr const v_int32 TYPE_YIELD_TO = 2;
 
   /**
-   * Indicate that Action is to REPEAT call to current method of Coroutine. Value = 3.
+   * Indicate that Action is to WAIT and then RETRY call to current method of Coroutine.
    */
-  static constexpr const v_int32 TYPE_REPEAT = 3;
+  static constexpr const v_int32 TYPE_WAIT_RETRY = 3;
 
   /**
-   * Indicate that Action is to FINISH current Coroutine and return control to a caller-Coroutine. Value = 4.
+   * Indicate that Action is to REPEAT call to current method of Coroutine.
    */
-  static constexpr const v_int32 TYPE_FINISH = 4;
+  static constexpr const v_int32 TYPE_REPEAT = 4;
 
   /**
-   * Deprecated
+   * Indicate that Action is to FINISH current Coroutine and return control to a caller-Coroutine.
    */
-  static constexpr const v_int32 TYPE_ABORT = 5;
+  static constexpr const v_int32 TYPE_FINISH = 5;
 
   /**
-   * Indicate that Error occurred
+   * Indicate that Error occurred.
    */
   static constexpr const v_int32 TYPE_ERROR = 6;
-public:
 
-  /**
-   * Predefined WAIT_RETRY action
-   */
-  static const Action _WAIT_RETRY;
-
-  /**
-   * Predefined REPEAT action
-   */
-  static const Action _REPEAT;
-
-  /**
-   * Predefined FINISH action
-   */
-  static const Action _FINISH;
-
-  /**
-   * Deprecated
-   */
-  static const Action _ABORT;
 private:
-  v_int32 m_type;
-  AbstractCoroutine* m_coroutine;
-  FunctionPtr m_functionPtr;
-  Error m_error;
-protected:
-  void free();
+  union Data {
+    FunctionPtr fptr;
+    AbstractCoroutine* coroutine;
+  };
+private:
+  mutable v_int32 m_type;
+  Data m_data;
 public:
 
-  /**
-   * Constructor.
-   * @param type - type of the Action.
-   * @param coroutine - pointer to a Coroutine to start if type == TYPE_COROUTINE. nullptr otherwise.
-   * @param functionPtr - pointer to a function to YIELD control to if type == TYPE_YIELD_TO. nullptr otherwise.
-   */
-  Action(v_int32 type, AbstractCoroutine* coroutine, FunctionPtr functionPtr);
+  static Action clone(const Action& action);
 
   /**
-   * Constructor. Construct error reporting action.
-   * @param error - Error message.
+   * Constructor. Create start-coroutine Action.
+   * @param coroutine - pointer to &l:AbstractCoroutine;.
    */
-  Action(const Error& error);
+  Action(AbstractCoroutine* coroutine);
+
+  /**
+   * Constructor. Create yield_to Action.
+   * @param functionPtr - pointer to function.
+   */
+  Action(FunctionPtr functionPtr);
+
+  /**
+   * Create Action by type.
+   * @param type - Action type.
+   */
+  Action(v_int32 type);
+
+  /**
+   * Deleted copy-constructor.
+   */
+  Action(const Action&) = delete;
+
+  Action(Action&& other);
+
+  /**
+   * Non-virtual destructor.
+   */
+  ~Action();
+
+  /*
+   * Deleted copy-assignment operator.
+   */
+  Action& operator=(const Action&) = delete;
+
+  /*
+   * Move assignment operator.
+   */
+  Action& operator=(Action&& other);
 
   /**
    * Check if action is an error reporting action.
    * @return `true` if action is an error reporting action.
    */
   bool isError();
+
+  /**
+   * Get Action type.
+   * @return - action type.
+   */
+  v_int32 getType();
   
 };
 
 /**
  * Abstract Coroutine. Base class for Coroutines. It provides state management, coroutines stack management and error reporting functionality.
  */
-class AbstractCoroutine {
+class AbstractCoroutine {// : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
 public:
@@ -165,6 +158,7 @@ public:
    * Convenience typedef for Action
    */
   typedef oatpp::async::Action Action;
+  typedef oatpp::async::Error Error;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
   
@@ -184,112 +178,37 @@ public:
     }
     
   };
-  
 private:
-  AbstractCoroutine* _CP = this;
-  FunctionPtr _FP = &AbstractCoroutine::act;
-  AbstractCoroutine* _ref = nullptr;
-  
-  Action takeAction(const Action& action){
-    
-    switch (action.m_type) {
-
-      case Action::TYPE_COROUTINE:
-          action.m_coroutine->m_parent = _CP;
-          _CP = action.m_coroutine;
-          _FP = action.m_coroutine->_FP;
-        break;
-        
-      case Action::TYPE_FINISH:
-          if(_CP == this) {
-            _CP = nullptr;
-            return action;
-          }
-          {
-            AbstractCoroutine* savedCP = _CP;
-            _CP = _CP->m_parent;
-            _FP = nullptr;
-            /* Please note that savedCP->m_parentReturnAction should not be "REPEAT nor WAIT_RETRY" */
-            /* as funtion pointer (FP) is invalidated */
-            Action a = takeAction(savedCP->m_parentReturnAction);
-            savedCP->m_parentReturnAction.m_coroutine = nullptr;
-            savedCP->free();
-            return a;
-          }
-        break;
-        
-      case Action::TYPE_YIELD_TO:
-          _FP = action.m_functionPtr;
-        break;
-        
-      case Action::TYPE_ABORT:
-          while (_CP != this) {
-            _CP->free();
-            _CP = _CP->m_parent;
-          }
-          _CP = nullptr;
-        break;
-        
-      case Action::TYPE_ERROR:
-        Action a = action;
-        do {
-          a = _CP->handleError(a.m_error);
-          if(a.m_type == Action::TYPE_ERROR) {
-            if(_CP == this) {
-              _CP = nullptr;
-              return a;
-            } else {
-              _CP->free();
-              _CP = _CP->m_parent;
-            }
-          } else {
-            a = takeAction(a);
-          }
-        } while (a.m_type == Action::TYPE_ERROR && _CP != nullptr);
-        return a;
-        break;
-        
-    };
-    
-    return action;
-    
-  }
-  
+  static std::shared_ptr<const Error> ERROR_UNKNOWN;
 private:
-  AbstractCoroutine* m_parent = nullptr;
+  AbstractCoroutine* _CP;
+  FunctionPtr _FP;
+  std::shared_ptr<const Error> _ERR;
+  AbstractCoroutine* _ref;
+private:
+  AbstractCoroutine* m_parent;
+  std::shared_ptr<const Error>* m_propagatedError;
 protected:
-  Action m_parentReturnAction = Action::_FINISH;
+  oatpp::async::Action m_parentReturnAction;
+private:
+  Action takeAction(Action&& action);
 public:
+
+  /**
+   * Constructor.
+   */
+  AbstractCoroutine();
 
   /**
    * Make one Coroutine iteration.
    * @return - control Action.
    */
-  Action iterate() {
-    try {
-      return takeAction(_CP->call(_FP));
-    } catch (...) {
-      return takeAction(Action(Error("Exception", true)));
-    }
-  };
-  
-  /*Action iterate(v_int32 numIterations) {
-    Action action(Action::TYPE_FINISH, nullptr, nullptr);
-    for(v_int32 i = 0; i < numIterations; i++) {
-      action = takeAction(_CP->call(_FP));
-      if(action.m_type == Action::TYPE_WAIT_RETRY || _CP == nullptr) {
-        return action;
-      }
-    }
-    return action;
-  };*/
+  Action iterate();
 
   /**
    * Virtual Destructor
    */
-  virtual ~AbstractCoroutine(){
-    m_parentReturnAction.free();
-  }
+  virtual ~AbstractCoroutine() = default;
 
   /**
    * Entrypoint of Coroutine.
@@ -306,13 +225,6 @@ public:
    * @return - Action.
    */
   virtual Action call(FunctionPtr ptr) = 0;
-  
-  /**
-   *  Internal function. Should free Coroutine on MemoryPool/Bench.<br>
-   *  Method free() also calls virtual destructor:<br>
-   *  `Coroutine::free() --> Bench::free(Coroutine* coroutine) { ... coroutine->~Coroutine(); ... }`
-   */
-  virtual void free() = 0;
 
   virtual MemberCaller getMemberCaller() const = 0;
 
@@ -323,9 +235,7 @@ public:
    * @return - Action. If handleError function returns Error,
    * current coroutine will finish, return control to caller coroutine and handleError is called for caller coroutine.
    */
-  virtual Action handleError(const Error& error) {
-    return error;
-  }
+  virtual Action handleError(const std::shared_ptr<const Error>& error);
   
   template<typename ...Args>
   Action callWithParams(FunctionPtr ptr, Args... args) {
@@ -341,10 +251,10 @@ public:
    * @return - start Coroutine Action.
    */
   template<typename C, typename ... Args>
-  Action startCoroutine(const Action& actionOnReturn, Args... args) {
-    C* coroutine = C::getBench().obtain(args...);
-    coroutine->m_parentReturnAction = actionOnReturn;
-    return Action(Action::TYPE_COROUTINE, coroutine, nullptr);
+  Action startCoroutine(Action&& actionOnReturn, Args... args) {
+    auto coroutine = new C(args...);
+    coroutine->m_parentReturnAction = std::forward<oatpp::async::Action>(std::forward<oatpp::async::Action>(actionOnReturn));
+    return Action(coroutine);
   }
 
   /**
@@ -362,25 +272,34 @@ public:
    */
   template<typename CoroutineType, typename ParentCoroutineType, typename ... CallbackArgs, typename ...Args>
   Action startCoroutineForResult(Action (ParentCoroutineType::*function)(CallbackArgs...), Args... args) {
-    CoroutineType* coroutine = CoroutineType::getBench().obtain(args...);
+    auto coroutine = new CoroutineType(args...);
     coroutine->m_callback = reinterpret_cast<FunctionPtr>(function);
-    return Action(Action::TYPE_COROUTINE, coroutine, nullptr);
+    return Action(coroutine);
   }
 
   /**
    * Check if coroutine is finished
    * @return - true if finished
    */
-  bool finished() const {
-    return _CP == nullptr;
-  }
+  bool finished() const;
 
   /**
    * Get parent coroutine
    * @return - pointer to a parent coroutine
    */
-  AbstractCoroutine* getParent() const {
-    return m_parent;
+  AbstractCoroutine* getParent() const;
+
+  /**
+   * Convenience method to generate error reporting Action.
+   * @param message - error message.
+   * @return - error reporting Action.
+   */
+  Action error(const std::shared_ptr<const Error>& error);
+
+  template<class E, typename ... Args>
+  Action error(Args... args) {
+    *m_propagatedError = std::make_shared<E>(args...);
+    return Action(Action::TYPE_ERROR);
   }
   
 };
@@ -395,22 +314,16 @@ template<class T>
 class Coroutine : public AbstractCoroutine {
 public:
   typedef Action (T::*Function)();
-
-  /**
-   * Convenience typedef for Bench
-   */
-  typedef oatpp::base::memory::Bench<T> Bench;
 public:
 
-  /**
-   * Get Bench for this Coroutine type.<br>
-   * Used for system needs. End user should not use it.
-   * @return
-   */
-  static Bench& getBench(){
-    static thread_local Bench bench(512);
-    return bench;
+  static void* operator new(std::size_t sz) {
+    return ::operator new(sz);
   }
+
+  static void operator delete(void* ptr, std::size_t sz) {
+    ::operator delete(ptr);
+  }
+
 public:
 
   /**
@@ -423,14 +336,6 @@ public:
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
-
-  /**
-   * Free Coroutine instance.
-   * See &l:AbstractCoroutine::free ();.
-   */
-  void free() override {
-    Coroutine<T>::getBench().free(static_cast<T*>(this));
-  }
   
   MemberCaller getMemberCaller() const override {
     return MemberCaller((void*) this);
@@ -442,48 +347,31 @@ public:
    * @return - yield Action.
    */
   Action yieldTo(Function function) const {
-    return Action(Action::TYPE_YIELD_TO, nullptr, static_cast<FunctionPtr>(function));
+    return Action(static_cast<FunctionPtr>(function));
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_WAIT_RETRY`.
    * @return - WAIT_RETRY Action.
    */
-  const Action& waitRetry() const {
-    return Action::_WAIT_RETRY;
+  Action waitRetry() const {
+    return Action::TYPE_WAIT_RETRY;
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
    * @return - repeat Action.
    */
-  const Action& repeat() const {
-    return Action::_REPEAT;
+  Action repeat() const {
+    return Action::TYPE_REPEAT;
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_FINISH`.
    * @return - finish Action.
    */
-  const Action& finish() const {
-    return Action::_FINISH;
-  }
-
-  /**
-   * Deprecated.
-   * @return - abort Action.
-   */
-  const Action& abort() const {
-    return Action::_ABORT;
-  }
-
-  /**
-   * Convenience method to generate error reporting Action.
-   * @param message - error message.
-   * @return - error reporting Action.
-   */
-  Action error(const char* message) {
-    return Action(Error(message));
+  Action finish() const {
+    return Action::TYPE_FINISH;
   }
   
 };
@@ -500,14 +388,17 @@ class CoroutineWithResult : public AbstractCoroutine {
   friend AbstractCoroutine;
 public:
   typedef Action (T::*Function)();
-  typedef oatpp::base::memory::Bench<T> Bench;
-public:
-  static Bench& getBench(){
-    static thread_local Bench bench(512);
-    return bench;
-  }
 private:
   FunctionPtr m_callback;
+public:
+
+  static void* operator new(std::size_t sz) {
+    return ::operator new(sz);
+  }
+
+  static void operator delete(void* ptr, std::size_t sz) {
+    ::operator delete(ptr);
+  }
 public:
 
   /**
@@ -520,14 +411,6 @@ public:
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
-
-  /**
-   * Free Coroutine instance.
-   * See &l:AbstractCoroutine::free ();.
-   */
-  virtual void free() override {
-    CoroutineWithResult<T, Args...>::getBench().free(static_cast<T*>(this));
-  }
   
   MemberCaller getMemberCaller() const override {
     return MemberCaller((void*) this);
@@ -539,23 +422,23 @@ public:
    * @return - yield Action.
    */
   Action yieldTo(Function function) const {
-    return Action(Action::TYPE_YIELD_TO, nullptr, static_cast<FunctionPtr>(function));
+    return Action(static_cast<FunctionPtr>(function));
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_WAIT_RETRY`.
    * @return - WAIT_RETRY Action.
    */
-  const Action& waitRetry() const {
-    return Action::_WAIT_RETRY;
+  Action waitRetry() const {
+    return Action::TYPE_WAIT_RETRY;
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
    * @return - repeat Action.
    */
-  const Action& repeat() const {
-    return Action::_REPEAT;
+  Action repeat() const {
+    return Action::TYPE_REPEAT;
   }
 
   /**
@@ -564,26 +447,9 @@ public:
    * @param args - argumets to be passed to callback.
    * @return - finish Action.
    */
-  const Action& _return(Args... args) {
+  Action _return(Args... args) {
     m_parentReturnAction = getParent()->callWithParams(m_callback, args...);
-    return Action::_FINISH;
-  }
-
-  /**
-   * Deprecated.
-   * @return - abort Action.
-   */
-  const Action& abort() const {
-    return Action::_ABORT;
-  }
-
-  /**
-   * Convenience method to generate error reporting Action.
-   * @param message - error message.
-   * @return - error reporting Action.
-   */
-  Action error(const char* message) {
-    return Action(Error(message));
+    return Action::TYPE_FINISH;
   }
   
 };

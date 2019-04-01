@@ -132,19 +132,14 @@ public:
     return finish();
   }
 
-  Action handleError(const async::Error& error) override {
-    if(error.isExceptionThrown) {
-      try {
-        throw;
-      } catch (const std::runtime_error& e) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Exception. %s.", e.what());
-      } catch (...) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Exception. Unknown.");
-      }
+  Action handleError(const std::shared_ptr<const Error>& error) override {
+    if(error->is<oatpp::data::AsyncIOError>()) {
+      auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
-      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. %s", error.message);
+      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
     }
-    return error;
+    return Action::TYPE_ERROR;
   }
 
 };
@@ -183,19 +178,16 @@ public:
     return finish();
   }
 
-  Action handleError(const async::Error& error) override {
-    if(error.isExceptionThrown) {
-      try {
-        throw;
-      } catch (const std::runtime_error& e) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Exception. %s.", e.what());
-      } catch (...) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Exception. Unknown.");
+  Action handleError(const std::shared_ptr<const Error>& error) override {
+    if(error) {
+      if(error->is<oatpp::data::AsyncIOError>()) {
+        auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
+      } else {
+        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
       }
-    } else {
-      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error.message);
     }
-    return error;
+    return Action::TYPE_ERROR;
   }
 
 };

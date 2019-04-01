@@ -22,37 +22,49 @@
  *
  ***************************************************************************/
 
-#ifndef network_server_ConnectionHandler_hpp
-#define network_server_ConnectionHandler_hpp
+#ifndef oatpp_async_Error_hpp
+#define oatpp_async_Error_hpp
 
-#include "oatpp/core/data/stream/Stream.hpp"
-
-
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace async {
 
 /**
- * Abstract ConnectionHandler.
+ * Class to hold and communicate errors between Coroutines
  */
-class ConnectionHandler {
+class Error {
+private:
+  const char* m_what;
 public:
 
   /**
-   * Virtual Destructor.
+   * Constructor.
+   * @param what - error explanation.
    */
-  virtual ~ConnectionHandler() = default;
+  Error(const char* what);
 
   /**
-   * Handle provided connection here
-   * @param connection - see &id:oatpp::data::stream::IOStream;.
+   * Virtual destructor.
    */
-  virtual void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) = 0;
+  virtual ~Error() = default;
 
   /**
-   * Stop all threads here
+   * Error explanation.
+   * @return
    */
-  virtual void stop() = 0;
+  const char* what() const;
+
+  /**
+   * Check if error belongs to specified class.
+   * @tparam ErrorClass
+   * @return - `true` if error is of specified class
+   */
+  template<class ErrorClass>
+  bool is() const {
+    return dynamic_cast<const ErrorClass*>(this) != nullptr;
+  }
+
 };
-  
-}}}
 
-#endif /* network_server_ConnectionHandler_hpp */
+}}
+
+
+#endif //oatpp_async_Error_hpp

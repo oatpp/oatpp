@@ -130,7 +130,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   oatpp::async::Action sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 const oatpp::async::Action& actionOnFinish,
+                                 oatpp::async::Action&& actionOnFinish,
                                  const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };

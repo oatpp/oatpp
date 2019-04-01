@@ -114,9 +114,9 @@ oatpp::String Request::readBodyToString() const {
 }
 
 oatpp::async::Action Request::streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                              const oatpp::async::Action& actionOnReturn,
+                                              oatpp::async::Action&& actionOnReturn,
                                               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-  return m_bodyDecoder->decodeAsync(parentCoroutine, actionOnReturn, m_headers, m_bodyStream, toStream);
+  return m_bodyDecoder->decodeAsync(parentCoroutine, std::forward<oatpp::async::Action>(actionOnReturn), m_headers, m_bodyStream, toStream);
 }
 
 }}}}}

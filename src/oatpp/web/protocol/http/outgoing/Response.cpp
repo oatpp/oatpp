@@ -99,7 +99,7 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
 }
   
 oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          const oatpp::async::Action& actionOnFinish,
+                                          oatpp::async::Action&& actionOnFinish,
                                           const std::shared_ptr<data::stream::OutputStream>& stream){
   
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
@@ -158,7 +158,7 @@ oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parent
     
   };
   
-  return parentCoroutine->startCoroutine<SendAsyncCoroutine>(actionOnFinish, shared_from_this(), stream);
+  return parentCoroutine->startCoroutine<SendAsyncCoroutine>(std::forward<oatpp::async::Action>(actionOnFinish), shared_from_this(), stream);
   
 }
   

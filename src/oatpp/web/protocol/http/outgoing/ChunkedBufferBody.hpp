@@ -117,7 +117,7 @@ public:
    * @return - &id:oatpp::async::Action;
    */
   Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                            const Action& actionOnFinish,
+                            Action&& actionOnFinish,
                             const std::shared_ptr<OutputStream>& stream) override;
   
 };

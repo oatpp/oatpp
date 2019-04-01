@@ -105,7 +105,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       struct hostent* host = gethostbyname((const char*) m_host->getData());
       
       if ((host == NULL) || (host->h_addr == NULL)) {
-        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't retrieve DNS information.");
+        return error<Error>("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't retrieve DNS information.");
       }
       
       bzero(&m_client, sizeof(m_client));
@@ -116,7 +116,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
       m_clientHandle = socket(AF_INET, SOCK_STREAM, 0);
       
       if (m_clientHandle < 0) {
-        return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't create socket.");
+        return error<Error>("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't create socket.");
       }
       
       fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
@@ -145,7 +145,7 @@ oatpp::async::Action SimpleTCPConnectionProvider::getConnectionAsync(oatpp::asyn
         return repeat();
       }
       ::close(m_clientHandle);
-      return error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
+      return error<Error>("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
     }
     
   };

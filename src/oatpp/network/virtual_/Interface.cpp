@@ -28,7 +28,7 @@ namespace oatpp { namespace network { namespace virtual_ {
   
 void Interface::ConnectionSubmission::setSocket(const std::shared_ptr<Socket>& socket) {
   {
-    std::unique_lock<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_socket = socket;
   }
   m_condition.notify_one();
@@ -36,25 +36,31 @@ void Interface::ConnectionSubmission::setSocket(const std::shared_ptr<Socket>& s
 
 std::shared_ptr<Socket> Interface::ConnectionSubmission::getSocket() {
   std::unique_lock<std::mutex> lock(m_mutex);
-  while (!m_socket && m_pending) {
+  while (!m_socket && m_valid) {
     m_condition.wait(lock);
   }
   return m_socket;
 }
 
 std::shared_ptr<Socket> Interface::ConnectionSubmission::getSocketNonBlocking() {
-  return m_socket;
+  if(m_valid) {
+    std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+    if(lock.owns_lock()) {
+      return m_socket;
+    }
+  }
+  return nullptr;
 }
 
-bool Interface::ConnectionSubmission::isPending() {
-  return m_pending;
+bool Interface::ConnectionSubmission::isValid() {
+  return m_valid;
 }
   
 std::shared_ptr<Socket> Interface::acceptSubmission(const std::shared_ptr<ConnectionSubmission>& submission) {
   
   auto pipeIn = Pipe::createShared();
   auto pipeOut = Pipe::createShared();
-  
+
   auto serverSocket = Socket::createShared(pipeIn, pipeOut);
   auto clientSocket = Socket::createShared(pipeOut, pipeIn);
   

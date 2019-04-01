@@ -22,37 +22,11 @@
  *
  ***************************************************************************/
 
-#ifndef network_server_ConnectionHandler_hpp
-#define network_server_ConnectionHandler_hpp
+#include "IODefinitions.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
+namespace oatpp { namespace data {
 
+const std::shared_ptr<const oatpp::async::Error> AsyncIOError::ERROR_BROKEN_PIPE = std::make_shared<AsyncIOError>(IOError::BROKEN_PIPE);
+const std::shared_ptr<const oatpp::async::Error> AsyncIOError::ERROR_ZERO_VALUE = std::make_shared<AsyncIOError>(IOError::ZERO_VALUE);
 
-namespace oatpp { namespace network { namespace server {
-
-/**
- * Abstract ConnectionHandler.
- */
-class ConnectionHandler {
-public:
-
-  /**
-   * Virtual Destructor.
-   */
-  virtual ~ConnectionHandler() = default;
-
-  /**
-   * Handle provided connection here
-   * @param connection - see &id:oatpp::data::stream::IOStream;.
-   */
-  virtual void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) = 0;
-
-  /**
-   * Stop all threads here
-   */
-  virtual void stop() = 0;
-};
-  
-}}}
-
-#endif /* network_server_ConnectionHandler_hpp */
+}}

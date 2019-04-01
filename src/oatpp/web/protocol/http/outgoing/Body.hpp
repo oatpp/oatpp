@@ -46,6 +46,11 @@ protected:
 public:
 
   /**
+   * Virtual destructor.
+   */
+  virtual ~Body() = default;
+
+  /**
    * Declare headers describing body.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
@@ -69,7 +74,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                    const Action& actionOnReturn,
+                                    Action&& actionOnReturn,
                                     const std::shared_ptr<OutputStream>& stream) = 0;
   
 };

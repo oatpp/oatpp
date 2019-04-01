@@ -13,6 +13,8 @@ add_library(oatpp
         oatpp/codegen/codegen_undef_DTO_.hpp
         oatpp/core/Types.cpp
         oatpp/core/Types.hpp
+        oatpp/core/async/Error.cpp
+        oatpp/core/async/Error.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
         oatpp/core/async/Executor.cpp
@@ -44,6 +46,7 @@ add_library(oatpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
         oatpp/core/concurrency/Thread.hpp
+        oatpp/core/data/IODefinitions.cpp
         oatpp/core/data/IODefinitions.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp
         oatpp/core/data/buffer/FIFOBuffer.hpp

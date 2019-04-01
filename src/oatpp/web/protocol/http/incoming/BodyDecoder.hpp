@@ -96,6 +96,11 @@ private:
 public:
 
   /**
+   * Virtual destructor.
+   */
+  virtual ~BodyDecoder() = default;
+
+  /**
    * Implement this method! Decode bodyStream and write decoded data to toStream.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
@@ -115,7 +120,7 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   virtual oatpp::async::Action decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                           const oatpp::async::Action& actionOnReturn,
+                                           oatpp::async::Action&& actionOnReturn,
                                            const Headers& headers,
                                            const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                            const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const = 0;

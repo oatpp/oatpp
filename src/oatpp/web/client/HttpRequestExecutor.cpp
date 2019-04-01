@@ -168,8 +168,6 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
-    void* m_bufferPointer;
-    data::v_io_size m_bufferBytesLeftToRead;
   public:
     
     ExecutorCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
@@ -209,8 +207,6 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);
-      m_bufferPointer = m_ioBuffer->getData();
-      m_bufferBytesLeftToRead = m_ioBuffer->getSize();
       return request->sendAsync(this, m_upstream->flushAsync(this, yieldTo(&ExecutorCoroutine::readResponse)), m_upstream);
     }
     

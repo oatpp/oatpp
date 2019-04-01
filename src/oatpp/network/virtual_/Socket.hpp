@@ -34,7 +34,7 @@ namespace oatpp { namespace network { namespace virtual_ {
  * Under the hood it uses a pair of &id:oatpp::network::virtual_::Pipe;. One to write data to, and one to read data from.
  * Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
  */
-class Socket : public oatpp::base::Countable, public oatpp::data::stream::IOStream {
+class Socket : public oatpp::data::stream::IOStream, public oatpp::base::Countable {
 private:
   std::shared_ptr<Pipe> m_pipeIn;
   std::shared_ptr<Pipe> m_pipeOut;

@@ -148,6 +148,11 @@ public:
 public:
 
   /**
+   * Virtual destructor.
+   */
+  virtual ~RequestExecutor() = default;
+
+  /**
    * Obtain &l:RequestExecutor::ConnectionHandle; which then can be passed to &l:RequestExecutor::execute ();.
    * @return std::shared_ptr to &l:RequestExecutor::ConnectionHandle;.
    */

@@ -128,7 +128,7 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
       if(m_progress + desiredToRead > m_maxHeadersSize) {
         desiredToRead = m_maxHeadersSize - m_progress;
         if(desiredToRead <= 0) {
-          return error("Headers section is too large");
+          return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Headers section is too large.");
         }
       }
       
@@ -151,8 +151,12 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
         
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
         return waitRetry();
+      } else if(res == data::IOError::BROKEN_PIPE){
+        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+      } else if(res == data::IOError::ZERO_VALUE){
+        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else {
-        return abort();
+        return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Error reading connection stream.");
       }
       
     }
@@ -168,10 +172,10 @@ RequestHeadersReader::Action RequestHeadersReader::readHeadersAsync(oatpp::async
         if(status.code == 0) {
           return _return(m_result);
         } else {
-          return error("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Error occurred while parsing headers");
+          return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Error occurred while parsing headers.");
         }
       } else {
-        return error("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Can't parse starting line");
+        return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Can't parse starting line.");
       }
       
     }

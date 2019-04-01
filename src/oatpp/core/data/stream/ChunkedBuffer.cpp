@@ -225,7 +225,7 @@ bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
 }
   
 oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                        const oatpp::async::Action& actionOnFinish,
+                                                        oatpp::async::Action&& actionOnFinish,
                                                         const std::shared_ptr<OutputStream>& stream) {
  
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
@@ -247,7 +247,7 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
       , m_bytesLeft(chunkedBuffer->m_size)
       , m_currData(nullptr)
       , m_currDataSize(0)
-      , m_nextAction(Action(Action::TYPE_FINISH, nullptr, nullptr))
+      , m_nextAction(Action::TYPE_FINISH)
     {}
     
     Action act() override {
@@ -275,12 +275,12 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
     }
     
     Action writeCurrData() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, m_currDataSize, Action::clone(m_nextAction));
     }
     
   };
   
-  return parentCoroutine->startCoroutine<FlushCoroutine>(actionOnFinish,
+  return parentCoroutine->startCoroutine<FlushCoroutine>(std::forward<oatpp::async::Action>(actionOnFinish),
                                                          shared_from_this(),
                                                          stream);
   

@@ -46,13 +46,13 @@ public:
     std::shared_ptr<Socket> m_socket;
     std::mutex m_mutex;
     std::condition_variable m_condition;
-    bool m_pending;
+    bool m_valid;
   public:
 
     /**
      * Constructor.
      */
-    ConnectionSubmission() : m_pending(true) {}
+    ConnectionSubmission() : m_valid(true) {}
 
     /**
      * Set socket to be returned in call to &l:Interface::ConnectionSubmission::getSocket ();/&l:Interface::ConnectionSubmission::getSocketNonBlocking ();.
@@ -74,10 +74,10 @@ public:
     std::shared_ptr<Socket> getSocketNonBlocking();
 
     /**
-     * Check if submission has not been processed yet.
-     * @return - `true` if still waiting for acceptor to accept connection submission.
+     * Check if submission is still valid.
+     * @return - `true` if still valid.
      */
-    bool isPending();
+    bool isValid();
     
   };
 
