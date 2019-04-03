@@ -38,6 +38,7 @@ namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
 class Processor; // FWD
+class Pipeline; // FWD
 
 /**
  * Class Action represents an asynchronous action.
@@ -45,6 +46,7 @@ class Processor; // FWD
 class Action {
   friend Processor;
   friend AbstractCoroutine;
+  friend Pipeline;
 public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
@@ -148,11 +150,69 @@ public:
 };
 
 /**
+ * Pipeline of Coroutine calls.
+ */
+class Pipeline {
+private:
+  AbstractCoroutine* m_first;
+  AbstractCoroutine* m_last;
+public:
+
+  /**
+   * Constructor.
+   * @param coroutine - coroutine.
+   */
+  Pipeline(AbstractCoroutine* coroutine);
+
+  /**
+   * Deleted copy-constructor.
+   */
+  Pipeline(const Pipeline&) = delete;
+
+  /**
+   * Move constructor.
+   * @param other - other pipeline.
+   */
+  Pipeline(Pipeline&& other);
+
+  /**
+   * Non-virtual destructor.
+   */
+  ~Pipeline();
+
+  /*
+   * Deleted copy-assignment operator.
+   */
+  Pipeline& operator=(const Pipeline&) = delete;
+
+  /*
+   * Move assignment operator.
+   */
+  Pipeline& operator=(Pipeline&& other);
+
+  /**
+   * Set final pipeline action.
+   * @param action - &l:Action;.
+   * @return - &l:Action;.
+   */
+  Action next(Action&& action);
+
+  /**
+   * Add coroutine pipeline to this pipeline.
+   * @param pipeline - pipeline to add.
+   * @return - this pipeline.
+   */
+  Pipeline& next(Pipeline&& pipeline);
+
+};
+
+/**
  * Abstract Coroutine. Base class for Coroutines. It provides state management, coroutines stack management and error reporting functionality.
  */
 class AbstractCoroutine {// : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
+  friend Pipeline;
 public:
   /**
    * Convenience typedef for Action
@@ -178,6 +238,7 @@ public:
     }
     
   };
+
 private:
   static std::shared_ptr<const Error> ERROR_UNKNOWN;
 private:
@@ -246,35 +307,12 @@ public:
    * Start new Coroutine as a "nested" Coroutine, keeping track of a coroutine call stack.
    * @tparam C - Coroutine to start.
    * @tparam Args - arguments to be passed to a starting coroutine.
-   * @param actionOnReturn - Action to be called once new coroutine finished.
    * @param args - actual parameters passed to startCoroutine call.
-   * @return - start Coroutine Action.
+   * @return - &l:Pipeline; of coroutine calls.
    */
   template<typename C, typename ... Args>
-  Action startCoroutine(Action&& actionOnReturn, Args... args) {
-    auto coroutine = new C(args...);
-    coroutine->m_parentReturnAction = std::forward<oatpp::async::Action>(std::forward<oatpp::async::Action>(actionOnReturn));
-    return Action(coroutine);
-  }
-
-  /**
-   * Start new Coroutine for result as a "nested" Coroutine, keeping track of a coroutine call stack.
-   * After Coroutine finished result value should be passed to callback function. <br>
-   * Example call:<br>
-   * `startCoroutineForResult<CoroutineWithResult>(&MyCoroutine::onResult);`
-   * @tparam CoroutineType - Coroutine to start.
-   * @tparam ParentCoroutineType - calling Coroutine type.
-   * @tparam CallbackArgs - callback arguments.
-   * @tparam Args - arguments to be passed to a starting coroutine.
-   * @param function - Callback to receive result.
-   * @param args - actual parameters passed to startCoroutine call.
-   * @return - start Coroutine Action.
-   */
-  template<typename CoroutineType, typename ParentCoroutineType, typename ... CallbackArgs, typename ...Args>
-  Action startCoroutineForResult(Action (ParentCoroutineType::*function)(CallbackArgs...), Args... args) {
-    auto coroutine = new CoroutineType(args...);
-    coroutine->m_callback = reinterpret_cast<FunctionPtr>(function);
-    return Action(coroutine);
+  static Pipeline startCoroutine(Args... args) {
+    return Pipeline(new C(args...));
   }
 
   /**
@@ -376,6 +414,91 @@ public:
   
 };
 
+class AbstractCoroutineWithResult : public AbstractCoroutine {
+protected:
+  FunctionPtr m_callback;
+public:
+
+  /**
+   * Class representing Coroutine call for result;
+   */
+  template<typename ...Args >
+  class CallForResult {
+  public:
+
+    template <class C>
+    using
+    Callback = Action (C::*)(Args...);
+
+  private:
+    AbstractCoroutineWithResult* m_coroutine;
+  public:
+    /**
+     * Constructor.
+     * @param coroutine - coroutine.
+     */
+    CallForResult(AbstractCoroutineWithResult* coroutine)
+      : m_coroutine(coroutine)
+    {}
+
+    /**
+     * Deleted copy-constructor.
+     */
+    CallForResult(const CallForResult&) = delete;
+
+    /**
+     * Move constructor.
+     * @param other - other pipeline.
+     */
+    CallForResult(CallForResult&& other)
+      : m_coroutine(other.m_coroutine)
+    {
+      other.m_coroutine = nullptr;
+    }
+
+    /**
+     * Non-virtual destructor.
+     */
+    ~CallForResult() {
+      if(m_coroutine != nullptr) {
+        delete m_coroutine;
+      }
+    }
+
+    /*
+     * Deleted copy-assignment operator.
+     */
+    CallForResult& operator=(const CallForResult&) = delete;
+
+    /*
+     * Move assignment operator.
+     */
+    CallForResult& operator=(CallForResult&& other) {
+      m_coroutine = other.m_coroutine;
+      other.m_coroutine = nullptr;
+      return *this;
+    }
+
+    template<class C>
+    Action callbackTo(Callback<C> callback) {
+      if(m_coroutine == nullptr) {
+        throw std::runtime_error("[oatpp::async::AbstractCoroutineWithResult::CallForResult::callbackTo()]: Error. Coroutine is null.");
+      }
+      m_coroutine->m_callback = (FunctionPtr)(callback);
+      Action result = m_coroutine;
+      m_coroutine = nullptr;
+      return std::move(result);
+
+    }
+
+  };
+
+};
+
+template <typename ...Args>
+using
+CoroutineCallForResult = typename AbstractCoroutineWithResult::CallForResult<Args...>;
+
 /**
  * Coroutine with result template. <br>
  * Example usage:<br>
@@ -384,12 +507,10 @@ public:
  * @tparam Args - return argumet type.
  */
 template<class T, typename ...Args>
-class CoroutineWithResult : public AbstractCoroutine {
+class CoroutineWithResult : public AbstractCoroutineWithResult {
   friend AbstractCoroutine;
 public:
   typedef Action (T::*Function)();
-private:
-  FunctionPtr m_callback;
 public:
 
   static void* operator new(std::size_t sz) {
@@ -400,6 +521,17 @@ public:
     ::operator delete(ptr);
   }
 public:
+
+  /**
+   * Call coroutine for result.
+   * @tparam ConstructorArgs - coroutine consrtructor arguments.
+   * @param args - actual constructor arguments.
+   * @return - &l:CoroutineWithResult::CoroutineWithResult;.
+   */
+  template<typename ...ConstructorArgs>
+  static CoroutineCallForResult<Args...> callForResult(ConstructorArgs... args) {
+    return new T(args...);
+  }
 
   /**
    * Call function of Coroutine specified by ptr. <br>
@@ -453,7 +585,7 @@ public:
   }
   
 };
-  
+
 }}
 
 #endif /* oatpp_async_Coroutine_hpp */

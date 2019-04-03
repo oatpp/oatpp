@@ -116,14 +116,10 @@ public:
 
   /**
    * Same as &l:Response::send (); but async.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnFinish - action to perform once done.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::Pipeline;.
    */
-  oatpp::async::Action sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                 oatpp::async::Action&& actionOnFinish,
-                                 const std::shared_ptr<data::stream::OutputStream>& stream);
+  oatpp::async::Pipeline sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };
   

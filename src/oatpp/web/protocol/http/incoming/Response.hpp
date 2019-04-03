@@ -141,42 +141,29 @@ public:
 
   /**
    * Same as &l:Response::readBodyToDto (); but Async.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param actionOnReturn - &id:oatpp::async::Action; to do when decoding finished.
    * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::Pipeline;.
    */
-  oatpp::async::Action streamBodyAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                       oatpp::async::Action&& actionOnReturn,
-                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  oatpp::async::Pipeline streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**
    * Same as &l:Response::readBodyToString (); but Async.
-   * @tparam ParentCoroutineType - caller coroutine type.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param callback - pointer to callback function.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  template<typename ParentCoroutineType>
-  oatpp::async::Action readBodyToStringAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                             oatpp::async::Action (ParentCoroutineType::*callback)(const oatpp::String&)) const {
-    return m_bodyDecoder->decodeToStringAsync(parentCoroutine, callback, m_headers, m_bodyStream);
+  oatpp::async::CoroutineCallForResult<const oatpp::String&> readBodyToStringAsync() const {
+    return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream);
   }
 
   /**
    * Same as &l:Response::readBodyToDto (); but Async.
    * @tparam DtoType - DTO object type.
-   * @tparam ParentCoroutineType - caller coroutine type.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param callback - pointer to callback function.
    * @param objectMapper - `std::shared_ptr` to &id:oatpp::data::mapping::ObjectMapper;.
-   * @return -  &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  template<class DtoType, typename ParentCoroutineType>
-  oatpp::async::Action readBodyToDtoAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          oatpp::async::Action (ParentCoroutineType::*callback)(const typename DtoType::ObjectWrapper&),
-                                          const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return m_bodyDecoder->decodeToDtoAsync<DtoType>(parentCoroutine, callback, m_headers, m_bodyStream, objectMapper);
+  template<class DtoType>
+  oatpp::async::CoroutineCallForResult<const typename DtoType::ObjectWrapper&>
+  readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+    return m_bodyDecoder->decodeToDtoAsync<DtoType>(m_headers, m_bodyStream, objectMapper);
   }
   
 };

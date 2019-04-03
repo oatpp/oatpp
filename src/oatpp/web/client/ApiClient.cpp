@@ -142,8 +142,8 @@ std::shared_ptr<RequestExecutor::ConnectionHandle> ApiClient::getConnection() {
   return m_requestExecutor->getConnection();
 }
 
-oatpp::async::Action ApiClient::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, RequestExecutor::AsyncConnectionCallback callback) {
-  return m_requestExecutor->getConnectionAsync(parentCoroutine, callback);
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> ApiClient::getConnectionAsync() {
+  return m_requestExecutor->getConnectionAsync();
 }
 
 
@@ -153,7 +153,8 @@ std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::Stri
                                                                const std::shared_ptr<StringToParamMap>& pathParams,
                                                                const std::shared_ptr<StringToParamMap>& queryParams,
                                                                const std::shared_ptr<RequestExecutor::Body>& body,
-                                                               const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle) {
+                                                               const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle)
+{
 
   return m_requestExecutor->execute(method,
                                     formatPath(pathPattern, pathParams, queryParams),
@@ -163,19 +164,17 @@ std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::Stri
 
 }
 
-oatpp::async::Action ApiClient::executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                    AsyncCallback callback,
-                                                    const oatpp::String& method,
-                                                    const PathPattern& pathPattern,
-                                                    const std::shared_ptr<StringToParamMap>& headers,
-                                                    const std::shared_ptr<StringToParamMap>& pathParams,
-                                                    const std::shared_ptr<StringToParamMap>& queryParams,
-                                                    const std::shared_ptr<RequestExecutor::Body>& body,
-                                                    const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle) {
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<ApiClient::Response>&>
+ApiClient::executeRequestAsync(const oatpp::String& method,
+                               const PathPattern& pathPattern,
+                               const std::shared_ptr<StringToParamMap>& headers,
+                               const std::shared_ptr<StringToParamMap>& pathParams,
+                               const std::shared_ptr<StringToParamMap>& queryParams,
+                               const std::shared_ptr<RequestExecutor::Body>& body,
+                               const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle)
+{
 
-  return m_requestExecutor->executeAsync(parentCoroutine,
-                                         callback,
-                                         method,
+  return m_requestExecutor->executeAsync(method,
                                          formatPath(pathPattern, pathParams, queryParams),
                                          convertParamsMap(headers),
                                          body,

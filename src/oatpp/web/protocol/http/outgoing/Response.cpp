@@ -97,10 +97,8 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   }
   
 }
-  
-oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          oatpp::async::Action&& actionOnFinish,
-                                          const std::shared_ptr<data::stream::OutputStream>& stream){
+
+oatpp::async::Pipeline Response::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
   
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
   private:
@@ -146,19 +144,19 @@ oatpp::async::Action Response::sendAsync(oatpp::async::AbstractCoroutine* parent
     }
     
     Action writeHeaders() {
-      return m_buffer->flushToStreamAsync(this, yieldTo(&SendAsyncCoroutine::writeBody), m_stream);
+      return m_buffer->flushToStreamAsync(m_stream).next(yieldTo(&SendAsyncCoroutine::writeBody));
     }
     
     Action writeBody() {
       if(m_response->m_body) {
-        return m_response->m_body->writeToStreamAsync(this, finish(), m_stream);
+        return m_response->m_body->writeToStreamAsync(m_stream).next(finish());
       }
       return finish();
     }
     
   };
   
-  return parentCoroutine->startCoroutine<SendAsyncCoroutine>(std::forward<oatpp::async::Action>(actionOnFinish), shared_from_this(), stream);
+  return oatpp::async::AbstractCoroutine::startCoroutine<SendAsyncCoroutine>(shared_from_this(), stream);
   
 }
   

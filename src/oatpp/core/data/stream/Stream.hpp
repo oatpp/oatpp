@@ -216,12 +216,10 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
 /**
  * Same as transfer but asynchronous
  */
-oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   oatpp::async::Action&& actionOnReturn,
-                                   const std::shared_ptr<InputStream>& fromStream,
-                                   const std::shared_ptr<OutputStream>& toStream,
-                                   oatpp::data::v_io_size transferSize,
-                                   const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
+oatpp::async::Pipeline transferAsync(const std::shared_ptr<InputStream>& fromStream,
+                                     const std::shared_ptr<OutputStream>& toStream,
+                                     oatpp::data::v_io_size transferSize,
+                                     const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,

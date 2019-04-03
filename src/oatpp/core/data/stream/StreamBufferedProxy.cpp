@@ -41,10 +41,9 @@ data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_si
 data::v_io_size OutputStreamBufferedProxy::flush() {
   return m_buffer->flushToStream(*m_outputStream);
 }
-  
-oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                           oatpp::async::Action&& actionOnFinish) {
-  return m_buffer->flushToStreamAsync(parentCoroutine, std::forward<oatpp::async::Action>(actionOnFinish), m_outputStream);
+
+oatpp::async::Pipeline OutputStreamBufferedProxy::flushAsync() {
+  return m_buffer->flushToStreamAsync(m_outputStream);
 }
   
 data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {

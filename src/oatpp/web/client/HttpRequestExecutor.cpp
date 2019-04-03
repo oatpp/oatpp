@@ -63,9 +63,10 @@ std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getC
   return std::make_shared<HttpConnectionHandle>(connection);
 }
 
-HttpRequestExecutor::Action HttpRequestExecutor::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncConnectionCallback callback) {
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&>
+HttpRequestExecutor::getConnectionAsync() {
   
-  class GetConnectionCoroutine : public oatpp::async::CoroutineWithResult<GetConnectionCoroutine, std::shared_ptr<ConnectionHandle>> {
+  class GetConnectionCoroutine : public oatpp::async::CoroutineWithResult<GetConnectionCoroutine, const std::shared_ptr<ConnectionHandle>&> {
   private:
     std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
   public:
@@ -75,9 +76,7 @@ HttpRequestExecutor::Action HttpRequestExecutor::getConnectionAsync(oatpp::async
     {}
     
     Action act() override {
-      oatpp::network::ClientConnectionProvider::AsyncCallback callback =
-      static_cast<oatpp::network::ClientConnectionProvider::AsyncCallback>(&GetConnectionCoroutine::onConnectionReady);
-      return m_connectionProvider->getConnectionAsync(this, callback);
+      return m_connectionProvider->getConnectionAsync().callbackTo(&GetConnectionCoroutine::onConnectionReady);
     }
     
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
@@ -86,7 +85,7 @@ HttpRequestExecutor::Action HttpRequestExecutor::getConnectionAsync(oatpp::async
     
   };
   
-  return parentCoroutine->startCoroutineForResult<GetConnectionCoroutine>(callback, m_connectionProvider);
+  return GetConnectionCoroutine::callForResult(m_connectionProvider);
   
 }
   
@@ -144,18 +143,17 @@ HttpRequestExecutor::execute(const String& method,
                                 result.headers, bodyStream, m_bodyDecoder);
   
 }
-  
-oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                       AsyncCallback callback,
-                                                       const String& method,
-                                                       const String& path,
-                                                       const Headers& headers,
-                                                       const std::shared_ptr<Body>& body,
-                                                       const std::shared_ptr<ConnectionHandle>& connectionHandle) {
+
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<HttpRequestExecutor::Response>&>
+HttpRequestExecutor::executeAsync(const String& method,
+                                  const String& path,
+                                  const Headers& headers,
+                                  const std::shared_ptr<Body>& body,
+                                  const std::shared_ptr<ConnectionHandle>& connectionHandle) {
   
   typedef protocol::http::incoming::ResponseHeadersReader ResponseHeadersReader;
   
-  class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, std::shared_ptr<HttpRequestExecutor::Response>> {
+  class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, const std::shared_ptr<HttpRequestExecutor::Response>&> {
   private:
     std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
     String m_method;
@@ -192,9 +190,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
         /* Because it is called here in synchronous manner */
         return onConnectionReady(static_cast<HttpConnectionHandle*>(m_connectionHandle.get())->connection);
       } else {
-        oatpp::network::ClientConnectionProvider::AsyncCallback callback =
-        static_cast<oatpp::network::ClientConnectionProvider::AsyncCallback>(&ExecutorCoroutine::onConnectionReady);
-        return m_connectionProvider->getConnectionAsync(this, callback);
+        return m_connectionProvider->getConnectionAsync().callbackTo(&ExecutorCoroutine::onConnectionReady);
       }
     }
     
@@ -207,13 +203,12 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);
-      return request->sendAsync(this, m_upstream->flushAsync(this, yieldTo(&ExecutorCoroutine::readResponse)), m_upstream);
+      return request->sendAsync(m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
     }
     
     Action readResponse() {
-      ResponseHeadersReader::AsyncCallback callback = static_cast<ResponseHeadersReader::AsyncCallback>(&ExecutorCoroutine::onHeadersParsed);
       ResponseHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
-      return headersReader.readHeadersAsync(this, callback, m_connection);
+      return headersReader.readHeadersAsync(m_connection).callbackTo(&ExecutorCoroutine::onHeadersParsed);
     }
     
     Action onHeadersParsed(const ResponseHeadersReader::Result& result) {
@@ -232,7 +227,7 @@ oatpp::async::Action HttpRequestExecutor::executeAsync(oatpp::async::AbstractCor
     
   };
   
-  return parentCoroutine->startCoroutineForResult<ExecutorCoroutine>(callback, m_connectionProvider, method, path, headers, body, m_bodyDecoder, connectionHandle);
+  return ExecutorCoroutine::callForResult(m_connectionProvider, method, path, headers, body, m_bodyDecoder, connectionHandle);
   
 }
   

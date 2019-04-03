@@ -130,9 +130,7 @@ public:
    * @param actionOnFinish
    * @return
    */
-  oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          oatpp::async::Action&& actionOnFinish,
-                                          const std::shared_ptr<data::stream::OutputStream>& stream);
+  async::Pipeline flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
 
   
 };

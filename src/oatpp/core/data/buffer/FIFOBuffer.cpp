@@ -286,9 +286,7 @@ data::v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream& stream) {
 
 }
 
-oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                    oatpp::async::Action&& actionOnFinish,
-                                                    const std::shared_ptr<data::stream::OutputStream>& stream)
+async::Pipeline FIFOBuffer::flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream)
 {
 
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
@@ -354,7 +352,7 @@ oatpp::async::Action FIFOBuffer::flushToStreamAsync(oatpp::async::AbstractCorout
 
   };
 
-  return parentCoroutine->startCoroutine<FlushCoroutine>(std::forward<oatpp::async::Action>(actionOnFinish), shared_from_this(), stream);
+  return oatpp::async::AbstractCoroutine::startCoroutine<FlushCoroutine>(shared_from_this(), stream);
 
 }
 

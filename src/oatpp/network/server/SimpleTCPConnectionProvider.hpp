@@ -87,8 +87,7 @@ public:
    * <br>
    * *It may be implemented later*
    */
-  Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                            AsyncCallback callback) override {
+  oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice

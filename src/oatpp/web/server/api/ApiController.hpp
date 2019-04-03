@@ -143,15 +143,14 @@ public:
   using List = oatpp::data::mapping::type::List<T>;
   template <class Value>
   using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
-protected:
-  typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<OutgoingResponse>&);
+
 protected:
   
   /*
    * Endpoint Coroutine base class
    */
   template<class CoroutineT, class ControllerT>
-  class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, std::shared_ptr<OutgoingResponse>> {
+  class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, const std::shared_ptr<OutgoingResponse>&> {
   public:
     
     HandlerCoroutine(ControllerT* pController,
@@ -169,12 +168,11 @@ protected:
    * Handler which subscribes to specific URL in Router and delegates calls endpoints 
    */
   template<class T>
-  class Handler : public oatpp::base::Countable, public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
+  class Handler : public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
-    typedef Action (T::*MethodAsync)(oatpp::async::AbstractCoroutine*,
-                                     AsyncCallback callback,
-                                     const std::shared_ptr<protocol::http::incoming::Request>&);
+    typedef oatpp::async::CoroutineCallForResult<const std::shared_ptr<OutgoingResponse>&>
+            (T::*MethodAsync)(const std::shared_ptr<protocol::http::incoming::Request>&);
   private:
     T* m_controller;
     Method m_method;
@@ -199,16 +197,12 @@ protected:
       }
     }
     
-    Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                           AsyncCallback callback,
-                           const std::shared_ptr<protocol::http::incoming::Request>& request) override {
+    oatpp::async::CoroutineCallForResult<const std::shared_ptr<OutgoingResponse>&>
+    processEventAsync(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_methodAsync != nullptr) {
-        return (m_controller->*m_methodAsync)(parentCoroutine, callback, request);
-      } else {
-        return parentCoroutine->callWithParams(reinterpret_cast<oatpp::async::AbstractCoroutine::FunctionPtr>(callback),
-                                               m_controller->handleError(Status::CODE_500,
-                                                                         "Using Async model for non async enpoint"));
+        return (m_controller->*m_methodAsync)(request);
       }
+      throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Using Async model for non async enpoint");
     }
     
   };

@@ -94,15 +94,11 @@ public:
 
     /**
      * Call &id:oatpp::web::url::mapping::Subscriber::processEventAsync; with corresponding parameter.
-     * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-     * @param callback - pointer to callback function.
      * @param param
-     * @return - &id:oatpp::async::Action;.
+     * @return - &id:oatpp::async::CaroutineCallForResult;.
      */
-    oatpp::async::Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                           typename UrlSubscriber::AsyncCallback callback,
-                                           const Param& param) const {
-      return m_subscriber->processEventAsync(parentCoroutine, callback, param);
+    oatpp::async::CoroutineCallForResult<const ReturnType&> processEventAsync(const Param& param) const {
+      return m_subscriber->processEventAsync(param);
     }
     
     explicit operator bool() const {

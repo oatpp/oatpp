@@ -26,6 +26,9 @@
 
 namespace oatpp { namespace async {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Action
+
 Action Action::clone(const Action& action) {
   Action result(action.m_type);
   result.m_data = action.m_data;
@@ -76,6 +79,69 @@ bool Action::isError() {
 v_int32 Action::getType() {
   return m_type;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Pipeline
+
+Pipeline::Pipeline(AbstractCoroutine* coroutine)
+  : m_first(coroutine)
+  , m_last(coroutine)
+{}
+
+Pipeline::Pipeline(Pipeline&& other)
+  : m_first(other.m_first)
+  , m_last(other.m_last)
+{
+  other.m_first = nullptr;
+  other.m_last = nullptr;
+}
+
+Pipeline::~Pipeline() {
+  if(m_first != nullptr) {
+    auto curr = m_first;
+    while(curr != nullptr) {
+      AbstractCoroutine* next = nullptr;
+      if(curr->m_parentReturnAction.m_type == Action::TYPE_COROUTINE) {
+        next = curr->m_parentReturnAction.m_data.coroutine;
+      }
+      delete curr;
+      curr = next;
+    }
+  }
+}
+
+/*
+ * Move assignment operator.
+ */
+Pipeline& Pipeline::operator=(Pipeline&& other) {
+  m_first = other.m_first;
+  m_last = other.m_last;
+  other.m_first = nullptr;
+  other.m_last = nullptr;
+  return *this;
+}
+
+Action Pipeline::next(Action&& action) {
+  if(m_last == nullptr) {
+    return std::forward<Action>(action);
+  }
+  m_last->m_parentReturnAction = std::forward<Action>(action);
+  Action result = m_first;
+  m_first = nullptr;
+  m_last = nullptr;
+  return std::move(result);
+}
+
+Pipeline& Pipeline::next(Pipeline&& starter) {
+  m_last->m_parentReturnAction = starter.m_first;
+  m_last = starter.m_last;
+  starter.m_first = nullptr;
+  starter.m_last = nullptr;
+  return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AbstractCoroutine
 
 std::shared_ptr<const Error> AbstractCoroutine::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
 

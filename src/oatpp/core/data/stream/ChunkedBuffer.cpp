@@ -223,10 +223,8 @@ bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
   }
   return true;
 }
-  
-oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                        oatpp::async::Action&& actionOnFinish,
-                                                        const std::shared_ptr<OutputStream>& stream) {
+
+oatpp::async::Pipeline ChunkedBuffer::flushToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
  
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
   private:
@@ -280,9 +278,7 @@ oatpp::async::Action ChunkedBuffer::flushToStreamAsync(oatpp::async::AbstractCor
     
   };
   
-  return parentCoroutine->startCoroutine<FlushCoroutine>(std::forward<oatpp::async::Action>(actionOnFinish),
-                                                         shared_from_this(),
-                                                         stream);
+  return oatpp::async::AbstractCoroutine::startCoroutine<FlushCoroutine>(shared_from_this(), stream);
   
 }
   

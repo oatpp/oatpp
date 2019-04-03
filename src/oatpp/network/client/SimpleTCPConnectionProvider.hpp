@@ -73,11 +73,9 @@ public:
 
   /**
    * Get connection in asynchronous manner.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
-   * @param callback - pointer to callback function.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback) override;
+  oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override;
 
   /**
    * Get host name.

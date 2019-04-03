@@ -208,11 +208,9 @@ public:
    * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
    * @param actionOnFinish - action to do once finished. &id:oatpp::async::Action;.
    * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::Pipeline;.
    */
-  oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                           oatpp::async::Action&& actionOnFinish,
-                                           const std::shared_ptr<OutputStream>& stream);
+  oatpp::async::Pipeline flushToStreamAsync(const std::shared_ptr<OutputStream>& stream);
   
   std::shared_ptr<Chunks> getChunks();
 

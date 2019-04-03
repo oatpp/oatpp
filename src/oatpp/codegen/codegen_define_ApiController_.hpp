@@ -473,11 +473,10 @@ const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints,
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL(NAME, METHOD, PATH) \
 \
-oatpp::async::Action Z__PROXY_METHOD_##NAME(oatpp::async::AbstractCoroutine* parentCoroutine, \
-                                            oatpp::web::server::api::ApiController::AsyncCallback asyncCallback, \
-                                            const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>&> \
+Z__PROXY_METHOD_##NAME(const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
 { \
-  return parentCoroutine->startCoroutineForResult<NAME>(asyncCallback, this, __request); \
+  return NAME::callForResult(this, __request); \
 } \
 \
 class NAME : public HandlerCoroutine<NAME, __ControllerType>

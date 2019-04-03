@@ -218,16 +218,11 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
-template<typename ParentCoroutineType>\
-oatpp::async::Action NAME(\
-  oatpp::async::AbstractCoroutine* parentCoroutine, \
-  oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&), \
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME( \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
-  return executeRequestAsync(parentCoroutine, \
-                             static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(callback), \
-                             METHOD, \
+  return executeRequestAsync(METHOD, \
                              Z_getPathPattern_##NAME(PATH), \
                              nullptr, \
                              nullptr, \
@@ -242,22 +237,16 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
-template<typename ParentCoroutineType>\
-oatpp::async::Action NAME(\
-  oatpp::async::AbstractCoroutine* parentCoroutine, \
-  oatpp::async::Action (ParentCoroutineType::*callback)(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&), \
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME(\
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
-  auto __callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(callback); \
   auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __queryParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, LIST) \
-  return executeRequestAsync(parentCoroutine, \
-                             __callback, \
-                             METHOD, \
+  return executeRequestAsync(METHOD, \
                              Z_getPathPattern_##NAME(PATH), \
                              __headers, \
                              __pathParams, \
@@ -275,7 +264,7 @@ oatpp::async::Action NAME(\
  * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
  * @param PATH - Path to endpoint (without host)
  * @param NAME - Name of the generated method
- * @return - &id:oatpp::async::Action;
+ * @return - &id:oatpp::async::CoroutineCallForResult;<const std::shared_ptr<&id:oatpp::web::protocol::http::incoming::Response;>&>.
  */
 #define API_CALL_ASYNC(METHOD, PATH, NAME, ...) \
 OATPP_API_CALL_ASYNC___(NAME, METHOD, PATH, (__VA_ARGS__))

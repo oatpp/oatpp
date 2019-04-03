@@ -133,15 +133,12 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  RequestHeadersReader::AsyncCallback callback = static_cast<RequestHeadersReader::AsyncCallback>(&HttpProcessor::Coroutine::onHeadersParsed);
   RequestHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
-  return headersReader.readHeadersAsync(this, callback, m_connection);
+  return headersReader.readHeadersAsync(m_connection).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
-  HttpRouter::BranchRouter::UrlSubscriber::AsyncCallback callback =
-  static_cast<HttpRouter::BranchRouter::UrlSubscriber::AsyncCallback>(&HttpProcessor::Coroutine::onResponse);
-  return m_currentRoute.processEventAsync(this, callback, m_currentRequest);
+  return m_currentRoute.processEventAsync(m_currentRequest).callbackTo(&HttpProcessor::Coroutine::onResponse);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
@@ -154,11 +151,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0, false);
-  return m_currentResponse->sendAsync(this,
-                                      m_outStream->flushAsync(
-                                                              this,
-                                                              yieldTo(&HttpProcessor::Coroutine::onRequestDone)),
-                                      m_outStream);
+  return m_currentResponse->sendAsync(m_outStream).next(m_outStream->flushAsync()).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
   
 }
   

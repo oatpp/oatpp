@@ -38,7 +38,7 @@ BodyDecoder::ToStringDecoder::ToStringDecoder(const BodyDecoder* decoder,
 {}
 
 async::Action BodyDecoder::ToStringDecoder::act() {
-  return m_decoder->decodeAsync(this, yieldTo(&ToStringDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
+  return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(yieldTo(&ToStringDecoder::onDecoded));
 }
 
 async::Action BodyDecoder::ToStringDecoder::onDecoded() {

@@ -207,13 +207,11 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
   return progress;
   
 }
-  
-oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   oatpp::async::Action&& actionOnReturn,
-                                   const std::shared_ptr<InputStream>& fromStream,
-                                   const std::shared_ptr<OutputStream>& toStream,
-                                   oatpp::data::v_io_size transferSize,
-                                   const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
+
+oatpp::async::Pipeline transferAsync(const std::shared_ptr<InputStream>& fromStream,
+                                     const std::shared_ptr<OutputStream>& toStream,
+                                     oatpp::data::v_io_size transferSize,
+                                     const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
   
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
   private:
@@ -288,7 +286,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     
   };
   
-  return parentCoroutine->startCoroutine<TransferCoroutine>(std::forward<oatpp::async::Action>(actionOnReturn), fromStream, toStream, transferSize, buffer);
+  return oatpp::async::AbstractCoroutine::startCoroutine<TransferCoroutine>(fromStream, toStream, transferSize, buffer);
   
 }
 

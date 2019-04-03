@@ -117,13 +117,12 @@ private:
 public:
 
   Action act() override {
-    auto callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(&ClientCoroutine_getRootAsync::onResponse);
-    return appClient->getRootAsync(this, callback);
+    return appClient->getRootAsync().callbackTo(&ClientCoroutine_getRootAsync::onResponse);
   }
 
   Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
     OATPP_ASSERT(response->getStatusCode() == 200 && "ClientCoroutine_getRootAsync");
-    return response->readBodyToStringAsync(this, &ClientCoroutine_getRootAsync::onBodyRead);
+    return response->readBodyToStringAsync().callbackTo(&ClientCoroutine_getRootAsync::onBodyRead);
   }
 
   Action onBodyRead(const oatpp::String& body) {
@@ -163,13 +162,12 @@ public:
       stream.write("0123456789", 10);
     }
     m_data = stream.toString();
-    auto callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(&ClientCoroutine_echoBodyAsync::onResponse);
-    return appClient->echoBodyAsync(this, callback, m_data);
+    return appClient->echoBodyAsync(m_data).callbackTo(&ClientCoroutine_echoBodyAsync::onResponse);
   }
 
   Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
     OATPP_ASSERT(response->getStatusCode() == 200 && "ClientCoroutine_echoBodyAsync");
-    return response->readBodyToStringAsync(this, &ClientCoroutine_echoBodyAsync::onBodyRead);
+    return response->readBodyToStringAsync().callbackTo(&ClientCoroutine_echoBodyAsync::onBodyRead);
   }
 
   Action onBodyRead(const oatpp::String& body) {
@@ -214,12 +212,14 @@ void FullAsyncClientTest::onRun() {
     ClientCoroutine_getRootAsync::SUCCESS_COUNTER = 0;
     ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = 0;
 
-    v_int32 iterations = 10000;
+    v_int32 iterations = 10;
+
 
     for(v_int32 i = 0; i < iterations; i++) {
       executor->execute<ClientCoroutine_getRootAsync>();
       executor->execute<ClientCoroutine_echoBodyAsync>();
     }
+
 
     while(
       ClientCoroutine_getRootAsync::SUCCESS_COUNTER != -1 ||
