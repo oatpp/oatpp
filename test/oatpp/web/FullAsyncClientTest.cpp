@@ -212,8 +212,7 @@ void FullAsyncClientTest::onRun() {
     ClientCoroutine_getRootAsync::SUCCESS_COUNTER = 0;
     ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = 0;
 
-    v_int32 iterations = 10;
-
+    v_int32 iterations = 10000;
 
     for(v_int32 i = 0; i < iterations; i++) {
       executor->execute<ClientCoroutine_getRootAsync>();
