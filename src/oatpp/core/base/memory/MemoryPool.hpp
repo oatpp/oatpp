@@ -64,6 +64,7 @@ private:
   
 private:
   void allocChunk();
+  void freeByEntryHeader(EntryHeader* entry);
 private:
   std::string m_name;
   v_int32 m_entrySize;
@@ -84,6 +85,11 @@ public:
   MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize);
 
   /**
+   * Deleted copy-constructor.
+   */
+  MemoryPool(const MemoryPool&) = delete;
+
+  /**
    * Virtual destructor.
    */
   virtual ~MemoryPool();
@@ -94,21 +100,6 @@ public:
    * @return - pointer to memory entry.
    */
   void* obtain();
-
-  /*
-   * Do not use it.
-   * Same as &l:MemoryPool::obtain (); but lock free. <br>
-   * TODO - check if this method is ever used.
-   * @return - pointer to memory entry.
-   */
-  void* obtainLockFree();
-
-  /*
-   * For internal use only.
-   * TODO - make it private.
-   * @param entry
-   */
-  void freeByEntryHeader(EntryHeader* entry);
 
   /**
    * Free obtained earlier memory entry.
@@ -150,6 +141,7 @@ class ThreadDistributedMemoryPool {
 private:
   v_int32 m_shardsCount;
   MemoryPool** m_shards;
+  bool m_deleted;
 public:
 
   /**
@@ -167,6 +159,12 @@ public:
    */
   ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,
                               v_int32 shardsCount = SHARDS_COUNT_DEFAULT);
+
+  /**
+   * Deleted copy-constructor.
+   */
+  ThreadDistributedMemoryPool(const ThreadDistributedMemoryPool&) = delete;
+
   virtual ~ThreadDistributedMemoryPool();
 
   /**

@@ -85,13 +85,9 @@ public:
   /**
    * Implement this method.
    * Obtain IOStream representing connection to resource.
-   * IOStream should be returned as a parameter to callback.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param callback - pointer to callback function.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  virtual Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                    AsyncCallback callback) = 0;
+  virtual oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() = 0;
 
   /**
    * Should close all handles here.

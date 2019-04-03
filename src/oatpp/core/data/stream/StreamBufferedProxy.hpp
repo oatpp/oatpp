@@ -41,7 +41,7 @@ public:
 private:
   std::shared_ptr<OutputStream> m_outputStream;
   std::shared_ptr<oatpp::data::buffer::IOBuffer> m_bufferPtr;
-  buffer::FIFOBuffer m_buffer;
+  std::shared_ptr<buffer::FIFOBuffer> m_buffer;
 public:
   OutputStreamBufferedProxy(const std::shared_ptr<OutputStream>& outputStream,
                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& bufferPtr,
@@ -49,12 +49,12 @@ public:
                             v_bufferSize bufferSize)
     : m_outputStream(outputStream)
     , m_bufferPtr(bufferPtr)
-    , m_buffer(buffer, bufferSize)
+    , m_buffer(std::make_shared<buffer::FIFOBuffer>(buffer, bufferSize))
   {}
 public:
   
   static std::shared_ptr<OutputStreamBufferedProxy> createShared(const std::shared_ptr<OutputStream>& outputStream,
-                                                           const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
+                                                                 const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
   {
     return Shared_OutputStreamBufferedProxy_Pool::allocateShared(outputStream,
                                                                  buffer,
@@ -74,11 +74,10 @@ public:
   
   data::v_io_size write(const void *data, data::v_io_size count) override;
   data::v_io_size flush();
-  oatpp::async::Action flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   const oatpp::async::Action& actionOnFinish);
+  oatpp::async::Pipeline flushAsync();
 
   void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
-    m_buffer.setBufferPosition(readPosition, writePosition, canRead);
+    m_buffer->setBufferPosition(readPosition, writePosition, canRead);
   }
   
 };

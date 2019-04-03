@@ -204,10 +204,10 @@ public:
   typedef T value_type;
 public:
   AllocationExtras& m_info;
-  P* m_pool;
+  P& m_pool;
 public:
   
-  CustomPoolSharedObjectAllocator(AllocationExtras& info, P* pool)
+  CustomPoolSharedObjectAllocator(AllocationExtras& info, P& pool)
     : m_info(info)
     , m_pool(pool)
   {};
@@ -219,7 +219,7 @@ public:
   {};
   
   T* allocate(std::size_t n) {
-    void* mem = m_pool->obtain();
+    void* mem = m_pool.obtain();
     m_info.baseSize = sizeof(T);
     m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
     return static_cast<T*>(mem);
@@ -249,7 +249,7 @@ static std::shared_ptr<T> allocateSharedWithExtras(AllocationExtras& extras, Arg
 }
   
 template<typename T, typename P, typename ... Args>
-static std::shared_ptr<T> customPoolAllocateSharedWithExtras(AllocationExtras& extras, P* pool, Args... args){
+static std::shared_ptr<T> customPoolAllocateSharedWithExtras(AllocationExtras& extras, P& pool, Args... args){
   typedef CustomPoolSharedObjectAllocator<T, P> _Allocator;
   _Allocator allocator(extras, pool);
   return std::allocate_shared<T, _Allocator>(allocator, args...);

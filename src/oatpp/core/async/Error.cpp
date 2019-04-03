@@ -22,37 +22,16 @@
  *
  ***************************************************************************/
 
-#ifndef network_server_ConnectionHandler_hpp
-#define network_server_ConnectionHandler_hpp
+#include "Error.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
+namespace oatpp { namespace async {
 
+Error::Error(const char* what)
+  : m_what(what)
+{}
 
-namespace oatpp { namespace network { namespace server {
+const char* Error::what() const {
+  return m_what;
+}
 
-/**
- * Abstract ConnectionHandler.
- */
-class ConnectionHandler {
-public:
-
-  /**
-   * Virtual Destructor.
-   */
-  virtual ~ConnectionHandler() = default;
-
-  /**
-   * Handle provided connection here
-   * @param connection - see &id:oatpp::data::stream::IOStream;.
-   */
-  virtual void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) = 0;
-
-  /**
-   * Stop all threads here
-   */
-  virtual void stop() = 0;
-};
-  
-}}}
-
-#endif /* network_server_ConnectionHandler_hpp */
+}}

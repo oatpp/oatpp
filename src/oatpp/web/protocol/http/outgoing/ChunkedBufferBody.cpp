@@ -70,7 +70,7 @@ ChunkedBufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::sha
   , m_currChunk(m_chunks->getFirstNode())
   , m_currData(nullptr)
   , m_currDataSize(0)
-  , m_nextAction(Action(Action::TYPE_FINISH, nullptr, nullptr))
+  , m_nextAction(Action::TYPE_FINISH)
 {}
 
 async::Action ChunkedBufferBody::WriteToStreamCoroutine::act() {
@@ -110,16 +110,14 @@ async::Action ChunkedBufferBody::WriteToStreamCoroutine::writeEndOfChunks() {
 }
 
 async::Action ChunkedBufferBody::WriteToStreamCoroutine::writeCurrData() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, m_nextAction);
+  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, m_currDataSize, Action::clone(m_nextAction));
 }
 
-async::Action ChunkedBufferBody::writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                    const Action& actionOnFinish,
-                                                    const std::shared_ptr<OutputStream>& stream) {
+oatpp::async::Pipeline ChunkedBufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
   if(m_chunked) {
-    return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnFinish, shared_from_this(), stream);
+    return oatpp::async::AbstractCoroutine::startCoroutine<WriteToStreamCoroutine>(shared_from_this(), stream);
   } else {
-    return m_buffer->flushToStreamAsync(parentCoroutine, actionOnFinish, stream);
+    return m_buffer->flushToStreamAsync(stream);
   }
 }
 

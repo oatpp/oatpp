@@ -67,9 +67,7 @@ public:
      */
     v_int32 bufferPosEnd;
   };
-  
-public:
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const Result&);
+
 private:
   data::v_io_size readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                              oatpp::data::stream::OutputStream* bufferStream,
@@ -102,14 +100,10 @@ public:
 
   /**
    * Read and parse http headers from stream in asynchronous manner.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param callback - pointer to callback function.
    * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  Action readHeadersAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                          AsyncCallback callback,
-                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+  oatpp::async::CoroutineCallForResult<const Result&> readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
   
 };
   

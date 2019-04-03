@@ -27,24 +27,23 @@
 namespace oatpp { namespace data{ namespace stream {
   
 data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_size count) {
-  if(m_buffer.availableToWrite() > 0) {
-    return m_buffer.write(data, count);
+  if(m_buffer->availableToWrite() > 0) {
+    return m_buffer->write(data, count);
   } else {
-    auto bytesFlushed = m_buffer.readAndWriteToStream(*m_outputStream, m_buffer.getBufferSize());
+    auto bytesFlushed = m_buffer->readAndWriteToStream(*m_outputStream, m_buffer->getBufferSize());
     if(bytesFlushed > 0) {
-      return m_buffer.write(data, count);
+      return m_buffer->write(data, count);
     }
     return bytesFlushed;
   }
 }
 
 data::v_io_size OutputStreamBufferedProxy::flush() {
-  return m_buffer.flushToStream(*m_outputStream);
+  return m_buffer->flushToStream(*m_outputStream);
 }
-  
-oatpp::async::Action OutputStreamBufferedProxy::flushAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                            const oatpp::async::Action& actionOnFinish) {
-  return m_buffer.flushToStreamAsync(parentCoroutine, actionOnFinish, *m_outputStream);
+
+oatpp::async::Pipeline OutputStreamBufferedProxy::flushAsync() {
+  return m_buffer->flushToStreamAsync(m_outputStream);
 }
   
 data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {

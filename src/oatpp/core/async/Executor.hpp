@@ -82,7 +82,7 @@ private:
     
     template<int ...S>
     AbstractCoroutine* creator(IndexSequence<S...>) {
-      return CoroutineType::getBench().obtain(std::get<S>(m_params) ...);
+      return new CoroutineType(std::get<S>(m_params) ...);
     }
     
   };

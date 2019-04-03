@@ -39,12 +39,6 @@ template<class Event, class Result>
 class Subscriber {
 public:
   /**
-   * Convenience typedef for &id:oatpp::async::Action;
-   */
-  typedef oatpp::async::Action Action;
-  typedef Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const Result&);
-public:
-  /**
    * Process event.
    * @param Event - some incoming data.
    * @return - some outgoing data.
@@ -53,14 +47,10 @@ public:
 
   /**
    * Process event in asynchronous manner.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param callback - pointer to callback function.
    * @param event - some incoming data.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  virtual Action processEventAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   AsyncCallback callback,
-                                   const Event& event) = 0;
+  virtual oatpp::async::CoroutineCallForResult<const Result&> processEventAsync(const Event& event) = 0;
 };
   
 }}}}

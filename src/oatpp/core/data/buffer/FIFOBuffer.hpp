@@ -36,7 +36,7 @@ namespace oatpp { namespace data { namespace buffer {
  * FIFO operations over the buffer
  * !FIFOBuffer is NOT an IOStream despite having similar APIs!
  */
-class FIFOBuffer {
+class FIFOBuffer : public std::enable_shared_from_this<FIFOBuffer> {
 private:
   p_char8 m_buffer;
   v_io_size m_bufferSize;
@@ -130,9 +130,7 @@ public:
    * @param actionOnFinish
    * @return
    */
-  oatpp::async::Action flushToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                          const oatpp::async::Action& actionOnFinish,
-                                          data::stream::OutputStream& stream);
+  async::Pipeline flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
 
   
 };

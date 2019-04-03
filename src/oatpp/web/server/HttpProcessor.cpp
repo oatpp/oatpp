@@ -133,15 +133,12 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  RequestHeadersReader::AsyncCallback callback = static_cast<RequestHeadersReader::AsyncCallback>(&HttpProcessor::Coroutine::onHeadersParsed);
   RequestHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
-  return headersReader.readHeadersAsync(this, callback, m_connection);
+  return headersReader.readHeadersAsync(m_connection).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
-  HttpRouter::BranchRouter::UrlSubscriber::AsyncCallback callback =
-  static_cast<HttpRouter::BranchRouter::UrlSubscriber::AsyncCallback>(&HttpProcessor::Coroutine::onResponse);
-  return m_currentRoute.processEventAsync(this, callback, m_currentRequest);
+  return m_currentRoute.processEventAsync(m_currentRequest).callbackTo(&HttpProcessor::Coroutine::onResponse);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
@@ -154,11 +151,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0, false);
-  return m_currentResponse->sendAsync(this,
-                                      m_outStream->flushAsync(
-                                                              this,
-                                                              yieldTo(&HttpProcessor::Coroutine::onRequestDone)),
-                                      m_outStream);
+  return m_currentResponse->sendAsync(m_outStream).next(m_outStream->flushAsync()).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
   
 }
   
@@ -177,32 +170,32 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
     }
   }
   
-  return abort();
+  return finish();
 }
   
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const oatpp::async::Error& error) {
-  if(m_currentResponse) {
-    if(error.isExceptionThrown) {
-      OATPP_LOGE("Server", "Unhandled exception. Dropping connection");
-    } else {
-      OATPP_LOGE("Server", "Unhandled error. '%s'. Dropping connection", error.message);
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const std::shared_ptr<const Error>& error) {
+
+  if(error) {
+
+    if(error->is<oatpp::data::AsyncIOError>()) {
+      auto aioe = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      if(aioe->getCode() == oatpp::data::IOError::BROKEN_PIPE) {
+        return Action::TYPE_ERROR; // do not report BROKEN_PIPE error
+      }
     }
-    return abort();
-  }
-  if (error.isExceptionThrown) {
-    try{
-      throw;
-    } catch (oatpp::web::protocol::http::HttpError& error) {
-      m_currentResponse = m_errorHandler->handleError(error.getInfo().status, error.getMessage());
-    } catch (std::exception& error) {
-      m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    } catch (...) {
-      m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+
+    if(m_currentResponse) {
+      OATPP_LOGE("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '%s'. Dropping connection", error->what());
+      return Action::TYPE_ERROR;
     }
-  } else {
-    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error.message);
+
+    m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error->what());
+    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+
   }
-  return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+
+  return Action::TYPE_ERROR;
+
 }
   
 }}}

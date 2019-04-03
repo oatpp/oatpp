@@ -93,14 +93,10 @@ public:
 
   /**
    * Start &l:BufferBody::WriteToStreamCoroutine; to write buffer data to stream.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnReturn - action to do once &l:BufferBody::WriteToStreamCoroutine; is finished.
    * @param stream - &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Action;
+   * @return - &id:oatpp::async::Pipeline;.
    */
-  Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                            const Action& actionOnReturn,
-                            const std::shared_ptr<OutputStream>& stream) override;
+  oatpp::async::Pipeline writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override;
   
 };
   

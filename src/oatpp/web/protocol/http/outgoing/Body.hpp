@@ -39,11 +39,14 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class Body {
 protected:
-  typedef oatpp::async::Action Action;
-protected:
   typedef http::Headers Headers;
   typedef oatpp::data::stream::OutputStream OutputStream;
 public:
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~Body() = default;
 
   /**
    * Declare headers describing body.
@@ -63,14 +66,10 @@ public:
 
   /**
    * Same as &l:Body::writeToStream (); but async.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param actionOnReturn - action to perform once transfer is finished.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::Pipeline;.
    */
-  virtual Action writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                    const Action& actionOnReturn,
-                                    const std::shared_ptr<OutputStream>& stream) = 0;
+  virtual oatpp::async::Pipeline writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
   
 };
   

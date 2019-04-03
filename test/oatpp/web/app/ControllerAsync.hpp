@@ -94,7 +94,7 @@ public:
 
     Action act() {
       //OATPP_LOGD(TAG, "POST body. Reading body...");
-      return request->readBodyToStringAsync(this, &PostBody::onBodyRead);
+      return request->readBodyToStringAsync().callbackTo(&PostBody::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {
@@ -112,7 +112,7 @@ public:
 
     Action act() {
       //OATPP_LOGD(TAG, "POST body(echo). Reading body...");
-      return request->readBodyToStringAsync(this, &Echo::onBodyRead);
+      return request->readBodyToStringAsync().callbackTo(&Echo::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {

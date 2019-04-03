@@ -4,8 +4,8 @@
 # https://aka.ms/yaml
 
 jobs:
-- job: ubuntu_16_04
-  displayName: 'Build - Ubuntu 16.04'
+- job: ubuntu_16_04_mem_pool_on
+  displayName: 'Build - Ubuntu 16.04 - With Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'Ubuntu 16.04'
@@ -16,7 +16,7 @@ jobs:
         mkdir build
     - task: CMake@1
     - script: |
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON ..
+        cmake -DCMAKE_BUILD_TYPE=Release ..
         make
       displayName: 'CMake'
       workingDirectory: build
@@ -26,8 +26,30 @@ jobs:
       displayName: 'Test'
       workingDirectory: build
 
-- job: macOS
-  displayName: 'Build - macOS-10.13'
+- job: ubuntu_16_04_mem_pool_off
+  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
+- job: macOS_mem_pool_on
+  displayName: 'Build - macOS-10.13 - With Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'macOS-10.13'
@@ -38,7 +60,7 @@ jobs:
         mkdir build
     - task: CMake@1
     - script: |
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DOATPP_INSTALL=OFF -DOATPP_BUILD_TESTS=ON ..
+        cmake -DCMAKE_BUILD_TYPE=Release ..
         make
       displayName: 'CMake'
       workingDirectory: build
@@ -47,3 +69,26 @@ jobs:
         make test ARGS="-V"
       displayName: 'Test'
       workingDirectory: build
+
+- job: macOS_mem_pool_off
+  displayName: 'Build - macOS-10.13 - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'macOS-10.13'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+

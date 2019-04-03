@@ -60,47 +60,51 @@ public:
 };
 
 /**
+ * Protocol Error Info.
+ */
+template<class Status>
+struct ProtocolErrorInfo {
+
+  /**
+   * Default Constructor.
+   */
+  ProtocolErrorInfo()
+    : ioStatus(0)
+  {}
+
+  /**
+   * Constructor.
+   * @param pIOStatus - I/O level error. See &id:oatpp::data::v_io_size;.
+   * @param pStatus - configurable arbitrary data type.
+   */
+  ProtocolErrorInfo(oatpp::data::v_io_size pIOStatus, const Status& pStatus)
+    : ioStatus(pIOStatus)
+    , status(pStatus)
+  {}
+
+  /**
+   * Get I/O level error.
+   */
+  oatpp::data::v_io_size ioStatus;
+
+  /**
+   * Configurable arbitrary data type.
+   */
+  Status status;
+
+};
+
+/**
  * Protocol Error template.
  * @tparam Status - arbitrary data type.
  */
 template<class Status>
 class ProtocolError : public CommunicationError {
 public:
-
   /**
-   * Protocol Error Info.
+   * Cenvenience typedef for ProtocolErrorInfo
    */
-  struct Info {
-
-    /**
-     * Default Constructor.
-     */
-    Info()
-      : ioStatus(0)
-    {}
-
-    /**
-     * Constructor.
-     * @param pIOStatus - I/O level error. See &id:oatpp::data::v_io_size;.
-     * @param pStatus - configurable arbitrary data type.
-     */
-    Info(oatpp::data::v_io_size pIOStatus, const Status& pStatus)
-      : ioStatus(pIOStatus)
-      , status(pStatus)
-    {}
-
-    /**
-     * Get I/O level error.
-     */
-    oatpp::data::v_io_size ioStatus;
-
-    /**
-     * Configurable arbitrary data type.
-     */
-    Status status;
-    
-  };
-  
+  typedef ProtocolErrorInfo<Status> Info;
 private:
   Info m_info;
 public:
@@ -123,6 +127,52 @@ public:
     return m_info;
   }
   
+};
+
+
+/**
+ * Protocol Error template.
+ * @tparam Status - arbitrary data type.
+ */
+template<class Status>
+class AsyncProtocolError : public oatpp::data::AsyncIOError {
+public:
+  /**
+   * Cenvenience typedef for ProtocolErrorInfo
+   */
+  typedef ProtocolErrorInfo<Status> Info;
+private:
+  Info m_info;
+  oatpp::String m_message;
+public:
+
+  /**
+   * Constructor.
+   * @param info - &l:ProtocolError::Info ;.
+   * @param message - error message.
+   */
+  AsyncProtocolError(const Info& info, const oatpp::String& message)
+    : oatpp::data::AsyncIOError("AsyncProtocolError", info.ioStatus)
+    , m_info(info)
+    , m_message(message)
+  {}
+
+  /**
+   * Error message.
+   * @return - error message.
+   */
+  oatpp::String getMessage() {
+    return m_message;
+  }
+
+  /**
+   * Get error info.
+   * @return - error info.
+   */
+  Info getInfo() {
+    return m_info;
+  }
+
 };
   
 }}}

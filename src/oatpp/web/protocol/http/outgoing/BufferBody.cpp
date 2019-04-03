@@ -35,7 +35,7 @@ BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr
 {}
 
 async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, m_currDataSize, finish());
+  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, m_currDataSize, finish());
 }
 
 BufferBody::BufferBody(const oatpp::String& buffer)
@@ -55,10 +55,8 @@ void BufferBody::writeToStream(const std::shared_ptr<OutputStream>& stream) noex
 }
 
 
-async::Action BufferBody::writeToStreamAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                             const Action& actionOnReturn,
-                                             const std::shared_ptr<OutputStream>& stream) {
-  return parentCoroutine->startCoroutine<WriteToStreamCoroutine>(actionOnReturn, shared_from_this(), stream);
+oatpp::async::Pipeline BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
+  return oatpp::async::AbstractCoroutine::startCoroutine<WriteToStreamCoroutine>(shared_from_this(), stream);
 }
 
 }}}}}

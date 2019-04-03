@@ -40,9 +40,9 @@ private:
 
   static constexpr v_int32 SM_STRING_POOL_ENTRY_SIZE = 256;
   
-  static oatpp::base::memory::ThreadDistributedMemoryPool* getSmallStringPool() {
+  static oatpp::base::memory::ThreadDistributedMemoryPool& getSmallStringPool() {
     static oatpp::base::memory::ThreadDistributedMemoryPool pool("Small_String_Pool", SM_STRING_POOL_ENTRY_SIZE, 16);
-    return &pool;
+    return pool;
   }
   
   static v_int32 getSmStringBaseSize() {

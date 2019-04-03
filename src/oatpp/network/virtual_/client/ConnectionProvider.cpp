@@ -51,9 +51,9 @@ std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection(
   return socket;
 }
   
-oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, AsyncCallback callback) {
+oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getConnectionAsync() {
   
-  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, std::shared_ptr<oatpp::data::stream::IOStream>> {
+  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
     std::shared_ptr<virtual_::Interface> m_interface;
     data::v_io_size m_maxAvailableToRead;
@@ -76,20 +76,29 @@ oatpp::async::Action ConnectionProvider::getConnectionAsync(oatpp::async::Abstra
       }
       return waitRetry();
     }
-    
+
     Action obtainSocket() {
-      auto socket = m_submission->getSocketNonBlocking();
-      if(socket) {
-        socket->setNonBlocking(true);
-        socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
-        return _return(socket);
+
+      if(m_submission->isValid()) {
+
+        auto socket = m_submission->getSocketNonBlocking();
+
+        if(socket) {
+          socket->setNonBlocking(true);
+          socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+          return _return(socket);
+        }
+
+        return waitRetry();
       }
-      return waitRetry();
+
+      return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
+
     }
     
   };
   
-  return parentCoroutine->startCoroutineForResult<ConnectCoroutine>(callback, m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
+  return ConnectCoroutine::callForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
   
 }
   

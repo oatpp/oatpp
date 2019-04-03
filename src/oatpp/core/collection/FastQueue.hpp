@@ -87,7 +87,7 @@ public:
     if(first == nullptr) {
       last = nullptr;
     }
-    result->free();
+    delete result;
   }
   
   void removeEntry(T* entry, T* prevEntry){
@@ -97,10 +97,10 @@ public:
     } else if(entry->_ref == nullptr) {
       prevEntry->_ref = nullptr;
       last = prevEntry;
-      entry->free();
+      delete entry;
     } else {
       prevEntry->_ref = entry->_ref;
-      entry->free();
+      delete entry;
     }
   }
   
@@ -123,7 +123,7 @@ public:
     T* curr = first;
     while (curr != nullptr) {
       T* next = curr->_ref;
-      curr->free();
+      delete curr;
       curr = next;
     }
     first = nullptr;

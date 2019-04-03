@@ -94,10 +94,8 @@ ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shar
   
 }
 
-
-ResponseHeadersReader::Action ResponseHeadersReader::readHeadersAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                                      AsyncCallback callback,
-                                                                      const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+oatpp::async::CoroutineCallForResult<const ResponseHeadersReader::Result&>
+ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
 {
   
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
@@ -128,7 +126,7 @@ ResponseHeadersReader::Action ResponseHeadersReader::readHeadersAsync(oatpp::asy
       if(m_progress + desiredToRead > m_maxHeadersSize) {
         desiredToRead = m_maxHeadersSize - m_progress;
         if(desiredToRead <= 0) {
-          return error("Headers section is too large");
+          return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Headers section is too large.");
         }
       }
       
@@ -151,8 +149,12 @@ ResponseHeadersReader::Action ResponseHeadersReader::readHeadersAsync(oatpp::asy
         
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
         return waitRetry();
+      } else if(res == data::IOError::BROKEN_PIPE) {
+        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+      } else if(res == data::IOError::ZERO_VALUE) {
+        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else {
-        return abort();
+        return error<Error>("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Error reading connection stream.");
       }
       
     }
@@ -168,17 +170,17 @@ ResponseHeadersReader::Action ResponseHeadersReader::readHeadersAsync(oatpp::asy
         if(status.code == 0) {
           return _return(m_result);
         } else {
-          return error("error occurred while parsing headers");
+          return error<Error>("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Error occurred while parsing headers.");
         }
       } else {
-        return error("can't parse starting line");
+        return error<Error>("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Can't parse starting line.");
       }
       
     }
     
   };
   
-  return parentCoroutine->startCoroutineForResult<ReaderCoroutine>(callback, connection, m_buffer, m_bufferSize, m_maxHeadersSize);
+  return ReaderCoroutine::callForResult(connection, m_buffer, m_bufferSize, m_maxHeadersSize);
   
 }
   

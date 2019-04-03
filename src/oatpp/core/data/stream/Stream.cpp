@@ -27,10 +27,6 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
-const char* const Errors::ERROR_ASYNC_BROKEN_PIPE = "[oatpp::data::stream{}]: Error. AsyncIO. Broken pipe.";
-const char* const Errors::ERROR_ASYNC_BAD_RESULT = "[oatpp::data::stream{}]: Error. AsyncIO. Bad result code. Operation returned 0.";
-const char* const Errors::ERROR_ASYNC_UNKNOWN_CODE = "[oatpp::data::stream{}]: Error. AsyncIO. Unknown error code returned";
-  
 data::v_io_size OutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);
@@ -211,13 +207,11 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
   return progress;
   
 }
-  
-oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                   const oatpp::async::Action& actionOnReturn,
-                                   const std::shared_ptr<InputStream>& fromStream,
-                                   const std::shared_ptr<OutputStream>& toStream,
-                                   oatpp::data::v_io_size transferSize,
-                                   const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
+
+oatpp::async::Pipeline transferAsync(const std::shared_ptr<InputStream>& fromStream,
+                                     const std::shared_ptr<OutputStream>& toStream,
+                                     oatpp::data::v_io_size transferSize,
+                                     const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
   
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
   private:
@@ -251,10 +245,10 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
         if(m_progress == m_transferSize) {
           return finish();
         } else if(m_progress > m_transferSize) {
-          throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_progress > m_transferSize");
+          return error<AsyncTransferError>("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_progress > m_transferSize");
         }
       } else if(m_transferSize < 0) {
-        throw std::runtime_error("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_transferSize < 0");
+        return error<AsyncTransferError>("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_transferSize < 0");
       }
       
       m_desiredReadCount = m_transferSize - m_progress;
@@ -270,10 +264,7 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doRead() {
-      return oatpp::data::stream::readSomeDataAsyncInline(m_fromStream.get(),
-                                                          m_readBufferPtr,
-                                                          m_bytesLeft,
-                                                          yieldTo(&TransferCoroutine::prepareWrite));
+      return oatpp::data::stream::readSomeDataAsyncInline(this, m_fromStream.get(), m_readBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::prepareWrite));
     }
     
     Action prepareWrite() {
@@ -283,69 +274,66 @@ oatpp::async::Action transferAsync(oatpp::async::AbstractCoroutine* parentCorout
     }
     
     Action doWrite() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_toStream.get(),
-                                                                m_writeBufferPtr,
-                                                                m_bytesLeft,
-                                                                yieldTo(&TransferCoroutine::act));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_toStream.get(), m_writeBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::act));
     }
     
-    Action handleError(const oatpp::async::Error& error) override {
-      if(!error.isExceptionThrown) {
-        if(m_transferSize == 0) {
-          return finish();
-        }
+    Action handleError(const std::shared_ptr<const Error>& error) override {
+      if(m_transferSize == 0) {
+        return finish();
       }
-      return error;
+      return Action(Action::TYPE_ERROR);
     }
     
   };
   
-  return parentCoroutine->startCoroutine<TransferCoroutine>(actionOnReturn, fromStream, toStream, transferSize, buffer);
+  return oatpp::async::AbstractCoroutine::startCoroutine<TransferCoroutine>(fromStream, toStream, transferSize, buffer);
   
 }
 
 namespace {
 
-  oatpp::async::Action asyncActionOnIOError(data::v_io_size res) {
+  oatpp::async::Action asyncActionOnIOError(oatpp::async::AbstractCoroutine* coroutine, data::v_io_size res) {
     switch (res) {
       case IOError::WAIT_RETRY:
-        return oatpp::async::Action::_WAIT_RETRY;
+        return oatpp::async::Action::TYPE_WAIT_RETRY;
       case IOError::RETRY:
-        return oatpp::async::Action::_REPEAT;
+        return oatpp::async::Action::TYPE_REPEAT;
       case IOError::BROKEN_PIPE:
-        return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_BROKEN_PIPE));
+        return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       case IOError::ZERO_VALUE:
-        return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_BAD_RESULT));
+        return coroutine->error(oatpp::data::AsyncIOError::ERROR_ZERO_VALUE);
     }
-    return oatpp::async::Action(oatpp::async::Error(Errors::ERROR_ASYNC_UNKNOWN_CODE));
+    return coroutine->error<AsyncIOError>("Unknown IO Error result", res);
   }
 
 }
   
-oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                   oatpp::data::stream::OutputStream* stream,
                                                    const void*& data,
                                                    data::v_io_size& size,
-                                                   const oatpp::async::Action& nextAction) {
+                                                   oatpp::async::Action&& nextAction) {
   if(size > 0) {
     auto res = stream->write(data, size);
     if(res > 0) {
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return oatpp::async::Action::_REPEAT;
+        return oatpp::async::Action::TYPE_REPEAT;
       }
     } else {
-      return asyncActionOnIOError(res);
+      return asyncActionOnIOError(coroutine, res);
     }
   }
-  return nextAction;
+  return std::forward<oatpp::async::Action>(nextAction);
 
 }
 
-oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                             oatpp::data::stream::InputStream* stream,
                                              void*& data,
                                              data::v_io_size& size,
-                                             const oatpp::async::Action& nextAction) {
+                                             oatpp::async::Action&& nextAction) {
 
   if(size > 0) {
     auto res = stream->read(data, size);
@@ -353,30 +341,31 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* s
       data = &((p_char8) data)[res];
       size -= res;
     } else {
-      return asyncActionOnIOError(res);
+      return asyncActionOnIOError(coroutine, res);
     }
   }
-  return nextAction;
+  return std::forward<oatpp::async::Action>(nextAction);
 
 }
 
-oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                  oatpp::data::stream::InputStream* stream,
                                                   void*& data,
                                                   data::v_io_size& size,
-                                                  const oatpp::async::Action& nextAction) {
+                                                  oatpp::async::Action&& nextAction) {
   if(size > 0) {
     auto res = stream->read(data, size);
     if(res > 0) {
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return oatpp::async::Action::_REPEAT;
+        return oatpp::async::Action::TYPE_REPEAT;
       }
     } else {
-      return asyncActionOnIOError(res);
+      return asyncActionOnIOError(coroutine, res);
     }
   }
-  return nextAction;
+  return std::forward<oatpp::async::Action>(nextAction);
 }
   
 oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, data::v_io_size size) {

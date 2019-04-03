@@ -117,13 +117,12 @@ private:
 public:
 
   Action act() override {
-    auto callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(&ClientCoroutine_getRootAsync::onResponse);
-    return appClient->getRootAsync(this, callback);
+    return appClient->getRootAsync().callbackTo(&ClientCoroutine_getRootAsync::onResponse);
   }
 
   Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
     OATPP_ASSERT(response->getStatusCode() == 200 && "ClientCoroutine_getRootAsync");
-    return response->readBodyToStringAsync(this, &ClientCoroutine_getRootAsync::onBodyRead);
+    return response->readBodyToStringAsync().callbackTo(&ClientCoroutine_getRootAsync::onBodyRead);
   }
 
   Action onBodyRead(const oatpp::String& body) {
@@ -132,19 +131,14 @@ public:
     return finish();
   }
 
-  Action handleError(const async::Error& error) override {
-    if(error.isExceptionThrown) {
-      try {
-        throw;
-      } catch (const std::runtime_error& e) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Exception. %s.", e.what());
-      } catch (...) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Exception. Unknown.");
-      }
+  Action handleError(const std::shared_ptr<const Error>& error) override {
+    if(error->is<oatpp::data::AsyncIOError>()) {
+      auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
-      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. %s", error.message);
+      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
     }
-    return error;
+    return Action::TYPE_ERROR;
   }
 
 };
@@ -168,13 +162,12 @@ public:
       stream.write("0123456789", 10);
     }
     m_data = stream.toString();
-    auto callback = static_cast<oatpp::web::client::RequestExecutor::AsyncCallback>(&ClientCoroutine_echoBodyAsync::onResponse);
-    return appClient->echoBodyAsync(this, callback, m_data);
+    return appClient->echoBodyAsync(m_data).callbackTo(&ClientCoroutine_echoBodyAsync::onResponse);
   }
 
   Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
     OATPP_ASSERT(response->getStatusCode() == 200 && "ClientCoroutine_echoBodyAsync");
-    return response->readBodyToStringAsync(this, &ClientCoroutine_echoBodyAsync::onBodyRead);
+    return response->readBodyToStringAsync().callbackTo(&ClientCoroutine_echoBodyAsync::onBodyRead);
   }
 
   Action onBodyRead(const oatpp::String& body) {
@@ -183,19 +176,16 @@ public:
     return finish();
   }
 
-  Action handleError(const async::Error& error) override {
-    if(error.isExceptionThrown) {
-      try {
-        throw;
-      } catch (const std::runtime_error& e) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Exception. %s.", e.what());
-      } catch (...) {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Exception. Unknown.");
+  Action handleError(const std::shared_ptr<const Error>& error) override {
+    if(error) {
+      if(error->is<oatpp::data::AsyncIOError>()) {
+        auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
+      } else {
+        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
       }
-    } else {
-      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error.message);
     }
-    return error;
+    return Action::TYPE_ERROR;
   }
 
 };
@@ -228,6 +218,7 @@ void FullAsyncClientTest::onRun() {
       executor->execute<ClientCoroutine_getRootAsync>();
       executor->execute<ClientCoroutine_echoBodyAsync>();
     }
+
 
     while(
       ClientCoroutine_getRootAsync::SUCCESS_COUNTER != -1 ||

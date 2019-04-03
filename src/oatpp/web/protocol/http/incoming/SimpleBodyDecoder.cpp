@@ -110,10 +110,8 @@ void SimpleBodyDecoder::decode(const Headers& headers,
   
 }
 
-oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                               const oatpp::async::Action& actionOnReturn,
-                                                               const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                                               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
+oatpp::async::Pipeline SimpleBodyDecoder::doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
+                                                                         const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
   
   class ChunkedDecoder : public oatpp::async::Coroutine<ChunkedDecoder> {
   private:
@@ -153,11 +151,11 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
     Action readLineChar() {
       auto res = m_fromStream->read(&m_lineChar, 1);
       if(res == data::IOError::WAIT_RETRY) {
-        return oatpp::async::Action::_WAIT_RETRY;
+        return oatpp::async::Action::TYPE_WAIT_RETRY;
       } else if(res == data::IOError::RETRY) {
-        return oatpp::async::Action::_REPEAT;
+        return oatpp::async::Action::TYPE_REPEAT;
       } else if( res < 0) {
-        return error("[BodyDecoder::ChunkedDecoder] Can't read line char");
+        return error<Error>("[BodyDecoder::ChunkedDecoder] Can't read line char");
       }
       return yieldTo(&ChunkedDecoder::onLineCharRead);
     }
@@ -166,7 +164,7 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
       if(!m_lineEnding) {
         if(m_lineChar != '\r') {
           if(m_currLineLength + 1 > MAX_LINE_SIZE){
-            return error("[BodyDecoder::ChunkedDecoder] too long line");
+            return error<Error>("[BodyDecoder::ChunkedDecoder] too long line");
           }
           m_lineBuffer[m_currLineLength ++] = m_lineChar;
           return yieldTo(&ChunkedDecoder::readLineChar);
@@ -180,7 +178,7 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
         }
       }
       if(m_currLineLength == 0) {
-        return error("Error reading stream. 0-length line");
+        return error<Error>("Error reading stream. 0-length line");
       }
       m_lineBuffer[m_currLineLength] = 0;
       return yieldTo(&ChunkedDecoder::onLineRead);
@@ -190,7 +188,7 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
       data::v_io_size countToRead = std::strtol((const char*) m_lineBuffer, nullptr, 16);
       if(countToRead > 0) {
         prepareSkipRN();
-        return oatpp::data::stream::transferAsync(this, yieldTo(&ChunkedDecoder::skipRN), m_fromStream, m_toStream, countToRead, m_buffer);
+        return oatpp::data::stream::transferAsync(m_fromStream, m_toStream, countToRead, m_buffer).next(yieldTo(&ChunkedDecoder::skipRN));
       }
       m_done = true;
       prepareSkipRN();
@@ -199,52 +197,39 @@ oatpp::async::Action SimpleBodyDecoder::doChunkedDecodingAsync(oatpp::async::Abs
     
     Action skipRN() {
       if(m_done) {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(m_fromStream.get(),
-                                                                 m_skipData,
-                                                                 m_skipSize,
-                                                                 finish());
+        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, m_skipSize, finish());
       } else {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(m_fromStream.get(),
-                                                                 m_skipData,
-                                                                 m_skipSize,
-                                                                 yieldTo(&ChunkedDecoder::readLineChar));
+        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, m_skipSize, yieldTo(&ChunkedDecoder::readLineChar));
       }
     }
     
   };
   
-  return parentCoroutine->startCoroutine<ChunkedDecoder>(actionOnReturn, fromStream, toStream);
+  return oatpp::async::AbstractCoroutine::startCoroutine<ChunkedDecoder>(fromStream, toStream);
   
 }
 
-oatpp::async::Action SimpleBodyDecoder::decodeAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                    const oatpp::async::Action& actionOnReturn,
-                                                    const Headers& headers,
-                                                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                    const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+oatpp::async::Pipeline SimpleBodyDecoder::decodeAsync(const Headers& headers,
+                                                      const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+                                                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
   auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
-    return doChunkedDecodingAsync(parentCoroutine, actionOnReturn, bodyStream, toStream);
+    return doChunkedDecodingAsync(bodyStream, toStream);
   } else {
     oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
     if(contentLengthStrIt == headers.end()) {
-      return actionOnReturn; // DO NOTHING // it is an empty or invalid body
+      return nullptr;
     } else {
       bool success;
       contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
       if(!success){
-        return oatpp::async::Action(oatpp::async::Error("Invalid 'Content-Length' Header"));
+        throw HttpError(http::Status::CODE_400, "Invalid 'Content-Length' Header");
       }
       if(contentLength > 0) {
-        return oatpp::data::stream::transferAsync(parentCoroutine,
-                                                  actionOnReturn,
-                                                  bodyStream,
-                                                  toStream,
-                                                  contentLength,
-                                                  oatpp::data::buffer::IOBuffer::createShared());
+        return oatpp::data::stream::transferAsync(bodyStream, toStream, contentLength, oatpp::data::buffer::IOBuffer::createShared());
       } else {
-        return actionOnReturn; // DO NOTHING
+        return nullptr;
       }
     }
   }

@@ -188,11 +188,9 @@ public:
 
   /**
    * Call &id:oatpp::web::client::RequestExecutor::getConnectionAsync;.
-   * @param parentCoroutine - caller coroutine as &id:oatpp::async::AbstractCoroutine;*.
-   * @param callback - function pointer to asynchronous callback.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineCallForResult;.
    */
-  virtual oatpp::async::Action getConnectionAsync(oatpp::async::AbstractCoroutine* parentCoroutine, RequestExecutor::AsyncConnectionCallback callback);
+  virtual oatpp::async::CoroutineCallForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> getConnectionAsync();
 
 
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
@@ -203,15 +201,14 @@ public:
                                                    const std::shared_ptr<RequestExecutor::Body>& body,
                                                    const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
-  virtual oatpp::async::Action executeRequestAsync(oatpp::async::AbstractCoroutine* parentCoroutine,
-                                                   AsyncCallback callback,
-                                                   const oatpp::String& method,
-                                                   const PathPattern& pathPattern,
-                                                   const std::shared_ptr<StringToParamMap>& headers,
-                                                   const std::shared_ptr<StringToParamMap>& pathParams,
-                                                   const std::shared_ptr<StringToParamMap>& queryParams,
-                                                   const std::shared_ptr<RequestExecutor::Body>& body,
-                                                   const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
+  virtual oatpp::async::CoroutineCallForResult<const std::shared_ptr<Response>&>
+  executeRequestAsync(const oatpp::String& method,
+                      const PathPattern& pathPattern,
+                      const std::shared_ptr<StringToParamMap>& headers,
+                      const std::shared_ptr<StringToParamMap>& pathParams,
+                      const std::shared_ptr<StringToParamMap>& queryParams,
+                      const std::shared_ptr<RequestExecutor::Body>& body,
+                      const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
 };
   
