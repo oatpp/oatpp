@@ -78,7 +78,7 @@ private:
     {}
     
     oatpp::async::Action act() override {
-      return m_decoder->decodeAsync(this, this->yieldTo(&ToDtoDecoder::onDecoded), m_headers, m_bodyStream, m_chunkedBuffer);
+      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(this->yieldTo(&ToDtoDecoder::onDecoded));
     }
     
     oatpp::async::Action onDecoded() {
@@ -86,7 +86,7 @@ private:
       oatpp::parser::Caret caret(body);
       auto dto = m_objectMapper->readFromCaret<Type>(caret);
       if(caret.hasError()) {
-        return this->error(caret.getErrorMessage());
+        return this->template error<oatpp::async::Error>(caret.getErrorMessage());
       }
       return this->_return(dto);
     }
@@ -173,7 +173,7 @@ public:
   decodeToDtoAsync(const Headers& headers,
                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                    const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return ToDtoDecoder<DtoType>::CallForResult(this, headers, bodyStream, objectMapper);
+    return ToDtoDecoder<DtoType>::callForResult(this, headers, bodyStream, objectMapper);
   }
   
 };

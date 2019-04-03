@@ -205,8 +205,6 @@ public:
 
   /**
    * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream; in asynchronous manner.
-   * @param parentCoroutine - caller coroutine. &id:oatpp::async::AbstractCoroutine;.
-   * @param actionOnFinish - action to do once finished. &id:oatpp::async::Action;.
    * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
    * @return - &id:oatpp::async::Pipeline;.
    */
