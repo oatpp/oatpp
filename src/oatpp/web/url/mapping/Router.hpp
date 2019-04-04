@@ -95,9 +95,9 @@ public:
     /**
      * Call &id:oatpp::web::url::mapping::Subscriber::processEventAsync; with corresponding parameter.
      * @param param
-     * @return - &id:oatpp::async::CaroutineCallForResult;.
+     * @return - &id:oatpp::async::CoroutineStarterForResult;.
      */
-    oatpp::async::CoroutineCallForResult<const ReturnType&> processEventAsync(const Param& param) const {
+    oatpp::async::CoroutineStarterForResult<const ReturnType&> processEventAsync(const Param& param) const {
       return m_subscriber->processEventAsync(param);
     }
     

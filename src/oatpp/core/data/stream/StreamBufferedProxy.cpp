@@ -42,7 +42,7 @@ data::v_io_size OutputStreamBufferedProxy::flush() {
   return m_buffer->flushToStream(*m_outputStream);
 }
 
-oatpp::async::Pipeline OutputStreamBufferedProxy::flushAsync() {
+oatpp::async::CoroutineStarter OutputStreamBufferedProxy::flushAsync() {
   return m_buffer->flushToStreamAsync(m_outputStream);
 }
   

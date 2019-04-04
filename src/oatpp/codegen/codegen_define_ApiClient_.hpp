@@ -218,7 +218,7 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME( \
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME( \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
@@ -237,7 +237,7 @@ static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   return pattern; \
 } \
 \
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME(\
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME(\
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
@@ -264,7 +264,7 @@ oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::web::protocol:
  * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
  * @param PATH - Path to endpoint (without host)
  * @param NAME - Name of the generated method
- * @return - &id:oatpp::async::CoroutineCallForResult;<const std::shared_ptr<&id:oatpp::web::protocol::http::incoming::Response;>&>.
+ * @return - &id:oatpp::async::CoroutineStarterForResult;<const std::shared_ptr<&id:oatpp::web::protocol::http::incoming::Response;>&>.
  */
 #define API_CALL_ASYNC(METHOD, PATH, NAME, ...) \
 OATPP_API_CALL_ASYNC___(NAME, METHOD, PATH, (__VA_ARGS__))

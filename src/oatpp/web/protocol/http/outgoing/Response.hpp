@@ -117,9 +117,9 @@ public:
   /**
    * Same as &l:Response::send (); but async.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::Pipeline sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  oatpp::async::CoroutineStarter sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };
   

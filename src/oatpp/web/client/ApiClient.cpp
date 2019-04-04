@@ -142,7 +142,7 @@ std::shared_ptr<RequestExecutor::ConnectionHandle> ApiClient::getConnection() {
   return m_requestExecutor->getConnection();
 }
 
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> ApiClient::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> ApiClient::getConnectionAsync() {
   return m_requestExecutor->getConnectionAsync();
 }
 
@@ -164,7 +164,7 @@ std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::Stri
 
 }
 
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<ApiClient::Response>&>
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ApiClient::Response>&>
 ApiClient::executeRequestAsync(const oatpp::String& method,
                                const PathPattern& pathPattern,
                                const std::shared_ptr<StringToParamMap>& headers,

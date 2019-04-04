@@ -40,7 +40,7 @@ private:
   static void doChunkedDecoding(const std::shared_ptr<oatpp::data::stream::InputStream>& from,
                                 const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
   
-  static oatpp::async::Pipeline doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
+  static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                                                        const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
 public:
 
@@ -59,11 +59,11 @@ public:
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
    * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::Pipeline decodeAsync(const Headers& headers,
-                                     const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                     const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
+  oatpp::async::CoroutineStarter decodeAsync(const Headers& headers,
+                                             const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+                                             const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
   
   
 };

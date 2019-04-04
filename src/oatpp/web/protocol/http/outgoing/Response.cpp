@@ -98,7 +98,7 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   
 }
 
-oatpp::async::Pipeline Response::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
+oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
   
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
   private:
@@ -156,7 +156,7 @@ oatpp::async::Pipeline Response::sendAsync(const std::shared_ptr<data::stream::O
     
   };
   
-  return oatpp::async::AbstractCoroutine::startCoroutine<SendAsyncCoroutine>(shared_from_this(), stream);
+  return SendAsyncCoroutine::start(shared_from_this(), stream);
   
 }
   

@@ -110,7 +110,7 @@ void SimpleBodyDecoder::decode(const Headers& headers,
   
 }
 
-oatpp::async::Pipeline SimpleBodyDecoder::doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
+oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                                                                          const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
   
   class ChunkedDecoder : public oatpp::async::Coroutine<ChunkedDecoder> {
@@ -205,13 +205,13 @@ oatpp::async::Pipeline SimpleBodyDecoder::doChunkedDecodingAsync(const std::shar
     
   };
   
-  return oatpp::async::AbstractCoroutine::startCoroutine<ChunkedDecoder>(fromStream, toStream);
+  return ChunkedDecoder::start(fromStream, toStream);
   
 }
 
-oatpp::async::Pipeline SimpleBodyDecoder::decodeAsync(const Headers& headers,
-                                                      const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+oatpp::async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
+                                                              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+                                                              const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
   auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     return doChunkedDecodingAsync(bodyStream, toStream);

@@ -190,15 +190,15 @@ public:
   /**
    * Transfer body stream to toStream Async
    * @param toStream
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::Pipeline streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  oatpp::async::CoroutineStarter streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**
    * Transfer body stream to string Async.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineCallForResult<const oatpp::String&> readBodyToStringAsync() const {
+  oatpp::async::CoroutineStarterForResult<const oatpp::String&> readBodyToStringAsync() const {
     return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream);
   }
 
@@ -206,10 +206,10 @@ public:
    * Transfer body to String and parse it as DTO
    * @tparam DtoType - DTO object type.
    * @param objectMapper
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
   template<class DtoType>
-  oatpp::async::CoroutineCallForResult<const typename DtoType::ObjectWrapper&>
+  oatpp::async::CoroutineStarterForResult<const typename DtoType::ObjectWrapper&>
   readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return m_bodyDecoder->decodeToDtoAsync<DtoType>(m_headers, m_bodyStream, objectMapper);
   }

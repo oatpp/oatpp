@@ -85,9 +85,9 @@ public:
   /**
    * Implement this method.
    * Obtain IOStream representing connection to resource.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  virtual oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() = 0;
+  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() = 0;
 
   /**
    * Should close all handles here.

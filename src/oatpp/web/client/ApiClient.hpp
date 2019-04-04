@@ -188,9 +188,9 @@ public:
 
   /**
    * Call &id:oatpp::web::client::RequestExecutor::getConnectionAsync;.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  virtual oatpp::async::CoroutineCallForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> getConnectionAsync();
+  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> getConnectionAsync();
 
 
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
@@ -201,7 +201,7 @@ public:
                                                    const std::shared_ptr<RequestExecutor::Body>& body,
                                                    const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
-  virtual oatpp::async::CoroutineCallForResult<const std::shared_ptr<Response>&>
+  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
   executeRequestAsync(const oatpp::String& method,
                       const PathPattern& pathPattern,
                       const std::shared_ptr<StringToParamMap>& headers,

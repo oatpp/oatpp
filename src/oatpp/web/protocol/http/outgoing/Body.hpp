@@ -67,9 +67,9 @@ public:
   /**
    * Same as &l:Body::writeToStream (); but async.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  virtual oatpp::async::Pipeline writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
+  virtual oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
   
 };
   

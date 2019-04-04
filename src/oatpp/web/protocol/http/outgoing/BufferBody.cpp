@@ -55,8 +55,8 @@ void BufferBody::writeToStream(const std::shared_ptr<OutputStream>& stream) noex
 }
 
 
-oatpp::async::Pipeline BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
-  return oatpp::async::AbstractCoroutine::startCoroutine<WriteToStreamCoroutine>(shared_from_this(), stream);
+oatpp::async::CoroutineStarter BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
+  return WriteToStreamCoroutine::start(shared_from_this(), stream);
 }
 
 }}}}}

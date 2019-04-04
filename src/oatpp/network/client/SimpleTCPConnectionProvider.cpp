@@ -84,7 +84,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   
 }
 
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
@@ -188,7 +188,7 @@ oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::
     
   };
   
-  return ConnectCoroutine::callForResult(m_host, m_port);
+  return ConnectCoroutine::startForResult(m_host, m_port);
   
 }
   

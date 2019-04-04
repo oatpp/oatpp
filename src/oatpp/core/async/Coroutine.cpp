@@ -81,14 +81,14 @@ v_int32 Action::getType() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Pipeline
+// CoroutineStarter
 
-Pipeline::Pipeline(AbstractCoroutine* coroutine)
+CoroutineStarter::CoroutineStarter(AbstractCoroutine* coroutine)
   : m_first(coroutine)
   , m_last(coroutine)
 {}
 
-Pipeline::Pipeline(Pipeline&& other)
+CoroutineStarter::CoroutineStarter(CoroutineStarter&& other)
   : m_first(other.m_first)
   , m_last(other.m_last)
 {
@@ -96,7 +96,7 @@ Pipeline::Pipeline(Pipeline&& other)
   other.m_last = nullptr;
 }
 
-Pipeline::~Pipeline() {
+CoroutineStarter::~CoroutineStarter() {
   if(m_first != nullptr) {
     auto curr = m_first;
     while(curr != nullptr) {
@@ -113,7 +113,7 @@ Pipeline::~Pipeline() {
 /*
  * Move assignment operator.
  */
-Pipeline& Pipeline::operator=(Pipeline&& other) {
+CoroutineStarter& CoroutineStarter::operator=(CoroutineStarter&& other) {
   m_first = other.m_first;
   m_last = other.m_last;
   other.m_first = nullptr;
@@ -121,7 +121,7 @@ Pipeline& Pipeline::operator=(Pipeline&& other) {
   return *this;
 }
 
-Action Pipeline::next(Action&& action) {
+Action CoroutineStarter::next(Action&& action) {
   if(m_last == nullptr) {
     return std::forward<Action>(action);
   }
@@ -132,7 +132,7 @@ Action Pipeline::next(Action&& action) {
   return std::move(result);
 }
 
-Pipeline& Pipeline::next(Pipeline&& starter) {
+CoroutineStarter& CoroutineStarter::next(CoroutineStarter&& starter) {
   m_last->m_parentReturnAction = starter.m_first;
   m_last = starter.m_last;
   starter.m_first = nullptr;

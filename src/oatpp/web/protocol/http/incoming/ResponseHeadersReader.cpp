@@ -94,7 +94,7 @@ ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shar
   
 }
 
-oatpp::async::CoroutineCallForResult<const ResponseHeadersReader::Result&>
+oatpp::async::CoroutineStarterForResult<const ResponseHeadersReader::Result&>
 ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
 {
   
@@ -180,7 +180,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
     
   };
   
-  return ReaderCoroutine::callForResult(connection, m_buffer, m_bufferSize, m_maxHeadersSize);
+  return ReaderCoroutine::startForResult(connection, m_buffer, m_bufferSize, m_maxHeadersSize);
   
 }
   

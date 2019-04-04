@@ -112,9 +112,9 @@ public:
   /**
    * Start &l:ChunkedBufferBody::WriteToStreamCoroutine; to write buffer data to stream.
    * @param stream - &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::Pipeline writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override;
+  oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override;
   
 };
   

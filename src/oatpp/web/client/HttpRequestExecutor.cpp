@@ -63,7 +63,7 @@ std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getC
   return std::make_shared<HttpConnectionHandle>(connection);
 }
 
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&>
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&>
 HttpRequestExecutor::getConnectionAsync() {
   
   class GetConnectionCoroutine : public oatpp::async::CoroutineWithResult<GetConnectionCoroutine, const std::shared_ptr<ConnectionHandle>&> {
@@ -85,7 +85,7 @@ HttpRequestExecutor::getConnectionAsync() {
     
   };
   
-  return GetConnectionCoroutine::callForResult(m_connectionProvider);
+  return GetConnectionCoroutine::startForResult(m_connectionProvider);
   
 }
   
@@ -144,7 +144,7 @@ HttpRequestExecutor::execute(const String& method,
   
 }
 
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<HttpRequestExecutor::Response>&>
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<HttpRequestExecutor::Response>&>
 HttpRequestExecutor::executeAsync(const String& method,
                                   const String& path,
                                   const Headers& headers,
@@ -227,7 +227,7 @@ HttpRequestExecutor::executeAsync(const String& method,
     
   };
   
-  return ExecutorCoroutine::callForResult(m_connectionProvider, method, path, headers, body, m_bodyDecoder, connectionHandle);
+  return ExecutorCoroutine::startForResult(m_connectionProvider, method, path, headers, body, m_bodyDecoder, connectionHandle);
   
 }
   

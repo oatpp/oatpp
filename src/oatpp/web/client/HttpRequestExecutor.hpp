@@ -93,9 +93,9 @@ public:
 
   /**
    * Same as &l:HttpRequestExecutor::getConnection (); but async.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineCallForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&> getConnectionAsync() override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&> getConnectionAsync() override;
 
   /**
    * Execute http request.
@@ -120,9 +120,9 @@ public:
    * @param headers - headers map &id:oatpp::web::client::RequestExecutor::Headers;.
    * @param body - `std::shared_ptr` to &id:oatpp::web::client::RequestExecutor::Body; object.
    * @param connectionHandle - ConnectionHandle obtain in call to &l:HttpRequestExecutor::getConnection ();.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineCallForResult<const std::shared_ptr<Response>&>
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
   executeAsync(const String& method,
                const String& path,
                const Headers& headers,
