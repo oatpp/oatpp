@@ -206,9 +206,9 @@ public:
   /**
    * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream; in asynchronous manner.
    * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::Pipeline flushToStreamAsync(const std::shared_ptr<OutputStream>& stream);
+  oatpp::async::CoroutineStarter flushToStreamAsync(const std::shared_ptr<OutputStream>& stream);
   
   std::shared_ptr<Chunks> getChunks();
 

@@ -127,9 +127,9 @@ public:
   /**
    * flush all availableToRead bytes to stream in asynchronous manner
    * @param stream - &id:data::stream::OutputStream;.
-   * @return - &id:async::Pipeline;.
+   * @return - &id:async::CoroutineStarter;.
    */
-  async::Pipeline flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  async::CoroutineStarter flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
 
   
 };

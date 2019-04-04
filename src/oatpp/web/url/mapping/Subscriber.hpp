@@ -48,9 +48,9 @@ public:
   /**
    * Process event in asynchronous manner.
    * @param event - some incoming data.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  virtual oatpp::async::CoroutineCallForResult<const Result&> processEventAsync(const Event& event) = 0;
+  virtual oatpp::async::CoroutineStarterForResult<const Result&> processEventAsync(const Event& event) = 0;
 };
   
 }}}}

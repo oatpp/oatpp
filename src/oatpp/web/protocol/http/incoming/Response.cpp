@@ -74,7 +74,7 @@ oatpp::String Response::readBodyToString() const {
   return m_bodyDecoder->decodeToString(m_headers, m_bodyStream);
 }
 
-oatpp::async::Pipeline Response::streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+oatpp::async::CoroutineStarter Response::streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
   return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream);
 }
 

@@ -125,9 +125,9 @@ public:
   /**
    * Write request to stream in asynchronous manner.
    * @param stream - &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::Pipeline;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::Pipeline sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  oatpp::async::CoroutineStarter sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };
   

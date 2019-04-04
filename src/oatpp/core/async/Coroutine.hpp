@@ -38,7 +38,7 @@ namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
 class Processor; // FWD
-class Pipeline; // FWD
+class CoroutineStarter; // FWD
 
 /**
  * Class Action represents an asynchronous action.
@@ -46,7 +46,7 @@ class Pipeline; // FWD
 class Action {
   friend Processor;
   friend AbstractCoroutine;
-  friend Pipeline;
+  friend CoroutineStarter;
 public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
@@ -150,9 +150,9 @@ public:
 };
 
 /**
- * Pipeline of Coroutine calls.
+ * CoroutineStarter of Coroutine calls.
  */
-class Pipeline {
+class CoroutineStarter {
 private:
   AbstractCoroutine* m_first;
   AbstractCoroutine* m_last;
@@ -162,47 +162,47 @@ public:
    * Constructor.
    * @param coroutine - coroutine.
    */
-  Pipeline(AbstractCoroutine* coroutine);
+  CoroutineStarter(AbstractCoroutine* coroutine);
 
   /**
    * Deleted copy-constructor.
    */
-  Pipeline(const Pipeline&) = delete;
+  CoroutineStarter(const CoroutineStarter&) = delete;
 
   /**
    * Move constructor.
-   * @param other - other pipeline.
+   * @param other - other starter.
    */
-  Pipeline(Pipeline&& other);
+  CoroutineStarter(CoroutineStarter&& other);
 
   /**
    * Non-virtual destructor.
    */
-  ~Pipeline();
+  ~CoroutineStarter();
 
   /*
    * Deleted copy-assignment operator.
    */
-  Pipeline& operator=(const Pipeline&) = delete;
+  CoroutineStarter& operator=(const CoroutineStarter&) = delete;
 
   /*
    * Move assignment operator.
    */
-  Pipeline& operator=(Pipeline&& other);
+  CoroutineStarter& operator=(CoroutineStarter&& other);
 
   /**
-   * Set final pipeline action.
+   * Set final starter action.
    * @param action - &l:Action;.
    * @return - &l:Action;.
    */
   Action next(Action&& action);
 
   /**
-   * Add coroutine pipeline to this pipeline.
+   * Add coroutine starter pipeline to this starter.
    * @param pipeline - pipeline to add.
    * @return - this pipeline.
    */
-  Pipeline& next(Pipeline&& pipeline);
+  CoroutineStarter& next(CoroutineStarter&& starter);
 
 };
 
@@ -212,7 +212,7 @@ public:
 class AbstractCoroutine {// : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
-  friend Pipeline;
+  friend CoroutineStarter;
 public:
   /**
    * Convenience typedef for Action
@@ -304,18 +304,6 @@ public:
   }
 
   /**
-   * Start new Coroutine as a "nested" Coroutine, keeping track of a coroutine call stack.
-   * @tparam C - Coroutine to start.
-   * @tparam Args - arguments to be passed to a starting coroutine.
-   * @param args - actual parameters passed to startCoroutine call.
-   * @return - &l:Pipeline; of coroutine calls.
-   */
-  template<typename C, typename ... Args>
-  static Pipeline startCoroutine(Args... args) {
-    return Pipeline(new C(args...));
-  }
-
-  /**
    * Check if coroutine is finished
    * @return - true if finished
    */
@@ -363,6 +351,17 @@ public:
   }
 
 public:
+
+  /**
+   * Create coroutine and return it's starter
+   * @tparam ConstructorArgs - coroutine constructor arguments.
+   * @param args - actual coroutine constructor arguments.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  template<typename ...ConstructorArgs>
+  static CoroutineStarter start(ConstructorArgs... args) {
+    return new T(args...);
+  }
 
   /**
    * Call function of Coroutine specified by ptr. <br>
@@ -423,7 +422,7 @@ public:
    * Class representing Coroutine call for result;
    */
   template<typename ...Args >
-  class CallForResult {
+  class StarterForResult {
   public:
 
     template <class C>
@@ -437,20 +436,20 @@ public:
      * Constructor.
      * @param coroutine - coroutine.
      */
-    CallForResult(AbstractCoroutineWithResult* coroutine)
+    StarterForResult(AbstractCoroutineWithResult* coroutine)
       : m_coroutine(coroutine)
     {}
 
     /**
      * Deleted copy-constructor.
      */
-    CallForResult(const CallForResult&) = delete;
+    StarterForResult(const StarterForResult&) = delete;
 
     /**
      * Move constructor.
      * @param other - other pipeline.
      */
-    CallForResult(CallForResult&& other)
+    StarterForResult(StarterForResult&& other)
       : m_coroutine(other.m_coroutine)
     {
       other.m_coroutine = nullptr;
@@ -459,7 +458,7 @@ public:
     /**
      * Non-virtual destructor.
      */
-    ~CallForResult() {
+    ~StarterForResult() {
       if(m_coroutine != nullptr) {
         delete m_coroutine;
       }
@@ -468,12 +467,12 @@ public:
     /*
      * Deleted copy-assignment operator.
      */
-    CallForResult& operator=(const CallForResult&) = delete;
+    StarterForResult& operator=(const StarterForResult&) = delete;
 
     /*
      * Move assignment operator.
      */
-    CallForResult& operator=(CallForResult&& other) {
+    StarterForResult& operator=(StarterForResult&& other) {
       m_coroutine = other.m_coroutine;
       other.m_coroutine = nullptr;
       return *this;
@@ -482,7 +481,7 @@ public:
     template<class C>
     Action callbackTo(Callback<C> callback) {
       if(m_coroutine == nullptr) {
-        throw std::runtime_error("[oatpp::async::AbstractCoroutineWithResult::CallForResult::callbackTo()]: Error. Coroutine is null.");
+        throw std::runtime_error("[oatpp::async::AbstractCoroutineWithResult::StarterForResult::callbackTo()]: Error. Coroutine is null.");
       }
       m_coroutine->m_callback = (FunctionPtr)(callback);
       Action result = m_coroutine;
@@ -497,7 +496,7 @@ public:
 
 template <typename ...Args>
 using
-CoroutineCallForResult = typename AbstractCoroutineWithResult::CallForResult<Args...>;
+CoroutineStarterForResult = typename AbstractCoroutineWithResult::StarterForResult<Args...>;
 
 /**
  * Coroutine with result template. <br>
@@ -529,7 +528,7 @@ public:
    * @return - &l:CoroutineWithResult::CoroutineWithResult;.
    */
   template<typename ...ConstructorArgs>
-  static CoroutineCallForResult<Args...> callForResult(ConstructorArgs... args) {
+  static CoroutineStarterForResult<Args...> startForResult(ConstructorArgs... args) {
     return new T(args...);
   }
 

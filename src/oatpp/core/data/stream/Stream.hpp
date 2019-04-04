@@ -216,7 +216,7 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
 /**
  * Same as transfer but asynchronous
  */
-oatpp::async::Pipeline transferAsync(const std::shared_ptr<InputStream>& fromStream,
+oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
                                      const std::shared_ptr<OutputStream>& toStream,
                                      oatpp::data::v_io_size transferSize,
                                      const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);

@@ -74,7 +74,7 @@ public:
   
   data::v_io_size write(const void *data, data::v_io_size count) override;
   data::v_io_size flush();
-  oatpp::async::Pipeline flushAsync();
+  oatpp::async::CoroutineStarter flushAsync();
 
   void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
     m_buffer->setBufferPosition(readPosition, writePosition, canRead);

@@ -171,7 +171,7 @@ protected:
   class Handler : public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
-    typedef oatpp::async::CoroutineCallForResult<const std::shared_ptr<OutgoingResponse>&>
+    typedef oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
             (T::*MethodAsync)(const std::shared_ptr<protocol::http::incoming::Request>&);
   private:
     T* m_controller;
@@ -197,7 +197,7 @@ protected:
       }
     }
     
-    oatpp::async::CoroutineCallForResult<const std::shared_ptr<OutgoingResponse>&>
+    oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
     processEventAsync(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_methodAsync != nullptr) {
         return (m_controller->*m_methodAsync)(request);

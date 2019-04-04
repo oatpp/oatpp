@@ -51,7 +51,7 @@ std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection(
   return socket;
 }
   
-oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getConnectionAsync() {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
@@ -98,7 +98,7 @@ oatpp::async::CoroutineCallForResult<const std::shared_ptr<oatpp::data::stream::
     
   };
   
-  return ConnectCoroutine::callForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
+  return ConnectCoroutine::startForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
   
 }
   

@@ -101,9 +101,9 @@ public:
   /**
    * Read and parse http headers from stream in asynchronous manner.
    * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
-   * @return - &id:oatpp::async::CoroutineCallForResult;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineCallForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
   
 };
   
