@@ -26,6 +26,7 @@
 #define oatpp_async_Executor_hpp
 
 #include "./Processor.hpp"
+#include "./Worker.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
@@ -87,7 +88,7 @@ private:
     
   };
   
-  class SubmissionProcessor {
+  class SubmissionProcessor/* : public Worker */{
   private:
     typedef oatpp::collection::LinkedList<std::shared_ptr<TaskSubmission>> Tasks;
   private:
@@ -105,7 +106,7 @@ private:
   public:
     
     void run();
-    void stop();
+    void stop() ;
     void addTaskSubmission(const std::shared_ptr<TaskSubmission>& task);
     
   };

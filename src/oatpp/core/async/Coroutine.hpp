@@ -26,6 +26,9 @@
 #define oatpp_async_Coroutine_hpp
 
 #include "./Error.hpp"
+
+#include "oatpp/core/data/IODefinitions.hpp"
+
 #include "oatpp/core/collection/FastQueue.hpp"
 #include "oatpp/core/base/memory/MemoryPool.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -64,29 +67,35 @@ public:
   static constexpr const v_int32 TYPE_YIELD_TO = 2;
 
   /**
-   * Indicate that Action is to WAIT and then RETRY call to current method of Coroutine.
-   */
-  static constexpr const v_int32 TYPE_WAIT_RETRY = 3;
-
-  /**
    * Indicate that Action is to REPEAT call to current method of Coroutine.
    */
-  static constexpr const v_int32 TYPE_REPEAT = 4;
+  static constexpr const v_int32 TYPE_REPEAT = 3;
+
+  /**
+   * Indicate that Action is to WAIT and then RETRY call to current method of Coroutine.
+   */
+  static constexpr const v_int32 TYPE_WAIT_RETRY = 4;
+
+  /**
+   * Indicate that Action is waiting for IO and should be assigned to corresponding worker.
+   */
+  static constexpr const v_int32 TYPE_WAIT_FOR_IO = 5;
 
   /**
    * Indicate that Action is to FINISH current Coroutine and return control to a caller-Coroutine.
    */
-  static constexpr const v_int32 TYPE_FINISH = 5;
+  static constexpr const v_int32 TYPE_FINISH = 6;
 
   /**
    * Indicate that Error occurred.
    */
-  static constexpr const v_int32 TYPE_ERROR = 6;
+  static constexpr const v_int32 TYPE_ERROR = 7;
 
 private:
   union Data {
     FunctionPtr fptr;
     AbstractCoroutine* coroutine;
+    oatpp::data::v_io_handle ioHandle;
   };
 private:
   mutable v_int32 m_type;
@@ -94,6 +103,13 @@ private:
 public:
 
   static Action clone(const Action& action);
+
+  /**
+   * Create WAIT_FOR_IO Action
+   * @param ioHandle - &id:oatpp::data::v_io_handle;.
+   * @return - Action.
+   */
+  static Action createWaitIOAction(data::v_io_handle ioHandle);
 
   /**
    * Constructor. Create start-coroutine Action.
@@ -118,6 +134,10 @@ public:
    */
   Action(const Action&) = delete;
 
+  /**
+   * Move-constructor.
+   * @param other
+   */
   Action(Action&& other);
 
   /**
@@ -139,13 +159,13 @@ public:
    * Check if action is an error reporting action.
    * @return `true` if action is an error reporting action.
    */
-  bool isError();
+  bool isError() const;
 
   /**
    * Get Action type.
    * @return - action type.
    */
-  v_int32 getType();
+  v_int32 getType() const;
   
 };
 
@@ -395,6 +415,14 @@ public:
   }
 
   /**
+   * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
+   * @return - repeat Action.
+   */
+  Action repeat() const {
+    return Action::TYPE_REPEAT;
+  }
+
+  /**
    * Convenience method to generate Action of `type == Action::TYPE_WAIT_RETRY`.
    * @return - WAIT_RETRY Action.
    */
@@ -403,11 +431,11 @@ public:
   }
 
   /**
-   * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
-   * @return - repeat Action.
+   * Convenience method to generate Action of `type == Action::TYPE_WAIT_FOR_IO`.
+   * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action repeat() const {
-    return Action::TYPE_REPEAT;
+  Action waitForIO(data::v_io_handle ioHandle) const {
+    return Action(this, ioHandle);
   }
 
   /**

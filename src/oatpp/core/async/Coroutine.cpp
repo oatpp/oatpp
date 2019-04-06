@@ -35,6 +35,12 @@ Action Action::clone(const Action& action) {
   return result;
 }
 
+Action Action::createWaitIOAction(data::v_io_handle ioHandle) {
+  Action result(TYPE_WAIT_FOR_IO);
+  result.m_data.ioHandle = ioHandle;
+  return result;
+}
+
 Action::Action(AbstractCoroutine* coroutine)
   : m_type(TYPE_COROUTINE)
 {
@@ -72,11 +78,11 @@ Action& Action::operator=(Action&& other) {
   return *this;
 }
 
-bool Action::isError() {
+bool Action::isError() const {
   return m_type == TYPE_ERROR;
 }
 
-v_int32 Action::getType() {
+v_int32 Action::getType() const {
   return m_type;
 }
 
