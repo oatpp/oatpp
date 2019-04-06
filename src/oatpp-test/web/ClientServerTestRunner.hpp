@@ -37,6 +37,7 @@
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
+#include <thread>
 
 namespace oatpp { namespace test { namespace web {
 
