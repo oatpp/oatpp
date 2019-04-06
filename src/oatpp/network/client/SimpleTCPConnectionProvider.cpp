@@ -45,27 +45,55 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& ho
 }
   
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
-  
-  struct hostent* host = gethostbyname((const char*) m_host->getData());
-  struct sockaddr_in client;
-  
-  if ((host == NULL) || (host->h_addr == NULL)) {
-    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Error. Can't retrieve DNS information.");
-    return nullptr;
+
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+
+  struct addrinfo hints;
+
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = 0;
+  hints.ai_protocol = 0;
+
+  struct addrinfo* result;
+  auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &result);
+
+  if (res != 0) {
+    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() faild.");
   }
-  
-  bzero(&client, sizeof(client));
-  client.sin_family = AF_INET;
-  client.sin_port = htons(m_port);
-  memcpy(&client.sin_addr, host->h_addr, host->h_length);
-  
-  oatpp::data::v_io_handle clientHandle = socket(AF_INET, SOCK_STREAM, 0);
-  
-  if (clientHandle < 0) {
-    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Error. Can't create socket.");
-    return nullptr;
+
+  if (result == nullptr) {
+    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() returned no results.");
   }
-  
+
+  struct addrinfo* currResult = result;
+  oatpp::data::v_io_handle clientHandle =- 1;
+
+  while(currResult != nullptr) {
+
+    clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
+
+    if(clientHandle >= 0) {
+
+      if(connect(clientHandle, currResult->ai_addr, currResult->ai_addrlen) == 0) {
+        break;
+      } else {
+        ::close(clientHandle);
+      }
+
+    }
+
+    currResult = currResult->ai_next;
+
+  }
+
+  freeaddrinfo(result);
+
+  if(currResult == nullptr) {
+    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]: Error. Can't connect.");
+  }
+
 #ifdef SO_NOSIGPIPE
   int yes = 1;
   v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
@@ -73,15 +101,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
-  
-  if (connect(clientHandle, (struct sockaddr *)&client, sizeof(client)) != 0 ) {
-    ::close(clientHandle);
-    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Error. Could not connect.");
-    return nullptr;
-  }
-  
+
   return oatpp::network::Connection::createShared(clientHandle);
-  
+
 }
 
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
@@ -146,7 +168,8 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         m_clientHandle = socket(m_currentResult->ai_family, m_currentResult->ai_socktype, m_currentResult->ai_protocol);
 
         if (m_clientHandle < 0) {
-          return error<Error>("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't create socket.");
+          m_currentResult = m_currentResult->ai_next;
+          return repeat();
         }
 
         fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
