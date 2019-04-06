@@ -198,9 +198,9 @@ public:
   Action next(Action&& action);
 
   /**
-   * Add coroutine starter pipeline to this starter.
-   * @param pipeline - pipeline to add.
-   * @return - this pipeline.
+   * Pipeline coroutine starter.
+   * @param starter - starter to add.
+   * @return - this starter.
    */
   CoroutineStarter& next(CoroutineStarter&& starter);
 
@@ -209,7 +209,7 @@ public:
 /**
  * Abstract Coroutine. Base class for Coroutines. It provides state management, coroutines stack management and error reporting functionality.
  */
-class AbstractCoroutine {// : public oatpp::base::Countable {
+class AbstractCoroutine : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
   friend CoroutineStarter;
@@ -322,6 +322,13 @@ public:
    */
   Action error(const std::shared_ptr<const Error>& error);
 
+  /**
+   * Convenience method to generate error reporting Action.
+   * @tparam E - Error class type.
+   * @tparam Args - Error constructor arguments.
+   * @param args - actual error constructor arguments.
+   * @return - error reporting &id:oatpp::async::Action;.
+   */
   template<class E, typename ... Args>
   Action error(Args... args) {
     *m_propagatedError = std::make_shared<E>(args...);
@@ -413,6 +420,9 @@ public:
   
 };
 
+/**
+ * Abstract coroutine with result.
+ */
 class AbstractCoroutineWithResult : public AbstractCoroutine {
 protected:
   FunctionPtr m_callback;
@@ -447,7 +457,7 @@ public:
 
     /**
      * Move constructor.
-     * @param other - other pipeline.
+     * @param other - other starter.
      */
     StarterForResult(StarterForResult&& other)
       : m_coroutine(other.m_coroutine)
@@ -478,6 +488,12 @@ public:
       return *this;
     }
 
+    /**
+     * Set callback for result and return coroutine starting Action.
+     * @tparam C - caller coroutine type.
+     * @param callback - callback to obtain result.
+     * @return - &id:oatpp::async::Action;.
+     */
     template<class C>
     Action callbackTo(Callback<C> callback) {
       if(m_coroutine == nullptr) {
@@ -525,7 +541,7 @@ public:
    * Call coroutine for result.
    * @tparam ConstructorArgs - coroutine consrtructor arguments.
    * @param args - actual constructor arguments.
-   * @return - &l:CoroutineWithResult::CoroutineWithResult;.
+   * @return - &l:AbstractCoroutineWithResult::StarterForResult;.
    */
   template<typename ...ConstructorArgs>
   static CoroutineStarterForResult<Args...> startForResult(ConstructorArgs... args) {
@@ -573,7 +589,6 @@ public:
   }
 
   /**
-   * Deprecated. <br>
    * Call caller's Callback passing returned value, and generate Action of `type == Action::TYPE_FINISH`.
    * @param args - argumets to be passed to callback.
    * @return - finish Action.
