@@ -26,60 +26,31 @@
 
 namespace oatpp { namespace async {
 
-const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Executor::SubmissionProcessor
 
 Executor::SubmissionProcessor::SubmissionProcessor()
-  : m_atom(false)
-  , m_isRunning(true)
+  : m_isRunning(true)
 {}
-
-void Executor::SubmissionProcessor::consumeTasks() {
-  oatpp::concurrency::SpinLock lock(m_atom);
-  auto curr = m_pendingTasks.getFirstNode();
-  while (curr != nullptr) {
-    m_processor.addWaitingCoroutine(curr->getData()->createCoroutine());
-    curr = curr->getNext();
-  }
-  m_pendingTasks.clear();
-}
 
 void Executor::SubmissionProcessor::run(){
   
   while(m_isRunning) {
-    
-    /* Load all waiting connections into processor */
-    consumeTasks();
-    
-    /* Process all, and check for incoming connections once in 1000 iterations */
-    while (m_processor.iterate(1000)) {
-      consumeTasks();
-    }
-    
-    std::unique_lock<std::mutex> lock(m_taskMutex);
-    if(m_processor.isEmpty()) {
-      /* No tasks in the processor. Wait for incoming connections */
-      m_taskCondition.wait_for(lock, std::chrono::milliseconds(500));
-    } else {
-      /* There is still something in slow queue. Wait and get back to processing */
-      /* Waiting for IO is not Applicable here as slow queue may contain NON-IO tasks */
-      //OATPP_LOGD("proc", "waiting slow queue");
-      m_taskCondition.wait_for(lock, std::chrono::milliseconds(10));
-    }
-    
+    m_processor.waitForTasks();
+    while (m_processor.iterate(1000)) {}
   }
   
 }
 
 void Executor::SubmissionProcessor::stop() {
   m_isRunning = false;
+  m_processor.stop();
 }
 
-void Executor::SubmissionProcessor::addTaskSubmission(const std::shared_ptr<TaskSubmission>& task){
-  oatpp::concurrency::SpinLock lock(m_atom);
-  m_pendingTasks.pushBack(task);
-  m_taskCondition.notify_one();
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Executor
 
+const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
 
 Executor::Executor(v_int32 threadsCount)
   : m_threadsCount(threadsCount)

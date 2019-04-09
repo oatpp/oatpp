@@ -265,6 +265,8 @@ private:
   AbstractCoroutine* _CP;
   FunctionPtr _FP;
   std::shared_ptr<const Error> _ERR;
+  Processor* _PP;
+  oatpp::async::Action _SCH_A;
   AbstractCoroutine* _ref;
 private:
   AbstractCoroutine* m_parent;

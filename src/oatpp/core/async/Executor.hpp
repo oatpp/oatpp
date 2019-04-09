@@ -47,67 +47,22 @@ namespace oatpp { namespace async {
 class Executor {
 private:
   
-  class TaskSubmission {
-  public:
-    virtual ~TaskSubmission() {};
-    virtual AbstractCoroutine* createCoroutine() = 0;
-  };
-  
-  /*
-   * Sequence generating templates
-   * used to convert tuple to parameters pack
-   * Example: expand SequenceGenerator<3>:
-   * // 2, 2, {} // 1, 1, {2} // 0, 0, {1, 2} // 0, {0, 1, 2}
-   * where {...} is int...S
-   */
-  template<int ...> struct IndexSequence {};
-  template<int N, int ...S> struct SequenceGenerator : SequenceGenerator <N - 1, N - 1, S...> {};
-  template<int ...S>
-  struct SequenceGenerator<0, S...> {
-    typedef IndexSequence<S...> type;
-  };
-  
-  template<typename CoroutineType, typename ... Args>
-  class SubmissionTemplate : public TaskSubmission {
-  private:
-    std::tuple<Args...> m_params;
-  public:
-    
-    SubmissionTemplate(Args... params)
-      : m_params(std::make_tuple(params...))
-    {}
-    
-    virtual AbstractCoroutine* createCoroutine() {
-      return creator(typename SequenceGenerator<sizeof...(Args)>::type());
-    }
-    
-    template<int ...S>
-    AbstractCoroutine* creator(IndexSequence<S...>) {
-      return new CoroutineType(std::get<S>(m_params) ...);
-    }
-    
-  };
-  
   class SubmissionProcessor/* : public Worker */{
   private:
-    typedef oatpp::collection::LinkedList<std::shared_ptr<TaskSubmission>> Tasks;
-  private:
-    void consumeTasks();
-  private:
     oatpp::async::Processor m_processor;
-    oatpp::concurrency::SpinLock::Atom m_atom;
-    Tasks m_pendingTasks;
   private:
     bool m_isRunning;
-    std::mutex m_taskMutex;
-    std::condition_variable m_taskCondition;
   public:
     SubmissionProcessor();
   public:
     
     void run();
     void stop() ;
-    void addTaskSubmission(const std::shared_ptr<TaskSubmission>& task);
+
+    template<typename CoroutineType, typename ... Args>
+    void execute(Args... params) {
+      m_processor.execute<CoroutineType, Args...>(params...);
+    }
     
   };
 
@@ -160,10 +115,7 @@ public:
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
     auto& processor = m_processors[m_balancer % m_threadsCount];
-    
-    auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
-    processor.addTaskSubmission(submission);
-    
+    processor.execute<CoroutineType, Args...>(params...);
     m_balancer ++;
   }
   

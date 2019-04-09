@@ -45,6 +45,7 @@ public:
   
   T* first;
   T* last;
+  v_int32 count;
   
   void pushFront(T* entry) {
     entry->_ref = first;
@@ -52,6 +53,7 @@ public:
     if(last == nullptr) {
       last = first;
     }
+    ++ count;
   }
   
   void pushBack(T* entry) {
@@ -63,6 +65,7 @@ public:
       last->_ref = entry;
       last = entry;
     }
+    ++ count;
   }
   
   void round(){
@@ -78,6 +81,7 @@ public:
     if(first == nullptr) {
       last = nullptr;
     }
+    -- count;
     return result;
   }
   
@@ -88,6 +92,7 @@ public:
       last = nullptr;
     }
     delete result;
+    -- count;
   }
   
   void removeEntry(T* entry, T* prevEntry){
@@ -98,9 +103,11 @@ public:
       prevEntry->_ref = nullptr;
       last = prevEntry;
       delete entry;
+      -- count;
     } else {
       prevEntry->_ref = entry->_ref;
       delete entry;
+      -- count;
     }
   }
   
@@ -112,11 +119,31 @@ public:
       toQueue.pushBack(entry);
       fromQueue.last = prevEntry;
       prevEntry->_ref = nullptr;
+      -- fromQueue.count;
     } else {
       prevEntry->_ref = entry->_ref;
       toQueue.pushBack(entry);
+      -- fromQueue.count;
     }
     
+  }
+
+  static void moveAll(FastQueue& fromQueue, FastQueue& toQueue) {
+
+    if(toQueue.last == nullptr) {
+      toQueue.first = fromQueue.first;
+      toQueue.last = fromQueue.last;
+    } else {
+      toQueue.last->_ref = fromQueue.first;
+      toQueue.last = fromQueue.last;
+    }
+
+    toQueue.count += fromQueue.count;
+    fromQueue.count = 0;
+
+    fromQueue.first = nullptr;
+    fromQueue.last = nullptr;
+
   }
   
   void clear() {
@@ -128,6 +155,7 @@ public:
     }
     first = nullptr;
     last = nullptr;
+    count = 0;
   }
   
 };

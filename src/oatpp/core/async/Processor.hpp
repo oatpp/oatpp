@@ -28,6 +28,9 @@
 #include "./Coroutine.hpp"
 #include "oatpp/core/collection/FastQueue.hpp"
 
+#include <mutex>
+#include <list>
+
 namespace oatpp { namespace async {
 
 /**
@@ -36,28 +39,139 @@ namespace oatpp { namespace async {
  */
 class Processor {
 private:
-  
-  bool checkWaitingQueue();
-  bool considerContinueImmediately();
-  
+
+  class TaskSubmission {
+  public:
+    virtual ~TaskSubmission() {};
+    virtual AbstractCoroutine* createCoroutine() = 0;
+  };
+
+  /*
+   * Sequence generating templates
+   * used to convert tuple to parameters pack
+   * Example: expand SequenceGenerator<3>:
+   * // 2, 2, {} // 1, 1, {2} // 0, 0, {1, 2} // 0, {0, 1, 2}
+   * where {...} is int...S
+   */
+  template<int ...> struct IndexSequence {};
+  template<int N, int ...S> struct SequenceGenerator : SequenceGenerator <N - 1, N - 1, S...> {};
+  template<int ...S>
+  struct SequenceGenerator<0, S...> {
+    typedef IndexSequence<S...> type;
+  };
+
+  template<typename CoroutineType, typename ... Args>
+  class SubmissionTemplate : public TaskSubmission {
+  private:
+    std::tuple<Args...> m_params;
+  public:
+
+    SubmissionTemplate(Args... params)
+      : m_params(std::make_tuple(params...))
+    {}
+
+    virtual AbstractCoroutine* createCoroutine() {
+      return creator(typename SequenceGenerator<sizeof...(Args)>::type());
+    }
+
+    template<int ...S>
+    AbstractCoroutine* creator(IndexSequence<S...>) {
+      return new CoroutineType(std::get<S>(m_params) ...);
+    }
+
+  };
+
 private:
-  oatpp::collection::FastQueue<AbstractCoroutine> m_activeQueue;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_waitingQueue;
+
+  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_io;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_timer;
+
+  std::mutex m_sch_pop_io_mutex;
+  std::mutex m_sch_pop_timer_mutex;
+
 private:
-  v_int64 m_inactivityTick = 0;
+
+  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_io;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_timer;
+
+  std::mutex m_sch_push_io_mutex;
+  std::mutex m_sch_push_timer_mutex;
+
+private:
+
+  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_io_tmp;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_timer_tmp;
+
+private:
+
+  std::mutex m_taskMutex;
+  std::list<std::shared_ptr<TaskSubmission>> m_taskList;
+
+private:
+
+  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
+
+private:
+
+  std::mutex m_waitMutex;
+  std::condition_variable m_waitCondition;
+
+private:
+
+  bool m_running = true;
+
+private:
+
+  void consumeAllTasks();
+  void addCoroutine(AbstractCoroutine* coroutine);
+  void popTmpQueues();
+  void pushAllFromQueue(oatpp::collection::FastQueue<AbstractCoroutine>& pushQueue);
+  void pushQueues();
+
 public:
 
   /**
-   * Add Coroutine to processor.
-   * @param coroutine - pointer to Coroutine.
-   */
-  void addCoroutine(AbstractCoroutine* coroutine);
-
-  /**
-   * Add Coroutine to processor in "waiting queue"
+   * Return coroutine scheduled for I/O back to owner processor.
    * @param coroutine
    */
-  void addWaitingCoroutine(AbstractCoroutine* coroutine);
+  void pushTaskFromIO(AbstractCoroutine* coroutine);
+
+  /**
+   * Return coroutine scheduled for Timer back to owner processor.
+   * @param coroutine
+   */
+  void pushTaskFromTimer(AbstractCoroutine* coroutine);
+
+  /**
+   * Move all waiting for I/O tasks to specified queue.
+   * @param queue
+   */
+  void popIOTasks(oatpp::collection::FastQueue<AbstractCoroutine>& queue);
+
+  /**
+   * Move all waiting for Timer tasks to specified queue.
+   * @param queue
+   */
+  void popTimerTasks(oatpp::collection::FastQueue<AbstractCoroutine>& queue);
+
+  /**
+   * Execute Coroutine.
+   * @tparam CoroutineType - type of coroutine to execute.
+   * @tparam Args - types of arguments to be passed to Coroutine constructor.
+   * @param params - actual arguments to be passed to Coroutine constructor.
+   */
+  template<typename CoroutineType, typename ... Args>
+  void execute(Args... params) {
+    auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
+    std::lock_guard<std::mutex> lock(m_taskMutex);
+    m_taskList.push_back(submission);
+    m_waitCondition.notify_one();
+  }
+
+  /**
+   * Sleep and wait for tasks.
+   */
+  void waitForTasks();
 
   /**
    * Iterate Coroutines.
@@ -67,12 +181,10 @@ public:
   bool iterate(v_int32 numIterations);
 
   /**
-   * Check if there is no more Coroutines in processor.
-   * @return - `true` if all coroutines in all queues are finished.
+   * Stop waiting for new tasks.
    */
-  bool isEmpty() {
-    return m_activeQueue.first == nullptr && m_waitingQueue.first == nullptr;
-  }
+  void stop();
+
   
 };
   
