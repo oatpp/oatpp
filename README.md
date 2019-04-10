@@ -135,9 +135,7 @@ ENDPOINT_ASYNC("POST", "demo/api_async/json", PostJSONAsync) {
   ENDPOINT_ASYNC_INIT(PostJSONAsync)
 
   Action act() override {
-    return request->readBodyToDtoAsync<MyDto>(this,
-                                              &PostJSONAsync::onBodyObtained,
-                                              controller->getDefaultObjectMapper());
+    return request->readBodyToDtoAsync<MyDto>(controller->getDefaultObjectMapper()).callbackTo(&PostJSONAsync::onBodyObtained);
   }
 
   Action onBodyObtained(const MyDto::ObjectWrapper& dto) {
