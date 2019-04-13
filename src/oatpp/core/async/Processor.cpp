@@ -23,34 +23,73 @@
  ***************************************************************************/
 
 #include "Processor.hpp"
+#include "./Worker.hpp"
 
 namespace oatpp { namespace async {
+
+void Processor::addWorker(const std::shared_ptr<Worker>& worker) {
+
+  switch(worker->getType()) {
+
+    case Worker::Type::IO:
+      m_ioWorkers.push_back(worker);
+      m_ioPopQueues.push_back(collection::FastQueue<AbstractCoroutine>());
+    break;
+
+    case Worker::Type::TIMER:
+      m_timerWorkers.push_back(worker);
+      m_timerPopQueues.push_back(collection::FastQueue<AbstractCoroutine>());
+    break;
+
+    default:
+      break;
+
+  }
+
+}
+
+void Processor::popIOTask(AbstractCoroutine* coroutine) {
+  if(m_ioPopQueues.size() > 0) {
+    auto &queue = m_ioPopQueues[(++m_ioBalancer) % m_ioPopQueues.size()];
+    queue.pushBack(coroutine);
+  } else {
+    throw std::runtime_error("[oatpp::async::Processor::popIOTasks()]: Error. Processor has no I/O workers.");
+  }
+}
+
+void Processor::popTimerTask(AbstractCoroutine* coroutine) {
+  if(m_timerPopQueues.size() > 0) {
+    auto &queue = m_timerPopQueues[(++m_timerBalancer) % m_timerPopQueues.size()];
+    queue.pushBack(coroutine);
+  } else {
+    throw std::runtime_error("[oatpp::async::Processor::popTimerTask()]: Error. Processor has no Timer workers.");
+  }
+}
 
 void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
   if(coroutine->_PP == this) {
 
-    const Action& action = coroutine->_SCH_A;
+    const Action& action = coroutine->takeAction(std::move(coroutine->_SCH_A));
 
     switch(action.m_type) {
 
       case Action::TYPE_WAIT_FOR_IO:
         coroutine->_SCH_A = Action::clone(action);
-        m_queue.popFront();
-        m_sch_pop_io_tmp.pushBack(coroutine);
+        popIOTask(coroutine);
         break;
 
       case Action::TYPE_WAIT_RETRY:
         coroutine->_SCH_A = Action::clone(action);
-        m_queue.popFront();
-        m_sch_pop_timer_tmp.pushBack(coroutine);
+        popTimerTask(coroutine);
         break;
+
+      default:
+        m_queue.pushBack(coroutine);
 
     }
 
     action.m_type = Action::TYPE_NONE;
-
-    m_queue.pushBack(coroutine);
 
   } else {
     throw std::runtime_error("[oatpp::async::processor::addCoroutine()]: Error. Attempt to schedule coroutine to wrong processor.");
@@ -58,30 +97,31 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
 }
 
-void Processor::pushTaskFromIO(AbstractCoroutine* coroutine) {
-  std::lock_guard<std::mutex> lock(m_sch_push_io_mutex);
-  m_sch_push_io.pushBack(coroutine);
+void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
+  {
+    std::lock_guard<std::mutex> waitLock(m_waitMutex);
+    std::lock_guard<std::mutex> lock(m_sch_push_io_mutex);
+    m_sch_push_io.pushBack(coroutine);
+  }
   m_waitCondition.notify_one();
 }
 
-void Processor::pushTaskFromTimer(AbstractCoroutine* coroutine) {
-  std::lock_guard<std::mutex> lock(m_sch_push_timer_mutex);
-  m_sch_push_timer.pushBack(coroutine);
+void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
+  {
+    std::lock_guard<std::mutex> waitLock(m_waitMutex);
+    std::lock_guard<std::mutex> lock(m_sch_push_timer_mutex);
+    m_sch_push_timer.pushBack(coroutine);
+  }
   m_waitCondition.notify_one();
 }
 
-void Processor::popIOTasks(oatpp::collection::FastQueue<AbstractCoroutine>& queue) {
-  if(m_sch_pop_io.first != nullptr) {
-    std::lock_guard<std::mutex> lock(m_sch_pop_io_mutex);
-    collection::FastQueue<AbstractCoroutine>::moveAll(m_sch_pop_io, queue);
+void Processor::pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+  {
+    std::lock_guard<std::mutex> waitLock(m_waitMutex);
+    std::lock_guard<std::mutex> lock(m_sch_push_timer_mutex);
+    collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_sch_push_timer);
   }
-}
-
-void Processor::popTimerTasks(oatpp::collection::FastQueue<AbstractCoroutine>& queue) {
-  if(m_sch_pop_timer.first != nullptr) {
-    std::lock_guard<std::mutex> lock(m_sch_pop_timer_mutex);
-    collection::FastQueue<AbstractCoroutine>::moveAll(m_sch_pop_timer, queue);
-  }
+  m_waitCondition.notify_one();
 }
 
 void Processor::waitForTasks() {
@@ -93,34 +133,33 @@ void Processor::waitForTasks() {
 
 }
 
-void Processor::popTmpQueues() {
+void Processor::popTasks() {
 
-  {
-    std::lock_guard<std::mutex> lock(m_sch_pop_io_mutex);
-    collection::FastQueue<AbstractCoroutine>::moveAll(m_sch_pop_io_tmp, m_sch_pop_io);
+  for(v_int32 i = 0; i < m_ioWorkers.size(); i++) {
+    auto& worker = m_ioWorkers[i];
+    auto& popQueue = m_ioPopQueues[i];
+    worker->pushTasks(popQueue);
   }
 
-  {
-    std::lock_guard<std::mutex> lock(m_sch_pop_timer_mutex);
-    collection::FastQueue<AbstractCoroutine>::moveAll(m_sch_pop_timer_tmp, m_sch_pop_timer);
+  for(v_int32 i = 0; i < m_timerWorkers.size(); i++) {
+    auto& worker = m_timerWorkers[i];
+    auto& popQueue = m_timerPopQueues[i];
+    worker->pushTasks(popQueue);
   }
 
 }
 
 void Processor::pushAllFromQueue(oatpp::collection::FastQueue<AbstractCoroutine>& pushQueue) {
-  auto curr = pushQueue.first;
-  while(curr != nullptr) {
-    addCoroutine(curr);
-    curr = curr->_ref;
+  while(pushQueue.first != nullptr) {
+    addCoroutine(pushQueue.popFront());
   }
-  pushQueue.first = nullptr;
-  pushQueue.last = nullptr;
-  pushQueue.count = 0;
 }
 
 void Processor::consumeAllTasks() {
   for(auto& submission : m_taskList) {
-    m_queue.pushBack(submission->createCoroutine());
+    auto coroutine = submission->createCoroutine();
+    coroutine->_PP = this;
+    m_queue.pushBack(coroutine);
   }
   m_taskList.clear();
 }
@@ -172,43 +211,48 @@ bool Processor::iterate(v_int32 numIterations) {
   pushQueues();
 
   for(v_int32 i = 0; i < numIterations; i++) {
-    
-    auto CP = m_queue.first;
-    if(CP == nullptr) {
-      break;
-    }
-    if(CP->finished()) {
-      m_queue.popFrontNoData();
-    } else {
 
-      const Action& action = CP->iterate();
+    for(v_int32 j = 0; j < 10; j ++) {
 
-      switch(action.m_type) {
+      auto CP = m_queue.first;
+      if (CP == nullptr) {
+        break;
+      }
+      if (CP->finished()) {
+        m_queue.popFrontNoData();
+      } else {
 
-        case Action::TYPE_WAIT_FOR_IO:
-          CP->_SCH_A = Action::clone(action);
-          m_queue.popFront();
-          m_sch_pop_io_tmp.pushBack(CP);
-          OATPP_LOGD("Processor", "push to IO");
-          break;
+        const Action &action = CP->takeAction(CP->iterate());
 
-        case Action::TYPE_WAIT_RETRY:
-          CP->_SCH_A = Action::clone(action);
-          m_queue.popFront();
-          m_sch_pop_timer_tmp.pushBack(CP);
-          OATPP_LOGD("Processor", "push to Timer");
-          break;
+        switch (action.m_type) {
 
-        default:
-          m_queue.round();
+          case Action::TYPE_WAIT_FOR_IO:
+            CP->_SCH_A = Action::clone(action);
+            m_queue.popFront();
+            popIOTask(CP);
+            break;
+
+          case Action::TYPE_WAIT_RETRY:
+            CP->_SCH_A = Action::clone(action);
+            m_queue.popFront();
+            popTimerTask(CP);
+            break;
+
+//        default:
+//          m_queue.round();
+        }
+
+        action.m_type = Action::TYPE_NONE;
+
       }
 
-      action.m_type = Action::TYPE_NONE;
-
     }
+
+    m_queue.round();
+
   }
 
-  popTmpQueues();
+  popTasks();
   
   return m_queue.first != nullptr ||
          m_sch_push_io.first != nullptr ||
@@ -218,6 +262,10 @@ bool Processor::iterate(v_int32 numIterations) {
 }
 
 void Processor::stop() {
+  {
+    std::lock_guard<std::mutex> lock(m_waitMutex);
+    m_running = false;
+  }
   m_waitCondition.notify_one();
 }
 

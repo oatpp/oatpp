@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include "IOWorker.hpp"
+#include "TimerWorker.hpp"
 
 #include "Processor.hpp"
 
@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace async {
 
-void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
     std::lock_guard<std::mutex> guard(m_backlogMutex);
     oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_backlog);
@@ -38,7 +38,7 @@ void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks)
   m_backlogCondition.notify_one();
 }
 
-void IOWorker::consumeBacklog(bool blockToConsume) {
+void TimerWorker::consumeBacklog(bool blockToConsume) {
 
   if(blockToConsume) {
 
@@ -46,9 +46,7 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
     while (m_backlog.first == nullptr && m_running) {
       m_backlogCondition.wait(lock);
     }
-
     oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
-
   } else {
 
     std::unique_lock<std::mutex> lock(m_backlogMutex, std::try_to_lock);
@@ -60,10 +58,10 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
 
 }
 
-void IOWorker::work() {
+void TimerWorker::work() {
 
-  v_int32 sleepIteration = 0;
   v_int32 consumeIteration = 0;
+  v_int32 roundIteration = 0;
 
   while(m_running) {
 
@@ -71,28 +69,26 @@ void IOWorker::work() {
     if(CP != nullptr) {
 
       Action action = CP->iterate();
-      if (action.getType() == Action::TYPE_WAIT_FOR_IO) {
-        m_queue.round();
+      if (action.getType() == Action::TYPE_WAIT_RETRY) {
+        ++ roundIteration;
+        if(roundIteration == 10) {
+          roundIteration = 0;
+          m_queue.round();
+        }
       } else {
+        roundIteration = 0;
         m_queue.popFront();
         setCoroutineScheduledAction(CP, std::move(action));
-        getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
-      }
-
-      ++ sleepIteration;
-      if(sleepIteration == 1000) {
-        sleepIteration = 0;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        getCoroutineProcessor(CP)->pushOneTaskFromTimer(CP);
       }
 
       ++ consumeIteration;
-      if(consumeIteration == 1000) {
+      if(consumeIteration == 100) {
         consumeIteration = 0;
         consumeBacklog(false);
       }
 
     } else {
-      sleepIteration = 0;
       consumeBacklog(true);
     }
 

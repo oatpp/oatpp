@@ -63,6 +63,10 @@ private:
     void execute(Args... params) {
       m_processor.execute<CoroutineType, Args...>(params...);
     }
+
+    oatpp::async::Processor& getProcessor() {
+      return m_processor;
+    }
     
   };
 
@@ -77,6 +81,8 @@ private:
   std::thread* m_threads;
   SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;
+private:
+  std::vector<std::shared_ptr<Worker>> m_workers;
 public:
 
   /**
@@ -114,9 +120,8 @@ public:
    */
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
-    auto& processor = m_processors[m_balancer % m_threadsCount];
+    auto& processor = m_processors[(++ m_balancer) % m_threadsCount];
     processor.execute<CoroutineType, Args...>(params...);
-    m_balancer ++;
   }
   
 };

@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_IOEventWorker_hpp
-#define oatpp_async_IOEventWorker_hpp
+#ifndef oatpp_async_IOWorker_hpp
+#define oatpp_async_IOWorker_hpp
 
 #include "./Worker.hpp"
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -36,53 +36,40 @@ namespace oatpp { namespace async {
 
 class IOWorker : public Worker {
 private:
-
-  struct TaskSlot {
-
-    static void* operator new(std::size_t sz) {
-      return ::operator new(sz);
-    }
-
-    static void operator delete(void* ptr, std::size_t sz) {
-      ::operator delete(ptr);
-    }
-
-    Task task;
-    TaskSlot* _ref;
-
-  };
-
-private:
-  typedef oatpp::collection::FastQueue<TaskSlot> Queue;
-  typedef oatpp::collection::LinkedList<Task> Backlog;
-private:
   bool m_running;
-  Backlog m_backlog;
-  Queue m_queue;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
   std::mutex m_backlogMutex;
   std::condition_variable m_backlogCondition;
 private:
-  void queueBacklog();
   void consumeBacklog(bool blockToConsume);
 public:
 
   IOWorker()
-    : m_running(true)
+    : Worker(Type::IO)
+    , m_running(true)
   {
     std::thread thread(&IOWorker::work, this);
     thread.detach();
   }
 
-  void addTask(const Task& task) override;
+  ~IOWorker() {
+  }
+
+  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
   void work();
 
   void stop() override {
-    m_running = false;
+    {
+      std::lock_guard<std::mutex> lock(m_backlogMutex);
+      m_running = false;
+    }
+    m_backlogCondition.notify_one();
   }
 
 };
 
 }}
 
-#endif //oatpp_async_IOEventWorker_hpp
+#endif //oatpp_async_IOWorker_hpp

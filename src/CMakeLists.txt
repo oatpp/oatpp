@@ -23,8 +23,6 @@ add_library(oatpp
         oatpp/core/async/Worker.hpp
         oatpp/core/async/IOWorker.cpp
         oatpp/core/async/IOWorker.hpp
-        oatpp/core/async/Scheduler.cpp
-        oatpp/core/async/Scheduler.hpp
         oatpp/core/async/Executor.cpp
         oatpp/core/async/Executor.hpp
         oatpp/core/base/CommandLineArguments.cpp
@@ -187,7 +185,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Subscriber.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
-)
+        oatpp/core/async/TimerWorker.cpp oatpp/core/async/TimerWorker.hpp)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11

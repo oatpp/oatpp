@@ -24,6 +24,9 @@
 
 #include "Executor.hpp"
 
+#include "./IOWorker.hpp"
+#include "./TimerWorker.hpp"
+
 namespace oatpp { namespace async {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +40,7 @@ void Executor::SubmissionProcessor::run(){
   
   while(m_isRunning) {
     m_processor.waitForTasks();
-    while (m_processor.iterate(1000)) {}
+    while (m_processor.iterate(100)) {}
   }
   
 }
@@ -57,8 +60,30 @@ Executor::Executor(v_int32 threadsCount)
   , m_threads(new std::thread[m_threadsCount])
   , m_processors(new SubmissionProcessor[m_threadsCount])
 {
+
+  //auto ioWorker = std::make_shared<IOWorker>();
+
+  for(v_int32 i = 0; i < 2; i++) {
+    m_workers.push_back(std::make_shared<TimerWorker>());
+  }
+
   for(v_int32 i = 0; i < m_threadsCount; i ++) {
-    m_threads[i] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
+
+    auto& processor = m_processors[i];
+
+    for(auto& worker : m_workers) {
+      processor.getProcessor().addWorker(worker);
+    }
+
+//    for(v_int32 i = 0; i < 1; i++) {
+//      auto worker = std::make_shared<TimerWorker>();
+//      m_workers.push_back(worker);
+//      processor.getProcessor().addWorker(worker);
+//    }
+
+
+    m_threads[i] = std::thread(&SubmissionProcessor::run, &processor);
+
   }
 }
 
@@ -82,6 +107,10 @@ void Executor::detach() {
 void Executor::stop() {
   for(v_int32 i = 0; i < m_threadsCount; i ++) {
     m_processors[i].stop();
+  }
+
+  for(auto& worker : m_workers) {
+    worker->stop();
   }
 }
   

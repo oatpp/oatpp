@@ -23,3 +23,15 @@
  ***************************************************************************/
 
 #include "Worker.hpp"
+
+namespace oatpp { namespace async {
+
+void Worker::setCoroutineScheduledAction(AbstractCoroutine *CP, Action &&action) {
+  CP->_SCH_A = std::forward<Action>(action);
+}
+
+Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
+  return CP->_PP;
+}
+
+}}

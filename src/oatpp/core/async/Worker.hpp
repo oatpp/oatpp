@@ -32,34 +32,50 @@ namespace oatpp { namespace async {
 class Worker {
 public:
 
-  struct Task {
+  enum Type : v_int32 {
 
-    mutable Action action;
-    AbstractCoroutine* coroutine;
-    Worker* sender;
+    /**
+     * Worker type - general processor.
+     */
+    PROCESSOR = 0,
 
-    Task(const Task& other)
-      : action(std::move(other.action))
-      , coroutine(other.coroutine)
-      , sender(other.sender)
-    {}
+    /**
+     * Worker type - timer processor.
+     */
+    TIMER = 1,
 
-    Task& operator = (const Task& other) {
-      action = std::move(other.action);
-      coroutine = other.coroutine;
-      sender = other.sender;
-      return *this;
-    }
+    /**
+     * Worker type - I/O processor.
+     */
+    IO = 2,
+
+    /**
+     * Number of types in this enum.
+     */
+    TYPES_COUNT = 3
 
   };
 
+private:
+  Type m_type;
+protected:
+  void setCoroutineScheduledAction(AbstractCoroutine* CP, Action&& action);
+  Processor* getCoroutineProcessor(AbstractCoroutine* CP);
 public:
+
+  Worker(Type type)
+    : m_type(type)
+  {}
 
   virtual ~Worker() = default;
 
-  virtual void addTask(const Task& task) = 0;
+  virtual void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) = 0;
 
   virtual void stop() = 0;
+
+  Type getType() {
+    return m_type;
+  }
 
 };
 

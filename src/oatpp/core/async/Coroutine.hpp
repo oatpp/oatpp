@@ -41,6 +41,7 @@ namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
 class Processor; // FWD
+class Worker; // FWD
 class CoroutineStarter; // FWD
 
 /**
@@ -233,6 +234,7 @@ class AbstractCoroutine : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
   friend CoroutineStarter;
+  friend Worker;
 public:
   /**
    * Convenience typedef for Action

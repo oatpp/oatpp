@@ -30,6 +30,7 @@
 
 #include <mutex>
 #include <list>
+#include <vector>
 
 namespace oatpp { namespace async {
 
@@ -83,14 +84,6 @@ private:
 
 private:
 
-  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_io;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_timer;
-
-  std::mutex m_sch_pop_io_mutex;
-  std::mutex m_sch_pop_timer_mutex;
-
-private:
-
   oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_io;
   oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_timer;
 
@@ -99,8 +92,14 @@ private:
 
 private:
 
-  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_io_tmp;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_pop_timer_tmp;
+  std::vector<std::shared_ptr<Worker>> m_ioWorkers;
+  std::vector<std::shared_ptr<Worker>> m_timerWorkers;
+
+  std::vector<oatpp::collection::FastQueue<AbstractCoroutine>> m_ioPopQueues;
+  std::vector<oatpp::collection::FastQueue<AbstractCoroutine>> m_timerPopQueues;
+
+  v_word32 m_ioBalancer = 0;
+  v_word32 m_timerBalancer = 0;
 
 private:
 
@@ -122,37 +121,32 @@ private:
 
 private:
 
+  void popIOTask(AbstractCoroutine* coroutine);
+  void popTimerTask(AbstractCoroutine* coroutine);
+
   void consumeAllTasks();
   void addCoroutine(AbstractCoroutine* coroutine);
-  void popTmpQueues();
+  void popTasks();
   void pushAllFromQueue(oatpp::collection::FastQueue<AbstractCoroutine>& pushQueue);
   void pushQueues();
 
 public:
 
+  void addWorker(const std::shared_ptr<Worker>& worker);
+
   /**
    * Return coroutine scheduled for I/O back to owner processor.
    * @param coroutine
    */
-  void pushTaskFromIO(AbstractCoroutine* coroutine);
+  void pushOneTaskFromIO(AbstractCoroutine* coroutine);
 
   /**
    * Return coroutine scheduled for Timer back to owner processor.
    * @param coroutine
    */
-  void pushTaskFromTimer(AbstractCoroutine* coroutine);
+  void pushOneTaskFromTimer(AbstractCoroutine* coroutine);
 
-  /**
-   * Move all waiting for I/O tasks to specified queue.
-   * @param queue
-   */
-  void popIOTasks(oatpp::collection::FastQueue<AbstractCoroutine>& queue);
-
-  /**
-   * Move all waiting for Timer tasks to specified queue.
-   * @param queue
-   */
-  void popTimerTasks(oatpp::collection::FastQueue<AbstractCoroutine>& queue);
+  void pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutine>& tasks);
 
   /**
    * Execute Coroutine.

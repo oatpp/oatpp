@@ -22,39 +22,51 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_Scheduler_hpp
-#define oatpp_async_Scheduler_hpp
+#ifndef oatpp_async_TimerWorker_hpp
+#define oatpp_async_TimerWorker_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "./Worker.hpp"
+#include "oatpp/core/collection/LinkedList.hpp"
 
-class Scheduler {
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+namespace oatpp { namespace async {
+
+class TimerWorker : public Worker {
+private:
+  bool m_running;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
+  std::mutex m_backlogMutex;
+  std::condition_variable m_backlogCondition;
+private:
+  void consumeBacklog(bool blockToConsume);
 public:
 
-  enum WorkerType : v_int32 {
+  TimerWorker()
+    : Worker(Type::TIMER)
+    , m_running(true)
+  {
+    std::thread thread(&TimerWorker::work, this);
+    thread.detach();
+  }
 
-    /**
-     * Worker type - general processor.
-     */
-    PROCESSOR = 0,
+  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
-    /**
-     * Worker type - timer processor.
-     */
-    TIMER = 1,
+  void work();
 
-    /**
-     * Worker type - I/O processor.
-     */
-    IO = 2
-
-  };
-
-private:
-
-
-
+  void stop() override {
+    {
+      std::lock_guard<std::mutex> lock(m_backlogMutex);
+      m_running = false;
+    }
+    m_backlogCondition.notify_one();
+  }
 
 };
 
+}}
 
-#endif //oatpp_async_Scheduler_hpp
+#endif //oatpp_async_TimerWorker_hpp
