@@ -58,7 +58,7 @@ class TestComponent {
 public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
-    return std::make_shared<oatpp::async::Executor>(10);
+    return std::make_shared<oatpp::async::Executor>(8, 2, 1);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
@@ -138,7 +138,7 @@ public:
     } else {
       OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
     }
-    return Action::TYPE_ERROR;
+    return propagateError();
   }
 
 };
@@ -185,7 +185,7 @@ public:
         OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
       }
     }
-    return Action::TYPE_ERROR;
+    return propagateError();
   }
 
 };
