@@ -281,7 +281,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
       if(m_transferSize == 0) {
         return finish();
       }
-      return Action(Action::TYPE_ERROR);
+      return propagateError();
     }
     
   };
@@ -295,9 +295,9 @@ namespace {
   oatpp::async::Action asyncActionOnIOError(oatpp::async::AbstractCoroutine* coroutine, data::v_io_size res) {
     switch (res) {
       case IOError::WAIT_RETRY:
-        return oatpp::async::Action::TYPE_WAIT_RETRY;
+        return oatpp::async::Action::createIOWaitAction();
       case IOError::RETRY:
-        return oatpp::async::Action::TYPE_REPEAT;
+        return oatpp::async::Action::createIORepeatAction();
       case IOError::BROKEN_PIPE:
         return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       case IOError::ZERO_VALUE:
@@ -319,7 +319,7 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return oatpp::async::Action::TYPE_REPEAT;
+        return oatpp::async::Action::createIORepeatAction();
       }
     } else {
       return asyncActionOnIOError(coroutine, res);
@@ -359,7 +359,7 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutin
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return oatpp::async::Action::TYPE_REPEAT;
+        return oatpp::async::Action::createIORepeatAction();
       }
     } else {
       return asyncActionOnIOError(coroutine, res);

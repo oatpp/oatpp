@@ -197,9 +197,9 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
-        return waitRetry();
+        return ioWait();
       } else if(errno == EINTR) {
-        return repeat();
+        return ioRepeat();
       }
 
       ::close(m_clientHandle);

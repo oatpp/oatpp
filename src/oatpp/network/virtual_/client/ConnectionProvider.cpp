@@ -74,7 +74,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       if(m_submission){
         return yieldTo(&ConnectCoroutine::obtainSocket);
       }
-      return waitRetry();
+      return waitRepeat(std::chrono::milliseconds(100));
     }
 
     Action obtainSocket() {
@@ -89,7 +89,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           return _return(socket);
         }
 
-        return waitRetry();
+        return waitRepeat(std::chrono::milliseconds(100));
       }
 
       return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");

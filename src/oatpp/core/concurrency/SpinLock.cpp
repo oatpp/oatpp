@@ -50,5 +50,21 @@ void SpinLock::lock(Atom& atom) {
 void SpinLock::unlock(Atom& atom) {
   std::atomic_store_explicit(&atom, false, std::memory_order_release);
 }
+
+
+SpinLock::TryLock::TryLock(Atom& atom)
+  : m_atom(&atom)
+  , m_ownsLock(!std::atomic_exchange_explicit(m_atom, true, std::memory_order_acquire))
+{}
+
+SpinLock::TryLock::~TryLock() {
+  if(m_ownsLock) {
+    std::atomic_store_explicit(m_atom, false, std::memory_order_release);
+  }
+}
+
+bool SpinLock::TryLock::ownsLock() {
+  return m_ownsLock;
+}
   
 }}

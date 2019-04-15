@@ -146,10 +146,10 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream
           }
         }
         
-        return waitRetry();
+        return ioRepeat();
         
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
-        return waitRetry();
+        return ioWait();
       } else if(res == data::IOError::BROKEN_PIPE){
         return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else if(res == data::IOError::ZERO_VALUE){

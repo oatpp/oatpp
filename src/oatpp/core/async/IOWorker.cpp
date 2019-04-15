@@ -38,6 +38,14 @@ void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks)
   m_backlogCondition.notify_one();
 }
 
+void IOWorker::pushOneTask(AbstractCoroutine* task) {
+  {
+    std::lock_guard<std::mutex> guard(m_backlogMutex);
+    m_backlog.pushBack(task);
+  }
+  m_backlogCondition.notify_one();
+}
+
 void IOWorker::consumeBacklog(bool blockToConsume) {
 
   if(blockToConsume) {
@@ -46,9 +54,7 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
     while (m_backlog.first == nullptr && m_running) {
       m_backlogCondition.wait(lock);
     }
-
     oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
-
   } else {
 
     std::unique_lock<std::mutex> lock(m_backlogMutex, std::try_to_lock);
@@ -62,8 +68,8 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
 
 void IOWorker::work() {
 
-  v_int32 sleepIteration = 0;
   v_int32 consumeIteration = 0;
+  v_int32 roundIteration = 0;
 
   while(m_running) {
 
@@ -71,28 +77,40 @@ void IOWorker::work() {
     if(CP != nullptr) {
 
       Action action = CP->iterate();
-      if (action.getType() == Action::TYPE_WAIT_FOR_IO) {
-        m_queue.round();
-      } else {
-        m_queue.popFront();
-        setCoroutineScheduledAction(CP, std::move(action));
-        getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+
+      switch(action.getType()) {
+
+        case Action::TYPE_IO_WAIT:
+          roundIteration = 0;
+          m_queue.round();
+          break;
+
+        case Action::TYPE_IO_REPEAT:
+          ++ roundIteration;
+          if(roundIteration == 10) {
+            roundIteration = 0;
+            m_queue.round();
+          }
+          break;
+
+        default:
+          roundIteration = 0;
+          m_queue.popFront();
+          setCoroutineScheduledAction(CP, std::move(action));
+          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+          break;
+
       }
 
-      ++ sleepIteration;
-      if(sleepIteration == 1000) {
-        sleepIteration = 0;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      }
+      dismissAction(action);
 
       ++ consumeIteration;
-      if(consumeIteration == 1000) {
+      if(consumeIteration == 100) {
         consumeIteration = 0;
         consumeBacklog(false);
       }
 
     } else {
-      sleepIteration = 0;
       consumeBacklog(true);
     }
 

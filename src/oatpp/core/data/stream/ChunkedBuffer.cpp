@@ -245,7 +245,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
       , m_bytesLeft(chunkedBuffer->m_size)
       , m_currData(nullptr)
       , m_currDataSize(0)
-      , m_nextAction(Action::TYPE_FINISH)
+      , m_nextAction(Action::createActionByType(Action::TYPE_FINISH))
     {}
     
     Action act() override {

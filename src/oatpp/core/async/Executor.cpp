@@ -55,36 +55,32 @@ void Executor::SubmissionProcessor::stop() {
 
 const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
 
-Executor::Executor(v_int32 threadsCount)
-  : m_threadsCount(threadsCount)
-  , m_threads(new std::thread[m_threadsCount])
-  , m_processors(new SubmissionProcessor[m_threadsCount])
+Executor::Executor(v_int32 processorThreads, v_int32 ioThreads, v_int32 timerThreads)
+  : m_processorThreads(processorThreads)
+  , m_ioThreads(ioThreads)
+  , m_timerThreads(timerThreads)
+  , m_threads(new std::thread[m_processorThreads])
+  , m_processors(new SubmissionProcessor[m_processorThreads])
 {
 
-  //auto ioWorker = std::make_shared<IOWorker>();
-
-  for(v_int32 i = 0; i < 2; i++) {
-    m_workers.push_back(std::make_shared<TimerWorker>());
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
+    m_threads[i] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
   }
 
-  for(v_int32 i = 0; i < m_threadsCount; i ++) {
-
-    auto& processor = m_processors[i];
-
-    for(auto& worker : m_workers) {
-      processor.getProcessor().addWorker(worker);
-    }
-
-//    for(v_int32 i = 0; i < 1; i++) {
-//      auto worker = std::make_shared<TimerWorker>();
-//      m_workers.push_back(worker);
-//      processor.getProcessor().addWorker(worker);
-//    }
-
-
-    m_threads[i] = std::thread(&SubmissionProcessor::run, &processor);
-
+  std::vector<std::shared_ptr<Worker>> ioWorkers;
+  for(v_int32 i = 0; i < m_ioThreads; i++) {
+    ioWorkers.push_back(std::make_shared<IOWorker>());
   }
+
+  linkWorkers(ioWorkers);
+
+  std::vector<std::shared_ptr<Worker>> timerWorkers;
+  for(v_int32 i = 0; i < m_timerThreads; i++) {
+    timerWorkers.push_back(std::make_shared<TimerWorker>());
+  }
+
+  linkWorkers(timerWorkers);
+
 }
 
 Executor::~Executor() {
@@ -92,20 +88,61 @@ Executor::~Executor() {
   delete [] m_threads;
 }
 
+void Executor::linkWorkers(const std::vector<std::shared_ptr<Worker>>& workers) {
+
+  m_workers.insert(m_workers.end(), workers.begin(), workers.end());
+
+  if(m_processorThreads > workers.size() && (m_processorThreads % workers.size()) == 0) {
+
+    v_int32 wi = 0;
+    for(v_int32 i = 0; i < m_processorThreads; i ++) {
+      auto& p = m_processors[i];
+      p.getProcessor().addWorker(workers[wi]);
+      wi ++;
+      if(wi == workers.size()) {
+        wi = 0;
+      }
+    }
+
+  } else if ((workers.size() % m_processorThreads) == 0) {
+
+    v_int32 pi = 0;
+    for(v_int32 i = 0; i < workers.size(); i ++) {
+      auto& p = m_processors[pi];
+      p.getProcessor().addWorker(workers[i]);
+      pi ++;
+      if(pi == m_processorThreads) {
+        pi = 0;
+      }
+    }
+
+  } else {
+
+    for(v_int32 i = 0; i < m_processorThreads; i ++) {
+      auto& p = m_processors[i];
+      for(auto& w : workers) {
+        p.getProcessor().addWorker(w);
+      }
+    }
+
+  }
+
+}
+
 void Executor::join() {
-  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
     m_threads[i].join();
   }
 }
 
 void Executor::detach() {
-  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
     m_threads[i].detach();
   }
 }
 
 void Executor::stop() {
-  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
     m_processors[i].stop();
   }
 

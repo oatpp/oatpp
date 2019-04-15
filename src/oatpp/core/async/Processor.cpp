@@ -52,6 +52,7 @@ void Processor::popIOTask(AbstractCoroutine* coroutine) {
   if(m_ioPopQueues.size() > 0) {
     auto &queue = m_ioPopQueues[(++m_ioBalancer) % m_ioPopQueues.size()];
     queue.pushBack(coroutine);
+    //m_ioWorkers[(++m_ioBalancer) % m_ioWorkers.size()]->pushOneTask(coroutine);
   } else {
     throw std::runtime_error("[oatpp::async::Processor::popIOTasks()]: Error. Processor has no I/O workers.");
   }
@@ -61,6 +62,7 @@ void Processor::popTimerTask(AbstractCoroutine* coroutine) {
   if(m_timerPopQueues.size() > 0) {
     auto &queue = m_timerPopQueues[(++m_timerBalancer) % m_timerPopQueues.size()];
     queue.pushBack(coroutine);
+    //m_timerWorkers[(++m_timerBalancer) % m_timerWorkers.size()]->pushOneTask(coroutine);
   } else {
     throw std::runtime_error("[oatpp::async::Processor::popTimerTask()]: Error. Processor has no Timer workers.");
   }
@@ -74,12 +76,17 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
     switch(action.m_type) {
 
-      case Action::TYPE_WAIT_FOR_IO:
+      case Action::TYPE_IO_WAIT:
         coroutine->_SCH_A = Action::clone(action);
         popIOTask(coroutine);
         break;
 
-      case Action::TYPE_WAIT_RETRY:
+      case Action::TYPE_IO_REPEAT:
+        coroutine->_SCH_A = Action::clone(action);
+        popIOTask(coroutine);
+        break;
+
+      case Action::TYPE_WAIT_REPEAT:
         coroutine->_SCH_A = Action::clone(action);
         popTimerTask(coroutine);
         break;
@@ -100,7 +107,7 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
   {
     std::lock_guard<std::mutex> waitLock(m_waitMutex);
-    std::lock_guard<std::mutex> lock(m_sch_push_io_mutex);
+    oatpp::concurrency::SpinLock lock(m_sch_push_io_atom);
     m_sch_push_io.pushBack(coroutine);
   }
   m_waitCondition.notify_one();
@@ -109,7 +116,7 @@ void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
 void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
   {
     std::lock_guard<std::mutex> waitLock(m_waitMutex);
-    std::lock_guard<std::mutex> lock(m_sch_push_timer_mutex);
+    oatpp::concurrency::SpinLock lock(m_sch_push_timer_atom);
     m_sch_push_timer.pushBack(coroutine);
   }
   m_waitCondition.notify_one();
@@ -118,7 +125,7 @@ void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
 void Processor::pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
     std::lock_guard<std::mutex> waitLock(m_waitMutex);
-    std::lock_guard<std::mutex> lock(m_sch_push_timer_mutex);
+    oatpp::concurrency::SpinLock lock(m_sch_push_timer_atom);
     collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_sch_push_timer);
   }
   m_waitCondition.notify_one();
@@ -182,24 +189,24 @@ void Processor::pushQueues() {
 
   if(m_sch_push_io.first != nullptr) {
     if (m_sch_push_io.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<std::mutex> lock(m_sch_push_io_mutex, std::try_to_lock);
-      if (lock.owns_lock()) {
+      oatpp::concurrency::SpinLock::TryLock lock(m_sch_push_io_atom);
+      if (lock.ownsLock()) {
         pushAllFromQueue(m_sch_push_io);
       }
     } else {
-      std::lock_guard<std::mutex> lock(m_sch_push_io_mutex);
+      oatpp::concurrency::SpinLock lock(m_sch_push_io_atom);
       pushAllFromQueue(m_sch_push_io);
     }
   }
 
   if(m_sch_push_timer.first != nullptr) {
     if (m_sch_push_timer.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<std::mutex> lock(m_sch_push_timer_mutex, std::try_to_lock);
-      if (lock.owns_lock()) {
+      oatpp::concurrency::SpinLock::TryLock lock(m_sch_push_timer_atom);
+      if (lock.ownsLock()) {
         pushAllFromQueue(m_sch_push_timer);
       }
     } else {
-      std::lock_guard<std::mutex> lock(m_sch_push_timer_mutex);
+      oatpp::concurrency::SpinLock lock(m_sch_push_timer_atom);
       pushAllFromQueue(m_sch_push_timer);
     }
   }
@@ -226,13 +233,19 @@ bool Processor::iterate(v_int32 numIterations) {
 
         switch (action.m_type) {
 
-          case Action::TYPE_WAIT_FOR_IO:
+          case Action::TYPE_IO_WAIT:
             CP->_SCH_A = Action::clone(action);
             m_queue.popFront();
             popIOTask(CP);
             break;
 
-          case Action::TYPE_WAIT_RETRY:
+//          case Action::TYPE_IO_REPEAT:  // DO NOT RESCHEDULE COROUTINE WITH ACTIVE I/O
+//            CP->_SCH_A = Action::clone(action);
+//            m_queue.popFront();
+//            popIOTask(CP);
+//            break;
+
+          case Action::TYPE_WAIT_REPEAT:
             CP->_SCH_A = Action::clone(action);
             m_queue.popFront();
             popTimerTask(CP);

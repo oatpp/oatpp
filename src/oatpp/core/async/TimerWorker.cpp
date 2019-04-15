@@ -38,59 +38,71 @@ void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tas
   m_backlogCondition.notify_one();
 }
 
-void TimerWorker::consumeBacklog(bool blockToConsume) {
+void TimerWorker::consumeBacklog() {
 
-  if(blockToConsume) {
-
-    std::unique_lock<std::mutex> lock(m_backlogMutex);
-    while (m_backlog.first == nullptr && m_running) {
-      m_backlogCondition.wait(lock);
-    }
-    oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
-  } else {
-
-    std::unique_lock<std::mutex> lock(m_backlogMutex, std::try_to_lock);
-    if (lock.owns_lock()) {
-      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
-    }
-
+  std::unique_lock<std::mutex> lock(m_backlogMutex);
+  while (m_backlog.first == nullptr && m_queue.first == nullptr && m_running) {
+    m_backlogCondition.wait(lock);
   }
+  oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
 
+}
+
+void TimerWorker::pushOneTask(AbstractCoroutine* task) {
+  {
+    std::lock_guard<std::mutex> guard(m_backlogMutex);
+    m_backlog.pushBack(task);
+  }
+  m_backlogCondition.notify_one();
 }
 
 void TimerWorker::work() {
 
-  v_int32 consumeIteration = 0;
-  v_int32 roundIteration = 0;
-
   while(m_running) {
 
-    auto CP = m_queue.first;
-    if(CP != nullptr) {
+    consumeBacklog();
+    auto curr = m_queue.first;
+    AbstractCoroutine* prev = nullptr;
 
-      Action action = CP->iterate();
-      if (action.getType() == Action::TYPE_WAIT_RETRY) {
-        ++ roundIteration;
-        if(roundIteration == 10) {
-          roundIteration = 0;
-          m_queue.round();
+    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    v_int64 tick = ms.count();
+
+    while(curr != nullptr) {
+
+      auto next = nextCoroutine(curr);
+
+      if(getCoroutineTimePoint(curr) < tick) {
+
+        Action action = curr->iterate();
+
+        switch(action.getType()) {
+
+          case Action::TYPE_WAIT_REPEAT:
+            setCoroutineScheduledAction(curr, std::move(action));
+            break;
+
+//          case Action::TYPE_IO_WAIT:
+//            setCoroutineScheduledAction(curr, oatpp::async::Action::createWaitRepeatAction(0));
+//            break;
+
+          default:
+            m_queue.cutEntry(curr, prev);
+            setCoroutineScheduledAction(curr, std::move(action));
+            getCoroutineProcessor(curr)->pushOneTaskFromTimer(curr);
+            curr = prev;
+            break;
+
         }
-      } else {
-        roundIteration = 0;
-        m_queue.popFront();
-        setCoroutineScheduledAction(CP, std::move(action));
-        getCoroutineProcessor(CP)->pushOneTaskFromTimer(CP);
+
+        dismissAction(action);
+
       }
 
-      ++ consumeIteration;
-      if(consumeIteration == 100) {
-        consumeIteration = 0;
-        consumeBacklog(false);
-      }
-
-    } else {
-      consumeBacklog(true);
+      prev = curr;
+      curr = next;
     }
+
+    std::this_thread::sleep_for(m_granularity);
 
   }
 

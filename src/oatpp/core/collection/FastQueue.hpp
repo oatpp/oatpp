@@ -119,6 +119,19 @@ public:
     }
 
   }
+
+  void cutEntry(T* entry, T* prevEntry){
+
+    if(prevEntry == nullptr) {
+      popFront();
+    } else if(entry->_ref == nullptr) {
+      prevEntry->_ref = nullptr;
+      last = prevEntry;
+    } else {
+      prevEntry->_ref = entry->_ref;
+    }
+
+  }
   
   void clear() {
     T* curr = first;

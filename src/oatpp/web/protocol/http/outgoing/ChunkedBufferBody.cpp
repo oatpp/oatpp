@@ -70,7 +70,7 @@ ChunkedBufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::sha
   , m_currChunk(m_chunks->getFirstNode())
   , m_currData(nullptr)
   , m_currDataSize(0)
-  , m_nextAction(Action::TYPE_FINISH)
+  , m_nextAction(Action::createActionByType(Action::TYPE_FINISH))
 {}
 
 async::Action ChunkedBufferBody::WriteToStreamCoroutine::act() {

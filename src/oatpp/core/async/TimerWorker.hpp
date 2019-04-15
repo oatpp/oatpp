@@ -31,6 +31,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <unordered_map>
 
 namespace oatpp { namespace async {
 
@@ -42,18 +43,23 @@ private:
   std::mutex m_backlogMutex;
   std::condition_variable m_backlogCondition;
 private:
-  void consumeBacklog(bool blockToConsume);
+  std::chrono::duration<v_int64, std::micro> m_granularity;
+private:
+  void consumeBacklog();
 public:
 
-  TimerWorker()
+  TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity = std::chrono::milliseconds(100))
     : Worker(Type::TIMER)
     , m_running(true)
+    , m_granularity(granularity)
   {
     std::thread thread(&TimerWorker::work, this);
     thread.detach();
   }
 
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+
+  void pushOneTask(AbstractCoroutine* task) override;
 
   void work();
 

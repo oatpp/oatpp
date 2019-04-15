@@ -76,20 +76,27 @@ public:
    */
   static const v_int32 THREAD_NUM_DEFAULT;
 private:
-  v_int32 m_threadsCount;
-  //std::shared_ptr<oatpp::concurrency::Thread>* m_threads;
+  v_int32 m_processorThreads;
+  v_int32 m_ioThreads;
+  v_int32 m_timerThreads;
   std::thread* m_threads;
   SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;
 private:
   std::vector<std::shared_ptr<Worker>> m_workers;
+private:
+  void linkWorkers(const std::vector<std::shared_ptr<Worker>>& workers);
 public:
 
   /**
    * Constructor.
-   * @param threadsCount - Number of threads to run coroutines.
+   * @param processorThreads - number of data processing threads.
+   * @param ioThreads - number of I/O threads.
+   * @param timerThreads - number of timer threads.
    */
-  Executor(v_int32 threadsCount = THREAD_NUM_DEFAULT);
+  Executor(v_int32 processorThreads = THREAD_NUM_DEFAULT,
+           v_int32 ioThreads = 1,
+           v_int32 timerThreads = 1);
 
   /**
    * Non-virtual Destructor.
@@ -120,7 +127,7 @@ public:
    */
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
-    auto& processor = m_processors[(++ m_balancer) % m_threadsCount];
+    auto& processor = m_processors[(++ m_balancer) % m_processorThreads];
     processor.execute<CoroutineType, Args...>(params...);
   }
   

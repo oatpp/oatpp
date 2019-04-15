@@ -35,6 +35,7 @@
 
 #include "oatpp/core/Types.hpp"
 
+#include <chrono>
 #include <exception>
 
 namespace oatpp { namespace async {
@@ -51,10 +52,14 @@ class Action {
   friend Processor;
   friend AbstractCoroutine;
   friend CoroutineStarter;
+  friend Worker;
 public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
 
+  /**
+   * None - invalid Action.
+   */
   static constexpr const v_int32 TYPE_NONE = 0;
 
   /**
@@ -73,44 +78,78 @@ public:
   static constexpr const v_int32 TYPE_REPEAT = 3;
 
   /**
-   * Indicate that Action is to WAIT and then RETRY call to current method of Coroutine.
+   * Indicate that Action is to WAIT for some time and then REPEAT call to current method of Coroutine.
    */
-  static constexpr const v_int32 TYPE_WAIT_RETRY = 4;
+  static constexpr const v_int32 TYPE_WAIT_REPEAT = 4;
 
   /**
    * Indicate that Action is waiting for IO and should be assigned to corresponding worker.
    */
-  static constexpr const v_int32 TYPE_WAIT_FOR_IO = 5;
+  static constexpr const v_int32 TYPE_IO_WAIT = 5;
+
+  /**
+   * Indicate that Action is to repeat previously successful I/O operation.
+   */
+  static constexpr const v_int32 TYPE_IO_REPEAT = 6;
 
   /**
    * Indicate that Action is to FINISH current Coroutine and return control to a caller-Coroutine.
    */
-  static constexpr const v_int32 TYPE_FINISH = 6;
+  static constexpr const v_int32 TYPE_FINISH = 7;
 
   /**
    * Indicate that Error occurred.
    */
-  static constexpr const v_int32 TYPE_ERROR = 7;
+  static constexpr const v_int32 TYPE_ERROR = 8;
 
 private:
   union Data {
     FunctionPtr fptr;
     AbstractCoroutine* coroutine;
     oatpp::data::v_io_handle ioHandle;
+    v_int64 timePointMicroseconds;
   };
 private:
   mutable v_int32 m_type;
   Data m_data;
+protected:
+  /*
+   * Create Action by type.
+   * @param type - Action type.
+   */
+  Action(v_int32 type);
 public:
 
   static Action clone(const Action& action);
 
+
   /**
-   * Create WAIT_FOR_IO Action
+   * Create action of specific type
+   * @param type
+   * @return
+   */
+  static Action createActionByType(v_int32 type);
+
+  /**
+   * Create TYPE_IO_WAIT Action
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createWaitIOAction(data::v_io_handle ioHandle);
+  static Action createIOWaitAction(data::v_io_handle ioHandle = -1);
+
+  /**
+   * Create TYPE_IO_REPEAT Action
+   * @param ioHandle - &id:oatpp::data::v_io_handle;.
+   * @return - Action.
+   */
+  static Action createIORepeatAction(data::v_io_handle ioHandle = -1);
+
+  /**
+   * Create TYPE_WAIT_REPEAT Action.
+   * @param timePointMicroseconds - time since epoch.
+   * @return
+   */
+  static Action createWaitRepeatAction(v_int64 timePointMicroseconds);
 
   /**
    * Constructor. Create start-coroutine Action.
@@ -123,12 +162,6 @@ public:
    * @param functionPtr - pointer to function.
    */
   Action(FunctionPtr functionPtr);
-
-  /**
-   * Create Action by type.
-   * @param type - Action type.
-   */
-  Action(v_int32 type);
 
   /**
    * Deleted copy-constructor.
@@ -346,6 +379,10 @@ public:
    */
   Action error(const std::shared_ptr<const Error>& error);
 
+  Action propagateError() {
+    return Action(Action::TYPE_ERROR);
+  }
+
   /**
    * Convenience method to generate error reporting Action.
    * @tparam E - Error class type.
@@ -423,23 +460,34 @@ public:
    * @return - repeat Action.
    */
   Action repeat() const {
-    return Action::TYPE_REPEAT;
+    return Action::createActionByType(Action::TYPE_REPEAT);
   }
 
   /**
-   * Convenience method to generate Action of `type == Action::TYPE_WAIT_RETRY`.
-   * @return - WAIT_RETRY Action.
+   * Convenience method to generate Action of `type == Action::TYPE_WAIT_REPEAT`.
+   * @return - TYPE_WAIT_REPEAT Action.
    */
-  Action waitRetry() const {
-    return Action::TYPE_WAIT_RETRY;
+  Action waitRepeat(const std::chrono::duration<v_int64, std::micro>& timeout) const {
+    auto startTime = std::chrono::system_clock::now();
+    auto end = startTime + timeout;
+    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(end.time_since_epoch());
+    return Action::createWaitRepeatAction(ms.count());
   }
 
   /**
-   * Convenience method to generate Action of `type == Action::TYPE_WAIT_FOR_IO`.
+   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action waitForIO(data::v_io_handle ioHandle) const {
-    return Action(this, ioHandle);
+  Action ioWait(data::v_io_handle ioHandle = -1) const {
+    return Action::createIOWaitAction(ioHandle);
+  }
+
+  /**
+   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
+   * @return - TYPE_IO_REPEAT Action.
+   */
+  Action ioRepeat(data::v_io_handle ioHandle = -1) const {
+    return Action::createIORepeatAction(ioHandle);
   }
 
   /**
@@ -447,7 +495,7 @@ public:
    * @return - finish Action.
    */
   Action finish() const {
-    return Action::TYPE_FINISH;
+    return Action::createActionByType(Action::TYPE_FINISH);
   }
   
 };
@@ -605,11 +653,30 @@ public:
   }
 
   /**
-   * Convenience method to generate Action of `type == Action::TYPE_WAIT_RETRY`.
-   * @return - WAIT_RETRY Action.
+   * Convenience method to generate Action of `type == Action::TYPE_WAIT_REPEAT`.
+   * @return - TYPE_WAIT_REPEAT Action.
    */
-  Action waitRetry() const {
-    return Action::TYPE_WAIT_RETRY;
+  Action waitRepeat(const std::chrono::duration<v_int64, std::micro>& timeout) const {
+    auto startTime = std::chrono::system_clock::now();
+    auto end = startTime + timeout;
+    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(end.time_since_epoch());
+    return Action::createWaitRepeatAction(ms.count());
+  }
+
+  /**
+   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
+   * @return - TYPE_WAIT_FOR_IO Action.
+   */
+  Action ioWait(data::v_io_handle ioHandle = -1) const {
+    return Action::createIOWaitAction(ioHandle);
+  }
+
+  /**
+   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
+   * @return - TYPE_IO_REPEAT Action.
+   */
+  Action ioRepeat(data::v_io_handle ioHandle = -1) const {
+    return Action::createIORepeatAction(ioHandle);
   }
 
   /**
@@ -617,7 +684,7 @@ public:
    * @return - repeat Action.
    */
   Action repeat() const {
-    return Action::TYPE_REPEAT;
+    return Action::createActionByType(Action::TYPE_REPEAT);
   }
 
   /**
@@ -627,7 +694,7 @@ public:
    */
   Action _return(Args... args) {
     m_parentReturnAction = getParent()->callWithParams(m_callback, args...);
-    return Action::TYPE_FINISH;
+    return Action::createActionByType(Action::TYPE_FINISH);
   }
   
 };

@@ -58,6 +58,8 @@ public:
 
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
+  void pushOneTask(AbstractCoroutine* task) override;
+
   void work();
 
   void stop() override {

@@ -65,6 +65,22 @@ public:
    * @param atom - atomic boolean.
    */
   static void unlock(Atom& atom);
+
+public:
+
+  class TryLock {
+  private:
+    Atom* m_atom;
+    bool m_ownsLock;
+  public:
+
+    TryLock(Atom& atom);
+
+    ~TryLock();
+
+    bool ownsLock();
+
+  };
   
 };
   

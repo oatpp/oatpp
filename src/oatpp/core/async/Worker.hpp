@@ -59,8 +59,11 @@ public:
 private:
   Type m_type;
 protected:
-  void setCoroutineScheduledAction(AbstractCoroutine* CP, Action&& action);
-  Processor* getCoroutineProcessor(AbstractCoroutine* CP);
+  static void setCoroutineScheduledAction(AbstractCoroutine* CP, Action&& action);
+  static Processor* getCoroutineProcessor(AbstractCoroutine* CP);
+  static v_int64 getCoroutineTimePoint(AbstractCoroutine* CP);
+  static void dismissAction(Action& action);
+  static AbstractCoroutine* nextCoroutine(AbstractCoroutine* CP);
 public:
 
   Worker(Type type)
@@ -70,6 +73,7 @@ public:
   virtual ~Worker() = default;
 
   virtual void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) = 0;
+  virtual void pushOneTask(AbstractCoroutine* task) = 0;
 
   virtual void stop() = 0;
 

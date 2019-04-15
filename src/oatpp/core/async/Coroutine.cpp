@@ -35,9 +35,25 @@ Action Action::clone(const Action& action) {
   return result;
 }
 
-Action Action::createWaitIOAction(data::v_io_handle ioHandle) {
-  Action result(TYPE_WAIT_FOR_IO);
+Action Action::createActionByType(v_int32 type) {
+  return Action(type);
+}
+
+Action Action::createIOWaitAction(data::v_io_handle ioHandle) {
+  Action result(TYPE_IO_WAIT);
   result.m_data.ioHandle = ioHandle;
+  return result;
+}
+
+Action Action::createIORepeatAction(data::v_io_handle ioHandle) {
+  Action result(TYPE_IO_REPEAT);
+  result.m_data.ioHandle = ioHandle;
+  return result;
+}
+
+Action Action::createWaitRepeatAction(v_int64 timePointMicroseconds) {
+  Action result(TYPE_WAIT_REPEAT);
+  result.m_data.timePointMicroseconds = timePointMicroseconds;
   return result;
 }
 
@@ -181,9 +197,6 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 
   switch (action.m_type) {
 
-    case Action::TYPE_REPEAT: return Action::TYPE_REPEAT;//std::forward<oatpp::async::Action>(action);
-    case Action::TYPE_WAIT_RETRY: return Action::TYPE_WAIT_RETRY;//std::forward<oatpp::async::Action>(action);
-
     case Action::TYPE_COROUTINE:
       action.m_data.coroutine->m_parent = _CP;
       action.m_data.coroutine->m_propagatedError = m_propagatedError;
@@ -233,7 +246,8 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 
   };
 
-  throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
+  //throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
+  return std::forward<oatpp::async::Action>(action);
 
 }
 

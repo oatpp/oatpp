@@ -34,4 +34,16 @@ Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
   return CP->_PP;
 }
 
+v_int64 Worker::getCoroutineTimePoint(AbstractCoroutine* CP) {
+  return CP->_SCH_A.m_data.timePointMicroseconds;
+}
+
+void Worker::dismissAction(Action& action) {
+  action.m_type = Action::TYPE_NONE;
+}
+
+AbstractCoroutine* Worker::nextCoroutine(AbstractCoroutine* CP) {
+  return CP->_ref;
+}
+
 }}
