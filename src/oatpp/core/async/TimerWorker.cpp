@@ -81,9 +81,9 @@ void TimerWorker::work() {
             setCoroutineScheduledAction(curr, std::move(action));
             break;
 
-//          case Action::TYPE_IO_WAIT:
-//            setCoroutineScheduledAction(curr, oatpp::async::Action::createWaitRepeatAction(0));
-//            break;
+          case Action::TYPE_IO_WAIT:
+            setCoroutineScheduledAction(curr, oatpp::async::Action::createWaitRepeatAction(0));
+            break;
 
           default:
             m_queue.cutEntry(curr, prev);

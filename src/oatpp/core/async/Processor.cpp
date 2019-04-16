@@ -76,12 +76,12 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
     switch(action.m_type) {
 
-      case Action::TYPE_IO_WAIT:
+      case Action::TYPE_IO_REPEAT:
         coroutine->_SCH_A = Action::clone(action);
         popIOTask(coroutine);
         break;
 
-      case Action::TYPE_IO_REPEAT:
+      case Action::TYPE_IO_WAIT:
         coroutine->_SCH_A = Action::clone(action);
         popIOTask(coroutine);
         break;

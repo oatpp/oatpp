@@ -80,17 +80,26 @@ void IOWorker::work() {
 
       switch(action.getType()) {
 
-        case Action::TYPE_IO_WAIT:
-          roundIteration = 0;
-          m_queue.round();
-          break;
-
         case Action::TYPE_IO_REPEAT:
           ++ roundIteration;
           if(roundIteration == 10) {
             roundIteration = 0;
             m_queue.round();
           }
+          break;
+
+//        case Action::TYPE_IO_WAIT:
+//          roundIteration = 0;
+//          m_queue.popFront();
+//          setCoroutineScheduledAction(CP, std::move(action));
+//          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+//          break;
+
+        case Action::TYPE_IO_WAIT: // schedule for timer
+          roundIteration = 0;
+          m_queue.popFront();
+          setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
+          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
           break;
 
         default:
