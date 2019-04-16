@@ -45,16 +45,7 @@ private:
   void consumeBacklog(bool blockToConsume);
 public:
 
-  IOWorker()
-    : Worker(Type::IO)
-    , m_running(true)
-  {
-    std::thread thread(&IOWorker::work, this);
-    thread.detach();
-  }
-
-  ~IOWorker() {
-  }
+  IOWorker();
 
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
@@ -62,13 +53,7 @@ public:
 
   void work();
 
-  void stop() override {
-    {
-      std::lock_guard<std::mutex> lock(m_backlogMutex);
-      m_running = false;
-    }
-    m_backlogCondition.notify_one();
-  }
+  void stop() override;
 
 };
 

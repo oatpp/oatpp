@@ -26,8 +26,16 @@
 
 namespace oatpp { namespace async {
 
+Worker::Worker(Type type)
+  : m_type(type)
+{}
+
 void Worker::setCoroutineScheduledAction(AbstractCoroutine *CP, Action &&action) {
   CP->_SCH_A = std::forward<Action>(action);
+}
+
+Action& Worker::getCoroutineScheduledAction(AbstractCoroutine* CP) {
+  return CP->_SCH_A;
 }
 
 Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
@@ -44,6 +52,10 @@ void Worker::dismissAction(Action& action) {
 
 AbstractCoroutine* Worker::nextCoroutine(AbstractCoroutine* CP) {
   return CP->_ref;
+}
+
+Worker::Type Worker::getType() {
+  return m_type;
 }
 
 }}

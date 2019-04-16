@@ -60,15 +60,14 @@ private:
   Type m_type;
 protected:
   static void setCoroutineScheduledAction(AbstractCoroutine* CP, Action&& action);
+  static Action& getCoroutineScheduledAction(AbstractCoroutine* CP);
   static Processor* getCoroutineProcessor(AbstractCoroutine* CP);
   static v_int64 getCoroutineTimePoint(AbstractCoroutine* CP);
   static void dismissAction(Action& action);
   static AbstractCoroutine* nextCoroutine(AbstractCoroutine* CP);
 public:
 
-  Worker(Type type)
-    : m_type(type)
-  {}
+  Worker(Type type);
 
   virtual ~Worker() = default;
 
@@ -77,9 +76,7 @@ public:
 
   virtual void stop() = 0;
 
-  Type getType() {
-    return m_type;
-  }
+  Type getType();
 
 };
 
