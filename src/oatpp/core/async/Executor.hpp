@@ -26,7 +26,7 @@
 #define oatpp_async_Executor_hpp
 
 #include "./Processor.hpp"
-#include "./Worker.hpp"
+#include "oatpp/core/async/worker/Worker.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
@@ -83,9 +83,9 @@ private:
   SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;
 private:
-  std::vector<std::shared_ptr<Worker>> m_workers;
+  std::vector<std::shared_ptr<worker::Worker>> m_workers;
 private:
-  void linkWorkers(const std::vector<std::shared_ptr<Worker>>& workers);
+  void linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers);
 public:
 
   /**

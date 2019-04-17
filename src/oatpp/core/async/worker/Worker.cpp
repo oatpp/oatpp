@@ -22,41 +22,40 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_IOWorker_hpp
-#define oatpp_async_IOWorker_hpp
+#include "Worker.hpp"
 
-#include "./Worker.hpp"
-#include "oatpp/core/collection/LinkedList.hpp"
+namespace oatpp { namespace async { namespace worker {
 
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+Worker::Worker(Type type)
+  : m_type(type)
+{}
 
-namespace oatpp { namespace async {
+void Worker::setCoroutineScheduledAction(AbstractCoroutine *CP, Action &&action) {
+  CP->_SCH_A = std::forward<Action>(action);
+}
 
-class IOWorker : public Worker {
-private:
-  bool m_running;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
-  std::mutex m_backlogMutex;
-  std::condition_variable m_backlogCondition;
-private:
-  void consumeBacklog(bool blockToConsume);
-public:
+Action& Worker::getCoroutineScheduledAction(AbstractCoroutine* CP) {
+  return CP->_SCH_A;
+}
 
-  IOWorker();
+Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
+  return CP->_PP;
+}
 
-  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+v_int64 Worker::getCoroutineTimePoint(AbstractCoroutine* CP) {
+  return CP->_SCH_A.m_data.timePointMicroseconds;
+}
 
-  void pushOneTask(AbstractCoroutine* task) override;
+void Worker::dismissAction(Action& action) {
+  action.m_type = Action::TYPE_NONE;
+}
 
-  void work();
+AbstractCoroutine* Worker::nextCoroutine(AbstractCoroutine* CP) {
+  return CP->_ref;
+}
 
-  void stop() override;
+Worker::Type Worker::getType() {
+  return m_type;
+}
 
-};
-
-}}
-
-#endif //oatpp_async_IOWorker_hpp
+}}}

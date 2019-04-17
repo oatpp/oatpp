@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_TimerWorker_hpp
-#define oatpp_async_TimerWorker_hpp
+#ifndef oatpp_async_worker_TimerWorker_hpp
+#define oatpp_async_worker_TimerWorker_hpp
 
 #include "./Worker.hpp"
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -33,7 +33,7 @@
 #include <condition_variable>
 #include <unordered_map>
 
-namespace oatpp { namespace async {
+namespace oatpp { namespace async { namespace worker {
 
 class TimerWorker : public Worker {
 private:
@@ -73,6 +73,6 @@ public:
 
 };
 
-}}
+}}}
 
-#endif //oatpp_async_TimerWorker_hpp
+#endif //oatpp_async_worker_TimerWorker_hpp

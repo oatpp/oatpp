@@ -42,8 +42,11 @@ namespace oatpp { namespace async {
 
 class AbstractCoroutine; // FWD
 class Processor; // FWD
-class Worker; // FWD
 class CoroutineStarter; // FWD
+
+namespace worker {
+  class Worker; // FWD
+}
 
 /**
  * Class Action represents an asynchronous action.
@@ -52,7 +55,7 @@ class Action {
   friend Processor;
   friend AbstractCoroutine;
   friend CoroutineStarter;
-  friend Worker;
+  friend worker::Worker;
 public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
@@ -267,7 +270,7 @@ class AbstractCoroutine : public oatpp::base::Countable {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
   friend CoroutineStarter;
-  friend Worker;
+  friend worker::Worker;
 public:
   /**
    * Convenience typedef for Action

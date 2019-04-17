@@ -24,11 +24,11 @@
 
 #include "TimerWorker.hpp"
 
-#include "Processor.hpp"
+#include "oatpp/core/async/Processor.hpp"
 
 #include <chrono>
 
-namespace oatpp { namespace async {
+namespace oatpp { namespace async { namespace worker {
 
 void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
@@ -108,4 +108,4 @@ void TimerWorker::work() {
 
 }
 
-}}
+}}}

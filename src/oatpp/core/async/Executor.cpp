@@ -24,8 +24,8 @@
 
 #include "Executor.hpp"
 
-#include "./IOWorker.hpp"
-#include "./TimerWorker.hpp"
+#include "oatpp/core/async/worker/IOWorker.hpp"
+#include "oatpp/core/async/worker/TimerWorker.hpp"
 
 namespace oatpp { namespace async {
 
@@ -67,16 +67,16 @@ Executor::Executor(v_int32 processorThreads, v_int32 ioThreads, v_int32 timerThr
     m_threads[i] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
   }
 
-  std::vector<std::shared_ptr<Worker>> ioWorkers;
+  std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
   for(v_int32 i = 0; i < m_ioThreads; i++) {
-    ioWorkers.push_back(std::make_shared<IOWorker>());
+    ioWorkers.push_back(std::make_shared<worker::IOWorker>());
   }
 
   linkWorkers(ioWorkers);
 
-  std::vector<std::shared_ptr<Worker>> timerWorkers;
+  std::vector<std::shared_ptr<worker::Worker>> timerWorkers;
   for(v_int32 i = 0; i < m_timerThreads; i++) {
-    timerWorkers.push_back(std::make_shared<TimerWorker>());
+    timerWorkers.push_back(std::make_shared<worker::TimerWorker>());
   }
 
   linkWorkers(timerWorkers);
@@ -88,7 +88,7 @@ Executor::~Executor() {
   delete [] m_threads;
 }
 
-void Executor::linkWorkers(const std::vector<std::shared_ptr<Worker>>& workers) {
+void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers) {
 
   m_workers.insert(m_workers.end(), workers.begin(), workers.end());
 

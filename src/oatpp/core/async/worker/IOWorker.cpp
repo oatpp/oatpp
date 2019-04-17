@@ -24,11 +24,11 @@
 
 #include "IOWorker.hpp"
 
-#include "Processor.hpp"
+#include "oatpp/core/async/Processor.hpp"
 
 #include <chrono>
 
-namespace oatpp { namespace async {
+namespace oatpp { namespace async { namespace worker {
 
 IOWorker::IOWorker()
   : Worker(Type::IO)
@@ -168,4 +168,4 @@ void IOWorker::stop() {
   m_backlogCondition.notify_one();
 }
 
-}}
+}}}

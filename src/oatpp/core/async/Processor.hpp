@@ -93,8 +93,8 @@ private:
 
 private:
 
-  std::vector<std::shared_ptr<Worker>> m_ioWorkers;
-  std::vector<std::shared_ptr<Worker>> m_timerWorkers;
+  std::vector<std::shared_ptr<worker::Worker>> m_ioWorkers;
+  std::vector<std::shared_ptr<worker::Worker>> m_timerWorkers;
 
   std::vector<oatpp::collection::FastQueue<AbstractCoroutine>> m_ioPopQueues;
   std::vector<oatpp::collection::FastQueue<AbstractCoroutine>> m_timerPopQueues;
@@ -138,7 +138,7 @@ public:
     , m_sch_push_timer_atom(false)
   {}
 
-  void addWorker(const std::shared_ptr<Worker>& worker);
+  void addWorker(const std::shared_ptr<worker::Worker>& worker);
 
   /**
    * Return coroutine scheduled for I/O back to owner processor.

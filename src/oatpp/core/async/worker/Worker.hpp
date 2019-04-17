@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_Worker_hpp
-#define oatpp_async_Worker_hpp
+#ifndef oatpp_async_worker_Worker_hpp
+#define oatpp_async_worker_Worker_hpp
 
-#include "./Coroutine.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp { namespace async { namespace worker {
 
 class Worker {
 public:
@@ -80,6 +80,6 @@ public:
 
 };
 
-}}
+}}}
 
-#endif //oatpp_async_Worker_hpp
+#endif //oatpp_async_worker_Worker_hpp

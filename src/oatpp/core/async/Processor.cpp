@@ -23,20 +23,20 @@
  ***************************************************************************/
 
 #include "Processor.hpp"
-#include "./Worker.hpp"
+#include "oatpp/core/async/worker/Worker.hpp"
 
 namespace oatpp { namespace async {
 
-void Processor::addWorker(const std::shared_ptr<Worker>& worker) {
+void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
   switch(worker->getType()) {
 
-    case Worker::Type::IO:
+    case worker::Worker::Type::IO:
       m_ioWorkers.push_back(worker);
       m_ioPopQueues.push_back(collection::FastQueue<AbstractCoroutine>());
     break;
 
-    case Worker::Type::TIMER:
+    case worker::Worker::Type::TIMER:
       m_timerWorkers.push_back(worker);
       m_timerPopQueues.push_back(collection::FastQueue<AbstractCoroutine>());
     break;
