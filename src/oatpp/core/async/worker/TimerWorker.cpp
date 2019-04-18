@@ -30,6 +30,15 @@
 
 namespace oatpp { namespace async { namespace worker {
 
+TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity)
+  : Worker(Type::TIMER)
+  , m_running(true)
+  , m_granularity(granularity)
+{
+  std::thread thread(&TimerWorker::work, this);
+  thread.detach();
+}
+
 void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
@@ -64,7 +73,8 @@ void TimerWorker::work() {
     auto curr = m_queue.first;
     AbstractCoroutine* prev = nullptr;
 
-    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    auto startTime = std::chrono::system_clock::now();
+    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(startTime.time_since_epoch());
     v_int64 tick = ms.count();
 
     while(curr != nullptr) {
@@ -102,10 +112,21 @@ void TimerWorker::work() {
       curr = next;
     }
 
-    std::this_thread::sleep_for(m_granularity);
+    auto elapsed = std::chrono::system_clock::now() - startTime;
+    if(elapsed < m_granularity) {
+      std::this_thread::sleep_for(m_granularity - elapsed);
+    }
 
   }
 
+}
+
+void TimerWorker::stop() {
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
+    m_running = false;
+  }
+  m_backlogCondition.notify_one();
 }
 
 }}}

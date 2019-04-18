@@ -48,14 +48,7 @@ private:
   void consumeBacklog();
 public:
 
-  TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity = std::chrono::milliseconds(100))
-    : Worker(Type::TIMER)
-    , m_running(true)
-    , m_granularity(granularity)
-  {
-    std::thread thread(&TimerWorker::work, this);
-    thread.detach();
-  }
+  TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity = std::chrono::milliseconds(100));
 
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
@@ -63,13 +56,7 @@ public:
 
   void work();
 
-  void stop() override {
-    {
-      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-      m_running = false;
-    }
-    m_backlogCondition.notify_one();
-  }
+  void stop() override;
 
 };
 
