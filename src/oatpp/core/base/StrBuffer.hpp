@@ -29,7 +29,6 @@
 #include "./Countable.hpp"
 
 #include <cstring> // c
-#include <memory>
 
 namespace oatpp { namespace base {
 
