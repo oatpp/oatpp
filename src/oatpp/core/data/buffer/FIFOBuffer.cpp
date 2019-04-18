@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "FIFOBuffer.hpp"
+#include <mutex>
 
 namespace oatpp { namespace data{ namespace buffer {
 
@@ -363,31 +364,30 @@ SynchronizedFIFOBuffer::SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSiz
                                                data::v_io_size readPosition, data::v_io_size writePosition,
                                                bool canRead)
   : m_fifo(buffer, bufferSize, readPosition, writePosition, canRead)
-  , m_atom(false)
 {}
 
 void SynchronizedFIFOBuffer::setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
-  oatpp::concurrency::SpinLock lock(m_atom);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   m_fifo.setBufferPosition(readPosition, writePosition, canRead);
 }
 
 data::v_io_size SynchronizedFIFOBuffer::availableToRead() {
-  oatpp::concurrency::SpinLock lock(m_atom);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.availableToRead();
 }
 
 data::v_io_size SynchronizedFIFOBuffer::availableToWrite() {
-  oatpp::concurrency::SpinLock lock(m_atom);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.availableToWrite();
 }
 
 data::v_io_size SynchronizedFIFOBuffer::read(void *data, data::v_io_size count) {
-  oatpp::concurrency::SpinLock lock(m_atom);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.read(data, count);
 }
 
 data::v_io_size SynchronizedFIFOBuffer::write(const void *data, data::v_io_size count) {
-  oatpp::concurrency::SpinLock lock(m_atom);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.write(data, count);
 }
 

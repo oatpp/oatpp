@@ -27,11 +27,11 @@
 
 #include "./Worker.hpp"
 #include "oatpp/core/collection/LinkedList.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <unordered_map>
 
 namespace oatpp { namespace async { namespace worker {
 
@@ -40,8 +40,8 @@ private:
   bool m_running;
   oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
   oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
-  std::mutex m_backlogMutex;
-  std::condition_variable m_backlogCondition;
+  oatpp::concurrency::SpinLock m_backlogLock;
+  std::condition_variable_any m_backlogCondition;
 private:
   std::chrono::duration<v_int64, std::micro> m_granularity;
 private:
@@ -65,7 +65,7 @@ public:
 
   void stop() override {
     {
-      std::lock_guard<std::mutex> lock(m_backlogMutex);
+      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
       m_running = false;
     }
     m_backlogCondition.notify_one();

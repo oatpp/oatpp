@@ -32,7 +32,7 @@ namespace oatpp { namespace async { namespace worker {
 
 void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
-    std::lock_guard<std::mutex> guard(m_backlogMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
     oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_backlog);
   }
   m_backlogCondition.notify_one();
@@ -40,7 +40,7 @@ void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tas
 
 void TimerWorker::consumeBacklog() {
 
-  std::unique_lock<std::mutex> lock(m_backlogMutex);
+  std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock);
   while (m_backlog.first == nullptr && m_queue.first == nullptr && m_running) {
     m_backlogCondition.wait(lock);
   }
@@ -50,7 +50,7 @@ void TimerWorker::consumeBacklog() {
 
 void TimerWorker::pushOneTask(AbstractCoroutine* task) {
   {
-    std::lock_guard<std::mutex> guard(m_backlogMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
     m_backlog.pushBack(task);
   }
   m_backlogCondition.notify_one();

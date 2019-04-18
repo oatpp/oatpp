@@ -88,8 +88,8 @@ private:
   oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_io;
   oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_timer;
 
-  oatpp::concurrency::SpinLock::Atom m_sch_push_io_atom;
-  oatpp::concurrency::SpinLock::Atom m_sch_push_timer_atom;
+  oatpp::concurrency::SpinLock m_sch_push_io_lock;
+  oatpp::concurrency::SpinLock m_sch_push_timer_lock;
 
 private:
 
@@ -113,8 +113,8 @@ private:
 
 private:
 
-  std::mutex m_waitMutex;
-  std::condition_variable m_waitCondition;
+  oatpp::concurrency::SpinLock m_waitLock;
+  std::condition_variable_any m_waitCondition;
 
 private:
 
@@ -132,11 +132,6 @@ private:
   void pushQueues();
 
 public:
-
-  Processor()
-    : m_sch_push_io_atom(false)
-    , m_sch_push_timer_atom(false)
-  {}
 
   void addWorker(const std::shared_ptr<worker::Worker>& worker);
 

@@ -140,7 +140,7 @@ public:
 class SynchronizedFIFOBuffer {
 private:
   FIFOBuffer m_fifo;
-  oatpp::concurrency::SpinLock::Atom m_atom;
+  oatpp::concurrency::SpinLock m_lock;
 public:
 
   /**

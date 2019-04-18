@@ -26,6 +26,8 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
 
+#include <mutex>
+
 namespace oatpp { namespace base { namespace  memory {
 
 MemoryPool::MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
@@ -34,11 +36,10 @@ MemoryPool::MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunk
   , m_chunkSize(chunkSize)
   , m_id(++poolIdCounter)
   , m_rootEntry(nullptr)
-  , m_atom(false)
   , m_objectsCount(0)
 {
   allocChunk();
-  oatpp::concurrency::SpinLock lock(POOLS_ATOM);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(POOLS_SPIN_LOCK);
   POOLS[m_id] = this;
 }
 
@@ -49,7 +50,7 @@ MemoryPool::~MemoryPool() {
     delete [] chunk;
     it++;
   }
-  oatpp::concurrency::SpinLock lock(POOLS_ATOM);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(POOLS_SPIN_LOCK);
   POOLS.erase(m_id);
 }
 
@@ -72,7 +73,7 @@ void* MemoryPool::obtain() {
 #ifdef OATPP_DISABLE_POOL_ALLOCATIONS
   return new v_char8[m_entrySize];
 #else
-  oatpp::concurrency::SpinLock lock(m_atom);
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   if(m_rootEntry != nullptr) {
     auto entry = m_rootEntry;
     m_rootEntry = m_rootEntry->next;
@@ -93,7 +94,7 @@ void* MemoryPool::obtain() {
 
 void MemoryPool::freeByEntryHeader(EntryHeader* entry) {
   if(entry->poolId == m_id) {
-    oatpp::concurrency::SpinLock lock(m_atom);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
     entry->next = m_rootEntry;
     m_rootEntry = entry;
     -- m_objectsCount;
@@ -129,7 +130,7 @@ v_int32 MemoryPool::getObjectsCount(){
   return m_objectsCount;
 }
 
-oatpp::concurrency::SpinLock::Atom MemoryPool::POOLS_ATOM(false);
+oatpp::concurrency::SpinLock MemoryPool::POOLS_SPIN_LOCK;
 std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
 

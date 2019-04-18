@@ -27,6 +27,7 @@
 
 #include "./Worker.hpp"
 #include "oatpp/core/collection/LinkedList.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 
 #include <thread>
 #include <mutex>
@@ -39,8 +40,8 @@ private:
   bool m_running;
   oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
   oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
-  std::mutex m_backlogMutex;
-  std::condition_variable m_backlogCondition;
+  oatpp::concurrency::SpinLock m_backlogLock;
+  std::condition_variable_any m_backlogCondition;
 private:
   void consumeBacklog(bool blockToConsume);
 public:

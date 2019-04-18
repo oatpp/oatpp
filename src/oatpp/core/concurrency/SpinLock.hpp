@@ -26,62 +26,39 @@
 #define oatpp_concurrency_SpinLock_hpp
 
 #include <atomic>
-#include <thread>
 
 namespace oatpp { namespace concurrency {
 
 /**
  * SpinLock implementation based on atomic.
+ * Meets the `Lockable` requirements.
  */
 class SpinLock {
-public:
-  /**
-   * Convenience typedef for atomic bool.
-   */
-  typedef std::atomic<bool> Atom;
-private:
-  Atom* m_atom;
+protected:
+  std::atomic<bool> m_atom;
 public:
 
   /**
-   * Constructor. Lock on construction.
-   * @param atom - atomic boolean.
+   * Constructor.
    */
-  SpinLock(Atom& atom);
+  SpinLock();
 
   /**
-   * Non virtual destructor. Unlock on destruction.
+   * Lock spin-lock
    */
-  ~SpinLock();
+  void lock();
 
   /**
-   * Spin-Lock using atomic boolean.
-   * @param atom - atomic boolean.
+   * Unlock spin-lock
    */
-  static void lock(Atom& atom);
+  void unlock();
 
   /**
-   * Spin-Unlock using atomic boolean.
-   * @param atom - atomic boolean.
+   * Try to lock.
+   * @return - `true` if the lock was acquired, `false` otherwise.
    */
-  static void unlock(Atom& atom);
+  bool try_lock();
 
-public:
-
-  class TryLock {
-  private:
-    Atom* m_atom;
-    bool m_ownsLock;
-  public:
-
-    TryLock(Atom& atom);
-
-    ~TryLock();
-
-    bool ownsLock();
-
-  };
-  
 };
   
 }}

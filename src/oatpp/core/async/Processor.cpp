@@ -106,8 +106,8 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
 void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
   {
-    std::lock_guard<std::mutex> waitLock(m_waitMutex);
-    oatpp::concurrency::SpinLock lock(m_sch_push_io_atom);
+    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock);
     m_sch_push_io.pushBack(coroutine);
   }
   m_waitCondition.notify_one();
@@ -115,8 +115,8 @@ void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
 
 void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
   {
-    std::lock_guard<std::mutex> waitLock(m_waitMutex);
-    oatpp::concurrency::SpinLock lock(m_sch_push_timer_atom);
+    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock);
     m_sch_push_timer.pushBack(coroutine);
   }
   m_waitCondition.notify_one();
@@ -124,8 +124,8 @@ void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
 
 void Processor::pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
-    std::lock_guard<std::mutex> waitLock(m_waitMutex);
-    oatpp::concurrency::SpinLock lock(m_sch_push_timer_atom);
+    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock);
     collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_sch_push_timer);
   }
   m_waitCondition.notify_one();
@@ -133,7 +133,7 @@ void Processor::pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutin
 
 void Processor::waitForTasks() {
 
-  std::unique_lock<std::mutex> lock(m_waitMutex);
+  std::unique_lock<oatpp::concurrency::SpinLock> lock(m_waitLock);
   while (m_sch_push_io.first == nullptr && m_sch_push_timer.first == nullptr && m_taskList.empty() && m_running) {
     m_waitCondition.wait(lock);
   }
@@ -189,24 +189,24 @@ void Processor::pushQueues() {
 
   if(m_sch_push_io.first != nullptr) {
     if (m_sch_push_io.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      oatpp::concurrency::SpinLock::TryLock lock(m_sch_push_io_atom);
-      if (lock.ownsLock()) {
+      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock, std::try_to_lock);
+      if (lock.owns_lock()) {
         pushAllFromQueue(m_sch_push_io);
       }
     } else {
-      oatpp::concurrency::SpinLock lock(m_sch_push_io_atom);
+      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock);
       pushAllFromQueue(m_sch_push_io);
     }
   }
 
   if(m_sch_push_timer.first != nullptr) {
     if (m_sch_push_timer.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      oatpp::concurrency::SpinLock::TryLock lock(m_sch_push_timer_atom);
-      if (lock.ownsLock()) {
+      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock, std::try_to_lock);
+      if (lock.owns_lock()) {
         pushAllFromQueue(m_sch_push_timer);
       }
     } else {
-      oatpp::concurrency::SpinLock lock(m_sch_push_timer_atom);
+      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock);
       pushAllFromQueue(m_sch_push_timer);
     }
   }
@@ -276,7 +276,7 @@ bool Processor::iterate(v_int32 numIterations) {
 
 void Processor::stop() {
   {
-    std::lock_guard<std::mutex> lock(m_waitMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_waitLock);
     m_running = false;
   }
   m_waitCondition.notify_one();

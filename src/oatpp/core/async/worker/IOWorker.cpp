@@ -40,7 +40,7 @@ IOWorker::IOWorker()
 
 void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
-    std::lock_guard<std::mutex> guard(m_backlogMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
     oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_backlog);
   }
   m_backlogCondition.notify_one();
@@ -48,7 +48,7 @@ void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks)
 
 void IOWorker::pushOneTask(AbstractCoroutine* task) {
   {
-    std::lock_guard<std::mutex> guard(m_backlogMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
     m_backlog.pushBack(task);
   }
   m_backlogCondition.notify_one();
@@ -58,14 +58,14 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
 
   if(blockToConsume) {
 
-    std::unique_lock<std::mutex> lock(m_backlogMutex);
+    std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock);
     while (m_backlog.first == nullptr && m_running) {
       m_backlogCondition.wait(lock);
     }
     oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
   } else {
 
-    std::unique_lock<std::mutex> lock(m_backlogMutex, std::try_to_lock);
+    std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock, std::try_to_lock);
     if (lock.owns_lock()) {
       oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
     }
@@ -162,7 +162,7 @@ void IOWorker::work() {
 
 void IOWorker::stop() {
   {
-    std::lock_guard<std::mutex> lock(m_backlogMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
     m_running = false;
   }
   m_backlogCondition.notify_one();
