@@ -141,7 +141,7 @@ public:
 };
 
 /**
- * Streams that guarantee data to be written in exact amount as specified to &l:OutputStream::write (); Should extend this class.
+ * Streams that guarantee data to be written in exact amount as specified in call to &l:OutputStream::write (); should extend this class.
  */
 class ConsistentOutputStream : public OutputStream {
 public:
@@ -150,7 +150,6 @@ public:
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
    */
   data::v_io_size writeAsString(v_int32 value);
 
@@ -158,7 +157,6 @@ public:
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
    */
   data::v_io_size writeAsString(v_int64 value);
 
@@ -166,7 +164,6 @@ public:
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
    */
   data::v_io_size writeAsString(v_float32 value);
 
@@ -174,7 +171,6 @@ public:
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
    */
   data::v_io_size writeAsString(v_float64 value);
 
@@ -182,11 +178,9 @@ public:
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
    */
   data::v_io_size writeAsString(bool value);
-
-
+  
 };
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str);
@@ -216,19 +210,19 @@ public:
  * throws in case readCount != writeCount
  */
 oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
-                                        const std::shared_ptr<OutputStream>& toStream,
-                                        oatpp::data::v_io_size transferSize,
-                                        void* buffer,
-                                        oatpp::data::v_io_size bufferSize);
+                                const std::shared_ptr<OutputStream>& toStream,
+                                oatpp::data::v_io_size transferSize,
+                                void* buffer,
+                                oatpp::data::v_io_size bufferSize);
   
   
 /**
  * Same as transfer but asynchronous
  */
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
-                                     const std::shared_ptr<OutputStream>& toStream,
-                                     oatpp::data::v_io_size transferSize,
-                                     const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
+                                             const std::shared_ptr<OutputStream>& toStream,
+                                             oatpp::data::v_io_size transferSize,
+                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
