@@ -27,7 +27,7 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
-data::v_io_size OutputStream::writeAsString(v_int32 value){
+data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -36,7 +36,7 @@ data::v_io_size OutputStream::writeAsString(v_int32 value){
   return 0;
 }
 
-data::v_io_size OutputStream::writeAsString(v_int64 value){
+data::v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -45,7 +45,7 @@ data::v_io_size OutputStream::writeAsString(v_int64 value){
   return 0;
 }
 
-data::v_io_size OutputStream::writeAsString(v_float32 value){
+data::v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -54,7 +54,7 @@ data::v_io_size OutputStream::writeAsString(v_float32 value){
   return 0;
 }
 
-data::v_io_size OutputStream::writeAsString(v_float64 value){
+data::v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0]);
   if(size > 0){
@@ -63,7 +63,7 @@ data::v_io_size OutputStream::writeAsString(v_float64 value){
   return 0;
 }
   
-data::v_io_size OutputStream::writeAsString(bool value) {
+data::v_io_size ConsistentOutputStream::writeAsString(bool value) {
   if(value){
     return write("true", 4);
   } else {
@@ -72,8 +72,8 @@ data::v_io_size OutputStream::writeAsString(bool value) {
 }
   
 // Functions
-  
-OutputStream& operator << (OutputStream& s, const oatpp::String& str) {
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str) {
   if(str) {
     s.write(str);
   } else {
@@ -82,7 +82,7 @@ OutputStream& operator << (OutputStream& s, const oatpp::String& str) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Int8& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
@@ -90,7 +90,7 @@ OutputStream& operator << (OutputStream& s, const Int8& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Int16& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
@@ -98,7 +98,7 @@ OutputStream& operator << (OutputStream& s, const Int16& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Int32& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
@@ -106,7 +106,7 @@ OutputStream& operator << (OutputStream& s, const Int32& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Int64& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
@@ -114,7 +114,7 @@ OutputStream& operator << (OutputStream& s, const Int64& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Float32& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float32& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
@@ -122,7 +122,7 @@ OutputStream& operator << (OutputStream& s, const Float32& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Float64& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float64& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
@@ -130,7 +130,7 @@ OutputStream& operator << (OutputStream& s, const Float64& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const Boolean& value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Boolean& value) {
   if(value.getPtr()) { // use getPtr() here to avoid false to nullptr conversion
     return operator << (s, value->getValue());
   }
@@ -138,7 +138,7 @@ OutputStream& operator << (OutputStream& s, const Boolean& value) {
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, const char* str) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const char* str) {
   if(str != nullptr) {
     s.write(str);
   } else {
@@ -146,28 +146,28 @@ OutputStream& operator << (OutputStream& s, const char* str) {
   }
   return s;
 }
-  
-OutputStream& operator << (OutputStream& s, v_int32 value) {
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value) {
   s.writeAsString(value);
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, v_int64 value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value) {
   s.writeAsString(value);
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, v_float32 value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value) {
   s.writeAsString(value);
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, v_float64 value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value) {
   s.writeAsString(value);
   return s;
 }
 
-OutputStream& operator << (OutputStream& s, bool value) {
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
   if(value) {
     s.OutputStream::write("true");
   } else {

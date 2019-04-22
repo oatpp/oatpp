@@ -97,11 +97,11 @@ public:
   
 private:
   
-  static void writeString(oatpp::data::stream::OutputStream* stream, p_char8 data, v_int32 size);
-  static void writeString(oatpp::data::stream::OutputStream* stream, const char* data);
+  static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_int32 size);
+  static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data);
   
   template<class T>
-  static void writeSimpleData(oatpp::data::stream::OutputStream* stream, const PolymorphicWrapper<T>& value){
+  static void writeSimpleData(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<T>& value){
     if(value){
       stream->writeAsString(value.get()->getValue());
     } else {
@@ -109,24 +109,21 @@ private:
     }
   }
   
-  static void writeList(oatpp::data::stream::OutputStream* stream, const AbstractList::ObjectWrapper& list, const std::shared_ptr<Config>& config);
-  static void writeFieldsMap(oatpp::data::stream::OutputStream* stream, const AbstractFieldsMap::ObjectWrapper& map, const std::shared_ptr<Config>& config);
-  static void writeObject(oatpp::data::stream::OutputStream* stream, const PolymorphicWrapper<Object>& polymorph, const std::shared_ptr<Config>& config);
+  static void writeList(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractList::ObjectWrapper& list, const std::shared_ptr<Config>& config);
+  static void writeFieldsMap(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractFieldsMap::ObjectWrapper& map, const std::shared_ptr<Config>& config);
+  static void writeObject(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<Object>& polymorph, const std::shared_ptr<Config>& config);
   
-  static void writeValue(oatpp::data::stream::OutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config);
+  static void writeValue(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config);
   
 public:
 
   /**
    * Serialize DTO object to stream.
-   * @param stream - stream to write serialized object to. &id:oatpp::data::stream::OutputStream;. <br>
-   * **WARNING** Serializer currently does't check call results of &id:oatpp::data::stream::OutputStream::write;.
-   * Meaning that Serializer does not ensures that all data has been transferred successfully. <br>
-   * **USE** output stream with guarantee that all data being successfully written. Like &id:oatpp::data::stream::ChunkedBuffer;.
+   * @param stream - stream to write serialized object to. &id:oatpp::data::stream::ConsistentOutputStream;. <br>
    * @param polymorph - DTO object to serialize.
    * @param config - &l:Serializer::Config;.
    */
-  static void serialize(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+  static void serialize(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
                         const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
                         const std::shared_ptr<Config>& config){
     auto type = polymorph.valueType;

@@ -79,46 +79,6 @@ public:
     return write(&c, 1);
   }
 
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_int32 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_int64 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_float32 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_float64 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(bool value);
-  
 };
 
 /**
@@ -179,22 +139,71 @@ public:
   }
     
 };
-  
-OutputStream& operator << (OutputStream& s, const oatpp::String& str);
-OutputStream& operator << (OutputStream& s, const Int8& value);
-OutputStream& operator << (OutputStream& s, const Int16& value);
-OutputStream& operator << (OutputStream& s, const Int32& value);
-OutputStream& operator << (OutputStream& s, const Int64& value);
-OutputStream& operator << (OutputStream& s, const Float32& value);
-OutputStream& operator << (OutputStream& s, const Float64& value);
-OutputStream& operator << (OutputStream& s, const Boolean& value);
 
-OutputStream& operator << (OutputStream& s, const char* str);
-OutputStream& operator << (OutputStream& s, v_int32 value);
-OutputStream& operator << (OutputStream& s, v_int64 value);
-OutputStream& operator << (OutputStream& s, v_float32 value);
-OutputStream& operator << (OutputStream& s, v_float64 value);
-OutputStream& operator << (OutputStream& s, bool value);
+/**
+ * Streams that guarantee data to be written in exact amount as specified to &l:OutputStream::write (); Should extend this class.
+ */
+class ConsistentOutputStream : public OutputStream {
+public:
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
+  data::v_io_size writeAsString(v_int32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
+  data::v_io_size writeAsString(v_int64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
+  data::v_io_size writeAsString(v_float32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
+  data::v_io_size writeAsString(v_float64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
+   */
+  data::v_io_size writeAsString(bool value);
+
+
+};
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float32& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float64& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Boolean& value);
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const char* str);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
 
 class AsyncTransferError : public oatpp::async::Error {
 public:

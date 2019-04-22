@@ -33,9 +33,9 @@
 namespace oatpp { namespace data{ namespace stream {
 
 /**
- * Buffer wich can grow by chunks and implements &id:oatpp::data::stream::OutputStream; interface.
+ * Buffer wich can grow by chunks and implements &id:oatpp::data::stream::ConsistentOutputStream; interface.
  */
-class ChunkedBuffer : public oatpp::base::Countable, public OutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
+class ChunkedBuffer : public oatpp::base::Countable, public ConsistentOutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
 public:
   static const char* ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA;
 public:

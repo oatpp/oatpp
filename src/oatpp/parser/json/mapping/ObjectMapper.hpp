@@ -65,10 +65,10 @@ public:
 
   /**
    * Implementation of &id:oatpp::data::mapping::ObjectMapper::write;.
-   * @param stream - stream to write serializerd data to &id:oatpp::data::stream::OutputStream;.
+   * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
    * @param variant - object to serialize &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
    */
-  void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+  void write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
              const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const override;
 
   /**

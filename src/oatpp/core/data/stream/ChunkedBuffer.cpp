@@ -199,21 +199,18 @@ oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos,
   return str;
 }
 
-// TODO - refactor this.
 bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
   data::v_io_size pos = m_size;
   auto curr = m_firstEntry;
   while (pos > 0) {
     if(pos > CHUNK_ENTRY_SIZE) {
-      auto res = stream->write(curr->chunk, CHUNK_ENTRY_SIZE);
-      // TODO handle I/O errors.
+      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, CHUNK_ENTRY_SIZE);
       if(res != CHUNK_ENTRY_SIZE) {
         return false;
       }
       pos -= res;
     } else {
-      auto res = stream->write(curr->chunk, pos);
-      // TODO handle I/O errors.
+      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, pos);
       if(res != pos) {
         return false;
       }
