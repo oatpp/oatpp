@@ -38,6 +38,14 @@ data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_si
   }
 }
 
+void OutputStreamBufferedProxy::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_outputStream->setOutputStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode OutputStreamBufferedProxy::getOutputStreamIOMode() {
+  return m_outputStream->getOutputStreamIOMode();
+}
+
 data::v_io_size OutputStreamBufferedProxy::flush() {
   return m_buffer->flushToStream(*m_outputStream);
 }
@@ -58,6 +66,14 @@ data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count
     return bytesBuffered;
   }
   
+}
+
+void InputStreamBufferedProxy::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_inputStream->setInputStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode InputStreamBufferedProxy::getInputStreamIOMode() {
+  return m_inputStream->getInputStreamIOMode();
 }
   
 }}}

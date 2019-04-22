@@ -73,6 +73,19 @@ public:
   }
   
   data::v_io_size write(const void *data, data::v_io_size count) override;
+
+  /**
+   * Set OutputStream I/O mode.
+   * @param ioMode
+   */
+  void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Set OutputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
   data::v_io_size flush();
   oatpp::async::CoroutineStarter flushAsync();
 
@@ -159,6 +172,18 @@ public:
   }
   
   data::v_io_size read(void *data, data::v_io_size count) override;
+
+  /**
+   * Set InputStream I/O mode.
+   * @param ioMode
+   */
+  void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Get InputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
   void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
     m_buffer.setBufferPosition(readPosition, writePosition, canRead);

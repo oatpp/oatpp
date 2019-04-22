@@ -85,10 +85,28 @@ public:
   data::v_io_size write(const void *data, data::v_io_size count) override;
 
   /**
-   * Set socket for nonblocking I/O.
-   * @param nonBlocking - `true` for nonblocking.
+   * Set OutputStream I/O mode.
+   * @param ioMode
    */
-  void setNonBlocking(bool nonBlocking);
+  void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Set OutputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
+  /**
+   * Set InputStream I/O mode.
+   * @param ioMode
+   */
+  void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Get InputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
   /**
    * Close socket pipes.

@@ -143,10 +143,19 @@ data::v_io_size ChunkedBuffer::write(const void *data, data::v_io_size count){
   return count;
   
 }
+
+void ChunkedBuffer::setOutputStreamIOMode(IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+IOMode ChunkedBuffer::getOutputStreamIOMode() {
+  return m_ioMode;
+}
   
 data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
-                                                       data::v_io_size pos,
-                                                       data::v_io_size count) {
+                                             data::v_io_size pos,
+                                             data::v_io_size count)
+{
   
   if(pos < 0 || pos >= m_size){
     return 0;

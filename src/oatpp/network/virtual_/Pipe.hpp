@@ -52,7 +52,7 @@ public:
     friend Pipe;
   private:
     Pipe* m_pipe;
-    bool m_nonBlocking;
+    oatpp::data::stream::IOMode m_ioMode;
     
     /*
      * this one used for testing purposes only
@@ -60,21 +60,13 @@ public:
     data::v_io_size m_maxAvailableToRead;
   protected:
     
-    Reader(Pipe* pipe, bool nonBlocking = false)
+    Reader(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
       : m_pipe(pipe)
-      , m_nonBlocking(nonBlocking)
+      , m_ioMode(ioMode)
       , m_maxAvailableToRead(-1)
     {}
 
   public:
-
-    /**
-     * Set `true` to make non-blocking reads using &l:Pipe::Reader::read ();.
-     * @param nonBlocking - `true` for nonblocking read.
-     */
-    void setNonBlocking(bool nonBlocking) {
-      m_nonBlocking = nonBlocking;
-    }
 
     /**
      * Limit the available amount of bytes to read from pipe.<br>
@@ -92,6 +84,18 @@ public:
      * @return - &id:oatpp::data::v_io_size;.
      */
     data::v_io_size read(void *data, data::v_io_size count) override;
+
+    /**
+     * Set InputStream I/O mode.
+     * @param ioMode
+     */
+    void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+    /**
+     * Get InputStream I/O mode.
+     * @return
+     */
+    oatpp::data::stream::IOMode getInputStreamIOMode() override;
     
   };
 
@@ -103,7 +107,7 @@ public:
     friend Pipe;
   private:
     Pipe* m_pipe;
-    bool m_nonBlocking;
+    oatpp::data::stream::IOMode m_ioMode;
     
     /*
      * this one used for testing purposes only
@@ -111,21 +115,13 @@ public:
     data::v_io_size m_maxAvailableToWrtie;
   protected:
     
-    Writer(Pipe* pipe, bool nonBlocking = false)
+    Writer(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
       : m_pipe(pipe)
-      , m_nonBlocking(nonBlocking)
+      , m_ioMode(ioMode)
       , m_maxAvailableToWrtie(-1)
     {}
 
   public:
-
-    /**
-     * Set `true` to make non-blocking writes using &l:Pipe::Writer::write ();.
-     * @param nonBlocking - `true` for nonblocking write.
-     */
-    void setNonBlocking(bool nonBlocking) {
-      m_nonBlocking = nonBlocking;
-    }
 
     /**
      * Limit the available space for data writes in pipe.<br>
@@ -143,6 +139,18 @@ public:
      * @return - &id:oatpp::data::v_io_size;.
      */
     data::v_io_size write(const void *data, data::v_io_size count) override;
+
+    /**
+     * Set OutputStream I/O mode.
+     * @param ioMode
+     */
+    void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+    /**
+     * Set OutputStream I/O mode.
+     * @return
+     */
+    oatpp::data::stream::IOMode getOutputStreamIOMode() override;
     
   };
   

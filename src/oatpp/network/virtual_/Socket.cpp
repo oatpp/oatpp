@@ -52,9 +52,20 @@ data::v_io_size Socket::write(const void *data, data::v_io_size count) {
   return m_pipeOut->getWriter()->write(data, count);
 }
 
-void Socket::setNonBlocking(bool nonBlocking) {
-  m_pipeIn->getReader()->setNonBlocking(nonBlocking);
-  m_pipeOut->getWriter()->setNonBlocking(nonBlocking);
+void Socket::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_pipeOut->getWriter()->setOutputStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode Socket::getOutputStreamIOMode() {
+  return m_pipeOut->getWriter()->getOutputStreamIOMode();
+}
+
+void Socket::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_pipeIn->getReader()->setInputStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode Socket::getInputStreamIOMode() {
+  return m_pipeIn->getReader()->getInputStreamIOMode();
 }
 
 void Socket::close() {

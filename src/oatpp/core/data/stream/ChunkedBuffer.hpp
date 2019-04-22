@@ -106,6 +106,7 @@ private:
   data::v_io_size m_chunkPos;
   ChunkEntry* m_firstEntry;
   ChunkEntry* m_lastEntry;
+  IOMode m_ioMode;
   
 private:
   
@@ -165,6 +166,18 @@ public:
    * @return - actual number of bytes written.
    */
   data::v_io_size write(const void *data, data::v_io_size count) override;
+
+  /**
+   * Set stream I/O mode.
+   * @param ioMode
+   */
+  void setOutputStreamIOMode(IOMode ioMode) override;
+
+  /**
+   * Set stream I/O mode.
+   * @return
+   */
+  IOMode getOutputStreamIOMode() override;
 
   /**
    * Read part of ChunkedBuffer to buffer.

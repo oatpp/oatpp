@@ -28,6 +28,7 @@
 #include <sys/socket.h>
 #include <thread>
 #include <chrono>
+#include <fcntl.h>
 
 namespace oatpp { namespace network {
 
@@ -81,6 +82,63 @@ data::v_io_size Connection::read(void *buff, data::v_io_size count){
     }
   }
   return result;
+}
+
+void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+
+  auto flags = fcntl(m_handle, F_GETFL);
+  if (flags < 0) {
+    throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't get socket flags.");
+  }
+
+  switch(ioMode) {
+
+    case oatpp::data::stream::IOMode::BLOCKING:
+      flags = flags & (~O_NONBLOCK);
+      if (fcntl(m_handle, F_SETFL, flags) < 0) {
+        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
+      }
+      break;
+
+    case oatpp::data::stream::IOMode::NON_BLOCKING:
+      flags = (flags | O_NONBLOCK);
+      if (fcntl(m_handle, F_SETFL, flags) < 0) {
+        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+      }
+      break;
+
+  }
+}
+
+oatpp::data::stream::IOMode Connection::getStreamIOMode() {
+
+  auto flags = fcntl(m_handle, F_GETFL);
+  if (flags < 0) {
+    throw std::runtime_error("[oatpp::network::Connection::getStreamIOMode()]: Error. Can't get socket flags.");
+  }
+
+  if((flags & O_NONBLOCK) > 0) {
+    return oatpp::data::stream::IOMode::NON_BLOCKING;
+  }
+
+  return oatpp::data::stream::IOMode::BLOCKING;
+
+}
+
+void Connection::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  setStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode Connection::getOutputStreamIOMode() {
+  return getStreamIOMode();
+}
+
+void Connection::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  setStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode Connection::getInputStreamIOMode() {
+  return getStreamIOMode();
 }
 
 void Connection::close(){

@@ -38,7 +38,6 @@ namespace oatpp { namespace network { namespace virtual_ { namespace server {
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
-  bool m_nonBlocking;
   bool m_open;
   data::v_io_size m_maxAvailableToRead;
   data::v_io_size m_maxAvailableToWrite;
@@ -47,17 +46,15 @@ public:
   /**
    * Constructor.
    * @param interface - &id:oatpp::network::virtual_::Interface;.
-   * @param nonBlocking - `true` to set non blocking regime for provided connections.
    */
-  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false);
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface);
 
   /**
    * Create shared ConnectionProvider.
    * @param interface - &id:oatpp::network::virtual_::Interface;.
-   * @param nonBlocking - `true` to set non blocking regime for provided connections.
    * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface, bool nonBlocking = false);
+  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface);
 
   /**
    * Limit the available amount of bytes to read from socket and limit the available amount of bytes to write to socket. <br>

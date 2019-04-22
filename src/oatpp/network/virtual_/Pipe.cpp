@@ -25,7 +25,15 @@
 #include "Pipe.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
-  
+
+void Pipe::Reader::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+oatpp::data::stream::IOMode Pipe::Reader::getInputStreamIOMode() {
+  return m_ioMode;
+}
+
 void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
@@ -39,7 +47,7 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
-  if(m_nonBlocking) {
+  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
     std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
     if(lock.owns_lock()) {
       if (pipe.m_fifo.availableToRead() > 0) {
@@ -70,6 +78,15 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   
 }
 
+
+void Pipe::Writer::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+oatpp::data::stream::IOMode Pipe::Writer::getOutputStreamIOMode() {
+  return m_ioMode;
+}
+
 void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
   m_maxAvailableToWrtie = maxAvailableToWrite;
 }
@@ -83,7 +100,7 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
-  if(m_nonBlocking) {
+  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
     std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
     if(lock.owns_lock()) {
       if (pipe.m_fifo.availableToWrite() > 0) {

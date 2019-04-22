@@ -61,10 +61,10 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {
 #ifdef OATPP_TEST_USE_PORT
-    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT, true /* nonBlocking */);
+    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT);
 #else
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true /* nonBlocking */);
+    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
 #endif
   }());
 

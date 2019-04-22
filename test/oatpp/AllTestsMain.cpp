@@ -37,6 +37,8 @@
 #include <iostream>
 #include <mutex>
 
+#include "oatpp/core/data/stream/Stream.hpp"
+
 #ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 namespace {
 
@@ -52,10 +54,16 @@ public:
   
 };
 
+
+
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
+  OATPP_LOGD("test", "osSize=%d", sizeof(oatpp::data::stream::OutputStream));
+  OATPP_LOGD("test", "isSize=%d", sizeof(oatpp::data::stream::InputStream));
+
+/*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -81,6 +89,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
+*/
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
 
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);

@@ -32,6 +32,11 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
+enum IOMode : v_int32 {
+  BLOCKING = 0,
+  NON_BLOCKING = 1
+};
+
 /**
  * Output Stream.
  */
@@ -51,6 +56,18 @@ public:
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
   virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  virtual void setOutputStreamIOMode(IOMode ioMode) = 0;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  virtual IOMode getOutputStreamIOMode() = 0;
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -100,6 +117,19 @@ public:
    * @return - actual number of bytes read.
    */
   virtual data::v_io_size read(void *data, data::v_io_size count) = 0;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  virtual void setInputStreamIOMode(IOMode ioMode) = 0;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  virtual IOMode getInputStreamIOMode() = 0;
+
 };
 
 /**
@@ -126,7 +156,7 @@ public:
 public:
   
   static std::shared_ptr<CompoundIOStream> createShared(const std::shared_ptr<OutputStream>& outputStream,
-                                                  const std::shared_ptr<InputStream>& inputStream){
+                                                        const std::shared_ptr<InputStream>& inputStream){
     return Shared_CompoundIOStream_Pool::allocateShared(outputStream, inputStream);
   }
   
@@ -136,6 +166,22 @@ public:
   
   data::v_io_size read(void *data, data::v_io_size count) override {
     return m_inputStream->read(data, count);
+  }
+
+  void setOutputStreamIOMode(IOMode ioMode) override {
+    m_outputStream->setOutputStreamIOMode(ioMode);
+  }
+
+  IOMode getOutputStreamIOMode() override {
+    return m_outputStream->getOutputStreamIOMode();
+  }
+
+  void setInputStreamIOMode(IOMode ioMode) override {
+    m_inputStream->setInputStreamIOMode(ioMode);
+  }
+
+  IOMode getInputStreamIOMode() override {
+    return m_inputStream->getInputStreamIOMode();
   }
     
 };
@@ -180,7 +226,7 @@ public:
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
    */
   data::v_io_size writeAsString(bool value);
-  
+
 };
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str);

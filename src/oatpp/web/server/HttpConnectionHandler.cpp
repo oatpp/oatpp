@@ -111,7 +111,10 @@ void HttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler:
 }
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
-  
+
+  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+
   /* Create working thread */
   std::thread thread(&Task::run, Task(m_router.get(), connection, m_bodyDecoder, m_errorHandler, &m_requestInterceptors));
   
