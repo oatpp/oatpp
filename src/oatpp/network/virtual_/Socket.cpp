@@ -52,6 +52,14 @@ data::v_io_size Socket::write(const void *data, data::v_io_size count) {
   return m_pipeOut->getWriter()->write(data, count);
 }
 
+oatpp::async::Action Socket::suggestOutputStreamAction(data::v_io_size ioResult) {
+  return m_pipeOut->getWriter()->suggestOutputStreamAction(ioResult);
+}
+
+oatpp::async::Action Socket::suggestInputStreamAction(data::v_io_size ioResult) {
+  return m_pipeIn->getReader()->suggestInputStreamAction(ioResult);
+}
+
 void Socket::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   m_pipeOut->getWriter()->setOutputStreamIOMode(ioMode);
 }

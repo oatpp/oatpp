@@ -125,6 +125,41 @@ oatpp::data::stream::IOMode Connection::getStreamIOMode() {
 
 }
 
+oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createIORepeatAction(m_handle);
+  }
+
+  switch (ioResult) {
+    case oatpp::data::IOError::WAIT_RETRY:
+      return oatpp::async::Action::createIOWaitAction(m_handle);
+    case oatpp::data::IOError::RETRY:
+      return oatpp::async::Action::createIORepeatAction(m_handle);
+  }
+
+  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+
+}
+
+oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createIORepeatAction(m_handle);
+  }
+
+  switch (ioResult) {
+    case oatpp::data::IOError::WAIT_RETRY:
+      return oatpp::async::Action::createIOWaitAction(m_handle);
+    case oatpp::data::IOError::RETRY:
+      return oatpp::async::Action::createIORepeatAction(m_handle);
+  }
+
+  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+
+
+}
+
 void Connection::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   setStreamIOMode(ioMode);
 }

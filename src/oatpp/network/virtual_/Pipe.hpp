@@ -86,6 +86,15 @@ public:
     data::v_io_size read(void *data, data::v_io_size count) override;
 
     /**
+     * Implementation of InputStream must suggest async actions for I/O results.
+     * Suggested Action is used for scheduling coroutines in async::Executor.
+     * @param ioResult - result of the call to &l:InputStream::read ();.
+     * @return - &id:oatpp::async::Action;.
+     */
+    oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+
+
+    /**
      * Set InputStream I/O mode.
      * @param ioMode
      */
@@ -139,6 +148,14 @@ public:
      * @return - &id:oatpp::data::v_io_size;.
      */
     data::v_io_size write(const void *data, data::v_io_size count) override;
+
+    /**
+     * Implementation of OutputStream must suggest async actions for I/O results.
+     * Suggested Action is used for scheduling coroutines in async::Executor.
+     * @param ioResult - result of the call to &l:OutputStream::write ();.
+     * @return - &id:oatpp::async::Action;.
+     */
+    oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
 
     /**
      * Set OutputStream I/O mode.

@@ -292,12 +292,32 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
 
 namespace {
 
-  oatpp::async::Action asyncActionOnIOError(oatpp::async::AbstractCoroutine* coroutine, data::v_io_size res) {
+  oatpp::async::Action asyncOutputStreamActionOnIOError(oatpp::async::AbstractCoroutine* coroutine,
+                                                        oatpp::data::stream::OutputStream* stream,
+                                                        data::v_io_size res)
+  {
     switch (res) {
       case IOError::WAIT_RETRY:
-        return oatpp::async::Action::createIOWaitAction();
+        return stream->suggestOutputStreamAction(res);
       case IOError::RETRY:
-        return oatpp::async::Action::createIORepeatAction();
+        return stream->suggestOutputStreamAction(res);
+      case IOError::BROKEN_PIPE:
+        return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+      case IOError::ZERO_VALUE:
+        return coroutine->error(oatpp::data::AsyncIOError::ERROR_ZERO_VALUE);
+    }
+    return coroutine->error<AsyncIOError>("Unknown IO Error result", res);
+  }
+
+  oatpp::async::Action asyncInputStreamActionOnIOError(oatpp::async::AbstractCoroutine* coroutine,
+                                                       oatpp::data::stream::InputStream* stream,
+                                                       data::v_io_size res)
+  {
+    switch (res) {
+      case IOError::WAIT_RETRY:
+        return stream->suggestInputStreamAction(res);
+      case IOError::RETRY:
+        return stream->suggestInputStreamAction(res);
       case IOError::BROKEN_PIPE:
         return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       case IOError::ZERO_VALUE:
@@ -319,10 +339,10 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return oatpp::async::Action::createIORepeatAction();
+        return stream->suggestOutputStreamAction(size);
       }
     } else {
-      return asyncActionOnIOError(coroutine, res);
+      return asyncOutputStreamActionOnIOError(coroutine, stream, res);
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);
@@ -341,7 +361,7 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* co
       data = &((p_char8) data)[res];
       size -= res;
     } else {
-      return asyncActionOnIOError(coroutine, res);
+      return asyncInputStreamActionOnIOError(coroutine, stream, res);
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);
@@ -359,10 +379,10 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutin
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return oatpp::async::Action::createIORepeatAction();
+        return stream->suggestInputStreamAction(res);
       }
     } else {
-      return asyncActionOnIOError(coroutine, res);
+      return asyncInputStreamActionOnIOError(coroutine, stream, res);
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);

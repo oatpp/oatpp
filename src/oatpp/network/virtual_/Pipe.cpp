@@ -78,6 +78,22 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   
 }
 
+oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  switch (ioResult) {
+    case oatpp::data::IOError::WAIT_RETRY:
+      return oatpp::async::Action::createWaitRepeatAction(10 * 1000 /* 10 milliseconds */);
+    case oatpp::data::IOError::RETRY:
+      return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+
+}
 
 void Pipe::Writer::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   m_ioMode = ioMode;
@@ -129,6 +145,23 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   
   return result;
   
+}
+
+oatpp::async::Action Pipe::Writer::suggestOutputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  switch (ioResult) {
+    case oatpp::data::IOError::WAIT_RETRY:
+      return oatpp::async::Action::createWaitRepeatAction(10 * 1000 /* 10 milliseconds */);
+    case oatpp::data::IOError::RETRY:
+      return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Writer::suggestOutputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+
 }
 
 Pipe::Pipe()

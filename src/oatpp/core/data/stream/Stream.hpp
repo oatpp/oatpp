@@ -58,6 +58,14 @@ public:
   virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
 
   /**
+   * Implementation of OutputStream must suggest async actions for I/O results.
+   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * @param ioResult - result of the call to &l:OutputStream::write ();.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) = 0;
+
+  /**
    * Set stream I/O mode.
    * @throws
    */
@@ -119,6 +127,14 @@ public:
   virtual data::v_io_size read(void *data, data::v_io_size count) = 0;
 
   /**
+   * Implementation of InputStream must suggest async actions for I/O results.
+   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * @param ioResult - result of the call to &l:InputStream::read ();.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) = 0;
+
+  /**
    * Set stream I/O mode.
    * @throws
    */
@@ -168,6 +184,14 @@ public:
     return m_inputStream->read(data, count);
   }
 
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override {
+    return m_outputStream->suggestOutputStreamAction(ioResult);
+  }
+
+  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override {
+    return m_inputStream->suggestInputStreamAction(ioResult);
+  }
+
   void setOutputStreamIOMode(IOMode ioMode) override {
     m_outputStream->setOutputStreamIOMode(ioMode);
   }
@@ -191,6 +215,22 @@ public:
  */
 class ConsistentOutputStream : public OutputStream {
 public:
+
+  /**
+   * This should never be called. Call to implementation of this particular method will throw `std::runtime_error`.<br>
+   * No suggestions for ConsistentOutputStream async I/O operations are needed.<br>
+   * ConsistentOutputStream always fully satisfies call to write() method.<br>
+   * @param ioResult - result of call to write() method.
+   * @return - &id:oatpp::async::Action;.
+   * @throws - `std::runtime_error`
+   */
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override {
+    const char* message =
+      "Error. ConsistentOutputStream::suggestOutputStreamAction() method is called.\n"
+      "No suggestions for ConsistentOutputStream async I/O operations are needed.\n "
+      "ConsistentOutputStream always fully satisfies call to write() method.";
+    throw std::runtime_error(message);
+  }
 
   /**
    * Convert value to string and write to stream.

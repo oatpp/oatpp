@@ -138,14 +138,14 @@ public:
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIOWaitAction(data::v_io_handle ioHandle = -1);
+  static Action createIOWaitAction(data::v_io_handle ioHandle);
 
   /**
    * Create TYPE_IO_REPEAT Action
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIORepeatAction(data::v_io_handle ioHandle = -1);
+  static Action createIORepeatAction(data::v_io_handle ioHandle);
 
   /**
    * Create TYPE_WAIT_REPEAT Action.
@@ -481,7 +481,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle = -1) const {
+  Action ioWait(data::v_io_handle ioHandle) const {
     return Action::createIOWaitAction(ioHandle);
   }
 
@@ -489,7 +489,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle = -1) const {
+  Action ioRepeat(data::v_io_handle ioHandle) const {
     return Action::createIORepeatAction(ioHandle);
   }
 
@@ -670,7 +670,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle = -1) const {
+  Action ioWait(data::v_io_handle ioHandle) const {
     return Action::createIOWaitAction(ioHandle);
   }
 
@@ -678,7 +678,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle = -1) const {
+  Action ioRepeat(data::v_io_handle ioHandle) const {
     return Action::createIORepeatAction(ioHandle);
   }
 

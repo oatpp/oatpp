@@ -74,6 +74,8 @@ public:
   
   data::v_io_size write(const void *data, data::v_io_size count) override;
 
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+
   /**
    * Set OutputStream I/O mode.
    * @param ioMode
@@ -172,6 +174,8 @@ public:
   }
   
   data::v_io_size read(void *data, data::v_io_size count) override;
+
+  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
 
   /**
    * Set InputStream I/O mode.
