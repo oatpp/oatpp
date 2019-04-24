@@ -128,14 +128,14 @@ oatpp::data::stream::IOMode Connection::getStreamIOMode() {
 oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioResult) {
 
   if(ioResult > 0) {
-    return oatpp::async::Action::createIORepeatAction(m_handle);
+    return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IO_EVENT_WRITE);
   }
 
   switch (ioResult) {
     case oatpp::data::IOError::WAIT_RETRY:
-      return oatpp::async::Action::createIOWaitAction(m_handle);
+      return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IO_EVENT_WRITE);
     case oatpp::data::IOError::RETRY:
-      return oatpp::async::Action::createIORepeatAction(m_handle);
+      return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IO_EVENT_WRITE);
   }
 
   throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
@@ -145,14 +145,14 @@ oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioRes
 oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResult) {
 
   if(ioResult > 0) {
-    return oatpp::async::Action::createIORepeatAction(m_handle);
+    return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IO_EVENT_READ);
   }
 
   switch (ioResult) {
     case oatpp::data::IOError::WAIT_RETRY:
-      return oatpp::async::Action::createIOWaitAction(m_handle);
+      return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IO_EVENT_READ);
     case oatpp::data::IOError::RETRY:
-      return oatpp::async::Action::createIORepeatAction(m_handle);
+      return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IO_EVENT_READ);
   }
 
   throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");

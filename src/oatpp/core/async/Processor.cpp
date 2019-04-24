@@ -113,6 +113,15 @@ void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
   m_waitCondition.notify_one();
 }
 
+void Processor::pushTasksFromIO(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock);
+    collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_sch_push_io);
+  }
+  m_waitCondition.notify_one();
+}
+
 void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);

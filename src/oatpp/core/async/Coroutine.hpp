@@ -105,11 +105,23 @@ public:
    */
   static constexpr const v_int32 TYPE_ERROR = 8;
 
+public:
+
+  static constexpr const v_int32 IO_EVENT_READ = 0;
+  static constexpr const v_int32 IO_EVENT_WRITE = 1;
+
+private:
+
+  struct IOData {
+    oatpp::data::v_io_handle ioHandle;
+    v_int32 ioEventType;
+  };
+
 private:
   union Data {
     FunctionPtr fptr;
     AbstractCoroutine* coroutine;
-    oatpp::data::v_io_handle ioHandle;
+    IOData ioData;
     v_int64 timePointMicroseconds;
   };
 private:
@@ -138,14 +150,14 @@ public:
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIOWaitAction(data::v_io_handle ioHandle);
+  static Action createIOWaitAction(data::v_io_handle ioHandle, v_int32 ioEventType);
 
   /**
    * Create TYPE_IO_REPEAT Action
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIORepeatAction(data::v_io_handle ioHandle);
+  static Action createIORepeatAction(data::v_io_handle ioHandle, v_int32 ioEventType);
 
   /**
    * Create TYPE_WAIT_REPEAT Action.
@@ -203,6 +215,10 @@ public:
    * @return - action type.
    */
   v_int32 getType() const;
+
+  oatpp::data::v_io_handle getIOHandle() const;
+  v_int32 getIOEventType() const;
+
   
 };
 
@@ -481,16 +497,16 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle) const {
-    return Action::createIOWaitAction(ioHandle);
+  Action ioWait(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+    return Action::createIOWaitAction(ioHandle, ioEventType);
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle) const {
-    return Action::createIORepeatAction(ioHandle);
+  Action ioRepeat(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+    return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 
   /**
@@ -670,16 +686,16 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle) const {
-    return Action::createIOWaitAction(ioHandle);
+  Action ioWait(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+    return Action::createIOWaitAction(ioHandle, ioEventType);
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle) const {
-    return Action::createIORepeatAction(ioHandle);
+  Action ioRepeat(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+    return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 
   /**

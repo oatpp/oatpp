@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 #include "Executor.hpp"
-
+#include "oatpp/core/async/worker/IOEventWorker.hpp"
 #include "oatpp/core/async/worker/IOWorker.hpp"
 #include "oatpp/core/async/worker/TimerWorker.hpp"
 
@@ -69,7 +69,7 @@ Executor::Executor(v_int32 processorThreads, v_int32 ioThreads, v_int32 timerThr
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
   for(v_int32 i = 0; i < m_ioThreads; i++) {
-    ioWorkers.push_back(std::make_shared<worker::IOWorker>());
+    ioWorkers.push_back(std::make_shared<worker::IOEventWorker>());
   }
 
   linkWorkers(ioWorkers);

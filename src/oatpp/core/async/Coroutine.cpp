@@ -39,15 +39,17 @@ Action Action::createActionByType(v_int32 type) {
   return Action(type);
 }
 
-Action Action::createIOWaitAction(data::v_io_handle ioHandle) {
+Action Action::createIOWaitAction(data::v_io_handle ioHandle, v_int32 ioEventType) {
   Action result(TYPE_IO_WAIT);
-  result.m_data.ioHandle = ioHandle;
+  result.m_data.ioData.ioHandle = ioHandle;
+  result.m_data.ioData.ioEventType = ioEventType;
   return result;
 }
 
-Action Action::createIORepeatAction(data::v_io_handle ioHandle) {
+Action Action::createIORepeatAction(data::v_io_handle ioHandle, v_int32 ioEventType) {
   Action result(TYPE_IO_REPEAT);
-  result.m_data.ioHandle = ioHandle;
+  result.m_data.ioData.ioHandle = ioHandle;
+  result.m_data.ioData.ioEventType = ioEventType;
   return result;
 }
 
@@ -100,6 +102,14 @@ bool Action::isError() const {
 
 v_int32 Action::getType() const {
   return m_type;
+}
+
+oatpp::data::v_io_handle Action::getIOHandle() const {
+  return m_data.ioData.ioHandle;
+}
+
+v_int32 Action::getIOEventType() const {
+  return m_data.ioData.ioEventType;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

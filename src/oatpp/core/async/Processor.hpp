@@ -141,6 +141,8 @@ public:
    */
   void pushOneTaskFromIO(AbstractCoroutine* coroutine);
 
+  void pushTasksFromIO(oatpp::collection::FastQueue<AbstractCoroutine>& tasks);
+
   /**
    * Return coroutine scheduled for Timer back to owner processor.
    * @param coroutine
