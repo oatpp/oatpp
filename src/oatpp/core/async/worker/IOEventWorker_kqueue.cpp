@@ -24,46 +24,17 @@
 
 #include "IOEventWorker.hpp"
 
+#ifdef OATPP_IO_EVENT_INTERFACE_KQUEUE
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// kqueue based implementation
+
 #include "oatpp/core/async/Processor.hpp"
 
-#include <chrono>
-
 #include <unistd.h>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BSD
-
 #include <sys/event.h>
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace oatpp { namespace async { namespace worker {
-
-IOEventWorker::IOEventWorker()
-  : Worker(Type::IO)
-  , m_running(true)
-  , m_eventQueueHandle(-1)
-  , m_inEvents(nullptr)
-  , m_inEventsCount(0)
-  , m_outEvents(nullptr)
-{
-
-  OATPP_LOGD("IOEventWorker", "created");
-
-  std::thread thread(&IOEventWorker::work, this);
-  thread.detach();
-
-}
-
-IOEventWorker::~IOEventWorker() {
-  if(m_inEvents != nullptr) {
-    delete[] m_inEvents;
-  }
-
-  if(m_outEvents != nullptr) {
-    delete[] m_outEvents;
-  }
-}
 
 void IOEventWorker::initEventQueue() {
 
@@ -104,12 +75,21 @@ void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
 
 }
 
-void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, p_char8 eventPtr) {
+void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr) {
 
   auto& action = getCoroutineScheduledAction(coroutine);
 
-  struct kevent* event = (struct kevent*) eventPtr;
+  switch(action.getType()) {
 
+    case Action::TYPE_IO_WAIT: break;
+    case Action::TYPE_IO_REPEAT: break;
+
+    default:
+      throw std::runtime_error("[oatpp::async::worker::IOEventWorker::pushCoroutineToQueue()]: Error. Unknown Action.");
+
+  }
+
+  struct kevent* event = (struct kevent*) eventPtr;
   std::memset(event, 0, sizeof(struct kevent));
 
   event->ident = action.getIOHandle();
@@ -131,37 +111,6 @@ void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, p_char8 even
 
   }
 
-  switch(action.getType()) {
-
-    case Action::TYPE_IO_WAIT:
-      return;
-
-    case Action::TYPE_IO_REPEAT:
-      return;
-
-    default:
-      throw std::runtime_error("[oatpp::async::worker::IOEventWorker::pushCoroutineToQueue()]: Error. Unknown Action.");
-
-  }
-
-}
-
-void IOEventWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
-  if(tasks.first != nullptr) {
-    {
-      std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_backlog);
-    }
-    triggerWakeup();
-  }
-}
-
-void IOEventWorker::pushOneTask(AbstractCoroutine* task) {
-  {
-    std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    m_backlog.pushBack(task);
-  }
-  triggerWakeup();
 }
 
 void IOEventWorker::consumeBacklog() {
@@ -177,7 +126,7 @@ void IOEventWorker::consumeBacklog() {
   auto curr = m_backlog.first;
   v_int32 i = 1;
   while(curr != nullptr) {
-    setCoroutineEvent(curr, &m_inEvents[i * eventSize]);
+    setCoroutineEvent(curr, 0, &m_inEvents[i * eventSize]);
     curr = nextCoroutine(curr);
     ++i;
   }
@@ -196,15 +145,11 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  v_int32 eventSize = sizeof(struct kevent);
-
   oatpp::collection::FastQueue<AbstractCoroutine> m_repeatQueue;
-
-  //OATPP_LOGD("IOEventWorker", "eventsCount=%d", eventsCount);
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
-    struct kevent* event = (struct kevent *)&m_outEvents[i * eventSize];
+    struct kevent* event = (struct kevent *)&m_outEvents[i * sizeof(struct kevent)];
     auto coroutine = (AbstractCoroutine*) event->udata;
 
     if((event->flags & EV_ERROR) > 0) {
@@ -247,24 +192,6 @@ void IOEventWorker::waitEvents() {
 
 }
 
-void IOEventWorker::work() {
-
-  initEventQueue();
-
-  while(m_running) {
-    consumeBacklog();
-    //OATPP_LOGD("IOEventWorker", "Waiting events...");
-    waitEvents();
-  }
-
-}
-
-void IOEventWorker::stop() {
-  {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-    m_running = false;
-  }
-  triggerWakeup();
-}
-
 }}}
+
+#endif // #ifdef OATPP_IO_EVENT_INTERFACE_KQUEUE

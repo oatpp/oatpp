@@ -26,13 +26,31 @@
 #define oatpp_async_worker_IOEventWorker_hpp
 
 #include "./Worker.hpp"
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
-#include <unordered_map>
 #include <thread>
 #include <mutex>
-#include <condition_variable>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if !defined(OATPP_IO_EVENT_INTERFACE)
+
+  #if defined(__linux__) || defined(linux) || defined(__linux)
+
+    #define OATPP_IO_EVENT_INTERFACE "epoll"
+    #define OATPP_IO_EVENT_INTERFACE_EPOLL
+
+  #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || \
+        defined(__bsdi__) || defined(__DragonFly__)|| defined(__APPLE__)
+
+    #define OATPP_IO_EVENT_INTERFACE "kqueue"
+    #define OATPP_IO_EVENT_INTERFACE_KQUEUE
+
+  #endif
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace oatpp { namespace async { namespace worker {
 
@@ -55,7 +73,7 @@ private:
   void initEventQueue();
   void triggerWakeup();
   void setTriggerEvent(p_char8 eventPtr);
-  void setCoroutineEvent(AbstractCoroutine* coroutine, p_char8 eventPtr);
+  void setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr);
 public:
 
   IOEventWorker();
