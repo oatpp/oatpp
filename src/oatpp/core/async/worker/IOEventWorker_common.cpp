@@ -24,11 +24,19 @@
 
 #include "IOEventWorker.hpp"
 
+#include <unistd.h>
+
 namespace oatpp { namespace async { namespace worker {
 
 IOEventWorker::IOEventWorker()
-  : Worker(Type::IO), m_running(true), m_eventQueueHandle(-1), m_inEvents(nullptr), m_inEventsCount(0),
-    m_outEvents(nullptr) {
+  : Worker(Type::IO)
+  , m_running(true)
+  , m_eventQueueHandle(-1)
+  , m_wakeupTrigger(-1)
+  , m_inEvents(nullptr)
+  , m_inEventsCount(0)
+  , m_outEvents(nullptr)
+{
 
   std::thread thread(&IOEventWorker::work, this);
   thread.detach();
@@ -43,6 +51,14 @@ IOEventWorker::~IOEventWorker() {
 
   if (m_outEvents != nullptr) {
     delete[] m_outEvents;
+  }
+
+  if(m_eventQueueHandle >=0) {
+    ::close(m_eventQueueHandle);
+  }
+
+  if(m_wakeupTrigger >= 0) {
+    ::close(m_wakeupTrigger);
   }
 
 }

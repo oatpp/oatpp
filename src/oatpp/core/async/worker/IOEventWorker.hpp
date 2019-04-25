@@ -63,6 +63,7 @@ private:
   oatpp::concurrency::SpinLock m_backlogLock;
 private:
   oatpp::data::v_io_handle m_eventQueueHandle;
+  oatpp::data::v_io_handle m_wakeupTrigger;
   p_char8 m_inEvents;
   v_int32 m_inEventsCount;
   p_char8 m_outEvents;
