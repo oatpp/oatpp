@@ -38,6 +38,7 @@ namespace oatpp { namespace async {
 /**
  * Asynchronous Processor.<br>
  * Responsible for processing and managing multiple Coroutines.
+ * Do not use bare processor to run coroutines. Use &id:oatpp::async::Executor; instead;.
  */
 class Processor {
 private:
@@ -85,14 +86,6 @@ private:
 
 private:
 
-  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_io;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_sch_push_timer;
-
-  oatpp::concurrency::SpinLock m_sch_push_io_lock;
-  oatpp::concurrency::SpinLock m_sch_push_timer_lock;
-
-private:
-
   std::vector<std::shared_ptr<worker::Worker>> m_ioWorkers;
   std::vector<std::shared_ptr<worker::Worker>> m_timerWorkers;
 
@@ -104,17 +97,14 @@ private:
 
 private:
 
-  std::mutex m_taskMutex;
+  oatpp::concurrency::SpinLock m_taskLock;
+  std::condition_variable_any m_taskCondition;
   std::list<std::shared_ptr<TaskSubmission>> m_taskList;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_pushList;
 
 private:
 
   oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
-
-private:
-
-  oatpp::concurrency::SpinLock m_waitLock;
-  std::condition_variable_any m_waitCondition;
 
 private:
 
@@ -128,26 +118,27 @@ private:
   void consumeAllTasks();
   void addCoroutine(AbstractCoroutine* coroutine);
   void popTasks();
-  void pushAllFromQueue(oatpp::collection::FastQueue<AbstractCoroutine>& pushQueue);
   void pushQueues();
 
 public:
 
+  /**
+   * Add dedicated co-worker to processor.
+   * @param worker - &id:oatpp::async::worker::Worker;.
+   */
   void addWorker(const std::shared_ptr<worker::Worker>& worker);
 
   /**
-   * Return coroutine scheduled for I/O back to owner processor.
-   * @param coroutine
+   * Push one Coroutine back to processor.
+   * @param coroutine - &id:oatpp::async::AbstractCoroutine; previously popped-out(rescheduled to coworker) from this processor.
    */
-  void pushOneTaskFromIO(AbstractCoroutine* coroutine);
+  void pushOneTask(AbstractCoroutine* coroutine);
 
   /**
-   * Return coroutine scheduled for Timer back to owner processor.
-   * @param coroutine
+   * Push list of Coroutines back to processor.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine; previously popped-out(rescheduled to coworker) from this processor.
    */
-  void pushOneTaskFromTimer(AbstractCoroutine* coroutine);
-
-  void pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutine>& tasks);
+  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks);
 
   /**
    * Execute Coroutine.
@@ -158,9 +149,9 @@ public:
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
     auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
-    std::lock_guard<std::mutex> lock(m_taskMutex);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     m_taskList.push_back(submission);
-    m_waitCondition.notify_one();
+    m_taskCondition.notify_one();
   }
 
   /**

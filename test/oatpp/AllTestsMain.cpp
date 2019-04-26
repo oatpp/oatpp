@@ -27,12 +27,11 @@
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
 #include "oatpp/core/base/RegRuleTest.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
+
+#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 #include <iostream>
 #include <mutex>
@@ -51,6 +50,8 @@ public:
   }
   
 };
+
+
 
 void runTests() {
 
@@ -81,6 +82,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
+
   OATPP_RUN_TEST(oatpp::test::web::FullTest);
 
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);

@@ -22,36 +22,46 @@
  *
  ***************************************************************************/
 
-#include "Worker.hpp"
+#include "CoroutineWaitList.hpp"
 
-namespace oatpp { namespace async { namespace worker {
+#include "./Processor.hpp"
 
-Worker::Worker(Type type)
-  : m_type(type)
-{}
+namespace oatpp { namespace async {
 
-void Worker::setCoroutineScheduledAction(AbstractCoroutine *CP, Action &&action) {
-  CP->_SCH_A = std::forward<Action>(action);
+
+CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
+  std::memcpy(&m_list, &other.m_list, sizeof(m_list));
+  std::memset(&other.m_list, 0, sizeof(m_list));
 }
 
-Action& Worker::getCoroutineScheduledAction(AbstractCoroutine* CP) {
-  return CP->_SCH_A;
+CoroutineWaitList::~CoroutineWaitList() {
+  notifyAllAndClear();
 }
 
-Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
-  return CP->_PP;
+void CoroutineWaitList::setListener(Listener* listener) {
+  m_listener = listener;
 }
 
-void Worker::dismissAction(Action& action) {
-  action.m_type = Action::TYPE_NONE;
+void CoroutineWaitList::put(AbstractCoroutine* coroutine) {
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+    m_list.pushBack(coroutine);
+  }
+  if(m_listener != nullptr) {
+    m_listener->onNewItem(*this);
+  }
 }
 
-AbstractCoroutine* Worker::nextCoroutine(AbstractCoroutine* CP) {
-  return CP->_ref;
+void CoroutineWaitList::notifyAllAndClear() {
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+  auto curr = m_list.first;
+  while(curr != nullptr) {
+    auto next = curr->_ref;
+    curr->_PP->pushOneTask(curr);
+    curr = next;
+  }
+  std::memset(&m_list, 0, sizeof(m_list));
 }
 
-Worker::Type Worker::getType() {
-  return m_type;
-}
 
-}}}
+}}

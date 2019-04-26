@@ -144,11 +144,11 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
             return yieldTo(&ReaderCoroutine::parseHeaders);
           }
         }
-        
-        return ioRepeat();
+
+        return m_connection->suggestInputStreamAction(res);
         
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
-        return ioWait();
+        return m_connection->suggestInputStreamAction(res);
       } else if(res == data::IOError::BROKEN_PIPE) {
         return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else if(res == data::IOError::ZERO_VALUE) {

@@ -25,6 +25,8 @@
 #ifndef oatpp_network_virtual__Pipe_hpp
 #define oatpp_network_virtual__Pipe_hpp
 
+#include "oatpp/core/async/CoroutineWaitList.hpp"
+
 #include "oatpp/core/data/stream/Stream.hpp"
 
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
@@ -51,30 +53,46 @@ public:
   class Reader : public oatpp::data::stream::InputStream {
     friend Pipe;
   private:
+    class WaitListListener : public oatpp::async::CoroutineWaitList::Listener {
+    private:
+      Pipe* m_pipe;
+    public:
+
+      WaitListListener(Pipe* pipe)
+        : m_pipe(pipe)
+      {}
+
+      void onNewItem(oatpp::async::CoroutineWaitList& list) override {
+        std::lock_guard<std::mutex> lock(m_pipe->m_mutex);
+        if (m_pipe->m_fifo.availableToRead() > 0) {
+          list.notifyAllAndClear();
+        }
+      }
+
+    };
+  private:
     Pipe* m_pipe;
-    bool m_nonBlocking;
+    oatpp::data::stream::IOMode m_ioMode;
     
     /*
      * this one used for testing purposes only
      */
     data::v_io_size m_maxAvailableToRead;
+
+    oatpp::async::CoroutineWaitList m_waitList;
+    WaitListListener m_waitListListener;
   protected:
     
-    Reader(Pipe* pipe, bool nonBlocking = false)
+    Reader(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
       : m_pipe(pipe)
-      , m_nonBlocking(nonBlocking)
+      , m_ioMode(ioMode)
       , m_maxAvailableToRead(-1)
-    {}
+      , m_waitListListener(pipe)
+    {
+      m_waitList.setListener(&m_waitListListener);
+    }
 
   public:
-
-    /**
-     * Set `true` to make non-blocking reads using &l:Pipe::Reader::read ();.
-     * @param nonBlocking - `true` for nonblocking read.
-     */
-    void setNonBlocking(bool nonBlocking) {
-      m_nonBlocking = nonBlocking;
-    }
 
     /**
      * Limit the available amount of bytes to read from pipe.<br>
@@ -92,6 +110,32 @@ public:
      * @return - &id:oatpp::data::v_io_size;.
      */
     data::v_io_size read(void *data, data::v_io_size count) override;
+
+    /**
+     * Implementation of InputStream must suggest async actions for I/O results.
+     * Suggested Action is used for scheduling coroutines in async::Executor.
+     * @param ioResult - result of the call to &l:InputStream::read ();.
+     * @return - &id:oatpp::async::Action;.
+     */
+    oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+
+
+    /**
+     * Set InputStream I/O mode.
+     * @param ioMode
+     */
+    void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+    /**
+     * Get InputStream I/O mode.
+     * @return
+     */
+    oatpp::data::stream::IOMode getInputStreamIOMode() override;
+
+    /**
+     * Notify coroutine wait-list
+     */
+    void notifyWaitList();
     
   };
 
@@ -102,30 +146,44 @@ public:
   class Writer : public oatpp::data::stream::OutputStream {
     friend Pipe;
   private:
+    class WaitListListener : public oatpp::async::CoroutineWaitList::Listener {
+    private:
+      Pipe* m_pipe;
+    public:
+      WaitListListener(Pipe* pipe)
+        : m_pipe(pipe)
+      {}
+
+      void onNewItem(oatpp::async::CoroutineWaitList& list) override {
+        std::lock_guard<std::mutex> lock(m_pipe->m_mutex);
+        if (m_pipe->m_fifo.availableToWrite() > 0) {
+          list.notifyAllAndClear();
+        }
+      }
+    };
+  private:
     Pipe* m_pipe;
-    bool m_nonBlocking;
+    oatpp::data::stream::IOMode m_ioMode;
     
     /*
      * this one used for testing purposes only
      */
     data::v_io_size m_maxAvailableToWrtie;
+
+    oatpp::async::CoroutineWaitList m_waitList;
+    WaitListListener m_waitListListener;
   protected:
     
-    Writer(Pipe* pipe, bool nonBlocking = false)
+    Writer(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
       : m_pipe(pipe)
-      , m_nonBlocking(nonBlocking)
+      , m_ioMode(ioMode)
       , m_maxAvailableToWrtie(-1)
-    {}
+      , m_waitListListener(pipe)
+    {
+      m_waitList.setListener(&m_waitListListener);
+    }
 
   public:
-
-    /**
-     * Set `true` to make non-blocking writes using &l:Pipe::Writer::write ();.
-     * @param nonBlocking - `true` for nonblocking write.
-     */
-    void setNonBlocking(bool nonBlocking) {
-      m_nonBlocking = nonBlocking;
-    }
 
     /**
      * Limit the available space for data writes in pipe.<br>
@@ -143,6 +201,31 @@ public:
      * @return - &id:oatpp::data::v_io_size;.
      */
     data::v_io_size write(const void *data, data::v_io_size count) override;
+
+    /**
+     * Implementation of OutputStream must suggest async actions for I/O results.
+     * Suggested Action is used for scheduling coroutines in async::Executor.
+     * @param ioResult - result of the call to &l:OutputStream::write ();.
+     * @return - &id:oatpp::async::Action;.
+     */
+    oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+
+    /**
+     * Set OutputStream I/O mode.
+     * @param ioMode
+     */
+    void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+    /**
+     * Set OutputStream I/O mode.
+     * @return
+     */
+    oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
+    /**
+     * Notify coroutine wait-list
+     */
+    void notifyWaitList();
     
   };
   

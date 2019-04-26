@@ -33,10 +33,7 @@ namespace oatpp { namespace async { namespace worker {
 IOWorker::IOWorker()
   : Worker(Type::IO)
   , m_running(true)
-{
-  std::thread thread(&IOWorker::work, this);
-  thread.detach();
-}
+{}
 
 void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
@@ -74,7 +71,7 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
 
 }
 
-void IOWorker::work() {
+void IOWorker::run() {
 
   v_int32 consumeIteration = 0;
   v_int32 roundIteration = 0;
@@ -112,16 +109,16 @@ void IOWorker::work() {
 //          roundIteration = 0;
 //          m_queue.popFront();
 //          setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
-//          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+//          getCoroutineProcessor(CP)->pushOneTask(CP);
 //          break;
 
         case Action::TYPE_IO_WAIT:
           roundIteration = 0;
           if(schA.getType() == Action::TYPE_WAIT_REPEAT) {
-            if(getCoroutineTimePoint(CP) < tick) {
+            if(schA.getTimePointMicroseconds() < tick) {
               m_queue.popFront();
               setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
-              getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+              getCoroutineProcessor(CP)->pushOneTask(CP);
             } else {
               m_queue.round();
             }
@@ -135,7 +132,7 @@ void IOWorker::work() {
           roundIteration = 0;
           m_queue.popFront();
           setCoroutineScheduledAction(CP, std::move(action));
-          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+          getCoroutineProcessor(CP)->pushOneTask(CP);
           break;
 
       }

@@ -25,7 +25,15 @@
 #include "Pipe.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
-  
+
+void Pipe::Reader::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+oatpp::data::stream::IOMode Pipe::Reader::getInputStreamIOMode() {
+  return m_ioMode;
+}
+
 void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
@@ -39,7 +47,7 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
-  if(m_nonBlocking) {
+  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
     std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
     if(lock.owns_lock()) {
       if (pipe.m_fifo.availableToRead() > 0) {
@@ -63,11 +71,50 @@ data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
       result = data::IOError::BROKEN_PIPE;
     }
   }
-  
-  pipe.m_conditionWrite.notify_one();
+
+  if(result > 0) {
+    pipe.m_conditionWrite.notify_one();
+    pipe.m_writer.notifyWaitList();
+  }
   
   return result;
   
+}
+
+oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  switch (ioResult) {
+    case oatpp::data::IOError::WAIT_RETRY: {
+      std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
+      if (m_pipe->m_fifo.availableToRead() > 0) {
+        return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+      }
+      return oatpp::async::Action::createWaitListAction(&m_waitList);
+    }
+    case oatpp::data::IOError::RETRY:
+      return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+
+}
+
+void Pipe::Reader::notifyWaitList() {
+  m_waitList.notifyAllAndClear();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Pipe::Writer::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+oatpp::data::stream::IOMode Pipe::Writer::getOutputStreamIOMode() {
+  return m_ioMode;
 }
 
 void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
@@ -83,7 +130,7 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
-  if(m_nonBlocking) {
+  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
     std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
     if(lock.owns_lock()) {
       if (pipe.m_fifo.availableToWrite() > 0) {
@@ -107,12 +154,43 @@ data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
       result = data::IOError::BROKEN_PIPE;
     }
   }
-  
-  pipe.m_conditionRead.notify_one();
+
+  if(result > 0) {
+    pipe.m_conditionRead.notify_one();
+    pipe.m_reader.notifyWaitList();
+  }
   
   return result;
   
 }
+
+oatpp::async::Action Pipe::Writer::suggestOutputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  switch (ioResult) {
+    case oatpp::data::IOError::WAIT_RETRY: {
+      std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
+      if (m_pipe->m_fifo.availableToWrite() > 0) {
+        return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+      }
+      return oatpp::async::Action::createWaitListAction(&m_waitList);
+    }
+    case oatpp::data::IOError::RETRY:
+      return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Writer::suggestOutputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+
+}
+
+void Pipe::Writer::notifyWaitList() {
+  m_waitList.notifyAllAndClear();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Pipe::Pipe()
   : m_open(true)
@@ -140,7 +218,9 @@ void Pipe::close() {
     m_open = false;
   }
   m_conditionRead.notify_one();
+  m_reader.notifyWaitList();
   m_conditionWrite.notify_one();
+  m_writer.notifyWaitList();
 }
-  
+
 }}}

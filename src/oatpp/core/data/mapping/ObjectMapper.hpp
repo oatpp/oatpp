@@ -84,7 +84,7 @@ public:
    * @param stream - &id:oatpp::data::stream::OutputStream; to serialize object to.
    * @param variant - Object to serialize.
    */
-  virtual void write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+  virtual void write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
                      const type::AbstractObjectWrapper& variant) const = 0;
 
   /**

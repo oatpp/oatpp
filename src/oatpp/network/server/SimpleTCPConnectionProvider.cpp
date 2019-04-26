@@ -37,9 +37,8 @@
 
 namespace oatpp { namespace network { namespace server {
 
-SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking)
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port)
   : m_port(port)
-  , m_nonBlocking(nonBlocking)
   , m_closed(false)
 {
   m_serverHandle = instantiateServer();
@@ -124,13 +123,6 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
-  
-  int flags = 0;
-  if(m_nonBlocking) {
-    flags |= O_NONBLOCK;
-  }
-  
-  fcntl(handle, F_SETFL, flags);
   
   return Connection::createShared(handle);
   

@@ -143,10 +143,19 @@ data::v_io_size ChunkedBuffer::write(const void *data, data::v_io_size count){
   return count;
   
 }
+
+void ChunkedBuffer::setOutputStreamIOMode(IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+IOMode ChunkedBuffer::getOutputStreamIOMode() {
+  return m_ioMode;
+}
   
 data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
-                                                       data::v_io_size pos,
-                                                       data::v_io_size count) {
+                                             data::v_io_size pos,
+                                             data::v_io_size count)
+{
   
   if(pos < 0 || pos >= m_size){
     return 0;
@@ -199,21 +208,18 @@ oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos,
   return str;
 }
 
-// TODO - refactor this.
 bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
   data::v_io_size pos = m_size;
   auto curr = m_firstEntry;
   while (pos > 0) {
     if(pos > CHUNK_ENTRY_SIZE) {
-      auto res = stream->write(curr->chunk, CHUNK_ENTRY_SIZE);
-      // TODO handle I/O errors.
+      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, CHUNK_ENTRY_SIZE);
       if(res != CHUNK_ENTRY_SIZE) {
         return false;
       }
       pos -= res;
     } else {
-      auto res = stream->write(curr->chunk, pos);
-      // TODO handle I/O errors.
+      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, pos);
       if(res != pos) {
         return false;
       }

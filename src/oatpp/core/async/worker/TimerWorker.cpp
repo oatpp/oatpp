@@ -34,10 +34,7 @@ TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granu
   : Worker(Type::TIMER)
   , m_running(true)
   , m_granularity(granularity)
-{
-  std::thread thread(&TimerWorker::work, this);
-  thread.detach();
-}
+{}
 
 void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
@@ -65,7 +62,7 @@ void TimerWorker::pushOneTask(AbstractCoroutine* task) {
   m_backlogCondition.notify_one();
 }
 
-void TimerWorker::work() {
+void TimerWorker::run() {
 
   while(m_running) {
 
@@ -81,7 +78,9 @@ void TimerWorker::work() {
 
       auto next = nextCoroutine(curr);
 
-      if(getCoroutineTimePoint(curr) < tick) {
+      const Action& schA = getCoroutineScheduledAction(curr);
+
+      if(schA.getTimePointMicroseconds() < tick) {
 
         Action action = curr->iterate();
 
@@ -98,7 +97,7 @@ void TimerWorker::work() {
           default:
             m_queue.cutEntry(curr, prev);
             setCoroutineScheduledAction(curr, std::move(action));
-            getCoroutineProcessor(curr)->pushOneTaskFromTimer(curr);
+            getCoroutineProcessor(curr)->pushOneTask(curr);
             curr = prev;
             break;
 

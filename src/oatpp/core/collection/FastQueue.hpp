@@ -127,8 +127,10 @@ public:
     } else if(entry->_ref == nullptr) {
       prevEntry->_ref = nullptr;
       last = prevEntry;
+      -- count;
     } else {
       prevEntry->_ref = entry->_ref;
+      -- count;
     }
 
   }

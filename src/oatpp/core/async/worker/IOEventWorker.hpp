@@ -22,41 +22,77 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_worker_TimerWorker_hpp
-#define oatpp_async_worker_TimerWorker_hpp
+#ifndef oatpp_async_worker_IOEventWorker_hpp
+#define oatpp_async_worker_IOEventWorker_hpp
 
 #include "./Worker.hpp"
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
 #include <thread>
 #include <mutex>
-#include <condition_variable>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if !defined(OATPP_IO_EVENT_INTERFACE)
+
+  #if defined(__linux__) || defined(linux) || defined(__linux)
+
+    #define OATPP_IO_EVENT_INTERFACE "epoll"
+    #define OATPP_IO_EVENT_INTERFACE_EPOLL
+
+  #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || \
+        defined(__bsdi__) || defined(__DragonFly__)|| defined(__APPLE__)
+
+    #define OATPP_IO_EVENT_INTERFACE "kqueue"
+    #define OATPP_IO_EVENT_INTERFACE_KQUEUE
+
+  #endif
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace oatpp { namespace async { namespace worker {
 
 /**
- * Timer worker.
- * Used to wait for timer-scheduled coroutines.
+ * Event-based implementation of I/O worker.
+ * <ul>
+ *   <li>`kqueue` based implementation - for Mac/BSD systems</li>
+ *   <li>`epoll` based implementation - for Linux systems</li>
+ * </ul>
  */
-class TimerWorker : public Worker {
+class IOEventWorker : public Worker {
+private:
+  static constexpr const v_int32 MAX_EVENTS = 10000;
 private:
   bool m_running;
   oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
   oatpp::concurrency::SpinLock m_backlogLock;
-  std::condition_variable_any m_backlogCondition;
 private:
-  std::chrono::duration<v_int64, std::micro> m_granularity;
+  oatpp::data::v_io_handle m_eventQueueHandle;
+  oatpp::data::v_io_handle m_wakeupTrigger;
+  p_char8 m_inEvents;
+  v_int32 m_inEventsCount;
+  p_char8 m_outEvents;
 private:
   void consumeBacklog();
+  void waitEvents();
+private:
+  void initEventQueue();
+  void triggerWakeup();
+  void setTriggerEvent(p_char8 eventPtr);
+  void setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr);
 public:
 
   /**
    * Constructor.
-   * @param granularity - minimum possible time to wait.
    */
-  TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity = std::chrono::milliseconds(100));
+  IOEventWorker();
+
+  /**
+   * Virtual destructor.
+   */
+  ~IOEventWorker();
 
   /**
    * Push list of tasks to worker.
@@ -84,4 +120,4 @@ public:
 
 }}}
 
-#endif //oatpp_async_worker_TimerWorker_hpp
+#endif //oatpp_async_worker_IOEventWorker_hpp

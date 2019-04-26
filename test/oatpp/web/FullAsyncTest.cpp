@@ -50,10 +50,14 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
-//#define OATPP_TEST_USE_PORT 8123
+//#define OATPP_TEST_USE_PORT 8000
 
 class TestComponent {
 public:
+
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
+    return std::make_shared<oatpp::async::Executor>(1, 1, 1);
+  }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
     return oatpp::network::virtual_::Interface::createShared("virtualhost");
@@ -61,10 +65,10 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {
 #ifdef OATPP_TEST_USE_PORT
-    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT, true /* nonBlocking */);
+    return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT);
 #else
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface, true /* nonBlocking */);
+    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
 #endif
   }());
 
@@ -74,7 +78,8 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
@@ -115,7 +120,9 @@ void FullAsyncTest::onRun() {
     v_int32 iterationsStep = 1000;
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
-      
+
+      //OATPP_LOGD("i", "%d", i);
+
       { // test simple GET
         auto response = client->getRoot(connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
@@ -169,6 +176,9 @@ void FullAsyncTest::onRun() {
     }
     
   }, std::chrono::minutes(10));
+
+  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+  executor->join();
 
 }
   

@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Processor.hpp"
+#include "./CoroutineWaitList.hpp"
 #include "oatpp/core/async/worker/Worker.hpp"
 
 namespace oatpp { namespace async {
@@ -91,6 +92,11 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
         popTimerTask(coroutine);
         break;
 
+      case Action::TYPE_WAIT_LIST:
+        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+        action.m_data.waitList->put(coroutine);
+        break;
+
       default:
         m_queue.pushBack(coroutine);
 
@@ -104,38 +110,27 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
 }
 
-void Processor::pushOneTaskFromIO(AbstractCoroutine* coroutine) {
+void Processor::pushOneTask(AbstractCoroutine* coroutine) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock);
-    m_sch_push_io.pushBack(coroutine);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+    m_pushList.pushBack(coroutine);
   }
-  m_waitCondition.notify_one();
+  m_taskCondition.notify_one();
 }
 
-void Processor::pushOneTaskFromTimer(AbstractCoroutine* coroutine) {
+void Processor::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock);
-    m_sch_push_timer.pushBack(coroutine);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+    collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_pushList);
   }
-  m_waitCondition.notify_one();
-}
-
-void Processor::pushTasksFromTimer(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
-  {
-    std::lock_guard<oatpp::concurrency::SpinLock> waitLock(m_waitLock);
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock);
-    collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_sch_push_timer);
-  }
-  m_waitCondition.notify_one();
+  m_taskCondition.notify_one();
 }
 
 void Processor::waitForTasks() {
 
-  std::unique_lock<oatpp::concurrency::SpinLock> lock(m_waitLock);
-  while (m_sch_push_io.first == nullptr && m_sch_push_timer.first == nullptr && m_taskList.empty() && m_running) {
-    m_waitCondition.wait(lock);
+  std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock);
+  while (m_pushList.first == nullptr && m_taskList.empty() && m_running) {
+    m_taskCondition.wait(lock);
   }
 
 }
@@ -156,12 +151,6 @@ void Processor::popTasks() {
 
 }
 
-void Processor::pushAllFromQueue(oatpp::collection::FastQueue<AbstractCoroutine>& pushQueue) {
-  while(pushQueue.first != nullptr) {
-    addCoroutine(pushQueue.popFront());
-  }
-}
-
 void Processor::consumeAllTasks() {
   for(auto& submission : m_taskList) {
     auto coroutine = submission->createCoroutine();
@@ -177,37 +166,29 @@ void Processor::pushQueues() {
 
   if(!m_taskList.empty()) {
     if (m_taskList.size() < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<std::mutex> lock(m_taskMutex, std::try_to_lock);
+      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock, std::try_to_lock);
       if (lock.owns_lock()) {
         consumeAllTasks();
       }
     } else {
-      std::lock_guard<std::mutex> lock(m_taskMutex);
+      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
       consumeAllTasks();
     }
   }
 
-  if(m_sch_push_io.first != nullptr) {
-    if (m_sch_push_io.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock, std::try_to_lock);
+  if(m_pushList.first != nullptr) {
+    if (m_pushList.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
+      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock, std::try_to_lock);
       if (lock.owns_lock()) {
-        pushAllFromQueue(m_sch_push_io);
+        while(m_pushList.first != nullptr) {
+          addCoroutine(m_pushList.popFront());
+        }
       }
     } else {
-      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_io_lock);
-      pushAllFromQueue(m_sch_push_io);
-    }
-  }
-
-  if(m_sch_push_timer.first != nullptr) {
-    if (m_sch_push_timer.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock, std::try_to_lock);
-      if (lock.owns_lock()) {
-        pushAllFromQueue(m_sch_push_timer);
+      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+      while(m_pushList.first != nullptr) {
+        addCoroutine(m_pushList.popFront());
       }
-    } else {
-      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_sch_push_timer_lock);
-      pushAllFromQueue(m_sch_push_timer);
     }
   }
 
@@ -223,7 +204,7 @@ bool Processor::iterate(v_int32 numIterations) {
 
       auto CP = m_queue.first;
       if (CP == nullptr) {
-        break;
+        goto end_loop;
       }
       if (CP->finished()) {
         m_queue.popFrontNoData();
@@ -251,6 +232,12 @@ bool Processor::iterate(v_int32 numIterations) {
             popTimerTask(CP);
             break;
 
+          case Action::TYPE_WAIT_LIST:
+            CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+            m_queue.popFront();
+            action.m_data.waitList->put(CP);
+            break;
+
 //        default:
 //          m_queue.round();
         }
@@ -265,21 +252,20 @@ bool Processor::iterate(v_int32 numIterations) {
 
   }
 
+  end_loop:
+
   popTasks();
   
-  return m_queue.first != nullptr ||
-         m_sch_push_io.first != nullptr ||
-         m_sch_push_timer.first != nullptr ||
-         !m_taskList.empty();
+  return m_queue.first != nullptr || m_pushList.first != nullptr || !m_taskList.empty();
   
 }
 
 void Processor::stop() {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_waitLock);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     m_running = false;
   }
-  m_waitCondition.notify_one();
+  m_taskCondition.notify_one();
 }
 
 }}

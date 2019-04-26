@@ -43,6 +43,7 @@ namespace oatpp { namespace async {
 class AbstractCoroutine; // FWD
 class Processor; // FWD
 class CoroutineStarter; // FWD
+class CoroutineWaitList; // FWD
 
 namespace worker {
   class Worker; // FWD
@@ -105,12 +106,40 @@ public:
    */
   static constexpr const v_int32 TYPE_ERROR = 8;
 
+  /**
+   * Indicate that coroutine should be put on a wait-list provided.
+   */
+  static constexpr const v_int32 TYPE_WAIT_LIST = 9;
+
+public:
+
+  enum IOEventType : v_int32 {
+    /**
+     * IO event type READ.
+     */
+    IO_EVENT_READ = 0,
+
+    /**
+     * IO event type WRITE.
+     */
+    IO_EVENT_WRITE = 1
+
+  };
+
+private:
+
+  struct IOData {
+    oatpp::data::v_io_handle ioHandle;
+    IOEventType ioEventType;
+  };
+
 private:
   union Data {
     FunctionPtr fptr;
     AbstractCoroutine* coroutine;
-    oatpp::data::v_io_handle ioHandle;
+    IOData ioData;
     v_int64 timePointMicroseconds;
+    CoroutineWaitList* waitList;
   };
 private:
   mutable v_int32 m_type;
@@ -123,8 +152,12 @@ protected:
   Action(v_int32 type);
 public:
 
+  /**
+   * Clone action.
+   * @param action - action to clone.
+   * @return - cloned action.
+   */
   static Action clone(const Action& action);
-
 
   /**
    * Create action of specific type
@@ -138,21 +171,28 @@ public:
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIOWaitAction(data::v_io_handle ioHandle = -1);
+  static Action createIOWaitAction(data::v_io_handle ioHandle, IOEventType ioEventType);
 
   /**
    * Create TYPE_IO_REPEAT Action
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIORepeatAction(data::v_io_handle ioHandle = -1);
+  static Action createIORepeatAction(data::v_io_handle ioHandle, IOEventType ioEventType);
 
   /**
    * Create TYPE_WAIT_REPEAT Action.
    * @param timePointMicroseconds - time since epoch.
-   * @return
+   * @return - Action.
    */
   static Action createWaitRepeatAction(v_int64 timePointMicroseconds);
+
+  /**
+   * Create TYPE_WAIT_LIST Action.
+   * @param waitList - wait-list to put coroutine on.
+   * @return - Action.
+   */
+  static Action createWaitListAction(CoroutineWaitList* waitList);
 
   /**
    * Constructor. Create start-coroutine Action.
@@ -203,6 +243,27 @@ public:
    * @return - action type.
    */
   v_int32 getType() const;
+
+  /**
+   * Get microseconds tick when timer should call coroutine again.
+   * This method returns meaningful value only if Action is TYPE_WAIT_REPEAT.
+   * @return - microseconds tick.
+   */
+  v_int64 getTimePointMicroseconds() const;
+
+  /**
+   * Get I/O handle which is passed with this action to I/O worker.
+   * This method returns meaningful value only if Action is TYPE_IO_WAIT or TYPE_IO_REPEAT.
+   * @return - &id:oatpp::data::v_io_handle;.
+   */
+  oatpp::data::v_io_handle getIOHandle() const;
+
+  /**
+   * This method returns meaningful value only if Action is TYPE_IO_WAIT or TYPE_IO_REPEAT.
+   * @return - should return one of
+   */
+  IOEventType getIOEventType() const;
+
   
 };
 
@@ -271,6 +332,7 @@ class AbstractCoroutine : public oatpp::base::Countable {
   friend Processor;
   friend CoroutineStarter;
   friend worker::Worker;
+  friend CoroutineWaitList;
 public:
   /**
    * Convenience typedef for Action
@@ -481,16 +543,16 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle = -1) const {
-    return Action::createIOWaitAction(ioHandle);
+  Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
+    return Action::createIOWaitAction(ioHandle, ioEventType);
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle = -1) const {
-    return Action::createIORepeatAction(ioHandle);
+  Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
+    return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 
   /**
@@ -670,16 +732,16 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle = -1) const {
-    return Action::createIOWaitAction(ioHandle);
+  Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
+    return Action::createIOWaitAction(ioHandle, ioEventType);
   }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle = -1) const {
-    return Action::createIORepeatAction(ioHandle);
+  Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
+    return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 
   /**

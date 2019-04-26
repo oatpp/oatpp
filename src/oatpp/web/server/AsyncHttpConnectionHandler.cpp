@@ -66,6 +66,9 @@ void AsyncHttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<han
 }
 
 void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
+
+  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
+  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
   
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
   auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
