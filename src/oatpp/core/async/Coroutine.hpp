@@ -43,6 +43,7 @@ namespace oatpp { namespace async {
 class AbstractCoroutine; // FWD
 class Processor; // FWD
 class CoroutineStarter; // FWD
+class CoroutineWaitList; // FWD
 
 namespace worker {
   class Worker; // FWD
@@ -105,6 +106,11 @@ public:
    */
   static constexpr const v_int32 TYPE_ERROR = 8;
 
+  /**
+   * Indicate that coroutine should be put on a wait-list provided.
+   */
+  static constexpr const v_int32 TYPE_WAIT_LIST = 9;
+
 public:
 
   static constexpr const v_int32 IO_EVENT_READ = 0;
@@ -123,6 +129,7 @@ private:
     AbstractCoroutine* coroutine;
     IOData ioData;
     v_int64 timePointMicroseconds;
+    CoroutineWaitList* waitList;
   };
 private:
   mutable v_int32 m_type;
@@ -162,9 +169,16 @@ public:
   /**
    * Create TYPE_WAIT_REPEAT Action.
    * @param timePointMicroseconds - time since epoch.
-   * @return
+   * @return - Action.
    */
   static Action createWaitRepeatAction(v_int64 timePointMicroseconds);
+
+  /**
+   * Create TYPE_WAIT_LIST Action.
+   * @param waitList - wait-list to put coroutine on.
+   * @return - Action.
+   */
+  static Action createWaitListAction(CoroutineWaitList* waitList);
 
   /**
    * Constructor. Create start-coroutine Action.
@@ -287,6 +301,7 @@ class AbstractCoroutine : public oatpp::base::Countable {
   friend Processor;
   friend CoroutineStarter;
   friend worker::Worker;
+  friend CoroutineWaitList;
 public:
   /**
    * Convenience typedef for Action

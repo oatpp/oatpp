@@ -98,7 +98,7 @@ void TimerWorker::work() {
           default:
             m_queue.cutEntry(curr, prev);
             setCoroutineScheduledAction(curr, std::move(action));
-            getCoroutineProcessor(curr)->pushOneTaskFromTimer(curr);
+            getCoroutineProcessor(curr)->pushOneTask(curr);
             curr = prev;
             break;
 

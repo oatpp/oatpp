@@ -17,6 +17,8 @@ add_library(oatpp
         oatpp/core/async/Error.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
+        oatpp/core/async/CoroutineWaitList.cpp
+        oatpp/core/async/CoroutineWaitList.hpp
         oatpp/core/async/Processor.cpp
         oatpp/core/async/Processor.hpp
         oatpp/core/async/worker/Worker.cpp
@@ -190,6 +192,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Subscriber.cpp
         oatpp/web/url/mapping/Subscriber.hpp
         oatpp/core/parser/ParsingError.cpp
+        oatpp/core/parser/ParsingError.hpp
         oatpp/core/parser/ParsingError.hpp
 )
 

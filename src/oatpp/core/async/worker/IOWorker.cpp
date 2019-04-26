@@ -112,7 +112,7 @@ void IOWorker::work() {
 //          roundIteration = 0;
 //          m_queue.popFront();
 //          setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
-//          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+//          getCoroutineProcessor(CP)->pushOneTask(CP);
 //          break;
 
         case Action::TYPE_IO_WAIT:
@@ -121,7 +121,7 @@ void IOWorker::work() {
             if(getCoroutineTimePoint(CP) < tick) {
               m_queue.popFront();
               setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
-              getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+              getCoroutineProcessor(CP)->pushOneTask(CP);
             } else {
               m_queue.round();
             }
@@ -135,7 +135,7 @@ void IOWorker::work() {
           roundIteration = 0;
           m_queue.popFront();
           setCoroutineScheduledAction(CP, std::move(action));
-          getCoroutineProcessor(CP)->pushOneTaskFromIO(CP);
+          getCoroutineProcessor(CP)->pushOneTask(CP);
           break;
 
       }

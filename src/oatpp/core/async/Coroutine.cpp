@@ -59,6 +59,12 @@ Action Action::createWaitRepeatAction(v_int64 timePointMicroseconds) {
   return result;
 }
 
+Action Action::createWaitListAction(CoroutineWaitList* waitList) {
+  Action result(TYPE_WAIT_LIST);
+  result.m_data.waitList = waitList;
+  return result;
+}
+
 Action::Action(AbstractCoroutine* coroutine)
   : m_type(TYPE_COROUTINE)
 {

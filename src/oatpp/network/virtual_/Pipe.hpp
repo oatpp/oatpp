@@ -25,6 +25,8 @@
 #ifndef oatpp_network_virtual__Pipe_hpp
 #define oatpp_network_virtual__Pipe_hpp
 
+#include "oatpp/core/async/CoroutineWaitList.hpp"
+
 #include "oatpp/core/data/stream/Stream.hpp"
 
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
@@ -51,6 +53,24 @@ public:
   class Reader : public oatpp::data::stream::InputStream {
     friend Pipe;
   private:
+    class WaitListListener : public oatpp::async::CoroutineWaitList::Listener {
+    private:
+      Pipe* m_pipe;
+    public:
+
+      WaitListListener(Pipe* pipe)
+        : m_pipe(pipe)
+      {}
+
+      void onNewItem(oatpp::async::CoroutineWaitList& list) override {
+        std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
+        if (m_pipe->m_fifo.availableToRead() > 0) {
+          list.notifyAllAndClear();
+        }
+      }
+
+    };
+  private:
     Pipe* m_pipe;
     oatpp::data::stream::IOMode m_ioMode;
     
@@ -58,13 +78,19 @@ public:
      * this one used for testing purposes only
      */
     data::v_io_size m_maxAvailableToRead;
+
+    oatpp::async::CoroutineWaitList m_waitList;
+    WaitListListener m_waitListListener;
   protected:
     
     Reader(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
       : m_pipe(pipe)
       , m_ioMode(ioMode)
       , m_maxAvailableToRead(-1)
-    {}
+      , m_waitListListener(pipe)
+    {
+      m_waitList.setListener(&m_waitListListener);
+    }
 
   public:
 
@@ -105,6 +131,11 @@ public:
      * @return
      */
     oatpp::data::stream::IOMode getInputStreamIOMode() override;
+
+    /**
+     * Notify coroutine wait-list
+     */
+    void notifyWaitList();
     
   };
 
@@ -115,6 +146,22 @@ public:
   class Writer : public oatpp::data::stream::OutputStream {
     friend Pipe;
   private:
+    class WaitListListener : public oatpp::async::CoroutineWaitList::Listener {
+    private:
+      Pipe* m_pipe;
+    public:
+      WaitListListener(Pipe* pipe)
+        : m_pipe(pipe)
+      {}
+
+      void onNewItem(oatpp::async::CoroutineWaitList& list) override {
+        std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
+        if (m_pipe->m_fifo.availableToWrite() > 0) {
+          list.notifyAllAndClear();
+        }
+      }
+    };
+  private:
     Pipe* m_pipe;
     oatpp::data::stream::IOMode m_ioMode;
     
@@ -122,13 +169,19 @@ public:
      * this one used for testing purposes only
      */
     data::v_io_size m_maxAvailableToWrtie;
+
+    oatpp::async::CoroutineWaitList m_waitList;
+    WaitListListener m_waitListListener;
   protected:
     
     Writer(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
       : m_pipe(pipe)
       , m_ioMode(ioMode)
       , m_maxAvailableToWrtie(-1)
-    {}
+      , m_waitListListener(pipe)
+    {
+      m_waitList.setListener(&m_waitListListener);
+    }
 
   public:
 
@@ -168,6 +221,11 @@ public:
      * @return
      */
     oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
+    /**
+     * Notify coroutine wait-list
+     */
+    void notifyWaitList();
     
   };
   

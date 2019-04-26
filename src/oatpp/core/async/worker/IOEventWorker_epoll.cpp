@@ -186,7 +186,7 @@ void IOEventWorker::waitEvents() {
             }
 
             setCoroutineScheduledAction(coroutine, std::move(action));
-            getCoroutineProcessor(coroutine)->pushOneTaskFromIO(coroutine);
+            getCoroutineProcessor(coroutine)->pushOneTask(coroutine);
 
         }
 
