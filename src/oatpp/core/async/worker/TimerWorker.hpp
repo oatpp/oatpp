@@ -35,6 +35,10 @@
 
 namespace oatpp { namespace async { namespace worker {
 
+/**
+ * Timer worker.
+ * Used to wait for timer-scheduled coroutines.
+ */
 class TimerWorker : public Worker {
 private:
   bool m_running;
@@ -48,14 +52,32 @@ private:
   void consumeBacklog();
 public:
 
+  /**
+   * Constructor.
+   * @param granularity - minimum possible time to wait.
+   */
   TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity = std::chrono::milliseconds(100));
 
+  /**
+   * Push list of tasks to worker.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   */
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
+  /**
+   * Push one task to worker.
+   * @param task - &id:AbstractCoroutine;.
+   */
   void pushOneTask(AbstractCoroutine* task) override;
 
-  void work();
+  /**
+   * Run worker.
+   */
+  void run() override;
 
+  /**
+   * Break run loop.
+   */
   void stop() override;
 
 };

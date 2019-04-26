@@ -99,11 +99,11 @@ void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operatio
 
   switch(action.getIOEventType()) {
 
-    case Action::IO_EVENT_READ:
+    case Action::IOEventType::IO_EVENT_READ:
       event.events = EPOLLIN  | EPOLLET | EPOLLONESHOT;
       break;
 
-    case Action::IO_EVENT_WRITE:
+    case Action::IOEventType::IO_EVENT_WRITE:
       event.events = EPOLLOUT | EPOLLET | EPOLLONESHOT;
       break;
 

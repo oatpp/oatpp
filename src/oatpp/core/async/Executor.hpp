@@ -79,6 +79,7 @@ private:
   v_int32 m_processorThreads;
   v_int32 m_ioThreads;
   v_int32 m_timerThreads;
+  v_int32 m_threadsCount;
   std::thread* m_threads;
   SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;

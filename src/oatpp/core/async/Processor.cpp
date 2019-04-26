@@ -92,11 +92,10 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
         popTimerTask(coroutine);
         break;
 
-//      case Action::TYPE_WAIT_LIST:
-//        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-//        m_queue.popFront();
-//        action.m_data.waitList->put(coroutine);
-//        break;
+      case Action::TYPE_WAIT_LIST:
+        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+        action.m_data.waitList->put(coroutine);
+        break;
 
       default:
         m_queue.pushBack(coroutine);

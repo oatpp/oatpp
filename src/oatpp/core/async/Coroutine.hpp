@@ -113,14 +113,24 @@ public:
 
 public:
 
-  static constexpr const v_int32 IO_EVENT_READ = 0;
-  static constexpr const v_int32 IO_EVENT_WRITE = 1;
+  enum IOEventType : v_int32 {
+    /**
+     * IO event type READ.
+     */
+    IO_EVENT_READ = 0,
+
+    /**
+     * IO event type WRITE.
+     */
+    IO_EVENT_WRITE = 1
+
+  };
 
 private:
 
   struct IOData {
     oatpp::data::v_io_handle ioHandle;
-    v_int32 ioEventType;
+    IOEventType ioEventType;
   };
 
 private:
@@ -142,8 +152,12 @@ protected:
   Action(v_int32 type);
 public:
 
+  /**
+   * Clone action.
+   * @param action - action to clone.
+   * @return - cloned action.
+   */
   static Action clone(const Action& action);
-
 
   /**
    * Create action of specific type
@@ -157,14 +171,14 @@ public:
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIOWaitAction(data::v_io_handle ioHandle, v_int32 ioEventType);
+  static Action createIOWaitAction(data::v_io_handle ioHandle, IOEventType ioEventType);
 
   /**
    * Create TYPE_IO_REPEAT Action
    * @param ioHandle - &id:oatpp::data::v_io_handle;.
    * @return - Action.
    */
-  static Action createIORepeatAction(data::v_io_handle ioHandle, v_int32 ioEventType);
+  static Action createIORepeatAction(data::v_io_handle ioHandle, IOEventType ioEventType);
 
   /**
    * Create TYPE_WAIT_REPEAT Action.
@@ -230,8 +244,25 @@ public:
    */
   v_int32 getType() const;
 
+  /**
+   * Get microseconds tick when timer should call coroutine again.
+   * This method returns meaningful value only if Action is TYPE_WAIT_REPEAT.
+   * @return - microseconds tick.
+   */
+  v_int64 getTimePointMicroseconds() const;
+
+  /**
+   * Get I/O handle which is passed with this action to I/O worker.
+   * This method returns meaningful value only if Action is TYPE_IO_WAIT or TYPE_IO_REPEAT.
+   * @return - &id:oatpp::data::v_io_handle;.
+   */
   oatpp::data::v_io_handle getIOHandle() const;
-  v_int32 getIOEventType() const;
+
+  /**
+   * This method returns meaningful value only if Action is TYPE_IO_WAIT or TYPE_IO_REPEAT.
+   * @return - should return one of
+   */
+  IOEventType getIOEventType() const;
 
   
 };
@@ -512,7 +543,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+  Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
     return Action::createIOWaitAction(ioHandle, ioEventType);
   }
 
@@ -520,7 +551,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+  Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
     return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 
@@ -701,7 +732,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  Action ioWait(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+  Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
     return Action::createIOWaitAction(ioHandle, ioEventType);
   }
 
@@ -709,7 +740,7 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  Action ioRepeat(data::v_io_handle ioHandle, v_int32 ioEventType) const {
+  Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
     return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 

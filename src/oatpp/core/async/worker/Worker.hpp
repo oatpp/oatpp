@@ -26,12 +26,20 @@
 #define oatpp_async_worker_Worker_hpp
 
 #include "oatpp/core/async/Coroutine.hpp"
+#include <thread>
 
 namespace oatpp { namespace async { namespace worker {
 
+/**
+ * Worker base class.
+ * Workers are used by &id:oatpp::async::Executor; to reschedule worker-specific tasks from &id:oatpp::async::Processor;.
+ */
 class Worker {
 public:
 
+  /**
+   * Worker type
+   */
   enum Type : v_int32 {
 
     /**
@@ -62,20 +70,47 @@ protected:
   static void setCoroutineScheduledAction(AbstractCoroutine* CP, Action&& action);
   static Action& getCoroutineScheduledAction(AbstractCoroutine* CP);
   static Processor* getCoroutineProcessor(AbstractCoroutine* CP);
-  static v_int64 getCoroutineTimePoint(AbstractCoroutine* CP);
   static void dismissAction(Action& action);
   static AbstractCoroutine* nextCoroutine(AbstractCoroutine* CP);
 public:
 
+  /**
+   * Constructor.
+   * @param type - worker type - one of &l:Worker::Type; values.
+   */
   Worker(Type type);
 
+  /**
+   * Default virtual destructor.
+   */
   virtual ~Worker() = default;
 
+  /**
+   * Push list of tasks to worker.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   */
   virtual void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) = 0;
+
+  /**
+   * Push one task to worker.
+   * @param task - &id:AbstractCoroutine;.
+   */
   virtual void pushOneTask(AbstractCoroutine* task) = 0;
 
+  /**
+   * Run worker.
+   */
+  virtual void run() = 0;
+
+  /**
+   * Break run loop.
+   */
   virtual void stop() = 0;
 
+  /**
+   * Get worker type.
+   * @return - one of &l:Worker::Type; values.
+   */
   Type getType();
 
 };

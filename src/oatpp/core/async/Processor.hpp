@@ -38,6 +38,7 @@ namespace oatpp { namespace async {
 /**
  * Asynchronous Processor.<br>
  * Responsible for processing and managing multiple Coroutines.
+ * Do not use bare processor to run coroutines. Use &id:oatpp::async::Executor; instead;.
  */
 class Processor {
 private:
@@ -121,9 +122,22 @@ private:
 
 public:
 
+  /**
+   * Add dedicated co-worker to processor.
+   * @param worker - &id:oatpp::async::worker::Worker;.
+   */
   void addWorker(const std::shared_ptr<worker::Worker>& worker);
 
+  /**
+   * Push one Coroutine back to processor.
+   * @param coroutine - &id:oatpp::async::AbstractCoroutine; previously popped-out(rescheduled to coworker) from this processor.
+   */
   void pushOneTask(AbstractCoroutine* coroutine);
+
+  /**
+   * Push list of Coroutines back to processor.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine; previously popped-out(rescheduled to coworker) from this processor.
+   */
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks);
 
   /**

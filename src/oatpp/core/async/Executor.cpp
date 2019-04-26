@@ -59,24 +59,30 @@ Executor::Executor(v_int32 processorThreads, v_int32 ioThreads, v_int32 timerThr
   : m_processorThreads(processorThreads)
   , m_ioThreads(ioThreads)
   , m_timerThreads(timerThreads)
-  , m_threads(new std::thread[m_processorThreads])
+  , m_threadsCount(m_processorThreads + ioThreads + timerThreads)
+  , m_threads(new std::thread[m_threadsCount])
   , m_processors(new SubmissionProcessor[m_processorThreads])
 {
 
+  v_int32 threadCnt = 0;
   for(v_int32 i = 0; i < m_processorThreads; i ++) {
-    m_threads[i] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
+    m_threads[threadCnt ++] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
   }
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
   for(v_int32 i = 0; i < m_ioThreads; i++) {
-    ioWorkers.push_back(std::make_shared<worker::IOEventWorker>());
+    std::shared_ptr<worker::Worker> worker = std::make_shared<worker::IOEventWorker>();
+    ioWorkers.push_back(worker);
+    m_threads[threadCnt ++] = std::thread(&worker::Worker::run, worker.get());
   }
 
   linkWorkers(ioWorkers);
 
   std::vector<std::shared_ptr<worker::Worker>> timerWorkers;
   for(v_int32 i = 0; i < m_timerThreads; i++) {
-    timerWorkers.push_back(std::make_shared<worker::TimerWorker>());
+    std::shared_ptr<worker::Worker> worker = std::make_shared<worker::TimerWorker>();
+    timerWorkers.push_back(worker);
+    m_threads[threadCnt ++] = std::thread(&worker::Worker::run, worker.get());
   }
 
   linkWorkers(timerWorkers);
@@ -130,13 +136,13 @@ void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& w
 }
 
 void Executor::join() {
-  for(v_int32 i = 0; i < m_processorThreads; i ++) {
+  for(v_int32 i = 0; i < m_threadsCount; i ++) {
     m_threads[i].join();
   }
 }
 
 void Executor::detach() {
-  for(v_int32 i = 0; i < m_processorThreads; i ++) {
+  for(v_int32 i = 0; i < m_threadsCount; i ++) {
     m_threads[i].detach();
   }
 }

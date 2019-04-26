@@ -35,6 +35,10 @@
 
 namespace oatpp { namespace async { namespace worker {
 
+/**
+ * Naive implementation of IOWorker.
+ * Polls all I/O handles in a loop. Reschedules long-waiting handles to Timer.
+ */
 class IOWorker : public Worker {
 private:
   bool m_running;
@@ -46,14 +50,31 @@ private:
   void consumeBacklog(bool blockToConsume);
 public:
 
+  /**
+   * Constructor.
+   */
   IOWorker();
 
+  /**
+   * Push list of tasks to worker.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   */
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
+  /**
+   * Push one task to worker.
+   * @param task - &id:AbstractCoroutine;.
+   */
   void pushOneTask(AbstractCoroutine* task) override;
 
-  void work();
+  /**
+   * Run worker.
+   */
+  void run() override;
 
+  /**
+   * Break run loop.
+   */
   void stop() override;
 
 };

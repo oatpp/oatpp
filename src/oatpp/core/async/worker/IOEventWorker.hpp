@@ -54,6 +54,13 @@
 
 namespace oatpp { namespace async { namespace worker {
 
+/**
+ * Event-based implementation of I/O worker.
+ * <ul>
+ *   <li>`kqueue` based implementation - for Mac/BSD systems</li>
+ *   <li>`epoll` based implementation - for Linux systems</li>
+ * </ul>
+ */
 class IOEventWorker : public Worker {
 private:
   static constexpr const v_int32 MAX_EVENTS = 10000;
@@ -77,16 +84,36 @@ private:
   void setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr);
 public:
 
+  /**
+   * Constructor.
+   */
   IOEventWorker();
 
+  /**
+   * Virtual destructor.
+   */
   ~IOEventWorker();
 
+  /**
+   * Push list of tasks to worker.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   */
   void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
 
+  /**
+   * Push one task to worker.
+   * @param task - &id:AbstractCoroutine;.
+   */
   void pushOneTask(AbstractCoroutine* task) override;
 
-  void work();
+  /**
+   * Run worker.
+   */
+  void run() override;
 
+  /**
+   * Break run loop.
+   */
   void stop() override;
 
 };

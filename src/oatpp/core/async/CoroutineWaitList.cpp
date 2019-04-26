@@ -56,8 +56,9 @@ void CoroutineWaitList::notifyAllAndClear() {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   auto curr = m_list.first;
   while(curr != nullptr) {
+    auto next = curr->_ref;
     curr->_PP->pushOneTask(curr);
-    curr = curr->_ref;
+    curr = next;
   }
   std::memset(&m_list, 0, sizeof(m_list));
 }

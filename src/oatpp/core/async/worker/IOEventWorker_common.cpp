@@ -36,12 +36,7 @@ IOEventWorker::IOEventWorker()
   , m_inEvents(nullptr)
   , m_inEventsCount(0)
   , m_outEvents(nullptr)
-{
-
-  std::thread thread(&IOEventWorker::work, this);
-  thread.detach();
-
-}
+{}
 
 IOEventWorker::~IOEventWorker() {
 
@@ -81,7 +76,7 @@ void IOEventWorker::pushOneTask(AbstractCoroutine *task) {
   triggerWakeup();
 }
 
-void IOEventWorker::work() {
+void IOEventWorker::run() {
 
   initEventQueue();
 

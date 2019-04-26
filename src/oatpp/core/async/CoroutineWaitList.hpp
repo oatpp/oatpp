@@ -39,9 +39,20 @@ namespace oatpp { namespace async {
 class CoroutineWaitList {
   friend Processor;
 public:
+  /**
+   * Listener for new items in the wait-list.
+   */
   class Listener {
   public:
+    /**
+     * Default virtual destructor.
+     */
     virtual ~Listener() = default;
+
+    /**
+     * Called when new item is pushed to the list.
+     * @param list - list where new item was pushed to.
+     */
     virtual void onNewItem(CoroutineWaitList& list) = 0;
   };
 private:

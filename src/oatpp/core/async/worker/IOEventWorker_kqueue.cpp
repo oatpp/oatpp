@@ -98,11 +98,11 @@ void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operatio
 
   switch(action.getIOEventType()) {
 
-    case Action::IO_EVENT_READ:
+    case Action::IOEventType::IO_EVENT_READ:
       event->filter = EVFILT_READ;
       break;
 
-    case Action::IO_EVENT_WRITE:
+    case Action::IOEventType::IO_EVENT_WRITE:
       event->filter = EVFILT_WRITE;
       break;
 

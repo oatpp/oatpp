@@ -63,7 +63,7 @@ public:
       {}
 
       void onNewItem(oatpp::async::CoroutineWaitList& list) override {
-        std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
+        std::lock_guard<std::mutex> lock(m_pipe->m_mutex);
         if (m_pipe->m_fifo.availableToRead() > 0) {
           list.notifyAllAndClear();
         }
@@ -155,7 +155,7 @@ public:
       {}
 
       void onNewItem(oatpp::async::CoroutineWaitList& list) override {
-        std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
+        std::lock_guard<std::mutex> lock(m_pipe->m_mutex);
         if (m_pipe->m_fifo.availableToWrite() > 0) {
           list.notifyAllAndClear();
         }

@@ -39,14 +39,14 @@ Action Action::createActionByType(v_int32 type) {
   return Action(type);
 }
 
-Action Action::createIOWaitAction(data::v_io_handle ioHandle, v_int32 ioEventType) {
+Action Action::createIOWaitAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
   Action result(TYPE_IO_WAIT);
   result.m_data.ioData.ioHandle = ioHandle;
   result.m_data.ioData.ioEventType = ioEventType;
   return result;
 }
 
-Action Action::createIORepeatAction(data::v_io_handle ioHandle, v_int32 ioEventType) {
+Action Action::createIORepeatAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
   Action result(TYPE_IO_REPEAT);
   result.m_data.ioData.ioHandle = ioHandle;
   result.m_data.ioData.ioEventType = ioEventType;
@@ -86,11 +86,10 @@ Action::Action(Action&& other)
   , m_data(other.m_data)
 {
   other.m_type = TYPE_NONE;
-  //OATPP_LOGD("aaa", "moving");
 }
 
 Action::~Action() {
-  if(m_type == TYPE_COROUTINE && m_data.coroutine != nullptr) {
+  if(m_type == TYPE_COROUTINE) {
     delete m_data.coroutine;
   }
 }
@@ -110,11 +109,15 @@ v_int32 Action::getType() const {
   return m_type;
 }
 
+v_int64 Action::getTimePointMicroseconds() const {
+  return m_data.timePointMicroseconds;
+}
+
 oatpp::data::v_io_handle Action::getIOHandle() const {
   return m_data.ioData.ioHandle;
 }
 
-v_int32 Action::getIOEventType() const {
+Action::IOEventType Action::getIOEventType() const {
   return m_data.ioData.ioEventType;
 }
 
