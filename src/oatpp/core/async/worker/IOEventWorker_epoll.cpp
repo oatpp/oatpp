@@ -59,7 +59,12 @@ void IOEventWorker::initEventQueue() {
   std::memset(&event, 0, sizeof(struct epoll_event));
 
   event.data.ptr = this;
+
+#ifdef EPOLLEXCLUSIVE
   event.events = EPOLLIN | EPOLLET | EPOLLEXCLUSIVE;
+#else
+  event.events = EPOLLIN | EPOLLET;
+#endif
 
   auto res = ::epoll_ctl(m_eventQueueHandle, EPOLL_CTL_ADD, m_wakeupTrigger, &event);
   if(res == -1) {
