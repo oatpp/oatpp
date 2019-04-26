@@ -193,7 +193,6 @@ add_library(oatpp
         oatpp/web/url/mapping/Subscriber.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
-        oatpp/core/parser/ParsingError.hpp
 )
 
 set_target_properties(oatpp PROPERTIES
