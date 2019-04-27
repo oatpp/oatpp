@@ -64,7 +64,7 @@ public:
 
       void onNewItem(oatpp::async::CoroutineWaitList& list) override {
         std::lock_guard<std::mutex> lock(m_pipe->m_mutex);
-        if (m_pipe->m_fifo.availableToRead() > 0) {
+        if (m_pipe->m_fifo.availableToRead() > 0 || !m_pipe->m_open) {
           list.notifyAllAndClear();
         }
       }
