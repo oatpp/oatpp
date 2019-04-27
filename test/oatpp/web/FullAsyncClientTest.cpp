@@ -240,10 +240,11 @@ void FullAsyncClientTest::onRun() {
     OATPP_ASSERT(ClientCoroutine_getRootAsync::SUCCESS_COUNTER == -1); // -1 is success
     OATPP_ASSERT(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == -1); // -1 is success
 
+    executor->waitTasksFinished(); // Wait executor tasks before quit.
+
   }, std::chrono::minutes(10));
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-  executor->waitTasksFinished();
   executor->join();
 
 }

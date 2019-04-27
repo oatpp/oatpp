@@ -87,7 +87,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
 
-  oatpp::test::UnitTest::runTest<oatpp::test::web::FullAsyncClientTest>(10);
+  oatpp::test::UnitTest::runTest<oatpp::test::web::FullAsyncClientTest>(20);
 
 }
   
