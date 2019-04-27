@@ -202,9 +202,6 @@ void FullAsyncClientTest::onRun() {
 
   runner.addController(app::ControllerAsync::createShared());
 
-  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-  executor->detach();
-
   runner.run([] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
@@ -218,7 +215,6 @@ void FullAsyncClientTest::onRun() {
       executor->execute<ClientCoroutine_getRootAsync>();
       executor->execute<ClientCoroutine_echoBodyAsync>();
     }
-
 
     while(
       ClientCoroutine_getRootAsync::SUCCESS_COUNTER != -1 ||
@@ -245,6 +241,9 @@ void FullAsyncClientTest::onRun() {
     OATPP_ASSERT(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == -1); // -1 is success
 
   }, std::chrono::minutes(10));
+
+  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+  executor->join();
 
 }
 

@@ -127,9 +127,6 @@ public:
 
     timerThread.join();
 
-    // Wait for worker threads are finished
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
   }
 
 };
