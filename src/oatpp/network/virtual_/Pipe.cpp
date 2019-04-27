@@ -90,7 +90,7 @@ oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioRe
   switch (ioResult) {
     case oatpp::data::IOError::WAIT_RETRY: {
       std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
-      if (m_pipe->m_fifo.availableToRead() > 0) {
+      if (m_pipe->m_fifo.availableToRead() > 0 || !m_pipe->m_open) {
         return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
       }
       return oatpp::async::Action::createWaitListAction(&m_waitList);
@@ -173,7 +173,7 @@ oatpp::async::Action Pipe::Writer::suggestOutputStreamAction(data::v_io_size ioR
   switch (ioResult) {
     case oatpp::data::IOError::WAIT_RETRY: {
       std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
-      if (m_pipe->m_fifo.availableToWrite() > 0) {
+      if (m_pipe->m_fifo.availableToWrite() > 0 || !m_pipe->m_open) {
         return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
       }
       return oatpp::async::Action::createWaitListAction(&m_waitList);
@@ -202,6 +202,10 @@ Pipe::Pipe()
 
 std::shared_ptr<Pipe> Pipe::createShared(){
   return std::make_shared<Pipe>();
+}
+
+Pipe::~Pipe() {
+  close();
 }
 
 Pipe::Writer* Pipe::getWriter() {

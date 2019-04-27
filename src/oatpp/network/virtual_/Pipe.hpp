@@ -156,7 +156,7 @@ public:
 
       void onNewItem(oatpp::async::CoroutineWaitList& list) override {
         std::lock_guard<std::mutex> lock(m_pipe->m_mutex);
-        if (m_pipe->m_fifo.availableToWrite() > 0) {
+        if (m_pipe->m_fifo.availableToWrite() > 0 || !m_pipe->m_open) {
           list.notifyAllAndClear();
         }
       }
@@ -252,6 +252,11 @@ public:
    * @return - `std::shared_ptr` to Pipe.
    */
   static std::shared_ptr<Pipe> createShared();
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~Pipe();
 
   /**
    * Get pointer to &l:Pipe::Writer; for this pipe.
