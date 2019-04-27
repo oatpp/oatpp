@@ -243,6 +243,7 @@ void FullAsyncClientTest::onRun() {
   }, std::chrono::minutes(10));
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+  executor->waitTasksFinished();
   executor->join();
 
 }

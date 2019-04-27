@@ -109,6 +109,7 @@ private:
 private:
 
   bool m_running = true;
+  std::atomic<v_int32> m_tasksCounter;
 
 private:
 
@@ -121,6 +122,11 @@ private:
   void pushQueues();
 
 public:
+
+  Processor()
+    : m_running(true)
+    , m_tasksCounter(0)
+  {}
 
   /**
    * Add dedicated co-worker to processor.
@@ -149,6 +155,7 @@ public:
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
     auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
+    ++ m_tasksCounter;
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     m_taskList.push_back(submission);
     m_taskCondition.notify_one();
@@ -170,6 +177,12 @@ public:
    * Stop waiting for new tasks.
    */
   void stop();
+
+  /**
+   * Get number of all not-finished tasks including tasks rescheduled for processor's co-workers.
+   * @return - number of not-finished tasks.
+   */
+  v_int32 getTasksCount();
 
   
 };

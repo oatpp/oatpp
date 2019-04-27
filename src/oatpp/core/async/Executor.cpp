@@ -156,5 +156,29 @@ void Executor::stop() {
     worker->stop();
   }
 }
+
+v_int32 Executor::getTasksCount() {
+  v_int32 result = 0;
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
+    result += m_processors[i].getProcessor().getTasksCount();
+  }
+  return result;
+}
+
+void Executor::waitTasksFinished(const std::chrono::duration<v_int64, std::micro>& timeout) {
+
+  auto startTime = std::chrono::system_clock::now();
+  auto end = startTime + timeout;
+
+  while(getTasksCount() != 0) {
+    auto elapsed = std::chrono::system_clock::now() - startTime;
+    if(elapsed < timeout) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    } else {
+      break;
+    }
+  }
+
+}
   
 }}

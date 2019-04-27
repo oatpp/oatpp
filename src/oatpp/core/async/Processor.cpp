@@ -208,6 +208,7 @@ bool Processor::iterate(v_int32 numIterations) {
       }
       if (CP->finished()) {
         m_queue.popFrontNoData();
+        -- m_tasksCounter;
       } else {
 
         const Action &action = CP->takeAction(CP->iterate());
@@ -266,6 +267,10 @@ void Processor::stop() {
     m_running = false;
   }
   m_taskCondition.notify_one();
+}
+
+v_int32 Processor::getTasksCount() {
+  return m_tasksCounter.load();
 }
 
 }}

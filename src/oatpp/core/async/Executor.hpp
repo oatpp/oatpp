@@ -131,6 +131,18 @@ public:
     auto& processor = m_processors[(++ m_balancer) % m_processorThreads];
     processor.execute<CoroutineType, Args...>(params...);
   }
+
+  /**
+   * Get number of all not finished tasks.
+   * @return - number of all not finished tasks.
+   */
+  v_int32 getTasksCount();
+
+  /**
+   * Wait until all tasks are finished.
+   * @param timeout
+   */
+  void waitTasksFinished(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::minutes(1));
   
 };
   
