@@ -190,12 +190,19 @@ void FullAsyncTest::onRun() {
       }
       
     }
+
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider);
+
+    connectionProvider->close();
+    connection.reset();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     
   }, std::chrono::minutes(10));
 
-  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+  executor->waitTasksFinished();
   executor->join();
 
 }
