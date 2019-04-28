@@ -123,7 +123,7 @@ void FullAsyncTest::onRun() {
 
   runner.addController(app::ControllerAsync::createShared());
 
-  runner.run([this] {
+  runner.run([this, &runner] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
@@ -196,12 +196,17 @@ void FullAsyncTest::onRun() {
       
     }
 
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider);
-
-    connectionProvider->close();
     connection.reset();
-
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Stop server and unblock accepting thread
+
+    runner.getServer()->stop();
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
+    connectionProvider->getConnection();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     
   }, std::chrono::minutes(10));
 

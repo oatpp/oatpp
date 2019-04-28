@@ -218,7 +218,7 @@ void FullAsyncClientTest::onRun() {
 
   runner.addController(app::ControllerAsync::createShared());
 
-  runner.run([this] {
+  runner.run([this, &runner] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
 
@@ -257,6 +257,15 @@ void FullAsyncClientTest::onRun() {
     OATPP_ASSERT(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == -1); // -1 is success
 
     executor->waitTasksFinished(); // Wait executor tasks before quit.
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Stop server and unblock accepting thread
+
+    runner.getServer()->stop();
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
+    connectionProvider->getConnection();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }, std::chrono::minutes(10));
 
