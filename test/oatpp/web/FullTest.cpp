@@ -127,6 +127,7 @@ void FullTest::onRun() {
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
     auto connection = client->getConnection();
+    OATPP_ASSERT(connection);
 
     v_int32 iterationsStep = 1000;
 
@@ -202,7 +203,7 @@ void FullTest::onRun() {
       }
 
       if((i + 1) % iterationsStep == 0) {
-        OATPP_LOGD("i", "%d", i + 1);
+        OATPP_LOGD("i", "%d, tick=%d", i + 1, oatpp::base::Environment::getMicroTickCount());
       }
 
     }
