@@ -118,7 +118,7 @@ void FullTest::onRun() {
 
   runner.addController(app::Controller::createShared());
 
-  runner.run([] {
+  runner.run([this] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
@@ -129,7 +129,9 @@ void FullTest::onRun() {
     auto connection = client->getConnection();
     OATPP_ASSERT(connection);
 
-    v_int32 iterationsStep = 1000;
+    v_int32 iterationsStep = m_iterationsPerStep;
+
+    auto lastTick = oatpp::base::Environment::getMicroTickCount();
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
 
@@ -203,7 +205,9 @@ void FullTest::onRun() {
       }
 
       if((i + 1) % iterationsStep == 0) {
-        OATPP_LOGD("i", "%d, tick=%d", i + 1, oatpp::base::Environment::getMicroTickCount());
+        auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
+        lastTick = oatpp::base::Environment::getMicroTickCount();
+        OATPP_LOGD("i", "%d, tick=%d", i + 1, ticks);
       }
 
     }
