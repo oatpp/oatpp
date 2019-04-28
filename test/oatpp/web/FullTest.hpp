@@ -30,9 +30,15 @@
 namespace oatpp { namespace test { namespace web {
 
 class FullTest : public UnitTest {
+private:
+  v_int32 m_port;
 public:
   
-  FullTest():UnitTest("TEST[web::FullTest]"){}
+  FullTest(v_int32 port)
+    : UnitTest("TEST[web::FullTest]")
+    , m_port(port)
+  {}
+
   void onRun() override;
   
 };

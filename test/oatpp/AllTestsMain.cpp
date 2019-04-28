@@ -83,11 +83,35 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
-  OATPP_RUN_TEST(oatpp::test::web::FullTest);
+  {
 
-  OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
+    oatpp::test::web::FullTest test_virtual(0);
+    test_virtual.run();
 
-  oatpp::test::UnitTest::runTest<oatpp::test::web::FullAsyncClientTest>(20);
+    oatpp::test::web::FullTest test_port(8000);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::FullAsyncTest test_virtual(0);
+    test_virtual.run();
+
+    oatpp::test::web::FullAsyncTest test_port(8000);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::FullAsyncClientTest test_virtual(0, 10000);
+    test_virtual.run(20);
+
+    oatpp::test::web::FullAsyncClientTest test_port(8000, 100);
+    test_port.run(1);
+
+  }
 
 }
   
