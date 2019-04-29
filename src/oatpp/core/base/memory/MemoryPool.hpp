@@ -28,7 +28,6 @@
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
-#include <atomic>
 #include <list>
 #include <unordered_map>
 #include <cstring>
@@ -41,7 +40,7 @@ namespace oatpp { namespace base { namespace  memory {
  */
 class MemoryPool {
 public:
-  static oatpp::concurrency::SpinLock::Atom POOLS_ATOM;
+  static oatpp::concurrency::SpinLock POOLS_SPIN_LOCK;
   static std::unordered_map<v_int64, MemoryPool*> POOLS;
 private:
   static std::atomic<v_int64> poolIdCounter;
@@ -72,8 +71,8 @@ private:
   v_int64 m_id;
   std::list<p_char8> m_chunks;
   EntryHeader* m_rootEntry;
-  oatpp::concurrency::SpinLock::Atom m_atom;
   v_int32 m_objectsCount;
+  oatpp::concurrency::SpinLock m_lock;
 public:
 
   /**

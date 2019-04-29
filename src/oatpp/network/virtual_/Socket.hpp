@@ -85,10 +85,44 @@ public:
   data::v_io_size write(const void *data, data::v_io_size count) override;
 
   /**
-   * Set socket for nonblocking I/O.
-   * @param nonBlocking - `true` for nonblocking.
+   * Implementation of OutputStream must suggest async actions for I/O results.
+   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * @param ioResult - result of the call to &l:OutputStream::write ();.
+   * @return - &id:oatpp::async::Action;.
    */
-  void setNonBlocking(bool nonBlocking);
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+
+  /**
+   * Implementation of InputStream must suggest async actions for I/O results.
+   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * @param ioResult - result of the call to &l:InputStream::read ();.
+   * @return - &id:oatpp::async::Action;.
+   */
+  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+
+  /**
+   * Set OutputStream I/O mode.
+   * @param ioMode
+   */
+  void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Set OutputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
+  /**
+   * Set InputStream I/O mode.
+   * @param ioMode
+   */
+  void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Get InputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
   /**
    * Close socket pipes.

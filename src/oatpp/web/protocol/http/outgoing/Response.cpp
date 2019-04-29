@@ -75,23 +75,26 @@ void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   } else {
     m_headers[Header::CONTENT_LENGTH] = "0";
   }
-  
-  stream->write("HTTP/1.1 ", 9);
-  stream->writeAsString(m_status.code);
-  stream->write(" ", 1);
-  stream->OutputStream::write(m_status.description);
-  stream->write("\r\n", 2);
+
+  oatpp::data::stream::ChunkedBuffer buffer;
+
+  buffer.write("HTTP/1.1 ", 9);
+  buffer.writeAsString(m_status.code);
+  buffer.write(" ", 1);
+  buffer.OutputStream::write(m_status.description);
+  buffer.write("\r\n", 2);
   
   auto it = m_headers.begin();
   while(it != m_headers.end()) {
-    stream->write(it->first.getData(), it->first.getSize());
-    stream->write(": ", 2);
-    stream->write(it->second.getData(), it->second.getSize());
-    stream->write("\r\n", 2);
+    buffer.write(it->first.getData(), it->first.getSize());
+    buffer.write(": ", 2);
+    buffer.write(it->second.getData(), it->second.getSize());
+    buffer.write("\r\n", 2);
     it ++;
   }
-  
-  stream->write("\r\n", 2);
+
+  buffer.write("\r\n", 2);
+  buffer.flushToStream(stream);
   if(m_body) {
     m_body->writeToStream(stream);
   }

@@ -38,7 +38,7 @@ std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<S
   return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
 }
 
-void ObjectMapper::write(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+void ObjectMapper::write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
                          const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const {
   Serializer::serialize(stream, variant, serializerConfig);
 }

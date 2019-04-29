@@ -49,6 +49,7 @@ public:
   typedef oatpp::web::server::HttpRouter HttpRouter;
   typedef oatpp::web::server::api::ApiController ApiController;
 private:
+  std::shared_ptr<oatpp::network::server::Server> m_server;
   std::list<std::shared_ptr<ApiController>> m_controllers;
   OATPP_COMPONENT(std::shared_ptr<HttpRouter>, m_router);
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, m_connectionProvider);
@@ -68,6 +69,10 @@ public:
     m_controllers.push_back(controller);
   }
 
+  std::shared_ptr<oatpp::network::server::Server> getServer() {
+    return m_server;
+  }
+
   /**
    * Start server, execute code block passed as lambda, stop server.
    * @tparam Lambda
@@ -85,20 +90,20 @@ public:
     std::mutex timeoutMutex;
     std::condition_variable timeoutCondition;
 
-    oatpp::network::server::Server server(m_connectionProvider, m_connectionHandler);
+    m_server = std::make_shared<oatpp::network::server::Server>(m_connectionProvider, m_connectionHandler);
     OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %lld(micro)\033[0m",
                m_connectionProvider->getProperty("port").toString()->c_str(),
                timeout.count());
 
-    std::thread serverThread([&server]{
-      server.run();
+    std::thread serverThread([this]{
+      m_server->run();
     });
 
-    std::thread clientThread([this, &server, &lambda]{
+    std::thread clientThread([this, &lambda]{
 
       lambda();
 
-      server.stop();
+      m_server->stop();
       m_connectionHandler->stop();
       m_connectionProvider->close();
 
@@ -126,9 +131,6 @@ public:
     timeoutCondition.notify_one();
 
     timerThread.join();
-
-    // Wait for worker threads are finished
-    std::this_thread::sleep_for(std::chrono::seconds(1));
 
   }
 

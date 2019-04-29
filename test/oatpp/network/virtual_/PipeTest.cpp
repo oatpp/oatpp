@@ -31,6 +31,7 @@
 #include "oatpp-test/Checker.hpp"
 
 #include <iostream>
+#include <thread>
 
 namespace oatpp { namespace test { namespace network { namespace virtual_ {
   

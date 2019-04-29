@@ -23,77 +23,116 @@
  ***************************************************************************/
 
 #include "Executor.hpp"
+#include "oatpp/core/async/worker/IOEventWorker.hpp"
+#include "oatpp/core/async/worker/IOWorker.hpp"
+#include "oatpp/core/async/worker/TimerWorker.hpp"
 
 namespace oatpp { namespace async {
 
-const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Executor::SubmissionProcessor
 
 Executor::SubmissionProcessor::SubmissionProcessor()
-  : m_atom(false)
-  , m_isRunning(true)
+  : m_isRunning(true)
 {}
-
-void Executor::SubmissionProcessor::consumeTasks() {
-  oatpp::concurrency::SpinLock lock(m_atom);
-  auto curr = m_pendingTasks.getFirstNode();
-  while (curr != nullptr) {
-    m_processor.addWaitingCoroutine(curr->getData()->createCoroutine());
-    curr = curr->getNext();
-  }
-  m_pendingTasks.clear();
-}
 
 void Executor::SubmissionProcessor::run(){
   
   while(m_isRunning) {
-    
-    /* Load all waiting connections into processor */
-    consumeTasks();
-    
-    /* Process all, and check for incoming connections once in 1000 iterations */
-    while (m_processor.iterate(1000)) {
-      consumeTasks();
-    }
-    
-    std::unique_lock<std::mutex> lock(m_taskMutex);
-    if(m_processor.isEmpty()) {
-      /* No tasks in the processor. Wait for incoming connections */
-      m_taskCondition.wait_for(lock, std::chrono::milliseconds(500));
-    } else {
-      /* There is still something in slow queue. Wait and get back to processing */
-      /* Waiting for IO is not Applicable here as slow queue may contain NON-IO tasks */
-      //OATPP_LOGD("proc", "waiting slow queue");
-      m_taskCondition.wait_for(lock, std::chrono::milliseconds(10));
-    }
-    
+    m_processor.waitForTasks();
+    while (m_processor.iterate(100)) {}
   }
   
 }
 
 void Executor::SubmissionProcessor::stop() {
   m_isRunning = false;
+  m_processor.stop();
 }
 
-void Executor::SubmissionProcessor::addTaskSubmission(const std::shared_ptr<TaskSubmission>& task){
-  oatpp::concurrency::SpinLock lock(m_atom);
-  m_pendingTasks.pushBack(task);
-  m_taskCondition.notify_one();
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Executor
 
+const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
 
-Executor::Executor(v_int32 threadsCount)
-  : m_threadsCount(threadsCount)
+Executor::Executor(v_int32 processorThreads, v_int32 ioThreads, v_int32 timerThreads)
+  : m_processorThreads(processorThreads)
+  , m_ioThreads(ioThreads)
+  , m_timerThreads(timerThreads)
+  , m_threadsCount(m_processorThreads + ioThreads + timerThreads)
   , m_threads(new std::thread[m_threadsCount])
-  , m_processors(new SubmissionProcessor[m_threadsCount])
+  , m_processors(new SubmissionProcessor[m_processorThreads])
 {
-  for(v_int32 i = 0; i < m_threadsCount; i ++) {
-    m_threads[i] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
+
+  v_int32 threadCnt = 0;
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
+    m_threads[threadCnt ++] = std::thread(&SubmissionProcessor::run, &m_processors[i]);
   }
+
+  std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
+  for(v_int32 i = 0; i < m_ioThreads; i++) {
+    std::shared_ptr<worker::Worker> worker = std::make_shared<worker::IOEventWorker>();
+    ioWorkers.push_back(worker);
+    m_threads[threadCnt ++] = std::thread(&worker::Worker::run, worker.get());
+  }
+
+  linkWorkers(ioWorkers);
+
+  std::vector<std::shared_ptr<worker::Worker>> timerWorkers;
+  for(v_int32 i = 0; i < m_timerThreads; i++) {
+    std::shared_ptr<worker::Worker> worker = std::make_shared<worker::TimerWorker>();
+    timerWorkers.push_back(worker);
+    m_threads[threadCnt ++] = std::thread(&worker::Worker::run, worker.get());
+  }
+
+  linkWorkers(timerWorkers);
+
 }
 
 Executor::~Executor() {
   delete [] m_processors;
   delete [] m_threads;
+}
+
+void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers) {
+
+  m_workers.insert(m_workers.end(), workers.begin(), workers.end());
+
+  if(m_processorThreads > workers.size() && (m_processorThreads % workers.size()) == 0) {
+
+    v_int32 wi = 0;
+    for(v_int32 i = 0; i < m_processorThreads; i ++) {
+      auto& p = m_processors[i];
+      p.getProcessor().addWorker(workers[wi]);
+      wi ++;
+      if(wi == workers.size()) {
+        wi = 0;
+      }
+    }
+
+  } else if ((workers.size() % m_processorThreads) == 0) {
+
+    v_int32 pi = 0;
+    for(v_int32 i = 0; i < workers.size(); i ++) {
+      auto& p = m_processors[pi];
+      p.getProcessor().addWorker(workers[i]);
+      pi ++;
+      if(pi == m_processorThreads) {
+        pi = 0;
+      }
+    }
+
+  } else {
+
+    for(v_int32 i = 0; i < m_processorThreads; i ++) {
+      auto& p = m_processors[i];
+      for(auto& w : workers) {
+        p.getProcessor().addWorker(w);
+      }
+    }
+
+  }
+
 }
 
 void Executor::join() {
@@ -109,9 +148,37 @@ void Executor::detach() {
 }
 
 void Executor::stop() {
-  for(v_int32 i = 0; i < m_threadsCount; i ++) {
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
     m_processors[i].stop();
   }
+
+  for(auto& worker : m_workers) {
+    worker->stop();
+  }
+}
+
+v_int32 Executor::getTasksCount() {
+  v_int32 result = 0;
+  for(v_int32 i = 0; i < m_processorThreads; i ++) {
+    result += m_processors[i].getProcessor().getTasksCount();
+  }
+  return result;
+}
+
+void Executor::waitTasksFinished(const std::chrono::duration<v_int64, std::micro>& timeout) {
+
+  auto startTime = std::chrono::system_clock::now();
+  auto end = startTime + timeout;
+
+  while(getTasksCount() != 0) {
+    auto elapsed = std::chrono::system_clock::now() - startTime;
+    if(elapsed < timeout) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    } else {
+      break;
+    }
+  }
+
 }
   
 }}

@@ -37,6 +37,7 @@ public:
   FastQueue()
     : first(nullptr)
     , last(nullptr)
+    , count(0)
   {}
   
   ~FastQueue(){
@@ -45,6 +46,7 @@ public:
   
   T* first;
   T* last;
+  v_int32 count;
   
   void pushFront(T* entry) {
     entry->_ref = first;
@@ -52,6 +54,7 @@ public:
     if(last == nullptr) {
       last = first;
     }
+    ++ count;
   }
   
   void pushBack(T* entry) {
@@ -63,13 +66,16 @@ public:
       last->_ref = entry;
       last = entry;
     }
+    ++ count;
   }
   
   void round(){
-    last->_ref = first;
-    last = first;
-    first = first->_ref;
-    last->_ref = nullptr;
+    if(count > 1) {
+      last->_ref = first;
+      last = first;
+      first = first->_ref;
+      last->_ref = nullptr;
+    }
   }
   
   T* popFront() {
@@ -78,6 +84,7 @@ public:
     if(first == nullptr) {
       last = nullptr;
     }
+    -- count;
     return result;
   }
   
@@ -88,35 +95,43 @@ public:
       last = nullptr;
     }
     delete result;
+    -- count;
   }
-  
-  void removeEntry(T* entry, T* prevEntry){
-    
-    if(prevEntry == nullptr) {
-      popFrontNoData();
-    } else if(entry->_ref == nullptr) {
-      prevEntry->_ref = nullptr;
-      last = prevEntry;
-      delete entry;
-    } else {
-      prevEntry->_ref = entry->_ref;
-      delete entry;
+
+  static void moveAll(FastQueue& fromQueue, FastQueue& toQueue) {
+
+    if(fromQueue.count > 0) {
+
+      if (toQueue.last == nullptr) {
+        toQueue.first = fromQueue.first;
+        toQueue.last = fromQueue.last;
+      } else {
+        toQueue.last->_ref = fromQueue.first;
+        toQueue.last = fromQueue.last;
+      }
+
+      toQueue.count += fromQueue.count;
+      fromQueue.count = 0;
+
+      fromQueue.first = nullptr;
+      fromQueue.last = nullptr;
+
     }
+
   }
-  
-  static void moveEntry(FastQueue& fromQueue, FastQueue& toQueue, T* entry, T* prevEntry){
+
+  void cutEntry(T* entry, T* prevEntry){
 
     if(prevEntry == nullptr) {
-      toQueue.pushFront(fromQueue.popFront());
-    } else if(entry->_ref == nullptr) {
-      toQueue.pushBack(entry);
-      fromQueue.last = prevEntry;
-      prevEntry->_ref = nullptr;
+      popFront();
     } else {
       prevEntry->_ref = entry->_ref;
-      toQueue.pushBack(entry);
+      -- count;
+      if(prevEntry->_ref == nullptr) {
+        last = prevEntry;
+      }
     }
-    
+
   }
   
   void clear() {
@@ -128,6 +143,7 @@ public:
     }
     first = nullptr;
     last = nullptr;
+    count = 0;
   }
   
 };

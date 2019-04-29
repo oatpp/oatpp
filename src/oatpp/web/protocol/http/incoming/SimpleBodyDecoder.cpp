@@ -138,8 +138,8 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     
     ChunkedDecoder(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
                    const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream)
-    : m_fromStream(fromStream)
-    , m_toStream(toStream)
+      : m_fromStream(fromStream)
+      , m_toStream(toStream)
     {}
     
     Action act() override {
@@ -151,9 +151,9 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     Action readLineChar() {
       auto res = m_fromStream->read(&m_lineChar, 1);
       if(res == data::IOError::WAIT_RETRY) {
-        return oatpp::async::Action::TYPE_WAIT_RETRY;
+        return m_fromStream->suggestInputStreamAction(res);
       } else if(res == data::IOError::RETRY) {
-        return oatpp::async::Action::TYPE_REPEAT;
+        return m_fromStream->suggestInputStreamAction(res);
       } else if( res < 0) {
         return error<Error>("[BodyDecoder::ChunkedDecoder] Can't read line char");
       }

@@ -29,8 +29,8 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                                                 oatpp::data::stream::OutputStream* bufferStream,
-                                                                 Result& result) {
+                                                         oatpp::data::stream::OutputStream* bufferStream,
+                                                         Result& result) {
   
   v_word32 sectionEnd = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
   v_word32 accumulator = 0;
@@ -146,10 +146,10 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream
           }
         }
         
-        return waitRetry();
+        return m_connection->suggestInputStreamAction(res);
         
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
-        return waitRetry();
+        return m_connection->suggestInputStreamAction(res);
       } else if(res == data::IOError::BROKEN_PIPE){
         return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else if(res == data::IOError::ZERO_VALUE){

@@ -1,0 +1,123 @@
+/***************************************************************************
+ *
+ * Project         _____    __   ____   _      _
+ *                (  _  )  /__\ (_  _)_| |_  _| |_
+ *                 )(_)(  /(__)\  )( (_   _)(_   _)
+ *                (_____)(__)(__)(__)  |_|    |_|
+ *
+ *
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ***************************************************************************/
+
+#ifndef oatpp_async_worker_IOEventWorker_hpp
+#define oatpp_async_worker_IOEventWorker_hpp
+
+#include "./Worker.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
+
+#include <thread>
+#include <mutex>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if !defined(OATPP_IO_EVENT_INTERFACE)
+
+  #if defined(__linux__) || defined(linux) || defined(__linux)
+
+    #define OATPP_IO_EVENT_INTERFACE "epoll"
+    #define OATPP_IO_EVENT_INTERFACE_EPOLL
+
+  #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || \
+        defined(__bsdi__) || defined(__DragonFly__)|| defined(__APPLE__)
+
+    #define OATPP_IO_EVENT_INTERFACE "kqueue"
+    #define OATPP_IO_EVENT_INTERFACE_KQUEUE
+
+  #endif
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace oatpp { namespace async { namespace worker {
+
+/**
+ * Event-based implementation of I/O worker.
+ * <ul>
+ *   <li>`kqueue` based implementation - for Mac/BSD systems</li>
+ *   <li>`epoll` based implementation - for Linux systems</li>
+ * </ul>
+ */
+class IOEventWorker : public Worker {
+private:
+  static constexpr const v_int32 MAX_EVENTS = 10000;
+private:
+  bool m_running;
+  oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
+  oatpp::concurrency::SpinLock m_backlogLock;
+private:
+  oatpp::data::v_io_handle m_eventQueueHandle;
+  oatpp::data::v_io_handle m_wakeupTrigger;
+  p_char8 m_inEvents;
+  v_int32 m_inEventsCount;
+  p_char8 m_outEvents;
+private:
+  void consumeBacklog();
+  void waitEvents();
+private:
+  void initEventQueue();
+  void triggerWakeup();
+  void setTriggerEvent(p_char8 eventPtr);
+  void setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr);
+public:
+
+  /**
+   * Constructor.
+   */
+  IOEventWorker();
+
+  /**
+   * Virtual destructor.
+   */
+  ~IOEventWorker();
+
+  /**
+   * Push list of tasks to worker.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   */
+  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+
+  /**
+   * Push one task to worker.
+   * @param task - &id:AbstractCoroutine;.
+   */
+  void pushOneTask(AbstractCoroutine* task) override;
+
+  /**
+   * Run worker.
+   */
+  void run() override;
+
+  /**
+   * Break run loop.
+   */
+  void stop() override;
+
+};
+
+}}}
+
+#endif //oatpp_async_worker_IOEventWorker_hpp

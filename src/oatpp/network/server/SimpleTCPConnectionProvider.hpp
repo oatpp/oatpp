@@ -38,29 +38,28 @@ namespace oatpp { namespace network { namespace server {
 class SimpleTCPConnectionProvider : public base::Countable, public ServerConnectionProvider {
 private:
   v_word16 m_port;
-  bool m_nonBlocking;
   bool m_closed;
   oatpp::data::v_io_handle m_serverHandle;
 private:
   oatpp::data::v_io_handle instantiateServer();
 public:
+
   /**
    * Constructor.
    * @param port - port to listen for incoming connections.
-   * @param nonBlocking - set `true` to provide non-blocking &id:oatpp::data::stream::IOStream; for connection.
-   * `false` for blocking &id:oatpp::data::stream::IOStream;. Default `false`.
+   * @param port
    */
-  SimpleTCPConnectionProvider(v_word16 port, bool nonBlocking = false);
+  SimpleTCPConnectionProvider(v_word16 port);
 public:
 
   /**
    * Create shared SimpleTCPConnectionProvider.
    * @param port - port to listen for incoming connections.
-   * @param nonBlocking - set `true` to provide non-blocking &id:oatpp::data::stream::IOStream; for connection.
-   * `false` for blocking &id:oatpp::data::stream::IOStream;. Default `false`.
+   * @param port
+   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool nonBlocking = false){
-    return std::make_shared<SimpleTCPConnectionProvider>(port, nonBlocking);
+  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port){
+    return std::make_shared<SimpleTCPConnectionProvider>(port);
   }
 
   /**

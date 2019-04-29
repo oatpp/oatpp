@@ -50,22 +50,32 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
-//#define OATPP_TEST_USE_PORT 8000
-
 class TestComponent {
+private:
+  v_int32 m_port;
 public:
+
+  TestComponent(v_int32 port)
+    : m_port(port)
+  {}
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
     return oatpp::network::virtual_::Interface::createShared("virtualhost");
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {
-#ifdef OATPP_TEST_USE_PORT
-      return oatpp::network::server::SimpleTCPConnectionProvider::createShared(OATPP_TEST_USE_PORT);
-#else
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    return oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
-#endif
+
+    if(m_port == 0) { // Use oatpp virtual interface
+      OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
+      return std::static_pointer_cast<oatpp::network::ServerConnectionProvider>(
+        oatpp::network::virtual_::server::ConnectionProvider::createShared(interface)
+      );
+    }
+
+    return std::static_pointer_cast<oatpp::network::ServerConnectionProvider>(
+      oatpp::network::server::SimpleTCPConnectionProvider::createShared(m_port)
+    );
+
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, httpRouter)([] {
@@ -82,12 +92,18 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider)([this] {
-#ifdef OATPP_TEST_USE_PORT
-      return oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", OATPP_TEST_USE_PORT);
-#else
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
-    return oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
-#endif
+
+    if(m_port == 0) {
+      OATPP_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, interface);
+      return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
+        oatpp::network::virtual_::client::ConnectionProvider::createShared(interface)
+      );
+    }
+
+    return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
+      oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", m_port)
+    );
+
   }());
 
 };
@@ -96,13 +112,13 @@ public:
   
 void FullTest::onRun() {
 
-  TestComponent component;
+  TestComponent component(m_port);
 
   oatpp::test::web::ClientServerTestRunner runner;
 
   runner.addController(app::Controller::createShared());
 
-  runner.run([] {
+  runner.run([this, &runner] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
@@ -111,8 +127,11 @@ void FullTest::onRun() {
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
     auto connection = client->getConnection();
+    OATPP_ASSERT(connection);
 
-    v_int32 iterationsStep = 1000;
+    v_int32 iterationsStep = m_iterationsPerStep;
+
+    auto lastTick = oatpp::base::Environment::getMicroTickCount();
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
 
@@ -186,10 +205,21 @@ void FullTest::onRun() {
       }
 
       if((i + 1) % iterationsStep == 0) {
-        OATPP_LOGD("i", "%d", i + 1);
+        auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
+        lastTick = oatpp::base::Environment::getMicroTickCount();
+        OATPP_LOGD("i", "%d, tick=%d", i + 1, ticks);
       }
 
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Stop server and unblock accepting thread
+
+    runner.getServer()->stop();
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
+    connectionProvider->getConnection();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }, std::chrono::minutes(10));
 

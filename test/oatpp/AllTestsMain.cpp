@@ -27,33 +27,31 @@
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
 #include "oatpp/core/base/RegRuleTest.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
 
+#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
 #include <iostream>
+#include <mutex>
 
 #ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 namespace {
 
 class Logger : public oatpp::base::Logger {
 private:
-  oatpp::concurrency::SpinLock::Atom m_atom;
+  oatpp::concurrency::SpinLock m_lock;
 public:
   
-  Logger()
-  : m_atom(false)
-  {}
-  
   void log(v_int32 priority, const std::string& tag, const std::string& message) override {
-    oatpp::concurrency::SpinLock lock(m_atom);
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
     std::cout << tag << ":" << message << "\n";
   }
   
 };
+
+
 
 void runTests() {
 
@@ -84,11 +82,36 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
-  OATPP_RUN_TEST(oatpp::test::web::FullTest);
 
-  OATPP_RUN_TEST(oatpp::test::web::FullAsyncTest);
+  {
 
-  oatpp::test::UnitTest::runTest<oatpp::test::web::FullAsyncClientTest>(10);
+    oatpp::test::web::FullTest test_virtual(0, 1000);
+    test_virtual.run();
+
+    oatpp::test::web::FullTest test_port(8000, 10);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
+    test_virtual.run();
+
+    oatpp::test::web::FullAsyncTest test_port(8000, 10);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
+    test_virtual.run(20);
+
+    oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
+    test_port.run(1);
+
+  }
 
 }
   

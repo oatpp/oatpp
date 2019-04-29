@@ -32,6 +32,11 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
+enum IOMode : v_int32 {
+  BLOCKING = 0,
+  NON_BLOCKING = 1
+};
+
 /**
  * Output Stream.
  */
@@ -51,6 +56,26 @@ public:
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
   virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
+
+  /**
+   * Implementation of OutputStream must suggest async actions for I/O results.
+   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * @param ioResult - result of the call to &l:OutputStream::write ();.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) = 0;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  virtual void setOutputStreamIOMode(IOMode ioMode) = 0;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  virtual IOMode getOutputStreamIOMode() = 0;
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -79,46 +104,6 @@ public:
     return write(&c, 1);
   }
 
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_int32 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_int64 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_float32 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(v_float64 value);
-
-  /**
-   * Convert value to string and write to stream.
-   * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
-   * **Careful!!!** - use this method on your own risk as it's hard to understand if all data was written to stream.
-   */
-  data::v_io_size writeAsString(bool value);
-  
 };
 
 /**
@@ -140,6 +125,27 @@ public:
    * @return - actual number of bytes read.
    */
   virtual data::v_io_size read(void *data, data::v_io_size count) = 0;
+
+  /**
+   * Implementation of InputStream must suggest async actions for I/O results.
+   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * @param ioResult - result of the call to &l:InputStream::read ();.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) = 0;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  virtual void setInputStreamIOMode(IOMode ioMode) = 0;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  virtual IOMode getInputStreamIOMode() = 0;
+
 };
 
 /**
@@ -166,7 +172,7 @@ public:
 public:
   
   static std::shared_ptr<CompoundIOStream> createShared(const std::shared_ptr<OutputStream>& outputStream,
-                                                  const std::shared_ptr<InputStream>& inputStream){
+                                                        const std::shared_ptr<InputStream>& inputStream){
     return Shared_CompoundIOStream_Pool::allocateShared(outputStream, inputStream);
   }
   
@@ -177,24 +183,107 @@ public:
   data::v_io_size read(void *data, data::v_io_size count) override {
     return m_inputStream->read(data, count);
   }
+
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override {
+    return m_outputStream->suggestOutputStreamAction(ioResult);
+  }
+
+  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override {
+    return m_inputStream->suggestInputStreamAction(ioResult);
+  }
+
+  void setOutputStreamIOMode(IOMode ioMode) override {
+    m_outputStream->setOutputStreamIOMode(ioMode);
+  }
+
+  IOMode getOutputStreamIOMode() override {
+    return m_outputStream->getOutputStreamIOMode();
+  }
+
+  void setInputStreamIOMode(IOMode ioMode) override {
+    m_inputStream->setInputStreamIOMode(ioMode);
+  }
+
+  IOMode getInputStreamIOMode() override {
+    return m_inputStream->getInputStreamIOMode();
+  }
     
 };
-  
-OutputStream& operator << (OutputStream& s, const oatpp::String& str);
-OutputStream& operator << (OutputStream& s, const Int8& value);
-OutputStream& operator << (OutputStream& s, const Int16& value);
-OutputStream& operator << (OutputStream& s, const Int32& value);
-OutputStream& operator << (OutputStream& s, const Int64& value);
-OutputStream& operator << (OutputStream& s, const Float32& value);
-OutputStream& operator << (OutputStream& s, const Float64& value);
-OutputStream& operator << (OutputStream& s, const Boolean& value);
 
-OutputStream& operator << (OutputStream& s, const char* str);
-OutputStream& operator << (OutputStream& s, v_int32 value);
-OutputStream& operator << (OutputStream& s, v_int64 value);
-OutputStream& operator << (OutputStream& s, v_float32 value);
-OutputStream& operator << (OutputStream& s, v_float64 value);
-OutputStream& operator << (OutputStream& s, bool value);
+/**
+ * Streams that guarantee data to be written in exact amount as specified in call to &l:OutputStream::write (); should extend this class.
+ */
+class ConsistentOutputStream : public OutputStream {
+public:
+
+  /**
+   * This should never be called. Call to implementation of this particular method will throw `std::runtime_error`.<br>
+   * No suggestions for ConsistentOutputStream async I/O operations are needed.<br>
+   * ConsistentOutputStream always fully satisfies call to write() method.<br>
+   * @param ioResult - result of call to write() method.
+   * @return - &id:oatpp::async::Action;.
+   * @throws - `std::runtime_error`
+   */
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override {
+    const char* message =
+      "Error. ConsistentOutputStream::suggestOutputStreamAction() method is called.\n"
+      "No suggestions for ConsistentOutputStream async I/O operations are needed.\n "
+      "ConsistentOutputStream always fully satisfies call to write() method.";
+    throw std::runtime_error(message);
+  }
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   */
+  data::v_io_size writeAsString(v_int32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   */
+  data::v_io_size writeAsString(v_int64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   */
+  data::v_io_size writeAsString(v_float32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   */
+  data::v_io_size writeAsString(v_float64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   */
+  data::v_io_size writeAsString(bool value);
+
+};
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float32& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float64& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Boolean& value);
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const char* str);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
 
 class AsyncTransferError : public oatpp::async::Error {
 public:
@@ -207,19 +296,19 @@ public:
  * throws in case readCount != writeCount
  */
 oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
-                                        const std::shared_ptr<OutputStream>& toStream,
-                                        oatpp::data::v_io_size transferSize,
-                                        void* buffer,
-                                        oatpp::data::v_io_size bufferSize);
+                                const std::shared_ptr<OutputStream>& toStream,
+                                oatpp::data::v_io_size transferSize,
+                                void* buffer,
+                                oatpp::data::v_io_size bufferSize);
   
   
 /**
  * Same as transfer but asynchronous
  */
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
-                                     const std::shared_ptr<OutputStream>& toStream,
-                                     oatpp::data::v_io_size transferSize,
-                                     const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
+                                             const std::shared_ptr<OutputStream>& toStream,
+                                             oatpp::data::v_io_size transferSize,
+                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,

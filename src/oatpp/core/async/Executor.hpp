@@ -26,6 +26,7 @@
 #define oatpp_async_Executor_hpp
 
 #include "./Processor.hpp"
+#include "oatpp/core/async/worker/Worker.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
@@ -46,67 +47,26 @@ namespace oatpp { namespace async {
 class Executor {
 private:
   
-  class TaskSubmission {
-  public:
-    virtual ~TaskSubmission() {};
-    virtual AbstractCoroutine* createCoroutine() = 0;
-  };
-  
-  /*
-   * Sequence generating templates
-   * used to convert tuple to parameters pack
-   * Example: expand SequenceGenerator<3>:
-   * // 2, 2, {} // 1, 1, {2} // 0, 0, {1, 2} // 0, {0, 1, 2}
-   * where {...} is int...S
-   */
-  template<int ...> struct IndexSequence {};
-  template<int N, int ...S> struct SequenceGenerator : SequenceGenerator <N - 1, N - 1, S...> {};
-  template<int ...S>
-  struct SequenceGenerator<0, S...> {
-    typedef IndexSequence<S...> type;
-  };
-  
-  template<typename CoroutineType, typename ... Args>
-  class SubmissionTemplate : public TaskSubmission {
-  private:
-    std::tuple<Args...> m_params;
-  public:
-    
-    SubmissionTemplate(Args... params)
-      : m_params(std::make_tuple(params...))
-    {}
-    
-    virtual AbstractCoroutine* createCoroutine() {
-      return creator(typename SequenceGenerator<sizeof...(Args)>::type());
-    }
-    
-    template<int ...S>
-    AbstractCoroutine* creator(IndexSequence<S...>) {
-      return new CoroutineType(std::get<S>(m_params) ...);
-    }
-    
-  };
-  
-  class SubmissionProcessor {
-  private:
-    typedef oatpp::collection::LinkedList<std::shared_ptr<TaskSubmission>> Tasks;
-  private:
-    void consumeTasks();
+  class SubmissionProcessor/* : public Worker */{
   private:
     oatpp::async::Processor m_processor;
-    oatpp::concurrency::SpinLock::Atom m_atom;
-    Tasks m_pendingTasks;
   private:
     bool m_isRunning;
-    std::mutex m_taskMutex;
-    std::condition_variable m_taskCondition;
   public:
     SubmissionProcessor();
   public:
     
     void run();
-    void stop();
-    void addTaskSubmission(const std::shared_ptr<TaskSubmission>& task);
+    void stop() ;
+
+    template<typename CoroutineType, typename ... Args>
+    void execute(Args... params) {
+      m_processor.execute<CoroutineType, Args...>(params...);
+    }
+
+    oatpp::async::Processor& getProcessor() {
+      return m_processor;
+    }
     
   };
 
@@ -116,18 +76,28 @@ public:
    */
   static const v_int32 THREAD_NUM_DEFAULT;
 private:
+  v_int32 m_processorThreads;
+  v_int32 m_ioThreads;
+  v_int32 m_timerThreads;
   v_int32 m_threadsCount;
-  //std::shared_ptr<oatpp::concurrency::Thread>* m_threads;
   std::thread* m_threads;
   SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;
+private:
+  std::vector<std::shared_ptr<worker::Worker>> m_workers;
+private:
+  void linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers);
 public:
 
   /**
    * Constructor.
-   * @param threadsCount - Number of threads to run coroutines.
+   * @param processorThreads - number of data processing threads.
+   * @param ioThreads - number of I/O threads.
+   * @param timerThreads - number of timer threads.
    */
-  Executor(v_int32 threadsCount = THREAD_NUM_DEFAULT);
+  Executor(v_int32 processorThreads = THREAD_NUM_DEFAULT,
+           v_int32 ioThreads = 1,
+           v_int32 timerThreads = 1);
 
   /**
    * Non-virtual Destructor.
@@ -158,13 +128,21 @@ public:
    */
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
-    auto& processor = m_processors[m_balancer % m_threadsCount];
-    
-    auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
-    processor.addTaskSubmission(submission);
-    
-    m_balancer ++;
+    auto& processor = m_processors[(++ m_balancer) % m_processorThreads];
+    processor.execute<CoroutineType, Args...>(params...);
   }
+
+  /**
+   * Get number of all not finished tasks.
+   * @return - number of all not finished tasks.
+   */
+  v_int32 getTasksCount();
+
+  /**
+   * Wait until all tasks are finished.
+   * @param timeout
+   */
+  void waitTasksFinished(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::minutes(1));
   
 };
   

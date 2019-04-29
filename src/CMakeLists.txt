@@ -17,10 +17,22 @@ add_library(oatpp
         oatpp/core/async/Error.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
-        oatpp/core/async/Executor.cpp
-        oatpp/core/async/Executor.hpp
+        oatpp/core/async/CoroutineWaitList.cpp
+        oatpp/core/async/CoroutineWaitList.hpp
         oatpp/core/async/Processor.cpp
         oatpp/core/async/Processor.hpp
+        oatpp/core/async/worker/Worker.cpp
+        oatpp/core/async/worker/Worker.hpp
+        oatpp/core/async/worker/IOWorker.cpp
+        oatpp/core/async/worker/IOWorker.hpp
+        oatpp/core/async/worker/IOEventWorker_common.cpp
+        oatpp/core/async/worker/IOEventWorker_kqueue.cpp
+        oatpp/core/async/worker/IOEventWorker_epoll.cpp
+        oatpp/core/async/worker/IOEventWorker.hpp
+        oatpp/core/async/worker/TimerWorker.cpp
+        oatpp/core/async/worker/TimerWorker.hpp
+        oatpp/core/async/Executor.cpp
+        oatpp/core/async/Executor.hpp
         oatpp/core/base/CommandLineArguments.cpp
         oatpp/core/base/CommandLineArguments.hpp
         oatpp/core/base/Config.hpp

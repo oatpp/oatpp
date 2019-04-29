@@ -59,7 +59,9 @@ void UnitTest::run(v_int32 times) {
     auto it = POOLS.begin();
     while (it != POOLS.end()) {
       auto pool = it->second;
-      OATPP_LOGD("Pool", "name: '%s' [%d(objs)]", pool->getName().c_str(), pool->getObjectsCount());
+      if(pool->getObjectsCount() != 0) {
+        OATPP_LOGD("Pool", "name: '%s' [%d(objs)]", pool->getName().c_str(), pool->getObjectsCount());
+      }
       it ++;
     }
 

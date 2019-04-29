@@ -35,6 +35,36 @@ Action Action::clone(const Action& action) {
   return result;
 }
 
+Action Action::createActionByType(v_int32 type) {
+  return Action(type);
+}
+
+Action Action::createIOWaitAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+  Action result(TYPE_IO_WAIT);
+  result.m_data.ioData.ioHandle = ioHandle;
+  result.m_data.ioData.ioEventType = ioEventType;
+  return result;
+}
+
+Action Action::createIORepeatAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+  Action result(TYPE_IO_REPEAT);
+  result.m_data.ioData.ioHandle = ioHandle;
+  result.m_data.ioData.ioEventType = ioEventType;
+  return result;
+}
+
+Action Action::createWaitRepeatAction(v_int64 timePointMicroseconds) {
+  Action result(TYPE_WAIT_REPEAT);
+  result.m_data.timePointMicroseconds = timePointMicroseconds;
+  return result;
+}
+
+Action Action::createWaitListAction(CoroutineWaitList* waitList) {
+  Action result(TYPE_WAIT_LIST);
+  result.m_data.waitList = waitList;
+  return result;
+}
+
 Action::Action(AbstractCoroutine* coroutine)
   : m_type(TYPE_COROUTINE)
 {
@@ -56,11 +86,10 @@ Action::Action(Action&& other)
   , m_data(other.m_data)
 {
   other.m_type = TYPE_NONE;
-  //OATPP_LOGD("aaa", "moving");
 }
 
 Action::~Action() {
-  if(m_type == TYPE_COROUTINE && m_data.coroutine != nullptr) {
+  if(m_type == TYPE_COROUTINE) {
     delete m_data.coroutine;
   }
 }
@@ -72,12 +101,24 @@ Action& Action::operator=(Action&& other) {
   return *this;
 }
 
-bool Action::isError() {
+bool Action::isError() const {
   return m_type == TYPE_ERROR;
 }
 
-v_int32 Action::getType() {
+v_int32 Action::getType() const {
   return m_type;
+}
+
+v_int64 Action::getTimePointMicroseconds() const {
+  return m_data.timePointMicroseconds;
+}
+
+oatpp::data::v_io_handle Action::getIOHandle() const {
+  return m_data.ioData.ioHandle;
+}
+
+Action::IOEventType Action::getIOEventType() const {
+  return m_data.ioData.ioEventType;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +190,8 @@ AbstractCoroutine::AbstractCoroutine()
   : _CP(this)
   , _FP(&AbstractCoroutine::act)
   , _ERR(nullptr)
+  , _PP(nullptr)
+  , _SCH_A(Action::TYPE_NONE)
   , _ref(nullptr)
   , m_parent(nullptr)
   , m_propagatedError(&_ERR)
@@ -157,13 +200,13 @@ AbstractCoroutine::AbstractCoroutine()
 
 Action AbstractCoroutine::iterate() {
   try {
-    return takeAction(_CP->call(_FP));
+    return _CP->call(_FP);
   } catch (std::exception& e) {
     *m_propagatedError = std::make_shared<Error>(e.what());
-    return takeAction(Action::TYPE_ERROR);
+    return Action::TYPE_ERROR;
   } catch (...) {
     *m_propagatedError = ERROR_UNKNOWN;
-    return takeAction(Action::TYPE_ERROR);
+    return Action::TYPE_ERROR;
   }
 };
 
@@ -172,9 +215,6 @@ Action AbstractCoroutine::takeAction(Action&& action) {
   AbstractCoroutine* savedCP;
 
   switch (action.m_type) {
-
-    case Action::TYPE_REPEAT: return Action::TYPE_REPEAT;//std::forward<oatpp::async::Action>(action);
-    case Action::TYPE_WAIT_RETRY: return Action::TYPE_WAIT_RETRY;//std::forward<oatpp::async::Action>(action);
 
     case Action::TYPE_COROUTINE:
       action.m_data.coroutine->m_parent = _CP;
@@ -225,7 +265,8 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 
   };
 
-  throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
+  //throw std::runtime_error("[oatpp::async::AbstractCoroutine::takeAction()]: Error. Unknown Action.");
+  return std::forward<oatpp::async::Action>(action);
 
 }
 

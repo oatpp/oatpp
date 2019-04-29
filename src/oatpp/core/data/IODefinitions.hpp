@@ -86,24 +86,48 @@ enum IOError : v_io_size {
 
 };
 
+/**
+ * Asynchronous I/O error. <br>
+ * Extends &id:oatpp::async::Error;.
+ */
 class AsyncIOError : public oatpp::async::Error {
 public:
+  /**
+   * Pre Created error. BROKEN_PIPE.
+   */
   static const std::shared_ptr<const Error> ERROR_BROKEN_PIPE;
+
+  /**
+   * Pre Created error. ZERO_VALUE.
+   */
   static const std::shared_ptr<const Error> ERROR_ZERO_VALUE;
 private:
   v_io_size m_code;
 public:
 
+  /**
+   * Constructor.
+   * @param what - description of error type.
+   * @param code - I/O opersation error code. &l:IOError;.
+   */
   AsyncIOError(const char* what, v_io_size code)
     : oatpp::async::Error(what)
     , m_code(code)
   {}
 
+  /**
+   * Constructor.
+   * @param code - I/O opersation error code. &l:IOError;.
+   */
   AsyncIOError(v_io_size code)
     : oatpp::async::Error("AsyncIOError")
     , m_code(code)
   {}
 
+  /**
+   * Get I/O opersation error code.
+   * @return - I/O opersation error code. &l:IOError;.
+   */
   v_io_size getCode() const {
     return m_code;
   }

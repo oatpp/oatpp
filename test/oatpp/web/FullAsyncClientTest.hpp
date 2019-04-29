@@ -30,9 +30,17 @@
 namespace oatpp { namespace test { namespace web {
 
 class FullAsyncClientTest : public UnitTest {
+private:
+  v_int32 m_port;
+  v_int32 m_connectionsPerEndpoint;
 public:
 
-  FullAsyncClientTest():UnitTest("TEST[web::FullAsyncClientTest]"){}
+  FullAsyncClientTest(v_int32 port, v_int32 connectionsPerEndpoint)
+    : UnitTest("TEST[web::FullAsyncClientTest]")
+    , m_port(port)
+    , m_connectionsPerEndpoint(connectionsPerEndpoint)
+  {}
+
   void onRun() override;
 
 };

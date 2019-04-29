@@ -46,7 +46,8 @@ void ConnectionProvider::close() {
 std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
   auto submission = m_interface->connect();
   auto socket = submission->getSocket();
-  socket->setNonBlocking(false);
+  socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+  socket->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
   socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
   return socket;
 }
@@ -74,7 +75,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       if(m_submission){
         return yieldTo(&ConnectCoroutine::obtainSocket);
       }
-      return waitRetry();
+      return waitRepeat(std::chrono::milliseconds(100));
     }
 
     Action obtainSocket() {
@@ -84,12 +85,13 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         auto socket = m_submission->getSocketNonBlocking();
 
         if(socket) {
-          socket->setNonBlocking(true);
+          socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
+          socket->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
           socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
           return _return(socket);
         }
 
-        return waitRetry();
+        return waitRepeat(std::chrono::milliseconds(100));
       }
 
       return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");

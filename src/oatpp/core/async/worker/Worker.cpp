@@ -22,29 +22,36 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_FullAsyncTest_hpp
-#define oatpp_test_web_FullAsyncTest_hpp
+#include "Worker.hpp"
 
-#include "oatpp-test/UnitTest.hpp"
+namespace oatpp { namespace async { namespace worker {
 
-namespace oatpp { namespace test { namespace web {
-  
-class FullAsyncTest : public UnitTest {
-private:
-  v_int32 m_port;
-  v_int32 m_iterationsPerStep;
-public:
-  
-  FullAsyncTest(v_int32 port, v_int32 iterationsPerStep)
-    : UnitTest("TEST[web::FullAsyncTest]")
-    , m_port(port)
-    , m_iterationsPerStep(iterationsPerStep)
-  {}
+Worker::Worker(Type type)
+  : m_type(type)
+{}
 
-  void onRun() override;
-  
-};
-  
+void Worker::setCoroutineScheduledAction(AbstractCoroutine *CP, Action &&action) {
+  CP->_SCH_A = std::forward<Action>(action);
+}
+
+Action& Worker::getCoroutineScheduledAction(AbstractCoroutine* CP) {
+  return CP->_SCH_A;
+}
+
+Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
+  return CP->_PP;
+}
+
+void Worker::dismissAction(Action& action) {
+  action.m_type = Action::TYPE_NONE;
+}
+
+AbstractCoroutine* Worker::nextCoroutine(AbstractCoroutine* CP) {
+  return CP->_ref;
+}
+
+Worker::Type Worker::getType() {
+  return m_type;
+}
+
 }}}
-
-#endif /* oatpp_test_web_FullAsyncTest_hpp */

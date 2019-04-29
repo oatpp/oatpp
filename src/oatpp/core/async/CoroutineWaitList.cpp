@@ -22,29 +22,46 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_FullAsyncTest_hpp
-#define oatpp_test_web_FullAsyncTest_hpp
+#include "CoroutineWaitList.hpp"
 
-#include "oatpp-test/UnitTest.hpp"
+#include "./Processor.hpp"
 
-namespace oatpp { namespace test { namespace web {
-  
-class FullAsyncTest : public UnitTest {
-private:
-  v_int32 m_port;
-  v_int32 m_iterationsPerStep;
-public:
-  
-  FullAsyncTest(v_int32 port, v_int32 iterationsPerStep)
-    : UnitTest("TEST[web::FullAsyncTest]")
-    , m_port(port)
-    , m_iterationsPerStep(iterationsPerStep)
-  {}
+namespace oatpp { namespace async {
 
-  void onRun() override;
-  
-};
-  
-}}}
 
-#endif /* oatpp_test_web_FullAsyncTest_hpp */
+CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
+  std::memcpy(&m_list, &other.m_list, sizeof(m_list));
+  std::memset(&other.m_list, 0, sizeof(m_list));
+}
+
+CoroutineWaitList::~CoroutineWaitList() {
+  notifyAllAndClear();
+}
+
+void CoroutineWaitList::setListener(Listener* listener) {
+  m_listener = listener;
+}
+
+void CoroutineWaitList::put(AbstractCoroutine* coroutine) {
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+    m_list.pushBack(coroutine);
+  }
+  if(m_listener != nullptr) {
+    m_listener->onNewItem(*this);
+  }
+}
+
+void CoroutineWaitList::notifyAllAndClear() {
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+  auto curr = m_list.first;
+  while(curr != nullptr) {
+    auto next = curr->_ref;
+    curr->_PP->pushOneTask(curr);
+    curr = next;
+  }
+  std::memset(&m_list, 0, sizeof(m_list));
+}
+
+
+}}
