@@ -52,7 +52,7 @@ jobs:
   displayName: 'Build - macOS-10.13 - With Memory Pool'
   continueOnError: false
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-10.14'
   workspace:
     clean: all
   steps:
@@ -74,7 +74,7 @@ jobs:
   displayName: 'Build - macOS-10.13 - No Memory Pool'
   continueOnError: false
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-10.14'
   workspace:
     clean: all
   steps:
