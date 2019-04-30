@@ -113,6 +113,9 @@ public:
 
 public:
 
+  /**
+   * Event type qualifier for Actions of type &l:Action::TYPE_IO_WAIT;, &l:Action::TYPE_IO_REPEAT;.
+   */
   enum IOEventType : v_int32 {
     /**
      * IO event type READ.

@@ -32,8 +32,19 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
+/**
+ * Stream I/O mode.
+ */
 enum IOMode : v_int32 {
+
+  /**
+   * Blocking stream I/O mode.
+   */
   BLOCKING = 0,
+
+  /**
+   * Non-blocking stream I/O mode.
+   */
   NON_BLOCKING = 1
 };
 

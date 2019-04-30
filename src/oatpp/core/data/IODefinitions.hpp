@@ -56,13 +56,13 @@ typedef v_int64 v_io_size;
 enum IOError : v_io_size {
 
   /**
-   * In oatpp 0 is considered to be an Error as for I/O operation size
+   * In oatpp 0 is considered to be an Error as for I/O operation size. <br>
    *
-   * As for argument value 0 should be handled separately of the main flow.
+   * As for argument value 0 should be handled separately of the main flow.<br>
    *
-   * As for return value 0 should not be returned.
-   * I/O method should return an error describing a reason why I/O is empty instead of a zero itself.
-   * if zero is returned, client should treat it like a bad api implementation and as an error in the flow.
+   * As for return value 0 should not be returned.<br>
+   * I/O method should return an error describing a reason why I/O is empty instead of a zero itself.<br>
+   * if zero is returned, client should treat it like a bad api implementation and as an error in the flow.<br>
    */
   ZERO_VALUE = 0,
 
