@@ -47,6 +47,8 @@ private:
   oatpp::concurrency::SpinLock m_backlogLock;
   std::condition_variable_any m_backlogCondition;
 private:
+  std::thread m_thread;
+private:
   void consumeBacklog(bool blockToConsume);
 public:
 
@@ -70,12 +72,22 @@ public:
   /**
    * Run worker.
    */
-  void run() override;
+  void run();
 
   /**
    * Break run loop.
    */
   void stop() override;
+
+  /**
+   * Join all worker-threads.
+   */
+  void join() override;
+
+  /**
+   * Detach all worker-threads.
+   */
+  void detach() override;
 
 };
 

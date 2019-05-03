@@ -75,6 +75,8 @@ private:
   v_int32 m_inEventsCount;
   p_char8 m_outEvents;
 private:
+  std::thread m_thread;
+private:
   void consumeBacklog();
   void waitEvents();
 private:
@@ -109,12 +111,22 @@ public:
   /**
    * Run worker.
    */
-  void run() override;
+  void run();
 
   /**
    * Break run loop.
    */
   void stop() override;
+
+  /**
+   * Join all worker-threads.
+   */
+  void join() override;
+
+  /**
+   * Detach all worker-threads.
+   */
+  void detach() override;
 
 };
 

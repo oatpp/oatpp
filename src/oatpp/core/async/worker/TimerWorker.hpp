@@ -49,6 +49,8 @@ private:
 private:
   std::chrono::duration<v_int64, std::micro> m_granularity;
 private:
+  std::thread m_thread;
+private:
   void consumeBacklog();
 public:
 
@@ -73,12 +75,22 @@ public:
   /**
    * Run worker.
    */
-  void run() override;
+  void run();
 
   /**
    * Break run loop.
    */
   void stop() override;
+
+  /**
+   * Join all worker-threads.
+   */
+  void join() override;
+
+  /**
+   * Detach all worker-threads.
+   */
+  void detach() override;
 
 };
 

@@ -36,7 +36,9 @@ IOEventWorker::IOEventWorker()
   , m_inEvents(nullptr)
   , m_inEventsCount(0)
   , m_outEvents(nullptr)
-{}
+{
+  m_thread = std::thread(&IOEventWorker::run, this);
+}
 
 IOEventWorker::~IOEventWorker() {
 
@@ -93,6 +95,14 @@ void IOEventWorker::stop() {
     m_running = false;
   }
   triggerWakeup();
+}
+
+void IOEventWorker::join() {
+  m_thread.join();
+}
+
+void IOEventWorker::detach() {
+  m_thread.detach();
 }
 
 }}}
