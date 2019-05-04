@@ -54,6 +54,8 @@
 
 namespace oatpp { namespace async { namespace worker {
 
+class IOEventWorkerForeman; // FWD
+
 /**
  * Event-based implementation of I/O worker.
  * <ul>
@@ -65,6 +67,8 @@ class IOEventWorker : public Worker {
 private:
   static constexpr const v_int32 MAX_EVENTS = 10000;
 private:
+  IOEventWorkerForeman* m_foreman;
+  Action::IOEventType m_specialization;
   bool m_running;
   oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
   oatpp::concurrency::SpinLock m_backlogLock;
@@ -89,7 +93,7 @@ public:
   /**
    * Constructor.
    */
-  IOEventWorker();
+  IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType specialization);
 
   /**
    * Virtual destructor.
@@ -116,6 +120,55 @@ public:
   /**
    * Break run loop.
    */
+  void stop() override;
+
+  /**
+   * Join all worker-threads.
+   */
+  void join() override;
+
+  /**
+   * Detach all worker-threads.
+   */
+  void detach() override;
+
+};
+
+/**
+ * Class responsible to assign I/O tasks to specific &l:IOEventWorker; according to worker's "specialization". <br>
+ * Needed in order to support full-duplex I/O mode without duplicating file-descriptors.
+ */
+class IOEventWorkerForeman : public Worker {
+private:
+  IOEventWorker m_reader;
+  IOEventWorker m_writer;
+public:
+
+  /**
+   * Constructor.
+   */
+  IOEventWorkerForeman();
+
+  /**
+   * Virtual destructor.
+   */
+  ~IOEventWorkerForeman();
+
+  /**
+   * Push list of tasks to worker.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   */
+  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+
+  /**
+   * Push one task to worker.
+   * @param task - &id:AbstractCoroutine;.
+   */
+  void pushOneTask(AbstractCoroutine* task) override;
+
+  /**
+ * Break run loop.
+ */
   void stop() override;
 
   /**

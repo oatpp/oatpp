@@ -90,7 +90,7 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
   for(v_int32 i = 0; i < ioWorkersCount; i++) {
-    ioWorkers.push_back(std::make_shared<worker::IOEventWorker>());
+    ioWorkers.push_back(std::make_shared<worker::IOEventWorkerForeman>());
   }
 
   linkWorkers(ioWorkers);

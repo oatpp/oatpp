@@ -60,7 +60,7 @@ public:
   virtual ~OutputStream() = default;
 
   /**
-   * Write data to stream up to count bytes, and return number of bytes actually written
+   * Write data to stream up to count bytes, and return number of bytes actually written. <br>
    * It is a legal case if return result < count. Caller should handle this!
    * @param data - data to write.
    * @param count - number of bytes to write.
@@ -69,8 +69,9 @@ public:
   virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
 
   /**
-   * Implementation of OutputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * Implementation of OutputStream must suggest async actions for I/O results. <br>
+   * Suggested Action is used for scheduling coroutines in async::Executor. <br>
+   * **Stream MUST always give the same file-handle if applicable**
    * @param ioResult - result of the call to &l:OutputStream::write ();.
    * @return - &id:oatpp::async::Action;.
    */
@@ -129,7 +130,7 @@ public:
   virtual ~InputStream() = default;
 
   /**
-   * Read data from stream up to count bytes, and return number of bytes actually read
+   * Read data from stream up to count bytes, and return number of bytes actually read. <br>
    * It is a legal case if return result < count. Caller should handle this!
    * @param data - buffer to read dat to.
    * @param count - size of the buffer.
@@ -138,8 +139,9 @@ public:
   virtual data::v_io_size read(void *data, data::v_io_size count) = 0;
 
   /**
-   * Implementation of InputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
+   * Implementation of InputStream must suggest async actions for I/O results. <br>
+   * Suggested Action is used for scheduling coroutines in async::Executor. <br>
+   * **Stream MUST always give the same file-handle if applicable**
    * @param ioResult - result of the call to &l:InputStream::read ();.
    * @return - &id:oatpp::async::Action;.
    */

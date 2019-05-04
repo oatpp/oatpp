@@ -121,6 +121,10 @@ Action::IOEventType Action::getIOEventType() const {
   return m_data.ioData.ioEventType;
 }
 
+v_int32 Action::getIOEventCode() const {
+  return m_type | m_data.ioData.ioEventType;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CoroutineStarter
 

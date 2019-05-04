@@ -145,7 +145,8 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<AbstractCoroutine> m_repeatQueue;
+  oatpp::collection::FastQueue<AbstractCoroutine> repeatQueue;
+  oatpp::collection::FastQueue<AbstractCoroutine> popQueue;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
@@ -161,16 +162,36 @@ void IOEventWorker::waitEvents() {
 
       Action action = coroutine->iterate();
 
-      switch(action.getType()) {
+      switch(action.getIOEventCode() | m_specialization) {
 
-        case Action::TYPE_IO_WAIT:
+        case Action::CODE_IO_WAIT_READ:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          m_repeatQueue.pushBack(coroutine);
+          repeatQueue.pushBack(coroutine);
           break;
 
-        case Action::TYPE_IO_REPEAT:
+        case Action::CODE_IO_WAIT_WRITE:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          m_repeatQueue.pushBack(coroutine);
+          repeatQueue.pushBack(coroutine);
+          break;
+
+        case Action::CODE_IO_REPEAT_READ:
+          setCoroutineScheduledAction(coroutine, std::move(action));
+          repeatQueue.pushBack(coroutine);
+          break;
+
+        case Action::CODE_IO_REPEAT_WRITE:
+          setCoroutineScheduledAction(coroutine, std::move(action));
+          repeatQueue.pushBack(coroutine);
+          break;
+
+        case Action::CODE_IO_WAIT_RESCHEDULE:
+          setCoroutineScheduledAction(coroutine, std::move(action));
+          popQueue.pushBack(coroutine);
+          break;
+
+        case Action::CODE_IO_REPEAT_RESCHEDULE:
+          setCoroutineScheduledAction(coroutine, std::move(action));
+          popQueue.pushBack(coroutine);
           break;
 
         default:
@@ -183,11 +204,15 @@ void IOEventWorker::waitEvents() {
 
   }
 
-  if(m_repeatQueue.count > 0) {
+  if(repeatQueue.count > 0) {
     {
       std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_repeatQueue, m_backlog);
+      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(repeatQueue, m_backlog);
     }
+  }
+
+  if(popQueue.count > 0) {
+    m_foreman->pushTasks(popQueue);
   }
 
 }
