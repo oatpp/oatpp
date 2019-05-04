@@ -34,7 +34,9 @@ TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granu
   : Worker(Type::TIMER)
   , m_running(true)
   , m_granularity(granularity)
-{}
+{
+  m_thread = std::thread(&TimerWorker::run, this);
+}
 
 void TimerWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
@@ -126,6 +128,14 @@ void TimerWorker::stop() {
     m_running = false;
   }
   m_backlogCondition.notify_one();
+}
+
+void TimerWorker::join() {
+  m_thread.join();
+}
+
+void TimerWorker::detach() {
+  m_thread.detach();
 }
 
 }}}

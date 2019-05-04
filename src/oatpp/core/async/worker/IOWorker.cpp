@@ -33,7 +33,9 @@ namespace oatpp { namespace async { namespace worker {
 IOWorker::IOWorker()
   : Worker(Type::IO)
   , m_running(true)
-{}
+{
+  m_thread = std::thread(&IOWorker::run, this);
+}
 
 void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
   {
@@ -163,6 +165,14 @@ void IOWorker::stop() {
     m_running = false;
   }
   m_backlogCondition.notify_one();
+}
+
+void IOWorker::join() {
+  m_thread.join();
+}
+
+void IOWorker::detach() {
+  m_thread.detach();
 }
 
 }}}

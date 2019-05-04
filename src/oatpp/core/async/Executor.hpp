@@ -47,26 +47,35 @@ namespace oatpp { namespace async {
 class Executor {
 private:
   
-  class SubmissionProcessor/* : public Worker */{
+  class SubmissionProcessor : public worker::Worker {
   private:
     oatpp::async::Processor m_processor;
   private:
     bool m_isRunning;
+  private:
+    std::thread m_thread;
   public:
     SubmissionProcessor();
   public:
-    
-    void run();
-    void stop() ;
 
     template<typename CoroutineType, typename ... Args>
     void execute(Args... params) {
       m_processor.execute<CoroutineType, Args...>(params...);
     }
 
-    oatpp::async::Processor& getProcessor() {
-      return m_processor;
-    }
+    oatpp::async::Processor& getProcessor();
+
+    void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+
+    void pushOneTask(AbstractCoroutine* task) override;
+
+    void run();
+
+    void stop() override;
+
+    void join() override;
+
+    void detach() override;
     
   };
 
@@ -76,28 +85,23 @@ public:
    */
   static const v_int32 THREAD_NUM_DEFAULT;
 private:
-  v_int32 m_processorThreads;
-  v_int32 m_ioThreads;
-  v_int32 m_timerThreads;
-  v_int32 m_threadsCount;
-  std::thread* m_threads;
-  SubmissionProcessor* m_processors;
   std::atomic<v_word32> m_balancer;
 private:
-  std::vector<std::shared_ptr<worker::Worker>> m_workers;
+  std::vector<std::shared_ptr<SubmissionProcessor>> m_processorWorkers;
+  std::vector<std::shared_ptr<worker::Worker>> m_allWorkers;
 private:
   void linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers);
 public:
 
   /**
    * Constructor.
-   * @param processorThreads - number of data processing threads.
-   * @param ioThreads - number of I/O threads.
-   * @param timerThreads - number of timer threads.
+   * @param processorWorkersCount - number of data processing workers.
+   * @param ioWorkersCount - number of I/O processing workers.
+   * @param timerWorkersCount - number of timer processing workers.
    */
-  Executor(v_int32 processorThreads = THREAD_NUM_DEFAULT,
-           v_int32 ioThreads = 1,
-           v_int32 timerThreads = 1);
+  Executor(v_int32 processorWorkersCount = THREAD_NUM_DEFAULT,
+           v_int32 ioWorkersCount = 1,
+           v_int32 timerWorkersCount = 1);
 
   /**
    * Non-virtual Destructor.
@@ -128,8 +132,8 @@ public:
    */
   template<typename CoroutineType, typename ... Args>
   void execute(Args... params) {
-    auto& processor = m_processors[(++ m_balancer) % m_processorThreads];
-    processor.execute<CoroutineType, Args...>(params...);
+    auto& processor = m_processorWorkers[(++ m_balancer) % m_processorWorkers.size()];
+    processor->execute<CoroutineType, Args...>(params...);
   }
 
   /**

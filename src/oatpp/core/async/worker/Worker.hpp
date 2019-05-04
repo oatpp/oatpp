@@ -98,14 +98,19 @@ public:
   virtual void pushOneTask(AbstractCoroutine* task) = 0;
 
   /**
-   * Run worker.
-   */
-  virtual void run() = 0;
-
-  /**
    * Break run loop.
    */
   virtual void stop() = 0;
+
+  /**
+   * Join all worker-threads.
+   */
+  virtual void join() = 0;
+
+  /**
+   * Detach all worker-threads.
+   */
+  virtual void detach() = 0;
 
   /**
    * Get worker type.

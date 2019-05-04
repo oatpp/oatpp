@@ -28,15 +28,22 @@
 
 namespace oatpp { namespace async { namespace worker {
 
-IOEventWorker::IOEventWorker()
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IOEventWorker
+
+IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType specialization)
   : Worker(Type::IO)
+  , m_foreman(foreman)
+  , m_specialization(specialization)
   , m_running(true)
   , m_eventQueueHandle(-1)
   , m_wakeupTrigger(-1)
   , m_inEvents(nullptr)
   , m_inEventsCount(0)
   , m_outEvents(nullptr)
-{}
+{
+  m_thread = std::thread(&IOEventWorker::run, this);
+}
 
 IOEventWorker::~IOEventWorker() {
 
@@ -93,6 +100,99 @@ void IOEventWorker::stop() {
     m_running = false;
   }
   triggerWakeup();
+}
+
+void IOEventWorker::join() {
+  m_thread.join();
+}
+
+void IOEventWorker::detach() {
+  m_thread.detach();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IOEventWorkerForeman
+
+IOEventWorkerForeman::IOEventWorkerForeman()
+  : Worker(Type::IO)
+  , m_reader(this, Action::IOEventType::IO_EVENT_READ)
+  , m_writer(this, Action::IOEventType::IO_EVENT_WRITE)
+{}
+
+IOEventWorkerForeman::~IOEventWorkerForeman() {
+}
+
+void IOEventWorkerForeman::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+
+  oatpp::collection::FastQueue<AbstractCoroutine> readerTasks;
+  oatpp::collection::FastQueue<AbstractCoroutine> writerTasks;
+
+  while(tasks.first != nullptr) {
+
+    AbstractCoroutine* coroutine = tasks.popFront();
+    auto& action = getCoroutineScheduledAction(coroutine);
+
+    switch(action.getIOEventType()) {
+
+      case Action::IOEventType::IO_EVENT_READ:
+        readerTasks.pushBack(coroutine);
+        break;
+
+      case Action::IOEventType::IO_EVENT_WRITE:
+        writerTasks.pushBack(coroutine);
+        break;
+
+      default:
+        throw std::runtime_error("[oatpp::async::worker::IOEventWorkerForeman::pushTasks()]: Error. Unknown Action Event Type.");
+
+    }
+
+  }
+
+  if(readerTasks.first != nullptr) {
+    m_reader.pushTasks(readerTasks);
+  }
+
+  if(writerTasks.first != nullptr) {
+    m_writer.pushTasks(writerTasks);
+  }
+
+}
+
+void IOEventWorkerForeman::pushOneTask(AbstractCoroutine* task) {
+
+  auto& action = getCoroutineScheduledAction(task);
+
+  switch(action.getIOEventType()) {
+
+    case Action::IOEventType::IO_EVENT_READ:
+      m_reader.pushOneTask(task);
+      break;
+
+    case Action::IOEventType::IO_EVENT_WRITE:
+      m_writer.pushOneTask(task);
+      break;
+
+    default:
+      throw std::runtime_error("[oatpp::async::worker::IOEventWorkerForeman::pushTasks()]: Error. Unknown Action Event Type.");
+
+  }
+
+}
+
+void IOEventWorkerForeman::stop() {
+  m_writer.stop();
+  m_reader.stop();
+}
+
+void IOEventWorkerForeman::join() {
+  m_reader.join();
+  m_writer.join();
+}
+
+void IOEventWorkerForeman::detach() {
+  m_reader.detach();
+  m_writer.detach();
 }
 
 }}}

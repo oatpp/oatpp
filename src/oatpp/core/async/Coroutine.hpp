@@ -120,14 +120,50 @@ public:
     /**
      * IO event type READ.
      */
-    IO_EVENT_READ = 0,
+    IO_EVENT_READ = 256,
 
     /**
      * IO event type WRITE.
      */
-    IO_EVENT_WRITE = 1
+    IO_EVENT_WRITE = 512
 
   };
+
+  /**
+   * Convenience I/O Action Code.
+   * This code is applicable for Action of type TYPE_IO_WAIT only.
+   */
+  static constexpr const v_int32 CODE_IO_WAIT_READ = TYPE_IO_WAIT | IOEventType::IO_EVENT_READ;
+
+  /**
+   * Convenience I/O Action Code.
+   * This code is applicable for Action of type TYPE_IO_WAIT only.
+   */
+  static constexpr const v_int32 CODE_IO_WAIT_WRITE = TYPE_IO_WAIT | IOEventType::IO_EVENT_WRITE;
+
+  /**
+   * Convenience I/O Action Code.
+   * This code is applicable for Action of type TYPE_IO_WAIT only.
+   */
+  static constexpr const v_int32 CODE_IO_WAIT_RESCHEDULE = TYPE_IO_WAIT | IOEventType::IO_EVENT_READ | IOEventType::IO_EVENT_WRITE;
+
+  /**
+   * Convenience I/O Action Code.
+   * This code is applicable for Action of type TYPE_IO_REPEAT only.
+   */
+  static constexpr const v_int32 CODE_IO_REPEAT_READ = TYPE_IO_REPEAT | IOEventType::IO_EVENT_READ;
+
+  /**
+   * Convenience I/O Action Code.
+   * This code is applicable for Action of type TYPE_IO_REPEAT only.
+   */
+  static constexpr const v_int32 CODE_IO_REPEAT_WRITE = TYPE_IO_REPEAT | IOEventType::IO_EVENT_WRITE;
+
+  /**
+   * Convenience I/O Action Code.
+   * This code is applicable for Action of type TYPE_IO_REPEAT only.
+   */
+  static constexpr const v_int32 CODE_IO_REPEAT_RESCHEDULE = TYPE_IO_REPEAT | IOEventType::IO_EVENT_READ | IOEventType::IO_EVENT_WRITE;
 
 private:
 
@@ -266,6 +302,12 @@ public:
    * @return - should return one of
    */
   IOEventType getIOEventType() const;
+
+  /**
+   * Convenience method to get I/O Event code.
+   * @return - `getType() | getIOEventType()`.
+   */
+  v_int32 getIOEventCode() const;
 
   
 };
