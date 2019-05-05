@@ -6,7 +6,7 @@ Organic. Pure C++.
 - Website: [https://oatpp.io](https://oatpp.io)
 - Docs: [https://oatpp.io/docs/start](https://oatpp.io/docs/start)
 - Api Reference: [https://oatpp.io/api/latest/](https://oatpp.io/api/latest/)
-- Benchmarks: [https://oatpp.io/benchmark/digital-ocean](https://oatpp.io/benchmark/digital-ocean)
+- Latest Benchmarks: [2 Million WebSockets](https://oatpp.io/benchmark/websocket/2-million/)
 
 **Contributors wanted!**  
 Pull requests and issues are welcome.
@@ -14,8 +14,8 @@ Pull requests and issues are welcome.
 ## Features
 
 - Blazingly fast
-- Zero Dependency, no installations
-- **Asynchronous server (High performance. Handle 30K+ simultaneous connections)**
+- Zero Dependency
+- **Asynchronous server (High performance. Handle over 2 Million simultaneous WebSocket connections on a single server.)** [See benchmark](https://oatpp.io/benchmark/websocket/2-million/)
 - Multithreaded server (Simple API)
 - Connection agnostic. (Use whatever transport. Whatever SSL backend. Whatever sockets, pipes, files. etc. It cares about HTTP stream only)
 - REST framework (with ability to autodocument endpoints see [oatpp-swagger](https://github.com/oatpp/oatpp-swagger))
