@@ -3,13 +3,18 @@
 Zero-Dependency. Performance oriented web-service-development framework.
 Organic. Pure C++.
 
-- Website: [https://oatpp.io](https://oatpp.io)
-- Docs: [https://oatpp.io/docs/start](https://oatpp.io/docs/start)
-- Api Reference: [https://oatpp.io/api/latest/](https://oatpp.io/api/latest/)
+- [Website](https://oatpp.io/)
+- [Docs](https://oatpp.io/docs/start/)
+- [Api Reference](https://oatpp.io/api/latest/)
 - Latest Benchmarks: [2 Million WebSockets](https://oatpp.io/benchmark/websocket/2-million/)
 
 **Contributors wanted!**  
-Pull requests and issues are welcome.
+- See [Contributing to Oat++](CONTRIBUTING.md)
+
+**Join the community**
+- Join discussion on **Gitter**. [oat++ framework/Lobby](https://gitter.im/oatpp-framework/Lobby)
+- Follow us on **Twitter** for latest news. [@oatpp_io](https://twitter.com/oatpp_io)
+- Join community on **Redit**. [r/oatpp](https://www.reddit.com/r/oatpp/)
 
 ## Features
 
