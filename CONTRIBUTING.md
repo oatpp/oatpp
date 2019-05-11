@@ -1,6 +1,6 @@
 # Contributing to Oat++
 
-Thank you for your interest in the project, and taking time to contribute.  
+Thank you for your interest in the project, and for taking time to contribute.  
 
 ## How to contribute
 
@@ -10,7 +10,7 @@ All kind of contributions are very welcome.
 
 - Join discussion on **Gitter**. [oat++ framework/Lobby](https://gitter.im/oatpp-framework/Lobby)
 - Follow us on **Twitter** for latest news. [@oatpp_io](https://twitter.com/oatpp_io)
-- Join community on **Redit**. [r/oatpp](https://www.reddit.com/r/oatpp/)
+- Join community on **Reddit**. [r/oatpp](https://www.reddit.com/r/oatpp/)
 
 ### Try to use Oat++
 
