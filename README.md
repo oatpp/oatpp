@@ -6,7 +6,7 @@ Organic. Pure C++.
 - [Website](https://oatpp.io/)
 - [Docs](https://oatpp.io/docs/start/)
 - [Api Reference](https://oatpp.io/api/latest/)
-- Latest Benchmarks: [2 Million WebSockets](https://oatpp.io/benchmark/websocket/2-million/)
+- Latest Benchmarks: [5 Million WebSockets](https://oatpp.io/benchmark/websocket/5-million/)
 
 **Contributors wanted!**  
 - See [Contributing to Oat++](CONTRIBUTING.md)
