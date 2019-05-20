@@ -108,9 +108,7 @@ v_counter Environment::getThreadLocalObjectsCreated(){
 }
 
 void Environment::setLogger(Logger* logger){
-  if(m_logger != nullptr){
-    delete m_logger;
-  }
+  delete m_logger;
   m_logger = logger;
 }
 
