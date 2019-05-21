@@ -659,9 +659,7 @@ public:
      * Non-virtual destructor.
      */
     ~StarterForResult() {
-      if(m_coroutine != nullptr) {
-        delete m_coroutine;
-      }
+      delete m_coroutine;
     }
 
     /*

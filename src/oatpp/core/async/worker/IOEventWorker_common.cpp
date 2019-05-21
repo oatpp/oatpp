@@ -47,13 +47,8 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
 
 IOEventWorker::~IOEventWorker() {
 
-  if (m_inEvents != nullptr) {
-    delete[] m_inEvents;
-  }
-
-  if (m_outEvents != nullptr) {
-    delete[] m_outEvents;
-  }
+  delete[] m_inEvents;
+  delete[] m_outEvents;
 
   if(m_eventQueueHandle >=0) {
     ::close(m_eventQueueHandle);
