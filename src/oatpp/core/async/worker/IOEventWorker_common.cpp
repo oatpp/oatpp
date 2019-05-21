@@ -40,15 +40,13 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
   , m_wakeupTrigger(-1)
   , m_inEvents(nullptr)
   , m_inEventsCount(0)
+  , m_inEventsCapacity(0)
   , m_outEvents(nullptr)
 {
   m_thread = std::thread(&IOEventWorker::run, this);
 }
 
 IOEventWorker::~IOEventWorker() {
-
-  delete[] m_inEvents;
-  delete[] m_outEvents;
 
   if(m_eventQueueHandle >=0) {
     ::close(m_eventQueueHandle);

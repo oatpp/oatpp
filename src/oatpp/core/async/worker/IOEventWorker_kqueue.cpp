@@ -43,7 +43,12 @@ void IOEventWorker::initEventQueue() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Call to ::kqueue() failed.");
   }
 
-  m_outEvents = (p_char8)(new struct kevent[MAX_EVENTS]);
+  m_outEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[MAX_EVENTS * sizeof(struct kevent)]);
+  if(!m_outEvents) {
+    OATPP_LOGD("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
+               "Error. Unable to allocate %d bytes for events.", MAX_EVENTS * sizeof(struct kevent));
+    throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Unable to allocate memory for events.");
+  }
 
 }
 
@@ -118,15 +123,26 @@ void IOEventWorker::consumeBacklog() {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
 
   m_inEventsCount = m_backlog.count + 1;
-  m_inEvents = (p_char8)(new struct kevent[m_inEventsCount]);
-  v_int32 eventSize = sizeof(struct kevent);
+
+  if(m_inEventsCapacity < m_inEventsCount) {
+
+    m_inEventsCapacity = m_inEventsCount;
+
+    m_inEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[m_inEventsCapacity * sizeof(struct kevent)]);
+    if(!m_inEvents) {
+      OATPP_LOGD("[oatpp::async::worker::IOEventWorker::consumeBacklog()]",
+                 "Error. Unable to allocate %d bytes for events.", m_inEventsCapacity * sizeof(struct kevent));
+      throw std::runtime_error("[oatpp::async::worker::IOEventWorker::consumeBacklog()]: Error. Unable to allocate memory for events.");
+    }
+
+  }
 
   setTriggerEvent(&m_inEvents[0]);
 
   auto curr = m_backlog.first;
   v_int32 i = 1;
   while(curr != nullptr) {
-    setCoroutineEvent(curr, 0, &m_inEvents[i * eventSize]);
+    setCoroutineEvent(curr, 0, &m_inEvents[i * sizeof(struct kevent)]);
     curr = nextCoroutine(curr);
     ++i;
   }
@@ -139,7 +155,7 @@ void IOEventWorker::consumeBacklog() {
 
 void IOEventWorker::waitEvents() {
 
-  auto eventsCount = kevent(m_eventQueueHandle, (struct kevent*)m_inEvents, m_inEventsCount, (struct kevent*)m_outEvents, MAX_EVENTS, NULL);
+  auto eventsCount = kevent(m_eventQueueHandle, (struct kevent*)m_inEvents.get(), m_inEventsCount, (struct kevent*)m_outEvents.get(), MAX_EVENTS, NULL);
 
   if(eventsCount < 0) {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
