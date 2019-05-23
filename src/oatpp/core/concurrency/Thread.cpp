@@ -44,7 +44,13 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
     CPU_SET(i, &cpuset);
   }
     
-  v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
+  v_int32 result = 0;
+
+  // The below line doesn't compile on Android.
+  //result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
+
+  // The below line compiles on Android but has not been tested.
+  //result = sched_setaffinity(nativeHandle, sizeof(cpu_set_t), &cpuset);
   
   if (result != 0) {
     OATPP_LOGD("[oatpp::concurrency::Thread::assignThreadToCpu(...)]", "error code - %d", result);
