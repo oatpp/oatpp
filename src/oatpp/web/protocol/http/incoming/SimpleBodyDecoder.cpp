@@ -71,7 +71,7 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
       return; // error reading stream
     }
     lineBuffer[lineSize] = 0;
-    countToRead = std::strtol((const char*)lineBuffer, nullptr, 16);
+    countToRead = strtol((const char*)lineBuffer, nullptr, 16);
     
     if(countToRead > 0) {
       oatpp::data::stream::transfer(fromStream, toStream, countToRead, buffer->getData(), buffer->getSize());
@@ -185,7 +185,7 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     }
     
     Action onLineRead() {
-      data::v_io_size countToRead = std::strtol((const char*) m_lineBuffer, nullptr, 16);
+      data::v_io_size countToRead = strtol((const char*) m_lineBuffer, nullptr, 16);
       if(countToRead > 0) {
         prepareSkipRN();
         return oatpp::data::stream::transferAsync(m_fromStream, m_toStream, countToRead, m_buffer).next(yieldTo(&ChunkedDecoder::skipRN));
