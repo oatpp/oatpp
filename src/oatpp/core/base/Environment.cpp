@@ -49,9 +49,7 @@ DefaultLogger::DefaultLogger(const Config& config)
 void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::string& message) {
 
   bool indent = false;
-
-  auto ticks = Environment::getMicroTickCount();
-  std::time_t time = std::time(nullptr);
+  auto time = std::chrono::system_clock::now().time_since_epoch();
 
   std::lock_guard<std::mutex> lock(m_lock);
 
@@ -80,20 +78,21 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
       std::cout << " " << priority << " |";
   }
 
-  if(m_config.printTime) {
-    const char* time_fmt = "%Y-%m-%d %H:%M:%S";
-    std::tm tm = *std::localtime(&time);
-    std::cout << std::put_time(&tm, time_fmt);
+  if(m_config.timeFormat) {
+    time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
+    struct tm now;
+    localtime_r(&seconds, &now);
+    std::cout << std::put_time(&now, m_config.timeFormat);
     indent = true;
   }
 
   if(m_config.printTicks) {
+    auto ticks = std::chrono::duration_cast<std::chrono::microseconds>(time).count();
     if(indent) {
-      std::cout << " " << ticks;
-    } else {
-      std::cout << ticks;
-      indent = true;
+      std::cout << " ";
     }
+    std::cout << ticks;
+    indent = true;
   }
 
   if(indent) {

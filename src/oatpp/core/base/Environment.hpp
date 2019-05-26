@@ -127,9 +127,11 @@ public:
    */
   struct Config {
     /**
-     * Print time of the log message.
+     * Time format of the log message.
+     * If nullptr then do not print time.
+     * Default value - `%Y-%m-%d %H:%M:%S`.
      */
-    bool printTime;
+    const char* timeFormat;
 
     /**
      * Print micro-ticks in the log message.
@@ -145,7 +147,7 @@ public:
    * Constructor.
    * @param config - Logger config.
    */
-  DefaultLogger(const Config& config = {true, true});
+  DefaultLogger(const Config& config = {"%Y-%m-%d %H:%M:%S", true});
 
   /**
    * Log message with priority, tag, message.
