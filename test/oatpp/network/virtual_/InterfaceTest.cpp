@@ -66,7 +66,7 @@ namespace {
       OATPP_ASSERT(stream->getSize() == res);
       OATPP_ASSERT(stream->toString() == "OK");
       
-      //OATPP_LOGD("client", "finished - OK");
+      //OATPP_LOGV("client", "finished - OK");
       
     }
     

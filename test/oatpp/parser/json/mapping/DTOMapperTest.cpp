@@ -159,11 +159,11 @@ void DTOMapperTest::onRun(){
   
   auto result = mapper->writeToString(test1);
   
-  OATPP_LOGD(TAG, "json='%s'", (const char*) result->getData());
+  OATPP_LOGV(TAG, "json='%s'", (const char*) result->getData());
   
-  OATPP_LOGD(TAG, "...");
-  OATPP_LOGD(TAG, "...");
-  OATPP_LOGD(TAG, "...");
+  OATPP_LOGV(TAG, "...");
+  OATPP_LOGV(TAG, "...");
+  OATPP_LOGV(TAG, "...");
 
   oatpp::parser::Caret caret(result);
   auto obj = mapper->readFromCaret<Test>(caret);
@@ -188,7 +188,7 @@ void DTOMapperTest::onRun(){
   
   result = mapper->writeToString(obj);
   
-  OATPP_LOGD(TAG, "json='%s'", (const char*) result->getData());
+  OATPP_LOGV(TAG, "json='%s'", (const char*) result->getData());
 
 }
   

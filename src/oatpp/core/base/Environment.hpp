@@ -32,8 +32,8 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include <stdexcept>
-
 #include <stdlib.h>
 
 #define OATPP_VERSION "0.19.4"
@@ -74,9 +74,34 @@ namespace oatpp { namespace base{
 
 /**
  * Interface for system-wide Logger.<br>
- * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGE`, `OATPP_DISABLE_LOGD` should come here.
+ * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGE`, `OATPP_DISABLE_LOGD` will come here.
  */
 class Logger {
+public:
+  /**
+   * Log priority V-verbouse.
+   */
+  static constexpr v_int32 PRIORITY_V = 0;
+
+  /**
+   * Log priority D-debug.
+   */
+  static constexpr v_int32 PRIORITY_D = 1;
+
+  /**
+   * Log priority I-Info.
+   */
+  static constexpr v_int32 PRIORITY_I = 2;
+
+  /**
+   * Log priority W-Warning.
+   */
+  static constexpr v_int32 PRIORITY_W = 3;
+
+  /**
+   * Log priority E-error.
+   */
+  static constexpr v_int32 PRIORITY_E = 4;
 public:
   /**
    * Virtual Destructor.
@@ -93,6 +118,47 @@ public:
 };
 
 /**
+ * Default Logger implementation.
+ */
+class DefaultLogger : public Logger {
+public:
+  /**
+   * Default Logger Config.
+   */
+  struct Config {
+    /**
+     * Time format of the log message.
+     * If nullptr then do not print time.
+     * Default value - `%Y-%m-%d %H:%M:%S`.
+     */
+    const char* timeFormat;
+
+    /**
+     * Print micro-ticks in the log message.
+     */
+    bool printTicks;
+  };
+private:
+  Config m_config;
+  std::mutex m_lock;
+public:
+
+  /**
+   * Constructor.
+   * @param config - Logger config.
+   */
+  DefaultLogger(const Config& config = {"%Y-%m-%d %H:%M:%S", true});
+
+  /**
+   * Log message with priority, tag, message.
+   * @param priority - log-priority channel of the message.
+   * @param tag - tag of the log message.
+   * @param message - message.
+   */
+  void log(v_int32 priority, const std::string& tag, const std::string& message) override;
+};
+
+/**
  * Class to manage application environment.<br>
  * Manage object counters, manage components, and do system health-checks.
  */
@@ -103,7 +169,7 @@ private:
   static thread_local v_counter m_threadLocalObjectsCount;
   static thread_local v_counter m_threadLocalObjectsCreated;
 private:
-  static Logger* m_logger;
+  static std::shared_ptr<Logger> m_logger;
   static void checkTypes();
 private:
   static std::unordered_map<std::string, std::unordered_map<std::string, void*>> m_components;
@@ -170,6 +236,12 @@ public:
   static void init();
 
   /**
+   * Initialize environment and do basic health-checks.
+   * @param logger - system-wide logger.
+   */
+  static void init(const std::shared_ptr<Logger>& logger);
+
+  /**
    * De-initialize environment and do basic health-checks.
    * Check for memory leaks.
    */
@@ -211,9 +283,9 @@ public:
 
   /**
    * Set environment logger.
-   * @param logger - pointer to logger.
+   * @param logger - system-wide logger.
    */
-  static void setLogger(Logger* logger);
+  static void setLogger(const std::shared_ptr<Logger>& logger);
 
   /**
    * Print debug information of compilation config.<br>
@@ -228,7 +300,7 @@ public:
 
   /**
    * Call `Logger::log()`
-   * @param priority - priority channel of the message.
+   * @param priority - log-priority channel of the message.
    * @param tag - tag of the log message.
    * @param message - message.
    */
@@ -237,7 +309,7 @@ public:
   /**
    * Format message and call `Logger::log()`<br>
    * Message is formatted using `vsnprintf` method.
-   * @param priority - priority channel of the message.
+   * @param priority - log-priority channel of the message.
    * @param tag - tag of the log message.
    * @param message - message.
    * @param ... - format arguments.
@@ -274,19 +346,31 @@ if(!(EXP)) { \
 }
   
 #ifndef OATPP_DISABLE_LOGV
-  #define OATPP_LOGV(TAG, ...) oatpp::base::Environment::logFormatted(0, TAG, __VA_ARGS__);
+  #define OATPP_LOGV(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_V, TAG, __VA_ARGS__);
 #else
   #define OATPP_LOGV(TAG, ...)
 #endif
   
 #ifndef OATPP_DISABLE_LOGD
-  #define OATPP_LOGD(TAG, ...) oatpp::base::Environment::logFormatted(1, TAG, __VA_ARGS__);
+  #define OATPP_LOGD(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_D, TAG, __VA_ARGS__);
 #else
   #define OATPP_LOGD(TAG, ...)
 #endif
-  
+
+#ifndef OATPP_DISABLE_LOGI
+  #define OATPP_LOGI(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_I, TAG, __VA_ARGS__);
+#else
+  #define OATPP_LOGI(TAG, ...)
+#endif
+
+#ifndef OATPP_DISABLE_LOGW
+  #define OATPP_LOGW(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_W, TAG, __VA_ARGS__);
+#else
+  #define OATPP_LOGW(TAG, ...)
+#endif
+
 #ifndef OATPP_DISABLE_LOGE
-  #define OATPP_LOGE(TAG, ...) oatpp::base::Environment::logFormatted(2, TAG, __VA_ARGS__);
+  #define OATPP_LOGE(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_E, TAG, __VA_ARGS__);
 #else
   #define OATPP_LOGE(TAG, ...)
 #endif

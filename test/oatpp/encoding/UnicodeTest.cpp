@@ -50,7 +50,7 @@ void writeBinaryInt(v_int32 value){
     }
   }
   
-  OATPP_LOGD("bin", "value='%s'", (const char*) &buff);
+  OATPP_LOGV("bin", "value='%s'", (const char*) &buff);
   
 }
   
