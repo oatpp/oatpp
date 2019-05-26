@@ -140,7 +140,7 @@ void FullAsyncTest::onRun() {
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
 
-      //OATPP_LOGD("i", "%d", i);
+      //OATPP_LOGV("i", "%d", i);
 
       { // test simple GET
         auto response = client->getRoot(connection);
@@ -191,7 +191,7 @@ void FullAsyncTest::onRun() {
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();
-        OATPP_LOGD("i", "%d, tick=%d", i + 1, ticks);
+        OATPP_LOGV("i", "%d, tick=%d", i + 1, ticks);
       }
       
     }

@@ -150,9 +150,9 @@ public:
   Action handleError(const std::shared_ptr<const Error>& error) override {
     if(error->is<oatpp::data::AsyncIOError>()) {
       auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
-      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
+      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
-      OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
+      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
     }
     return propagateError();
   }
@@ -196,9 +196,9 @@ public:
     if(error) {
       if(error->is<oatpp::data::AsyncIOError>()) {
         auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
+        OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
       } else {
-        OATPP_LOGD("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
+        OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
       }
     }
     return propagateError();
@@ -237,7 +237,7 @@ void FullAsyncClientTest::onRun() {
       ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER != -1
     ) {
 
-      OATPP_LOGD("Client", "Root=%d, Body=%d",
+      OATPP_LOGV("Client", "Root=%d, Body=%d",
         ClientCoroutine_getRootAsync::SUCCESS_COUNTER.load(),
         ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER.load()
       );
@@ -245,11 +245,11 @@ void FullAsyncClientTest::onRun() {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       if(ClientCoroutine_getRootAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_getRootAsync::SUCCESS_COUNTER = -1;
-        OATPP_LOGD("Client", "getRootAsync - DONE!");
+        OATPP_LOGV("Client", "getRootAsync - DONE!");
       }
       if(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = -1;
-        OATPP_LOGD("Client", "echoBodyAsync - DONE!");
+        OATPP_LOGV("Client", "echoBodyAsync - DONE!");
       }
     }
 

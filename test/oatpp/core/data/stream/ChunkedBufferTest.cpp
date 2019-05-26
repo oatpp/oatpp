@@ -39,7 +39,7 @@ void ChunkedBufferTest::onRun() {
     stream  << "int=" << 1 << ", float=" << 1.1 << ", "
             << "bool=" << true << " or " << false;
 
-    OATPP_LOGD(TAG, "str='%s'", stream.toString()->c_str());
+    OATPP_LOGV(TAG, "str='%s'", stream.toString()->c_str());
 
     stream.clear();
     stream << 101;

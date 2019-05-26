@@ -23,13 +23,17 @@
  ***************************************************************************/
 
 #include "Environment.hpp"
+
+#include <iomanip>
+#include <chrono>
 #include <iostream>
 #include <cstring>
+#include <ctime>
 #include <stdarg.h>
 
 namespace oatpp { namespace base {
 
-Logger* Environment::m_logger = nullptr;
+std::shared_ptr<Logger> Environment::m_logger;
 std::unordered_map<std::string, std::unordered_map<std::string, void*>> Environment::m_components;
 
 v_atomicCounter Environment::m_objectsCount(0);
@@ -37,7 +41,77 @@ v_atomicCounter Environment::m_objectsCreated(0);
 thread_local v_counter Environment::m_threadLocalObjectsCount = 0;
 thread_local v_counter Environment::m_threadLocalObjectsCreated = 0;
 
-void Environment::init(){
+
+DefaultLogger::DefaultLogger(const Config& config)
+  : m_config(config)
+{}
+
+void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::string& message) {
+
+  bool indent = false;
+
+  auto ticks = Environment::getMicroTickCount();
+  std::time_t time = std::time(nullptr);
+
+  std::lock_guard<std::mutex> lock(m_lock);
+
+  switch (priority) {
+    case PRIORITY_V:
+      std::cout << "\033[0;0m V \033[0m|";
+      break;
+
+    case PRIORITY_D:
+      std::cout << "\033[34;0m D \033[0m|";
+      break;
+
+    case PRIORITY_I:
+      std::cout << "\033[32;0m I \033[0m|";
+      break;
+
+    case PRIORITY_W:
+      std::cout << "\033[45;0m W \033[0m|";
+      break;
+
+    case PRIORITY_E:
+      std::cout << "\033[41;0m E \033[0m|";
+      break;
+
+    default:
+      std::cout << " " << priority << " |";
+  }
+
+  if(m_config.printTime) {
+    const char* time_fmt = "%Y-%m-%d %H:%M:%S";
+    std::tm tm = *std::localtime(&time);
+    std::cout << std::put_time(&tm, time_fmt);
+    indent = true;
+  }
+
+  if(m_config.printTicks) {
+    if(indent) {
+      std::cout << " " << ticks;
+    } else {
+      std::cout << ticks;
+      indent = true;
+    }
+  }
+
+  if(indent) {
+    std::cout << "|";
+  }
+  std::cout << " " << tag << ":" << message << "\n";
+
+}
+
+
+void Environment::init() {
+  init(std::make_shared<DefaultLogger>());
+}
+
+void Environment::init(const std::shared_ptr<Logger>& logger) {
+
+  m_logger = logger;
+
   checkTypes();
 
   m_objectsCount = 0;
@@ -48,12 +122,14 @@ void Environment::init(){
   if(m_components.size() > 0) {
     throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Components were created before call to Environment::init()");
   }
+
 }
 
 void Environment::destroy(){
   if(m_components.size() > 0) {
     throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Leaking components");
   }
+  m_logger.reset();
 }
   
 void Environment::checkTypes(){
@@ -107,12 +183,13 @@ v_counter Environment::getThreadLocalObjectsCreated(){
   return m_threadLocalObjectsCreated;
 }
 
-void Environment::setLogger(Logger* logger){
-  delete m_logger;
+void Environment::setLogger(const std::shared_ptr<Logger>& logger){
   m_logger = logger;
 }
 
 void Environment::printCompilationConfig() {
+
+  OATPP_LOGD("oatpp-version", OATPP_VERSION);
 
 #ifdef OATPP_DISABLE_ENV_OBJECT_COUNTERS
   OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS");

@@ -64,17 +64,17 @@
 #endif
 
 /**
- * DISABLE logs level V
+ * DISABLE logs priority V
  */
 //#define OATPP_DISABLE_LOGV
 
 /**
- * DISABLE logs level D
+ * DISABLE logs priority D
  */
 //#define OATPP_DISABLE_LOGD
 
 /**
- * DISABLE logs level E
+ * DISABLE logs priority E
  */
 //#define OATPP_DISABLE_LOGE
 

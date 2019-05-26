@@ -207,7 +207,7 @@ void FullTest::onRun() {
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();
-        OATPP_LOGD("i", "%d, tick=%d", i + 1, ticks);
+        OATPP_LOGV("i", "%d, tick=%d", i + 1, ticks);
       }
 
     }

@@ -45,7 +45,7 @@ void IOEventWorker::initEventQueue() {
 
   m_outEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[MAX_EVENTS * sizeof(struct kevent)]);
   if(!m_outEvents) {
-    OATPP_LOGD("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
+    OATPP_LOGE("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
                "Error. Unable to allocate %d bytes for events.", MAX_EVENTS * sizeof(struct kevent));
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Unable to allocate memory for events.");
   }
@@ -130,7 +130,7 @@ void IOEventWorker::consumeBacklog() {
 
     m_inEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[m_inEventsCapacity * sizeof(struct kevent)]);
     if(!m_inEvents) {
-      OATPP_LOGD("[oatpp::async::worker::IOEventWorker::consumeBacklog()]",
+      OATPP_LOGE("[oatpp::async::worker::IOEventWorker::consumeBacklog()]",
                  "Error. Unable to allocate %d bytes for events.", m_inEventsCapacity * sizeof(struct kevent));
       throw std::runtime_error("[oatpp::async::worker::IOEventWorker::consumeBacklog()]: Error. Unable to allocate memory for events.");
     }
