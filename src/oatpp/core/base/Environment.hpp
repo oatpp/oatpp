@@ -74,7 +74,8 @@ namespace oatpp { namespace base{
 
 /**
  * Interface for system-wide Logger.<br>
- * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGE`, `OATPP_DISABLE_LOGD` will come here.
+ * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGD`, `OATPP_DISABLE_LOGI`,
+ * `OATPP_DISABLE_LOGW`, `OATPP_DISABLE_LOGE` will come here.
  */
 class Logger {
 public:
@@ -126,10 +127,20 @@ public:
    * Default Logger Config.
    */
   struct Config {
+
+    /**
+     * Constructor.
+     * @param tfmt - time format.
+     * @param printMicroTicks - show ticks in microseconds.
+     */
+    Config(const char* tfmt, bool printMicroTicks)
+      : timeFormat(tfmt)
+      , printTicks(printMicroTicks)
+    {}
+
     /**
      * Time format of the log message.
      * If nullptr then do not print time.
-     * Default value - `%Y-%m-%d %H:%M:%S`.
      */
     const char* timeFormat;
 
@@ -147,7 +158,7 @@ public:
    * Constructor.
    * @param config - Logger config.
    */
-  DefaultLogger(const Config& config = {"%Y-%m-%d %H:%M:%S", true});
+  DefaultLogger(const Config& config = Config("%Y-%m-%d %H:%M:%S", true));
 
   /**
    * Log message with priority, tag, message.
@@ -339,6 +350,10 @@ public:
   
 };
 
+/**
+ * Default oatpp assert method.
+ * @param EXP - expression that must be `true`.
+ */
 #define OATPP_ASSERT(EXP) \
 if(!(EXP)) { \
   OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", #EXP); \
@@ -346,31 +361,81 @@ if(!(EXP)) { \
 }
   
 #ifndef OATPP_DISABLE_LOGV
-  #define OATPP_LOGV(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_V, TAG, __VA_ARGS__);
+
+  /**
+   * Log message with &l:Logger::PRIORITY_V; <br>
+   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGV`*
+   * @param TAG - message tag.
+   * @param ...(1) - message.
+   * @param ... - optional format parameter.
+   */
+  #define OATPP_LOGV(TAG, ...) \
+  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_V, TAG, __VA_ARGS__);
+
 #else
   #define OATPP_LOGV(TAG, ...)
 #endif
   
 #ifndef OATPP_DISABLE_LOGD
-  #define OATPP_LOGD(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_D, TAG, __VA_ARGS__);
+
+  /**
+   * Log message with &l:Logger::PRIORITY_D; <br>
+   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGD`*
+   * @param TAG - message tag.
+   * @param ...(1) - message.
+   * @param ... - optional format parameter.
+   */
+  #define OATPP_LOGD(TAG, ...) \
+  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_D, TAG, __VA_ARGS__);
+
 #else
   #define OATPP_LOGD(TAG, ...)
 #endif
 
 #ifndef OATPP_DISABLE_LOGI
-  #define OATPP_LOGI(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_I, TAG, __VA_ARGS__);
+
+  /**
+   * Log message with &l:Logger::PRIORITY_I; <br>
+   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGI`*
+   * @param TAG - message tag.
+   * @param ...(1) - message.
+   * @param ... - optional format parameter.
+   */
+  #define OATPP_LOGI(TAG, ...) \
+  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_I, TAG, __VA_ARGS__);
+
 #else
   #define OATPP_LOGI(TAG, ...)
 #endif
 
 #ifndef OATPP_DISABLE_LOGW
-  #define OATPP_LOGW(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_W, TAG, __VA_ARGS__);
+
+  /**
+   * Log message with &l:Logger::PRIORITY_W; <br>
+   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGW`*
+   * @param TAG - message tag.
+   * @param ...(1) - message.
+   * @param ... - optional format parameter.
+   */
+  #define OATPP_LOGW(TAG, ...) \
+  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_W, TAG, __VA_ARGS__);
+
 #else
   #define OATPP_LOGW(TAG, ...)
 #endif
 
 #ifndef OATPP_DISABLE_LOGE
-  #define OATPP_LOGE(TAG, ...) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_E, TAG, __VA_ARGS__);
+
+  /**
+   * Log message with &l:Logger::PRIORITY_E; <br>
+   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGE`*
+   * @param TAG - message tag.
+   * @param ...(1) - message.
+   * @param ... - optional format parameter.
+   */
+  #define OATPP_LOGE(TAG, ...) \
+  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_E, TAG, __VA_ARGS__);
+
 #else
   #define OATPP_LOGE(TAG, ...)
 #endif

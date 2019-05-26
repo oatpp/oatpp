@@ -39,20 +39,6 @@
 #ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 namespace {
 
-class Logger : public oatpp::base::Logger {
-private:
-  oatpp::concurrency::SpinLock m_lock;
-public:
-  
-  void log(v_int32 priority, const std::string& tag, const std::string& message) override {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
-    std::cout << tag << ":" << message << "\n";
-  }
-  
-};
-
-
-
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
