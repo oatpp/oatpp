@@ -145,7 +145,7 @@ public:
    * Constructor.
    * @param config - Logger config.
    */
-  DefaultLogger(const Config& config = {true, false});
+  DefaultLogger(const Config& config = {true, true});
 
   /**
    * Log message with priority, tag, message.
