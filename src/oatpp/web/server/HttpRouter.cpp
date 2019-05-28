@@ -41,16 +41,16 @@ std::shared_ptr<HttpRouter> HttpRouter::createShared() {
   return std::make_shared<HttpRouter>();
 }
 
-void HttpRouter::addSubscriber(const oatpp::String& method,
-                               const oatpp::String& urlPattern,
-                               const std::shared_ptr<Subscriber>& subscriber) {
-  getBranch(method)->addSubscriber(urlPattern, subscriber);
+void HttpRouter::route(const oatpp::String& method,
+                               const oatpp::String& pathPattern,
+                               const std::shared_ptr<HttpRequestHandler>& handler) {
+  getBranch(method)->route(pathPattern, handler);
 }
 
-HttpRouter::BranchRouter::Route HttpRouter::getRoute(const StringKeyLabel& method, const StringKeyLabel& url){
+HttpRouter::BranchRouter::Route HttpRouter::getRoute(const StringKeyLabel& method, const StringKeyLabel& path){
   auto it = m_branchMap.find(method);
   if(it != m_branchMap.end()) {
-    return m_branchMap[method]->getRoute(url);
+    return m_branchMap[method]->getRoute(path);
   }
   return BranchRouter::Route();
 }

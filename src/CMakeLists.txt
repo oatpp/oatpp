@@ -187,13 +187,10 @@ add_library(oatpp
         oatpp/web/server/handler/Interceptor.hpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
-        oatpp/web/url/mapping/Router.cpp
         oatpp/web/url/mapping/Router.hpp
-        oatpp/web/url/mapping/Subscriber.cpp
-        oatpp/web/url/mapping/Subscriber.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
-)
+        oatpp/web/server/HttpRequestHandler.hpp)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
