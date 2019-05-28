@@ -272,7 +272,7 @@ data::v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream& stream) {
     return 0;
   }
 
-  data::v_io_size result;
+  data::v_io_size result = 0;
 
   if(m_readPosition < m_writePosition) {
     result = data::stream::writeExactSizeData(&stream, &m_buffer[m_readPosition], m_writePosition - m_readPosition);

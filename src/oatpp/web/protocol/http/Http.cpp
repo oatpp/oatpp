@@ -299,7 +299,7 @@ void Parser::parseResponseStartingLine(ResponseStartingLine& line,
     return;
   }
   
-  line.statusCode = caret.parseInt();
+  line.statusCode = (int)caret.parseInt();
 
   auto descriptionLabel = caret.putLabel();
   if(caret.findRN()){
