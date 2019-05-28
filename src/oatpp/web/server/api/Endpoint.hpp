@@ -25,10 +25,7 @@
 #ifndef oatpp_web_server_rest_Endpoint_hpp
 #define oatpp_web_server_rest_Endpoint_hpp
 
-#include "oatpp/web/url/mapping/Router.hpp"
-
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/web/server/HttpRequestHandler.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -41,10 +38,11 @@ namespace oatpp { namespace web { namespace server { namespace api {
  */
 class Endpoint : public oatpp::base::Countable {
 public:
-  typedef oatpp::web::url::mapping::Subscriber<
-    std::shared_ptr<protocol::http::incoming::Request>,
-    std::shared_ptr<protocol::http::outgoing::Response>
-  > RequestHandler;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::server::HttpRequestHandler;.
+   */
+  typedef oatpp::web::server::HttpRequestHandler RequestHandler;
 public:
 
   /**

@@ -25,32 +25,27 @@
 #ifndef oatpp_web_url_mapping_Router_hpp
 #define oatpp_web_url_mapping_Router_hpp
 
-#include "./Subscriber.hpp"
 #include "./Pattern.hpp"
-
-#include "oatpp/core/collection/LinkedList.hpp"
 
 #include "oatpp/core/Types.hpp"
 
-
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include <utility>
+#include <list>
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
 
 /**
- * Class responsible to map "path-pattern" to "Subscriber".
- * @tparam Param - input parameter for Subscriber.
- * @tparam ReturnType - output parameter of Subscriber.
+ * Class responsible to map "Path" to "Route" by "Path-Pattern".
+ * @tparam Endpoint - endpoint of the route.
  */
-template<class Param, class ReturnType>
-class Router : public base::Countable{
-public:
-  /**
-   * Convenience typedef for &id:oatpp::web::url::mapping::Subscriber;.
-   */
-  typedef Subscriber<Param, ReturnType> UrlSubscriber;
+template<class Endpoint>
+class Router : public base::Countable {
 private:
+
+  /**
+   * Pair &id:oatpp::web::url::mapping::Pattern; to Endpoint.
+   */
+  typedef std::pair<std::shared_ptr<Pattern>, std::shared_ptr<Endpoint>> Pair;
 
   /**
    * Convenience typedef &id:oatpp::data::share::StringKeyLabel;.
@@ -63,46 +58,31 @@ public:
    */
   class Route {
   private:
-    UrlSubscriber* m_subscriber;
+    Endpoint* m_endpoint;
   public:
 
     /**
      * Default constructor.
      */
     Route()
-      : m_subscriber(nullptr)
+      : m_endpoint(nullptr)
     {}
 
     /**
      * Constructor.
-     * @param subscriber - &id:Router::UrlSubscriber;.
+     * @param pEndpoint - route endpoint.
      * @param pMatchMap - Match map of resolved path containing resolved path variables.
      */
-    Route(UrlSubscriber* subscriber, const Pattern::MatchMap& pMatchMap)
-      : m_subscriber(subscriber)
+    Route(Endpoint* endpoint, const Pattern::MatchMap& pMatchMap)
+      : m_endpoint(endpoint)
       , matchMap(pMatchMap)
     {}
 
     /**
-     * Call &id:oatpp::web::url::mapping::Subscriber::processEvent; with corresponding parameter.
-     * @param param
-     * @return - corresponding ReturnType.
+     * Get endpoint of the route.
      */
-    ReturnType processEvent(const Param& param) const {
-      return m_subscriber->processEvent(param);
-    }
-
-    /**
-     * Call &id:oatpp::web::url::mapping::Subscriber::processEventAsync; with corresponding parameter.
-     * @param param
-     * @return - &id:oatpp::async::CoroutineStarterForResult;.
-     */
-    oatpp::async::CoroutineStarterForResult<const ReturnType&> processEventAsync(const Param& param) const {
-      return m_subscriber->processEventAsync(param);
-    }
-    
-    explicit operator bool() const {
-      return m_subscriber != nullptr;
+    Endpoint* getEndpoint() {
+      return m_endpoint;
     }
 
     /**
@@ -110,33 +90,14 @@ public:
      */
     Pattern::MatchMap matchMap;
     
-  };
-
-public:
-  
-  class Pair : public base::Countable{
-  public:
-    Pair(const std::shared_ptr<Pattern>& pPattern, const std::shared_ptr<UrlSubscriber>& pSubscriber)
-      : pattern(pPattern)
-      , subscriber(pSubscriber)
-    {}
-  public:
-    
-    static std::shared_ptr<Pair> createShared(const std::shared_ptr<Pattern>& pattern, const std::shared_ptr<UrlSubscriber>& subscriber){
-      return std::make_shared<Pair>(pattern, subscriber);
+    explicit operator bool() const {
+      return m_endpoint != nullptr;
     }
-    
-    const std::shared_ptr<Pattern> pattern;
-    const std::shared_ptr<UrlSubscriber> subscriber;
     
   };
   
 private:
-  std::shared_ptr<oatpp::collection::LinkedList<std::shared_ptr<Pair>>> m_subscribers;
-public:
-  Router()
-    : m_subscribers(oatpp::collection::LinkedList<std::shared_ptr<Pair>>::createShared())
-  {}
+  std::list<Pair> m_endpointsByPattern;
 public:
   
   static std::shared_ptr<Router> createShared(){
@@ -144,43 +105,39 @@ public:
   }
 
   /**
-   * Add path-pattern subscriber.
-   * @param urlPattern
-   * @param subscriber
+   * Add `path-pattern` to `endpoint` mapping.
+   * @param pathPattern - path pattern for endpoint.
+   * @param endpoint - route endpoint.
    */
-  void addSubscriber(const oatpp::String& urlPattern,
-                     const std::shared_ptr<UrlSubscriber>& subscriber){
-    auto pattern = Pattern::parse(urlPattern);
-    auto pair = Pair::createShared(pattern, subscriber);
-    m_subscribers->pushBack(pair);
+  void route(const oatpp::String& pathPattern, const std::shared_ptr<Endpoint>& endpoint) {
+    auto pattern = Pattern::parse(pathPattern);
+    m_endpointsByPattern.push_back({pattern, endpoint});
   }
 
   /**
-   * Resolve path to corresponding subscriber.
-   * @param url
+   * Resolve path to corresponding endpoint.
+   * @param path
    * @return - &id:Router::Route;.
    */
-  Route getRoute(const StringKeyLabel& url){
-    auto curr = m_subscribers->getFirstNode();
-    while(curr != nullptr) {
-      const std::shared_ptr<Pair>& pair = curr->getData();
-      curr = curr->getNext();
-      Pattern::MatchMap match;
-      if(pair->pattern->match(url, match)) {
-        return Route(pair->subscriber.get(), match);
+  Route getRoute(const StringKeyLabel& path){
+
+    for(auto& pair : m_endpointsByPattern) {
+      Pattern::MatchMap matchMap;
+      if(pair.first->match(path, matchMap)) {
+        return Route(pair.second.get(), matchMap);
       }
     }
+
     return Route();
   }
   
   void logRouterMappings() {
-    auto curr = m_subscribers->getFirstNode();
-    while(curr != nullptr){
-      const std::shared_ptr<Pair>& pair = curr->getData();
-      curr = curr->getNext();
-      auto mapping = pair->pattern->toString();
+
+    for(auto& pair : m_endpointsByPattern) {
+      auto mapping = pair.first->toString();
       OATPP_LOGD("Router", "url '%s' -> mapped", (const char*) mapping->getData());
     }
+
   }
   
 };

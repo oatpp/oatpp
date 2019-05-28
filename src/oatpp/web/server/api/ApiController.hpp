@@ -168,7 +168,7 @@ protected:
    * Handler which subscribes to specific URL in Router and delegates calls endpoints 
    */
   template<class T>
-  class Handler : public oatpp::web::url::mapping::Subscriber<std::shared_ptr<IncomingRequest>, std::shared_ptr<OutgoingResponse>> {
+  class Handler : public oatpp::web::server::HttpRequestHandler {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
     typedef oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
@@ -189,7 +189,7 @@ protected:
       return std::make_shared<Handler>(controller, method, methodAsync);
     }
     
-    std::shared_ptr<OutgoingResponse> processEvent(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
+    std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_method != nullptr) {
         return (m_controller->*m_method)(request);
       } else {
@@ -198,7 +198,7 @@ protected:
     }
     
     oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
-    processEventAsync(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
+    handleAsync(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_methodAsync != nullptr) {
         return (m_controller->*m_methodAsync)(request);
       }

@@ -30,7 +30,7 @@ void ApiController::addEndpointsToRouter(const std::shared_ptr<Router>& router){
   auto node = m_endpoints->getFirstNode();
   while (node != nullptr) {
     auto endpoint = node->getData();
-    router->addSubscriber(endpoint->info->method, endpoint->info->path, endpoint->handler);
+    router->route(endpoint->info->method, endpoint->info->path, endpoint->handler);
     node = node->getNext();
   }
 }

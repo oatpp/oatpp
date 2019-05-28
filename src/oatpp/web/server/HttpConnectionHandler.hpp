@@ -99,7 +99,7 @@ public:
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
 
   /**
-   * Set request interceptor. Request intercepted after route is resolved but before corresponding route subscriber is called.
+   * Set request interceptor. Request intercepted after route is resolved but before corresponding route endpoint is called.
    * @param interceptor - &id:oatpp::web::server::handler::RequestInterceptor;.
    */
   void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
