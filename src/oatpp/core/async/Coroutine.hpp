@@ -690,7 +690,7 @@ public:
       m_coroutine->m_callback = (FunctionPtr)(callback);
       Action result = m_coroutine;
       m_coroutine = nullptr;
-      return std::move(result);
+      return result;
 
     }
 
