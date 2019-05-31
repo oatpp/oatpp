@@ -298,8 +298,8 @@ void Parser::parseResponseStartingLine(ResponseStartingLine& line,
     error = Status::CODE_400;
     return;
   }
-  
-  line.statusCode = caret.parseInt();
+
+  line.statusCode = (v_int32)caret.parseInt();
 
   auto descriptionLabel = caret.putLabel();
   if(caret.findRN()){

@@ -170,7 +170,7 @@ void IOEventWorker::waitEvents() {
     auto coroutine = (AbstractCoroutine*) event->udata;
 
     if((event->flags & EV_ERROR) > 0) {
-      OATPP_LOGD("Error", "data='%s'", strerror(event->data));
+      OATPP_LOGD("Error", "data='%s'", strerror((int)event->data));
       continue;
     }
 
