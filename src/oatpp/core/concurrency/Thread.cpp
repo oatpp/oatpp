@@ -36,27 +36,36 @@ v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, 
   
 v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 firstCpuIndex, v_int32 lastCpuIndex) {
 #if defined(_GNU_SOURCE)
-  
-  cpu_set_t cpuset;
-  CPU_ZERO(&cpuset);
-  
-  for(v_int32 i = firstCpuIndex; i <= lastCpuIndex; i++) {
-    CPU_SET(i, &cpuset);
-  }
-    
-  v_int32 result = 0;
+
+  // NOTE:
 
   // The below line doesn't compile on Android.
   //result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
 
   // The below line compiles on Android but has not been tested.
   //result = sched_setaffinity(nativeHandle, sizeof(cpu_set_t), &cpuset);
-  
-  if (result != 0) {
-    OATPP_LOGD("[oatpp::concurrency::Thread::assignThreadToCpu(...)]", "error code - %d", result);
-  }
-  
-  return result;
+
+  #ifndef __ANDROID__
+
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+
+    for(v_int32 i = firstCpuIndex; i <= lastCpuIndex; i++) {
+      CPU_SET(i, &cpuset);
+    }
+
+    v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
+
+    if (result != 0) {
+      OATPP_LOGD("[oatpp::concurrency::Thread::assignThreadToCpu(...)]", "error code - %d", result);
+    }
+
+    return result;
+
+  #else
+    return -1;
+  #endif
+
 #else
   return -1;
 #endif
