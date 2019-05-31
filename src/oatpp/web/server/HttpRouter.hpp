@@ -25,9 +25,7 @@
 #ifndef oatpp_web_server_HttpRouter_hpp
 #define oatpp_web_server_HttpRouter_hpp
 
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
-
+#include "./HttpRequestHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
 
 namespace oatpp { namespace web { namespace server {
@@ -42,22 +40,11 @@ private:
    */
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
-  /**
-   * &id:oatpp::web::url::mapping::Router; of &id:oatpp::web::protocol::http::incoming::Request; and
-   * &id:oatpp::web::protocol::http::outgoing::Response;. Meaning router for Subscribers which accept
-   * incoming request as an input parameter and return outgoing request as an output parameter.
-   */
-  typedef oatpp::web::url::mapping::Router<
-    std::shared_ptr<oatpp::web::protocol::http::incoming::Request>,
-    std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>
-  > BranchRouter;
 
   /**
-   * Subscriber which accept
-   * incoming request as an input parameter and return outgoing request as an output parameter.
-   * See &l:HttpRouter::BranchRouter;.
+   * &id:oatpp::web::url::mapping::Router; of &id:oatpp::web::server::HttpRequestHandler;.
    */
-  typedef BranchRouter::UrlSubscriber Subscriber;
+  typedef oatpp::web::url::mapping::Router<HttpRequestHandler> BranchRouter;
 
   /**
    * Http method to &l:HttpRouter::BranchRouter; map.
@@ -84,12 +71,12 @@ public:
   static std::shared_ptr<HttpRouter> createShared();
 
   /**
-   * Add url pattern Subscriber (handler for all requests resolved by specified url-pattern).
+   * Route URL to Handler by method, and pathPattern.
    * @param method - http method like ["GET", "POST", etc.].
-   * @param urlPattern - url path pattern. ex.: `"/path/to/resource/with/{param1}/{param2}"`.
-   * @param subscriber - &l:HttpRouter::Subscriber;.
+   * @param pathPattern - url path pattern. ex.: `"/path/to/resource/with/{param1}/{param2}"`.
+   * @param handler - &id:oatpp::web::server::HttpRequestHandler;.
    */
-  void addSubscriber(const oatpp::String& method, const oatpp::String& urlPattern, const std::shared_ptr<Subscriber>& subscriber);
+  void route(const oatpp::String& method, const oatpp::String& pathPattern, const std::shared_ptr<HttpRequestHandler>& handler);
 
   /**
    * Resolve http method and path to &id:oatpp::web::url::mapping::Router::Route;
@@ -97,7 +84,7 @@ public:
    * @param url - url path. "Path" part of url only.
    * @return - &id:oatpp::web::url::mapping::Router::Route;.
    */
-  BranchRouter::Route getRoute(const StringKeyLabel& method, const StringKeyLabel& url);
+  BranchRouter::Route getRoute(const StringKeyLabel& method, const StringKeyLabel& path);
 
   /**
    * Print out all router mapping.

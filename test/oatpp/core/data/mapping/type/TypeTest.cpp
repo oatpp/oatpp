@@ -69,52 +69,52 @@ void TypeTest::onRun() {
   
   auto obj = TestDto::createShared();
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_string.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_string.valueType->name);
   OATPP_ASSERT(obj->_string.valueType->name == oatpp::data::mapping::type::__class::String::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_int8.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_int8.valueType->name);
   OATPP_ASSERT(obj->_int8.valueType->name == oatpp::data::mapping::type::__class::Int8::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_int16.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_int16.valueType->name);
   OATPP_ASSERT(obj->_int16.valueType->name == oatpp::data::mapping::type::__class::Int16::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_int32.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_int32.valueType->name);
   OATPP_ASSERT(obj->_int32.valueType->name == oatpp::data::mapping::type::__class::Int32::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_int64.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_int64.valueType->name);
   OATPP_ASSERT(obj->_int64.valueType->name == oatpp::data::mapping::type::__class::Int64::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_float32.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_float32.valueType->name);
   OATPP_ASSERT(obj->_float32.valueType->name == oatpp::data::mapping::type::__class::Float32::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_float64.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_float64.valueType->name);
   OATPP_ASSERT(obj->_float64.valueType->name == oatpp::data::mapping::type::__class::Float64::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_boolean.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_boolean.valueType->name);
   OATPP_ASSERT(obj->_boolean.valueType->name == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_list_string.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_list_string.valueType->name);
   OATPP_ASSERT(obj->_list_string.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_list_int32.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_list_int32.valueType->name);
   OATPP_ASSERT(obj->_list_int32.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_list_int64.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_list_int64.valueType->name);
   OATPP_ASSERT(obj->_list_int64.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_list_float32.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_list_float32.valueType->name);
   OATPP_ASSERT(obj->_list_float32.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_list_float64.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_list_float64.valueType->name);
   OATPP_ASSERT(obj->_list_float64.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_list_boolean.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_list_boolean.valueType->name);
   OATPP_ASSERT(obj->_list_boolean.valueType->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->_map_string_string.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->_map_string_string.valueType->name);
   OATPP_ASSERT(obj->_map_string_string.valueType->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME);
   
-  OATPP_LOGD(TAG, "type: '%s'", obj->obj1.valueType->name);
+  OATPP_LOGV(TAG, "type: '%s'", obj->obj1.valueType->name);
   OATPP_ASSERT(obj->obj1.valueType->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME);
 
 }

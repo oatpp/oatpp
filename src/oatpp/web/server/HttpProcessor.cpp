@@ -80,7 +80,7 @@ HttpProcessor::processRequest(HttpRouter* router,
       currInterceptor = currInterceptor->getNext();
     }
     if(!response) {
-      response = route.processEvent(request);
+      response = route.getEndpoint()->handle(request);
     }
   } catch (oatpp::web::protocol::http::HttpError& error) {
     return errorHandler->handleError(error.getInfo().status, error.getMessage());
@@ -138,7 +138,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
-  return m_currentRoute.processEventAsync(m_currentRequest).callbackTo(&HttpProcessor::Coroutine::onResponse);
+  return m_currentRoute.getEndpoint()->handleAsync(m_currentRequest).callbackTo(&HttpProcessor::Coroutine::onResponse);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {

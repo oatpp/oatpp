@@ -54,7 +54,7 @@ public:
     ENDPOINT_ASYNC_INIT(Root)
     
     Action act() {
-      //OATPP_LOGD(TAG, "GET '/'");
+      //OATPP_LOGV(TAG, "GET '/'");
       return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
     }
 
@@ -66,7 +66,7 @@ public:
 
     Action act() {
       auto param = request->getPathVariable("param");
-      //OATPP_LOGD(TAG, "GET params/%s", param->c_str());
+      //OATPP_LOGV(TAG, "GET params/%s", param->c_str());
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
@@ -80,7 +80,7 @@ public:
 
     Action act() {
       auto param = request->getHeader("X-TEST-HEADER");
-      //OATPP_LOGD(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
+      //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
@@ -93,12 +93,12 @@ public:
     ENDPOINT_ASYNC_INIT(PostBody)
 
     Action act() {
-      //OATPP_LOGD(TAG, "POST body. Reading body...");
+      //OATPP_LOGV(TAG, "POST body. Reading body...");
       return request->readBodyToStringAsync().callbackTo(&PostBody::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {
-      //OATPP_LOGD(TAG, "POST body %s", body->c_str());
+      //OATPP_LOGV(TAG, "POST body %s", body->c_str());
       auto dto = TestDto::createShared();
       dto->testValue = body;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
@@ -111,12 +111,12 @@ public:
     ENDPOINT_ASYNC_INIT(Echo)
 
     Action act() {
-      //OATPP_LOGD(TAG, "POST body(echo). Reading body...");
+      //OATPP_LOGV(TAG, "POST body(echo). Reading body...");
       return request->readBodyToStringAsync().callbackTo(&Echo::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {
-      //OATPP_LOGD(TAG, "POST echo size=%d", body->getSize());
+      //OATPP_LOGV(TAG, "POST echo size=%d", body->getSize());
       return _return(controller->createResponse(Status::CODE_200, body));
     }
 
