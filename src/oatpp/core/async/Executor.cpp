@@ -181,7 +181,6 @@ v_int32 Executor::getTasksCount() {
 void Executor::waitTasksFinished(const std::chrono::duration<v_int64, std::micro>& timeout) {
 
   auto startTime = std::chrono::system_clock::now();
-  auto end = startTime + timeout;
 
   while(getTasksCount() != 0) {
     auto elapsed = std::chrono::system_clock::now() - startTime;

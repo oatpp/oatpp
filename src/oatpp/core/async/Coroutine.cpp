@@ -174,7 +174,7 @@ Action CoroutineStarter::next(Action&& action) {
   Action result = m_first;
   m_first = nullptr;
   m_last = nullptr;
-  return std::move(result);
+  return result;
 }
 
 CoroutineStarter& CoroutineStarter::next(CoroutineStarter&& starter) {

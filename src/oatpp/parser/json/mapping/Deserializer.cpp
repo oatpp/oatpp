@@ -122,7 +122,7 @@ Deserializer::AbstractObjectWrapper Deserializer::readInt32Value(oatpp::parser::
   if(caret.isAtText("null", true)){
     return AbstractObjectWrapper(Int32::ObjectWrapper::Class::getType());
   } else {
-    return AbstractObjectWrapper(Int32::ObjectType::createAbstract(caret.parseInt()), Int32::ObjectWrapper::Class::getType());
+    return AbstractObjectWrapper(Int32::ObjectType::createAbstract((const int)caret.parseInt()), Int32::ObjectWrapper::Class::getType());
   }
 }
 
