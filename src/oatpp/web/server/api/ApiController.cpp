@@ -66,23 +66,23 @@ const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& ApiController::getDef
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status,
                                                                                const oatpp::String& str) const {
-  return OutgoingResponseFactory::createShared(status, str);
+  return ResponseFactory::createResponse(status, str);
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status,
                                                                                const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const {
-  return OutgoingResponseFactory::createShared(status, chunkedBuffer);
+  return ResponseFactory::createResponse(status, chunkedBuffer);
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
                                                                                   const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                                                   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-  return OutgoingResponseFactory::createShared(status, dto, objectMapper.get());
+  return ResponseFactory::createResponse(status, dto, objectMapper.get());
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
                                                                                   const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
-  return OutgoingResponseFactory::createShared(status, dto, m_defaultObjectMapper.get());
+  return ResponseFactory::createResponse(status, dto, m_defaultObjectMapper.get());
 }
   
 }}}}

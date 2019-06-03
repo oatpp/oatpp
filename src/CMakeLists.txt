@@ -190,7 +190,8 @@ add_library(oatpp
         oatpp/web/url/mapping/Router.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
-        oatpp/web/server/HttpRequestHandler.hpp)
+        oatpp/web/server/HttpRequestHandler.hpp
+)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
