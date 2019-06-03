@@ -31,19 +31,19 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
 std::shared_ptr<Response>
-ResponseFactory::createShared(const Status& status, const oatpp::String& text) {
+ResponseFactory::createResponse(const Status& status, const oatpp::String& text) {
   return Response::createShared(status, BufferBody::createShared(text));
 }
 
 std::shared_ptr<Response>
-ResponseFactory::createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) {
+ResponseFactory::createResponse(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) {
   return Response::createShared(status, ChunkedBufferBody::createShared(chunkedBuffer));
 }
 
 std::shared_ptr<Response>
-ResponseFactory::createShared(const Status& status,
-                        const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                        oatpp::data::mapping::ObjectMapper* objectMapper) {
+ResponseFactory::createResponse(const Status& status,
+                                const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
+                                oatpp::data::mapping::ObjectMapper* objectMapper) {
   return Response::createShared(status, DtoBody::createShared(dto, objectMapper));
 }
 

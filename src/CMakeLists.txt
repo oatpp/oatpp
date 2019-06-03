@@ -91,6 +91,8 @@ add_library(oatpp
         oatpp/core/macro/component.hpp
         oatpp/core/parser/Caret.cpp
         oatpp/core/parser/Caret.hpp
+        oatpp/core/parser/ParsingError.cpp
+        oatpp/core/parser/ParsingError.hpp
         oatpp/core/utils/ConversionUtils.cpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/encoding/Base64.cpp
@@ -175,6 +177,7 @@ add_library(oatpp
         oatpp/web/server/HttpConnectionHandler.hpp
         oatpp/web/server/HttpProcessor.cpp
         oatpp/web/server/HttpProcessor.hpp
+        oatpp/web/server/HttpRequestHandler.hpp
         oatpp/web/server/HttpRouter.cpp
         oatpp/web/server/HttpRouter.hpp
         oatpp/web/server/api/ApiController.cpp
@@ -188,9 +191,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-        oatpp/core/parser/ParsingError.cpp
-        oatpp/core/parser/ParsingError.hpp
-        oatpp/web/server/HttpRequestHandler.hpp)
+)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11

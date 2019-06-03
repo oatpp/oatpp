@@ -56,7 +56,7 @@ public:
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::ResponseFactory;.
    */
-  typedef oatpp::web::protocol::http::outgoing::ResponseFactory OutgoingResponseFactory;
+  typedef oatpp::web::protocol::http::outgoing::ResponseFactory ResponseFactory;
 
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Request;.

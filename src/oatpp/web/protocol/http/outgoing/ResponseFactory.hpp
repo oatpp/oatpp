@@ -43,28 +43,28 @@ public:
    * Create &id:oatpp::web::protocol::http::outgoing::Response; with &id:oatpp::web::protocol::http::outgoing::BufferBody;.
    * @param status - &id:oatpp::web::protocol::http::Status;.
    * @param text - &id:oatpp::String;.
-   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   * @return - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  static std::shared_ptr<Response> createShared(const Status& status, const oatpp::String& text);
+  static std::shared_ptr<Response> createResponse(const Status& status, const oatpp::String& text);
 
   /**
    * Create &id:oatpp::web::protocol::http::outgoing::Response; with &id:oatpp::web::protocol::http::outgoing::ChunkedBufferBody;.
    * @param status - &id:oatpp::web::protocol::http::Status;.
    * @param chunkedBuffer - &id:oatpp::data::stream::ChunkedBuffer;.
-   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   * @return - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  static std::shared_ptr<Response> createShared(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer);
+  static std::shared_ptr<Response> createResponse(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer);
 
   /**
    * Create &id:oatpp::web::protocol::http::outgoing::Response; with &id:oatpp::web::protocol::http::outgoing::DtoBody;.
    * @param status - &id:oatpp::web::protocol::http::Status;.
    * @param dto - see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
    * @param objectMapper - &id:oatpp::data::mapping::ObjectMapper;.
-   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   * @return - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  static std::shared_ptr<Response> createShared(const Status& status,
-                                                const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                                oatpp::data::mapping::ObjectMapper* objectMapper);
+  static std::shared_ptr<Response> createResponse(const Status& status,
+                                                  const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
+                                                  oatpp::data::mapping::ObjectMapper* objectMapper);
   
 };
   
