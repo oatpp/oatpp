@@ -136,7 +136,7 @@ std::atomic<v_int64> MemoryPool::poolIdCounter(0);
 
 const v_int32 ThreadDistributedMemoryPool::SHARDS_COUNT_DEFAULT = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
 
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+#if defined(OATPP_DISABLE_POOL_ALLOCATIONS) || defined(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
 ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
   : m_shardsCount(1)
   , m_shards(new MemoryPool*[1])
@@ -166,7 +166,7 @@ ThreadDistributedMemoryPool::~ThreadDistributedMemoryPool(){
   delete [] m_shards;
 }
 
-#ifdef OATPP_DISABLE_POOL_ALLOCATIONS
+#if defined(OATPP_DISABLE_POOL_ALLOCATIONS) || defined(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
 void* ThreadDistributedMemoryPool::obtain() {
   if(m_deleted) {
     throw std::runtime_error("[oatpp::base::memory::ThreadDistributedMemoryPool::obtain()]. Error. Pool deleted.");

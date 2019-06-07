@@ -101,7 +101,8 @@ inline bool operator != (const PoolSharedObjectAllocator<T>& a, const PoolShared
 }
 
 /**
- * Same as &l:PoolSharedObjectAllocator; but uses `thread_local` &id:oatpp::base::memory::MemoryPool;.
+ * Same as &l:PoolSharedObjectAllocator; but uses `thread_local` &id:oatpp::base::memory::MemoryPool;. <br>
+ * *If built with OATPP_COMPAT_BUILD_NO_THREAD_LOCAL flag - same as &l:PoolSharedObjectAllocator;.*
  * @tparam T - type of the object to allocate.
  */
 template<class T>
@@ -112,7 +113,11 @@ public:
   const AllocatorPoolInfo& m_poolInfo;
 public:
   static oatpp::base::memory::MemoryPool& getPool(const AllocatorPoolInfo& info){
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
     static thread_local oatpp::base::memory::MemoryPool pool(info.poolName, sizeof(T), info.poolChunkSize);
+#else
+    static oatpp::base::memory::MemoryPool pool(info.poolName, sizeof(T), info.poolChunkSize);
+#endif
     return pool;
   }
 public:

@@ -175,10 +175,15 @@ public:
  */
 class Environment{
 private:
+
   static v_atomicCounter m_objectsCount;
   static v_atomicCounter m_objectsCreated;
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   static thread_local v_counter m_threadLocalObjectsCount;
   static thread_local v_counter m_threadLocalObjectsCreated;
+#endif
+
 private:
   static std::shared_ptr<Logger> m_logger;
   static void checkTypes();
@@ -282,13 +287,15 @@ public:
 
   /**
    * Same as `getObjectsCount()` but `thread_local`
-   * @return - count of objects.
+   * @return - count of objects. <br>
+   * *0 - if built with `-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL` flag*
    */
   static v_counter getThreadLocalObjectsCount();
 
   /**
    * Same as `getObjectsCreated()` but `thread_local`
-   * @return - count of objects.
+   * @return - count of objects. <br>
+   * *0 - if built with `-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL` flag*
    */
   static v_counter getThreadLocalObjectsCreated();
 

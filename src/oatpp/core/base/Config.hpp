@@ -64,6 +64,12 @@
 #endif
 
 /**
+ * Disable `thread_local` feature. <br>
+ * See https://github.com/oatpp/oatpp/issues/81
+ */
+//#define OATPP_COMPAT_BUILD_NO_THREAD_LOCAL 1
+
+/**
  * DISABLE logs priority V
  */
 //#define OATPP_DISABLE_LOGV
