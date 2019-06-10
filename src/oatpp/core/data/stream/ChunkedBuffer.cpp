@@ -71,7 +71,7 @@ data::v_io_size ChunkedBuffer::writeToEntry(ChunkEntry* entry,
     outChunkPos = 0;
     return CHUNK_ENTRY_SIZE;
   } else {
-    std::memcpy(entry->chunk, data, count);
+    std::memcpy(entry->chunk, data, (size_t)count);
     outChunkPos = count;
     return count;
   }
@@ -84,11 +84,11 @@ data::v_io_size ChunkedBuffer::writeToEntryFrom(ChunkEntry* entry,
                                                           data::v_io_size& outChunkPos) {
   data::v_io_size spaceLeft = CHUNK_ENTRY_SIZE - inChunkPos;
   if(count >= spaceLeft){
-    std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, spaceLeft);
+    std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, (size_t)spaceLeft);
     outChunkPos = 0;
     return spaceLeft;
   } else {
-    std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, count);
+    std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, (size_t)count);
     outChunkPos = inChunkPos + count;
     return count;
   }
@@ -179,7 +179,7 @@ data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
   if(firstChunk != lastChunk){
     
     data::v_io_size countToCopy = CHUNK_ENTRY_SIZE - firstChunkPos;
-    std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], countToCopy);
+    std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], (size_t)countToCopy);
     bufferPos += countToCopy;
     
     auto curr = firstChunk->next;
@@ -190,11 +190,11 @@ data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
       curr = curr->next;
     }
     
-    std::memcpy(&((p_char8)buffer)[bufferPos], lastChunk->chunk, lastChunkPos);
+    std::memcpy(&((p_char8)buffer)[bufferPos], lastChunk->chunk, (size_t)lastChunkPos);
     
   } else {
     data::v_io_size countToCopy = lastChunkPos - firstChunkPos;
-    std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], countToCopy);
+    std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], (size_t)countToCopy);
   }
   
   return countToRead;

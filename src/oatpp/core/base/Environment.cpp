@@ -38,9 +38,11 @@ std::unordered_map<std::string, std::unordered_map<std::string, void*>> Environm
 
 v_atomicCounter Environment::m_objectsCount(0);
 v_atomicCounter Environment::m_objectsCreated(0);
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
 thread_local v_counter Environment::m_threadLocalObjectsCount = 0;
 thread_local v_counter Environment::m_threadLocalObjectsCreated = 0;
-
+#endif
 
 DefaultLogger::DefaultLogger(const Config& config)
   : m_config(config)
@@ -79,7 +81,7 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
   }
 
   if(m_config.timeFormat) {
-    time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
+    time_t seconds = (time_t)std::chrono::duration_cast<std::chrono::seconds>(time).count();
     struct tm now;
     localtime_r(&seconds, &now);
     std::cout << std::put_time(&now, m_config.timeFormat);
@@ -115,8 +117,11 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
 
   m_objectsCount = 0;
   m_objectsCreated = 0;
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   m_threadLocalObjectsCount = 0;
   m_threadLocalObjectsCreated = 0;
+#endif
 
   if(m_components.size() > 0) {
     throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Components were created before call to Environment::init()");
@@ -155,15 +160,25 @@ void Environment::checkTypes(){
 }
 
 void Environment::incObjects(){
+
   m_objectsCount ++;
   m_objectsCreated ++;
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   m_threadLocalObjectsCount ++;
   m_threadLocalObjectsCreated ++;
+#endif
+
 }
 
 void Environment::decObjects(){
+
   m_objectsCount --;
+
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   m_threadLocalObjectsCount --;
+#endif
+
 }
 
 v_counter Environment::getObjectsCount(){
@@ -175,11 +190,19 @@ v_counter Environment::getObjectsCreated(){
 }
   
 v_counter Environment::getThreadLocalObjectsCount(){
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   return m_threadLocalObjectsCount;
+#else
+  return 0;
+#endif
 }
 
 v_counter Environment::getThreadLocalObjectsCreated(){
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   return m_threadLocalObjectsCreated;
+#else
+  return 0;
+#endif
 }
 
 void Environment::setLogger(const std::shared_ptr<Logger>& logger){
@@ -196,6 +219,10 @@ void Environment::printCompilationConfig() {
 
 #ifdef OATPP_DISABLE_POOL_ALLOCATIONS
   OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_POOL_ALLOCATIONS");
+#endif
+
+#ifdef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
+  OATPP_LOGD("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL");
 #endif
 
 #ifdef OATPP_THREAD_HARDWARE_CONCURRENCY

@@ -134,49 +134,63 @@ static void* operator new(std::size_t sz, void* entry) { \
 static void operator delete(void* ptr, void* entry) { \
 }
 
-/**
- * Macro to declare: `thread_local` &id:oatpp::base::memory::MemoryPool; for object, plus class-specific operators
- * `static void* operator new(std::size_t sz)`, `static void operator delete(void* ptr, std::size_t sz)`,
- * `static void* operator new(std::size_t sz, void* entry)`, `static void operator delete(void* ptr, void* entry)`.
- * @param NAME - name of the memory pool.
- * @param TYPE - type of the object.
- * @param CHUNK_SIZE - chunk size for &id:oatpp::base::memory::MemoryPool;.
- */
-#define OBJECT_POOL_THREAD_LOCAL(POOL_NAME, TYPE, CHUNK_SIZE)  \
-class POOL_NAME { \
-public: \
-\
-  static oatpp::base::memory::MemoryPool& getPool(){ \
-    static thread_local oatpp::base::memory::MemoryPool pool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
-    return pool; \
+#ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
+  /**
+   * Macro to declare: `thread_local` &id:oatpp::base::memory::MemoryPool; for object, plus class-specific operators <br>
+   * `static void* operator new(std::size_t sz)`, `static void operator delete(void* ptr, std::size_t sz)`, <br>
+   * `static void* operator new(std::size_t sz, void* entry)`, `static void operator delete(void* ptr, void* entry)`. <br>
+   * *Memory pool is NOT `thread_local` if built with `-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL` flag*
+   * @param NAME - name of the memory pool.
+   * @param TYPE - type of the object.
+   * @param CHUNK_SIZE - chunk size for &id:oatpp::base::memory::MemoryPool;.
+   */
+  #define OBJECT_POOL_THREAD_LOCAL(POOL_NAME, TYPE, CHUNK_SIZE)  \
+  class POOL_NAME { \
+  public: \
+  \
+    static oatpp::base::memory::MemoryPool& getPool(){ \
+      static thread_local oatpp::base::memory::MemoryPool pool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
+      return pool; \
+    } \
+  \
+  }; \
+  \
+  static void* operator new(std::size_t sz) { \
+    if(sz != sizeof(TYPE)){ \
+      throw std::runtime_error("wrong object size"); \
+    } \
+    static thread_local auto& pool = POOL_NAME::getPool(); \
+    return pool.obtain(); \
   } \
-\
-}; \
-\
-static void* operator new(std::size_t sz) { \
-  if(sz != sizeof(TYPE)){ \
-    throw std::runtime_error("wrong object size"); \
+  \
+  static void operator delete(void* ptr, std::size_t sz) { \
+    if(sz != sizeof(TYPE)){ \
+      oatpp::base::Environment::log(2, #POOL_NAME, "[ERROR|CRITICAL]: MemoryPool malfunction. Deleting object of wrong size"); \
+    } \
+    oatpp::base::memory::MemoryPool::free(ptr); \
   } \
-  static thread_local auto& pool = POOL_NAME::getPool(); \
-  return pool.obtain(); \
-} \
-\
-static void operator delete(void* ptr, std::size_t sz) { \
-  if(sz != sizeof(TYPE)){ \
-    oatpp::base::Environment::log(2, #POOL_NAME, "[ERROR|CRITICAL]: MemoryPool malfunction. Deleting object of wrong size"); \
+  \
+  static void* operator new(std::size_t sz, void* entry) { \
+    if(sz != sizeof(TYPE)){ \
+      throw std::runtime_error("wrong object size"); \
+    } \
+    return entry; \
   } \
-  oatpp::base::memory::MemoryPool::free(ptr); \
-} \
-\
-static void* operator new(std::size_t sz, void* entry) { \
-  if(sz != sizeof(TYPE)){ \
-    throw std::runtime_error("wrong object size"); \
-  } \
-  return entry; \
-} \
-\
-static void operator delete(void* ptr, void* entry) { \
-}
+  \
+  static void operator delete(void* ptr, void* entry) { \
+  }
+#else
+  #define OBJECT_POOL_THREAD_LOCAL(POOL_NAME, TYPE, CHUNK_SIZE) \
+  class POOL_NAME { \
+  public: \
+  \
+    static oatpp::base::memory::MemoryPool& getPool(){ \
+      static oatpp::base::memory::MemoryPool pool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
+      return pool; \
+    } \
+  \
+  };
+#endif
 
 }}}
 
