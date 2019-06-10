@@ -49,7 +49,7 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 #ifdef MSG_NOSIGNAL
   flags |= MSG_NOSIGNAL;
 #endif
-  auto result = ::send(m_handle, buff, count, flags);
+  auto result = ::send(m_handle, buff, (size_t)count, flags);
 
   if(result <= 0) {
     auto e = errno;
@@ -68,7 +68,7 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 
 data::v_io_size Connection::read(void *buff, data::v_io_size count){
   errno = 0;
-  auto result = ::read(m_handle, buff, count);
+  auto result = ::read(m_handle, buff, (size_t)count);
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){

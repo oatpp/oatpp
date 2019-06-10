@@ -84,7 +84,7 @@ data::v_io_size FIFOBuffer::read(void *data, data::v_io_size count) {
     if(size > count) {
       size = count;
     }
-    std::memcpy(data, &m_buffer[m_readPosition], size);
+    std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
     m_readPosition += size;
     if(m_readPosition == m_writePosition) {
       m_canRead = false;
@@ -95,18 +95,18 @@ data::v_io_size FIFOBuffer::read(void *data, data::v_io_size count) {
   auto size = m_bufferSize - m_readPosition;
   
   if(size > count){
-    std::memcpy(data, &m_buffer[m_readPosition], count);
+    std::memcpy(data, &m_buffer[m_readPosition], (size_t)count);
     m_readPosition += count;
     return count;
   }
   
-  std::memcpy(data, &m_buffer[m_readPosition], size);
+  std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
   auto size2 = m_writePosition;
   if(size2 > count - size) {
     size2 = count - size;
   }
   
-  std::memcpy(&((p_char8) data)[size], m_buffer, size2);
+  std::memcpy(&((p_char8) data)[size], m_buffer, (size_t)size2);
   m_readPosition = size2;
   if(m_readPosition == m_writePosition) {
     m_canRead = false;
@@ -135,7 +135,7 @@ data::v_io_size FIFOBuffer::write(const void *data, data::v_io_size count) {
     if(size > count) {
       size = count;
     }
-    std::memcpy(&m_buffer[m_writePosition], data, size);
+    std::memcpy(&m_buffer[m_writePosition], data, (size_t)size);
     m_writePosition += size;
     return size;
   }
@@ -143,18 +143,18 @@ data::v_io_size FIFOBuffer::write(const void *data, data::v_io_size count) {
   auto size = m_bufferSize - m_writePosition;
   
   if(size > count){
-    std::memcpy(&m_buffer[m_writePosition], data, count);
+    std::memcpy(&m_buffer[m_writePosition], data, (size_t)count);
     m_writePosition += count;
     return count;
   }
   
-  std::memcpy(&m_buffer[m_writePosition], data, size);
+  std::memcpy(&m_buffer[m_writePosition], data, (size_t)size);
   auto size2 = m_readPosition;
   if(size2 > count - size) {
     size2 = count - size;
   }
   
-  std::memcpy(m_buffer, &((p_char8) data)[size], size2);
+  std::memcpy(m_buffer, &((p_char8) data)[size], (size_t)size2);
   m_writePosition = size2;
   
   return (size + size2);
