@@ -81,7 +81,7 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
   }
 
   if(m_config.timeFormat) {
-    time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
+    time_t seconds = (time_t)std::chrono::duration_cast<std::chrono::seconds>(time).count();
     struct tm now;
     localtime_r(&seconds, &now);
     std::cout << std::put_time(&now, m_config.timeFormat);
