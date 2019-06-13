@@ -104,7 +104,7 @@ oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioRe
 }
 
 void Pipe::Reader::notifyWaitList() {
-  m_waitList.notifyAllAndClear();
+  m_waitList.notifyAll();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,7 @@ oatpp::async::Action Pipe::Writer::suggestOutputStreamAction(data::v_io_size ioR
 }
 
 void Pipe::Writer::notifyWaitList() {
-  m_waitList.notifyAllAndClear();
+  m_waitList.notifyAll();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
