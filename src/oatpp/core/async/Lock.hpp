@@ -72,6 +72,74 @@ public:
 
 };
 
+/**
+ * Asynchronous lock guard. <br>
+ * Should be used as a lock guard in coroutines.
+ */
+class LockGuard {
+public:
+  /**
+   * Convenince typedef for &id:oatpp::async::CoroutineStarter;.
+   */
+  typedef oatpp::async::CoroutineStarter CoroutineStarter;
+private:
+  bool m_ownsLock;
+  Lock* m_lock;
+public:
+  LockGuard(const LockGuard&) = delete;
+  LockGuard& operator = (const LockGuard&) = delete;
+public:
+
+  /**
+   * Default constructor.
+   */
+  LockGuard();
+
+  /**
+   * Default constructor.
+   */
+  LockGuard(Lock* lock);
+
+  /**
+   * Non-virtual destructor. <br>
+   * Will unlock the Lock if owns lock.
+   */
+  ~LockGuard();
+
+  /**
+   * Set lock object.
+   * @param lock - lock object.
+   */
+  void setLockObject(Lock* lock);
+
+  /**
+   * Lock the lock.
+   * @return - &id:oatpp::async::Action;.
+   */
+  CoroutineStarter lockAsync();
+
+  /**
+   * Lock and guard the lock. <br>
+   * Same as `setLockObject(lock) + lockAsync();`.
+   * @param lock - lock to lock and guard.
+   * @return - &id:oatpp::async::Action;.
+   */
+  CoroutineStarter lockAsync(Lock* lock);
+
+  /**
+   * Lock the lock. (Async-inline usage. Should be called from a separate method of coroutine).
+   * @param nextAction - action to take after lock is locked.
+   * @return - &id:oatpp::async::Action;.
+   */
+  Action lockAsyncInline(oatpp::async::Action&& nextAction);
+
+  /**
+   * Unlock guarded lock.
+   */
+  void unlock();
+
+};
+
 }}
 
 #endif // oatpp_async_Mutex_hpp
