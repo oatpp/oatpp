@@ -1,6 +1,8 @@
 
 add_executable(oatppAllTests
         oatpp/AllTestsMain.cpp
+        oatpp/core/async/LockTest.cpp
+        oatpp/core/async/LockTest.hpp
         oatpp/core/base/CommandLineArgumentsTest.cpp
         oatpp/core/base/CommandLineArgumentsTest.hpp
         oatpp/core/base/RegRuleTest.cpp

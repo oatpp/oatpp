@@ -35,14 +35,24 @@ CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
 }
 
 CoroutineWaitList::~CoroutineWaitList() {
-  notifyAllAndClear();
+  notifyAll();
 }
 
 void CoroutineWaitList::setListener(Listener* listener) {
   m_listener = listener;
 }
 
-void CoroutineWaitList::put(AbstractCoroutine* coroutine) {
+void CoroutineWaitList::pushFront(AbstractCoroutine* coroutine) {
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+    m_list.pushFront(coroutine);
+  }
+  if(m_listener != nullptr) {
+    m_listener->onNewItem(*this);
+  }
+}
+
+void CoroutineWaitList::pushBack(AbstractCoroutine* coroutine) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
     m_list.pushBack(coroutine);
@@ -52,7 +62,15 @@ void CoroutineWaitList::put(AbstractCoroutine* coroutine) {
   }
 }
 
-void CoroutineWaitList::notifyAllAndClear() {
+void CoroutineWaitList::notifyFirst() {
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+  if(m_list.first) {
+    auto coroutine = m_list.popFront();
+    coroutine->_PP->pushOneTask(coroutine);
+  }
+}
+
+void CoroutineWaitList::notifyAll() {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   auto curr = m_list.first;
   while(curr != nullptr) {

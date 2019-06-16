@@ -94,7 +94,7 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
 
       case Action::TYPE_WAIT_LIST:
         coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-        action.m_data.waitList->put(coroutine);
+        action.m_data.waitList->pushBack(coroutine);
         break;
 
       default:
@@ -236,7 +236,7 @@ bool Processor::iterate(v_int32 numIterations) {
           case Action::TYPE_WAIT_LIST:
             CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
             m_queue.popFront();
-            action.m_data.waitList->put(CP);
+            action.m_data.waitList->pushBack(CP);
             break;
 
 //        default:

@@ -18,6 +18,8 @@
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
 
+#include "oatpp/core/async/LockTest.hpp"
+
 #include "oatpp/core/parser/CaretTest.hpp"
 
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
@@ -54,6 +56,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+
+  OATPP_RUN_TEST(oatpp::test::async::LockTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);

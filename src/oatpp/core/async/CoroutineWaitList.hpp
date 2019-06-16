@@ -65,7 +65,14 @@ protected:
    * This method should be called by Coroutine Processor only.
    * @param coroutine
    */
-  void put(AbstractCoroutine* coroutine);
+  void pushFront(AbstractCoroutine* coroutine);
+
+  /*
+   * Put coroutine on wait-list.
+   * This method should be called by Coroutine Processor only.
+   * @param coroutine
+   */
+  void pushBack(AbstractCoroutine* coroutine);
 public:
 
   /**
@@ -94,15 +101,25 @@ public:
    */
   virtual ~CoroutineWaitList();
 
+  /**
+   * Set wait list listener. <br>
+   * Listener will be called when processor puts coroutine on a wait-list.
+   * @param listener
+   */
   void setListener(Listener* listener);
 
   /**
-   * Put all coroutines back to its processors.
+   * Put first-in-list coroutine back to its processor.
    */
-  void notifyAllAndClear();
+  void notifyFirst();
+
+  /**
+   * Put all coroutines back to its processors and clear wait-list.
+   */
+  void notifyAll();
 
   CoroutineWaitList& operator=(CoroutineWaitList&& other) {
-    notifyAllAndClear();
+    notifyAll();
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
     std::memcpy(&m_list, &other.m_list, sizeof(m_list));
     std::memset(&other.m_list, 0, sizeof(m_list));
