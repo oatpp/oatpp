@@ -36,17 +36,19 @@ Lock::Lock()
 }
 
 void Lock::onNewItem(CoroutineWaitList& list) {
-  if(m_counter == 0) {
+  auto counter = m_counter.load();
+  if(counter == 0) {
     list.notifyFirst();
-  } else if(m_counter < 0) {
+  } else if(counter < 0) {
     throw std::runtime_error("[oatpp::async::Lock::onNewItem()]: Error. Invalid state.");
   }
 }
 
 Action Lock::waitAsync() {
-  if(m_counter > 0) {
+  auto counter = m_counter.load();
+  if(counter > 0) {
     return Action::createWaitListAction(&m_list);
-  } else if(m_counter == 0) {
+  } else if(counter == 0) {
     return Action::createActionByType(Action::TYPE_REPEAT);
   }
   throw std::runtime_error("[oatpp::async::Lock::waitAsync()]: Error. Invalid state.");
@@ -155,6 +157,7 @@ void LockGuard::unlock() {
     if(m_ownsLock) {
 
       m_lock->unlock();
+      m_ownsLock = false;
 
     } else {
       throw std::runtime_error("[oatpp::async::LockGuard::unlock()]: Error. Invalid state. LockGuard is NOT owning the lock.");
