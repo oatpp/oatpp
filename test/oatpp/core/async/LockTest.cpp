@@ -82,6 +82,28 @@ public:
 
 };
 
+class TestCoroutine2 : public oatpp::async::Coroutine<TestCoroutine2> {
+private:
+  char m_symbol;
+  Buff *m_buff;
+  v_int32 m_counter;
+public:
+
+  TestCoroutine2(char symbol, Buff *buff)
+    : m_symbol(symbol), m_buff(buff), m_counter(0)
+  {}
+
+  Action act() override {
+    if (m_counter < NUM_SYMBOLS) {
+      m_counter++;
+      m_buff->writeChar(m_symbol);
+      return repeat();
+    }
+    return finish();
+  }
+
+};
+
 void testMethod(char symbol, Buff *buff, oatpp::async::Lock *lock) {
 
   std::lock_guard<oatpp::async::Lock> lockGuard(*lock);
@@ -136,9 +158,13 @@ void LockTest::onRun() {
     executor.execute<TestCoroutine>((char)c, &buff, &lock);
   }
 
+  for (v_int32 c = 128; c <= 200; c++) {
+    executor.execute<oatpp::async::Synchronized<TestCoroutine2>>(&lock, (char)c, &buff);
+  }
+
   std::list<std::thread> threads;
 
-  for (v_int32 c = 128; c <= 255; c++) {
+  for (v_int32 c = 201; c <= 255; c++) {
     threads.push_back(std::thread(testMethod, (char)c, &buff, &lock));
   }
 
@@ -152,18 +178,7 @@ void LockTest::onRun() {
 
   auto result = buffer.toString();
 
-  for (v_int32 c = 0; c <= 127; c++) {
-    bool check = checkSymbol((char)c, result);
-    if(!check) {
-      v_int32 code = c;
-      auto str = oatpp::String((const char*)&c, 1, true);
-      OATPP_LOGE(TAG, "Failed for symbol %d, '%s'", code, str->getData());
-    }
-    OATPP_ASSERT(check);
-  }
-
-
-  for (v_int32 c = 128; c <= 255; c++) {
+  for (v_int32 c = 0; c <= 255; c++) {
     bool check = checkSymbol((char)c, result);
     if(!check) {
       v_int32 code = c;

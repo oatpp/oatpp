@@ -32,7 +32,7 @@ namespace oatpp { namespace async {
 /**
  * Lock (mutex) for coroutines/threads synchronization. <br>
  * - When called from a thread - must be used with `std::lock_guard`.
- * - When called from coroutine - must be used directly calling `try_lock`, `unlock`, `waitAsync` methods.
+ * - When called from coroutine - must be used with &l:LockGuard;.
  */
 class Lock : private CoroutineWaitList::Listener {
 private:
@@ -96,7 +96,7 @@ public:
   LockGuard();
 
   /**
-   * Default constructor.
+   * Constructor with lock.
    */
   LockGuard(Lock* lock);
 
@@ -114,7 +114,7 @@ public:
 
   /**
    * Lock the lock.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
   CoroutineStarter lockAsync();
 
@@ -122,7 +122,7 @@ public:
    * Lock and guard the lock. <br>
    * Same as `setLockObject(lock) + lockAsync();`.
    * @param lock - lock to lock and guard.
-   * @return - &id:oatpp::async::Action;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
   CoroutineStarter lockAsync(Lock* lock);
 
@@ -137,6 +137,43 @@ public:
    * Unlock guarded lock.
    */
   void unlock();
+
+};
+
+/**
+ * Convenience Synchronized coroutine template. It locks the lock and then starts the coroutine.
+ * It makes sure that coroutine is synchronized by the lock.
+ * <p><b>Usage:</b></p>
+ * `Synchronized<MyCoroutine>(&lock, args...)`
+ * <p><b>Where:</b></p>
+ * <ul>
+ *   <li>lock - &l:Lock; for synchronization.</li>
+ *   <li>args - MyCoroutine constructor arguments.</li>
+ * </ul>
+ * @tparam C - 'MyCoroutine' type.
+ */
+template<class C>
+class Synchronized : public oatpp::async::Coroutine<Synchronized<C>> {
+private:
+  oatpp::async::LockGuard m_lockGuard;
+  CoroutineStarter m_starter;
+public:
+
+  /*
+   * Constructor template.
+   * @tparam ConstructorArgs - Coroutine constructor arguments types.
+   * @param lock - Synchronization &l:Lock;.
+   * @param args - Actual Coroutine constructor arguments.
+   */
+  template<typename ...ConstructorArgs>
+  Synchronized(oatpp::async::Lock *lock, ConstructorArgs... args)
+    : m_lockGuard(lock)
+    , m_starter(C::start(args...))
+  {}
+
+  Action act() override {
+    return m_lockGuard.lockAsync().next(std::move(m_starter)).next(Synchronized::finish());
+  }
 
 };
 
