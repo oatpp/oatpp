@@ -65,7 +65,9 @@ void AsyncHttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<han
   m_requestInterceptors.pushBack(interceptor);
 }
 
-void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
+void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection,
+                                                  const std::shared_ptr<const ParameterMap>& params)
+{
 
   connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);

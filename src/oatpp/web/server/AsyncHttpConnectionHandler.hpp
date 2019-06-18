@@ -67,7 +67,7 @@ public:
   
   void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
   
-  void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+  void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
    * Will call m_executor.stop()

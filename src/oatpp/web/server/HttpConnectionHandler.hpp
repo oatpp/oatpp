@@ -108,7 +108,7 @@ public:
    * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream; representing connection.
    */
-  void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override;
+  void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
    * Tell all worker threads to exit when done.

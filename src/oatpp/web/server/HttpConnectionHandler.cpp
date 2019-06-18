@@ -81,7 +81,7 @@ void HttpConnectionHandler::Task::run(){
   if(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
     auto handler = response->getConnectionUpgradeHandler();
     if(handler) {
-      handler->handleConnection(m_connection);
+      handler->handleConnection(m_connection, response->getConnectionUpgradeParameters());
     } else {
       OATPP_LOGD("[oatpp::web::server::HttpConnectionHandler::Task::run()]", "Warning. ConnectionUpgradeHandler not set!");
     }
@@ -110,7 +110,9 @@ void HttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler:
   m_requestInterceptors.pushBack(interceptor);
 }
   
-void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection){
+void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                             const std::shared_ptr<const ParameterMap>& params)
+{
 
   connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
