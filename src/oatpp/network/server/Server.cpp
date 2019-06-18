@@ -44,14 +44,16 @@ Server::Server(const std::shared_ptr<ServerConnectionProvider>& connectionProvid
 void Server::mainLoop(){
   
   setStatus(STATUS_CREATED, STATUS_RUNNING);
-  
+
+  std::shared_ptr<const std::unordered_map<oatpp::String, oatpp::String>> params;
+
   while(getStatus() == STATUS_RUNNING) {
     
     auto connection = m_connectionProvider->getConnection();
     
     if (connection) {
       if(getStatus() == STATUS_RUNNING){
-        m_connectionHandler->handleConnection(connection);
+        m_connectionHandler->handleConnection(connection, params /* null params */);
       } else {
         OATPP_LOGD("Server", "Already stopped. Closing connection...");
       }

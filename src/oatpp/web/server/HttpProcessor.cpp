@@ -164,7 +164,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
     auto handler = m_currentResponse->getConnectionUpgradeHandler();
     if(handler) {
-      handler->handleConnection(m_connection);
+      handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
     } else {
       OATPP_LOGD("[oatpp::web::server::HttpProcessor::Coroutine::onRequestDone()]", "Warning. ConnectionUpgradeHandler not set!");
     }

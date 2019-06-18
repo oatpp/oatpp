@@ -68,6 +68,14 @@ std::shared_ptr<oatpp::network::server::ConnectionHandler> Response::getConnecti
   return m_connectionUpgradeHandler;
 }
 
+void Response::setConnectionUpgradeParameters(const std::shared_ptr<const ConnectionHandler::ParameterMap>& parameters) {
+  m_connectionUpgradeParameters = parameters;
+}
+
+std::shared_ptr<const Response::ConnectionHandler::ParameterMap> Response::getConnectionUpgradeParameters() {
+  return m_connectionUpgradeParameters;
+}
+
 void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
   
   if(m_body){

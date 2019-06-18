@@ -26,7 +26,7 @@
 #define network_server_ConnectionHandler_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-
+#include <unordered_map>
 
 namespace oatpp { namespace network { namespace server {
 
@@ -35,6 +35,16 @@ namespace oatpp { namespace network { namespace server {
  */
 class ConnectionHandler {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::IOStream;.
+   */
+  typedef oatpp::data::stream::IOStream IOStream;
+
+  /**
+   * Convenience typedef for accompanying parameters of connection handling.
+   */
+  typedef std::unordered_map<oatpp::String, oatpp::String> ParameterMap;
+public:
 
   /**
    * Virtual Destructor.
@@ -42,10 +52,11 @@ public:
   virtual ~ConnectionHandler() = default;
 
   /**
-   * Handle provided connection here
+   * Handle provided connection.
    * @param connection - see &id:oatpp::data::stream::IOStream;.
+   * @param params - accompanying parameters.
    */
-  virtual void handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) = 0;
+  virtual void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) = 0;
 
   /**
    * Stop all threads here
