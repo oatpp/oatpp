@@ -169,4 +169,30 @@ void LockGuard::unlock() {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Misc
+
+CoroutineStarter synchronize(oatpp::async::Lock *lock, CoroutineStarter&& starter) {
+
+  class Synchronized : public oatpp::async::Coroutine<Synchronized> {
+  private:
+    oatpp::async::LockGuard m_lockGuard;
+    CoroutineStarter m_starter;
+  public:
+
+    Synchronized(oatpp::async::Lock *lock, CoroutineStarter&& starter)
+      : m_lockGuard(lock)
+      , m_starter(std::forward<CoroutineStarter>(starter))
+    {}
+
+    Action act() override {
+      return m_lockGuard.lockAsync().next(std::move(m_starter)).next(finish());
+    }
+
+  };
+
+  return new Synchronized(lock, std::forward<CoroutineStarter>(starter));
+
+}
+
 }}

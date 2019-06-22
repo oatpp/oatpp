@@ -141,41 +141,12 @@ public:
 };
 
 /**
- * Convenience Synchronized coroutine template. It locks the lock and then starts the coroutine.
- * It makes sure that coroutine is synchronized by the lock.
- * <p><b>Usage:</b></p>
- * `Synchronized<MyCoroutine>(&lock, args...)`
- * <p><b>Where:</b></p>
- * <ul>
- *   <li>lock - &l:Lock; for synchronization.</li>
- *   <li>args - MyCoroutine constructor arguments.</li>
- * </ul>
- * @tparam C - 'MyCoroutine' type.
+ * Synchronize coroutine execution by lock.
+ * @param lock - &l:Lock; for synchronization.
+ * @param starter - Coroutine to execute in synchronized manner. &id:oatpp::async::CoroutineStarter;.
+ * @return - starter of synchronization coroutine (wrapper coroutine). &id:oatpp::async::CoroutineStarter;.
  */
-template<class C>
-class Synchronized : public oatpp::async::Coroutine<Synchronized<C>> {
-private:
-  oatpp::async::LockGuard m_lockGuard;
-  CoroutineStarter m_starter;
-public:
-
-  /*
-   * Constructor template.
-   * @tparam ConstructorArgs - Coroutine constructor arguments types.
-   * @param lock - Synchronization &l:Lock;.
-   * @param args - Actual Coroutine constructor arguments.
-   */
-  template<typename ...ConstructorArgs>
-  Synchronized(oatpp::async::Lock *lock, ConstructorArgs... args)
-    : m_lockGuard(lock)
-    , m_starter(C::start(args...))
-  {}
-
-  Action act() override {
-    return m_lockGuard.lockAsync().next(std::move(m_starter)).next(Synchronized::finish());
-  }
-
-};
+CoroutineStarter synchronize(oatpp::async::Lock *lock, CoroutineStarter&& starter);
 
 }}
 
