@@ -140,6 +140,12 @@ public:
 
 };
 
+/**
+ * Synchronize coroutine execution by lock.
+ * @param lock - &l:Lock; for synchronization.
+ * @param starter - Coroutine to execute in synchronized manner. &id:oatpp::async::CoroutineStarter;.
+ * @return - starter of synchronization coroutine (wrapper coroutine). &id:oatpp::async::CoroutineStarter;.
+ */
 CoroutineStarter synchronize(oatpp::async::Lock *lock, CoroutineStarter&& starter);
 
 }}
