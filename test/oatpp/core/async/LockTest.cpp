@@ -82,14 +82,14 @@ public:
 
 };
 
-class TestCoroutine2 : public oatpp::async::Coroutine<TestCoroutine2> {
+class NotSynchronizedCoroutine : public oatpp::async::Coroutine<NotSynchronizedCoroutine> {
 private:
   char m_symbol;
   Buff *m_buff;
   v_int32 m_counter;
 public:
 
-  TestCoroutine2(char symbol, Buff *buff)
+  NotSynchronizedCoroutine(char symbol, Buff *buff)
     : m_symbol(symbol), m_buff(buff), m_counter(0)
   {}
 
@@ -100,6 +100,25 @@ public:
       return repeat();
     }
     return finish();
+  }
+
+};
+
+class TestCoroutine2 : public oatpp::async::Coroutine<TestCoroutine2> {
+private:
+  char m_symbol;
+  Buff *m_buff;
+  oatpp::async::Lock *m_lock;
+public:
+
+  TestCoroutine2(char symbol, Buff *buff, oatpp::async::Lock *lock)
+    : m_symbol(symbol)
+    , m_buff(buff)
+    , m_lock(lock)
+  {}
+
+  Action act() override {
+    return oatpp::async::synchronize(m_lock, NotSynchronizedCoroutine::start(m_symbol, m_buff)).next(finish());
   }
 
 };
@@ -159,7 +178,7 @@ void LockTest::onRun() {
   }
 
   for (v_int32 c = 128; c <= 200; c++) {
-    executor.execute<oatpp::async::Synchronized<TestCoroutine2>>(&lock, (char)c, &buff);
+    executor.execute<TestCoroutine2>((char)c, &buff, &lock);
   }
 
   std::list<std::thread> threads;
