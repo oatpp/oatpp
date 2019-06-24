@@ -36,7 +36,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#define OATPP_VERSION "0.19.4"
+#define OATPP_VERSION "0.19.6"
 
 typedef unsigned char v_char8;
 typedef v_char8 *p_char8;
