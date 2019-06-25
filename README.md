@@ -20,7 +20,7 @@ Organic. Pure C++.
 
 - Blazingly fast
 - Zero Dependency
-- **Asynchronous server (High performance. Handle over 2 Million simultaneous WebSocket connections on a single server.)** [See benchmark](https://oatpp.io/benchmark/websocket/2-million/)
+- **Asynchronous server (High performance. Handle over 5 Million simultaneous WebSocket connections on a single server.)** [See benchmark](https://oatpp.io/benchmark/websocket/5-million/)
 - Multithreaded server (Simple API)
 - Connection agnostic. (Use whatever transport. Whatever SSL backend. Whatever sockets, pipes, files. etc. It cares about HTTP stream only)
 - REST framework (with ability to autodocument endpoints see [oatpp-swagger](https://github.com/oatpp/oatpp-swagger))
@@ -183,4 +183,4 @@ Grab any project from [examples](https://github.com/oatpp/oatpp-examples), and f
 - [TLS-Libressl](https://github.com/oatpp/example-libressl) - Example project of how-to setup secure connection and serve via HTTPS.
 - [Consul](https://github.com/oatpp/example-consul) - Example project of how-to use oatpp::consul::Client. Integration with Consul.
 - [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
-
+- [WebSocket](https://github.com/oatpp/example-websocket) - Collection of oatpp WebSocket examples.
