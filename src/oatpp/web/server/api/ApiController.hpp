@@ -202,7 +202,7 @@ protected:
       if(m_methodAsync != nullptr) {
         return (m_controller->*m_methodAsync)(request);
       }
-      throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Using Async model for non async enpoint");
+      throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Using Async model for non async endpoint");
     }
     
   };
