@@ -4,6 +4,8 @@
 #include "oatpp/web/FullAsyncClientTest.hpp"
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 
+#include "oatpp/web/mime/multipart/StatefulParserTest.hpp"
+
 #include "oatpp/network/virtual_/PipeTest.hpp"
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
 #include "oatpp/network/UrlTest.hpp"
@@ -44,7 +46,7 @@ namespace {
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
-
+/*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -70,6 +72,12 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
+
+*/
+
+  OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
+
+/*
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
@@ -102,6 +110,7 @@ void runTests() {
     test_port.run(1);
 
   }
+*/
 
 }
   

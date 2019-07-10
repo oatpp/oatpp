@@ -141,6 +141,8 @@ add_library(oatpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp
         oatpp/web/client/RequestExecutor.hpp
+        oatpp/web/mime/multipart/StatefulParser.cpp
+        oatpp/web/mime/multipart/StatefulParser.hpp
         oatpp/web/protocol/CommunicationError.cpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp

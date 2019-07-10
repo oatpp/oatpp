@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef glanzzzo_web_client_Client_hpp
-#define glanzzzo_web_client_Client_hpp
+#ifndef oatpp_web_client_Client_hpp
+#define oatpp_web_client_Client_hpp
 
 #include "./RequestExecutor.hpp"
 
@@ -214,4 +214,4 @@ public:
   
 }}}
 
-#endif /* glanzzzo_web_client_Client_hpp */
+#endif /* oatpp_web_client_Client_hpp */
