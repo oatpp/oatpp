@@ -31,6 +31,20 @@
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
+StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener)
+  : m_state(STATE_BOUNDARY)
+  , m_currPartIndex(0)
+  , m_currBoundaryCharIndex(0)
+  , m_checkForBoundary(true)
+  , m_finishingBoundary(false)
+  , m_readingBody(false)
+  , m_headerSectionEndAccumulator(0)
+  , m_firstBoundarySample("--" + boundary)
+  , m_nextBoundarySample("\r\n--" + boundary)
+  , m_maxPartHeadersSize(4092)
+  , m_listener(listener)
+{}
+
 void StatefulParser::onPartHeaders(const Headers& partHeaders) {
 
   m_currPartIndex ++;
@@ -59,12 +73,8 @@ void StatefulParser::onPartHeaders(const Headers& partHeaders) {
 
         m_currPartName = nameLabel.toString();
 
-        OATPP_LOGD("Part", "name='%s'", m_currPartName->getData());
-
-        for(auto& pair : partHeaders) {
-          auto key = pair.first.toString();
-          auto value = pair.second.toString();
-          OATPP_LOGD("header", "key='%s', value='%s'", key->getData(), value->getData());
+        if(m_listener) {
+          m_listener->onPartHeaders(m_currPartName, partHeaders);
         }
 
       } else {
@@ -83,8 +93,9 @@ void StatefulParser::onPartHeaders(const Headers& partHeaders) {
 
 void StatefulParser::onPartData(p_char8 data, v_int32 size) {
 
-  oatpp::String text((const char*)data, size, true);
-  OATPP_LOGD("data", "part='%s', data='%s'", m_currPartName->getData(), text->getData());
+  if(m_listener) {
+    m_listener->onPartData(m_currPartName, data, size);
+  }
 
 }
 
@@ -116,6 +127,9 @@ v_int32 StatefulParser::parseNext_Boundary(p_char8 data, v_int32 size) {
       m_state = STATE_AFTER_BOUNDARY;
       m_currBoundaryCharIndex = 0;
       m_readingBody = false;
+      if(m_currPartIndex > 0) {
+        onPartData(nullptr, 0);
+      }
     }
 
     return caret.getPosition();
@@ -181,6 +195,10 @@ v_int32 StatefulParser::parseNext_Headers(p_char8 data, v_int32 size) {
 
     if(m_headerSectionEndAccumulator == HEADERS_SECTION_END) {
 
+      if(m_headersBuffer.getSize() + i > m_maxPartHeadersSize) {
+        throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Too large heades.");
+      }
+
       m_headersBuffer.write(data, i);
 
       auto headersText = m_headersBuffer.toString();
@@ -201,6 +219,10 @@ v_int32 StatefulParser::parseNext_Headers(p_char8 data, v_int32 size) {
 
     }
 
+  }
+
+  if(m_headersBuffer.getSize() + size > m_maxPartHeadersSize) {
+    throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Too large heades.");
   }
 
   m_headersBuffer.write(data, size);
@@ -263,6 +285,10 @@ v_int32 StatefulParser::parseNext(p_char8 data, v_int32 size) {
 
   return pos;
 
+}
+
+bool StatefulParser::finished() {
+  return m_state == STATE_DONE;
 }
 
 }}}}

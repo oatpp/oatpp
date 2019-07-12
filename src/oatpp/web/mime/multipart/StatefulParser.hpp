@@ -33,6 +33,10 @@
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
+/**
+ * Stateful parser of multipart-data stream.
+ * Parser designed to work with stream-like data in order to store minimum data in the memory.
+ */
 class StatefulParser {
 private:
   static constexpr v_int32 STATE_BOUNDARY = 0;
@@ -42,7 +46,7 @@ private:
   static constexpr v_int32 STATE_DONE = 4;
 private:
   static constexpr v_int32 HEADERS_SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
-public:
+private:
   /**
    * Typedef for headers map. Headers map key is case-insensitive.
    * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
@@ -50,10 +54,36 @@ public:
   typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
 public:
 
+  /**
+   * Listener for parsed items.
+   */
   class Listener {
   public:
+    /**
+     * Convenience typedef for headers map. Headers map key is case-insensitive.
+     * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+     */
+    typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+  public:
+
+    /**
+     * Called on new part found in the stream.
+     * Always called before `onPartData` events.
+     * @param name - name of the part.
+     * @param partHeaders - complete set of part headers.
+     */
     virtual void onPartHeaders(const oatpp::String& name, const Headers& partHeaders) = 0;
+
+    /**
+     * Called on each new chunk of bytes parsed from the part body.
+     * When all data of message is read, readMessage is called again with size == 0 to
+     * indicate end of the message.
+     * @param name - name of the part.
+     * @param data - pointer to data.
+     * @param size - size of the data in bytes.
+     */
     virtual void onPartData(const oatpp::String& name, p_char8 data, oatpp::data::v_io_size size) = 0;
+
   };
 
 private:
@@ -76,6 +106,14 @@ private:
    */
   oatpp::data::stream::ChunkedBuffer m_headersBuffer;
 
+  /*
+   * Max length of all headers per one part.
+   * Default value = 4096 bytes.
+   */
+  v_int32 m_maxPartHeadersSize;
+
+  std::shared_ptr<Listener> m_listener;
+
 private:
 
   void onPartHeaders(const Headers& partHeaders);
@@ -90,20 +128,27 @@ private:
 
 public:
 
-  StatefulParser(const oatpp::String& boundary)
-    : m_state(STATE_BOUNDARY)
-    , m_currPartIndex(0)
-    , m_currBoundaryCharIndex(0)
-    , m_checkForBoundary(true)
-    , m_finishingBoundary(false)
-    , m_readingBody(false)
-    , m_headerSectionEndAccumulator(0)
-    , m_firstBoundarySample("--" + boundary)
-    , m_nextBoundarySample("\r\n--" + boundary)
-  {}
+  /**
+   * Constructor.
+   * @param boundary - value of multipart boundary.
+   * @param listener - &l:StatefulParser::Listener;.
+   */
+  StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener);
 
+  /**
+   * Parse next chunk of bytes.
+   * @param data - pointer to data.
+   * @param size - data size.
+   * @return - exact number of parsed bytes. <br>
+   * returned value may be less than size given.
+   */
   v_int32 parseNext(p_char8 data, v_int32 size);
 
+  /**
+   * Check if parser done parsing data.
+   * @return - `true` or `false`.
+   */
+  bool finished();
 
 };
 

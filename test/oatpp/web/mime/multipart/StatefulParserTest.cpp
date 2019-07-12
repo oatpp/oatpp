@@ -47,6 +47,33 @@ namespace {
     "--12345--\r\n"
     ;
 
+  class Listener : public oatpp::web::mime::multipart::StatefulParser::Listener {
+  private:
+    oatpp::data::stream::ChunkedBuffer m_buffer;
+  public:
+
+    void onPartHeaders(const oatpp::String& name, const Headers& partHeaders) override {
+      OATPP_LOGD("aaa", "part='%s' headers:", name->getData());
+      for(auto& pair : partHeaders) {
+        OATPP_LOGD("Header", "name='%s', value='%s'", pair.first.toString()->getData(), pair.second.toString()->getData());
+      }
+    }
+
+    void onPartData(const oatpp::String& name, p_char8 data, oatpp::data::v_io_size size) override {
+
+      if(size > 0) {
+        m_buffer.write(data, size);
+      } else {
+        auto data = m_buffer.toString();
+        m_buffer.clear();
+        OATPP_LOGD("aaa", "part='%s', data='%s'", name->getData(), data->getData());
+        OATPP_LOGW("aaa", "part end.");
+      }
+
+    }
+
+  };
+
 }
 
 void StatefulParserTest::onRun() {
@@ -54,7 +81,7 @@ void StatefulParserTest::onRun() {
   oatpp::String text = TEST_DATA_1;
 
   {
-    oatpp::web::mime::multipart::StatefulParser parser("12345");
+    oatpp::web::mime::multipart::StatefulParser parser("12345", std::make_shared<Listener>());
 
     for (v_int32 i = 0; i < text->getSize(); i++) {
       parser.parseNext(&text->getData()[i], 1);
@@ -64,7 +91,7 @@ void StatefulParserTest::onRun() {
   OATPP_LOGI(TAG, "Test2.................................................");
 
   {
-    oatpp::web::mime::multipart::StatefulParser parser("12345");
+    oatpp::web::mime::multipart::StatefulParser parser("12345", std::make_shared<Listener>());
     parser.parseNext(text->getData(), text->getSize());
   }
 
