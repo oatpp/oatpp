@@ -230,20 +230,12 @@ class ConsistentOutputStream : public OutputStream {
 public:
 
   /**
-   * This should never be called. Call to implementation of this particular method will throw `std::runtime_error`.<br>
-   * No suggestions for ConsistentOutputStream async I/O operations are needed.<br>
-   * ConsistentOutputStream always fully satisfies call to write() method.<br>
-   * @param ioResult - result of call to write() method.
+   * In case of a `ConsistentOutputStream` suggested Action is always &id:oatpp::async::Action::TYPE_REPEAT; if `ioResult` is greater then zero. <br>
+   * @param ioResult - result of the call to &l:OutputStream::write ();.
    * @return - &id:oatpp::async::Action;.
-   * @throws - `std::runtime_error`
+   * @throws - `std::runtime_error` if ioResult <= 0.
    */
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override {
-    const char* message =
-      "Error. ConsistentOutputStream::suggestOutputStreamAction() method is called.\n"
-      "No suggestions for ConsistentOutputStream async I/O operations are needed.\n "
-      "ConsistentOutputStream always fully satisfies call to write() method.";
-    throw std::runtime_error(message);
-  }
+  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
 
   /**
    * Convert value to string and write to stream.

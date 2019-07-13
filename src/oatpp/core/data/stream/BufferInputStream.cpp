@@ -44,6 +44,22 @@ data::v_io_size BufferInputStream::read(void *data, data::v_io_size count) {
   return desiredAmount;
 }
 
+oatpp::async::Action BufferInputStream::suggestInputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  OATPP_LOGE("[oatpp::data::stream::BufferInputStream::suggestInputStreamAction()]", "Error. ioResult=%d", ioResult);
+
+  const char* message =
+    "Error. BufferInputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
+    "Conceptual error.";
+
+  throw std::runtime_error(message);
+
+}
+
 void BufferInputStream::setInputStreamIOMode(IOMode ioMode) {
   m_ioMode = ioMode;
 }

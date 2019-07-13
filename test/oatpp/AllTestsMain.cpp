@@ -74,7 +74,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
-  
+
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   {

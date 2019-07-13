@@ -27,6 +27,22 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
+oatpp::async::Action ConsistentOutputStream::suggestOutputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  OATPP_LOGE("[oatpp::data::stream::ConsistentOutputStream::suggestOutputStreamAction()]", "Error. ioResult=%d", ioResult);
+
+  const char* message =
+    "Error. ConsistentOutputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
+    "ConsistentOutputStream should always fully satisfy call to write() method. Conceptual error.";
+
+  throw std::runtime_error(message);
+
+}
+
 data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);
@@ -339,7 +355,7 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
       data = &((p_char8) data)[res];
       size -= res;
       if (size > 0) {
-        return stream->suggestOutputStreamAction(size);
+        return stream->suggestOutputStreamAction(res);
       }
     } else {
       return asyncOutputStreamActionOnIOError(coroutine, stream, res);

@@ -57,16 +57,12 @@ public:
   data::v_io_size read(void *data, data::v_io_size count) override;
 
   /**
-   * Not expected to be called because read method should always return correct amount or zero.
-   * @throws - `std::runtime_error`.
+   * In case of a `BufferInputStream` suggested Action is always &id:oatpp::async::Action::TYPE_REPEAT; if `ioResult` is greater then zero. <br>
+   * @param ioResult - result of the call to &l:BufferInputStream::read ();.
+   * @return - &id:oatpp::async::Action;.
+   * @throws - `std::runtime_error` if ioResult <= 0.
    */
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override {
-    const char* message =
-      "Error. oatpp::data::stream::BufferInputStream::suggestOutputStreamAction() method is called.\n"
-      "No suggestions for BufferInputStream async I/O operations are needed.\n "
-      "BufferInputStream always satisfies call to read() method or returns 0 - as EOF.";
-    throw std::runtime_error(message);
-  }
+  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
 
   /**
    * Set stream I/O mode.
