@@ -52,6 +52,11 @@ private:
    * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
    */
   typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+private:
+  /**
+   * Parse name of the part from `Content-Disposition` header.
+   */
+  static oatpp::String parsePartName(p_char8 data, v_int32 size);
 public:
 
   /**

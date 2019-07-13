@@ -132,7 +132,7 @@ public:
   /**
    * Read data from stream up to count bytes, and return number of bytes actually read. <br>
    * It is a legal case if return result < count. Caller should handle this!
-   * @param data - buffer to read dat to.
+   * @param data - buffer to read data to.
    * @param count - size of the buffer.
    * @return - actual number of bytes read.
    */

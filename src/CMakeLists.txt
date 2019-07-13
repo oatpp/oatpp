@@ -80,6 +80,8 @@ add_library(oatpp
         oatpp/core/data/mapping/type/Type.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
+        oatpp/core/data/stream/BufferInputStream.cpp
+        oatpp/core/data/stream/BufferInputStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
         oatpp/core/data/stream/Delegate.cpp
@@ -141,6 +143,8 @@ add_library(oatpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp
         oatpp/web/client/RequestExecutor.hpp
+        oatpp/web/mime/multipart/Part.cpp
+        oatpp/web/mime/multipart/Part.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
         oatpp/web/mime/multipart/StatefulParser.hpp
         oatpp/web/protocol/CommunicationError.cpp

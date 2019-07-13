@@ -28,8 +28,41 @@
 
 #include "oatpp/core/parser/Caret.hpp"
 
-
 namespace oatpp { namespace web { namespace mime { namespace multipart {
+
+oatpp::String StatefulParser::parsePartName(p_char8 data, v_int32 size) {
+
+  parser::Caret caret(data, size);
+
+  if(caret.findText((p_char8)"name=", 5)) {
+
+    caret.inc(5);
+
+    parser::Caret::Label nameLabel(nullptr);
+
+    if(caret.isAtChar('"')) {
+      nameLabel = caret.parseStringEnclosed('"', '"', '\\');
+    } else if(caret.isAtChar('\'')) {
+      nameLabel = caret.parseStringEnclosed('\'', '\'', '\\');
+    } else {
+      nameLabel = caret.putLabel();
+      caret.findCharFromSet(" \t\n\r\f");
+      nameLabel.end();
+    }
+
+    if(nameLabel) {
+
+      return nameLabel.toString();
+
+    } else {
+      throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parsePartName()]: Error. Can't parse part name.");
+    }
+
+  } else {
+    throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parsePartName()]: Error. Part name is missing.");
+  }
+
+}
 
 StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener)
   : m_state(STATE_BOUNDARY)
@@ -52,37 +85,10 @@ void StatefulParser::onPartHeaders(const Headers& partHeaders) {
   auto it = partHeaders.find("Content-Disposition");
   if(it != partHeaders.end()) {
 
-    parser::Caret caret(it->second.toString());
+    m_currPartName = parsePartName(it->second.getData(), it->second.getSize());
 
-    if(caret.findText((p_char8)"name=", 5)) {
-      caret.inc(5);
-
-      parser::Caret::Label nameLabel(nullptr);
-
-      if(caret.isAtChar('"')) {
-        nameLabel = caret.parseStringEnclosed('"', '"', '\\');
-      } else if(caret.isAtChar('\'')) {
-        nameLabel = caret.parseStringEnclosed('\'', '\'', '\\');
-      } else {
-        nameLabel = caret.putLabel();
-        caret.findCharFromSet(" \t\n\r\f");
-        nameLabel.end();
-      }
-
-      if(nameLabel) {
-
-        m_currPartName = nameLabel.toString();
-
-        if(m_listener) {
-          m_listener->onPartHeaders(m_currPartName, partHeaders);
-        }
-
-      } else {
-        throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::onPartHeaders()]: Error. Can't parse part name.");
-      }
-
-    } else {
-      throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::onPartHeaders()]: Error. Part name is missing.");
+    if(m_listener) {
+      m_listener->onPartHeaders(m_currPartName, partHeaders);
     }
 
   } else {
@@ -138,11 +144,12 @@ v_int32 StatefulParser::parseNext_Boundary(p_char8 data, v_int32 size) {
 
     if(m_currBoundaryCharIndex > 0) {
       onPartData(sampleData, m_currBoundaryCharIndex);
+    } else {
+      m_checkForBoundary = false;
     }
 
     m_state = STATE_DATA;
     m_currBoundaryCharIndex = 0;
-    m_checkForBoundary = false;
 
     return 0;
 
@@ -167,14 +174,16 @@ v_int32 StatefulParser::parseNext_AfterBoundary(p_char8 data, v_int32 size) {
   if(size > 1 || m_currBoundaryCharIndex == 1) {
 
     if (m_finishingBoundary && data[1 - m_currBoundaryCharIndex] == '-') {
+      auto result = 2 - m_currBoundaryCharIndex;
       m_state = STATE_DONE;
       m_currBoundaryCharIndex = 0;
-      return 2 - m_currBoundaryCharIndex;
+      return result;
     } else if (!m_finishingBoundary && data[1 - m_currBoundaryCharIndex] == '\n') {
+      auto result = 2 - m_currBoundaryCharIndex;
       m_state = STATE_HEADERS;
       m_currBoundaryCharIndex = 0;
       m_headerSectionEndAccumulator = 0;
-      return 2 - m_currBoundaryCharIndex;
+      return result;
     } else {
       throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_AfterBoundary()]: Error. Invalid trailing char.");
     }
