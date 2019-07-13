@@ -116,9 +116,9 @@ public:
   /**
    * Decode and transfer body to toStream.
    * Use case example - stream huge body directly to file using relatively small buffer.
-   * @param toStream - &id:oatpp::data::stream::OutputStream;.
+   * @param toStream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  void transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const;
 
   /**
    * Decode and read body to &id:oatpp::String;.
@@ -133,8 +133,8 @@ public:
    * @return - deserialized DTO object.
    */
   template<class Type>
-  typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return m_bodyDecoder->decodeToDto<Type>(m_headers, m_bodyStream, objectMapper);
+  typename Type::ObjectWrapper readBodyToDto(oatpp::data::mapping::ObjectMapper* objectMapper) const {
+    return m_bodyDecoder->decodeToDto<Type>(m_headers, m_bodyStream.get(), objectMapper);
   }
   
   // Async
@@ -144,7 +144,7 @@ public:
    * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::CoroutineStarter streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  oatpp::async::CoroutineStarter transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**
    * Same as &l:Response::readBodyToString (); but Async.

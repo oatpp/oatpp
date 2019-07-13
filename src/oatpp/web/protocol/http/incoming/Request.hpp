@@ -153,7 +153,7 @@ public:
    * Stream content of the body-stream to toStream
    * @param toStream
    */
-  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  void transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const;
 
   /**
    * Transfer body stream to string
@@ -168,8 +168,8 @@ public:
    * @return DTO
    */
   template<class Type>
-  typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
+  typename Type::ObjectWrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
+    return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
   }
 
   /**
@@ -180,9 +180,9 @@ public:
    * @return DTO
    */
   template<class Type>
-  void readBodyToDto(oatpp::data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
-                     const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
+  void readBodyToDto(data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
+                     data::mapping::ObjectMapper* objectMapper) const {
+    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
   }
   
   // Async
@@ -192,7 +192,7 @@ public:
    * @param toStream
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::CoroutineStarter streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  oatpp::async::CoroutineStarter transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**
    * Transfer body stream to string Async.

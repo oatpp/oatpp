@@ -105,10 +105,10 @@ void ApiControllerTest::onRun() {
     auto response = controller.root();
     OATPP_ASSERT(response->getStatus().code == 200);
 
-    auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-    response->send(stream);
+    oatpp::data::stream::ChunkedBuffer stream;
+    response->send(&stream);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream->toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
   }
 
@@ -132,10 +132,10 @@ void ApiControllerTest::onRun() {
     auto response = controller.pathParams("p1", "p2");
     OATPP_ASSERT(response->getStatus().code == 200);
 
-    auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-    response->send(stream);
+    oatpp::data::stream::ChunkedBuffer stream;
+    response->send(&stream);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream->toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
   }
 
@@ -153,10 +153,10 @@ void ApiControllerTest::onRun() {
     auto response = controller.queryParams("p1", "p2");
     OATPP_ASSERT(response->getStatus().code == 200);
 
-    auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-    response->send(stream);
+    oatpp::data::stream::ChunkedBuffer stream;
+    response->send(&stream);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream->toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
   }
 

@@ -409,7 +409,7 @@ public:
  * @param bufferSize
  * @return - amount of bytes actually transferred.
  */
-oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
+oatpp::data::v_io_size transfer(InputStream* fromStream,
                                 WriteCallback* writeCallback,
                                 oatpp::data::v_io_size transferSize,
                                 void* buffer,

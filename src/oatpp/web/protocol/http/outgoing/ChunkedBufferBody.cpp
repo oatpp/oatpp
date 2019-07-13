@@ -45,7 +45,7 @@ void ChunkedBufferBody::declareHeaders(Headers& headers) noexcept {
   }
 }
 
-void ChunkedBufferBody::writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept {
+void ChunkedBufferBody::writeToStream(OutputStream* stream) noexcept {
   if(m_chunked) {
     auto chunks = m_buffer->getChunks();
     auto curr = chunks->getFirstNode();

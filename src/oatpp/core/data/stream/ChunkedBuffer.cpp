@@ -209,18 +209,18 @@ oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos,
   return str;
 }
 
-bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
+bool ChunkedBuffer::flushToStream(OutputStream* stream){
   data::v_io_size pos = m_size;
   auto curr = m_firstEntry;
   while (pos > 0) {
     if(pos > CHUNK_ENTRY_SIZE) {
-      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, CHUNK_ENTRY_SIZE);
+      auto res = data::stream::writeExactSizeData(stream, curr->chunk, CHUNK_ENTRY_SIZE);
       if(res != CHUNK_ENTRY_SIZE) {
         return false;
       }
       pos -= res;
     } else {
-      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, pos);
+      auto res = data::stream::writeExactSizeData(stream, curr->chunk, pos);
       if(res != pos) {
         return false;
       }

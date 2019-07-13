@@ -61,7 +61,7 @@ namespace {
       v_char8 buffer[100];
       oatpp::data::stream::ChunkedBuffer stream;
       oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
-      res = oatpp::data::stream::transfer(socket, &writeCallback, 2, buffer, 100);
+      res = oatpp::data::stream::transfer(socket.get(), &writeCallback, 2, buffer, 100);
       
       OATPP_ASSERT(res == 2);
       OATPP_ASSERT(stream.getSize() == res);
@@ -89,7 +89,7 @@ namespace {
       v_char8 buffer[100];
       oatpp::data::stream::ChunkedBuffer stream;
       oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
-      auto res = oatpp::data::stream::transfer(m_socket, &writeCallback, m_dataSample->getSize(), buffer, 100);
+      auto res = oatpp::data::stream::transfer(m_socket.get(), &writeCallback, m_dataSample->getSize(), buffer, 100);
       
       OATPP_ASSERT(res == m_dataSample->getSize());
       OATPP_ASSERT(stream.getSize() == res);

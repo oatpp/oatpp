@@ -50,8 +50,8 @@ void BufferBody::declareHeaders(Headers& headers) noexcept {
   headers[oatpp::web::protocol::http::Header::CONTENT_LENGTH] = oatpp::utils::conversion::int32ToStr(m_buffer->getSize());
 }
 
-void BufferBody::writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept {
-  oatpp::data::stream::writeExactSizeData(stream.get(), m_buffer->getData(), m_buffer->getSize());
+void BufferBody::writeToStream(OutputStream* stream) noexcept {
+  oatpp::data::stream::writeExactSizeData(stream, m_buffer->getData(), m_buffer->getSize());
 }
 
 

@@ -112,7 +112,7 @@ namespace {
 
     oatpp::data::stream::ChunkedBuffer stream;
     oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
-    oatpp::data::stream::transfer(part->getInputStream(), &writeCallback, 0, buffer, bufferSize);
+    oatpp::data::stream::transfer(part->getInputStream().get(), &writeCallback, 0, buffer, bufferSize);
 
     oatpp::String readData = stream.toString();
 

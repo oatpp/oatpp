@@ -34,25 +34,21 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class SimpleBodyDecoder : public BodyDecoder {
 private:
-  static data::v_io_size readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                          p_char8 buffer,
-                                          data::v_io_size maxLineSize);
-  static void doChunkedDecoding(const std::shared_ptr<oatpp::data::stream::InputStream>& from,
-                                oatpp::data::stream::WriteCallback* writeCallback);
+  static data::v_io_size readLine(data::stream::InputStream* fromStream, p_char8 buffer, data::v_io_size maxLineSize);
+
+  static void doChunkedDecoding(data::stream::InputStream* from, data::stream::WriteCallback* writeCallback);
   
-  static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                                               const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback);
+  static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<data::stream::InputStream>& fromStream,
+                                                               const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback);
 public:
 
   /**
    * Decode bodyStream and write decoded data to toStream.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
-   * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
+   * @param bodyStream - pointer to &id:oatpp::data::stream::InputStream;.
    * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
    */
-  void decode(const Headers& headers,
-              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-              oatpp::data::stream::WriteCallback* writeCallback) const override;
+  void decode(const Headers& headers, data::stream::InputStream* bodyStream, data::stream::WriteCallback* writeCallback) const override;
 
   /**
    * Same as &l:SimpleBodyDecoder::decode (); but Async.

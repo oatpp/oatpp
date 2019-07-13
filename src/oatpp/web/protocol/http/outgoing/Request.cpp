@@ -73,7 +73,7 @@ std::shared_ptr<Body> Request::getBody() {
   return m_body;
 }
 
-void Request::send(const std::shared_ptr<data::stream::OutputStream>& stream){
+void Request::send(data::stream::OutputStream* stream){
   
   if(m_body){
     m_body->declareHeaders(m_headers);

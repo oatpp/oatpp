@@ -30,7 +30,7 @@ data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_si
   if(m_buffer->availableToWrite() > 0) {
     return m_buffer->write(data, count);
   } else {
-    auto bytesFlushed = m_buffer->readAndWriteToStream(*m_outputStream, m_buffer->getBufferSize());
+    auto bytesFlushed = m_buffer->readAndWriteToStream(m_outputStream.get(), m_buffer->getBufferSize());
     if(bytesFlushed > 0) {
       return m_buffer->write(data, count);
     }
@@ -51,7 +51,7 @@ oatpp::data::stream::IOMode OutputStreamBufferedProxy::getOutputStreamIOMode() {
 }
 
 data::v_io_size OutputStreamBufferedProxy::flush() {
-  return m_buffer->flushToStream(*m_outputStream);
+  return m_buffer->flushToStream(m_outputStream.get());
 }
 
 oatpp::async::CoroutineStarter OutputStreamBufferedProxy::flushAsync() {
@@ -63,7 +63,7 @@ data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.read(data, count);
   } else {
-    auto bytesBuffered = m_buffer.readFromStreamAndWrite(*m_inputStream, m_buffer.getBufferSize());
+    auto bytesBuffered = m_buffer.readFromStreamAndWrite(m_inputStream.get(), m_buffer.getBufferSize());
     if(bytesBuffered > 0) {
       return m_buffer.read(data, count);
     }

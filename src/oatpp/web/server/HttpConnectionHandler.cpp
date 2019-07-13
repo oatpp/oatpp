@@ -70,7 +70,7 @@ void HttpConnectionHandler::Task::run(){
     
     if(response) {
       outStream->setBufferPosition(0, 0, false);
-      response->send(outStream);
+      response->send(outStream.get());
       outStream->flush();
     } else {
       return;

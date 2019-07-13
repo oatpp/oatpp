@@ -29,9 +29,10 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
   
-data::v_io_size SimpleBodyDecoder::readLine(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                                    p_char8 buffer,
-                                                    data::v_io_size maxLineSize) {
+data::v_io_size SimpleBodyDecoder::readLine(oatpp::data::stream::InputStream* fromStream,
+                                            p_char8 buffer,
+                                            data::v_io_size maxLineSize)
+{
   
   v_char8 a;
   data::v_io_size count = 0;
@@ -55,7 +56,7 @@ data::v_io_size SimpleBodyDecoder::readLine(const std::shared_ptr<oatpp::data::s
   
 }
 
-void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
+void SimpleBodyDecoder::doChunkedDecoding(oatpp::data::stream::InputStream* fromStream,
                                           oatpp::data::stream::WriteCallback* writeCallback) {
   
   auto buffer = oatpp::data::buffer::IOBuffer::createShared();
@@ -84,7 +85,7 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
 }
 
 void SimpleBodyDecoder::decode(const Headers& headers,
-                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+                               oatpp::data::stream::InputStream* bodyStream,
                                oatpp::data::stream::WriteCallback* writeCallback) const {
   
   auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);

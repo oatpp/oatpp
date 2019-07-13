@@ -120,7 +120,7 @@ public:
    * Write request to stream.
    * @param stream - &id:oatpp::data::stream::OutputStream;.
    */
-  void send(const std::shared_ptr<data::stream::OutputStream>& stream);
+  void send(data::stream::OutputStream* stream);
 
   /**
    * Write request to stream in asynchronous manner.

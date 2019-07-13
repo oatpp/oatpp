@@ -76,7 +76,7 @@ std::shared_ptr<const Response::ConnectionHandler::ParameterMap> Response::getCo
   return m_connectionUpgradeParameters;
 }
 
-void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
+void Response::send(data::stream::OutputStream* stream) {
   
   if(m_body){
     m_body->declareHeaders(m_headers);

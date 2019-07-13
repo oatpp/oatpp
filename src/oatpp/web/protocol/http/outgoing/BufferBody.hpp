@@ -60,9 +60,9 @@ public:
 
   /**
    * Write body data to stream.
-   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override;
+  void writeToStream(OutputStream* stream) noexcept override;
   
 public:
 
