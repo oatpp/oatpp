@@ -401,12 +401,16 @@ public:
 };
 
 /**
- * Read bytes from @fromStream" and write to @toStream" using @buffer of size @bufferSize
+ * Read bytes from `fromStream` and write to `writeCallback` using `buffer` of size `bufferSize`
  * transfer up to transferSize or until error if transferSize == 0
- * throws in case readCount != writeCount
+ * @param fromStream
+ * @param transferSize
+ * @param buffer
+ * @param bufferSize
+ * @return - amount of bytes actually transferred.
  */
 oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
-                                const std::shared_ptr<OutputStream>& toStream,
+                                WriteCallback* writeCallback,
                                 oatpp::data::v_io_size transferSize,
                                 void* buffer,
                                 oatpp::data::v_io_size bufferSize);

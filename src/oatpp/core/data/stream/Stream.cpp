@@ -225,7 +225,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
 }
   
 oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
-                                const std::shared_ptr<OutputStream>& toStream,
+                                WriteCallback* writeCallback,
                                 oatpp::data::v_io_size transferSize,
                                 void* buffer,
                                 oatpp::data::v_io_size bufferSize)
@@ -240,11 +240,23 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
     }
     auto readResult = fromStream->read(buffer, desiredReadCount);
     if(readResult > 0) {
-      auto writeReasul = writeExactSizeData(toStream.get(), buffer, readResult);
-      if(writeReasul != readResult) {
-        throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
+
+      p_char8 data = (p_char8) buffer;
+      oatpp::data::v_io_size bytesLeft = readResult;
+      while(bytesLeft > 0) {
+        auto writeResult = writeCallback->write(data, bytesLeft);
+        if(writeResult > 0) {
+          data = &data[writeResult];
+          bytesLeft -= writeResult;
+        } else if (writeResult == data::IOError::RETRY || writeResult == data::IOError::WAIT_RETRY) {
+          continue;
+        } else {
+          throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
+        }
       }
+
       progress += readResult;
+
     } else {
       if(readResult == data::IOError::RETRY || readResult == data::IOError::WAIT_RETRY) {
         continue;

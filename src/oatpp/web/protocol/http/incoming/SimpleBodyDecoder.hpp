@@ -38,21 +38,21 @@ private:
                                           p_char8 buffer,
                                           data::v_io_size maxLineSize);
   static void doChunkedDecoding(const std::shared_ptr<oatpp::data::stream::InputStream>& from,
-                                const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
+                                oatpp::data::stream::WriteCallback* writeCallback);
   
   static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                                       const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
+                                                               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
 public:
 
   /**
    * Decode bodyStream and write decoded data to toStream.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
-   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
    */
   void decode(const Headers& headers,
               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-              const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
+              oatpp::data::stream::WriteCallback* writeCallback) const override;
 
   /**
    * Same as &l:SimpleBodyDecoder::decode (); but Async.

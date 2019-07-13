@@ -104,11 +104,21 @@ public:
    * Implement this method! Decode bodyStream and write decoded data to toStream.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
-   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
    */
   virtual void decode(const Headers& headers,
                       const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                      const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const = 0;
+                      oatpp::data::stream::WriteCallback* writeCallback) const = 0;
+
+  /**
+   * Decode using &id:oatpp::data::stream::DefaultWriteCallback;.
+   * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
+   * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
+   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   */
+  void decode(const Headers& headers,
+              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+              const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**
    * Implement this method! Same as &l:BodyDecoder::decode (); but Async.

@@ -110,10 +110,11 @@ namespace {
     v_int32 bufferSize = 16;
     v_char8 buffer[bufferSize];
 
-    auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-    oatpp::data::stream::transfer(part->getInputStream(), stream, 0, buffer, bufferSize);
+    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
+    oatpp::data::stream::transfer(part->getInputStream(), &writeCallback, 0, buffer, bufferSize);
 
-    oatpp::String readData = stream->toString();
+    oatpp::String readData = stream.toString();
 
     OATPP_ASSERT(readData == part->getInMemoryData());
 

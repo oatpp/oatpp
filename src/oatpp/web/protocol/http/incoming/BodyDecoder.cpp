@@ -24,8 +24,6 @@
 
 #include "BodyDecoder.hpp"
 
-
-
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 BodyDecoder::ToStringDecoder::ToStringDecoder(const BodyDecoder* decoder,
@@ -36,6 +34,14 @@ BodyDecoder::ToStringDecoder::ToStringDecoder(const BodyDecoder* decoder,
   , m_bodyStream(bodyStream)
   , m_chunkedBuffer(oatpp::data::stream::ChunkedBuffer::createShared())
 {}
+
+void BodyDecoder::decode(const Headers& headers,
+                         const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
+                         const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const
+{
+  oatpp::data::stream::DefaultWriteCallback callback(toStream.get());
+  decode(headers, bodyStream, &callback);
+}
 
 async::Action BodyDecoder::ToStringDecoder::act() {
   return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(yieldTo(&ToStringDecoder::onDecoded));

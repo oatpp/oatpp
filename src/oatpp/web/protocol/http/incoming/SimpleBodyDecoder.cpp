@@ -56,7 +56,7 @@ data::v_io_size SimpleBodyDecoder::readLine(const std::shared_ptr<oatpp::data::s
 }
 
 void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                          const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
+                                          oatpp::data::stream::WriteCallback* writeCallback) {
   
   auto buffer = oatpp::data::buffer::IOBuffer::createShared();
   
@@ -74,7 +74,7 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
     countToRead = strtol((const char*)lineBuffer, nullptr, 16);
     
     if(countToRead > 0) {
-      oatpp::data::stream::transfer(fromStream, toStream, countToRead, buffer->getData(), buffer->getSize());
+      oatpp::data::stream::transfer(fromStream, writeCallback, countToRead, buffer->getData(), buffer->getSize());
     }
     
     fromStream->read(lineBuffer, 2); // just skip "\r\n"
@@ -85,11 +85,11 @@ void SimpleBodyDecoder::doChunkedDecoding(const std::shared_ptr<oatpp::data::str
 
 void SimpleBodyDecoder::decode(const Headers& headers,
                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+                               oatpp::data::stream::WriteCallback* writeCallback) const {
   
   auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
-    doChunkedDecoding(bodyStream, toStream);
+    doChunkedDecoding(bodyStream, writeCallback);
   } else {
     oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
@@ -103,7 +103,7 @@ void SimpleBodyDecoder::decode(const Headers& headers,
       }
       auto buffer = oatpp::data::buffer::IOBuffer::createShared();
       if(contentLength > 0) {
-        oatpp::data::stream::transfer(bodyStream, toStream, contentLength, buffer->getData(), buffer->getSize());
+        oatpp::data::stream::transfer(bodyStream, writeCallback, contentLength, buffer->getData(), buffer->getSize());
       }
     }
   }
