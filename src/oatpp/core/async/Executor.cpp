@@ -24,7 +24,6 @@
 
 #include "Executor.hpp"
 #include "oatpp/core/async/worker/IOEventWorker.hpp"
-#include "oatpp/core/async/worker/IOWorker.hpp"
 #include "oatpp/core/async/worker/TimerWorker.hpp"
 
 namespace oatpp { namespace async {

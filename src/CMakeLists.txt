@@ -27,8 +27,6 @@ add_library(oatpp
         oatpp/core/async/Processor.hpp
         oatpp/core/async/worker/Worker.cpp
         oatpp/core/async/worker/Worker.hpp
-        oatpp/core/async/worker/IOWorker.cpp
-        oatpp/core/async/worker/IOWorker.hpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp

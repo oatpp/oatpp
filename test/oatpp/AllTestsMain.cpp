@@ -46,7 +46,7 @@ namespace {
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
-/*
+
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -73,12 +73,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
-*/
-
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
-
-/*
-
+  
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   {
@@ -110,7 +106,6 @@ void runTests() {
     test_port.run(1);
 
   }
-*/
 
 }
   
