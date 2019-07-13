@@ -27,6 +27,9 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ConsistentOutputStream
+
 oatpp::async::Action ConsistentOutputStream::suggestOutputStreamAction(data::v_io_size ioResult) {
 
   if(ioResult > 0) {
@@ -86,8 +89,37 @@ data::v_io_size ConsistentOutputStream::writeAsString(bool value) {
     return write("false", 5);
   }
 }
-  
-// Functions
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DefaultWriteCallback
+
+DefaultWriteCallback::DefaultWriteCallback(OutputStream* stream)
+  : m_stream(stream)
+{}
+
+data::v_io_size DefaultWriteCallback::write(const void *data, data::v_io_size count) {
+  return writeExactSizeData(m_stream, data, count);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DefaultAsyncWriteCallback
+
+DefaultAsyncWriteCallback::DefaultAsyncWriteCallback(OutputStream* stream)
+  : m_stream(stream)
+{}
+
+oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                                 const void*& currBufferPtr,
+                                                                 data::v_io_size& bytesLeft,
+                                                                 oatpp::async::Action&& nextAction)
+{
+  return writeExactSizeDataAsyncInline(coroutine, m_stream, currBufferPtr, bytesLeft, std::forward<oatpp::async::Action>(nextAction));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str) {
   if(str) {
@@ -193,10 +225,11 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
 }
   
 oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
-                                        const std::shared_ptr<OutputStream>& toStream,
-                                        oatpp::data::v_io_size transferSize,
-                                        void* buffer,
-                                        oatpp::data::v_io_size bufferSize) {
+                                const std::shared_ptr<OutputStream>& toStream,
+                                oatpp::data::v_io_size transferSize,
+                                void* buffer,
+                                oatpp::data::v_io_size bufferSize)
+{
   
   oatpp::data::v_io_size progress = 0;
   
@@ -227,7 +260,8 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
                                              const std::shared_ptr<OutputStream>& toStream,
                                              oatpp::data::v_io_size transferSize,
-                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
+                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
+{
   
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
   private:

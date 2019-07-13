@@ -290,8 +290,113 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value)
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
 
+/**
+ * Callback for stream write operation.
+ */
+class WriteCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~WriteCallback() = default;
+
+  /**
+   * Write callback.
+   * @param data - pointer to data.
+   * @param count - size of the data in bytes.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
+};
+
+/**
+ * Callback for stream asynchronous write operation.
+ */
+class AsyncWriteCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~AsyncWriteCallback() = default;
+
+  /**
+   * Async-Inline write callback.
+   * @param coroutine - caller coroutine.
+   * @param currBufferPtr - pointer to current data position.
+   * @param bytesLeft - how much bytes left to write.
+   * @param nextAction - next action when write finished.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                const void*& currBufferPtr,
+                                                data::v_io_size& bytesLeft,
+                                                oatpp::async::Action&& nextAction) = 0;
+};
+
+/**
+ * Default callback for stream write operation. <br>
+ * Uses &l:writeExactSizeData (); method underhood.
+ */
+class DefaultWriteCallback : public WriteCallback {
+private:
+  OutputStream* m_stream;
+public:
+
+  /**
+   * Constructor.
+   * @param stream - stream to write to.
+   */
+  DefaultWriteCallback(OutputStream* stream);
+
+  /**
+   * Write callback.
+   * @param data - pointer to data.
+   * @param count - size of the data in bytes.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size write(const void *data, data::v_io_size count) override;
+};
+
+/**
+ * Default callback for stream asynchronous write operation.
+ * Uses &l:writeExactSizeDataAsyncInline (); method underhood.
+ */
+class DefaultAsyncWriteCallback : public AsyncWriteCallback {
+private:
+  OutputStream* m_stream;
+public:
+
+  /**
+   * Constructor.
+   * @param stream - stream to write to.
+   */
+  DefaultAsyncWriteCallback(OutputStream* stream);
+
+  /**
+   * Async-Inline write callback.
+   * @param coroutine - caller coroutine.
+   * @param currBufferPtr - pointer to current data position.
+   * @param bytesLeft - how much bytes left to write.
+   * @param nextAction - next action when write finished.
+   * @return - &id:oatpp::async::Action;.
+   */
+  oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                        const void*& currBufferPtr,
+                                        data::v_io_size& bytesLeft,
+                                        oatpp::async::Action&& nextAction) override;
+};
+
+/**
+ * Error of Asynchronous stream transfer.
+ */
 class AsyncTransferError : public oatpp::async::Error {
 public:
+  /**
+   * Constructor.
+   * @param what
+   */
   AsyncTransferError(const char* what) : oatpp::async::Error(what) {}
 };
 
