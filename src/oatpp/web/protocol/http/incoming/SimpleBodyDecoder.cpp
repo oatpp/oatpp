@@ -111,14 +111,14 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 }
 
 oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                                                         const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) {
+                                                                         const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback) {
   
   class ChunkedDecoder : public oatpp::async::Coroutine<ChunkedDecoder> {
   private:
     const v_int32 MAX_LINE_SIZE = 8;
   private:
     std::shared_ptr<oatpp::data::stream::InputStream> m_fromStream;
-    std::shared_ptr<oatpp::data::stream::OutputStream> m_toStream;
+    const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& m_writeCallback;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer = oatpp::data::buffer::IOBuffer::createShared();
     v_int32 m_currLineLength;
     v_char8 m_lineChar;
@@ -137,9 +137,9 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
   public:
     
     ChunkedDecoder(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                   const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream)
+                   const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback)
       : m_fromStream(fromStream)
-      , m_toStream(toStream)
+      , m_writeCallback(writeCallback)
     {}
     
     Action act() override {
@@ -188,7 +188,7 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
       data::v_io_size countToRead = strtol((const char*) m_lineBuffer, nullptr, 16);
       if(countToRead > 0) {
         prepareSkipRN();
-        return oatpp::data::stream::transferAsync(m_fromStream, m_toStream, countToRead, m_buffer).next(yieldTo(&ChunkedDecoder::skipRN));
+        return oatpp::data::stream::transferAsync(m_fromStream, m_writeCallback, countToRead, m_buffer).next(yieldTo(&ChunkedDecoder::skipRN));
       }
       m_done = true;
       prepareSkipRN();
@@ -205,16 +205,16 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     
   };
   
-  return ChunkedDecoder::start(fromStream, toStream);
+  return ChunkedDecoder::start(fromStream, writeCallback);
   
 }
 
 oatpp::async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
                                                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                              const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+                                                              const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback) const {
   auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
-    return doChunkedDecodingAsync(bodyStream, toStream);
+    return doChunkedDecodingAsync(bodyStream, writeCallback);
   } else {
     oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
@@ -227,7 +227,7 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& hea
         throw HttpError(http::Status::CODE_400, "Invalid 'Content-Length' Header");
       }
       if(contentLength > 0) {
-        return oatpp::data::stream::transferAsync(bodyStream, toStream, contentLength, oatpp::data::buffer::IOBuffer::createShared());
+        return oatpp::data::stream::transferAsync(bodyStream, writeCallback, contentLength, oatpp::data::buffer::IOBuffer::createShared());
       } else {
         return nullptr;
       }

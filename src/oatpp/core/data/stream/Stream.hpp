@@ -365,14 +365,14 @@ public:
  */
 class DefaultAsyncWriteCallback : public AsyncWriteCallback {
 private:
-  OutputStream* m_stream;
+  std::shared_ptr<OutputStream> m_stream;
 public:
 
   /**
    * Constructor.
    * @param stream - stream to write to.
    */
-  DefaultAsyncWriteCallback(OutputStream* stream);
+  DefaultAsyncWriteCallback(const std::shared_ptr<OutputStream>& stream);
 
   /**
    * Async-Inline write callback.
@@ -420,7 +420,7 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
  * Same as transfer but asynchronous
  */
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
-                                             const std::shared_ptr<OutputStream>& toStream,
+                                             const std::shared_ptr<AsyncWriteCallback>& writeCallback,
                                              oatpp::data::v_io_size transferSize,
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 

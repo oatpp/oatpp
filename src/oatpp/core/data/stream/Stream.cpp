@@ -105,7 +105,7 @@ data::v_io_size DefaultWriteCallback::write(const void *data, data::v_io_size co
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DefaultAsyncWriteCallback
 
-DefaultAsyncWriteCallback::DefaultAsyncWriteCallback(OutputStream* stream)
+DefaultAsyncWriteCallback::DefaultAsyncWriteCallback(const std::shared_ptr<OutputStream>& stream)
   : m_stream(stream)
 {}
 
@@ -114,7 +114,7 @@ oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(oatpp::async::A
                                                                  data::v_io_size& bytesLeft,
                                                                  oatpp::async::Action&& nextAction)
 {
-  return writeExactSizeDataAsyncInline(coroutine, m_stream, currBufferPtr, bytesLeft, std::forward<oatpp::async::Action>(nextAction));
+  return writeExactSizeDataAsyncInline(coroutine, m_stream.get(), currBufferPtr, bytesLeft, std::forward<oatpp::async::Action>(nextAction));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
 }
 
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
-                                             const std::shared_ptr<OutputStream>& toStream,
+                                             const std::shared_ptr<AsyncWriteCallback>& writeCallback,
                                              oatpp::data::v_io_size transferSize,
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
 {
@@ -278,7 +278,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
   private:
     std::shared_ptr<InputStream> m_fromStream;
-    std::shared_ptr<OutputStream> m_toStream;
+    std::shared_ptr<AsyncWriteCallback> m_writeCallback;
     oatpp::data::v_io_size m_transferSize;
     oatpp::data::v_io_size m_progress;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
@@ -291,11 +291,11 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
   public:
     
     TransferCoroutine(const std::shared_ptr<InputStream>& fromStream,
-                      const std::shared_ptr<OutputStream>& toStream,
+                      const std::shared_ptr<AsyncWriteCallback>& writeCallback,
                       oatpp::data::v_io_size transferSize,
                       const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
       : m_fromStream(fromStream)
-      , m_toStream(toStream)
+      , m_writeCallback(writeCallback)
       , m_transferSize(transferSize)
       , m_progress(0)
       , m_buffer(buffer)
@@ -336,7 +336,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     }
     
     Action doWrite() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_toStream.get(), m_writeBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::act));
+      return m_writeCallback->writeAsyncInline(this, m_writeBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::act));
     }
     
     Action handleError(const std::shared_ptr<const Error>& error) override {
@@ -348,7 +348,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     
   };
   
-  return TransferCoroutine::start(fromStream, toStream, transferSize, buffer);
+  return TransferCoroutine::start(fromStream, writeCallback, transferSize, buffer);
   
 }
 

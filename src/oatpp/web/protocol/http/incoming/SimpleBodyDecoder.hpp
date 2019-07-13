@@ -41,7 +41,7 @@ private:
                                 oatpp::data::stream::WriteCallback* writeCallback);
   
   static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& fromStream,
-                                                               const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream);
+                                                               const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback);
 public:
 
   /**
@@ -58,12 +58,12 @@ public:
    * Same as &l:SimpleBodyDecoder::decode (); but Async.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
-   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::AsyncWriteCallback;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   oatpp::async::CoroutineStarter decodeAsync(const Headers& headers,
                                              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                             const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const override;
+                                             const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback) const override;
   
   
 };
