@@ -150,6 +150,13 @@ public:
   oatpp::String getPathTail() const;
 
   /**
+   * Transfer body. <br>
+   * Read body chunk by chunk and pass chunks to the `writeCallback`.
+   * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
+   */
+  void transferBody(data::stream::WriteCallback* writeCallback) const;
+
+  /**
    * Stream content of the body-stream to toStream
    * @param toStream
    */
@@ -188,6 +195,14 @@ public:
   // Async
 
   /**
+   * Transfer body in Asynchronous manner. <br>
+   * Read body chunk by chunk and pass chunks to the `writeCallback`.
+   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::AsyncWriteCallback;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback) const;
+
+  /**
    * Transfer body stream to toStream Async
    * @param toStream
    * @return - &id:oatpp::async::CoroutineStarter;.
@@ -198,9 +213,7 @@ public:
    * Transfer body stream to string Async.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const oatpp::String&> readBodyToStringAsync() const {
-    return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream);
-  }
+  async::CoroutineStarterForResult<const oatpp::String&> readBodyToStringAsync() const;
 
   /**
    * Transfer body to String and parse it as DTO
