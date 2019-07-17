@@ -52,11 +52,6 @@ private:
    * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
    */
   typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
-private:
-  /**
-   * Parse name of the part from `Content-Disposition` header.
-   */
-  static oatpp::String parsePartName(p_char8 data, v_int32 size);
 public:
 
   /**
@@ -72,22 +67,25 @@ public:
   public:
 
     /**
+     * Default virtual Destructor.
+     */
+    virtual ~Listener() = default;
+
+    /**
      * Called on new part found in the stream.
      * Always called before `onPartData` events.
-     * @param name - name of the part.
      * @param partHeaders - complete set of part headers.
      */
-    virtual void onPartHeaders(const oatpp::String& name, const Headers& partHeaders) = 0;
+    virtual void onPartHeaders(const Headers& partHeaders) = 0;
 
     /**
      * Called on each new chunk of bytes parsed from the part body.
      * When all data of message is read, readMessage is called again with size == 0 to
-     * indicate end of the message.
-     * @param name - name of the part.
+     * indicate end of the part.
      * @param data - pointer to data.
      * @param size - size of the data in bytes.
      */
-    virtual void onPartData(const oatpp::String& name, p_char8 data, oatpp::data::v_io_size size) = 0;
+    virtual void onPartData(p_char8 data, oatpp::data::v_io_size size) = 0;
 
   };
 
@@ -104,7 +102,6 @@ private:
 
   oatpp::String m_firstBoundarySample;
   oatpp::String m_nextBoundarySample;
-  oatpp::String m_currPartName;
 
   /*
    * Headers of the part are stored in the buffer and are parsed as one chunk.

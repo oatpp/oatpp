@@ -27,42 +27,12 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/parser/ParsingError.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
-oatpp::String StatefulParser::parsePartName(p_char8 data, v_int32 size) {
-
-  parser::Caret caret(data, size);
-
-  if(caret.findText((p_char8)"name=", 5)) {
-
-    caret.inc(5);
-
-    parser::Caret::Label nameLabel(nullptr);
-
-    if(caret.isAtChar('"')) {
-      nameLabel = caret.parseStringEnclosed('"', '"', '\\');
-    } else if(caret.isAtChar('\'')) {
-      nameLabel = caret.parseStringEnclosed('\'', '\'', '\\');
-    } else {
-      nameLabel = caret.putLabel();
-      caret.findCharFromSet(" \t\n\r\f");
-      nameLabel.end();
-    }
-
-    if(nameLabel) {
-
-      return nameLabel.toString();
-
-    } else {
-      throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parsePartName()]: Error. Can't parse part name.");
-    }
-
-  } else {
-    throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parsePartName()]: Error. Part name is missing.");
-  }
-
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// StatefulParser
 
 StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener)
   : m_state(STATE_BOUNDARY)
@@ -85,10 +55,8 @@ void StatefulParser::onPartHeaders(const Headers& partHeaders) {
   auto it = partHeaders.find("Content-Disposition");
   if(it != partHeaders.end()) {
 
-    m_currPartName = parsePartName(it->second.getData(), it->second.getSize());
-
     if(m_listener) {
-      m_listener->onPartHeaders(m_currPartName, partHeaders);
+      m_listener->onPartHeaders(partHeaders);
     }
 
   } else {
@@ -100,7 +68,7 @@ void StatefulParser::onPartHeaders(const Headers& partHeaders) {
 void StatefulParser::onPartData(p_char8 data, v_int32 size) {
 
   if(m_listener) {
-    m_listener->onPartData(m_currPartName, data, size);
+    m_listener->onPartData(data, size);
   }
 
 }

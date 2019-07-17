@@ -90,6 +90,19 @@ data::v_io_size ConsistentOutputStream::writeAsString(bool value) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncWriteCallbackWithCoroutineStarter
+
+oatpp::async::Action AsyncWriteCallbackWithCoroutineStarter::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                                              const void*& currBufferPtr,
+                                                                              data::v_io_size& bytesLeft,
+                                                                              oatpp::async::Action&& nextAction)
+{
+  auto coroutineStarter = writeAsync(currBufferPtr, bytesLeft);
+  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  bytesLeft = 0;
+  return coroutineStarter.next(std::forward<async::Action>(nextAction));
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DefaultWriteCallback

@@ -579,6 +579,30 @@ struct ResponseStartingLine {
 };
 
 /**
+ * Data contained in the value of one header.
+ */
+struct HeaderValueData {
+
+  /**
+   * value tokens.
+   */
+  std::unordered_set<data::share::StringKeyLabelCI> tokens;
+
+  /**
+   * Title params.
+   */
+  std::unordered_map<data::share::StringKeyLabelCI, data::share::StringKeyLabel> titleParams;
+
+  /**
+   * Get title parm value by key.
+   * @param key
+   * @return
+   */
+  oatpp::String getTitleParamValue(const data::share::StringKeyLabelCI& key) const;
+
+};
+
+/**
  * Typedef for headers map. Headers map key is case-insensitive.
  * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
  */
@@ -653,13 +677,13 @@ public:
                            Status& error);
 
   /**
-   * Parse header value separated by `char separator`.
-   * @param headerValue - value of the header.
-   * @param separator - separator char.
-   * @return - `std::unordered_set` of &id:oatpp::data::share::StringKeyLabelCI;.
+   * Parse data that is contained in a one header.
+   * @param data - out. parsed data.
+   * @param headerValue - header value string.
+   * @param separator - subvalues separator.
    */
-  static std::unordered_set<oatpp::data::share::StringKeyLabelCI> parseHeaderValueSet(const oatpp::data::share::StringKeyLabel& headerValue, char separator);
-  
+  static void parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, v_char8 separator);
+
 };
   
 }}}}

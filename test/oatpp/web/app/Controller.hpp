@@ -26,6 +26,9 @@
 #define oatpp_test_web_app_Controller_hpp
 
 #include "./DTOs.hpp"
+
+#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
+
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
@@ -97,6 +100,14 @@ public:
     return createDtoResponse(Status::CODE_200, dto);
   }
 
+  ENDPOINT("POST", "body-dto", postBodyDto,
+           BODY_DTO(TestDto::ObjectWrapper, body)) {
+    //OATPP_LOGV(TAG, "POST body %s", body->c_str());
+    auto dto = TestDto::createShared();
+    dto->testValue = body->testValue;
+    return createDtoResponse(Status::CODE_200, dto);
+  }
+
   ENDPOINT("POST", "echo", echo,
            BODY_STRING(String, body)) {
     //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize());
@@ -105,11 +116,28 @@ public:
 
   ENDPOINT("GET", "header-value-set", headerValueSet,
            HEADER(String, valueSet, "X-VALUE-SET")) {
-    auto set = oatpp::web::protocol::http::Parser::parseHeaderValueSet(valueSet, ',');
-    OATPP_ASSERT_HTTP(set.find("VALUE_1") != set.end(), Status::CODE_400, "No header 'VALUE_1' in value set");
-    OATPP_ASSERT_HTTP(set.find("VALUE_2") != set.end(), Status::CODE_400, "No header 'VALUE_2' in value set");
-    OATPP_ASSERT_HTTP(set.find("VALUE_3") != set.end(), Status::CODE_400, "No header 'VALUE_3' in value set");
+
+    oatpp::web::protocol::http::HeaderValueData valueData;
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, valueSet, ',');
+
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_1") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_1' in value set");
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_2") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_2' in value set");
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_3") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_3' in value set");
     return createResponse(Status::CODE_200, "");
+  }
+
+  ENDPOINT("POST", "test/multipart", multipartTest, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
+
+    oatpp::web::mime::multipart::Multipart multipart(request->getHeaders());
+    oatpp::web::mime::multipart::InMemoryReader multipartReader(&multipart);
+    request->transferBody(&multipartReader);
+
+    for(auto& part : multipart.getAllParts()) {
+      OATPP_LOGD("multipart", "name='%s', value='%s'", part->getName()->getData(), part->getInMemoryData()->getData());
+    }
+
+    return createResponse(Status::CODE_200, "");
+
   }
 
 #include OATPP_CODEGEN_END(ApiController)

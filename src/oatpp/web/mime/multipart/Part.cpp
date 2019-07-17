@@ -24,45 +24,12 @@
 
 #include "Part.hpp"
 
+#include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 
 #include <cstring>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
-
-oatpp::String Part::parseContentDispositionValue(const char* key, p_char8 data, v_int32 size) {
-
-  parser::Caret caret(data, size);
-
-  if(caret.findText(key)) {
-
-    caret.inc(std::strlen(key));
-
-    parser::Caret::Label label(nullptr);
-
-    if(caret.isAtChar('"')) {
-      label = caret.parseStringEnclosed('"', '"', '\\');
-    } else if(caret.isAtChar('\'')) {
-      label = caret.parseStringEnclosed('\'', '\'', '\\');
-    } else {
-      label = caret.putLabel();
-      caret.findCharFromSet(" \t\n\r\f");
-      label.end();
-    }
-
-    if(label) {
-
-      return label.toString();
-
-    } else {
-      throw std::runtime_error("[oatpp::web::mime::multipart::Part::parseContentDispositionValue()]: Error. Can't parse value.");
-    }
-
-  }
-
-  return nullptr;
-
-}
 
 Part::Part(const Headers &headers,
            const std::shared_ptr<data::stream::InputStream> &inputStream,
@@ -77,16 +44,12 @@ Part::Part(const Headers &headers,
   auto it = m_headers.find("Content-Disposition");
   if(it != m_headers.end()) {
 
-    m_name = parseContentDispositionValue("name=", it->second.getData(), it->second.getSize());
+    oatpp::web::protocol::http::HeaderValueData valueData;
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, it->second, ';');
 
-    if(!m_name) {
-      throw std::runtime_error("[oatpp::web::mime::multipart::Part::Part()]: Error. Part name is missing in 'Content-Disposition' header.");
-    }
+    m_name = valueData.getTitleParamValue("name");
+    m_filename = valueData.getTitleParamValue("filename");
 
-    m_filename = parseContentDispositionValue("filename=", it->second.getData(), it->second.getSize());
-
-  } else {
-    throw std::runtime_error("[oatpp::web::mime::multipart::Part::Part()]: Error. Missing 'Content-Disposition' header.");
   }
 
 }

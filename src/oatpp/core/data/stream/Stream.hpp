@@ -336,6 +336,40 @@ public:
 };
 
 /**
+ * Convenience callback to use coroutine starter instead of async inline method.
+ */
+class AsyncWriteCallbackWithCoroutineStarter : public AsyncWriteCallback {
+public:
+
+  /**
+   * Async-Inline write callback. <br>
+   * Calls &l:AsyncWriteCallbackWithCoroutineStarter::writeAsync (); internally.
+   * @param coroutine - caller coroutine.
+   * @param currBufferPtr - pointer to current data position.
+   * @param bytesLeft - how much bytes left to write.
+   * @param nextAction - next action when write finished.
+   * @return - &id:oatpp::async::Action;.
+   */
+  oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                        const void*& currBufferPtr,
+                                        data::v_io_size& bytesLeft,
+                                        oatpp::async::Action&& nextAction) override;
+
+public:
+
+  /**
+   * Implement this method! <br>
+   * Write Callback. Data should be fully utilized on call to this method - no partial writes for this method. <br>
+   * Return Coroutine starter to start data-processing coroutine or, `nullptr` to do nothing.
+   * @param data - pointer to data.
+   * @param count - data size.
+   * @return - data processing Coroutine-Starter. &id:oatpp::async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter writeAsync(const void *data, data::v_io_size count) = 0;
+
+};
+
+/**
  * Default callback for stream write operation. <br>
  * Uses &l:writeExactSizeData (); method underhood.
  */

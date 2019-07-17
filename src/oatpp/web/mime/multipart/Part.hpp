@@ -43,11 +43,6 @@ public:
    */
   typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
 private:
-  /**
-   * Parse value from the `Content-Disposition` header.
-   */
-  static oatpp::String parseContentDispositionValue(const char* key, p_char8 data, v_int32 size);
-private:
   oatpp::String m_name;
   oatpp::String m_filename;
   Headers m_headers;
@@ -97,7 +92,7 @@ public:
   oatpp::String getFilename() const;
 
   /**
-   * Get request's headers map
+   * Get request's headers map.
    * @return Headers map
    */
   const Headers& getHeaders() const;

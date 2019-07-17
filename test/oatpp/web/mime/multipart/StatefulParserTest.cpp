@@ -24,8 +24,7 @@
 
 #include "StatefulParserTest.hpp"
 
-#include "oatpp/web/mime/multipart/Part.hpp"
-#include "oatpp/web/mime/multipart/StatefulParser.hpp"
+#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
 
 #include "oatpp/core/data/stream/BufferInputStream.hpp"
 
@@ -54,38 +53,10 @@ namespace {
     "--12345--\r\n"
     ;
 
-  class Listener : public oatpp::web::mime::multipart::StatefulParser::Listener {
-  private:
-    oatpp::data::stream::ChunkedBuffer m_buffer;
-  public:
-
-    std::unordered_map<oatpp::String, std::shared_ptr<Part>> parts;
-
-    void onPartHeaders(const oatpp::String& name, const Headers& partHeaders) override {
-      auto part = std::make_shared<Part>(partHeaders);
-      parts.insert({name, part});
-    }
-
-    void onPartData(const oatpp::String& name, p_char8 data, oatpp::data::v_io_size size) override {
-
-      if(size > 0) {
-        m_buffer.write(data, size);
-      } else {
-        auto data = m_buffer.toString();
-        m_buffer.clear();
-        auto& part = parts[name];
-        OATPP_ASSERT(part);
-        auto stream = std::make_shared<oatpp::data::stream::BufferInputStream>(data.getPtr(), data->getData(), data->getSize());
-        part->setDataInfo(stream, data, data->getSize());
-      }
-
-    }
-
-  };
 
   void parseStepByStep(const oatpp::String& text,
                        const oatpp::String& boundary,
-                       const std::shared_ptr<Listener>& listener,
+                       const std::shared_ptr<oatpp::web::mime::multipart::StatefulParser::Listener>& listener,
                        v_int32 step)
   {
 
@@ -128,20 +99,20 @@ void StatefulParserTest::onRun() {
 
   for(v_int32 i = 1; i < text->getSize(); i++) {
 
-    auto listener = std::make_shared<Listener>();
+    oatpp::web::mime::multipart::Multipart multipart("12345");
+
+    auto listener = std::make_shared<oatpp::web::mime::multipart::InMemoryParser>(&multipart);
     parseStepByStep(text, "12345", listener, i);
 
-    auto& parts = listener->parts;
-
-    if(parts.size() != 3) {
+    if(multipart.count() != 3) {
       OATPP_LOGD(TAG, "TEST_DATA_1 itearation %d", i);
     }
 
-    OATPP_ASSERT(parts.size() == 3);
+    OATPP_ASSERT(multipart.count() == 3);
 
-    auto part1 = parts["part1"];
-    auto part2 = parts["part2"];
-    auto part3 = parts["part3"];
+    auto part1 = multipart.getNamedPart("part1");
+    auto part2 = multipart.getNamedPart("part2");
+    auto part3 = multipart.getNamedPart("part3");
 
     OATPP_ASSERT(part1);
     OATPP_ASSERT(part2);
