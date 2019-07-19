@@ -31,7 +31,6 @@
 
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/data/stream/Delegate.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
 
