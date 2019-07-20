@@ -423,6 +423,55 @@ public:
 };
 
 /**
+ * Stream read callback.
+ */
+class ReadCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~ReadCallback() = default;
+
+  /**
+   * Read callback. Override this method! <br>
+   * Write up to `count` bytes to `buffer` and return the actual number of bytes written. <br>
+   * **This method must return `0` in order to indicate end-of-file.**
+   * @param buffer - pointer to buffer.
+   * @param count - size of the buffer.
+   * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
+   */
+  virtual data::v_io_size read(void *buffer, data::v_io_size count) = 0;
+
+};
+
+/**
+ * Callback for stream asynchronous read operation.
+ */
+class AsyncReadCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~AsyncReadCallback() = default;
+
+  /**
+   * Async-Inline read callback.
+   * @param coroutine - caller coroutine.
+   * @param currBufferPtr - pointer to current buffer position.
+   * @param bytesLeftToRead - how much bytes left to read.
+   * @param nextAction - next action when read finished.
+   * @return - &id:oatpp::async::Action;.
+   */
+  virtual oatpp::async::Action readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                               void*& currBufferPtr,
+                                               data::v_io_size& bytesLeftToRead,
+                                               oatpp::async::Action&& nextAction) = 0;
+
+};
+
+/**
  * Error of Asynchronous stream transfer.
  */
 class AsyncTransferError : public oatpp::async::Error {

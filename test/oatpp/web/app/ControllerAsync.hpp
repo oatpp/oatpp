@@ -27,8 +27,10 @@
 
 #include "./DTOs.hpp"
 
+#include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 
@@ -118,6 +120,47 @@ public:
     Action onBodyRead(const String& body) {
       //OATPP_LOGV(TAG, "POST echo size=%d", body->getSize());
       return _return(controller->createResponse(Status::CODE_200, body));
+    }
+
+  };
+
+  ENDPOINT_ASYNC("GET", "chunked", Chunked) {
+
+    ENDPOINT_ASYNC_INIT(Chunked)
+
+    class ReadCallback : public oatpp::data::stream::AsyncReadCallback {
+    private:
+      oatpp::String m_text;
+      v_int32 m_counter;
+      v_int32 m_iterations;
+    public:
+
+      ReadCallback(const oatpp::String& text, v_int32 iterations)
+        : m_text(text)
+        , m_counter(0)
+        , m_iterations(iterations)
+      {}
+
+      oatpp::async::Action readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                           void*& currBufferPtr,
+                                           data::v_io_size& bytesLeftToRead,
+                                           oatpp::async::Action&& nextAction) override
+      {
+        if(m_counter < m_iterations) {
+          std::memcpy(currBufferPtr, m_text->getData(), m_text->getSize());
+          currBufferPtr = &((p_char8) currBufferPtr)[m_text->getSize()];
+          bytesLeftToRead -= m_text->getSize();
+        }
+        m_counter ++;
+        return std::forward<oatpp::async::Action>(nextAction);
+      }
+
+    };
+
+    Action act() {
+      oatpp::String text = "Hello World!!! 0123456789";
+      auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>(nullptr, std::make_shared<ReadCallback>(text, 5), 1024);
+      return _return(OutgoingResponse::createShared(Status::CODE_200, body));
     }
 
   };

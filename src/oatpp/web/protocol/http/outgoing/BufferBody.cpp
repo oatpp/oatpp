@@ -24,6 +24,8 @@
 
 #include "BufferBody.hpp"
 
+#include "oatpp/core/utils/ConversionUtils.hpp"
+
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
