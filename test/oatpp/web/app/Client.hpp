@@ -45,6 +45,8 @@ class Client : public oatpp::web::client::ApiClient {
 
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
 
+  API_CALL("GET", "chunked/{text-value}/{num-iterations}", getChunked, PATH(String, text, "text-value"), PATH(Int32, numIterations, "num-iterations"))
+
 
   API_CALL_ASYNC("GET", "/", getRootAsync)
   API_CALL_ASYNC("GET", "/", getRootAsyncWithCKA, HEADER(String, connection, "Connection"))
@@ -56,6 +58,8 @@ class Client : public oatpp::web::client::ApiClient {
   API_CALL_ASYNC("POST", "echo", echoBodyAsync, BODY_STRING(String, body))
 
   API_CALL_ASYNC("GET", "header-value-set", headerValueSetAsync, HEADER(String, valueSet, "X-VALUE-SET"))
+
+  API_CALL_ASYNC("GET", "chunked/{text-value}/{num-iterations}", getChunkedAsync, PATH(String, text, "text-value"), PATH(Int32, numIterations, "num-iterations"))
   
 #include OATPP_CODEGEN_END(ApiClient)
 };

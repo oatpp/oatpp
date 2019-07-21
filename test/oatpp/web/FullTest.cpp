@@ -204,6 +204,21 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
+      { // test Chunked body
+        oatpp::String sample = "__abcdefghijklmnopqrstuvwxyz-0123456789";
+        v_int32 numIterations = 10;
+        oatpp::data::stream::ChunkedBuffer stream;
+        for(v_int32 i = 0; i < numIterations; i++) {
+          stream.write(sample->getData(), sample->getSize());
+        }
+        auto data = stream.toString();
+        auto response = client->getChunked(sample, numIterations, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData);
+        OATPP_ASSERT(returnedData == data);
+      }
+
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();

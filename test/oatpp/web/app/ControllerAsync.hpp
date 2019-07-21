@@ -124,7 +124,7 @@ public:
 
   };
 
-  ENDPOINT_ASYNC("GET", "chunked", Chunked) {
+  ENDPOINT_ASYNC("GET", "chunked/{text-value}/{num-iterations}", Chunked) {
 
     ENDPOINT_ASYNC_INIT(Chunked)
 
@@ -158,8 +158,12 @@ public:
     };
 
     Action act() {
-      oatpp::String text = "Hello World!!! 0123456789";
-      auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>(nullptr, std::make_shared<ReadCallback>(text, 5), 1024);
+      oatpp::String text = request->getPathVariable("text-value");
+      auto numIterations = oatpp::utils::conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
+
+      auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
+        (nullptr, std::make_shared<ReadCallback>(text, numIterations), 1024);
+
       return _return(OutgoingResponse::createShared(Status::CODE_200, body));
     }
 

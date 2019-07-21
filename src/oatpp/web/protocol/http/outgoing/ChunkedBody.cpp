@@ -67,9 +67,9 @@ void ChunkedBody::writeToStream(OutputStream* stream) noexcept {
 
     auto chunkSizeHex = oatpp::utils::conversion::primitiveToStr(size, "%X");
 
-    bool res = writeData(stream, chunkSizeHex->getData(), chunkSizeHex->getSize()) ||
-               writeData(stream, "\r\n", 2) ||
-               writeData(stream, m_buffer, size) ||
+    bool res = writeData(stream, chunkSizeHex->getData(), chunkSizeHex->getSize()) &&
+               writeData(stream, "\r\n", 2) &&
+               writeData(stream, m_buffer, size) &&
                writeData(stream, "\r\n", 2);
 
 

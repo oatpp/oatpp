@@ -29,6 +29,8 @@
 
 #include "oatpp/web/mime/multipart/InMemoryReader.hpp"
 
+#include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
+
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
@@ -124,6 +126,39 @@ public:
     OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_2") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_2' in value set");
     OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_3") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_3' in value set");
     return createResponse(Status::CODE_200, "");
+  }
+
+  class ReadCallback : public oatpp::data::stream::ReadCallback {
+  private:
+    oatpp::String m_text;
+    v_int32 m_counter;
+    v_int32 m_iterations;
+  public:
+
+    ReadCallback(const oatpp::String& text, v_int32 iterations)
+      : m_text(text)
+      , m_counter(0)
+      , m_iterations(iterations)
+    {}
+
+    data::v_io_size read(void *buffer, data::v_io_size count) override {
+      if(m_counter < m_iterations) {
+        std::memcpy(buffer, m_text->getData(), m_text->getSize());
+        m_counter ++;
+        return m_text->getSize();
+      }
+      return 0;
+    }
+
+  };
+
+  ENDPOINT("GET", "chunked/{text-value}/{num-iterations}", chunked,
+           PATH(String, text, "text-value"),
+           PATH(Int32, numIterations, "num-iterations"),
+           REQUEST(std::shared_ptr<IncomingRequest>, request)) {
+    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
+      (std::make_shared<ReadCallback>(text, numIterations->getValue()), nullptr, 1024);
+    return OutgoingResponse::createShared(Status::CODE_200, body);
   }
 
   ENDPOINT("POST", "test/multipart", multipartTest, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
