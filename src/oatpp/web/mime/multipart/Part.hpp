@@ -80,6 +80,12 @@ public:
                    data::v_io_size knownSize);
 
   /**
+   * Same as `setDataInfo(inputStream, nullptr, -1);.`
+   * @param inputStream - input stream of the part data.
+   */
+  void setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream);
+
+  /**
    * Get name of the part.
    * @return - name of the part.
    */
@@ -103,6 +109,21 @@ public:
    * @return header value
    */
   oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
+
+  /**
+   * Add http header.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   */
+  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
+   * Add http header if not already exists.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   * @return - `true` if header was added.
+   */
+  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Get input stream of the part data.

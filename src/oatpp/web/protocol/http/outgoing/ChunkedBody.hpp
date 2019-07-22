@@ -70,7 +70,7 @@ public:
   ~ChunkedBody();
 
   /**
-   * Declare `Transfer-Encoding: chunked` header
+   * Declare `Transfer-Encoding: chunked` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   void declareHeaders(Headers& headers) noexcept override;
@@ -82,7 +82,7 @@ public:
   void writeToStream(OutputStream* stream) noexcept override;
 
   /**
-   * Start &l:ChunkedBody::WriteToStreamCoroutine; to write buffer data to stream.
+   * Write body data to stream in asynchronous manner.
    * @param stream - &id:oatpp::data::stream::OutputStream;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */

@@ -34,6 +34,24 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& mem
   , m_ioMode(IOMode::NON_BLOCKING)
 {}
 
+BufferInputStream::BufferInputStream(const oatpp::String& data)
+  : BufferInputStream(data.getPtr(), data->getData(), data->getSize())
+{}
+
+void BufferInputStream::reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size) {
+  m_memoryHandle = memoryHandle;
+  m_data = data;
+  m_size = size;
+  m_position = 0;
+}
+
+void BufferInputStream::reset() {
+  m_memoryHandle = nullptr;
+  m_data = nullptr;
+  m_size = 0;
+  m_position = 0;
+}
+
 data::v_io_size BufferInputStream::read(void *data, data::v_io_size count) {
   data::v_io_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
@@ -84,8 +102,8 @@ v_io_size BufferInputStream::getCurrentPosition() {
   return m_position;
 }
 
-void BufferInputStream::resetPosition() {
-  m_position = 0;
+void BufferInputStream::setCurrentPosition(v_io_size position) {
+  m_position = position;
 }
 
 }}}

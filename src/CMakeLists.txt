@@ -175,6 +175,8 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp
         oatpp/web/protocol/http/outgoing/DtoBody.cpp
         oatpp/web/protocol/http/outgoing/DtoBody.hpp
+        oatpp/web/protocol/http/outgoing/MultipartBody.cpp
+        oatpp/web/protocol/http/outgoing/MultipartBody.hpp
         oatpp/web/protocol/http/outgoing/Request.cpp
         oatpp/web/protocol/http/outgoing/Request.hpp
         oatpp/web/protocol/http/outgoing/Response.cpp

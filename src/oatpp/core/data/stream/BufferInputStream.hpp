@@ -47,6 +47,26 @@ public:
   BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size);
 
   /**
+   * Constructor.
+   * @param data - buffer.
+   */
+  BufferInputStream(const oatpp::String& data);
+
+  /**
+   * Reset stream data and set position to `0`.
+   * @param memoryHandle - buffer memory handle. May be nullptr.
+   * @param data - pointer to buffer data.
+   * @param size - size of the buffer.
+   */
+  void reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size);
+
+
+  /**
+   * Same as `reset(nullptr, nullptr, 0);.`
+   */
+  void reset();
+
+  /**
    * Read data from stream. <br>
    * It is a legal case if return result < count. Caller should handle this!
    * *Calls to this method are always NON-BLOCKING*
@@ -101,9 +121,10 @@ public:
   v_io_size getCurrentPosition();
 
   /**
-   * Reset current data read position to zero.
+   * Set current data read position.
+   * @param position - data read position.
    */
-  void resetPosition();
+  void setCurrentPosition(v_io_size position);
 
 
 };

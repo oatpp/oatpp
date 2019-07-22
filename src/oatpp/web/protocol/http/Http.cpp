@@ -244,6 +244,9 @@ oatpp::String HeaderValueData::getTitleParamValue(const data::share::StringKeyLa
   }
   return nullptr;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Parser
   
 oatpp::data::share::StringKeyLabelCI_FAST Parser::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                                                          oatpp::parser::Caret& caret) {
@@ -367,39 +370,57 @@ void Parser::parseHeaderValueData(HeaderValueData& data, const oatpp::data::shar
   v_char8 charSet[5] = {' ', '=', separator, '\r', '\n'};
   v_char8 charSet2[4] = {' ', separator, '\r', '\n'};
 
-  while(caret.canContinue()) {
+  while (caret.canContinue()) {
 
     caret.skipChar(' ');
 
     auto label = caret.putLabel();
     auto res = caret.findCharFromSet(charSet, 5);
 
-    if(res == '=') {
+    if (res == '=') {
 
       data::share::StringKeyLabelCI key(headerValue.getMemoryHandle(), label.getData(), label.getSize());
       caret.inc();
 
-      if(caret.isAtChar('"')) {
+      if (caret.isAtChar('"')) {
         label = caret.parseStringEnclosed('"', '"', '\\');
-      } else if(caret.isAtChar('\'')) {
+      } else if (caret.isAtChar('\'')) {
         label = caret.parseStringEnclosed('\'', '\'', '\\');
       } else {
         label = caret.putLabel();
         auto r = caret.findCharFromSet(charSet2, 4);
       }
 
-      data.titleParams[key] = data::share::StringKeyLabel(headerValue.getMemoryHandle(), label.getData(), label.getSize());
+      data.titleParams[key] = data::share::StringKeyLabel(headerValue.getMemoryHandle(), label.getData(),
+                                                          label.getSize());
 
     } else {
-      data.tokens.insert(data::share::StringKeyLabelCI(headerValue.getMemoryHandle(), label.getData(), label.getSize()));
+      data.tokens.insert(
+        data::share::StringKeyLabelCI(headerValue.getMemoryHandle(), label.getData(), label.getSize()));
     }
 
-    if(caret.isAtCharFromSet((p_char8)"\r\n", 2)) {
+    if (caret.isAtCharFromSet((p_char8) "\r\n", 2)) {
       break;
-    } else if(caret.isAtChar(separator)) {
+    } else if (caret.isAtChar(separator)) {
       caret.inc();
     }
 
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utils
+
+void Utils::writeHeaders(const Headers& headers, data::stream::ConsistentOutputStream* stream) {
+
+  auto it = headers.begin();
+  while(it != headers.end()) {
+    stream->write(it->first.getData(), it->first.getSize());
+    stream->write(": ", 2);
+    stream->write(it->second.getData(), it->second.getSize());
+    stream->write("\r\n", 2);
+    it ++;
   }
 
 }

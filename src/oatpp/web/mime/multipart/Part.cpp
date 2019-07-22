@@ -66,6 +66,12 @@ void Part::setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputSt
   m_knownSize = knownSize;
 }
 
+void Part::setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream) {
+  m_inputStream = inputStream;
+  m_inMemoryData = nullptr;
+  m_knownSize = -1;
+}
+
 oatpp::String Part::getName() const {
   return m_name;
 }
@@ -86,6 +92,19 @@ oatpp::String Part::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST &h
     return it->second.toString();
   }
   return nullptr;
+}
+
+void Part::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers[key] = value;
+}
+
+bool Part::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  auto it = m_headers.find(key);
+  if(it == m_headers.end()) {
+    m_headers.insert({key, value});
+    return true;
+  }
+  return false;
 }
 
 std::shared_ptr<data::stream::InputStream> Part::getInputStream() const {

@@ -684,6 +684,21 @@ public:
   static void parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, v_char8 separator);
 
 };
+
+/**
+ * Http utils.
+ */
+class Utils {
+public:
+
+  /**
+   * Write headers map to stream.
+   * @param headers
+   * @param stream
+   */
+  static void writeHeaders(const Headers& headers, data::stream::ConsistentOutputStream* stream);
+
+};
   
 }}}}
 
