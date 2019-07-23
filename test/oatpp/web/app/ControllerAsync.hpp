@@ -27,6 +27,8 @@
 
 #include "./DTOs.hpp"
 
+#include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
+
 #include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -163,6 +165,40 @@ public:
         (nullptr, std::make_shared<ReadCallback>(text, numIterations), 1024);
 
       return _return(OutgoingResponse::createShared(Status::CODE_200, body));
+    }
+
+  };
+
+  ENDPOINT_ASYNC("GET", "test/multipart", MultipartGetTest) {
+
+    ENDPOINT_ASYNC_INIT(MultipartGetTest)
+
+    Action act() override {
+
+      auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>("0--qwerty1234--0");
+
+      {
+        oatpp::web::mime::multipart::Headers partHeaders;
+        auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
+        multipart->addPart(part);
+        part->putHeader("Content-Disposition", "form-data; name=\"part1\"");
+//        oatpp::String data = "";
+//        part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(data));
+      }
+
+      {
+        oatpp::web::mime::multipart::Headers partHeaders;
+        auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
+        multipart->addPart(part);
+        part->putHeader("Content-Disposition", "form-data; filename=\"file2.txt\"");
+        oatpp::String data = "World";
+        part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(data));
+      }
+
+      auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart);
+
+      return _return(OutgoingResponse::createShared(Status::CODE_200, body));
+
     }
 
   };

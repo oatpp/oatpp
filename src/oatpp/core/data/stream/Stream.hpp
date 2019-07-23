@@ -604,7 +604,8 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
 oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                              oatpp::data::stream::InputStream* stream,
                                              AsyncInlineReadData& inlineData,
-                                             oatpp::async::Action&& nextAction);
+                                             oatpp::async::Action&& nextAction,
+                                             bool allowZeroRead = false);
 
 oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                                   oatpp::data::stream::InputStream* stream,

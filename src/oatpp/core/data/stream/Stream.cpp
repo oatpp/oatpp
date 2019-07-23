@@ -480,14 +480,17 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
 oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                              oatpp::data::stream::InputStream* stream,
                                              AsyncInlineReadData& inlineData,
-                                             oatpp::async::Action&& nextAction) {
+                                             oatpp::async::Action&& nextAction,
+                                             bool allowZeroRead) {
 
   if(inlineData.bytesLeft > 0) {
     auto res = stream->read(inlineData.currBufferPtr, inlineData.bytesLeft);
     if(res > 0) {
       inlineData.inc(res);
     } else {
-      return asyncInputStreamActionOnIOError(coroutine, stream, res);
+      if(!(allowZeroRead && res == 0)) {
+        return asyncInputStreamActionOnIOError(coroutine, stream, res);
+      }
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);

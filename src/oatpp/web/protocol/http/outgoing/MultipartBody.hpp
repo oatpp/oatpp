@@ -67,6 +67,18 @@ private:
   static constexpr v_int32 STATE_FINISHED = 4;
 
 private:
+  static data::v_io_size readBoundary(const std::shared_ptr<Multipart>& multipart,
+                                      std::list<std::shared_ptr<Part>>::const_iterator& iterator,
+                                      data::stream::BufferInputStream& readStream,
+                                      void *buffer,
+                                      data::v_io_size count);
+
+  static data::v_io_size readHeaders(const std::shared_ptr<Multipart>& multipart,
+                                     std::list<std::shared_ptr<Part>>::const_iterator& iterator,
+                                     data::stream::BufferInputStream& readStream,
+                                     void *buffer,
+                                     data::v_io_size count);
+private:
 
   class MultipartReadCallback : public ReadCallback {
   private:
@@ -75,8 +87,6 @@ private:
     v_int32 m_state;
     oatpp::data::stream::BufferInputStream m_readStream;
   private:
-    data::v_io_size readBoundary(void *buffer, data::v_io_size count);
-    data::v_io_size readHeaders(void *buffer, data::v_io_size count);
     data::v_io_size readBody(void *buffer, data::v_io_size count);
   public:
 
@@ -91,6 +101,9 @@ private:
   class AsyncMultipartReadCallback : public AsyncReadCallback {
   private:
     std::shared_ptr<Multipart> m_multipart;
+    std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
+    v_int32 m_state;
+    oatpp::data::stream::BufferInputStream m_readStream;
   public:
 
     AsyncMultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
