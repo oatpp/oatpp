@@ -166,8 +166,7 @@ MultipartBody::AsyncMultipartReadCallback::AsyncMultipartReadCallback(const std:
 {}
 
 oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                                                void*& currBufferPtr,
-                                                                                data::v_io_size& bytesLeftToRead,
+                                                                                oatpp::data::stream::AsyncInlineReadData& inlineData,
                                                                                 oatpp::async::Action&& nextAction)
 {
   return std::forward<oatpp::async::Action>(nextAction);

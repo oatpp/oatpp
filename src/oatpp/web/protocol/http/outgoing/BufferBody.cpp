@@ -32,12 +32,11 @@ BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr
                                                            const std::shared_ptr<OutputStream>& stream)
   : m_body(body)
   , m_stream(stream)
-  , m_currData(m_body->m_buffer->getData())
-  , m_currDataSize(m_body->m_buffer->getSize())
+  , m_inlineData(m_body->m_buffer->getData(), m_body->m_buffer->getSize())
 {}
 
 async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, m_currDataSize, finish());
+  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineData, finish());
 }
 
 BufferBody::BufferBody(const oatpp::String& buffer)

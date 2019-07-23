@@ -29,6 +29,7 @@
 
 #include "oatpp/web/mime/multipart/InMemoryReader.hpp"
 
+#include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
@@ -163,6 +164,7 @@ public:
 
   ENDPOINT("POST", "test/multipart", multipartTest, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
 
+    /*
     oatpp::web::mime::multipart::Multipart multipart(request->getHeaders());
     oatpp::web::mime::multipart::InMemoryReader multipartReader(&multipart);
     request->transferBody(&multipartReader);
@@ -170,8 +172,40 @@ public:
     for(auto& part : multipart.getAllParts()) {
       OATPP_LOGD("multipart", "name='%s', value='%s'", part->getName()->getData(), part->getInMemoryData()->getData());
     }
+     */
 
-    return createResponse(Status::CODE_200, "");
+    oatpp::data::stream::ChunkedBuffer stream;
+    request->transferBodyToStream(&stream);
+
+    return createResponse(Status::CODE_200, stream.toString());
+
+  }
+
+  ENDPOINT("GET", "test/multipart", multipartGetTest) {
+
+    auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>("0--qwerty1234--0");
+
+    {
+      oatpp::web::mime::multipart::Headers partHeaders;
+      auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
+      multipart->addPart(part);
+      part->putHeader("Content-Disposition", "form-data; name=\"part1\"");
+      oatpp::String data = "Hello";
+      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(data));
+    }
+
+    {
+      oatpp::web::mime::multipart::Headers partHeaders;
+      auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
+      multipart->addPart(part);
+      part->putHeader("Content-Disposition", "form-data; filename=\"file2.txt\"");
+      oatpp::String data = "World";
+      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(data));
+    }
+
+    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart);
+
+    return OutgoingResponse::createShared(Status::CODE_200, body);
 
   }
 

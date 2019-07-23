@@ -72,8 +72,7 @@ public:
   private:
     std::shared_ptr<BufferBody> m_body;
     std::shared_ptr<OutputStream> m_stream;
-    const void* m_currData;
-    oatpp::data::v_io_size m_currDataSize;
+    oatpp::data::stream::AsyncInlineWriteData m_inlineData;
   public:
 
     /**

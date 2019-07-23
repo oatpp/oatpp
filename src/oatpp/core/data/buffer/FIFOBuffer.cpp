@@ -295,12 +295,8 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
     std::shared_ptr<FIFOBuffer> m_fifo;
     std::shared_ptr<data::stream::OutputStream> m_stream;
   private:
-
-    const void* m_data1;
-    data::v_io_size m_size1;
-
-    const void* m_data2;
-    data::v_io_size m_size2;
+    data::stream::AsyncInlineWriteData m_data1;
+    data::stream::AsyncInlineWriteData m_data2;
   public:
 
     FlushCoroutine(const std::shared_ptr<FIFOBuffer>& fifo, const std::shared_ptr<data::stream::OutputStream>& stream)
@@ -316,34 +312,28 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
 
       if(m_fifo->m_readPosition < m_fifo->m_writePosition) {
 
-        m_data1 = &m_fifo->m_buffer[m_fifo->m_readPosition];
-        m_size1 = m_fifo->m_writePosition - m_fifo->m_readPosition;
-
+        m_data1.set(&m_fifo->m_buffer[m_fifo->m_readPosition], m_fifo->m_writePosition - m_fifo->m_readPosition);
         return yieldTo(&FlushCoroutine::fullFlush);
 
       } else {
 
-        m_data1 = &m_fifo->m_buffer[m_fifo->m_readPosition];
-        m_size1 = m_fifo->m_bufferSize - m_fifo->m_readPosition;
-
-        m_data2 = m_fifo->m_buffer;
-        m_size2 = m_fifo->m_writePosition;
-
+        m_data1.set(&m_fifo->m_buffer[m_fifo->m_readPosition], m_fifo->m_bufferSize - m_fifo->m_readPosition);
+        m_data2.set(m_fifo->m_buffer, m_fifo->m_writePosition);
         return yieldTo(&FlushCoroutine::partialFlush1);
 
       }
     }
 
     Action fullFlush() {
-      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data1, m_size1, yieldTo(&FlushCoroutine::beforeFinish));
+      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data1, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action partialFlush1() {
-      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data1, m_size1, yieldTo(&FlushCoroutine::partialFlush2));
+      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data1, yieldTo(&FlushCoroutine::partialFlush2));
     }
 
     Action partialFlush2() {
-      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data2, m_size2, yieldTo(&FlushCoroutine::beforeFinish));
+      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data2, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action beforeFinish() {

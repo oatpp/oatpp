@@ -125,13 +125,11 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     v_char8 m_lineChar;
     bool m_lineEnding;
     v_char8 m_lineBuffer [16]; // used max 8
-    void* m_skipData;
-    data::v_io_size m_skipSize;
+    data::stream::AsyncInlineReadData m_skipData;
     bool m_done = false;
   private:
     void prepareSkipRN() {
-      m_skipData = &m_lineBuffer[0];
-      m_skipSize = 2;
+      m_skipData.set(&m_lineBuffer[0], 2);
       m_currLineLength = 0;
       m_lineEnding = false;
     }
@@ -198,9 +196,9 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     
     Action skipRN() {
       if(m_done) {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, m_skipSize, finish());
+        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, finish());
       } else {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, m_skipSize, yieldTo(&ChunkedDecoder::readLineChar));
+        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, yieldTo(&ChunkedDecoder::readLineChar));
       }
     }
     

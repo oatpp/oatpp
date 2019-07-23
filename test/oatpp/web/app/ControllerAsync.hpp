@@ -142,14 +142,12 @@ public:
       {}
 
       oatpp::async::Action readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                           void*& currBufferPtr,
-                                           data::v_io_size& bytesLeftToRead,
+                                           oatpp::data::stream::AsyncInlineReadData& inlineData,
                                            oatpp::async::Action&& nextAction) override
       {
         if(m_counter < m_iterations) {
-          std::memcpy(currBufferPtr, m_text->getData(), m_text->getSize());
-          currBufferPtr = &((p_char8) currBufferPtr)[m_text->getSize()];
-          bytesLeftToRead -= m_text->getSize();
+          std::memcpy(inlineData.currBufferPtr, m_text->getData(), m_text->getSize());
+          inlineData.inc(m_text->getSize());
         }
         m_counter ++;
         return std::forward<oatpp::async::Action>(nextAction);

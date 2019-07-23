@@ -96,13 +96,10 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
     bool m_firstChunk;
   private:
     oatpp::String m_chunkSizeHex;
-    const void* m_chunkSizeCurrDataPtr;
-    data::v_io_size m_chunkSizeBytesLeft;
   private:
-    void* m_currDataReadPtr;
-    const void* m_currDataWritePtr;
-    data::v_io_size m_bytesLeft;
-    data::v_io_size m_bytesRead;
+    data::stream::AsyncInlineReadData m_inlineReadData;
+    data::stream::AsyncInlineWriteData m_inlineWriteData;
+    data::stream::AsyncInlineWriteData m_chunkSizeWriteData;
   public:
 
     WriteCoroutine(const std::shared_ptr<ChunkedBody>& body,
@@ -113,55 +110,50 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
     {}
 
     Action act() override {
-      m_currDataReadPtr = m_body->m_buffer;
-      m_bytesLeft = m_body->m_bufferSize;
+      m_inlineReadData.set(m_body->m_buffer, m_body->m_bufferSize);
       return yieldTo(&WriteCoroutine::readCallback);
     }
 
     Action readCallback() {
-      return m_body->m_asyncReadCallback->readAsyncInline(this, m_currDataReadPtr, m_bytesLeft, yieldTo(&WriteCoroutine::onChunkRead));
+      return m_body->m_asyncReadCallback->readAsyncInline(this, m_inlineReadData, yieldTo(&WriteCoroutine::onChunkRead));
     }
 
     Action onChunkRead() {
 
-      m_bytesRead = m_body->m_bufferSize - m_bytesLeft;
+      data::v_io_size bytesRead = m_body->m_bufferSize - m_inlineReadData.bytesLeft;
 
-      if(m_bytesRead > 0) {
+      if(bytesRead > 0) {
 
         if(m_firstChunk) {
-          m_chunkSizeHex = oatpp::utils::conversion::primitiveToStr(m_bytesRead, "%X") + "\r\n";
+          m_chunkSizeHex = oatpp::utils::conversion::primitiveToStr(bytesRead, "%X") + "\r\n";
           m_firstChunk = false;
         } else {
-          m_chunkSizeHex = "\r\n" + oatpp::utils::conversion::primitiveToStr(m_bytesRead, "%X") + "\r\n";
+          m_chunkSizeHex = "\r\n" + oatpp::utils::conversion::primitiveToStr(bytesRead, "%X") + "\r\n";
         }
 
-        m_chunkSizeCurrDataPtr = m_chunkSizeHex->getData();
-        m_chunkSizeBytesLeft = m_chunkSizeHex->getSize();
-
-        m_currDataWritePtr = m_body->m_buffer;
-        m_bytesLeft = m_bytesRead;
+        m_chunkSizeWriteData.set(m_chunkSizeHex->getData(), m_chunkSizeHex->getSize());
+        m_inlineWriteData.set(m_body->m_buffer, bytesRead);
 
         return yieldTo(&WriteCoroutine::writeChunkSize);
 
       }
 
-      m_chunkSizeCurrDataPtr = "\r\n0\r\n\r\n";
-      m_chunkSizeBytesLeft = 7;
+      m_chunkSizeWriteData.set("\r\n0\r\n\r\n", 7);
 
       return yieldTo(&WriteCoroutine::writeTrailingBytes);
 
     }
 
     Action writeChunkSize() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_chunkSizeCurrDataPtr, m_chunkSizeBytesLeft, yieldTo(&WriteCoroutine::writeChunk));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_chunkSizeWriteData, yieldTo(&WriteCoroutine::writeChunk));
     }
 
     Action writeChunk() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currDataWritePtr, m_bytesLeft, yieldTo(&WriteCoroutine::act));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineWriteData, yieldTo(&WriteCoroutine::act));
     }
 
     Action writeTrailingBytes() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_chunkSizeCurrDataPtr, m_chunkSizeBytesLeft, finish());
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_chunkSizeWriteData, finish());
     }
 
   };

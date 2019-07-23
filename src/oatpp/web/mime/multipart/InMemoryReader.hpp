@@ -88,8 +88,7 @@ public:
   AsyncInMemoryReader(Multipart* multipart);
 
   oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                        const void*& currBufferPtr,
-                                        data::v_io_size& bytesLeft,
+                                        oatpp::data::stream::AsyncInlineWriteData& inlineData,
                                         oatpp::async::Action&& nextAction) override;
 };
 

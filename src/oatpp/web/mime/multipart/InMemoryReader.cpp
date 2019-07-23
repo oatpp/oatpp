@@ -72,13 +72,11 @@ AsyncInMemoryReader::AsyncInMemoryReader(Multipart* multipart)
 {}
 
 oatpp::async::Action AsyncInMemoryReader::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                           const void*& currBufferPtr,
-                                                           data::v_io_size& bytesLeft,
+                                                           oatpp::data::stream::AsyncInlineWriteData& inlineData,
                                                            oatpp::async::Action&& nextAction)
 {
-  m_parser.parseNext((p_char8) currBufferPtr, bytesLeft);
-  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
-  bytesLeft = 0;
+  m_parser.parseNext((p_char8) inlineData.currBufferPtr, inlineData.bytesLeft);
+  inlineData.setEof();
   return std::forward<async::Action>(nextAction);
 }
 

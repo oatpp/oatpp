@@ -96,8 +96,7 @@ private:
     AsyncMultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
 
     oatpp::async::Action readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                         void*& currBufferPtr,
-                                         data::v_io_size& bytesLeftToRead,
+                                         oatpp::data::stream::AsyncInlineReadData& inlineData,
                                          oatpp::async::Action&& nextAction) override;
 
   };
