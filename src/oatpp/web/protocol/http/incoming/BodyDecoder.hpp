@@ -39,23 +39,6 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class BodyDecoder {
 private:
-
-  class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, const oatpp::String&> {
-  private:
-    const BodyDecoder* m_decoder;
-    Headers m_headers;
-    std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer;
-  public:
-    
-    ToStringDecoder(const BodyDecoder* decoder,
-                    const Headers& headers,
-                    const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream);
-    
-    Action act() override;
-    Action onDecoded();
-    
-  };
   
   template<class Type>
   class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, const typename Type::ObjectWrapper&> {
@@ -78,7 +61,7 @@ private:
     {}
     
     oatpp::async::Action act() override {
-      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(this->yieldTo(&ToDtoDecoder::onDecoded));
+      return m_decoder->decodeToStreamAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(this->yieldTo(&ToDtoDecoder::onDecoded));
     }
     
     oatpp::async::Action onDecoded() {
@@ -172,9 +155,7 @@ public:
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
   oatpp::async::CoroutineStarterForResult<const oatpp::String&>
-  decodeToStringAsync(const Headers& headers, const std::shared_ptr<data::stream::InputStream>& bodyStream) const {
-    return ToStringDecoder::startForResult(this, headers, bodyStream);
-  }
+  decodeToStringAsync(const Headers& headers, const std::shared_ptr<data::stream::InputStream>& bodyStream) const;
 
   /**
    * Same as &l:BodyDecoder::decodeToDto (); but Async.
