@@ -73,7 +73,7 @@ public:
    * Write body data to stream.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override;
+  void writeToStream(OutputStream* stream) noexcept override;
   
 public:
 
@@ -86,9 +86,8 @@ public:
     std::shared_ptr<OutputStream> m_stream;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> m_chunks;
     oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* m_currChunk;
-    const void* m_currData;
-    oatpp::data::v_io_size m_currDataSize;
     Action m_nextAction;
+    oatpp::data::stream::AsyncInlineWriteData m_inlineWriteData;
     v_char8 m_buffer[16];
   public:
 

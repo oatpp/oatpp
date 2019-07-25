@@ -59,12 +59,13 @@ namespace {
       OATPP_ASSERT(res == m_dataSample->getSize());
       
       v_char8 buffer[100];
-      auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-      res = oatpp::data::stream::transfer(socket, stream, 2, buffer, 100);
+      oatpp::data::stream::ChunkedBuffer stream;
+      oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
+      res = oatpp::data::stream::transfer(socket.get(), &writeCallback, 2, buffer, 100);
       
       OATPP_ASSERT(res == 2);
-      OATPP_ASSERT(stream->getSize() == res);
-      OATPP_ASSERT(stream->toString() == "OK");
+      OATPP_ASSERT(stream.getSize() == res);
+      OATPP_ASSERT(stream.toString() == "OK");
       
       //OATPP_LOGV("client", "finished - OK");
       
@@ -86,12 +87,13 @@ namespace {
     
     void run() {
       v_char8 buffer[100];
-      auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-      auto res = oatpp::data::stream::transfer(m_socket, stream, m_dataSample->getSize(), buffer, 100);
+      oatpp::data::stream::ChunkedBuffer stream;
+      oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
+      auto res = oatpp::data::stream::transfer(m_socket.get(), &writeCallback, m_dataSample->getSize(), buffer, 100);
       
       OATPP_ASSERT(res == m_dataSample->getSize());
-      OATPP_ASSERT(stream->getSize() == res);
-      OATPP_ASSERT(stream->toString() == m_dataSample);
+      OATPP_ASSERT(stream.getSize() == res);
+      OATPP_ASSERT(stream.toString() == m_dataSample);
       
       res = oatpp::data::stream::writeExactSizeData(m_socket.get(), "OK", 2);
       

@@ -60,9 +60,9 @@ public:
 
   /**
    * Write body content to stream.
-   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  virtual void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept = 0;
+  virtual void writeToStream(OutputStream* stream) noexcept = 0;
 
   /**
    * Same as &l:Body::writeToStream (); but async.

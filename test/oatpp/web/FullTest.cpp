@@ -50,6 +50,9 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
+typedef oatpp::web::mime::multipart::Multipart Multipart;
+typedef oatpp::web::protocol::http::outgoing::MultipartBody MultipartBody;
+
 class TestComponent {
 private:
   v_int32 m_port;
@@ -108,6 +111,24 @@ public:
 
 };
 
+std::shared_ptr<Multipart> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
+
+  auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>("0--qwerty1234--0");
+
+  for(auto& pair : map) {
+
+    oatpp::web::mime::multipart::Headers partHeaders;
+    auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
+    multipart->addPart(part);
+    part->putHeader("Content-Disposition", "form-data; name=\"" + pair.first + "\"");
+    part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(pair.second));
+
+  }
+
+  return multipart;
+
+}
+
 }
   
 void FullTest::onRun() {
@@ -145,7 +166,7 @@ void FullTest::onRun() {
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_param");
       }
@@ -153,7 +174,7 @@ void FullTest::onRun() {
       { // test GET with query parameters
         auto response = client->getWithQueries("oatpp", 1, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "name=oatpp&age=1");
       }
@@ -161,7 +182,7 @@ void FullTest::onRun() {
       { // test GET with query parameters
         auto response = client->getWithQueriesMap("value1", 32, 0.32, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testMap);
         OATPP_ASSERT(dto->testMap->count() == 3);
@@ -173,7 +194,7 @@ void FullTest::onRun() {
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_header");
       }
@@ -181,7 +202,7 @@ void FullTest::onRun() {
       { // test POST with body
         auto response = client->postBody("my_test_body", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper);
+        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body");
       }
@@ -202,6 +223,49 @@ void FullTest::onRun() {
       {
         auto response = client->headerValueSet("   VALUE_1, VALUE_2,  VALUE_3", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      { // test Chunked body
+        oatpp::String sample = "__abcdefghijklmnopqrstuvwxyz-0123456789";
+        v_int32 numIterations = 10;
+        oatpp::data::stream::ChunkedBuffer stream;
+        for(v_int32 i = 0; i < numIterations; i++) {
+          stream.write(sample->getData(), sample->getSize());
+        }
+        auto data = stream.toString();
+        auto response = client->getChunked(sample, numIterations, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData);
+        OATPP_ASSERT(returnedData == data);
+      }
+
+      { // Multipart body
+
+        std::unordered_map<oatpp::String, oatpp::String> map;
+        map["value1"] = "Hello";
+        map["value2"] = "World";
+        auto multipart = createMultipart(map);
+
+        auto body = std::make_shared<MultipartBody>(multipart, i + 1);
+
+        auto response = client->multipartTest(i + 1, body);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+
+        multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(response->getHeaders());
+        oatpp::web::mime::multipart::InMemoryReader multipartReader(multipart.get());
+        response->transferBody(&multipartReader);
+
+        OATPP_ASSERT(multipart->getAllParts().size() == 2);
+        auto part1 = multipart->getNamedPart("value1");
+        auto part2 = multipart->getNamedPart("value2");
+
+        OATPP_ASSERT(part1);
+        OATPP_ASSERT(part2);
+
+        OATPP_ASSERT(part1->getInMemoryData() == "Hello");
+        OATPP_ASSERT(part2->getInMemoryData() == "World");
+
       }
 
       if((i + 1) % iterationsStep == 0) {

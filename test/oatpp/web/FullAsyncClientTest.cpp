@@ -162,6 +162,47 @@ public:
 std::atomic<v_int32> ClientCoroutine_getRootAsync::SUCCESS_COUNTER(0);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ClientCoroutine_postBodyAsync
+
+class ClientCoroutine_postBodyAsync : public oatpp::async::Coroutine<ClientCoroutine_postBodyAsync> {
+public:
+  static std::atomic<v_int32> SUCCESS_COUNTER;
+private:
+  OATPP_COMPONENT(std::shared_ptr<app::Client>, appClient);
+  OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
+public:
+
+  Action act() override {
+    return appClient->postBodyAsync("my_test_body").callbackTo(&ClientCoroutine_postBodyAsync::onResponse);
+  }
+
+  Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
+    OATPP_ASSERT(response->getStatusCode() == 200 && "ClientCoroutine_postBodyAsync");
+    return response->readBodyToDtoAsync<app::TestDto>(objectMapper).callbackTo(&ClientCoroutine_postBodyAsync::onBodyRead);
+  }
+
+  Action onBodyRead(const app::TestDto::ObjectWrapper& body) {
+    OATPP_ASSERT(body);
+    OATPP_ASSERT(body->testValue == "my_test_body");
+    ++ SUCCESS_COUNTER;
+    return finish();
+  }
+
+  Action handleError(const std::shared_ptr<const Error>& error) override {
+    if(error->is<oatpp::data::AsyncIOError>()) {
+      auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
+    } else {
+      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "Error. %s", error->what());
+    }
+    return propagateError();
+  }
+
+};
+
+std::atomic<v_int32> ClientCoroutine_postBodyAsync::SUCCESS_COUNTER(0);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ClientCoroutine_echoBodyAsync
 
 class ClientCoroutine_echoBodyAsync : public oatpp::async::Coroutine<ClientCoroutine_echoBodyAsync> {
@@ -223,29 +264,38 @@ void FullAsyncClientTest::onRun() {
     OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
 
     ClientCoroutine_getRootAsync::SUCCESS_COUNTER = 0;
+    ClientCoroutine_postBodyAsync::SUCCESS_COUNTER = 0;
     ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = 0;
 
     v_int32 iterations = m_connectionsPerEndpoint;
 
     for(v_int32 i = 0; i < iterations; i++) {
       executor->execute<ClientCoroutine_getRootAsync>();
+      executor->execute<ClientCoroutine_postBodyAsync>();
       executor->execute<ClientCoroutine_echoBodyAsync>();
     }
 
     while(
       ClientCoroutine_getRootAsync::SUCCESS_COUNTER != -1 ||
+      ClientCoroutine_postBodyAsync::SUCCESS_COUNTER != -1 ||
       ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER != -1
     ) {
 
-      OATPP_LOGV("Client", "Root=%d, Body=%d",
+      OATPP_LOGV("Client", "Root=%d, postBody=%d, echoBody=%d",
         ClientCoroutine_getRootAsync::SUCCESS_COUNTER.load(),
+        ClientCoroutine_postBodyAsync::SUCCESS_COUNTER.load(),
         ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER.load()
       );
 
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
       if(ClientCoroutine_getRootAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_getRootAsync::SUCCESS_COUNTER = -1;
         OATPP_LOGV("Client", "getRootAsync - DONE!");
+      }
+      if(ClientCoroutine_postBodyAsync::SUCCESS_COUNTER == iterations){
+        ClientCoroutine_postBodyAsync::SUCCESS_COUNTER = -1;
+        OATPP_LOGV("Client", "postBodyAsync - DONE!");
       }
       if(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = -1;
@@ -254,6 +304,7 @@ void FullAsyncClientTest::onRun() {
     }
 
     OATPP_ASSERT(ClientCoroutine_getRootAsync::SUCCESS_COUNTER == -1); // -1 is success
+    OATPP_ASSERT(ClientCoroutine_postBodyAsync::SUCCESS_COUNTER == -1); // -1 is success
     OATPP_ASSERT(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == -1); // -1 is success
 
     executor->waitTasksFinished(); // Wait executor tasks before quit.

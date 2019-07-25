@@ -24,18 +24,19 @@
 
 #include "BufferBody.hpp"
 
+#include "oatpp/core/utils/ConversionUtils.hpp"
+
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
                                                            const std::shared_ptr<OutputStream>& stream)
   : m_body(body)
   , m_stream(stream)
-  , m_currData(m_body->m_buffer->getData())
-  , m_currDataSize(m_body->m_buffer->getSize())
+  , m_inlineData(m_body->m_buffer->getData(), m_body->m_buffer->getSize())
 {}
 
 async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, m_currDataSize, finish());
+  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineData, finish());
 }
 
 BufferBody::BufferBody(const oatpp::String& buffer)
@@ -50,8 +51,8 @@ void BufferBody::declareHeaders(Headers& headers) noexcept {
   headers[oatpp::web::protocol::http::Header::CONTENT_LENGTH] = oatpp::utils::conversion::int32ToStr(m_buffer->getSize());
 }
 
-void BufferBody::writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept {
-  oatpp::data::stream::writeExactSizeData(stream.get(), m_buffer->getData(), m_buffer->getSize());
+void BufferBody::writeToStream(OutputStream* stream) noexcept {
+  oatpp::data::stream::writeExactSizeData(stream, m_buffer->getData(), m_buffer->getSize());
 }
 
 

@@ -105,16 +105,28 @@ oatpp::String Request::getPathTail() const {
   return m_pathVariables.getTail();
 }
 
-void Request::streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream, toStream);
+void Request::transferBody(data::stream::WriteCallback* writeCallback) const {
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback);
+}
+
+void Request::transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const {
+  m_bodyDecoder->decodeToStream(m_headers, m_bodyStream.get(), toStream);
 }
 
 oatpp::String Request::readBodyToString() const {
-  return m_bodyDecoder->decodeToString(m_headers, m_bodyStream);
+  return m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get());
 }
 
-oatpp::async::CoroutineStarter Request::streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream);
+async::CoroutineStarter Request::transferBodyAsync(const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback) const {
+  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, writeCallback);
+}
+
+async::CoroutineStarter Request::transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+  return m_bodyDecoder->decodeToStreamAsync(m_headers, m_bodyStream, toStream);
+}
+
+async::CoroutineStarterForResult<const oatpp::String&> Request::readBodyToStringAsync() const {
+  return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream);
 }
 
 }}}}}

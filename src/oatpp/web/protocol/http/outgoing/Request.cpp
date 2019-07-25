@@ -73,7 +73,7 @@ std::shared_ptr<Body> Request::getBody() {
   return m_body;
 }
 
-void Request::send(const std::shared_ptr<data::stream::OutputStream>& stream){
+void Request::send(data::stream::OutputStream* stream){
   
   if(m_body){
     m_body->declareHeaders(m_headers);
@@ -134,15 +134,8 @@ oatpp::async::CoroutineStarter Request::sendAsync(const std::shared_ptr<data::st
       m_buffer->write(" ", 1);
       m_buffer->write("HTTP/1.1", 8);
       m_buffer->write("\r\n", 2);
-      
-      auto it = m_request->m_headers.begin();
-      while(it != m_request->m_headers.end()){
-        m_buffer->write(it->first.getData(), it->first.getSize());
-        m_buffer->write(": ", 2);
-        m_buffer->write(it->second.getData(), it->second.getSize());
-        m_buffer->write("\r\n", 2);
-        it++;
-      }
+
+      http::Utils::writeHeaders(m_request->m_headers, m_buffer.get());
       
       m_buffer->write("\r\n", 2);
       

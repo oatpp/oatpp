@@ -129,9 +129,9 @@ public:
 
   /**
    * Write this Response to stream.
-   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void send(const std::shared_ptr<data::stream::OutputStream>& stream);
+  void send(data::stream::OutputStream* stream);
 
   /**
    * Same as &l:Response::send (); but async.

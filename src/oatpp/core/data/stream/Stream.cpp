@@ -27,6 +27,25 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ConsistentOutputStream
+
+oatpp::async::Action ConsistentOutputStream::suggestOutputStreamAction(data::v_io_size ioResult) {
+
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
+
+  OATPP_LOGE("[oatpp::data::stream::ConsistentOutputStream::suggestOutputStreamAction()]", "Error. ioResult=%d", ioResult);
+
+  const char* message =
+    "Error. ConsistentOutputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
+    "ConsistentOutputStream should always fully satisfy call to write() method. Conceptual error.";
+
+  throw std::runtime_error(message);
+
+}
+
 data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);
@@ -70,8 +89,103 @@ data::v_io_size ConsistentOutputStream::writeAsString(bool value) {
     return write("false", 5);
   }
 }
-  
-// Functions
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncInlineWriteData
+
+AsyncInlineWriteData::AsyncInlineWriteData()
+  : currBufferPtr(nullptr)
+  , bytesLeft(0)
+{}
+
+AsyncInlineWriteData::AsyncInlineWriteData(const void* data, data::v_io_size size)
+  : currBufferPtr(data)
+  , bytesLeft(size)
+{}
+
+void AsyncInlineWriteData::set(const void* data, data::v_io_size size) {
+  currBufferPtr = data;
+  bytesLeft = size;
+}
+
+void AsyncInlineWriteData::inc(data::v_io_size amount) {
+  currBufferPtr = &((p_char8) currBufferPtr)[amount];
+  bytesLeft -= amount;
+}
+
+void AsyncInlineWriteData::setEof() {
+  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  bytesLeft = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncInlineReadData
+
+AsyncInlineReadData::AsyncInlineReadData()
+  : currBufferPtr(nullptr)
+  , bytesLeft(0)
+{}
+
+AsyncInlineReadData::AsyncInlineReadData(void* data, data::v_io_size size)
+  : currBufferPtr(data)
+  , bytesLeft(size)
+{}
+
+void AsyncInlineReadData::set(void* data, data::v_io_size size) {
+  currBufferPtr = data;
+  bytesLeft = size;
+}
+
+void AsyncInlineReadData::inc(data::v_io_size amount) {
+  currBufferPtr = &((p_char8) currBufferPtr)[amount];
+  bytesLeft -= amount;
+}
+
+void AsyncInlineReadData::setEof() {
+  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  bytesLeft = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncWriteCallbackWithCoroutineStarter
+
+oatpp::async::Action AsyncWriteCallbackWithCoroutineStarter::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                                              AsyncInlineWriteData& inlineData,
+                                                                              oatpp::async::Action&& nextAction)
+{
+  auto coroutineStarter = writeAsync(inlineData.currBufferPtr, inlineData.bytesLeft);
+  inlineData.setEof();
+  return coroutineStarter.next(std::forward<async::Action>(nextAction));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DefaultWriteCallback
+
+DefaultWriteCallback::DefaultWriteCallback(OutputStream* stream)
+  : m_stream(stream)
+{}
+
+data::v_io_size DefaultWriteCallback::write(const void *data, data::v_io_size count) {
+  return writeExactSizeData(m_stream, data, count);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DefaultAsyncWriteCallback
+
+DefaultAsyncWriteCallback::DefaultAsyncWriteCallback(const std::shared_ptr<OutputStream>& stream)
+  : m_stream(stream)
+{}
+
+oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+                                                                 AsyncInlineWriteData& inlineData,
+                                                                 oatpp::async::Action&& nextAction)
+{
+  return writeExactSizeDataAsyncInline(coroutine, m_stream.get(), inlineData, std::forward<oatpp::async::Action>(nextAction));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str) {
   if(str) {
@@ -176,11 +290,12 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
   return s;
 }
   
-oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
-                                        const std::shared_ptr<OutputStream>& toStream,
-                                        oatpp::data::v_io_size transferSize,
-                                        void* buffer,
-                                        oatpp::data::v_io_size bufferSize) {
+oatpp::data::v_io_size transfer(InputStream* fromStream,
+                                WriteCallback* writeCallback,
+                                oatpp::data::v_io_size transferSize,
+                                void* buffer,
+                                oatpp::data::v_io_size bufferSize)
+{
   
   oatpp::data::v_io_size progress = 0;
   
@@ -191,11 +306,23 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
     }
     auto readResult = fromStream->read(buffer, desiredReadCount);
     if(readResult > 0) {
-      auto writeReasul = writeExactSizeData(toStream.get(), buffer, readResult);
-      if(writeReasul != readResult) {
-        throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
+
+      p_char8 data = (p_char8) buffer;
+      oatpp::data::v_io_size bytesLeft = readResult;
+      while(bytesLeft > 0) {
+        auto writeResult = writeCallback->write(data, bytesLeft);
+        if(writeResult > 0) {
+          data = &data[writeResult];
+          bytesLeft -= writeResult;
+        } else if (writeResult == data::IOError::RETRY || writeResult == data::IOError::WAIT_RETRY) {
+          continue;
+        } else {
+          throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
+        }
       }
+
       progress += readResult;
+
     } else {
       if(readResult == data::IOError::RETRY || readResult == data::IOError::WAIT_RETRY) {
         continue;
@@ -209,31 +336,32 @@ oatpp::data::v_io_size transfer(const std::shared_ptr<InputStream>& fromStream,
 }
 
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
-                                             const std::shared_ptr<OutputStream>& toStream,
+                                             const std::shared_ptr<AsyncWriteCallback>& writeCallback,
                                              oatpp::data::v_io_size transferSize,
-                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer) {
+                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
+{
   
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
   private:
     std::shared_ptr<InputStream> m_fromStream;
-    std::shared_ptr<OutputStream> m_toStream;
+    std::shared_ptr<AsyncWriteCallback> m_writeCallback;
     oatpp::data::v_io_size m_transferSize;
     oatpp::data::v_io_size m_progress;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
     
     oatpp::data::v_io_size m_desiredReadCount;
-    void* m_readBufferPtr;
-    const void* m_writeBufferPtr;
-    oatpp::data::v_io_size m_bytesLeft;
+
+    AsyncInlineReadData m_inlineReadData;
+    AsyncInlineWriteData m_inlineWriteData;
     
   public:
     
     TransferCoroutine(const std::shared_ptr<InputStream>& fromStream,
-                      const std::shared_ptr<OutputStream>& toStream,
+                      const std::shared_ptr<AsyncWriteCallback>& writeCallback,
                       oatpp::data::v_io_size transferSize,
                       const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
       : m_fromStream(fromStream)
-      , m_toStream(toStream)
+      , m_writeCallback(writeCallback)
       , m_transferSize(transferSize)
       , m_progress(0)
       , m_buffer(buffer)
@@ -255,26 +383,28 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
       if(m_transferSize == 0 || m_desiredReadCount > m_buffer->getSize()){
         m_desiredReadCount = m_buffer->getSize();
       }
-      
-      m_readBufferPtr = m_buffer->getData();
-      m_writeBufferPtr = m_buffer->getData();
-      m_bytesLeft = m_desiredReadCount;
+
+      m_inlineReadData.set(m_buffer->getData(), m_desiredReadCount);
       
       return yieldTo(&TransferCoroutine::doRead);
     }
     
     Action doRead() {
-      return oatpp::data::stream::readSomeDataAsyncInline(this, m_fromStream.get(), m_readBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::prepareWrite));
+      return oatpp::data::stream::readSomeDataAsyncInline(this, m_fromStream.get(), m_inlineReadData, yieldTo(&TransferCoroutine::prepareWrite));
     }
     
     Action prepareWrite() {
-      m_bytesLeft = m_desiredReadCount - m_bytesLeft;
-      m_progress += m_bytesLeft;
+
+      auto readCount = m_desiredReadCount - m_inlineReadData.bytesLeft;
+      m_inlineWriteData.set(m_buffer->getData(), readCount);
+
+      m_progress += readCount;
       return yieldTo(&TransferCoroutine::doWrite);
+
     }
     
     Action doWrite() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_toStream.get(), m_writeBufferPtr, m_bytesLeft, yieldTo(&TransferCoroutine::act));
+      return m_writeCallback->writeAsyncInline(this, m_inlineWriteData, yieldTo(&TransferCoroutine::act));
     }
     
     Action handleError(const std::shared_ptr<const Error>& error) override {
@@ -286,7 +416,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     
   };
   
-  return TransferCoroutine::start(fromStream, toStream, transferSize, buffer);
+  return TransferCoroutine::start(fromStream, writeCallback, transferSize, buffer);
   
 }
 
@@ -330,16 +460,14 @@ namespace {
   
 oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                                    oatpp::data::stream::OutputStream* stream,
-                                                   const void*& data,
-                                                   data::v_io_size& size,
+                                                   AsyncInlineWriteData& inlineData,
                                                    oatpp::async::Action&& nextAction) {
-  if(size > 0) {
-    auto res = stream->write(data, size);
+  if(inlineData.bytesLeft > 0) {
+    auto res = stream->write(inlineData.currBufferPtr, inlineData.bytesLeft);
     if(res > 0) {
-      data = &((p_char8) data)[res];
-      size -= res;
-      if (size > 0) {
-        return stream->suggestOutputStreamAction(size);
+      inlineData.inc(res);
+      if (inlineData.bytesLeft > 0) {
+        return stream->suggestOutputStreamAction(res);
       }
     } else {
       return asyncOutputStreamActionOnIOError(coroutine, stream, res);
@@ -351,17 +479,18 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
 
 oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                              oatpp::data::stream::InputStream* stream,
-                                             void*& data,
-                                             data::v_io_size& size,
-                                             oatpp::async::Action&& nextAction) {
+                                             AsyncInlineReadData& inlineData,
+                                             oatpp::async::Action&& nextAction,
+                                             bool allowZeroRead) {
 
-  if(size > 0) {
-    auto res = stream->read(data, size);
+  if(inlineData.bytesLeft > 0) {
+    auto res = stream->read(inlineData.currBufferPtr, inlineData.bytesLeft);
     if(res > 0) {
-      data = &((p_char8) data)[res];
-      size -= res;
+      inlineData.inc(res);
     } else {
-      return asyncInputStreamActionOnIOError(coroutine, stream, res);
+      if(!(allowZeroRead && res == 0)) {
+        return asyncInputStreamActionOnIOError(coroutine, stream, res);
+      }
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);
@@ -370,15 +499,13 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* co
 
 oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                                   oatpp::data::stream::InputStream* stream,
-                                                  void*& data,
-                                                  data::v_io_size& size,
+                                                  AsyncInlineReadData& inlineData,
                                                   oatpp::async::Action&& nextAction) {
-  if(size > 0) {
-    auto res = stream->read(data, size);
+  if(inlineData.bytesLeft > 0) {
+    auto res = stream->read(inlineData.currBufferPtr, inlineData.bytesLeft);
     if(res > 0) {
-      data = &((p_char8) data)[res];
-      size -= res;
-      if (size > 0) {
+      inlineData.inc(res);
+      if (inlineData.bytesLeft > 0) {
         return stream->suggestInputStreamAction(res);
       }
     } else {

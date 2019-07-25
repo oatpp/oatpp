@@ -150,10 +150,17 @@ public:
   oatpp::String getPathTail() const;
 
   /**
+   * Transfer body. <br>
+   * Read body chunk by chunk and pass chunks to the `writeCallback`.
+   * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
+   */
+  void transferBody(data::stream::WriteCallback* writeCallback) const;
+
+  /**
    * Stream content of the body-stream to toStream
    * @param toStream
    */
-  void streamBody(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  void transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const;
 
   /**
    * Transfer body stream to string
@@ -168,8 +175,8 @@ public:
    * @return DTO
    */
   template<class Type>
-  typename Type::ObjectWrapper readBodyToDto(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
+  typename Type::ObjectWrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
+    return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
   }
 
   /**
@@ -180,27 +187,33 @@ public:
    * @return DTO
    */
   template<class Type>
-  void readBodyToDto(oatpp::data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
-                     const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream));
+  void readBodyToDto(data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
+                     data::mapping::ObjectMapper* objectMapper) const {
+    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
   }
   
   // Async
+
+  /**
+   * Transfer body in Asynchronous manner. <br>
+   * Read body chunk by chunk and pass chunks to the `writeCallback`.
+   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::AsyncWriteCallback;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback) const;
 
   /**
    * Transfer body stream to toStream Async
    * @param toStream
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::CoroutineStarter streamBodyAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  oatpp::async::CoroutineStarter transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
 
   /**
    * Transfer body stream to string Async.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const oatpp::String&> readBodyToStringAsync() const {
-    return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream);
-  }
+  async::CoroutineStarterForResult<const oatpp::String&> readBodyToStringAsync() const;
 
   /**
    * Transfer body to String and parse it as DTO

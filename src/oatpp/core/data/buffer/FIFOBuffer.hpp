@@ -107,7 +107,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size readAndWriteToStream(data::stream::OutputStream& stream, data::v_io_size count);
+  data::v_io_size readAndWriteToStream(data::stream::OutputStream* stream, data::v_io_size count);
 
   /**
    * call stream.read() and then write bytes read to buffer
@@ -115,14 +115,14 @@ public:
    * @param count
    * @return
    */
-  data::v_io_size readFromStreamAndWrite(data::stream::InputStream& stream, data::v_io_size count);
+  data::v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, data::v_io_size count);
 
   /**
    * flush all availableToRead bytes to stream
    * @param stream
    * @return
    */
-  data::v_io_size flushToStream(data::stream::OutputStream& stream);
+  data::v_io_size flushToStream(data::stream::OutputStream* stream);
 
   /**
    * flush all availableToRead bytes to stream in asynchronous manner

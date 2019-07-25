@@ -40,6 +40,7 @@ ChunkedBuffer::ChunkedBuffer()
   , m_chunkPos(0)
   , m_firstEntry(nullptr)
   , m_lastEntry(nullptr)
+  , m_ioMode(IOMode::NON_BLOCKING)
 {}
 
 ChunkedBuffer::~ChunkedBuffer() {
@@ -208,18 +209,18 @@ oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos,
   return str;
 }
 
-bool ChunkedBuffer::flushToStream(const std::shared_ptr<OutputStream>& stream){
+bool ChunkedBuffer::flushToStream(OutputStream* stream){
   data::v_io_size pos = m_size;
   auto curr = m_firstEntry;
   while (pos > 0) {
     if(pos > CHUNK_ENTRY_SIZE) {
-      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, CHUNK_ENTRY_SIZE);
+      auto res = data::stream::writeExactSizeData(stream, curr->chunk, CHUNK_ENTRY_SIZE);
       if(res != CHUNK_ENTRY_SIZE) {
         return false;
       }
       pos -= res;
     } else {
-      auto res = data::stream::writeExactSizeData(stream.get(), curr->chunk, pos);
+      auto res = data::stream::writeExactSizeData(stream, curr->chunk, pos);
       if(res != pos) {
         return false;
       }
@@ -238,9 +239,8 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
     std::shared_ptr<OutputStream> m_stream;
     ChunkEntry* m_currEntry;
     data::v_io_size m_bytesLeft;
-    const void* m_currData;
-    data::v_io_size m_currDataSize;
     Action m_nextAction;
+    data::stream::AsyncInlineWriteData m_currData;
   public:
     
     FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
@@ -249,8 +249,6 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
       , m_stream(stream)
       , m_currEntry(chunkedBuffer->m_firstEntry)
       , m_bytesLeft(chunkedBuffer->m_size)
-      , m_currData(nullptr)
-      , m_currDataSize(0)
       , m_nextAction(Action::createActionByType(Action::TYPE_FINISH))
     {}
     
@@ -261,25 +259,23 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
       }
       
       if(m_bytesLeft > CHUNK_ENTRY_SIZE) {
-        m_currData = m_currEntry->chunk;
-        m_currDataSize = CHUNK_ENTRY_SIZE;
+        m_currData.set(m_currEntry->chunk, CHUNK_ENTRY_SIZE);
         m_nextAction = yieldTo(&FlushCoroutine::act);
         m_currEntry = m_currEntry->next;
-        m_bytesLeft -= m_currDataSize;
+        m_bytesLeft -= m_currData.bytesLeft;
         return yieldTo(&FlushCoroutine::writeCurrData);
       } else {
-        m_currData = m_currEntry->chunk;
-        m_currDataSize = m_bytesLeft;
+        m_currData.set(m_currEntry->chunk, m_bytesLeft);
         m_nextAction = yieldTo(&FlushCoroutine::act);
         m_currEntry = m_currEntry->next;
-        m_bytesLeft -= m_currDataSize;
+        m_bytesLeft -= m_currData.bytesLeft;
         return yieldTo(&FlushCoroutine::writeCurrData);
       }
       
     }
     
     Action writeCurrData() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, m_currDataSize, Action::clone(m_nextAction));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, Action::clone(m_nextAction));
     }
     
   };

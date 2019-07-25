@@ -27,7 +27,6 @@
 
 #include "./Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
@@ -60,9 +59,9 @@ public:
 
   /**
    * Write body data to stream.
-   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(const std::shared_ptr<OutputStream>& stream) noexcept override;
+  void writeToStream(OutputStream* stream) noexcept override;
   
 public:
 
@@ -73,8 +72,7 @@ public:
   private:
     std::shared_ptr<BufferBody> m_body;
     std::shared_ptr<OutputStream> m_stream;
-    const void* m_currData;
-    oatpp::data::v_io_size m_currDataSize;
+    oatpp::data::stream::AsyncInlineWriteData m_inlineData;
   public:
 
     /**

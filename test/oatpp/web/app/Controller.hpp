@@ -26,6 +26,12 @@
 #define oatpp_test_web_app_Controller_hpp
 
 #include "./DTOs.hpp"
+
+#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
+
+#include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
+#include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
+
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
@@ -97,6 +103,14 @@ public:
     return createDtoResponse(Status::CODE_200, dto);
   }
 
+  ENDPOINT("POST", "body-dto", postBodyDto,
+           BODY_DTO(TestDto::ObjectWrapper, body)) {
+    //OATPP_LOGV(TAG, "POST body %s", body->c_str());
+    auto dto = TestDto::createShared();
+    dto->testValue = body->testValue;
+    return createDtoResponse(Status::CODE_200, dto);
+  }
+
   ENDPOINT("POST", "echo", echo,
            BODY_STRING(String, body)) {
     //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize());
@@ -105,11 +119,63 @@ public:
 
   ENDPOINT("GET", "header-value-set", headerValueSet,
            HEADER(String, valueSet, "X-VALUE-SET")) {
-    auto set = oatpp::web::protocol::http::Parser::parseHeaderValueSet(valueSet, ',');
-    OATPP_ASSERT_HTTP(set.find("VALUE_1") != set.end(), Status::CODE_400, "No header 'VALUE_1' in value set");
-    OATPP_ASSERT_HTTP(set.find("VALUE_2") != set.end(), Status::CODE_400, "No header 'VALUE_2' in value set");
-    OATPP_ASSERT_HTTP(set.find("VALUE_3") != set.end(), Status::CODE_400, "No header 'VALUE_3' in value set");
+
+    oatpp::web::protocol::http::HeaderValueData valueData;
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, valueSet, ',');
+
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_1") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_1' in value set");
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_2") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_2' in value set");
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_3") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_3' in value set");
     return createResponse(Status::CODE_200, "");
+  }
+
+  class ReadCallback : public oatpp::data::stream::ReadCallback {
+  private:
+    oatpp::String m_text;
+    v_int32 m_counter;
+    v_int32 m_iterations;
+  public:
+
+    ReadCallback(const oatpp::String& text, v_int32 iterations)
+      : m_text(text)
+      , m_counter(0)
+      , m_iterations(iterations)
+    {}
+
+    data::v_io_size read(void *buffer, data::v_io_size count) override {
+      if(m_counter < m_iterations) {
+        std::memcpy(buffer, m_text->getData(), m_text->getSize());
+        m_counter ++;
+        return m_text->getSize();
+      }
+      return 0;
+    }
+
+  };
+
+  ENDPOINT("GET", "chunked/{text-value}/{num-iterations}", chunked,
+           PATH(String, text, "text-value"),
+           PATH(Int32, numIterations, "num-iterations"),
+           REQUEST(std::shared_ptr<IncomingRequest>, request))
+  {
+    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
+      (std::make_shared<ReadCallback>(text, numIterations->getValue()), nullptr, 1024);
+    return OutgoingResponse::createShared(Status::CODE_200, body);
+  }
+
+  ENDPOINT("POST", "test/multipart/{chunk-size}", multipartTest,
+           PATH(Int32, chunkSize, "chunk-size"),
+           REQUEST(std::shared_ptr<IncomingRequest>, request))
+  {
+
+    auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
+    oatpp::web::mime::multipart::InMemoryReader multipartReader(multipart.get());
+    request->transferBody(&multipartReader);
+
+    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());
+
+    return OutgoingResponse::createShared(Status::CODE_200, responseBody);
+
   }
 
 #include OATPP_CODEGEN_END(ApiController)

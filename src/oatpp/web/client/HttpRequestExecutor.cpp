@@ -113,10 +113,10 @@ HttpRequestExecutor::execute(const String& method,
   request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
   
   auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
-  
-  auto upStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, ioBuffer);
-  request->send(upStream);
-  upStream->flush();
+
+  oatpp::data::stream::OutputStreamBufferedProxy upStream(connection, ioBuffer, (p_char8)ioBuffer->getData(), ioBuffer->getSize());
+  request->send(&upStream);
+  upStream.flush();
   
   oatpp::web::protocol::http::incoming::ResponseHeadersReader headerReader(ioBuffer->getData(), ioBuffer->getSize(), 4096);
   oatpp::web::protocol::http::HttpError::Info error;

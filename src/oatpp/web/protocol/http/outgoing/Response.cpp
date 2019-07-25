@@ -76,7 +76,7 @@ std::shared_ptr<const Response::ConnectionHandler::ParameterMap> Response::getCo
   return m_connectionUpgradeParameters;
 }
 
-void Response::send(const std::shared_ptr<data::stream::OutputStream>& stream) {
+void Response::send(data::stream::OutputStream* stream) {
   
   if(m_body){
     m_body->declareHeaders(m_headers);
@@ -138,15 +138,8 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::s
       m_buffer->write(" ", 1);
       m_buffer->OutputStream::write(m_response->m_status.description);
       m_buffer->write("\r\n", 2);
-      
-      auto it = m_response->m_headers.begin();
-      while(it != m_response->m_headers.end()) {
-        m_buffer->write(it->first.getData(), it->first.getSize());
-        m_buffer->write(": ", 2);
-        m_buffer->write(it->second.getData(), it->second.getSize());
-        m_buffer->write("\r\n", 2);
-        it ++;
-      }
+
+      http::Utils::writeHeaders(m_response->m_headers, m_buffer.get());
       
       m_buffer->write("\r\n", 2);
       

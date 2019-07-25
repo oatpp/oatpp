@@ -31,8 +31,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                          oatpp::data::stream::OutputStream* bufferStream,
                                                          Result& result) {
-  
-  v_word32 sectionEnd = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
+
   v_word32 accumulator = 0;
   v_int32 progress = 0;
   data::v_io_size res;
@@ -53,7 +52,7 @@ data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<o
       for(v_int32 i = 0; i < res; i ++) {
         accumulator <<= 8;
         accumulator |= m_buffer[i];
-        if(accumulator == sectionEnd) {
+        if(accumulator == SECTION_END) {
           result.bufferPosStart = i + 1;
           result.bufferPosEnd = (v_int32) res;
           return res;

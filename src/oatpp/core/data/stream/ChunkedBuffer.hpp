@@ -214,7 +214,7 @@ public:
    * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
    * @return - `true` if no errors occured. **will be refactored to return actual amount of bytes flushed**.
    */
-  bool flushToStream(const std::shared_ptr<OutputStream>& stream);
+  bool flushToStream(OutputStream* stream);
 
   /**
    * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream; in asynchronous manner.

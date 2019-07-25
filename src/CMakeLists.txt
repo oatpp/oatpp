@@ -27,8 +27,6 @@ add_library(oatpp
         oatpp/core/async/Processor.hpp
         oatpp/core/async/worker/Worker.cpp
         oatpp/core/async/worker/Worker.hpp
-        oatpp/core/async/worker/IOWorker.cpp
-        oatpp/core/async/worker/IOWorker.hpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
@@ -80,10 +78,10 @@ add_library(oatpp
         oatpp/core/data/mapping/type/Type.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
+        oatpp/core/data/stream/BufferInputStream.cpp
+        oatpp/core/data/stream/BufferInputStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
-        oatpp/core/data/stream/Delegate.cpp
-        oatpp/core/data/stream/Delegate.hpp
         oatpp/core/data/stream/Stream.cpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
@@ -141,6 +139,14 @@ add_library(oatpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp
         oatpp/web/client/RequestExecutor.hpp
+        oatpp/web/mime/multipart/InMemoryReader.cpp
+        oatpp/web/mime/multipart/InMemoryReader.hpp
+        oatpp/web/mime/multipart/Multipart.cpp
+        oatpp/web/mime/multipart/Multipart.hpp
+        oatpp/web/mime/multipart/Part.cpp
+        oatpp/web/mime/multipart/Part.hpp
+        oatpp/web/mime/multipart/StatefulParser.cpp
+        oatpp/web/mime/multipart/StatefulParser.hpp
         oatpp/web/protocol/CommunicationError.cpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp
@@ -161,12 +167,16 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/Body.hpp
         oatpp/web/protocol/http/outgoing/BufferBody.cpp
         oatpp/web/protocol/http/outgoing/BufferBody.hpp
+        oatpp/web/protocol/http/outgoing/ChunkedBody.cpp
+        oatpp/web/protocol/http/outgoing/ChunkedBody.hpp
         oatpp/web/protocol/http/outgoing/ChunkedBufferBody.cpp
         oatpp/web/protocol/http/outgoing/ChunkedBufferBody.hpp
         oatpp/web/protocol/http/outgoing/CommunicationUtils.cpp
         oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp
         oatpp/web/protocol/http/outgoing/DtoBody.cpp
         oatpp/web/protocol/http/outgoing/DtoBody.hpp
+        oatpp/web/protocol/http/outgoing/MultipartBody.cpp
+        oatpp/web/protocol/http/outgoing/MultipartBody.hpp
         oatpp/web/protocol/http/outgoing/Request.cpp
         oatpp/web/protocol/http/outgoing/Request.hpp
         oatpp/web/protocol/http/outgoing/Response.cpp
