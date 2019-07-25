@@ -67,8 +67,9 @@ data::v_io_size InMemoryReader::write(const void *data, data::v_io_size count) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // AsyncInMemoryReader
 
-AsyncInMemoryReader::AsyncInMemoryReader(Multipart* multipart)
-  : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart))
+AsyncInMemoryReader::AsyncInMemoryReader(const std::shared_ptr<Multipart>& multipart)
+  : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart.get()))
+  , m_multipart(multipart)
 {}
 
 oatpp::async::Action AsyncInMemoryReader::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,

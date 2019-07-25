@@ -141,7 +141,7 @@ oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(
 
     Action act() override {
 
-      if(m_this->m_state == STATE_FINISHED) {
+      if(m_inlineData->bytesLeft == 0 || m_this->m_state == STATE_FINISHED) {
         return finish();
       }
 
@@ -296,10 +296,10 @@ data::v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& mul
   return res;
 }
 
-MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart)
+MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, data::v_io_size chunkBufferSize)
   : ChunkedBody(std::make_shared<MultipartReadCallback>(multipart),
                 std::make_shared<AsyncMultipartReadCallback>(multipart),
-                4096)
+                chunkBufferSize)
   , m_multipart(multipart)
 {}
 

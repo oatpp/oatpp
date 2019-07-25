@@ -50,6 +50,9 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
+typedef oatpp::web::mime::multipart::Multipart Multipart;
+typedef oatpp::web::protocol::http::outgoing::MultipartBody MultipartBody;
+
 class TestComponent {
 private:
   v_int32 m_port;
@@ -107,6 +110,24 @@ public:
   }());
 
 };
+
+std::shared_ptr<Multipart> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
+
+  auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>("0--qwerty1234--0");
+
+  for(auto& pair : map) {
+
+    oatpp::web::mime::multipart::Headers partHeaders;
+    auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
+    multipart->addPart(part);
+    part->putHeader("Content-Disposition", "form-data; name=\"" + pair.first + "\"");
+    part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(pair.second));
+
+  }
+
+  return multipart;
+
+}
 
 }
   
@@ -217,6 +238,34 @@ void FullTest::onRun() {
         auto returnedData = response->readBodyToString();
         OATPP_ASSERT(returnedData);
         OATPP_ASSERT(returnedData == data);
+      }
+
+      { // Multipart body
+
+        std::unordered_map<oatpp::String, oatpp::String> map;
+        map["value1"] = "Hello";
+        map["value2"] = "World";
+        auto multipart = createMultipart(map);
+
+        auto body = std::make_shared<MultipartBody>(multipart, i + 1);
+
+        auto response = client->multipartTest(i + 1, body);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+
+        multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(response->getHeaders());
+        oatpp::web::mime::multipart::InMemoryReader multipartReader(multipart.get());
+        response->transferBody(&multipartReader);
+
+        OATPP_ASSERT(multipart->getAllParts().size() == 2);
+        auto part1 = multipart->getNamedPart("value1");
+        auto part2 = multipart->getNamedPart("value2");
+
+        OATPP_ASSERT(part1);
+        OATPP_ASSERT(part2);
+
+        OATPP_ASSERT(part1->getInMemoryData() == "Hello");
+        OATPP_ASSERT(part2->getInMemoryData() == "World");
+
       }
 
       if((i + 1) % iterationsStep == 0) {

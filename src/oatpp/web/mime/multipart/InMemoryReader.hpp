@@ -79,13 +79,14 @@ public:
 class AsyncInMemoryReader : public oatpp::data::stream::AsyncWriteCallback {
 private:
   StatefulParser m_parser;
+  std::shared_ptr<Multipart> m_multipart;
 public:
 
   /**
    * Constructor.
    * @param multipart - Multipart object to save read data to.
    */
-  AsyncInMemoryReader(Multipart* multipart);
+  AsyncInMemoryReader(const std::shared_ptr<Multipart>& multipart);
 
   oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                         oatpp::data::stream::AsyncInlineWriteData& inlineData,

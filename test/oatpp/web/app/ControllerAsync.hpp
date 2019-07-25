@@ -27,6 +27,8 @@
 
 #include "./DTOs.hpp"
 
+#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
+
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
@@ -169,35 +171,28 @@ public:
 
   };
 
-  ENDPOINT_ASYNC("GET", "test/multipart", MultipartGetTest) {
+  ENDPOINT_ASYNC("POST", "test/multipart/{chunk-size}", MultipartTest) {
 
-    ENDPOINT_ASYNC_INIT(MultipartGetTest)
+    ENDPOINT_ASYNC_INIT(MultipartTest)
+
+    v_int32 m_chunkSize;
+    std::shared_ptr<oatpp::web::mime::multipart::Multipart> m_multipart;
 
     Action act() override {
 
-      auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>("0--qwerty1234--0");
+      m_chunkSize = oatpp::utils::conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
 
-      {
-        oatpp::web::mime::multipart::Headers partHeaders;
-        auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
-        multipart->addPart(part);
-        part->putHeader("Content-Disposition", "form-data; name=\"part1\"");
-//        oatpp::String data = "";
-//        part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(data));
-      }
+      m_multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
+      auto multipartReader = std::make_shared<oatpp::web::mime::multipart::AsyncInMemoryReader>(m_multipart);
 
-      {
-        oatpp::web::mime::multipart::Headers partHeaders;
-        auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
-        multipart->addPart(part);
-        part->putHeader("Content-Disposition", "form-data; filename=\"file2.txt\"");
-        oatpp::String data = "World";
-        part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(data));
-      }
+      return request->transferBodyAsync(multipartReader).next(yieldTo(&MultipartTest::respond));
 
-      auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart);
+    }
 
-      return _return(OutgoingResponse::createShared(Status::CODE_200, body));
+    Action respond() {
+
+      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart, m_chunkSize);
+      return _return(OutgoingResponse::createShared(Status::CODE_200, responseBody));
 
     }
 

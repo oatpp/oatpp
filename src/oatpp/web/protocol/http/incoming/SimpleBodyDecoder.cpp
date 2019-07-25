@@ -119,7 +119,7 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     const v_int32 MAX_LINE_SIZE = 8;
   private:
     std::shared_ptr<oatpp::data::stream::InputStream> m_fromStream;
-    const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& m_writeCallback;
+    std::shared_ptr<oatpp::data::stream::AsyncWriteCallback> m_writeCallback;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer = oatpp::data::buffer::IOBuffer::createShared();
     v_int32 m_currLineLength;
     v_char8 m_lineChar;

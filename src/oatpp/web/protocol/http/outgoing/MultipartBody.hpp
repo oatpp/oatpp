@@ -122,8 +122,13 @@ public:
    * Constructor.
    * @param multipart - multipart object.
    */
-  MultipartBody(const std::shared_ptr<Multipart>& multipart);
 
+  /**
+   * Constructor.
+   * @param multipart - multipart object.
+   * @param chunkBufferSize - buffer used for chunks in the `Transfer-Encoding: chunked` body.
+   */
+  MultipartBody(const std::shared_ptr<Multipart>& multipart, data::v_io_size chunkBufferSize = 4096);
 
   /**
    * Declare `Transfer-Encoding: chunked`, `Content-Type: multipart/<type>` header.

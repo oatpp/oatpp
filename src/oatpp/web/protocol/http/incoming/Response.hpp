@@ -114,6 +114,13 @@ public:
   std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const;
 
   /**
+   * Transfer body. <br>
+   * Read body chunk by chunk and pass chunks to the `writeCallback`.
+   * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
+   */
+  void transferBody(data::stream::WriteCallback* writeCallback) const;
+
+  /**
    * Decode and transfer body to toStream.
    * Use case example - stream huge body directly to file using relatively small buffer.
    * @param toStream - pointer to &id:oatpp::data::stream::OutputStream;.
@@ -138,6 +145,15 @@ public:
   }
   
   // Async
+
+  /**
+   * Transfer body in Asynchronous manner. <br>
+   * Read body chunk by chunk and pass chunks to the `writeCallback`.
+   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::AsyncWriteCallback;.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback) const;
+
 
   /**
    * Same as &l:Response::readBodyToDto (); but Async.
