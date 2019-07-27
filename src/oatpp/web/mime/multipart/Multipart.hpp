@@ -65,6 +65,14 @@ public:
   virtual ~Multipart() = default;
 
   /**
+   * Create Multipart object with random boundary. <br>
+   * It will generate random vector of size `boundarySize` in bytes encoded in base64.
+   * @param boundarySize - size of the random vecrot in bytes.
+   * @return - `std::shared_ptr` to Multipart.
+   */
+  static std::shared_ptr<Multipart> createSharedWithRandomBoundary(v_int32 boundarySize = 15);
+
+  /**
    * Get multipart boundary value.
    * @return - multipart boundary value.
    */
@@ -97,6 +105,13 @@ public:
   v_int32 count();
 
 };
+
+/**
+ * Generate random boundary for Multipart object. Base64 encoded.
+ * @param boundarySize - size in bytes of random vector.
+ * @return - &id:oatpp::String;.
+ */
+oatpp::String generateRandomBoundary(v_int32 boundarySize = 15);
 
 }}}}
 

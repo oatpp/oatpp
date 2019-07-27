@@ -118,7 +118,7 @@ public:
 
 std::shared_ptr<Multipart> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
 
-  auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>("0--qwerty1234--0");
+  auto multipart = oatpp::web::mime::multipart::Multipart::createSharedWithRandomBoundary();
 
   for(auto& pair : map) {
 

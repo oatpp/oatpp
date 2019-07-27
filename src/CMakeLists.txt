@@ -95,6 +95,8 @@ add_library(oatpp
         oatpp/core/parser/ParsingError.hpp
         oatpp/core/utils/ConversionUtils.cpp
         oatpp/core/utils/ConversionUtils.hpp
+        oatpp/core/utils/Random.cpp
+        oatpp/core/utils/Random.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
