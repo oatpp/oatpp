@@ -25,6 +25,8 @@
 #include "Multipart.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/encoding/Base64.hpp"
+#include "oatpp/core/utils/Random.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -52,6 +54,11 @@ Multipart::Multipart(const Headers& requestHeaders){
     throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::Multipart()]: Error. 'Content-Type' header is missing.");
   }
 
+}
+
+std::shared_ptr<Multipart> Multipart::createSharedWithRandomBoundary(v_int32 boundarySize) {
+  auto boundary = generateRandomBoundary(boundarySize);
+  return std::make_shared<Multipart>(boundary);
 }
 
 oatpp::String Multipart::getBoundary() {
@@ -89,6 +96,15 @@ const std::list<std::shared_ptr<Part>>& Multipart::getAllParts() {
 
 v_int32 Multipart::count() {
   return m_parts.size();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
+oatpp::String generateRandomBoundary(v_int32 boundarySize) {
+  v_char8 buffer[boundarySize];
+  utils::random::Random::randomBytes(buffer, boundarySize);
+  return encoding::Base64::encode(buffer, boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
 }
 
 }}}}
