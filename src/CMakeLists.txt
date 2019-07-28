@@ -143,12 +143,12 @@ add_library(oatpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp
         oatpp/web/client/RequestExecutor.hpp
-        oatpp/web/mime/multipart/InMemoryReader.cpp
-        oatpp/web/mime/multipart/InMemoryReader.hpp
         oatpp/web/mime/multipart/Multipart.cpp
         oatpp/web/mime/multipart/Multipart.hpp
         oatpp/web/mime/multipart/Part.cpp
         oatpp/web/mime/multipart/Part.hpp
+        oatpp/web/mime/multipart/Reader.cpp
+        oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
         oatpp/web/mime/multipart/StatefulParser.hpp
         oatpp/web/protocol/CommunicationError.cpp

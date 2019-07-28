@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include "InMemoryReader.hpp"
+#include "Reader.hpp"
 
 #include "oatpp/core/data/stream/BufferInputStream.hpp"
 
@@ -55,24 +55,24 @@ void InMemoryParser::onPartData(p_char8 data, oatpp::data::v_io_size size) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // InMemoryReader
 
-InMemoryReader::InMemoryReader(Multipart* multipart)
+Reader::Reader(Multipart* multipart)
   : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart))
 {}
 
-data::v_io_size InMemoryReader::write(const void *data, data::v_io_size count) {
+data::v_io_size Reader::write(const void *data, data::v_io_size count) {
   m_parser.parseNext((p_char8) data, count);
   return count;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AsyncInMemoryReader
+// AsyncReader
 
-AsyncInMemoryReader::AsyncInMemoryReader(const std::shared_ptr<Multipart>& multipart)
+AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
   : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart.get()))
   , m_multipart(multipart)
 {}
 
-oatpp::async::Action AsyncInMemoryReader::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
+oatpp::async::Action AsyncReader::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                                            oatpp::data::stream::AsyncInlineWriteData& inlineData,
                                                            oatpp::async::Action&& nextAction)
 {

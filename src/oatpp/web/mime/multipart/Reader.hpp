@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mime_multipart_InMemoryReader_hpp
-#define oatpp_web_mime_multipart_InMemoryReader_hpp
+#ifndef oatpp_web_mime_multipart_Reader_hpp
+#define oatpp_web_mime_multipart_Reader_hpp
 
 #include "Multipart.hpp"
 #include "StatefulParser.hpp"
@@ -57,7 +57,7 @@ public:
  * In memory Multipart reader.
  * Extends - &id:oatpp::data::stream::WriteCallback;.
  */
-class InMemoryReader : public oatpp::data::stream::WriteCallback {
+class Reader : public oatpp::data::stream::WriteCallback {
 private:
   StatefulParser m_parser;
 public:
@@ -66,7 +66,7 @@ public:
    * Constructor.
    * @param multipart - Multipart object to save read data to.
    */
-  InMemoryReader(Multipart* multipart);
+  Reader(Multipart* multipart);
 
   data::v_io_size write(const void *data, data::v_io_size count) override;
 
@@ -76,7 +76,7 @@ public:
  * In memory Multipart reader.
  * Extends - &id:oatpp::data::stream::AsyncWriteCallback;.
  */
-class AsyncInMemoryReader : public oatpp::data::stream::AsyncWriteCallback {
+class AsyncReader : public oatpp::data::stream::AsyncWriteCallback {
 private:
   StatefulParser m_parser;
   std::shared_ptr<Multipart> m_multipart;
@@ -86,7 +86,7 @@ public:
    * Constructor.
    * @param multipart - Multipart object to save read data to.
    */
-  AsyncInMemoryReader(const std::shared_ptr<Multipart>& multipart);
+  AsyncReader(const std::shared_ptr<Multipart>& multipart);
 
   oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                         oatpp::data::stream::AsyncInlineWriteData& inlineData,
@@ -95,4 +95,4 @@ public:
 
 }}}}
 
-#endif //oatpp_web_mime_multipart_InMemoryReader_hpp
+#endif // oatpp_web_mime_multipart_Reader_hpp

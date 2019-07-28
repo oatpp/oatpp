@@ -24,7 +24,7 @@
 
 #include "StatefulParserTest.hpp"
 
-#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
+#include "oatpp/web/mime/multipart/Reader.hpp"
 
 #include "oatpp/core/data/stream/BufferInputStream.hpp"
 
