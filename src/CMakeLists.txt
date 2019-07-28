@@ -82,6 +82,8 @@ add_library(oatpp
         oatpp/core/data/stream/BufferInputStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
+        oatpp/core/data/stream/FileStream.cpp
+        oatpp/core/data/stream/FileStream.hpp
         oatpp/core/data/stream/Stream.cpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
