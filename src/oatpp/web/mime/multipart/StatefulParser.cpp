@@ -100,7 +100,9 @@ StatefulParser::ListenerCall::operator bool() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // StatefulParser
 
-StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener)
+StatefulParser::StatefulParser(const oatpp::String& boundary,
+                               const std::shared_ptr<Listener>& listener,
+                               const std::shared_ptr<AsyncListener>& asyncListener)
   : m_state(STATE_BOUNDARY)
   , m_currPartIndex(0)
   , m_currBoundaryCharIndex(0)
@@ -112,6 +114,7 @@ StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_
   , m_nextBoundarySample("\r\n--" + boundary)
   , m_maxPartHeadersSize(4092)
   , m_listener(listener)
+  , m_asyncListener(asyncListener)
 {}
 
 void StatefulParser::parseHeaders(Headers& headers) {
@@ -341,22 +344,6 @@ v_int32 StatefulParser::parseNext(p_char8 data, v_int32 size) {
 
 }
 
-async::CoroutineStarter StatefulParser::parseNext_BoundaryAsync(data::stream::AsyncInlineWriteData* inlineData) {
-  return nullptr;
-}
-
-async::CoroutineStarter StatefulParser::parseNext_AfterBoundaryAsync(data::stream::AsyncInlineWriteData* inlineData) {
-  return nullptr;
-}
-
-async::CoroutineStarter StatefulParser::parseNext_HeadersAsync(data::stream::AsyncInlineWriteData* inlineData) {
-  return nullptr;
-}
-
-async::CoroutineStarter StatefulParser::parseNext_DataAsync(data::stream::AsyncInlineWriteData* inlineData) {
-  return nullptr;
-}
-
 async::Action StatefulParser::parseNextAsyncInline(async::AbstractCoroutine* coroutine,
                                                    data::stream::AsyncInlineWriteData& inlineData,
                                                    async::Action&& nextAction)
@@ -377,21 +364,28 @@ async::Action StatefulParser::parseNextAsyncInline(async::AbstractCoroutine* cor
 
       if(m_inlineData->bytesLeft > 0) {
 
+        ListenerCall listenerCall;
+
         switch (m_this->m_state) {
           case STATE_BOUNDARY:
-            return m_this->parseNext_BoundaryAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+            listenerCall = m_this->parseNext_Boundary(*m_inlineData);
+            break;
           case STATE_AFTER_BOUNDARY:
-            return m_this->parseNext_AfterBoundaryAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+            m_this->parseNext_AfterBoundary(*m_inlineData);
+            break;
           case STATE_HEADERS:
-            return m_this->parseNext_HeadersAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+            listenerCall = m_this->parseNext_Headers(*m_inlineData);
+            break;
           case STATE_DATA:
-            return m_this->parseNext_DataAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+            listenerCall = m_this->parseNext_Data(*m_inlineData);
+            break;
           case STATE_DONE:
             return finish();
           default:
-            throw std::runtime_error(
-              "[oatpp::web::mime::multipart::StatefulParser::parseNext()]: Error. Invalid state.");
+            throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext()]: Error. Invalid state.");
         }
+
+        return listenerCall.callAsync(m_this).next(yieldTo(&ParseCoroutine::act));
 
       }
 

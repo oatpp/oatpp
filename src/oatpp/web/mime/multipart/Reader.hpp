@@ -51,6 +51,30 @@ public:
   void onPartHeaders(const Headers& partHeaders) override;
 
   void onPartData(p_char8 data, oatpp::data::v_io_size size) override;
+
+};
+
+/**
+ * Async In memory multipart parser. <br>
+ * Extends - &id:oatpp::web::mime::multipart::StatefulParser::AsyncListener;.
+ */
+class AsyncInMemoryParser : public StatefulParser::AsyncListener {
+private:
+  Multipart* m_multipart;
+  std::shared_ptr<Part> m_currPart;
+  data::stream::ChunkedBuffer m_buffer;
+public:
+
+  /**
+   * Constructor.
+   * @param multipart - pointer to &id:oatpp::web::mime::multipart::Multipart;.
+   */
+  AsyncInMemoryParser(Multipart* multipart);
+
+  async::CoroutineStarter onPartHeadersAsync(const Headers& partHeaders) override;
+
+  async::CoroutineStarter onPartDataAsync(p_char8 data, oatpp::data::v_io_size size) override;
+
 };
 
 /**

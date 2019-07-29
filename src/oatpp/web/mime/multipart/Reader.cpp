@@ -53,10 +53,36 @@ void InMemoryParser::onPartData(p_char8 data, oatpp::data::v_io_size size) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncInMemoryParser
+
+AsyncInMemoryParser::AsyncInMemoryParser(Multipart* multipart)
+  : m_multipart(multipart)
+{}
+
+async::CoroutineStarter AsyncInMemoryParser::onPartHeadersAsync(const Headers& partHeaders) {
+  m_currPart = std::make_shared<Part>(partHeaders);
+  return nullptr;
+}
+
+async::CoroutineStarter AsyncInMemoryParser::onPartDataAsync(p_char8 data, oatpp::data::v_io_size size) {
+  if(size > 0) {
+    m_buffer.write(data, size);
+  } else {
+    auto fullData = m_buffer.toString();
+    m_buffer.clear();
+    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->getData(), fullData->getSize());
+    m_currPart->setDataInfo(stream, fullData, fullData->getSize());
+    m_multipart->addPart(m_currPart);
+    m_currPart = nullptr;
+  }
+  return nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // InMemoryReader
 
 Reader::Reader(Multipart* multipart)
-  : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart))
+  : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart), nullptr)
 {}
 
 data::v_io_size Reader::write(const void *data, data::v_io_size count) {
@@ -68,17 +94,15 @@ data::v_io_size Reader::write(const void *data, data::v_io_size count) {
 // AsyncReader
 
 AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
-  : m_parser(multipart->getBoundary(), std::make_shared<InMemoryParser>(multipart.get()))
+  : m_parser(multipart->getBoundary(), nullptr, std::make_shared<AsyncInMemoryParser>(multipart.get()))
   , m_multipart(multipart)
 {}
 
 oatpp::async::Action AsyncReader::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                           oatpp::data::stream::AsyncInlineWriteData& inlineData,
-                                                           oatpp::async::Action&& nextAction)
+                                                   oatpp::data::stream::AsyncInlineWriteData& inlineData,
+                                                   oatpp::async::Action&& nextAction)
 {
-  m_parser.parseNext((p_char8) inlineData.currBufferPtr, inlineData.bytesLeft);
-  inlineData.setEof();
-  return std::forward<async::Action>(nextAction);
+  return m_parser.parseNextAsyncInline(coroutine, inlineData, std::forward<async::Action>(nextAction));
 }
 
 }}}}

@@ -60,7 +60,7 @@ namespace {
                        v_int32 step)
   {
 
-    oatpp::web::mime::multipart::StatefulParser parser(boundary, listener);
+    oatpp::web::mime::multipart::StatefulParser parser(boundary, listener, nullptr);
 
     oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->getData(), text->getSize());
     v_char8 buffer[step];

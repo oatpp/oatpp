@@ -196,21 +196,17 @@ private:
   ListenerCall parseNext_Headers(data::stream::AsyncInlineWriteData& inlineData);
   ListenerCall parseNext_Data(data::stream::AsyncInlineWriteData& inlineData);
 
-private:
-
-  async::CoroutineStarter parseNext_BoundaryAsync(data::stream::AsyncInlineWriteData* inlineData);
-  async::CoroutineStarter parseNext_AfterBoundaryAsync(data::stream::AsyncInlineWriteData* inlineData);
-  async::CoroutineStarter parseNext_HeadersAsync(data::stream::AsyncInlineWriteData* inlineData);
-  async::CoroutineStarter parseNext_DataAsync(data::stream::AsyncInlineWriteData* inlineData);
-
 public:
 
   /**
    * Constructor.
    * @param boundary - value of multipart boundary.
    * @param listener - &l:StatefulParser::Listener;.
+   * @param asyncListener - &l:StatefulParser::AsyncListener;.
    */
-  StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener);
+  StatefulParser(const oatpp::String& boundary,
+                 const std::shared_ptr<Listener>& listener,
+                 const std::shared_ptr<AsyncListener>& asyncListener);
 
   /**
    * Parse next chunk of bytes.
