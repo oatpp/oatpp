@@ -27,7 +27,8 @@
 
 #include "./DTOs.hpp"
 
-#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
+#include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
+#include "oatpp/web/mime/multipart/Reader.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 
@@ -183,7 +184,9 @@ public:
       m_chunkSize = oatpp::utils::conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
 
       m_multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
-      auto multipartReader = std::make_shared<oatpp::web::mime::multipart::AsyncInMemoryReader>(m_multipart);
+      auto multipartReader = std::make_shared<oatpp::web::mime::multipart::AsyncReader>(m_multipart);
+
+      multipartReader->setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::AsyncInMemoryPartReader>(10));
 
       return request->transferBodyAsync(multipartReader).next(yieldTo(&MultipartTest::respond));
 

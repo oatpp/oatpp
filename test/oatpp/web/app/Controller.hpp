@@ -27,7 +27,8 @@
 
 #include "./DTOs.hpp"
 
-#include "oatpp/web/mime/multipart/InMemoryReader.hpp"
+#include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
+#include "oatpp/web/mime/multipart/Reader.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
@@ -169,7 +170,10 @@ public:
   {
 
     auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
-    oatpp::web::mime::multipart::InMemoryReader multipartReader(multipart.get());
+
+    oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
+    multipartReader.setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+
     request->transferBody(&multipartReader);
 
     auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());

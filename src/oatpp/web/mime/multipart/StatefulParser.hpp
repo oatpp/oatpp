@@ -89,6 +89,74 @@ public:
 
   };
 
+public:
+
+  /**
+   * Async Listener for parsed items.
+   */
+  class AsyncListener {
+  public:
+    /**
+     * Convenience typedef for headers map. Headers map key is case-insensitive.
+     * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+     */
+    typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+  public:
+
+    /**
+     * Default virtual Destructor.
+     */
+    virtual ~AsyncListener() = default;
+
+    /**
+     * Called on new part found in the stream.
+     * Always called before `onPartData` events.
+     * @param partHeaders - complete set of part headers.
+     */
+    virtual async::CoroutineStarter onPartHeadersAsync(const Headers& partHeaders) = 0;
+
+    /**
+     * Called on each new chunk of bytes parsed from the part body.
+     * When all data of message is read, readMessage is called again with size == 0 to
+     * indicate end of the part.
+     * @param data - pointer to data.
+     * @param size - size of the data in bytes.
+     */
+    virtual async::CoroutineStarter onPartDataAsync(p_char8 data, oatpp::data::v_io_size size) = 0;
+
+  };
+
+private:
+
+  class ListenerCall {
+  public:
+
+    static constexpr v_int32 CALL_NONE = 0;
+    static constexpr v_int32 CALL_ON_HEADERS = 1;
+    static constexpr v_int32 CALL_ON_DATA = 2;
+
+  public:
+
+    ListenerCall()
+      : callType(CALL_NONE)
+      , data(nullptr)
+      , size(0)
+    {}
+
+    v_int32 callType;
+    p_char8 data;
+    data::v_io_size size;
+
+    void setOnHeadersCall();
+    void setOnDataCall(p_char8 pData, data::v_io_size pSize);
+
+    void call(StatefulParser* parser);
+    async::CoroutineStarter callAsync(StatefulParser* parser);
+
+    explicit operator bool() const;
+
+  };
+
 private:
 
   v_int32 m_state;
@@ -115,18 +183,18 @@ private:
   v_int32 m_maxPartHeadersSize;
 
   std::shared_ptr<Listener> m_listener;
+  std::shared_ptr<AsyncListener> m_asyncListener;
 
 private:
 
-  void onPartHeaders(const Headers& partHeaders);
-  void onPartData(p_char8 data, v_int32 size);
+  void parseHeaders(Headers& headers);
 
 private:
 
-  v_int32 parseNext_Boundary(p_char8 data, v_int32 size);
-  v_int32 parseNext_AfterBoundary(p_char8 data, v_int32 size);
-  v_int32 parseNext_Headers(p_char8 data, v_int32 size);
-  v_int32 parseNext_Data(p_char8 data, v_int32 size);
+  ListenerCall parseNext_Boundary(data::stream::AsyncInlineWriteData& inlineData);
+  void         parseNext_AfterBoundary(data::stream::AsyncInlineWriteData& inlineData);
+  ListenerCall parseNext_Headers(data::stream::AsyncInlineWriteData& inlineData);
+  ListenerCall parseNext_Data(data::stream::AsyncInlineWriteData& inlineData);
 
 public:
 
@@ -134,8 +202,11 @@ public:
    * Constructor.
    * @param boundary - value of multipart boundary.
    * @param listener - &l:StatefulParser::Listener;.
+   * @param asyncListener - &l:StatefulParser::AsyncListener;.
    */
-  StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener);
+  StatefulParser(const oatpp::String& boundary,
+                 const std::shared_ptr<Listener>& listener,
+                 const std::shared_ptr<AsyncListener>& asyncListener);
 
   /**
    * Parse next chunk of bytes.
@@ -145,6 +216,17 @@ public:
    * returned value may be less than size given.
    */
   v_int32 parseNext(p_char8 data, v_int32 size);
+
+  /**
+   * Parse next chunk of bytes in Async-Inline manner.
+   * @param coroutine - caller coroutine.
+   * @param inlineData - data.
+   * @param nextAction - action on when done with current chunk of data.
+   * @return - &id:oatpp::async::Action;.
+   */
+  async::Action parseNextAsyncInline(async::AbstractCoroutine* coroutine,
+                                     data::stream::AsyncInlineWriteData& inlineData,
+                                     async::Action&& nextAction);
 
   /**
    * Check if parser done parsing data.
