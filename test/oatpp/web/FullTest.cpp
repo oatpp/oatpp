@@ -253,7 +253,11 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
 
         multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(response->getHeaders());
+
         oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
+        multipartReader.setPartReader("value1", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+        multipartReader.setPartReader("value2", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+
         response->transferBody(&multipartReader);
 
         OATPP_ASSERT(multipart->getAllParts().size() == 2);

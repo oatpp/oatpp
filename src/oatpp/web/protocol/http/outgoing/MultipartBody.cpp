@@ -42,7 +42,7 @@ data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, dat
   auto& part = *m_iterator;
   const auto& stream = part->getInputStream();
   if(!stream) {
-    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Error. Part has no input stream", m_state);
+    OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream", m_state);
     m_iterator ++;
     return 0;
   }
@@ -172,7 +172,7 @@ oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(
       auto& part = *m_this->m_iterator;
       const auto& stream = part->getInputStream();
       if(!stream) {
-        OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::AsyncMultipartReadCallback::readAsyncInline(){}]", "Error. Part has no input stream", m_this->m_state);
+        OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::AsyncMultipartReadCallback::readAsyncInline(){}]", "Warning. Part has no input stream", m_this->m_state);
         m_this->m_iterator ++;
         m_readResult = 0;
         return yieldTo(&ReadCoroutine::processReadResult);

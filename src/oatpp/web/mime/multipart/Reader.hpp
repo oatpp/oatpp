@@ -27,53 +27,144 @@
 
 #include "Multipart.hpp"
 #include "StatefulParser.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
+
+/**
+ * Abstract read handler of multipart parts.
+ */
+class PartReader {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~PartReader() = default;
+
+  /**
+   * Called when new part headers are parsed and part object is created.
+   * @param part
+   */
+  virtual void onNewPart(const std::shared_ptr<Part>& part) = 0;
+
+  /**
+   * Called on each new chunk of data is parsed for the multipart-part. <br>
+   * When all data is read, called again with `data == nullptr && size == 0` to indicate end of the part.
+   * @param part
+   * @param data - pointer to buffer containing chunk data.
+   * @param size - size of the buffer.
+   */
+  virtual void onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) = 0;
+
+};
+
+/**
+ * Abstract Async read handler of multipart parts.
+ */
+class AsyncPartReader {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~AsyncPartReader() = default;
+
+  /**
+   * Called when new part headers are parsed and part object is created.
+   * @param part
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter onNewPartAsync(const std::shared_ptr<Part>& part) = 0;
+
+  /**
+   * Called on each new chunk of data is parsed for the multipart-part. <br>
+   * When all data is read, called again with `data == nullptr && size == 0` to indicate end of the part.
+   * @param part
+   * @param data - pointer to buffer containing chunk data.
+   * @param size - size of the buffer.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) = 0;
+
+};
+
+class Reader; // FWD
+
+/**
+ * Map of part readers. `<part-name> --> <part-reader>`.
+ */
+typedef std::unordered_map<oatpp::String, std::shared_ptr<PartReader>> PartReadersMap;
 
 /**
  * In memory multipart parser. <br>
  * Extends - &id:oatpp::web::mime::multipart::StatefulParser::Listener;.
  */
-class InMemoryParser : public StatefulParser::Listener {
+class PartsParser : public StatefulParser::Listener {
+  friend Reader;
 private:
+  PartReadersMap m_readers;
+  std::shared_ptr<PartReader> m_defaultReader;
+  std::shared_ptr<PartReader> m_currReader;
   Multipart* m_multipart;
   std::shared_ptr<Part> m_currPart;
-  data::stream::ChunkedBuffer m_buffer;
 public:
 
   /**
    * Constructor.
    * @param multipart - pointer to &id:oatpp::web::mime::multipart::Multipart;.
    */
-  InMemoryParser(Multipart* multipart);
+  PartsParser(Multipart* multipart);
+
+  PartsParser(Multipart* multipart, const PartReadersMap& readersMap);
 
   void onPartHeaders(const Headers& partHeaders) override;
 
   void onPartData(p_char8 data, oatpp::data::v_io_size size) override;
 
+  void setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader);
+
+  void setDefaultPartReader(const std::shared_ptr<PartReader>& reader);
+
 };
+
+class AsyncReader; // FWD
+
+/**
+ * Map of async part readers. `<part-name> --> <part-reader>`.
+ */
+typedef std::unordered_map<oatpp::String, std::shared_ptr<AsyncPartReader>> AsyncPartReadersMap;
 
 /**
  * Async In memory multipart parser. <br>
  * Extends - &id:oatpp::web::mime::multipart::StatefulParser::AsyncListener;.
  */
-class AsyncInMemoryParser : public StatefulParser::AsyncListener {
+class AsyncPartsParser : public StatefulParser::AsyncListener {
+  friend AsyncReader;
 private:
+  AsyncPartReadersMap m_readers;
+  std::shared_ptr<AsyncPartReader> m_defaultReader;
+  std::shared_ptr<AsyncPartReader> m_currReader;
   Multipart* m_multipart;
   std::shared_ptr<Part> m_currPart;
-  data::stream::ChunkedBuffer m_buffer;
 public:
 
   /**
    * Constructor.
    * @param multipart - pointer to &id:oatpp::web::mime::multipart::Multipart;.
    */
-  AsyncInMemoryParser(Multipart* multipart);
+  AsyncPartsParser(Multipart* multipart);
+
+  AsyncPartsParser(Multipart* multipart, const AsyncPartReadersMap& readersMap);
 
   async::CoroutineStarter onPartHeadersAsync(const Headers& partHeaders) override;
 
   async::CoroutineStarter onPartDataAsync(p_char8 data, oatpp::data::v_io_size size) override;
+
+  void setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader);
+
+  void setDefaultPartReader(const std::shared_ptr<AsyncPartReader>& reader);
 
 };
 
@@ -83,6 +174,7 @@ public:
  */
 class Reader : public oatpp::data::stream::WriteCallback {
 private:
+  std::shared_ptr<PartsParser> m_partsParser;
   StatefulParser m_parser;
 public:
 
@@ -94,6 +186,21 @@ public:
 
   data::v_io_size write(const void *data, data::v_io_size count) override;
 
+  /**
+   * Set named part reader. <br>
+   * Part with the `name == partName` will be read using the specified `reader`.
+   * @param partName - name of the part to read.
+   * @param reader - reader to read part with.
+   */
+  void setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader);
+
+  /**
+   * Set default reader for parts. <br>
+   * `setPartReader` has precedence.
+   * @param reader
+   */
+  void setDefaultPartReader(const std::shared_ptr<PartReader>& reader);
+
 };
 
 /**
@@ -102,6 +209,7 @@ public:
  */
 class AsyncReader : public oatpp::data::stream::AsyncWriteCallback {
 private:
+  std::shared_ptr<AsyncPartsParser> m_partsParser;
   StatefulParser m_parser;
   std::shared_ptr<Multipart> m_multipart;
 public:
@@ -115,6 +223,22 @@ public:
   oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                         oatpp::data::stream::AsyncInlineWriteData& inlineData,
                                         oatpp::async::Action&& nextAction) override;
+
+  /**
+   * Set named part reader. <br>
+   * Part with the `name == partName` will be read using the specified `reader`.
+   * @param partName - name of the part to read.
+   * @param reader - reader to read part with.
+   */
+  void setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader);
+
+  /**
+   * Set default reader for parts. <br>
+   * `setPartReader` has precedence.
+   * @param reader
+   */
+  void setDefaultPartReader(const std::shared_ptr<AsyncPartReader>& reader);
+
 };
 
 }}}}
