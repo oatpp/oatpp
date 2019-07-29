@@ -32,6 +32,72 @@
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// StatefulParser::ListenerCall
+
+void StatefulParser::ListenerCall::setOnHeadersCall() {
+  callType = CALL_ON_HEADERS;
+  data = nullptr;
+  size = 0;
+}
+
+void StatefulParser::ListenerCall::setOnDataCall(p_char8 pData, data::v_io_size pSize) {
+  callType = CALL_ON_DATA;
+  data = pData;
+  size = pSize;
+}
+
+void StatefulParser::ListenerCall::call(StatefulParser* parser) {
+
+  if(parser->m_listener) {
+
+    switch(callType) {
+
+      case CALL_ON_HEADERS:
+        {
+          Headers headers;
+          parser->parseHeaders(headers);
+          parser->m_listener->onPartHeaders(headers);
+        }
+        break;
+
+      case CALL_ON_DATA:
+        parser->m_listener->onPartData(data, size);
+        break;
+
+    }
+
+  }
+
+}
+
+async::CoroutineStarter StatefulParser::ListenerCall::callAsync(StatefulParser* parser) {
+
+  if(parser->m_asyncListener) {
+
+    switch(callType) {
+
+      case CALL_ON_HEADERS: {
+        Headers headers;
+        parser->parseHeaders(headers);
+        return parser->m_asyncListener->onPartHeadersAsync(headers);
+      }
+
+      case CALL_ON_DATA:
+        return parser->m_asyncListener->onPartDataAsync(data, size);
+
+    }
+
+  }
+
+  return nullptr;
+
+}
+
+StatefulParser::ListenerCall::operator bool() const {
+  return callType != CALL_NONE;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // StatefulParser
 
 StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_ptr<Listener>& listener)
@@ -48,32 +114,25 @@ StatefulParser::StatefulParser(const oatpp::String& boundary, const std::shared_
   , m_listener(listener)
 {}
 
-void StatefulParser::onPartHeaders(const Headers& partHeaders) {
+void StatefulParser::parseHeaders(Headers& headers) {
 
   m_currPartIndex ++;
 
-  auto it = partHeaders.find("Content-Disposition");
-  if(it != partHeaders.end()) {
+  auto headersText = m_headersBuffer.toString();
+  m_headersBuffer.clear();
 
-    if(m_listener) {
-      m_listener->onPartHeaders(partHeaders);
-    }
+  protocol::http::Status status;
+  parser::Caret caret(headersText);
 
-  } else {
-    throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::onPartHeaders()]: Error. Missing 'Content-Disposition' header.");
-  }
+  protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
 
 }
 
-void StatefulParser::onPartData(p_char8 data, v_int32 size) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::stream::AsyncInlineWriteData& inlineData) {
 
-  if(m_listener) {
-    m_listener->onPartData(data, size);
-  }
-
-}
-
-v_int32 StatefulParser::parseNext_Boundary(p_char8 data, v_int32 size) {
+  ListenerCall result;
+  p_char8 data = (p_char8)inlineData.currBufferPtr;
+  auto size = inlineData.bytesLeft;
 
   p_char8 sampleData = m_nextBoundarySample->getData();
   v_int32 sampleSize = m_nextBoundarySample->getSize();
@@ -102,16 +161,17 @@ v_int32 StatefulParser::parseNext_Boundary(p_char8 data, v_int32 size) {
       m_currBoundaryCharIndex = 0;
       m_readingBody = false;
       if(m_currPartIndex > 0) {
-        onPartData(nullptr, 0);
+        result.setOnDataCall(nullptr, 0);
       }
     }
 
-    return caret.getPosition();
+    inlineData.inc(caret.getPosition());
+    return result;
 
   } else if(m_readingBody) {
 
     if(m_currBoundaryCharIndex > 0) {
-      onPartData(sampleData, m_currBoundaryCharIndex);
+      result.setOnDataCall(sampleData, m_currBoundaryCharIndex);
     } else {
       m_checkForBoundary = false;
     }
@@ -119,7 +179,7 @@ v_int32 StatefulParser::parseNext_Boundary(p_char8 data, v_int32 size) {
     m_state = STATE_DATA;
     m_currBoundaryCharIndex = 0;
 
-    return 0;
+    return result;
 
   }
 
@@ -127,7 +187,10 @@ v_int32 StatefulParser::parseNext_Boundary(p_char8 data, v_int32 size) {
 
 }
 
-v_int32 StatefulParser::parseNext_AfterBoundary(p_char8 data, v_int32 size) {
+void StatefulParser::parseNext_AfterBoundary(data::stream::AsyncInlineWriteData& inlineData) {
+
+  p_char8 data = (p_char8) inlineData.currBufferPtr;
+  auto size = inlineData.bytesLeft;
 
   if(m_currBoundaryCharIndex == 0) {
 
@@ -145,13 +208,15 @@ v_int32 StatefulParser::parseNext_AfterBoundary(p_char8 data, v_int32 size) {
       auto result = 2 - m_currBoundaryCharIndex;
       m_state = STATE_DONE;
       m_currBoundaryCharIndex = 0;
-      return result;
+      inlineData.inc(result);
+      return;
     } else if (!m_finishingBoundary && data[1 - m_currBoundaryCharIndex] == '\n') {
       auto result = 2 - m_currBoundaryCharIndex;
       m_state = STATE_HEADERS;
       m_currBoundaryCharIndex = 0;
       m_headerSectionEndAccumulator = 0;
-      return result;
+      inlineData.inc(result);
+      return;
     } else {
       throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_AfterBoundary()]: Error. Invalid trailing char.");
     }
@@ -159,11 +224,17 @@ v_int32 StatefulParser::parseNext_AfterBoundary(p_char8 data, v_int32 size) {
   }
 
   m_currBoundaryCharIndex = 1;
-  return 1;
+  inlineData.inc(1);
+  return;
 
 }
 
-v_int32 StatefulParser::parseNext_Headers(p_char8 data, v_int32 size) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::AsyncInlineWriteData& inlineData) {
+
+  ListenerCall result;
+
+  p_char8 data = (p_char8) inlineData.currBufferPtr;
+  auto size = inlineData.bytesLeft;
 
   for(v_int32 i = 0; i < size; i ++) {
 
@@ -178,21 +249,13 @@ v_int32 StatefulParser::parseNext_Headers(p_char8 data, v_int32 size) {
 
       m_headersBuffer.write(data, i);
 
-      auto headersText = m_headersBuffer.toString();
-      m_headersBuffer.clear();
-
-      protocol::http::Status status;
-      parser::Caret caret(headersText);
-      Headers headers;
-
-      protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
-
-      onPartHeaders(headers);
+      result.setOnHeadersCall();
 
       m_state = STATE_DATA;
       m_checkForBoundary = true;
 
-      return i + 1;
+      inlineData.inc(i + 1);
+      return result;
 
     }
 
@@ -204,10 +267,18 @@ v_int32 StatefulParser::parseNext_Headers(p_char8 data, v_int32 size) {
 
   m_headersBuffer.write(data, size);
 
-  return size;
+  inlineData.inc(size);
+
+  return result;
+
 }
 
-v_int32 StatefulParser::parseNext_Data(p_char8 data, v_int32 size) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::AsyncInlineWriteData& inlineData) {
+
+  ListenerCall result;
+
+  p_char8 data = (p_char8) inlineData.currBufferPtr;
+  auto size = inlineData.bytesLeft;
 
   parser::Caret caret(data, size);
 
@@ -221,46 +292,116 @@ v_int32 StatefulParser::parseNext_Data(p_char8 data, v_int32 size) {
 
   if(rFound) {
     if(caret.getPosition() > 0) {
-      onPartData(data, caret.getPosition());
+      result.setOnDataCall(data, caret.getPosition());
     }
     m_state = STATE_BOUNDARY;
     m_readingBody = true;
-    return caret.getPosition();
+    inlineData.inc(caret.getPosition());
   } else {
-    onPartData(data, size);
+    result.setOnDataCall(data, size);
+    inlineData.inc(size);
   }
 
-  return size;
+  return result;
+
 }
 
 v_int32 StatefulParser::parseNext(p_char8 data, v_int32 size) {
 
-  v_int32 pos = 0;
+  data::stream::AsyncInlineWriteData inlineData(data, size);
 
-  while(pos < size) {
+  while(inlineData.bytesLeft > 0) {
+
+    ListenerCall listenerCall;
 
     switch (m_state) {
       case STATE_BOUNDARY:
-        pos += parseNext_Boundary(&data[pos], size - pos);
+        listenerCall = parseNext_Boundary(inlineData);
         break;
       case STATE_AFTER_BOUNDARY:
-        pos += parseNext_AfterBoundary(&data[pos], size - pos);
+        parseNext_AfterBoundary(inlineData);
         break;
       case STATE_HEADERS:
-        pos += parseNext_Headers(&data[pos], size - pos);
+        listenerCall = parseNext_Headers(inlineData);
         break;
       case STATE_DATA:
-        pos += parseNext_Data(&data[pos], size - pos);
+        listenerCall = parseNext_Data(inlineData);
         break;
       case STATE_DONE:
-        return pos;
+        return size - inlineData.bytesLeft;
       default:
         throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext()]: Error. Invalid state.");
     }
 
+    listenerCall.call(this);
+
   }
 
-  return pos;
+  return size - inlineData.bytesLeft;
+
+}
+
+async::CoroutineStarter StatefulParser::parseNext_BoundaryAsync(data::stream::AsyncInlineWriteData* inlineData) {
+  return nullptr;
+}
+
+async::CoroutineStarter StatefulParser::parseNext_AfterBoundaryAsync(data::stream::AsyncInlineWriteData* inlineData) {
+  return nullptr;
+}
+
+async::CoroutineStarter StatefulParser::parseNext_HeadersAsync(data::stream::AsyncInlineWriteData* inlineData) {
+  return nullptr;
+}
+
+async::CoroutineStarter StatefulParser::parseNext_DataAsync(data::stream::AsyncInlineWriteData* inlineData) {
+  return nullptr;
+}
+
+async::Action StatefulParser::parseNextAsyncInline(async::AbstractCoroutine* coroutine,
+                                                   data::stream::AsyncInlineWriteData& inlineData,
+                                                   async::Action&& nextAction)
+{
+
+  class ParseCoroutine : public async::Coroutine<ParseCoroutine> {
+  private:
+    StatefulParser* m_this;
+    data::stream::AsyncInlineWriteData* m_inlineData;
+  public:
+
+    ParseCoroutine(StatefulParser* _this, data::stream::AsyncInlineWriteData* inlineData)
+      : m_this(_this)
+      , m_inlineData(inlineData)
+    {}
+
+    Action act() override {
+
+      if(m_inlineData->bytesLeft > 0) {
+
+        switch (m_this->m_state) {
+          case STATE_BOUNDARY:
+            return m_this->parseNext_BoundaryAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+          case STATE_AFTER_BOUNDARY:
+            return m_this->parseNext_AfterBoundaryAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+          case STATE_HEADERS:
+            return m_this->parseNext_HeadersAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+          case STATE_DATA:
+            return m_this->parseNext_DataAsync(m_inlineData).next(yieldTo(&ParseCoroutine::act));
+          case STATE_DONE:
+            return finish();
+          default:
+            throw std::runtime_error(
+              "[oatpp::web::mime::multipart::StatefulParser::parseNext()]: Error. Invalid state.");
+        }
+
+      }
+
+      return finish();
+
+    }
+
+  };
+
+  return ParseCoroutine::start(this, &inlineData).next(std::forward<async::Action>(nextAction));
 
 }
 
