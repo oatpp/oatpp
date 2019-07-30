@@ -22,28 +22,87 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mime_multipart_InMemoryPartReader_hpp
-#define oatpp_web_mime_multipart_InMemoryPartReader_hpp
+#ifndef oatpp_web_mime_multipart_FilePartReader_hpp
+#define oatpp_web_mime_multipart_FilePartReader_hpp
 
+#include "StreamPartReader.hpp"
 #include "Reader.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
 /**
- * In memory part reader.
+ * Stream provider for `StreamPartReader`.
  */
-class InMemoryPartReader : public PartReader {
-private:
-  static const char* const TAG_NAME;
-private:
-  oatpp::data::v_io_size m_maxDataSize;
+class FileStreamProvider : public PartReaderStreamProvider {
+public:
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::OutputStream;.
+   */
+  typedef oatpp::data::stream::OutputStream OutputStream;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::InputStream;.
+   */
+  typedef oatpp::data::stream::InputStream InputStream;
 public:
 
   /**
-   * Constructor.
-   * @param maxDataSize
+   * Get stream to write (save) part data in.
+   * @param part
+   * @return
    */
-  InMemoryPartReader(data::v_io_size maxDataSize = 64 * 1024);
+  std::shared_ptr<OutputStream> getOutputStream(const std::shared_ptr<Part>& part) override;
+
+  /**
+   * Get stream to read part data from. <br>
+   * This method is called after all data has been streamed to OutputStream.
+   * @param part
+   * @return
+   */
+  std::shared_ptr<InputStream> getInputStream(const std::shared_ptr<Part>& part) override;
+
+};
+
+/**
+ * Async stream provider for `AsyncStreamPartReader`.
+ */
+class AsyncFileStreamProvider : public AsyncPartReaderStreamProvider {
+public:
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::OutputStream;.
+   */
+  typedef oatpp::data::stream::OutputStream OutputStream;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::InputStream;.
+   */
+  typedef oatpp::data::stream::InputStream InputStream;
+public:
+
+  /**
+   * Get stream to write (save) part data in.
+   * @param part
+   * @return
+   */
+  async::CoroutineStarterForResult<const std::shared_ptr<data::stream::OutputStream>&>
+  getOutputStreamAsync(const std::shared_ptr<Part>& part) override;
+
+  /**
+   * Get stream to read part data from. <br>
+   * This method is called after all data has been streamed to OutputStream.
+   * @param part
+   * @return
+   */
+  async::CoroutineStarterForResult<const std::shared_ptr<data::stream::InputStream>&>
+  getInputStreamAsync(const std::shared_ptr<Part>& part) override;
+
+};
+
+/**
+ * Part reader used in order to stream part to file.
+ */
+class FilePartReader : public PartReader {
+public:
 
   /**
    * Called when new part headers are parsed and part object is created.
@@ -63,20 +122,10 @@ public:
 };
 
 /**
- * Async in memory part reader.
+ * Async part reader used in order to stream part to file in Asynchronous manner.
  */
-class AsyncInMemoryPartReader : public AsyncPartReader {
-private:
-  static const char* const TAG_NAME;
-private:
-  oatpp::data::v_io_size m_maxDataSize;
+class AsyncFilePartReader : public AsyncPartReader {
 public:
-
-  /**
-   * Constructor.
-   * @param maxDataSize
-   */
-  AsyncInMemoryPartReader(data::v_io_size maxDataSize = 64 * 1024);
 
   /**
    * Called when new part headers are parsed and part object is created.
@@ -99,4 +148,4 @@ public:
 
 }}}}
 
-#endif // oatpp_web_mime_multipart_InMemoryPartReader_hpp
+#endif // oatpp_web_mime_multipart_FilePartReader_hpp
