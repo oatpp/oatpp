@@ -27,6 +27,7 @@
 
 #include "./DTOs.hpp"
 
+#include "oatpp/web/mime/multipart/FileStreamProvider.hpp"
 #include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 
@@ -40,7 +41,9 @@
 #include "oatpp/core/macro/component.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
-  
+
+namespace multipart = oatpp::web::mime::multipart;
+
 class ControllerAsync : public oatpp::web::server::api::ApiController {
 private:
   static constexpr const char* TAG = "test::web::app::ControllerAsync";
@@ -200,7 +203,37 @@ public:
     }
 
   };
-  
+
+
+  ENDPOINT_ASYNC("POST", "test/multipart/file/{chunk-size}", MultipartFileTest) {
+
+    ENDPOINT_ASYNC_INIT(MultipartFileTest)
+
+    v_int32 m_chunkSize;
+    std::shared_ptr<multipart::Multipart> m_multipart;
+
+    Action act() override {
+
+      m_chunkSize = oatpp::utils::conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
+
+      m_multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
+      auto multipartReader = std::make_shared<multipart::AsyncReader>(m_multipart);
+
+      multipartReader->setPartReader("part1", multipart::createAsyncFilePartReader("/Users/leonid/Documents/test/my-text-file-async.tf", 16));
+
+      return request->transferBodyAsync(multipartReader).next(yieldTo(&MultipartFileTest::respond));
+
+    }
+
+    Action respond() {
+
+      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart, m_chunkSize);
+      return _return(OutgoingResponse::createShared(Status::CODE_200, responseBody));
+
+    }
+
+  };
+
 #include OATPP_CODEGEN_END(ApiController)
   
 };

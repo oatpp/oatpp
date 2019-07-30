@@ -27,6 +27,7 @@
 
 #include "./DTOs.hpp"
 
+#include "oatpp/web/mime/multipart/FileStreamProvider.hpp"
 #include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 
@@ -42,6 +43,8 @@
 #include <sstream>
 
 namespace oatpp { namespace test { namespace web { namespace app {
+
+namespace multipart = oatpp::web::mime::multipart;
 
 class Controller : public oatpp::web::server::api::ApiController {
 private:
@@ -173,6 +176,25 @@ public:
 
     oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
     multipartReader.setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+
+    request->transferBody(&multipartReader);
+
+    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());
+
+    return OutgoingResponse::createShared(Status::CODE_200, responseBody);
+
+  }
+
+  ENDPOINT("POST", "test/multipart/file/{chunk-size}", multipartFileTest,
+           PATH(Int32, chunkSize, "chunk-size"),
+           REQUEST(std::shared_ptr<IncomingRequest>, request))
+  {
+
+    auto multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
+
+    multipart::Reader multipartReader(multipart.get());
+
+    multipartReader.setPartReader("part1", multipart::createFilePartReader("/Users/leonid/Documents/test/my-text-file.tf", -1));
 
     request->transferBody(&multipartReader);
 

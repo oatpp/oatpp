@@ -34,7 +34,8 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
  */
 class InMemoryPartReader : public PartReader {
 private:
-  data::stream::ChunkedBuffer m_buffer;
+  static const char* const TAG_NAME;
+private:
   oatpp::data::v_io_size m_maxDataSize;
 public:
 
@@ -66,7 +67,8 @@ public:
  */
 class AsyncInMemoryPartReader : public AsyncPartReader {
 private:
-  data::stream::ChunkedBuffer m_buffer;
+  static const char* const TAG_NAME;
+private:
   oatpp::data::v_io_size m_maxDataSize;
 public:
 
