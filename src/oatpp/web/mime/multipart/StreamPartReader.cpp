@@ -103,6 +103,7 @@ async::CoroutineStarter AsyncStreamPartReader::onNewPartAsync(const std::shared_
   private:
     std::shared_ptr<Part> m_part;
     std::shared_ptr<AsyncPartReaderStreamProvider> m_streamProvider;
+    std::shared_ptr<data::stream::OutputStream> m_obtainedStream;
   public:
 
     OnNewPartCoroutine(const std::shared_ptr<Part>& part,
@@ -124,13 +125,13 @@ async::CoroutineStarter AsyncStreamPartReader::onNewPartAsync(const std::shared_
                                  "Part tag object is not nullptr. Seems like this part is already being processed by another part reader.");
       }
 
-      return m_streamProvider->getOutputStreamAsync(m_part).callbackTo(&OnNewPartCoroutine::onStreamObtained);
+      return m_streamProvider->getOutputStreamAsync(m_part, m_obtainedStream).next(yieldTo(&OnNewPartCoroutine::onStreamObtained));
 
     }
 
-    Action onStreamObtained(const std::shared_ptr<data::stream::OutputStream>& stream) {
+    Action onStreamObtained() {
       auto tagObject = std::make_shared<TagObject>();
-      tagObject->outputStream = stream;
+      tagObject->outputStream = m_obtainedStream;
       m_part->setTag(TAG_NAME, tagObject);
       return finish();
     }
@@ -176,6 +177,7 @@ async::CoroutineStarter AsyncStreamPartReader::onPartDone(const std::shared_ptr<
   public:
     std::shared_ptr<Part> m_part;
     std::shared_ptr<AsyncPartReaderStreamProvider> m_streamProvider;
+    std::shared_ptr<data::stream::InputStream> m_obtainedStream;
   public:
 
     OnPartDoneCoroutine(const std::shared_ptr<Part>& part,
@@ -185,11 +187,11 @@ async::CoroutineStarter AsyncStreamPartReader::onPartDone(const std::shared_ptr<
     {}
 
     Action act() override {
-      return m_streamProvider->getInputStreamAsync(m_part).callbackTo(&OnPartDoneCoroutine::onStreamObtained);
+      return m_streamProvider->getInputStreamAsync(m_part, m_obtainedStream).next(yieldTo(&OnPartDoneCoroutine::onStreamObtained));
     }
 
-    Action onStreamObtained(const std::shared_ptr<data::stream::InputStream>& stream) {
-      m_part->setDataInfo(stream);
+    Action onStreamObtained() {
+      m_part->setDataInfo(m_obtainedStream);
       m_part->clearTag();
       return finish();
     }

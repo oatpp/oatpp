@@ -91,23 +91,23 @@ public:
   virtual ~AsyncPartReaderStreamProvider() = default;
 
   /**
-   * Get stream to write (save) part data in.
+   * Get stream to write (save) part data to.
    * @param part
+   * @param stream - put here pointer to obtained stream.
    * @return
    */
-  virtual
-  async::CoroutineStarterForResult<const std::shared_ptr<data::stream::OutputStream>&>
-  getOutputStreamAsync(const std::shared_ptr<Part>& part) = 0;
+  virtual async::CoroutineStarter getOutputStreamAsync(const std::shared_ptr<Part>& part,
+                                                       std::shared_ptr<data::stream::OutputStream>& stream) = 0;
 
   /**
    * Get stream to read part data from. <br>
    * This method is called after all data has been streamed to OutputStream.
    * @param part
+   * @param stream - put here pointer to obtained stream.
    * @return
    */
-  virtual
-  async::CoroutineStarterForResult<const std::shared_ptr<data::stream::InputStream>&>
-  getInputStreamAsync(const std::shared_ptr<Part>& part) = 0;
+  virtual async::CoroutineStarter getInputStreamAsync(const std::shared_ptr<Part>& part,
+                                                      std::shared_ptr<data::stream::InputStream>& stream) = 0;
 
 };
 
