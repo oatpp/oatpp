@@ -205,30 +205,57 @@ public:
   };
 
 
-  ENDPOINT_ASYNC("POST", "test/multipart/file/{chunk-size}", MultipartFileTest) {
+  ENDPOINT_ASYNC("POST", "test/multipart-all", MultipartUpload) {
 
-    ENDPOINT_ASYNC_INIT(MultipartFileTest)
+    ENDPOINT_ASYNC_INIT(MultipartUpload)
 
-    v_int32 m_chunkSize;
+    /* Coroutine State */
     std::shared_ptr<multipart::Multipart> m_multipart;
 
     Action act() override {
 
-      m_chunkSize = oatpp::utils::conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
-
       m_multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
       auto multipartReader = std::make_shared<multipart::AsyncReader>(m_multipart);
 
-      multipartReader->setPartReader("part1", multipart::createAsyncFilePartReader("/Users/leonid/Documents/test/my-text-file-async.tf", 16));
+      /* Configure to read part with name "part1" into memory */
+      multipartReader->setPartReader("part1", multipart::createAsyncInMemoryPartReader(256 /* max-data-size */));
 
-      return request->transferBodyAsync(multipartReader).next(yieldTo(&MultipartFileTest::respond));
+      /* Configure to stream part with name "part2" to file */
+      multipartReader->setPartReader("part2", multipart::createAsyncFilePartReader("/Users/leonid/Documents/test/my-text-file.tf"));
+
+      /* Configure to read all other parts into memory */
+      multipartReader->setDefaultPartReader(multipart::createAsyncInMemoryPartReader(16 * 1024 /* max-data-size */));
+
+      /* Read multipart body */
+      return request->transferBodyAsync(multipartReader).next(yieldTo(&MultipartUpload::onUploaded));
 
     }
 
-    Action respond() {
+    Action onUploaded() {
 
-      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart, m_chunkSize);
-      return _return(OutgoingResponse::createShared(Status::CODE_200, responseBody));
+      /* Print number of uploaded parts */
+      OATPP_LOGD("Multipart", "parts_count=%d", m_multipart->count());
+
+      /* Get multipart by name */
+      auto part1 = m_multipart->getNamedPart("part1");
+
+      /* Asser part not-null */
+      OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty");
+
+      /* Print value of "part1" */
+      OATPP_LOGD("Multipart", "part1='%s'", part1->getInMemoryData()->c_str());
+
+      /* Get multipart by name */
+      auto filePart = m_multipart->getNamedPart("part2");
+
+      /* Asser part not-null */
+      OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty");
+
+      auto inputStream = filePart->getInputStream();
+
+      // TODO - process file stream.
+
+      return _return(controller->createResponse(Status::CODE_200, "OK"));
 
     }
 

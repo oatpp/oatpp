@@ -97,6 +97,20 @@ public:
 
 };
 
+/**
+ * Create in-memory part reader. <br>
+ * @param maxDataSize - max size of the received data.
+ * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::PartReader;.
+ */
+std::shared_ptr<PartReader> createInMemoryPartReader(data::v_io_size maxDataSize = 64 * 1024);
+
+/**
+ * Create in-memory part reader. <br>
+ * @param maxDataSize - max size of the received data.
+ * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::AsyncPartReader;.
+ */
+std::shared_ptr<AsyncPartReader> createAsyncInMemoryPartReader(data::v_io_size maxDataSize = 64 * 1024);
+
 }}}}
 
 #endif // oatpp_web_mime_multipart_InMemoryPartReader_hpp

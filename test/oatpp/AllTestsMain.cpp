@@ -46,7 +46,7 @@ namespace {
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
-/*
+
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -76,7 +76,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
-*/
+
   {
 
     oatpp::test::web::FullTest test_virtual(0, 1000);

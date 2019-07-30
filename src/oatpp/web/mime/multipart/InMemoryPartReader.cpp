@@ -136,4 +136,16 @@ async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shar
   return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
+std::shared_ptr<PartReader> createInMemoryPartReader(data::v_io_size maxDataSize) {
+  return std::make_shared<InMemoryPartReader>(maxDataSize);
+}
+
+
+std::shared_ptr<AsyncPartReader> createAsyncInMemoryPartReader(data::v_io_size maxDataSize) {
+  return std::make_shared<AsyncInMemoryPartReader>(maxDataSize);
+}
+
 }}}}

@@ -185,22 +185,48 @@ public:
 
   }
 
-  ENDPOINT("POST", "test/multipart/file/{chunk-size}", multipartFileTest,
-           PATH(Int32, chunkSize, "chunk-size"),
+  ENDPOINT("POST", "test/multipart-all", multipartFileTest,
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
 
+    /* Prepare multipart container. */
     auto multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
 
+    /* Create multipart reader. */
     multipart::Reader multipartReader(multipart.get());
 
-    multipartReader.setPartReader("part1", multipart::createFilePartReader("/Users/leonid/Documents/test/my-text-file.tf", -1));
+    /* Configure to read part with name "part1" into memory */
+    multipartReader.setPartReader("part1", multipart::createInMemoryPartReader(256 /* max-data-size */));
 
+    /* Configure to stream part with name "part2" to file */
+    multipartReader.setPartReader("part2", multipart::createFilePartReader("/Users/leonid/Documents/test/my-text-file.tf"));
+
+    /* Configure to read all other parts into memory */
+    multipartReader.setDefaultPartReader(multipart::createInMemoryPartReader(16 * 1024 /* max-data-size */));
+
+    /* Read multipart body */
     request->transferBody(&multipartReader);
 
-    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());
+    /* Print number of uploaded parts */
+    OATPP_LOGD("Multipart", "parts_count=%d", multipart->count());
 
-    return OutgoingResponse::createShared(Status::CODE_200, responseBody);
+    /* Print value of "part1" */
+    auto part1 = multipart->getNamedPart("part1");
+
+    OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty");
+
+    OATPP_LOGD("Multipart", "part1='%s'", part1->getInMemoryData()->c_str());
+
+    /* Get part by name "part2"*/
+    auto filePart = multipart->getNamedPart("part2");
+
+    OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty");
+
+    auto inputStream = filePart->getInputStream();
+
+    // TODO - process file stream.
+
+    return createResponse(Status::CODE_200, "OK");
 
   }
 
