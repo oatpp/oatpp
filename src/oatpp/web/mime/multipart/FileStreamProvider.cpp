@@ -60,4 +60,19 @@ async::CoroutineStarter AsyncFileStreamProvider::getInputStreamAsync(const std::
   return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
+std::shared_ptr<PartReader> createFilePartReader(const oatpp::String& filename, data::v_io_size maxDataSize) {
+  auto provider = std::make_shared<FileStreamProvider>(filename);
+  auto reader = std::make_shared<StreamPartReader>(provider, maxDataSize);
+  return reader;
+}
+
+std::shared_ptr<AsyncPartReader> createAsyncFilePartReader(const oatpp::String& filename, data::v_io_size maxDataSize) {
+  auto provider = std::make_shared<AsyncFileStreamProvider>(filename);
+  auto reader = std::make_shared<AsyncStreamPartReader>(provider, maxDataSize);
+  return reader;
+}
+
 }}}}

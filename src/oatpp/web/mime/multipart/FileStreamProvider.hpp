@@ -118,6 +118,24 @@ public:
 
 };
 
+/**
+ * Create file part reader. <br>
+ * Reader will save part to a specified file.
+ * @param filename - name of the file.
+ * @param maxDataSize - max size of the received data. put `-1` for no-limit.
+ * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::PartReader;.
+ */
+std::shared_ptr<PartReader> createFilePartReader(const oatpp::String& filename, data::v_io_size maxDataSize = -1);
+
+/**
+ * Create async file part reader. <br>
+ * Reader will save part to a specified file.
+ * @param filename - name of the file.
+ * @param maxDataSize - max size of the received data. put `-1` for no-limit.
+ * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::AsyncPartReader;.
+ */
+std::shared_ptr<AsyncPartReader> createAsyncFilePartReader(const oatpp::String& filename, data::v_io_size maxDataSize = -1);
+
 }}}}
 
 #endif // oatpp_web_mime_multipart_FileStreamProvider_hpp
