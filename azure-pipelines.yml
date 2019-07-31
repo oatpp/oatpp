@@ -105,7 +105,7 @@ jobs:
         MD build
     - task: CMake@1
     - script: |
-        cmake .. -G"Visual Studio 15 2017"
+        cmake ..
         cmake --build .
       displayName: 'CMake'
       workingDirectory: build
