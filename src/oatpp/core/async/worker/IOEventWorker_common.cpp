@@ -40,18 +40,13 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
   , m_foreman(foreman)
   , m_specialization(specialization)
   , m_running(true)
-#ifdef WIN32
-  , m_eventQueueHandle(nullptr)
-#else
   , m_eventQueueHandle(-1)
   , m_wakeupTrigger(-1)
-#endif
   , m_inEvents(nullptr)
   , m_inEventsCount(0)
   , m_inEventsCapacity(0)
   , m_outEvents(nullptr)
 {
-  m_wakeupTrigger[0] = m_wakeupTrigger[1] = -1;
   m_thread = std::thread(&IOEventWorker::run, this);
 }
 

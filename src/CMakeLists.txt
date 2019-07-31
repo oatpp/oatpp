@@ -2,16 +2,6 @@
 #######################################################################################################
 ## oatpp
 
-if(MSVC)
-    set(ADDWINSRC
-            oatpp/core/async/worker/wepoll/wepoll.c
-            oatpp/core/async/worker/wepoll/wepoll.h
-            )
-else(MSVC)
-    set(ADDWINSRC
-            )
-endif(MSVC)
-
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp
@@ -40,7 +30,6 @@ add_library(oatpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
-        oatpp/core/async/worker/IOEventWorker_wepoll.cpp
         oatpp/core/async/worker/IOEventWorker.hpp
         oatpp/core/async/worker/TimerWorker.cpp
         oatpp/core/async/worker/TimerWorker.hpp
@@ -220,13 +209,12 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-        ${ADDWINSRC}
 )
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF
-        CXX_STANDARD_REQUIRED OFF
+        CXX_STANDARD_REQUIRED ON
 )
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
