@@ -44,18 +44,18 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
     
     DTO_INIT(Test1, Object)
     
-    DTO_FIELD(String, f_string);
-    DTO_FIELD(Int32, f_int32);
-    DTO_FIELD(List<Int32>::ObjectWrapper, f_list);
+    DTO_FIELD(String, field_string);
+    DTO_FIELD(Int32, field_int32);
+    DTO_FIELD(List<Int32>::ObjectWrapper, field_list);
     
     static ObjectWrapper createTestInstance(){
       auto result = Test1::createShared();
-      result->f_string = "String Field";
-      result->f_int32 = 5;
-      result->f_list = List<Int32>::createShared();
-      result->f_list->pushBack(1);
-      result->f_list->pushBack(2);
-      result->f_list->pushBack(3);
+      result->field_string = "String Field";
+      result->field_int32 = 5;
+      result->field_list = List<Int32>::createShared();
+      result->field_list->pushBack(1);
+      result->field_list->pushBack(2);
+      result->field_list->pushBack(3);
       return result;
     }
     
