@@ -58,18 +58,18 @@ namespace {
   void parseStepByStep(const oatpp::String& text,
                        const oatpp::String& boundary,
                        const std::shared_ptr<oatpp::web::mime::multipart::StatefulParser::Listener>& listener,
-                       v_int32 step)
+                       const v_int32 step)
   {
 
     oatpp::web::mime::multipart::StatefulParser parser(boundary, listener, nullptr);
 
     oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->getData(), text->getSize());
-    v_char8 buffer[step];
+    v_char8 *buffer = new v_char8[step];
     v_int32 size;
     while((size = stream.read(buffer, step)) != 0) {
       parser.parseNext(buffer, size);
     }
-
+    delete[] buffer;
     OATPP_ASSERT(parser.finished());
 
   }
@@ -80,7 +80,7 @@ namespace {
     OATPP_ASSERT(part->getInMemoryData() == value);
 
     v_int32 bufferSize = 16;
-    v_char8 buffer[bufferSize];
+    v_char8 *buffer = new v_char8[bufferSize];
 
     oatpp::data::stream::ChunkedBuffer stream;
     oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
@@ -89,6 +89,8 @@ namespace {
     oatpp::String readData = stream.toString();
 
     OATPP_ASSERT(readData == part->getInMemoryData());
+
+    delete[] buffer;
 
   }
 
