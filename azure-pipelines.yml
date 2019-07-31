@@ -105,8 +105,8 @@ jobs:
         MD build
     - task: CMake@1
     - script: |
-        cmake -DCMAKE_BUILD_TYPE=Release ..
-        make
+        cmake .. -G"Visual Studio 15 2017"
+        cmake --build .
       displayName: 'CMake'
       workingDirectory: build
 
