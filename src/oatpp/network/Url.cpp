@@ -27,27 +27,16 @@
 #include <cstdlib>
 
 namespace oatpp { namespace network {
-  
+
 oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   v_int32 pos0 = caret.getPosition();
   caret.findChar(':');
   v_int32 size = caret.getPosition() - pos0;
   if(size > 0) {
-#ifdef WIN32
-      // Variable length arrays are not part of standard C++. Array bounds must be compile-time constant expressions.
-      v_char8 *buff = new v_char8[size];
-#else
-      v_char8 buff[size];
-#endif
-    std::memcpy(buff, &caret.getData()[pos0], size);
-    oatpp::base::StrBuffer::lowerCase(buff, size);
-#ifdef WIN32
-    auto str = oatpp::String((const char*)buff, size, true);
-    delete[] buff;
-    return str;
-#else
-    return oatpp::String((const char*)buff, size, true);
-#endif
+    std::unique_ptr<v_char8> buff(new v_char8[size]);
+    std::memcpy(buff.get(), &caret.getData()[pos0], size);
+    oatpp::base::StrBuffer::lowerCase(buff.get(), size);
+    return oatpp::String((const char*)buff.get(), size, true);
   }
   return nullptr;
 }
