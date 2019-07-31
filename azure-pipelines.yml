@@ -111,6 +111,6 @@ jobs:
       workingDirectory: build
 
     - script: |
-        make test ARGS="-V"
+        oatppAllTests.exe
       displayName: 'Test'
-      workingDirectory: build
+      workingDirectory: build\test\Debug\
