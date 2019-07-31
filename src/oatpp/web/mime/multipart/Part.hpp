@@ -49,6 +49,9 @@ private:
   std::shared_ptr<data::stream::InputStream> m_inputStream;
   oatpp::String m_inMemoryData;
   data::v_io_size m_knownSize;
+private:
+  const char* m_tagName;
+  std::shared_ptr<oatpp::base::Countable> m_tagObject;
 public:
 
   /**
@@ -144,6 +147,32 @@ public:
    * @return - known size of the part data. `-1` - if size is unknown.
    */
   data::v_io_size getKnownSize() const;
+
+  /**
+   * Tag-object - object used to associate some data with the Part. <br>
+   * Ex.: used by &id:oatpp::web::mime::multipart::InMemoryPartReader;. to
+   * associate intermediate buffer with the part.
+   * @param tagName
+   * @param tagObject
+   */
+  void setTag(const char* tagName, const std::shared_ptr<oatpp::base::Countable>& tagObject);
+
+  /**
+   * Get tag name.
+   * @return
+   */
+  const char* getTagName();
+
+  /**
+   * Get tag object.
+   * @return
+   */
+  std::shared_ptr<oatpp::base::Countable> getTagObject();
+
+  /**
+   * Clear the tag.
+   */
+  void clearTag();
 
 };
 

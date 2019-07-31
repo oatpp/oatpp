@@ -601,6 +601,9 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
                                                    AsyncInlineWriteData& inlineData,
                                                    oatpp::async::Action&& nextAction);
 
+oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+                                                       const void* data, data::v_io_size size);
+
 oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
                                              oatpp::data::stream::InputStream* stream,
                                              AsyncInlineReadData& inlineData,
