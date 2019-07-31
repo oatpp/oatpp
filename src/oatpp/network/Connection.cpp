@@ -24,8 +24,13 @@
 
 #include "./Connection.hpp"
 
+#if WIN32 || WIN64
+#include <io.h>
+#include <WinSock2.h>
+#else
 #include <unistd.h>
 #include <sys/socket.h>
+#endif
 #include <thread>
 #include <chrono>
 #include <fcntl.h>
@@ -35,6 +40,11 @@ namespace oatpp { namespace network {
 Connection::Connection(data::v_io_handle handle)
   : m_handle(handle)
 {
+#ifdef WIN32
+    // in Windows, there is no reliable method to get if a socket is blocking or not.
+    // Eevery socket is created blocking in Windows so we assume this state and pray.
+    m_mode = data::stream::BLOCKING;
+#endif
 }
 
 Connection::~Connection(){
@@ -49,7 +59,12 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 #ifdef MSG_NOSIGNAL
   flags |= MSG_NOSIGNAL;
 #endif
-  auto result = ::send(m_handle, buff, (size_t)count, flags);
+
+#ifdef WIN32
+    auto result = ::send(m_handle, (const char*) buff, (size_t)count, flags);
+#else
+    auto result = ::send(m_handle, buff, (size_t)count, flags);
+#endif
 
   if(result <= 0) {
     auto e = errno;
@@ -83,7 +98,29 @@ data::v_io_size Connection::read(void *buff, data::v_io_size count){
   }
   return result;
 }
+#ifdef WIN32
+void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
+    u_long flags;
+
+    switch(ioMode) {
+        case data::stream::BLOCKING:
+            flags = 0;
+            if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
+                throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
+            }
+            m_mode = data::stream::BLOCKING;
+            break;
+        case data::stream::NON_BLOCKING:
+            flags = 1;
+            if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
+                throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+            }
+            m_mode = data::stream::NON_BLOCKING;
+            break;
+    }
+}
+#else
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
   auto flags = fcntl(m_handle, F_GETFL);
@@ -109,7 +146,13 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
   }
 }
+#endif
 
+#ifdef WIN32
+oatpp::data::stream::IOMode Connection::getStreamIOMode() {
+    return m_mode;
+}
+#else
 oatpp::data::stream::IOMode Connection::getStreamIOMode() {
 
   auto flags = fcntl(m_handle, F_GETFL);
@@ -124,6 +167,7 @@ oatpp::data::stream::IOMode Connection::getStreamIOMode() {
   return oatpp::data::stream::IOMode::BLOCKING;
 
 }
+#endif
 
 oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioResult) {
 
