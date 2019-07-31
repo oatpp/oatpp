@@ -2,6 +2,13 @@
 #######################################################################################################
 ## oatpp
 
+
+if (MSVC)
+    # Add compilerswitch to allow pointer-to-members
+    # https://docs.microsoft.com/en-us/cpp/preprocessor/pointers-to-members?view=vs-2019
+    add_compile_options(/vmg /wd4996)
+endif(MSVC)
+
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp

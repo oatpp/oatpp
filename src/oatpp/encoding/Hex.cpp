@@ -23,7 +23,12 @@
  ***************************************************************************/
 
 #include "Hex.hpp"
+
+#if WIN32 || WIN64
+#include <Winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 namespace oatpp { namespace encoding {
   

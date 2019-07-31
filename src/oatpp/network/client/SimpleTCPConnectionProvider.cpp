@@ -29,10 +29,16 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#ifdef WIN32
+#include <io.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#else
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 namespace oatpp { namespace network { namespace client {
 
@@ -43,7 +49,7 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& ho
   setProperty(PROPERTY_HOST, m_host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
 }
-  
+
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
@@ -107,7 +113,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 }
 
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
-  
+
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
     oatpp::String m_host;
@@ -117,7 +123,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     struct addrinfo* m_result;
     struct addrinfo* m_currentResult;
   public:
-    
+
     ConnectCoroutine(const oatpp::String& host, v_int32 port)
       : m_host(host)
       , m_port(port)
@@ -172,8 +178,12 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           return repeat();
         }
 
+#ifdef WIN32
+        u_long flags = 1;
+        ioctlsocket(m_clientHandle, FIONBIO, &flags);
+#else
         fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
-
+#endif
 #ifdef SO_NOSIGPIPE
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
@@ -208,11 +218,11 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
 
     }
-    
+
   };
-  
+
   return ConnectCoroutine::startForResult(m_host, m_port);
-  
+
 }
-  
+
 }}}

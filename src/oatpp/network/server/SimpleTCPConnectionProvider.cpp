@@ -29,11 +29,17 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#ifdef WIN32
+#include <io.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#else
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
 #include <unistd.h>
+#endif
 
 namespace oatpp { namespace network { namespace server {
 
@@ -56,54 +62,63 @@ void SimpleTCPConnectionProvider::close() {
     ::close(m_serverHandle);
   }
 }
-  
+
 oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
-  
+
   oatpp::data::v_io_handle serverHandle;
   v_int32 ret;
   int yes = 1;
-  
+
   struct sockaddr_in6 addr;
-  
+
   addr.sin6_family = AF_INET6;
   addr.sin6_port = htons(m_port);
   addr.sin6_addr = in6addr_any;
-  
+
   serverHandle = socket(AF_INET6, SOCK_STREAM, 0);
-  
+
   if(serverHandle < 0){
     return -1;
   }
-  
+
+#ifdef WIN32
+  ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(int));
+#else
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+#endif
   if(ret < 0) {
     OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Warning. Failed to set %s for accepting socket", "SO_REUSEADDR");
   }
-  
+
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
-  
+
   if(ret != 0) {
     ::close(serverHandle);
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Can't bind to address.");
     return -1 ;
   }
-  
+
   ret = listen(serverHandle, 10000);
   if(ret < 0) {
     ::close(serverHandle);
     return -1 ;
   }
-  
+
+#ifdef WIN32
+  u_long flags = 0;
+  ioctlsocket(serverHandle, FIONBIO, &flags);
+  ioctlsocket(serverHandle, FIOASYNC, &flags);
+#else
   fcntl(serverHandle, F_SETFL, 0);//O_NONBLOCK);
-  
+#endif
   return serverHandle;
-  
+
 }
-  
+
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
 
   oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
-  
+
   if (handle < 0) {
     v_int32 error = errno;
     if(error == EAGAIN || error == EWOULDBLOCK){
@@ -115,7 +130,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
       return nullptr;
     }
   }
-  
+
 #ifdef SO_NOSIGPIPE
   int yes = 1;
   v_int32 ret = setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
@@ -123,9 +138,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
-  
+
   return Connection::createShared(handle);
-  
+
 }
 
 }}}

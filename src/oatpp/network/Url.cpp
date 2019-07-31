@@ -33,10 +33,21 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   caret.findChar(':');
   v_int32 size = caret.getPosition() - pos0;
   if(size > 0) {
-    v_char8 buff[size];
+#ifdef WIN32
+      // Variable length arrays are not part of standard C++. Array bounds must be compile-time constant expressions.
+      v_char8 *buff = new v_char8[size];
+#else
+      v_char8 buff[size];
+#endif
     std::memcpy(buff, &caret.getData()[pos0], size);
     oatpp::base::StrBuffer::lowerCase(buff, size);
+#ifdef WIN32
+    auto str = oatpp::String((const char*)buff, size, true);
+    delete[] buff;
+    return str;
+#else
     return oatpp::String((const char*)buff, size, true);
+#endif
   }
   return nullptr;
 }

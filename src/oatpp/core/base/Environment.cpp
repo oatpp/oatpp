@@ -31,6 +31,16 @@
 #include <ctime>
 #include <stdarg.h>
 
+#ifdef WIN32
+#include <WinSock2.h>
+
+struct tm *localtime_r(time_t *_clock, struct tm *_result)
+{
+    _localtime64_s(_result, _clock);
+    return _result;
+}
+#endif
+
 namespace oatpp { namespace base {
 
 std::shared_ptr<Logger> Environment::m_logger;
@@ -111,6 +121,16 @@ void Environment::init() {
 
 void Environment::init(const std::shared_ptr<Logger>& logger) {
 
+#ifdef WIN32
+    // Initialize Winsock
+    WSADATA wsaData;
+    int iResult;
+    iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+    if (iResult != 0) {
+        throw std::runtime_error("[oatpp::base::Environment]: WSAStartup failed");
+    }
+#endif
+
   m_logger = logger;
 
   checkTypes();
@@ -134,6 +154,10 @@ void Environment::destroy(){
     throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Leaking components");
   }
   m_logger.reset();
+
+#ifdef WIN32
+    WSACleanup();
+#endif
 }
   
 void Environment::checkTypes(){

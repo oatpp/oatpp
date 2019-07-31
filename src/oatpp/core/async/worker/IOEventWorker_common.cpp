@@ -24,7 +24,11 @@
 
 #include "IOEventWorker.hpp"
 
+#if WIN32 || WIN64
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 namespace oatpp { namespace async { namespace worker {
 
