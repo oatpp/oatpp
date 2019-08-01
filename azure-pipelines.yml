@@ -93,7 +93,7 @@ jobs:
 #      workingDirectory: build
 
 - job: windows
-  displayName: 'Build - Windows'
+  displayName: 'Build - Windows - With Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'windows-latest'
@@ -105,6 +105,28 @@ jobs:
     - task: CMake@1
     - script: |
         cmake ..
+        cmake --build .
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        oatppAllTests.exe
+      displayName: 'Test'
+      workingDirectory: build\test\Debug\
+
+- job: windows
+  displayName: 'Build - Windows - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'windows-latest'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        MD build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON ..
         cmake --build .
       displayName: 'CMake'
       workingDirectory: build
