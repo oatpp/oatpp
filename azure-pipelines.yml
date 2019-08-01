@@ -92,7 +92,7 @@ jobs:
 #      displayName: 'Test'
 #      workingDirectory: build
 
-- job: windows
+- job: windows_mem_pool_on
   displayName: 'Build - Windows - With Memory Pool'
   continueOnError: false
   pool:
@@ -114,7 +114,7 @@ jobs:
       displayName: 'Test'
       workingDirectory: build\test\Debug\
 
-- job: windows
+- job: windows_mem_pool_off
   displayName: 'Build - Windows - No Memory Pool'
   continueOnError: false
   pool:
