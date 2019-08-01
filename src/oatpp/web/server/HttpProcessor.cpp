@@ -158,7 +158,6 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   
   if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
-    m_currentResponse.reset();
     return yieldTo(&HttpProcessor::Coroutine::act);
   }
   
@@ -171,7 +170,6 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
     }
   }
 
-  m_currentResponse.reset();
   return finish();
 }
   
