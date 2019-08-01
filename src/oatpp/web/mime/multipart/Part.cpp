@@ -119,4 +119,22 @@ data::v_io_size Part::getKnownSize() const {
   return m_knownSize;
 }
 
+void Part::setTag(const char* tagName, const std::shared_ptr<oatpp::base::Countable>& tagObject) {
+  m_tagName = tagName;
+  m_tagObject = tagObject;
+}
+
+const char* Part::getTagName() {
+  return m_tagName;
+}
+
+std::shared_ptr<oatpp::base::Countable> Part::getTagObject() {
+  return m_tagObject;
+}
+
+void Part::clearTag() {
+  m_tagName = nullptr;
+  m_tagObject.reset();
+}
+
 }}}}

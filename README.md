@@ -184,7 +184,3 @@ Grab any project from [examples](https://github.com/oatpp/oatpp-examples), and f
 - [Consul](https://github.com/oatpp/example-consul) - Example project of how-to use oatpp::consul::Client. Integration with Consul.
 - [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
 - [WebSocket](https://github.com/oatpp/example-websocket) - Collection of oatpp WebSocket examples.
-
-## Third Party Licenses
-### wepoll
-License for `wepoll Copyright 2012-2019, Bert Belder <bertbelder@gmail.com>` found in `src/oatpp/core/async/worker/wepoll/LICENSE` 

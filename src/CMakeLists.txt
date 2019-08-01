@@ -2,16 +2,6 @@
 #######################################################################################################
 ## oatpp
 
-if(MSVC)
-    set(ADDWINSRC
-            oatpp/core/async/worker/wepoll/wepoll.c
-            oatpp/core/async/worker/wepoll/wepoll.h
-            )
-else(MSVC)
-    set(ADDWINSRC
-            )
-endif(MSVC)
-
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp
@@ -40,8 +30,10 @@ add_library(oatpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
-        oatpp/core/async/worker/IOEventWorker_wepoll.cpp
+        oatpp/core/async/worker/IOEventWorker_win.cpp
         oatpp/core/async/worker/IOEventWorker.hpp
+        oatpp/core/async/worker/IOWorker.cpp
+        oatpp/core/async/worker/IOWorker.hpp
         oatpp/core/async/worker/TimerWorker.cpp
         oatpp/core/async/worker/TimerWorker.hpp
         oatpp/core/base/CommandLineArguments.cpp
@@ -154,6 +146,8 @@ add_library(oatpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp
         oatpp/web/client/RequestExecutor.hpp
+        oatpp/web/mime/multipart/FileStreamProvider.cpp
+        oatpp/web/mime/multipart/FileStreamProvider.hpp
         oatpp/web/mime/multipart/InMemoryPartReader.cpp
         oatpp/web/mime/multipart/InMemoryPartReader.hpp
         oatpp/web/mime/multipart/Multipart.cpp
@@ -164,6 +158,8 @@ add_library(oatpp
         oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
         oatpp/web/mime/multipart/StatefulParser.hpp
+        oatpp/web/mime/multipart/StreamPartReader.cpp
+        oatpp/web/mime/multipart/StreamPartReader.hpp
         oatpp/web/protocol/CommunicationError.cpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp
@@ -220,13 +216,12 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-        ${ADDWINSRC}
 )
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
         CXX_EXTENSIONS OFF
-        CXX_STANDARD_REQUIRED OFF
+        CXX_STANDARD_REQUIRED ON
 )
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)

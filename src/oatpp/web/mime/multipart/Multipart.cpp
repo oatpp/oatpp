@@ -101,20 +101,10 @@ v_int32 Multipart::count() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
-#ifdef WIN32
 oatpp::String generateRandomBoundary(v_int32 boundarySize) {
-    v_char8 *buffer = new v_char8[boundarySize];
-    utils::random::Random::randomBytes(buffer, boundarySize);
-    oatpp::String encoded = encoding::Base64::encode(buffer, boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
-    delete[] buffer;
-    return encoded;
+  std::unique_ptr<v_char8> buffer(new v_char8[boundarySize]);
+  utils::random::Random::randomBytes(buffer.get(), boundarySize);
+  return encoding::Base64::encode(buffer.get(), boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
 }
-#else
-oatpp::String generateRandomBoundary(v_int32 boundarySize) {
-  v_char8 buffer[boundarySize];
-  utils::random::Random::randomBytes(buffer, boundarySize);
-  return encoding::Base64::encode(buffer, boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
-}
-#endif
 
 }}}}

@@ -40,24 +40,19 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
   , m_foreman(foreman)
   , m_specialization(specialization)
   , m_running(true)
-#ifdef WIN32
-  , m_eventQueueHandle(nullptr)
-#else
   , m_eventQueueHandle(-1)
   , m_wakeupTrigger(-1)
-#endif
   , m_inEvents(nullptr)
   , m_inEventsCount(0)
   , m_inEventsCapacity(0)
   , m_outEvents(nullptr)
 {
-  m_wakeupTrigger[0] = m_wakeupTrigger[1] = -1;
   m_thread = std::thread(&IOEventWorker::run, this);
 }
 
-#ifndef WIN32
-IOEventWorker::~IOEventWorker() {
 
+IOEventWorker::~IOEventWorker() {
+#ifndef WIN32
   if(m_eventQueueHandle >=0) {
     ::close(m_eventQueueHandle);
   }
@@ -65,9 +60,9 @@ IOEventWorker::~IOEventWorker() {
   if(m_wakeupTrigger >= 0) {
     ::close(m_wakeupTrigger);
   }
-
-}
 #endif
+}
+
 
 void IOEventWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine> &tasks) {
   if (tasks.first != nullptr) {

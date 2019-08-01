@@ -47,9 +47,9 @@
     #define OATPP_IO_EVENT_INTERFACE_KQUEUE
 
   #elif defined(WIN32)
-    #include "oatpp/core/async/worker/wepoll/wepoll.h"
-    #define OATPP_IO_EVENT_INTERFACE "wepoll"
-    #define OATPP_IO_EVENT_INTERFACE_WEPOLL
+
+    #define OATPP_IO_EVENT_INTERFACE "not-implementer(windows)"
+    #define OATPP_IO_EVENT_INTERFACE_WIN
 
   #endif
 
@@ -78,13 +78,8 @@ private:
   oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
   oatpp::concurrency::SpinLock m_backlogLock;
 private:
-#ifdef WIN32
-  HANDLE m_eventQueueHandle;
-  oatpp::data::v_io_handle m_wakeupTrigger[2];
-#else
   oatpp::data::v_io_handle m_eventQueueHandle;
   oatpp::data::v_io_handle m_wakeupTrigger;
-#endif
   std::unique_ptr<v_char8[]> m_inEvents;
   v_int32 m_inEventsCount;
   v_int32 m_inEventsCapacity;
