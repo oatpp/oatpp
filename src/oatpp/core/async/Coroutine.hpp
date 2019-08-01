@@ -372,7 +372,7 @@ public:
 /**
  * Abstract Coroutine. Base class for Coroutines. It provides state management, coroutines stack management and error reporting functionality.
  */
-class AbstractCoroutine : public oatpp::base::Countable {
+class AbstractCoroutine /*: public oatpp::base::Countable*/ {
   friend oatpp::collection::FastQueue<AbstractCoroutine>;
   friend Processor;
   friend CoroutineStarter;
