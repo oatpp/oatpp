@@ -113,12 +113,12 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::s
   
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
   private:
-    std::shared_ptr<Response> m_response;
+    Response* m_response;
     std::shared_ptr<data::stream::OutputStream> m_stream;
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
   public:
     
-    SendAsyncCoroutine(const std::shared_ptr<Response>& response,
+    SendAsyncCoroutine(Response* response,
                        const std::shared_ptr<data::stream::OutputStream>& stream)
       : m_response(response)
       , m_stream(stream)
@@ -160,7 +160,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::s
     
   };
   
-  return SendAsyncCoroutine::start(shared_from_this(), stream);
+  return SendAsyncCoroutine::start(this, stream);
   
 }
   

@@ -35,7 +35,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 /**
  * Class which stores information of outgoing http Response.
  */
-class Response : public oatpp::base::Countable, public std::enable_shared_from_this<Response> {
+class Response : public oatpp::base::Countable {
 public:
   /**
    * Convenience typedef for Headers. <br>
