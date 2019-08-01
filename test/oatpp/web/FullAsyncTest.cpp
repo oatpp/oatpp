@@ -153,14 +153,13 @@ void FullAsyncTest::onRun() {
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
     auto connection = client->getConnection();
-    connection.reset();
-//    OATPP_ASSERT(connection);
+    OATPP_ASSERT(connection);
 
     v_int32 iterationsStep = m_iterationsPerStep;
 
     auto lastTick = oatpp::base::Environment::getMicroTickCount();
 
-    for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
+    for(v_int32 i = 0; i < iterationsStep /* 10*/; i ++) {
 
       //OATPP_LOGV("i", "%d", i);
 
@@ -170,7 +169,7 @@ void FullAsyncTest::onRun() {
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World Async!!!");
       }
-      
+/*
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param-Async", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
@@ -256,7 +255,7 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(part2->getInMemoryData() == "World");
 
       }
-
+*/
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();

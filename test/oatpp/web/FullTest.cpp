@@ -148,8 +148,7 @@ void FullTest::onRun() {
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
     auto connection = client->getConnection();
-    connection.reset();
-//    OATPP_ASSERT(connection);
+    OATPP_ASSERT(connection);
 
     v_int32 iterationsStep = m_iterationsPerStep;
 
