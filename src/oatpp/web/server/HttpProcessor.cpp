@@ -158,6 +158,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   
   if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
+    m_currentResponse.reset();
     return yieldTo(&HttpProcessor::Coroutine::act);
   }
   
@@ -169,7 +170,8 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
       OATPP_LOGD("[oatpp::web::server::HttpProcessor::Coroutine::onRequestDone()]", "Warning. ConnectionUpgradeHandler not set!");
     }
   }
-  
+
+  m_currentResponse.reset();
   return finish();
 }
   
