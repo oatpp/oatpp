@@ -105,7 +105,7 @@ public:
 #if defined(WIN32)
            bool useIOEventWorker = false
 #else
-           bool useIOEventWorker = true
+           bool useIOEventWorker = false
 #endif
           );
 
