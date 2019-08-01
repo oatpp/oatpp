@@ -223,7 +223,7 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(returnedData);
         OATPP_ASSERT(returnedData == data);
       }
-
+/*
       { // Multipart body
 
         std::unordered_map<oatpp::String, oatpp::String> map;
@@ -255,7 +255,7 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(part2->getInMemoryData() == "World");
 
       }
-
+*/
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();
