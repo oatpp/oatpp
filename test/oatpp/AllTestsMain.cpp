@@ -89,8 +89,8 @@ void runTests() {
 
   {
 
-    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
-    test_virtual.run();
+//    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
+//    test_virtual.run();
 
 //    oatpp::test::web::FullAsyncTest test_port(8000, 10);
 //    test_port.run();
