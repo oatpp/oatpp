@@ -92,7 +92,6 @@ jobs:
 #      displayName: 'Test'
 #      workingDirectory: build
 
-jobs:
 - job: windows
   displayName: 'Build - Windows'
   continueOnError: false
