@@ -142,6 +142,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
+  OATPP_LOGD("HttpProcessor", "response.use_cound=%d", response.use_count());
   m_currentResponse = response;
   return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
 }
@@ -151,6 +152,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
   m_outStream->setBufferPosition(0, 0, false);
+  OATPP_LOGD("HttpProcessor", "onResponseFormed. m_currentResponse.use_cound=%d", m_currentResponse.use_count());
   return m_currentResponse->sendAsync(m_outStream).next(m_outStream->flushAsync()).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
   
 }
