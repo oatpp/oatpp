@@ -156,7 +156,9 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
-  
+
+  OATPP_LOGD("HttpProcessor", "m_currentResponse.use_cound=%d", m_currentResponse.use_count());
+
   if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
     return yieldTo(&HttpProcessor::Coroutine::act);
   }
