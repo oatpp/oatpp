@@ -61,7 +61,7 @@ namespace __class {
 template <class T>
 class PolymorphicWrapper {
 protected:
-  std::shared_ptr<T> m_ptr;
+  mutable std::shared_ptr<T> m_ptr;
 public:
   /**
    * Static object type
