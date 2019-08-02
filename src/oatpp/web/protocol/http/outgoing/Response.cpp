@@ -160,8 +160,9 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::s
     }
     
   };
-  
-  return SendAsyncCoroutine::start(shared_from_this(), stream);
+  auto shared_this = shared_from_this();
+  OATPP_LOGD("Response", "shared_from_this.use_cound=%d", shared_this.use_count());
+  return SendAsyncCoroutine::start(shared_this, stream);
   
 }
   
