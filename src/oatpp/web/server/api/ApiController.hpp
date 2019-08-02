@@ -150,7 +150,7 @@ protected:
    * Endpoint Coroutine base class
    */
   template<class CoroutineT, class ControllerT>
-  class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, const std::shared_ptr<OutgoingResponse>&> {
+  class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, std::shared_ptr<OutgoingResponse>> {
   public:
     
     HandlerCoroutine(ControllerT* pController,
@@ -171,7 +171,7 @@ protected:
   class Handler : public oatpp::web::server::HttpRequestHandler {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
-    typedef oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
+    typedef oatpp::async::CoroutineStarterForResult<std::shared_ptr<OutgoingResponse>>
             (T::*MethodAsync)(const std::shared_ptr<protocol::http::incoming::Request>&);
   private:
     T* m_controller;
@@ -197,7 +197,7 @@ protected:
       }
     }
     
-    oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
+    oatpp::async::CoroutineStarterForResult<std::shared_ptr<OutgoingResponse>>
     handleAsync(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
       if(m_methodAsync != nullptr) {
         return (m_controller->*m_methodAsync)(request);

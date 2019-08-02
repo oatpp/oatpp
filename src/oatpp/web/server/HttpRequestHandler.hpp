@@ -97,7 +97,7 @@ public:
    * @param request - &id:oatpp::web::protocol::http::incoming::Request;.
    * @return - &id:oatpp::async::CoroutineStarterForResult; of &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
+  virtual oatpp::async::CoroutineStarterForResult<std::shared_ptr<OutgoingResponse>>
   handleAsync(const std::shared_ptr<IncomingRequest>& request) {
     throw HttpError(Status::CODE_501, "Asynchronous endpoint not implemented.");
   }

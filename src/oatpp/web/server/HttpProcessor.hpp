@@ -106,7 +106,7 @@ public:
     Action onHeadersParsed(const RequestHeadersReader::Result& headersReadResult);
     
     Action onRequestFormed();
-    Action onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response);
+    Action onResponse(std::shared_ptr<protocol::http::outgoing::Response> response);
     Action onResponseFormed();
     Action onRequestDone();
     

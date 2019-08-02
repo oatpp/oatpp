@@ -141,7 +141,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
   return m_currentRoute.getEndpoint()->handleAsync(m_currentRequest).callbackTo(&HttpProcessor::Coroutine::onResponse);
 }
 
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(std::shared_ptr<protocol::http::outgoing::Response> response) {
   OATPP_LOGD("HttpProcessor", "response.use_cound=%d", response.use_count());
   m_currentResponse = response;
   return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
