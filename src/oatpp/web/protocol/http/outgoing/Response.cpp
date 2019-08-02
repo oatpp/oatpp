@@ -36,7 +36,8 @@ Response::Response(const Status& status,
 
 std::shared_ptr<Response> Response::createShared(const Status& status,
                                                  const std::shared_ptr<Body>& body) {
-  return Shared_Outgoing_Response_Pool::allocateShared(status, body);
+  //return Shared_Outgoing_Response_Pool::allocateShared(status, body);
+  return std::make_shared<Response>(status, body);
 }
 
 const Status& Response::getStatus() const {
