@@ -62,6 +62,10 @@ public:
   ENDPOINT_ASYNC("GET", "/", Root) {
     
     ENDPOINT_ASYNC_INIT(Root)
+
+    ~Root() {
+      OATPP_LOGD("Controller", "~Root()");
+    }
     
     Action act() {
       //OATPP_LOGV(TAG, "GET '/'");

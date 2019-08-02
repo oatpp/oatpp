@@ -79,6 +79,8 @@ public:
 
 public:
 
+  virtual ~HttpRequestHandler() = default;
+
   /**
    * Handle incoming http request. <br>
    * *Implement this method.*
