@@ -37,7 +37,9 @@ Response::Response(const Status& status,
 std::shared_ptr<Response> Response::createShared(const Status& status,
                                                  const std::shared_ptr<Body>& body) {
   //return Shared_Outgoing_Response_Pool::allocateShared(status, body);
-  return std::make_shared<Response>(status, body);
+  auto ptr = std::make_shared<Response>(status, body);
+  OATPP_LOGD("Response", "ptr.use_cound=%d", ptr.use_count());
+  return ptr;
 }
 
 const Status& Response::getStatus() const {

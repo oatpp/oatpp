@@ -65,7 +65,9 @@ public:
     
     Action act() {
       //OATPP_LOGV(TAG, "GET '/'");
-      return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
+      auto ptr = controller->createResponse(Status::CODE_200, "Hello World Async!!!");
+      OATPP_LOGD("Controller", "ptr.use_cound=%d", ptr.use_count());
+      return _return(ptr);
     }
 
   };
