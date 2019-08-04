@@ -397,9 +397,9 @@ public:
     {}
     
     template<typename ReturnType, typename T, typename ...Args>
-    ReturnType call(ReturnType (T::*f)(), Args... args){
+    ReturnType call(ReturnType (T::*f)(), const Args&... args){
       MemberCaller* caller = static_cast<MemberCaller*>(m_objectPtr);
-      return (caller->*reinterpret_cast<ReturnType (MemberCaller::*)(Args...)>(f))(args...);
+      return (caller->*reinterpret_cast<ReturnType (MemberCaller::*)(const Args&...)>(f))(args...);
     }
     
   };
@@ -466,7 +466,7 @@ public:
   virtual Action handleError(const std::shared_ptr<const Error>& error);
   
   template<typename ...Args>
-  Action callWithParams(FunctionPtr ptr, Args... args) {
+  Action callWithParams(FunctionPtr ptr, const Args&... args) {
     return getMemberCaller().call<Action>(ptr, args...);
   }
 
@@ -800,7 +800,7 @@ public:
    * @param args - argumets to be passed to callback.
    * @return - finish Action.
    */
-  Action _return(Args... args) {
+  Action _return(const Args&... args) {
     m_parentReturnAction = getParent()->callWithParams(m_callback, args...);
     return Action::createActionByType(Action::TYPE_FINISH);
   }
