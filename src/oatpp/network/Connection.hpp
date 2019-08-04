@@ -39,6 +39,9 @@ public:
   SHARED_OBJECT_POOL(Shared_Connection_Pool, Connection, 32);
 private:
   data::v_io_handle m_handle;
+#ifdef WIN32
+  oatpp::data::stream::IOMode m_mode;
+#endif
 private:
   void setStreamIOMode(oatpp::data::stream::IOMode ioMode);
   oatpp::data::stream::IOMode getStreamIOMode();

@@ -31,6 +31,15 @@
 #include <ctime>
 #include <stdarg.h>
 
+#ifdef WIN32
+#include <WinSock2.h>
+
+struct tm* localtime_r(time_t *_clock, struct tm *_result) {
+    _localtime64_s(_result, _clock);
+    return _result;
+}
+#endif
+
 namespace oatpp { namespace base {
 
 std::shared_ptr<Logger> Environment::m_logger;
@@ -113,6 +122,17 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
 
   m_logger = logger;
 
+#ifdef WIN32
+    // Initialize Winsock
+    WSADATA wsaData;
+    int iResult;
+    iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+    if (iResult != 0) {
+
+        throw std::runtime_error("[oatpp::base::Environment::init()]: Error. WSAStartup failed");
+    }
+#endif
+
   checkTypes();
 
   m_objectsCount = 0;
@@ -124,16 +144,20 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
 #endif
 
   if(m_components.size() > 0) {
-    throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Components were created before call to Environment::init()");
+    throw std::runtime_error("[oatpp::base::Environment::init()]: Error. Invalid state. Components were created before call to Environment::init()");
   }
 
 }
 
 void Environment::destroy(){
   if(m_components.size() > 0) {
-    throw std::runtime_error("[oatpp::base::Environment]: Invalid state. Leaking components");
+    throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. Invalid state. Leaking components");
   }
   m_logger.reset();
+
+#ifdef WIN32
+    WSACleanup();
+#endif
 }
   
 void Environment::checkTypes(){
@@ -256,7 +280,7 @@ void Environment::registerComponent(const std::string& typeName, const std::stri
   auto& bucket = m_components[typeName];
   auto it = bucket.find(componentName);
   if(it != bucket.end()){
-    throw std::runtime_error("[oatpp::base::Environment]: Component with given name already exists: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::registerComponent()]: Error. Component with given name already exists: name='" + componentName + "'");
   }
   bucket[componentName] = component;
 }
@@ -264,12 +288,12 @@ void Environment::registerComponent(const std::string& typeName, const std::stri
 void Environment::unregisterComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment]: Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
   }
   auto& bucket = bucketIt->second;
   auto componentIt = bucket.find(componentName);
   if(componentIt == bucket.end()) {
-    throw std::runtime_error("[oatpp::base::Environment]: Component with given name does't exist: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component with given name does't exist: name='" + componentName + "'");
   }
   bucket.erase(componentIt);
   if(bucket.size() == 0) {
@@ -280,11 +304,11 @@ void Environment::unregisterComponent(const std::string& typeName, const std::st
 void* Environment::getComponent(const std::string& typeName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment]: Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
   if(bucket.size() > 1){
-    throw std::runtime_error("[oatpp::base::Environment]: Ambiguous component reference. Multiple components exist for a given type: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Ambiguous component reference. Multiple components exist for a given type: type='" + typeName + "'");
   }
   return bucket.begin()->second;
 }
@@ -292,12 +316,12 @@ void* Environment::getComponent(const std::string& typeName) {
 void* Environment::getComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment]: Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
   auto componentIt = bucket.find(componentName);
   if(componentIt == bucket.end()) {
-    throw std::runtime_error("[oatpp::base::Environment]: Component with given name does't exist: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component with given name does't exist: name='" + componentName + "'");
   }
   return componentIt->second;
 }

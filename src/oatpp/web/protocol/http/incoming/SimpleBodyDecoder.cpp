@@ -61,7 +61,7 @@ void SimpleBodyDecoder::doChunkedDecoding(oatpp::data::stream::InputStream* from
   
   auto buffer = oatpp::data::buffer::IOBuffer::createShared();
   
-  v_int32 maxLineSize = 8; // 0xFFFFFFFF 4Gb for chunk
+  const v_int32 maxLineSize = 8; // 0xFFFFFFFF 4Gb for chunk
   v_char8 lineBuffer[maxLineSize + 1];
   data::v_io_size countToRead;
   

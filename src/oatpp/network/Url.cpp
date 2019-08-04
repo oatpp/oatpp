@@ -27,16 +27,16 @@
 #include <cstdlib>
 
 namespace oatpp { namespace network {
-  
+
 oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   v_int32 pos0 = caret.getPosition();
   caret.findChar(':');
   v_int32 size = caret.getPosition() - pos0;
   if(size > 0) {
-    v_char8 buff[size];
-    std::memcpy(buff, &caret.getData()[pos0], size);
-    oatpp::base::StrBuffer::lowerCase(buff, size);
-    return oatpp::String((const char*)buff, size, true);
+    std::unique_ptr<v_char8> buff(new v_char8[size]);
+    std::memcpy(buff.get(), &caret.getData()[pos0], size);
+    oatpp::base::StrBuffer::lowerCase(buff.get(), size);
+    return oatpp::String((const char*)buff.get(), size, true);
   }
   return nullptr;
 }
