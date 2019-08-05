@@ -35,11 +35,16 @@
 
 **/.DS_Store
 
-#idea
+# idea
 .idea/
 cmake-build-debug/
 
-#local build
+# local build
 build/
 srt/build/
 test/build/
+
+# Docker
+
+Dockerfile
+
