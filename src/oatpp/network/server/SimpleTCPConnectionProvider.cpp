@@ -59,7 +59,11 @@ SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
 void SimpleTCPConnectionProvider::close() {
   if(!m_closed) {
     m_closed = true;
-    ::close(m_serverHandle);
+#if defined(WIN32) || defined(_WIN32)
+	::closesocket(m_serverHandle);
+#else
+	::close(m_serverHandle);
+#endif
   }
 }
 
@@ -93,14 +97,22 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
 
   if(ret != 0) {
-    ::close(serverHandle);
+#if defined(WIN32) || defined(_WIN32)
+	  ::closesocket(serverHandle);
+#else
+	  ::close(serverHandle);
+#endif
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Can't bind to address.");
     return -1 ;
   }
 
   ret = listen(serverHandle, 10000);
   if(ret < 0) {
-    ::close(serverHandle);
+#if defined(WIN32) || defined(_WIN32)
+	  ::closesocket(serverHandle);
+#else
+	  ::close(serverHandle);
+#endif
     return -1 ;
   }
 

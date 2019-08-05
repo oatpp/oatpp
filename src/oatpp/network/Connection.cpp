@@ -83,7 +83,11 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 
 data::v_io_size Connection::read(void *buff, data::v_io_size count){
   errno = 0;
+#if defined(WIN32) || defined(_WIN32)
+  auto result = ::recv(m_handle, (char*)buff, (size_t)count, 0);
+#else
   auto result = ::read(m_handle, buff, (size_t)count);
+#endif
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
@@ -221,7 +225,11 @@ oatpp::data::stream::IOMode Connection::getInputStreamIOMode() {
 }
 
 void Connection::close(){
-  ::close(m_handle);
+#if defined(WIN32) || defined(_WIN32)
+	::closesocket(m_handle);
+#else
+	::close(m_handle);
+#endif
 }
 
 }}

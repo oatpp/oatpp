@@ -33,7 +33,15 @@ namespace oatpp { namespace data {
 /**
  * Represents I/O handle (ex.: file descriptor).
  */
+#if defined(WIN32) || defined(_WIN32)
+	#if defined(_WIN64)
+	typedef unsigned long long v_io_handle;
+	#else
+	typedef unsigned long v_io_handle;
+	#endif
+#else
 typedef int v_io_handle;
+#endif
 
 /**
  * All I/O buffer operations (like read/write(buffer, size)) should return v_io_size. <br>
