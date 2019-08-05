@@ -34,7 +34,7 @@
 
 #include <stdlib.h>
 #include <sys/types.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #else
 #include <sys/socket.h>

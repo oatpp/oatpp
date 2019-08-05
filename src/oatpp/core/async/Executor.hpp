@@ -102,7 +102,7 @@ public:
   Executor(v_int32 processorWorkersCount = THREAD_NUM_DEFAULT,
            v_int32 ioWorkersCount = 1,
            v_int32 timerWorkersCount = 1,
-#if defined(WIN32)
+#if defined(WIN32) || defined(_WIN32)
            bool useIOEventWorker = false
 #else
            bool useIOEventWorker = true

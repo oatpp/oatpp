@@ -29,7 +29,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -85,7 +85,11 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
       if(connect(clientHandle, currResult->ai_addr, currResult->ai_addrlen) == 0) {
         break;
       } else {
+#if defined(WIN32) || defined(_WIN32)
+		::closesocket(clientHandle);
+#else
         ::close(clientHandle);
+#endif
       }
 
     }
@@ -178,7 +182,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           return repeat();
         }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
         u_long flags = 1;
         ioctlsocket(m_clientHandle, FIONBIO, &flags);
 #else
@@ -212,7 +216,11 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
-      ::close(m_clientHandle);
+#if defined(WIN32) || defined(_WIN32)
+	  ::closesocket(m_clientHandle);
+#else
+	  ::close(m_clientHandle);
+#endif
       m_currentResult = m_currentResult->ai_next;
 
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);

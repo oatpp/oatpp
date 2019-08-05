@@ -29,7 +29,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -59,7 +59,11 @@ SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
 void SimpleTCPConnectionProvider::close() {
   if(!m_closed) {
     m_closed = true;
-    ::close(m_serverHandle);
+#if defined(WIN32) || defined(_WIN32)
+	::closesocket(m_serverHandle);
+#else
+	::close(m_serverHandle);
+#endif
   }
 }
 
@@ -81,7 +85,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     return -1;
   }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(int));
 #else
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
@@ -93,18 +97,26 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
 
   if(ret != 0) {
-    ::close(serverHandle);
+#if defined(WIN32) || defined(_WIN32)
+	  ::closesocket(serverHandle);
+#else
+	  ::close(serverHandle);
+#endif
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Can't bind to address.");
     return -1 ;
   }
 
   ret = listen(serverHandle, 10000);
   if(ret < 0) {
-    ::close(serverHandle);
+#if defined(WIN32) || defined(_WIN32)
+	  ::closesocket(serverHandle);
+#else
+	  ::close(serverHandle);
+#endif
     return -1 ;
   }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
   u_long flags = 0;
   ioctlsocket(serverHandle, FIONBIO, &flags);
   ioctlsocket(serverHandle, FIOASYNC, &flags);
