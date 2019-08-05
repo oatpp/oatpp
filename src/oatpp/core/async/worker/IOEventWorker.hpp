@@ -46,7 +46,7 @@
     #define OATPP_IO_EVENT_INTERFACE "kqueue"
     #define OATPP_IO_EVENT_INTERFACE_KQUEUE
 
-  #elif defined(WIN32)
+  #elif defined(WIN32) || defined(_WIN32)
 
     #define OATPP_IO_EVENT_INTERFACE "not-implementer(windows)"
     #define OATPP_IO_EVENT_INTERFACE_WIN

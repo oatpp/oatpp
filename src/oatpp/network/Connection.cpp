@@ -24,7 +24,7 @@
 
 #include "./Connection.hpp"
 
-#if WIN32 || WIN64
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
 #else
@@ -40,7 +40,7 @@ namespace oatpp { namespace network {
 Connection::Connection(data::v_io_handle handle)
   : m_handle(handle)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
     // in Windows, there is no reliable method to get if a socket is blocking or not.
     // Eevery socket is created blocking in Windows so we assume this state and pray.
     m_mode = data::stream::BLOCKING;
@@ -60,7 +60,7 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
   flags |= MSG_NOSIGNAL;
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
     auto result = ::send(m_handle, (const char*) buff, (size_t)count, flags);
 #else
     auto result = ::send(m_handle, buff, (size_t)count, flags);
@@ -98,7 +98,7 @@ data::v_io_size Connection::read(void *buff, data::v_io_size count){
   }
   return result;
 }
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
     u_long flags;
@@ -148,7 +148,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 }
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 oatpp::data::stream::IOMode Connection::getStreamIOMode() {
     return m_mode;
 }

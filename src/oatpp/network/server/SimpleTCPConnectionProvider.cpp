@@ -29,7 +29,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -81,7 +81,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     return -1;
   }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(int));
 #else
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
@@ -104,7 +104,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     return -1 ;
   }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
   u_long flags = 0;
   ioctlsocket(serverHandle, FIONBIO, &flags);
   ioctlsocket(serverHandle, FIOASYNC, &flags);

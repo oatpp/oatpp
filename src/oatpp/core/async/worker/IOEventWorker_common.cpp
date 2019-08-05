@@ -24,7 +24,7 @@
 
 #include "IOEventWorker.hpp"
 
-#if WIN32 || WIN64
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #else
 #include <unistd.h>
@@ -52,7 +52,7 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
 
 
 IOEventWorker::~IOEventWorker() {
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_WIN32)
   if(m_eventQueueHandle >=0) {
     ::close(m_eventQueueHandle);
   }

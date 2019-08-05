@@ -29,7 +29,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -178,7 +178,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           return repeat();
         }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
         u_long flags = 1;
         ioctlsocket(m_clientHandle, FIONBIO, &flags);
 #else

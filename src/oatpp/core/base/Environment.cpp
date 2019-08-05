@@ -31,7 +31,7 @@
 #include <ctime>
 #include <stdarg.h>
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <WinSock2.h>
 
 struct tm* localtime_r(time_t *_clock, struct tm *_result) {
@@ -122,7 +122,7 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
 
   m_logger = logger;
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
     // Initialize Winsock
     WSADATA wsaData;
     int iResult;
@@ -155,7 +155,7 @@ void Environment::destroy(){
   }
   m_logger.reset();
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
     WSACleanup();
 #endif
 }
