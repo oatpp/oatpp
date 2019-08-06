@@ -210,17 +210,21 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
 #if defined(WIN32) || defined(_WIN32)
 
-      if(res == 0 || errno == WSAEISCONN) {
+      auto error = WSAGetLastError();
+
+      if(res == 0 || error == WSAEISCONN) {
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
-      if(errno == WSAEWOULDBLOCK || errno == WSAEINPROGRESS) {
+      if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-      } else if(errno == WSAEINTR) {
+      } else if(error == WSAEINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
 	    ::closesocket(m_clientHandle);
+
 #else
+
       if(res == 0 || errno == EISCONN) {
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
@@ -229,10 +233,12 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       } else if(errno == EINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
-	    ::close(m_clientHandle);
-#endif
-      m_currentResult = m_currentResult->ai_next;
 
+	    ::close(m_clientHandle);
+
+#endif
+
+      m_currentResult = m_currentResult->ai_next;
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
 
     }
