@@ -27,7 +27,6 @@
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
-#include <windows.h>
 #else
 #include <unistd.h>
 #include <sys/socket.h>
@@ -56,7 +55,7 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 
 #if defined(WIN32) || defined(_WIN32)
 
-  auto result = ::send(m_handle, (const char*) buff, (size_t)count, flags);
+  auto result = ::send(m_handle, (const char*) buff, (size_t)count, 0);
 
   if(result == SOCKET_ERROR) {
 
