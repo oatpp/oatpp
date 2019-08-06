@@ -86,7 +86,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
         break;
       } else {
 #if defined(WIN32) || defined(_WIN32)
-		::closesocket(clientHandle);
+		    ::closesocket(clientHandle);
 #else
         ::close(clientHandle);
 #endif
@@ -177,7 +177,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
         m_clientHandle = socket(m_currentResult->ai_family, m_currentResult->ai_socktype, m_currentResult->ai_protocol);
 
-        if (m_clientHandle < 0) {
+        if (m_clientHandle < 0) { // TODO - For windows it should check for SOCKET_ERROR constant
           m_currentResult = m_currentResult->ai_next;
           return repeat();
         }
@@ -207,6 +207,24 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       errno = 0;
 
       auto res = connect(m_clientHandle, m_currentResult->ai_addr, m_currentResult->ai_addrlen);
+
+#if defined(WIN32) || defined(_WIN32)
+
+      auto error = WSAGetLastError();
+
+      if(res == 0 || error == WSAEISCONN) {
+        return _return(oatpp::network::Connection::createShared(m_clientHandle));
+      }
+      if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
+        return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      } else if(error == WSAEINTR) {
+        return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
+
+	    ::closesocket(m_clientHandle);
+
+#else
+
       if(res == 0 || errno == EISCONN) {
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
@@ -216,13 +234,11 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
-#if defined(WIN32) || defined(_WIN32)
-	  ::closesocket(m_clientHandle);
-#else
-	  ::close(m_clientHandle);
-#endif
-      m_currentResult = m_currentResult->ai_next;
+	    ::close(m_clientHandle);
 
+#endif
+
+      m_currentResult = m_currentResult->ai_next;
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
 
     }

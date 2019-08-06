@@ -60,12 +60,68 @@ void SimpleTCPConnectionProvider::close() {
   if(!m_closed) {
     m_closed = true;
 #if defined(WIN32) || defined(_WIN32)
-	::closesocket(m_serverHandle);
+	  ::closesocket(m_serverHandle);
 #else
-	::close(m_serverHandle);
+	  ::close(m_serverHandle);
 #endif
   }
 }
+
+#if defined(WIN32) || defined(_WIN32)
+
+oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
+
+  int iResult;
+
+  SOCKET ListenSocket = INVALID_SOCKET;
+
+  struct addrinfo *result = NULL;
+  struct addrinfo hints;
+
+  ZeroMemory(&hints, sizeof(hints));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  hints.ai_flags = AI_PASSIVE;
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+
+  iResult = getaddrinfo(NULL, (const char*) portStr->getData(), &hints, &result);
+  if ( iResult != 0 ) {
+    printf("getaddrinfo failed with error: %d\n", iResult);
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d", iResult);
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
+  }
+
+  ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+  if (ListenSocket == INVALID_SOCKET) {
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Call to socket() failed with result=%ld", WSAGetLastError());
+    freeaddrinfo(result);
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to socket() failed.");
+  }
+
+  // Setup the TCP listening socket
+  iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+  if (iResult == SOCKET_ERROR) {
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Call to bind() failed with result=%ld", WSAGetLastError());
+    freeaddrinfo(result);
+    closesocket(ListenSocket);
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to bind() failed.");
+  }
+
+  freeaddrinfo(result);
+
+  iResult = listen(ListenSocket, SOMAXCONN);
+  if (iResult == SOCKET_ERROR) {
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Call to listen() failed with result=%ld", WSAGetLastError());
+    closesocket(ListenSocket);
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to listen() failed.");
+  }
+
+  return ListenSocket;
+
+}
+
+#else
 
 oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
@@ -85,11 +141,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     return -1;
   }
 
-#if defined(WIN32) || defined(_WIN32)
-  ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(int));
-#else
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-#endif
   if(ret < 0) {
     OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Warning. Failed to set %s for accepting socket", "SO_REUSEADDR");
   }
@@ -97,35 +149,23 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
 
   if(ret != 0) {
-#if defined(WIN32) || defined(_WIN32)
-	  ::closesocket(serverHandle);
-#else
-	  ::close(serverHandle);
-#endif
+    ::close(serverHandle);
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Can't bind to address.");
-    return -1 ;
   }
 
   ret = listen(serverHandle, 10000);
   if(ret < 0) {
-#if defined(WIN32) || defined(_WIN32)
-	  ::closesocket(serverHandle);
-#else
-	  ::close(serverHandle);
-#endif
+    ::close(serverHandle);
     return -1 ;
   }
 
-#if defined(WIN32) || defined(_WIN32)
-  u_long flags = 0;
-  ioctlsocket(serverHandle, FIONBIO, &flags);
-  ioctlsocket(serverHandle, FIOASYNC, &flags);
-#else
   fcntl(serverHandle, F_SETFL, 0);//O_NONBLOCK);
-#endif
+
   return serverHandle;
 
 }
+
+#endif
 
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
 
