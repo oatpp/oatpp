@@ -4,93 +4,93 @@
 # https://aka.ms/yaml
 
 jobs:
-#- job: ubuntu_16_04_mem_pool_on
-#  displayName: 'Build - Ubuntu 16.04 - With Memory Pool'
-#  continueOnError: false
-#  pool:
-#    vmImage: 'Ubuntu 16.04'
-#  workspace:
-#    clean: all
-#  steps:
-#    - script: |
-#        mkdir build
-#    - task: CMake@1
-#    - script: |
-#        cmake -DCMAKE_BUILD_TYPE=Release ..
-#        make
-#      displayName: 'CMake'
-#      workingDirectory: build
-#
-#    - script: |
-#        make test ARGS="-V"
-#      displayName: 'Test'
-#      workingDirectory: build
-#
-#- job: ubuntu_16_04_mem_pool_off
-#  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
-#  continueOnError: false
-#  pool:
-#    vmImage: 'Ubuntu 16.04'
-#  workspace:
-#    clean: all
-#  steps:
-#    - script: |
-#        mkdir build
-#    - task: CMake@1
-#    - script: |
-#        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
-#        make
-#      displayName: 'CMake'
-#      workingDirectory: build
-#
-#    - script: |
-#        make test ARGS="-V"
-#      displayName: 'Test'
-#      workingDirectory: build
-#
-#- job: macOS_mem_pool_on
-#  displayName: 'Build - macOS - With Memory Pool'
-#  continueOnError: false
-#  pool:
-#    vmImage: 'macOS-10.14'
-#  workspace:
-#    clean: all
-#  steps:
-#    - script: |
-#        mkdir build
-#    - task: CMake@1
-#    - script: |
-#        cmake -DCMAKE_BUILD_TYPE=Release ..
-#        make
-#      displayName: 'CMake'
-#      workingDirectory: build
-#
-#    - script: |
-#        make test ARGS="-V"
-#      displayName: 'Test'
-#      workingDirectory: build
-#
-#- job: macOS_mem_pool_off
-#  displayName: 'Build - macOS - No Memory Pool'
-#  continueOnError: false
-#  pool:
-#    vmImage: 'macOS-10.14'
-#  workspace:
-#    clean: all
-#  steps:
-#    - script: |
-#        mkdir build
-#    - task: CMake@1
-#    - script: |
-#        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
-#        make
-#      displayName: 'CMake'
-#      workingDirectory: build
-#
-#    - script: |
-#        make test ARGS="-V"
-#      displayName: 'Test'
-#      workingDirectory: build
+- job: ubuntu_16_04_mem_pool_on
+  displayName: 'Build - Ubuntu 16.04 - With Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
+- job: ubuntu_16_04_mem_pool_off
+  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
+- job: macOS_mem_pool_on
+  displayName: 'Build - macOS - With Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'macOS-10.14'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
+- job: macOS_mem_pool_off
+  displayName: 'Build - macOS - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'macOS-10.14'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - task: CMake@1
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
 
 - job: windows_mem_pool_off
   displayName: 'Build - Windows - With Memory Pool'
