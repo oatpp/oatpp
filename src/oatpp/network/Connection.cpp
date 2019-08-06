@@ -76,8 +76,8 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 #else
 
   errno = 0;
-
   v_int32 flags = 0;
+
 #ifdef MSG_NOSIGNAL
   flags |= MSG_NOSIGNAL;
 #endif
@@ -148,6 +148,7 @@ data::v_io_size Connection::read(void *buff, data::v_io_size count){
 #endif
 
 }
+
 #if defined(WIN32) || defined(_WIN32)
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
