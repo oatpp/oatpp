@@ -69,61 +69,70 @@ void SimpleTCPConnectionProvider::close() {
 
 oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
-  oatpp::data::v_io_handle serverHandle;
-  v_int32 ret;
-  int yes = 1;
+  WSADATA wsaData;
+  int iResult;
 
-  struct sockaddr_in6 addr;
+  SOCKET ListenSocket = INVALID_SOCKET;
+  SOCKET ClientSocket = INVALID_SOCKET;
 
-  addr.sin6_family = AF_INET6;
-  addr.sin6_port = htons(m_port);
-  addr.sin6_addr = in6addr_any;
+  struct addrinfo *result = NULL;
+  struct addrinfo hints;
 
-  serverHandle = socket(AF_INET6, SOCK_STREAM, 0);
+  int iSendResult;
+  char recvbuf[DEFAULT_BUFLEN];
+  int recvbuflen = DEFAULT_BUFLEN;
 
-  if(serverHandle < 0){
-    return -1;
+  // Initialize Winsock
+  iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+  if (iResult != 0) {
+    printf("WSAStartup failed with error: %d\n", iResult);
+    return 1;
   }
 
-#if defined(WIN32) || defined(_WIN32)
-  ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(int));
-#else
-  ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-#endif
-  if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Warning. Failed to set %s for accepting socket", "SO_REUSEADDR");
+  ZeroMemory(&hints, sizeof(hints));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  hints.ai_flags = AI_PASSIVE;
+
+  // Resolve the server address and port
+  iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+  if ( iResult != 0 ) {
+    printf("getaddrinfo failed with error: %d\n", iResult);
+    WSACleanup();
+    return 1;
   }
 
-  ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
-
-  if(ret != 0) {
-#if defined(WIN32) || defined(_WIN32)
-	  ::closesocket(serverHandle);
-#else
-	  ::close(serverHandle);
-#endif
-    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Can't bind to address.");
-    return -1 ;
+  // Create a SOCKET for connecting to server
+  ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+  if (ListenSocket == INVALID_SOCKET) {
+    printf("socket failed with error: %ld\n", WSAGetLastError());
+    freeaddrinfo(result);
+    WSACleanup();
+    return 1;
   }
 
-  ret = listen(serverHandle, 10000);
-  if(ret < 0) {
-#if defined(WIN32) || defined(_WIN32)
-	  ::closesocket(serverHandle);
-#else
-	  ::close(serverHandle);
-#endif
-    return -1 ;
+  // Setup the TCP listening socket
+  iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+  if (iResult == SOCKET_ERROR) {
+    printf("bind failed with error: %d\n", WSAGetLastError());
+    freeaddrinfo(result);
+    closesocket(ListenSocket);
+    WSACleanup();
+    return 1;
   }
 
-#if defined(WIN32) || defined(_WIN32)
-  u_long flags = 0;
-  ioctlsocket(serverHandle, FIONBIO, &flags);
-  ioctlsocket(serverHandle, FIOASYNC, &flags);
-#else
-  fcntl(serverHandle, F_SETFL, 0);//O_NONBLOCK);
-#endif
-  return serverHandle;
+  freeaddrinfo(result);
+
+  iResult = listen(ListenSocket, SOMAXCONN);
+  if (iResult == SOCKET_ERROR) {
+    printf("listen failed with error: %d\n", WSAGetLastError());
+    closesocket(ListenSocket);
+    WSACleanup();
+    return 1;
+  }
+
+  return ListenSocket;
 
 }
 
