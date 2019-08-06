@@ -53,6 +53,28 @@ Connection::~Connection(){
 
 data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 
+#if defined(WIN32) || defined(_WIN32)
+
+  auto result = ::send(m_handle, (const char*) buff, (size_t)count, flags);
+
+  if(result == SOCKET_ERROR) {
+
+    auto e = WSAGetLastError();
+
+    if(e == WSAEWOULDBLOCK){
+      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
+    } else if(e == WSAEINTR) {
+      return data::IOError::RETRY;
+    } else if(e == WSAECONNRESET) {
+      return data::IOError::BROKEN_PIPE;
+    } else {
+      //OATPP_LOGD("Connection", "write errno=%d", e);
+    }
+  }
+  return result;
+
+#else
+
   errno = 0;
 
   v_int32 flags = 0;
@@ -60,11 +82,7 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
   flags |= MSG_NOSIGNAL;
 #endif
 
-#if defined(WIN32) || defined(_WIN32)
-    auto result = ::send(m_handle, (const char*) buff, (size_t)count, flags);
-#else
-    auto result = ::send(m_handle, buff, (size_t)count, flags);
-#endif
+  auto result = ::send(m_handle, buff, (size_t)count, flags);
 
   if(result <= 0) {
     auto e = errno;
@@ -79,15 +97,40 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
     }
   }
   return result;
+
+#endif
+
 }
 
 data::v_io_size Connection::read(void *buff, data::v_io_size count){
-  errno = 0;
+
 #if defined(WIN32) || defined(_WIN32)
+
   auto result = ::recv(m_handle, (char*)buff, (size_t)count, 0);
+
+  if(result == SOCKET_ERROR) {
+
+    auto e = WSAGetLastError();
+
+    if(e == WSAEWOULDBLOCK){
+      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
+    } else if(e == WSAEINTR) {
+      return data::IOError::RETRY;
+    } else if(e == WSAECONNRESET) {
+      return data::IOError::BROKEN_PIPE;
+    } else {
+      //OATPP_LOGD("Connection", "write errno=%d", e);
+    }
+  }
+  return result;
+
+
 #else
+
+  errno = 0;
+
   auto result = ::read(m_handle, buff, (size_t)count);
-#endif
+
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
@@ -101,6 +144,9 @@ data::v_io_size Connection::read(void *buff, data::v_io_size count){
     }
   }
   return result;
+
+#endif
+
 }
 #if defined(WIN32) || defined(_WIN32)
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
