@@ -94,7 +94,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   hints.ai_flags = AI_PASSIVE;
 
   // Resolve the server address and port
-  iResult = getaddrinfo(NULL, m_port, &hints, &result);
+  iResult = getaddrinfo(NULL, "8000", &hints, &result);
   if ( iResult != 0 ) {
     printf("getaddrinfo failed with error: %d\n", iResult);
     WSACleanup();
