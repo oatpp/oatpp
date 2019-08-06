@@ -79,8 +79,6 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   struct addrinfo hints;
 
   int iSendResult;
-  char recvbuf[DEFAULT_BUFLEN];
-  int recvbuflen = DEFAULT_BUFLEN;
 
   // Initialize Winsock
   iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
@@ -96,7 +94,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   hints.ai_flags = AI_PASSIVE;
 
   // Resolve the server address and port
-  iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+  iResult = getaddrinfo(NULL, m_port, &hints, &result);
   if ( iResult != 0 ) {
     printf("getaddrinfo failed with error: %d\n", iResult);
     WSACleanup();
