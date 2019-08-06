@@ -27,6 +27,7 @@
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #include <WinSock2.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <sys/socket.h>
