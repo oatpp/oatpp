@@ -24,6 +24,7 @@
 
 #include "Executor.hpp"
 #include "oatpp/core/async/worker/IOEventWorker.hpp"
+#include "oatpp/core/async/worker/IOWorker.hpp"
 #include "oatpp/core/async/worker/TimerWorker.hpp"
 
 namespace oatpp { namespace async {
@@ -77,7 +78,7 @@ void Executor::SubmissionProcessor::detach() {
 
 const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
 
-Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int32 timerWorkersCount)
+Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int32 timerWorkersCount, bool useIOEventWorker)
   : m_balancer(0)
 {
 
@@ -88,8 +89,14 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
   m_allWorkers.insert(m_allWorkers.end(), m_processorWorkers.begin(), m_processorWorkers.end());
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
-  for(v_int32 i = 0; i < ioWorkersCount; i++) {
-    ioWorkers.push_back(std::make_shared<worker::IOEventWorkerForeman>());
+  if(useIOEventWorker) {
+    for (v_int32 i = 0; i < ioWorkersCount; i++) {
+      ioWorkers.push_back(std::make_shared<worker::IOEventWorkerForeman>());
+    }
+  } else {
+    for (v_int32 i = 0; i < ioWorkersCount; i++) {
+      ioWorkers.push_back(std::make_shared<worker::IOWorker>());
+    }
   }
 
   linkWorkers(ioWorkers);

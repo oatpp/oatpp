@@ -30,7 +30,10 @@ add_library(oatpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
+        oatpp/core/async/worker/IOEventWorker_win.cpp
         oatpp/core/async/worker/IOEventWorker.hpp
+        oatpp/core/async/worker/IOWorker.cpp
+        oatpp/core/async/worker/IOWorker.hpp
         oatpp/core/async/worker/TimerWorker.cpp
         oatpp/core/async/worker/TimerWorker.hpp
         oatpp/core/base/CommandLineArguments.cpp
@@ -225,7 +228,11 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
 find_package(Threads REQUIRED)
 
-target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+if(MSVC)
+    target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} wsock32 ws2_32)
+else(MSVC)
+    target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+endif(MSVC)
 
 target_include_directories(oatpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

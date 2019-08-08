@@ -56,7 +56,7 @@ HttpConnectionHandler::Task::createShared(HttpRouter* router,
 
 void HttpConnectionHandler::Task::run(){
   
-  v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+  const v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
   v_char8 buffer [bufferSize];
   
   auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, buffer, bufferSize);

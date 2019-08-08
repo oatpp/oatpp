@@ -24,7 +24,11 @@
 
 #include "IOEventWorker.hpp"
 
+#if defined(WIN32) || defined(_WIN32)
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 namespace oatpp { namespace async { namespace worker {
 
@@ -46,8 +50,9 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
   m_thread = std::thread(&IOEventWorker::run, this);
 }
 
-IOEventWorker::~IOEventWorker() {
 
+IOEventWorker::~IOEventWorker() {
+#if !defined(WIN32) && !defined(_WIN32)
   if(m_eventQueueHandle >=0) {
     ::close(m_eventQueueHandle);
   }
@@ -55,8 +60,9 @@ IOEventWorker::~IOEventWorker() {
   if(m_wakeupTrigger >= 0) {
     ::close(m_wakeupTrigger);
   }
-
+#endif
 }
+
 
 void IOEventWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine> &tasks) {
   if (tasks.first != nullptr) {

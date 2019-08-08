@@ -29,10 +29,16 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#if defined(WIN32) || defined(_WIN32)
+#include <io.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#else
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 namespace oatpp { namespace network { namespace client {
 
@@ -43,7 +49,7 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& ho
   setProperty(PROPERTY_HOST, m_host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
 }
-  
+
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
@@ -79,7 +85,11 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
       if(connect(clientHandle, currResult->ai_addr, currResult->ai_addrlen) == 0) {
         break;
       } else {
+#if defined(WIN32) || defined(_WIN32)
+		    ::closesocket(clientHandle);
+#else
         ::close(clientHandle);
+#endif
       }
 
     }
@@ -107,7 +117,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 }
 
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
-  
+
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
     oatpp::String m_host;
@@ -117,7 +127,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     struct addrinfo* m_result;
     struct addrinfo* m_currentResult;
   public:
-    
+
     ConnectCoroutine(const oatpp::String& host, v_int32 port)
       : m_host(host)
       , m_port(port)
@@ -167,13 +177,17 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
         m_clientHandle = socket(m_currentResult->ai_family, m_currentResult->ai_socktype, m_currentResult->ai_protocol);
 
-        if (m_clientHandle < 0) {
+        if (m_clientHandle < 0) { // TODO - For windows it should check for SOCKET_ERROR constant
           m_currentResult = m_currentResult->ai_next;
           return repeat();
         }
 
+#if defined(WIN32) || defined(_WIN32)
+        u_long flags = 1;
+        ioctlsocket(m_clientHandle, FIONBIO, &flags);
+#else
         fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
-
+#endif
 #ifdef SO_NOSIGPIPE
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
@@ -193,6 +207,24 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       errno = 0;
 
       auto res = connect(m_clientHandle, m_currentResult->ai_addr, m_currentResult->ai_addrlen);
+
+#if defined(WIN32) || defined(_WIN32)
+
+      auto error = WSAGetLastError();
+
+      if(res == 0 || error == WSAEISCONN) {
+        return _return(oatpp::network::Connection::createShared(m_clientHandle));
+      }
+      if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
+        return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      } else if(error == WSAEINTR) {
+        return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
+
+	    ::closesocket(m_clientHandle);
+
+#else
+
       if(res == 0 || errno == EISCONN) {
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
@@ -202,17 +234,19 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
-      ::close(m_clientHandle);
-      m_currentResult = m_currentResult->ai_next;
+	    ::close(m_clientHandle);
 
+#endif
+
+      m_currentResult = m_currentResult->ai_next;
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
 
     }
-    
+
   };
-  
+
   return ConnectCoroutine::startForResult(m_host, m_port);
-  
+
 }
-  
+
 }}}

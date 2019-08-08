@@ -34,10 +34,14 @@
 
 #include <stdlib.h>
 #include <sys/types.h>
+#if defined(WIN32) || defined(_WIN32)
+#include <io.h>
+#else
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#endif
 
 namespace oatpp { namespace web { namespace client {
 
