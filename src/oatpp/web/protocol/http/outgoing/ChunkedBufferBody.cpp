@@ -79,7 +79,8 @@ async::Action ChunkedBufferBody::WriteToStreamCoroutine::act() {
 }
 
 async::Action ChunkedBufferBody::WriteToStreamCoroutine::writeChunkSize() {
-  m_inlineWriteData.set(m_buffer, oatpp::utils::conversion::primitiveToCharSequence(m_currChunk->getData()->size, m_buffer, "%X\r\n"));
+  m_inlineWriteData.set(m_buffer, oatpp::utils::conversion::primitiveToCharSequence(m_currChunk->getData()->size,
+                                                                                    m_buffer, 16, "%X\r\n"));
   m_nextAction = yieldTo(&WriteToStreamCoroutine::writeChunkData);
   return yieldTo(&WriteToStreamCoroutine::writeCurrData);
 }

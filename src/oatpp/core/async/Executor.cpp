@@ -53,10 +53,12 @@ void Executor::SubmissionProcessor::run() {
 }
 
 void Executor::SubmissionProcessor::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+  (void)tasks;
   std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushTasks]: Error. This method does nothing.");
 }
 
 void Executor::SubmissionProcessor::pushOneTask(AbstractCoroutine* task) {
+  (void)task;
   std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushOneTask]: Error. This method does nothing.");
 }
 
@@ -119,9 +121,8 @@ void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& w
 
   if(m_processorWorkers.size() > workers.size() && (m_processorWorkers.size() % workers.size()) == 0) {
 
-    v_int32 wi = 0;
-    for(v_int32 i = 0; i < m_processorWorkers.size(); i ++) {
-      auto& p = m_processorWorkers[i];
+    size_t wi = 0;
+    for(auto & p : m_processorWorkers) {
       p->getProcessor().addWorker(workers[wi]);
       wi ++;
       if(wi == workers.size()) {
@@ -131,10 +132,10 @@ void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& w
 
   } else if ((workers.size() % m_processorWorkers.size()) == 0) {
 
-    v_int32 pi = 0;
-    for(v_int32 i = 0; i < workers.size(); i ++) {
+    size_t pi = 0;
+    for(const auto & worker : workers) {
       auto& p = m_processorWorkers[pi];
-      p->getProcessor().addWorker(workers[i]);
+      p->getProcessor().addWorker(worker);
       pi ++;
       if(pi == m_processorWorkers.size()) {
         pi = 0;
@@ -143,8 +144,7 @@ void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& w
 
   } else {
 
-    for(v_int32 i = 0; i < m_processorWorkers.size(); i ++) {
-      auto& p = m_processorWorkers[i];
+    for(auto & p : m_processorWorkers) {
       for(auto& w : workers) {
         p->getProcessor().addWorker(w);
       }

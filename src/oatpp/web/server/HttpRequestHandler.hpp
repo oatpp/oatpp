@@ -86,6 +86,7 @@ public:
    * @return - outgoing http response. &id:oatpp::web::protocol::http::outgoing::Response;.
    */
   virtual std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) {
+    (void)request;
     throw HttpError(Status::CODE_501, "Endpoint not implemented.");
   }
 
@@ -97,8 +98,14 @@ public:
    */
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
   handleAsync(const std::shared_ptr<IncomingRequest>& request) {
+    (void)request;
     throw HttpError(Status::CODE_501, "Asynchronous endpoint not implemented.");
   }
+
+  /**
+   * You have to provide a definition for destructors, otherwise its undefined behaviour.
+   */
+  virtual ~HttpRequestHandler() = default;
 };
 
 }}}

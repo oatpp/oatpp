@@ -60,7 +60,9 @@ void doGarbageAllocsStdNew(v_int32 garbageNumber){
 }
   
 void testStdNew(v_int32 objectsNumber, v_int32 garbageNumber, v_int32 chunkSize){
-  
+
+  (void)chunkSize;
+
   TestClass** objects = new TestClass* [objectsNumber];
   
   for(v_int32 i = 0; i < objectsNumber; i++){

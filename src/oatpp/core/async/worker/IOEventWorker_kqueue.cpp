@@ -82,6 +82,7 @@ void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
 
 void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr) {
 
+  (void)operation;
   auto& action = getCoroutineScheduledAction(coroutine);
 
   switch(action.getType()) {

@@ -275,6 +275,7 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 }
 
 Action AbstractCoroutine::handleError(const std::shared_ptr<const Error>& error) {
+  (void)error;
   return Action::TYPE_ERROR;
 }
 

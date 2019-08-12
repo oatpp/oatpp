@@ -132,6 +132,8 @@ static void* operator new(std::size_t sz, void* entry) { \
 } \
 \
 static void operator delete(void* ptr, void* entry) { \
+  (void)ptr; \
+  (void)entry; \
 }
 
 #ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
@@ -178,6 +180,8 @@ static void operator delete(void* ptr, void* entry) { \
   } \
   \
   static void operator delete(void* ptr, void* entry) { \
+    (void)ptr; \
+    (void)entry; \
   }
 #else
   #define OBJECT_POOL_THREAD_LOCAL(POOL_NAME, TYPE, CHUNK_SIZE) \
