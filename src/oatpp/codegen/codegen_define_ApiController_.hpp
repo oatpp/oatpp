@@ -318,6 +318,7 @@ void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<Endpoint::Info>& info)
 \
 template<class T> \
 static typename Handler<T>::Method Z__ENDPOINT_METHOD_##NAME(T* controller) { \
+  (void)controller; \
   return &T::Z__PROXY_METHOD_##NAME; \
 } \
 \
@@ -353,6 +354,7 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH, LIST) \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
 Z__PROXY_METHOD_##NAME(const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
 { \
+  (void)__request; \
   return NAME(); \
 } \
 \
@@ -430,6 +432,7 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
 template<class T> \
 static typename Handler<T>::MethodAsync Z__ENDPOINT_METHOD_##NAME(T* controller) { \
+  (void)controller; \
   return &T::Z__PROXY_METHOD_##NAME; \
 } \
 \

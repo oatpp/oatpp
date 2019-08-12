@@ -525,6 +525,7 @@ public:
   }
 
   static void operator delete(void* ptr, std::size_t sz) {
+    (void)sz;
     ::operator delete(ptr);
   }
 
@@ -721,6 +722,7 @@ public:
   }
 
   static void operator delete(void* ptr, std::size_t sz) {
+    (void)sz;
     ::operator delete(ptr);
   }
 public:

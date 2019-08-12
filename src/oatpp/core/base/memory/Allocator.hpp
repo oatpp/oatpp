@@ -81,10 +81,12 @@ public:
   {};
   
   T* allocate(std::size_t n) {
+    (void)n;
     return static_cast<T*>(getPool(m_poolInfo).obtain());
   }
   
   void deallocate(T* ptr, size_t n) {
+    (void)n;
     oatpp::base::memory::MemoryPool::free(ptr);
   }
   
@@ -131,10 +133,12 @@ public:
   {};
   
   T* allocate(std::size_t n) {
+    (void)n;
     return static_cast<T*>(getPool(m_poolInfo).obtain());
   }
   
   void deallocate(T* ptr, size_t n) {
+    (void)n;
     oatpp::base::memory::MemoryPool::free(ptr);
   }
   
@@ -187,6 +191,7 @@ public:
   {};
   
   T* allocate(std::size_t n) {
+    (void)n;
     void* mem = ::operator new(sizeof(T) + m_info.extraWanted);
     m_info.baseSize = sizeof(T);
     m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
@@ -194,6 +199,7 @@ public:
   }
   
   void deallocate(T* ptr, size_t n) {
+    (void)n;
     ::operator delete(ptr);
   }
   
@@ -225,6 +231,7 @@ public:
   {};
   
   T* allocate(std::size_t n) {
+    (void)n;
     void* mem = m_pool.obtain();
     m_info.baseSize = sizeof(T);
     m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
@@ -232,6 +239,7 @@ public:
   }
   
   void deallocate(T* ptr, size_t n) {
+    (void)n;
     oatpp::base::memory::MemoryPool::free(ptr);
   }
   

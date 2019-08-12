@@ -137,13 +137,13 @@ void Processor::waitForTasks() {
 
 void Processor::popTasks() {
 
-  for(v_int32 i = 0; i < m_ioWorkers.size(); i++) {
+  for(size_t i = 0; i < m_ioWorkers.size(); i++) {
     auto& worker = m_ioWorkers[i];
     auto& popQueue = m_ioPopQueues[i];
     worker->pushTasks(popQueue);
   }
 
-  for(v_int32 i = 0; i < m_timerWorkers.size(); i++) {
+  for(size_t i = 0; i < m_timerWorkers.size(); i++) {
     auto& worker = m_timerWorkers[i];
     auto& popQueue = m_timerPopQueues[i];
     worker->pushTasks(popQueue);

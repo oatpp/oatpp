@@ -153,6 +153,7 @@ public:
                                            oatpp::data::stream::AsyncInlineReadData& inlineData,
                                            oatpp::async::Action&& nextAction) override
       {
+        (void)coroutine;
         if(m_counter < m_iterations) {
           std::memcpy(inlineData.currBufferPtr, m_text->getData(), m_text->getSize());
           inlineData.inc(m_text->getSize());

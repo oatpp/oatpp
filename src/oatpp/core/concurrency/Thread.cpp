@@ -67,6 +67,9 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
   #endif
 
 #else
+  (void)nativeHandle;
+  (void)firstCpuIndex;
+  (void)lastCpuIndex;
   return -1;
 #endif
 }
