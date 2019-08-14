@@ -141,4 +141,4 @@ TYPE NAME
  * @param QUALIFIER_NAME - additional (optional) field to specify serialized name of the field. If not specified it will be same as NAME.
  */
 #define DTO_FIELD(TYPE, ...) \
-OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, __VA_ARGS__) (TYPE, __VA_ARGS__)
+OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, (__VA_ARGS__)) (TYPE, __VA_ARGS__)
