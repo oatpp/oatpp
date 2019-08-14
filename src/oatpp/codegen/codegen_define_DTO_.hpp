@@ -96,7 +96,7 @@ public: \
 
 // Fields
 
-#define OATPP_MACRO_DTO_FIELD_0(TYPE, NAME, LIST) \
+#define OATPP_MACRO_DTO_FIELD_1(TYPE, NAME) \
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
   Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
@@ -115,7 +115,7 @@ Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
 \
 TYPE NAME
 
-#define OATPP_MACRO_DTO_FIELD_1(TYPE, NAME, LIST) \
+#define OATPP_MACRO_DTO_FIELD_2(TYPE, NAME, QUALIFIER) \
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
   Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
@@ -127,16 +127,12 @@ Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \
-                                                     OATPP_MACRO_FIRSTARG LIST, \
+                                                     QUALIFIER, \
                                                      TYPE::Class::getType()); \
   return field; \
 } \
 \
 TYPE NAME
-
-#define OATPP_MACRO_DTO_FIELD_(X, TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD_##X(TYPE, NAME, LIST)
-#define OATPP_MACRO_DTO_FIELD__(X, TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD_(X, TYPE, NAME, LIST)
-#define OATPP_MACRO_DTO_FIELD___(TYPE, NAME, LIST) OATPP_MACRO_DTO_FIELD__(OATPP_MACRO_HAS_ARGS LIST, TYPE, NAME, LIST)
 
 /**
  * Codegen macro to generate fields of DTO object.
@@ -144,7 +140,5 @@ TYPE NAME
  * @param NAME - name of the field.
  * @param QUALIFIER_NAME - additional (optional) field to specify serialized name of the field. If not specified it will be same as NAME.
  */
-#define DTO_FIELD(TYPE, NAME, ...) \
-OATPP_MACRO_DTO_FIELD___(TYPE, NAME, (__VA_ARGS__))
-
-///
+#define DTO_FIELD(TYPE, ...) \
+OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, __VA_ARGS__) (TYPE, __VA_ARGS__)

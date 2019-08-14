@@ -314,7 +314,7 @@ void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<Endpoint::Info>& info)
 
 // ENDPOINT MACRO // ------------------------------------------------------
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH, LIST) \
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
 \
 template<class T> \
 static typename Handler<T>::Method Z__ENDPOINT_METHOD_##NAME(T* controller) { \
@@ -330,7 +330,7 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
   return info; \
 }
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH, LIST)  \
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH)  \
 \
 std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
@@ -346,9 +346,9 @@ const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints,
                                                         nullptr, \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME());
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH, LIST) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH, LIST) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH, LIST) \
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH) \
 \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
 Z__PROXY_METHOD_##NAME(const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
@@ -378,7 +378,7 @@ const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints,
                                                         Z__CREATE_ENDPOINT_INFO_##NAME());
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, LIST) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH, LIST) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, LIST) \
 \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
@@ -402,14 +402,13 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME(\
   ) \
 )
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_(X, NAME, METHOD, PATH, LIST) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_##X(NAME, METHOD, PATH, LIST)
+// Chooser
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT__(X, NAME, METHOD, PATH, LIST) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_(X, NAME, METHOD, PATH, LIST)
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_0(METHOD, PATH, NAME) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH)
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, LIST) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, PATH, LIST)
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_1(METHOD, PATH, NAME, ...) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, (__VA_ARGS__))
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
@@ -418,8 +417,12 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT__(OATPP_MACRO_HAS_ARGS LIST, NAME, METHOD, P
  * @param NAME - Name of the generated method.
  * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
  */
-#define ENDPOINT(METHOD, PATH, NAME, ...) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
+//#define ENDPOINT(METHOD, PATH, NAME, ...) \
+//OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
+
+
+#define ENDPOINT(METHOD, PATH, ...) \
+OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_, __VA_ARGS__) (METHOD, PATH, __VA_ARGS__)
 
 // ENDPOINT ASYNC MACRO // ------------------------------------------------------
 
