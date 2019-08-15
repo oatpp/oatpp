@@ -388,10 +388,6 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, (__VA_ARGS__))
  * @param NAME - Name of the generated method.
  * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
  */
-//#define ENDPOINT(METHOD, PATH, NAME, ...) \
-//OATPP_MACRO_API_CONTROLLER_ENDPOINT___(NAME, METHOD, PATH, (__VA_ARGS__))
-
-
 #define ENDPOINT(METHOD, PATH, ...) \
 OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__)
 

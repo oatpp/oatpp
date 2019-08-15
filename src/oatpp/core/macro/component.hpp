@@ -40,39 +40,21 @@
 #include "./basic.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
-#define OATPP_MACRO_GET_COMPONENT_0(TYPE, LIST) \
+#define OATPP_MACRO_GET_COMPONENT_1(TYPE) \
 (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name())))
 
-#define OATPP_MACRO_GET_COMPONENT_1(TYPE, LIST) \
-(*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), OATPP_MACRO_FIRSTARG LIST)))
+#define OATPP_MACRO_GET_COMPONENT_2(TYPE, QUALIFIER) \
+(*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
 
-#define OATPP_MACRO_GET_COMPONENT_(X, TYPE, LIST) \
-OATPP_MACRO_GET_COMPONENT_##X(TYPE, LIST)
-
-#define OATPP_MACRO_GET_COMPONENT__(X, TYPE, LIST) \
-OATPP_MACRO_GET_COMPONENT_(X, TYPE, LIST)
-
-#define OATPP_MACRO_GET_COMPONENT___(TYPE, LIST) \
-OATPP_MACRO_GET_COMPONENT__(OATPP_MACRO_HAS_ARGS LIST, TYPE, LIST)
-
-#define OATPP_GET_COMPONENT(TYPE, ...) \
-OATPP_MACRO_GET_COMPONENT___(TYPE, (__VA_ARGS__))
+#define OATPP_GET_COMPONENT(...) \
+OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_GET_COMPONENT_, (__VA_ARGS__)) (__VA_ARGS__)
 
 
-#define OATPP_MACRO_COMPONENT_0(TYPE, NAME, LIST) \
+#define OATPP_MACRO_COMPONENT_1(TYPE, NAME) \
 TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name())))
 
-#define OATPP_MACRO_COMPONENT_1(TYPE, NAME, LIST) \
-TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), OATPP_MACRO_FIRSTARG LIST)))
-
-#define OATPP_MACRO_COMPONENT_(X, TYPE, NAME, LIST) \
-OATPP_MACRO_COMPONENT_##X(TYPE, NAME, LIST)
-
-#define OATPP_MACRO_COMPONENT__(X, TYPE, NAME, LIST) \
-OATPP_MACRO_COMPONENT_(X, TYPE, NAME, LIST)
-
-#define OATPP_MACRO_COMPONENT___(TYPE, NAME, LIST) \
-OATPP_MACRO_COMPONENT__(OATPP_MACRO_HAS_ARGS LIST, TYPE, NAME, LIST)
+#define OATPP_MACRO_COMPONENT_2(TYPE, NAME, QUALIFIER) \
+TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
 
 /**
  * Inject component. Create variable of type=TYPE and name=NAME and assign registered component to it.
@@ -81,8 +63,8 @@ OATPP_MACRO_COMPONENT__(OATPP_MACRO_HAS_ARGS LIST, TYPE, NAME, LIST)
  * @param QUALIFIER_NAME - qualifier name is needed if there are multiple components registered of the same type.
  * If there is one component registered only then TYPE info is enought to search for component.
  */
-#define OATPP_COMPONENT(TYPE, NAME, ...) \
-OATPP_MACRO_COMPONENT___(TYPE, NAME, (__VA_ARGS__))
+#define OATPP_COMPONENT(TYPE, ...) \
+OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_COMPONENT_, (__VA_ARGS__)) (TYPE, __VA_ARGS__)
 
 /**
  * Create component that then can be injected in other application classes.
