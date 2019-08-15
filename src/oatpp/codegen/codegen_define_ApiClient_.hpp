@@ -161,21 +161,21 @@ std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME( \
                         __connectionHandle); \
 }
 
-#define OATPP_API_CALL_1(NAME, METHOD, PATH, LIST) \
+#define OATPP_API_CALL_1(NAME, METHOD, PATH, ...) \
 static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
   return pattern; \
 } \
 \
 std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME(\
-OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
+OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __queryParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, LIST) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return executeRequest(METHOD, \
                         Z_getPathPattern_##NAME(PATH), \
                         __headers, \
@@ -191,7 +191,7 @@ OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
 OATPP_API_CALL_0(NAME, METHOD, PATH)
 
 #define OATPP_API_CALL_MACRO_1(METHOD, PATH, NAME, ...) \
-OATPP_API_CALL_1(NAME, METHOD, PATH, (__VA_ARGS__))
+OATPP_API_CALL_1(NAME, METHOD, PATH, __VA_ARGS__)
 
 /**
  * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate REST API-Calls.
@@ -224,21 +224,21 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protoc
                              __connectionHandle); \
 }
 
-#define OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, LIST) \
+#define OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, ...) \
 static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
   static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
   return pattern; \
 } \
 \
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME(\
-  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, LIST) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
   auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   auto __queryParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, LIST) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return executeRequestAsync(METHOD, \
                              Z_getPathPattern_##NAME(PATH), \
                              __headers, \
@@ -252,7 +252,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protoc
 OATPP_API_CALL_ASYNC_0(NAME, METHOD, PATH)
 
 #define OATPP_API_CALL_ASYNC_MACRO_1(METHOD, PATH, NAME, ...) \
-OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, (__VA_ARGS__))
+OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, __VA_ARGS__)
 
 /**
  * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate Asynchronous REST API-Calls.

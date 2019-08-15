@@ -333,14 +333,14 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME()
 
 ////////////////////
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, LIST)  \
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, ...)  \
 \
 std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_INFO, LIST) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_INFO, __VA_ARGS__) \
   return info; \
 } \
 \
@@ -350,19 +350,19 @@ const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints,
                                                         nullptr, \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME());
 
-#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, LIST) \
+#define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, ...) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, LIST) \
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, __VA_ARGS__) \
 \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
 Z__PROXY_METHOD_##NAME(const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
 { \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_PUT, LIST) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_PUT, __VA_ARGS__) \
   return NAME( \
     OATPP_MACRO_FOREACH_FIRST_AND_REST( \
       OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_CALL_FIRST, \
       OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_CALL_REST, \
-      LIST \
+      __VA_ARGS__ \
     ) \
   ); \
 } \
@@ -371,7 +371,7 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME(\
   OATPP_MACRO_FOREACH_FIRST_AND_REST( \
     OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_DECL_FIRST, \
     OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_DECL_REST, \
-    LIST \
+    __VA_ARGS__ \
   ) \
 )
 
@@ -381,7 +381,7 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME(\
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH)
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_1(METHOD, PATH, NAME, ...) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, (__VA_ARGS__))
+OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, __VA_ARGS__)
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
