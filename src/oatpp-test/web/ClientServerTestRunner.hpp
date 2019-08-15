@@ -111,7 +111,6 @@ public:
 
     std::thread timerThread([&timeout, &startTime, &running, &timeoutMutex, &timeoutCondition]{
 
-      auto end = startTime + timeout;
       std::unique_lock<std::mutex> lock(timeoutMutex);
       while(running) {
         timeoutCondition.wait_for(lock, std::chrono::seconds(1));

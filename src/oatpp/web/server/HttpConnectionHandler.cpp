@@ -114,6 +114,8 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
                                              const std::shared_ptr<const ParameterMap>& params)
 {
 
+  (void)params;
+
   connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 

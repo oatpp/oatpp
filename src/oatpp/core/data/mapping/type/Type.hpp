@@ -202,7 +202,7 @@ public:
   
   ObjectWrapper(std::nullptr_t nullptrt)
     : PolymorphicWrapper<T>(nullptr, Class::getType())
-  {}
+  {(void)nullptrt;}
   
   ObjectWrapper(const std::shared_ptr<T>& ptr)
     : PolymorphicWrapper<T>(ptr, Class::getType())

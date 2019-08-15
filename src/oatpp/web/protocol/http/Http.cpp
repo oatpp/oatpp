@@ -388,7 +388,7 @@ void Parser::parseHeaderValueData(HeaderValueData& data, const oatpp::data::shar
         label = caret.parseStringEnclosed('\'', '\'', '\\');
       } else {
         label = caret.putLabel();
-        auto r = caret.findCharFromSet(charSet2, 4);
+        caret.findCharFromSet(charSet2, 4);
       }
 
       data.titleParams[key] = data::share::StringKeyLabel(headerValue.getMemoryHandle(), label.getData(),

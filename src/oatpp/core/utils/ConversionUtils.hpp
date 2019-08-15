@@ -70,17 +70,19 @@ namespace oatpp { namespace utils { namespace conversion {
    * Convert 32-bit integer to it's string representation.
    * @param value - 32-bit integer value.
    * @param data - buffer to write data to.
+   * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_int32 int32ToCharSequence(v_int32 value, p_char8 data);
+  v_int32 int32ToCharSequence(v_int32 value, p_char8 data, v_int32 n);
 
  /**
   * Convert 64-bit integer to it's string representation.
   * @param value - 64-bit integer value.
   * @param data - buffer to write data to.
+  * @param n - buffer size.
   * @return - length of the resultant string.
   */
-  v_int32 int64ToCharSequence(v_int64 value, p_char8 data);
+ v_int32 int64ToCharSequence(v_int64 value, p_char8 data, v_int32 n);
 
   /**
    * Convert 32-bit integer to it's string representation.
@@ -115,12 +117,13 @@ namespace oatpp { namespace utils { namespace conversion {
    * @tparam T - primitive value type (int, float, etc.).
    * @param value - actual value.
    * @param data - buffer to write data to.
-   * @param pattern - pattern as for `sprintf`.
+   * @param n - buffer size.
+   * @param pattern - pattern as for `snprintf`.
    * @return - length of the resultant string.
    */
   template<typename T>
-  v_int32 primitiveToCharSequence(T value, p_char8 data, const char* pattern){
-    return sprintf((char*)data, pattern, value);
+  v_int32 primitiveToCharSequence(T value, p_char8 data, v_int32 n, const char *pattern) {
+    return snprintf((char*)data, n, pattern, value);
   }
 
   /**
@@ -133,7 +136,7 @@ namespace oatpp { namespace utils { namespace conversion {
   template<typename T>
   oatpp::String primitiveToStr(T value, const char* pattern){
     v_char8 buff [100];
-    v_int32 size = primitiveToCharSequence(value, &buff[0], pattern);
+    v_int32 size = primitiveToCharSequence(value, &buff[0], 100, pattern);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
@@ -174,17 +177,19 @@ namespace oatpp { namespace utils { namespace conversion {
    * Convert 32-bit float to it's string representation.
    * @param value - 32-bit float value.
    * @param data - buffer to write data to.
+   * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_int32 float32ToCharSequence(v_float32 value, p_char8 data);
+  v_int32 float32ToCharSequence(v_float32 value, p_char8 data, v_int32 n);
 
   /**
    * Convert 64-bit float to it's string representation.
    * @param value - 64-bit float value.
    * @param data - buffer to write data to.
+   * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_int32 float64ToCharSequence(v_float64 value, p_char8 data);
+  v_int32 float64ToCharSequence(v_float64 value, p_char8 data, v_int32 n);
 
   /**
    * Convert 32-bit float to it's string representation.

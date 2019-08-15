@@ -125,6 +125,7 @@ oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(
                                                                                 oatpp::data::stream::AsyncInlineReadData& inlineData,
                                                                                 oatpp::async::Action&& nextAction)
 {
+  (void)coroutine;
 
   class ReadCoroutine : public oatpp::async::Coroutine<ReadCoroutine> {
   private:
@@ -277,6 +278,8 @@ data::v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& mul
                                            void *buffer,
                                            data::v_io_size count)
 {
+  (void) multipart;
+
   if (!readStream.getDataMemoryHandle()) {
 
     oatpp::data::stream::ChunkedBuffer stream;

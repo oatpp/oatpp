@@ -69,6 +69,8 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
                                                   const std::shared_ptr<const ParameterMap>& params)
 {
 
+  (void)params;
+
   connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
   

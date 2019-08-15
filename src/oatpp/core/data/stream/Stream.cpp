@@ -47,8 +47,8 @@ oatpp::async::Action ConsistentOutputStream::suggestOutputStreamAction(data::v_i
 }
 
 data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
-  v_char8 a[100];
-  v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0]);
+  v_char8 a[16];
+  v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
   if(size > 0){
     return write(&a[0], size);
   }
@@ -56,8 +56,8 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
 }
 
 data::v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
-  v_char8 a[100];
-  v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0]);
+  v_char8 a[32];
+  v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
   if(size > 0){
     return write(&a[0], size);
   }
@@ -66,7 +66,7 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
 
 data::v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
-  v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0]);
+  v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
   if(size > 0){
     return write(&a[0], size);
   }
@@ -75,7 +75,7 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
 
 data::v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
-  v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0]);
+  v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
   if(size > 0){
     return write(&a[0], size);
   }
@@ -153,6 +153,7 @@ oatpp::async::Action AsyncWriteCallbackWithCoroutineStarter::writeAsyncInline(oa
                                                                               AsyncInlineWriteData& inlineData,
                                                                               oatpp::async::Action&& nextAction)
 {
+  (void)coroutine;
   auto coroutineStarter = writeAsync(inlineData.currBufferPtr, inlineData.bytesLeft);
   inlineData.setEof();
   return coroutineStarter.next(std::forward<async::Action>(nextAction));
@@ -408,6 +409,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     }
     
     Action handleError(const std::shared_ptr<const Error>& error) override {
+      (void)error;
       if(m_transferSize == 0) {
         return finish();
       }

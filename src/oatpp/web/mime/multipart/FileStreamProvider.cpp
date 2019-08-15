@@ -33,10 +33,12 @@ FileStreamProvider::FileStreamProvider(const oatpp::String& filename)
 {}
 
 std::shared_ptr<FileStreamProvider::OutputStream> FileStreamProvider::getOutputStream(const std::shared_ptr<Part>& part) {
+  (void)part;
   return std::make_shared<data::stream::FileOutputStream>(m_filename->c_str());
 }
 
 std::shared_ptr<FileStreamProvider::InputStream> FileStreamProvider::getInputStream(const std::shared_ptr<Part>& part) {
+  (void)part;
   return std::make_shared<data::stream::FileInputStream>(m_filename->c_str());
 }
 
@@ -48,6 +50,7 @@ AsyncFileStreamProvider::AsyncFileStreamProvider(const oatpp::String& filename)
 async::CoroutineStarter AsyncFileStreamProvider::getOutputStreamAsync(const std::shared_ptr<Part>& part,
                                                                       std::shared_ptr<data::stream::OutputStream>& stream)
 {
+  (void)part;
   stream = std::make_shared<data::stream::FileOutputStream>(m_filename->c_str());
   return nullptr;
 }
@@ -56,6 +59,7 @@ async::CoroutineStarter AsyncFileStreamProvider::getOutputStreamAsync(const std:
 async::CoroutineStarter AsyncFileStreamProvider::getInputStreamAsync(const std::shared_ptr<Part>& part,
                                                                      std::shared_ptr<data::stream::InputStream>& stream)
 {
+  (void)part;
   stream = std::make_shared<data::stream::FileInputStream>(m_filename->c_str());
   return nullptr;
 }

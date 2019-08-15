@@ -349,6 +349,8 @@ async::Action StatefulParser::parseNextAsyncInline(async::AbstractCoroutine* cor
                                                    async::Action&& nextAction)
 {
 
+  (void)coroutine;
+
   class ParseCoroutine : public async::Coroutine<ParseCoroutine> {
   private:
     StatefulParser* m_this;

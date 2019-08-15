@@ -74,7 +74,7 @@ endif()
 if (MSVC)
     # Add compilerswitch to allow pointer-to-members
     # https://docs.microsoft.com/en-us/cpp/preprocessor/pointers-to-members?view=vs-2019
-    add_compile_options(/vmg /wd4996)
+    add_compile_options(/vmg)
 endif(MSVC)
 
 message("\n############################################################################\n")
