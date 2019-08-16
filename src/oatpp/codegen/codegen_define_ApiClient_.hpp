@@ -62,7 +62,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #define OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(MACRO, TYPE, ...) \
-OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_ARGS__)
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_ARGS__))
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +201,7 @@ OATPP_API_CALL_1(NAME, METHOD, PATH, __VA_ARGS__)
  * @return - std::shared_ptr to &id:oatpp::web::protocol::http::incoming::Response;
  */
 #define API_CALL(METHOD, PATH, ...) \
-OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_API_CALL_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__)
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_API_CALL_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__))
 
 // API_CALL_ASYNC MACRO
 
@@ -262,4 +262,4 @@ OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, __VA_ARGS__)
  * @return - &id:oatpp::async::CoroutineStarterForResult;<const std::shared_ptr<&id:oatpp::web::protocol::http::incoming::Response;>&>.
  */
 #define API_CALL_ASYNC(METHOD, PATH, ...) \
-OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_API_CALL_ASYNC_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__)
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_API_CALL_ASYNC_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__))

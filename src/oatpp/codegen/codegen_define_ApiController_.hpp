@@ -77,7 +77,7 @@ OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_DTO, OATPP_MACR
 //////////////////////////////////////////////////////////////////////////
 
 #define OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(MACRO, TYPE, ...) \
-OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_ARGS__)
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_ARGS__))
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -378,10 +378,10 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME(\
 // Chooser
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_0(METHOD, PATH, NAME) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH)
+OATPP_MACRO_EXPAND(OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH))
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_1(METHOD, PATH, NAME, ...) \
-OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, __VA_ARGS__)
+OATPP_MACRO_EXPAND(OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, __VA_ARGS__))
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
@@ -391,7 +391,7 @@ OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, __VA_ARGS__)
  * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
  */
 #define ENDPOINT(METHOD, PATH, ...) \
-OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__)
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__))
 
 // ENDPOINT ASYNC MACRO // ------------------------------------------------------
 
