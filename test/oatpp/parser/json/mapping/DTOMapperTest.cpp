@@ -60,8 +60,8 @@ class Test : public DTO {
   
   DTO_INIT(Test, DTO)
   
-  DTO_FIELD(String, field_string);
-  DTO_FIELD(Int32, field_int32);
+  DTO_FIELD(String, field_string, "string-field-name-qualifier");
+  DTO_FIELD(Int32, field_int32, "int32-field-name-qualifier");
   DTO_FIELD(Int64, field_int64);
   DTO_FIELD(Float32, field_float32);
   DTO_FIELD(Float64, field_float64);
