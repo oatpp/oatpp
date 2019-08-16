@@ -14,7 +14,6 @@ jobs:
   steps:
     - script: |
         mkdir build
-    - task: CMake@1
     - script: |
         cmake -DCMAKE_BUILD_TYPE=Release ..
         make
@@ -36,7 +35,6 @@ jobs:
   steps:
     - script: |
         mkdir build
-    - task: CMake@1
     - script: |
         cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
         make
@@ -58,7 +56,6 @@ jobs:
   steps:
     - script: |
         mkdir build
-    - task: CMake@1
     - script: |
         cmake -DCMAKE_BUILD_TYPE=Release ..
         make
@@ -80,7 +77,6 @@ jobs:
   steps:
     - script: |
         mkdir build
-    - task: CMake@1
     - script: |
         cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
         make
@@ -102,7 +98,6 @@ jobs:
   steps:
     - script: |
         MD build
-    - task: CMake@1
     - script: |
         cmake ..
         cmake --build .
@@ -124,7 +119,6 @@ jobs:
   steps:
     - script: |
         MD build
-    - task: CMake@1
     - script: |
         cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON ..
         cmake --build .
