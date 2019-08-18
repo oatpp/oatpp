@@ -71,12 +71,6 @@ if(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
     add_definitions(-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
 endif()
 
-if (MSVC)
-    # Add compilerswitch to allow pointer-to-members
-    # https://docs.microsoft.com/en-us/cpp/preprocessor/pointers-to-members?view=vs-2019
-    add_compile_options(/vmg)
-endif(MSVC)
-
 message("\n############################################################################\n")
 
 ###################################################################################################
