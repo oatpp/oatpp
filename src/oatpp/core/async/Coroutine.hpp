@@ -386,23 +386,37 @@ public:
   typedef oatpp::async::Error Error;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
-  
-  class MemberCaller {
-  private:
-    void* m_objectPtr;
+
+  template<typename ...Args>
+  class AbstractMemberCaller {
   public:
-    
-    MemberCaller(void* objectPtr)
-      : m_objectPtr(objectPtr)
-    {}
-    
-    template<typename ReturnType, typename T, typename ...Args>
-    ReturnType call(ReturnType (T::*f)(), const Args&... args){
-      MemberCaller* caller = static_cast<MemberCaller*>(m_objectPtr);
-      return (caller->*reinterpret_cast<ReturnType (MemberCaller::*)(const Args&...)>(f))(args...);
-    }
-    
+    virtual ~AbstractMemberCaller() = default;
+    virtual Action call(AbstractCoroutine* coroutine, const Args&... args) = 0;
   };
+
+  template<typename T, typename ...Args>
+  class MemberCaller : public AbstractMemberCaller<Args...> {
+  public:
+    typedef Action (T::*Func)(const Args&...);
+  private:
+    Func m_func;
+  public:
+
+    MemberCaller(Func func)
+      : m_func(func)
+    {}
+
+    Action call(AbstractCoroutine* coroutine, const Args&... args) override {
+      T* _this = static_cast<T*>(coroutine);
+      return (_this->*m_func)(args...);
+    }
+
+  };
+
+  template<typename T, typename ...Args>
+  static std::unique_ptr<AbstractMemberCaller<Args...>> createMemberCaller(Action (T::*func)(Args...)) {
+    return std::unique_ptr<AbstractMemberCaller<Args...>>(new MemberCaller<T, Args...>(func));
+  }
 
 private:
   static std::shared_ptr<const Error> ERROR_UNKNOWN;
@@ -454,8 +468,6 @@ public:
    */
   virtual Action call(FunctionPtr ptr) = 0;
 
-  virtual MemberCaller getMemberCaller() const = 0;
-
   /**
    * Default implementation of handleError(error) function.
    * User may override this function in order to handle errors.
@@ -464,11 +476,6 @@ public:
    * current coroutine will finish, return control to caller coroutine and handleError is called for caller coroutine.
    */
   virtual Action handleError(const std::shared_ptr<const Error>& error);
-  
-  template<typename ...Args>
-  Action callWithParams(FunctionPtr ptr, const Args&... args) {
-    return getMemberCaller().call<Action>(ptr, args...);
-  }
 
   /**
    * Check if coroutine is finished
@@ -552,10 +559,6 @@ public:
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
-  
-  MemberCaller getMemberCaller() const override {
-    return MemberCaller((void*) this);
-  }
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_YIELD_TO`.
@@ -614,22 +617,16 @@ public:
 /**
  * Abstract coroutine with result.
  */
+template<typename ...Args>
 class AbstractCoroutineWithResult : public AbstractCoroutine {
 protected:
-  FunctionPtr m_callback;
+  std::unique_ptr<AbstractMemberCaller<Args...>> m_parentMemberCaller;
 public:
 
   /**
    * Class representing Coroutine call for result;
    */
-  template<typename ...Args >
   class StarterForResult {
-  public:
-
-    template <class C>
-    using
-    Callback = Action (C::*)(Args...);
-
   private:
     AbstractCoroutineWithResult* m_coroutine;
   public:
@@ -680,15 +677,16 @@ public:
     /**
      * Set callback for result and return coroutine starting Action.
      * @tparam C - caller coroutine type.
+     * @tparam Args - callback params.
      * @param callback - callback to obtain result.
      * @return - &id:oatpp::async::Action;.
      */
-    template<class C>
-    Action callbackTo(Callback<C> callback) {
+    template<typename C>
+    Action callbackTo(Action (C::*callback)(Args...)) {
       if(m_coroutine == nullptr) {
         throw std::runtime_error("[oatpp::async::AbstractCoroutineWithResult::StarterForResult::callbackTo()]: Error. Coroutine is null.");
       }
-      m_coroutine->m_callback = (FunctionPtr)(callback);
+      m_coroutine->m_parentMemberCaller = createMemberCaller(callback);
       Action result = m_coroutine;
       m_coroutine = nullptr;
       return result;
@@ -701,7 +699,7 @@ public:
 
 template <typename ...Args>
 using
-CoroutineStarterForResult = typename AbstractCoroutineWithResult::StarterForResult<Args...>;
+CoroutineStarterForResult = typename AbstractCoroutineWithResult<Args...>::StarterForResult;
 
 /**
  * Coroutine with result template. <br>
@@ -711,7 +709,7 @@ CoroutineStarterForResult = typename AbstractCoroutineWithResult::StarterForResu
  * @tparam Args - return argumet type.
  */
 template<class T, typename ...Args>
-class CoroutineWithResult : public AbstractCoroutineWithResult {
+class CoroutineWithResult : public AbstractCoroutineWithResult<Args...> {
   friend AbstractCoroutine;
 public:
   typedef Action (T::*Function)();
@@ -744,13 +742,9 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(FunctionPtr ptr) override {
+  virtual Action call(AbstractCoroutine::FunctionPtr ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
-  }
-  
-  MemberCaller getMemberCaller() const override {
-    return MemberCaller((void*) this);
   }
 
   /**
@@ -759,7 +753,7 @@ public:
    * @return - yield Action.
    */
   Action yieldTo(Function function) const {
-    return Action(static_cast<FunctionPtr>(function));
+    return Action(static_cast<AbstractCoroutine::FunctionPtr>(function));
   }
 
   /**
@@ -803,7 +797,7 @@ public:
    * @return - finish Action.
    */
   Action _return(const Args&... args) {
-    m_parentReturnAction = getParent()->callWithParams(m_callback, args...);
+    this->m_parentReturnAction = this->m_parentMemberCaller->call(this->getParent(), args...);
     return Action::createActionByType(Action::TYPE_FINISH);
   }
   
