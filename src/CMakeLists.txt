@@ -230,8 +230,10 @@ find_package(Threads REQUIRED)
 
 if(MSVC)
     target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} wsock32 ws2_32)
-else(MSVC)
+elseif(APPLE)
     target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+else(MSVC)
+    target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} atomic)
 endif(MSVC)
 
 target_include_directories(oatpp PUBLIC
