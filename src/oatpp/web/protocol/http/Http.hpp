@@ -452,6 +452,7 @@ public:
 public:
   static const char* const ACCEPT;              // "Accept"
   static const char* const AUTHORIZATION;       // "Authorization"
+  static const char* const WWW_AUTHENTICATE;    // "WWW-Authenticate"
   static const char* const CONNECTION;          // "Connection"
   static const char* const TRANSFER_ENCODING;   // "Transfer-Encoding"
   static const char* const CONTENT_ENCODING;    // "Content-Encoding"

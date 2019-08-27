@@ -209,6 +209,8 @@ add_library(oatpp
         oatpp/web/server/api/ApiController.hpp
         oatpp/web/server/api/Endpoint.cpp
         oatpp/web/server/api/Endpoint.hpp
+        oatpp/web/server/handler/AuthorizationHandler.cpp
+        oatpp/web/server/handler/AuthorizationHandler.hpp
         oatpp/web/server/handler/ErrorHandler.cpp
         oatpp/web/server/handler/ErrorHandler.hpp
         oatpp/web/server/handler/Interceptor.cpp

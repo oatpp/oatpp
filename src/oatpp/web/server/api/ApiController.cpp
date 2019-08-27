@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "./ApiController.hpp"
+#include <oatpp/web/server/handler/ErrorHandler.hpp>
 
 namespace oatpp { namespace web { namespace server { namespace api {
   
@@ -51,11 +52,23 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(cons
   if(m_errorHandler) {
     return m_errorHandler->handleError(status, message);
   }
-  throw oatpp::web::protocol::http::HttpError(status, message);
+  //throw oatpp::web::protocol::http::HttpError(status, message);
+  return handler::DefaultErrorHandler::handleDefaultError(status, message);
+}
+
+std::shared_ptr<handler::AuthorizationObject> ApiController::authorize(const String &authHeader) const {
+  if(m_authorizationHandler) {
+    return m_authorizationHandler->handleAuthorization(authHeader);
+  }
+  return handler::DefaultAuthorizationHandler::defaultAuthorizationObject(authHeader);
 }
 
 void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
   m_errorHandler = errorHandler;
+}
+
+void ApiController::setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler> &authorizationHandler){
+  m_authorizationHandler = authorizationHandler;
 }
 
 const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& ApiController::getDefaultObjectMapper() const {

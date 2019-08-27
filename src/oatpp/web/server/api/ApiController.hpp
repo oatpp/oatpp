@@ -28,6 +28,7 @@
 #include "./Endpoint.hpp"
 
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
+#include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
@@ -210,6 +211,7 @@ protected:
 protected:
   std::shared_ptr<Endpoints> m_endpoints;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+  std::shared_ptr<handler::AuthorizationHandler> m_authorizationHandler;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
   std::unordered_map<std::string, std::shared_ptr<Endpoint::Info>> m_endpointInfo;
 public:
@@ -259,12 +261,25 @@ public:
    * Currently return Response created by ErrorHandler or throws HttpError if ErrorHandler is null
    */
   std::shared_ptr<OutgoingResponse> handleError(const Status& status, const oatpp::String& message) const;
+
+  /**
+   * [under discussion]
+   * Do not use it directly. This method is under discussion.
+   * Currently return DTO created by AuthorizationHandler or DefaultAuthorizationHandler if ErrorHandler is null
+   */
+  std::shared_ptr<handler::AuthorizationObject> authorize(const String &authHeader) const;
   
   /**
    * [under discussion]
    * Set error handler to handle calls to handleError
    */
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
+
+  /**
+   * [under discussion]
+   * Set authorization handler to handle calls to handleAuthorization
+   */
+  void setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler);
   
   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const;
   

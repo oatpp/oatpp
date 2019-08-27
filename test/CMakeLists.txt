@@ -41,11 +41,14 @@ add_executable(oatppAllTests
         oatpp/web/mime/multipart/StatefulParserTest.hpp
         oatpp/web/server/api/ApiControllerTest.cpp
         oatpp/web/server/api/ApiControllerTest.hpp
+        oatpp/web/server/handler/AuthorizationHandlerTest.cpp
+        oatpp/web/server/handler/AuthorizationHandlerTest.hpp
         oatpp/web/FullAsyncTest.cpp
         oatpp/web/FullAsyncTest.hpp
         oatpp/web/FullTest.cpp
         oatpp/web/FullTest.hpp
         oatpp/web/app/Client.hpp
+        oatpp/web/app/AuthorizationController.hpp
         oatpp/web/app/Controller.hpp
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp

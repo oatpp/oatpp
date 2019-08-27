@@ -57,6 +57,7 @@
 #undef QUERY
 #undef BODY_STRING
 #undef BODY_DTO
+#undef AUTHORIZATION
 
 // INIT // ------------------------------------------------------
 
@@ -125,6 +126,16 @@
 // __INFO
 
 #undef OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO
+
+// AUTHORIZATION MACRO // ------------------------------------------------------
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_1
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_2
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION
+
+// __INFO
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_1
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_2
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO
 
 // FOR EACH // ------------------------------------------------------
 

@@ -76,7 +76,15 @@ public:
    */
   std::shared_ptr<protocol::http::outgoing::Response>
   handleError(const protocol::http::Status& status, const oatpp::String& message) override;
-  
+
+  /**
+   * Implementation of &l:ErrorHandler::handleError ();
+   * @param status - &id:oatpp::web::protocol::http::Status;.
+   * @param message - &id:oatpp::String;.
+   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
+  static std::shared_ptr<protocol::http::outgoing::Response>
+  handleDefaultError(const protocol::http::Status& status, const oatpp::String& message);
 };
   
 }}}}
