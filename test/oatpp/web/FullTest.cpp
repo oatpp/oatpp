@@ -233,12 +233,12 @@ void FullTest::onRun() {
       }
 
       { // test authorzation of unknown user in endpoint-code
-        auto response = client->defauthorization("john:doe", connection);
+        auto response = client->defauthorization("john:doe");
         OATPP_ASSERT(response->getStatusCode() == 403);
       }
 
       { // test call of an endpoint that requiers authorization headers, but we don't send one
-        auto response = client->defauthorizationWithoutHeader(connection);
+        auto response = client->defauthorizationWithoutHeader();
         OATPP_ASSERT(response->getStatusCode() == 401);
         oatpp::String body = response->readBodyToString();
         OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
@@ -263,7 +263,7 @@ void FullTest::onRun() {
 
       { // test custom authorization handler with custom authorization object with unknown credentials where the
         // handler returns nullptr
-        auto response = client->myauthorization("john:doe", connection);
+        auto response = client->myauthorization("john:doe");
         oatpp::String body = response->readBodyToString();
         OATPP_ASSERT(response->getStatusCode() == 401);
         OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
