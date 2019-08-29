@@ -258,14 +258,15 @@ public:
   /**
    * [under discussion]
    * Do not use it directly. This method is under discussion.
-   * Currently return Response created by ErrorHandler or throws HttpError if ErrorHandler is null
+   * Currently returns Response created by registered ErrorHandler or returns Response created by DefaultErrorHandler::handleDefaultError
+   * Notice: Does not throw the Error anymore, error-response has to be returned by the caller!
    */
   std::shared_ptr<OutgoingResponse> handleError(const Status& status, const oatpp::String& message) const;
 
   /**
    * [under discussion]
    * Do not use it directly. This method is under discussion.
-   * Currently return DTO created by AuthorizationHandler or DefaultAuthorizationHandler if ErrorHandler is null
+   * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthrorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
    */
   std::shared_ptr<handler::AuthorizationObject> authorize(const String &authHeader) const;
   
