@@ -131,6 +131,7 @@ public:
     oatpp::String bodyContentType;
     
     std::list<ContentTypeAndSchema> consumes;
+    std::unordered_map<oatpp::String, std::shared_ptr<std::list<oatpp::String>>> securityRequirements;
 
     Params headers;
     Params pathParams;
@@ -153,7 +154,10 @@ public:
     void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType) {
       responses[status] = {contentType, T::Class::getType()};
     }
-    
+
+    void addSecurityRequirement(const oatpp::String &requirement, const std::shared_ptr<std::list<oatpp::String>> &scopes) {
+      securityRequirements[requirement] = scopes;
+    }
   };
 public:
 
