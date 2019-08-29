@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/src/oatpp/core/base/Environment.hpp" OATPP_VERSION_MACRO REGEX "#define OATPP_VERSION \"[0-9]+.[0-9]+.[0-9]+\"$")
 string(REGEX REPLACE "#define OATPP_VERSION \"([0-9]+.[0-9]+.[0-9]+)\"$" "\\1" oatpp_VERSION "${OATPP_VERSION_MACRO}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmacro-backtrace-limit=0")
-
 ###################################################################################################
 ## These variables are passed to oatpp-module-install.cmake script
 ## use these variables to configure module installation
@@ -19,7 +17,7 @@ set(OATPP_THIS_MODULE_DIRECTORIES oatpp oatpp-test) ## list of directories to in
 
 project(oatpp VERSION ${OATPP_THIS_MODULE_VERSION} LANGUAGES CXX)
 
-option(BUILD_SHARED_LIBS  "Build shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
 

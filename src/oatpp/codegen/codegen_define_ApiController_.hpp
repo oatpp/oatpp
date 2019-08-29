@@ -267,7 +267,7 @@ if(__param_aosp_val_##NAME.get() == nullptr) { \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"API\""); \
   return error; \
 } \
-TYPE NAME = std::dynamic_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
+TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
 if(NAME.get() == nullptr) { \
   return ApiController::handleError(Status::CODE_500, "Unable to cast authorization result to '" #TYPE "'"); \
 }
@@ -286,7 +286,7 @@ if(__param_aosp_val_##NAME.get() == nullptr) { \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"" #REALM "\""); \
   return error; \
 } \
-TYPE NAME = std::dynamic_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
+TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
 if(NAME.get() == nullptr) { \
   return ApiController::handleError(Status::CODE_500, "Unable to cast authorization result to '" #TYPE "'"); \
 }
