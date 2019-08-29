@@ -49,67 +49,67 @@ void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
-//  OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
-//  OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
-//  OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
-//  OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
-//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::async::LockTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
-//  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
-//  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
-//  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
-//  OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::network::UrlTest);
-//  OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
-//  OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
+  OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
+  OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
+
+  OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
+  OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
+
+  OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+
+  OATPP_RUN_TEST(oatpp::test::async::LockTest);
+
+  OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
+
+  OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
+  OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+
+  OATPP_RUN_TEST(oatpp::test::network::UrlTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
+
+  OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
+
+  OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
 
   {
 
-//    oatpp::test::web::FullTest test_virtual(0, 1000);
-//    test_virtual.run();
+    oatpp::test::web::FullTest test_virtual(0, 1000);
+    test_virtual.run();
 
     oatpp::test::web::FullTest test_port(8000, 10);
     test_port.run();
 
   }
-//
-//  {
-//
-//    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
-//    test_virtual.run();
-//
-//    oatpp::test::web::FullAsyncTest test_port(8000, 10);
-//    test_port.run();
-//
-//  }
-//
-//  {
-//
-//    oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
-//    test_virtual.run(20);
-//
-//    oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
-//    test_port.run(1);
-//
-//  }
+
+  {
+
+    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
+    test_virtual.run();
+
+    oatpp::test::web::FullAsyncTest test_port(8000, 10);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
+    test_virtual.run(20);
+
+    oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
+    test_port.run(1);
+
+  }
 
 }
   

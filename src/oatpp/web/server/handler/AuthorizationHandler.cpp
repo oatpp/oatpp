@@ -28,8 +28,6 @@
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 
-const char* const AuthorizationObject::Class::CLASS_NAME = "AuthorizationObject";
-
 std::shared_ptr<handler::AuthorizationObject>
 DefaultAuthorizationHandler::handleAuthorization(const oatpp::String &header) {
   return defaultAuthorizationObject(header);

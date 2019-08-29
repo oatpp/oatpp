@@ -40,18 +40,6 @@ namespace oatpp { namespace web { namespace server { namespace handler {
 class AuthorizationObject : public oatpp::base::Countable {
 
  public:
-
-  class Class {
-
-      static const char *const CLASS_NAME;
-     public:
-      static oatpp::data::mapping::type::Type *getType() {
-        static oatpp::data::mapping::type::Type type(CLASS_NAME, nullptr);
-        return &type;
-    }
-
-  };
-
   oatpp::String user;
   oatpp::String password;
 
