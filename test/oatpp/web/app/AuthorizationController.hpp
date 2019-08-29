@@ -104,6 +104,16 @@ class AuthorizationController : public oatpp::web::server::api::ApiController {
     }
   }
 
+  ENDPOINT("GET", "myauthorizationrealm", myauthorizationrealm,
+           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authorizationHeader, "Test Realm")) {
+    auto dto = TestDto::createShared();
+    dto->testValue = authorizationHeader->user + ":" + authorizationHeader->password;
+    if(dto->testValue == "foo:bar" && authorizationHeader->id == oatpp::Int64(1337)) {
+      return createDtoResponse(Status::CODE_200, dto);
+    } else {
+      return createDtoResponse(Status::CODE_401, dto);
+    }
+  }
 #include OATPP_CODEGEN_END(ApiController)
 
 };

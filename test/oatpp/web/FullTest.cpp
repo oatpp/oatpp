@@ -28,6 +28,7 @@
 
 #include "oatpp/web/app/Controller.hpp"
 #include "oatpp/web/app/AuthorizationController.hpp"
+#include "oatpp/web/app/BearerAuthorizationController.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 
@@ -140,6 +141,7 @@ void FullTest::onRun() {
 
   runner.addController(app::Controller::createShared());
   runner.addController(app::AuthorizationController::createShared());
+  runner.addController(app::BearerAuthorizationController::createShared());
 
   runner.run([this, &runner] {
 
@@ -228,17 +230,18 @@ void FullTest::onRun() {
       }
 
       { // test simple authorization header
-        auto response = client->defauthorization("foo:bar", connection);
+        auto response = client->defAuthorization("foo:bar", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       { // test authorzation of unknown user in endpoint-code
-        auto response = client->defauthorization("john:doe");
+        oatpp::String token = "john:doe"; // this time as string to test Macro generation
+        auto response = client->defAuthorization(token);
         OATPP_ASSERT(response->getStatusCode() == 403);
       }
 
       { // test call of an endpoint that requiers authorization headers, but we don't send one
-        auto response = client->defauthorizationWithoutHeader();
+        auto response = client->defAuthorizationWithoutHeader();
         OATPP_ASSERT(response->getStatusCode() == 401);
         oatpp::String body = response->readBodyToString();
         OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
@@ -252,18 +255,18 @@ void FullTest::onRun() {
       }
 
       { // test custom authorization handler with default authorization object
-        auto response = client->mydefauthorization("foo:bar", connection);
+        auto response = client->myDefAuthorization("foo:bar", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       { // test custom authorization handler with custom authorization object
-        auto response = client->myauthorization("foo:bar", connection);
+        auto response = client->myAuthorization("foo:bar", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       { // test custom authorization handler with custom authorization object with unknown credentials where the
         // handler returns nullptr
-        auto response = client->myauthorization("john:doe");
+        auto response = client->myAuthorization("john:doe");
         oatpp::String body = response->readBodyToString();
         OATPP_ASSERT(response->getStatusCode() == 401);
         OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
@@ -273,7 +276,45 @@ void FullTest::onRun() {
         // should also add the WWW-Authenticate header when Authorization is missing or wrong
         auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
         OATPP_ASSERT(header != response->getHeaders().end())
-        OATPP_ASSERT(header->second.toString()->startsWith("Basic realm="))
+        OATPP_ASSERT(header->second.toString()->startsWith("Basic realm=\"API\""))
+      }
+
+      { // test custom authorization handler with custom authorization object with unknown credentials where the
+        // handler returns nullptr and we set a custom realm
+        auto response = client->myAuthorizationRealm("john:doe");
+        oatpp::String body = response->readBodyToString();
+        OATPP_ASSERT(response->getStatusCode() == 401);
+        OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
+                                                           "code=401\n"
+                                                           "description=Unauthorized\n"
+                                                           "message=Unauthorized\n");
+        // should also add the WWW-Authenticate header when Authorization is missing or wrong
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header != response->getHeaders().end())
+        OATPP_ASSERT(header->second.toString()->startsWith("Basic realm=\"Test Realm\""))
+      }
+
+      { // test custom authorization handler with custom authorization method
+        oatpp::String token = "4e99e8c12de7e01535248d2bac85e732";
+        auto response = client->bearerAuthorization(token);
+        oatpp::String body = response->readBodyToString();
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      { // test custom authorization handler with custom authorization object with unknown credentials where the
+        // handler returns nullptr
+        oatpp::String token = "900150983cd24fb0d6963f7d28e17f72";
+        auto response = client->bearerAuthorization(token);
+        oatpp::String body = response->readBodyToString();
+        OATPP_ASSERT(response->getStatusCode() == 401);
+        OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
+                                                           "code=401\n"
+                                                           "description=Unauthorized\n"
+                                                           "message=Unauthorized\n");
+        // should also add the WWW-Authenticate header when Authorization is missing or wrong
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header != response->getHeaders().end())
+        OATPP_ASSERT(header->second.toString()->startsWith("Bearer realm=\"Bearer Realm\""))
       }
 
       { // test Chunked body
