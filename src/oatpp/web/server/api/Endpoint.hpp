@@ -155,7 +155,7 @@ public:
       responses[status] = {contentType, T::Class::getType()};
     }
 
-    void addSecurityRequirement(const oatpp::String &requirement, const std::shared_ptr<std::list<oatpp::String>> &scopes) {
+    void addSecurityRequirement(const oatpp::String &requirement, const std::shared_ptr<std::list<oatpp::String>> &scopes = nullptr) {
       securityRequirements[requirement] = scopes;
     }
   };
