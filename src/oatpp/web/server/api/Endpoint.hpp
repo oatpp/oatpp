@@ -126,6 +126,7 @@ public:
     oatpp::String description;
     oatpp::String path;
     oatpp::String method;
+    oatpp::String authorization;
     
     Param body;
     oatpp::String bodyContentType;

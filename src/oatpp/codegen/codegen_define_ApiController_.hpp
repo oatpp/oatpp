@@ -316,15 +316,18 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATI
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_1(TYPE, NAME) \
 info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
-info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = "Basic";
+info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = "Basic"; \
+info->authorization = "Basic";
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_2(TYPE, NAME, REALM) \
 info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
-info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = "Basic";
+info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = "Basic"; \
+info->authorization = "Basic";
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_3(TYPE, NAME, REALM, SCHEME) \
 info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
-info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = SCHEME;
+info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = SCHEME; \
+info->authorization = SCHEME;
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
