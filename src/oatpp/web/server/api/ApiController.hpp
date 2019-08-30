@@ -268,7 +268,7 @@ public:
    * Do not use it directly. This method is under discussion.
    * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthrorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
    */
-  std::shared_ptr<handler::AuthorizationObject> authorize(const String &authHeader) const;
+  std::shared_ptr<handler::AuthorizationObject> handleAuthorization(const String &authHeader) const;
   
   /**
    * [under discussion]

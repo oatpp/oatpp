@@ -49,7 +49,7 @@ add_executable(oatppAllTests
         oatpp/web/FullTest.hpp
         oatpp/web/app/Client.hpp
         oatpp/web/app/BearerAuthorizationController.hpp
-        oatpp/web/app/AuthorizationController.hpp
+        oatpp/web/app/BasicAuthorizationController.hpp
         oatpp/web/app/Controller.hpp
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
