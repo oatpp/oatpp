@@ -45,7 +45,7 @@ protected:
 /**
  * Default AuthorizationObject - Convenience object to enable Basic-Authorization without the need to implement anything
  */
-class DefaultAuthorizationObject : public AuthorizationObject {
+class DefaultBasicAuthorizationObject : public AuthorizationObject {
 public:
   oatpp::String userId;
   oatpp::String password;
