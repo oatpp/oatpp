@@ -87,7 +87,7 @@ public:
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-  ENDPOINT("GET", "myauthorization", myauthorization,
+  ENDPOINT("GET", "basic-authorization", basicAuthorization,
            AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authObject)) {
 
     auto dto = TestDto::createShared();
@@ -101,7 +101,7 @@ public:
 
   }
 
-  ENDPOINT("GET", "myauthorizationrealm", myauthorizationrealm,
+  ENDPOINT("GET", "basic-authorization-realm", basicAuthorizationRealm,
            AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authObject, "Test Realm")) {
 
     auto dto = TestDto::createShared();

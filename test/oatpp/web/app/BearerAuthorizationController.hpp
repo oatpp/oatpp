@@ -93,7 +93,7 @@ public:
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-  ENDPOINT("GET", "bearerauthorization", authorization,
+  ENDPOINT("GET", "bearer-authorization", authorization,
            AUTHORIZATION(std::shared_ptr<BearerAuthorizationObject>, authorizatioBearer, "Bearer Realm", "Bearer")) {
     auto dto = TestDto::createShared();
     dto->testValue = authorizatioBearer->user + ":" + authorizatioBearer->password;
