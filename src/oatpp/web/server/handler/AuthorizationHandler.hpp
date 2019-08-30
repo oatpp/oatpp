@@ -43,15 +43,6 @@ protected:
 };
 
 /**
- * Default AuthorizationObject - Convenience object to enable Basic-Authorization without the need to implement anything
- */
-class DefaultBasicAuthorizationObject : public AuthorizationObject {
-public:
-  oatpp::String userId;
-  oatpp::String password;
-};
-
-/**
  * Abstract Authorization Handler.
  */
 class AuthorizationHandler {
@@ -73,6 +64,24 @@ public:
    * @return - `std::shared_ptr` to &id:oatpp::web::server::handler::AuthorizationObject;.
    */
   virtual std::shared_ptr<AuthorizationObject> handleAuthorization(const oatpp::String& authorizationHeader) = 0;
+
+};
+
+/**
+ * Default Basic AuthorizationObject - Convenience object to enable Basic-Authorization without the need to implement anything.
+ */
+class DefaultBasicAuthorizationObject : public AuthorizationObject {
+public:
+
+  /**
+   * User-Id. &id:oatpp::String;.
+   */
+  oatpp::String userId;
+
+  /**
+   * Password. &id:oatpp::String;.
+   */
+  oatpp::String password;
 
 };
 

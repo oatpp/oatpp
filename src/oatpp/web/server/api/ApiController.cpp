@@ -69,7 +69,7 @@ void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>
   m_errorHandler = errorHandler;
 }
 
-void ApiController::setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler> &authorizationHandler){
+void ApiController::setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler){
   m_authorizationHandler = authorizationHandler;
 }
 
