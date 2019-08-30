@@ -50,10 +50,8 @@ public:
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
 
-  API_CALL("GET", "defauthorization", defAuthorization, AUTHORIZATION(String, authorization))
-  API_CALL("GET", "defauthorization", defAuthorizationWithoutHeader)
-  API_CALL("GET", "mydefauthorization", myDefAuthorization, AUTHORIZATION(String, authorization))
   API_CALL("GET", "myauthorization", myAuthorization, AUTHORIZATION(String, authorization))
+  API_CALL("GET", "myauthorization", myAuthorizationWithoutHeader)
   API_CALL("GET", "myauthorizationrealm", myAuthorizationRealm, AUTHORIZATION(String, authorization));
   API_CALL("GET", "bearerauthorization", bearerAuthorization, AUTHORIZATION(String, authorization, "Bearer"))
 

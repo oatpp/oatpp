@@ -27,7 +27,7 @@
 #include "oatpp/web/app/Client.hpp"
 
 #include "oatpp/web/app/Controller.hpp"
-#include "oatpp/web/app/AuthorizationController.hpp"
+#include "oatpp/web/app/BasicAuthorizationController.hpp"
 #include "oatpp/web/app/BearerAuthorizationController.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
@@ -140,7 +140,7 @@ void FullTest::onRun() {
   oatpp::test::web::ClientServerTestRunner runner;
 
   runner.addController(app::Controller::createShared());
-  runner.addController(app::AuthorizationController::createShared());
+  runner.addController(app::BasicAuthorizationController::createShared());
   runner.addController(app::BearerAuthorizationController::createShared());
 
   runner.run([this, &runner] {
@@ -229,19 +229,8 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
-      { // test simple authorization header
-        auto response = client->defAuthorization("foo:bar", connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
-      }
-
-      { // test authorzation of unknown user in endpoint-code
-        oatpp::String token = "john:doe"; // this time as string to test Macro generation
-        auto response = client->defAuthorization(token);
-        OATPP_ASSERT(response->getStatusCode() == 403);
-      }
-
       { // test call of an endpoint that requiers authorization headers, but we don't send one
-        auto response = client->defAuthorizationWithoutHeader();
+        auto response = client->myAuthorizationWithoutHeader();
         OATPP_ASSERT(response->getStatusCode() == 401);
         oatpp::String body = response->readBodyToString();
         OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
@@ -252,11 +241,6 @@ void FullTest::onRun() {
         auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
         OATPP_ASSERT(header != response->getHeaders().end())
         OATPP_ASSERT(header->second.toString()->startsWith("Basic realm="))
-      }
-
-      { // test custom authorization handler with default authorization object
-        auto response = client->myDefAuthorization("foo:bar", connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       { // test custom authorization handler with custom authorization object

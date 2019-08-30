@@ -46,74 +46,75 @@ namespace oatpp { namespace test { namespace web { namespace app {
 
 class MyAuthorizationObject : public oatpp::web::server::handler::AuthorizationObject {
 public:
-  oatpp::Int64 id;
+
+  MyAuthorizationObject(v_int64 pId, const oatpp::String& pAuthString)
+    : id(pId)
+    , authString(pAuthString)
+  {}
+
+  v_int64 id;
+  oatpp::String authString;
+
 };
 
-class MyAuthorizationHandler : public oatpp::web::server::handler::AuthorizationHandler {
+class MyBasicAuthorizationHandler : public oatpp::web::server::handler::BasicAuthorizationHandler {
 public:
-  std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> handleAuthorization(const oatpp::String &header) override {
-    auto def = oatpp::web::server::handler::DefaultAuthorizationHandler::defaultAuthorizationObject(header);
-    auto my = std::make_shared<MyAuthorizationObject>();
-    my->user = def->user;
-    my->password = def->password;
-    if(my->user != "foo" || my->password != "bar") {
-      return nullptr;
+
+  std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password) override {
+    if(userId == "foo" && password == "bar") {
+      return std::make_shared<MyAuthorizationObject>(1337, userId + ":" + password);
     }
-    my->id = 1337;
-    return my;
+    return nullptr;
   }
+
 };
 
-class AuthorizationController : public oatpp::web::server::api::ApiController {
+class BasicAuthorizationController : public oatpp::web::server::api::ApiController {
 private:
-  static constexpr const char* TAG = "test::web::app::AuthorizationController";
+  static constexpr const char* TAG = "test::web::app::BasicAuthorizationController";
 
 public:
-  AuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
+  BasicAuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
     : oatpp::web::server::api::ApiController(objectMapper)
   {
-    m_authorizationHandler = std::make_shared<MyAuthorizationHandler>();
+    m_authorizationHandler = std::make_shared<MyBasicAuthorizationHandler>();
   }
 public:
 
-  static std::shared_ptr<AuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
-    return std::make_shared<AuthorizationController>(objectMapper);
+  static std::shared_ptr<BasicAuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
+    return std::make_shared<BasicAuthorizationController>(objectMapper);
   }
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
-  ENDPOINT("GET", "mydefauthorization", authorization,
-           AUTHORIZATION(std::shared_ptr<oatpp::web::server::handler::AuthorizationObject>, authorizationHeader)) {
-    auto dto = TestDto::createShared();
-    dto->testValue = authorizationHeader->user + ":" + authorizationHeader->password;
-    if(dto->testValue == "foo:bar") {
-      return createDtoResponse(Status::CODE_200, dto);
-    } else {
-      return createDtoResponse(Status::CODE_401, dto);
-    }
-  }
-
   ENDPOINT("GET", "myauthorization", myauthorization,
-           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authorizationHeader)) {
+           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authObject)) {
+
     auto dto = TestDto::createShared();
-    dto->testValue = authorizationHeader->user + ":" + authorizationHeader->password;
-    if(dto->testValue == "foo:bar" && authorizationHeader->id == oatpp::Int64(1337)) {
+    dto->testValue = authObject->authString;
+
+    if(dto->testValue == "foo:bar" && authObject->id == 1337) {
       return createDtoResponse(Status::CODE_200, dto);
     } else {
       return createDtoResponse(Status::CODE_401, dto);
     }
+
   }
 
   ENDPOINT("GET", "myauthorizationrealm", myauthorizationrealm,
-           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authorizationHeader, "Test Realm")) {
+           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authObject, "Test Realm")) {
+
     auto dto = TestDto::createShared();
-    dto->testValue = authorizationHeader->user + ":" + authorizationHeader->password;
-    if(dto->testValue == "foo:bar" && authorizationHeader->id == oatpp::Int64(1337)) {
+    dto->testValue = authObject->authString;
+
+    if(dto->testValue == "foo:bar" && authObject->id == 1337) {
       return createDtoResponse(Status::CODE_200, dto);
     } else {
       return createDtoResponse(Status::CODE_401, dto);
     }
+
   }
+
 #include OATPP_CODEGEN_END(ApiController)
 
 };

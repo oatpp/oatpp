@@ -45,12 +45,15 @@
 namespace oatpp { namespace test { namespace web { namespace app {
 
 class BearerAuthorizationObject : public oatpp::web::server::handler::AuthorizationObject {
- public:
+public:
+  oatpp::String user;
+  oatpp::String password;
   oatpp::String token;
 };
 
 class BearerAuthorizationHandler : public oatpp::web::server::handler::AuthorizationHandler {
- public:
+public:
+
   std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> handleAuthorization(const oatpp::String &header) override {
     if(!header->startsWith("Bearer ")) {
       return nullptr;
@@ -69,19 +72,20 @@ class BearerAuthorizationHandler : public oatpp::web::server::handler::Authoriza
 
     return nullptr;
   }
+
 };
 
 class BearerAuthorizationController : public oatpp::web::server::api::ApiController {
- private:
+private:
   static constexpr const char* TAG = "test::web::app::BearerAuthorizationController";
 
- public:
+public:
   BearerAuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
-      : oatpp::web::server::api::ApiController(objectMapper)
+    : oatpp::web::server::api::ApiController(objectMapper)
   {
     m_authorizationHandler = std::make_shared<BearerAuthorizationHandler>();
   }
- public:
+public:
 
   static std::shared_ptr<BearerAuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
     return std::make_shared<BearerAuthorizationController>(objectMapper);

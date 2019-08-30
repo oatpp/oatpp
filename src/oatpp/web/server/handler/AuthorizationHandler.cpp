@@ -30,11 +30,7 @@
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 
-std::shared_ptr<handler::AuthorizationObject> DefaultAuthorizationHandler::handleAuthorization(const oatpp::String &header) {
-  return defaultAuthorizationObject(header);
-}
-
-std::shared_ptr<handler::AuthorizationObject> DefaultAuthorizationHandler::defaultAuthorizationObject(const oatpp::String &header) {
+std::shared_ptr<handler::AuthorizationObject> BasicAuthorizationHandler::handleAuthorization(const oatpp::String &header) {
 
   if(!header->startsWith("Basic ")) {
     return nullptr;
@@ -44,10 +40,9 @@ std::shared_ptr<handler::AuthorizationObject> DefaultAuthorizationHandler::defau
   parser::Caret caret(auth);
 
   if(caret.findChar(':')) {
-    auto dto = std::make_shared<handler::DefaultAuthorizationObject>();
-    dto->user = oatpp::String((const char*)&caret.getData()[0], caret.getPosition(), true /* copy as own data */);
-    dto->password = oatpp::String((const char*)&caret.getData()[caret.getPosition() + 1], caret.getDataSize() - caret.getPosition() - 1, true /* copy as own data */);
-    return dto;
+    oatpp::String userId((const char*)&caret.getData()[0], caret.getPosition(), true /* copy as own data */);
+    oatpp::String password((const char*)&caret.getData()[caret.getPosition() + 1], caret.getDataSize() - caret.getPosition() - 1, true /* copy as own data */);
+    return authorize(userId, password);
   }
 
   return nullptr;

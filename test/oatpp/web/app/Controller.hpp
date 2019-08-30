@@ -133,17 +133,6 @@ public:
     return createResponse(Status::CODE_200, "");
   }
 
-  ENDPOINT("GET", "defauthorization", authorization,
-      AUTHORIZATION(std::shared_ptr<oatpp::web::server::handler::AuthorizationObject>, authorizationHeader)) {
-    auto dto = TestDto::createShared();
-    dto->testValue = authorizationHeader->user + ":" + authorizationHeader->password;
-    if(dto->testValue == "foo:bar") {
-      return createDtoResponse(Status::CODE_200, dto);
-    } else {
-      return createDtoResponse(Status::CODE_403, dto);
-    }
-  }
-
   class ReadCallback : public oatpp::data::stream::ReadCallback {
   private:
     oatpp::String m_text;
