@@ -43,6 +43,15 @@ protected:
 };
 
 /**
+ * Default AuthorizationObject - Convenience object to enable Basic-Authorization without the need to implement anything
+ */
+class DefaultAuthorizationObject : public AuthorizationObject {
+public:
+  oatpp::String userId;
+  oatpp::String password;
+};
+
+/**
  * Abstract Authorization Handler.
  */
 class AuthorizationHandler {
@@ -83,12 +92,12 @@ public:
   std::shared_ptr<AuthorizationObject> handleAuthorization(const oatpp::String &header) override;
 
   /**
-   * Implement this method! Do the actual authorization here.
+   * Implement this method! Do the actual authorization here. When not implemented returns &l:DefaultAuthorizationObject
    * @param userId - user id. &id:oatpp::String;.
    * @param password - password. &id:oatpp::String;.
    * @return - `std::shared_ptr` to &l:AuthorizationObject;.
    */
-  virtual std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password) = 0;
+  virtual std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password);
 
 };
 

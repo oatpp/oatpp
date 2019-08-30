@@ -140,6 +140,7 @@ void FullTest::onRun() {
   oatpp::test::web::ClientServerTestRunner runner;
 
   runner.addController(app::Controller::createShared());
+  runner.addController(app::DefaultBasicAuthorizationController::createShared());
   runner.addController(app::BasicAuthorizationController::createShared());
   runner.addController(app::BearerAuthorizationController::createShared());
 
@@ -276,6 +277,25 @@ void FullTest::onRun() {
         auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
         OATPP_ASSERT(header != response->getHeaders().end())
         OATPP_ASSERT(header->second.toString()->startsWith("Basic realm=\"Test Realm\""))
+      }
+
+      { // test custom authorization handler with custom authorization object
+        auto response = client->myDefaultAuthorization("foo:bar", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      { // test call of an endpoint that requiers authorization headers, but we don't send one
+        auto response = client->myDefaultAuthorizationWithoutHeader();
+        OATPP_ASSERT(response->getStatusCode() == 401);
+        oatpp::String body = response->readBodyToString();
+        OATPP_ASSERT(body == "server=oatpp/" OATPP_VERSION "\n"
+                                                           "code=401\n"
+                                                           "description=Unauthorized\n"
+                                                           "message=Missing HEADER parameter 'Authorization'\n");
+        // should also add the WWW-Authenticate header when Authorization is missing
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header != response->getHeaders().end())
+        OATPP_ASSERT(header->second.toString()->startsWith("Basic realm="))
       }
 
       { // test custom authorization handler with custom authorization method

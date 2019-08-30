@@ -49,4 +49,13 @@ std::shared_ptr<handler::AuthorizationObject> BasicAuthorizationHandler::handleA
 
 }
 
+std::shared_ptr<AuthorizationObject> BasicAuthorizationHandler::authorize(const oatpp::String &userId,
+                                                                          const oatpp::String &password) {
+  auto authorizationObject = std::make_shared<DefaultAuthorizationObject>();
+  authorizationObject->userId = userId;
+  authorizationObject->password = password;
+
+  return authorizationObject;
+}
+
 }}}}

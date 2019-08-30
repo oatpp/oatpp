@@ -50,6 +50,9 @@ public:
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
 
+  API_CALL("GET", "default-basic-authorization", myDefaultAuthorization, AUTHORIZATION(String, authorization))
+  API_CALL("GET", "default-basic-authorization", myDefaultAuthorizationWithoutHeader)
+  API_CALL("GET", "default-basic-authorization-realm", myDefaultAuthorizationRealm, AUTHORIZATION(String, authorization));
   API_CALL("GET", "basic-authorization", myAuthorization, AUTHORIZATION(String, authorization))
   API_CALL("GET", "basic-authorization", myAuthorizationWithoutHeader)
   API_CALL("GET", "basic-authorization-realm", myAuthorizationRealm, AUTHORIZATION(String, authorization));
