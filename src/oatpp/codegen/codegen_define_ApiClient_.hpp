@@ -136,7 +136,7 @@ __body = oatpp::web::protocol::http::outgoing::BufferBody::createShared(OATPP_MA
 // AUTHORIZATION MACRO
 
 #define OATPP_MACRO_API_CLIENT_AUTHORIZATION_1(TYPE, TOKEN) \
-__headers->put("Authorization", String("Basic ")+oatpp::encoding::Base64::encode(TOKEN));
+__headers->put("Authorization", String("Basic ") + oatpp::encoding::Base64::encode(TOKEN));
 
 #define OATPP_MACRO_API_CLIENT_AUTHORIZATION_2(TYPE, TOKEN, SCHEME) \
 __headers->put("Authorization", String(SCHEME " ") + String(TOKEN));

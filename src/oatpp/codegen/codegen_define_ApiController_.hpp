@@ -261,7 +261,7 @@ if(!__param_str_val_##NAME){ \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"API\""); \
   return error; \
 } \
-std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = authorize(__param_str_val_##NAME); \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleAuthorization(__param_str_val_##NAME); \
 if(__param_aosp_val_##NAME.get() == nullptr) { \
   auto error = ApiController::handleError(Status::CODE_401, "Unauthorized"); \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"API\""); \
@@ -280,7 +280,7 @@ if(!__param_str_val_##NAME){ \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"" REALM "\""); \
   return error; \
 } \
-std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = authorize(__param_str_val_##NAME); \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleAuthorization(__param_str_val_##NAME); \
 if(__param_aosp_val_##NAME.get() == nullptr) { \
   auto error = ApiController::handleError(Status::CODE_401, "Unauthorized"); \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"" REALM "\""); \
@@ -298,7 +298,7 @@ if(!__param_str_val_##NAME){ \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, SCHEME " realm=\"" REALM "\""); \
   return error; \
 } \
-std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = authorize(__param_str_val_##NAME); \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleAuthorization(__param_str_val_##NAME); \
 if(__param_aosp_val_##NAME.get() == nullptr) { \
   auto error = ApiController::handleError(Status::CODE_401, "Unauthorized"); \
   error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, SCHEME " realm=\"" REALM "\""); \

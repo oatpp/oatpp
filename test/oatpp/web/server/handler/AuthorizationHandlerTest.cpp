@@ -29,6 +29,28 @@
 
 namespace oatpp { namespace test { namespace web { namespace server { namespace handler {
 
+namespace {
+
+class MyBasicAuthorizationObject : public oatpp::web::server::handler::AuthorizationObject {
+public:
+  oatpp::String userId;
+  oatpp::String password;
+};
+
+class MyBasicAuthorizationHandler : public oatpp::web::server::handler::BasicAuthorizationHandler {
+public:
+
+  std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password) {
+    auto authObject = std::make_shared<MyBasicAuthorizationObject>();
+    authObject->userId = userId;
+    authObject->password = password;
+    return authObject;
+  }
+
+};
+
+}
+
 void AuthorizationHandlerTest::onRun() {
 
   oatpp::String user = "foo";
@@ -36,10 +58,10 @@ void AuthorizationHandlerTest::onRun() {
   oatpp::String header = "Basic Zm9vOmJhcg==";
 
   {
-    std::shared_ptr<oatpp::web::server::handler::DefaultAuthorizationHandler> default_authorization_handler = oatpp::web::server::handler::DefaultAuthorizationHandler::createShared();
-    std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> auth = default_authorization_handler->handleAuthorization(header);
-    OATPP_LOGV(TAG, "header=\"%s\" -> user=\"%s\" password=\"%s\"", header->c_str(), auth->user->c_str(), auth->password->c_str());
-    OATPP_ASSERT(auth->user->equals("foo"));
+    MyBasicAuthorizationHandler basicAuthHandler;
+    auto auth = std::static_pointer_cast<MyBasicAuthorizationObject>(basicAuthHandler.handleAuthorization(header));
+    OATPP_LOGV(TAG, "header=\"%s\" -> user=\"%s\" password=\"%s\"", header->c_str(), auth->userId->c_str(), auth->password->c_str());
+    OATPP_ASSERT(auth->userId->equals("foo"));
     OATPP_ASSERT(auth->password->equals("bar"));
   }
 

@@ -48,6 +48,7 @@ std::shared_ptr<ApiController::Endpoint::Info> ApiController::getEndpointInfo(co
   return m_endpointInfo[endpointName];
 }
 
+// TODO - refactor this method
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(const Status& status, const oatpp::String& message) const {
   if(m_errorHandler) {
     return m_errorHandler->handleError(status, message);
@@ -56,11 +57,12 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(cons
   return handler::DefaultErrorHandler::handleDefaultError(status, message);
 }
 
-std::shared_ptr<handler::AuthorizationObject> ApiController::authorize(const String &authHeader) const {
+std::shared_ptr<handler::AuthorizationObject> ApiController::handleAuthorization(const String &authHeader) const {
   if(m_authorizationHandler) {
     return m_authorizationHandler->handleAuthorization(authHeader);
   }
-  return handler::DefaultAuthorizationHandler::defaultAuthorizationObject(authHeader);
+  // If Authorization is not setup on the server then it's 500
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Authorization is not setup.");
 }
 
 void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
