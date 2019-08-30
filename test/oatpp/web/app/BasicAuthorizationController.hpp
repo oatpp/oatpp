@@ -69,6 +69,55 @@ public:
 
 };
 
+class DefaultBasicAuthorizationController : public oatpp::web::server::api::ApiController {
+ private:
+  static constexpr const char* TAG = "test::web::app::BasicAuthorizationController";
+
+ public:
+  DefaultBasicAuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
+      : oatpp::web::server::api::ApiController(objectMapper)
+  {
+  }
+ public:
+
+  static std::shared_ptr<DefaultBasicAuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
+    return std::make_shared<DefaultBasicAuthorizationController>(objectMapper);
+  }
+
+#include OATPP_CODEGEN_BEGIN(ApiController)
+
+  ENDPOINT("GET", "default-basic-authorization", basicAuthorization,
+           AUTHORIZATION(std::shared_ptr<oatpp::web::server::handler::DefaultAuthorizationObject>, authObject)) {
+
+    auto dto = TestDto::createShared();
+    dto->testValue = authObject->userId + ":" + authObject->password;
+
+    if(dto->testValue == "foo:bar") {
+      return createDtoResponse(Status::CODE_200, dto);
+    } else {
+      return createDtoResponse(Status::CODE_401, dto);
+    }
+
+  }
+
+  ENDPOINT("GET", "default-basic-authorization-realm", basicAuthorizationRealm,
+           AUTHORIZATION(std::shared_ptr<oatpp::web::server::handler::DefaultAuthorizationObject>, authObject, "Test Realm")) {
+
+    auto dto = TestDto::createShared();
+    dto->testValue = authObject->userId + ":" + authObject->password;
+
+    if(dto->testValue == "foo:bar") {
+      return createDtoResponse(Status::CODE_200, dto);
+    } else {
+      return createDtoResponse(Status::CODE_401, dto);
+    }
+
+  }
+
+#include OATPP_CODEGEN_END(ApiController)
+
+};
+
 class BasicAuthorizationController : public oatpp::web::server::api::ApiController {
 private:
   static constexpr const char* TAG = "test::web::app::BasicAuthorizationController";
