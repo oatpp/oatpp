@@ -51,7 +51,27 @@ public:
    * Convenience typedef for &l:AuthorizationObject;.
    */
   typedef oatpp::web::server::handler::AuthorizationObject AuthorizationObject;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::stream::ChunkedBuffer;.
+   */
+  typedef oatpp::data::stream::ChunkedBuffer ChunkedBuffer;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
+   */
+  typedef oatpp::web::protocol::http::Headers Headers;
+private:
+  oatpp::String m_scheme;
+  oatpp::String m_realm;
 public:
+
+  /**
+   * Constructor.
+   * @param scheme - authorization type scheme. &id:oatpp::String;.
+   * @param realm - realm. &id:oatpp::String;.
+   */
+  AuthorizationHandler(const oatpp::String& scheme, const oatpp::String& realm);
 
   /**
    * Default virtual destructor.
@@ -64,6 +84,31 @@ public:
    * @return - `std::shared_ptr` to &id:oatpp::web::server::handler::AuthorizationObject;.
    */
   virtual std::shared_ptr<AuthorizationObject> handleAuthorization(const oatpp::String& authorizationHeader) = 0;
+
+  /**
+   * Render WWW-Authenicate header value. <br>
+   * Custom Authorization handlers may override this method in order to provide additional information.
+   * @param stream - &id:oatpp::data::stream::ChunkedBuffer;.
+   */
+  virtual void renderAuthenticateHeaderValue(ChunkedBuffer& stream);
+
+  /**
+   * Add authorization error headers to the headers map. <br>
+   * @param headers - &id:oatpp::web::protocol::http::Headers;.
+   */
+  virtual void addErrorResponseHeaders(Headers& headers);
+
+  /**
+   * Get authorization scheme.
+   * @return
+   */
+  oatpp::String getScheme();
+
+  /**
+   * Get authorization realm.
+   * @return
+   */
+  oatpp::String getRealm();
 
 };
 
@@ -88,10 +133,16 @@ public:
 /**
  * AuthorizationHandler for Authorization Type `Basic`. <br>
  * See [RFC 7617](https://tools.ietf.org/html/rfc7617). <br>
- * Extend this class to implement Basic Authorization.
+ * Extend this class to implement Custom Basic Authorization.
  */
 class BasicAuthorizationHandler : public AuthorizationHandler {
 public:
+
+  /**
+   * Constructor.
+   * @param realm
+   */
+  BasicAuthorizationHandler(const oatpp::String& realm = "API");
 
   /**
    * Implementation of &l:AuthorizationHandler::handleAuthorization ();
@@ -101,12 +152,55 @@ public:
   std::shared_ptr<AuthorizationObject> handleAuthorization(const oatpp::String &header) override;
 
   /**
-   * Implement this method! Do the actual authorization here. When not implemented returns &l:DefaultAuthorizationObject
+   * Implement this method! Do the actual authorization here. When not implemented returns &l:DefaultBasicAuthorizationObject;.
    * @param userId - user id. &id:oatpp::String;.
    * @param password - password. &id:oatpp::String;.
-   * @return - `std::shared_ptr` to &l:AuthorizationObject;.
+   * @return - `std::shared_ptr` to &l:AuthorizationObject;. `nullptr` - for "Unauthorized".
    */
   virtual std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password);
+
+};
+
+/**
+ * Default Bearer AuthorizationObject - Convenience object to enable Bearer-Authorization without the need to implement anything.
+ */
+class DefaultBearerAuthorizationObject : public AuthorizationObject {
+public:
+
+  /**
+   * Token. &id:oatpp::String;.
+   */
+  oatpp::String token;
+
+};
+
+/**
+ * AuthorizationHandler for Authorization Type `Bearer`. <br>
+ * See [RFC 6750](https://tools.ietf.org/html/rfc6750). <br>
+ * Extend this class to implement Custom Bearer Authorization.
+ */
+class BearerAuthorizationHandler : public AuthorizationHandler {
+public:
+
+  /**
+   * Constructor.
+   * @param realm
+   */
+  BearerAuthorizationHandler(const oatpp::String& realm = "API");
+
+  /**
+   * Implementation of &l:AuthorizationHandler::handleAuthorization ();
+   * @param header - &id:oatpp::String;.
+   * @return - std::shared_ptr to &id:oatpp::web::server::handler::AuthorizationObject;.
+   */
+  std::shared_ptr<AuthorizationObject> handleAuthorization(const oatpp::String &header) override;
+
+  /**
+   * Implement this method! Do the actual authorization here. When not implemented returns &l:DefaultBearerAuthorizationObject;.
+   * @param token - access token.
+   * @return - `std::shared_ptr` to &l:AuthorizationObject;. `nullptr` - for "Unauthorized".
+   */
+  virtual std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& token);
 
 };
 

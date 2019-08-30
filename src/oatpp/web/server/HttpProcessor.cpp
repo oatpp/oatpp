@@ -83,7 +83,7 @@ HttpProcessor::processRequest(HttpRouter* router,
       response = route.getEndpoint()->handle(request);
     }
   } catch (oatpp::web::protocol::http::HttpError& error) {
-    return errorHandler->handleError(error.getInfo().status, error.getMessage());
+    return errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
   } catch (std::exception& error) {
     return errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
   } catch (...) {

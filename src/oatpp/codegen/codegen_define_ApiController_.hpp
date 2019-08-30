@@ -256,58 +256,8 @@ info->body.type = TYPE::Class::getType();
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_1(TYPE, NAME) \
 auto __param_str_val_##NAME = __request->getHeader(oatpp::web::protocol::http::Header::AUTHORIZATION); \
-if(!__param_str_val_##NAME){ \
-  auto error = ApiController::handleError(Status::CODE_401, "Missing HEADER parameter 'Authorization'"); \
-  error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"API\""); \
-  return error; \
-} \
 std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleAuthorization(__param_str_val_##NAME); \
-if(__param_aosp_val_##NAME.get() == nullptr) { \
-  auto error = ApiController::handleError(Status::CODE_401, "Unauthorized"); \
-  error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"API\""); \
-  return error; \
-} \
 TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
-if(NAME.get() == nullptr) { \
-  return ApiController::handleError(Status::CODE_500, "Unable to cast authorization result to '" #TYPE "'"); \
-}
-
-
-#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_2(TYPE, NAME, REALM) \
-auto __param_str_val_##NAME = __request->getHeader(oatpp::web::protocol::http::Header::AUTHORIZATION); \
-if(!__param_str_val_##NAME){ \
-  auto error = ApiController::handleError(Status::CODE_401, "Missing HEADER parameter 'Authorization'"); \
-  error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"" REALM "\""); \
-  return error; \
-} \
-std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleAuthorization(__param_str_val_##NAME); \
-if(__param_aosp_val_##NAME.get() == nullptr) { \
-  auto error = ApiController::handleError(Status::CODE_401, "Unauthorized"); \
-  error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, "Basic realm=\"" REALM "\""); \
-  return error; \
-} \
-TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
-if(NAME.get() == nullptr) { \
-  return ApiController::handleError(Status::CODE_500, "Unable to cast authorization result to '" #TYPE "'"); \
-}
-
-#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_3(TYPE, NAME, REALM, SCHEME) \
-auto __param_str_val_##NAME = __request->getHeader(oatpp::web::protocol::http::Header::AUTHORIZATION); \
-if(!__param_str_val_##NAME){ \
-  auto error = ApiController::handleError(Status::CODE_401, "Missing HEADER parameter 'Authorization'"); \
-  error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, SCHEME " realm=\"" REALM "\""); \
-  return error; \
-} \
-std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleAuthorization(__param_str_val_##NAME); \
-if(__param_aosp_val_##NAME.get() == nullptr) { \
-  auto error = ApiController::handleError(Status::CODE_401, "Unauthorized"); \
-  error->putHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE, SCHEME " realm=\"" REALM "\""); \
-  return error; \
-} \
-TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME); \
-if(NAME.get() == nullptr) { \
-  return ApiController::handleError(Status::CODE_500, "Unable to cast authorization result to '" #TYPE "'"); \
-}
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -315,19 +265,12 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATI
 // __INFO
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_1(TYPE, NAME) \
-info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
-info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = "Basic"; \
-info->authorization = "Basic";
-
-#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_2(TYPE, NAME, REALM) \
-info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
-info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = "Basic"; \
-info->authorization = "Basic";
-
-#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_3(TYPE, NAME, REALM, SCHEME) \
-info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
-info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = SCHEME; \
-info->authorization = SCHEME;
+auto __param_obj_##NAME = ApiController::getAuthorizationHandler(); \
+if(__param_obj_##NAME) { \
+  info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
+  info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = __param_obj_##NAME ->getScheme(); \
+  info->authorization = __param_obj_##NAME ->getScheme(); \
+}
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)

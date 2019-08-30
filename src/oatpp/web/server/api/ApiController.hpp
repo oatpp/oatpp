@@ -254,7 +254,13 @@ public:
    * Get endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
    */
   std::shared_ptr<Endpoint::Info> getEndpointInfo(const std::string& endpointName);
-  
+
+  /**
+   * [under discussion]
+   * Set error handler to handle calls to handleError
+   */
+  void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
+
   /**
    * [under discussion]
    * Do not use it directly. This method is under discussion.
@@ -265,22 +271,22 @@ public:
 
   /**
    * [under discussion]
+   * Set authorization handler to handle calls to handleAuthorization
+   */
+  void setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler);
+
+  /**
+   * Get authorization handler.
+   * @return
+   */
+  std::shared_ptr<handler::AuthorizationHandler> getAuthorizationHandler();
+
+  /**
+   * [under discussion]
    * Do not use it directly. This method is under discussion.
    * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthrorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
    */
   std::shared_ptr<handler::AuthorizationObject> handleAuthorization(const String &authHeader) const;
-  
-  /**
-   * [under discussion]
-   * Set error handler to handle calls to handleError
-   */
-  void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
-
-  /**
-   * [under discussion]
-   * Set authorization handler to handle calls to handleAuthorization
-   */
-  void setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler);
   
   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const;
   

@@ -32,6 +32,8 @@
 #include "oatpp/web/protocol/http/outgoing/DtoBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
+#include "oatpp/encoding/Base64.hpp"
+
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
@@ -43,7 +45,6 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include "oatpp/core/base/Countable.hpp"
-
 
 #include <string>
 #include <list>
