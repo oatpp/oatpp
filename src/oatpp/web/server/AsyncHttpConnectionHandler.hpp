@@ -43,8 +43,6 @@ namespace oatpp { namespace web { namespace server {
 class AsyncHttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
   typedef oatpp::web::protocol::http::incoming::BodyDecoder BodyDecoder;
-public:
-  static const v_int32 THREAD_NUM_DEFAULT;
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
 private:
@@ -53,12 +51,12 @@ private:
   HttpProcessor::RequestInterceptors m_requestInterceptors;
   std::shared_ptr<const BodyDecoder> m_bodyDecoder; // TODO make bodyDecoder configurable here
 public:
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = THREAD_NUM_DEFAULT);
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
   AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor);
 public:
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
-                                                                  v_int32 threadCount = THREAD_NUM_DEFAULT);
+                                                                  v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,
                                                                   const std::shared_ptr<oatpp::async::Executor>& executor);

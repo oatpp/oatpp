@@ -150,9 +150,9 @@ public:
   Action handleError(const std::shared_ptr<const Error>& error) override {
     if(error->is<oatpp::data::AsyncIOError>()) {
       auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
-      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
+      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
-      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
+      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. %s", error->what());
     }
     return propagateError();
   }

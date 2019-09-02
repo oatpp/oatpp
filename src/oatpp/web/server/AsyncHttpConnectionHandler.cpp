@@ -26,8 +26,6 @@
 
 namespace oatpp { namespace web { namespace server {
 
-const v_int32 AsyncHttpConnectionHandler::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
-
 AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
                                                        v_int32 threadCount)
   : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))

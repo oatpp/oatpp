@@ -57,13 +57,6 @@
 #endif
 
 /**
- * oatpp::async::Executor default number of threads
- */
-#ifndef OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT
-  #define OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT 2
-#endif
-
-/**
  * Disable `thread_local` feature. <br>
  * See https://github.com/oatpp/oatpp/issues/81
  */
