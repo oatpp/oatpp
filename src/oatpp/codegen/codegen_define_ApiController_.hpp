@@ -304,19 +304,19 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH)  \
 \
-std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
+EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
   return info; \
-} \
+}; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         this, \
                                                         Z__ENDPOINT_METHOD_##NAME(this), \
                                                         nullptr, \
-                                                        Z__CREATE_ENDPOINT_INFO_##NAME());
+                                                        Z__CREATE_ENDPOINT_INFO_##NAME);
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
@@ -335,20 +335,20 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME()
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, ...)  \
 \
-std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
-  auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
+EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
+auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_INFO, __VA_ARGS__) \
   return info; \
-} \
+}; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         this, \
                                                         Z__ENDPOINT_METHOD_##NAME(this), \
                                                         nullptr, \
-                                                        Z__CREATE_ENDPOINT_INFO_##NAME());
+                                                        Z__CREATE_ENDPOINT_INFO_##NAME);
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, ...) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
@@ -421,19 +421,19 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
  */
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL(NAME, METHOD, PATH)  \
 \
-std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
+EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
   return info; \
-} \
+}; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                                     this, \
                                                                     nullptr, \
                                                                     Z__ENDPOINT_METHOD_##NAME(this), \
-                                                                    Z__CREATE_ENDPOINT_INFO_##NAME());
+                                                                    Z__CREATE_ENDPOINT_INFO_##NAME);
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Asynchronous Endpoint.

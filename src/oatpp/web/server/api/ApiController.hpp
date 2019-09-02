@@ -139,6 +139,10 @@ public:
    * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
    */
   typedef oatpp::data::mapping::type::Boolean Boolean;
+
+
+  typedef std::function<std::shared_ptr<Endpoint::Info>()> EndpointInfoBuilder;
+
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
   template <class Value>
@@ -225,9 +229,9 @@ public:
                                                   T* controller,
                                                   typename Handler<T>::Method method,
                                                   typename Handler<T>::MethodAsync methodAsync,
-                                                  const std::shared_ptr<Endpoint::Info>& info){
+                                                  const EndpointInfoBuilder &infoBuilder){
     auto handler = Handler<T>::createShared(controller, method, methodAsync);
-    auto endpoint = Endpoint::createShared(handler, info);
+    auto endpoint = Endpoint::createShared(handler, infoBuilder);
     endpoints->pushBack(endpoint);
     return endpoint;
   }
