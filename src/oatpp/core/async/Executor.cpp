@@ -78,11 +78,13 @@ void Executor::SubmissionProcessor::detach() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Executor
 
-const v_int32 Executor::THREAD_NUM_DEFAULT = OATPP_ASYNC_EXECUTOR_THREAD_NUM_DEFAULT;
-
 Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int32 timerWorkersCount, bool useIOEventWorker)
   : m_balancer(0)
 {
+
+  processorWorkersCount = chooseProcessorWorkersCount(processorWorkersCount);
+  ioWorkersCount = chooseIOWorkersCount(processorWorkersCount, ioWorkersCount);
+  timerWorkersCount = chooseTimerWorkersCount(timerWorkersCount);
 
   for(v_int32 i = 0; i < processorWorkersCount; i ++) {
     m_processorWorkers.push_back(std::make_shared<SubmissionProcessor>());
@@ -112,7 +114,38 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
 
 }
 
-Executor::~Executor() {
+v_int32 Executor::chooseProcessorWorkersCount(v_int32 processorWorkersCount) {
+  if(processorWorkersCount >= 1) {
+    return processorWorkersCount;
+  }
+  if(processorWorkersCount == VALUE_SUGGESTED) {
+    return oatpp::concurrency::getHardwareConcurrency();
+  }
+  throw std::runtime_error("[oatpp::async::Executor::chooseProcessorWorkersCount()]: Error. Invalid processor workers count specified.");
+}
+
+v_int32 Executor::chooseIOWorkersCount(v_int32 processorWorkersCount, v_int32 ioWorkersCount) {
+  if(ioWorkersCount >= 1) {
+    return ioWorkersCount;
+  }
+  if(ioWorkersCount == VALUE_SUGGESTED) {
+    v_int32 count = processorWorkersCount >> 1;
+    if(count == 0) {
+      count = 1;
+    }
+    return count;
+  }
+  throw std::runtime_error("[oatpp::async::Executor::chooseIOWorkersCount()]: Error. Invalid I/O workers count specified.");
+}
+
+v_int32 Executor::chooseTimerWorkersCount(v_int32 timerWorkersCount) {
+  if(timerWorkersCount >= 1) {
+    return timerWorkersCount;
+  }
+  if(timerWorkersCount == VALUE_SUGGESTED) {
+    return 1;
+  }
+  throw std::runtime_error("[oatpp::async::Executor::chooseTimerWorkersCount()]: Error. Invalid timer workers count specified.");
 }
 
 void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers) {
