@@ -26,6 +26,7 @@
 #define oatpp_test_web_app_Client_hpp
 
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
+#include "oatpp/encoding/Base64.hpp"
 #include "oatpp/web/client/ApiClient.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -48,6 +49,14 @@ public:
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
+
+  API_CALL("GET", "default-basic-authorization", defaultBasicAuthorization, AUTHORIZATION_BASIC(String, authString))
+  API_CALL("GET", "default-basic-authorization", defaultBasicAuthorizationWithoutHeader)
+  API_CALL("GET", "basic-authorization", customBasicAuthorization, AUTHORIZATION_BASIC(String, authString))
+  API_CALL("GET", "basic-authorization", customBasicAuthorizationWithoutHeader)
+
+  API_CALL("GET", "bearer-authorization", bearerAuthorization, AUTHORIZATION(String, authString, "Bearer"))
+
   API_CALL("GET", "chunked/{text-value}/{num-iterations}", getChunked, PATH(String, text, "text-value"), PATH(Int32, numIterations, "num-iterations"))
   API_CALL("POST", "test/multipart/{chunk-size}", multipartTest, PATH(Int32, chunkSize, "chunk-size"), BODY(std::shared_ptr<MultipartBody>, body))
 

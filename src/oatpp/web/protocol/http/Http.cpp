@@ -109,6 +109,7 @@ const char* const Header::Value::CONTENT_TYPE_APPLICATION_JSON = "application/js
   
 const char* const Header::ACCEPT = "Accept";
 const char* const Header::AUTHORIZATION = "Authorization";
+const char* const Header::WWW_AUTHENTICATE = "WWW-Authenticate";
 const char* const Header::CONNECTION = "Connection";
 const char* const Header::TRANSFER_ENCODING = "Transfer-Encoding";
 const char* const Header::CONTENT_ENCODING = "Content-Encoding";

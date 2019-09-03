@@ -40,6 +40,18 @@
 namespace oatpp { namespace web { namespace protocol { namespace http {
 
 /**
+ * Typedef for headers map. Headers map key is case-insensitive.
+ * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+ */
+typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+
+/**
+ * Typedef for query parameters map.
+ * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabel; and &id:oatpp::data::share::StringKeyLabel;.
+ */
+typedef std::unordered_map<oatpp::data::share::StringKeyLabel, oatpp::data::share::StringKeyLabel> QueryParams;
+
+/**
  * Http status.
  */
 class Status{
@@ -397,6 +409,8 @@ public:
  * HttpError extends &id:oatpp::web::protocol::ProtocolError;<&l:Status;>.
  */
 class HttpError : public protocol::ProtocolError<Status> {
+private:
+  Headers m_headers;
 public:
 
   /**
@@ -416,6 +430,25 @@ public:
   HttpError(const Status& status, const oatpp::String& message)
     : protocol::ProtocolError<Status>(Info(0, status), message)
   {}
+
+  /**
+   * Constructor.
+   * @param status
+   * @param message
+   * @param headers
+   */
+  HttpError(const Status& status, const oatpp::String& message, const Headers& headers)
+    : protocol::ProtocolError<Status>(Info(0, status), message)
+    , m_headers(headers)
+  {}
+
+  /**
+   * Get headers map
+   * @return
+   */
+  const Headers& getHeaders() const {
+    return m_headers;
+  }
   
 };
 
@@ -452,6 +485,7 @@ public:
 public:
   static const char* const ACCEPT;              // "Accept"
   static const char* const AUTHORIZATION;       // "Authorization"
+  static const char* const WWW_AUTHENTICATE;    // "WWW-Authenticate"
   static const char* const CONNECTION;          // "Connection"
   static const char* const TRANSFER_ENCODING;   // "Transfer-Encoding"
   static const char* const CONTENT_ENCODING;    // "Content-Encoding"
@@ -600,18 +634,6 @@ struct HeaderValueData {
   oatpp::String getTitleParamValue(const data::share::StringKeyLabelCI& key) const;
 
 };
-
-/**
- * Typedef for headers map. Headers map key is case-insensitive.
- * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
- */
-typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
-
-/**
- * Typedef for query parameters map.
- * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabel; and &id:oatpp::data::share::StringKeyLabel;.
- */
-typedef std::unordered_map<oatpp::data::share::StringKeyLabel, oatpp::data::share::StringKeyLabel> QueryParams;
 
 /**
  * Oatpp Http parser.

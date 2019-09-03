@@ -126,11 +126,13 @@ public:
     oatpp::String description;
     oatpp::String path;
     oatpp::String method;
+    oatpp::String authorization;
     
     Param body;
     oatpp::String bodyContentType;
     
     std::list<ContentTypeAndSchema> consumes;
+    std::unordered_map<oatpp::String, std::shared_ptr<std::list<oatpp::String>>> securityRequirements;
 
     Params headers;
     Params pathParams;
@@ -153,17 +155,25 @@ public:
     void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType) {
       responses[status] = {contentType, T::Class::getType()};
     }
-    
+
+    void addSecurityRequirement(const oatpp::String &requirement, const std::shared_ptr<std::list<oatpp::String>> &scopes = nullptr) {
+      securityRequirements[requirement] = scopes;
+    }
   };
 public:
 
-  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::shared_ptr<Info>& pInfo);
+  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder);
   
   static std::shared_ptr<Endpoint> createShared(const std::shared_ptr<RequestHandler>& handler,
-                                                const std::shared_ptr<Info>& info);
+                                                const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder);
   
   const std::shared_ptr<RequestHandler> handler;
-  const std::shared_ptr<Info> info;
+
+  std::shared_ptr<Info> info();
+
+ private:
+  std::shared_ptr<Info> m_info;
+  const std::function<const std::shared_ptr<Endpoint::Info>&()> m_infoBuilder;
   
 };
   

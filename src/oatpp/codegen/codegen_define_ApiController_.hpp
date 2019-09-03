@@ -74,6 +74,9 @@ OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_STRING, OATPP_M
 #define BODY_DTO(TYPE, ...) \
 OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_DTO, OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO, TYPE, (__VA_ARGS__))
 
+#define AUTHORIZATION(TYPE, ...) \
+OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_AUTHORIZATION, OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO, TYPE, (__VA_ARGS__))
+
 //////////////////////////////////////////////////////////////////////////
 
 #define OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(MACRO, TYPE, ...) \
@@ -249,6 +252,43 @@ if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
 info->body.name = OATPP_MACRO_FIRSTARG_STR PARAM_LIST; \
 info->body.type = TYPE::Class::getType();
 
+// AUTHORIZATION MACRO // ------------------------------------------------------
+
+#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_1(TYPE, NAME) \
+auto __param_str_val_##NAME = __request->getHeader(oatpp::web::protocol::http::Header::AUTHORIZATION); \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = ApiController::handleDefaultAuthorization(__param_str_val_##NAME); \
+TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME);
+
+#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_2(TYPE, NAME, AUTH_HANDLER) \
+auto __param_str_val_##NAME = __request->getHeader(oatpp::web::protocol::http::Header::AUTHORIZATION); \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationHandler> __auth_handler_##NAME = AUTH_HANDLER; \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationObject> __param_aosp_val_##NAME = __auth_handler_##NAME->handleAuthorization(__param_str_val_##NAME); \
+TYPE NAME = std::static_pointer_cast<TYPE::element_type>(__param_aosp_val_##NAME);
+
+#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION(TYPE, PARAM_LIST) \
+OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
+
+// __INFO
+
+#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_1(TYPE, NAME) \
+auto __param_obj_##NAME = ApiController::getDefaultAuthorizationHandler(); \
+if(__param_obj_##NAME) { \
+  info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
+  info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = __param_obj_##NAME ->getScheme(); \
+  info->authorization = __param_obj_##NAME ->getScheme(); \
+}
+
+#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_2(TYPE, NAME, AUTH_HANDLER) \
+std::shared_ptr<oatpp::web::server::handler::AuthorizationHandler> __auth_handler_##NAME = AUTH_HANDLER; \
+if(__auth_handler_##NAME) { \
+  info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
+  info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = __auth_handler_##NAME->getScheme(); \
+  info->authorization = __auth_handler_##NAME->getScheme(); \
+}
+
+#define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO(TYPE, PARAM_LIST) \
+OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
+
 // FOR EACH // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_DECL_FIRST(INDEX, COUNT, X) \
@@ -304,19 +344,19 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_0(NAME, METHOD, PATH)  \
 \
-std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
+EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
   return info; \
-} \
+}; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         this, \
                                                         Z__ENDPOINT_METHOD_##NAME(this), \
                                                         nullptr, \
-                                                        Z__CREATE_ENDPOINT_INFO_##NAME());
+                                                        Z__CREATE_ENDPOINT_INFO_##NAME);
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
@@ -335,20 +375,20 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME()
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_1(NAME, METHOD, PATH, ...)  \
 \
-std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
-  auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
+EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
+auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_INFO, __VA_ARGS__) \
   return info; \
-} \
+}; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         this, \
                                                         Z__ENDPOINT_METHOD_##NAME(this), \
                                                         nullptr, \
-                                                        Z__CREATE_ENDPOINT_INFO_##NAME());
+                                                        Z__CREATE_ENDPOINT_INFO_##NAME);
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, ...) \
 OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
@@ -421,19 +461,19 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
  */
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL(NAME, METHOD, PATH)  \
 \
-std::shared_ptr<Endpoint::Info> Z__CREATE_ENDPOINT_INFO_##NAME() { \
+EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
   info->path = PATH; \
   info->method = METHOD; \
   return info; \
-} \
+}; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                                     this, \
                                                                     nullptr, \
                                                                     Z__ENDPOINT_METHOD_##NAME(this), \
-                                                                    Z__CREATE_ENDPOINT_INFO_##NAME());
+                                                                    Z__CREATE_ENDPOINT_INFO_##NAME);
 
 /**
  * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Asynchronous Endpoint.

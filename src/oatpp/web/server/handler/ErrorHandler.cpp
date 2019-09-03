@@ -28,23 +28,32 @@
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
-  
+
+std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(const protocol::http::Status& status, const oatpp::String& message) {
+  Headers headers;
+  return handleError(status, message, headers);
+}
+
 std::shared_ptr<protocol::http::outgoing::Response>
-DefaultErrorHandler::handleError(const protocol::http::Status& status, const oatpp::String& message) {
-  
+DefaultErrorHandler::handleError(const oatpp::web::protocol::http::Status &status, const oatpp::String &message, const Headers& headers){
+
   auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
   *stream << "server=" << protocol::http::Header::Value::SERVER << "\n";
   *stream << "code=" << status.code << "\n";
   *stream << "description=" << status.description << "\n";
   *stream << "message=" << message << "\n";
   auto response = protocol::http::outgoing::Response::createShared
-  (status, protocol::http::outgoing::ChunkedBufferBody::createShared(stream));
-  
+      (status, protocol::http::outgoing::ChunkedBufferBody::createShared(stream));
+
   response->putHeader(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   response->putHeader(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
-  
+
+  for(auto& pair : headers) {
+    response->putHeader(pair.first, pair.second);
+  }
+
   return response;
-  
+
 }
-  
+
 }}}}
