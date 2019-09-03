@@ -162,13 +162,18 @@ public:
   };
 public:
 
-  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::shared_ptr<Info>& pInfo);
+  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder);
   
   static std::shared_ptr<Endpoint> createShared(const std::shared_ptr<RequestHandler>& handler,
-                                                const std::shared_ptr<Info>& info);
+                                                const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder);
   
   const std::shared_ptr<RequestHandler> handler;
-  const std::shared_ptr<Info> info;
+
+  std::shared_ptr<Info> info();
+
+ private:
+  std::shared_ptr<Info> m_info;
+  const std::function<const std::shared_ptr<Endpoint::Info>&()> m_infoBuilder;
   
 };
   
