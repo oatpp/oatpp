@@ -169,10 +169,10 @@ public:
   
   const std::shared_ptr<RequestHandler> handler;
 
-  std::shared_ptr<Info> info();
+  std::shared_ptr<Info> info() const;
 
- private:
-  std::shared_ptr<Info> m_info;
+private:
+  mutable std::shared_ptr<Info> m_info;
   const std::function<const std::shared_ptr<Endpoint::Info>&()> m_infoBuilder;
   
 };
