@@ -99,13 +99,13 @@ oatpp::String Endpoint::Info::toString() {
 }
 
 Endpoint::Endpoint(const std::shared_ptr<RequestHandler>& pHandler,
-                   const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder)
+                   const std::function<std::shared_ptr<Endpoint::Info>()>& infoBuilder)
   : handler(pHandler)
   , m_infoBuilder(infoBuilder)
 {}
 
 std::shared_ptr<Endpoint> Endpoint::createShared(const std::shared_ptr<RequestHandler>& handler,
-                                                 const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder){
+                                                 const std::function<std::shared_ptr<Endpoint::Info>()>& infoBuilder){
   return std::make_shared<Endpoint>(handler, infoBuilder);
 }
 

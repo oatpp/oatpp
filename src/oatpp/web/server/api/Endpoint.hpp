@@ -163,10 +163,10 @@ public:
   };
 public:
 
-  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder);
+  Endpoint(const std::shared_ptr<RequestHandler>& pHandler, const std::function<std::shared_ptr<Endpoint::Info>()>& infoBuilder);
   
   static std::shared_ptr<Endpoint> createShared(const std::shared_ptr<RequestHandler>& handler,
-                                                const std::function<const std::shared_ptr<Endpoint::Info>&()> infoBuilder);
+                                                const std::function<std::shared_ptr<Endpoint::Info>()>& infoBuilder);
   
   const std::shared_ptr<RequestHandler> handler;
 
@@ -174,7 +174,7 @@ public:
 
 private:
   std::shared_ptr<Info> m_info;
-  const std::function<const std::shared_ptr<Endpoint::Info>&()> m_infoBuilder;
+  std::function<std::shared_ptr<Endpoint::Info>()> m_infoBuilder;
   
 };
   

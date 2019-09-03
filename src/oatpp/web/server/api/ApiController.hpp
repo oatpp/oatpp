@@ -237,7 +237,7 @@ public:
                                                   T* controller,
                                                   typename Handler<T>::Method method,
                                                   typename Handler<T>::MethodAsync methodAsync,
-                                                  const EndpointInfoBuilder &infoBuilder){
+                                                  const EndpointInfoBuilder& infoBuilder){
     auto handler = Handler<T>::createShared(controller, method, methodAsync);
     auto endpoint = Endpoint::createShared(handler, infoBuilder);
     endpoints->pushBack(endpoint);
