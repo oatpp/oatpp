@@ -48,16 +48,17 @@ namespace oatpp { namespace test { namespace web { namespace app {
 // Default Basic Authorization
 
 class DefaultBasicAuthorizationController : public oatpp::web::server::api::ApiController {
- private:
+private:
   static constexpr const char* TAG = "test::web::app::BasicAuthorizationController";
+public:
 
- public:
   DefaultBasicAuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
-      : oatpp::web::server::api::ApiController(objectMapper)
+    : oatpp::web::server::api::ApiController(objectMapper)
   {
-    setAuthorizationHandler(std::make_shared<oatpp::web::server::handler::BasicAuthorizationHandler>("default-test-realm"));
+    setDefaultAuthorizationHandler(std::make_shared<oatpp::web::server::handler::BasicAuthorizationHandler>("default-test-realm"));
   }
- public:
+
+public:
 
   static std::shared_ptr<DefaultBasicAuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
     return std::make_shared<DefaultBasicAuthorizationController>(objectMapper);
@@ -118,13 +119,12 @@ public:
 class BasicAuthorizationController : public oatpp::web::server::api::ApiController {
 private:
   static constexpr const char* TAG = "test::web::app::BasicAuthorizationController";
-
+public:
+  std::shared_ptr<AuthorizationHandler> m_authHandler = std::make_shared<MyBasicAuthorizationHandler>();
 public:
   BasicAuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
     : oatpp::web::server::api::ApiController(objectMapper)
-  {
-    m_authorizationHandler = std::make_shared<MyBasicAuthorizationHandler>();
-  }
+  {}
 public:
 
   static std::shared_ptr<BasicAuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
@@ -134,7 +134,7 @@ public:
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
   ENDPOINT("GET", "basic-authorization", basicAuthorization,
-           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authObject)) {
+           AUTHORIZATION(std::shared_ptr<MyAuthorizationObject>, authObject, m_authHandler)) {
 
     auto dto = TestDto::createShared();
     dto->testValue = authObject->authString;

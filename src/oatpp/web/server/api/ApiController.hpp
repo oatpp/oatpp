@@ -27,6 +27,7 @@
 
 #include "./Endpoint.hpp"
 
+#include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
@@ -103,6 +104,11 @@ public:
    * Convenience typedef for list of &id:oatpp::web::server::api::Endpoint;.
    */
   typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::server::handler::AuthorizationHandler;.
+   */
+  typedef oatpp::web::server::handler::AuthorizationHandler AuthorizationHandler;
   
 public:
 
@@ -211,7 +217,7 @@ protected:
 protected:
   std::shared_ptr<Endpoints> m_endpoints;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  std::shared_ptr<handler::AuthorizationHandler> m_authorizationHandler;
+  std::shared_ptr<handler::AuthorizationHandler> m_defaultAuthorizationHandler;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
   std::unordered_map<std::string, std::shared_ptr<Endpoint::Info>> m_endpointInfo;
 public:
@@ -273,20 +279,20 @@ public:
    * [under discussion]
    * Set authorization handler to handle calls to handleAuthorization
    */
-  void setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler);
+  void setDefaultAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler);
 
   /**
    * Get authorization handler.
    * @return
    */
-  std::shared_ptr<handler::AuthorizationHandler> getAuthorizationHandler();
+  std::shared_ptr<handler::AuthorizationHandler> getDefaultAuthorizationHandler();
 
   /**
    * [under discussion]
    * Do not use it directly. This method is under discussion.
    * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthrorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
    */
-  std::shared_ptr<handler::AuthorizationObject> handleAuthorization(const String &authHeader) const;
+  std::shared_ptr<handler::AuthorizationObject> handleDefaultAuthorization(const String &authHeader) const;
   
   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const;
   

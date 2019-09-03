@@ -60,17 +60,17 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(cons
   throw oatpp::web::protocol::http::HttpError(status, message);
 }
 
-void ApiController::setAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler){
-  m_authorizationHandler = authorizationHandler;
+void ApiController::setDefaultAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler){
+  m_defaultAuthorizationHandler = authorizationHandler;
 }
 
-std::shared_ptr<handler::AuthorizationHandler> ApiController::getAuthorizationHandler() {
-  return m_authorizationHandler;
+std::shared_ptr<handler::AuthorizationHandler> ApiController::getDefaultAuthorizationHandler() {
+  return m_defaultAuthorizationHandler;
 }
 
-std::shared_ptr<handler::AuthorizationObject> ApiController::handleAuthorization(const String &authHeader) const {
-  if(m_authorizationHandler) {
-    return m_authorizationHandler->handleAuthorization(authHeader);
+std::shared_ptr<handler::AuthorizationObject> ApiController::handleDefaultAuthorization(const String &authHeader) const {
+  if(m_defaultAuthorizationHandler) {
+    return m_defaultAuthorizationHandler->handleAuthorization(authHeader);
   }
   // If Authorization is not setup on the server then it's 500
   throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Authorization is not setup.");

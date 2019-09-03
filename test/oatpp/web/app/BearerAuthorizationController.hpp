@@ -77,12 +77,13 @@ class BearerAuthorizationController : public oatpp::web::server::api::ApiControl
 private:
   static constexpr const char* TAG = "test::web::app::BearerAuthorizationController";
 
+private:
+  std::shared_ptr<AuthorizationHandler> m_authHandler = std::make_shared<MyBearerAuthorizationHandler>();
 public:
+
   BearerAuthorizationController(const std::shared_ptr<ObjectMapper>& objectMapper)
     : oatpp::web::server::api::ApiController(objectMapper)
-  {
-    setAuthorizationHandler(std::make_shared<MyBearerAuthorizationHandler>());
-  }
+  {}
 public:
 
   static std::shared_ptr<BearerAuthorizationController> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
@@ -92,7 +93,7 @@ public:
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
   ENDPOINT("GET", "bearer-authorization", authorization,
-           AUTHORIZATION(std::shared_ptr<BearerAuthorizationObject>, authorizatioBearer)) {
+           AUTHORIZATION(std::shared_ptr<BearerAuthorizationObject>, authorizatioBearer, m_authHandler)) {
     auto dto = TestDto::createShared();
     dto->testValue = authorizatioBearer->user + ":" + authorizatioBearer->password;
     if(dto->testValue == "foo:bar" && authorizatioBearer->token == "4e99e8c12de7e01535248d2bac85e732") {
