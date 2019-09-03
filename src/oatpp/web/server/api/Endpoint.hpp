@@ -29,6 +29,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <functional>
 
 namespace oatpp { namespace web { namespace server { namespace api {
 
@@ -169,10 +170,10 @@ public:
   
   const std::shared_ptr<RequestHandler> handler;
 
-  std::shared_ptr<Info> info() const;
+  std::shared_ptr<Info> info();
 
 private:
-  mutable std::shared_ptr<Info> m_info;
+  std::shared_ptr<Info> m_info;
   const std::function<const std::shared_ptr<Endpoint::Info>&()> m_infoBuilder;
   
 };

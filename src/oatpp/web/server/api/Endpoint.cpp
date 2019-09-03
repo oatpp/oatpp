@@ -109,7 +109,7 @@ std::shared_ptr<Endpoint> Endpoint::createShared(const std::shared_ptr<RequestHa
   return std::make_shared<Endpoint>(handler, infoBuilder);
 }
 
-std::shared_ptr<Endpoint::Info> Endpoint::info() const {
+std::shared_ptr<Endpoint::Info> Endpoint::info() {
   if (m_info == nullptr) {
     m_info = m_infoBuilder();
   }
