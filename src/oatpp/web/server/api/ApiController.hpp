@@ -147,7 +147,9 @@ public:
    */
   typedef oatpp::data::mapping::type::Boolean Boolean;
 
-
+  /**
+   * Convenience typedef for std::function<std::shared_ptr<Endpoint::Info>()>.
+   */
   typedef std::function<std::shared_ptr<Endpoint::Info>()> EndpointInfoBuilder;
 
   template <class T>
@@ -281,7 +283,8 @@ public:
 
   /**
    * [under discussion]
-   * Set authorization handler to handle calls to handleAuthorization
+   * Set authorization handler to handle calls to handleAuthorization.
+   * Must be called before controller is added to a router or swagger-doc if an endpoint uses the AUTHORIZATION macro
    */
   void setDefaultAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler);
 
@@ -294,7 +297,7 @@ public:
   /**
    * [under discussion]
    * Do not use it directly. This method is under discussion.
-   * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthrorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
+   * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
    */
   std::shared_ptr<handler::AuthorizationObject> handleDefaultAuthorization(const String &authHeader) const;
   
