@@ -276,6 +276,8 @@ if(__param_obj_##NAME) { \
   info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
   info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = __param_obj_##NAME ->getScheme(); \
   info->authorization = __param_obj_##NAME ->getScheme(); \
+} else { \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "No authorization handler set up in controller before controller was added to router or swagger-doc."); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_2(TYPE, NAME, AUTH_HANDLER) \
@@ -284,6 +286,8 @@ if(__auth_handler_##NAME) { \
   info->headers.add(oatpp::web::protocol::http::Header::AUTHORIZATION, oatpp::String::Class::getType()); \
   info->headers[oatpp::web::protocol::http::Header::AUTHORIZATION].description = __auth_handler_##NAME->getScheme(); \
   info->authorization = __auth_handler_##NAME->getScheme(); \
+} else { \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Invalid authorization handler given (or not set up) in AUTHORIZATION(TYPE, NAME, AUTH_HANDLER) before controller was added to router or swagger-doc."); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO(TYPE, PARAM_LIST) \
