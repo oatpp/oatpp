@@ -35,16 +35,31 @@ namespace oatpp { namespace web { namespace server { namespace handler {
  */
 class ErrorHandler {
 public:
+  /**
+   * Convenience typedef for Headers. <br>
+   * See &id:oatpp::web::protocol::http::Headers;
+   */
+  typedef web::protocol::http::Headers Headers;
+public:
 
   /**
    * Implement this method!
    * @param status - &id:oatpp::web::protocol::http::Status;.
-   * @param message- &id:oatpp::String;.
-   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
+   * @param message - &id:oatpp::String;.
+   * @param Headers - &id:oatpp::web::protocol::http::Headers;
+   * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
   virtual
   std::shared_ptr<protocol::http::outgoing::Response>
-  handleError(const protocol::http::Status& status, const oatpp::String& message) = 0;
+  handleError(const protocol::http::Status& status, const oatpp::String& message, const Headers& headers) = 0;
+
+  /**
+   * Convenience method to call `handleError` method with no headers.
+   * @param status - &id:oatpp::web::protocol::http::Status;
+   * @param message - &id:oatpp::String;.
+   * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
+  std::shared_ptr<protocol::http::outgoing::Response> handleError(const protocol::http::Status& status, const oatpp::String& message);
   
 };
 
@@ -75,8 +90,8 @@ public:
    * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
    */
   std::shared_ptr<protocol::http::outgoing::Response>
-  handleError(const protocol::http::Status& status, const oatpp::String& message) override;
-  
+  handleError(const protocol::http::Status& status, const oatpp::String& message, const Headers& headers) override;
+
 };
   
 }}}}
