@@ -147,7 +147,7 @@ public:
    */
   typedef oatpp::data::mapping::type::Boolean Boolean;
 
-  /**
+  /*
    * Convenience typedef for std::function<std::shared_ptr<Endpoint::Info>()>.
    */
   typedef std::function<std::shared_ptr<Endpoint::Info>()> EndpointInfoBuilder;
