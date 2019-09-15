@@ -245,7 +245,7 @@ public:
    * Constructor. Create yield_to Action.
    * @param functionPtr - pointer to function.
    */
-  Action(FunctionPtr functionPtr);
+  Action(const FunctionPtr& functionPtr);
 
   /**
    * Deleted copy-constructor.
@@ -401,7 +401,7 @@ public:
   CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);
 
   ~CoroutineHandle();
-  
+
   Action iterate();
 
   bool finished() const;
@@ -485,7 +485,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(FunctionPtr ptr) = 0;
+  virtual Action call(const FunctionPtr& ptr) = 0;
 
   /**
    * Default implementation of handleError(error) function.
@@ -568,7 +568,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  Action call(FunctionPtr ptr) override {
+  Action call(const FunctionPtr& ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
@@ -578,7 +578,7 @@ public:
    * @param function - pointer to function.
    * @return - yield Action.
    */
-  Action yieldTo(Function function) const {
+  Action yieldTo(const Function& function) const {
     return Action(static_cast<FunctionPtr>(function));
   }
 
@@ -755,7 +755,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(AbstractCoroutine::FunctionPtr ptr) override {
+  virtual Action call(const AbstractCoroutine::FunctionPtr& ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
@@ -765,7 +765,7 @@ public:
    * @param function - pointer to function.
    * @return - yield Action.
    */
-  Action yieldTo(Function function) const {
+  Action yieldTo(const Function& function) const {
     return Action(static_cast<AbstractCoroutine::FunctionPtr>(function));
   }
 

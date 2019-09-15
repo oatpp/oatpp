@@ -71,7 +71,7 @@ Action::Action(AbstractCoroutine* coroutine)
   m_data.coroutine = coroutine;
 }
 
-Action::Action(FunctionPtr functionPtr)
+Action::Action(const FunctionPtr& functionPtr)
   : m_type(TYPE_YIELD_TO)
 {
   m_data.fptr = functionPtr;
