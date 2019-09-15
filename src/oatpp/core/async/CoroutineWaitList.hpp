@@ -56,7 +56,7 @@ public:
     virtual void onNewItem(CoroutineWaitList& list) = 0;
   };
 private:
-  oatpp::collection::FastQueue<AbstractCoroutine> m_list;
+  oatpp::collection::FastQueue<CoroutineHandle> m_list;
   oatpp::concurrency::SpinLock m_lock;
   Listener* m_listener = nullptr;
 protected:
@@ -65,14 +65,14 @@ protected:
    * This method should be called by Coroutine Processor only.
    * @param coroutine
    */
-  void pushFront(AbstractCoroutine* coroutine);
+  void pushFront(CoroutineHandle* coroutine);
 
   /*
    * Put coroutine on wait-list.
    * This method should be called by Coroutine Processor only.
    * @param coroutine
    */
-  void pushBack(AbstractCoroutine* coroutine);
+  void pushBack(CoroutineHandle* coroutine);
 public:
 
   /**

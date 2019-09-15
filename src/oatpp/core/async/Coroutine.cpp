@@ -186,35 +186,25 @@ CoroutineStarter& CoroutineStarter::next(CoroutineStarter&& starter) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AbstractCoroutine
+// CoroutineHandle
 
-std::shared_ptr<const Error> AbstractCoroutine::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
+std::shared_ptr<const Error> CoroutineHandle::ERROR_UNKNOWN = std::make_shared<Error>("Unknown Error");
 
-AbstractCoroutine::AbstractCoroutine()
-  : _CP(this)
+CoroutineHandle::CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine)
+  : _PP(processor)
+  , _CP(rootCoroutine)
   , _FP(&AbstractCoroutine::act)
   , _ERR(nullptr)
-  , _PP(nullptr)
   , _SCH_A(Action::TYPE_NONE)
   , _ref(nullptr)
-  , m_parent(nullptr)
   , m_propagatedError(&_ERR)
-  , m_parentReturnAction(Action(Action::TYPE_FINISH))
 {}
 
-Action AbstractCoroutine::iterate() {
-  try {
-    return _CP->call(_FP);
-  } catch (std::exception& e) {
-    *m_propagatedError = std::make_shared<Error>(e.what());
-    return Action::TYPE_ERROR;
-  } catch (...) {
-    *m_propagatedError = ERROR_UNKNOWN;
-    return Action::TYPE_ERROR;
-  }
-};
+CoroutineHandle::~CoroutineHandle() {
+  delete _CP;
+}
 
-Action AbstractCoroutine::takeAction(Action&& action) {
+Action CoroutineHandle::takeAction(Action&& action) {
 
   AbstractCoroutine* savedCP;
 
@@ -224,15 +214,10 @@ Action AbstractCoroutine::takeAction(Action&& action) {
       action.m_data.coroutine->m_parent = _CP;
       action.m_data.coroutine->m_propagatedError = m_propagatedError;
       _CP = action.m_data.coroutine;
-      _FP = action.m_data.coroutine->_FP;
-
+      _FP = &AbstractCoroutine::act;
       return std::forward<oatpp::async::Action>(action);
 
     case Action::TYPE_FINISH:
-      if(_CP == this) {
-        _CP = nullptr;
-        return std::forward<oatpp::async::Action>(action);
-      }
 
       savedCP = _CP;
       _CP = _CP->m_parent;
@@ -252,14 +237,9 @@ Action AbstractCoroutine::takeAction(Action&& action) {
       do {
         action = _CP->handleError(*m_propagatedError);
         if(action.m_type == Action::TYPE_ERROR) {
-          if(_CP == this) {
-            _CP = nullptr;
-            return std::forward<oatpp::async::Action>(action);
-          } else {
-            savedCP = _CP;
-            _CP = _CP->m_parent;
-            delete savedCP;
-          }
+          savedCP = _CP;
+          _CP = _CP->m_parent;
+          delete savedCP;
         } else {
           action = takeAction(std::forward<oatpp::async::Action>(action));
         }
@@ -274,13 +254,34 @@ Action AbstractCoroutine::takeAction(Action&& action) {
 
 }
 
+Action CoroutineHandle::iterate() {
+  try {
+    return _CP->call(_FP);
+  } catch (std::exception& e) {
+    *m_propagatedError = std::make_shared<Error>(e.what());
+    return Action::TYPE_ERROR;
+  } catch (...) {
+    *m_propagatedError = ERROR_UNKNOWN;
+    return Action::TYPE_ERROR;
+  }
+}
+
+bool CoroutineHandle::finished() const {
+  return _CP == nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AbstractCoroutine
+
+AbstractCoroutine::AbstractCoroutine()
+  : m_parent(nullptr)
+  , m_propagatedError(nullptr)
+  , m_parentReturnAction(Action(Action::TYPE_NONE))
+{}
+
 Action AbstractCoroutine::handleError(const std::shared_ptr<const Error>& error) {
   (void)error;
   return Action::TYPE_ERROR;
-}
-
-bool AbstractCoroutine::finished() const {
-  return _CP == nullptr;
 }
 
 /**

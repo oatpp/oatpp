@@ -75,7 +75,7 @@ private:
   IOEventWorkerForeman* m_foreman;
   Action::IOEventType m_specialization;
   bool m_running;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
+  oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
   oatpp::concurrency::SpinLock m_backlogLock;
 private:
   oatpp::data::v_io_handle m_eventQueueHandle;
@@ -93,7 +93,7 @@ private:
   void initEventQueue();
   void triggerWakeup();
   void setTriggerEvent(p_char8 eventPtr);
-  void setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr);
+  void setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr);
 public:
 
   /**
@@ -108,15 +108,15 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
    */
-  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
 
   /**
    * Push one task to worker.
-   * @param task - &id:AbstractCoroutine;.
+   * @param task - &id:CoroutineHandle;.
    */
-  void pushOneTask(AbstractCoroutine* task) override;
+  void pushOneTask(CoroutineHandle* task) override;
 
   /**
    * Run worker.
@@ -162,15 +162,15 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
    */
-  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
 
   /**
    * Push one task to worker.
-   * @param task - &id:AbstractCoroutine;.
+   * @param task - &id:CoroutineHandle;.
    */
-  void pushOneTask(AbstractCoroutine* task) override;
+  void pushOneTask(CoroutineHandle* task) override;
 
   /**
  * Break run loop.

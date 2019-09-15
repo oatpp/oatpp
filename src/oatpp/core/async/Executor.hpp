@@ -65,9 +65,9 @@ private:
 
     oatpp::async::Processor& getProcessor();
 
-    void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+    void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
 
-    void pushOneTask(AbstractCoroutine* task) override;
+    void pushOneTask(CoroutineHandle* task) override;
 
     void run();
 

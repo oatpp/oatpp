@@ -88,7 +88,7 @@ void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
   // DO NOTHING
 }
 
-void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr) {
+void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr) {
 
   auto& action = getCoroutineScheduledAction(coroutine);
 
@@ -157,7 +157,7 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<AbstractCoroutine> popQueue;
+  oatpp::collection::FastQueue<CoroutineHandle> popQueue;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
@@ -172,7 +172,7 @@ void IOEventWorker::waitEvents() {
 
       } else {
 
-        auto coroutine = (AbstractCoroutine*) dataPtr;
+        auto coroutine = (CoroutineHandle*) dataPtr;
 
         Action action = coroutine->iterate();
 
