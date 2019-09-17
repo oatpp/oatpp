@@ -92,19 +92,33 @@ void SimpleBodyDecoder::decode(const Headers& headers,
   if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     doChunkedDecoding(bodyStream, writeCallback);
   } else {
+
     oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
+
     if(contentLengthStrIt == headers.end()) {
-      return; // DO NOTHING // it is an empty or invalid body
+
+      auto connectionStrIt = headers.find(Header::CONNECTION);
+      if(connectionStrIt != headers.end()) {
+        auto headerValue = connectionStrIt->second;
+
+        if(headerValue.getSize() == 5 && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), "close", 5)) { // read until connection is closed
+          oatpp::data::buffer::IOBuffer buffer;
+          oatpp::data::stream::transfer(bodyStream, writeCallback, 0 /* read until error */, buffer.getData(), buffer.getSize());
+        } // else - do nothing. invalid response.
+      }
+
+      return;
+
     } else {
       bool success;
       contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
       if(!success){
         return; // it is an invalid request/response
       }
-      auto buffer = oatpp::data::buffer::IOBuffer::createShared();
       if(contentLength > 0) {
-        oatpp::data::stream::transfer(bodyStream, writeCallback, contentLength, buffer->getData(), buffer->getSize());
+        oatpp::data::buffer::IOBuffer buffer;
+        oatpp::data::stream::transfer(bodyStream, writeCallback, contentLength, buffer.getData(), buffer.getSize());
       }
     }
   }
@@ -218,7 +232,18 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& hea
     oatpp::data::v_io_size contentLength = 0;
     auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
     if(contentLengthStrIt == headers.end()) {
-      return nullptr;
+
+      auto connectionStrIt = headers.find(Header::CONNECTION);
+      if(connectionStrIt != headers.end()) {
+        auto headerValue = connectionStrIt->second;
+
+        if(headerValue.getSize() == 5 && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), "close", 5)) { // read until connection is closed
+          return oatpp::data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, oatpp::data::buffer::IOBuffer::createShared());
+        }
+      }
+
+      return nullptr; // else - do nothing. invalid response.
+
     } else {
       bool success;
       contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
