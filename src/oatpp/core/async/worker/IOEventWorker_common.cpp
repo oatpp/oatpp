@@ -64,17 +64,17 @@ IOEventWorker::~IOEventWorker() {
 }
 
 
-void IOEventWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine> &tasks) {
+void IOEventWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle> &tasks) {
   if (tasks.first != nullptr) {
     {
       std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_backlog);
+      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
     }
     triggerWakeup();
   }
 }
 
-void IOEventWorker::pushOneTask(AbstractCoroutine *task) {
+void IOEventWorker::pushOneTask(CoroutineHandle *task) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
     m_backlog.pushBack(task);
@@ -121,14 +121,14 @@ IOEventWorkerForeman::IOEventWorkerForeman()
 IOEventWorkerForeman::~IOEventWorkerForeman() {
 }
 
-void IOEventWorkerForeman::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+void IOEventWorkerForeman::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
 
-  oatpp::collection::FastQueue<AbstractCoroutine> readerTasks;
-  oatpp::collection::FastQueue<AbstractCoroutine> writerTasks;
+  oatpp::collection::FastQueue<CoroutineHandle> readerTasks;
+  oatpp::collection::FastQueue<CoroutineHandle> writerTasks;
 
   while(tasks.first != nullptr) {
 
-    AbstractCoroutine* coroutine = tasks.popFront();
+    CoroutineHandle* coroutine = tasks.popFront();
     auto& action = getCoroutineScheduledAction(coroutine);
 
     switch(action.getIOEventType()) {
@@ -158,7 +158,7 @@ void IOEventWorkerForeman::pushTasks(oatpp::collection::FastQueue<AbstractCorout
 
 }
 
-void IOEventWorkerForeman::pushOneTask(AbstractCoroutine* task) {
+void IOEventWorkerForeman::pushOneTask(CoroutineHandle* task) {
 
   auto& action = getCoroutineScheduledAction(task);
 

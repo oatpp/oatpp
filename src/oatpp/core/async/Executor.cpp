@@ -52,12 +52,12 @@ void Executor::SubmissionProcessor::run() {
   
 }
 
-void Executor::SubmissionProcessor::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+void Executor::SubmissionProcessor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
   (void)tasks;
   std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushTasks]: Error. This method does nothing.");
 }
 
-void Executor::SubmissionProcessor::pushOneTask(AbstractCoroutine* task) {
+void Executor::SubmissionProcessor::pushOneTask(CoroutineHandle* task) {
   (void)task;
   std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushOneTask]: Error. This method does nothing.");
 }

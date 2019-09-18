@@ -34,12 +34,12 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
     case worker::Worker::Type::IO:
       m_ioWorkers.push_back(worker);
-      m_ioPopQueues.push_back(collection::FastQueue<AbstractCoroutine>());
+      m_ioPopQueues.push_back(collection::FastQueue<CoroutineHandle>());
     break;
 
     case worker::Worker::Type::TIMER:
       m_timerWorkers.push_back(worker);
-      m_timerPopQueues.push_back(collection::FastQueue<AbstractCoroutine>());
+      m_timerPopQueues.push_back(collection::FastQueue<CoroutineHandle>());
     break;
 
     default:
@@ -49,7 +49,7 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
 }
 
-void Processor::popIOTask(AbstractCoroutine* coroutine) {
+void Processor::popIOTask(CoroutineHandle* coroutine) {
   if(m_ioPopQueues.size() > 0) {
     auto &queue = m_ioPopQueues[(++m_ioBalancer) % m_ioPopQueues.size()];
     queue.pushBack(coroutine);
@@ -59,7 +59,7 @@ void Processor::popIOTask(AbstractCoroutine* coroutine) {
   }
 }
 
-void Processor::popTimerTask(AbstractCoroutine* coroutine) {
+void Processor::popTimerTask(CoroutineHandle* coroutine) {
   if(m_timerPopQueues.size() > 0) {
     auto &queue = m_timerPopQueues[(++m_timerBalancer) % m_timerPopQueues.size()];
     queue.pushBack(coroutine);
@@ -69,7 +69,7 @@ void Processor::popTimerTask(AbstractCoroutine* coroutine) {
   }
 }
 
-void Processor::addCoroutine(AbstractCoroutine* coroutine) {
+void Processor::addCoroutine(CoroutineHandle* coroutine) {
 
   if(coroutine->_PP == this) {
 
@@ -105,12 +105,12 @@ void Processor::addCoroutine(AbstractCoroutine* coroutine) {
     action.m_type = Action::TYPE_NONE;
 
   } else {
-    throw std::runtime_error("[oatpp::async::processor::addCoroutine()]: Error. Attempt to schedule coroutine to wrong processor.");
+    throw std::runtime_error("[oatpp::async::processor::addTask()]: Error. Attempt to schedule coroutine to wrong processor.");
   }
 
 }
 
-void Processor::pushOneTask(AbstractCoroutine* coroutine) {
+void Processor::pushOneTask(CoroutineHandle* coroutine) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     m_pushList.pushBack(coroutine);
@@ -118,10 +118,10 @@ void Processor::pushOneTask(AbstractCoroutine* coroutine) {
   m_taskCondition.notify_one();
 }
 
-void Processor::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+void Processor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-    collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_pushList);
+    collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_pushList);
   }
   m_taskCondition.notify_one();
 }
@@ -154,8 +154,7 @@ void Processor::popTasks() {
 void Processor::consumeAllTasks() {
   for(auto& submission : m_taskList) {
     auto coroutine = submission->createCoroutine();
-    coroutine->_PP = this;
-    m_queue.pushBack(coroutine);
+    m_queue.pushBack(new CoroutineHandle(this, coroutine));
   }
   m_taskList.clear();
 }

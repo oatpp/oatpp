@@ -67,11 +67,11 @@ public:
 private:
   Type m_type;
 protected:
-  static void setCoroutineScheduledAction(AbstractCoroutine* CP, Action&& action);
-  static Action& getCoroutineScheduledAction(AbstractCoroutine* CP);
-  static Processor* getCoroutineProcessor(AbstractCoroutine* CP);
+  static void setCoroutineScheduledAction(CoroutineHandle* coroutine, Action&& action);
+  static Action& getCoroutineScheduledAction(CoroutineHandle* coroutine);
+  static Processor* getCoroutineProcessor(CoroutineHandle* coroutine);
   static void dismissAction(Action& action);
-  static AbstractCoroutine* nextCoroutine(AbstractCoroutine* CP);
+  static CoroutineHandle* nextCoroutine(CoroutineHandle* coroutine);
 public:
 
   /**
@@ -87,15 +87,15 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
    */
-  virtual void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) = 0;
+  virtual void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) = 0;
 
   /**
    * Push one task to worker.
-   * @param task - &id:AbstractCoroutine;.
+   * @param task - &id:oatpp::async::CoroutineHandle;.
    */
-  virtual void pushOneTask(AbstractCoroutine* task) = 0;
+  virtual void pushOneTask(CoroutineHandle* task) = 0;
 
   /**
    * Break run loop.

@@ -45,7 +45,7 @@ void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
   throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
-void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr) {
+void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr) {
   throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 

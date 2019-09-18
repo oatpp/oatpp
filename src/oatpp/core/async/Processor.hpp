@@ -89,8 +89,8 @@ private:
   std::vector<std::shared_ptr<worker::Worker>> m_ioWorkers;
   std::vector<std::shared_ptr<worker::Worker>> m_timerWorkers;
 
-  std::vector<oatpp::collection::FastQueue<AbstractCoroutine>> m_ioPopQueues;
-  std::vector<oatpp::collection::FastQueue<AbstractCoroutine>> m_timerPopQueues;
+  std::vector<oatpp::collection::FastQueue<CoroutineHandle>> m_ioPopQueues;
+  std::vector<oatpp::collection::FastQueue<CoroutineHandle>> m_timerPopQueues;
 
   v_word32 m_ioBalancer = 0;
   v_word32 m_timerBalancer = 0;
@@ -100,11 +100,11 @@ private:
   oatpp::concurrency::SpinLock m_taskLock;
   std::condition_variable_any m_taskCondition;
   std::list<std::shared_ptr<TaskSubmission>> m_taskList;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_pushList;
+  oatpp::collection::FastQueue<CoroutineHandle> m_pushList;
 
 private:
 
-  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
+  oatpp::collection::FastQueue<CoroutineHandle> m_queue;
 
 private:
 
@@ -113,11 +113,11 @@ private:
 
 private:
 
-  void popIOTask(AbstractCoroutine* coroutine);
-  void popTimerTask(AbstractCoroutine* coroutine);
+  void popIOTask(CoroutineHandle* coroutine);
+  void popTimerTask(CoroutineHandle* coroutine);
 
   void consumeAllTasks();
-  void addCoroutine(AbstractCoroutine* coroutine);
+  void addCoroutine(CoroutineHandle* coroutine);
   void popTasks();
   void pushQueues();
 
@@ -136,15 +136,15 @@ public:
 
   /**
    * Push one Coroutine back to processor.
-   * @param coroutine - &id:oatpp::async::AbstractCoroutine; previously popped-out(rescheduled to coworker) from this processor.
+   * @param coroutine - &id:oatpp::async::CoroutineHandle; previously popped-out(rescheduled to coworker) from this processor.
    */
-  void pushOneTask(AbstractCoroutine* coroutine);
+  void pushOneTask(CoroutineHandle* coroutine);
 
   /**
    * Push list of Coroutines back to processor.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine; previously popped-out(rescheduled to coworker) from this processor.
+   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle; previously popped-out(rescheduled to coworker) from this processor.
    */
-  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks);
+  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks);
 
   /**
    * Execute Coroutine.

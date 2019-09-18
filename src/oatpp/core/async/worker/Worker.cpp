@@ -30,24 +30,24 @@ Worker::Worker(Type type)
   : m_type(type)
 {}
 
-void Worker::setCoroutineScheduledAction(AbstractCoroutine *CP, Action &&action) {
-  CP->_SCH_A = std::forward<Action>(action);
+void Worker::setCoroutineScheduledAction(CoroutineHandle* coroutine, Action &&action) {
+  coroutine->_SCH_A = std::forward<Action>(action);
 }
 
-Action& Worker::getCoroutineScheduledAction(AbstractCoroutine* CP) {
-  return CP->_SCH_A;
+Action& Worker::getCoroutineScheduledAction(CoroutineHandle* coroutine) {
+  return coroutine->_SCH_A;
 }
 
-Processor* Worker::getCoroutineProcessor(AbstractCoroutine* CP) {
-  return CP->_PP;
+Processor* Worker::getCoroutineProcessor(CoroutineHandle* coroutine) {
+  return coroutine->_PP;
 }
 
 void Worker::dismissAction(Action& action) {
   action.m_type = Action::TYPE_NONE;
 }
 
-AbstractCoroutine* Worker::nextCoroutine(AbstractCoroutine* CP) {
-  return CP->_ref;
+CoroutineHandle* Worker::nextCoroutine(CoroutineHandle* coroutine) {
+  return coroutine->_ref;
 }
 
 Worker::Type Worker::getType() {

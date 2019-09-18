@@ -42,8 +42,8 @@ namespace oatpp { namespace async { namespace worker {
 class IOWorker : public Worker {
 private:
   bool m_running;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_backlog;
-  oatpp::collection::FastQueue<AbstractCoroutine> m_queue;
+  oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
+  oatpp::collection::FastQueue<CoroutineHandle> m_queue;
   oatpp::concurrency::SpinLock m_backlogLock;
   std::condition_variable_any m_backlogCondition;
 private:
@@ -59,15 +59,15 @@ public:
 
   /**
   * Push list of tasks to worker.
-  * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::AbstractCoroutine;.
+  * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
   */
-  void pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) override;
+  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
 
   /**
   * Push one task to worker.
-  * @param task - &id:AbstractCoroutine;.
+  * @param task - &id:CoroutineHandle;.
   */
-  void pushOneTask(AbstractCoroutine* task) override;
+  void pushOneTask(CoroutineHandle* task) override;
 
   /**
   * Run worker.

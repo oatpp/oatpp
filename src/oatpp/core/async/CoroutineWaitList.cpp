@@ -42,7 +42,7 @@ void CoroutineWaitList::setListener(Listener* listener) {
   m_listener = listener;
 }
 
-void CoroutineWaitList::pushFront(AbstractCoroutine* coroutine) {
+void CoroutineWaitList::pushFront(CoroutineHandle* coroutine) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
     m_list.pushFront(coroutine);
@@ -52,7 +52,7 @@ void CoroutineWaitList::pushFront(AbstractCoroutine* coroutine) {
   }
 }
 
-void CoroutineWaitList::pushBack(AbstractCoroutine* coroutine) {
+void CoroutineWaitList::pushBack(CoroutineHandle* coroutine) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
     m_list.pushBack(coroutine);

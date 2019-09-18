@@ -80,7 +80,7 @@ void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
 
 }
 
-void IOEventWorker::setCoroutineEvent(AbstractCoroutine* coroutine, int operation, p_char8 eventPtr) {
+void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr) {
 
   (void)operation;
   auto& action = getCoroutineScheduledAction(coroutine);
@@ -162,13 +162,13 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<AbstractCoroutine> repeatQueue;
-  oatpp::collection::FastQueue<AbstractCoroutine> popQueue;
+  oatpp::collection::FastQueue<CoroutineHandle> repeatQueue;
+  oatpp::collection::FastQueue<CoroutineHandle> popQueue;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
     struct kevent* event = (struct kevent *)&m_outEvents[i * sizeof(struct kevent)];
-    auto coroutine = (AbstractCoroutine*) event->udata;
+    auto coroutine = (CoroutineHandle*) event->udata;
 
     if((event->flags & EV_ERROR) > 0) {
       OATPP_LOGD("Error", "data='%s'", strerror((int)event->data));
@@ -224,7 +224,7 @@ void IOEventWorker::waitEvents() {
   if(repeatQueue.count > 0) {
     {
       std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(repeatQueue, m_backlog);
+      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(repeatQueue, m_backlog);
     }
   }
 

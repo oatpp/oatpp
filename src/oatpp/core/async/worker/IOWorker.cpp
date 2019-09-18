@@ -37,15 +37,15 @@ IOWorker::IOWorker()
   m_thread = std::thread(&IOWorker::run, this);
 }
 
-void IOWorker::pushTasks(oatpp::collection::FastQueue<AbstractCoroutine>& tasks) {
+void IOWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(tasks, m_backlog);
+    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
   }
   m_backlogCondition.notify_one();
 }
 
-void IOWorker::pushOneTask(AbstractCoroutine* task) {
+void IOWorker::pushOneTask(CoroutineHandle* task) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
     m_backlog.pushBack(task);
@@ -61,12 +61,12 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
     while (m_backlog.first == nullptr && m_running) {
       m_backlogCondition.wait(lock);
     }
-    oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
+    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
   } else {
 
     std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock, std::try_to_lock);
     if (lock.owns_lock()) {
-      oatpp::collection::FastQueue<AbstractCoroutine>::moveAll(m_backlog, m_queue);
+      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
     }
 
   }

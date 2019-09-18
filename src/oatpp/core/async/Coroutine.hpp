@@ -40,6 +40,7 @@
 
 namespace oatpp { namespace async {
 
+class CoroutineHandle; // FWD
 class AbstractCoroutine; // FWD
 class Processor; // FWD
 class CoroutineStarter; // FWD
@@ -54,6 +55,7 @@ namespace worker {
  */
 class Action {
   friend Processor;
+  friend CoroutineHandle;
   friend AbstractCoroutine;
   friend CoroutineStarter;
   friend worker::Worker;
@@ -243,7 +245,7 @@ public:
    * Constructor. Create yield_to Action.
    * @param functionPtr - pointer to function.
    */
-  Action(FunctionPtr functionPtr);
+  Action(const FunctionPtr& functionPtr);
 
   /**
    * Deleted copy-constructor.
@@ -370,14 +372,48 @@ public:
 };
 
 /**
+ * This class manages coroutines processing state and a chain of coroutine calls.
+ */
+class CoroutineHandle : public oatpp::base::Countable {
+  friend oatpp::collection::FastQueue<CoroutineHandle>;
+  friend Processor;
+  friend worker::Worker;
+  friend CoroutineWaitList;
+public:
+  typedef oatpp::async::Action Action;
+  typedef oatpp::async::Error Error;
+  typedef Action (AbstractCoroutine::*FunctionPtr)();
+private:
+  static std::shared_ptr<const Error> ERROR_UNKNOWN;
+private:
+  Processor* _PP;
+  AbstractCoroutine* _CP;
+  FunctionPtr _FP;
+  std::shared_ptr<const Error> _ERR;
+  oatpp::async::Action _SCH_A;
+  CoroutineHandle* _ref;
+private:
+  std::shared_ptr<const Error>* m_propagatedError;
+private:
+  Action takeAction(Action&& action);
+public:
+
+  CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);
+
+  ~CoroutineHandle();
+
+  Action iterate();
+
+  bool finished() const;
+
+};
+
+/**
  * Abstract Coroutine. Base class for Coroutines. It provides state management, coroutines stack management and error reporting functionality.
  */
 class AbstractCoroutine : public oatpp::base::Countable {
-  friend oatpp::collection::FastQueue<AbstractCoroutine>;
-  friend Processor;
   friend CoroutineStarter;
-  friend worker::Worker;
-  friend CoroutineWaitList;
+  friend CoroutineHandle;
 public:
   /**
    * Convenience typedef for Action
@@ -419,33 +455,16 @@ public:
   }
 
 private:
-  static std::shared_ptr<const Error> ERROR_UNKNOWN;
-private:
-  AbstractCoroutine* _CP;
-  FunctionPtr _FP;
-  std::shared_ptr<const Error> _ERR;
-  Processor* _PP;
-  oatpp::async::Action _SCH_A;
-  AbstractCoroutine* _ref;
-private:
   AbstractCoroutine* m_parent;
   std::shared_ptr<const Error>* m_propagatedError;
 protected:
   oatpp::async::Action m_parentReturnAction;
-private:
-  Action takeAction(Action&& action);
 public:
 
   /**
    * Constructor.
    */
   AbstractCoroutine();
-
-  /**
-   * Make one Coroutine iteration.
-   * @return - control Action.
-   */
-  Action iterate();
 
   /**
    * Virtual Destructor
@@ -466,7 +485,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(FunctionPtr ptr) = 0;
+  virtual Action call(const FunctionPtr& ptr) = 0;
 
   /**
    * Default implementation of handleError(error) function.
@@ -476,12 +495,6 @@ public:
    * current coroutine will finish, return control to caller coroutine and handleError is called for caller coroutine.
    */
   virtual Action handleError(const std::shared_ptr<const Error>& error);
-
-  /**
-   * Check if coroutine is finished
-   * @return - true if finished
-   */
-  bool finished() const;
 
   /**
    * Get parent coroutine
@@ -555,7 +568,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  Action call(FunctionPtr ptr) override {
+  Action call(const FunctionPtr& ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
@@ -565,7 +578,7 @@ public:
    * @param function - pointer to function.
    * @return - yield Action.
    */
-  Action yieldTo(Function function) const {
+  Action yieldTo(const Function& function) const {
     return Action(static_cast<FunctionPtr>(function));
   }
 
@@ -742,7 +755,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(AbstractCoroutine::FunctionPtr ptr) override {
+  virtual Action call(const AbstractCoroutine::FunctionPtr& ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
@@ -752,7 +765,7 @@ public:
    * @param function - pointer to function.
    * @return - yield Action.
    */
-  Action yieldTo(Function function) const {
+  Action yieldTo(const Function& function) const {
     return Action(static_cast<AbstractCoroutine::FunctionPtr>(function));
   }
 
