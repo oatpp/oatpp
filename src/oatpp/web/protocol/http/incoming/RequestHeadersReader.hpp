@@ -27,6 +27,7 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -57,20 +58,11 @@ public:
      */
     http::Headers headers;
 
-    /**
-     * This value represents starting position in buffer used to read data from stream for the last read operation.
-     */
-    v_int32 bufferPosStart;
-
-    /**
-     * This value represents end position in buffer used to read data from stream for the last read operation.
-     */
-    v_int32 bufferPosEnd;
   };
 
 private:
-  data::v_io_size readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                     oatpp::data::stream::OutputStream* bufferStream,
+  data::v_io_size readHeadersSection(data::stream::InputStreamBufferedProxy* stream,
+                                     oatpp::data::stream::ConsistentOutputStream* bufferStream,
                                      Result& result);
 private:
   p_char8 m_buffer;
@@ -92,18 +84,19 @@ public:
 
   /**
    * Read and parse http headers from stream.
-   * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   * @param stream - &id:oatpp::data::stream::InputStreamBufferedProxy;.
    * @param error - out parameter &id:oatpp::web::protocol::ProtocolError::Info;.
    * @return - &l:RequestHeadersReader::Result;.
    */
-  Result readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection, http::HttpError::Info& error);
+  Result readHeaders(data::stream::InputStreamBufferedProxy* stream,
+                     http::HttpError::Info& error);
 
   /**
    * Read and parse http headers from stream in asynchronous manner.
-   * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::InputStreamBufferedProxy;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& connection);
   
 };
   

@@ -2,6 +2,10 @@
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
 #include "oatpp/web/FullAsyncClientTest.hpp"
+
+#include "oatpp/web/PipelineTest.hpp"
+#include "oatpp/web/PipelineAsyncTest.hpp"
+
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
@@ -49,10 +53,6 @@ void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
-  OATPP_LOGI("aaa", "size_of(Coroutine)=%d", sizeof(oatpp::async::AbstractCoroutine));
-  OATPP_LOGI("aaa", "size_of(Action)=%d", sizeof(oatpp::async::Action));
-
-/*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -87,6 +87,26 @@ void runTests() {
 
   {
 
+    oatpp::test::web::PipelineTest test_virtual(0, 3000);
+    test_virtual.run();
+
+    oatpp::test::web::PipelineTest test_port(8000, 3000);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
+    test_virtual.run();
+
+    oatpp::test::web::PipelineAsyncTest test_port(8000, 3000);
+    test_port.run();
+
+  }
+
+  {
+
     oatpp::test::web::FullTest test_virtual(0, 1000);
     test_virtual.run();
 
@@ -94,7 +114,7 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
   {
 
     oatpp::test::web::FullAsyncTest test_virtual(0, 1000);

@@ -43,6 +43,10 @@ add_executable(oatppAllTests
         oatpp/web/server/api/ApiControllerTest.hpp
         oatpp/web/server/handler/AuthorizationHandlerTest.cpp
         oatpp/web/server/handler/AuthorizationHandlerTest.hpp
+        oatpp/web/PipelineTest.cpp
+        oatpp/web/PipelineTest.hpp
+        oatpp/web/PipelineAsyncTest.cpp
+        oatpp/web/PipelineAsyncTest.hpp
         oatpp/web/FullAsyncTest.cpp
         oatpp/web/FullAsyncTest.hpp
         oatpp/web/FullTest.cpp
