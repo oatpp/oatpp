@@ -118,13 +118,10 @@ public:
   
   static std::shared_ptr<protocol::http::outgoing::Response>
   processRequest(HttpRouter* router,
-                 const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                 const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                  const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                  const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                  RequestInterceptors* requestInterceptors,
-                 void* buffer,
-                 v_int32 bufferSize,
-                 const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                  v_int32& connectionState);
   
 };

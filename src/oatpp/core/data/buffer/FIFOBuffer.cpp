@@ -116,6 +116,93 @@ data::v_io_size FIFOBuffer::read(void *data, data::v_io_size count) {
   
 }
 
+data::v_io_size FIFOBuffer::peek(void *data, data::v_io_size count) {
+
+  if(!m_canRead) {
+    return data::IOError::WAIT_RETRY;
+  }
+
+  if(count == 0) {
+    return 0;
+  } else if(count < 0) {
+    throw std::runtime_error("[oatpp::data::buffer::FIFOBuffer::peek(...)]: count < 0");
+  }
+
+  if(m_readPosition < m_writePosition) {
+    auto size = m_writePosition - m_readPosition;
+    if(size > count) {
+      size = count;
+    }
+    std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
+    return size;
+  }
+
+  auto tmpReadPos = m_readPosition;
+  auto size = m_bufferSize - tmpReadPos;
+
+  if(size > count){
+    std::memcpy(data, &m_buffer[tmpReadPos], (size_t)count);
+    tmpReadPos += count;
+    return count;
+  }
+
+  std::memcpy(data, &m_buffer[tmpReadPos], (size_t)size);
+  auto size2 = m_writePosition;
+  if(size2 > count - size) {
+    size2 = count - size;
+  }
+
+  std::memcpy(&((p_char8) data)[size], m_buffer, (size_t)size2);
+
+  return (size + size2);
+
+}
+
+data::v_io_size FIFOBuffer::commitReadOffset(data::v_io_size count) {
+
+  if(!m_canRead) {
+    return data::IOError::WAIT_RETRY;
+  }
+
+  if(count == 0) {
+    return 0;
+  } else if(count < 0) {
+    throw std::runtime_error("[oatpp::data::buffer::FIFOBuffer::commitReadOffset(...)]: count < 0");
+  }
+
+  if(m_readPosition < m_writePosition) {
+    auto size = m_writePosition - m_readPosition;
+    if(size > count) {
+      size = count;
+    }
+    m_readPosition += size;
+    if(m_readPosition == m_writePosition) {
+      m_canRead = false;
+    }
+    return size;
+  }
+
+  auto size = m_bufferSize - m_readPosition;
+
+  if(size > count){
+    m_readPosition += count;
+    return count;
+  }
+
+  auto size2 = m_writePosition;
+  if(size2 > count - size) {
+    size2 = count - size;
+  }
+
+  m_readPosition = size2;
+  if(m_readPosition == m_writePosition) {
+    m_canRead = false;
+  }
+
+  return (size + size2);
+
+}
+
 data::v_io_size FIFOBuffer::write(const void *data, data::v_io_size count) {
   
   if(m_canRead && m_writePosition == m_readPosition) {

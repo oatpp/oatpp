@@ -94,6 +94,21 @@ public:
   data::v_io_size read(void *data, data::v_io_size count);
 
   /**
+   * Peek up to count of bytes int he buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  data::v_io_size peek(void *data, data::v_io_size count);
+
+  /**
+   * Commit read offset
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  data::v_io_size commitReadOffset(data::v_io_size count);
+
+  /**
    * write up to count bytes from data to buffer
    * @param data
    * @param count

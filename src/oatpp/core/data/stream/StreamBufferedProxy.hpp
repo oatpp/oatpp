@@ -175,6 +175,10 @@ public:
   
   data::v_io_size read(void *data, data::v_io_size count) override;
 
+  data::v_io_size peek(void *data, data::v_io_size count);
+
+  data::v_io_size commitReadOffset(data::v_io_size count);
+
   oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
 
   /**

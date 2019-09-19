@@ -28,18 +28,22 @@ namespace oatpp { namespace web { namespace server {
 
 std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(HttpRouter* router,
-                              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                               const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
                               RequestInterceptors* requestInterceptors,
-                              void* buffer,
-                              v_int32 bufferSize,
-                              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                               v_int32& connectionState) {
-  
-  RequestHeadersReader headersReader(buffer, bufferSize, 4096);
+
+
+  RequestHeadersReader::Result headersReadResult;
   oatpp::web::protocol::http::HttpError::Info error;
-  auto headersReadResult = headersReader.readHeaders(connection, error);
+
+  {
+    const v_int32 bufferSize = 2048;
+    v_char8 buffer [bufferSize];
+    RequestHeadersReader headersReader(buffer, bufferSize, 4096);
+    headersReadResult = headersReader.readHeaders(inStream.get(), error);
+  }
   
   if(error.status.code != 0) {
     connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
@@ -59,14 +63,11 @@ HttpProcessor::processRequest(HttpRouter* router,
   }
   
   auto& bodyStream = inStream;
-  bodyStream->setBufferPosition(headersReadResult.bufferPosStart,
-                                headersReadResult.bufferPosEnd,
-                                headersReadResult.bufferPosStart != headersReadResult.bufferPosEnd);
   
   auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                  route.matchMap,
                                                                  headersReadResult.headers,
-                                                                 bodyStream,
+                                                                 inStream,
                                                                  bodyDecoder);
   
   std::shared_ptr<protocol::http::outgoing::Response> response;

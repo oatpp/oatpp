@@ -72,6 +72,24 @@ data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count
   
 }
 
+data::v_io_size InputStreamBufferedProxy::peek(void *data, data::v_io_size count) {
+
+  if(m_buffer.availableToRead() > 0) {
+    return m_buffer.peek(data, count);
+  } else {
+    auto bytesBuffered = m_buffer.readFromStreamAndWrite(m_inputStream.get(), m_buffer.getBufferSize());
+    if(bytesBuffered > 0) {
+      return m_buffer.peek(data, count);
+    }
+    return bytesBuffered;
+  }
+
+}
+
+data::v_io_size InputStreamBufferedProxy::commitReadOffset(data::v_io_size count) {
+  return m_buffer.commitReadOffset(count);
+}
+
 oatpp::async::Action InputStreamBufferedProxy::suggestInputStreamAction(data::v_io_size ioResult) {
   return m_inputStream->suggestInputStreamAction(ioResult);
 }

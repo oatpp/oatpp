@@ -28,8 +28,8 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                                         oatpp::data::stream::OutputStream* bufferStream,
+data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStreamBufferedProxy* stream,
+                                                         oatpp::data::stream::ConsistentOutputStream* bufferStream,
                                                          Result& result) {
 
   v_word32 accumulator = 0;
@@ -45,7 +45,7 @@ data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<o
       }
     }
     
-    res = connection->read(m_buffer, desiredToRead);
+    res = stream->peek(m_buffer, desiredToRead);
     if(res > 0) {
       bufferStream->write(m_buffer, res);
       
@@ -55,9 +55,12 @@ data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<o
         if(accumulator == SECTION_END) {
           result.bufferPosStart = i + 1;
           result.bufferPosEnd = (v_int32) res;
+          stream->commitReadOffset(i + 1);
           return res;
         }
       }
+
+      stream->commitReadOffset(res);
       
     } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
       continue;
@@ -71,13 +74,13 @@ data::v_io_size RequestHeadersReader::readHeadersSection(const std::shared_ptr<o
   
 }
   
-RequestHeadersReader::Result RequestHeadersReader::readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::InputStreamBufferedProxy* stream,
                                                                http::HttpError::Info& error) {
   
   RequestHeadersReader::Result result;
   
   oatpp::data::stream::ChunkedBuffer buffer;
-  error.ioStatus = readHeadersSection(connection, &buffer, result);
+  error.ioStatus = readHeadersSection(stream, &buffer, result);
   
   if(error.ioStatus > 0) {
     auto headersText = buffer.toString();

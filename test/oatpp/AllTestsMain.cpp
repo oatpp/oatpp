@@ -2,6 +2,7 @@
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
 #include "oatpp/web/FullAsyncClientTest.hpp"
+#include "oatpp/web/PipelineTest.hpp"
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
@@ -84,7 +85,18 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
+*/
 
+  {
+
+    oatpp::test::web::PipelineTest test_virtual(0, 3000);
+    test_virtual.run();
+
+    oatpp::test::web::PipelineTest test_port(8000, 3000);
+    test_port.run();
+
+  }
+/*
   {
 
     oatpp::test::web::FullTest test_virtual(0, 1000);
@@ -94,7 +106,7 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
   {
 
     oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
@@ -114,7 +126,7 @@ void runTests() {
     test_port.run(1);
 
   }
-
+*/
 }
   
 }
