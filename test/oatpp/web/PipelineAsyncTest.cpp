@@ -22,11 +22,11 @@
  *
  ***************************************************************************/
 
-#include "PipelineTest.hpp"
+#include "PipelineAsyncTest.hpp"
 
-#include "oatpp/web/app/Controller.hpp"
+#include "oatpp/web/app/ControllerAsync.hpp"
 
-#include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -56,6 +56,10 @@ public:
     : m_port(port)
   {}
 
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
+    return std::make_shared<oatpp::async::Executor>(1, 1, 1);
+  }());
+
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
     return oatpp::network::virtual_::Interface::createShared("virtualhost");
   }());
@@ -81,7 +85,8 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-    return oatpp::web::server::HttpConnectionHandler::createShared(router);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
@@ -113,21 +118,21 @@ const char* const SAMPLE_IN =
 
 const char* const SAMPLE_OUT =
   "HTTP/1.1 200 OK\r\n"
-  "Content-Length: 14\r\n"
+  "Content-Length: 20\r\n"
   "Connection: keep-alive\r\n"
   "Server: oatpp/" OATPP_VERSION "\r\n"
   "\r\n"
-  "Hello World!!!";
+  "Hello World Async!!!";
 
 }
 
-void PipelineTest::onRun() {
+void PipelineAsyncTest::onRun() {
 
   TestComponent component(m_port);
 
   oatpp::test::web::ClientServerTestRunner runner;
 
-  runner.addController(app::Controller::createShared());
+  runner.addController(app::ControllerAsync::createShared());
 
   runner.run([this, &runner] {
 
@@ -198,6 +203,12 @@ void PipelineTest::onRun() {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // Stop server and unblock accepting thread
 
+    connection.reset();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Stop server and unblock accepting thread
+
     runner.getServer()->stop();
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
     connectionProvider->getConnection();
@@ -206,7 +217,10 @@ void PipelineTest::onRun() {
 
   }, std::chrono::minutes(10));
 
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
+  executor->waitTasksFinished();
+  executor->join();
 
 }
 

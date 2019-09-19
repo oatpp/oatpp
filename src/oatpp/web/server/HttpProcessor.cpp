@@ -109,15 +109,10 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
   
-  auto& bodyStream = m_inStream;
-  bodyStream->setBufferPosition(headersReadResult.bufferPosStart,
-                                headersReadResult.bufferPosEnd,
-                                headersReadResult.bufferPosStart != headersReadResult.bufferPosEnd);
-  
   m_currentRequest = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                      m_currentRoute.matchMap,
                                                                      headersReadResult.headers,
-                                                                     bodyStream,
+                                                                     m_inStream,
                                                                      m_bodyDecoder);
   
   auto currInterceptor = m_requestInterceptors->getFirstNode();
@@ -134,8 +129,8 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  RequestHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
-  return headersReader.readHeadersAsync(m_connection).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
+  RequestHeadersReader headersReader(m_headerReaderBuffer->getData(), m_headerReaderBuffer->getSize(), 4096);
+  return headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {

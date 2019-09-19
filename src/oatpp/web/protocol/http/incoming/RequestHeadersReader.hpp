@@ -58,15 +58,6 @@ public:
      */
     http::Headers headers;
 
-    /**
-     * This value represents starting position in buffer used to read data from stream for the last read operation.
-     */
-    v_int32 bufferPosStart;
-
-    /**
-     * This value represents end position in buffer used to read data from stream for the last read operation.
-     */
-    v_int32 bufferPosEnd;
   };
 
 private:
@@ -105,7 +96,7 @@ public:
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::InputStreamBufferedProxy;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& connection);
   
 };
   

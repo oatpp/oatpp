@@ -53,8 +53,6 @@ data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStre
         accumulator <<= 8;
         accumulator |= m_buffer[i];
         if(accumulator == SECTION_END) {
-          result.bufferPosStart = i + 1;
-          result.bufferPosEnd = (v_int32) res;
           stream->commitReadOffset(i + 1);
           return res;
         }
@@ -98,12 +96,12 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
   
   
 oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&>
-RequestHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& connection)
 {
   
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
   private:
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<data::stream::InputStreamBufferedProxy> m_stream;
     p_char8 m_buffer;
     v_int32 m_bufferSize;
     v_int32 m_maxHeadersSize;
@@ -113,9 +111,9 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream
     oatpp::data::stream::ChunkedBuffer m_bufferStream;
   public:
     
-    ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+    ReaderCoroutine(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream,
                     p_char8 buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
-      : m_connection(connection)
+      : m_stream(stream)
       , m_buffer(buffer)
       , m_bufferSize(bufferSize)
       , m_maxHeadersSize(maxHeadersSize)
@@ -133,7 +131,7 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream
         }
       }
       
-      auto res = m_connection->read(m_buffer, desiredToRead);
+      auto res = m_stream->peek(m_buffer, desiredToRead);
       if(res > 0) {
         m_bufferStream.write(m_buffer, res);
         m_progress += res;
@@ -142,16 +140,17 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::stream
           m_accumulator <<= 8;
           m_accumulator |= m_buffer[i];
           if(m_accumulator == SECTION_END) {
-            m_result.bufferPosStart = i + 1;
-            m_result.bufferPosEnd = (v_int32) res;
+            m_stream->commitReadOffset(i + 1);
             return yieldTo(&ReaderCoroutine::parseHeaders);
           }
         }
+
+        m_stream->commitReadOffset(res);
         
-        return m_connection->suggestInputStreamAction(res);
+        return m_stream->suggestInputStreamAction(res);
         
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
-        return m_connection->suggestInputStreamAction(res);
+        return m_stream->suggestInputStreamAction(res);
       } else if(res == data::IOError::BROKEN_PIPE){
         return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
       } else if(res == data::IOError::ZERO_VALUE){
