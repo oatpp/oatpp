@@ -219,14 +219,11 @@ public:
 
   /**
    * Parse next chunk of bytes in Async-Inline manner.
-   * @param coroutine - caller coroutine.
    * @param inlineData - data.
    * @param nextAction - action on when done with current chunk of data.
    * @return - &id:oatpp::async::Action;.
    */
-  async::Action parseNextAsyncInline(async::AbstractCoroutine* coroutine,
-                                     data::stream::AsyncInlineWriteData& inlineData,
-                                     async::Action&& nextAction);
+  async::Action parseNextAsyncInline(data::stream::AsyncInlineWriteData& inlineData, async::Action&& nextAction);
 
   /**
    * Check if parser done parsing data.

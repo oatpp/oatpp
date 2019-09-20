@@ -149,11 +149,7 @@ void AsyncInlineReadData::setEof() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // AsyncWriteCallbackWithCoroutineStarter
 
-oatpp::async::Action AsyncWriteCallbackWithCoroutineStarter::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                                              AsyncInlineWriteData& inlineData,
-                                                                              oatpp::async::Action&& nextAction)
-{
-  (void)coroutine;
+oatpp::async::Action AsyncWriteCallbackWithCoroutineStarter::writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) {
   auto coroutineStarter = writeAsync(inlineData.currBufferPtr, inlineData.bytesLeft);
   inlineData.setEof();
   return coroutineStarter.next(std::forward<async::Action>(nextAction));
@@ -177,11 +173,9 @@ DefaultAsyncWriteCallback::DefaultAsyncWriteCallback(const std::shared_ptr<Outpu
   : m_stream(stream)
 {}
 
-oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                                 AsyncInlineWriteData& inlineData,
-                                                                 oatpp::async::Action&& nextAction)
+oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction)
 {
-  return writeExactSizeDataAsyncInline(coroutine, m_stream.get(), inlineData, std::forward<oatpp::async::Action>(nextAction));
+  return writeExactSizeDataAsyncInline(m_stream.get(), inlineData, std::forward<oatpp::async::Action>(nextAction));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -391,7 +385,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     }
     
     Action doRead() {
-      return oatpp::data::stream::readSomeDataAsyncInline(this, m_fromStream.get(), m_inlineReadData, yieldTo(&TransferCoroutine::prepareWrite));
+      return oatpp::data::stream::readSomeDataAsyncInline(m_fromStream.get(), m_inlineReadData, yieldTo(&TransferCoroutine::prepareWrite));
     }
     
     Action prepareWrite() {
@@ -405,15 +399,14 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     }
     
     Action doWrite() {
-      return m_writeCallback->writeAsyncInline(this, m_inlineWriteData, yieldTo(&TransferCoroutine::act));
+      return m_writeCallback->writeAsyncInline(m_inlineWriteData, yieldTo(&TransferCoroutine::act));
     }
     
-    Action handleError(const std::shared_ptr<const Error>& error) override {
-      (void)error;
+    Action handleError(Error* error) override {
       if(m_transferSize == 0) {
         return finish();
       }
-      return propagateError();
+      return error;
     }
     
   };
@@ -424,44 +417,37 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
 
 namespace {
 
-  oatpp::async::Action asyncOutputStreamActionOnIOError(oatpp::async::AbstractCoroutine* coroutine,
-                                                        oatpp::data::stream::OutputStream* stream,
-                                                        data::v_io_size res)
-  {
+  oatpp::async::Action asyncOutputStreamActionOnIOError(oatpp::data::stream::OutputStream* stream, data::v_io_size res) {
     switch (res) {
       case IOError::WAIT_RETRY:
         return stream->suggestOutputStreamAction(res);
       case IOError::RETRY:
         return stream->suggestOutputStreamAction(res);
       case IOError::BROKEN_PIPE:
-        return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+        return new AsyncIOError(IOError::BROKEN_PIPE);
       case IOError::ZERO_VALUE:
-        return coroutine->error(oatpp::data::AsyncIOError::ERROR_ZERO_VALUE);
+        return new AsyncIOError(IOError::ZERO_VALUE);
     }
-    return coroutine->error<AsyncIOError>("Unknown IO Error result", res);
+    return new AsyncIOError("Unknown IO Error result", res);
   }
 
-  oatpp::async::Action asyncInputStreamActionOnIOError(oatpp::async::AbstractCoroutine* coroutine,
-                                                       oatpp::data::stream::InputStream* stream,
-                                                       data::v_io_size res)
-  {
+  oatpp::async::Action asyncInputStreamActionOnIOError(oatpp::data::stream::InputStream* stream, data::v_io_size res) {
     switch (res) {
       case IOError::WAIT_RETRY:
         return stream->suggestInputStreamAction(res);
       case IOError::RETRY:
         return stream->suggestInputStreamAction(res);
       case IOError::BROKEN_PIPE:
-        return coroutine->error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+        return new AsyncIOError(IOError::BROKEN_PIPE);
       case IOError::ZERO_VALUE:
-        return coroutine->error(oatpp::data::AsyncIOError::ERROR_ZERO_VALUE);
+        return new AsyncIOError(IOError::ZERO_VALUE);
     }
-    return coroutine->error<AsyncIOError>("Unknown IO Error result", res);
+    return new AsyncIOError("Unknown IO Error result", res);
   }
 
 }
   
-oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                   oatpp::data::stream::OutputStream* stream,
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
                                                    AsyncInlineWriteData& inlineData,
                                                    oatpp::async::Action&& nextAction) {
   if(inlineData.bytesLeft > 0) {
@@ -472,7 +458,7 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCorouti
         return stream->suggestOutputStreamAction(res);
       }
     } else {
-      return asyncOutputStreamActionOnIOError(coroutine, stream, res);
+      return asyncOutputStreamActionOnIOError(stream, res);
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);
@@ -496,7 +482,7 @@ oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oat
     {}
 
     Action act() {
-      return writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineData, finish());
+      return writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
     }
 
   };
@@ -505,8 +491,7 @@ oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oat
 
 }
 
-oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                             oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                              AsyncInlineReadData& inlineData,
                                              oatpp::async::Action&& nextAction,
                                              bool allowZeroRead) {
@@ -517,7 +502,7 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* co
       inlineData.inc(res);
     } else {
       if(!(allowZeroRead && res == 0)) {
-        return asyncInputStreamActionOnIOError(coroutine, stream, res);
+        return asyncInputStreamActionOnIOError(stream, res);
       }
     }
   }
@@ -525,8 +510,7 @@ oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* co
 
 }
 
-oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                  oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                                   AsyncInlineReadData& inlineData,
                                                   oatpp::async::Action&& nextAction) {
   if(inlineData.bytesLeft > 0) {
@@ -537,7 +521,7 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutin
         return stream->suggestInputStreamAction(res);
       }
     } else {
-      return asyncInputStreamActionOnIOError(coroutine, stream, res);
+      return asyncInputStreamActionOnIOError(stream, res);
     }
   }
   return std::forward<oatpp::async::Action>(nextAction);

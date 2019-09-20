@@ -275,7 +275,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
     }
     
     Action writeCurrData() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_currData, Action::clone(m_nextAction));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, Action::clone(m_nextAction));
     }
     
   };

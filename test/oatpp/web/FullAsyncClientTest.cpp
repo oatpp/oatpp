@@ -147,14 +147,14 @@ public:
     return finish();
   }
 
-  Action handleError(const std::shared_ptr<const Error>& error) override {
+  Action handleError(Error* error) override {
     if(error->is<oatpp::data::AsyncIOError>()) {
-      auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      auto e = static_cast<oatpp::data::AsyncIOError*>(error);
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. %s", error->what());
     }
-    return propagateError();
+    return error;
   }
 
 };
@@ -188,14 +188,14 @@ public:
     return finish();
   }
 
-  Action handleError(const std::shared_ptr<const Error>& error) override {
+  Action handleError(Error* error) override {
     if(error->is<oatpp::data::AsyncIOError>()) {
-      auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      auto e = static_cast<oatpp::data::AsyncIOError*>(error);
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "Error. %s", error->what());
     }
-    return propagateError();
+    return error;
   }
 
 };
@@ -233,16 +233,16 @@ public:
     return finish();
   }
 
-  Action handleError(const std::shared_ptr<const Error>& error) override {
+  Action handleError(Error* error) override {
     if(error) {
       if(error->is<oatpp::data::AsyncIOError>()) {
-        auto e = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+        auto e = static_cast<oatpp::data::AsyncIOError*>(error);
         OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
       } else {
         OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());
       }
     }
-    return propagateError();
+    return error;
   }
 
 };

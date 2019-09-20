@@ -187,7 +187,7 @@ oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(
 
     Action readBody() {
       auto& part = *m_this->m_iterator;
-      return oatpp::data::stream::readSomeDataAsyncInline(this, part->getInputStream().get(), *m_inlineData, yieldTo(&ReadCoroutine::afterBodyRead), true);
+      return oatpp::data::stream::readSomeDataAsyncInline(part->getInputStream().get(), *m_inlineData, yieldTo(&ReadCoroutine::afterBodyRead), true);
     }
 
     Action afterBodyRead() {

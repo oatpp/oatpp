@@ -419,14 +419,11 @@ public:
 
   /**
    * Async-Inline write callback.
-   * @param coroutine - caller coroutine.
    * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
    * @param nextAction - next action when write finished.
    * @return - &id:oatpp::async::Action;.
    */
-  virtual oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                AsyncInlineWriteData& inlineData,
-                                                oatpp::async::Action&& nextAction) = 0;
+  virtual oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) = 0;
 };
 
 /**
@@ -438,14 +435,11 @@ public:
   /**
    * Async-Inline write callback. <br>
    * Calls &l:AsyncWriteCallbackWithCoroutineStarter::writeAsync (); internally.
-   * @param coroutine - caller coroutine.
    * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
    * @param nextAction - next action when write finished.
    * @return - &id:oatpp::async::Action;.
    */
-  oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                        AsyncInlineWriteData& inlineData,
-                                        oatpp::async::Action&& nextAction) override;
+  oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) override;
 
 public:
 
@@ -502,14 +496,11 @@ public:
 
   /**
    * Async-Inline write callback.
-   * @param coroutine - caller coroutine.
    * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
    * @param nextAction - next action when write finished.
    * @return - &id:oatpp::async::Action;.
    */
-  oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                        AsyncInlineWriteData& inlineData,
-                                        oatpp::async::Action&& nextAction) override;
+  oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) override;
 };
 
 /**
@@ -596,22 +587,19 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
-oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                   oatpp::data::stream::OutputStream* stream,
+oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
                                                    AsyncInlineWriteData& inlineData,
                                                    oatpp::async::Action&& nextAction);
 
 oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
                                                        const void* data, data::v_io_size size);
 
-oatpp::async::Action readSomeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                             oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                              AsyncInlineReadData& inlineData,
                                              oatpp::async::Action&& nextAction,
                                              bool allowZeroRead = false);
 
-oatpp::async::Action readExactSizeDataAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                  oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                                   AsyncInlineReadData& inlineData,
                                                   oatpp::async::Action&& nextAction);
 

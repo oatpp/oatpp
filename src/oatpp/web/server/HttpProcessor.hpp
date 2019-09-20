@@ -109,7 +109,7 @@ public:
     Action onResponseFormed();
     Action onRequestDone();
     
-    Action handleError(const std::shared_ptr<const Error>& error) override;
+    Action handleError(Error* error) override;
     
   };
   

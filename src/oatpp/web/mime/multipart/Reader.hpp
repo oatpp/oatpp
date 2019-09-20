@@ -220,9 +220,7 @@ public:
    */
   AsyncReader(const std::shared_ptr<Multipart>& multipart);
 
-  oatpp::async::Action writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                        oatpp::data::stream::AsyncInlineWriteData& inlineData,
-                                        oatpp::async::Action&& nextAction) override;
+  oatpp::async::Action writeAsyncInline(oatpp::data::stream::AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) override;
 
   /**
    * Set named part reader. <br>

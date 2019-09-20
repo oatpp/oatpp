@@ -145,15 +145,15 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
     }
 
     Action writeChunkSize() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_chunkSizeWriteData, yieldTo(&WriteCoroutine::writeChunk));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_chunkSizeWriteData, yieldTo(&WriteCoroutine::writeChunk));
     }
 
     Action writeChunk() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineWriteData, yieldTo(&WriteCoroutine::act));
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineWriteData, yieldTo(&WriteCoroutine::act));
     }
 
     Action writeTrailingBytes() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_chunkSizeWriteData, finish());
+      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_chunkSizeWriteData, finish());
     }
 
   };

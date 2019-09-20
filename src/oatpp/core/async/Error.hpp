@@ -25,12 +25,14 @@
 #ifndef oatpp_async_Error_hpp
 #define oatpp_async_Error_hpp
 
+#include "oatpp/core/base/Countable.hpp"
+
 namespace oatpp { namespace async {
 
 /**
  * Class to hold and communicate errors between Coroutines
  */
-class Error {
+class Error : public oatpp::base::Countable {
 private:
   const char* m_what;
 public:

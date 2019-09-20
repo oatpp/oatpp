@@ -344,12 +344,7 @@ v_int32 StatefulParser::parseNext(p_char8 data, v_int32 size) {
 
 }
 
-async::Action StatefulParser::parseNextAsyncInline(async::AbstractCoroutine* coroutine,
-                                                   data::stream::AsyncInlineWriteData& inlineData,
-                                                   async::Action&& nextAction)
-{
-
-  (void)coroutine;
+async::Action StatefulParser::parseNextAsyncInline(data::stream::AsyncInlineWriteData& inlineData, async::Action&& nextAction) {
 
   class ParseCoroutine : public async::Coroutine<ParseCoroutine> {
   private:

@@ -105,7 +105,7 @@ async::Action ChunkedBufferBody::WriteToStreamCoroutine::writeEndOfChunks() {
 }
 
 async::Action ChunkedBufferBody::WriteToStreamCoroutine::writeCurrData() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineWriteData, Action::clone(m_nextAction));
+  return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineWriteData, Action::clone(m_nextAction));
 }
 
 oatpp::async::CoroutineStarter ChunkedBufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {

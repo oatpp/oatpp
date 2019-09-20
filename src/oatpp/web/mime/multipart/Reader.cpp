@@ -163,11 +163,10 @@ AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
   , m_multipart(multipart)
 {}
 
-oatpp::async::Action AsyncReader::writeAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                   oatpp::data::stream::AsyncInlineWriteData& inlineData,
+oatpp::async::Action AsyncReader::writeAsyncInline(oatpp::data::stream::AsyncInlineWriteData& inlineData,
                                                    oatpp::async::Action&& nextAction)
 {
-  return m_parser.parseNextAsyncInline(coroutine, inlineData, std::forward<async::Action>(nextAction));
+  return m_parser.parseNextAsyncInline(inlineData, std::forward<async::Action>(nextAction));
 }
 
 void AsyncReader::setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader) {

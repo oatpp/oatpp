@@ -139,8 +139,6 @@ void IOWorker::run() {
 
       }
 
-      dismissAction(action);
-
       ++ consumeIteration;
       if(consumeIteration == 100) {
         consumeIteration = 0;
