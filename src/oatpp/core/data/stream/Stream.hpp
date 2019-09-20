@@ -539,14 +539,11 @@ public:
 
   /**
    * Async-Inline read callback.
-   * @param coroutine - caller coroutine.
    * @param inlineData - &id:oatpp::data::stream::AsyncInlineReadData;.
    * @param nextAction - next action when read finished.
    * @return - &id:oatpp::async::Action;.
    */
-  virtual oatpp::async::Action readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                               AsyncInlineReadData& inlineData,
-                                               oatpp::async::Action&& nextAction) = 0;
+  virtual oatpp::async::Action readAsyncInline(AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) = 0;
 
 };
 

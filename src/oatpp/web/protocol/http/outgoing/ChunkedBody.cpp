@@ -115,7 +115,7 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
     }
 
     Action readCallback() {
-      return m_body->m_asyncReadCallback->readAsyncInline(this, m_inlineReadData, yieldTo(&WriteCoroutine::onChunkRead));
+      return m_body->m_asyncReadCallback->readAsyncInline(m_inlineReadData, yieldTo(&WriteCoroutine::onChunkRead));
     }
 
     Action onChunkRead() {
