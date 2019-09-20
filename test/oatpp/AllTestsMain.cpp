@@ -53,6 +53,9 @@ void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
+  OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
+  OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
+
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -136,7 +139,7 @@ void runTests() {
   }
 
 }
-  
+
 }
 
 int main() {

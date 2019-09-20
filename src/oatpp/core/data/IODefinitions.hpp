@@ -99,16 +99,6 @@ enum IOError : v_io_size {
  * Extends &id:oatpp::async::Error;.
  */
 class AsyncIOError : public oatpp::async::Error {
-public:
-  /**
-   * Pre Created error. BROKEN_PIPE.
-   */
-  static const std::shared_ptr<const Error> ERROR_BROKEN_PIPE;
-
-  /**
-   * Pre Created error. ZERO_VALUE.
-   */
-  static const std::shared_ptr<const Error> ERROR_ZERO_VALUE;
 private:
   v_io_size m_code;
 public:

@@ -36,7 +36,7 @@ BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr
 {}
 
 async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_inlineData, finish());
+  return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
 }
 
 BufferBody::BufferBody(const oatpp::String& buffer)

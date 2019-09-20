@@ -121,11 +121,9 @@ MultipartBody::AsyncMultipartReadCallback::AsyncMultipartReadCallback(const std:
   , m_readStream(nullptr, nullptr, 0)
 {}
 
-oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                                                                oatpp::data::stream::AsyncInlineReadData& inlineData,
+oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData,
                                                                                 oatpp::async::Action&& nextAction)
 {
-  (void)coroutine;
 
   class ReadCoroutine : public oatpp::async::Coroutine<ReadCoroutine> {
   private:
@@ -187,7 +185,7 @@ oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(
 
     Action readBody() {
       auto& part = *m_this->m_iterator;
-      return oatpp::data::stream::readSomeDataAsyncInline(this, part->getInputStream().get(), *m_inlineData, yieldTo(&ReadCoroutine::afterBodyRead), true);
+      return oatpp::data::stream::readSomeDataAsyncInline(part->getInputStream().get(), *m_inlineData, yieldTo(&ReadCoroutine::afterBodyRead), true);
     }
 
     Action afterBodyRead() {

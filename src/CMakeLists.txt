@@ -61,7 +61,6 @@ add_library(oatpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
         oatpp/core/concurrency/Thread.hpp
-        oatpp/core/data/IODefinitions.cpp
         oatpp/core/data/IODefinitions.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp
         oatpp/core/data/buffer/FIFOBuffer.hpp

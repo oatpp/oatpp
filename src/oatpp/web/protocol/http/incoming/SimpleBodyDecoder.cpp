@@ -210,9 +210,9 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     
     Action skipRN() {
       if(m_done) {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, finish());
+        return oatpp::data::stream::readExactSizeDataAsyncInline(m_fromStream.get(), m_skipData, finish());
       } else {
-        return oatpp::data::stream::readExactSizeDataAsyncInline(this, m_fromStream.get(), m_skipData, yieldTo(&ChunkedDecoder::readLineChar));
+        return oatpp::data::stream::readExactSizeDataAsyncInline(m_fromStream.get(), m_skipData, yieldTo(&ChunkedDecoder::readLineChar));
       }
     }
     

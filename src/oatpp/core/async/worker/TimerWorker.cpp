@@ -105,8 +105,6 @@ void TimerWorker::run() {
 
         }
 
-        dismissAction(action);
-
       }
 
       prev = curr;

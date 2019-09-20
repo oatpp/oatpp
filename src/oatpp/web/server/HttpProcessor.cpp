@@ -169,20 +169,20 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   return finish();
 }
   
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const std::shared_ptr<const Error>& error) {
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* error) {
 
   if(error) {
 
     if(error->is<oatpp::data::AsyncIOError>()) {
-      auto aioe = static_cast<const oatpp::data::AsyncIOError*>(error.get());
+      auto aioe = static_cast<oatpp::data::AsyncIOError*>(error);
       if(aioe->getCode() == oatpp::data::IOError::BROKEN_PIPE) {
-        return propagateError(); // do not report BROKEN_PIPE error
+        return aioe; // do not report BROKEN_PIPE error
       }
     }
 
     if(m_currentResponse) {
       OATPP_LOGE("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '%s'. Dropping connection", error->what());
-      return propagateError();
+      return error;
     }
 
     m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_500, error->what());
@@ -190,7 +190,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(const std
 
   }
 
-  return propagateError();
+  return error;
 
 }
   

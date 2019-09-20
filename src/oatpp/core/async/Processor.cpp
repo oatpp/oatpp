@@ -102,8 +102,6 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
 
     }
 
-    action.m_type = Action::TYPE_NONE;
-
   } else {
     throw std::runtime_error("[oatpp::async::processor::addTask()]: Error. Attempt to schedule coroutine to wrong processor.");
   }
@@ -241,8 +239,6 @@ bool Processor::iterate(v_int32 numIterations) {
 //        default:
 //          m_queue.round();
         }
-
-        action.m_type = Action::TYPE_NONE;
 
       }
 

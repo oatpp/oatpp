@@ -178,6 +178,7 @@ private:
   union Data {
     FunctionPtr fptr;
     AbstractCoroutine* coroutine;
+    Error* error;
     IOData ioData;
     v_int64 timePointMicroseconds;
     CoroutineWaitList* waitList;
@@ -185,6 +186,8 @@ private:
 private:
   mutable v_int32 m_type;
   Data m_data;
+private:
+  void free();
 protected:
   /*
    * Create Action by type.
@@ -246,6 +249,12 @@ public:
    * @param functionPtr - pointer to function.
    */
   Action(const FunctionPtr& functionPtr);
+
+  /**
+   * Constructor. Create Error Action.
+   * @param error - pointer to &id:oatpp::async::Error;.
+   */
+  Action(Error* error);
 
   /**
    * Deleted copy-constructor.
@@ -384,16 +393,11 @@ public:
   typedef oatpp::async::Error Error;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 private:
-  static std::shared_ptr<const Error> ERROR_UNKNOWN;
-private:
   Processor* _PP;
   AbstractCoroutine* _CP;
   FunctionPtr _FP;
-  std::shared_ptr<const Error> _ERR;
   oatpp::async::Action _SCH_A;
   CoroutineHandle* _ref;
-private:
-  std::shared_ptr<const Error>* m_propagatedError;
 private:
   Action takeAction(Action&& action);
 public:
@@ -456,7 +460,6 @@ public:
 
 private:
   AbstractCoroutine* m_parent;
-  std::shared_ptr<const Error>* m_propagatedError;
 protected:
   oatpp::async::Action m_parentReturnAction;
 public:
@@ -490,11 +493,11 @@ public:
   /**
    * Default implementation of handleError(error) function.
    * User may override this function in order to handle errors.
-   * @param error - error.
+   * @param error - &id:oatpp::async::Error;.
    * @return - Action. If handleError function returns Error,
    * current coroutine will finish, return control to caller coroutine and handleError is called for caller coroutine.
    */
-  virtual Action handleError(const std::shared_ptr<const Error>& error);
+  virtual Action handleError(Error* error);
 
   /**
    * Get parent coroutine
@@ -504,14 +507,10 @@ public:
 
   /**
    * Convenience method to generate error reporting Action.
-   * @param message - error message.
+   * @param error - &id:oatpp:async::Error;.
    * @return - error reporting Action.
    */
-  Action error(const std::shared_ptr<const Error>& error);
-
-  Action propagateError() {
-    return Action(Action::TYPE_ERROR);
-  }
+  Action error(Error* error);
 
   /**
    * Convenience method to generate error reporting Action.
@@ -522,8 +521,7 @@ public:
    */
   template<class E, typename ... Args>
   Action error(Args... args) {
-    *m_propagatedError = std::make_shared<E>(args...);
-    return Action(Action::TYPE_ERROR);
+    return error(new E(args...));
   }
   
 };

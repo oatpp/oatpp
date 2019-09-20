@@ -151,11 +151,7 @@ public:
         , m_iterations(iterations)
       {}
 
-      oatpp::async::Action readAsyncInline(oatpp::async::AbstractCoroutine* coroutine,
-                                           oatpp::data::stream::AsyncInlineReadData& inlineData,
-                                           oatpp::async::Action&& nextAction) override
-      {
-        (void)coroutine;
+      oatpp::async::Action readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) override {
         if(m_counter < m_iterations) {
           std::memcpy(inlineData.currBufferPtr, m_text->getData(), m_text->getSize());
           inlineData.inc(m_text->getSize());

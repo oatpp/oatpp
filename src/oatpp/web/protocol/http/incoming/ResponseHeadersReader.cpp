@@ -150,9 +150,9 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
       } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
         return m_connection->suggestInputStreamAction(res);
       } else if(res == data::IOError::BROKEN_PIPE) {
-        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+        return error<oatpp::data::AsyncIOError>(data::IOError::BROKEN_PIPE);
       } else if(res == data::IOError::ZERO_VALUE) {
-        return error(oatpp::data::AsyncIOError::ERROR_BROKEN_PIPE);
+        return error<oatpp::data::AsyncIOError>(data::IOError::BROKEN_PIPE);
       } else {
         return error<Error>("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Error reading connection stream.");
       }

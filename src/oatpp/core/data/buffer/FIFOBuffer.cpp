@@ -412,15 +412,15 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
     }
 
     Action fullFlush() {
-      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data1, yieldTo(&FlushCoroutine::beforeFinish));
+      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action partialFlush1() {
-      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data1, yieldTo(&FlushCoroutine::partialFlush2));
+      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, yieldTo(&FlushCoroutine::partialFlush2));
     }
 
     Action partialFlush2() {
-      return data::stream::writeExactSizeDataAsyncInline(this, m_stream.get(), m_data2, yieldTo(&FlushCoroutine::beforeFinish));
+      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data2, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action beforeFinish() {
