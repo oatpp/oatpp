@@ -293,6 +293,10 @@ Action CoroutineHandle::iterate() {
   }
 }
 
+Action CoroutineHandle::iterateAndTakeAction() {
+  return takeAction(iterate());
+}
+
 bool CoroutineHandle::finished() const {
   return _CP == nullptr;
 }

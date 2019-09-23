@@ -398,15 +398,15 @@ private:
   FunctionPtr _FP;
   oatpp::async::Action _SCH_A;
   CoroutineHandle* _ref;
-private:
-  Action takeAction(Action&& action);
 public:
 
   CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);
 
   ~CoroutineHandle();
 
+  Action takeAction(Action&& action);
   Action iterate();
+  Action iterateAndTakeAction();
 
   bool finished() const;
 

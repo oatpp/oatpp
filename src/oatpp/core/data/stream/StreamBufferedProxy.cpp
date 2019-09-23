@@ -39,6 +39,9 @@ data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_si
 }
 
 oatpp::async::Action OutputStreamBufferedProxy::suggestOutputStreamAction(data::v_io_size ioResult) {
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
   return m_outputStream->suggestOutputStreamAction(ioResult);
 }
 
@@ -91,6 +94,9 @@ data::v_io_size InputStreamBufferedProxy::commitReadOffset(data::v_io_size count
 }
 
 oatpp::async::Action InputStreamBufferedProxy::suggestInputStreamAction(data::v_io_size ioResult) {
+  if(ioResult > 0) {
+    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
+  }
   return m_inputStream->suggestInputStreamAction(ioResult);
 }
 

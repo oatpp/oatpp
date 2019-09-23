@@ -208,7 +208,7 @@ bool Processor::iterate(v_int32 numIterations) {
         -- m_tasksCounter;
       } else {
 
-        const Action &action = CP->takeAction(CP->iterate());
+        const Action &action = CP->iterateAndTakeAction();
 
         switch (action.m_type) {
 

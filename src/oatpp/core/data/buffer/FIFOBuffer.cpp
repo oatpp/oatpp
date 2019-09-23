@@ -137,16 +137,14 @@ data::v_io_size FIFOBuffer::peek(void *data, data::v_io_size count) {
     return size;
   }
 
-  auto tmpReadPos = m_readPosition;
-  auto size = m_bufferSize - tmpReadPos;
+  auto size = m_bufferSize - m_readPosition;
 
   if(size > count){
-    std::memcpy(data, &m_buffer[tmpReadPos], (size_t)count);
-    tmpReadPos += count;
+    std::memcpy(data, &m_buffer[m_readPosition], (size_t)count);
     return count;
   }
 
-  std::memcpy(data, &m_buffer[tmpReadPos], (size_t)size);
+  std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
   auto size2 = m_writePosition;
   if(size2 > count - size) {
     size2 = count - size;
