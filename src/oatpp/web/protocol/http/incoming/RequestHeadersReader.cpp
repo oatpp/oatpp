@@ -47,8 +47,10 @@ data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStre
     
     res = stream->peek(m_buffer, desiredToRead);
     if(res > 0) {
+
       bufferStream->write(m_buffer, res);
-      
+      progress += res;
+
       for(v_int32 i = 0; i < res; i ++) {
         accumulator <<= 8;
         accumulator |= m_buffer[i];
@@ -133,6 +135,7 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
       
       auto res = m_stream->peek(m_buffer, desiredToRead);
       if(res > 0) {
+
         m_bufferStream.write(m_buffer, res);
         m_progress += res;
         
