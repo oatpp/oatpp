@@ -377,14 +377,14 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
 
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
   private:
-    std::shared_ptr<FIFOBuffer> m_fifo;
+    FIFOBuffer* m_fifo;
     std::shared_ptr<data::stream::OutputStream> m_stream;
   private:
     data::stream::AsyncInlineWriteData m_data1;
     data::stream::AsyncInlineWriteData m_data2;
   public:
 
-    FlushCoroutine(const std::shared_ptr<FIFOBuffer>& fifo, const std::shared_ptr<data::stream::OutputStream>& stream)
+    FlushCoroutine(FIFOBuffer* fifo, const std::shared_ptr<data::stream::OutputStream>& stream)
       : m_fifo(fifo)
       , m_stream(stream)
     {}
@@ -428,7 +428,7 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
 
   };
 
-  return FlushCoroutine::start(shared_from_this(), stream);
+  return FlushCoroutine::start(this, stream);
 
 }
 

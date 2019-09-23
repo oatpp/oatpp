@@ -55,13 +55,15 @@ HttpConnectionHandler::Task::createShared(HttpRouter* router,
 }
 
 void HttpConnectionHandler::Task::run(){
-  
-  const v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
-  v_char8 inBuffer [bufferSize];
-  v_char8 outBuffer [bufferSize];
 
-  auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection, inBuffer, bufferSize);
-  auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, outBuffer, bufferSize);
+  const v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+  v_char8 bufferMemory[bufferSize * 2];
+
+  oatpp::data::share::MemoryLabel inBuffer(nullptr, bufferMemory, bufferSize);
+  oatpp::data::share::MemoryLabel outBuffer(nullptr, bufferMemory + bufferSize, bufferSize);
+
+  auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection, inBuffer);
+  oatpp::data::stream::OutputStreamBufferedProxy outStream(m_connection, outBuffer);
   
   v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
@@ -70,9 +72,9 @@ void HttpConnectionHandler::Task::run(){
     response = HttpProcessor::processRequest(m_router, inStream, m_bodyDecoder, m_errorHandler, m_requestInterceptors, connectionState);
     
     if(response) {
-      outStream->setBufferPosition(0, 0, false);
-      response->send(outStream.get());
-      outStream->flush();
+      outStream.setBufferPosition(0, 0, false);
+      response->send(&outStream);
+      outStream.flush();
     } else {
       return;
     }

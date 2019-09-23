@@ -53,6 +53,12 @@ public:
 
   /**
    * Constructor.
+   * @param str
+   */
+  MemoryLabel(const std::shared_ptr<base::StrBuffer>& str) : MemoryLabel(str, str->getData(), str->getSize()) {}
+
+  /**
+   * Constructor.
    * @param memHandle - memory handle. `std::shared_ptr` to buffer pointed by a memory label.
    * @param data - pointer to data.
    * @param size - size of the data in bytes.

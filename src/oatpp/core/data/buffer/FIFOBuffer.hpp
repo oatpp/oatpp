@@ -36,7 +36,7 @@ namespace oatpp { namespace data { namespace buffer {
  * FIFO operations over the buffer
  * !FIFOBuffer is NOT an IOStream despite having similar APIs!
  */
-class FIFOBuffer : public std::enable_shared_from_this<FIFOBuffer> {
+class FIFOBuffer {
 private:
   p_char8 m_buffer;
   v_io_size m_bufferSize;

@@ -46,7 +46,7 @@ private:
   class TaskSubmission {
   public:
     virtual ~TaskSubmission() {};
-    virtual AbstractCoroutine* createCoroutine() = 0;
+    virtual CoroutineHandle* createCoroutine(Processor* processor) = 0;
   };
 
   /*
@@ -73,13 +73,13 @@ private:
       : m_params(std::make_tuple(params...))
     {}
 
-    virtual AbstractCoroutine* createCoroutine() {
-      return creator(typename SequenceGenerator<sizeof...(Args)>::type());
+    virtual CoroutineHandle* createCoroutine(Processor* processor) {
+      return creator(processor, typename SequenceGenerator<sizeof...(Args)>::type());
     }
 
     template<int ...S>
-    AbstractCoroutine* creator(IndexSequence<S...>) {
-      return new CoroutineType(std::get<S>(m_params) ...);
+    CoroutineHandle* creator(Processor* processor, IndexSequence<S...>) {
+      return new CoroutineHandle(processor, new CoroutineType(std::get<S>(m_params) ...));
     }
 
   };
