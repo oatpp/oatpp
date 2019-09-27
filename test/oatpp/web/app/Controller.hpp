@@ -62,7 +62,7 @@ public:
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
   ENDPOINT("GET", "/", root) {
-    OATPP_LOGV(TAG, "GET '/'");
+//    OATPP_LOGV(TAG, "GET '/'");
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
