@@ -60,12 +60,13 @@ public:
   }
   
 #include OATPP_CODEGEN_BEGIN(ApiController)
-  
+
+  ADDCORS(root);
   ENDPOINT("GET", "/", root) {
-    //OATPP_LOGV(TAG, "GET '/'");
+    OATPP_LOGV(TAG, "GET '/'");
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
-  
+
   ENDPOINT("GET", "params/{param}", getWithParams,
            PATH(String, param)) {
     //OATPP_LOGV(TAG, "GET params/%s", param->c_str());
