@@ -152,7 +152,7 @@ void IOEventWorker::waitEvents() {
   struct epoll_event* outEvents = (struct epoll_event*)m_outEvents.get();
   auto eventsCount = epoll_wait(m_eventQueueHandle, outEvents, MAX_EVENTS, -1);
 
-  if(eventsCount < 0) {
+  if((eventsCount < 0) && (errno != EINTR)) {
     OATPP_LOGE("[oatpp::async::worker::IOEventWorker::waitEvents()]", "Error. errno=%d", errno);
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
