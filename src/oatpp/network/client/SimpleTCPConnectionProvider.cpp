@@ -50,6 +50,18 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& ho
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
 }
 
+bool SimpleTCPConnectionProvider::checkSocket(oatpp::data::v_io_handle handle) {
+
+  socklen_t errorLen = sizeof(int);
+  int error = 0;
+  if (getsockopt(handle, SOL_SOCKET, SO_ERROR, &error, &errorLen) < 0) {
+    return false;
+  }
+
+  return error == 0;
+
+}
+
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
@@ -111,6 +123,10 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
+
+  if(!checkSocket(clientHandle)) {
+    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]: Error. Failed to connect.");
+  }
 
   return oatpp::network::Connection::createShared(clientHandle);
 
@@ -213,6 +229,11 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       auto error = WSAGetLastError();
 
       if(res == 0 || error == WSAEISCONN) {
+
+        if(!checkSocket(m_clientHandle)) {
+          throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::doConnect()]: Error. Failed to connect.");
+        }
+
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
@@ -226,6 +247,11 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 #else
 
       if(res == 0 || errno == EISCONN) {
+
+        if(!checkSocket(m_clientHandle)) {
+          throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::doConnect()]: Error. Failed to connect.");
+        }
+
         return _return(oatpp::network::Connection::createShared(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {

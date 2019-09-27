@@ -39,6 +39,8 @@ class SimpleTCPConnectionProvider : public base::Countable, public ClientConnect
 protected:
   oatpp::String m_host;
   v_word16 m_port;
+private:
+  static bool checkSocket(oatpp::data::v_io_handle handle);
 public:
   /**
    * Constructor.
