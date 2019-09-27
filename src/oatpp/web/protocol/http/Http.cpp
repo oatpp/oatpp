@@ -121,7 +121,12 @@ const char* const Header::HOST = "Host";
 const char* const Header::USER_AGENT = "User-Agent";
 const char* const Header::SERVER = "Server";
 const char* const Header::UPGRADE = "Upgrade";
-  
+
+
+const char* const Header::CORS_ORIGIN = "Access-Control-Allow-Origin";
+const char* const Header::CORS_METHODS = "Access-Control-Allow-Methods";
+const char* const Header::CORS_HEADERS = "Access-Control-Allow-Headers";
+
 const char* const Range::UNIT_BYTES = "bytes";
 const char* const ContentRange::UNIT_BYTES = "bytes";
   

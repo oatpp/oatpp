@@ -497,6 +497,9 @@ public:
   static const char* const USER_AGENT;          // "User-Agent"
   static const char* const SERVER;              // "Server"
   static const char* const UPGRADE;             // "Upgrade"
+  static const char* const CORS_ORIGIN;         // Access-Control-Allow-Origin
+  static const char* const CORS_METHODS;        // Access-Control-Allow-Methods
+  static const char* const CORS_HEADERS;        // Access-Control-Allow-Headers
 };
   
 class Range {

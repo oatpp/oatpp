@@ -530,7 +530,7 @@ public: \
 
 // CORS MACRO // ------------------------------------------------------
 
-#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_0(ENDPOINTNAME, ...) \
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_1(ENDPOINTNAME, ...) \
 ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
   resp->putHeaderIfNotExists("Access-Control-Allow-Origin", "*"); \
   resp->putHeaderIfNotExists("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); \
@@ -550,11 +550,11 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
   return Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME(resp); \
 }
 
-#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_1(ENDPOINTNAME, ORIGIN) \
-std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> Z__ENDPOINT_CORS_##ENDPOINTNAME(std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  response->putHeaderIfNotExists("Access-Control-Allow-Origin", ORIGIN); \
-  response->putHeaderIfNotExists("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); \
-  response->putHeaderIfNotExists("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range");\
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_2(ENDPOINTNAME, ORIGIN) \
+ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Origin", ORIGIN); \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range");\
   resp->putHeaderIfNotExists("Access-Control-Max-Age", "1728000"); \
   resp->putHeaderIfNotExists("Content-Type", "text/plain; charset=utf-8"); \
   resp->putHeaderIfNotExists("Content-Length", "0"); \
@@ -570,11 +570,11 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
   return Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME(resp); \
 }
 
-#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_2(ENDPOINTNAME, ORIGIN, METHODS) \
-std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> Z__ENDPOINT_CORS_##ENDPOINTNAME(std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  response->putHeaderIfNotExists("Access-Control-Allow-Origin", ORIGIN); \
-  response->putHeaderIfNotExists("Access-Control-Allow-Methods", METHODS); \
-  response->putHeaderIfNotExists("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range");\
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_3(ENDPOINTNAME, ORIGIN, METHODS) \
+ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Origin", ORIGIN); \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Methods", METHODS); \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Headers", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range");\
   resp->putHeaderIfNotExists("Access-Control-Max-Age", "1728000"); \
   resp->putHeaderIfNotExists("Content-Type", "text/plain; charset=utf-8"); \
   resp->putHeaderIfNotExists("Content-Length", "0"); \
@@ -590,16 +590,16 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
   return Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME(resp); \
 }
 
-#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_3(ENDPOINTNAME, ORIGIN, METHODS, HEADERS) \
-std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> Z__ENDPOINT_CORS_##ENDPOINTNAME(std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  response->putHeaderIfNotExists("Access-Control-Allow-Origin", ORIGIN); \
-  response->putHeaderIfNotExists("Access-Control-Allow-Methods", METHODS); \
-  response->putHeaderIfNotExists("Access-Control-Allow-Headers", HEADERS);\
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_4(ENDPOINTNAME, ORIGIN, METHODS, HEADERS) \
+ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Origin", ORIGIN); \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Methods", METHODS); \
+  resp->putHeaderIfNotExists("Access-Control-Allow-Headers", HEADERS);\
   resp->putHeaderIfNotExists("Access-Control-Max-Age", "1728000"); \
   resp->putHeaderIfNotExists("Content-Type", "text/plain; charset=utf-8"); \
   resp->putHeaderIfNotExists("Content-Length", "0"); \
   return resp; \
-};  \
+}; \
 const std::shared_ptr<ResponseInterceptor> Z__RESPONSE_INTERCEPTOR_##ENDPOINTNAME = addInterceptorForEndpoint( \
   m_interceptors, \
   std::make_shared<ResponseInterceptor>(Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME), \
@@ -610,5 +610,5 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
   return Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME(resp); \
 }
 
-#define ADDCORS(ENDPOINTNAME, ...) \
-OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_, (__VA_ARGS__)) (ENDPOINTNAME, __VA_ARGS__))
+#define ADDCORS(...) \
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_, (__VA_ARGS__)) (__VA_ARGS__))
