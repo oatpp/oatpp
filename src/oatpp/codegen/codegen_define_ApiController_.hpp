@@ -530,6 +530,11 @@ public: \
 
 // CORS MACRO // ------------------------------------------------------
 
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_ORIGIN "*"
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_METHODS "GET, POST, OPTIONS"
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_HEADERS "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+#define OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_MAX_AGE "1728000"
+
 #define OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY(ARG_ORIGIN, ARG_METHODS, ARG_HEADERS, ARG_MAX_AGE) \
   resp->putHeaderIfNotExists(oatpp::web::protocol::http::Header::CORS_ORIGIN, ARG_ORIGIN); \
   resp->putHeaderIfNotExists(oatpp::web::protocol::http::Header::CORS_METHODS, ARG_METHODS); \
@@ -538,7 +543,12 @@ public: \
 
 #define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_1(ENDPOINTNAME, ...) \
 ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY("*", "GET, POST, OPTIONS", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range", "1728000") \
+  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_ORIGIN, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_METHODS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_HEADERS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_MAX_AGE \
+  ) \
   return resp; \
 }; \
 const std::shared_ptr<ResponseInterceptor> Z__RESPONSE_INTERCEPTOR_##ENDPOINTNAME = addInterceptorForEndpoint( \
@@ -553,7 +563,12 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
 
 #define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_2(ENDPOINTNAME, ORIGIN) \
 ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY(ORIGIN, "GET, POST, OPTIONS", "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range", "1728000") \
+  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
+      ORIGIN, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_METHODS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_HEADERS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_MAX_AGE \
+  ) \
   return resp; \
 }; \
 const std::shared_ptr<ResponseInterceptor> Z__RESPONSE_INTERCEPTOR_##ENDPOINTNAME = addInterceptorForEndpoint( \
@@ -568,7 +583,12 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
 
 #define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_3(ENDPOINTNAME, ORIGIN, METHODS) \
 ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY(ORIGIN, METHODS, "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range", "1728000") \
+  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
+      ORIGIN, \
+      METHODS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_HEADERS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_MAX_AGE \
+  ) \
   return resp; \
 }; \
 const std::shared_ptr<ResponseInterceptor> Z__RESPONSE_INTERCEPTOR_##ENDPOINTNAME = addInterceptorForEndpoint( \
@@ -583,7 +603,12 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
 
 #define OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_4(ENDPOINTNAME, ORIGIN, METHODS, HEADERS) \
 ResponseInterceptor Z__RESPONSE_INTERCEPTOR_FUNC_##ENDPOINTNAME = [this](std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> &resp) { \
-  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY(ORIGIN, METHODS, HEADERS, "1728000") \
+  OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
+      ORIGIN, \
+      METHODS, \
+      HEADERS, \
+      OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_MAX_AGE \
+  ) \
   return resp; \
 }; \
 const std::shared_ptr<ResponseInterceptor> Z__RESPONSE_INTERCEPTOR_##ENDPOINTNAME = addInterceptorForEndpoint( \
