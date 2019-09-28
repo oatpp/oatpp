@@ -126,12 +126,14 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
   private:
     struct addrinfo* m_result;
     struct addrinfo* m_currentResult;
+    bool m_isHandleOpened;
   public:
 
     ConnectCoroutine(const oatpp::String& host, v_int32 port)
       : m_host(host)
       , m_port(port)
       , m_result(nullptr)
+      , m_isHandleOpened(false)
     {}
 
     ~ConnectCoroutine() {
@@ -141,7 +143,6 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     }
 
     Action act() override {
-
       auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
 
       struct addrinfo hints;
@@ -170,24 +171,41 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
     }
 
-
     Action iterateAddrInfoResults() {
+
+      /*
+       * Close previously opened socket here.
+       * Don't ever close socket in the method which returns action ioWait or ioRepeat
+       */
+      if(m_isHandleOpened) {
+        m_isHandleOpened = false;
+#if defined(WIN32) || defined(_WIN32)
+        ::closesocket(m_clientHandle);
+#else
+        ::close(m_clientHandle);
+#endif
+
+      }
 
       if(m_currentResult != nullptr) {
 
         m_clientHandle = socket(m_currentResult->ai_family, m_currentResult->ai_socktype, m_currentResult->ai_protocol);
 
-        if (m_clientHandle < 0) { // TODO - For windows it should check for SOCKET_ERROR constant
+#if defined(WIN32) || defined(_WIN32)
+        if (m_clientHandle == INVALID_SOCKET) {
           m_currentResult = m_currentResult->ai_next;
           return repeat();
         }
-
-#if defined(WIN32) || defined(_WIN32)
         u_long flags = 1;
         ioctlsocket(m_clientHandle, FIONBIO, &flags);
 #else
+        if (m_clientHandle < 0) {
+          m_currentResult = m_currentResult->ai_next;
+          return repeat();
+        }
         fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
 #endif
+
 #ifdef SO_NOSIGPIPE
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
@@ -195,7 +213,10 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
         }
 #endif
+
+        m_isHandleOpened = true;
         return yieldTo(&ConnectCoroutine::doConnect);
+
       }
 
       return error<Error>("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
@@ -203,7 +224,6 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     }
 
     Action doConnect() {
-
       errno = 0;
 
       auto res = connect(m_clientHandle, m_currentResult->ai_addr, m_currentResult->ai_addrlen);
@@ -221,8 +241,6 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
-	    ::closesocket(m_clientHandle);
-
 #else
 
       if(res == 0 || errno == EISCONN) {
@@ -233,8 +251,6 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       } else if(errno == EINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
-
-	    ::close(m_clientHandle);
 
 #endif
 
