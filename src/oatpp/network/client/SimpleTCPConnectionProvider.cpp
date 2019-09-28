@@ -132,7 +132,6 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     ConnectCoroutine(const oatpp::String& host, v_int32 port)
       : m_host(host)
       , m_port(port)
-      , m_clientHandle(-1)
       , m_result(nullptr)
       , m_isHandleOpened(false)
     {}
