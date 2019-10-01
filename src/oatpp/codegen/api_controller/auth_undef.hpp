@@ -22,25 +22,14 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "undefs" for ApiController code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(ApiController)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(ApiController)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
- *   <li>&id:oatpp::web::server::api::ApiController;</li>
- * </ul>
- */
+#undef AUTHORIZATION
 
-#include "./api_controller/base_undef.hpp"
-#include "./api_controller/auth_undef.hpp"
+// AUTHORIZATION MACRO // ------------------------------------------------------
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_1
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_2
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION
+
+// __INFO
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_1
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO_2
+#undef OATPP_MACRO_API_CONTROLLER_AUTHORIZATION_INFO
