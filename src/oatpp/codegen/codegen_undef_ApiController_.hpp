@@ -163,6 +163,8 @@
 
 #undef ENDPOINT
 
+#undef ENDPOINT_INTERCEPTOR
+
 // ENDPOINT ASYNC MACRO // ------------------------------------------------------
 
 #undef OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS

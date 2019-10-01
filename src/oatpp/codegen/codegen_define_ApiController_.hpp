@@ -332,9 +332,13 @@ void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<Endpoint::Info>& info)
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_DECL_DEFAULTS(NAME, METHOD, PATH) \
 \
 template<class T> \
-static typename Handler<T>::Method Z__ENDPOINT_METHOD_##NAME(T* controller) { \
-  (void)controller; \
-  return &T::Z__PROXY_METHOD_##NAME; \
+static typename std::shared_ptr<Handler<T>> Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(T* controller) { \
+  auto handler = std::static_pointer_cast<Handler<T>>(controller->getEndpointHandler(#NAME)); \
+  if(!handler) { \
+    handler = Handler<T>::createShared(controller, &T::Z__PROXY_METHOD_##NAME, nullptr); \
+    controller->setEndpointHandler(#NAME, handler); \
+  } \
+  return handler; \
 } \
 \
 std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
@@ -357,9 +361,7 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
 }; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
-                                                        this, \
-                                                        Z__ENDPOINT_METHOD_##NAME(this), \
-                                                        nullptr, \
+                                                        Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME);
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH) \
@@ -389,9 +391,7 @@ auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
 }; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
-                                                        this, \
-                                                        Z__ENDPOINT_METHOD_##NAME(this), \
-                                                        nullptr, \
+                                                        Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME);
 
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, ...) \
@@ -437,6 +437,43 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, __V
 #define ENDPOINT(METHOD, PATH, ...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_ENDPOINT_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__))
 
+/**
+ * Endpoint interceptor
+ */
+#define ENDPOINT_INTERCEPTOR(ENDPOINT_NAME, NAME) \
+\
+Handler<oatpp::web::server::api::ApiController>::Method \
+  Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME = Z__INTERCEPTOR_METHOD_SET_##ENDPOINT_NAME ##_ ##NAME(this); \
+\
+template<class T> \
+Handler<oatpp::web::server::api::ApiController>::Method Z__INTERCEPTOR_METHOD_SET_##ENDPOINT_NAME ##_ ##NAME (T* controller) { \
+  return static_cast<Handler<oatpp::web::server::api::ApiController>::Method>( \
+    Z__ENDPOINT_HANDLER_GET_INSTANCE_##ENDPOINT_NAME(controller)->setMethod(&T::Z__PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME) \
+  ); \
+} \
+\
+std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
+Z__PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME(const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request) { \
+  return Z__USER_PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME(this, request); \
+} \
+\
+template<class T> \
+std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
+Z__USER_PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
+  T* controller, \
+  const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
+) { \
+  auto prevMethod = static_cast<typename Handler<T>::Method>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \
+  return Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME <T> (prevMethod, request); \
+} \
+\
+template<class T> \
+std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
+Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
+  typename Handler<T>::Method prevMethod, \
+  const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
+)
+
 // ENDPOINT ASYNC MACRO // ------------------------------------------------------
 
 /*
@@ -444,10 +481,15 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_MACRO_API_CONTROLLER_
  *  2 - Endpoint info singleton
  */
 #define OATPP_MACRO_API_CONTROLLER_ENDPOINT_ASYNC_DECL_DEFAULTS(NAME, METHOD, PATH) \
+\
 template<class T> \
-static typename Handler<T>::MethodAsync Z__ENDPOINT_METHOD_##NAME(T* controller) { \
-  (void)controller; \
-  return &T::Z__PROXY_METHOD_##NAME; \
+static typename std::shared_ptr<Handler<T>> Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(T* controller) { \
+  auto handler = std::static_pointer_cast<Handler<T>>(controller->getEndpointHandler(#NAME)); \
+  if(!handler) { \
+    handler = Handler<T>::createShared(controller, nullptr, &T::Z__PROXY_METHOD_##NAME); \
+    controller->setEndpointHandler(#NAME, handler); \
+  } \
+  return handler; \
 } \
 \
 std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
@@ -474,9 +516,7 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
 }; \
 \
 const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
-                                                                    this, \
-                                                                    nullptr, \
-                                                                    Z__ENDPOINT_METHOD_##NAME(this), \
+                                                                    Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                                     Z__CREATE_ENDPOINT_INFO_##NAME);
 
 /**
