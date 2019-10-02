@@ -9,6 +9,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
+        oatpp/codegen/api_controller/cors_define.hpp
+        oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/codegen_define_ApiClient_.hpp
         oatpp/codegen/codegen_define_ApiController_.hpp
         oatpp/codegen/codegen_define_DTO_.hpp
@@ -221,7 +223,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-        oatpp/codegen/api_controller/cors_define.hpp oatpp/codegen/api_controller/cors_undef.hpp)
+)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
