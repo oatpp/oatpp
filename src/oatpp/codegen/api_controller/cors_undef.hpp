@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <bam@icognize.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +23,15 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "undefs" for ApiController code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(ApiController)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(ApiController)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
- *   <li>&id:oatpp::web::server::api::ApiController;</li>
- * </ul>
- */
+#undef ADDCORS
 
-#include "./api_controller/base_undef.hpp"
-#include "./api_controller/auth_undef.hpp"
-#include "./api_controller/cors_undef.hpp"
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_1
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_2
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_3
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_4
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_MACRO_5
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_ORIGIN
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_METHODS
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_HEADERS
+#undef OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_MAX_AGE

@@ -296,7 +296,7 @@ public:
     endpoints->pushBack(endpoint);
     return endpoint;
   }
-  
+
   /**
    * Subscribes all created endpoint-handlers to corresponding URLs in Router
    */

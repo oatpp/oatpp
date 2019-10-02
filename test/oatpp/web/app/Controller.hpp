@@ -73,7 +73,27 @@ public:
     //OATPP_LOGV(TAG, "GET '/'");
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
-  
+
+  ADDCORS(cors);
+  ENDPOINT("GET", "/cors", cors) {
+    return createResponse(Status::CODE_200, "Ping");
+  }
+
+  ADDCORS(corsOrigin, "127.0.0.1");
+  ENDPOINT("GET", "/cors-origin", corsOrigin) {
+    return createResponse(Status::CODE_200, "Pong");
+  }
+
+  ADDCORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS");
+  ENDPOINT("GET", "/cors-origin-methods", corsOriginMethods) {
+    return createResponse(Status::CODE_200, "Ping");
+  }
+
+  ADDCORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT");
+  ENDPOINT("GET", "/cors-origin-methods-headers", corsOriginMethodsHeaders) {
+    return createResponse(Status::CODE_200, "Pong");
+  }
+
   ENDPOINT("GET", "params/{param}", getWithParams,
            PATH(String, param)) {
     //OATPP_LOGV(TAG, "GET params/%s", param->c_str());

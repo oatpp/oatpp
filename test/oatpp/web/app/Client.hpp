@@ -42,6 +42,11 @@ public:
   API_CLIENT_INIT(Client)
   
   API_CALL("GET", "/", getRoot)
+  API_CALL("GET", "/cors", getCors)
+  API_CALL("OPTIONS", "/cors", optionsCors)
+  API_CALL("GET", "/cors-origin", getCorsOrigin)
+  API_CALL("GET", "/cors-origin-methods", getCorsOriginMethods)
+  API_CALL("GET", "/cors-origin-methods-headers", getCorsOriginMethodsHeader)
   API_CALL("GET", "params/{param}", getWithParams, PATH(String, param))
   API_CALL("GET", "queries", getWithQueries, QUERY(String, name), QUERY(Int32, age))
   API_CALL("GET", "queries/map", getWithQueriesMap, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
