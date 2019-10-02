@@ -183,7 +183,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
         header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
         OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization");
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple OPTIONS with CORS
@@ -197,7 +197,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
         header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
         OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization");
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple GET with CORS
@@ -213,7 +213,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
         header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
         OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization");
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple GET with CORS
@@ -229,7 +229,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(header->second.toString() == "GET, OPTIONS");
         header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
         OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization");
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple GET with CORS
