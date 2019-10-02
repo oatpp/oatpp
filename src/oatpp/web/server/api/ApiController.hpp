@@ -106,6 +106,11 @@ public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
 
   /**
+   * Convenience typedef for &id:oatpp::web::server::HttpRequestHandler;.
+   */
+  typedef oatpp::web::server::HttpRequestHandler RequestHandler;
+
+  /**
    * Convenience typedef for &id:oatpp::web::server::handler::AuthorizationHandler;.
    */
   typedef oatpp::web::server::handler::AuthorizationHandler AuthorizationHandler;
@@ -185,7 +190,7 @@ protected:
    * Handler which subscribes to specific URL in Router and delegates calls endpoints 
    */
   template<class T>
-  class Handler : public oatpp::web::server::HttpRequestHandler {
+  class Handler : public RequestHandler {
   public:
     typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
     typedef oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
@@ -221,8 +226,55 @@ protected:
       }
       throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Using Async model for non async endpoint");
     }
+
+    Method setMethod(Method method) {
+      auto prev = m_method;
+      m_method = method;
+      return prev;
+    }
+
+    Method getMethod() {
+      return m_method;
+    }
+
+    MethodAsync setMethodAsync(MethodAsync methodAsync) {
+      auto prev = m_methodAsync;
+      m_methodAsync = methodAsync;
+      return prev;
+    }
+
+    MethodAsync getMethodAsync() {
+      return m_methodAsync;
+    }
     
   };
+
+protected:
+
+  /*
+   * Set endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
+   * Info should be set before call to addEndpointsToRouter();
+   */
+  void setEndpointInfo(const std::string& endpointName, const std::shared_ptr<Endpoint::Info>& info);
+
+  /*
+   * Get endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
+   */
+  std::shared_ptr<Endpoint::Info> getEndpointInfo(const std::string& endpointName);
+
+  /*
+   * Set endpoint Request handler.
+   * @param endpointName
+   * @param handler
+   */
+  void setEndpointHandler(const std::string& endpointName, const std::shared_ptr<RequestHandler>& handler);
+
+  /*
+   * Get endpoint Request handler.
+   * @param endpointName
+   * @return
+   */
+  std::shared_ptr<RequestHandler> getEndpointHandler(const std::string& endpointName);
   
 protected:
   std::shared_ptr<Endpoints> m_endpoints;
@@ -231,6 +283,7 @@ protected:
   std::shared_ptr<handler::AuthorizationHandler> m_defaultAuthorizationHandler;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
   std::unordered_map<std::string, std::shared_ptr<Endpoint::Info>> m_endpointInfo;
+  std::unordered_map<std::string, std::shared_ptr<RequestHandler>> m_endpointHandlers;
 public:
   ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper)
     : m_endpoints(Endpoints::createShared())
@@ -242,11 +295,9 @@ public:
   
   template<class T>
   static std::shared_ptr<Endpoint> createEndpoint(const std::shared_ptr<Endpoints>& endpoints,
-                                                  T* controller,
-                                                  typename Handler<T>::Method method,
-                                                  typename Handler<T>::MethodAsync methodAsync,
-                                                  const EndpointInfoBuilder& infoBuilder){
-    auto handler = Handler<T>::createShared(controller, method, methodAsync);
+                                                  const std::shared_ptr<Handler<T>>& handler,
+                                                  const EndpointInfoBuilder& infoBuilder)
+  {
     auto endpoint = Endpoint::createShared(handler, infoBuilder);
     endpoints->pushBack(endpoint);
     return endpoint;
@@ -272,17 +323,6 @@ public:
    * Get list of Endpoints created via ENDPOINT macro
    */
   std::shared_ptr<Endpoints> getEndpoints();
-  
-  /**
-   * Set endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
-   * Info should be set before call to addEndpointsToRouter();
-   */
-  void setEndpointInfo(const std::string& endpointName, const std::shared_ptr<Endpoint::Info>& info);
-  
-  /**
-   * Get endpoint info by endpoint name. (Endpoint name is the 'NAME' parameter of the ENDPOINT macro)
-   */
-  std::shared_ptr<Endpoint::Info> getEndpointInfo(const std::string& endpointName);
 
   /**
    * [under discussion]

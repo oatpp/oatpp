@@ -60,7 +60,16 @@ public:
   }
   
 #include OATPP_CODEGEN_BEGIN(ApiController)
-  
+
+//  ENDPOINT_INTERCEPTOR_ASYNC(Root, inter1) {
+//    OATPP_LOGD("aaa", "inter1");
+//    return (this->*prevMethod)(request);
+//  }
+//  ENDPOINT_INTERCEPTOR(root, inter2) {
+//    OATPP_LOGD("aaa", "inter2");
+//    return (this->*prevMethod)(request);
+//  }
+
   ENDPOINT_ASYNC("GET", "/", Root) {
     
     ENDPOINT_ASYNC_INIT(Root)

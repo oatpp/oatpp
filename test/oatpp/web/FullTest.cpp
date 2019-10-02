@@ -26,6 +26,7 @@
 
 #include "oatpp/web/app/Client.hpp"
 
+#include "oatpp/web/app/ControllerWithInterceptors.hpp"
 #include "oatpp/web/app/Controller.hpp"
 #include "oatpp/web/app/BasicAuthorizationController.hpp"
 #include "oatpp/web/app/BearerAuthorizationController.hpp"
@@ -140,6 +141,7 @@ void FullTest::onRun() {
   oatpp::test::web::ClientServerTestRunner runner;
 
   runner.addController(app::Controller::createShared());
+  runner.addController(app::ControllerWithInterceptors::createShared());
   runner.addController(app::DefaultBasicAuthorizationController::createShared());
   runner.addController(app::BasicAuthorizationController::createShared());
   runner.addController(app::BearerAuthorizationController::createShared());
@@ -429,6 +431,13 @@ void FullTest::onRun() {
         OATPP_ASSERT(part1->getInMemoryData() == "Hello");
         OATPP_ASSERT(part2->getInMemoryData() == "World");
 
+      }
+
+      { // test interceptors
+        auto response = client->getInterceptors(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Hello World!!!");
       }
 
       if((i + 1) % iterationsStep == 0) {

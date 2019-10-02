@@ -26,6 +26,7 @@
 
 #include "oatpp/web/app/Client.hpp"
 
+#include "oatpp/web/app/ControllerWithInterceptorsAsync.hpp"
 #include "oatpp/web/app/ControllerAsync.hpp"
 
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
@@ -143,6 +144,7 @@ void FullAsyncTest::onRun() {
   oatpp::test::web::ClientServerTestRunner runner;
 
   runner.addController(app::ControllerAsync::createShared());
+  runner.addController(app::ControllerWithInterceptorsAsync::createShared());
 
   runner.run([this, &runner] {
 
@@ -254,6 +256,13 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(part1->getInMemoryData() == "Hello");
         OATPP_ASSERT(part2->getInMemoryData() == "World");
 
+      }
+
+      { // test interceptor GET
+        auto response = client->getInterceptors(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Hello World Async!!!");
       }
 
       if((i + 1) % iterationsStep == 0) {

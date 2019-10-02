@@ -61,8 +61,16 @@ public:
   
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
+  /*ENDPOINT_INTERCEPTOR(root, inter1) {
+    OATPP_LOGD("aaa", "inter1");
+    return (this->*prevMethod)(request);
+  }*/
+  /*ENDPOINT_INTERCEPTOR(root, inter2) {
+    OATPP_LOGD("aaa", "inter2");
+    return (this->*prevMethod)(request);
+  }*/
   ENDPOINT("GET", "/", root) {
-//    OATPP_LOGV(TAG, "GET '/'");
+    //OATPP_LOGV(TAG, "GET '/'");
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
