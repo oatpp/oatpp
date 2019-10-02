@@ -157,10 +157,6 @@ public:
    */
   typedef std::function<std::shared_ptr<Endpoint::Info>()> EndpointInfoBuilder;
 
-  typedef std::function<std::shared_ptr<OutgoingResponse>(std::shared_ptr<OutgoingResponse>&)> ResponseInterceptor;
-  typedef oatpp::collection::LinkedList<std::shared_ptr<ResponseInterceptor>> ResponseInterceptors;
-  typedef oatpp::collection::ListMap<oatpp::data::share::StringKeyLabelCI_FAST, std::shared_ptr<ResponseInterceptors>> EndpointResponseInterceptors;
-
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
   template <class Value>
@@ -278,7 +274,6 @@ protected:
   
 protected:
   std::shared_ptr<Endpoints> m_endpoints;
-  std::shared_ptr<EndpointResponseInterceptors> m_interceptors;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   std::shared_ptr<handler::AuthorizationHandler> m_defaultAuthorizationHandler;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
@@ -289,7 +284,6 @@ public:
     : m_endpoints(Endpoints::createShared())
     , m_errorHandler(nullptr)
     , m_defaultObjectMapper(defaultObjectMapper)
-    , m_interceptors(EndpointResponseInterceptors::createShared())
   {}
 public:
   
@@ -303,17 +297,6 @@ public:
     return endpoint;
   }
 
-  static std::shared_ptr<ResponseInterceptor> addInterceptorForEndpoint(
-                                                       const std::shared_ptr<EndpointResponseInterceptors> &interceptors,
-                                                       const std::shared_ptr<ResponseInterceptor> &interceptor,
-                                                       oatpp::data::share::StringKeyLabelCI_FAST endpoint) {
-    if (interceptors->find(endpoint) == nullptr) {
-      interceptors->put(endpoint, ResponseInterceptors::createShared());
-    }
-    interceptors->find(endpoint)->getValue()->pushBack(interceptor);
-    return interceptor;
-  }
-  
   /**
    * Subscribes all created endpoint-handlers to corresponding URLs in Router
    */

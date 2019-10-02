@@ -221,7 +221,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-)
+        oatpp/codegen/api_controller/cors_define.hpp oatpp/codegen/api_controller/cors_undef.hpp)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
