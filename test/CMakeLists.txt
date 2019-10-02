@@ -51,14 +51,16 @@ add_executable(oatppAllTests
         oatpp/web/FullAsyncTest.hpp
         oatpp/web/FullTest.cpp
         oatpp/web/FullTest.hpp
+        oatpp/web/FullAsyncClientTest.cpp
+        oatpp/web/FullAsyncClientTest.hpp
         oatpp/web/app/Client.hpp
         oatpp/web/app/BearerAuthorizationController.hpp
         oatpp/web/app/BasicAuthorizationController.hpp
         oatpp/web/app/Controller.hpp
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
-        oatpp/web/FullAsyncClientTest.cpp
-        oatpp/web/FullAsyncClientTest.hpp
+        oatpp/web/app/ControllerWithInterceptors.hpp
+        oatpp/web/app/ControllerWithInterceptorsAsync.hpp
 )
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)

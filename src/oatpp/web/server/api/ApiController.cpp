@@ -48,6 +48,14 @@ std::shared_ptr<ApiController::Endpoint::Info> ApiController::getEndpointInfo(co
   return m_endpointInfo[endpointName];
 }
 
+void ApiController::setEndpointHandler(const std::string& endpointName, const std::shared_ptr<RequestHandler>& handler) {
+  m_endpointHandlers[endpointName] = handler;
+}
+
+std::shared_ptr<ApiController::RequestHandler> ApiController::getEndpointHandler(const std::string& endpointName) {
+  return m_endpointHandlers[endpointName];
+}
+
 void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
   m_errorHandler = errorHandler;
 }
