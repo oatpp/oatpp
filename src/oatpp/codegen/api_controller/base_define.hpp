@@ -396,14 +396,14 @@ Z__USER_PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
   T* controller, \
   const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
 ) { \
-  auto prevMethod = static_cast<typename Handler<T>::Method>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \
-  return Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME <T> (prevMethod, request); \
+  auto intercepted = static_cast<typename Handler<T>::Method>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \
+  return Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME <T> (intercepted, request); \
 } \
 \
 template<class T> \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
 Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
-  typename Handler<T>::Method prevMethod, \
+  typename Handler<T>::Method intercepted, \
   const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
 )
 
@@ -510,13 +510,13 @@ Z__USER_PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
   T* controller, \
   const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
 ) { \
-  auto prevMethod = static_cast<typename Handler<T>::MethodAsync>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \
-  return Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME <T> (prevMethod, request); \
+  auto intercepted = static_cast<typename Handler<T>::MethodAsync>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \
+  return Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME <T> (intercepted, request); \
 } \
 \
 template<class T> \
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>&> \
 Z__USER_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
-  typename Handler<T>::MethodAsync prevMethod, \
+  typename Handler<T>::MethodAsync intercepted, \
   const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
 )

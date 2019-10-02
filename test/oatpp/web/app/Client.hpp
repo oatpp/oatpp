@@ -60,6 +60,8 @@ public:
   API_CALL("GET", "chunked/{text-value}/{num-iterations}", getChunked, PATH(String, text, "text-value"), PATH(Int32, numIterations, "num-iterations"))
   API_CALL("POST", "test/multipart/{chunk-size}", multipartTest, PATH(Int32, chunkSize, "chunk-size"), BODY(std::shared_ptr<MultipartBody>, body))
 
+  API_CALL("GET", "test/interceptors", getInterceptors)
+
   API_CALL_ASYNC("GET", "/", getRootAsync)
   API_CALL_ASYNC("GET", "/", getRootAsyncWithCKA, HEADER(String, connection, "Connection"))
   API_CALL_ASYNC("GET", "params/{param}", getWithParamsAsync, PATH(String, param))
