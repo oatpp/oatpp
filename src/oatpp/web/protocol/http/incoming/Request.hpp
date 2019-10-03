@@ -127,9 +127,24 @@ public:
   std::shared_ptr<const http::incoming::BodyDecoder> getBodyDecoder() const;
 
   /**
+   * Add http header.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   */
+  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
+   * Add http header if not already exists.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   * @return - `true` if header was added.
+   */
+  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
    * Get header value
-   * @param headerName
-   * @return header value
+   * @param headerName - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @return - &id:oatpp::String;.
    */
   oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
 

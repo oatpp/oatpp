@@ -26,6 +26,7 @@
 
 #include "oatpp/web/app/Client.hpp"
 
+#include "oatpp/web/app/ControllerWithInterceptors.hpp"
 #include "oatpp/web/app/Controller.hpp"
 #include "oatpp/web/app/BasicAuthorizationController.hpp"
 #include "oatpp/web/app/BearerAuthorizationController.hpp"
@@ -140,6 +141,7 @@ void FullTest::onRun() {
   oatpp::test::web::ClientServerTestRunner runner;
 
   runner.addController(app::Controller::createShared());
+  runner.addController(app::ControllerWithInterceptors::createShared());
   runner.addController(app::DefaultBasicAuthorizationController::createShared());
   runner.addController(app::BasicAuthorizationController::createShared());
   runner.addController(app::BearerAuthorizationController::createShared());
@@ -166,6 +168,84 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World!!!");
+      }
+
+      { // test simple GET with CORS
+        auto response = client->getCors(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Ping");
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "*");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+      }
+
+      { // test simple OPTIONS with CORS
+        auto response = client->optionsCors(connection);
+        OATPP_ASSERT(response->getStatusCode() == 204);
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "*");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+      }
+
+      { // test simple GET with CORS
+        auto response = client->getCorsOrigin(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Pong");
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "127.0.0.1");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+      }
+
+      { // test simple GET with CORS
+        auto response = client->getCorsOriginMethods(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Ping");
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "127.0.0.1");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "GET, OPTIONS");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+      }
+
+      { // test simple GET with CORS
+        auto response = client->getCorsOriginMethodsHeader(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Pong");
+        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "127.0.0.1");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "GET, OPTIONS");
+        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header != response->getHeaders().end());
+        OATPP_ASSERT(header->second.toString() == "X-PWNT");
       }
 
       { // test GET with path parameter
@@ -351,6 +431,13 @@ void FullTest::onRun() {
         OATPP_ASSERT(part1->getInMemoryData() == "Hello");
         OATPP_ASSERT(part2->getInMemoryData() == "World");
 
+      }
+
+      { // test interceptors
+        auto response = client->getInterceptors(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Hello World!!!");
       }
 
       if((i + 1) % iterationsStep == 0) {

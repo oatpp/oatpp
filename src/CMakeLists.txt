@@ -5,6 +5,12 @@
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp
+        oatpp/codegen/api_controller/base_define.hpp
+        oatpp/codegen/api_controller/base_undef.hpp
+        oatpp/codegen/api_controller/auth_define.hpp
+        oatpp/codegen/api_controller/auth_undef.hpp
+        oatpp/codegen/api_controller/cors_define.hpp
+        oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/codegen_define_ApiClient_.hpp
         oatpp/codegen/codegen_define_ApiController_.hpp
         oatpp/codegen/codegen_define_DTO_.hpp

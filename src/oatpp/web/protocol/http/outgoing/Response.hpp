@@ -101,6 +101,13 @@ public:
   bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
+   * Get header value
+   * @param headerName - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @return - &id:oatpp::String;.
+   */
+  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
+
+  /**
    * Set connection upgreade header. <br>
    * Use it together with corresponding headers being set when Response is created as: <br>
    * Response(&id:oatpp::web::protocol::http::Status::CODE_101;, nullptr);<br>

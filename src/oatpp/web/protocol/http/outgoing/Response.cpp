@@ -60,6 +60,14 @@ bool Response::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_F
   return false;
 }
 
+oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const {
+  auto it = m_headers.find(headerName);
+  if(it != m_headers.end()) {
+    return it->second.toString();
+  }
+  return nullptr;
+}
+
 void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
   m_connectionUpgradeHandler = handler;
 }
