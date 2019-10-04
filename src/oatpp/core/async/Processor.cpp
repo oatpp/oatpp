@@ -151,8 +151,7 @@ void Processor::popTasks() {
 
 void Processor::consumeAllTasks() {
   for(auto& submission : m_taskList) {
-    auto coroutine = submission->createCoroutine();
-    m_queue.pushBack(new CoroutineHandle(this, coroutine));
+    m_queue.pushBack(submission->createCoroutine(this));
   }
   m_taskList.clear();
 }
@@ -197,54 +196,42 @@ bool Processor::iterate(v_int32 numIterations) {
 
   for(v_int32 i = 0; i < numIterations; i++) {
 
-    for(v_int32 j = 0; j < 10; j ++) {
+    auto CP = m_queue.first;
+    if (CP == nullptr) {
+      goto end_loop;
+    }
+    if (CP->finished()) {
+      m_queue.popFrontNoData();
+      -- m_tasksCounter;
+    } else {
 
-      auto CP = m_queue.first;
-      if (CP == nullptr) {
-        goto end_loop;
-      }
-      if (CP->finished()) {
-        m_queue.popFrontNoData();
-        -- m_tasksCounter;
-      } else {
+      const Action &action = CP->iterateAndTakeAction();
 
-        const Action &action = CP->iterateAndTakeAction();
+      switch (action.m_type) {
 
-        switch (action.m_type) {
+        case Action::TYPE_IO_WAIT:
+          CP->_SCH_A = Action::clone(action);
+          m_queue.popFront();
+          popIOTask(CP);
+          break;
 
-          case Action::TYPE_IO_WAIT:
-            CP->_SCH_A = Action::clone(action);
-            m_queue.popFront();
-            popIOTask(CP);
-            break;
+        case Action::TYPE_WAIT_REPEAT:
+          CP->_SCH_A = Action::clone(action);
+          m_queue.popFront();
+          popTimerTask(CP);
+          break;
 
-//          case Action::TYPE_IO_REPEAT:  // DO NOT RESCHEDULE COROUTINE WITH ACTIVE I/O
-//            CP->_SCH_A = Action::clone(action);
-//            m_queue.popFront();
-//            popIOTask(CP);
-//            break;
+        case Action::TYPE_WAIT_LIST:
+          CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+          m_queue.popFront();
+          action.m_data.waitList->pushBack(CP);
+          break;
 
-          case Action::TYPE_WAIT_REPEAT:
-            CP->_SCH_A = Action::clone(action);
-            m_queue.popFront();
-            popTimerTask(CP);
-            break;
-
-          case Action::TYPE_WAIT_LIST:
-            CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-            m_queue.popFront();
-            action.m_data.waitList->pushBack(CP);
-            break;
-
-//        default:
-//          m_queue.round();
-        }
-
+        default:
+          m_queue.round();
       }
 
     }
-
-    m_queue.round();
 
   }
 

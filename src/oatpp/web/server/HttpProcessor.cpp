@@ -41,7 +41,8 @@ HttpProcessor::processRequest(HttpRouter* router,
   {
     const v_int32 bufferSize = 2048;
     v_char8 buffer [bufferSize];
-    RequestHeadersReader headersReader(buffer, bufferSize, 4096);
+    oatpp::data::share::MemoryLabel bufferLabel(nullptr, buffer, bufferSize);
+    RequestHeadersReader headersReader(bufferLabel, 4096);
     headersReadResult = headersReader.readHeaders(inStream.get(), error);
   }
   
@@ -129,7 +130,7 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  RequestHeadersReader headersReader(m_headerReaderBuffer->getData(), m_headerReaderBuffer->getSize(), 4096);
+  RequestHeadersReader headersReader(m_headerReaderBuffer, 4096);
   return headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
@@ -143,12 +144,11 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
-  
+
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
-  m_outStream->setBufferPosition(0, 0, false);
-  return m_currentResponse->sendAsync(m_outStream).next(m_outStream->flushAsync()).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
-  
+  return m_currentResponse->sendAsync(m_connection).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
+
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {

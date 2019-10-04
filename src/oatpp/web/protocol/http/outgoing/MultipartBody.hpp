@@ -147,6 +147,12 @@ public:
    */
   oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override;
 
+  /**
+   * Always returns `-1` - as body size is unknown.
+   * @return - `-1`. &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size getKnownSize() override;
+
 };
 
 }}}}}

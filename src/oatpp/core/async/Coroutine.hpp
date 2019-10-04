@@ -401,7 +401,6 @@ private:
 public:
 
   CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);
-
   ~CoroutineHandle();
 
   Action takeAction(Action&& action);

@@ -110,9 +110,21 @@ void Response::send(data::stream::OutputStream* stream) {
   }
 
   buffer.write("\r\n", 2);
-  buffer.flushToStream(stream);
+
   if(m_body) {
-    m_body->writeToStream(stream);
+
+    auto bodySize = m_body->getKnownSize();
+
+    if(bodySize >= 0 && bodySize + buffer.getSize() < oatpp::data::stream::ChunkedBuffer::CHUNK_ENTRY_SIZE) {
+      m_body->writeToStream(&buffer);
+      buffer.flushToStream(stream);
+    } else {
+      buffer.flushToStream(stream);
+      m_body->writeToStream(stream);
+    }
+
+  } else {
+    buffer.flushToStream(stream);
   }
   
 }
@@ -150,8 +162,26 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::s
       http::Utils::writeHeaders(m_response->m_headers, m_buffer.get());
       
       m_buffer->write("\r\n", 2);
-      
-      return yieldTo(&SendAsyncCoroutine::writeHeaders);
+
+      const auto& body = m_response->m_body;
+
+      if(body) {
+
+        auto bodySize = body->getKnownSize();
+
+        if(bodySize >= 0 && bodySize + m_buffer->getSize() < oatpp::data::stream::ChunkedBuffer::CHUNK_ENTRY_SIZE) {
+
+          return body->writeToStreamAsync(m_buffer)
+            .next(m_buffer->flushToStreamAsync(m_stream))
+            .next(finish());
+
+        } else {
+          return yieldTo(&SendAsyncCoroutine::writeHeaders);
+        }
+
+      } else {
+        return yieldTo(&SendAsyncCoroutine::writeHeaders);
+      }
     
     }
     

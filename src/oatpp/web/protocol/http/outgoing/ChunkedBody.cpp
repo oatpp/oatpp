@@ -170,5 +170,9 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
 
 }
 
+data::v_io_size ChunkedBody::getKnownSize() {
+  return -1;
+}
+
 
 }}}}}

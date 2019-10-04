@@ -70,6 +70,13 @@ public:
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   virtual oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
+
+  /**
+   * Should return the known size of the body (if known).
+   * If body size is unknown then should return -1.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  virtual data::v_io_size getKnownSize() = 0;
   
 };
   

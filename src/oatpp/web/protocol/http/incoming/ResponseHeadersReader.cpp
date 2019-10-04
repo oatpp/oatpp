@@ -38,21 +38,22 @@ data::v_io_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<
   data::v_io_size res;
   while (true) {
     
-    v_int32 desiredToRead = m_bufferSize;
+    v_int32 desiredToRead = m_buffer.getSize();
     if(progress + desiredToRead > m_maxHeadersSize) {
       desiredToRead = m_maxHeadersSize - progress;
       if(desiredToRead <= 0) {
         return -1;
       }
     }
-    
-    res = connection->read(m_buffer, desiredToRead);
+
+    auto bufferData = m_buffer.getData();
+    res = connection->read(bufferData, desiredToRead);
     if(res > 0) {
-      bufferStream->write(m_buffer, res);
+      bufferStream->write(bufferData, res);
       
       for(v_int32 i = 0; i < res; i ++) {
         accumulator <<= 8;
-        accumulator |= m_buffer[i];
+        accumulator |= bufferData[i];
         if(accumulator == sectionEnd) {
           result.bufferPosStart = i + 1;
           result.bufferPosEnd = (v_int32) res;
@@ -101,8 +102,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    p_char8 m_buffer;
-    v_int32 m_bufferSize;
+    oatpp::data::share::MemoryLabel m_buffer;
     v_int32 m_maxHeadersSize;
     v_word32 m_accumulator;
     v_int32 m_progress;
@@ -111,10 +111,9 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   public:
     
     ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                    p_char8 buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
+                    const oatpp::data::share::MemoryLabel buffer, v_int32 maxHeadersSize)
     : m_connection(connection)
     , m_buffer(buffer)
-    , m_bufferSize(bufferSize)
     , m_maxHeadersSize(maxHeadersSize)
     , m_accumulator(0)
     , m_progress(0)
@@ -122,22 +121,22 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
     
     Action act() override {
       
-      v_int32 desiredToRead = m_bufferSize;
+      v_int32 desiredToRead = m_buffer.getSize();
       if(m_progress + desiredToRead > m_maxHeadersSize) {
         desiredToRead = m_maxHeadersSize - m_progress;
         if(desiredToRead <= 0) {
           return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Headers section is too large.");
         }
       }
-      
-      auto res = m_connection->read(m_buffer, desiredToRead);
+      auto bufferData = m_buffer.getData();
+      auto res = m_connection->read(bufferData, desiredToRead);
       if(res > 0) {
-        m_bufferStream.write(m_buffer, res);
+        m_bufferStream.write(bufferData, res);
         m_progress += res;
         
         for(v_int32 i = 0; i < res; i ++) {
           m_accumulator <<= 8;
-          m_accumulator |= m_buffer[i];
+          m_accumulator |= bufferData[i];
           if(m_accumulator == SECTION_END) {
             m_result.bufferPosStart = i + 1;
             m_result.bufferPosEnd = (v_int32) res;
@@ -180,7 +179,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
     
   };
   
-  return ReaderCoroutine::startForResult(connection, m_buffer, m_bufferSize, m_maxHeadersSize);
+  return ReaderCoroutine::startForResult(connection, m_buffer, m_maxHeadersSize);
   
 }
   

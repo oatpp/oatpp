@@ -327,6 +327,8 @@ oatpp::async::CoroutineStarter MultipartBody::writeToStreamAsync(const std::shar
   return ChunkedBody::writeToStreamAsync(stream);
 }
 
-
+data::v_io_size MultipartBody::getKnownSize() {
+ return -1;
+}
 
 }}}}}

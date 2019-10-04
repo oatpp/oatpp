@@ -202,8 +202,7 @@ data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
   
 }
   
-oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos,
-                                                        data::v_io_size count){
+oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos, data::v_io_size count){
   auto str = oatpp::String((v_int32) count);
   readSubstring(str->getData(), pos, count);
   return str;
@@ -241,23 +240,31 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
     data::v_io_size m_bytesLeft;
     Action m_nextAction;
     data::stream::AsyncInlineWriteData m_currData;
+    bool m_needInit;
   public:
     
     FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
                    const std::shared_ptr<OutputStream>& stream)
       : m_chunkedBuffer(chunkedBuffer)
       , m_stream(stream)
-      , m_currEntry(chunkedBuffer->m_firstEntry)
-      , m_bytesLeft(chunkedBuffer->m_size)
+      , m_currEntry(nullptr)
+      , m_bytesLeft(0)
       , m_nextAction(Action::createActionByType(Action::TYPE_FINISH))
+      , m_needInit(true)
     {}
-    
+
     Action act() override {
-      
+
+      if (m_needInit) {
+        m_needInit = false;
+        m_currEntry = m_chunkedBuffer->m_firstEntry;
+        m_bytesLeft = m_chunkedBuffer->m_size;
+      }
+
       if(m_currEntry == nullptr) {
         return finish();
       }
-      
+
       if(m_bytesLeft > CHUNK_ENTRY_SIZE) {
         m_currData.set(m_currEntry->chunk, CHUNK_ENTRY_SIZE);
         m_nextAction = yieldTo(&FlushCoroutine::act);
@@ -271,7 +278,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
         m_bytesLeft -= m_currData.bytesLeft;
         return yieldTo(&FlushCoroutine::writeCurrData);
       }
-      
+
     }
     
     Action writeCurrData() {

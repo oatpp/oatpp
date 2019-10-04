@@ -65,20 +65,17 @@ private:
                                      oatpp::data::stream::ConsistentOutputStream* bufferStream,
                                      Result& result);
 private:
-  p_char8 m_buffer;
-  v_int32 m_bufferSize;
+  oatpp::data::share::MemoryLabel m_buffer;
   v_int32 m_maxHeadersSize;
 public:
 
   /**
    * Constructor.
-   * @param buffer - buffer to use to read data from stream.
-   * @param bufferSize - buffer size.
-   * @param maxHeadersSize - maximum allowed size in bytes of http headers section.
+   * @param buffer - buffer to use to read data from stream. &id:oatpp::data::share::MemoryLabel;.
+   * @param maxHeadersSize
    */
-  RequestHeadersReader(void* buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
-    : m_buffer((p_char8) buffer)
-    , m_bufferSize(bufferSize)
+  RequestHeadersReader(const oatpp::data::share::MemoryLabel& buffer, v_int32 maxHeadersSize)
+    : m_buffer(buffer)
     , m_maxHeadersSize(maxHeadersSize)
   {}
 
@@ -88,8 +85,7 @@ public:
    * @param error - out parameter &id:oatpp::web::protocol::ProtocolError::Info;.
    * @return - &l:RequestHeadersReader::Result;.
    */
-  Result readHeaders(data::stream::InputStreamBufferedProxy* stream,
-                     http::HttpError::Info& error);
+  Result readHeaders(data::stream::InputStreamBufferedProxy* stream, http::HttpError::Info& error);
 
   /**
    * Read and parse http headers from stream in asynchronous manner.

@@ -58,7 +58,6 @@ public:
     
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> ioBuffer;
-    std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> outStream;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
     
   };
@@ -73,10 +72,9 @@ public:
     RequestInterceptors* m_requestInterceptors;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
-    std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_outStream;
     v_int32 m_connectionState;
   private:
-    oatpp::String m_headerReaderBuffer;
+    oatpp::data::share::MemoryLabel m_headerReaderBuffer;
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
@@ -87,17 +85,15 @@ public:
               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
               RequestInterceptors* requestInterceptors,
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-              const std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy>& outStream)
+              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
       : m_router(router)
       , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
       , m_requestInterceptors(requestInterceptors)
       , m_connection(connection)
       , m_inStream(inStream)
-      , m_outStream(outStream)
       , m_connectionState(oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
-      , m_headerReaderBuffer(2048)
+      , m_headerReaderBuffer(oatpp::base::StrBuffer::createShared(2048))
     {}
     
     Action act() override;

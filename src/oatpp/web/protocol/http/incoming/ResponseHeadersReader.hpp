@@ -73,20 +73,17 @@ private:
                                              oatpp::data::stream::OutputStream* bufferStream,
                                              Result& result);
 private:
-  p_char8 m_buffer;
-  v_int32 m_bufferSize;
+  oatpp::data::share::MemoryLabel m_buffer;
   v_int32 m_maxHeadersSize;
 public:
 
   /**
    * Constructor.
-   * @param buffer - buffer to use to read data from stream.
-   * @param bufferSize - buffer size.
-   * @param maxHeadersSize - maximum allowed size in bytes of http headers section.
+   * @param buffer - buffer to use to read data from stream. &id:oatpp::data::share::MemoryLabel;.
+   * @param maxHeadersSize
    */
-  ResponseHeadersReader(void* buffer, v_int32 bufferSize, v_int32 maxHeadersSize)
-    : m_buffer((p_char8) buffer)
-    , m_bufferSize(bufferSize)
+  ResponseHeadersReader(const oatpp::data::share::MemoryLabel& buffer, v_int32 maxHeadersSize)
+    : m_buffer(buffer)
     , m_maxHeadersSize(maxHeadersSize)
   {}
 

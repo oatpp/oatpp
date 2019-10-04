@@ -71,20 +71,21 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
 
   connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
-  
-  auto inBuffer = oatpp::data::buffer::IOBuffer::createShared();
-  auto outBuffer = oatpp::data::buffer::IOBuffer::createShared();
+
+  auto bufferMemory = oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE);
+
+  oatpp::data::share::MemoryLabel inBuffer(bufferMemory,
+                                           &bufferMemory->getData()[0],
+                                           oatpp::data::buffer::IOBuffer::BUFFER_SIZE);
 
   auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, inBuffer);
-  auto outStream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, outBuffer);
   
   m_executor->execute<HttpProcessor::Coroutine>(m_router.get(),
                                                 m_bodyDecoder,
                                                 m_errorHandler,
                                                 &m_requestInterceptors,
                                                 connection,
-                                                inStream,
-                                                outStream);
+                                                inStream);
   
 }
 
@@ -93,4 +94,3 @@ void AsyncHttpConnectionHandler::stop() {
 }
   
 }}}
-

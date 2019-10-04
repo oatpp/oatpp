@@ -115,14 +115,14 @@ HttpRequestExecutor::execute(const String& method,
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
   request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
   request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
-  
-  auto ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
 
-  oatpp::data::stream::OutputStreamBufferedProxy upStream(connection, ioBuffer, (p_char8)ioBuffer->getData(), ioBuffer->getSize());
+  oatpp::data::share::MemoryLabel buffer(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
+
+  oatpp::data::stream::OutputStreamBufferedProxy upStream(connection, buffer);
   request->send(&upStream);
   upStream.flush();
   
-  oatpp::web::protocol::http::incoming::ResponseHeadersReader headerReader(ioBuffer->getData(), ioBuffer->getSize(), 4096);
+  oatpp::web::protocol::http::incoming::ResponseHeadersReader headerReader(buffer, 4096);
   oatpp::web::protocol::http::HttpError::Info error;
   const auto& result = headerReader.readHeaders(connection, error);
   
@@ -137,7 +137,7 @@ HttpRequestExecutor::execute(const String& method,
   }
   
   auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
-                                                                                ioBuffer,
+                                                                                buffer,
                                                                                 result.bufferPosStart,
                                                                                 result.bufferPosEnd,
                                                                                 result.bufferPosStart != result.bufferPosEnd);
@@ -169,7 +169,7 @@ HttpRequestExecutor::executeAsync(const String& method,
     std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_upstream;
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    std::shared_ptr<oatpp::data::buffer::IOBuffer> m_ioBuffer;
+    oatpp::data::share::MemoryLabel m_buffer;
   public:
     
     ExecutorCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
@@ -205,20 +205,20 @@ HttpRequestExecutor::executeAsync(const String& method,
       auto request = oatpp::web::protocol::http::outgoing::Request::createShared(m_method, m_path, m_headers, m_body);
       request->putHeaderIfNotExists(Header::HOST, m_connectionProvider->getProperty("host"));
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
-      m_ioBuffer = oatpp::data::buffer::IOBuffer::createShared();
-      m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_ioBuffer);
+      m_buffer = oatpp::data::share::MemoryLabel(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
+      m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_buffer);
       return request->sendAsync(m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
     }
     
     Action readResponse() {
-      ResponseHeadersReader headersReader(m_ioBuffer->getData(), m_ioBuffer->getSize(), 4096);
+      ResponseHeadersReader headersReader(m_buffer, 4096);
       return headersReader.readHeadersAsync(m_connection).callbackTo(&ExecutorCoroutine::onHeadersParsed);
     }
     
     Action onHeadersParsed(const ResponseHeadersReader::Result& result) {
       
       auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection,
-                                                                                    m_ioBuffer,
+                                                                                    m_buffer,
                                                                                     result.bufferPosStart,
                                                                                     result.bufferPosEnd,
                                                                                     result.bufferPosStart != result.bufferPosEnd);
