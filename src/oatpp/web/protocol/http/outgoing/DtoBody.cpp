@@ -27,17 +27,15 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 DtoBody::DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                 oatpp::data::mapping::ObjectMapper* objectMapper,
-                 bool chunked)
-  : ChunkedBufferBody(oatpp::data::stream::ChunkedBuffer::createShared(), chunked)
+                 oatpp::data::mapping::ObjectMapper* objectMapper)
+  : ChunkedBufferBody(oatpp::data::stream::ChunkedBuffer::createShared())
   , m_dto(dto)
   , m_objectMapper(objectMapper)
 {}
 
 std::shared_ptr<DtoBody> DtoBody::createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                               oatpp::data::mapping::ObjectMapper* objectMapper,
-                                               bool chunked) {
-  return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper, chunked);
+                                               oatpp::data::mapping::ObjectMapper* objectMapper) {
+  return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper);
 }
 
 void DtoBody::declareHeaders(Headers& headers) noexcept {
@@ -50,6 +48,10 @@ void DtoBody::declareHeaders(Headers& headers) noexcept {
   if(it == headers.end()) {
     headers[Header::CONTENT_TYPE] = m_objectMapper->getInfo().http_content_type;
   }
+}
+
+data::v_io_size DtoBody::getKnownSize() {
+  return m_buffer->getSize();
 }
 
 }}}}}

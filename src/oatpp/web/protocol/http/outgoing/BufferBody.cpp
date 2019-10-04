@@ -55,9 +55,12 @@ void BufferBody::writeToStream(OutputStream* stream) noexcept {
   oatpp::data::stream::writeExactSizeData(stream, m_buffer->getData(), m_buffer->getSize());
 }
 
-
 oatpp::async::CoroutineStarter BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
   return WriteToStreamCoroutine::start(shared_from_this(), stream);
+}
+
+data::v_io_size BufferBody::getKnownSize() {
+  return m_buffer->getSize();
 }
 
 }}}}}

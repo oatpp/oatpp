@@ -38,33 +38,27 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class ChunkedBufferBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<ChunkedBufferBody> {
 public:
-  static const char* ERROR_FAILED_TO_WRITE_DATA;
-public:
   OBJECT_POOL(Http_Outgoing_ChunkedBufferBody_Pool, ChunkedBufferBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_ChunkedBufferBody_Pool, ChunkedBufferBody, 32)
 protected:
   std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
-  bool m_chunked;
 public:
   /**
    * Constructor.
    * @param buffer - &id::oatpp::data::stream::ChunkedBuffer;.
-   * @param chunked - set `true` to send using HTTP chunked transfer encoding. Set `false` to send as body with specified `Content-Length` header.
    */
-  ChunkedBufferBody(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& buffer, bool chunked = false);
+  ChunkedBufferBody(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& buffer);
 public:
 
   /**
    * Create shared ChunkedBufferBody.
    * @param buffer - &id::oatpp::data::stream::ChunkedBuffer;.
-   * @param chunked - set `true` to send using HTTP chunked transfer encoding. Set `false` to send as body with specified `Content-Length` header.
    * @return - `std::shared_ptr` to ChunkedBufferBody.
    */
-  static std::shared_ptr<ChunkedBufferBody> createShared(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& buffer, bool chunked = false);
+  static std::shared_ptr<ChunkedBufferBody> createShared(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& buffer);
 
   /**
-   * Add `Transfer-Encoding: chunked` header if `chunked` option was set to `true`.
-   * Else, add `Content-Length` header if `chunked` option was set to `false`.
+   * Add `Content-Length` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   void declareHeaders(Headers& headers) noexcept override;
@@ -74,39 +68,6 @@ public:
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
    */
   void writeToStream(OutputStream* stream) noexcept override;
-  
-public:
-
-  /**
-   * Coroutine used to write &l:ChunkedBufferBody; to &id:oatpp::data::stream::OutputStream;.
-   */
-  class WriteToStreamCoroutine : public oatpp::async::Coroutine<WriteToStreamCoroutine> {
-  private:
-    std::shared_ptr<ChunkedBufferBody> m_body;
-    std::shared_ptr<OutputStream> m_stream;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer::Chunks> m_chunks;
-    oatpp::data::stream::ChunkedBuffer::Chunks::LinkedListNode* m_currChunk;
-    Action m_nextAction;
-    oatpp::data::stream::AsyncInlineWriteData m_inlineWriteData;
-    v_char8 m_buffer[16];
-  public:
-
-    /**
-     * Constructor.
-     * @param body
-     * @param stream
-     */
-    WriteToStreamCoroutine(const std::shared_ptr<ChunkedBufferBody>& body,
-                           const std::shared_ptr<OutputStream>& stream);
-    
-    Action act() override;
-    Action writeChunkSize();
-    Action writeChunkData();
-    Action writeChunkSeparator();
-    Action writeEndOfChunks();
-    Action writeCurrData();
-    
-  };
 
   /**
    * Start &l:ChunkedBufferBody::WriteToStreamCoroutine; to write buffer data to stream.
@@ -114,6 +75,12 @@ public:
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override;
+
+  /**
+   * Return known size of the body.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size getKnownSize() override;
   
 };
   

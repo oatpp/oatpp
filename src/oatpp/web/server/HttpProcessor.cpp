@@ -147,8 +147,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
-  m_outStream->setBufferPosition(0, 0, false);
-  return m_currentResponse->sendAsync(m_outStream).next(m_outStream->flushAsync()).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
+  return m_currentResponse->sendAsync(m_connection).next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
 
 }
   

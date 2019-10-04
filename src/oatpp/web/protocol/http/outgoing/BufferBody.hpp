@@ -62,6 +62,12 @@ public:
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
   void writeToStream(OutputStream* stream) noexcept override;
+
+  /**
+   * Return known size of the body.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size getKnownSize() override;
   
 public:
 

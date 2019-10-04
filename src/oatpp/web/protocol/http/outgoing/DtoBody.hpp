@@ -49,33 +49,34 @@ public:
    * Constructor.
    * @param dto - &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
    * @param objectMapper - &id:oatpp::data::mapping::ObjectMapper;.
-   * @param chunked - set `true` to send using HTTP chunked transfer encoding. Set `false` to send as body with specified `Content-Length` header.
    */
   DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-          oatpp::data::mapping::ObjectMapper* objectMapper,
-          bool chunked = false);
+          oatpp::data::mapping::ObjectMapper* objectMapper);
 public:
 
   /**
    * Create shared DtoBody.
    * @param dto - &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
    * @param objectMapper - &id:oatpp::data::mapping::ObjectMapper;.
-   * @param chunked - set `true` to send using HTTP chunked transfer encoding. Set `false` to send as body with specified `Content-Length` header.
    * @return - `std::shared_ptr` to DtoBody.
    */
   static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                               oatpp::data::mapping::ObjectMapper* objectMapper,
-                                               bool chunked = false);
+                                               oatpp::data::mapping::ObjectMapper* objectMapper);
 
   /**
-   * Add `Transfer-Encoding: chunked` header if `chunked` option was set to `true`.<br>
-   * Else, add `Content-Length` header if `chunked` option was set to `false`.<br>
+   * Add `Content-Length` header.<br>
    * <br>
    * Add `Content-Type` header depending on &id:oatpp::data::mapping::ObjectMapper; used. See &id:oatpp::data::mapping::ObjectMapper::Info;.
    *
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   void declareHeaders(Headers& headers) noexcept override;
+
+  /**
+   * Return known size of the body.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size getKnownSize() override;
   
 };
 
