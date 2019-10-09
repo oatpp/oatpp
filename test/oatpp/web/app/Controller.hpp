@@ -66,22 +66,22 @@ public:
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
-  ADDCORS(cors);
+  ADD_CORS(cors);
   ENDPOINT("GET", "/cors", cors) {
     return createResponse(Status::CODE_200, "Ping");
   }
 
-  ADDCORS(corsOrigin, "127.0.0.1");
+  ADD_CORS(corsOrigin, "127.0.0.1");
   ENDPOINT("GET", "/cors-origin", corsOrigin) {
     return createResponse(Status::CODE_200, "Pong");
   }
 
-  ADDCORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS");
+  ADD_CORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS");
   ENDPOINT("GET", "/cors-origin-methods", corsOriginMethods) {
     return createResponse(Status::CODE_200, "Ping");
   }
 
-  ADDCORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT");
+  ADD_CORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT");
   ENDPOINT("GET", "/cors-origin-methods-headers", corsOriginMethodsHeaders) {
     return createResponse(Status::CODE_200, "Pong");
   }
