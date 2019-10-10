@@ -288,7 +288,7 @@ std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
 EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
-  info->path = PATH; \
+  info->path = ((m_routerPrefix != nullptr) ? m_routerPrefix + PATH : PATH); \
   info->method = METHOD; \
   return info; \
 }; \
@@ -317,7 +317,7 @@ std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> NAME()
 EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
 auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
-  info->path = PATH; \
+  info->path = ((m_routerPrefix != nullptr) ? m_routerPrefix + PATH : PATH); \
   info->method = METHOD; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CONTROLLER_FOR_EACH_PARAM_INFO, __VA_ARGS__) \
   return info; \
