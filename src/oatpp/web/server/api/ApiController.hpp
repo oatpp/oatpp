@@ -279,11 +279,13 @@ protected:
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
   std::unordered_map<std::string, std::shared_ptr<Endpoint::Info>> m_endpointInfo;
   std::unordered_map<std::string, std::shared_ptr<RequestHandler>> m_endpointHandlers;
+  const oatpp::String m_routerPrefix;
 public:
-  ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper)
+  ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper, const oatpp::String &routerPrefix = nullptr)
     : m_endpoints(Endpoints::createShared())
     , m_errorHandler(nullptr)
     , m_defaultObjectMapper(defaultObjectMapper)
+    , m_routerPrefix(routerPrefix)
   {}
 public:
   
