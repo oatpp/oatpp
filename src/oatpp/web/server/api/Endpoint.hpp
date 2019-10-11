@@ -128,6 +128,7 @@ public:
     oatpp::String path;
     oatpp::String method;
     oatpp::String authorization;
+    oatpp::Boolean hide;
     
     Param body;
     oatpp::String bodyContentType;
