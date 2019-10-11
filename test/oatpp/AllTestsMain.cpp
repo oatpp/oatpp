@@ -19,6 +19,8 @@
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 
+#include "oatpp/core/base/StrBufferTest.hpp"
+
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
@@ -58,6 +60,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
+  OATPP_RUN_TEST(oatpp::test::base::StrBufferTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);

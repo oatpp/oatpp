@@ -45,7 +45,10 @@ ENDPOINT_INTERCEPTOR(ENDPOINTNAME, CORS) { \
   ) \
   return resp; \
 } \
-ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+ENDPOINT_INFO(ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+  info->pathParams = Z__ENDPOINT_##ENDPOINTNAME->info()->pathParams; \
+} \
+ENDPOINT("OPTIONS", ((m_routerPrefix != nullptr) ? Z__ENDPOINT_##ENDPOINTNAME->info()->path->substr(m_routerPrefix->getSize()) : Z__ENDPOINT_##ENDPOINTNAME->info()->path), ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
   auto resp = createResponse(Status::CODE_204, ""); \
     OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
     OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY_DEFAULT_ORIGIN, \
@@ -67,7 +70,10 @@ ENDPOINT_INTERCEPTOR(ENDPOINTNAME, CORS) { \
   ) \
   return resp; \
 } \
-ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+ENDPOINT_INFO(ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+  info->pathParams = Z__ENDPOINT_##ENDPOINTNAME->info()->pathParams; \
+} \
+ENDPOINT("OPTIONS", ((m_routerPrefix != nullptr) ? Z__ENDPOINT_##ENDPOINTNAME->info()->path->substr(m_routerPrefix->getSize()) : Z__ENDPOINT_##ENDPOINTNAME->info()->path), ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
   auto resp = createResponse(Status::CODE_204, ""); \
   OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
     ORIGIN, \
@@ -89,7 +95,10 @@ ENDPOINT_INTERCEPTOR(ENDPOINTNAME, CORS) { \
   ) \
   return resp; \
 } \
-ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+ENDPOINT_INFO(ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+  info->pathParams = Z__ENDPOINT_##ENDPOINTNAME->info()->pathParams; \
+} \
+ENDPOINT("OPTIONS", ((m_routerPrefix != nullptr) ? Z__ENDPOINT_##ENDPOINTNAME->info()->path->substr(m_routerPrefix->getSize()) : Z__ENDPOINT_##ENDPOINTNAME->info()->path), ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
   auto resp = createResponse(Status::CODE_204, ""); \
   OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
     ORIGIN, \
@@ -111,7 +120,10 @@ ENDPOINT_INTERCEPTOR(ENDPOINTNAME, CORS) { \
   ) \
   return resp; \
 } \
-ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+ENDPOINT_INFO(ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+  info->pathParams = Z__ENDPOINT_##ENDPOINTNAME->info()->pathParams; \
+} \
+ENDPOINT("OPTIONS", ((m_routerPrefix != nullptr) ? Z__ENDPOINT_##ENDPOINTNAME->info()->path->substr(m_routerPrefix->getSize()) : Z__ENDPOINT_##ENDPOINTNAME->info()->path), ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
   auto resp = createResponse(Status::CODE_204, ""); \
   OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY( \
     ORIGIN, \
@@ -126,7 +138,10 @@ ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_E
 ENDPOINT_INTERCEPTOR(ENDPOINTNAME, CORS) { \
   auto resp = (this->*intercepted)(request); \
   OATPP_MACRO_API_CONTROLLER_ADDCORS_BODY(ORIGIN, METHODS, HEADERS, MAX_AGE) \
-  return resp; \
+} \
+ENDPOINT_INFO(ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
+  info->pathParams = Z__ENDPOINT_##ENDPOINTNAME->info()->pathParams; \
+  info->hide = true; \
 } \
 ENDPOINT("OPTIONS", Z__ENDPOINT_##ENDPOINTNAME->info()->path, ZZ__CORS_OPTIONS_ENDPOINT_##ENDPOINTNAME) { \
   auto resp = createResponse(Status::CODE_204, ""); \

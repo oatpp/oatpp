@@ -247,6 +247,21 @@ public:
    * @return - true if buffer starts with specified data.
    */
   bool startsWith(StrBuffer* data) const;
+
+  /**
+   * Retuns a copy of the substring starting at the given index.
+   * @param start - index from where to start
+   * @return - copy of the substring
+   */
+  std::shared_ptr<StrBuffer> substr(v_int32 start);
+
+  /**
+   * Returns a copy of the substring starting at the given index with the given length
+   * @param start - index from where to start
+   * @param len - max number of characters to copy
+   * @return - copy of the substring
+   */
+  std::shared_ptr<StrBuffer> substr(v_int32 start, v_int32 len);
   
 public:
 

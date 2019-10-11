@@ -138,6 +138,7 @@ public:
   ENDPOINT("POST", "echo", echo,
            BODY_STRING(String, body)) {
     //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize());
+    oatpp::String path = Z__ENDPOINT_echo->info()->path;
     return createResponse(Status::CODE_200, body);
   }
 

@@ -61,7 +61,7 @@ add_executable(oatppAllTests
         oatpp/web/app/DTOs.hpp
         oatpp/web/app/ControllerWithInterceptors.hpp
         oatpp/web/app/ControllerWithInterceptorsAsync.hpp
-)
+        oatpp/core/base/StrBufferTest.cpp oatpp/core/base/StrBufferTest.hpp)
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
 
