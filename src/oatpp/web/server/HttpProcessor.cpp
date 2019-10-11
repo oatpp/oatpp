@@ -28,6 +28,7 @@ namespace oatpp { namespace web { namespace server {
 
 std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(HttpRouter* router,
+                              RequestHeadersReader& headersReader,
                               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                               const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
@@ -35,16 +36,9 @@ HttpProcessor::processRequest(HttpRouter* router,
                               v_int32& connectionState) {
 
 
-  RequestHeadersReader::Result headersReadResult;
-  oatpp::web::protocol::http::HttpError::Info error;
 
-  {
-    const v_int32 bufferSize = 2048;
-    v_char8 buffer [bufferSize];
-    oatpp::data::share::MemoryLabel bufferLabel(nullptr, buffer, bufferSize);
-    RequestHeadersReader headersReader(bufferLabel, 4096);
-    headersReadResult = headersReader.readHeaders(inStream.get(), error);
-  }
+  oatpp::web::protocol::http::HttpError::Info error;
+  auto headersReadResult = headersReader.readHeaders(inStream.get(), error);
   
   if(error.status.code != 0) {
     connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
@@ -130,8 +124,7 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  RequestHeadersReader headersReader(m_headerReaderBuffer, 4096);
-  return headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
+  return m_headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {

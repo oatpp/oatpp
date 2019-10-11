@@ -31,6 +31,12 @@
 
 #include "oatpp/core/concurrency/Thread.hpp"
 
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
+
+#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
+
+
 namespace oatpp { namespace web { namespace server {
 
 HttpConnectionHandler::Task::Task(HttpRouter* router,
@@ -66,9 +72,11 @@ void HttpConnectionHandler::Task::run(){
   v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
 
+  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader;
+
   do {
   
-    response = HttpProcessor::processRequest(m_router, inStream, m_bodyDecoder, m_errorHandler, m_requestInterceptors, connectionState);
+    response = HttpProcessor::processRequest(m_router, headersReader, inStream, m_bodyDecoder, m_errorHandler, m_requestInterceptors, connectionState);
     
     if(response) {
       response->send(m_connection.get());

@@ -22,13 +22,91 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_stream_BufferInputStream_hpp
-#define oatpp_data_stream_BufferInputStream_hpp
+#ifndef oatpp_data_stream_BufferStream_hpp
+#define oatpp_data_stream_BufferStream_hpp
 
 #include "Stream.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
 
+/**
+ * BufferOutputStream
+ */
+class BufferOutputStream : public ConsistentOutputStream {
+private:
+  p_char8 m_data;
+  v_io_size m_capacity;
+  v_io_size m_position;
+  v_io_size m_growBytes;
+  IOMode m_ioMode;
+public:
+
+  /**
+   * Constructor.
+   * @param growBytes
+   */
+  BufferOutputStream(v_io_size initialCapacity = 2048, v_io_size growBytes = 2048);
+
+  /**
+   * Virtual destructor.
+   */
+  ~BufferOutputStream();
+
+  /**
+   * Write `count` of bytes to stream.
+   * @param data - data to write.
+   * @param count - number of bytes to write.
+   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size write(const void *data, data::v_io_size count) override;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  void setOutputStreamIOMode(IOMode ioMode) override;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  IOMode getOutputStreamIOMode() override;
+
+  /**
+   * Reserve bytes for future writes.
+   */
+  void reserveBytesUpfront(v_io_size count);
+
+  /**
+   * Get pointer to data.
+   * @return - pointer to data.
+   */
+  p_char8 getData();
+
+  /**
+   * Get current capacity.
+   * Capacity may change.
+   * @return
+   */
+  v_io_size getCapacity();
+
+  /**
+   * Get current data write position.
+   * @return - current data write position.
+   */
+  v_io_size getCurrentPosition();
+
+  /**
+   * Set current data write position.
+   * @param position - data write position.
+   */
+  void setCurrentPosition(v_io_size position);
+
+};
+
+/**
+ * BufferInputStream
+ */
 class BufferInputStream : public InputStream {
 private:
   std::shared_ptr<base::StrBuffer> m_memoryHandle;
@@ -131,4 +209,4 @@ public:
 
 }}}
 
-#endif // oatpp_data_stream_BufferInputStream_hpp
+#endif // oatpp_data_stream_BufferStream_hpp

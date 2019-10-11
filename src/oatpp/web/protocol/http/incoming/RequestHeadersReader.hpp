@@ -28,6 +28,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -61,21 +62,20 @@ public:
   };
 
 private:
-  data::v_io_size readHeadersSection(data::stream::InputStreamBufferedProxy* stream,
-                                     oatpp::data::stream::ConsistentOutputStream* bufferStream,
-                                     Result& result);
+  data::v_io_size readHeadersSection(data::stream::InputStreamBufferedProxy* stream, Result& result);
 private:
-  oatpp::data::share::MemoryLabel m_buffer;
+  v_int32 m_readChunkSize;
   v_int32 m_maxHeadersSize;
+  oatpp::data::stream::BufferOutputStream m_bufferStream;
 public:
 
   /**
    * Constructor.
-   * @param buffer - buffer to use to read data from stream. &id:oatpp::data::share::MemoryLabel;.
+   * @param readChunkSize
    * @param maxHeadersSize
    */
-  RequestHeadersReader(const oatpp::data::share::MemoryLabel& buffer, v_int32 maxHeadersSize)
-    : m_buffer(buffer)
+  RequestHeadersReader(v_int32 readChunkSize = 2048, v_int32 maxHeadersSize = 4096)
+    : m_readChunkSize(readChunkSize)
     , m_maxHeadersSize(maxHeadersSize)
   {}
 
@@ -92,7 +92,7 @@ public:
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::InputStreamBufferedProxy;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& connection);
+  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream);
   
 };
   

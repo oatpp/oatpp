@@ -38,7 +38,7 @@
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
 
-#include "oatpp/core/data/stream/BufferInputStream.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/macro/component.hpp"
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"

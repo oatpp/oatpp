@@ -34,9 +34,6 @@
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/network/Connection.hpp"
 
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
-
 namespace oatpp { namespace web { namespace server {
 
 /**

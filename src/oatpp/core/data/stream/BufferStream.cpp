@@ -22,9 +22,93 @@
  *
  ***************************************************************************/
 
-#include "BufferInputStream.hpp"
+#include "BufferStream.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BufferOutputStream
+
+BufferOutputStream::BufferOutputStream(v_io_size initialCapacity, v_io_size growBytes)
+  : m_data(new v_char8[initialCapacity])
+  , m_capacity(initialCapacity)
+  , m_position(0)
+  , m_growBytes(growBytes)
+  , m_ioMode(IOMode::NON_BLOCKING)
+{}
+
+BufferOutputStream::~BufferOutputStream() {
+  delete [] m_data;
+}
+
+data::v_io_size BufferOutputStream::write(const void *data, data::v_io_size count) {
+
+  reserveBytesUpfront(count);
+
+  std::memcpy(m_data + m_position, data, count);
+  m_position += count;
+
+  return count;
+
+}
+
+void BufferOutputStream::setOutputStreamIOMode(IOMode ioMode) {
+  m_ioMode = ioMode;
+}
+
+IOMode BufferOutputStream::getOutputStreamIOMode() {
+  return m_ioMode;
+}
+
+void BufferOutputStream::reserveBytesUpfront(v_io_size count) {
+
+  if(m_position + count > m_capacity) {
+
+    if(m_growBytes <= 0) {
+      throw std::runtime_error("[oatpp::data::stream::BufferOutputStream::reserveBytesUpfront()]: Error. Buffer was not allowed to grow.");
+    }
+
+    data::v_io_size extraNeeded = m_position + count - m_capacity;
+    data::v_io_size extraChunks = extraNeeded / m_growBytes;
+
+    if(extraChunks * m_growBytes < extraNeeded) {
+      extraChunks ++;
+    }
+
+    data::v_io_size newCapacity = m_capacity + extraChunks * m_growBytes;
+    p_char8 newData = new v_char8[newCapacity];
+
+    std::memcpy(newData, m_data, m_position);
+    delete [] m_data;
+    m_data = newData;
+    m_capacity = newCapacity;
+
+  }
+
+}
+
+p_char8 BufferOutputStream::getData() {
+  return m_data;
+}
+
+
+v_io_size BufferOutputStream::getCapacity() {
+  return m_capacity;
+}
+
+
+v_io_size BufferOutputStream::getCurrentPosition() {
+  return m_position;
+}
+
+
+void BufferOutputStream::setCurrentPosition(v_io_size position) {
+  m_position = position;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BufferInputStream
 
 BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size)
   : m_memoryHandle(memoryHandle)

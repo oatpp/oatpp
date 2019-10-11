@@ -67,6 +67,7 @@ public:
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
     HttpRouter* m_router;
+    RequestHeadersReader m_headersReader;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
     RequestInterceptors* m_requestInterceptors;
@@ -113,6 +114,7 @@ public:
   
   static std::shared_ptr<protocol::http::outgoing::Response>
   processRequest(HttpRouter* router,
+                 RequestHeadersReader& headersReader,
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                  const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
                  const std::shared_ptr<handler::ErrorHandler>& errorHandler,

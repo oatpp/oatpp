@@ -27,7 +27,7 @@
 #include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 
-#include "oatpp/core/data/stream/BufferInputStream.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include <unordered_map>
 

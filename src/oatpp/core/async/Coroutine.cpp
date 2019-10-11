@@ -220,7 +220,9 @@ CoroutineHandle::~CoroutineHandle() {
 
 Action CoroutineHandle::takeAction(Action&& action) {
 
-  while (true) {
+  v_int32 iterations = 0;
+
+  while (iterations < 10) {
 
     switch (action.m_type) {
 
@@ -245,7 +247,15 @@ Action CoroutineHandle::takeAction(Action&& action) {
 
       case Action::TYPE_YIELD_TO: {
         _FP = action.m_data.fptr;
-        return std::forward<oatpp::async::Action>(action);
+        break;
+      }
+
+      case Action::TYPE_REPEAT: {
+        break;
+      }
+
+      case Action::TYPE_IO_REPEAT: {
+        break;
       }
 
       case Action::TYPE_ERROR: {
@@ -276,6 +286,9 @@ Action CoroutineHandle::takeAction(Action&& action) {
         return std::forward<oatpp::async::Action>(action);
 
     };
+
+    action = iterate();
+    ++ iterations;
 
   }
 
