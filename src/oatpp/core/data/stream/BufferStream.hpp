@@ -102,6 +102,20 @@ public:
    */
   void setCurrentPosition(v_io_size position);
 
+  /**
+   * Copy data to &id:oatpp::String;.
+   * @return
+   */
+  oatpp::String toString();
+
+  /**
+   * Create &id:oatpp::String; from part of buffer.
+   * @param pos - starting position in buffer.
+   * @param count - size of bytes to write to substring.
+   * @return - &id:oatpp::String;
+   */
+  oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
+
 };
 
 /**

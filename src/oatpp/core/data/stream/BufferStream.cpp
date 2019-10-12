@@ -106,6 +106,18 @@ void BufferOutputStream::setCurrentPosition(v_io_size position) {
   m_position = position;
 }
 
+oatpp::String BufferOutputStream::toString() {
+  return oatpp::String((const char*)m_data, m_position, true);
+}
+
+oatpp::String BufferOutputStream::getSubstring(data::v_io_size pos, data::v_io_size count) {
+  if(pos + count <= m_position) {
+    return oatpp::String((const char *) (m_data + pos), count, true);
+  } else {
+    return oatpp::String((const char *) (m_data + pos), m_position - pos, true);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferInputStream
