@@ -190,10 +190,6 @@ public:
 
   /**
    * Create &id:oatpp::String; from part of ChunkedBuffer.
-   */
-
-  /**
-   * Create &id:oatpp::String; from part of ChunkedBuffer.
    * @param pos - starting position in ChunkedBuffer.
    * @param count - size of bytes to write to substring.
    * @return - &id:oatpp::String;

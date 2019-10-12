@@ -17,6 +17,8 @@ add_executable(oatppAllTests
         oatpp/core/data/mapping/type/TypeTest.hpp
         oatpp/core/data/share/MemoryLabelTest.cpp
         oatpp/core/data/share/MemoryLabelTest.hpp
+        oatpp/core/data/stream/BufferStreamTest.cpp
+        oatpp/core/data/stream/BufferStreamTest.hpp
         oatpp/core/data/stream/ChunkedBufferTest.cpp
         oatpp/core/data/stream/ChunkedBufferTest.hpp
         oatpp/core/parser/CaretTest.cpp
