@@ -73,6 +73,7 @@ void HttpConnectionHandler::Task::run(){
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
 
   oatpp::data::stream::BufferOutputStream headersInBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
+  oatpp::data::stream::BufferOutputStream headersOutBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
   oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader(&headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */);
 
   do {
@@ -80,7 +81,7 @@ void HttpConnectionHandler::Task::run(){
     response = HttpProcessor::processRequest(m_router, headersReader, inStream, m_bodyDecoder, m_errorHandler, m_requestInterceptors, connectionState);
     
     if(response) {
-      response->send(m_connection.get());
+      response->send(m_connection.get(), &headersOutBuffer);
     } else {
       return;
     }

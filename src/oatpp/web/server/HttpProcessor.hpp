@@ -69,6 +69,7 @@ public:
     HttpRouter* m_router;
     oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
+    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
     RequestInterceptors* m_requestInterceptors;
@@ -90,6 +91,7 @@ public:
       : m_router(router)
       , m_headersInBuffer(2048 /* initialCapacity */, 2048 /* growBytes */)
       , m_headersReader(&m_headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */)
+      , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(2048 /* initialCapacity */, 2048 /* growBytes */))
       , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
       , m_requestInterceptors(requestInterceptors)

@@ -88,6 +88,7 @@ void ApiControllerTest::onRun() {
   typedef oatpp::web::protocol::http::Status Status;
 
   Controller controller(nullptr);
+  oatpp::data::stream::BufferOutputStream headersOutBuffer;
 
   {
     auto endpoint = controller.Z__ENDPOINT_root;
@@ -106,7 +107,7 @@ void ApiControllerTest::onRun() {
     OATPP_ASSERT(response->getStatus().code == 200);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    response->send(&stream);
+    response->send(&stream, &headersOutBuffer);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
@@ -133,7 +134,7 @@ void ApiControllerTest::onRun() {
     OATPP_ASSERT(response->getStatus().code == 200);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    response->send(&stream);
+    response->send(&stream, &headersOutBuffer);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
@@ -154,7 +155,7 @@ void ApiControllerTest::onRun() {
     OATPP_ASSERT(response->getStatus().code == 200);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    response->send(&stream);
+    response->send(&stream, &headersOutBuffer);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 

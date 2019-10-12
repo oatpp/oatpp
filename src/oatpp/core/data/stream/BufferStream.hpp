@@ -116,6 +116,21 @@ public:
    */
   oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
 
+  /**
+   * Write all bytes from buffer to stream.
+   * @param stream - stream to flush all data to.
+   * @return - actual amount of bytes flushed.
+   */
+  oatpp::data::v_io_size flushToStream(OutputStream* stream);
+
+  /**
+   * Write all bytes from buffer to stream in async manner.
+   * @param _this - pointer to `this` buffer.
+   * @param stream - stream to flush all data to.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  static oatpp::async::CoroutineStarter flushToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<OutputStream>& stream);
+
 };
 
 /**

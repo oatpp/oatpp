@@ -118,6 +118,39 @@ oatpp::String BufferOutputStream::getSubstring(data::v_io_size pos, data::v_io_s
   }
 }
 
+oatpp::data::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
+  return oatpp::data::stream::writeExactSizeData(stream, m_data, m_position);
+}
+
+oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<OutputStream>& stream) {
+
+  class WriteDataCoroutine : public oatpp::async::Coroutine<WriteDataCoroutine> {
+  private:
+    std::shared_ptr<BufferOutputStream> m_this;
+    std::shared_ptr<oatpp::data::stream::OutputStream> m_stream;
+    AsyncInlineWriteData m_inlineData;
+  public:
+
+    WriteDataCoroutine(const std::shared_ptr<BufferOutputStream>& _this,
+                       const std::shared_ptr<oatpp::data::stream::OutputStream>& stream)
+      : m_this(_this)
+      , m_stream(stream)
+    {}
+
+    Action act() {
+      if(m_inlineData.currBufferPtr == nullptr) {
+        m_inlineData.currBufferPtr = m_this->m_data;
+        m_inlineData.bytesLeft = m_this->m_position;
+      }
+      return writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
+    }
+
+  };
+
+  return WriteDataCoroutine::start(_this, stream);
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferInputStream
