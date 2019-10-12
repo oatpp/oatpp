@@ -67,6 +67,7 @@ public:
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
     HttpRouter* m_router;
+    oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
@@ -75,7 +76,6 @@ public:
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
     v_int32 m_connectionState;
   private:
-    oatpp::data::share::MemoryLabel m_headerReaderBuffer;
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
@@ -88,13 +88,14 @@ public:
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
       : m_router(router)
+      , m_headersInBuffer(2048 /* initialCapacity */, 2048 /* growBytes */)
+      , m_headersReader(&m_headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */)
       , m_bodyDecoder(bodyDecoder)
       , m_errorHandler(errorHandler)
       , m_requestInterceptors(requestInterceptors)
       , m_connection(connection)
       , m_inStream(inStream)
       , m_connectionState(oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
-      , m_headerReaderBuffer(oatpp::base::StrBuffer::createShared(2048))
     {}
     
     Action act() override;

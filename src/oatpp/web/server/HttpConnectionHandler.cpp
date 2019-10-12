@@ -72,7 +72,8 @@ void HttpConnectionHandler::Task::run(){
   v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
 
-  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader;
+  oatpp::data::stream::BufferOutputStream headersInBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
+  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader(&headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */);
 
   do {
   

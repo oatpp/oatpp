@@ -31,24 +31,24 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStreamBufferedProxy* stream, Result& result) {
 
   v_word32 accumulator = 0;
-  m_bufferStream.setCurrentPosition(0);
+  m_bufferStream->setCurrentPosition(0);
   data::v_io_size res;
   while (true) {
     
     v_int32 desiredToRead = m_readChunkSize;
-    if(m_bufferStream.getCurrentPosition() + desiredToRead > m_maxHeadersSize) {
-      desiredToRead = m_maxHeadersSize - m_bufferStream.getCurrentPosition();
+    if(m_bufferStream->getCurrentPosition() + desiredToRead > m_maxHeadersSize) {
+      desiredToRead = m_maxHeadersSize - m_bufferStream->getCurrentPosition();
       if(desiredToRead <= 0) {
         return -1;
       }
     }
 
-    m_bufferStream.reserveBytesUpfront(desiredToRead);
-    auto bufferData = m_bufferStream.getData() + m_bufferStream.getCurrentPosition();
+    m_bufferStream->reserveBytesUpfront(desiredToRead);
+    auto bufferData = m_bufferStream->getData() + m_bufferStream->getCurrentPosition();
     res = stream->peek(bufferData, desiredToRead);
     if(res > 0) {
 
-      m_bufferStream.setCurrentPosition(m_bufferStream.getCurrentPosition() + res);
+      m_bufferStream->setCurrentPosition(m_bufferStream->getCurrentPosition() + res);
 
       for(v_int32 i = 0; i < res; i ++) {
         accumulator <<= 8;
@@ -81,7 +81,7 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
   error.ioStatus = readHeadersSection(stream, result);
   
   if(error.ioStatus > 0) {
-    oatpp::parser::Caret caret (m_bufferStream.getData(), m_bufferStream.getCurrentPosition());
+    oatpp::parser::Caret caret (m_bufferStream->getData(), m_bufferStream->getCurrentPosition());
     http::Status status;
     http::Parser::parseRequestStartingLine(result.startingLine, nullptr, caret, status);
     if(status.code == 0) {
@@ -112,25 +112,25 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
       , m_stream(stream)
       , m_accumulator(0)
     {
-      m_this->m_bufferStream.setCurrentPosition(0);
+      m_this->m_bufferStream->setCurrentPosition(0);
     }
     
     Action act() override {
       
       v_int32 desiredToRead = m_this->m_readChunkSize;
-      if(m_this->m_bufferStream.getCurrentPosition() + desiredToRead > m_this->m_maxHeadersSize) {
-        desiredToRead = m_this->m_maxHeadersSize - m_this->m_bufferStream.getCurrentPosition();
+      if(m_this->m_bufferStream->getCurrentPosition() + desiredToRead > m_this->m_maxHeadersSize) {
+        desiredToRead = m_this->m_maxHeadersSize - m_this->m_bufferStream->getCurrentPosition();
         if(desiredToRead <= 0) {
           return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Headers section is too large.");
         }
       }
 
-      m_this->m_bufferStream.reserveBytesUpfront(desiredToRead);
-      auto bufferData = m_this->m_bufferStream.getData() + m_this->m_bufferStream.getCurrentPosition();
+      m_this->m_bufferStream->reserveBytesUpfront(desiredToRead);
+      auto bufferData = m_this->m_bufferStream->getData() + m_this->m_bufferStream->getCurrentPosition();
       auto res = m_stream->peek(bufferData, desiredToRead);
       if(res > 0) {
 
-        m_this->m_bufferStream.setCurrentPosition(m_this->m_bufferStream.getCurrentPosition() + res);
+        m_this->m_bufferStream->setCurrentPosition(m_this->m_bufferStream->getCurrentPosition() + res);
         
         for(v_int32 i = 0; i < res; i ++) {
           m_accumulator <<= 8;
@@ -159,7 +159,7 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
     
     Action parseHeaders() {
 
-      oatpp::parser::Caret caret (m_this->m_bufferStream.getData(), m_this->m_bufferStream.getCurrentPosition());
+      oatpp::parser::Caret caret (m_this->m_bufferStream->getData(), m_this->m_bufferStream->getCurrentPosition());
       http::Status status;
       http::Parser::parseRequestStartingLine(m_result.startingLine, nullptr, caret, status);
       if(status.code == 0) {

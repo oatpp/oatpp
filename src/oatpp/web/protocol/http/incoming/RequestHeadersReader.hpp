@@ -66,7 +66,7 @@ private:
 private:
   v_int32 m_readChunkSize;
   v_int32 m_maxHeadersSize;
-  oatpp::data::stream::BufferOutputStream m_bufferStream;
+  oatpp::data::stream::BufferOutputStream* m_bufferStream;
 public:
 
   /**
@@ -74,8 +74,11 @@ public:
    * @param readChunkSize
    * @param maxHeadersSize
    */
-  RequestHeadersReader(v_int32 readChunkSize = 2048, v_int32 maxHeadersSize = 4096)
-    : m_readChunkSize(readChunkSize)
+  RequestHeadersReader(oatpp::data::stream::BufferOutputStream* bufferStream,
+                       v_int32 readChunkSize = 2048,
+                       v_int32 maxHeadersSize = 4096)
+    : m_bufferStream(bufferStream)
+    , m_readChunkSize(readChunkSize)
     , m_maxHeadersSize(maxHeadersSize)
   {}
 
