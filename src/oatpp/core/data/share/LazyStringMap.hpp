@@ -30,18 +30,30 @@
 
 namespace oatpp { namespace data { namespace share {
 
+/**
+ * Lazy String Map keeps keys, and values as memory label.
+ * Once value is requested by user, the new memory block is allocated and value is copied to be stored permanently.
+ * @tparam Key - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
+ * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+ */
+template<class Key>
 class LazyStringMap {
-public:
-  typedef StringKeyLabelCI Key;
 private:
   bool m_fullyInitialized;
   std::unordered_map<Key, StringKeyLabel> m_map;
 public:
 
+  /**
+   * Constructor.
+   */
   LazyStringMap()
     : m_fullyInitialized(false)
   {}
 
+  /**
+   * Move constructor.
+   * @param other
+   */
   LazyStringMap(LazyStringMap&& other)
     : m_fullyInitialized(false)
     , m_map(std::move(other.m_map))
@@ -53,10 +65,21 @@ public:
     return *this;
   }
 
+  /**
+   * Put value to map.
+   * @param key
+   * @param value
+   */
   void put(const Key& key, const StringKeyLabel& value) {
     m_map.insert({key, value});
   }
 
+  /**
+   * Put value to map if not already exists.
+   * @param key
+   * @param value
+   * @return
+   */
   bool putIfNotExists(const Key& key, const StringKeyLabel& value) {
 
     auto it = m_map.find(key);
@@ -70,6 +93,11 @@ public:
 
   }
 
+  /**
+   * Get value as &id:oatpp::String;.
+   * @param key
+   * @return
+   */
   oatpp::String get(const Key& key) {
 
     auto it = m_map.find(key);
@@ -83,6 +111,53 @@ public:
 
   }
 
+  /**
+   * Get value as a memory label.
+   * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
+ * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param key
+   * @return
+   */
+  template<class T>
+  T getAsMemoryLabel(const Key& key) {
+
+    auto it = m_map.find(key);
+
+    if(it != m_map.end()) {
+      it->second.captureToOwnMemory();
+      const auto& label = it->second;
+      return T(label.getMemoryHandle(), label.getData(), label.getSize());
+    }
+
+    return nullptr;
+
+  }
+
+  /**
+   * Get value as a memory label without allocating memory for value.
+   * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
+ * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param key
+   * @return
+   */
+  template<class T>
+  T getAsMemoryLabel_Unsafe(const Key& key) {
+
+    auto it = m_map.find(key);
+
+    if(it != m_map.end()) {
+      const auto& label = it->second;
+      return T(label.getMemoryHandle(), label.getData(), label.getSize());
+    }
+
+    return nullptr;
+
+  }
+
+  /**
+   * Get map of all values.
+   * @return
+   */
   const std::unordered_map<Key, StringKeyLabel>& getAll() {
 
     if(!m_fullyInitialized) {
@@ -97,6 +172,22 @@ public:
 
     return m_map;
 
+  }
+
+  /**
+   * Get map of all values without allocating memory for those keys/values.
+   * @return
+   */
+  const std::unordered_map<Key, StringKeyLabel>& getAll_Unsafe() {
+    return m_map;
+  }
+
+  /**
+   * Get number of entries in the map.
+   * @return
+   */
+  v_int32 getSize() {
+    return (v_int32) m_map.size();
   }
 
 };
