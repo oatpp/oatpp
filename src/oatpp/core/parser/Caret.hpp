@@ -152,6 +152,7 @@ private:
   v_int32 m_pos;
   const char* m_errorMessage;
   v_int32 m_errorCode;
+  std::shared_ptr<oatpp::base::StrBuffer> m_dataMemoryHandle;
 public:
   Caret(const char* text);
   Caret(p_char8 parseData, v_int32 dataSize);
@@ -181,6 +182,12 @@ public:
    * @return
    */
   v_int32 getDataSize();
+
+  /**
+   * Get data memoryHandle.
+   * @return
+   */
+  std::shared_ptr<oatpp::base::StrBuffer> getDataMemoryHandle();
 
   /**
    * Set caret position relative to data

@@ -61,19 +61,14 @@ const http::Headers& Request::getHeaders() const {
 
 const http::QueryParams& Request::getQueryParameters() const {
   if(!m_queryParamsParsed) {
-    m_queryParams = oatpp::network::Url::Parser::labelQueryParams(m_pathVariables.getTail());
+    oatpp::network::Url::Parser::parseQueryParams(m_queryParams, m_pathVariables.getTail());
     m_queryParamsParsed = true;
   }
   return m_queryParams;
 }
 
 oatpp::String Request::getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const {
-  auto iter = getQueryParameters().find(name);
-  if (iter == getQueryParameters().end()) {
-    return nullptr;
-  } else {
-    return iter->second.toString();
-  }
+  return m_queryParams.get(name);
 }
 
 oatpp::String Request::getQueryParameter(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const {
@@ -90,24 +85,15 @@ std::shared_ptr<const http::incoming::BodyDecoder> Request::getBodyDecoder() con
 }
 
 void Request::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  m_headers[key] = value;
+  m_headers.put(key, value);
 }
 
 bool Request::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  auto it = m_headers.find(key);
-  if(it == m_headers.end()) {
-    m_headers.insert({key, value});
-    return true;
-  }
-  return false;
+  return m_headers.putIfNotExists(key, value);
 }
 
 oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const{
-  auto it = m_headers.find(headerName);
-  if(it != m_headers.end()) {
-    return it->second.toString();
-  }
-  return nullptr;
+  return m_headers.get(headerName);
 }
 
 oatpp::String Request::getPathVariable(const oatpp::data::share::StringKeyLabel& name) const {

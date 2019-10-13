@@ -25,10 +25,8 @@
 #ifndef oatpp_web_mime_multipart_Part_hpp
 #define oatpp_web_mime_multipart_Part_hpp
 
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
-
-#include <unordered_map>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -39,9 +37,9 @@ class Part {
 public:
   /**
    * Typedef for headers map. Headers map key is case-insensitive.
-   * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+   * For more info see &id:oatpp::data::share::LazyStringMap;.
    */
-  typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+  typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 private:
   oatpp::String m_name;
   oatpp::String m_filename;

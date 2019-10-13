@@ -127,30 +127,30 @@ void MemoryLabelTest::onRun() {
         oatpp::web::protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
         
         OATPP_ASSERT(status.code == 0);
-        OATPP_ASSERT(headers.size() == 10);
+        OATPP_ASSERT(headers.getSize() == 10);
         
         
-        OATPP_ASSERT(headers["header0"].equals("value0", 6));
-        OATPP_ASSERT(headers["header1"].equals("value1", 6));
-        OATPP_ASSERT(headers["header2"].equals("value2", 6));
-        OATPP_ASSERT(headers["header3"].equals("value3", 6));
-        OATPP_ASSERT(headers["header4"].equals("value4", 6));
-        OATPP_ASSERT(headers["header5"].equals("value5", 6));
-        OATPP_ASSERT(headers["header6"].equals("value6", 6));
-        OATPP_ASSERT(headers["header7"].equals("value7", 6));
-        OATPP_ASSERT(headers["header8"].equals("value8", 6));
-        OATPP_ASSERT(headers["header9"].equals("value9", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header0").equals("value0", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header1").equals("value1", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header2").equals("value2", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header3").equals("value3", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header4").equals("value4", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header5").equals("value5", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header6").equals("value6", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header7").equals("value7", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header8").equals("value8", 6));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header9").equals("value9", 6));
 
-        OATPP_ASSERT(headers["header0"].equals("value0"));
-        OATPP_ASSERT(headers["header1"].equals("value1"));
-        OATPP_ASSERT(headers["header2"].equals("value2"));
-        OATPP_ASSERT(headers["header3"].equals("value3"));
-        OATPP_ASSERT(headers["header4"].equals("value4"));
-        OATPP_ASSERT(headers["header5"].equals("value5"));
-        OATPP_ASSERT(headers["header6"].equals("value6"));
-        OATPP_ASSERT(headers["header7"].equals("value7"));
-        OATPP_ASSERT(headers["header8"].equals("value8"));
-        OATPP_ASSERT(headers["header9"].equals("value9"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header0").equals("value0"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header1").equals("value1"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header2").equals("value2"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header3").equals("value3"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header4").equals("value4"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header5").equals("value5"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header6").equals("value6"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header7").equals("value7"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header8").equals("value8"));
+        OATPP_ASSERT(headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("header9").equals("value9"));
          
       }
       

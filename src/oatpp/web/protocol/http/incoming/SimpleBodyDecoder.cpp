@@ -88,38 +88,36 @@ void SimpleBodyDecoder::decode(const Headers& headers,
                                oatpp::data::stream::InputStream* bodyStream,
                                oatpp::data::stream::WriteCallback* writeCallback) const {
   
-  auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
-  if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
+  auto transferEncoding = headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::TRANSFER_ENCODING);
+  if(transferEncoding && transferEncoding == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     doChunkedDecoding(bodyStream, writeCallback);
   } else {
 
-    oatpp::data::v_io_size contentLength = 0;
-    auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
+    auto contentLengthStr = headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>(Header::CONTENT_LENGTH);
+    if(!contentLengthStr) {
 
-    if(contentLengthStrIt == headers.end()) {
-
-      auto connectionStrIt = headers.find(Header::CONNECTION);
-      if(connectionStrIt != headers.end()) {
-        auto headerValue = connectionStrIt->second;
-
-        if(headerValue.getSize() == 5 && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), "close", 5)) { // read until connection is closed
-          oatpp::data::buffer::IOBuffer buffer;
-          oatpp::data::stream::transfer(bodyStream, writeCallback, 0 /* read until error */, buffer.getData(), buffer.getSize());
-        } // else - do nothing. invalid response.
-      }
+      auto connectionStr = headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+      if(connectionStr && connectionStr == "close") {
+        oatpp::data::buffer::IOBuffer buffer;
+        oatpp::data::stream::transfer(bodyStream, writeCallback, 0 /* read until error */, buffer.getData(), buffer.getSize());
+      } // else - do nothing. invalid response.
 
       return;
 
     } else {
+
       bool success;
-      contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
+      auto contentLength = oatpp::utils::conversion::strToInt64(contentLengthStr.toString(), success);
+
       if(!success){
         return; // it is an invalid request/response
       }
+
       if(contentLength > 0) {
         oatpp::data::buffer::IOBuffer buffer;
         oatpp::data::stream::transfer(bodyStream, writeCallback, contentLength, buffer.getData(), buffer.getSize());
       }
+
     }
   }
   
@@ -225,36 +223,36 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
 oatpp::async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
                                                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                               const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback) const {
-  auto transferEncodingIt = headers.find(Header::TRANSFER_ENCODING);
-  if(transferEncodingIt != headers.end() && transferEncodingIt->second == Header::Value::TRANSFER_ENCODING_CHUNKED) {
+  auto transferEncoding = headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::TRANSFER_ENCODING);
+  if(transferEncoding && transferEncoding == Header::Value::TRANSFER_ENCODING_CHUNKED) {
     return doChunkedDecodingAsync(bodyStream, writeCallback);
   } else {
-    oatpp::data::v_io_size contentLength = 0;
-    auto contentLengthStrIt = headers.find(Header::CONTENT_LENGTH);
-    if(contentLengthStrIt == headers.end()) {
 
-      auto connectionStrIt = headers.find(Header::CONNECTION);
-      if(connectionStrIt != headers.end()) {
-        auto headerValue = connectionStrIt->second;
+    auto contentLengthStr = headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>(Header::CONTENT_LENGTH);
+    if(!contentLengthStr) {
 
-        if(headerValue.getSize() == 5 && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), "close", 5)) { // read until connection is closed
-          return oatpp::data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, oatpp::data::buffer::IOBuffer::createShared());
-        }
+      auto connectionStr = headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+      if(connectionStr && connectionStr == "close") {
+        return oatpp::data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, oatpp::data::buffer::IOBuffer::createShared());
       }
 
       return nullptr; // else - do nothing. invalid response.
 
     } else {
+
       bool success;
-      contentLength = oatpp::utils::conversion::strToInt64(contentLengthStrIt->second.toString(), success);
+      auto contentLength = oatpp::utils::conversion::strToInt64(contentLengthStr.toString(), success);
+
       if(!success){
         throw HttpError(http::Status::CODE_400, "Invalid 'Content-Length' Header");
       }
+
       if(contentLength > 0) {
         return oatpp::data::stream::transferAsync(bodyStream, writeCallback, contentLength, oatpp::data::buffer::IOBuffer::createShared());
       } else {
         return nullptr;
       }
+
     }
   }
 }

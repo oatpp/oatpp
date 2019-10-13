@@ -136,6 +136,10 @@ public:
   std::string std_str() const {
     return std::string((const char*) m_data, m_size);
   }
+
+  explicit operator bool() const {
+    return m_data != nullptr;
+  }
   
 };
 

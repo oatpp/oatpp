@@ -159,6 +159,8 @@ HttpRequestExecutor::executeAsync(const String& method,
   
   class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, const std::shared_ptr<HttpRequestExecutor::Response>&> {
   private:
+    typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
+  private:
     std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
     String m_method;
     String m_path;
@@ -202,12 +204,12 @@ HttpRequestExecutor::executeAsync(const String& method,
     /* Because there is a call to it from act() in synchronous manner */
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
       m_connection = connection;
-      auto request = oatpp::web::protocol::http::outgoing::Request::createShared(m_method, m_path, m_headers, m_body);
+      auto request = OutgoingRequest::createShared(m_method, m_path, m_headers, m_body);
       request->putHeaderIfNotExists(Header::HOST, m_connectionProvider->getProperty("host"));
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_buffer = oatpp::data::share::MemoryLabel(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(connection, m_buffer);
-      return request->sendAsync(m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
+      return OutgoingRequest::sendAsync(request, m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
     }
     
     Action readResponse() {

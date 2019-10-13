@@ -103,10 +103,10 @@ oatpp::String Url::Parser::parsePath(oatpp::parser::Caret& caret) {
   return nullptr;
 }
 
-void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::Caret& caret) {
-  
+void Url::Parser::parseQueryParams(Url::Parameters& params, oatpp::parser::Caret& caret) {
+
   if(caret.findChar('?')) {
-    
+
     do {
       caret.inc();
       auto nameLabel = caret.putLabel();
@@ -116,60 +116,32 @@ void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::
         caret.inc();
         auto valueLabel = caret.putLabel();
         caret.findChar('&');
-        params[nameLabel.toString()] = valueLabel.toString();
+        params.put(StringKeyLabel(caret.getDataMemoryHandle(), nameLabel.getData(), nameLabel.getSize()),
+                   StringKeyLabel(caret.getDataMemoryHandle(), valueLabel.getData(), valueLabel.getSize()));
       } else {
-        params[nameLabel.toString()] = oatpp::String("", false);
+        params.put(StringKeyLabel(caret.getDataMemoryHandle(), nameLabel.getData(), nameLabel.getSize()), "");
       }
     } while (caret.canContinueAtChar('&'));
-    
+
   }
   
 }
 
-void Url::Parser::parseQueryParamsToMap(Url::Parameters& params, const oatpp::String& str) {
+void Url::Parser::parseQueryParams(Url::Parameters& params, const oatpp::String& str) {
   oatpp::parser::Caret caret(str.getPtr());
-  parseQueryParamsToMap(params, caret);
+  parseQueryParams(params, caret);
 }
 
 Url::Parameters Url::Parser::parseQueryParams(oatpp::parser::Caret& caret) {
   Url::Parameters params;
-  parseQueryParamsToMap(params, caret);
-  return params;
+  parseQueryParams(params, caret);
+  return std::move(params);
 }
 
 Url::Parameters Url::Parser::parseQueryParams(const oatpp::String& str) {
   Url::Parameters params;
-  parseQueryParamsToMap(params, str);
-  return params;
-}
-
-Url::ParametersAsLabels Url::Parser::labelQueryParams(const oatpp::String& str) {
-
-  Url::ParametersAsLabels params;
-  oatpp::parser::Caret caret(str);
-
-  if(caret.findChar('?')) {
-
-    do {
-      caret.inc();
-      auto nameLabel = caret.putLabel();
-      v_int32 charFound = caret.findCharFromSet("=&");
-      if(charFound == '=') {
-        nameLabel.end();
-        caret.inc();
-        auto valueLabel = caret.putLabel();
-        caret.findChar('&');
-        params[StringKeyLabel(str.getPtr(), nameLabel.getData(), nameLabel.getSize())] =
-               StringKeyLabel(str.getPtr(), valueLabel.getData(), valueLabel.getSize());
-      } else {
-        params[StringKeyLabel(str.getPtr(), nameLabel.getData(), nameLabel.getSize())] = "";
-      }
-    } while (caret.canContinueAtChar('&'));
-
-  }
-
-  return params;
-
+  parseQueryParams(params, str);
+  return std::move(params);
 }
 
 Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {

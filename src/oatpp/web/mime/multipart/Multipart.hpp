@@ -26,16 +26,15 @@
 #define oatpp_web_mime_multipart_Multipart_hpp
 
 #include "Part.hpp"
-#include <unordered_map>
 #include <list>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
 /**
  * Typedef for headers map. Headers map key is case-insensitive.
- * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+ * For more info see &id:oatpp::data::share::LazyStringMap;.
  */
-typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 
 /**
  * Structure that holds parts of Multipart.

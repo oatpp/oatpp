@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 #include "Request.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
@@ -57,16 +57,11 @@ protocol::http::Headers& Request::getHeaders() {
 }
 
 void Request::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  m_headers[key] = value;
+  m_headers.put(key, value);
 }
 
 bool Request::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  auto it = m_headers.find(key);
-  if(it == m_headers.end()) {
-    m_headers.insert({key, value});
-    return true;
-  }
-  return false;
+  return m_headers.putIfNotExists(key, value);
 }
 
 std::shared_ptr<Body> Request::getBody() {
@@ -78,85 +73,113 @@ void Request::send(data::stream::OutputStream* stream){
   if(m_body){
     m_body->declareHeaders(m_headers);
   } else {
-    m_headers[Header::CONTENT_LENGTH] = "0";
+    m_headers.put(Header::CONTENT_LENGTH, "0");
   }
-  
-  stream->write(m_method.getData(), m_method.getSize());
-  stream->write(" /", 2);
-  stream->write(m_path.getData(), m_path.getSize());
-  stream->write(" ", 1);
-  stream->write("HTTP/1.1", 8);
-  stream->write("\r\n", 2);
-  
-  auto it = m_headers.begin();
-  while(it != m_headers.end()){
-    stream->write(it->first.getData(), it->first.getSize());
-    stream->write(": ", 2);
-    stream->write(it->second.getData(), it->second.getSize());
-    stream->write("\r\n", 2);
-    it ++;
-  }
-  
-  stream->write("\r\n", 2);
+
+  oatpp::data::stream::BufferOutputStream buffer;
+
+  buffer.write(m_method.getData(), m_method.getSize());
+  buffer.write(" /", 2);
+  buffer.write(m_path.getData(), m_path.getSize());
+  buffer.write(" ", 1);
+  buffer.write("HTTP/1.1", 8);
+  buffer.write("\r\n", 2);
+
+  http::Utils::writeHeaders(m_headers, &buffer);
+
+  buffer.write("\r\n", 2);
+
   if(m_body) {
-    m_body->writeToStream(stream);
+
+    auto bodySize = m_body->getKnownSize();
+
+    if(bodySize >= 0 && bodySize + buffer.getCurrentPosition() < buffer.getCapacity()) {
+      m_body->writeToStream(&buffer);
+      buffer.flushToStream(stream);
+    } else {
+      buffer.flushToStream(stream);
+      m_body->writeToStream(stream);
+    }
+
+  } else {
+    buffer.flushToStream(stream);
   }
   
 }
 
-oatpp::async::CoroutineStarter Request::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
+oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this,
+                                                  const std::shared_ptr<data::stream::OutputStream>& stream)
+{
   
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
   private:
-    std::shared_ptr<Request> m_request;
+    std::shared_ptr<Request> m_this;
     std::shared_ptr<data::stream::OutputStream> m_stream;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
+    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersWriteBuffer;
   public:
     
     SendAsyncCoroutine(const std::shared_ptr<Request>& request,
                        const std::shared_ptr<data::stream::OutputStream>& stream)
-      : m_request(request)
+      : m_this(request)
       , m_stream(stream)
-      , m_buffer(oatpp::data::stream::ChunkedBuffer::createShared())
+      , m_headersWriteBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>())
     {}
     
     Action act() {
       
-      if(m_request->m_body){
-        m_request->m_body->declareHeaders(m_request->m_headers);
+      if(m_this->m_body){
+        m_this->m_body->declareHeaders(m_this->m_headers);
       } else {
-        m_request->m_headers[Header::CONTENT_LENGTH] = "0";
+        m_this->m_headers.put(Header::CONTENT_LENGTH, "0");
       }
       
-      m_buffer->write(m_request->m_method.getData(), m_request->m_method.getSize());
-      m_buffer->write(" /", 2);
-      m_buffer->write(m_request->m_path.getData(), m_request->m_path.getSize());
-      m_buffer->write(" ", 1);
-      m_buffer->write("HTTP/1.1", 8);
-      m_buffer->write("\r\n", 2);
+      m_headersWriteBuffer->write(m_this->m_method.getData(), m_this->m_method.getSize());
+      m_headersWriteBuffer->write(" /", 2);
+      m_headersWriteBuffer->write(m_this->m_path.getData(), m_this->m_path.getSize());
+      m_headersWriteBuffer->write(" ", 1);
+      m_headersWriteBuffer->write("HTTP/1.1", 8);
+      m_headersWriteBuffer->write("\r\n", 2);
 
-      http::Utils::writeHeaders(m_request->m_headers, m_buffer.get());
+      http::Utils::writeHeaders(m_this->m_headers, m_headersWriteBuffer.get());
       
-      m_buffer->write("\r\n", 2);
-      
-      return yieldTo(&SendAsyncCoroutine::writeHeaders);
+      m_headersWriteBuffer->write("\r\n", 2);
+
+      const auto& body = m_this->m_body;
+
+      if(body) {
+
+        auto bodySize = body->getKnownSize();
+
+        if(bodySize >= 0 && bodySize + m_headersWriteBuffer->getCurrentPosition() < m_headersWriteBuffer->getCapacity()) {
+
+          return body->writeToStreamAsync(m_headersWriteBuffer)
+            .next(oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream))
+            .next(finish());
+
+        } else {
+          return yieldTo(&SendAsyncCoroutine::writeHeaders);
+        }
+
+      } else {
+        return yieldTo(&SendAsyncCoroutine::writeHeaders);
+      }
       
     }
     
     Action writeHeaders() {
-      return m_buffer->flushToStreamAsync(m_stream).next(yieldTo(&SendAsyncCoroutine::writeBody));
+      return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream).next(yieldTo(&SendAsyncCoroutine::writeBody));
     }
     
     Action writeBody() {
-      if(m_request->m_body) {
-        return m_request->m_body->writeToStreamAsync(m_stream).next(finish());
+      if(m_this->m_body) {
+        return m_this->m_body->writeToStreamAsync(m_stream).next(finish());
       }
       return finish();
     }
     
   };
   
-  return SendAsyncCoroutine::start(shared_from_this(), stream);
+  return SendAsyncCoroutine::start(_this, stream);
   
 }
   

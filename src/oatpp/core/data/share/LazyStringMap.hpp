@@ -39,7 +39,7 @@ namespace oatpp { namespace data { namespace share {
 template<class Key>
 class LazyStringMap {
 private:
-  bool m_fullyInitialized;
+  mutable bool m_fullyInitialized;
   std::unordered_map<Key, StringKeyLabel> m_map;
 public:
 
@@ -51,6 +51,12 @@ public:
   {}
 
   /**
+   * Default copy-constructor.
+   * @param other
+   */
+  LazyStringMap(const LazyStringMap& other) = default;
+
+  /**
    * Move constructor.
    * @param other
    */
@@ -58,6 +64,8 @@ public:
     : m_fullyInitialized(false)
     , m_map(std::move(other.m_map))
   {}
+
+  LazyStringMap& operator = (LazyStringMap& other) = default;
 
   LazyStringMap& operator = (LazyStringMap&& other){
     m_fullyInitialized = false;
@@ -98,7 +106,7 @@ public:
    * @param key
    * @return
    */
-  oatpp::String get(const Key& key) {
+  oatpp::String get(const Key& key) const {
 
     auto it = m_map.find(key);
 
@@ -119,7 +127,7 @@ public:
    * @return
    */
   template<class T>
-  T getAsMemoryLabel(const Key& key) {
+  T getAsMemoryLabel(const Key& key) const {
 
     auto it = m_map.find(key);
 
@@ -129,7 +137,7 @@ public:
       return T(label.getMemoryHandle(), label.getData(), label.getSize());
     }
 
-    return nullptr;
+    return T(nullptr, nullptr, 0);
 
   }
 
@@ -141,7 +149,7 @@ public:
    * @return
    */
   template<class T>
-  T getAsMemoryLabel_Unsafe(const Key& key) {
+  T getAsMemoryLabel_Unsafe(const Key& key) const {
 
     auto it = m_map.find(key);
 
@@ -150,7 +158,7 @@ public:
       return T(label.getMemoryHandle(), label.getData(), label.getSize());
     }
 
-    return nullptr;
+    return T(nullptr, nullptr, 0);
 
   }
 
@@ -158,7 +166,7 @@ public:
    * Get map of all values.
    * @return
    */
-  const std::unordered_map<Key, StringKeyLabel>& getAll() {
+  const std::unordered_map<Key, StringKeyLabel>& getAll() const {
 
     if(!m_fullyInitialized) {
 
@@ -178,7 +186,7 @@ public:
    * Get map of all values without allocating memory for those keys/values.
    * @return
    */
-  const std::unordered_map<Key, StringKeyLabel>& getAll_Unsafe() {
+  const std::unordered_map<Key, StringKeyLabel>& getAll_Unsafe() const {
     return m_map;
   }
 
@@ -186,7 +194,7 @@ public:
    * Get number of entries in the map.
    * @return
    */
-  v_int32 getSize() {
+  v_int32 getSize() const {
     return (v_int32) m_map.size();
   }
 

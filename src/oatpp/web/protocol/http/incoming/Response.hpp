@@ -102,6 +102,13 @@ public:
   const http::Headers& getHeaders() const;
 
   /**
+   * Get header value
+   * @param headerName - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @return - &id:oatpp::String;.
+   */
+  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
+
+  /**
    * Get raw body stream.
    * @return - raw body stream as &id:oatpp::data::stream::InputStream;.
    */
