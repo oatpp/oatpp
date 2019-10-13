@@ -47,7 +47,7 @@ bool ChunkedBody::writeData(OutputStream* stream, const void* data, data::v_io_s
 }
 
 void ChunkedBody::declareHeaders(Headers& headers) noexcept {
-  headers[oatpp::web::protocol::http::Header::TRANSFER_ENCODING] = oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED;
+  headers.put(oatpp::web::protocol::http::Header::TRANSFER_ENCODING, oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED);
 }
 
 

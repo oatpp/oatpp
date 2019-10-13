@@ -58,6 +58,10 @@ const http::Headers& Response::getHeaders() const {
   return m_headers;
 }
 
+oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const{
+  return m_headers.get(headerName);
+}
+
 std::shared_ptr<oatpp::data::stream::InputStream> Response::getBodyStream() const {
   return m_bodyStream;
 }

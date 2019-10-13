@@ -175,29 +175,29 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Ping");
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "*");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "*");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "GET, POST, OPTIONS");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple OPTIONS with CORS
         auto response = client->optionsCors(connection);
         OATPP_ASSERT(response->getStatusCode() == 204);
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "*");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "*");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "GET, POST, OPTIONS");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple GET with CORS
@@ -205,15 +205,15 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Pong");
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "127.0.0.1");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "GET, POST, OPTIONS");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "127.0.0.1");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "GET, POST, OPTIONS");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple GET with CORS
@@ -221,15 +221,15 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Ping");
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "127.0.0.1");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "GET, OPTIONS");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "127.0.0.1");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "GET, OPTIONS");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization");
       }
 
       { // test simple GET with CORS
@@ -237,15 +237,15 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Pong");
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_ORIGIN);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "127.0.0.1");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_METHODS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "GET, OPTIONS");
-        header = response->getHeaders().find(oatpp::web::protocol::http::Header::CORS_HEADERS);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "X-PWNT");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::CORS_ORIGIN);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "127.0.0.1");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_METHODS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "GET, OPTIONS");
+        header = response->getHeader(oatpp::web::protocol::http::Header::CORS_HEADERS);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "X-PWNT");
       }
 
       { // test GET with path parameter
@@ -324,9 +324,9 @@ void FullTest::onRun() {
                              "description=Unauthorized\n"
                              "message=Authorization Required\n");
         // should also add the WWW-Authenticate header when Authorization is missing
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "Basic realm=\"default-test-realm\"");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "Basic realm=\"default-test-realm\"");
       }
 
       { // test custom authorization handler with custom authorization object
@@ -343,9 +343,9 @@ void FullTest::onRun() {
                              "description=Unauthorized\n"
                              "message=Authorization Required\n");
         // should also add the WWW-Authenticate header when Authorization is missing
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() == "Basic realm=\"custom-test-realm\"");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "Basic realm=\"custom-test-realm\"");
       }
 
       { // test custom authorization handler with custom authorization object with unknown credentials where the
@@ -358,9 +358,9 @@ void FullTest::onRun() {
                              "description=Unauthorized\n"
                              "message=Unauthorized\n");
         // should also add the WWW-Authenticate header when Authorization is missing or wrong
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString()->startsWith("Basic realm=\"custom-test-realm\""));
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header->startsWith("Basic realm=\"custom-test-realm\""));
       }
 
       { // test custom authorization handler with custom authorization method
@@ -381,9 +381,9 @@ void FullTest::onRun() {
                              "description=Unauthorized\n"
                              "message=Unauthorized\n");
         // should also add the WWW-Authenticate header when Authorization is missing or wrong
-        auto header = response->getHeaders().find(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
-        OATPP_ASSERT(header != response->getHeaders().end());
-        OATPP_ASSERT(header->second.toString() = "Bearer realm=\"custom-bearer-realm\"");
+        auto header = response->getHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
+        OATPP_ASSERT(header);
+        OATPP_ASSERT(header == "Bearer realm=\"custom-bearer-realm\"");
       }
 
       { // test Chunked body

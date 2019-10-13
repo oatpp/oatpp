@@ -30,7 +30,7 @@
 #include "oatpp/web/protocol/CommunicationError.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
 
@@ -41,15 +41,15 @@ namespace oatpp { namespace web { namespace protocol { namespace http {
 
 /**
  * Typedef for headers map. Headers map key is case-insensitive.
- * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+ * For more info see &id:oatpp::data::share::LazyStringMap;.
  */
-typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 
 /**
  * Typedef for query parameters map.
- * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabel; and &id:oatpp::data::share::StringKeyLabel;.
+ * For more info see &id:oatpp::data::share::LazyStringMap;.
  */
-typedef std::unordered_map<oatpp::data::share::StringKeyLabel, oatpp::data::share::StringKeyLabel> QueryParams;
+typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> QueryParams;
 
 /**
  * Http status.
@@ -443,7 +443,7 @@ public:
   {}
 
   /**
-   * Get headers map
+   * Get headers
    * @return
    */
   const Headers& getHeaders() const {

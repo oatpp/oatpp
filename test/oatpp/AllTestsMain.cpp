@@ -18,6 +18,7 @@
 
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
+#include "oatpp/core/data/share/LazyStringMapTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
@@ -66,6 +67,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);

@@ -46,24 +46,15 @@ protocol::http::Headers& Response::getHeaders() {
 }
 
 void Response::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  m_headers[key] = value;
+  m_headers.put(key, value);
 }
 
 bool Response::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  auto it = m_headers.find(key);
-  if(it == m_headers.end()) {
-    m_headers.insert({key, value});
-    return true;
-  }
-  return false;
+  return m_headers.putIfNotExists(key, value);
 }
 
 oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const {
-  auto it = m_headers.find(headerName);
-  if(it != m_headers.end()) {
-    return it->second.toString();
-  }
-  return nullptr;
+  return m_headers.get(headerName);
 }
 
 void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
@@ -87,7 +78,7 @@ void Response::send(data::stream::OutputStream* stream, oatpp::data::stream::Buf
   if(m_body){
     m_body->declareHeaders(m_headers);
   } else {
-    m_headers[Header::CONTENT_LENGTH] = "0";
+    m_headers.put(Header::CONTENT_LENGTH, "0");
   }
 
   headersWriteBuffer->setCurrentPosition(0);
@@ -97,15 +88,8 @@ void Response::send(data::stream::OutputStream* stream, oatpp::data::stream::Buf
   headersWriteBuffer->write(" ", 1);
   headersWriteBuffer->OutputStream::write(m_status.description);
   headersWriteBuffer->write("\r\n", 2);
-  
-  auto it = m_headers.begin();
-  while(it != m_headers.end()) {
-    headersWriteBuffer->write(it->first.getData(), it->first.getSize());
-    headersWriteBuffer->write(": ", 2);
-    headersWriteBuffer->write(it->second.getData(), it->second.getSize());
-    headersWriteBuffer->write("\r\n", 2);
-    it ++;
-  }
+
+  http::Utils::writeHeaders(m_headers, headersWriteBuffer);
 
   headersWriteBuffer->write("\r\n", 2);
 
@@ -152,7 +136,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
       if(m_this->m_body){
         m_this->m_body->declareHeaders(m_this->m_headers);
       } else {
-        m_this->m_headers[Header::CONTENT_LENGTH] = "0";
+        m_this->m_headers.put(Header::CONTENT_LENGTH, "0");
       }
 
       m_headersWriteBuffer->setCurrentPosition(0);

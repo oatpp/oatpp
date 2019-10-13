@@ -135,7 +135,9 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
   
   Caret::Caret(const oatpp::String& str)
     : Caret(str->getData(), str->getSize())
-  {}
+  {
+    m_dataMemoryHandle = str.getPtr();
+  }
   
   std::shared_ptr<Caret> Caret::createShared(const char* text){
     return std::make_shared<Caret>(text);
@@ -163,7 +165,11 @@ v_int32 Caret::StateSaveGuard::getSavedErrorCode() {
   v_int32 Caret::getDataSize(){
     return m_size;
   }
-  
+
+  std::shared_ptr<oatpp::base::StrBuffer> Caret::getDataMemoryHandle() {
+    return m_dataMemoryHandle;
+  }
+
   void Caret::setPosition(v_int32 position){
     m_pos = position;
   }

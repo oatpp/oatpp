@@ -35,7 +35,7 @@ std::shared_ptr<ChunkedBufferBody> ChunkedBufferBody::createShared(const std::sh
 }
 
 void ChunkedBufferBody::declareHeaders(Headers& headers) noexcept {
-  headers[oatpp::web::protocol::http::Header::CONTENT_LENGTH] = oatpp::utils::conversion::int64ToStr(m_buffer->getSize());
+  headers.put(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
 }
 
 void ChunkedBufferBody::writeToStream(OutputStream* stream) noexcept {

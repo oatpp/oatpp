@@ -306,11 +306,11 @@ MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, data::
 
 void MultipartBody::declareHeaders(Headers& headers) noexcept {
   if(m_multipart->getAllParts().empty()) {
-    headers[oatpp::web::protocol::http::Header::CONTENT_LENGTH] = "0";
+    headers.put(oatpp::web::protocol::http::Header::CONTENT_LENGTH, "0");
     return;
   }
   ChunkedBody::declareHeaders(headers);
-  headers[oatpp::web::protocol::http::Header::CONTENT_TYPE] = "multipart/form-data; boundary=" + m_multipart->getBoundary();
+  headers.put(oatpp::web::protocol::http::Header::CONTENT_TYPE, "multipart/form-data; boundary=" + m_multipart->getBoundary());
 }
 
 void MultipartBody::writeToStream(OutputStream* stream) noexcept {

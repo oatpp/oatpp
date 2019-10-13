@@ -37,8 +37,8 @@ namespace oatpp { namespace data { namespace share {
  */
 class MemoryLabel {
 protected:
-  std::shared_ptr<base::StrBuffer> m_memoryHandle;
-  p_char8 m_data;
+  mutable std::shared_ptr<base::StrBuffer> m_memoryHandle;
+  mutable p_char8 m_data;
   v_int32 m_size;
 public:
 
@@ -90,6 +90,16 @@ public:
   }
 
   /**
+   * Capture data referenced by memory label to its own memory.
+   */
+  void captureToOwnMemory() const {
+    if(!m_memoryHandle || m_memoryHandle->getData() != m_data || m_memoryHandle->getSize() != m_size) {
+      m_memoryHandle.reset(new base::StrBuffer(m_data, m_size, true));
+      m_data = m_memoryHandle->getData();
+    }
+  }
+
+  /**
    * Check if labeled data equals to data specified.
    * Data is compared using &id:oatpp::base::StrBuffer::equals;.
    * @param data - data to compare with labeled data.
@@ -125,6 +135,10 @@ public:
    */
   std::string std_str() const {
     return std::string((const char*) m_data, m_size);
+  }
+
+  explicit operator bool() const {
+    return m_data != nullptr;
   }
   
 };

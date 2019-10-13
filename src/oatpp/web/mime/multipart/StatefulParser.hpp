@@ -26,7 +26,7 @@
 #define oatpp_web_mime_multipart_StatefulParser_hpp
 
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <unordered_map>
@@ -49,9 +49,9 @@ private:
 private:
   /**
    * Typedef for headers map. Headers map key is case-insensitive.
-   * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+   * For more info see &id:oatpp::data::share::LazyStringMap;.
    */
-  typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+  typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 public:
 
   /**
@@ -60,10 +60,10 @@ public:
   class Listener {
   public:
     /**
-     * Convenience typedef for headers map. Headers map key is case-insensitive.
-     * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+     * Typedef for headers map. Headers map key is case-insensitive.
+     * For more info see &id:oatpp::data::share::LazyStringMap;.
      */
-    typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+    typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
   public:
 
     /**
@@ -97,10 +97,10 @@ public:
   class AsyncListener {
   public:
     /**
-     * Convenience typedef for headers map. Headers map key is case-insensitive.
-     * `std::unordered_map` of &id:oatpp::data::share::StringKeyLabelCI_FAST; and &id:oatpp::data::share::StringKeyLabel;.
+     * Typedef for headers map. Headers map key is case-insensitive.
+     * For more info see &id:oatpp::data::share::LazyStringMap;.
      */
-    typedef std::unordered_map<oatpp::data::share::StringKeyLabelCI_FAST, oatpp::data::share::StringKeyLabel> Headers;
+    typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
   public:
 
     /**

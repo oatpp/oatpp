@@ -48,7 +48,7 @@ DefaultErrorHandler::handleError(const oatpp::web::protocol::http::Status &statu
   response->putHeader(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   response->putHeader(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
 
-  for(auto& pair : headers) {
+  for(const auto& pair : headers.getAll_Unsafe()) {
     response->putHeader(pair.first, pair.second);
   }
 

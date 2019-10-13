@@ -41,11 +41,11 @@ Part::Part(const Headers &headers,
   , m_knownSize(knownSize)
 {
 
-  auto it = m_headers.find("Content-Disposition");
-  if(it != m_headers.end()) {
+  auto contentDisposition = m_headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Content-Disposition");
+  if(contentDisposition) {
 
     oatpp::web::protocol::http::HeaderValueData valueData;
-    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, it->second, ';');
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, contentDisposition, ';');
 
     m_name = valueData.getTitleParamValue("name");
     m_filename = valueData.getTitleParamValue("filename");
@@ -86,25 +86,16 @@ const Part::Headers& Part::getHeaders() const {
   return m_headers;
 }
 
-oatpp::String Part::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST &headerName) const {
-  auto it = m_headers.find(headerName);
-  if(it != m_headers.end()) {
-    return it->second.toString();
-  }
-  return nullptr;
+oatpp::String Part::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const {
+  return m_headers.get(headerName);
 }
 
 void Part::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  m_headers[key] = value;
+  m_headers.put(key, value);
 }
 
 bool Part::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  auto it = m_headers.find(key);
-  if(it == m_headers.end()) {
-    m_headers.insert({key, value});
-    return true;
-  }
-  return false;
+  return m_headers.putIfNotExists(key, value);
 }
 
 std::shared_ptr<data::stream::InputStream> Part::getInputStream() const {

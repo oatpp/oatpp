@@ -34,18 +34,18 @@ bool CommunicationUtils::headerEqualsCI_FAST(const oatpp::data::share::MemoryLab
 v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                                     const std::shared_ptr<protocol::http::outgoing::Response>& response){
   
-  auto outState = response->getHeaders().find(Header::CONNECTION);
-  if(outState != response->getHeaders().end() && headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_UPGRADE)) {
+  auto outState = response->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+  if(outState && outState == Header::Value::CONNECTION_UPGRADE) {
     return CONNECTION_STATE_UPGRADE;
   }
   
   if(request) {
     /* Set keep-alive to value specified in the client's request, if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
-    auto it = request->getHeaders().find(Header::CONNECTION);
-    if(it != request->getHeaders().end() && headerEqualsCI_FAST(it->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
-      if(outState != response->getHeaders().end()) {
-        if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+    auto connection = request->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+    if(connection && connection == Header::Value::CONNECTION_KEEP_ALIVE) {
+      if(outState) {
+        if(outState == Header::Value::CONNECTION_KEEP_ALIVE) {
           return CONNECTION_STATE_KEEP_ALIVE;
         } else {
           return CONNECTION_STATE_CLOSE;
@@ -60,9 +60,9 @@ v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protoc
     /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
     auto& protocol = request->getStartingLine().protocol;
-    if(protocol.getData() != nullptr && headerEqualsCI_FAST(protocol, "HTTP/1.1")) {
-      if(outState != response->getHeaders().end()) {
-        if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+    if(protocol && headerEqualsCI_FAST(protocol, "HTTP/1.1")) {
+      if(outState) {
+        if(outState == Header::Value::CONNECTION_KEEP_ALIVE) {
           return CONNECTION_STATE_KEEP_ALIVE;
         } else {
           return CONNECTION_STATE_CLOSE;
@@ -78,8 +78,8 @@ v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protoc
   /* If protocol != HTTP/1.1 */
   /* Set default Connection header value (Close), if no Connection header present in response. */
   /* Set keep-alive to value specified in response otherwise */
-  if(outState != response->getHeaders().end()) {
-    if(headerEqualsCI_FAST(outState->second, Header::Value::CONNECTION_KEEP_ALIVE)) {
+  if(outState) {
+    if(outState == Header::Value::CONNECTION_KEEP_ALIVE) {
       return CONNECTION_STATE_KEEP_ALIVE;
     } else {
       return CONNECTION_STATE_CLOSE;
