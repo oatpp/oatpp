@@ -80,6 +80,7 @@ public:
    */
   void put(const Key& key, const StringKeyLabel& value) {
     m_map.insert({key, value});
+    m_fullyInitialized = false;
   }
 
   /**
@@ -94,6 +95,7 @@ public:
 
     if(it == m_map.end()) {
       m_map.insert({key, value});
+      m_fullyInitialized = false;
       return true;
     }
 
