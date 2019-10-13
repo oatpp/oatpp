@@ -78,13 +78,14 @@ void Executor::SubmissionProcessor::detach() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Executor
 
-Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int32 timerWorkersCount, bool useIOEventWorker)
+Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int32 timerWorkersCount, v_int32 ioWorkerType)
   : m_balancer(0)
 {
 
   processorWorkersCount = chooseProcessorWorkersCount(processorWorkersCount);
   ioWorkersCount = chooseIOWorkersCount(processorWorkersCount, ioWorkersCount);
   timerWorkersCount = chooseTimerWorkersCount(timerWorkersCount);
+  ioWorkerType = chooseIOWorkerType(ioWorkerType);
 
   for(v_int32 i = 0; i < processorWorkersCount; i ++) {
     m_processorWorkers.push_back(std::make_shared<SubmissionProcessor>());
@@ -93,14 +94,26 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
   m_allWorkers.insert(m_allWorkers.end(), m_processorWorkers.begin(), m_processorWorkers.end());
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
-  if(useIOEventWorker) {
-    for (v_int32 i = 0; i < ioWorkersCount; i++) {
-      ioWorkers.push_back(std::make_shared<worker::IOEventWorkerForeman>());
+
+  switch(ioWorkerType) {
+
+    case IO_WORKER_TYPE_NAIVE: {
+      for (v_int32 i = 0; i < ioWorkersCount; i++) {
+        ioWorkers.push_back(std::make_shared<worker::IOWorker>());
+      }
+      break;
     }
-  } else {
-    for (v_int32 i = 0; i < ioWorkersCount; i++) {
-      ioWorkers.push_back(std::make_shared<worker::IOWorker>());
+
+    case IO_WORKER_TYPE_EVENT: {
+      for (v_int32 i = 0; i < ioWorkersCount; i++) {
+        ioWorkers.push_back(std::make_shared<worker::IOEventWorkerForeman>());
+      }
+      break;
     }
+
+    default:
+      throw std::runtime_error("[oatpp::async::Executor::Executor()]: Error. Unknown IO worker type.");
+
   }
 
   linkWorkers(ioWorkers);
@@ -146,6 +159,20 @@ v_int32 Executor::chooseTimerWorkersCount(v_int32 timerWorkersCount) {
     return 1;
   }
   throw std::runtime_error("[oatpp::async::Executor::chooseTimerWorkersCount()]: Error. Invalid timer workers count specified.");
+}
+
+v_int32 Executor::chooseIOWorkerType(v_int32 ioWorkerType) {
+
+  if(ioWorkerType == VALUE_SUGGESTED) {
+#if defined(WIN32) || defined(_WIN32)
+    return IO_WORKER_TYPE_NAIVE;
+#else
+    return IO_WORKER_TYPE_EVENT;
+#endif
+  }
+
+  return ioWorkerType;
+
 }
 
 void Executor::linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers) {
