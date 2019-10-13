@@ -88,13 +88,8 @@ void Response::send(data::stream::OutputStream* stream, oatpp::data::stream::Buf
   headersWriteBuffer->write(" ", 1);
   headersWriteBuffer->OutputStream::write(m_status.description);
   headersWriteBuffer->write("\r\n", 2);
-  
-  for(const auto& it : m_headers.getAll_Unsafe()) {
-    headersWriteBuffer->write(it.first.getData(), it.first.getSize());
-    headersWriteBuffer->write(": ", 2);
-    headersWriteBuffer->write(it.second.getData(), it.second.getSize());
-    headersWriteBuffer->write("\r\n", 2);
-  }
+
+  http::Utils::writeHeaders(m_headers, headersWriteBuffer);
 
   headersWriteBuffer->write("\r\n", 2);
 

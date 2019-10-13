@@ -68,7 +68,7 @@ const http::QueryParams& Request::getQueryParameters() const {
 }
 
 oatpp::String Request::getQueryParameter(const oatpp::data::share::StringKeyLabel& name) const {
-  return m_queryParams.get(name);
+  return getQueryParameters().get(name);
 }
 
 oatpp::String Request::getQueryParameter(const oatpp::data::share::StringKeyLabel& name, const oatpp::String& defaultValue) const {
