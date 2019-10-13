@@ -84,6 +84,17 @@ public:
    * Special value to indicate that Executor should choose it's own the value of specified parameter.
    */
   static constexpr const v_int32 VALUE_SUGGESTED = -1000;
+public:
+
+  /**
+   * IO Worker type naive.
+   */
+  static constexpr const v_int32 IO_WORKER_TYPE_NAIVE = 0;
+
+  /**
+   * IO Worker type event.
+   */
+  static constexpr const v_int32 IO_WORKER_TYPE_EVENT = 1;
 private:
   std::atomic<v_word32> m_balancer;
 private:
@@ -93,6 +104,7 @@ private:
   static v_int32 chooseProcessorWorkersCount(v_int32 processorWorkersCount);
   static v_int32 chooseIOWorkersCount(v_int32 processorWorkersCount, v_int32 ioWorkersCount);
   static v_int32 chooseTimerWorkersCount(v_int32 timerWorkersCount);
+  static v_int32 chooseIOWorkerType(v_int32 ioWorkerType);
   void linkWorkers(const std::vector<std::shared_ptr<worker::Worker>>& workers);
 public:
 
@@ -101,16 +113,12 @@ public:
    * @param processorWorkersCount - number of data processing workers.
    * @param ioWorkersCount - number of I/O processing workers.
    * @param timerWorkersCount - number of timer processing workers.
+   * @param IOWorkerType
    */
   Executor(v_int32 processorWorkersCount = VALUE_SUGGESTED,
            v_int32 ioWorkersCount = VALUE_SUGGESTED,
            v_int32 timerWorkersCount = VALUE_SUGGESTED,
-#if defined(WIN32) || defined(_WIN32)
-           bool useIOEventWorker = false
-#else
-           bool useIOEventWorker = true
-#endif
-          );
+           v_int32 ioWorkerType = VALUE_SUGGESTED);
 
   /**
    * Non-virtual Destructor.
