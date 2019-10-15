@@ -84,10 +84,11 @@ add_library(oatpp
         oatpp/core/data/mapping/type/Primitive.hpp
         oatpp/core/data/mapping/type/Type.cpp
         oatpp/core/data/mapping/type/Type.hpp
+        oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
-        oatpp/core/data/stream/BufferInputStream.cpp
-        oatpp/core/data/stream/BufferInputStream.hpp
+        oatpp/core/data/stream/BufferStream.cpp
+        oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
         oatpp/core/data/stream/FileStream.cpp

@@ -25,12 +25,10 @@
 #ifndef oatpp_network_Url_hpp
 #define oatpp_network_Url_hpp
 
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
-
-#include <unordered_map>
 
 namespace oatpp { namespace network {
 
@@ -48,13 +46,8 @@ public:
   /**
    * Parameters - map string to string.
    */
-  typedef std::unordered_map<oatpp::String, oatpp::String> Parameters;
+  typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> Parameters;
 
-  /**
-   * Parameters as &id:oatpp::data::share::StringKeyLabel;.
-   * Advantage of oatpp::data::share::StringKeyLabel - is that there is no memory allocations needed to create "Memory Label".
-   */
-  typedef std::unordered_map<StringKeyLabel, StringKeyLabel> ParametersAsLabels;
 public:
 
   /**
@@ -111,13 +104,13 @@ public:
      * parse query params in form of `"?<paramName>=<paramValue>&<paramName>=<paramValue>..."` referred by ParsingCaret
      * and put that params to Parameters map
      */
-    static void parseQueryParamsToMap(Url::Parameters& params, oatpp::parser::Caret& caret);
+    static void parseQueryParams(Url::Parameters& params, oatpp::parser::Caret& caret);
     
     /**
      * parse query params in form of `"?<paramName>=<paramValue>&<paramName>=<paramValue>..."` referred by str
      * and put that params to Parameters map
      */
-    static void parseQueryParamsToMap(Url::Parameters& params, const oatpp::String& str);
+    static void parseQueryParams(Url::Parameters& params, const oatpp::String& str);
     
     /**
      * parse query params in form of `"?<paramName>=<paramValue>&<paramName>=<paramValue>..."` referred by ParsingCaret
@@ -128,14 +121,6 @@ public:
      * parse query params in form of `"?<paramName>=<paramValue>&<paramName>=<paramValue>..."` referred by str
      */
     static Url::Parameters parseQueryParams(const oatpp::String& str);
-
-    /**
-     * Same as parseQueryParams() but use StringKeyLabel instead of a String.
-     * Zero allocations. Use this method for better performance.
-     * @param str
-     * @return `std::unordered_map<StringKeyLabel, StringKeyLabel>`. See &l:Url::StringKeyLabel;.
-     */
-    static ParametersAsLabels labelQueryParams(const oatpp::String& str);
 
     /**
      * Parse Url

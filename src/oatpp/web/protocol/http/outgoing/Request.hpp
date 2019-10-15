@@ -33,7 +33,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 /**
  * Class http::outgoing::Request AKA OutgoingRequest represents client's outgoing request to server.
  */
-class Request : public oatpp::base::Countable, public std::enable_shared_from_this<Request> {
+class Request : public oatpp::base::Countable {
 public:
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
@@ -124,10 +124,12 @@ public:
 
   /**
    * Write request to stream in asynchronous manner.
+   * @param _this
    * @param stream - &id:oatpp::data::stream::OutputStream;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::CoroutineStarter sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  static oatpp::async::CoroutineStarter sendAsync(std::shared_ptr<Request> _this,
+                                                  const std::shared_ptr<data::stream::OutputStream>& stream);
   
 };
   

@@ -28,29 +28,27 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStreamBufferedProxy* stream,
-                                                         oatpp::data::stream::ConsistentOutputStream* bufferStream,
-                                                         Result& result) {
+data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStreamBufferedProxy* stream, Result& result) {
 
   v_word32 accumulator = 0;
-  v_int32 progress = 0;
+  m_bufferStream->setCurrentPosition(0);
   data::v_io_size res;
   while (true) {
     
-    v_int32 desiredToRead = m_buffer.getSize();
-    if(progress + desiredToRead > m_maxHeadersSize) {
-      desiredToRead = m_maxHeadersSize - progress;
+    v_int32 desiredToRead = m_readChunkSize;
+    if(m_bufferStream->getCurrentPosition() + desiredToRead > m_maxHeadersSize) {
+      desiredToRead = m_maxHeadersSize - m_bufferStream->getCurrentPosition();
       if(desiredToRead <= 0) {
         return -1;
       }
     }
 
-    auto bufferData = m_buffer.getData();
+    m_bufferStream->reserveBytesUpfront(desiredToRead);
+    auto bufferData = m_bufferStream->getData() + m_bufferStream->getCurrentPosition();
     res = stream->peek(bufferData, desiredToRead);
     if(res > 0) {
 
-      bufferStream->write(bufferData, res);
-      progress += res;
+      m_bufferStream->setCurrentPosition(m_bufferStream->getCurrentPosition() + res);
 
       for(v_int32 i = 0; i < res; i ++) {
         accumulator <<= 8;
@@ -79,17 +77,15 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
                                                                http::HttpError::Info& error) {
   
   RequestHeadersReader::Result result;
-  
-  oatpp::data::stream::ChunkedBuffer buffer;
-  error.ioStatus = readHeadersSection(stream, &buffer, result);
+
+  error.ioStatus = readHeadersSection(stream, result);
   
   if(error.ioStatus > 0) {
-    auto headersText = buffer.toString();
-    oatpp::parser::Caret caret (headersText);
+    oatpp::parser::Caret caret (m_bufferStream->getData(), m_bufferStream->getCurrentPosition());
     http::Status status;
-    http::Parser::parseRequestStartingLine(result.startingLine, headersText.getPtr(), caret, status);
+    http::Parser::parseRequestStartingLine(result.startingLine, nullptr, caret, status);
     if(status.code == 0) {
-      http::Parser::parseHeaders(result.headers, headersText.getPtr(), caret, status);
+      http::Parser::parseHeaders(result.headers, nullptr, caret, status);
     }
   }
   
@@ -99,45 +95,42 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
   
   
 oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&>
-RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& connection)
+RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream)
 {
   
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
   private:
     std::shared_ptr<data::stream::InputStreamBufferedProxy> m_stream;
-    oatpp::data::share::MemoryLabel m_buffer;
-    v_int32 m_maxHeadersSize;
+    RequestHeadersReader* m_this;
     v_word32 m_accumulator;
-    v_int32 m_progress;
     RequestHeadersReader::Result m_result;
-    oatpp::data::stream::ChunkedBuffer m_bufferStream;
   public:
     
-    ReaderCoroutine(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream,
-                    const oatpp::data::share::MemoryLabel& buffer, v_int32 maxHeadersSize)
-      : m_stream(stream)
-      , m_buffer(buffer)
-      , m_maxHeadersSize(maxHeadersSize)
+    ReaderCoroutine(RequestHeadersReader* _this,
+                    const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream)
+      : m_this(_this)
+      , m_stream(stream)
       , m_accumulator(0)
-      , m_progress(0)
-    {}
+    {
+      m_this->m_bufferStream->setCurrentPosition(0);
+    }
     
     Action act() override {
       
-      v_int32 desiredToRead = m_buffer.getSize();
-      if(m_progress + desiredToRead > m_maxHeadersSize) {
-        desiredToRead = m_maxHeadersSize - m_progress;
+      v_int32 desiredToRead = m_this->m_readChunkSize;
+      if(m_this->m_bufferStream->getCurrentPosition() + desiredToRead > m_this->m_maxHeadersSize) {
+        desiredToRead = m_this->m_maxHeadersSize - m_this->m_bufferStream->getCurrentPosition();
         if(desiredToRead <= 0) {
           return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Headers section is too large.");
         }
       }
 
-      auto bufferData = m_buffer.getData();
+      m_this->m_bufferStream->reserveBytesUpfront(desiredToRead);
+      auto bufferData = m_this->m_bufferStream->getData() + m_this->m_bufferStream->getCurrentPosition();
       auto res = m_stream->peek(bufferData, desiredToRead);
       if(res > 0) {
 
-        m_bufferStream.write(bufferData, res);
-        m_progress += res;
+        m_this->m_bufferStream->setCurrentPosition(m_this->m_bufferStream->getCurrentPosition() + res);
         
         for(v_int32 i = 0; i < res; i ++) {
           m_accumulator <<= 8;
@@ -165,13 +158,12 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
     }
     
     Action parseHeaders() {
-      
-      auto headersText = m_bufferStream.toString();
-      oatpp::parser::Caret caret (headersText);
+
+      oatpp::parser::Caret caret (m_this->m_bufferStream->getData(), m_this->m_bufferStream->getCurrentPosition());
       http::Status status;
-      http::Parser::parseRequestStartingLine(m_result.startingLine, headersText.getPtr(), caret, status);
+      http::Parser::parseRequestStartingLine(m_result.startingLine, nullptr, caret, status);
       if(status.code == 0) {
-        http::Parser::parseHeaders(m_result.headers, headersText.getPtr(), caret, status);
+        http::Parser::parseHeaders(m_result.headers, nullptr, caret, status);
         if(status.code == 0) {
           return _return(m_result);
         } else {
@@ -180,12 +172,12 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
       } else {
         return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Can't parse starting line.");
       }
-      
+
     }
     
   };
   
-  return ReaderCoroutine::startForResult(connection, m_buffer, m_maxHeadersSize);
+  return ReaderCoroutine::startForResult(this, stream);
   
 }
 

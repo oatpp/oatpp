@@ -29,13 +29,14 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 /**
  * Class which stores information of outgoing http Response.
  */
-class Response : public oatpp::base::Countable, public std::enable_shared_from_this<Response> {
+class Response : public oatpp::base::Countable {
 public:
   /**
    * Convenience typedef for Headers. <br>
@@ -137,15 +138,20 @@ public:
   /**
    * Write this Response to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
+   * @param headersWriteBuffer - pointer to &id:oatpp::data::stream::BufferOutputStream;.
    */
-  void send(data::stream::OutputStream* stream);
+  void send(data::stream::OutputStream* stream, oatpp::data::stream::BufferOutputStream* headersWriteBuffer);
 
   /**
    * Same as &l:Response::send (); but async.
+   * @param _this - `this` response.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
+   * @param headersWriteBuffer - `std::shared_ptr` to &id:oatpp::data::stream::BufferOutputStream;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::CoroutineStarter sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  static oatpp::async::CoroutineStarter sendAsync(const std::shared_ptr<Response>& _this,
+                                                  const std::shared_ptr<data::stream::OutputStream>& stream,
+                                                  const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& headersWriteBuffer);
   
 };
   

@@ -24,7 +24,7 @@
 
 #include "InMemoryPartReader.hpp"
 
-#include "oatpp/core/data/stream/BufferInputStream.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

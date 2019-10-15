@@ -346,7 +346,7 @@ void Parser::parseOneHeader(Headers& headers,
     caret.skipChar(' ');
     v_int32 valuePos0 = caret.getPosition();
     caret.findRN();
-    headers[name] = oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0);
+    headers.put(name, oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0));
     caret.skipRN();
   } else {
     error = Status::CODE_431;
@@ -421,8 +421,9 @@ void Parser::parseHeaderValueData(HeaderValueData& data, const oatpp::data::shar
 
 void Utils::writeHeaders(const Headers& headers, data::stream::ConsistentOutputStream* stream) {
 
-  auto it = headers.begin();
-  while(it != headers.end()) {
+  auto& map = headers.getAll_Unsafe();
+  auto it = map.begin();
+  while(it != map.end()) {
     stream->write(it->first.getData(), it->first.getSize());
     stream->write(": ", 2);
     stream->write(it->second.getData(), it->second.getSize());

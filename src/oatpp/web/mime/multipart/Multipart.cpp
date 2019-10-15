@@ -38,11 +38,11 @@ Multipart::Multipart(const oatpp::String& boundary)
 
 Multipart::Multipart(const Headers& requestHeaders){
 
-  auto it = requestHeaders.find("Content-Type");
-  if(it != requestHeaders.end()) {
+  auto contentType = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Content-Type");
+  if(contentType) {
 
     oatpp::web::protocol::http::HeaderValueData valueData;
-    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, it->second, ';');
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, contentType, ';');
 
     m_boundary = valueData.getTitleParamValue("boundary");
 

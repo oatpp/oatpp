@@ -24,8 +24,6 @@
 
 #include "./Response.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 Response::Response(const Status& status,
@@ -48,24 +46,15 @@ protocol::http::Headers& Response::getHeaders() {
 }
 
 void Response::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  m_headers[key] = value;
+  m_headers.put(key, value);
 }
 
 bool Response::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
-  auto it = m_headers.find(key);
-  if(it == m_headers.end()) {
-    m_headers.insert({key, value});
-    return true;
-  }
-  return false;
+  return m_headers.putIfNotExists(key, value);
 }
 
 oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const {
-  auto it = m_headers.find(headerName);
-  if(it != m_headers.end()) {
-    return it->second.toString();
-  }
-  return nullptr;
+  return m_headers.get(headerName);
 }
 
 void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
@@ -84,95 +73,94 @@ std::shared_ptr<const Response::ConnectionHandler::ParameterMap> Response::getCo
   return m_connectionUpgradeParameters;
 }
 
-void Response::send(data::stream::OutputStream* stream) {
-  
+void Response::send(data::stream::OutputStream* stream, oatpp::data::stream::BufferOutputStream* headersWriteBuffer) {
+
   if(m_body){
     m_body->declareHeaders(m_headers);
   } else {
-    m_headers[Header::CONTENT_LENGTH] = "0";
+    m_headers.put(Header::CONTENT_LENGTH, "0");
   }
 
-  oatpp::data::stream::ChunkedBuffer buffer;
+  headersWriteBuffer->setCurrentPosition(0);
 
-  buffer.write("HTTP/1.1 ", 9);
-  buffer.writeAsString(m_status.code);
-  buffer.write(" ", 1);
-  buffer.OutputStream::write(m_status.description);
-  buffer.write("\r\n", 2);
-  
-  auto it = m_headers.begin();
-  while(it != m_headers.end()) {
-    buffer.write(it->first.getData(), it->first.getSize());
-    buffer.write(": ", 2);
-    buffer.write(it->second.getData(), it->second.getSize());
-    buffer.write("\r\n", 2);
-    it ++;
-  }
+  headersWriteBuffer->write("HTTP/1.1 ", 9);
+  headersWriteBuffer->writeAsString(m_status.code);
+  headersWriteBuffer->write(" ", 1);
+  headersWriteBuffer->OutputStream::write(m_status.description);
+  headersWriteBuffer->write("\r\n", 2);
 
-  buffer.write("\r\n", 2);
+  http::Utils::writeHeaders(m_headers, headersWriteBuffer);
+
+  headersWriteBuffer->write("\r\n", 2);
 
   if(m_body) {
 
     auto bodySize = m_body->getKnownSize();
 
-    if(bodySize >= 0 && bodySize + buffer.getSize() < oatpp::data::stream::ChunkedBuffer::CHUNK_ENTRY_SIZE) {
-      m_body->writeToStream(&buffer);
-      buffer.flushToStream(stream);
+    if(bodySize >= 0 && bodySize + headersWriteBuffer->getCurrentPosition() < headersWriteBuffer->getCapacity()) {
+      m_body->writeToStream(headersWriteBuffer);
+      headersWriteBuffer->flushToStream(stream);
     } else {
-      buffer.flushToStream(stream);
+      headersWriteBuffer->flushToStream(stream);
       m_body->writeToStream(stream);
     }
 
   } else {
-    buffer.flushToStream(stream);
+    headersWriteBuffer->flushToStream(stream);
   }
   
 }
 
-oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::stream::OutputStream>& stream){
+oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Response>& _this,
+                                                   const std::shared_ptr<data::stream::OutputStream>& stream,
+                                                   const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& headersWriteBuffer)
+{
   
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
   private:
-    std::shared_ptr<Response> m_response;
+    std::shared_ptr<Response> m_this;
     std::shared_ptr<data::stream::OutputStream> m_stream;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
+    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersWriteBuffer;
   public:
     
-    SendAsyncCoroutine(const std::shared_ptr<Response>& response,
-                       const std::shared_ptr<data::stream::OutputStream>& stream)
-      : m_response(response)
+    SendAsyncCoroutine(const std::shared_ptr<Response>& _this,
+                       const std::shared_ptr<data::stream::OutputStream>& stream,
+                       const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& headersWriteBuffer)
+      : m_this(_this)
       , m_stream(stream)
-      , m_buffer(oatpp::data::stream::ChunkedBuffer::createShared())
+      , m_headersWriteBuffer(headersWriteBuffer)
     {}
     
     Action act() override {
     
-      if(m_response->m_body){
-        m_response->m_body->declareHeaders(m_response->m_headers);
+      if(m_this->m_body){
+        m_this->m_body->declareHeaders(m_this->m_headers);
       } else {
-        m_response->m_headers[Header::CONTENT_LENGTH] = "0";
+        m_this->m_headers.put(Header::CONTENT_LENGTH, "0");
       }
-      
-      m_buffer->write("HTTP/1.1 ", 9);
-      m_buffer->writeAsString(m_response->m_status.code);
-      m_buffer->write(" ", 1);
-      m_buffer->OutputStream::write(m_response->m_status.description);
-      m_buffer->write("\r\n", 2);
 
-      http::Utils::writeHeaders(m_response->m_headers, m_buffer.get());
-      
-      m_buffer->write("\r\n", 2);
+      m_headersWriteBuffer->setCurrentPosition(0);
 
-      const auto& body = m_response->m_body;
+      m_headersWriteBuffer->write("HTTP/1.1 ", 9);
+      m_headersWriteBuffer->writeAsString(m_this->m_status.code);
+      m_headersWriteBuffer->write(" ", 1);
+      m_headersWriteBuffer->OutputStream::write(m_this->m_status.description);
+      m_headersWriteBuffer->write("\r\n", 2);
+
+      http::Utils::writeHeaders(m_this->m_headers, m_headersWriteBuffer.get());
+      
+      m_headersWriteBuffer->write("\r\n", 2);
+
+      const auto& body = m_this->m_body;
 
       if(body) {
 
         auto bodySize = body->getKnownSize();
 
-        if(bodySize >= 0 && bodySize + m_buffer->getSize() < oatpp::data::stream::ChunkedBuffer::CHUNK_ENTRY_SIZE) {
+        if(bodySize >= 0 && bodySize + m_headersWriteBuffer->getCurrentPosition() < m_headersWriteBuffer->getCapacity()) {
 
-          return body->writeToStreamAsync(m_buffer)
-            .next(m_buffer->flushToStreamAsync(m_stream))
+          return body->writeToStreamAsync(m_headersWriteBuffer)
+            .next(oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream))
             .next(finish());
 
         } else {
@@ -186,19 +174,19 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<data::s
     }
     
     Action writeHeaders() {
-      return m_buffer->flushToStreamAsync(m_stream).next(yieldTo(&SendAsyncCoroutine::writeBody));
+      return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream).next(yieldTo(&SendAsyncCoroutine::writeBody));
     }
     
     Action writeBody() {
-      if(m_response->m_body) {
-        return m_response->m_body->writeToStreamAsync(m_stream).next(finish());
+      if(m_this->m_body) {
+        return m_this->m_body->writeToStreamAsync(m_stream).next(finish());
       }
       return finish();
     }
     
   };
   
-  return SendAsyncCoroutine::start(shared_from_this(), stream);
+  return SendAsyncCoroutine::start(_this, stream, headersWriteBuffer);
   
 }
   

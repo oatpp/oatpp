@@ -118,11 +118,11 @@ oatpp::web::protocol::http::Headers ApiClient::convertParamsMap(const std::share
     auto curr = params->getFirstEntry();
     
     while (curr != nullptr) {
-      result[curr->getKey()] = oatpp::utils::conversion::primitiveToStr(curr->getValue());
+      result.put(curr->getKey(), oatpp::utils::conversion::primitiveToStr(curr->getValue()));
       curr = curr->getNext();
     }
   }
-  return result;
+  return std::move(result);
 }
 
 oatpp::String ApiClient::formatPath(const PathPattern& pathPattern,

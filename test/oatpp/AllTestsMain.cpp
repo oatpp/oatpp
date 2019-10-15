@@ -16,7 +16,9 @@
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
 #include "oatpp/network/UrlTest.hpp"
 
+#include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
+#include "oatpp/core/data/share/LazyStringMapTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 
 #include "oatpp/core/base/StrBufferTest.hpp"
@@ -68,7 +70,12 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
+
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
+
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
