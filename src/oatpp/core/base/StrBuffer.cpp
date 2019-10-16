@@ -204,23 +204,6 @@ bool StrBuffer::startsWith(StrBuffer* data) const {
   return false;
 }
 
-std::shared_ptr<StrBuffer> StrBuffer::substr(v_int32 start) {
-  if(start >= m_size || start < 0) {
-    return createShared(0);
-  }
-  return allocShared(&m_data[start], m_size-start, true);
-}
-
-std::shared_ptr<StrBuffer> StrBuffer::substr(v_int32 start, v_int32 len) {
-  if(start >= m_size || start < 0 || len < 1) {
-    return createShared(0);
-  }
-  if(start + len >= m_size) {
-    len = m_size - start;
-  }
-  return allocShared(&m_data[start], len, true);
-}
-
 // static
   
 v_int32 StrBuffer::compare(const void* data1, const void* data2, v_int32 size) {

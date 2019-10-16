@@ -7,8 +7,6 @@ add_executable(oatppAllTests
         oatpp/core/base/CommandLineArgumentsTest.hpp
         oatpp/core/base/RegRuleTest.cpp
         oatpp/core/base/RegRuleTest.hpp
-        oatpp/core/base/StrBufferTest.cpp
-        oatpp/core/base/StrBufferTest.hpp
         oatpp/core/base/collection/LinkedListTest.cpp
         oatpp/core/base/collection/LinkedListTest.hpp
         oatpp/core/base/memory/MemoryPoolTest.cpp
