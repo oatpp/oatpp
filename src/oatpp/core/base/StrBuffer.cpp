@@ -203,7 +203,7 @@ bool StrBuffer::startsWith(StrBuffer* data) const {
   }
   return false;
 }
-  
+
 // static
   
 v_int32 StrBuffer::compare(const void* data1, const void* data2, v_int32 size) {

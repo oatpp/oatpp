@@ -247,7 +247,8 @@ public:
    * @return - true if buffer starts with specified data.
    */
   bool startsWith(StrBuffer* data) const;
-  
+
+
 public:
 
   /**

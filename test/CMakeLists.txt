@@ -64,8 +64,7 @@ add_executable(oatppAllTests
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
         oatpp/web/app/ControllerWithInterceptors.hpp
-        oatpp/web/app/ControllerWithInterceptorsAsync.hpp
-)
+        oatpp/web/app/ControllerWithInterceptorsAsync.hpp)
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
 
