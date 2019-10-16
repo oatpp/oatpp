@@ -25,7 +25,61 @@
 #include "Interface.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
-  
+
+std::recursive_mutex Interface::m_registryMutex;
+std::unordered_map<oatpp::String, std::weak_ptr<Interface>> Interface::m_registry;
+
+void Interface::registerInterface(const std::shared_ptr<Interface>& interface) {
+
+  std::lock_guard<std::recursive_mutex> lock(m_registryMutex);
+
+  auto it = m_registry.find(interface->getName());
+  if(it != m_registry.end()) {
+    throw std::runtime_error
+    ("[oatpp::network::virtual_::Interface::registerInterface()]: Error. Interface with such name already exists - '" + interface->getName()->std_str() + "'.");
+  }
+
+  m_registry.insert({interface->getName(), interface});
+
+}
+
+void Interface::unregisterInterface(const oatpp::String& name) {
+
+  std::lock_guard<std::recursive_mutex> lock(m_registryMutex);
+
+  auto it = m_registry.find(name);
+  if(it == m_registry.end()) {
+    throw std::runtime_error
+      ("[oatpp::network::virtual_::Interface::unregisterInterface()]: Error. Interface NOT FOUND - '" + name->std_str() + "'.");
+  }
+
+  m_registry.erase(it);
+
+}
+
+Interface::Interface(const oatpp::String& name)
+  : m_name(name)
+{}
+
+Interface::~Interface() {
+  unregisterInterface(getName());
+}
+
+std::shared_ptr<Interface> Interface::obtainShared(const oatpp::String& name) {
+
+  std::lock_guard<std::recursive_mutex> lock(m_registryMutex);
+
+  auto it = m_registry.find(name);
+  if(it != m_registry.end()) {
+    return it->second.lock();
+  }
+
+  std::shared_ptr<Interface> interface(new Interface(name));
+  registerInterface(interface);
+  return interface;
+
+}
+
 void Interface::ConnectionSubmission::setSocket(const std::shared_ptr<Socket>& socket) {
   {
     std::lock_guard<std::mutex> lock(m_mutex);
