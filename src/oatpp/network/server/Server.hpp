@@ -54,8 +54,6 @@ private:
   
   std::atomic<v_int32> m_status;
   
-  oatpp::String m_port;
-  
   std::shared_ptr<ServerConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
   

@@ -66,7 +66,7 @@ public:
   {}
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
-    return oatpp::network::virtual_::Interface::createShared("virtualhost");
+    return oatpp::network::virtual_::Interface::obtainShared("virtualhost");
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([this] {

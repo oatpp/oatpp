@@ -29,6 +29,8 @@
 
 #include "oatpp/core/collection/LinkedList.hpp"
 
+#include <unordered_map>
+
 namespace oatpp { namespace network { namespace virtual_ {
 
 /**
@@ -36,6 +38,12 @@ namespace oatpp { namespace network { namespace virtual_ {
  * "virtual" connection is represented by &id:oatpp::network::virtual_::Socket;.
  */
 class Interface : public oatpp::base::Countable {
+private:
+  static std::recursive_mutex m_registryMutex;
+  static std::unordered_map<oatpp::String, std::weak_ptr<Interface>> m_registry;
+private:
+  static void registerInterface(const std::shared_ptr<Interface>& interface);
+  static void unregisterInterface(const oatpp::String& name);
 public:
 
   /**
@@ -88,24 +96,31 @@ private:
   std::mutex m_mutex;
   std::condition_variable m_condition;
   oatpp::collection::LinkedList<std::shared_ptr<ConnectionSubmission>> m_submissions;
-public:
+private:
   /**
    * Constructor.
    * @param name - interface name.
    */
-  Interface(const oatpp::String& name)
-    : m_name(name)
-  {}
+  Interface(const oatpp::String& name);
+
+  Interface(const Interface& other) = delete;
+  Interface(Interface&& other) = delete;
+  Interface& operator=(const Interface&) = delete;
+  Interface& operator=(Interface&&) = delete;
+
 public:
 
   /**
-   * Create shared Interface.
-   * @param name  - interface name.
+   * Destructor.
+   */
+  ~Interface();
+
+  /**
+   * Obtain interface for given name.
+   * @param name - name of the interface.
    * @return - `std::shared_ptr` to Interface.
    */
-  static std::shared_ptr<Interface> createShared(const oatpp::String& name) {
-    return std::make_shared<Interface>(name);
-  }
+  static std::shared_ptr<Interface> obtainShared(const oatpp::String& name);
 
   /**
    * Connect to interface.
