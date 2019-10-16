@@ -97,10 +97,7 @@ private:
   std::condition_variable m_condition;
   oatpp::collection::LinkedList<std::shared_ptr<ConnectionSubmission>> m_submissions;
 private:
-  /**
-   * Constructor.
-   * @param name - interface name.
-   */
+
   Interface(const oatpp::String& name);
 
   Interface(const Interface& other) = delete;
