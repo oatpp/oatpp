@@ -116,6 +116,8 @@ add_library(oatpp
         oatpp/encoding/Unicode.hpp
         oatpp/network/Connection.cpp
         oatpp/network/Connection.hpp
+        oatpp/network/ConnectionPool.cpp
+        oatpp/network/ConnectionPool.hpp
         oatpp/network/ConnectionProvider.cpp
         oatpp/network/ConnectionProvider.hpp
         oatpp/network/Url.cpp
