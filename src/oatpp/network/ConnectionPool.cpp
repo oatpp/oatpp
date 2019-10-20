@@ -317,7 +317,12 @@ ServerConnectionPool::ServerConnectionPool(const std::shared_ptr<ServerConnectio
                                            v_int64 maxConnections,
                                            const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL)
   : m_pool(connectionProvider, maxConnections, maxConnectionTTL)
-{}
+{
+
+  setProperty(PROPERTY_HOST, connectionProvider->getProperty(PROPERTY_HOST).toString());
+  setProperty(PROPERTY_PORT, connectionProvider->getProperty(PROPERTY_PORT).toString());
+
+}
 
 std::shared_ptr<oatpp::data::stream::IOStream> ServerConnectionPool::getConnection() {
   return m_pool.getConnection();
@@ -368,7 +373,12 @@ ClientConnectionPool::ClientConnectionPool(const std::shared_ptr<ClientConnectio
                                            v_int64 maxConnections,
                                            const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL)
   : m_pool(connectionProvider, maxConnections, maxConnectionTTL)
-{}
+{
+
+  setProperty(PROPERTY_HOST, connectionProvider->getProperty(PROPERTY_HOST).toString());
+  setProperty(PROPERTY_PORT, connectionProvider->getProperty(PROPERTY_PORT).toString());
+
+}
 
 std::shared_ptr<oatpp::data::stream::IOStream> ClientConnectionPool::getConnection() {
   return m_pool.getConnection();
