@@ -176,15 +176,25 @@ void Processor::pushQueues() {
     if (m_pushList.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
       std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock, std::try_to_lock);
       if (lock.owns_lock()) {
-        while(m_pushList.first != nullptr) {
-          addCoroutine(m_pushList.popFront());
+        oatpp::collection::FastQueue<CoroutineHandle> tmpList;
+        oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
+        lock.unlock();
+        while(tmpList.first != nullptr) {
+          addCoroutine(tmpList.popFront());
         }
       }
     } else {
-      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-      while(m_pushList.first != nullptr) {
-        addCoroutine(m_pushList.popFront());
+      oatpp::collection::FastQueue<CoroutineHandle> tmpList;
+
+      {
+        std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+        oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
       }
+
+      while(tmpList.first != nullptr) {
+        addCoroutine(tmpList.popFront());
+      }
+
     }
   }
 

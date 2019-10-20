@@ -90,6 +90,13 @@ public:
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() = 0;
 
   /**
+   * Invalidate connection that was previously created by this provider.
+   * Ex.: if provider is pool based - you can signal that this connection should not be reused anymore.
+   * @param connection
+   */
+  virtual void invalidateConnection(const std::shared_ptr<IOStream>& connection) = 0;
+
+  /**
    * Should close all handles here.
    */
   virtual void close() = 0;

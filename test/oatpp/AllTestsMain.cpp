@@ -15,6 +15,7 @@
 #include "oatpp/network/virtual_/PipeTest.hpp"
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
 #include "oatpp/network/UrlTest.hpp"
+#include "oatpp/network/ConnectionPoolTest.hpp"
 
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
@@ -86,6 +87,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
 
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
+
+  OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
+
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
