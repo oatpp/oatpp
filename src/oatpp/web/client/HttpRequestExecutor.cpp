@@ -127,11 +127,13 @@ HttpRequestExecutor::execute(const String& method,
   const auto& result = headerReader.readHeaders(connection, error);
   
   if(error.status.code != 0) {
+    m_connectionProvider->invalidateConnection(connection);
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to parse response. Invalid response headers");
   }
   
   if(error.ioStatus < 0) {
+    m_connectionProvider->invalidateConnection(connection);
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::execute()]: Failed to read response.");
   }
@@ -229,6 +231,15 @@ HttpRequestExecutor::executeAsync(const String& method,
                                             result.startingLine.description.toString(),
                                             result.headers, bodyStream, m_bodyDecoder));
       
+    }
+
+    Action handleError(oatpp::async::Error* error) override {
+
+      if(m_connection) {
+        m_connectionProvider->invalidateConnection(m_connection);
+      }
+
+      return error;
     }
     
   };
