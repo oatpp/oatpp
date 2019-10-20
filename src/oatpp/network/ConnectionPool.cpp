@@ -24,36 +24,27 @@
 
 #include "ConnectionPool.hpp"
 
+#include <thread>
+#include <chrono>
+
 namespace oatpp { namespace network {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionPool::Pool
 
-void ConnectionPool::pushConnection(Pool* pool, const std::shared_ptr<IOStream>& connection, v_int32 inc) {
+void ConnectionPool::Pool::onNewItem(oatpp::async::CoroutineWaitList& list) {
 
-  {
-    std::lock_guard<std::mutex> lock(pool->lock);
+  std::lock_guard<std::mutex> lockGuard(lock);
 
-    if (inc >= 0) {
-      pool->connections.push_back({connection, oatpp::base::Environment::getMicroTickCount()});
-    } else {
-      pool->size --;
-    }
-
-    if (inc > 0) {
-      pool->size ++;
-    }
-
+  if(!isOpen) {
+    list.notifyAll();
+    return;
   }
 
-  pool->condition.notify_one();
+  if(size < maxConnections || connections.size() > 0) {
+    list.notifyFirst();
+  }
 
-}
-
-std::shared_ptr<ConnectionPool::IOStream> ConnectionPool::popConnection_NON_BLOCKING(Pool* pool) {
-  auto result = pool->connections.front();
-  pool->connections.pop_front();
-  return result.connection;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,32 +100,191 @@ void ConnectionPool::ConnectionWrapper::invalidate() {
   m_recycleConnection = false;
 }
 
+bool ConnectionPool::ConnectionWrapper::isValid() {
+  return m_connection && m_recycleConnection;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionPool
 
+ConnectionPool::ConnectionPool(const std::shared_ptr<ConnectionProvider>& connectionProvider,
+               v_int64 maxConnections,
+               v_int64 maxConnectionTTL)
+  : m_pool(std::make_shared<Pool>(maxConnections, maxConnectionTTL))
+  , m_connectionProvider(connectionProvider)
+{
+
+  std::thread poolCleanupTask(cleanupTask, m_pool);
+  poolCleanupTask.detach();
+
+}
+
+void ConnectionPool::cleanupTask(std::shared_ptr<Pool> pool) {
+
+  while(pool->isOpen) {
+
+    {
+
+      std::lock_guard<std::mutex> lock(pool->lock);
+      auto ticks = oatpp::base::Environment::getMicroTickCount();
+
+      std::list<ConnectionHandle>::iterator i = pool->connections.begin();
+      while (i != pool->connections.end()) {
+
+        if(ticks - i->timestamp > pool->maxConnectionTTL) {
+          i = pool->connections.erase(i);
+          pool->size --;
+        } else {
+          i ++;
+        }
+
+      }
+
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+  }
+
+}
+
+void ConnectionPool::pushConnection(Pool* pool, const std::shared_ptr<IOStream>& connection, v_int32 inc) {
+
+  {
+    std::lock_guard<std::mutex> lock(pool->lock);
+
+    if(!pool->isOpen) {
+      pool->size --;
+      return;
+    }
+
+    if (inc >= 0) {
+      pool->connections.push_back({connection, oatpp::base::Environment::getMicroTickCount()});
+    } else {
+      pool->size --;
+    }
+
+    if (inc > 0) {
+      pool->size ++;
+    }
+
+  }
+
+  pool->condition.notify_one();
+  pool->waitList.notifyFirst();
+
+}
+
+std::shared_ptr<ConnectionPool::IOStream> ConnectionPool::popConnection_NON_BLOCKING(Pool* pool) {
+  auto result = pool->connections.front();
+  pool->connections.pop_front();
+  return result.connection;
+}
+
 std::shared_ptr<ConnectionPool::ConnectionWrapper> ConnectionPool::getConnection() {
 
-  std::unique_lock<std::mutex> lock(m_pool->lock);
-  while (m_pool->size >= m_maxConnections && m_pool->connections.size() == 0) {
-    m_pool->condition.wait(lock);
+  {
+
+    std::unique_lock<std::mutex> lock(m_pool->lock);
+
+    while (m_pool->isOpen && m_pool->size >= m_pool->maxConnections && m_pool->connections.size() == 0) {
+      m_pool->condition.wait(lock);
+    }
+
+    if(!m_pool->isOpen) {
+      return nullptr;
+    }
+
+    if (m_pool->connections.size() > 0) {
+      return std::make_shared<ConnectionWrapper>(popConnection_NON_BLOCKING(m_pool.get()), m_pool);
+    } else {
+      m_pool->size ++;
+    }
+
   }
 
-  if(m_pool->connections.size() == 0) {
-    m_pool->size ++;
-    return std::make_shared<ConnectionWrapper>(m_connectionProvider->getConnection(), m_pool);
-  }
-
-  return std::make_shared<ConnectionWrapper>(popConnection_NON_BLOCKING(m_pool.get()), m_pool);
+  return std::make_shared<ConnectionWrapper>(m_connectionProvider->getConnection(), m_pool);
 
 }
 
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionPool::ConnectionWrapper>&> ConnectionPool::getConnectionAsync() {
 
-  
+  class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<ConnectionPool::ConnectionWrapper>&> {
+  private:
+    std::shared_ptr<Pool> m_pool;
+    std::shared_ptr<ConnectionProvider> m_connectionProvider;
+    bool m_wasInc;
+  public:
+
+    ConnectionCoroutine(const std::shared_ptr<Pool>& pool,
+                        const std::shared_ptr<ConnectionProvider>& connectionProvider)
+      : m_pool(pool)
+      , m_connectionProvider(connectionProvider)
+      , m_wasInc(false)
+    {}
+
+    Action act() override {
+
+      {
+        /* Careful!!! Using non-async lock */
+        std::unique_lock<std::mutex> lock(m_pool->lock);
+
+        if (m_pool->isOpen && m_pool->size >= m_pool->maxConnections && m_pool->connections.size() == 0) {
+          lock.unlock();
+          return Action::createWaitListAction(&m_pool->waitList);
+        }
+
+        if(!m_pool->isOpen) {
+          lock.unlock();
+          return _return(nullptr);
+        }
+
+        if (m_pool->connections.size() > 0) {
+          auto connection = std::make_shared<ConnectionWrapper>(popConnection_NON_BLOCKING(m_pool.get()), m_pool);
+          lock.unlock();
+          return _return(connection);
+        } else {
+          m_pool->size ++;
+          m_wasInc = true;
+        }
+
+      }
+
+      return m_connectionProvider->getConnectionAsync().callbackTo(&ConnectionCoroutine::onConnection);
+
+    }
+
+    Action onConnection(const std::shared_ptr<IOStream>& connection) {
+      return _return(std::make_shared<ConnectionWrapper>(connection, m_pool));
+    }
+
+    Action handleError(oatpp::async::Error* error) override {
+      if(m_wasInc) {
+        /* Careful!!! Using non-async lock */
+        std::lock_guard<std::mutex> lock(m_pool->lock);
+        m_pool->size --;
+      }
+      return error;
+    }
+
+  };
+
+  return ConnectionCoroutine::startForResult(m_pool, m_connectionProvider);
 
 }
 
 void ConnectionPool::close() {
+
+  {
+    std::lock_guard<std::mutex> lock(m_pool->lock);
+    m_pool->isOpen = false;
+    auto size = m_pool->connections.size();
+    m_pool->connections.clear();
+    m_pool->size -= size;
+  }
+
+  m_pool->condition.notify_all();
+  m_pool->waitList.notifyAll();
 
 }
 

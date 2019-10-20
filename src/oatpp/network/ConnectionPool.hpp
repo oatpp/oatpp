@@ -28,6 +28,7 @@
 #include "ConnectionProvider.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/async/CoroutineWaitList.hpp"
 
 #include <list>
 #include <condition_variable>
@@ -46,13 +47,27 @@ private:
 
 private:
 
-  class Pool {
+  class Pool : private oatpp::async::CoroutineWaitList::Listener {
     friend ConnectionPool;
   private:
+    void onNewItem(oatpp::async::CoroutineWaitList& list) override;
+  private:
+    oatpp::async::CoroutineWaitList waitList;
     std::condition_variable condition;
     std::mutex lock;
     std::list<ConnectionHandle> connections;
     v_int64 size = 0;
+    v_int64 maxConnections;
+    v_int64 maxConnectionTTL;
+  private:
+    std::atomic<bool> isOpen;
+  public:
+    Pool(v_int64 pMaxConnections, v_int64 pMmaxConnectionTTL)
+      : maxConnections(pMaxConnections)
+      , maxConnectionTTL(pMmaxConnectionTTL)
+      , isOpen(true)
+    {}
+
   };
 
 public:
@@ -80,6 +95,7 @@ public:
     oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
     void invalidate();
+    bool isValid();
 
   };
 
@@ -101,11 +117,13 @@ private:
    */
   static std::shared_ptr<IOStream> popConnection_NON_BLOCKING(Pool* pool);
 
+public:
+
+  static void cleanupTask(std::shared_ptr<Pool> pool);
+
 private:
   std::shared_ptr<Pool> m_pool;
   std::shared_ptr<ConnectionProvider> m_connectionProvider;
-  v_int64 m_maxConnections;
-  v_int64 m_maxConnectionTTL;
 public:
 
   /**
@@ -114,12 +132,7 @@ public:
    */
   ConnectionPool(const std::shared_ptr<ConnectionProvider>& connectionProvider,
                  v_int64 maxConnections,
-                 v_int64 maxConnectionTTL)
-    : m_pool(std::make_shared<Pool>())
-    , m_connectionProvider(connectionProvider)
-    , m_maxConnections(maxConnections)
-    , m_maxConnectionTTL(maxConnectionTTL)
-  {}
+                 v_int64 maxConnectionTTL);
 
   /**
    * Get connection.

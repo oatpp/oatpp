@@ -29,6 +29,8 @@ add_executable(oatppAllTests
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
+        oatpp/network/ConnectionPoolTest.cpp
+        oatpp/network/ConnectionPoolTest.hpp
         oatpp/network/UrlTest.cpp
         oatpp/network/UrlTest.hpp
         oatpp/network/virtual_/InterfaceTest.cpp
@@ -64,7 +66,8 @@ add_executable(oatppAllTests
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
         oatpp/web/app/ControllerWithInterceptors.hpp
-        oatpp/web/app/ControllerWithInterceptorsAsync.hpp)
+        oatpp/web/app/ControllerWithInterceptorsAsync.hpp
+)
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
 
