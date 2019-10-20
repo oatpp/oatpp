@@ -109,14 +109,18 @@ bool ConnectionPool::ConnectionWrapper::isValid() {
 
 ConnectionPool::ConnectionPool(const std::shared_ptr<ConnectionProvider>& connectionProvider,
                v_int64 maxConnections,
-               v_int64 maxConnectionTTL)
-  : m_pool(std::make_shared<Pool>(maxConnections, maxConnectionTTL))
+               const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL)
+  : m_pool(std::make_shared<Pool>(maxConnections, std::chrono::duration_cast<std::chrono::microseconds>(maxConnectionTTL).count()))
   , m_connectionProvider(connectionProvider)
 {
 
   std::thread poolCleanupTask(cleanupTask, m_pool);
   poolCleanupTask.detach();
 
+}
+
+ConnectionPool::~ConnectionPool() {
+  close();
 }
 
 void ConnectionPool::cleanupTask(std::shared_ptr<Pool> pool) {
@@ -142,7 +146,7 @@ void ConnectionPool::cleanupTask(std::shared_ptr<Pool> pool) {
 
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   }
 
@@ -181,6 +185,14 @@ std::shared_ptr<ConnectionPool::IOStream> ConnectionPool::popConnection_NON_BLOC
   return result.connection;
 }
 
+std::shared_ptr<ConnectionProvider> ConnectionPool::getConnectionProvider() {
+  return m_connectionProvider;
+}
+
+std::shared_ptr<ConnectionPool::Pool> ConnectionPool::getPoolInstance() {
+  return m_pool;
+}
+
 std::shared_ptr<ConnectionPool::ConnectionWrapper> ConnectionPool::getConnection() {
 
   {
@@ -207,7 +219,8 @@ std::shared_ptr<ConnectionPool::ConnectionWrapper> ConnectionPool::getConnection
 
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionPool::ConnectionWrapper>&> ConnectionPool::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionPool::ConnectionWrapper>&>
+ConnectionPool::getConnectionAsync(const std::shared_ptr<ConnectionProvider>& connectionProvider, const std::shared_ptr<Pool>& poolInstance) {
 
   class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<ConnectionPool::ConnectionWrapper>&> {
   private:
@@ -269,14 +282,23 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionPool::Co
 
   };
 
-  return ConnectionCoroutine::startForResult(m_pool, m_connectionProvider);
+  return ConnectionCoroutine::startForResult(poolInstance, connectionProvider);
 
+}
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionPool::ConnectionWrapper>&> ConnectionPool::getConnectionAsync() {
+  return getConnectionAsync(m_connectionProvider, m_pool);
 }
 
 void ConnectionPool::close() {
 
   {
     std::lock_guard<std::mutex> lock(m_pool->lock);
+
+    if (!m_pool->isOpen) {
+      return;
+    }
+
     m_pool->isOpen = false;
     auto size = m_pool->connections.size();
     m_pool->connections.clear();
@@ -286,6 +308,108 @@ void ConnectionPool::close() {
   m_pool->condition.notify_all();
   m_pool->waitList.notifyAll();
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ServerConnectionPool
+
+ServerConnectionPool::ServerConnectionPool(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
+                                           v_int64 maxConnections,
+                                           const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL)
+  : m_pool(connectionProvider, maxConnections, maxConnectionTTL)
+{}
+
+std::shared_ptr<oatpp::data::stream::IOStream> ServerConnectionPool::getConnection() {
+  return m_pool.getConnection();
+}
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ServerConnectionPool::getConnectionAsync() {
+
+  class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<IOStream>&> {
+  private:
+    std::shared_ptr<ConnectionPool::Pool> m_pool;
+    std::shared_ptr<ConnectionProvider> m_connectionProvider;
+  public:
+
+    ConnectionCoroutine(const std::shared_ptr<ConnectionPool::Pool>& pool,
+                        const std::shared_ptr<ConnectionProvider>& connectionProvider)
+      : m_pool(pool)
+      , m_connectionProvider(connectionProvider)
+    {}
+
+    Action act() override {
+      return ConnectionPool::getConnectionAsync(m_connectionProvider, m_pool).callbackTo(&ConnectionCoroutine::onConnection);
+    }
+
+    Action onConnection(const std::shared_ptr<ConnectionPool::ConnectionWrapper>& connectionWrapper) {
+      return _return(connectionWrapper);
+    }
+
+
+  };
+
+  return ConnectionCoroutine::startForResult(m_pool.getPoolInstance(), m_pool.getConnectionProvider());
+
+}
+
+void ServerConnectionPool::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+  auto wrapper = std::static_pointer_cast<ConnectionPool::ConnectionWrapper>(connection);
+  wrapper->invalidate();
+}
+
+void ServerConnectionPool::close() {
+  m_pool.close();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ClientConnectionPool
+
+ClientConnectionPool::ClientConnectionPool(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                                           v_int64 maxConnections,
+                                           const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL)
+  : m_pool(connectionProvider, maxConnections, maxConnectionTTL)
+{}
+
+std::shared_ptr<oatpp::data::stream::IOStream> ClientConnectionPool::getConnection() {
+  return m_pool.getConnection();
+}
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ClientConnectionPool::getConnectionAsync() {
+
+  class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<IOStream>&> {
+  private:
+    std::shared_ptr<ConnectionPool::Pool> m_pool;
+    std::shared_ptr<ConnectionProvider> m_connectionProvider;
+  public:
+
+    ConnectionCoroutine(const std::shared_ptr<ConnectionPool::Pool>& pool,
+                        const std::shared_ptr<ConnectionProvider>& connectionProvider)
+      : m_pool(pool)
+      , m_connectionProvider(connectionProvider)
+    {}
+
+    Action act() override {
+      return ConnectionPool::getConnectionAsync(m_connectionProvider, m_pool).callbackTo(&ConnectionCoroutine::onConnection);
+    }
+
+    Action onConnection(const std::shared_ptr<ConnectionPool::ConnectionWrapper>& connectionWrapper) {
+      return _return(connectionWrapper);
+    }
+
+
+  };
+
+  return ConnectionCoroutine::startForResult(m_pool.getPoolInstance(), m_pool.getConnectionProvider());
+
+}
+
+void ClientConnectionPool::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+  auto wrapper = std::static_pointer_cast<ConnectionPool::ConnectionWrapper>(connection);
+  wrapper->invalidate();
+}
+
+void ClientConnectionPool::close() {
+  m_pool.close();
 }
 
 }}

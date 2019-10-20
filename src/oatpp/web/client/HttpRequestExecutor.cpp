@@ -45,15 +45,15 @@
 
 namespace oatpp { namespace web { namespace client {
 
-HttpRequestExecutor::HttpRequestExecutor(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
-                                         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder)
+HttpRequestExecutor::HttpRequestExecutor(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                                         const std::shared_ptr<const BodyDecoder>& bodyDecoder)
   : m_connectionProvider(connectionProvider)
   , m_bodyDecoder(bodyDecoder)
 {}
 
 std::shared_ptr<HttpRequestExecutor>
-HttpRequestExecutor::createShared(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
-                                  const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder)
+HttpRequestExecutor::createShared(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                                  const std::shared_ptr<const BodyDecoder>& bodyDecoder)
 {
   return std::make_shared<HttpRequestExecutor>(connectionProvider, bodyDecoder);
 }
@@ -72,10 +72,10 @@ HttpRequestExecutor::getConnectionAsync() {
   
   class GetConnectionCoroutine : public oatpp::async::CoroutineWithResult<GetConnectionCoroutine, const std::shared_ptr<ConnectionHandle>&> {
   private:
-    std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
+    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
   public:
     
-    GetConnectionCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider)
+    GetConnectionCoroutine(const std::shared_ptr<ClientConnectionProvider>& connectionProvider)
       : m_connectionProvider(connectionProvider)
     {}
     
@@ -100,7 +100,7 @@ HttpRequestExecutor::execute(const String& method,
                              const std::shared_ptr<Body>& body,
                              const std::shared_ptr<ConnectionHandle>& connectionHandle) {
   
-  std::shared_ptr<oatpp::network::ConnectionProvider::IOStream> connection;
+  std::shared_ptr<oatpp::data::stream::IOStream> connection;
   if(connectionHandle) {
     connection = static_cast<HttpConnectionHandle*>(connectionHandle.get())->connection;
   } else {
@@ -161,12 +161,12 @@ HttpRequestExecutor::executeAsync(const String& method,
   private:
     typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
   private:
-    std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
+    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
     String m_method;
     String m_path;
     Headers m_headers;
     std::shared_ptr<Body> m_body;
-    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
+    std::shared_ptr<const BodyDecoder> m_bodyDecoder;
     std::shared_ptr<ConnectionHandle> m_connectionHandle;
     std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_upstream;
   private:
@@ -174,12 +174,12 @@ HttpRequestExecutor::executeAsync(const String& method,
     oatpp::data::share::MemoryLabel m_buffer;
   public:
     
-    ExecutorCoroutine(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
+    ExecutorCoroutine(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
                       const String& method,
                       const String& path,
                       const Headers& headers,
                       const std::shared_ptr<Body>& body,
-                      const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
+                      const std::shared_ptr<const BodyDecoder>& bodyDecoder,
                       const std::shared_ptr<ConnectionHandle>& connectionHandle)
       : m_connectionProvider(connectionProvider)
       , m_method(method)

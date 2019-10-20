@@ -99,6 +99,15 @@ public:
   }
 
   /**
+   * Does nothing.
+   * @param connection
+   */
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override {
+    (void)connection;
+    // DO Nothing.
+  }
+
+  /**
    * Get port.
    * @return
    */

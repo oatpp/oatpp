@@ -28,6 +28,7 @@
 #include "./RequestExecutor.hpp"
 
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
+#include "oatpp/network/ConnectionPool.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
 namespace oatpp { namespace web { namespace client {
@@ -38,10 +39,13 @@ namespace oatpp { namespace web { namespace client {
 class HttpRequestExecutor : public oatpp::base::Countable, public RequestExecutor {
 private:
   typedef oatpp::web::protocol::http::Header Header;
+  typedef oatpp::network::ClientConnectionProvider ClientConnectionProvider;
+  typedef oatpp::web::protocol::http::incoming::BodyDecoder BodyDecoder;
 protected:
-  std::shared_ptr<oatpp::network::ClientConnectionProvider> m_connectionProvider;
-  std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
+  std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
+  std::shared_ptr<const BodyDecoder> m_bodyDecoder;
 public:
+
   /**
    * Connection handle for &l:HttpRequestExecutor; <br>
    * For more details see &id:oatpp::web::client::RequestExecutor::ConnectionHandle;.
@@ -51,16 +55,16 @@ public:
 
     /**
      * Constructor.
-     * @param stream - &id:oatpp::network::ConnectionProvider::IOStream;.
+     * @param stream - &id:oatpp::data::stream::IOStream;.
      */
-    HttpConnectionHandle(const std::shared_ptr<oatpp::network::ConnectionProvider::IOStream>& stream)
+    HttpConnectionHandle(const std::shared_ptr<oatpp::data::stream::IOStream>& stream)
       : connection(stream)
     {}
 
     /**
      * Connection.
      */
-    std::shared_ptr<oatpp::network::ConnectionProvider::IOStream> connection;
+    std::shared_ptr<oatpp::data::stream::IOStream> connection;
   };
 public:
 
@@ -69,8 +73,8 @@ public:
    * @param connectionProvider - &id:oatpp::network::ClientConnectionProvider;.
    * @param bodyDecoder - &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
    */
-  HttpRequestExecutor(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
-                      const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder =
+  HttpRequestExecutor(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                      const std::shared_ptr<const BodyDecoder>& bodyDecoder =
                       std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>());
 public:
 
@@ -81,8 +85,8 @@ public:
    * @return - `std::shared_ptr` to `HttpRequestExecutor`.
    */
   static std::shared_ptr<HttpRequestExecutor>
-  createShared(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& connectionProvider,
-               const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder =
+  createShared(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+               const std::shared_ptr<const BodyDecoder>& bodyDecoder =
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>());
 
   /**

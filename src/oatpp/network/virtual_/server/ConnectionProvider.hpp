@@ -95,6 +95,15 @@ public:
      */
     throw std::runtime_error("[oatpp::network::virtual_::server::ConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
   }
+
+  /**
+   * Does nothing.
+   * @param connection
+   */
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override {
+    (void)connection;
+    // DO Nothing.
+  }
   
 };
   

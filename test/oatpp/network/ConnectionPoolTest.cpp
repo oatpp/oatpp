@@ -79,12 +79,12 @@ public:
 
   std::atomic<v_int64> counter;
 
-  virtual std::shared_ptr<IOStream> getConnection() {
+  std::shared_ptr<IOStream> getConnection() override {
     ++ counter;
     return std::make_shared<StubStream>();
   }
 
-  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override {
 
     class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
     public:
@@ -100,8 +100,13 @@ public:
 
   }
 
-  virtual void close() {
+  void close() override {
     // DO NOTHING
+  }
+
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override {
+    (void)connection;
+    // DO Nothing.
   }
 
 };
@@ -111,11 +116,13 @@ private:
   std::shared_ptr<ConnectionPool> m_pool;
   std::shared_ptr<ConnectionPool::ConnectionWrapper> m_connection;
   v_int32 m_repeats;
+  bool m_invalidate;
 public:
 
-  ClientCoroutine(const std::shared_ptr<ConnectionPool>& pool)
+  ClientCoroutine(const std::shared_ptr<ConnectionPool>& pool, bool invalidate)
     : m_pool(pool)
     , m_repeats(0)
+    , m_invalidate(invalidate)
   {}
 
   Action act() override {
@@ -132,14 +139,20 @@ public:
       m_repeats ++;
       return waitRepeat(std::chrono::milliseconds(100));
     }
+    if(m_invalidate) {
+      m_connection->invalidate();
+    }
     return finish();
   }
 
 };
 
-void clientMethod(std::shared_ptr<ConnectionPool> pool) {
+void clientMethod(std::shared_ptr<ConnectionPool> pool, bool invalidate) {
   auto connection = pool->getConnection();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  if(invalidate) {
+    connection->invalidate();
+  }
 }
 
 }
@@ -149,14 +162,14 @@ void ConnectionPoolTest::onRun() {
   oatpp::async::Executor executor(1, 1, 1);
 
   auto connectionProvider = std::make_shared<StubStreamProvider>();
-  auto pool = std::make_shared<ConnectionPool>(connectionProvider, 10 /* maxConnections */, 10 * 1000 * 1000 /* 10s maxConnectionTTL */);
+  auto pool = std::make_shared<ConnectionPool>(connectionProvider, 10 /* maxConnections */, std::chrono::seconds(10) /* maxConnectionTTL */);
 
   std::list<std::thread> threads;
 
   for(v_int32 i = 0; i < 100; i ++ ) {
 
-    threads.push_back(std::thread(clientMethod, pool));
-    executor.execute<ClientCoroutine>(pool);
+    threads.push_back(std::thread(clientMethod, pool, false));
+    executor.execute<ClientCoroutine>(pool, false);
 
   }
 
@@ -173,6 +186,9 @@ void ConnectionPoolTest::onRun() {
 
   executor.stop();
   executor.join();
+
+  /* wait pool cleanup task exit */
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
 }
 

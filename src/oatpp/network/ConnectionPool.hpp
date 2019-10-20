@@ -32,9 +32,13 @@
 
 #include <list>
 #include <condition_variable>
+#include <chrono>
 
 namespace oatpp { namespace network {
 
+/**
+ * Connection Pool.
+ */
 class ConnectionPool {
 public:
   typedef oatpp::data::stream::IOStream IOStream;
@@ -45,9 +49,9 @@ private:
     v_int64 timestamp;
   };
 
-private:
+public:
 
-  class Pool : private oatpp::async::CoroutineWaitList::Listener {
+  class Pool : private oatpp::async::CoroutineWaitList::Listener, public oatpp::base::Countable {
     friend ConnectionPool;
   private:
     void onNewItem(oatpp::async::CoroutineWaitList& list) override;
@@ -67,11 +71,14 @@ private:
       , maxConnectionTTL(pMmaxConnectionTTL)
       , isOpen(true)
     {}
-
   };
 
 public:
 
+  /**
+   * Wrapper over &id:oatpp::data::stream::IOStream;.
+   * Will acquire connection from the pool on initialization and will return connection to the pool on destruction.
+   */
   class ConnectionWrapper : public oatpp::data::stream::IOStream {
   private:
     std::shared_ptr<IOStream> m_connection;
@@ -94,7 +101,15 @@ public:
     void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
     oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
+    /**
+     * Mark that this connection cannot be reused in the pool any more.
+     */
     void invalidate();
+
+    /**
+     * Check if connection is still valid.
+     * @return
+     */
     bool isValid();
 
   };
@@ -117,10 +132,8 @@ private:
    */
   static std::shared_ptr<IOStream> popConnection_NON_BLOCKING(Pool* pool);
 
-public:
-
+private:
   static void cleanupTask(std::shared_ptr<Pool> pool);
-
 private:
   std::shared_ptr<Pool> m_pool;
   std::shared_ptr<ConnectionProvider> m_connectionProvider;
@@ -128,11 +141,31 @@ public:
 
   /**
    * Constructor.
-   * @param connectionProvider
+   * @param connectionProvider - underlying connection provider.
+   * @param maxConnections - maximum number of allowed connections in the pool.
+   * @param maxConnectionTTL - maximum time that unused connection is allowed to live in the pool.
    */
   ConnectionPool(const std::shared_ptr<ConnectionProvider>& connectionProvider,
                  v_int64 maxConnections,
-                 v_int64 maxConnectionTTL);
+                 const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL);
+
+  /**
+   * Destructor.
+   * Calls &l:ConnectionPool::close ();.
+   */
+  ~ConnectionPool();
+
+  /**
+   * Get underlying connection provider.
+   * @return - `std::shared_ptr` to &id:oatpp::network::ConnectionProvider;.
+   */
+  std::shared_ptr<ConnectionProvider> getConnectionProvider();
+
+  /**
+   * Get pool instance.
+   * @return
+   */
+  std::shared_ptr<Pool> getPoolInstance();
 
   /**
    * Get connection.
@@ -140,6 +173,15 @@ public:
    * @return
    */
   std::shared_ptr<ConnectionWrapper> getConnection();
+
+  /**
+   * Get connection in Async manner.
+   * @param connectionProvider
+   * @param poolInstance
+   * @return
+   */
+  static oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionWrapper>&>
+  getConnectionAsync(const std::shared_ptr<ConnectionProvider>& connectionProvider, const std::shared_ptr<Pool>& poolInstance);
 
   /**
    * Get connection in Async manner.
@@ -154,6 +196,98 @@ public:
    * Other connections are closed once returned to the pool.
    */
   void close();
+
+};
+
+/**
+ * &id:oatpp::network::ServerConnectionProvider; based on &l:ConnectionPool;.
+ */
+class ServerConnectionPool : public ServerConnectionProvider {
+private:
+  ConnectionPool m_pool;
+public:
+
+  /**
+   * Constructor.
+   * @param connectionProvider - underlying connection provider.
+   * @param maxConnections - maximum number of allowed connections in the pool.
+   * @param maxConnectionTTL - maximum time that unused connection is allowed to live in the pool.
+   */
+  ServerConnectionPool(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
+                       v_int64 maxConnections,
+                       const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL);
+
+  /**
+   * Get connection.
+   * This call will wait until connection is available.
+   * @return
+   */
+  std::shared_ptr<IOStream> getConnection() override;
+
+  /**
+   * Get connection in Async manner.
+   * This call will wait until connection is available.
+   * @return
+   */
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<IOStream>&> getConnectionAsync() override;
+
+  /**
+   * Invalidate connection that was previously created by this provider.
+   * Ex.: if provider is pool based - you can signal that this connection should not be reused anymore.
+   * @param connection
+   */
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+
+  /**
+   * Close pool.
+   */
+  void close() override;
+
+};
+
+/**
+ * &id:oatpp::network::ClientConnectionProvider; based on &l:ConnectionPool;.
+ */
+class ClientConnectionPool : public ClientConnectionProvider {
+private:
+  ConnectionPool m_pool;
+public:
+
+  /**
+   * Constructor.
+   * @param connectionProvider - underlying connection provider.
+   * @param maxConnections - maximum number of allowed connections in the pool.
+   * @param maxConnectionTTL - maximum time that unused connection is allowed to live in the pool.
+   */
+  ClientConnectionPool(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                       v_int64 maxConnections,
+                       const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL);
+
+  /**
+   * Get connection.
+   * This call will wait until connection is available.
+   * @return
+   */
+  std::shared_ptr<IOStream> getConnection() override;
+
+  /**
+   * Get connection in Async manner.
+   * This call will wait until connection is available.
+   * @return
+   */
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<IOStream>&> getConnectionAsync() override;
+
+  /**
+   * Invalidate connection that was previously created by this provider.
+   * Ex.: if provider is pool based - you can signal that this connection should not be reused anymore.
+   * @param connection
+   */
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+
+  /**
+   * Close pool.
+   */
+  void close() override;
 
 };
 
