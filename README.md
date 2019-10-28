@@ -1,11 +1,12 @@
 # Oat++ [![oatpp build status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp)](https://dev.azure.com/lganzzzo/lganzzzo/_build?definitionId=1) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/oatpp/oatpp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/oatpp/oatpp/context:cpp) [![Join the chat at https://gitter.im/oatpp-framework/Lobby](https://badges.gitter.im/oatpp-framework/Lobby.svg)](https://gitter.im/oatpp-framework/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Modern Web Framework for C++. High performance, simple API, cross platform, zero dependency.  
-Works on **Linux/Unix/Windows**. See full list of [supported-platforms](https://oatpp.io/supported-platforms/).
+Oat++ is the modern Web Framework for C++. It's fully loaded and contains all necessary components for
+effective production level development. It's also light and has small memory footprint.
 
 - [Website](https://oatpp.io/)
 - [Docs](https://oatpp.io/docs/start/)
 - [Api Reference](https://oatpp.io/api/latest/)
+- [Supported Platforms](https://oatpp.io/supported-platforms/)
 - Latest Benchmarks: [5 Million WebSockets](https://oatpp.io/benchmark/websocket/5-million/)
 
 **Contributors wanted!**  
@@ -16,163 +17,156 @@ Works on **Linux/Unix/Windows**. See full list of [supported-platforms](https://
 - Follow us on **Twitter** for latest news. [@oatpp_io](https://twitter.com/oatpp_io)
 - Join community on **Reddit**. [r/oatpp](https://www.reddit.com/r/oatpp/)
 
-## Features
+## High Level Overview
 
-- Blazingly fast
-- Zero Dependency
-- **Asynchronous server (High performance. Handle over 5 Million simultaneous WebSocket connections on a single server.)** [See benchmark](https://oatpp.io/benchmark/websocket/5-million/)
-- Multithreaded server (Simple API)
-- Connection agnostic. (Use whatever transport. Whatever SSL backend. Whatever sockets, pipes, files. etc. It cares about HTTP stream only)
-- REST framework (with ability to autodocument endpoints see [oatpp-swagger](https://github.com/oatpp/oatpp-swagger))
-- Retrofit-like client wrapper (Use whatever request executor for example cURL, or minimalistic one provided out of the box)
-- Object mapping (Fast object serialization-deserialization. Currently JSON, more formats comes shortly)
-- Simple dependency injection framework
-- Simple Test framework
-- HTTP_1.1 (2.0 comes shortly)
+- [API Controller And Request Mapping](#api-controller-and-request-mapping)
+    * [Declare Endpoint](#declare-endpoint)
+    * [Add CORS for Endpoint](#add-cors-for-endpoint)
+    * [Endpoint with Authorization](#endpoint-with-authorization)
+- [Swagger-UI Annotations](#swagger-ui-annotations)
+    * [Additional Endpoint Info](#additional-endpoint-info)
+- [API Client - Retrofit / Feign Like Client](#api-client---retrofit--feign-like-client)
+    * [Declare Client](#declare-client)
+    * [Using API Client](#using-api-client)
+- [Object Mapping](#object-mapping)
+    * [Declare DTO](#declare-dto)
+    * [Serialize DTO Using ObjectMapper](#serialize-dto-using-objectmapper)
 
-## Simple API overview
-"Simple API" refers to as API used together with ```oatpp::web::server::HttpConnectionHandler``` utilizing multithreading plus blocking-IO approach. 
 
-### Create Endpoint
+### API Controller And Request Mapping
 
-```c++
-ENDPOINT("GET", "demo/api/hello", hello) {
-  return createResponse(Status::CODE_200, "Hello World!");
+For more info see [Api Controller](https://oatpp.io/docs/components/api-controller/)
+
+#### Declare Endpoint
+
+```cpp
+ENDPOINT("PUT", "/users/{userId}", putUser,
+         PATH(Int64, userId),
+         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+{
+  userDto->id = userId;
+  return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
 }
 ```
 
-### Pass parameters to endpoint
+#### Add CORS for Endpoint
 
-```c++
-ENDPOINT("GET", "demo/api/param/{param}", getWithParams,
-         PATH(String, param)) {
-  return createResponse(Status::CODE_200, "param=" + param);
+For more info see [Api Controller / CORS](https://oatpp.io/docs/components/api-controller/#cors)
+
+```cpp
+ADD_CORS(putUser)
+ENDPOINT("PUT", "/users/{userId}", putUser,
+         PATH(Int64, userId),
+         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+{
+  userDto->id = userId;
+  return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
 }
 ```
 
-### Return JSON
+#### Endpoint with Authorization
 
-```c++
-ENDPOINT("GET", "demo/api/json", getJson) {
-  auto dto = MyDto::createShared();
-  dto->statusCode = 200;
-  dto->message = "Hello json";
-  return createDtoResponse(Status::CODE_200, dto);
-}
-```
-**Output:**
-```
-{"message": "Hello json", "statusCode": 200}
-```
+For more info see [Api Controller / Authorization](https://oatpp.io/docs/components/api-controller/#authorization-basic)
 
-### Post JSON body
-
-```c++
-ENDPOINT("POST", "demo/api/json", postJson,
-         BODY_DTO(MyDto::ObjectWrapper, dto)) {
-  auto dtoMessage = dto->message;
-  return createResponse(Status::CODE_200, "dtoMessage: " + dtoMessage);
+```cpp
+using namespace oatpp::web::server::handler;
+  
+ENDPOINT("PUT", "/users/{userId}", putUser,
+         AUTHORIZATION(std::shared_ptr<DefaultBasicAuthorizationObject>, authObject),
+         PATH(Int64, userId),
+         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+{
+  OATPP_ASSERT_HTTP(authObject->userId == "Ivan" && authObject->password == "admin", Status::CODE_401, "Unauthorized");
+  userDto->id = userId;
+  return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
 }
 ```
 
-**Terminal:**
+### Swagger-UI Annotations
 
+For more info see [Endpoint Annotation And API Documentation](https://oatpp.io/docs/components/api-controller/#endpoint-annotation-and-api-documentation)
+
+#### Additional Endpoint Info
+
+```cpp
+ENDPOINT_INFO(putUser) {
+  // general
+  info->summary = "Update User by userId";
+  info->addConsumes<dto::UserDto::ObjectWrapper>("application/json");
+  info->addResponse<dto::UserDto::ObjectWrapper>(Status::CODE_200, "application/json");
+  info->addResponse<String>(Status::CODE_404, "text/plain");
+  // params specific
+  info->pathParams["userId"].description = "User Identifier";
+}
+ENDPOINT("PUT", "/users/{userId}", putUser,
+         PATH(Int64, userId),
+         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+{
+  userDto->id = userId;
+  return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
+}
 ```
-$ curl -X POST "localhost:8001/demo/api/json" -d '{"message": "hello json post"}'
-dtoMessage: hello json post
-```
 
-## Async API overview
-"Async API" refers to as API used together with ```oatpp::web::server::AsyncHttpConnectionHandler``` utilizing oatpp-coroutines plus non-blocking-IO approach. 
+### API Client - Retrofit / Feign Like Client
 
-### Create Endpoint Async
-```c++
-ENDPOINT_ASYNC("GET", "demo/api_async/hello", HelloAsync) {
+For more info see [Api Client](https://oatpp.io/docs/components/api-client/)
 
-  ENDPOINT_ASYNC_INIT(HelloAsync)
+#### Declare Client
 
-  Action act() override {
-    return _return(controller->createResponse(Status::CODE_200, "Hello World Async API!"));
-  }
+```cpp
+class UserService : public oatpp::web::client::ApiClient {
+public:
+
+  API_CLIENT_INIT(UserService)
+
+  API_CALL("GET", "/users", getUsers)
+  API_CALL("GET", "/users/{userId}", getUserById, PATH(Int64, userId))
 
 };
 ```
 
-### Pass parameters to endpoint Async
-```c++
-ENDPOINT_ASYNC("GET", "demo/api_async/param/{param}", GetWithParamsAsync) {
+#### Using API Client
 
-  ENDPOINT_ASYNC_INIT(GetWithParamsAsync)
+```cpp
+auto response = userService->getUserById(id);
+auto user = response->readBodyToDto<dto::UserDto>(objectMapper);
+```
 
-  Action act() override {
-    auto param = request->getPathVariable("param");
-    return _return(controller->createResponse(Status::CODE_200, "param=" + param));
-  }
+### Object Mapping
+
+For more info see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
+
+#### Declare DTO
+
+```cpp
+class UserDto : public oatpp::data::mapping::type::Object {
+
+  DTO_INIT(UserDto, Object)
+
+  DTO_FIELD(Int64, id);
+  DTO_FIELD(String, name);
 
 };
 ```
 
-### Return JSON Async
-```c++
-ENDPOINT_ASYNC("GET", "demo/api_async/json", GetJSONAsync) {
+#### Serialize DTO Using ObjectMapper
 
-  ENDPOINT_ASYNC_INIT(GetJSONAsync)
+```cpp
+using namespace oatpp::parser::json::mapping;
 
-  Action act() override {
-    auto dto = MyDto::createShared();
-    dto->statusCode = 200;
-    dto->message = "Hello json";
-    return _return(controller->createDtoResponse(Status::CODE_200, dto));
-  }
+auto user = UserDto::createShared();
+user->id = 1;
+user->name = "Ivan";
 
-};
+auto objectMapper = ObjectMapper::createShared();
+auto json = objectMapper->writeToString(user);
 ```
 
-**Output:**
-```
-{"message": "Hello json", "statusCode": 200}
-```
+### Read Next
 
-### Post JSON body Async
-```c++
-ENDPOINT_ASYNC("POST", "demo/api_async/json", PostJSONAsync) {
-
-  ENDPOINT_ASYNC_INIT(PostJSONAsync)
-
-  Action act() override {
-    return request->readBodyToDtoAsync<MyDto>(controller->getDefaultObjectMapper()).callbackTo(&PostJSONAsync::onBodyObtained);
-  }
-
-  Action onBodyObtained(const MyDto::ObjectWrapper& dto) {
-    return _return(controller->createResponse(Status::CODE_200, "dtoMessage: " + dto->message));
-  }
-
-};
-```
-
-**Terminal:**
-```
-$ curl -X POST "localhost:8001/demo/api_async/json" -d '{"message": "hello json post"}'
-dtoMessage: hello json post
-```
-
-### Swagger documentation
-
-```c++
-ENDPOINT_INFO(createUser) {
-  info->summary = "Create new User";
-  info->addConsumes<UserDto::ObjectWrapper>("application/json");
-  info->addResponse<UserDto::ObjectWrapper>(Status::CODE_200, "application/json");
-}
-ENDPOINT("POST", "demo/api/users", createUser,
-         BODY_DTO(UserDto::ObjectWrapper, userDto)) {
-  return createDtoResponse(Status::CODE_200, m_database->createUser(userDto));
-}
-```
-
-## How to start
-
-Grab any project from [examples](https://github.com/oatpp/oatpp-examples), and follow README
+- [Well Structured Project](https://oatpp.io/docs/start/step-by-step/#well-structured-project)
+- [Build For Unix/Linux](https://oatpp.io/docs/installation/unix-linux/)
+- [Build For Windows](https://oatpp.io/docs/installation/windows/)
 
 ### Examples:
 
