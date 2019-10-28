@@ -19,6 +19,20 @@ effective production level development. It's also light and has small memory foo
 
 ## High Level Overview
 
+- [API Controller And Request Mapping](#api-controller-and-request-mapping)
+    * [Declare Endpoint](#declare-endpoint)
+    * [Add CORS for Endpoint](#add-cors-for-endpoint)
+    * [Endpoint with Authorization](#endpoint-with-authorization)
+- [Swagger-UI Annotations](#swagger-ui-annotations)
+    * [Additional Endpoint Info](#additional-endpoint-info)
+- [API Client - Retrofit / Feign Like Client](#api-client---retrofit--feign-like-client)
+    * [Declare Client](#declare-client)
+    * [Using API Client](#using-api-client)
+- [Object Mapping](#object-mapping)
+    * [Declare DTO](#declare-dto)
+    * [Serialize DTO Using ObjectMapper](#serialize-dto-using-objectmapper)
+
+
 ### API Controller And Request Mapping
 
 For more info see [Api Controller](https://oatpp.io/docs/components/api-controller/)
@@ -68,31 +82,6 @@ ENDPOINT("PUT", "/users/{userId}", putUser,
 }
 ```
 
-### API Client - Retrofit / Feign Like Client
-
-For more info see [Api Client](https://oatpp.io/docs/components/api-client/)
-
-#### Declare Client
-
-```cpp
-class UserService : public oatpp::web::client::ApiClient {
-public:
-
-  API_CLIENT_INIT(UserService)
-
-  API_CALL("GET", "/users", getUsers)
-  API_CALL("GET", "/users/{userId}", getUserById, PATH(Int64, userId))
-
-};
-```
-
-#### Using API Client
-
-```cpp
-auto response = userService->getUserById(id);
-auto user = response->readBodyToDto<dto::UserDto>(objectMapper);
-```
-
 ### Swagger-UI Annotations
 
 For more info see [Endpoint Annotation And API Documentation](https://oatpp.io/docs/components/api-controller/#endpoint-annotation-and-api-documentation)
@@ -116,6 +105,31 @@ ENDPOINT("PUT", "/users/{userId}", putUser,
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
 }
+```
+
+### API Client - Retrofit / Feign Like Client
+
+For more info see [Api Client](https://oatpp.io/docs/components/api-client/)
+
+#### Declare Client
+
+```cpp
+class UserService : public oatpp::web::client::ApiClient {
+public:
+
+  API_CLIENT_INIT(UserService)
+
+  API_CALL("GET", "/users", getUsers)
+  API_CALL("GET", "/users/{userId}", getUserById, PATH(Int64, userId))
+
+};
+```
+
+#### Using API Client
+
+```cpp
+auto response = userService->getUserById(id);
+auto user = response->readBodyToDto<dto::UserDto>(objectMapper);
 ```
 
 ### Object Mapping
