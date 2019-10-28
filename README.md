@@ -17,39 +17,9 @@ effective production level development. It's also light and has small memory foo
 - Follow us on **Twitter** for latest news. [@oatpp_io](https://twitter.com/oatpp_io)
 - Join community on **Reddit**. [r/oatpp](https://www.reddit.com/r/oatpp/)
 
-## API - High Level Overview
+## High Level Overview
 
-### Object Mapping
-
-For more info see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
-
-#### Declare DTO
-
-```cpp
-class UserDto : public oatpp::data::mapping::type::Object {
-
-  DTO_INIT(UserDto, Object)
-
-  DTO_FIELD(Int64, id);
-  DTO_FIELD(String, name);
-
-};
-```
-
-#### Serialize DTO Using ObjectMapper
-
-```cpp
-using namespace oatpp::parser::json::mapping;
-
-auto user = UserDto::createShared();
-user->id = 1;
-user->name = "Ivan";
-
-auto objectMapper = ObjectMapper::createShared();
-auto json = objectMapper->writeToString(user);
-```
-
-### API Controller - Request Mapping
+### API Controller And Request Mapping
 
 For more info see [Api Controller](https://oatpp.io/docs/components/api-controller/)
 
@@ -146,6 +116,36 @@ ENDPOINT("PUT", "/users/{userId}", putUser,
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
 }
+```
+
+### Object Mapping
+
+For more info see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
+
+#### Declare DTO
+
+```cpp
+class UserDto : public oatpp::data::mapping::type::Object {
+
+  DTO_INIT(UserDto, Object)
+
+  DTO_FIELD(Int64, id);
+  DTO_FIELD(String, name);
+
+};
+```
+
+#### Serialize DTO Using ObjectMapper
+
+```cpp
+using namespace oatpp::parser::json::mapping;
+
+auto user = UserDto::createShared();
+user->id = 1;
+user->name = "Ivan";
+
+auto objectMapper = ObjectMapper::createShared();
+auto json = objectMapper->writeToString(user);
 ```
 
 ### Read Next
