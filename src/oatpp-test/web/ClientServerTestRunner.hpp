@@ -86,7 +86,7 @@ public:
   ) {
 
     auto startTime = std::chrono::system_clock::now();
-    bool running = true;
+    std::atomic<bool> running(true);
     std::mutex timeoutMutex;
     std::condition_variable timeoutCondition;
 

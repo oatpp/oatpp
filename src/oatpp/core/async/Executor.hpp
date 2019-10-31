@@ -51,7 +51,7 @@ private:
   private:
     oatpp::async::Processor m_processor;
   private:
-    bool m_isRunning;
+    std::atomic<bool> m_isRunning;
   private:
     std::thread m_thread;
   public:

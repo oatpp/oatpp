@@ -41,7 +41,7 @@ namespace oatpp { namespace async { namespace worker {
  */
 class TimerWorker : public Worker {
 private:
-  bool m_running;
+  std::atomic<bool> m_running;
   oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
   oatpp::collection::FastQueue<CoroutineHandle> m_queue;
   oatpp::concurrency::SpinLock m_backlogLock;
