@@ -108,8 +108,8 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
     
     ReaderCoroutine(RequestHeadersReader* _this,
                     const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream)
-      : m_this(_this)
-      , m_stream(stream)
+      : m_stream(stream)
+      , m_this(_this)
       , m_accumulator(0)
     {
       m_this->m_bufferStream->setCurrentPosition(0);

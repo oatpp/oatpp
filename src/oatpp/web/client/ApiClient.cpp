@@ -122,7 +122,7 @@ oatpp::web::protocol::http::Headers ApiClient::convertParamsMap(const std::share
       curr = curr->getNext();
     }
   }
-  return std::move(result);
+  return result;
 }
 
 oatpp::String ApiClient::formatPath(const PathPattern& pathPattern,
