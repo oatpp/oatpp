@@ -64,9 +64,9 @@ public:
 private:
   data::v_io_size readHeadersSection(data::stream::InputStreamBufferedProxy* stream, Result& result);
 private:
+  oatpp::data::stream::BufferOutputStream* m_bufferStream;
   v_int32 m_readChunkSize;
   v_int32 m_maxHeadersSize;
-  oatpp::data::stream::BufferOutputStream* m_bufferStream;
 public:
 
   /**

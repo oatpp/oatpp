@@ -57,8 +57,6 @@ HttpProcessor::processRequest(HttpRouter* router,
     return errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
   }
   
-  auto& bodyStream = inStream;
-  
   auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                  route.matchMap,
                                                                  headersReadResult.headers,

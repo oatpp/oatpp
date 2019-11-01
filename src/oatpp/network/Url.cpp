@@ -135,13 +135,13 @@ void Url::Parser::parseQueryParams(Url::Parameters& params, const oatpp::String&
 Url::Parameters Url::Parser::parseQueryParams(oatpp::parser::Caret& caret) {
   Url::Parameters params;
   parseQueryParams(params, caret);
-  return std::move(params);
+  return params;
 }
 
 Url::Parameters Url::Parser::parseQueryParams(const oatpp::String& str) {
   Url::Parameters params;
   parseQueryParams(params, str);
-  return std::move(params);
+  return params;
 }
 
 Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
