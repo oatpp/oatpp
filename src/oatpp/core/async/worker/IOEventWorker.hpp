@@ -74,7 +74,7 @@ private:
 private:
   IOEventWorkerForeman* m_foreman;
   Action::IOEventType m_specialization;
-  bool m_running;
+  std::atomic<bool> m_running;
   oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
   oatpp::concurrency::SpinLock m_backlogLock;
 private:

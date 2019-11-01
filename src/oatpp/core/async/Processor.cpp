@@ -158,44 +158,16 @@ void Processor::consumeAllTasks() {
 
 void Processor::pushQueues() {
 
-  static constexpr v_int32 MAX_BATCH_SIZE = 1000;
+  oatpp::collection::FastQueue<CoroutineHandle> tmpList;
 
-  if(!m_taskList.empty()) {
-    if (m_taskList.size() < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock, std::try_to_lock);
-      if (lock.owns_lock()) {
-        consumeAllTasks();
-      }
-    } else {
-      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-      consumeAllTasks();
-    }
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+    consumeAllTasks();
+    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
   }
 
-  if(m_pushList.first != nullptr) {
-    if (m_pushList.count < MAX_BATCH_SIZE && m_queue.first != nullptr) {
-      std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock, std::try_to_lock);
-      if (lock.owns_lock()) {
-        oatpp::collection::FastQueue<CoroutineHandle> tmpList;
-        oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
-        lock.unlock();
-        while(tmpList.first != nullptr) {
-          addCoroutine(tmpList.popFront());
-        }
-      }
-    } else {
-      oatpp::collection::FastQueue<CoroutineHandle> tmpList;
-
-      {
-        std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-        oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
-      }
-
-      while(tmpList.first != nullptr) {
-        addCoroutine(tmpList.popFront());
-      }
-
-    }
+  while(tmpList.first != nullptr) {
+    addCoroutine(tmpList.popFront());
   }
 
 }
@@ -248,7 +220,8 @@ bool Processor::iterate(v_int32 numIterations) {
   end_loop:
 
   popTasks();
-  
+
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
   return m_queue.first != nullptr || m_pushList.first != nullptr || !m_taskList.empty();
   
 }
