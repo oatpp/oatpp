@@ -48,7 +48,7 @@ std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer
 }
 
 void BufferBody::declareHeaders(Headers& headers) noexcept {
-  headers.put(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int32ToStr(m_buffer->getSize()));
+  headers.put(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
 }
 
 void BufferBody::writeToStream(OutputStream* stream) noexcept {

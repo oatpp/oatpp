@@ -47,7 +47,7 @@ void ChunkedBufferTest::onRun() {
 
     stream.clear();
     stream << (v_float32)101.1;
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(101.1));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(101.1f));
 
     stream.clear();
     stream << (v_float64)101.1;
@@ -82,8 +82,8 @@ void ChunkedBufferTest::onRun() {
     OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(64));
 
     stream.clear();
-    stream << oatpp::Float32(0.32);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(0.32));
+    stream << oatpp::Float32(0.32f);
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(0.32f));
 
     stream.clear();
     stream << oatpp::Float64(0.64);

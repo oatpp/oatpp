@@ -82,7 +82,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
     if(clientHandle >= 0) {
 
-      if(connect(clientHandle, currResult->ai_addr, currResult->ai_addrlen) == 0) {
+      if(connect(clientHandle, currResult->ai_addr, (int)currResult->ai_addrlen) == 0) {
         break;
       } else {
 #if defined(WIN32) || defined(_WIN32)
@@ -226,7 +226,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     Action doConnect() {
       errno = 0;
 
-      auto res = connect(m_clientHandle, m_currentResult->ai_addr, m_currentResult->ai_addrlen);
+      auto res = connect(m_clientHandle, m_currentResult->ai_addr, (int)m_currentResult->ai_addrlen);
 
 #if defined(WIN32) || defined(_WIN32)
 

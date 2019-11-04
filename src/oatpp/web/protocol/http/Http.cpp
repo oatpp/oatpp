@@ -258,7 +258,7 @@ oatpp::String HeaderValueData::getTitleParamValue(const data::share::StringKeyLa
 oatpp::data::share::StringKeyLabelCI_FAST Parser::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                                                          oatpp::parser::Caret& caret) {
   p_char8 data = caret.getData();
-  for(v_int32 i = caret.getPosition(); i < caret.getDataSize(); i++) {
+  for(v_int64 i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = data[i];
     if(a == ':' || a == ' '){
       oatpp::data::share::StringKeyLabelCI_FAST label(headersText, &data[caret.getPosition()], i - caret.getPosition());
@@ -344,7 +344,7 @@ void Parser::parseOneHeader(Headers& headers,
       return;
     }
     caret.skipChar(' ');
-    v_int32 valuePos0 = caret.getPosition();
+    v_int64 valuePos0 = caret.getPosition();
     caret.findRN();
     headers.put(name, oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0));
     caret.skipRN();

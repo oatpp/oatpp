@@ -58,15 +58,15 @@ public:
   
   String() {}
   
-  String(v_int32 size)
+  String(v_int64 size)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
   {}
   
-  String(const char* data, v_int32 size, bool copyAsOwnData = true)
+  String(const char* data, v_int64 size, bool copyAsOwnData = true)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
   {}
   
-  String(const char* data1, v_int32 size1, const char* data2, v_int32 size2)
+  String(const char* data1, v_int64 size1, const char* data2, v_int64 size2)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
   {}
   
@@ -130,7 +130,7 @@ String operator + (const String& a, const String& b);
 
 /**
  * Template for primitive mapping-enabled types.
- * @tparam ValueType - type of the value ex.: v_int32.
+ * @tparam ValueType - type of the value ex.: v_int64.
  * @tparam Clazz - Class holding static class information.
  */
 template<typename ValueType, class Clazz>
@@ -420,16 +420,16 @@ namespace std {
     result_type operator()(oatpp::data::mapping::type::String const& s) const noexcept {
       
       p_char8 data = s->getData();
-      v_int32 size4 = s->getSize() >> 2;
+      v_int64 size4 = s->getSize() >> 2;
       
       result_type result = 0;
       
-      for(v_int32 i = 0; i < size4; i++) {
+      for(v_int64 i = 0; i < size4; i++) {
         result ^= *((p_word32) data);
         data += 4;
       }
       
-      for(v_int32 i = 0; i < s->getSize() - (size4 << 2); i++ ) {
+      for(v_int64 i = 0; i < s->getSize() - (size4 << 2); i++ ) {
         ((p_char8) &result)[i] ^= data[i];
       }
       

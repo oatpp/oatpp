@@ -29,9 +29,9 @@
 
 namespace oatpp { namespace parser { namespace json{
 
-v_int32 Utils::calcEscapedStringSize(p_char8 data, v_int32 size, v_int32& safeSize) {
-  v_int32 result = 0;
-  v_int32 i = 0;
+v_int64 Utils::calcEscapedStringSize(p_char8 data, v_int64 size, v_int64& safeSize) {
+  v_int64 result = 0;
+  v_int64 i = 0;
   safeSize = size;
   while (i < size) {
     v_char8 a = data[i];
@@ -50,7 +50,7 @@ v_int32 Utils::calcEscapedStringSize(p_char8 data, v_int32 size, v_int32& safeSi
         result ++;
       }
     } else {
-      v_int32 charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
+      v_int64 charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
       if(charSize != 0) {
         if(i + charSize > size) {
           safeSize = i;
@@ -73,10 +73,10 @@ v_int32 Utils::calcEscapedStringSize(p_char8 data, v_int32 size, v_int32& safeSi
   return result;
 }
 
-v_int32 Utils::calcUnescapedStringSize(p_char8 data, v_int32 size, v_int32& errorCode, v_int32& errorPosition) {
+v_int64 Utils::calcUnescapedStringSize(p_char8 data, v_int64 size, v_int64& errorCode, v_int64& errorPosition) {
   errorCode = 0;
-  v_int32 result = 0;
-  v_int32 i = 0;
+  v_int64 result = 0;
+  v_int64 i = 0;
   
   while (i < size) {
     v_char8 a = data[i];
@@ -168,8 +168,8 @@ v_int32 Utils::calcUnescapedStringSize(p_char8 data, v_int32 size, v_int32& erro
   return result;
 }
   
-v_int32 Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
-  v_int32 length;
+v_int64 Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
+  v_int64 length;
   v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(sequence, length);
   if(code < 0x00010000) {
     buffer[0] = '\\';
@@ -196,16 +196,16 @@ v_int32 Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
   }
 }
   
-oatpp::String Utils::escapeString(p_char8 data, v_int32 size, bool copyAsOwnData) {
-  v_int32 safeSize;
-  v_int32 escapedSize = calcEscapedStringSize(data, size, safeSize);
+oatpp::String Utils::escapeString(p_char8 data, v_int64 size, bool copyAsOwnData) {
+  v_int64 safeSize;
+  v_int64 escapedSize = calcEscapedStringSize(data, size, safeSize);
   if(escapedSize == size) {
     return String((const char*)data, size, copyAsOwnData);
   }
   auto result = String(escapedSize);
-  v_int32 i = 0;
+  v_int64 i = 0;
   p_char8 resultData = result->getData();
-  v_int32 pos = 0;
+  v_int64 pos = 0;
   
   while (i < safeSize) {
     v_char8 a = data[i];
@@ -240,7 +240,7 @@ oatpp::String Utils::escapeString(p_char8 data, v_int32 size, bool copyAsOwnData
       }
       i ++;
     } else {
-      v_int32 charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
+      v_int64 charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
       if(charSize != 0) {
         pos += escapeUtf8Char(&data[i], &resultData[pos]);
         i += charSize;
@@ -254,7 +254,7 @@ oatpp::String Utils::escapeString(p_char8 data, v_int32 size, bool copyAsOwnData
   }
   
   if(size > safeSize){
-    for(v_int32 i = pos; i < result->getSize(); i ++){
+    for(v_int64 i = pos; i < result->getSize(); i ++){
       resultData[i] = '?';
     }
   }
@@ -262,10 +262,10 @@ oatpp::String Utils::escapeString(p_char8 data, v_int32 size, bool copyAsOwnData
   return result;
 }
 
-void Utils::unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultData){
+void Utils::unescapeStringToBuffer(p_char8 data, v_int64 size, p_char8 resultData){
   
-  v_int32 i = 0;
-  v_int32 pos = 0;
+  v_int64 i = 0;
+  v_int64 pos = 0;
   
   while (i < size) {
     v_char8 a = data[i];
@@ -318,9 +318,9 @@ void Utils::unescapeStringToBuffer(p_char8 data, v_int32 size, p_char8 resultDat
   
 }
   
-oatpp::String Utils::unescapeString(p_char8 data, v_int32 size, v_int32& errorCode, v_int32& errorPosition) {
+oatpp::String Utils::unescapeString(p_char8 data, v_int64 size, v_int64& errorCode, v_int64& errorPosition) {
   
-  v_int32 unescapedSize = calcUnescapedStringSize(data, size, errorCode, errorPosition);
+  v_int64 unescapedSize = calcUnescapedStringSize(data, size, errorCode, errorPosition);
   if(errorCode != 0){
     return nullptr;
   }
@@ -334,9 +334,9 @@ oatpp::String Utils::unescapeString(p_char8 data, v_int32 size, v_int32& errorCo
   
 }
   
-std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size, v_int32& errorCode, v_int32& errorPosition){
+std::string Utils::unescapeStringToStdString(p_char8 data, v_int64 size, v_int64& errorCode, v_int64& errorPosition){
   
-  v_int32 unescapedSize = calcUnescapedStringSize(data, size, errorCode, errorPosition);
+  v_int64 unescapedSize = calcUnescapedStringSize(data, size, errorCode, errorPosition);
   if(errorCode != 0){
     return "";
   }
@@ -351,14 +351,14 @@ std::string Utils::unescapeStringToStdString(p_char8 data, v_int32 size, v_int32
   
 }
   
-p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
+p_char8 Utils::preparseString(ParsingCaret& caret, v_int64& size){
   
   if(caret.canContinueAtChar('"', 1)){
     
     const p_char8 data = caret.getData();
-    v_int32 pos = caret.getPosition();
-    v_int32 pos0 = pos;
-    v_int32 length = caret.getDataSize();
+    v_int64 pos = caret.getPosition();
+    v_int64 pos0 = pos;
+    v_int64 length = caret.getDataSize();
     
     while (pos < length) {
       v_char8 a = data[pos];
@@ -383,15 +383,15 @@ p_char8 Utils::preparseString(ParsingCaret& caret, v_int32& size){
   
 oatpp::String Utils::parseString(ParsingCaret& caret) {
   
-  v_int32 size;
+  v_int64 size;
   p_char8 data = preparseString(caret, size);
   
   if(data != nullptr) {
   
-    v_int32 pos = caret.getPosition();
+    v_int64 pos = caret.getPosition();
     
-    v_int32 errorCode;
-    v_int32 errorPosition;
+    v_int64 errorCode;
+    v_int64 errorPosition;
     auto result = unescapeString(data, size, errorCode, errorPosition);
     if(errorCode != 0){
       caret.setError("[oatpp::parser::json::Utils::parseString()]: Error. Call to unescapeString() failed", errorCode);
@@ -410,15 +410,15 @@ oatpp::String Utils::parseString(ParsingCaret& caret) {
   
 std::string Utils::parseStringToStdString(ParsingCaret& caret){
   
-  v_int32 size;
+  v_int64 size;
   p_char8 data = preparseString(caret, size);
   
   if(data != nullptr) {
     
-    v_int32 pos = caret.getPosition();
+    v_int64 pos = caret.getPosition();
     
-    v_int32 errorCode;
-    v_int32 errorPosition;
+    v_int64 errorCode;
+    v_int64 errorPosition;
     const std::string& result = unescapeStringToStdString(data, size, errorCode, errorPosition);
     if(errorCode != 0){
       caret.setError("[oatpp::parser::json::Utils::parseStringToStdString()]: Error. Call to unescapeStringToStdString() failed", errorCode);

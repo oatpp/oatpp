@@ -239,7 +239,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::Asy
   p_char8 data = (p_char8) inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
 
-  for(v_int32 i = 0; i < size; i ++) {
+  for(v_int64 i = 0; i < size; i ++) {
 
     m_headerSectionEndAccumulator <<= 8;
     m_headerSectionEndAccumulator |= data[i];
@@ -309,7 +309,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::AsyncI
 
 }
 
-v_int32 StatefulParser::parseNext(p_char8 data, v_int32 size) {
+v_int64 StatefulParser::parseNext(p_char8 data, v_int64 size) {
 
   data::stream::AsyncInlineWriteData inlineData(data, size);
 

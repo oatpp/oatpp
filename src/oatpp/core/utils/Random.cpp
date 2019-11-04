@@ -42,7 +42,7 @@ void Random::randomBytes(p_char8 buffer, v_int32 bufferSize) {
   std::uniform_int_distribution<size_t> distribution(0, 255);
 
   for(v_int32 i = 0; i < bufferSize; i ++) {
-    buffer[i] = distribution(RANDOM_GENERATOR);
+    buffer[i] = (v_char8) distribution(RANDOM_GENERATOR);
   }
 
 }

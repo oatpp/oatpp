@@ -65,7 +65,7 @@ namespace {
 
     oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->getData(), text->getSize());
     std::unique_ptr<v_char8> buffer(new v_char8[step]);
-    v_int32 size;
+    v_int64 size;
     while((size = stream.read(buffer.get(), step)) != 0) {
       parser.parseNext(buffer.get(), size);
     }
@@ -78,7 +78,7 @@ namespace {
     OATPP_ASSERT(part->getInMemoryData());
     OATPP_ASSERT(part->getInMemoryData() == value);
 
-    v_int32 bufferSize = 16;
+    v_int64 bufferSize = 16;
     std::unique_ptr<v_char8> buffer(new v_char8[bufferSize]);
 
     oatpp::data::stream::ChunkedBuffer stream;

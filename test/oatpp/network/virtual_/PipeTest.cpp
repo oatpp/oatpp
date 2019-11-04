@@ -45,12 +45,12 @@ namespace {
   class WriterTask : public oatpp::base::Countable {
   private:
     std::shared_ptr<Pipe> m_pipe;
-    v_int32 m_chunksToTransfer;
+    v_int64 m_chunksToTransfer;
     data::v_io_size m_position = 0;
     data::v_io_size m_transferedBytes = 0;
   public:
     
-    WriterTask(const std::shared_ptr<Pipe>& pipe, v_int32 chunksToTransfer)
+    WriterTask(const std::shared_ptr<Pipe>& pipe, v_int64 chunksToTransfer)
       : m_pipe(pipe)
       , m_chunksToTransfer(chunksToTransfer)
     {}
@@ -75,12 +75,12 @@ namespace {
   private:
     std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_buffer;
     std::shared_ptr<Pipe> m_pipe;
-    v_int32 m_chunksToTransfer;
+    v_int64 m_chunksToTransfer;
   public:
     
     ReaderTask(const std::shared_ptr<oatpp::data::stream::ChunkedBuffer> &buffer,
                const std::shared_ptr<Pipe>& pipe,
-               v_int32 chunksToTransfer)
+               v_int64 chunksToTransfer)
       : m_buffer(buffer)
       , m_pipe(pipe)
       , m_chunksToTransfer(chunksToTransfer)
@@ -99,7 +99,7 @@ namespace {
     
   };
   
-  void runTransfer(const std::shared_ptr<Pipe>& pipe, v_int32 chunksToTransfer, bool writeNonBlock, bool readerNonBlock) {
+  void runTransfer(const std::shared_ptr<Pipe>& pipe, v_int64 chunksToTransfer, bool writeNonBlock, bool readerNonBlock) {
     
     OATPP_LOGV("transfer", "writer-nb: %d, reader-nb: %d", writeNonBlock, readerNonBlock);
     
@@ -137,7 +137,7 @@ void PipeTest::onRun() {
   
   auto pipe = Pipe::createShared();
 
-  v_int32 chunkCount = oatpp::data::buffer::IOBuffer::BUFFER_SIZE * 10 / CHUNK_SIZE;
+  v_int64 chunkCount = oatpp::data::buffer::IOBuffer::BUFFER_SIZE * 10 / CHUNK_SIZE;
   
   runTransfer(pipe, chunkCount, false, false);
   runTransfer(pipe, chunkCount, true, false);

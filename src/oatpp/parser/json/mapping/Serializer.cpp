@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   
-void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_int32 size) {
+void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_int64 size) {
   auto encodedValue = Utils::escapeString(data, size, false);
   stream->writeChar('\"');
   stream->write(encodedValue);
@@ -36,7 +36,7 @@ void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream
 }
 
 void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data) {
-  writeString(stream, (p_char8)data, (v_int32)std::strlen(data));
+  writeString(stream, (p_char8)data, std::strlen(data));
 }
   
 void Serializer::writeList(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractList::ObjectWrapper& list, const std::shared_ptr<Config>& config) {

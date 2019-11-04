@@ -34,11 +34,11 @@ data::v_io_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<
   
   v_word32 sectionEnd = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
   v_word32 accumulator = 0;
-  v_int32 progress = 0;
+  v_int64 progress = 0;
   data::v_io_size res;
   while (true) {
     
-    v_int32 desiredToRead = m_buffer.getSize();
+    v_int64 desiredToRead = m_buffer.getSize();
     if(progress + desiredToRead > m_maxHeadersSize) {
       desiredToRead = m_maxHeadersSize - progress;
       if(desiredToRead <= 0) {
@@ -51,12 +51,12 @@ data::v_io_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<
     if(res > 0) {
       bufferStream->write(bufferData, res);
       
-      for(v_int32 i = 0; i < res; i ++) {
+      for(v_int64 i = 0; i < res; i ++) {
         accumulator <<= 8;
         accumulator |= bufferData[i];
         if(accumulator == sectionEnd) {
           result.bufferPosStart = i + 1;
-          result.bufferPosEnd = (v_int32) res;
+          result.bufferPosEnd = res;
           return res;
         }
       }
@@ -103,15 +103,15 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     oatpp::data::share::MemoryLabel m_buffer;
-    v_int32 m_maxHeadersSize;
+    v_int64 m_maxHeadersSize;
     v_word32 m_accumulator;
-    v_int32 m_progress;
+    v_int64 m_progress;
     ResponseHeadersReader::Result m_result;
     oatpp::data::stream::ChunkedBuffer m_bufferStream;
   public:
     
     ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                    const oatpp::data::share::MemoryLabel buffer, v_int32 maxHeadersSize)
+                    const oatpp::data::share::MemoryLabel buffer, v_int64 maxHeadersSize)
     : m_connection(connection)
     , m_buffer(buffer)
     , m_maxHeadersSize(maxHeadersSize)
@@ -121,7 +121,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
     
     Action act() override {
       
-      v_int32 desiredToRead = m_buffer.getSize();
+      v_int64 desiredToRead = m_buffer.getSize();
       if(m_progress + desiredToRead > m_maxHeadersSize) {
         desiredToRead = m_maxHeadersSize - m_progress;
         if(desiredToRead <= 0) {
@@ -134,12 +134,12 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
         m_bufferStream.write(bufferData, res);
         m_progress += res;
         
-        for(v_int32 i = 0; i < res; i ++) {
+        for(v_int64 i = 0; i < res; i ++) {
           m_accumulator <<= 8;
           m_accumulator |= bufferData[i];
           if(m_accumulator == SECTION_END) {
             m_result.bufferPosStart = i + 1;
-            m_result.bufferPosEnd = (v_int32) res;
+            m_result.bufferPosEnd = res;
             return yieldTo(&ReaderCoroutine::parseHeaders);
           }
         }

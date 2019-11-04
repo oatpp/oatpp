@@ -61,12 +61,12 @@ void writeBinaryInt(v_int32 value){
 void UnicodeTest::onRun(){
   
   v_char8 buff[128];
-  v_int32 cnt;
+  v_int64 cnt;
 
   // 2 byte test
   
   for(v_int32 c = 128; c < 2048; c ++){
-    v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+    v_int64 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 2);
     v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
     OATPP_ASSERT(cnt == 2);
@@ -76,7 +76,7 @@ void UnicodeTest::onRun(){
   // 3 byte test
   
   for(v_int32 c = 2048; c < 65536; c ++){
-    v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+    v_int64 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 3);
     v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
     OATPP_ASSERT(cnt == 3);
@@ -86,7 +86,7 @@ void UnicodeTest::onRun(){
   // 4 byte test
   
   for(v_int32 c = 65536; c < 2097152; c ++){
-    v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+    v_int64 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 4);
     v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
     OATPP_ASSERT(cnt == 4);
@@ -96,7 +96,7 @@ void UnicodeTest::onRun(){
   // 5 byte test
   
   for(v_int32 c = 2097152; c < 67108864; c ++){
-    v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+    v_int64 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 5);
     v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
     OATPP_ASSERT(cnt == 5);
@@ -106,7 +106,7 @@ void UnicodeTest::onRun(){
   // 6 byte test
   
   for(v_int32 c = 67108864; c < 2147483647; c ++){
-    v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+    v_int64 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 6);
     v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
     OATPP_ASSERT(cnt == 6);
