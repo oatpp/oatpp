@@ -165,7 +165,44 @@ public:
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionHandle>&> getConnectionAsync() = 0;
 
   /**
-   * Execute request.
+   * Invalidate connection.
+   * @param connectionHandle
+   */
+  virtual void invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) = 0;
+
+  /**
+   * Execute request once without any retries.
+   * @param method - method ex: ["GET", "POST", "PUT", etc.].
+   * @param path - path to resource.
+   * @param headers - headers map &l:RequestExecutor::Headers;.
+   * @param body - `std::shared_ptr` to &l:RequestExecutor::Body; object.
+   * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;
+   * @return - &id:oatpp::web::protocol::http::incoming::Response;.
+   */
+  virtual std::shared_ptr<Response> executeOnce(const String& method,
+                                                const String& path,
+                                                const Headers& headers,
+                                                const std::shared_ptr<Body>& body,
+                                                const std::shared_ptr<ConnectionHandle>& connectionHandle) = 0;
+
+  /**
+   * Same as &l:RequestExecutor::executeOnce (); but Async.
+   * @param method - method ex: ["GET", "POST", "PUT", etc.].
+   * @param path - path to resource.
+   * @param headers - headers map &l:RequestExecutor::Headers;.
+   * @param body - `std::shared_ptr` to &l:RequestExecutor::Body; object.
+   * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
+   */
+  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
+  executeOnceAsync(const String& method,
+                   const String& path,
+                   const Headers& headers,
+                   const std::shared_ptr<Body>& body,
+                   const std::shared_ptr<ConnectionHandle>& connectionHandle) = 0;
+
+  /**
+   * Execute request taking into account retry policy.
    * @param method - method ex: ["GET", "POST", "PUT", etc.].
    * @param path - path to resource.
    * @param headers - headers map &l:RequestExecutor::Headers;.
@@ -177,7 +214,7 @@ public:
                                             const String& path,
                                             const Headers& headers,
                                             const std::shared_ptr<Body>& body,
-                                            const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
+                                            const std::shared_ptr<ConnectionHandle>& connectionHandle);
 
   /**
    * Same as &l:RequestExecutor::execute (); but Async.
@@ -188,13 +225,13 @@ public:
    * @param connectionHandle - &l:RequestExecutor::ConnectionHandle;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
-  executeAsync(const String& method,
-               const String& path,
-               const Headers& headers,
-               const std::shared_ptr<Body>& body,
-               const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) = 0;
-  
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
+  virtual executeAsync(const String& method,
+                       const String& path,
+                       const Headers& headers,
+                       const std::shared_ptr<Body>& body,
+                       const std::shared_ptr<ConnectionHandle>& connectionHandle);
+
 };
   
 }}}

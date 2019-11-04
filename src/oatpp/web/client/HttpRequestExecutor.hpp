@@ -102,6 +102,12 @@ public:
   oatpp::async::CoroutineStarterForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&> getConnectionAsync() override;
 
   /**
+   * Invalidate connection.
+   * @param connectionHandle
+   */
+  virtual void invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) override;
+
+  /**
    * Execute http request.
    * @param method - method ex: ["GET", "POST", "PUT", etc.].
    * @param path - path to resource.
@@ -111,11 +117,11 @@ public:
    * @return - &id:oatpp::web::protocol::http::incoming::Response;.
    * @throws - &id:oatpp::web::client::RequestExecutor::RequestExecutionError;
    */
-  std::shared_ptr<Response> execute(const String& method,
-                                    const String& path,
-                                    const Headers& headers,
-                                    const std::shared_ptr<Body>& body,
-                                    const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) override;
+  std::shared_ptr<Response> executeOnce(const String& method,
+                                        const String& path,
+                                        const Headers& headers,
+                                        const std::shared_ptr<Body>& body,
+                                        const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) override;
 
   /**
    * Same as &l:HttpRequestExecutor::execute (); but Async.
@@ -127,11 +133,11 @@ public:
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
   oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
-  executeAsync(const String& method,
-               const String& path,
-               const Headers& headers,
-               const std::shared_ptr<Body>& body,
-               const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) override;
+  executeOnceAsync(const String& method,
+                   const String& path,
+                   const Headers& headers,
+                   const std::shared_ptr<Body>& body,
+                   const std::shared_ptr<ConnectionHandle>& connectionHandle = nullptr) override;
   
 };
   

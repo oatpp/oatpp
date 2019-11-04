@@ -45,4 +45,80 @@ v_int32 RequestExecutor::RequestExecutionError::getReadErrorCode() const {
   return m_readErrorCode;
 }
 
+std::shared_ptr<RequestExecutor::Response> RequestExecutor::execute(
+  const String& method,
+  const String& path,
+  const Headers& headers,
+  const std::shared_ptr<Body>& body,
+  const std::shared_ptr<ConnectionHandle>& connectionHandle
+) {
+
+  auto ch = connectionHandle;
+  if(!ch) {
+    ch = getConnection();
+  }
+
+  return executeOnce(method, path, headers, body, ch);
+
+}
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<RequestExecutor::Response>&>
+RequestExecutor::executeAsync(
+  const String& method,
+  const String& path,
+  const Headers& headers,
+  const std::shared_ptr<Body>& body,
+  const std::shared_ptr<ConnectionHandle>& connectionHandle
+) {
+
+  class ExecutorCoroutine : public oatpp::async::CoroutineWithResult<ExecutorCoroutine, const std::shared_ptr<RequestExecutor::Response>&> {
+  private:
+    RequestExecutor* m_this;
+    String m_method;
+    String m_path;
+    Headers m_headers;
+    std::shared_ptr<Body> m_body;
+    std::shared_ptr<ConnectionHandle> m_connectionHandle;
+  public:
+
+    ExecutorCoroutine(RequestExecutor* _this,
+                      const String& method,
+                      const String& path,
+                      const Headers& headers,
+                      const std::shared_ptr<Body>& body,
+                      const std::shared_ptr<ConnectionHandle>& connectionHandle)
+      : m_this(_this)
+      , m_method(method)
+      , m_path(path)
+      , m_headers(headers)
+      , m_body(body)
+      , m_connectionHandle(connectionHandle)
+    {}
+
+    Action act() override {
+      if(!m_connectionHandle) {
+        return m_this->getConnectionAsync().callbackTo(&ExecutorCoroutine::onConnection);
+      }
+      return yieldTo(&ExecutorCoroutine::execute);
+    }
+
+    Action onConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) {
+      m_connectionHandle = connectionHandle;
+      return yieldTo(&ExecutorCoroutine::execute);
+    }
+
+    Action execute() {
+      return m_this->executeOnceAsync(m_method, m_path, m_headers, m_body, m_connectionHandle).callbackTo(&ExecutorCoroutine::onResponse);
+    }
+
+    Action onResponse(const std::shared_ptr<RequestExecutor::Response>& response) {
+      return _return(response);
+    }
+
+  };
+
+  return ExecutorCoroutine::startForResult(this, method, path, headers, body, connectionHandle);
+
+}
+
 }}}
