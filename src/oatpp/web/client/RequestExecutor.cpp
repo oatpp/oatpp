@@ -24,6 +24,9 @@
 
 #include "RequestExecutor.hpp"
 
+#include <thread>
+#include <chrono>
+
 namespace oatpp { namespace web { namespace client {
 
 RequestExecutor::RequestExecutionError::RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode)
@@ -45,6 +48,10 @@ v_int32 RequestExecutor::RequestExecutionError::getReadErrorCode() const {
   return m_readErrorCode;
 }
 
+RequestExecutor::RequestExecutor(const std::shared_ptr<RetryPolicy>& retryPolicy)
+  : m_retryPolicy(retryPolicy)
+{}
+
 std::shared_ptr<RequestExecutor::Response> RequestExecutor::execute(
   const String& method,
   const String& path,
@@ -53,12 +60,58 @@ std::shared_ptr<RequestExecutor::Response> RequestExecutor::execute(
   const std::shared_ptr<ConnectionHandle>& connectionHandle
 ) {
 
-  auto ch = connectionHandle;
-  if(!ch) {
-    ch = getConnection();
+  if(!m_retryPolicy) {
+
+    auto ch = connectionHandle;
+    if (!ch) {
+      ch = getConnection();
+    }
+
+    return executeOnce(method, path, headers, body, ch);
+
+  } else {
+
+    RetryPolicy::Context context;
+    auto ch = connectionHandle;
+
+    while(true) {
+
+      context.attempt ++;
+
+      try {
+
+        if (!ch) {
+          ch = getConnection();
+        }
+
+        auto response = executeOnce(method, path, headers, body, ch);
+
+        if(!m_retryPolicy->retryOnResponse(response->getStatusCode(), context) || !m_retryPolicy->canRetry(context)) {
+          return response;
+        }
+
+      } catch (...) {
+        if(!m_retryPolicy->canRetry(context)) {
+          break;
+        }
+      }
+
+      invalidateConnection(ch);
+      ch.reset();
+
+      v_int64 waitMicro = m_retryPolicy->waitForMicroseconds(context);
+      v_int64 tick0 = oatpp::base::Environment::getMicroTickCount();
+      v_int64 tick = tick0;
+      while(tick < tick0 + waitMicro) {
+        std::this_thread::sleep_for(std::chrono::microseconds(tick0 + waitMicro - tick));
+        tick = oatpp::base::Environment::getMicroTickCount();
+      }
+
+    }
+
   }
 
-  return executeOnce(method, path, headers, body, ch);
+  return nullptr;
 
 }
 
@@ -79,6 +132,8 @@ RequestExecutor::executeAsync(
     Headers m_headers;
     std::shared_ptr<Body> m_body;
     std::shared_ptr<ConnectionHandle> m_connectionHandle;
+    bool m_slept;
+    RetryPolicy::Context m_context;
   public:
 
     ExecutorCoroutine(RequestExecutor* _this,
@@ -93,13 +148,19 @@ RequestExecutor::executeAsync(
       , m_headers(headers)
       , m_body(body)
       , m_connectionHandle(connectionHandle)
+      , m_slept(false)
     {}
 
     Action act() override {
+
+      m_slept = false;
+
       if(!m_connectionHandle) {
         return m_this->getConnectionAsync().callbackTo(&ExecutorCoroutine::onConnection);
       }
+
       return yieldTo(&ExecutorCoroutine::execute);
+
     }
 
     Action onConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) {
@@ -108,11 +169,50 @@ RequestExecutor::executeAsync(
     }
 
     Action execute() {
+      m_context.attempt ++;
       return m_this->executeOnceAsync(m_method, m_path, m_headers, m_body, m_connectionHandle).callbackTo(&ExecutorCoroutine::onResponse);
     }
 
     Action onResponse(const std::shared_ptr<RequestExecutor::Response>& response) {
+
+      if( m_this->m_retryPolicy &&
+          m_this->m_retryPolicy->retryOnResponse(response->getStatusCode(), m_context) &&
+          m_this->m_retryPolicy->canRetry(m_context)
+      ) {
+        return yieldTo(&ExecutorCoroutine::retry);
+      }
+
       return _return(response);
+    }
+
+    Action retry() {
+
+      if(m_connectionHandle) {
+        m_this->invalidateConnection(m_connectionHandle);
+        m_connectionHandle.reset();
+      }
+
+      if(!m_slept) {
+        m_slept = true;
+        return waitRepeat(std::chrono::microseconds(m_this->m_retryPolicy->waitForMicroseconds(m_context)));
+      }
+
+      return yieldTo(&ExecutorCoroutine::act);
+
+    }
+
+    Action handleError(Error* error) override {
+
+      if(m_this->m_retryPolicy && m_this->m_retryPolicy->canRetry(m_context)) {
+        return yieldTo(&ExecutorCoroutine::retry);
+      }
+
+      if(m_connectionHandle) {
+        m_this->invalidateConnection(m_connectionHandle);
+        m_connectionHandle.reset();
+      }
+
+      return error;
     }
 
   };

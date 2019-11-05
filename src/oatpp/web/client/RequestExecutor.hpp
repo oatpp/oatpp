@@ -25,6 +25,8 @@
 #ifndef oatpp_web_client_RequestExecutor_hpp
 #define oatpp_web_client_RequestExecutor_hpp
 
+#include "RetryPolicy.hpp"
+
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
@@ -144,8 +146,16 @@ public:
     v_int32 getReadErrorCode() const;
     
   };
-  
+
+private:
+  std::shared_ptr<RetryPolicy> m_retryPolicy;
 public:
+
+  /**
+   * Constructor.
+   * @param retryPolicy - &id:oatpp::web::client::RetryPolicy;.
+   */
+  RequestExecutor(const std::shared_ptr<RetryPolicy>& retryPolicy);
 
   /**
    * Virtual destructor.

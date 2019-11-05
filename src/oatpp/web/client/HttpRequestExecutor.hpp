@@ -74,6 +74,7 @@ public:
    * @param bodyDecoder - &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
    */
   HttpRequestExecutor(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                      const std::shared_ptr<RetryPolicy>& retryPolicy = nullptr,
                       const std::shared_ptr<const BodyDecoder>& bodyDecoder =
                       std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>());
 public:
@@ -86,6 +87,7 @@ public:
    */
   static std::shared_ptr<HttpRequestExecutor>
   createShared(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+               const std::shared_ptr<RetryPolicy>& retryPolicy = nullptr,
                const std::shared_ptr<const BodyDecoder>& bodyDecoder =
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>());
 

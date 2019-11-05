@@ -46,16 +46,19 @@
 namespace oatpp { namespace web { namespace client {
 
 HttpRequestExecutor::HttpRequestExecutor(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                                         const std::shared_ptr<RetryPolicy>& retryPolicy,
                                          const std::shared_ptr<const BodyDecoder>& bodyDecoder)
-  : m_connectionProvider(connectionProvider)
+  : RequestExecutor(retryPolicy)
+  , m_connectionProvider(connectionProvider)
   , m_bodyDecoder(bodyDecoder)
 {}
 
 std::shared_ptr<HttpRequestExecutor>
 HttpRequestExecutor::createShared(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                                  const std::shared_ptr<RetryPolicy>& retryPolicy,
                                   const std::shared_ptr<const BodyDecoder>& bodyDecoder)
 {
-  return std::make_shared<HttpRequestExecutor>(connectionProvider, bodyDecoder);
+  return std::make_shared<HttpRequestExecutor>(connectionProvider, retryPolicy, bodyDecoder);
 }
 
 std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getConnection() {
@@ -134,11 +137,13 @@ HttpRequestExecutor::executeOnce(const String& method,
   const auto& result = headerReader.readHeaders(connection, error);
   
   if(error.status.code != 0) {
+    invalidateConnection(connectionHandle);
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Failed to parse response. Invalid response headers");
   }
   
   if(error.ioStatus < 0) {
+    invalidateConnection(connectionHandle);
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Failed to read response.");
   }
@@ -168,7 +173,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
   private:
     typedef oatpp::web::protocol::http::outgoing::Request OutgoingRequest;
   private:
-    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
+    HttpRequestExecutor* m_this;
     String m_method;
     String m_path;
     Headers m_headers;
@@ -181,14 +186,14 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     oatpp::data::share::MemoryLabel m_buffer;
   public:
     
-    ExecutorCoroutine(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+    ExecutorCoroutine(HttpRequestExecutor* _this,
                       const String& method,
                       const String& path,
                       const Headers& headers,
                       const std::shared_ptr<Body>& body,
                       const std::shared_ptr<const BodyDecoder>& bodyDecoder,
                       const std::shared_ptr<ConnectionHandle>& connectionHandle)
-      : m_connectionProvider(connectionProvider)
+      : m_this(_this)
       , m_method(method)
       , m_path(path)
       , m_headers(headers)
@@ -209,7 +214,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
       }
 
       auto request = OutgoingRequest::createShared(m_method, m_path, m_headers, m_body);
-      request->putHeaderIfNotExists(Header::HOST, m_connectionProvider->getProperty("host"));
+      request->putHeaderIfNotExists(Header::HOST, m_this->m_connectionProvider->getProperty("host"));
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_buffer = oatpp::data::share::MemoryLabel(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, m_buffer);
@@ -235,10 +240,20 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
                                             result.headers, bodyStream, m_bodyDecoder));
       
     }
+
+    Action handleError(oatpp::async::Error* error) override {
+
+      if(m_connectionHandle) {
+        m_this->invalidateConnection(m_connectionHandle);
+      }
+
+      return error;
+
+    }
     
   };
   
-  return ExecutorCoroutine::startForResult(m_connectionProvider, method, path, headers, body, m_bodyDecoder, connectionHandle);
+  return ExecutorCoroutine::startForResult(this, method, path, headers, body, m_bodyDecoder, connectionHandle);
   
 }
   

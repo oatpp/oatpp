@@ -146,6 +146,9 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<RequestExecutor::C
   return m_requestExecutor->getConnectionAsync();
 }
 
+void ApiClient::invalidateConnection(const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle) {
+  m_requestExecutor->invalidateConnection(connectionHandle);
+}
 
 std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::String& method,
                                                                const PathPattern& pathPattern,

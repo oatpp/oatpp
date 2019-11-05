@@ -193,6 +193,11 @@ public:
    */
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<RequestExecutor::ConnectionHandle>&> getConnectionAsync();
 
+  /**
+   * Invalidate connection.
+   * @param connectionHandle
+   */
+  void invalidateConnection(const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle);
 
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const PathPattern& pathPattern,
