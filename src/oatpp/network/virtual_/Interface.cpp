@@ -26,6 +26,22 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ListenerLock
+
+Interface::ListenerLock::ListenerLock(Interface* interface)
+  : m_interface(interface)
+{}
+
+Interface::ListenerLock::~ListenerLock() {
+  if(m_interface != nullptr) {
+    m_interface->unbindListener(this);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Interface
+
 std::recursive_mutex Interface::m_registryMutex;
 std::unordered_map<oatpp::String, std::weak_ptr<Interface>> Interface::m_registry;
 
@@ -59,10 +75,24 @@ void Interface::unregisterInterface(const oatpp::String& name) {
 
 Interface::Interface(const oatpp::String& name)
   : m_name(name)
+  , m_listenerLock(nullptr)
 {}
 
 Interface::~Interface() {
+
   unregisterInterface(getName());
+
+  {
+    std::lock_guard<std::mutex> lock(m_listenerMutex);
+    if (m_listenerLock != nullptr) {
+      OATPP_LOGE("[oatpp::network::virtual_::Interface::~Interface()]",
+                 "Error! Interface destructor called, but listener is still bonded!!!");
+      m_listenerLock.load()->m_interface = nullptr;
+    }
+  }
+
+  dropAllConnection();
+
 }
 
 std::shared_ptr<Interface> Interface::obtainShared(const oatpp::String& name) {
@@ -78,6 +108,11 @@ std::shared_ptr<Interface> Interface::obtainShared(const oatpp::String& name) {
   registerInterface(interface);
   return interface;
 
+}
+
+void Interface::ConnectionSubmission::invalidate() {
+  m_valid = false;
+  m_condition.notify_all();
 }
 
 void Interface::ConnectionSubmission::setSocket(const std::shared_ptr<Socket>& socket) {
@@ -123,30 +158,56 @@ std::shared_ptr<Socket> Interface::acceptSubmission(const std::shared_ptr<Connec
   return serverSocket;
   
 }
+
+std::shared_ptr<Interface::ListenerLock> Interface::bind() {
+  std::lock_guard<std::mutex> lock(m_listenerMutex);
+  if(m_listenerLock == nullptr) {
+    m_listenerLock = new ListenerLock(this);
+    return std::shared_ptr<ListenerLock>(m_listenerLock.load());
+  }
+  throw std::runtime_error(
+    "[oatpp::network::virtual_::Interface::bind()]: Can't bind to interface '" + m_name->std_str() + "'. Listener lock is already acquired");
+}
+
+void Interface::unbindListener(ListenerLock* listenerLock) {
+  std::lock_guard<std::mutex> lock(m_listenerMutex);
+  if(m_listenerLock && m_listenerLock == listenerLock) {
+    m_listenerLock = nullptr;
+    dropAllConnection();
+  } else {
+    OATPP_LOGE("[oatpp::network::virtual_::Interface::unbindListener()]", "Error! Unbinding wrong listener!!!");
+  }
+}
   
 std::shared_ptr<Interface::ConnectionSubmission> Interface::connect() {
-  auto submission = std::make_shared<ConnectionSubmission>();
-  {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_submissions.pushBack(submission);
+  if(m_listenerLock) {
+    auto submission = std::make_shared<ConnectionSubmission>(true);
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_submissions.pushBack(submission);
+    }
+    m_condition.notify_one();
+    return submission;
   }
-  m_condition.notify_one();
-  return submission;
+  return std::make_shared<ConnectionSubmission>(false);
 }
   
 std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking() {
-  std::shared_ptr<ConnectionSubmission> submission;
-  {
-    std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
-    if(lock.owns_lock()) {
-      submission = std::make_shared<ConnectionSubmission>();
-      m_submissions.pushBack(submission);
+  if(m_listenerLock) {
+    std::shared_ptr<ConnectionSubmission> submission;
+    {
+      std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+      if (lock.owns_lock()) {
+        submission = std::make_shared<ConnectionSubmission>(true);
+        m_submissions.pushBack(submission);
+      }
     }
+    if (submission) {
+      m_condition.notify_one();
+    }
+    return submission;
   }
-  if(submission) {
-    m_condition.notify_one();
-  }
-  return submission;
+  return std::make_shared<ConnectionSubmission>(false);
 }
 
 std::shared_ptr<Socket> Interface::accept(const bool& waitingHandle) {
@@ -166,6 +227,22 @@ std::shared_ptr<Socket> Interface::acceptNonBlocking() {
     return acceptSubmission(m_submissions.popFront());
   }
   return nullptr;
+}
+
+void Interface::dropAllConnection() {
+
+  std::unique_lock<std::mutex> lock(m_mutex);
+
+  auto curr = m_submissions.getFirstNode();
+
+  while(curr != nullptr) {
+    auto submission = curr->getData();
+    submission->invalidate();
+    curr = curr->getNext();
+  }
+
+  m_submissions.clear();
+
 }
 
 void Interface::notifyAcceptors() {

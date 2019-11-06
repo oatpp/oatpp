@@ -45,11 +45,16 @@ void ConnectionProvider::close() {
 
 std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
   auto submission = m_interface->connect();
-  auto socket = submission->getSocket();
-  socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
-  socket->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
-  socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
-  return socket;
+  if(submission->isValid()) {
+    auto socket = submission->getSocket();
+    if (socket) {
+      socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+      socket->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+      socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+      return socket;
+    }
+  }
+  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + m_interface->getName()->std_str());
 }
   
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getConnectionAsync() {

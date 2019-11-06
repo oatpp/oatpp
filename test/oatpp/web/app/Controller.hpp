@@ -66,6 +66,10 @@ public:
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
+  ENDPOINT("GET", "/availability", availability) {
+    return createResponse(Status::CODE_200, "Hello World!!!");
+  }
+
   ADD_CORS(cors);
   ENDPOINT("GET", "/cors", cors) {
     return createResponse(Status::CODE_200, "Ping");
