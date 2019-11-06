@@ -169,6 +169,7 @@ void ClientRetryTest::onRun() {
 
   {
 
+    OATPP_LOGI(TAG, "Test: no server available");
     oatpp::test::PerformanceChecker checker("test: no server available");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(2, std::chrono::seconds(1));
@@ -178,6 +179,8 @@ void ClientRetryTest::onRun() {
     auto response = client->getRoot();
     auto ticks = checker.getElapsedTicks();
 
+    OATPP_LOGD(TAG, "ticks=%d", ticks);
+
     OATPP_ASSERT(response.get() == nullptr);
     OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */);
     OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 3s */);
@@ -186,6 +189,7 @@ void ClientRetryTest::onRun() {
 
   {
 
+    OATPP_LOGI(TAG, "Test: server pops up");
     oatpp::test::PerformanceChecker checker("test: server pops up");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(10 * 10, std::chrono::milliseconds(100));
