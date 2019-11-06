@@ -1,4 +1,6 @@
 
+#include "oatpp/web/ClientRetryTest.hpp"
+
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
 #include "oatpp/web/FullAsyncClientTest.hpp"
@@ -58,7 +60,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-
+/*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -98,7 +100,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
-
+*/
   {
 
     oatpp::test::web::PipelineTest test_virtual(0, 3000);
@@ -146,6 +148,16 @@ void runTests() {
 
     oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
     test_port.run(1);
+
+  }
+
+  {
+
+    oatpp::test::web::ClientRetryTest test_virtual(0);
+    test_virtual.run();
+
+    oatpp::test::web::ClientRetryTest test_port(8000);
+    test_port.run();
 
   }
 

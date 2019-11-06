@@ -42,6 +42,7 @@ public:
   API_CLIENT_INIT(Client)
   
   API_CALL("GET", "/", getRoot)
+  API_CALL("GET", "/availability", getAvailability)
   API_CALL("GET", "/cors", getCors)
   API_CALL("OPTIONS", "/cors", optionsCors)
   API_CALL("GET", "/cors-origin", getCorsOrigin)

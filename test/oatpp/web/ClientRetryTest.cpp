@@ -123,26 +123,32 @@ public:
 
 };
 
-void runServer(v_int32 port, const std::shared_ptr<ApiController>& controller) {
+void runServer(v_int32 port, v_int32 delaySeconds, v_int32 iterations, bool stable, const std::shared_ptr<app::Controller>& controller, bool wakeupServer) {
 
   TestServerComponent component(port);
 
   oatpp::test::web::ClientServerTestRunner runner;
 
-  runner.addController(app::Controller::createShared());
+  runner.addController(controller);
 
-  runner.run([&runner] {
+  runner.run([&runner, delaySeconds, iterations, stable, controller, wakeupServer] {
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    for(v_int32 i = 0; i < iterations; i ++) {
+      std::this_thread::sleep_for(std::chrono::seconds(delaySeconds));
+      if(!stable) {
+        controller->available = !controller->available;
+        OATPP_LOGI("Server", "Available=%d", (v_int32)controller->available.load());
+      }
+    }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Stop server and unblock accepting thread
+    if(wakeupServer) {
 
-    runner.getServer()->stop();
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-    connectionProvider->getConnection();
+      runner.getServer()->stop();
+      OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
+      connectionProvider->getConnection();
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
 
   }, std::chrono::minutes(10));
 
@@ -162,27 +168,99 @@ void ClientRetryTest::onRun() {
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
 
-  //auto connectionPool = std::make_shared<oatpp::network::ClientConnectionPool>(connectionProvider, 10, std::chrono::seconds(5));
+//  {
+//
+//    oatpp::test::PerformanceChecker checker("test: no server available");
+//
+//    auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(2, std::chrono::seconds(1));
+//    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionProvider, retryPolicy);
+//    auto client = app::Client::createShared(requestExecutor, objectMapper);
+//
+//    auto response = client->getRoot();
+//    auto ticks = checker.getElapsedTicks();
+//
+//    OATPP_ASSERT(response.get() == nullptr);
+//    OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */);
+//    OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 3s */);
+//
+//  }
+//
+//  {
+//
+//    oatpp::test::PerformanceChecker checker("test: server pops up");
+//
+//    auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(10 * 10, std::chrono::milliseconds(100));
+//    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionProvider, retryPolicy);
+//    auto client = app::Client::createShared(requestExecutor, objectMapper);
+//
+//    std::list<std::thread> threads;
+//
+//    for(v_int32 i = 0; i < 100; i ++) {
+//      threads.push_back(std::thread([client]{
+//        auto response = client->getRoot();
+//        OATPP_ASSERT(response);
+//        OATPP_ASSERT(response->getStatusCode() == 200);
+//        auto data = response->readBodyToString();
+//        OATPP_ASSERT(data == "Hello World!!!");
+//      }));
+//    }
+//
+//    OATPP_LOGD(TAG, "Waiting for server to start...");
+//    std::this_thread::sleep_for(std::chrono::seconds(3));
+//
+//    runServer(m_port, 1, 1, true, controller, true);
+//
+//    for(std::thread& thread : threads) {
+//      thread.join();
+//    }
+//
+//    auto ticks = checker.getElapsedTicks();
+//    OATPP_ASSERT(ticks < 10 * 1000 * 1000 /* 10s */);
+//
+//  }
 
   {
 
-    oatpp::test::PerformanceChecker checker("no server available");
+    OATPP_LOGI(TAG, "Test: unstable server!");
 
-    auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(2, std::chrono::seconds(1));
-    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionProvider, retryPolicy);
+    auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(-1, std::chrono::seconds(1));
+    auto connectionPool = std::make_shared<oatpp::network::ClientConnectionPool>(connectionProvider, 10, std::chrono::seconds(1));
+    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionPool, retryPolicy);
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
-    auto response = client->getRoot();
-    auto ticks = checker.getElapsedTicks();
+    std::list<std::thread> threads;
+    std::atomic<bool> testIsRunning(true);
 
-    OATPP_ASSERT(response.get() == nullptr);
-    OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */);
-    OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 2s */);
+    std::thread clientThread([client, &testIsRunning]{
+
+      v_int64 counter = 0;
+
+      v_int64 tick0 = oatpp::base::Environment::getMicroTickCount();
+
+      while(oatpp::base::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
+
+        auto response = client->getAvailability();
+        OATPP_ASSERT(response);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto data = response->readBodyToString();
+        OATPP_ASSERT(data == "Hello World!!!");
+        counter ++;
+
+        if(counter % 1000 == 0) {
+          OATPP_LOGD("client", "requests=%d", counter);
+        }
+
+      }
+
+    });
+
+    runServer(m_port, 2, 6, false, controller, true);
+
+    clientThread.join();
 
   }
 
-  //runServer(m_port, controller);
-  //runServer(m_port, controller);
+  std::this_thread::sleep_for(std::chrono::seconds(2)); // wait connection pool.
 
 }
 
