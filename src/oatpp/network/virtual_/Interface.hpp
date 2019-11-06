@@ -46,6 +46,9 @@ private:
   static void unregisterInterface(const oatpp::String& name);
 public:
 
+  /**
+   * `ListenerLock` is the Lock object, which represents interface binding ownership.
+   */
   class ListenerLock {
     friend Interface;
   private:
@@ -138,8 +141,8 @@ public:
   static std::shared_ptr<Interface> obtainShared(const oatpp::String& name);
 
   /**
-   *
-   * @return
+   * Aquire &l:Interface::ListenerLock ;.
+   * @return - `std::shared_ptr` to &l:Interface::ListenerLock ;.
    */
   std::shared_ptr<ListenerLock> bind();
 
