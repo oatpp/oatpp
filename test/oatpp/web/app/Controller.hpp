@@ -73,8 +73,8 @@ public:
     if(available) {
       return createResponse(Status::CODE_200, "Hello World!!!");
     }
-    OATPP_LOGE(TAG, "GET '/availability'. Service unavailable.");
-    return createResponse(Status::CODE_503, "");
+    OATPP_LOGI(TAG, "GET '/availability'. Service unavailable.");
+    OATPP_ASSERT_HTTP(false, Status::CODE_503, "Service unavailable")
   }
 
   ADD_CORS(cors);
