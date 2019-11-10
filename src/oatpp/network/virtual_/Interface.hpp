@@ -47,20 +47,38 @@ private:
 public:
 
   /**
+   * `ListenerLock` is the Lock object, which represents interface binding ownership.
+   */
+  class ListenerLock {
+    friend Interface;
+  private:
+    Interface* m_interface;
+  private:
+    ListenerLock(Interface* interface);
+  public:
+    ~ListenerLock();
+  };
+
+public:
+
+  /**
    * "Future" for &id:oatpp::network::virtual_::Socket;.
    */
   class ConnectionSubmission {
+    friend Interface;
   private:
     std::shared_ptr<Socket> m_socket;
     std::mutex m_mutex;
     std::condition_variable m_condition;
-    bool m_valid;
+    std::atomic<bool> m_valid;
+  private:
+    void invalidate();
   public:
 
     /**
      * Constructor.
      */
-    ConnectionSubmission() : m_valid(true) {}
+    ConnectionSubmission(bool valid) : m_valid(valid) {}
 
     /**
      * Set socket to be returned in call to &l:Interface::ConnectionSubmission::getSocket ();/&l:Interface::ConnectionSubmission::getSocketNonBlocking ();.
@@ -91,8 +109,11 @@ public:
 
 private:
   std::shared_ptr<Socket> acceptSubmission(const std::shared_ptr<ConnectionSubmission>& submission);
+  void unbindListener(ListenerLock* listenerLock);
 private:
   oatpp::String m_name;
+  std::atomic<ListenerLock*> m_listenerLock;
+  std::mutex m_listenerMutex;
   std::mutex m_mutex;
   std::condition_variable m_condition;
   oatpp::collection::LinkedList<std::shared_ptr<ConnectionSubmission>> m_submissions;
@@ -120,6 +141,12 @@ public:
   static std::shared_ptr<Interface> obtainShared(const oatpp::String& name);
 
   /**
+   * Aquire &l:Interface::ListenerLock ;.
+   * @return - `std::shared_ptr` to &l:Interface::ListenerLock ;.
+   */
+  std::shared_ptr<ListenerLock> bind();
+
+  /**
    * Connect to interface.
    * @return - &l:Interface::ConnectionSubmission;.
    */
@@ -145,6 +172,11 @@ public:
    * Empty `std::shared_ptr` if no incoming connection is available at the moment.
    */
   std::shared_ptr<Socket> acceptNonBlocking();
+
+  /**
+   * Drop all waiting connections.
+   */
+  void dropAllConnection();
 
   /**
    * Notify all threads that are waiting on accept().

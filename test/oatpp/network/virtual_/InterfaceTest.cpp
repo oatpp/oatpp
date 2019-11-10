@@ -137,6 +137,8 @@ void InterfaceTest::onRun() {
   oatpp::String dataSample = "1234567890-=][poiuytrewqasdfghjkl;'/.,mnbvcxzzxcvbnm,./';lkjhgfdsaqwertyuiop][=-0987654321";
   
   auto interface = Interface::obtainShared("virtualhost");
+  auto bindLock = interface->bind();
+
   v_int32 numTasks = 100;
   
   ThreadList threadList;

@@ -46,24 +46,35 @@ namespace oatpp { namespace test { namespace web { namespace app {
 
 namespace multipart = oatpp::web::mime::multipart;
 
+#include OATPP_CODEGEN_BEGIN(ApiController)
+
 class Controller : public oatpp::web::server::api::ApiController {
 private:
   static constexpr const char* TAG = "test::web::app::Controller";
 public:
   Controller(const std::shared_ptr<ObjectMapper>& objectMapper)
     : oatpp::web::server::api::ApiController(objectMapper)
+    , available(true)
   {}
 public:
   
   static std::shared_ptr<Controller> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
     return std::make_shared<Controller>(objectMapper);
   }
-  
-#include OATPP_CODEGEN_BEGIN(ApiController)
+
+  std::atomic<bool> available;
 
   ENDPOINT("GET", "/", root) {
-    //OATPP_LOGV(TAG, "GET '/'");
     return createResponse(Status::CODE_200, "Hello World!!!");
+  }
+
+  ENDPOINT("GET", "/availability", availability) {
+    //OATPP_LOGV(TAG, "GET '/availability'");
+    if(available) {
+      return createResponse(Status::CODE_200, "Hello World!!!");
+    }
+    OATPP_LOGI(TAG, "GET '/availability'. Service unavailable.");
+    OATPP_ASSERT_HTTP(false, Status::CODE_503, "Service unavailable")
   }
 
   ADD_CORS(cors);
@@ -250,10 +261,10 @@ public:
     return createResponse(Status::CODE_200, "OK");
 
   }
-
-#include OATPP_CODEGEN_END(ApiController)
   
 };
+
+#include OATPP_CODEGEN_END(ApiController)
 
 }}}}
 

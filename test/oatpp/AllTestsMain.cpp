@@ -1,4 +1,6 @@
 
+#include "oatpp/web/ClientRetryTest.hpp"
+
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
 #include "oatpp/web/FullAsyncClientTest.hpp"
@@ -146,6 +148,16 @@ void runTests() {
 
     oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
     test_port.run(1);
+
+  }
+
+  {
+
+    oatpp::test::web::ClientRetryTest test_virtual(0);
+    test_virtual.run();
+
+    oatpp::test::web::ClientRetryTest test_port(8000);
+    test_port.run();
 
   }
 

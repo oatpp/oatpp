@@ -154,6 +154,8 @@ add_library(oatpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp
         oatpp/web/client/RequestExecutor.hpp
+        oatpp/web/client/RetryPolicy.cpp
+        oatpp/web/client/RetryPolicy.hpp
         oatpp/web/mime/multipart/FileStreamProvider.cpp
         oatpp/web/mime/multipart/FileStreamProvider.hpp
         oatpp/web/mime/multipart/InMemoryPartReader.cpp
