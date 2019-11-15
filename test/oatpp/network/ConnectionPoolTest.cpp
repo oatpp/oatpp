@@ -137,7 +137,7 @@ public:
   Action useConnection() {
     if(m_repeats < 1) {
       m_repeats ++;
-      return waitRepeat(std::chrono::milliseconds(100));
+      return waitFor(std::chrono::milliseconds(100)).next(yieldTo(&ClientCoroutine::useConnection));
     }
     if(m_invalidate) {
       m_connection->invalidate();
