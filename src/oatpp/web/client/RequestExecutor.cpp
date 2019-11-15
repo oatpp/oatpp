@@ -132,7 +132,6 @@ RequestExecutor::executeAsync(
     Headers m_headers;
     std::shared_ptr<Body> m_body;
     std::shared_ptr<ConnectionHandle> m_connectionHandle;
-    bool m_slept;
     RetryPolicy::Context m_context;
   public:
 
@@ -148,12 +147,9 @@ RequestExecutor::executeAsync(
       , m_headers(headers)
       , m_body(body)
       , m_connectionHandle(connectionHandle)
-      , m_slept(false)
     {}
 
     Action act() override {
-
-      m_slept = false;
 
       if(!m_connectionHandle) {
         return m_this->getConnectionAsync().callbackTo(&ExecutorCoroutine::onConnection);
@@ -192,12 +188,7 @@ RequestExecutor::executeAsync(
         m_connectionHandle.reset();
       }
 
-      if(!m_slept) {
-        m_slept = true;
-        return waitRepeat(std::chrono::microseconds(m_this->m_retryPolicy->waitForMicroseconds(m_context)));
-      }
-
-      return yieldTo(&ExecutorCoroutine::act);
+      return waitFor(std::chrono::microseconds(m_this->m_retryPolicy->waitForMicroseconds(m_context))).next(yieldTo(&ExecutorCoroutine::act));
 
     }
 

@@ -327,12 +327,54 @@ Action AbstractCoroutine::handleError(Error* error) {
   return Action(error);
 }
 
-/**
- * Get parent coroutine
- * @return - pointer to a parent coroutine
- */
 AbstractCoroutine* AbstractCoroutine::getParent() const {
   return m_parent;
+}
+
+Action AbstractCoroutine::repeat() {
+  return Action::createActionByType(Action::TYPE_REPEAT);
+}
+
+Action AbstractCoroutine::waitRepeat(const std::chrono::duration<v_int64, std::micro>& timeout) {
+  auto startTime = std::chrono::system_clock::now();
+  auto end = startTime + timeout;
+  std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(end.time_since_epoch());
+  return Action::createWaitRepeatAction(ms.count());
+}
+
+CoroutineStarter AbstractCoroutine::waitFor(const std::chrono::duration<v_int64, std::micro>& timeout) {
+
+  class WaitingCoroutine : public Coroutine<WaitingCoroutine> {
+  private:
+    std::chrono::duration<v_int64, std::micro> m_duration;
+    bool m_wait;
+  public:
+
+    WaitingCoroutine(const std::chrono::duration<v_int64, std::micro>& duration)
+      : m_duration(duration)
+      , m_wait(true)
+    {}
+
+    Action act() override {
+      if(m_wait) {
+        m_wait = false;
+        return waitRepeat(m_duration);
+      }
+      return finish();
+    }
+
+  };
+
+  return WaitingCoroutine::start(timeout);
+
+}
+
+Action AbstractCoroutine::ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+  return Action::createIOWaitAction(ioHandle, ioEventType);
+}
+
+Action AbstractCoroutine::ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+  return Action::createIORepeatAction(ioHandle, ioEventType);
 }
 
 Action AbstractCoroutine::error(Error* error) {
