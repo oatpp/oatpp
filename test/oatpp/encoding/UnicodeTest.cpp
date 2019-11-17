@@ -104,14 +104,30 @@ void UnicodeTest::onRun(){
   }
   
   // 6 byte test
-  
-  for(v_int32 c = 67108864; c < 2147483647; c ++){
-    v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
-    OATPP_ASSERT(size == 6);
-    v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
-    OATPP_ASSERT(cnt == 6);
-    OATPP_ASSERT(code == c);
+
+  {
+
+    v_int32 from = 67108864;
+    v_int32 to = 2147483647;
+
+    for (v_int32 c = from; c < from + 1000; c++) {
+      v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+      OATPP_ASSERT(size == 6);
+      v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+      OATPP_ASSERT(cnt == 6);
+      OATPP_ASSERT(code == c);
+    }
+
+    for (v_int32 c = to - 1000; c < to; c++) {
+      v_int32 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
+      OATPP_ASSERT(size == 6);
+      v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+      OATPP_ASSERT(cnt == 6);
+      OATPP_ASSERT(code == c);
+    }
+
   }
+
   // */
   
   p_char8 sequence = (p_char8)"𐐷";
