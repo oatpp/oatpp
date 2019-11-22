@@ -38,7 +38,7 @@ class ParsingError : public std::runtime_error {
 private:
   oatpp::String m_message;
   v_int64 m_code;
-  v_int64 m_position;
+  v_buff_size m_position;
 public:
 
   /**
@@ -46,7 +46,7 @@ public:
    * @param message
    * @param position
    */
-  ParsingError(const oatpp::String &message, v_int64 code, v_int64 position);
+  ParsingError(const oatpp::String &message, v_int64 code, v_buff_size position);
 
   /**
    * get error message
@@ -64,7 +64,7 @@ public:
    * get parsing position of the error
    * @return
    */
-  v_int64 getPosition() const;
+  v_buff_size getPosition() const;
 
 };
 

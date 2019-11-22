@@ -31,7 +31,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 ChunkedBody::ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback,
                          const std::shared_ptr<AsyncReadCallback>& asyncReadCallback,
-                         data::v_io_size chunkBufferSize)
+                         v_buff_size chunkBufferSize)
   : m_readCallback(readCallback)
   , m_asyncReadCallback(asyncReadCallback)
   , m_buffer(new v_char8[chunkBufferSize])
@@ -42,7 +42,7 @@ ChunkedBody::~ChunkedBody() {
   delete [] m_buffer;
 }
 
-bool ChunkedBody::writeData(OutputStream* stream, const void* data, data::v_io_size size) {
+bool ChunkedBody::writeData(OutputStream* stream, const void* data, v_buff_size size) {
   return oatpp::data::stream::writeExactSizeData(stream, data, size) == size;
 }
 
@@ -120,7 +120,7 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
 
     Action onChunkRead() {
 
-      data::v_io_size bytesRead = m_body->m_bufferSize - m_inlineReadData.bytesLeft;
+      v_buff_size bytesRead = m_body->m_bufferSize - m_inlineReadData.bytesLeft;
 
       if(bytesRead > 0) {
 
@@ -170,7 +170,7 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
 
 }
 
-data::v_io_size ChunkedBody::getKnownSize() {
+v_buff_size ChunkedBody::getKnownSize() {
   return -1;
 }
 

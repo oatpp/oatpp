@@ -31,11 +31,11 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
   
 data::v_io_size SimpleBodyDecoder::readLine(oatpp::data::stream::InputStream* fromStream,
                                             p_char8 buffer,
-                                            data::v_io_size maxLineSize)
+                                            v_buff_size maxLineSize)
 {
   
   v_char8 a;
-  data::v_io_size count = 0;
+  v_buff_size count = 0;
   while (fromStream->read(&a, 1) > 0) {
     if(a != '\r') {
       if(count + 1 > maxLineSize) {
@@ -63,7 +63,7 @@ void SimpleBodyDecoder::doChunkedDecoding(oatpp::data::stream::InputStream* from
   
   const v_int32 maxLineSize = 8; // 0xFFFFFFFF 4Gb for chunk
   v_char8 lineBuffer[maxLineSize + 1];
-  data::v_io_size countToRead;
+  v_buff_size countToRead;
   
   do {
     
@@ -196,7 +196,7 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::doChunkedDecodingAsync(const s
     }
     
     Action onLineRead() {
-      data::v_io_size countToRead = strtol((const char*) m_lineBuffer, nullptr, 16);
+      v_buff_size countToRead = strtol((const char*) m_lineBuffer, nullptr, 16);
       if(countToRead > 0) {
         prepareSkipRN();
         return oatpp::data::stream::transferAsync(m_fromStream, m_writeCallback, countToRead, m_buffer).next(yieldTo(&ChunkedDecoder::skipRN));

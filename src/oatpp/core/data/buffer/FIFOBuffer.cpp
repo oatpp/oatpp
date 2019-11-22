@@ -67,7 +67,7 @@ data::v_io_size FIFOBuffer::getBufferSize() const {
   return m_bufferSize;
 }
 
-data::v_io_size FIFOBuffer::read(void *data, data::v_io_size count) {
+data::v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
   
   if(!m_canRead) {
     return data::IOError::WAIT_RETRY;
@@ -116,7 +116,7 @@ data::v_io_size FIFOBuffer::read(void *data, data::v_io_size count) {
   
 }
 
-data::v_io_size FIFOBuffer::peek(void *data, data::v_io_size count) {
+data::v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
 
   if(!m_canRead) {
     return data::IOError::WAIT_RETRY;
@@ -156,7 +156,7 @@ data::v_io_size FIFOBuffer::peek(void *data, data::v_io_size count) {
 
 }
 
-data::v_io_size FIFOBuffer::commitReadOffset(data::v_io_size count) {
+data::v_io_size FIFOBuffer::commitReadOffset(v_buff_size count) {
 
   if(!m_canRead) {
     return data::IOError::WAIT_RETRY;
@@ -201,7 +201,7 @@ data::v_io_size FIFOBuffer::commitReadOffset(data::v_io_size count) {
 
 }
 
-data::v_io_size FIFOBuffer::write(const void *data, data::v_io_size count) {
+data::v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   
   if(m_canRead && m_writePosition == m_readPosition) {
     return data::IOError::WAIT_RETRY;
@@ -246,7 +246,7 @@ data::v_io_size FIFOBuffer::write(const void *data, data::v_io_size count) {
   
 }
 
-data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, data::v_io_size count) {
+data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count) {
 
   if(!m_canRead) {
     return data::IOError::WAIT_RETRY;
@@ -299,7 +299,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
 
 }
 
-data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, data::v_io_size count) {
+data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count) {
 
   if(m_canRead && m_writePosition == m_readPosition) {
     return data::IOError::WAIT_RETRY;
@@ -456,12 +456,12 @@ data::v_io_size SynchronizedFIFOBuffer::availableToWrite() {
   return m_fifo.availableToWrite();
 }
 
-data::v_io_size SynchronizedFIFOBuffer::read(void *data, data::v_io_size count) {
+data::v_io_size SynchronizedFIFOBuffer::read(void *data, v_buff_size count) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.read(data, count);
 }
 
-data::v_io_size SynchronizedFIFOBuffer::write(const void *data, data::v_io_size count) {
+data::v_io_size SynchronizedFIFOBuffer::write(const void *data, v_buff_size count) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.write(data, count);
 }

@@ -40,7 +40,7 @@ void StatefulParser::ListenerCall::setOnHeadersCall() {
   size = 0;
 }
 
-void StatefulParser::ListenerCall::setOnDataCall(p_char8 pData, data::v_io_size pSize) {
+void StatefulParser::ListenerCall::setOnDataCall(p_char8 pData, v_buff_size pSize) {
   callType = CALL_ON_DATA;
   data = pData;
   size = pSize;
@@ -239,7 +239,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::Asy
   p_char8 data = (p_char8) inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
 
-  for(v_int64 i = 0; i < size; i ++) {
+  for(v_buff_size i = 0; i < size; i ++) {
 
     m_headerSectionEndAccumulator <<= 8;
     m_headerSectionEndAccumulator |= data[i];
@@ -309,7 +309,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::AsyncI
 
 }
 
-v_int64 StatefulParser::parseNext(p_char8 data, v_int64 size) {
+v_buff_size StatefulParser::parseNext(p_char8 data, v_buff_size size) {
 
   data::stream::AsyncInlineWriteData inlineData(data, size);
 

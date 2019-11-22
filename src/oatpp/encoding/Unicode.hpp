@@ -39,14 +39,14 @@ public:
    * @param firstByte - first byte of UTF-8 character.
    * @return - length in bytes of UTF-8 character.
    */
-  static v_int64 getUtf8CharSequenceLength(v_char8 firstByte);
+  static v_buff_size getUtf8CharSequenceLength(v_char8 firstByte);
 
   /**
    * Get length in bytes of UTF-8 character by its code.
    * @param code - code of UTF-8 character.
    * @return - length in bytes of UTF-8 character.
    */
-  static v_int64 getUtf8CharSequenceLengthForCode(v_word32 code);
+  static v_buff_size getUtf8CharSequenceLengthForCode(v_word32 code);
 
   /**
    * Get code of UTF-8 character.
@@ -54,7 +54,7 @@ public:
    * @param length - out parameter. Length in bytes of UTF-8 character.
    * @return - code of UTF-8 character.
    */
-  static v_int32 encodeUtf8Char(p_char8 sequence, v_int64& length);
+  static v_int32 encodeUtf8Char(p_char8 sequence, v_buff_size& length);
 
   /**
    * Write UTF-8 character to buffer.
@@ -62,7 +62,7 @@ public:
    * @param buffer - pointer to write UTF-8 character to.
    * @return - length in bytes of UTF-8 character.
    */
-  static v_int64 decodeUtf8Char(v_int32 code, p_char8 buffer);
+  static v_buff_size decodeUtf8Char(v_int32 code, p_char8 buffer);
 
   /**
    * Get corresponding UTF-16 surrogate pair for symbol code.

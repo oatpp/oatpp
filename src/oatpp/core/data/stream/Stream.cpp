@@ -98,17 +98,17 @@ AsyncInlineWriteData::AsyncInlineWriteData()
   , bytesLeft(0)
 {}
 
-AsyncInlineWriteData::AsyncInlineWriteData(const void* data, data::v_io_size size)
+AsyncInlineWriteData::AsyncInlineWriteData(const void* data, v_buff_size size)
   : currBufferPtr(data)
   , bytesLeft(size)
 {}
 
-void AsyncInlineWriteData::set(const void* data, data::v_io_size size) {
+void AsyncInlineWriteData::set(const void* data, v_buff_size size) {
   currBufferPtr = data;
   bytesLeft = size;
 }
 
-void AsyncInlineWriteData::inc(data::v_io_size amount) {
+void AsyncInlineWriteData::inc(v_buff_size amount) {
   currBufferPtr = &((p_char8) currBufferPtr)[amount];
   bytesLeft -= amount;
 }
@@ -126,17 +126,17 @@ AsyncInlineReadData::AsyncInlineReadData()
   , bytesLeft(0)
 {}
 
-AsyncInlineReadData::AsyncInlineReadData(void* data, data::v_io_size size)
+AsyncInlineReadData::AsyncInlineReadData(void* data, v_buff_size size)
   : currBufferPtr(data)
   , bytesLeft(size)
 {}
 
-void AsyncInlineReadData::set(void* data, data::v_io_size size) {
+void AsyncInlineReadData::set(void* data, v_buff_size size) {
   currBufferPtr = data;
   bytesLeft = size;
 }
 
-void AsyncInlineReadData::inc(data::v_io_size amount) {
+void AsyncInlineReadData::inc(v_buff_size amount) {
   currBufferPtr = &((p_char8) currBufferPtr)[amount];
   bytesLeft -= amount;
 }
@@ -162,7 +162,7 @@ DefaultWriteCallback::DefaultWriteCallback(OutputStream* stream)
   : m_stream(stream)
 {}
 
-data::v_io_size DefaultWriteCallback::write(const void *data, data::v_io_size count) {
+data::v_io_size DefaultWriteCallback::write(const void *data, v_buff_size count) {
   return writeExactSizeData(m_stream, data, count);
 }
 
@@ -287,15 +287,15 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
   
 oatpp::data::v_io_size transfer(InputStream* fromStream,
                                 WriteCallback* writeCallback,
-                                oatpp::data::v_io_size transferSize,
+                                v_buff_size transferSize,
                                 void* buffer,
-                                oatpp::data::v_io_size bufferSize)
+                                v_buff_size bufferSize)
 {
-  
-  oatpp::data::v_io_size progress = 0;
+
+  v_buff_size progress = 0;
   
   while (transferSize == 0 || progress < transferSize) {
-    oatpp::data::v_io_size desiredReadCount = transferSize - progress;
+    v_buff_size desiredReadCount = transferSize - progress;
     if(transferSize == 0 || desiredReadCount > bufferSize){
       desiredReadCount = bufferSize;
     }
@@ -303,7 +303,7 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
     if(readResult > 0) {
 
       p_char8 data = (p_char8) buffer;
-      oatpp::data::v_io_size bytesLeft = readResult;
+      v_buff_size bytesLeft = readResult;
       while(bytesLeft > 0) {
         auto writeResult = writeCallback->write(data, bytesLeft);
         if(writeResult > 0) {
@@ -332,7 +332,7 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
 
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
                                              const std::shared_ptr<AsyncWriteCallback>& writeCallback,
-                                             oatpp::data::v_io_size transferSize,
+                                             v_buff_size transferSize,
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
 {
   
@@ -340,11 +340,11 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
   private:
     std::shared_ptr<InputStream> m_fromStream;
     std::shared_ptr<AsyncWriteCallback> m_writeCallback;
-    oatpp::data::v_io_size m_transferSize;
-    oatpp::data::v_io_size m_progress;
+    v_buff_size m_transferSize;
+    v_buff_size m_progress;
     std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
-    
-    oatpp::data::v_io_size m_desiredReadCount;
+
+    v_buff_size m_desiredReadCount;
 
     AsyncInlineReadData m_inlineReadData;
     AsyncInlineWriteData m_inlineWriteData;
@@ -353,7 +353,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     
     TransferCoroutine(const std::shared_ptr<InputStream>& fromStream,
                       const std::shared_ptr<AsyncWriteCallback>& writeCallback,
-                      oatpp::data::v_io_size transferSize,
+                      v_buff_size transferSize,
                       const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
       : m_fromStream(fromStream)
       , m_writeCallback(writeCallback)
@@ -466,7 +466,7 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputSt
 }
 
 oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                                                       const void* data, data::v_io_size size)
+                                                       const void* data, v_buff_size size)
 {
 
   class WriteDataCoroutine : public oatpp::async::Coroutine<WriteDataCoroutine> {
@@ -476,7 +476,7 @@ oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oat
   public:
 
     WriteDataCoroutine(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                       const void* data, data::v_io_size size)
+                       const void* data, v_buff_size size)
       : m_stream(stream)
       , m_inlineData(data, size)
     {}
@@ -527,10 +527,10 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
   return std::forward<oatpp::async::Action>(nextAction);
 }
   
-oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, data::v_io_size size) {
+oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, v_buff_size size) {
   
   char* buffer = (char*) data;
-  oatpp::data::v_io_size progress = 0;
+  v_buff_size progress = 0;
   
   while (progress < size) {
     
@@ -551,10 +551,10 @@ oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* strea
   
 }
   
-oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, data::v_io_size size) {
+oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, v_buff_size size) {
   
   const char* buffer = (char*)data;
-  oatpp::data::v_io_size progress = 0;
+  v_buff_size progress = 0;
   
   while (progress < size) {
 

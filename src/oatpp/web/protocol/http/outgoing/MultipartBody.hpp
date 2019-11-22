@@ -71,13 +71,13 @@ private:
                                       std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                       data::stream::BufferInputStream& readStream,
                                       void *buffer,
-                                      data::v_io_size count);
+                                      v_buff_size count);
 
   static data::v_io_size readHeaders(const std::shared_ptr<Multipart>& multipart,
                                      std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                      data::stream::BufferInputStream& readStream,
                                      void *buffer,
-                                     data::v_io_size count);
+                                     v_buff_size count);
 private:
 
   class MultipartReadCallback : public ReadCallback {
@@ -87,12 +87,12 @@ private:
     v_int32 m_state;
     oatpp::data::stream::BufferInputStream m_readStream;
   private:
-    data::v_io_size readBody(void *buffer, data::v_io_size count);
+    data::v_io_size readBody(void *buffer, v_buff_size count);
   public:
 
     MultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
 
-    data::v_io_size read(void *buffer, data::v_io_size count) override;
+    data::v_io_size read(void *buffer, v_buff_size count) override;
 
   };
 
@@ -149,9 +149,9 @@ public:
 
   /**
    * Always returns `-1` - as body size is unknown.
-   * @return - `-1`. &id:oatpp::data::v_io_size;.
+   * @return - `-1`. `v_buff_size`.
    */
-  data::v_io_size getKnownSize() override;
+  v_buff_size getKnownSize() override;
 
 };
 

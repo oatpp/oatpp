@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
   
-void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_int64 size) {
+void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
   auto encodedValue = Utils::escapeString(data, size, false);
   stream->writeChar('\"');
   stream->write(encodedValue);

@@ -107,7 +107,7 @@ public:
     return std::make_shared<Pattern>();
   }
   
-  static std::shared_ptr<Pattern> parse(p_char8 data, v_int64 size);
+  static std::shared_ptr<Pattern> parse(p_char8 data, v_buff_size size);
   static std::shared_ptr<Pattern> parse(const char* data);
   static std::shared_ptr<Pattern> parse(const oatpp::String& data);
   

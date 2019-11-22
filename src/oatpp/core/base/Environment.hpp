@@ -70,6 +70,8 @@ typedef v_float32* p_float32;
 typedef std::atomic_int_fast64_t v_atomicCounter;
 typedef v_int64 v_counter;
 
+typedef intptr_t v_buff_size;
+
 namespace oatpp { namespace base{
 
 /**

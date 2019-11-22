@@ -40,7 +40,7 @@ public:
    */
   typedef oatpp::async::Action Action;
 private:
-  static constexpr v_int64 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
+  static constexpr v_word32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 public:
 
   /**
@@ -60,12 +60,12 @@ public:
     /**
      * This value represents starting position in buffer used to read data from stream for the last read operation.
      */
-    v_int64 bufferPosStart;
+    v_buff_size bufferPosStart;
 
     /**
      * This value represents end position in buffer used to read data from stream for the last read operation.
      */
-    v_int64 bufferPosEnd;
+    v_buff_size bufferPosEnd;
   };
 
 private:
@@ -74,7 +74,7 @@ private:
                                              Result& result);
 private:
   oatpp::data::share::MemoryLabel m_buffer;
-  v_int64 m_maxHeadersSize;
+  v_buff_size m_maxHeadersSize;
 public:
 
   /**
@@ -82,7 +82,7 @@ public:
    * @param buffer - buffer to use to read data from stream. &id:oatpp::data::share::MemoryLabel;.
    * @param maxHeadersSize
    */
-  ResponseHeadersReader(const oatpp::data::share::MemoryLabel& buffer, v_int64 maxHeadersSize)
+  ResponseHeadersReader(const oatpp::data::share::MemoryLabel& buffer, v_buff_size maxHeadersSize)
     : m_buffer(buffer)
     , m_maxHeadersSize(maxHeadersSize)
   {}

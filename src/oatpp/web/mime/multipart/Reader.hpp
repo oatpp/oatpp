@@ -121,7 +121,7 @@ public:
 
   void onPartHeaders(const Headers& partHeaders) override;
 
-  void onPartData(p_char8 data, oatpp::data::v_io_size size) override;
+  void onPartData(p_char8 data, v_buff_size size) override;
 
   void setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader);
 
@@ -160,7 +160,7 @@ public:
 
   async::CoroutineStarter onPartHeadersAsync(const Headers& partHeaders) override;
 
-  async::CoroutineStarter onPartDataAsync(p_char8 data, oatpp::data::v_io_size size) override;
+  async::CoroutineStarter onPartDataAsync(p_char8 data, v_buff_size size) override;
 
   void setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader);
 
@@ -184,7 +184,7 @@ public:
    */
   Reader(Multipart* multipart);
 
-  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
 
   /**
    * Set named part reader. <br>

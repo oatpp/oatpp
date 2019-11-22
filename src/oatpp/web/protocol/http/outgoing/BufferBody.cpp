@@ -59,7 +59,7 @@ oatpp::async::CoroutineStarter BufferBody::writeToStreamAsync(const std::shared_
   return WriteToStreamCoroutine::start(shared_from_this(), stream);
 }
 
-data::v_io_size BufferBody::getKnownSize() {
+v_buff_size BufferBody::getKnownSize() {
   return m_buffer->getSize();
 }
 

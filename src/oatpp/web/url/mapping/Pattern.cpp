@@ -32,7 +32,7 @@ const char* Pattern::Part::FUNCTION_CONST = "const";
 const char* Pattern::Part::FUNCTION_VAR = "var";
 const char* Pattern::Part::FUNCTION_ANY_END = "tail";
 
-std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_int64 size){
+std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
   
   if(size <= 0){
     return nullptr;
@@ -40,8 +40,8 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_int64 size){
   
   auto result = Pattern::createShared();
 
-  v_int64 lastPos = 0;
-  v_int64 i = 0;
+  v_buff_size lastPos = 0;
+  v_buff_size i = 0;
   
   while(i < size){
     
@@ -62,7 +62,7 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_int64 size){
         auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((const char*)&data[lastPos], size - lastPos, true));
         result->m_parts->pushBack(part);
       }else{
-        auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((v_int64)0));
+        auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((v_buff_size)0));
         result->m_parts->pushBack(part);
       }
       return result;
@@ -78,7 +78,7 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_int64 size){
         auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((const char*)&data[lastPos], i - lastPos, true));
         result->m_parts->pushBack(part);
       }else{
-        auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((v_int64)0));
+        auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((v_buff_size)0));
         result->m_parts->pushBack(part);
       }
       
@@ -108,7 +108,7 @@ std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
   
 v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   auto data = caret.getData();
-  for (v_int64 i = caret.getPosition(); i < caret.getDataSize(); i++) {
+  for (v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = data[i];
     if(a == '/' || a == '?') {
       caret.setPosition(i);

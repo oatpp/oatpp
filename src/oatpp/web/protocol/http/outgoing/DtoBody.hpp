@@ -74,9 +74,9 @@ public:
 
   /**
    * Return known size of the body.
-   * @return - &id:oatpp::data::v_io_size;.
+   * @return - `v_buff_size`.
    */
-  data::v_io_size getKnownSize() override;
+  v_buff_size getKnownSize() override;
   
 };
 

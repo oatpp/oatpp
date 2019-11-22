@@ -59,7 +59,7 @@ namespace oatpp { namespace parser {
     return &m_caret->m_data[m_start];
   }
 
-  v_int64 Caret::Label::getSize(){
+  v_buff_size Caret::Label::getSize(){
     if(m_end == -1) {
       return m_caret->m_pos - m_start;
     }
@@ -67,7 +67,7 @@ namespace oatpp { namespace parser {
   }
 
   oatpp::String Caret::Label::toString(bool saveAsOwnData){
-    v_int64 end = m_end;
+    v_buff_size end = m_end;
     if(end == -1){
       end = m_caret->m_pos;
     }
@@ -79,7 +79,7 @@ namespace oatpp { namespace parser {
   }
 
   std::string Caret::Label::std_str(){
-    v_int64 end = m_end;
+    v_buff_size end = m_end;
     if(end == -1){
       end = m_caret->m_pos;
     }
@@ -106,7 +106,7 @@ Caret::StateSaveGuard::StateSaveGuard(Caret& caret)
   m_caret.m_errorCode = m_savedErrorCode;
 }
 
-v_int64 Caret::StateSaveGuard::getSavedPosition() {
+v_buff_size Caret::StateSaveGuard::getSavedPosition() {
   return m_savedPosition;
 }
 
@@ -125,7 +125,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     : Caret((p_char8)text, std::strlen(text))
   {}
   
-  Caret::Caret(p_char8 parseData, v_int64 dataSize)
+  Caret::Caret(p_char8 parseData, v_buff_size dataSize)
     : m_data(parseData)
     , m_size(dataSize)
     , m_pos(0)
@@ -143,7 +143,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return std::make_shared<Caret>(text);
   }
   
-  std::shared_ptr<Caret> Caret::createShared(p_char8 parseData, v_int64 dataSize){
+  std::shared_ptr<Caret> Caret::createShared(p_char8 parseData, v_buff_size dataSize){
     return std::make_shared<Caret>(parseData, dataSize);
   }
   
@@ -162,7 +162,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return &m_data[m_pos];
   }
   
-  v_int64 Caret::getDataSize(){
+  v_buff_size Caret::getDataSize(){
     return m_size;
   }
 
@@ -170,11 +170,11 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return m_dataMemoryHandle;
   }
 
-  void Caret::setPosition(v_int64 position){
+  void Caret::setPosition(v_buff_size position){
     m_pos = position;
   }
   
-  v_int64 Caret::getPosition(){
+  v_buff_size Caret::getPosition(){
     return m_pos;
   }
   
@@ -208,7 +208,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     m_pos ++;
   }
   
-  void Caret::inc(v_int64 amount){
+  void Caret::inc(v_buff_size amount){
     m_pos+= amount;
   }
   
@@ -248,7 +248,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return skipCharsFromSet((p_char8)set, std::strlen(set));
   }
   
-  bool Caret::skipCharsFromSet(p_char8 set, v_int64 setSize){
+  bool Caret::skipCharsFromSet(p_char8 set, v_buff_size setSize){
     
     while(m_pos < m_size){
       if(!isAtCharFromSet(set, setSize)){
@@ -261,17 +261,17 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     
   }
   
-  v_int64 Caret::findCharFromSet(const char* set){
+  v_buff_size Caret::findCharFromSet(const char* set){
     return findCharFromSet((p_char8) set, std::strlen(set));
   }
   
-  v_int64 Caret::findCharFromSet(p_char8 set, v_int64 setSize){
+  v_buff_size Caret::findCharFromSet(p_char8 set, v_buff_size setSize){
     
     while(m_pos < m_size){
       
       v_char8 a = m_data[m_pos];
       
-      for(v_int64 i = 0; i < setSize; i++){
+      for(v_buff_size i = 0; i < setSize; i++){
         if(set[i] == a)
           return a;
       }
@@ -354,7 +354,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     if(start == end){
       m_errorMessage = ERROR_INVALID_INTEGER;
     }
-    m_pos = ((v_int64) end - (v_int64) m_data);
+    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
     return result;
   }
 
@@ -365,7 +365,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     if(start == end){
       m_errorMessage = ERROR_INVALID_INTEGER;
     }
-    m_pos = ((v_int64) end - (v_int64) m_data);
+    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
     return result;
   }
   
@@ -376,7 +376,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     if(start == end){
       m_errorMessage = ERROR_INVALID_FLOAT;
     }
-    m_pos = ((v_int64) end - (v_int64) m_data);
+    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
     return result;
   }
   
@@ -387,7 +387,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     if(start == end){
       m_errorMessage = ERROR_INVALID_FLOAT;
     }
-    m_pos = ((v_int64) end - (v_int64) m_data);
+    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
     return result;
   }
   
@@ -395,11 +395,11 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return isAtText((p_char8)text, std::strlen(text), skipIfTrue);
   }
   
-  bool Caret::isAtText(p_char8 text, v_int64 textSize, bool skipIfTrue){
+  bool Caret::isAtText(p_char8 text, v_buff_size textSize, bool skipIfTrue){
     
     if(textSize <= m_size - m_pos){
       
-      for(v_int64 i = 0; i < textSize; i++){
+      for(v_buff_size i = 0; i < textSize; i++){
         
         if(text[i] != m_data[m_pos + i]){
           return false;
@@ -423,11 +423,11 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return isAtTextNCS((p_char8)text, std::strlen(text), skipIfTrue);
   }
   
-  bool Caret::isAtTextNCS(p_char8 text, v_int64 textSize, bool skipIfTrue){
+  bool Caret::isAtTextNCS(p_char8 text, v_buff_size textSize, bool skipIfTrue){
     
     if(textSize <= m_size - m_pos){
       
-      for(v_int64 i = 0; i < textSize; i++){
+      for(v_buff_size i = 0; i < textSize; i++){
         
         v_char8 c1 = text[i];
         v_char8 c2 = m_data[m_pos + i];
@@ -492,7 +492,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return findText((p_char8) text, std::strlen(text));
   }
   
-  bool Caret::findText(p_char8 text, v_int64 textSize) {
+  bool Caret::findText(p_char8 text, v_buff_size textSize) {
     m_pos = (std::search(&m_data[m_pos], &m_data[m_size], text, text + textSize) - m_data);
     return m_pos != m_size;
   }
@@ -501,11 +501,11 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return isAtCharFromSet((p_char8)set, std::strlen(set));
   }
   
-  bool Caret::isAtCharFromSet(p_char8 set, v_int64 setSize) const{
+  bool Caret::isAtCharFromSet(p_char8 set, v_buff_size setSize) const{
     
     v_char8 a = m_data[m_pos];
     
-    for(v_int64 i = 0; i < setSize; i++){
+    for(v_buff_size i = 0; i < setSize; i++){
       if(a == set[i]){
         return true;
       }
@@ -533,7 +533,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c;
   }
   
-  bool Caret::canContinueAtChar(v_char8 c, v_int64 skipChars){
+  bool Caret::canContinueAtChar(v_char8 c, v_buff_size skipChars){
     
     if(m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c){
       m_pos = m_pos + skipChars;

@@ -39,7 +39,7 @@ class MemoryLabel {
 protected:
   mutable std::shared_ptr<base::StrBuffer> m_memoryHandle;
   mutable p_char8 m_data;
-  v_int64 m_size;
+  v_buff_size m_size;
 public:
 
   /**
@@ -63,7 +63,7 @@ public:
    * @param data - pointer to data.
    * @param size - size of the data in bytes.
    */
-  MemoryLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int64 size);
+  MemoryLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
 
   /**
    * Get pointer to labeled data.
@@ -77,7 +77,7 @@ public:
    * Get data size.
    * @return - size of the data.
    */
-  v_int64 getSize() const {
+  v_buff_size getSize() const {
     return m_size;
   }
 
@@ -106,7 +106,7 @@ public:
    * @return - `true` if equals.
    */
   bool equals(const char* data) const {
-    v_int64 size = std::strlen(data);
+    v_buff_size size = std::strlen(data);
     return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
   }
 
@@ -117,7 +117,7 @@ public:
    * @param size - data size.
    * @return - `true` if equals.
    */
-  bool equals(const void* data, v_int64 size) const {
+  bool equals(const void* data, v_buff_size size) const {
     return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
   }
 
@@ -151,7 +151,7 @@ public:
   
   StringKeyLabel() : MemoryLabel() {};
   
-  StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int64 size);
+  StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabel(const char* constText);
   StringKeyLabel(const oatpp::String& str);
   
@@ -173,7 +173,7 @@ public:
   
   StringKeyLabelCI() : MemoryLabel() {};
   
-  StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int64 size);
+  StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabelCI(const char* constText);
   StringKeyLabelCI(const oatpp::String& str);
   
@@ -195,7 +195,7 @@ public:
 class StringKeyLabelCI_FAST : public MemoryLabel {
 public:
   
-  StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int64 size);
+  StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabelCI_FAST(const char* constText);
   StringKeyLabelCI_FAST(const oatpp::String& str);
   
@@ -222,16 +222,16 @@ namespace std {
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
       
       p_char8 data = s.getData();
-      v_int64 size4 = s.getSize() >> 2;
+      v_buff_size size4 = s.getSize() >> 2;
       
       result_type result = 0;
       
-      for(v_int64 i = 0; i < size4; i++) {
+      for(v_buff_size i = 0; i < size4; i++) {
         result ^= *((p_word32) data);
         data += 4;
       }
       
-      for(v_int64 i = 0; i < s.getSize() - (size4 << 2); i++ ) {
+      for(v_buff_size i = 0; i < s.getSize() - (size4 << 2); i++ ) {
         ((p_char8) &result)[i] ^= data[i];
       }
       
@@ -248,16 +248,16 @@ namespace std {
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
       
       p_char8 data = s.getData();
-      v_int64 size4 = s.getSize() >> 2;
+      v_buff_size size4 = s.getSize() >> 2;
       
       result_type result = 0;
       
-      for(v_int64 i = 0; i < size4; i++) {
+      for(v_buff_size i = 0; i < size4; i++) {
         result ^= (*((p_word32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
         data += 4;
       }
       
-      for(v_int64 i = 0; i < s.getSize() - (size4 << 2); i++ ) {
+      for(v_buff_size i = 0; i < s.getSize() - (size4 << 2); i++ ) {
         ((p_char8) &result)[i] ^= (data[i] | 32);
       }
       
@@ -274,16 +274,16 @@ namespace std {
     result_type operator()(oatpp::data::share::StringKeyLabelCI_FAST const& s) const noexcept {
       
       p_char8 data = s.getData();
-      v_int64 size4 = s.getSize() >> 2;
+      v_buff_size size4 = s.getSize() >> 2;
       
       result_type result = 0;
       
-      for(v_int64 i = 0; i < size4; i++) {
+      for(v_buff_size i = 0; i < size4; i++) {
         result ^= (*((p_word32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
         data += 4;
       }
       
-      for(v_int64 i = 0; i < s.getSize() - (size4 << 2); i++ ) {
+      for(v_buff_size i = 0; i < s.getSize() - (size4 << 2); i++ ) {
         ((p_char8) &result)[i] ^= (data[i] | 32);
       }
       

@@ -41,7 +41,7 @@ BufferOutputStream::~BufferOutputStream() {
   delete [] m_data;
 }
 
-data::v_io_size BufferOutputStream::write(const void *data, data::v_io_size count) {
+data::v_io_size BufferOutputStream::write(const void *data, v_buff_size count) {
 
   reserveBytesUpfront(count);
 
@@ -110,7 +110,7 @@ oatpp::String BufferOutputStream::toString() {
   return oatpp::String((const char*)m_data, m_position, true);
 }
 
-oatpp::String BufferOutputStream::getSubstring(data::v_io_size pos, data::v_io_size count) {
+oatpp::String BufferOutputStream::getSubstring(data::v_io_size pos, v_buff_size count) {
   if(pos + count <= m_position) {
     return oatpp::String((const char *) (m_data + pos), count, true);
   } else {
@@ -181,7 +181,7 @@ void BufferInputStream::reset() {
   m_position = 0;
 }
 
-data::v_io_size BufferInputStream::read(void *data, data::v_io_size count) {
+data::v_io_size BufferInputStream::read(void *data, v_buff_size count) {
   data::v_io_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;

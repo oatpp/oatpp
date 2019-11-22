@@ -126,15 +126,15 @@ protected:
   
   class PathSegment {
   public:
-    constexpr static const v_int64 SEG_PATH = 0;
-    constexpr static const v_int64 SEG_VAR = 1;
+    constexpr static const v_int32 SEG_PATH = 0;
+    constexpr static const v_int32 SEG_VAR = 1;
   public:
-    PathSegment(const std::string& pText, v_int64 pType)
+    PathSegment(const std::string& pText, v_int32 pType)
       : text (pText)
       , type (pType)
     {}
     const std::string text;
-    const v_int64 type;
+    const v_int32 type;
   };
   
   typedef std::list<PathSegment> PathPattern;
@@ -152,9 +152,9 @@ private:
   
 protected:
   
-  static PathSegment parsePathSegment(p_char8 data, v_int64 size, v_int64& position);
-  static PathSegment parseVarSegment(p_char8 data, v_int64 size, v_int64& position);
-  static PathPattern parsePathPattern(p_char8 data, v_int64 size);
+  static PathSegment parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position);
+  static PathSegment parseVarSegment(p_char8 data, v_buff_size size, v_buff_size& position);
+  static PathPattern parsePathPattern(p_char8 data, v_buff_size size);
   
 protected:
   std::shared_ptr<RequestExecutor> m_requestExecutor;

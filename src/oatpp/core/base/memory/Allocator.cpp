@@ -26,7 +26,7 @@
 
 namespace oatpp { namespace base { namespace memory {
 
-AllocatorPoolInfo::AllocatorPoolInfo(const char* pPoolName, v_int64 pPoolChunkSize)
+AllocatorPoolInfo::AllocatorPoolInfo(const char* pPoolName, v_buff_size pPoolChunkSize)
   : poolName(pPoolName)
   , poolChunkSize(pPoolChunkSize)
 {}

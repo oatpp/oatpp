@@ -66,8 +66,8 @@ private:
   void freeByEntryHeader(EntryHeader* entry);
 private:
   std::string m_name;
-  v_int64 m_entrySize;
-  v_int64 m_chunkSize;
+  v_buff_size m_entrySize;
+  v_buff_size m_chunkSize;
   v_int64 m_id;
   std::list<p_char8> m_chunks;
   EntryHeader* m_rootEntry;
@@ -81,7 +81,7 @@ public:
    * @param entrySize - size of the entry in bytes returned in call to &l:MemoryPool::obtain ();.
    * @param chunkSize - number of entries in one chunk.
    */
-  MemoryPool(const std::string& name, v_int64 entrySize, v_int64 chunkSize);
+  MemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize);
 
   /**
    * Deleted copy-constructor.
@@ -117,13 +117,13 @@ public:
    * Get size of the memory entry in bytes which can be obtained by call to &l:MemoryPool::obtain ();.
    * @return - size of the enrty in bytes.
    */
-  v_int64 getEntrySize();
+  v_buff_size getEntrySize();
 
   /**
    * Get size of the memory allocated by memory pool.
    * @return - size of the memory allocated by memory pool.
    */
-  v_int64 getSize();
+  v_buff_size getSize();
 
   /**
    * Get number of entries currently in use.
@@ -156,7 +156,7 @@ public:
    * @param chunkSize - number of entries in chunk.
    * @param shardsCount - number of MemoryPools (&l:MemoryPool;) "shards" to create.
    */
-  ThreadDistributedMemoryPool(const std::string& name, v_int64 entrySize, v_int64 chunkSize,
+  ThreadDistributedMemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize,
                               v_int64 shardsCount = SHARDS_COUNT_DEFAULT);
 
   /**
@@ -197,13 +197,13 @@ private:
   
   void grow(){
     
-    v_int64 newSize = m_size + m_growSize;
+    v_buff_size newSize = m_size + m_growSize;
     T** newIndex = new T*[newSize];
     std::memcpy(newIndex, m_index, m_size);
     
     Block* b = new Block(new v_char8 [m_growSize * sizeof(T)], m_blocks);
     m_blocks = b;
-    for(v_int64 i = 0; i < m_growSize; i++) {
+    for(v_buff_size i = 0; i < m_growSize; i++) {
       newIndex[m_size + i] = (T*) (&b->memory[i * sizeof(T)]);
     }
     
@@ -214,9 +214,9 @@ private:
   }
   
 private:
-  v_int64 m_growSize;
-  v_int64 m_size;
-  v_int64 m_indexPosition;
+  v_buff_size m_growSize;
+  v_buff_size m_size;
+  v_buff_size m_indexPosition;
   Block* m_blocks;
   T** m_index;
 public:
@@ -225,7 +225,7 @@ public:
    * Constructor.
    * @param growSize - number of objects to allocate when no free objects left.
    */
-  Bench(v_int64 growSize)
+  Bench(v_buff_size growSize)
     : m_growSize(growSize)
     , m_size(0)
     , m_indexPosition(0)

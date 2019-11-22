@@ -34,7 +34,7 @@
 
 namespace oatpp { namespace encoding {
   
-v_int64 Unicode::getUtf8CharSequenceLength(v_char8 firstByte) {
+v_buff_size Unicode::getUtf8CharSequenceLength(v_char8 firstByte) {
   
   if(firstByte < 128){
     return 1;
@@ -60,7 +60,7 @@ v_int64 Unicode::getUtf8CharSequenceLength(v_char8 firstByte) {
   
 }
   
-v_int64 Unicode::getUtf8CharSequenceLengthForCode(v_word32 code){
+v_buff_size Unicode::getUtf8CharSequenceLengthForCode(v_word32 code){
   if(code < 128) {
     return 1;
   } else if(code < 0x00000800){
@@ -77,7 +77,7 @@ v_int64 Unicode::getUtf8CharSequenceLengthForCode(v_word32 code){
   return 1;
 }
   
-v_int32 Unicode::encodeUtf8Char(p_char8 sequence, v_int64& length){
+v_int32 Unicode::encodeUtf8Char(p_char8 sequence, v_buff_size& length){
   v_char8 byte = sequence[0];
   if(byte > 127){
     v_int32 code;
@@ -107,7 +107,7 @@ v_int32 Unicode::encodeUtf8Char(p_char8 sequence, v_int64& length){
     }
     
     v_char8 bitIndex = 0;
-    for(v_int64 i = length; i > 1; i--){
+    for(v_buff_size i = length; i > 1; i--){
       code |= (sequence[i - 1] & 63) << bitIndex;
       bitIndex += 6;
     }
@@ -118,7 +118,7 @@ v_int32 Unicode::encodeUtf8Char(p_char8 sequence, v_int64& length){
   }
 }
   
-v_int64 Unicode::decodeUtf8Char(v_int32 code, p_char8 buffer) {
+v_buff_size Unicode::decodeUtf8Char(v_int32 code, p_char8 buffer) {
   if(code >= 0x00000080 && code < 0x00000800){
     *((p_int16) buffer) = htons(((((code >> 6) & 31) | 192) << 8) | ((code & 63) | 128));
     return 2;

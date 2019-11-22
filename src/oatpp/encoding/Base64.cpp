@@ -53,16 +53,16 @@ v_char8 Base64::getAlphabetCharIndex(v_char8 a, const char* auxiliaryChars) {
   return 255;
 }
   
-v_int64 Base64::calcEncodedStringSize(v_int64 size) {
-  v_int64 size3 = size / 3;
-  v_int64 rSize = size3 * 3;
+v_buff_size Base64::calcEncodedStringSize(v_buff_size size) {
+  v_buff_size size3 = size / 3;
+  v_buff_size rSize = size3 * 3;
   if(rSize < size){
     rSize += 4;
   }
   return rSize + size3; // resultSize = (size3 * 3 + size3) = size3 * 4
 }
   
-v_int64 Base64::calcDecodedStringSize(const char* data, v_int64 size, v_int64& base64StrLength, const char* auxiliaryChars) {
+v_buff_size Base64::calcDecodedStringSize(const char* data, v_buff_size size, v_buff_size& base64StrLength, const char* auxiliaryChars) {
   
   base64StrLength = size;
   
@@ -70,7 +70,7 @@ v_int64 Base64::calcDecodedStringSize(const char* data, v_int64 size, v_int64& b
   v_char8 auxChar2 = auxiliaryChars[1];
   v_char8 paddingChar = auxiliaryChars[2];
   
-  v_int64 i = 0;
+  v_buff_size i = 0;
   while (i < size) {
     
     v_char8 a = data[i];
@@ -88,9 +88,9 @@ v_int64 Base64::calcDecodedStringSize(const char* data, v_int64 size, v_int64& b
     
   }
   
-  v_int64 size4 = i >> 2;
-  v_int64 size4d = i - (size4 << 2);
-  v_int64 resultSize = size4 * 3;
+  v_buff_size size4 = i >> 2;
+  v_buff_size size4d = i - (size4 << 2);
+  v_buff_size resultSize = size4 * 3;
   if(size4d > 0) {
     resultSize += size4d - 1;
   }
@@ -98,12 +98,12 @@ v_int64 Base64::calcDecodedStringSize(const char* data, v_int64 size, v_int64& b
   
 }
   
-bool Base64::isBase64String(const char* data, v_int64 size, const char* auxiliaryChars) {
-  v_int64 base64StrLength;
+bool Base64::isBase64String(const char* data, v_buff_size size, const char* auxiliaryChars) {
+  v_buff_size base64StrLength;
   return (calcDecodedStringSize(data, size, base64StrLength, auxiliaryChars) >= 0);
 }
   
-oatpp::String Base64::encode(const void* data, v_int64 size, const char* alphabet) {
+oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alphabet) {
   
   auto resultSize = calcEncodedStringSize(size);
   
@@ -112,7 +112,7 @@ oatpp::String Base64::encode(const void* data, v_int64 size, const char* alphabe
   p_char8 bdata = (p_char8) data;
   p_char8 resultData = result->getData();
   
-  v_int64 pos = 0;
+  v_buff_size pos = 0;
   while (pos + 2 < size) {
     
     v_char8 b0 = bdata[pos];
@@ -150,9 +150,9 @@ oatpp::String Base64::encode(const oatpp::String& data, const char* alphabet) {
   return encode(data->getData(), data->getSize(), alphabet);
 }
   
-oatpp::String Base64::decode(const char* data, v_int64 size, const char* auxiliaryChars) {
+oatpp::String Base64::decode(const char* data, v_buff_size size, const char* auxiliaryChars) {
   
-  v_int64 base64StrLength;
+  v_buff_size base64StrLength;
   auto resultSize = calcDecodedStringSize(data, size, base64StrLength, auxiliaryChars);
   if(resultSize < 0) {
     throw DecodingError("Data is no base64 string. Make sure that auxiliaryChars match with encoder alphabet");
@@ -160,7 +160,7 @@ oatpp::String Base64::decode(const char* data, v_int64 size, const char* auxilia
   
   auto result = oatpp::String(resultSize);
   p_char8 resultData = result->getData();
-  v_int64 pos = 0;
+  v_buff_size pos = 0;
   while (pos + 3 < base64StrLength) {
     v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
     v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);
@@ -175,7 +175,7 @@ oatpp::String Base64::decode(const char* data, v_int64 size, const char* auxilia
     pos += 4;
   }
   
-  v_int64 posDiff = base64StrLength - pos;
+  v_buff_size posDiff = base64StrLength - pos;
   if(posDiff == 3) {
     v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
     v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);

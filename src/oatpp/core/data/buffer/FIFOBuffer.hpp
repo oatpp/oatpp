@@ -39,9 +39,9 @@ namespace oatpp { namespace data { namespace buffer {
 class FIFOBuffer {
 private:
   p_char8 m_buffer;
-  v_io_size m_bufferSize;
-  data::v_io_size m_readPosition;
-  data::v_io_size m_writePosition;
+  v_buff_size m_bufferSize;
+  v_buff_size m_readPosition;
+  v_buff_size m_writePosition;
   bool m_canRead;
 public:
 
@@ -91,7 +91,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size read(void *data, data::v_io_size count);
+  data::v_io_size read(void *data, v_buff_size count);
 
   /**
    * Peek up to count of bytes int he buffer
@@ -99,14 +99,14 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size peek(void *data, data::v_io_size count);
+  data::v_io_size peek(void *data, v_buff_size count);
 
   /**
    * Commit read offset
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size commitReadOffset(data::v_io_size count);
+  data::v_io_size commitReadOffset(v_buff_size count);
 
   /**
    * write up to count bytes from data to buffer
@@ -114,7 +114,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size write(const void *data, data::v_io_size count);
+  data::v_io_size write(const void *data, v_buff_size count);
 
   /**
    * call read and then write bytes read to output stream
@@ -122,7 +122,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size readAndWriteToStream(data::stream::OutputStream* stream, data::v_io_size count);
+  data::v_io_size readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count);
 
   /**
    * call stream.read() and then write bytes read to buffer
@@ -130,7 +130,7 @@ public:
    * @param count
    * @return
    */
-  data::v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, data::v_io_size count);
+  data::v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count);
 
   /**
    * flush all availableToRead bytes to stream
@@ -198,7 +198,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size read(void *data, data::v_io_size count);
+  data::v_io_size read(void *data, v_buff_size count);
 
   /**
    * write up to count bytes from data to buffer
@@ -206,7 +206,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size write(const void *data, data::v_io_size count);
+  data::v_io_size write(const void *data, v_buff_size count);
 
   /* No implementation of other methods */
   /* User should implement his own synchronization for other methods */

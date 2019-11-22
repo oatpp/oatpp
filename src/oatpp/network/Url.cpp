@@ -29,9 +29,9 @@
 namespace oatpp { namespace network {
 
 oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
-  v_int64 pos0 = caret.getPosition();
+  v_buff_size pos0 = caret.getPosition();
   caret.findChar(':');
-  v_int64 size = caret.getPosition() - pos0;
+  v_buff_size size = caret.getPosition() - pos0;
   if(size > 0) {
     std::unique_ptr<v_char8> buff(new v_char8[size]);
     std::memcpy(buff.get(), &caret.getData()[pos0], size);
@@ -44,12 +44,12 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
 Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   
   p_char8 data = caret.getData();
-  v_int64 pos0 = caret.getPosition();
-  v_int64 pos = pos0;
+  v_buff_size pos0 = caret.getPosition();
+  v_buff_size pos = pos0;
   
-  v_int64 hostPos = pos0;
-  v_int64 atPos = -1;
-  v_int64 portPos = -1;
+  v_buff_size hostPos = pos0;
+  v_buff_size atPos = -1;
+  v_buff_size portPos = -1;
   
   while (pos < caret.getDataSize()) {
     v_char8 a = data[pos];
@@ -82,7 +82,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
     result.host = oatpp::String((const char*)&data[hostPos], portPos - 1 - hostPos, true);
     char* end;
     result.port = std::strtol((const char*)&data[portPos], &end, 10);
-    bool success = (((v_int64)end - (v_int64)&data[portPos]) == pos - portPos);
+    bool success = (((v_buff_size)end - (v_buff_size)&data[portPos]) == pos - portPos);
     if(!success) {
       caret.setError("Invalid port string");
     }
@@ -110,7 +110,7 @@ void Url::Parser::parseQueryParams(Url::Parameters& params, oatpp::parser::Caret
     do {
       caret.inc();
       auto nameLabel = caret.putLabel();
-      v_int64 charFound = caret.findCharFromSet("=&");
+      v_buff_size charFound = caret.findCharFromSet("=&");
       if(charFound == '=') {
         nameLabel.end();
         caret.inc();

@@ -135,9 +135,9 @@ oatpp::String Range::toString() const {
   oatpp::data::stream::ChunkedBuffer stream;
   stream.write(units->getData(), units->getSize());
   stream.write("=", 1);
-  stream.writeAsString((v_int64) start);
+  stream.writeAsString(start);
   stream.write("-", 1);
-  stream.writeAsString((v_int64) end);
+  stream.writeAsString(end);
   return stream.toString();
 }
 
@@ -180,12 +180,12 @@ oatpp::String ContentRange::toString() const {
   oatpp::data::stream::ChunkedBuffer stream;
   stream.write(units->getData(), units->getSize());
   stream.write(" ", 1);
-  stream.writeAsString((v_int64) start);
+  stream.writeAsString(start);
   stream.write("-", 1);
-  stream.writeAsString((v_int64) end);
+  stream.writeAsString(end);
   stream.write("/", 1);
   if(isSizeKnown) {
-    stream.writeAsString((v_int64) size);
+    stream.writeAsString(size);
   } else {
     stream.write("*", 1);
   }
@@ -258,7 +258,7 @@ oatpp::String HeaderValueData::getTitleParamValue(const data::share::StringKeyLa
 oatpp::data::share::StringKeyLabelCI_FAST Parser::parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
                                                                          oatpp::parser::Caret& caret) {
   p_char8 data = caret.getData();
-  for(v_int64 i = caret.getPosition(); i < caret.getDataSize(); i++) {
+  for(v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = data[i];
     if(a == ':' || a == ' '){
       oatpp::data::share::StringKeyLabelCI_FAST label(headersText, &data[caret.getPosition()], i - caret.getPosition());
@@ -344,7 +344,7 @@ void Parser::parseOneHeader(Headers& headers,
       return;
     }
     caret.skipChar(' ');
-    v_int64 valuePos0 = caret.getPosition();
+    v_buff_size valuePos0 = caret.getPosition();
     caret.findRN();
     headers.put(name, oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0));
     caret.skipRN();

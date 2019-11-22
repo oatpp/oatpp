@@ -40,7 +40,7 @@ public:
    * @param pPoolName - memory pool name.
    * @param pPoolChunkSize - memory pool chunk size. For more about chunk size see &id:oatpp::base::memory::MemoryPool::MemoryPool;.
    */
-  AllocatorPoolInfo(const char* pPoolName, v_int64 pPoolChunkSize);
+  AllocatorPoolInfo(const char* pPoolName, v_buff_size pPoolChunkSize);
 
   /**
    * Memory pool name.
@@ -51,7 +51,7 @@ public:
    * Memory pool chunk size.
    * For more about chunk size see &id:oatpp::base::memory::MemoryPool::MemoryPool;.
    */
-  const v_int64 poolChunkSize;
+  const v_buff_size poolChunkSize;
 };
 
 /**
@@ -160,12 +160,12 @@ inline bool operator != (const ThreadLocalPoolSharedObjectAllocator<T>& a, const
  */
 class AllocationExtras {
 public:
-  AllocationExtras(v_int64 pExtraWanted)
+  AllocationExtras(v_buff_size pExtraWanted)
     : extraWanted(pExtraWanted)
   {}
-  const v_int64 extraWanted;
+  const v_buff_size extraWanted;
   void* extraPtr;
-  v_int64 baseSize;
+  v_buff_size baseSize;
 };
 
 /**

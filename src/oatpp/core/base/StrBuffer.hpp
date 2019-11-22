@@ -38,39 +38,39 @@ namespace oatpp { namespace base {
 class StrBuffer : public oatpp::base::Countable {  
 private:
 
-  static constexpr v_int64 SM_STRING_POOL_ENTRY_SIZE = 256;
+  static constexpr v_buff_size SM_STRING_POOL_ENTRY_SIZE = 256;
   
   static oatpp::base::memory::ThreadDistributedMemoryPool& getSmallStringPool() {
     static oatpp::base::memory::ThreadDistributedMemoryPool pool("Small_String_Pool", SM_STRING_POOL_ENTRY_SIZE, 16);
     return pool;
   }
   
-  static v_int64 getSmStringBaseSize() {
+  static v_buff_size getSmStringBaseSize() {
     memory::AllocationExtras extras(0);
     auto ptr = memory::customPoolAllocateSharedWithExtras<StrBuffer>(extras, getSmallStringPool());
     return extras.baseSize;
   }
   
-  static v_int64 getSmStringSize() {
-    static v_int64 size = SM_STRING_POOL_ENTRY_SIZE - getSmStringBaseSize();
+  static v_buff_size getSmStringSize() {
+    static v_buff_size size = SM_STRING_POOL_ENTRY_SIZE - getSmStringBaseSize();
     return size;
   }
 
 private:
   p_char8 m_data;
-  v_int64 m_size;
+  v_buff_size m_size;
   bool m_hasOwnData;
 private:
   
-  void set(const void* data, v_int64 size, bool hasOwnData);
-  void setAndCopy(const void* data, const void* originData, v_int64 size);
-  static std::shared_ptr<StrBuffer> allocShared(const void* data, v_int64 size, bool copyAsOwnData);
+  void set(const void* data, v_buff_size size, bool hasOwnData);
+  void setAndCopy(const void* data, const void* originData, v_buff_size size);
+  static std::shared_ptr<StrBuffer> allocShared(const void* data, v_buff_size size, bool copyAsOwnData);
 
   /*
    * Allocate memory for string or use originData<br>
    * if copyAsOwnData == false return originData
    */
-  static p_char8 allocStrBuffer(const void* originData, v_int64 size, bool copyAsOwnData);
+  static p_char8 allocStrBuffer(const void* originData, v_buff_size size, bool copyAsOwnData);
   
 public:
   /**
@@ -84,7 +84,7 @@ public:
    * @param size - size of the data.
    * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
    */
-  StrBuffer(const void* data, v_int64 size, bool copyAsOwnData);
+  StrBuffer(const void* data, v_buff_size size, bool copyAsOwnData);
 public:
 
   /**
@@ -97,7 +97,7 @@ public:
    * @param size - size of the buffer.
    * @return - shared_ptr to StrBuffer.
    */
-  static std::shared_ptr<StrBuffer> createShared(v_int64 size);
+  static std::shared_ptr<StrBuffer> createShared(v_buff_size size);
 
   /**
    * Create shared StrBuffer with data, size, and copyAsOwnData parameters.
@@ -106,7 +106,7 @@ public:
    * @param copyAsOwnData - if true then allocate own buffer and copy data to that buffer.
    * @return - shared_ptr to StrBuffer.
    */
-  static std::shared_ptr<StrBuffer> createShared(const void* data, v_int64 size, bool copyAsOwnData = true);
+  static std::shared_ptr<StrBuffer> createShared(const void* data, v_buff_size size, bool copyAsOwnData = true);
 
   /**
    * Create shared StrBuffer with data, and copyAsOwnData parameters.
@@ -132,7 +132,7 @@ public:
    * @param size2 - size of the data2.
    * @return - shared_ptr to StrBuffer.
    */
-  static std::shared_ptr<StrBuffer> createSharedConcatenated(const void* data1, v_int64 size1, const void* data2, v_int64 size2);
+  static std::shared_ptr<StrBuffer> createSharedConcatenated(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
 
   /**
    * Create shared StrBuffer from c-string.
@@ -170,7 +170,7 @@ public:
    * Get buffer size.
    * @return - buffer size.
    */
-  v_int64 getSize() const;
+  v_buff_size getSize() const;
 
   /**
    * Get pointer to data of the buffer as `const* char`.
@@ -210,7 +210,7 @@ public:
    * @param size - size of the data.
    * @return - true if all chars of buffer are same as in data, and size == this.getSize().
    */
-  bool equals(const void* data, v_int64 size) const;
+  bool equals(const void* data, v_buff_size size) const;
 
   /**
    * Check string equality of the buffer to data of specified size.
@@ -232,7 +232,7 @@ public:
    * @param size - size of the data.
    * @return - true if buffer starts with specified data.
    */
-  bool startsWith(const void* data, v_int64 size) const;
+  bool startsWith(const void* data, v_buff_size size) const;
 
   /**
    * Check if buffer starts with specified data.
@@ -260,7 +260,7 @@ public:
    * ​0​ if all count bytes of data1 and data2 are equal.<br>
    * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
    */
-  static v_int64 compare(const void* data1, const void* data2, v_int64 size);
+  static v_buff_size compare(const void* data1, const void* data2, v_buff_size size);
 
   /**
    * Compare data1, data2 using `std::memcmp`.
@@ -270,7 +270,7 @@ public:
    * ​0​ if all count bytes of data1 and data2 are equal.<br>
    * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
    */
-  static v_int64 compare(StrBuffer* data1, StrBuffer* data2);
+  static v_buff_size compare(StrBuffer* data1, StrBuffer* data2);
 
   /**
    * Check string equality of data1 to data2.
@@ -279,7 +279,7 @@ public:
    * @param size - number of characters to compare.
    * @return - `true` if equals.
    */
-  static bool equals(const void* data1, const void* data2, v_int64 size);
+  static bool equals(const void* data1, const void* data2, v_buff_size size);
 
   /**
    * Check string equality of data1 to data2.
@@ -304,7 +304,7 @@ public:
    * @param size - number of characters to compare.
    * @return - `true` if equals.
    */
-  static bool equalsCI(const void* data1, const void* data2, v_int64 size);
+  static bool equalsCI(const void* data1, const void* data2, v_buff_size size);
 
   /**
    * Check Case Insensitive string equality of data1 to data2.
@@ -329,7 +329,7 @@ public:
    * @param size - number of characters to compare.
    * @return - `true` if equals.
    */
-  static bool equalsCI_FAST(const void* data1, const void* data2, v_int64 size);
+  static bool equalsCI_FAST(const void* data1, const void* data2, v_buff_size size);
 
   /**
    * Check Case Insensitive string equality of data1 to data2. (ASCII only, correct compare if one of strings contains letters only)
@@ -360,14 +360,14 @@ public:
    * @param data - pointer to data.
    * @param size - size of the data.
    */
-  static void lowerCase(const void* data, v_int64 size);
+  static void lowerCase(const void* data, v_buff_size size);
 
   /**
    * Change characters in data to uppercase.
    * @param data - pointer to data.
    * @param size - size of the data.
    */
-  static void upperCase(const void* data, v_int64 size);
+  static void upperCase(const void* data, v_buff_size size);
   
 };
   

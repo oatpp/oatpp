@@ -31,8 +31,6 @@
 #include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/StrBuffer.hpp"
 
-
-
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
 namespace __class {
@@ -58,15 +56,15 @@ public:
   
   String() {}
   
-  String(v_int64 size)
+  String(v_buff_size size)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
   {}
   
-  String(const char* data, v_int64 size, bool copyAsOwnData = true)
+  String(const char* data, v_buff_size size, bool copyAsOwnData = true)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
   {}
   
-  String(const char* data1, v_int64 size1, const char* data2, v_int64 size2)
+  String(const char* data1, v_buff_size size1, const char* data2, v_buff_size size2)
     : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
   {}
   
@@ -420,16 +418,16 @@ namespace std {
     result_type operator()(oatpp::data::mapping::type::String const& s) const noexcept {
       
       p_char8 data = s->getData();
-      v_int64 size4 = s->getSize() >> 2;
+      v_buff_size size4 = s->getSize() >> 2;
       
       result_type result = 0;
       
-      for(v_int64 i = 0; i < size4; i++) {
+      for(v_buff_size i = 0; i < size4; i++) {
         result ^= *((p_word32) data);
         data += 4;
       }
       
-      for(v_int64 i = 0; i < s->getSize() - (size4 << 2); i++ ) {
+      for(v_buff_size i = 0; i < s->getSize() - (size4 << 2); i++ ) {
         ((p_char8) &result)[i] ^= data[i];
       }
       

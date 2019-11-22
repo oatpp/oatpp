@@ -132,13 +132,13 @@ void testMethod(char symbol, Buff *buff, oatpp::async::Lock *lock) {
 
 }
 
-bool checkSymbol(char symbol, const char* data, v_int64 size) {
+bool checkSymbol(char symbol, const char* data, v_buff_size size) {
 
-  for (v_int64 i = 0; i < size; i++) {
+  for (v_buff_size i = 0; i < size; i++) {
 
     if (data[i] == symbol && size - i >= NUM_SYMBOLS) {
 
-      for (v_int64 j = 0; j < NUM_SYMBOLS; j++) {
+      for (v_buff_size j = 0; j < NUM_SYMBOLS; j++) {
 
         if (data[i + j] != symbol) {
           OATPP_LOGD("aaa", "j pos=%d", j);

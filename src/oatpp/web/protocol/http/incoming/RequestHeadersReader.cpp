@@ -35,7 +35,7 @@ data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStre
   data::v_io_size res;
   while (true) {
     
-    v_int64 desiredToRead = m_readChunkSize;
+    v_buff_size desiredToRead = m_readChunkSize;
     if(m_bufferStream->getCurrentPosition() + desiredToRead > m_maxHeadersSize) {
       desiredToRead = m_maxHeadersSize - m_bufferStream->getCurrentPosition();
       if(desiredToRead <= 0) {
@@ -50,7 +50,7 @@ data::v_io_size RequestHeadersReader::readHeadersSection(data::stream::InputStre
 
       m_bufferStream->setCurrentPosition(m_bufferStream->getCurrentPosition() + res);
 
-      for(v_int64 i = 0; i < res; i ++) {
+      for(v_buff_size i = 0; i < res; i ++) {
         accumulator <<= 8;
         accumulator |= bufferData[i];
         if(accumulator == SECTION_END) {
@@ -117,7 +117,7 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
     
     Action act() override {
       
-      v_int64 desiredToRead = m_this->m_readChunkSize;
+      v_buff_size desiredToRead = m_this->m_readChunkSize;
       if(m_this->m_bufferStream->getCurrentPosition() + desiredToRead > m_this->m_maxHeadersSize) {
         desiredToRead = m_this->m_maxHeadersSize - m_this->m_bufferStream->getCurrentPosition();
         if(desiredToRead <= 0) {
@@ -132,7 +132,7 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
 
         m_this->m_bufferStream->setCurrentPosition(m_this->m_bufferStream->getCurrentPosition() + res);
         
-        for(v_int64 i = 0; i < res; i ++) {
+        for(v_buff_size i = 0; i < res; i ++) {
           m_accumulator <<= 8;
           m_accumulator |= bufferData[i];
           if(m_accumulator == SECTION_END) {

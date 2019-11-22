@@ -26,8 +26,8 @@
 
 namespace oatpp { namespace web { namespace client {
 
-ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_int64 size, v_int64& position) {
-  for(v_int64 i = position; i < size; i++){
+ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position) {
+  for(v_buff_size i = position; i < size; i++){
     v_char8 a = data[i];
     if(a == '{'){
       auto result = PathSegment(std::string((char*) &data[position], i - position), PathSegment::SEG_PATH);
@@ -40,8 +40,8 @@ ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_int64 size, v
   return result;
 }
 
-ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_int64 size, v_int64& position) {
-  for(v_int64 i = position; i < size; i++){
+ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_buff_size size, v_buff_size& position) {
+  for(v_buff_size i = position; i < size; i++){
     v_char8 a = data[i];
     if(a == '}'){
       auto result = PathSegment(std::string((char*) &data[position], i - position), PathSegment::SEG_VAR);
@@ -54,8 +54,8 @@ ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_int64 size, v_
   return result;
 }
   
-ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_int64 size) {
-  v_int64 pos = 0;
+ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_buff_size size) {
+  v_buff_size pos = 0;
   PathPattern result;
   while (pos < size) {
     v_char8 a = data[pos];

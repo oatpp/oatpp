@@ -58,7 +58,7 @@ public:
    * @param count - number of bytes to write.
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
 
   /**
    * Set stream I/O mode.
@@ -114,7 +114,7 @@ public:
    * @param count - size of bytes to write to substring.
    * @return - &id:oatpp::String;
    */
-  oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
+  oatpp::String getSubstring(data::v_io_size pos, v_buff_size count);
 
   /**
    * Write all bytes from buffer to stream.
@@ -181,7 +181,7 @@ public:
    * @param count - size of the buffer.
    * @return - actual number of bytes read. 0 - designates end of the buffer.
    */
-  data::v_io_size read(void *data, data::v_io_size count) override;
+  data::v_io_size read(void *data, v_buff_size count) override;
 
   /**
    * In case of a `BufferInputStream` suggested Action is always &id:oatpp::async::Action::TYPE_REPEAT; if `ioResult` is greater then zero. <br>

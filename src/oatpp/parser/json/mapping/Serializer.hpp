@@ -97,7 +97,7 @@ public:
   
 private:
   
-  static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_int64 size);
+  static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size);
   static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data);
   
   template<class T>
