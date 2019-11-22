@@ -41,6 +41,7 @@ cmake-build-debug/
 
 # local build
 build/
+build-xcode/
 srt/build/
 test/build/
 
