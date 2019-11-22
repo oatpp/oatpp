@@ -104,7 +104,7 @@ void UnicodeTest::onRun(){
   }
   
   // 6 byte test
-  
+
   for(v_int32 c = 67108864; c < 2147483647; c ++){
     v_int64 size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 6);
@@ -112,6 +112,7 @@ void UnicodeTest::onRun(){
     OATPP_ASSERT(cnt == 6);
     OATPP_ASSERT(code == c);
   }
+
   // */
   
   p_char8 sequence = (p_char8)"𐐷";

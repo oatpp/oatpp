@@ -38,6 +38,7 @@ namespace oatpp { namespace network { namespace virtual_ { namespace server {
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
   std::shared_ptr<virtual_::Interface> m_interface;
+  std::shared_ptr<virtual_::Interface::ListenerLock> m_listenerLock;
   bool m_open;
   data::v_io_size m_maxAvailableToRead;
   data::v_io_size m_maxAvailableToWrite;

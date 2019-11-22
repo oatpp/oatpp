@@ -47,7 +47,7 @@ void Serializer::writeList(oatpp::data::stream::ConsistentOutputStream* stream, 
   while(curr != nullptr){
     auto value = curr->getData();
     if(value || config->includeNullFields) {
-      (first) ? first = false : stream->write(", ", 2);
+      (first) ? first = false : stream->write(",", 1);
       writeValue(stream, curr->getData(), config);
     }
     curr = curr->getNext();
@@ -64,10 +64,10 @@ void Serializer::writeFieldsMap(oatpp::data::stream::ConsistentOutputStream* str
   while(curr != nullptr){
     auto value = curr->getValue();
     if(value || config->includeNullFields) {
-      (first) ? first = false : stream->write(", ", 2);
+      (first) ? first = false : stream->write(",", 1);
       auto key = curr->getKey();
       writeString(stream, key->getData(), key->getSize());
-      stream->write(": ", 2);
+      stream->write(":", 1);
       writeValue(stream, curr->getValue(), config);
     }
     curr = curr->getNext();
@@ -88,9 +88,9 @@ void Serializer::writeObject(oatpp::data::stream::ConsistentOutputStream* stream
     
     auto value = field->get(object);
     if(value || config->includeNullFields) {
-      (first) ? first = false : stream->write(", ", 2);
+      (first) ? first = false : stream->write(",", 1);
       writeString(stream, field->name);
-      stream->write(": ", 2);
+      stream->write(":", 1);
       writeValue(stream, value, config);
     }
     

@@ -110,7 +110,7 @@ bool ConnectionPool::ConnectionWrapper::isValid() {
 ConnectionPool::ConnectionPool(const std::shared_ptr<ConnectionProvider>& connectionProvider,
                v_int64 maxConnections,
                const std::chrono::duration<v_int64, std::micro>& maxConnectionTTL)
-  : m_pool(std::make_shared<Pool>(maxConnections, std::chrono::duration_cast<std::chrono::microseconds>(maxConnectionTTL).count()))
+  : m_pool(std::make_shared<Pool>(maxConnections, maxConnectionTTL.count()))
   , m_connectionProvider(connectionProvider)
 {
 

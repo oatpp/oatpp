@@ -505,11 +505,41 @@ public:
   AbstractCoroutine* getParent() const;
 
   /**
+   * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
+   * @return - repeat Action.
+   */
+  static Action repeat();
+
+  /**
+   * Convenience method to generate Action of `type == Action::TYPE_WAIT_REPEAT`.
+   * @return - TYPE_WAIT_REPEAT Action.
+   */
+  static Action waitRepeat(const std::chrono::duration<v_int64, std::micro>& timeout);
+
+  /**
+   * Wait asynchronously for the specified time.
+   * @return - repeat Action.
+   */
+  CoroutineStarter waitFor(const std::chrono::duration<v_int64, std::micro>& timeout);
+
+  /**
+   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
+   * @return - TYPE_WAIT_FOR_IO Action.
+   */
+  static Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType);
+
+  /**
+   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
+   * @return - TYPE_IO_REPEAT Action.
+   */
+  static Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType);
+
+  /**
    * Convenience method to generate error reporting Action.
    * @param error - &id:oatpp:async::Error;.
    * @return - error reporting Action.
    */
-  Action error(Error* error);
+  static Action error(Error* error);
 
   /**
    * Convenience method to generate error reporting Action.
@@ -577,41 +607,6 @@ public:
    */
   Action yieldTo(const Function& function) const {
     return Action(static_cast<FunctionPtr>(function));
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
-   * @return - repeat Action.
-   */
-  Action repeat() const {
-    return Action::createActionByType(Action::TYPE_REPEAT);
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_WAIT_REPEAT`.
-   * @return - TYPE_WAIT_REPEAT Action.
-   */
-  Action waitRepeat(const std::chrono::duration<v_int64, std::micro>& timeout) const {
-    auto startTime = std::chrono::system_clock::now();
-    auto end = startTime + timeout;
-    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(end.time_since_epoch());
-    return Action::createWaitRepeatAction(ms.count());
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
-   * @return - TYPE_WAIT_FOR_IO Action.
-   */
-  Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
-    return Action::createIOWaitAction(ioHandle, ioEventType);
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
-   * @return - TYPE_IO_REPEAT Action.
-   */
-  Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
-    return Action::createIORepeatAction(ioHandle, ioEventType);
   }
 
   /**
@@ -764,41 +759,6 @@ public:
    */
   Action yieldTo(const Function& function) const {
     return Action(static_cast<AbstractCoroutine::FunctionPtr>(function));
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_WAIT_REPEAT`.
-   * @return - TYPE_WAIT_REPEAT Action.
-   */
-  Action waitRepeat(const std::chrono::duration<v_int64, std::micro>& timeout) const {
-    auto startTime = std::chrono::system_clock::now();
-    auto end = startTime + timeout;
-    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(end.time_since_epoch());
-    return Action::createWaitRepeatAction(ms.count());
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
-   * @return - TYPE_WAIT_FOR_IO Action.
-   */
-  Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
-    return Action::createIOWaitAction(ioHandle, ioEventType);
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
-   * @return - TYPE_IO_REPEAT Action.
-   */
-  Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) const {
-    return Action::createIORepeatAction(ioHandle, ioEventType);
-  }
-
-  /**
-   * Convenience method to generate Action of `type == Action::TYPE_REPEAT`.
-   * @return - repeat Action.
-   */
-  Action repeat() const {
-    return Action::createActionByType(Action::TYPE_REPEAT);
   }
 
   /**
