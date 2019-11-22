@@ -28,6 +28,7 @@ namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
 ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
   : m_interface(interface)
+  , m_listenerLock(interface->bind())
   , m_open(true)
   , m_maxAvailableToRead(-1)
   , m_maxAvailableToWrite(-1)
@@ -47,6 +48,7 @@ void ConnectionProvider::setSocketMaxAvailableToReadWrtie(data::v_io_size maxToR
 
 void ConnectionProvider::close() {
   m_open = false;
+  m_listenerLock.reset();
   m_interface->notifyAcceptors();
 }
 
