@@ -35,9 +35,9 @@ namespace oatpp { namespace data{ namespace stream {
 class BufferOutputStream : public ConsistentOutputStream {
 private:
   p_char8 m_data;
-  v_io_size m_capacity;
-  v_io_size m_position;
-  v_io_size m_growBytes;
+  v_buff_size m_capacity;
+  v_buff_size m_position;
+  v_buff_size m_growBytes;
   IOMode m_ioMode;
 public:
 
@@ -45,7 +45,7 @@ public:
    * Constructor.
    * @param growBytes
    */
-  BufferOutputStream(v_io_size initialCapacity = 2048, v_io_size growBytes = 2048);
+  BufferOutputStream(v_buff_size initialCapacity = 2048, v_buff_size growBytes = 2048);
 
   /**
    * Virtual destructor.
@@ -58,7 +58,7 @@ public:
    * @param count - number of bytes to write.
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
 
   /**
    * Set stream I/O mode.
@@ -75,7 +75,7 @@ public:
   /**
    * Reserve bytes for future writes.
    */
-  void reserveBytesUpfront(v_io_size count);
+  void reserveBytesUpfront(v_buff_size count);
 
   /**
    * Get pointer to data.
@@ -88,19 +88,19 @@ public:
    * Capacity may change.
    * @return
    */
-  v_io_size getCapacity();
+  v_buff_size getCapacity();
 
   /**
    * Get current data write position.
    * @return - current data write position.
    */
-  v_io_size getCurrentPosition();
+  v_buff_size getCurrentPosition();
 
   /**
    * Set current data write position.
    * @param position - data write position.
    */
-  void setCurrentPosition(v_io_size position);
+  void setCurrentPosition(v_buff_size position);
 
   /**
    * Copy data to &id:oatpp::String;.
@@ -114,7 +114,7 @@ public:
    * @param count - size of bytes to write to substring.
    * @return - &id:oatpp::String;
    */
-  oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
+  oatpp::String getSubstring(v_buff_size pos, v_buff_size count);
 
   /**
    * Write all bytes from buffer to stream.
@@ -140,8 +140,8 @@ class BufferInputStream : public InputStream {
 private:
   std::shared_ptr<base::StrBuffer> m_memoryHandle;
   p_char8 m_data;
-  v_io_size m_size;
-  v_io_size m_position;
+  v_buff_size m_size;
+  v_buff_size m_position;
   IOMode m_ioMode;
 public:
 
@@ -151,7 +151,7 @@ public:
    * @param data - pointer to buffer data.
    * @param size - size of the buffer.
    */
-  BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size);
+  BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size);
 
   /**
    * Constructor.
@@ -165,7 +165,7 @@ public:
    * @param data - pointer to buffer data.
    * @param size - size of the buffer.
    */
-  void reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size);
+  void reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size);
 
 
   /**
@@ -181,7 +181,7 @@ public:
    * @param count - size of the buffer.
    * @return - actual number of bytes read. 0 - designates end of the buffer.
    */
-  data::v_io_size read(void *data, data::v_io_size count) override;
+  data::v_io_size read(void *data, v_buff_size count) override;
 
   /**
    * In case of a `BufferInputStream` suggested Action is always &id:oatpp::async::Action::TYPE_REPEAT; if `ioResult` is greater then zero. <br>
@@ -219,19 +219,19 @@ public:
    * Get data size.
    * @return - data size.
    */
-  v_io_size getDataSize();
+  v_buff_size getDataSize();
 
   /**
    * Get current data read position.
    * @return - current data read position.
    */
-  v_io_size getCurrentPosition();
+  v_buff_size getCurrentPosition();
 
   /**
    * Set current data read position.
    * @param position - data read position.
    */
-  void setCurrentPosition(v_io_size position);
+  void setCurrentPosition(v_buff_size position);
 
 
 };

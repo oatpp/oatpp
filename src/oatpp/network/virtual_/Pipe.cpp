@@ -38,7 +38,7 @@ void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
   
-data::v_io_size Pipe::Reader::read(void *data, data::v_io_size count) {
+data::v_io_size Pipe::Reader::read(void *data, v_buff_size count) {
   
   if(m_maxAvailableToRead > -1 && count > m_maxAvailableToRead) {
     count = m_maxAvailableToRead;
@@ -121,7 +121,7 @@ void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
   m_maxAvailableToWrtie = maxAvailableToWrite;
 }
   
-data::v_io_size Pipe::Writer::write(const void *data, data::v_io_size count) {
+data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count) {
   
   if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
     count = m_maxAvailableToWrtie;

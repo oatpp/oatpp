@@ -26,8 +26,8 @@
 
 namespace oatpp { namespace web { namespace client {
 
-ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_int32 size, v_int32& position) {
-  for(v_int32 i = position; i < size; i++){
+ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position) {
+  for(v_buff_size i = position; i < size; i++){
     v_char8 a = data[i];
     if(a == '{'){
       auto result = PathSegment(std::string((char*) &data[position], i - position), PathSegment::SEG_PATH);
@@ -40,8 +40,8 @@ ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_int32 size, v
   return result;
 }
 
-ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_int32 size, v_int32& position) {
-  for(v_int32 i = position; i < size; i++){
+ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_buff_size size, v_buff_size& position) {
+  for(v_buff_size i = position; i < size; i++){
     v_char8 a = data[i];
     if(a == '}'){
       auto result = PathSegment(std::string((char*) &data[position], i - position), PathSegment::SEG_VAR);
@@ -54,8 +54,8 @@ ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_int32 size, v_
   return result;
 }
   
-ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_int32 size) {
-  v_int32 pos = 0;
+ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_buff_size size) {
+  v_buff_size pos = 0;
   PathPattern result;
   while (pos < size) {
     v_char8 a = data[pos];
@@ -78,7 +78,7 @@ void ApiClient::formatPath(oatpp::data::stream::OutputStream* stream,
     if(seg.type == PathSegment::SEG_PATH) {
       stream->write(seg.text.data(), seg.text.size());
     } else {
-      auto key = oatpp::String(seg.text.data(), (v_int32) seg.text.length(), false);
+      auto key = oatpp::String(seg.text.data(), seg.text.length(), false);
       auto& param = params->get(key, oatpp::data::mapping::type::AbstractObjectWrapper::empty());
       if(!param){
         OATPP_LOGD(TAG, "Path parameter '%s' not provided in the api call", seg.text.c_str());

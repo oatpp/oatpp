@@ -30,10 +30,10 @@ const char* ChunkedBuffer::ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA = "ERROR_ASYNC_F
   
 const char* const ChunkedBuffer::CHUNK_POOL_NAME = "ChunkedBuffer_Chunk_Pool";
 
-const data::v_io_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
-const data::v_io_size ChunkedBuffer::CHUNK_ENTRY_SIZE =
+const v_buff_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
+const v_buff_size ChunkedBuffer::CHUNK_ENTRY_SIZE =
                                               (1 << ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT);
-const data::v_io_size ChunkedBuffer::CHUNK_CHUNK_SIZE = 32;
+const v_buff_size ChunkedBuffer::CHUNK_CHUNK_SIZE = 32;
 
 ChunkedBuffer::ChunkedBuffer()
   : m_size(0)
@@ -64,9 +64,10 @@ void ChunkedBuffer::freeEntry(ChunkEntry* entry){
 }
   
 data::v_io_size ChunkedBuffer::writeToEntry(ChunkEntry* entry,
-                                                      const void *data,
-                                                      data::v_io_size count,
-                                                      data::v_io_size& outChunkPos) {
+                                            const void *data,
+                                            v_buff_size count,
+                                            v_buff_size& outChunkPos)
+{
   if(count >= CHUNK_ENTRY_SIZE){
     std::memcpy(entry->chunk, data, CHUNK_ENTRY_SIZE);
     outChunkPos = 0;
@@ -79,10 +80,11 @@ data::v_io_size ChunkedBuffer::writeToEntry(ChunkEntry* entry,
 }
   
 data::v_io_size ChunkedBuffer::writeToEntryFrom(ChunkEntry* entry,
-                                                          data::v_io_size inChunkPos,
-                                                          const void *data,
-                                                          data::v_io_size count,
-                                                          data::v_io_size& outChunkPos) {
+                                                v_buff_size inChunkPos,
+                                                const void *data,
+                                                v_buff_size count,
+                                                v_buff_size& outChunkPos)
+{
   data::v_io_size spaceLeft = CHUNK_ENTRY_SIZE - inChunkPos;
   if(count >= spaceLeft){
     std::memcpy(&((p_char8) entry->chunk)[inChunkPos], data, (size_t)spaceLeft);
@@ -96,15 +98,16 @@ data::v_io_size ChunkedBuffer::writeToEntryFrom(ChunkEntry* entry,
 }
   
 ChunkedBuffer::ChunkEntry* ChunkedBuffer::getChunkForPosition(ChunkEntry* fromChunk,
-                                                                      data::v_io_size pos,
-                                                                      data::v_io_size& outChunkPos) {
-  
-  data::v_io_size segIndex = pos >> CHUNK_ENTRY_SIZE_INDEX_SHIFT;
+                                                              v_buff_size pos,
+                                                              v_buff_size& outChunkPos)
+{
+
+  v_buff_size segIndex = pos >> CHUNK_ENTRY_SIZE_INDEX_SHIFT;
   outChunkPos = pos - (segIndex << CHUNK_ENTRY_SIZE_INDEX_SHIFT);
   
   auto curr = fromChunk;
   
-  for(data::v_io_size i = 0; i < segIndex; i++){
+  for(v_buff_size i = 0; i < segIndex; i++){
     curr = curr->next;
   }
   
@@ -112,7 +115,7 @@ ChunkedBuffer::ChunkEntry* ChunkedBuffer::getChunkForPosition(ChunkEntry* fromCh
   
 }
   
-data::v_io_size ChunkedBuffer::write(const void *data, data::v_io_size count){
+data::v_io_size ChunkedBuffer::write(const void *data, v_buff_size count){
   
   if(count <= 0){
     return 0;
@@ -123,7 +126,7 @@ data::v_io_size ChunkedBuffer::write(const void *data, data::v_io_size count){
   }
   
   ChunkEntry* entry = m_lastEntry;
-  data::v_io_size pos = 0;
+  v_buff_size pos = 0;
   
   pos += writeToEntryFrom(entry, m_chunkPos, data, count, m_chunkPos);
   
@@ -154,32 +157,32 @@ IOMode ChunkedBuffer::getOutputStreamIOMode() {
 }
   
 data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
-                                             data::v_io_size pos,
-                                             data::v_io_size count)
+                                             v_buff_size pos,
+                                             v_buff_size count)
 {
   
   if(pos < 0 || pos >= m_size){
     return 0;
   }
   
-  data::v_io_size countToRead;
+  v_buff_size countToRead;
   if(pos + count > m_size){
     countToRead = m_size - pos;
   } else {
     countToRead = count;
   }
-  
-  data::v_io_size firstChunkPos;
+
+  v_buff_size firstChunkPos;
   auto firstChunk = getChunkForPosition(m_firstEntry, pos, firstChunkPos);
-  
-  data::v_io_size lastChunkPos;
+
+  v_buff_size lastChunkPos;
   auto lastChunk = getChunkForPosition(firstChunk, firstChunkPos + countToRead, lastChunkPos);
   
   data::v_io_size bufferPos = 0;
   
   if(firstChunk != lastChunk){
     
-    data::v_io_size countToCopy = CHUNK_ENTRY_SIZE - firstChunkPos;
+    v_buff_size countToCopy = CHUNK_ENTRY_SIZE - firstChunkPos;
     std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], (size_t)countToCopy);
     bufferPos += countToCopy;
     
@@ -194,7 +197,7 @@ data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
     std::memcpy(&((p_char8)buffer)[bufferPos], lastChunk->chunk, (size_t)lastChunkPos);
     
   } else {
-    data::v_io_size countToCopy = lastChunkPos - firstChunkPos;
+    v_buff_size countToCopy = lastChunkPos - firstChunkPos;
     std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], (size_t)countToCopy);
   }
   
@@ -202,7 +205,7 @@ data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
   
 }
   
-oatpp::String ChunkedBuffer::getSubstring(data::v_io_size pos, data::v_io_size count){
+oatpp::String ChunkedBuffer::getSubstring(v_buff_size pos, v_buff_size count){
   auto str = oatpp::String((v_int32) count);
   readSubstring(str->getData(), pos, count);
   return str;
@@ -307,7 +310,7 @@ std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {
   return chunks;
 }
 
-data::v_io_size ChunkedBuffer::getSize(){
+v_buff_size ChunkedBuffer::getSize(){
   return m_size;
 }
 

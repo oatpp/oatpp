@@ -74,7 +74,7 @@ public:
    * @param count - bytes count you want to write.
    * @return - actual amount of bytes written. See &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size write(const void *buff, data::v_io_size count) override;
+  data::v_io_size write(const void *buff, v_buff_size count) override;
 
   /**
    * Implementation of &id:oatpp::data::stream::IOStream::read;.
@@ -82,7 +82,7 @@ public:
    * @param count - buffer size.
    * @return - actual amount of bytes read. See &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size read(void *buff, data::v_io_size count) override;
+  data::v_io_size read(void *buff, v_buff_size count) override;
 
   /**
    * Implementation of OutputStream must suggest async actions for I/O results.

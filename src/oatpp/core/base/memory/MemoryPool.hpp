@@ -66,12 +66,12 @@ private:
   void freeByEntryHeader(EntryHeader* entry);
 private:
   std::string m_name;
-  v_int32 m_entrySize;
-  v_int32 m_chunkSize;
+  v_buff_size m_entrySize;
+  v_buff_size m_chunkSize;
   v_int64 m_id;
   std::list<p_char8> m_chunks;
   EntryHeader* m_rootEntry;
-  v_int32 m_objectsCount;
+  v_int64 m_objectsCount;
   oatpp::concurrency::SpinLock m_lock;
 public:
 
@@ -81,7 +81,7 @@ public:
    * @param entrySize - size of the entry in bytes returned in call to &l:MemoryPool::obtain ();.
    * @param chunkSize - number of entries in one chunk.
    */
-  MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize);
+  MemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize);
 
   /**
    * Deleted copy-constructor.
@@ -117,19 +117,19 @@ public:
    * Get size of the memory entry in bytes which can be obtained by call to &l:MemoryPool::obtain ();.
    * @return - size of the enrty in bytes.
    */
-  v_int32 getEntrySize();
+  v_buff_size getEntrySize();
 
   /**
    * Get size of the memory allocated by memory pool.
    * @return - size of the memory allocated by memory pool.
    */
-  v_int64 getSize();
+  v_buff_size getSize();
 
   /**
    * Get number of entries currently in use.
    * @return - number of entries currently in use.
    */
-  v_int32 getObjectsCount();
+  v_int64 getObjectsCount();
   
 };
 
@@ -138,7 +138,7 @@ public:
  */
 class ThreadDistributedMemoryPool {
 private:
-  v_int32 m_shardsCount;
+  v_int64 m_shardsCount;
   MemoryPool** m_shards;
   bool m_deleted;
 public:
@@ -146,7 +146,7 @@ public:
   /**
    * Default number of MemoryPools (&l:MemoryPool;) "shards" to create.
    */
-  static const v_int32 SHARDS_COUNT_DEFAULT;
+  static const v_int64 SHARDS_COUNT_DEFAULT;
 public:
 
   /**
@@ -156,8 +156,8 @@ public:
    * @param chunkSize - number of entries in chunk.
    * @param shardsCount - number of MemoryPools (&l:MemoryPool;) "shards" to create.
    */
-  ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize,
-                              v_int32 shardsCount = SHARDS_COUNT_DEFAULT);
+  ThreadDistributedMemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize,
+                              v_int64 shardsCount = SHARDS_COUNT_DEFAULT);
 
   /**
    * Deleted copy-constructor.
@@ -197,13 +197,13 @@ private:
   
   void grow(){
     
-    v_int32 newSize = m_size + m_growSize;
+    v_buff_size newSize = m_size + m_growSize;
     T** newIndex = new T*[newSize];
     std::memcpy(newIndex, m_index, m_size);
     
     Block* b = new Block(new v_char8 [m_growSize * sizeof(T)], m_blocks);
     m_blocks = b;
-    for(v_int32 i = 0; i < m_growSize; i++) {
+    for(v_buff_size i = 0; i < m_growSize; i++) {
       newIndex[m_size + i] = (T*) (&b->memory[i * sizeof(T)]);
     }
     
@@ -214,9 +214,9 @@ private:
   }
   
 private:
-  v_int32 m_growSize;
-  v_int32 m_size;
-  v_int32 m_indexPosition;
+  v_buff_size m_growSize;
+  v_buff_size m_size;
+  v_buff_size m_indexPosition;
   Block* m_blocks;
   T** m_index;
 public:
@@ -225,7 +225,7 @@ public:
    * Constructor.
    * @param growSize - number of objects to allocate when no free objects left.
    */
-  Bench(v_int32 growSize)
+  Bench(v_buff_size growSize)
     : m_growSize(growSize)
     , m_size(0)
     , m_indexPosition(0)

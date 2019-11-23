@@ -64,11 +64,11 @@ ConnectionPool::ConnectionWrapper::~ConnectionWrapper() {
   }
 }
 
-data::v_io_size ConnectionPool::ConnectionWrapper::write(const void *buff, data::v_io_size count) {
+data::v_io_size ConnectionPool::ConnectionWrapper::write(const void *buff, v_buff_size count) {
   return m_connection->write(buff, count);
 }
 
-data::v_io_size ConnectionPool::ConnectionWrapper::read(void *buff, data::v_io_size count) {
+data::v_io_size ConnectionPool::ConnectionWrapper::read(void *buff, v_buff_size count) {
   return m_connection->read(buff, count);
 }
 

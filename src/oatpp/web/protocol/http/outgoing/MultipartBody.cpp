@@ -38,7 +38,7 @@ MultipartBody::MultipartReadCallback::MultipartReadCallback(const std::shared_pt
   , m_readStream(nullptr, nullptr, 0)
 {}
 
-data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, data::v_io_size count) {
+data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_size count) {
   auto& part = *m_iterator;
   const auto& stream = part->getInputStream();
   if(!stream) {
@@ -53,7 +53,7 @@ data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, dat
   return res;
 }
 
-data::v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, data::v_io_size count) {
+data::v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_size count) {
 
   if(m_state == STATE_FINISHED) {
     return 0;
@@ -244,7 +244,7 @@ data::v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& mu
                                             std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                             data::stream::BufferInputStream& readStream,
                                             void *buffer,
-                                            data::v_io_size count)
+                                            v_buff_size count)
 {
   if (!readStream.getDataMemoryHandle()) {
 
@@ -274,7 +274,7 @@ data::v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& mul
                                            std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                            data::stream::BufferInputStream& readStream,
                                            void *buffer,
-                                           data::v_io_size count)
+                                           v_buff_size count)
 {
   (void) multipart;
 
@@ -327,7 +327,7 @@ oatpp::async::CoroutineStarter MultipartBody::writeToStreamAsync(const std::shar
   return ChunkedBody::writeToStreamAsync(stream);
 }
 
-data::v_io_size MultipartBody::getKnownSize() {
+v_buff_size MultipartBody::getKnownSize() {
  return -1;
 }
 

@@ -46,7 +46,7 @@ private:
   Headers m_headers;
   std::shared_ptr<data::stream::InputStream> m_inputStream;
   oatpp::String m_inMemoryData;
-  data::v_io_size m_knownSize;
+  v_int64 m_knownSize;
 private:
   const char* m_tagName;
   std::shared_ptr<oatpp::base::Countable> m_tagObject;
@@ -62,7 +62,7 @@ public:
   Part(const Headers& headers,
        const std::shared_ptr<data::stream::InputStream>& inputStream,
        const oatpp::String inMemoryData,
-       data::v_io_size knownSize);
+       v_int64 knownSize);
 
   /**
    * Constructor.
@@ -78,7 +78,7 @@ public:
    */
   void setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream,
                    const oatpp::String inMemoryData,
-                   data::v_io_size knownSize);
+                   v_int64 knownSize);
 
   /**
    * Same as `setDataInfo(inputStream, nullptr, -1);.`
@@ -144,7 +144,7 @@ public:
    * Return known size of the part data.
    * @return - known size of the part data. `-1` - if size is unknown.
    */
-  data::v_io_size getKnownSize() const;
+  v_int64 getKnownSize() const;
 
   /**
    * Tag-object - object used to associate some data with the Part. <br>

@@ -28,42 +28,42 @@
 
 namespace oatpp { namespace data { namespace share {
 
-MemoryLabel::MemoryLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size)
+MemoryLabel::MemoryLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size)
   : m_memoryHandle(memHandle)
   , m_data(data)
   , m_size(size)
 {}
   
-StringKeyLabel::StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size)
+StringKeyLabel::StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size)
   : oatpp::data::share::MemoryLabel(memHandle, data, size)
 {}
   
 StringKeyLabel::StringKeyLabel(const char* constText)
-  : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, (v_int32)std::strlen(constText))
+  : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, std::strlen(constText))
 {}
   
 StringKeyLabel::StringKeyLabel(const oatpp::String& str)
   : oatpp::data::share::MemoryLabel(str.getPtr(), str->getData(), str->getSize())
 {}
   
-StringKeyLabelCI::StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size)
+StringKeyLabelCI::StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size)
   : oatpp::data::share::MemoryLabel(memHandle, data, size)
 {}
 
 StringKeyLabelCI::StringKeyLabelCI(const char* constText)
-  : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, (v_int32)std::strlen(constText))
+  : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, std::strlen(constText))
 {}
 
 StringKeyLabelCI::StringKeyLabelCI(const oatpp::String& str)
   : oatpp::data::share::MemoryLabel(str.getPtr(), str->getData(), str->getSize())
 {}
   
-StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_int32 size)
+StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size)
   : oatpp::data::share::MemoryLabel(memHandle, data, size)
 {}
 
 StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const char* constText)
-  : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, (v_int32)std::strlen(constText))
+  : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, std::strlen(constText))
 {}
 
 StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const oatpp::String& str)

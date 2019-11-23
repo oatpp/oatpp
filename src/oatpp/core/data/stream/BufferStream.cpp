@@ -29,7 +29,7 @@ namespace oatpp { namespace data{ namespace stream {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferOutputStream
 
-BufferOutputStream::BufferOutputStream(v_io_size initialCapacity, v_io_size growBytes)
+BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, v_buff_size growBytes)
   : m_data(new v_char8[initialCapacity])
   , m_capacity(initialCapacity)
   , m_position(0)
@@ -41,7 +41,7 @@ BufferOutputStream::~BufferOutputStream() {
   delete [] m_data;
 }
 
-data::v_io_size BufferOutputStream::write(const void *data, data::v_io_size count) {
+data::v_io_size BufferOutputStream::write(const void *data, v_buff_size count) {
 
   reserveBytesUpfront(count);
 
@@ -60,7 +60,7 @@ IOMode BufferOutputStream::getOutputStreamIOMode() {
   return m_ioMode;
 }
 
-void BufferOutputStream::reserveBytesUpfront(v_io_size count) {
+void BufferOutputStream::reserveBytesUpfront(v_buff_size count) {
 
   if(m_position + count > m_capacity) {
 
@@ -68,14 +68,14 @@ void BufferOutputStream::reserveBytesUpfront(v_io_size count) {
       throw std::runtime_error("[oatpp::data::stream::BufferOutputStream::reserveBytesUpfront()]: Error. Buffer was not allowed to grow.");
     }
 
-    data::v_io_size extraNeeded = m_position + count - m_capacity;
-    data::v_io_size extraChunks = extraNeeded / m_growBytes;
+    v_buff_size extraNeeded = m_position + count - m_capacity;
+    v_buff_size extraChunks = extraNeeded / m_growBytes;
 
     if(extraChunks * m_growBytes < extraNeeded) {
       extraChunks ++;
     }
 
-    data::v_io_size newCapacity = m_capacity + extraChunks * m_growBytes;
+    v_buff_size newCapacity = m_capacity + extraChunks * m_growBytes;
     p_char8 newData = new v_char8[newCapacity];
 
     std::memcpy(newData, m_data, m_position);
@@ -92,17 +92,17 @@ p_char8 BufferOutputStream::getData() {
 }
 
 
-v_io_size BufferOutputStream::getCapacity() {
+v_buff_size BufferOutputStream::getCapacity() {
   return m_capacity;
 }
 
 
-v_io_size BufferOutputStream::getCurrentPosition() {
+v_buff_size BufferOutputStream::getCurrentPosition() {
   return m_position;
 }
 
 
-void BufferOutputStream::setCurrentPosition(v_io_size position) {
+void BufferOutputStream::setCurrentPosition(v_buff_size position) {
   m_position = position;
 }
 
@@ -110,7 +110,7 @@ oatpp::String BufferOutputStream::toString() {
   return oatpp::String((const char*)m_data, m_position, true);
 }
 
-oatpp::String BufferOutputStream::getSubstring(data::v_io_size pos, data::v_io_size count) {
+oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size count) {
   if(pos + count <= m_position) {
     return oatpp::String((const char *) (m_data + pos), count, true);
   } else {
@@ -155,7 +155,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferInputStream
 
-BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size)
+BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size)
   : m_memoryHandle(memoryHandle)
   , m_data(data)
   , m_size(size)
@@ -167,7 +167,7 @@ BufferInputStream::BufferInputStream(const oatpp::String& data)
   : BufferInputStream(data.getPtr(), data->getData(), data->getSize())
 {}
 
-void BufferInputStream::reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_io_size size) {
+void BufferInputStream::reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size) {
   m_memoryHandle = memoryHandle;
   m_data = data;
   m_size = size;
@@ -181,8 +181,8 @@ void BufferInputStream::reset() {
   m_position = 0;
 }
 
-data::v_io_size BufferInputStream::read(void *data, data::v_io_size count) {
-  data::v_io_size desiredAmount = count;
+data::v_io_size BufferInputStream::read(void *data, v_buff_size count) {
+  v_buff_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;
   }
@@ -223,15 +223,15 @@ p_char8 BufferInputStream::getData() {
   return m_data;
 }
 
-v_io_size BufferInputStream::getDataSize() {
+v_buff_size BufferInputStream::getDataSize() {
   return m_size;
 }
 
-v_io_size BufferInputStream::getCurrentPosition() {
+v_buff_size BufferInputStream::getCurrentPosition() {
   return m_position;
 }
 
-void BufferInputStream::setCurrentPosition(v_io_size position) {
+void BufferInputStream::setCurrentPosition(v_buff_size position) {
   m_position = position;
 }
 

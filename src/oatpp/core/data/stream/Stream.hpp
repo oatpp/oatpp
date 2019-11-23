@@ -66,7 +66,7 @@ public:
    * @param count - number of bytes to write.
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
-  virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
+  virtual data::v_io_size write(const void *data, v_buff_size count) = 0;
 
   /**
    * Implementation of OutputStream must suggest async actions for I/O results. <br>
@@ -136,7 +136,7 @@ public:
    * @param count - size of the buffer.
    * @return - actual number of bytes read.
    */
-  virtual data::v_io_size read(void *data, data::v_io_size count) = 0;
+  virtual data::v_io_size read(void *data, v_buff_size count) = 0;
 
   /**
    * Implementation of InputStream must suggest async actions for I/O results. <br>
@@ -189,11 +189,11 @@ public:
     return Shared_CompoundIOStream_Pool::allocateShared(outputStream, inputStream);
   }
   
-  data::v_io_size write(const void *data, data::v_io_size count) override {
+  data::v_io_size write(const void *data, v_buff_size count) override {
     return m_outputStream->write(data, count);
   }
   
-  data::v_io_size read(void *data, data::v_io_size count) override {
+  data::v_io_size read(void *data, v_buff_size count) override {
     return m_inputStream->read(data, count);
   }
 
@@ -303,7 +303,7 @@ struct AsyncInlineWriteData {
   /**
    * Bytes left to write from the buffer.
    */
-  data::v_io_size bytesLeft;
+  v_buff_size bytesLeft;
 
   /**
    * Default constructor.
@@ -315,21 +315,21 @@ struct AsyncInlineWriteData {
    * @param data
    * @param size
    */
-  AsyncInlineWriteData(const void* data, data::v_io_size size);
+  AsyncInlineWriteData(const void* data, v_buff_size size);
 
   /**
    * Set `currBufferPtr` and `bytesLeft` values. <br>
    * @param data - pointer to buffer containing data to be written.
    * @param size - size in bytes of the buffer.
    */
-  void set(const void* data, data::v_io_size size);
+  void set(const void* data, v_buff_size size);
 
   /**
    * Increase position in the write buffer by `amount` bytes. <br>
    * This will increase `currBufferPtr` and descrease `bytesLeft` values.
    * @param amount
    */
-  void inc(data::v_io_size amount);
+  void inc(v_buff_size amount);
 
   /**
    * Same as `inc(bytesLeft).`
@@ -351,7 +351,7 @@ struct AsyncInlineReadData {
   /**
    * Bytes left to read to the buffer.
    */
-  data::v_io_size bytesLeft;
+  v_buff_size bytesLeft;
 
   /**
    * Default constructor.
@@ -363,21 +363,21 @@ struct AsyncInlineReadData {
    * @param data
    * @param size
    */
-  AsyncInlineReadData(void* data, data::v_io_size size);
+  AsyncInlineReadData(void* data, v_buff_size size);
 
   /**
    * Set `currBufferPtr` and `bytesLeft` values. <br>
    * @param data - pointer to buffer to store read data.
    * @param size - size in bytes of the buffer.
    */
-  void set(void* data, data::v_io_size size);
+  void set(void* data, v_buff_size size);
 
   /**
    * Increase position in the read buffer by `amount` bytes. <br>
    * This will increase `currBufferPtr` and descrease `bytesLeft` values.
    * @param amount
    */
-  void inc(data::v_io_size amount);
+  void inc(v_buff_size amount);
 
   /**
    * Same as `inc(bytesLeft).`
@@ -403,7 +403,7 @@ public:
    * @param count - size of the data in bytes.
    * @return - &id:oatpp::data::v_io_size;.
    */
-  virtual data::v_io_size write(const void *data, data::v_io_size count) = 0;
+  virtual data::v_io_size write(const void *data, v_buff_size count) = 0;
 };
 
 /**
@@ -451,7 +451,7 @@ public:
    * @param count - data size.
    * @return - data processing Coroutine-Starter. &id:oatpp::async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter writeAsync(const void *data, data::v_io_size count) = 0;
+  virtual async::CoroutineStarter writeAsync(const void *data, v_buff_size count) = 0;
 
 };
 
@@ -476,7 +476,7 @@ public:
    * @param count - size of the data in bytes.
    * @return - &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
 };
 
 /**
@@ -522,7 +522,7 @@ public:
    * @param count - size of the buffer.
    * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
    */
-  virtual data::v_io_size read(void *buffer, data::v_io_size count) = 0;
+  virtual data::v_io_size read(void *buffer, v_buff_size count) = 0;
 
 };
 
@@ -570,9 +570,9 @@ public:
  */
 oatpp::data::v_io_size transfer(InputStream* fromStream,
                                 WriteCallback* writeCallback,
-                                oatpp::data::v_io_size transferSize,
+                                v_buff_size transferSize,
                                 void* buffer,
-                                oatpp::data::v_io_size bufferSize);
+                                v_buff_size bufferSize);
   
   
 /**
@@ -580,7 +580,7 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
  */
 oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
                                              const std::shared_ptr<AsyncWriteCallback>& writeCallback,
-                                             oatpp::data::v_io_size transferSize,
+                                             v_buff_size transferSize,
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
@@ -589,7 +589,7 @@ oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputSt
                                                    oatpp::async::Action&& nextAction);
 
 oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
-                                                       const void* data, data::v_io_size size);
+                                                       const void* data, v_buff_size size);
 
 oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
                                              AsyncInlineReadData& inlineData,
@@ -605,14 +605,14 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
  * returns exact amount of bytes was read.
  * return result can be < size only in case of some disaster like connection reset by peer
  */
-oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, data::v_io_size size);
+oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, v_buff_size size);
   
 /**
  * Write exact amount of bytes to stream.
  * returns exact amount of bytes was written.
  * return result can be < size only in case of some disaster like broken pipe
  */
-oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, data::v_io_size size);
+oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, v_buff_size size);
   
 }}}
 

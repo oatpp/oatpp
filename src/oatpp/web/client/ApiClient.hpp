@@ -152,9 +152,9 @@ private:
   
 protected:
   
-  static PathSegment parsePathSegment(p_char8 data, v_int32 size, v_int32& position);
-  static PathSegment parseVarSegment(p_char8 data, v_int32 size, v_int32& position);
-  static PathPattern parsePathPattern(p_char8 data, v_int32 size);
+  static PathSegment parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position);
+  static PathSegment parseVarSegment(p_char8 data, v_buff_size size, v_buff_size& position);
+  static PathPattern parsePathPattern(p_char8 data, v_buff_size size);
   
 protected:
   std::shared_ptr<RequestExecutor> m_requestExecutor;

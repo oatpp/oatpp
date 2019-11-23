@@ -54,7 +54,7 @@ std::FILE* FileInputStream::getFile() {
   return m_file;
 }
 
-data::v_io_size FileInputStream::read(void *data, data::v_io_size count) {
+data::v_io_size FileInputStream::read(void *data, v_buff_size count) {
   return std::fread(data, 1, count, m_file);
 }
 
@@ -110,7 +110,7 @@ std::FILE* FileOutputStream::getFile() {
   return m_file;
 }
 
-data::v_io_size FileOutputStream::write(const void *data, data::v_io_size count) {
+data::v_io_size FileOutputStream::write(const void *data, v_buff_size count) {
   return std::fwrite(data, 1, count, m_file);
 }
 

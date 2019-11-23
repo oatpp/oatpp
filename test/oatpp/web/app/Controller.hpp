@@ -177,7 +177,7 @@ public:
       , m_iterations(iterations)
     {}
 
-    data::v_io_size read(void *buffer, data::v_io_size count) override {
+    data::v_io_size read(void *buffer, v_buff_size count) override {
       (void)count;
       if(m_counter < m_iterations) {
         std::memcpy(buffer, m_text->getData(), m_text->getSize());

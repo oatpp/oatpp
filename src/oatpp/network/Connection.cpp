@@ -51,11 +51,11 @@ Connection::~Connection(){
   close();
 }
 
-data::v_io_size Connection::write(const void *buff, data::v_io_size count){
+data::v_io_size Connection::write(const void *buff, v_buff_size count){
 
 #if defined(WIN32) || defined(_WIN32)
 
-  auto result = ::send(m_handle, (const char*) buff, (size_t)count, 0);
+  auto result = ::send(m_handle, (const char*) buff, (int)count, 0);
 
   if(result == SOCKET_ERROR) {
 
@@ -102,11 +102,11 @@ data::v_io_size Connection::write(const void *buff, data::v_io_size count){
 
 }
 
-data::v_io_size Connection::read(void *buff, data::v_io_size count){
+data::v_io_size Connection::read(void *buff, v_buff_size count){
 
 #if defined(WIN32) || defined(_WIN32)
 
-  auto result = ::recv(m_handle, (char*)buff, (size_t)count, 0);
+  auto result = ::recv(m_handle, (char*)buff, (int)count, 0);
 
   if(result == SOCKET_ERROR) {
 

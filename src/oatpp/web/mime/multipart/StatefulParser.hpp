@@ -45,7 +45,7 @@ private:
   static constexpr v_int32 STATE_DATA = 3;
   static constexpr v_int32 STATE_DONE = 4;
 private:
-  static constexpr v_int32 HEADERS_SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
+  static constexpr v_word32 HEADERS_SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 private:
   /**
    * Typedef for headers map. Headers map key is case-insensitive.
@@ -85,7 +85,7 @@ public:
      * @param data - pointer to data.
      * @param size - size of the data in bytes.
      */
-    virtual void onPartData(p_char8 data, oatpp::data::v_io_size size) = 0;
+    virtual void onPartData(p_char8 data, v_buff_size size) = 0;
 
   };
 
@@ -122,7 +122,7 @@ public:
      * @param data - pointer to data.
      * @param size - size of the data in bytes.
      */
-    virtual async::CoroutineStarter onPartDataAsync(p_char8 data, oatpp::data::v_io_size size) = 0;
+    virtual async::CoroutineStarter onPartDataAsync(p_char8 data, v_buff_size size) = 0;
 
   };
 
@@ -148,7 +148,7 @@ private:
     data::v_io_size size;
 
     void setOnHeadersCall();
-    void setOnDataCall(p_char8 pData, data::v_io_size pSize);
+    void setOnDataCall(p_char8 pData, v_buff_size pSize);
 
     void call(StatefulParser* parser);
     async::CoroutineStarter callAsync(StatefulParser* parser);
@@ -160,8 +160,8 @@ private:
 private:
 
   v_int32 m_state;
-  v_int32 m_currPartIndex;
-  v_int32 m_currBoundaryCharIndex;
+  v_int64 m_currPartIndex;
+  v_buff_size m_currBoundaryCharIndex;
   bool m_checkForBoundary;
   bool m_finishingBoundary;
   bool m_readingBody;
@@ -180,7 +180,7 @@ private:
    * Max length of all headers per one part.
    * Default value = 4096 bytes.
    */
-  v_int32 m_maxPartHeadersSize;
+  v_buff_size m_maxPartHeadersSize;
 
   std::shared_ptr<Listener> m_listener;
   std::shared_ptr<AsyncListener> m_asyncListener;
@@ -215,7 +215,7 @@ public:
    * @return - exact number of parsed bytes. <br>
    * returned value may be less than size given.
    */
-  v_int32 parseNext(p_char8 data, v_int32 size);
+  v_buff_size parseNext(p_char8 data, v_buff_size size);
 
   /**
    * Parse next chunk of bytes in Async-Inline manner.

@@ -94,7 +94,7 @@ const std::list<std::shared_ptr<Part>>& Multipart::getAllParts() {
   return m_parts;
 }
 
-v_int32 Multipart::count() {
+v_int64 Multipart::count() {
   return m_parts.size();
 }
 

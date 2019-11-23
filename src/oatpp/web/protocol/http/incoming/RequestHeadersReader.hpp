@@ -42,7 +42,7 @@ public:
    */
   typedef oatpp::async::Action Action;
 private:
-  static constexpr v_int32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
+  static constexpr v_word32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 public:
 
   /**
@@ -65,8 +65,8 @@ private:
   data::v_io_size readHeadersSection(data::stream::InputStreamBufferedProxy* stream, Result& result);
 private:
   oatpp::data::stream::BufferOutputStream* m_bufferStream;
-  v_int32 m_readChunkSize;
-  v_int32 m_maxHeadersSize;
+  v_buff_size m_readChunkSize;
+  v_buff_size m_maxHeadersSize;
 public:
 
   /**
@@ -75,8 +75,8 @@ public:
    * @param maxHeadersSize
    */
   RequestHeadersReader(oatpp::data::stream::BufferOutputStream* bufferStream,
-                       v_int32 readChunkSize = 2048,
-                       v_int32 maxHeadersSize = 4096)
+                       v_buff_size readChunkSize = 2048,
+                       v_buff_size maxHeadersSize = 4096)
     : m_bufferStream(bufferStream)
     , m_readChunkSize(readChunkSize)
     , m_maxHeadersSize(maxHeadersSize)

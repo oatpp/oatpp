@@ -49,8 +49,8 @@ public:
   class Label {
   private:
     Caret* m_caret;
-    v_int32 m_start;
-    v_int32 m_end;
+    v_buff_size m_start;
+    v_buff_size m_end;
   public:
 
     /**
@@ -79,7 +79,7 @@ public:
      * Get size of labeled data.
      * @return
      */
-    v_int32 getSize();
+    v_buff_size getSize();
 
     /**
      * Create &id:oatpp::String; from labeled data.
@@ -110,9 +110,9 @@ public:
   class StateSaveGuard {
   private:
     Caret& m_caret;
-    v_int32 m_savedPosition;
+    v_buff_size m_savedPosition;
     const char* m_savedErrorMessage;
-    v_int32 m_savedErrorCode;
+    v_int64 m_savedErrorCode;
   public:
 
     /**
@@ -130,7 +130,7 @@ public:
      * Get caret saved position.
      * @return
      */
-    v_int32 getSavedPosition();
+    v_buff_size getSavedPosition();
 
     /**
      * Get caret saved error message.
@@ -142,25 +142,25 @@ public:
      * Get caret saved error code.
      * @return
      */
-    v_int32 getSavedErrorCode();
+    v_int64 getSavedErrorCode();
 
   };
 
 private:
   p_char8 m_data;
-  v_int32 m_size;
-  v_int32 m_pos;
+  v_buff_size m_size;
+  v_buff_size m_pos;
   const char* m_errorMessage;
-  v_int32 m_errorCode;
+  v_int64 m_errorCode;
   std::shared_ptr<oatpp::base::StrBuffer> m_dataMemoryHandle;
 public:
   Caret(const char* text);
-  Caret(p_char8 parseData, v_int32 dataSize);
+  Caret(p_char8 parseData, v_buff_size dataSize);
   Caret(const oatpp::String& str);
 public:
   
   static std::shared_ptr<Caret> createShared(const char* text);
-  static std::shared_ptr<Caret> createShared(p_char8 parseData, v_int32 dataSize);
+  static std::shared_ptr<Caret> createShared(p_char8 parseData, v_buff_size dataSize);
   static std::shared_ptr<Caret> createShared(const oatpp::String& str);
 
   virtual ~Caret();
@@ -181,7 +181,7 @@ public:
    * Get size of a data
    * @return
    */
-  v_int32 getDataSize();
+  v_buff_size getDataSize();
 
   /**
    * Get data memoryHandle.
@@ -193,13 +193,13 @@ public:
    * Set caret position relative to data
    * @param position
    */
-  void setPosition(v_int32 position);
+  void setPosition(v_buff_size position);
 
   /**
    * Get caret position relative to data
    * @return
    */
-  v_int32 getPosition();
+  v_buff_size getPosition();
 
   /**
    * Set error message and error code.
@@ -207,7 +207,7 @@ public:
    * @param errorMessage
    * @param errorCode
    */
-  void setError(const char* errorMessage, v_int32 errorCode = 0);
+  void setError(const char* errorMessage, v_int64 errorCode = 0);
 
   /**
    * Get error message
@@ -219,7 +219,7 @@ public:
    * Get error code
    * @return error code
    */
-  v_int32 getErrorCode();
+  v_int64 getErrorCode();
 
   /**
    * Check if error is set for the Caret
@@ -247,7 +247,7 @@ public:
    * Increase caret position by amount
    * @param amount
    */
-  void inc(v_int32 amount);
+  void inc(v_buff_size amount);
 
   /**
    * Skip chars: [' ', '\t', '\n', '\r','\f']
@@ -285,14 +285,14 @@ public:
    * @param setSize
    * @return true if other char found
    */
-  bool skipCharsFromSet(p_char8 set, v_int32 setSize);
+  bool skipCharsFromSet(p_char8 set, v_buff_size setSize);
 
   /**
    * Find one of chars defined by set.
    * @param set
    * @return char found or -1 if no char found
    */
-  v_int32 findCharFromSet(const char* set);
+  v_buff_size findCharFromSet(const char* set);
 
   /**
    * Find one of chars defined by set.
@@ -300,7 +300,7 @@ public:
    * @param setSize
    * @return char found or -1 if no char found
    */
-  v_int32 findCharFromSet(p_char8 set, v_int32 setSize);
+  v_buff_size findCharFromSet(p_char8 set, v_buff_size setSize);
 
   /**
    * Find "\r\n" chars
@@ -396,7 +396,7 @@ public:
    * @param skipIfTrue - increase position if true
    * @return
    */
-  bool isAtText(p_char8 text, v_int32 textSize, bool skipIfTrue = false);
+  bool isAtText(p_char8 text, v_buff_size textSize, bool skipIfTrue = false);
 
   /**
    * Check if follows text (Not Case Sensitive)
@@ -413,7 +413,7 @@ public:
    * @param skipIfTrue - increase position if true
    * @return
    */
-  bool isAtTextNCS(p_char8 text, v_int32 textSize, bool skipIfTrue = false);
+  bool isAtTextNCS(p_char8 text, v_buff_size textSize, bool skipIfTrue = false);
 
   /**
    * Parse enclosed string.
@@ -439,7 +439,7 @@ public:
    * @param textSize
    * @return true if found
    */
-  bool findText(p_char8 text, v_int32 textSize);
+  bool findText(p_char8 text, v_buff_size textSize);
 
   /**
    * Check if caret is at char defined by set
@@ -456,7 +456,7 @@ public:
    * @param setSize
    * @return
    */
-  bool isAtCharFromSet(p_char8 set, v_int32 setSize) const;
+  bool isAtCharFromSet(p_char8 set, v_buff_size setSize) const;
 
   /**
    * Check if caret is at char
@@ -491,7 +491,7 @@ public:
    * @param skipChars
    * @return
    */
-  bool canContinueAtChar(v_char8 c, v_int32 skipChars);
+  bool canContinueAtChar(v_char8 c, v_buff_size skipChars);
 
   /**
    * Check if caret position < dataSize and not error is set

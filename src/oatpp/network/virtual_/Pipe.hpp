@@ -109,7 +109,7 @@ public:
      * @param count - max count of bytes to read.
      * @return - &id:oatpp::data::v_io_size;.
      */
-    data::v_io_size read(void *data, data::v_io_size count) override;
+    data::v_io_size read(void *data, v_buff_size count) override;
 
     /**
      * Implementation of InputStream must suggest async actions for I/O results.
@@ -200,7 +200,7 @@ public:
      * @param count - data size.
      * @return - &id:oatpp::data::v_io_size;.
      */
-    data::v_io_size write(const void *data, data::v_io_size count) override;
+    data::v_io_size write(const void *data, v_buff_size count) override;
 
     /**
      * Implementation of OutputStream must suggest async actions for I/O results.

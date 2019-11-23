@@ -101,7 +101,7 @@ public:
    * Get parts count.
    * @return - parts count.
    */
-  v_int32 count();
+  v_int64 count();
 
 };
 

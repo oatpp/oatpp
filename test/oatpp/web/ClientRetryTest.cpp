@@ -247,9 +247,8 @@ void ClientRetryTest::onRun() {
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
     std::list<std::thread> threads;
-    std::atomic<bool> testIsRunning(true);
 
-    std::thread clientThread([client, &testIsRunning]{
+    std::thread clientThread([client]{
 
       v_int64 counter = 0;
 

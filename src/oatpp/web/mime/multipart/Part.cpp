@@ -34,7 +34,7 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
 Part::Part(const Headers &headers,
            const std::shared_ptr<data::stream::InputStream> &inputStream,
            const oatpp::String inMemoryData,
-           data::v_io_size knownSize)
+           v_int64 knownSize)
   : m_headers(headers)
   , m_inputStream(inputStream)
   , m_inMemoryData(inMemoryData)
@@ -59,7 +59,7 @@ Part::Part(const Headers& headers) : Part(headers, nullptr, nullptr, -1) {}
 
 void Part::setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream,
                        const oatpp::String inMemoryData,
-                       data::v_io_size knownSize)
+                       v_int64 knownSize)
 {
   m_inputStream = inputStream;
   m_inMemoryData = inMemoryData;
@@ -106,7 +106,7 @@ oatpp::String Part::getInMemoryData() const {
   return m_inMemoryData;
 }
 
-data::v_io_size Part::getKnownSize() const {
+v_int64 Part::getKnownSize() const {
   return m_knownSize;
 }
 

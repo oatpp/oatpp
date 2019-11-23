@@ -30,7 +30,7 @@
 
 namespace oatpp { namespace base { namespace  memory {
 
-MemoryPool::MemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize)
+MemoryPool::MemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize)
   : m_name(name)
   , m_entrySize(entrySize)
   , m_chunkSize(chunkSize)
@@ -58,11 +58,11 @@ void MemoryPool::allocChunk() {
 #ifdef OATPP_DISABLE_POOL_ALLOCATIONS
   // DO NOTHING
 #else
-  v_int32 entryBlockSize = sizeof(EntryHeader) + m_entrySize;
-  v_int32 chunkMemSize = entryBlockSize * m_chunkSize;
+  v_buff_size entryBlockSize = sizeof(EntryHeader) + m_entrySize;
+  v_buff_size chunkMemSize = entryBlockSize * m_chunkSize;
   p_char8 mem = new v_char8[chunkMemSize];
   m_chunks.push_back(mem);
-  for(v_int32 i = 0; i < m_chunkSize; i++){
+  for(v_buff_size i = 0; i < m_chunkSize; i++){
     EntryHeader* entry = new (mem + i * entryBlockSize) EntryHeader(this, m_id, m_rootEntry);
     m_rootEntry = entry;
   }
@@ -118,15 +118,15 @@ std::string MemoryPool::getName(){
   return m_name;
 }
 
-v_int32 MemoryPool::getEntrySize(){
+v_buff_size MemoryPool::getEntrySize(){
   return m_entrySize;
 }
 
-v_int64 MemoryPool::getSize(){
+v_buff_size MemoryPool::getSize(){
   return m_chunks.size() * m_chunkSize;
 }
 
-v_int32 MemoryPool::getObjectsCount(){
+v_int64 MemoryPool::getObjectsCount(){
   return m_objectsCount;
 }
 
@@ -134,33 +134,33 @@ oatpp::concurrency::SpinLock MemoryPool::POOLS_SPIN_LOCK;
 std::unordered_map<v_int64, MemoryPool*> MemoryPool::POOLS;
 std::atomic<v_int64> MemoryPool::poolIdCounter(0);
 
-const v_int32 ThreadDistributedMemoryPool::SHARDS_COUNT_DEFAULT = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
+const v_int64 ThreadDistributedMemoryPool::SHARDS_COUNT_DEFAULT = OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT;
 
 #if defined(OATPP_DISABLE_POOL_ALLOCATIONS) || defined(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
-ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
+ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize, v_int64 shardsCount)
   : m_shardsCount(1)
   , m_shards(new MemoryPool*[1])
   , m_deleted(false)
 {
-  for(v_int32 i = 0; i < m_shardsCount; i++){
-    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int32ToStdStr(i), entrySize, chunkSize);
+  for(v_int64 i = 0; i < m_shardsCount; i++){
+    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int64ToStdStr(i), entrySize, chunkSize);
   }
 }
 #else
-ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_int32 entrySize, v_int32 chunkSize, v_int32 shardsCount)
+ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name, v_buff_size entrySize, v_buff_size chunkSize, v_int64 shardsCount)
   : m_shardsCount(shardsCount)
   , m_shards(new MemoryPool*[m_shardsCount])
   , m_deleted(false)
 {
-  for(v_int32 i = 0; i < m_shardsCount; i++){
-    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int32ToStdStr(i), entrySize, chunkSize);
+  for(v_int64 i = 0; i < m_shardsCount; i++){
+    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int64ToStdStr(i), entrySize, chunkSize);
   }
 }
 #endif
 
 ThreadDistributedMemoryPool::~ThreadDistributedMemoryPool(){
   m_deleted = true;
-  for(v_int32 i = 0; i < m_shardsCount; i++){
+  for(v_int64 i = 0; i < m_shardsCount; i++){
     delete m_shards[i];
   }
   delete [] m_shards;

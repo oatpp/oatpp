@@ -46,7 +46,7 @@ void DtoBody::declareHeaders(Headers& headers) noexcept {
   headers.putIfNotExists(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
 }
 
-data::v_io_size DtoBody::getKnownSize() {
+v_buff_size DtoBody::getKnownSize() {
   return m_buffer->getSize();
 }
 

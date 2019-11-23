@@ -265,7 +265,7 @@ void FullTest::onRun() {
       }
 
       { // test GET with query parameters
-        auto response = client->getWithQueriesMap("value1", 32, 0.32, connection);
+        auto response = client->getWithQueriesMap("value1", 32, 0.32f, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
@@ -273,7 +273,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testMap->count() == 3);
         OATPP_ASSERT(dto->testMap->get("key1", "") == "value1");
         OATPP_ASSERT(dto->testMap->get("key2", "") == "32");
-        OATPP_ASSERT(dto->testMap->get("key3", "") == oatpp::utils::conversion::float32ToStr(0.32));
+        OATPP_ASSERT(dto->testMap->get("key3", "") == oatpp::utils::conversion::float32ToStr(0.32f));
       }
 
       { // test GET with header parameter

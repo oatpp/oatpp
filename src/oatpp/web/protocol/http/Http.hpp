@@ -513,16 +513,16 @@ private:
 public:
   
   Range(const oatpp::String& pUnits,
-        const oatpp::data::v_io_size& pStart,
-        const oatpp::data::v_io_size& pEnd)
+        v_int64 pStart,
+        v_int64 pEnd)
     : units(pUnits)
     , start(pStart)
     , end(pEnd)
   {}
   
   oatpp::String units;
-  oatpp::data::v_io_size start;
-  oatpp::data::v_io_size end;
+  v_int64 start;
+  v_int64 end;
   
   oatpp::String toString() const;
   
@@ -545,9 +545,9 @@ private:
 public:
   
   ContentRange(const oatpp::String& pUnits,
-               const oatpp::data::v_io_size& pStart,
-               const oatpp::data::v_io_size& pEnd,
-               const oatpp::data::v_io_size& pSize,
+               v_int64 pStart,
+               v_int64 pEnd,
+               v_int64 pSize,
                bool pIsSizeKnown)
     : units(pUnits)
     , start(pStart)
@@ -557,9 +557,9 @@ public:
   {}
   
   oatpp::String units;
-  oatpp::data::v_io_size start;
-  oatpp::data::v_io_size end;
-  oatpp::data::v_io_size size;
+  v_int64 start;
+  v_int64 end;
+  v_int64 size;
   bool isSizeKnown;
   
   oatpp::String toString() const;

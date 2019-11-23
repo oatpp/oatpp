@@ -46,12 +46,12 @@ public:
    */
   typedef oatpp::data::stream::AsyncReadCallback AsyncReadCallback;
 private:
-  bool writeData(OutputStream* stream, const void* data, data::v_io_size size);
+  bool writeData(OutputStream* stream, const void* data, v_buff_size size);
 private:
   std::shared_ptr<ReadCallback> m_readCallback;
   std::shared_ptr<AsyncReadCallback> m_asyncReadCallback;
   p_char8 m_buffer;
-  data::v_io_size m_bufferSize;
+  v_buff_size m_bufferSize;
 public:
 
   /**
@@ -62,7 +62,7 @@ public:
    */
   ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback,
               const std::shared_ptr<AsyncReadCallback>& asyncReadCallback,
-              data::v_io_size chunkBufferSize);
+              v_buff_size chunkBufferSize);
 
   /**
    * virtual destructor.
@@ -92,7 +92,7 @@ public:
    * Body size of chunked body is unknown.
    * @return - `-1`. &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size getKnownSize() override;
+  v_buff_size getKnownSize() override;
 
 };
 

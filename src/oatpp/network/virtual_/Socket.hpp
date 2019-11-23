@@ -74,7 +74,7 @@ public:
    * @param count - buffer size.
    * @return - actual amount of data read from socket.
    */
-  data::v_io_size read(void *data, data::v_io_size count) override;
+  data::v_io_size read(void *data, v_buff_size count) override;
 
   /**
    * Write data to socket.
@@ -82,7 +82,7 @@ public:
    * @param count - data size.
    * @return - actual amount of data written to socket.
    */
-  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
 
   /**
    * Implementation of OutputStream must suggest async actions for I/O results.

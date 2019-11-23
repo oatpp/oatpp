@@ -46,7 +46,7 @@ oatpp::async::CoroutineStarter ChunkedBufferBody::writeToStreamAsync(const std::
   return m_buffer->flushToStreamAsync(stream);
 }
 
-data::v_io_size ChunkedBufferBody::getKnownSize() {
+v_buff_size ChunkedBufferBody::getKnownSize() {
   return m_buffer->getSize();
 }
 

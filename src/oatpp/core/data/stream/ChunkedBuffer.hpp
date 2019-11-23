@@ -45,14 +45,12 @@ public:
   
   static const char* const CHUNK_POOL_NAME;
   
-  static const data::v_io_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
-  static const data::v_io_size CHUNK_ENTRY_SIZE;
-  static const data::v_io_size CHUNK_CHUNK_SIZE;
+  static const v_buff_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
+  static const v_buff_size CHUNK_ENTRY_SIZE;
+  static const v_buff_size CHUNK_CHUNK_SIZE;
 
   static oatpp::base::memory::ThreadDistributedMemoryPool& getSegemntPool(){
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool(CHUNK_POOL_NAME,
-                                                                 (v_int32) CHUNK_ENTRY_SIZE,
-                                                                 (v_int32) CHUNK_CHUNK_SIZE);
+    static oatpp::base::memory::ThreadDistributedMemoryPool pool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE,  CHUNK_CHUNK_SIZE);
     return pool;
   }
   
@@ -84,26 +82,26 @@ public:
     SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Chunk_Pool, Chunk, 32)
   public:
     
-    Chunk(void* pData, data::v_io_size pSize)
+    Chunk(void* pData, v_buff_size pSize)
       : data(pData)
       , size(pSize)
     {}
     
-    static std::shared_ptr<Chunk> createShared(void* data, data::v_io_size size){
+    static std::shared_ptr<Chunk> createShared(void* data, v_buff_size size){
       return Shared_ChunkedBuffer_Chunk_Pool::allocateShared(data, size);
     }
     
     const void* data;
-    const data::v_io_size size;
+    const v_buff_size size;
     
   };
   
 public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<Chunk>> Chunks;
 private:
-  
-  data::v_io_size m_size;
-  data::v_io_size m_chunkPos;
+
+  v_buff_size m_size;
+  v_buff_size m_chunkPos;
   ChunkEntry* m_firstEntry;
   ChunkEntry* m_lastEntry;
   IOMode m_ioMode;
@@ -114,19 +112,19 @@ private:
   void freeEntry(ChunkEntry* entry);
   
   data::v_io_size writeToEntry(ChunkEntry* entry,
-                                       const void *data,
-                                       data::v_io_size count,
-                                       data::v_io_size& outChunkPos);
+                               const void *data,
+                               v_buff_size count,
+                               v_buff_size& outChunkPos);
   
   data::v_io_size writeToEntryFrom(ChunkEntry* entry,
-                                           data::v_io_size inChunkPos,
-                                           const void *data,
-                                           data::v_io_size count,
-                                           data::v_io_size& outChunkPos);
+                                   v_buff_size inChunkPos,
+                                   const void *data,
+                                   v_buff_size count,
+                                   v_buff_size& outChunkPos);
   
   ChunkEntry* getChunkForPosition(ChunkEntry* fromChunk,
-                                      data::v_io_size pos,
-                                      data::v_io_size& outChunkPos);
+                                  v_buff_size pos,
+                                  v_buff_size& outChunkPos);
   
 public:
 
@@ -165,7 +163,7 @@ public:
    * @param count - size of data in bytes.
    * @return - actual number of bytes written.
    */
-  data::v_io_size write(const void *data, data::v_io_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
 
   /**
    * Set stream I/O mode.
@@ -186,7 +184,7 @@ public:
    * @param count - number of bytes to read.
    * @return - actual number of bytes read from ChunkedBuffer and written to buffer.
    */
-  data::v_io_size readSubstring(void *buffer, data::v_io_size pos, data::v_io_size count);
+  data::v_io_size readSubstring(void *buffer, v_buff_size pos, v_buff_size count);
 
   /**
    * Create &id:oatpp::String; from part of ChunkedBuffer.
@@ -194,7 +192,7 @@ public:
    * @param count - size of bytes to write to substring.
    * @return - &id:oatpp::String;
    */
-  oatpp::String getSubstring(data::v_io_size pos, data::v_io_size count);
+  oatpp::String getSubstring(v_buff_size pos, v_buff_size count);
 
   /**
    * Create &id:oatpp::String; from all data in ChunkedBuffer.
@@ -225,7 +223,7 @@ public:
    * Get number of bytes written to ChunkedBuffer.
    * @return - number of bytes written to ChunkedBuffer.
    */
-  data::v_io_size getSize();
+  v_buff_size getSize();
 
   /**
    * Clear data in ChunkedBuffer.

@@ -26,7 +26,7 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-data::v_io_size OutputStreamBufferedProxy::write(const void *data, data::v_io_size count) {
+data::v_io_size OutputStreamBufferedProxy::write(const void *data, v_buff_size count) {
   if(m_buffer.availableToWrite() > 0) {
     return m_buffer.write(data, count);
   } else {
@@ -61,7 +61,7 @@ oatpp::async::CoroutineStarter OutputStreamBufferedProxy::flushAsync() {
   return m_buffer.flushToStreamAsync(m_outputStream);
 }
   
-data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count) {
+data::v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count) {
   
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.read(data, count);
@@ -75,7 +75,7 @@ data::v_io_size InputStreamBufferedProxy::read(void *data, data::v_io_size count
   
 }
 
-data::v_io_size InputStreamBufferedProxy::peek(void *data, data::v_io_size count) {
+data::v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count) {
 
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.peek(data, count);
@@ -89,7 +89,7 @@ data::v_io_size InputStreamBufferedProxy::peek(void *data, data::v_io_size count
 
 }
 
-data::v_io_size InputStreamBufferedProxy::commitReadOffset(data::v_io_size count) {
+data::v_io_size InputStreamBufferedProxy::commitReadOffset(v_buff_size count) {
   return m_buffer.commitReadOffset(count);
 }
 

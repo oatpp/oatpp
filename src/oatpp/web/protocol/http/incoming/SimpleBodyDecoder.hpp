@@ -34,7 +34,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class SimpleBodyDecoder : public BodyDecoder {
 private:
-  static data::v_io_size readLine(data::stream::InputStream* fromStream, p_char8 buffer, data::v_io_size maxLineSize);
+  static data::v_io_size readLine(data::stream::InputStream* fromStream, p_char8 buffer, v_buff_size maxLineSize);
 
   static void doChunkedDecoding(data::stream::InputStream* from, data::stream::WriteCallback* writeCallback);
   

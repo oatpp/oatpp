@@ -37,8 +37,8 @@ namespace oatpp { namespace parser {
 class ParsingError : public std::runtime_error {
 private:
   oatpp::String m_message;
-  v_int32 m_code;
-  v_int32 m_position;
+  v_int64 m_code;
+  v_buff_size m_position;
 public:
 
   /**
@@ -46,7 +46,7 @@ public:
    * @param message
    * @param position
    */
-  ParsingError(const oatpp::String &message, v_int32 code, v_int32 position);
+  ParsingError(const oatpp::String &message, v_int64 code, v_buff_size position);
 
   /**
    * get error message
@@ -58,13 +58,13 @@ public:
    * get error code
    * @return
    */
-  v_int32 getCode() const;
+  v_int64 getCode() const;
 
   /**
    * get parsing position of the error
    * @return
    */
-  v_int32 getPosition() const;
+  v_buff_size getPosition() const;
 
 };
 

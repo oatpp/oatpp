@@ -95,7 +95,7 @@ void DTOMapperTest::onRun(){
   test1->field_string = "string value";
   test1->field_int32 = 32;
   test1->field_int64 = 64;
-  test1->field_float32 = 0.32;
+  test1->field_float32 = 0.32f;
   test1->field_float64 = 0.64;
   test1->field_boolean = true;
   
@@ -121,9 +121,9 @@ void DTOMapperTest::onRun(){
   test1->field_list_int64->pushBack(642);
   test1->field_list_int64->pushBack(643);
   
-  test1->field_list_float32->pushBack(0.321);
-  test1->field_list_float32->pushBack(0.322);
-  test1->field_list_float32->pushBack(0.323);
+  test1->field_list_float32->pushBack(0.321f);
+  test1->field_list_float32->pushBack(0.322f);
+  test1->field_list_float32->pushBack(0.323f);
   
   test1->field_list_float64->pushBack(0.641);
   test1->field_list_float64->pushBack(0.642);
