@@ -33,7 +33,7 @@ namespace oatpp { namespace utils { namespace random {
   oatpp::concurrency::SpinLock Random::RANDOM_LOCK;
 #endif
 
-void Random::randomBytes(p_char8 buffer, v_int32 bufferSize) {
+void Random::randomBytes(p_char8 buffer, v_buff_size bufferSize) {
 
 #if defined(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
   std::lock_guard<oatpp::concurrency::SpinLock> randomLock(RANDOM_LOCK);
@@ -41,7 +41,7 @@ void Random::randomBytes(p_char8 buffer, v_int32 bufferSize) {
 
   std::uniform_int_distribution<size_t> distribution(0, 255);
 
-  for(v_int32 i = 0; i < bufferSize; i ++) {
+  for(v_buff_size i = 0; i < bufferSize; i ++) {
     buffer[i] = (v_char8) distribution(RANDOM_GENERATOR);
   }
 

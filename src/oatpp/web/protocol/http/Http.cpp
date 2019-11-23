@@ -164,9 +164,9 @@ Range Range::parse(oatpp::parser::Caret& caret) {
   auto endLabel = caret.putLabel();
   caret.findRN();
   endLabel.end();
-  
-  oatpp::data::v_io_size start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
-  oatpp::data::v_io_size end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+
+  auto start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
+  auto end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
   return Range(unitsLabel.toString(true), start, end);
   
 }
@@ -225,9 +225,9 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   sizeLabel.end();
   
-  oatpp::data::v_io_size start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
-  oatpp::data::v_io_size end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
-  oatpp::data::v_io_size size = 0;
+  v_int64 start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
+  v_int64 end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  v_int64 size = 0;
   bool isSizeKnown = false;
   if(sizeLabel.getData()[0] != '*') {
     isSizeKnown = true;

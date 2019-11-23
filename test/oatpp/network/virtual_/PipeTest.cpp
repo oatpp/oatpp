@@ -46,8 +46,8 @@ namespace {
   private:
     std::shared_ptr<Pipe> m_pipe;
     v_int64 m_chunksToTransfer;
-    data::v_io_size m_position = 0;
-    data::v_io_size m_transferedBytes = 0;
+    v_buff_size m_position = 0;
+    v_buff_size m_transferedBytes = 0;
   public:
     
     WriterTask(const std::shared_ptr<Pipe>& pipe, v_int64 chunksToTransfer)

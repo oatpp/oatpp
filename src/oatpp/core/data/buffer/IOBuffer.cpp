@@ -42,7 +42,7 @@ void* IOBuffer::getData(){
   return m_entry;
 }
 
-v_int32 IOBuffer::getSize(){
+v_buff_size IOBuffer::getSize(){
   return BUFFER_SIZE;
 }
   

@@ -143,7 +143,7 @@ ThreadDistributedMemoryPool::ThreadDistributedMemoryPool(const std::string& name
   , m_deleted(false)
 {
   for(v_int64 i = 0; i < m_shardsCount; i++){
-    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int32ToStdStr(i), entrySize, chunkSize);
+    m_shards[i] = new MemoryPool(name + "_" + oatpp::utils::conversion::int64ToStdStr(i), entrySize, chunkSize);
   }
 }
 #else

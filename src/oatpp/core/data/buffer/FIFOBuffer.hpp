@@ -54,8 +54,8 @@ public:
    * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
    * &l:FIFOBuffer::availableToRead (); returns buffer size, and &l:FIFOBuffer::availableToWrite (); returns 0.
    */
-  FIFOBuffer(void* buffer, v_io_size bufferSize,
-             data::v_io_size readPosition = 0, data::v_io_size writePosition = 0,
+  FIFOBuffer(void* buffer, v_buff_size bufferSize,
+             v_buff_size readPosition = 0, v_buff_size writePosition = 0,
              bool canRead = false);
 
   /**
@@ -65,7 +65,7 @@ public:
    * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
    * &l:FIFOBuffer::availableToRead (); returns buffer size, and &l:FIFOBuffer::availableToWrite (); returns 0.
    */
-  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead);
+  void setBufferPosition(v_buff_size readPosition, v_buff_size writePosition, bool canRead);
 
   /**
    * Amount of bytes currently available to read from buffer.
@@ -83,7 +83,7 @@ public:
    * Get FIFOBuffer size.
    * @return - FIFOBuffer size.
    */
-  data::v_io_size getBufferSize() const;
+  v_buff_size getBufferSize() const;
 
   /**
    * read up to count bytes from the buffer to data
@@ -167,8 +167,8 @@ public:
    * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
    * &l:SynchronizedFIFOBuffer::availableToRead (); returns buffer size, and &l:SynchronizedFIFOBuffer::availableToWrite (); returns 0.
    */
-  SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize,
-                         data::v_io_size readPosition = 0, data::v_io_size writePosition = 0,
+  SynchronizedFIFOBuffer(void* buffer, v_buff_size bufferSize,
+                         v_buff_size readPosition = 0, v_buff_size writePosition = 0,
                          bool canRead = false);
 
   /**
@@ -178,7 +178,7 @@ public:
    * @param canRead - flag to resolve ambiguity when readPosition == writePosition. If(readPosition == writePosition && canRead) then
    * &l:SynchronizedFIFOBuffer::availableToRead (); returns buffer size, and &l:SynchronizedFIFOBuffer::availableToWrite (); returns 0.
    */
-  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead);
+  void setBufferPosition(v_buff_size readPosition, v_buff_size writePosition, bool canRead);
 
   /**
    * Amount of bytes currently available to read from buffer.

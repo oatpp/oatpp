@@ -27,8 +27,8 @@
 
 namespace oatpp { namespace data{ namespace buffer {
 
-FIFOBuffer::FIFOBuffer(void* buffer, v_io_size bufferSize,
-                       data::v_io_size readPosition, data::v_io_size writePosition,
+FIFOBuffer::FIFOBuffer(void* buffer, v_buff_size bufferSize,
+                       v_buff_size readPosition, v_buff_size writePosition,
                        bool canRead)
   : m_buffer((p_char8)buffer)
   , m_bufferSize(bufferSize)
@@ -37,7 +37,7 @@ FIFOBuffer::FIFOBuffer(void* buffer, v_io_size bufferSize,
   , m_canRead(canRead)
 {}
 
-void FIFOBuffer::setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
+void FIFOBuffer::setBufferPosition(v_buff_size readPosition, v_buff_size writePosition, bool canRead) {
   m_readPosition = readPosition;
   m_writePosition = writePosition;
   m_canRead = canRead;
@@ -63,7 +63,7 @@ data::v_io_size FIFOBuffer::availableToWrite() const {
   return (m_bufferSize - m_writePosition + m_readPosition);
 }
 
-data::v_io_size FIFOBuffer::getBufferSize() const {
+v_buff_size FIFOBuffer::getBufferSize() const {
   return m_bufferSize;
 }
 
@@ -435,13 +435,13 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
 //////////////////////////////////////////////////////////////////////////////////////////
 // SynchronizedFIFOBuffer
 
-SynchronizedFIFOBuffer::SynchronizedFIFOBuffer(void* buffer, v_io_size bufferSize,
-                                               data::v_io_size readPosition, data::v_io_size writePosition,
+SynchronizedFIFOBuffer::SynchronizedFIFOBuffer(void* buffer, v_buff_size bufferSize,
+                                               v_buff_size readPosition, v_buff_size writePosition,
                                                bool canRead)
   : m_fifo(buffer, bufferSize, readPosition, writePosition, canRead)
 {}
 
-void SynchronizedFIFOBuffer::setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
+void SynchronizedFIFOBuffer::setBufferPosition(v_buff_size readPosition, v_buff_size writePosition, bool canRead) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   m_fifo.setBufferPosition(readPosition, writePosition, canRead);
 }

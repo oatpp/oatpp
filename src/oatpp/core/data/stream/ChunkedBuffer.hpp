@@ -45,14 +45,12 @@ public:
   
   static const char* const CHUNK_POOL_NAME;
   
-  static const data::v_io_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
-  static const data::v_io_size CHUNK_ENTRY_SIZE;
-  static const data::v_io_size CHUNK_CHUNK_SIZE;
+  static const v_buff_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
+  static const v_buff_size CHUNK_ENTRY_SIZE;
+  static const v_buff_size CHUNK_CHUNK_SIZE;
 
   static oatpp::base::memory::ThreadDistributedMemoryPool& getSegemntPool(){
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool(CHUNK_POOL_NAME,
-                                                                 (v_int32) CHUNK_ENTRY_SIZE,
-                                                                 (v_int32) CHUNK_CHUNK_SIZE);
+    static oatpp::base::memory::ThreadDistributedMemoryPool pool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE,  CHUNK_CHUNK_SIZE);
     return pool;
   }
   
@@ -84,7 +82,7 @@ public:
     SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Chunk_Pool, Chunk, 32)
   public:
     
-    Chunk(void* pData, data::v_io_size pSize)
+    Chunk(void* pData, v_buff_size pSize)
       : data(pData)
       , size(pSize)
     {}
@@ -94,7 +92,7 @@ public:
     }
     
     const void* data;
-    const data::v_io_size size;
+    const v_buff_size size;
     
   };
   

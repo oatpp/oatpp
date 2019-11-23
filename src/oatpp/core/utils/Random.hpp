@@ -49,7 +49,7 @@ public:
    * @param buffer - pointer to buffer.
    * @param bufferSize - size of the buffer.
    */
-  static void randomBytes(p_char8 buffer, v_int32 bufferSize);
+  static void randomBytes(p_char8 buffer, v_buff_size bufferSize);
 
 };
 

@@ -42,7 +42,7 @@ public:
   /**
    * Buffer size constant.
    */
-  static constexpr v_int32 BUFFER_SIZE = 4096;
+  static constexpr v_buff_size BUFFER_SIZE = 4096;
 private:
   static oatpp::base::memory::ThreadDistributedMemoryPool& getBufferPool(){
     static oatpp::base::memory::ThreadDistributedMemoryPool pool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
@@ -78,7 +78,7 @@ public:
    * Get buffer size.
    * @return - should always return &l:IOBuffer::BUFFER_SIZE;.
    */
-  v_int32 getSize();
+  v_buff_size getSize();
   
 };
   

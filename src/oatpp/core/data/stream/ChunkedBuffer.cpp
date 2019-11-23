@@ -30,10 +30,10 @@ const char* ChunkedBuffer::ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA = "ERROR_ASYNC_F
   
 const char* const ChunkedBuffer::CHUNK_POOL_NAME = "ChunkedBuffer_Chunk_Pool";
 
-const data::v_io_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
-const data::v_io_size ChunkedBuffer::CHUNK_ENTRY_SIZE =
+const v_buff_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
+const v_buff_size ChunkedBuffer::CHUNK_ENTRY_SIZE =
                                               (1 << ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT);
-const data::v_io_size ChunkedBuffer::CHUNK_CHUNK_SIZE = 32;
+const v_buff_size ChunkedBuffer::CHUNK_CHUNK_SIZE = 32;
 
 ChunkedBuffer::ChunkedBuffer()
   : m_size(0)

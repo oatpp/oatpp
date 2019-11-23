@@ -62,12 +62,12 @@ p_word32 CRC32::generateTable(v_word32 poly) {
   
 }
   
-v_word32 CRC32::calc(const void *buffer, v_int32 size, v_word32 crc, v_word32 initValue, v_word32 xorOut, p_word32 table) {
+v_word32 CRC32::calc(const void *buffer, v_buff_size size, v_word32 crc, v_word32 initValue, v_word32 xorOut, p_word32 table) {
   
   p_word8 data = (p_word8) buffer;
   crc = crc ^ initValue;
   
-  for(v_int32 i = 0; i < size; i++) {
+  for(v_buff_size i = 0; i < size; i++) {
     crc = table[(crc & 0xFF) ^ data[i]] ^ (crc >> 8);
   }
   

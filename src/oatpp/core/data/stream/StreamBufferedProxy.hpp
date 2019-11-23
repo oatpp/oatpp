@@ -36,8 +36,6 @@ class OutputStreamBufferedProxy : public oatpp::base::Countable, public OutputSt
 public:
   OBJECT_POOL(OutputStreamBufferedProxy_Pool, OutputStreamBufferedProxy, 32)
   SHARED_OBJECT_POOL(Shared_OutputStreamBufferedProxy_Pool, OutputStreamBufferedProxy, 32)
-public:
-  typedef v_int32 v_bufferSize;
 private:
   std::shared_ptr<OutputStream> m_outputStream;
   oatpp::data::share::MemoryLabel m_memoryLabel;
@@ -84,8 +82,6 @@ class InputStreamBufferedProxy : public oatpp::base::Countable, public InputStre
 public:
   OBJECT_POOL(InputStreamBufferedProxy_Pool, InputStreamBufferedProxy, 32)
   SHARED_OBJECT_POOL(Shared_InputStreamBufferedProxy_Pool, InputStreamBufferedProxy, 32)
-public:
-  typedef v_int32 v_bufferSize;
 protected:
   std::shared_ptr<InputStream> m_inputStream;
   oatpp::data::share::MemoryLabel m_memoryLabel;

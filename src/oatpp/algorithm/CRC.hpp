@@ -60,7 +60,7 @@ public:
    * @param table
    * @return - CRC32 value (v_word32)
    */
-  static v_word32 calc(const void *buffer, v_int32 size, v_word32 crc = 0, v_word32 initValue = 0xFFFFFFFF, v_word32 xorOut = 0xFFFFFFFF, p_word32 table = TABLE_04C11DB7);
+  static v_word32 calc(const void *buffer, v_buff_size size, v_word32 crc = 0, v_word32 initValue = 0xFFFFFFFF, v_word32 xorOut = 0xFFFFFFFF, p_word32 table = TABLE_04C11DB7);
   
 };
     
