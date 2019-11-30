@@ -45,11 +45,12 @@ private:
 private:
   void writeIndent(ConsistentOutputStream* outputStream);
 public:
-
+  
   /**
    * Constructor.
    * @param outputStream - destination output stream.
    * @param indent
+   * @param newLine
    */
   Beautifier(ConsistentOutputStream* outputStream, const oatpp::String& indent, const oatpp::String& newLine);
 
