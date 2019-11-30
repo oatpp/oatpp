@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace oatpp { namespace parser { namespace json{
+namespace oatpp { namespace parser { namespace json {
 
 /**
  * Utility class for json serializer/deserializer.

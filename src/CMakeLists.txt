@@ -140,6 +140,8 @@ add_library(oatpp
         oatpp/network/virtual_/client/ConnectionProvider.hpp
         oatpp/network/virtual_/server/ConnectionProvider.cpp
         oatpp/network/virtual_/server/ConnectionProvider.hpp
+        oatpp/parser/json/Beautifier.cpp
+        oatpp/parser/json/Beautifier.hpp
         oatpp/parser/json/Utils.cpp
         oatpp/parser/json/Utils.hpp
         oatpp/parser/json/mapping/Deserializer.cpp
