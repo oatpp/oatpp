@@ -94,29 +94,6 @@ private:
   
 private:
   
-  Entry* getEntry(v_int32 index) const{
-    
-    if(index >= m_count){
-      return nullptr;
-    }
-    
-    v_int32 i = 0;
-    Entry* curr = m_first;
-    
-    while(curr != nullptr){
-      
-      if(i == index){
-        return curr;
-      }
-      
-      curr = curr->next;
-      i++;
-    }
-    
-    return nullptr;
-    
-  }
-  
   template<class Key>
   Entry* getEntryByKey(const Key& key) const{
     
@@ -246,7 +223,30 @@ public:
     
     return V::empty();
   }
-  
+
+  Entry* getEntryByIndex(v_int32 index) const{
+
+    if(index >= m_count){
+      return nullptr;
+    }
+
+    v_int32 i = 0;
+    Entry* curr = m_first;
+
+    while(curr != nullptr){
+
+      if(i == index){
+        return curr;
+      }
+
+      curr = curr->next;
+      i++;
+    }
+
+    return nullptr;
+
+  }
+
   Entry* getFirstEntry() const {
     return m_first;
   }

@@ -142,5 +142,38 @@ void Serializer::writeValue(oatpp::data::stream::ConsistentOutputStream* stream,
   }
   
 }
+
+void Serializer::serializeToStream(oatpp::data::stream::ConsistentOutputStream* stream,
+                                   const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
+                                   const std::shared_ptr<Config>& config)
+{
+
+  auto type = polymorph.valueType;
+  if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
+    writeObject(stream, oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
+  } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
+    writeList(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
+  } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
+    writeFieldsMap(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
+  } else {
+    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
+  }
+
+}
+
+void Serializer::serialize(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
+                           const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
+                           const std::shared_ptr<Config>& config)
+{
+
+  if(config->useBeautifier) {
+    json::Beautifier beautifier(stream.get(), "  ", "\n");
+    serializeToStream(&beautifier, polymorph, config);
+  } else {
+    serializeToStream(stream.get(), polymorph, config);
+  }
+
+
+}
   
 }}}}

@@ -25,6 +25,8 @@
 #ifndef oatpp_parser_json_mapping_Serializer_hpp
 #define oatpp_parser_json_mapping_Serializer_hpp
 
+#include "oatpp/parser/json/Beautifier.hpp"
+
 #include "oatpp/core/data/mapping/type/ListMap.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
@@ -92,6 +94,21 @@ public:
      * (String, Int8, Int16, Int32, Int64, Float32, Float64, Boolean, DTOs, List, Fields).
      */
     bool throwOnUnknownTypes = true;
+
+    /**
+     * Use JSON Beautifier.
+     */
+    bool useBeautifier = false;
+
+    /**
+     * Beautifier Indent.
+     */
+    oatpp::String beautifierIndent = "  ";
+
+    /**
+     * Beautifier new line.
+     */
+    oatpp::String beautifierNewLine = "\n";
     
   };
   
@@ -114,7 +131,11 @@ private:
   static void writeObject(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<Object>& polymorph, const std::shared_ptr<Config>& config);
   
   static void writeValue(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config);
-  
+
+  static void serializeToStream(oatpp::data::stream::ConsistentOutputStream* stream,
+                                const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
+                                const std::shared_ptr<Config>& config);
+
 public:
 
   /**
@@ -125,18 +146,7 @@ public:
    */
   static void serialize(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
                         const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
-                        const std::shared_ptr<Config>& config){
-    auto type = polymorph.valueType;
-    if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
-      writeObject(stream.get(), oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
-      writeList(stream.get(), oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
-      writeFieldsMap(stream.get(), oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
-    } else {
-      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
-    }
-  }
+                        const std::shared_ptr<Config>& config);
   
 };
   
