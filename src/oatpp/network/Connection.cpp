@@ -25,12 +25,13 @@
 #include "./Connection.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-#include <io.h>
-#include <WinSock2.h>
+  #include <io.h>
+  #include <WinSock2.h>
 #else
-#include <unistd.h>
-#include <sys/socket.h>
+  #include <unistd.h>
+  #include <sys/socket.h>
 #endif
+
 #include <thread>
 #include <chrono>
 #include <fcntl.h>
@@ -152,24 +153,25 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
 #if defined(WIN32) || defined(_WIN32)
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
-    u_long flags;
+  u_long flags;
 
-    switch(ioMode) {
-        case data::stream::BLOCKING:
-            flags = 0;
-            if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
-                throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
-            }
-            m_mode = data::stream::BLOCKING;
-            break;
-        case data::stream::NON_BLOCKING:
-            flags = 1;
-            if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
-                throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
-            }
-            m_mode = data::stream::NON_BLOCKING;
-            break;
-    }
+  switch(ioMode) {
+    case data::stream::BLOCKING:
+      flags = 0;
+      if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
+          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
+      }
+      m_mode = data::stream::BLOCKING;
+      break;
+    case data::stream::NON_BLOCKING:
+      flags = 1;
+      if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
+          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+      }
+      m_mode = data::stream::NON_BLOCKING;
+      break;
+  }
+
 }
 #else
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
@@ -201,7 +203,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
 #if defined(WIN32) || defined(_WIN32)
 oatpp::data::stream::IOMode Connection::getStreamIOMode() {
-    return m_mode;
+  return m_mode;
 }
 #else
 oatpp::data::stream::IOMode Connection::getStreamIOMode() {
@@ -233,7 +235,7 @@ oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioRes
       return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
   }
 
-  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+  throw std::runtime_error("[oatpp::network::Connection::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
 
 }
 
@@ -250,7 +252,7 @@ oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResu
       return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
   }
 
-  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
+  throw std::runtime_error("[oatpp::network::Connection::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
 
 
 }
