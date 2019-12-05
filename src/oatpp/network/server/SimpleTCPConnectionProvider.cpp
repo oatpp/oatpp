@@ -25,20 +25,20 @@
 #include "./SimpleTCPConnectionProvider.hpp"
 
 #include "oatpp/network/Connection.hpp"
-
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+
 #if defined(WIN32) || defined(_WIN32)
-#include <io.h>
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+  #include <io.h>
+  #include <WinSock2.h>
+  #include <WS2tcpip.h>
 #else
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/tcp.h>
-#include <unistd.h>
+  #include <netdb.h>
+  #include <arpa/inet.h>
+  #include <sys/socket.h>
+  #include <netinet/tcp.h>
+  #include <unistd.h>
 #endif
 
 namespace oatpp { namespace network { namespace server {

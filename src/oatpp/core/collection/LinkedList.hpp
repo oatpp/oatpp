@@ -85,29 +85,6 @@ private:
     node->~LinkedListNode();
     oatpp::base::memory::MemoryPool::free(node);
   }
-
-  LinkedListNode* getNode(v_int32 index) const{
-    
-    if(index >= m_count){
-      return nullptr;
-    }
-    
-    v_int32 i = 0;
-    LinkedListNode* curr = m_first;
-    
-    while(curr != nullptr){
-      
-      if(i == index){
-        return curr;
-      }
-      
-      curr = curr->next;
-      i++;
-    }
-    
-    return nullptr;
-    
-  }
   
 public:
   
@@ -217,6 +194,29 @@ public:
     
     throw std::runtime_error("[oatpp::collection::LinkedList::get(index)]: index out of bounds");
     
+  }
+
+  LinkedListNode* getNode(v_int32 index) const {
+
+    if(index >= m_count){
+      return nullptr;
+    }
+
+    v_int32 i = 0;
+    LinkedListNode* curr = m_first;
+
+    while(curr != nullptr){
+
+      if(i == index){
+        return curr;
+      }
+
+      curr = curr->next;
+      i++;
+    }
+
+    return nullptr;
+
   }
   
   LinkedListNode* getFirstNode() const {
