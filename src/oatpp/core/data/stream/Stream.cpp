@@ -35,6 +35,44 @@ const Context::Properties& Context::getProperties() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IOStream
+
+void IOStream::initContexts() {
+
+  auto* inStreamContext = getInputStreamContext();
+  if (inStreamContext && !inStreamContext->isInitialized()) {
+    inStreamContext->init();
+  }
+
+  auto* outStreamContext = getOutputStreamContext();
+  if(outStreamContext && outStreamContext != inStreamContext && !outStreamContext->isInitialized()) {
+    outStreamContext->init();
+  }
+
+}
+
+/**
+ * Init input/output stream contexts in an async manner.
+ */
+async::CoroutineStarter IOStream::initContextsAsync() {
+
+  async::CoroutineStarter starter(nullptr);
+
+  auto* inStreamContext = getInputStreamContext();
+  if (inStreamContext && !inStreamContext->isInitialized()) {
+    starter.next(inStreamContext->initAsync());
+  }
+
+  auto* outStreamContext = getOutputStreamContext();
+  if(outStreamContext && outStreamContext != inStreamContext && !outStreamContext->isInitialized()) {
+    starter.next(outStreamContext->initAsync());
+  }
+
+  return starter;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConsistentOutputStream
 
 oatpp::async::Action ConsistentOutputStream::suggestOutputStreamAction(data::v_io_size ioResult) {

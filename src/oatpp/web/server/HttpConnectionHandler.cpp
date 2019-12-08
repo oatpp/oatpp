@@ -62,6 +62,8 @@ HttpConnectionHandler::Task::createShared(HttpRouter* router,
 
 void HttpConnectionHandler::Task::run(){
 
+  m_connection->initContexts();
+
   const v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
   v_char8 bufferMemory[bufferSize];
 

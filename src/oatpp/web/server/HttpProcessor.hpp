@@ -101,6 +101,8 @@ public:
     {}
     
     Action act() override;
+
+    Action parseHeaders();
     
     Action onHeadersParsed(const RequestHeadersReader::Result& headersReadResult);
     

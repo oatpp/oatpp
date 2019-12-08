@@ -93,21 +93,29 @@ HttpProcessor::processRequest(HttpRouter* router,
   
 // HttpProcessor::Coroutine
   
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
+  return m_connection->initContextsAsync().next(yieldTo(&HttpProcessor::Coroutine::parseHeaders));
+}
+
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseHeaders() {
+  return m_headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
+}
+
 oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHeadersReader::Result& headersReadResult) {
-  
+
   m_currentRoute = m_router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
-  
+
   if(!m_currentRoute) {
     m_currentResponse = m_errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
-  
+
   m_currentRequest = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
                                                                      m_currentRoute.matchMap,
                                                                      headersReadResult.headers,
                                                                      m_inStream,
                                                                      m_bodyDecoder);
-  
+
   auto currInterceptor = m_requestInterceptors->getFirstNode();
   while (currInterceptor != nullptr) {
     m_currentResponse = currInterceptor->getData()->intercept(m_currentRequest);
@@ -116,13 +124,9 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
     }
     currInterceptor = currInterceptor->getNext();
   }
-  
+
   return yieldTo(&HttpProcessor::Coroutine::onRequestFormed);
-  
-}
-  
-HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
-  return m_headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
+
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
@@ -146,7 +150,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   
   if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
-    return yieldTo(&HttpProcessor::Coroutine::act);
+    return yieldTo(&HttpProcessor::Coroutine::parseHeaders);
   }
   
   if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {

@@ -237,7 +237,17 @@ public:
  */
 class IOStream : public InputStream, public OutputStream {
 public:
-  typedef data::v_io_size v_size;
+
+  /**
+   * Init input/output stream contexts.
+   */
+  void initContexts();
+
+  /**
+   * Init input/output stream contexts in an async manner.
+   */
+  async::CoroutineStarter initContextsAsync();
+
 };
 
 class CompoundIOStream : public oatpp::base::Countable, public IOStream {
