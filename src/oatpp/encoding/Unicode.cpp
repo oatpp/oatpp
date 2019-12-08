@@ -27,7 +27,7 @@
 #include "./Hex.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-#include <Winsock.h>
+#include <Winsock2.h>
 #else
 #include <arpa/inet.h>
 #endif
