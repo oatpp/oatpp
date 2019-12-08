@@ -25,12 +25,71 @@
 #ifndef oatpp_data_Stream
 #define oatpp_data_Stream
 
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp/core/data/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
+
+/**
+ * Stream Type.
+ */
+enum StreamType : v_int32 {
+
+  /**
+   * Finite stream.
+   */
+  FINITE = 0,
+
+  /**
+   * Infinite stream.
+   */
+  INFINITE = 1
+};
+
+
+/**
+ * Stream Context.
+ */
+class Context {
+public:
+  typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> Properties;
+protected:
+  Properties m_properties;
+public:
+
+  /**
+   * Initialize stream context.
+   */
+  virtual void init() = 0;
+
+  /**
+   * Initialize stream context in an async manner.
+   * @return
+   */
+  virtual async::CoroutineStarter initAsync() = 0;
+
+  /**
+   * Check if the stream context is initialized.
+   * @return
+   */
+  virtual bool isInitialized() const = 0;
+
+  /**
+   * Get stream type.
+   * @return - &l:StreamType;.
+   */
+  virtual StreamType getStreamType() const = 0;
+
+  /**
+   * Additional optional context specific properties.
+   * @return
+   */
+  const Properties& getProperties() const;
+
+};
 
 /**
  * Stream I/O mode.
@@ -88,6 +147,12 @@ public:
    * @return
    */
   virtual IOMode getOutputStreamIOMode() = 0;
+
+  /**
+   * Get stream context. Can be `null`.
+   * @return - pointer to &l:Context; or `nullptr`.
+   */
+  virtual Context* getOutputStreamContext() = 0;
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -159,6 +224,12 @@ public:
    */
   virtual IOMode getInputStreamIOMode() = 0;
 
+  /**
+   * Get stream context. Can be `null`.
+   * @return - pointer to &l:Context; or `nullptr`.
+   */
+  virtual Context* getInputStreamContext() = 0;
+
 };
 
 /**
@@ -213,12 +284,20 @@ public:
     return m_outputStream->getOutputStreamIOMode();
   }
 
+  Context* getOutputStreamContext() override {
+    return m_outputStream->getOutputStreamContext();
+  }
+
   void setInputStreamIOMode(IOMode ioMode) override {
     m_inputStream->setInputStreamIOMode(ioMode);
   }
 
   IOMode getInputStreamIOMode() override {
     return m_inputStream->getInputStreamIOMode();
+  }
+
+  Context* getInputStreamContext() override {
+    return m_inputStream->getInputStreamContext();
   }
     
 };

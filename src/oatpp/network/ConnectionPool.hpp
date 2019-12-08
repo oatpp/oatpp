@@ -101,6 +101,9 @@ public:
     void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
     oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
+    oatpp::data::stream::Context* getOutputStreamContext() override;
+    oatpp::data::stream::Context* getInputStreamContext() override;
+
     /**
      * Mark that this connection cannot be reused in the pool any more.
      */

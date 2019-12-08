@@ -30,6 +30,39 @@
 
 namespace oatpp { namespace network {
 
+class ConnectionStreamContext : public oatpp::data::stream::Context {
+public:
+  static ConnectionStreamContext DEFAULT_CONTEXT;
+public:
+
+  /**
+   * Initialize stream context. <br>
+   * *This particular implementation does nothing.*
+   */
+  void init() override;
+
+  /**
+   * Initialize stream context in an async manner.
+   * *This particular implementation does nothing.*
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  async::CoroutineStarter initAsync() override;
+
+  /**
+   * Check if the stream context is initialized.
+   * *This particular implementation always returns `true`.*
+   * @return - `bool`.
+   */
+  bool isInitialized() const override;
+
+  /**
+   * Get stream type.
+   * @return - &id:oatpp::data::stream::StreamType::INFINITE;.
+   */
+  oatpp::data::stream::StreamType getStreamType() const override;
+
+};
+
 /**
  * TCP Connection implementation. Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
  */
@@ -113,6 +146,12 @@ public:
   oatpp::data::stream::IOMode getOutputStreamIOMode() override;
 
   /**
+   * Get output stream context.
+   * @return - &id:oatpp::data::stream::Context;.
+   */
+  oatpp::data::stream::Context* getOutputStreamContext() override;
+
+  /**
    * Set InputStream I/O mode.
    * @param ioMode
    */
@@ -123,6 +162,12 @@ public:
    * @return
    */
   oatpp::data::stream::IOMode getInputStreamIOMode() override;
+
+  /**
+   * Get input stream context. <br>
+   * @return - &id:oatpp::data::stream::Context;.
+   */
+  oatpp::data::stream::Context* getInputStreamContext() override;
 
   /**
    * Close socket handle.

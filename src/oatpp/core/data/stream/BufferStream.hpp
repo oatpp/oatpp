@@ -73,6 +73,12 @@ public:
   IOMode getOutputStreamIOMode() override;
 
   /**
+   * Get stream context.
+   * @return
+   */
+  Context* getOutputStreamContext() override;
+
+  /**
    * Reserve bytes for future writes.
    */
   void reserveBytesUpfront(v_buff_size count);
@@ -202,6 +208,12 @@ public:
    * @return
    */
   IOMode getInputStreamIOMode() override;
+
+  /**
+   * Get stream context.
+   * @return
+   */
+  Context* getInputStreamContext() override;
 
   /**
    * Get data memory handle.

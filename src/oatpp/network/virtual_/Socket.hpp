@@ -125,6 +125,18 @@ public:
   oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
   /**
+   * Get output stream context.
+   * @return
+   */
+  oatpp::data::stream::Context* getOutputStreamContext() override;
+
+  /**
+   * Get input stream context.
+   * @return
+   */
+  oatpp::data::stream::Context* getInputStreamContext() override;
+
+  /**
    * Close socket pipes.
    */
   void close();

@@ -27,6 +27,27 @@
 namespace oatpp { namespace data{ namespace stream {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FileStreamContext
+
+FileStreamContext FileStreamContext::DEFAULT_CONTEXT;
+
+void FileStreamContext::init() {
+  // DO NOTHING
+}
+
+async::CoroutineStarter FileStreamContext::initAsync() {
+  return nullptr;
+}
+
+bool FileStreamContext::isInitialized() const {
+  return true;
+}
+
+StreamType FileStreamContext::getStreamType() const {
+  return StreamType::FINITE;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileInputStream
 
 FileInputStream::FileInputStream(std::FILE* file, bool ownsFile)
@@ -80,6 +101,10 @@ void FileInputStream::setInputStreamIOMode(IOMode ioMode) {
 
 IOMode FileInputStream::getInputStreamIOMode() {
   return m_ioMode;
+}
+
+Context* FileInputStream::getInputStreamContext() {
+  return &FileStreamContext::DEFAULT_CONTEXT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +162,10 @@ void FileOutputStream::setOutputStreamIOMode(IOMode ioMode) {
 
 IOMode FileOutputStream::getOutputStreamIOMode() {
   return m_ioMode;
+}
+
+Context* FileOutputStream::getOutputStreamContext() {
+  return &FileStreamContext::DEFAULT_CONTEXT;
 }
 
 }}}

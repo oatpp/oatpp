@@ -178,6 +178,12 @@ public:
   IOMode getOutputStreamIOMode() override;
 
   /**
+   * Get stream context.
+   * @return - `nullptr.`
+   */
+  Context* getOutputStreamContext() override;
+
+  /**
    * Read part of ChunkedBuffer to buffer.
    * @param buffer - buffer to write data to.
    * @param pos - starting position in ChunkedBuffer to read data from.

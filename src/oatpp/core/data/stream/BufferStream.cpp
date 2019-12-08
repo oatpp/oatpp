@@ -60,6 +60,10 @@ IOMode BufferOutputStream::getOutputStreamIOMode() {
   return m_ioMode;
 }
 
+Context* BufferOutputStream::getOutputStreamContext() {
+  return nullptr;
+}
+
 void BufferOutputStream::reserveBytesUpfront(v_buff_size count) {
 
   if(m_position + count > m_capacity) {
@@ -213,6 +217,10 @@ void BufferInputStream::setInputStreamIOMode(IOMode ioMode) {
 
 IOMode BufferInputStream::getInputStreamIOMode() {
   return m_ioMode;
+}
+
+Context* BufferInputStream::getInputStreamContext() {
+  return nullptr;
 }
 
 std::shared_ptr<base::StrBuffer> BufferInputStream::getDataMemoryHandle() {

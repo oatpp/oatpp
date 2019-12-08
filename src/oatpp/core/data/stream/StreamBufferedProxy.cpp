@@ -53,6 +53,10 @@ oatpp::data::stream::IOMode OutputStreamBufferedProxy::getOutputStreamIOMode() {
   return m_outputStream->getOutputStreamIOMode();
 }
 
+Context* OutputStreamBufferedProxy::getOutputStreamContext() {
+  return m_outputStream->getOutputStreamContext();
+}
+
 data::v_io_size OutputStreamBufferedProxy::flush() {
   return m_buffer.flushToStream(m_outputStream.get());
 }
@@ -106,6 +110,10 @@ void InputStreamBufferedProxy::setInputStreamIOMode(oatpp::data::stream::IOMode 
 
 oatpp::data::stream::IOMode InputStreamBufferedProxy::getInputStreamIOMode() {
   return m_inputStream->getInputStreamIOMode();
+}
+
+Context* InputStreamBufferedProxy::getInputStreamContext() {
+  return m_inputStream->getInputStreamContext();
 }
   
 }}}

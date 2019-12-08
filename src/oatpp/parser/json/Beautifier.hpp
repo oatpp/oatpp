@@ -33,6 +33,7 @@ class Beautifier : public oatpp::data::stream::ConsistentOutputStream {
 public:
   typedef oatpp::data::stream::ConsistentOutputStream ConsistentOutputStream;
   typedef oatpp::data::stream::IOMode IOMode;
+  typedef oatpp::data::stream::Context Context;
 private:
   ConsistentOutputStream* m_outputStream;
   oatpp::String m_indent;
@@ -73,6 +74,12 @@ public:
    * @return
    */
   IOMode getOutputStreamIOMode() override;
+
+  /**
+   * Get stream context.
+   * @return
+   */
+  Context* getOutputStreamContext() override;
 
 };
 

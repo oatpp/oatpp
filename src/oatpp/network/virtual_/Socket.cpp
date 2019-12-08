@@ -76,6 +76,15 @@ oatpp::data::stream::IOMode Socket::getInputStreamIOMode() {
   return m_pipeIn->getReader()->getInputStreamIOMode();
 }
 
+oatpp::data::stream::Context* Socket::getOutputStreamContext() {
+  return m_pipeOut->getWriter()->getOutputStreamContext();
+}
+
+
+oatpp::data::stream::Context* Socket::getInputStreamContext() {
+  return m_pipeIn->getReader()->getInputStreamContext();
+}
+
 void Socket::close() {
   m_pipeIn->close();
   m_pipeOut->close();

@@ -133,6 +133,12 @@ public:
     oatpp::data::stream::IOMode getInputStreamIOMode() override;
 
     /**
+     * Get stream context.
+     * @return
+     */
+    oatpp::data::stream::Context* getInputStreamContext() override;
+
+    /**
      * Notify coroutine wait-list
      */
     void notifyWaitList();
@@ -221,6 +227,12 @@ public:
      * @return
      */
     oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
+    /**
+     * Get stream context.
+     * @return
+     */
+    oatpp::data::stream::Context* getOutputStreamContext() override;
 
     /**
      * Notify coroutine wait-list

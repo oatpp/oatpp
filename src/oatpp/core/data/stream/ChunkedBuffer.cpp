@@ -155,6 +155,10 @@ void ChunkedBuffer::setOutputStreamIOMode(IOMode ioMode) {
 IOMode ChunkedBuffer::getOutputStreamIOMode() {
   return m_ioMode;
 }
+
+Context* ChunkedBuffer::getOutputStreamContext() {
+  return nullptr;
+}
   
 data::v_io_size ChunkedBuffer::readSubstring(void *buffer,
                                              v_buff_size pos,

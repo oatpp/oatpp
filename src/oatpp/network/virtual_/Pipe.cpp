@@ -103,6 +103,10 @@ oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioRe
 
 }
 
+oatpp::data::stream::Context* Pipe::Reader::getInputStreamContext() {
+  return nullptr;
+}
+
 void Pipe::Reader::notifyWaitList() {
   m_waitList.notifyAll();
 }
@@ -115,6 +119,10 @@ void Pipe::Writer::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
 oatpp::data::stream::IOMode Pipe::Writer::getOutputStreamIOMode() {
   return m_ioMode;
+}
+
+oatpp::data::stream::Context* Pipe::Writer::getOutputStreamContext() {
+  return nullptr;
 }
 
 void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
