@@ -26,6 +26,59 @@
 
 namespace oatpp { namespace web { namespace server {
 
+HttpProcessor::Task::Task(const std::shared_ptr<HttpRouter>& router,
+                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                          const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
+                          const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                          const std::shared_ptr<HttpProcessor::RequestInterceptors>& requestInterceptors)
+  : m_router(router)
+  , m_connection(connection)
+  , m_bodyDecoder(bodyDecoder)
+  , m_errorHandler(errorHandler)
+  , m_requestInterceptors(requestInterceptors)
+{}
+
+void HttpProcessor::Task::run(){
+
+  m_connection->initContexts();
+
+  const v_int32 bufferSize = oatpp::data::buffer::IOBuffer::BUFFER_SIZE;
+  v_char8 bufferMemory[bufferSize];
+
+  oatpp::data::share::MemoryLabel inBuffer(nullptr, bufferMemory, bufferSize);
+
+  auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection, inBuffer);
+
+  v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
+  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
+
+  oatpp::data::stream::BufferOutputStream headersInBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
+  oatpp::data::stream::BufferOutputStream headersOutBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
+  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader(&headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */);
+
+  do {
+
+    response = HttpProcessor::processRequest(m_router.get(), headersReader, inStream, m_bodyDecoder, m_errorHandler, m_requestInterceptors.get(), connectionState);
+
+    if(response) {
+      response->send(m_connection.get(), &headersOutBuffer);
+    } else {
+      return;
+    }
+
+  } while(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+
+  if(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
+    auto handler = response->getConnectionUpgradeHandler();
+    if(handler) {
+      handler->handleConnection(m_connection, response->getConnectionUpgradeParameters());
+    } else {
+      OATPP_LOGW("[oatpp::web::server::HttpConnectionHandler::Task::run()]", "Warning. ConnectionUpgradeHandler not set!");
+    }
+  }
+
+}
+
 std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(HttpRouter* router,
                               RequestHeadersReader& headersReader,

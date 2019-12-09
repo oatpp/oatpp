@@ -45,34 +45,54 @@ class HttpProcessor {
 public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
   typedef oatpp::web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
+
+private:
+
+  static std::shared_ptr<protocol::http::outgoing::Response>
+  processRequest(HttpRouter* router,
+                 RequestHeadersReader& headersReader,
+                 const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
+                 const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
+                 const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+                 RequestInterceptors* requestInterceptors,
+                 v_int32& connectionState);
+
 public:
-  
-  class ConnectionState {
+
+
+
+public:
+
+  class Task : public base::Countable {
+  private:
+    std::shared_ptr<HttpRouter> m_router;
+    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
+    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
+    std::shared_ptr<HttpProcessor::RequestInterceptors> m_requestInterceptors;
   public:
-    SHARED_OBJECT_POOL(ConnectionState_Pool, ConnectionState, 32)
+    Task(const std::shared_ptr<HttpRouter>& router,
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
+         const std::shared_ptr<handler::ErrorHandler>& errorHandler,
+         const std::shared_ptr<HttpProcessor::RequestInterceptors>& requestInterceptors);
   public:
-    
-    static std::shared_ptr<ConnectionState> createShared(){
-      return ConnectionState_Pool::allocateShared();
-    }
-    
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
-    std::shared_ptr<oatpp::data::buffer::IOBuffer> ioBuffer;
-    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
-    
+
+    void run();
+
   };
   
 public:
   
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
-    HttpRouter* m_router;
+    std::shared_ptr<HttpRouter> m_router;
     oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    RequestInterceptors* m_requestInterceptors;
+    std::shared_ptr<RequestInterceptors> m_requestInterceptors;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
     v_int32 m_connectionState;
@@ -82,10 +102,10 @@ public:
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
   public:
     
-    Coroutine(HttpRouter* router,
+    Coroutine(const std::shared_ptr<HttpRouter>& router,
               const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
               const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-              RequestInterceptors* requestInterceptors,
+              const std::shared_ptr<RequestInterceptors>& requestInterceptors,
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
       : m_router(router)
@@ -114,17 +134,6 @@ public:
     Action handleError(Error* error) override;
     
   };
-  
-public:
-  
-  static std::shared_ptr<protocol::http::outgoing::Response>
-  processRequest(HttpRouter* router,
-                 RequestHeadersReader& headersReader,
-                 const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-                 const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-                 const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                 RequestInterceptors* requestInterceptors,
-                 v_int32& connectionState);
   
 };
   

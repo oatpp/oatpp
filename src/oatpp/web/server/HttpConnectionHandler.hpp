@@ -42,37 +42,10 @@ namespace oatpp { namespace web { namespace server {
  */
 class HttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
-  
-  class Task : public base::Countable {
-  private:
-    HttpRouter* m_router;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
-    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    HttpProcessor::RequestInterceptors* m_requestInterceptors;
-  public:
-    Task(HttpRouter* router,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-         const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-         HttpProcessor::RequestInterceptors* requestInterceptors);
-  public:
-    
-    static std::shared_ptr<Task> createShared(HttpRouter* router,
-                                              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                                              HttpProcessor::RequestInterceptors* requestInterceptors);
-    
-    void run();
-    
-  };
-  
-private:
   std::shared_ptr<HttpRouter> m_router;
   std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  HttpProcessor::RequestInterceptors m_requestInterceptors;
+  std::shared_ptr<HttpProcessor::RequestInterceptors> m_requestInterceptors;
 public:
   /**
    * Constructor.
