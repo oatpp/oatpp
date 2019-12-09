@@ -30,8 +30,6 @@
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/Interceptor.hpp"
 
-#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
-
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/core/async/Executor.hpp"
 
@@ -48,8 +46,30 @@ private:
 private:
   std::shared_ptr<HttpProcessor::Components> m_components;
 public:
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor);
+
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components, const std::shared_ptr<oatpp::async::Executor>& executor);
+
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router), threadCount)
+  {}
+
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router), executor)
+  {}
+
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                             const std::shared_ptr<HttpProcessor::Config>& config,
+                             v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router, config), threadCount)
+  {}
+
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                             const std::shared_ptr<HttpProcessor::Config>& config,
+                             const std::shared_ptr<oatpp::async::Executor>& executor)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router, config), executor)
+  {}
+
 public:
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,

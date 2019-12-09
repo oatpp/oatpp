@@ -26,32 +26,18 @@
 
 namespace oatpp { namespace web { namespace server {
 
-AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components,
                                                        v_int32 threadCount)
   : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
-  , m_components(
-      std::make_shared<HttpProcessor::Components>(
-        router,
-        std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-        handler::DefaultErrorHandler::createShared(),
-        std::make_shared<HttpProcessor::RequestInterceptors>()
-      )
-    )
+  , m_components(components)
 {
   m_executor->detach();
 }
 
-AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components,
                                                        const std::shared_ptr<oatpp::async::Executor>& executor)
   : m_executor(executor)
-  , m_components(
-    std::make_shared<HttpProcessor::Components>(
-      router,
-      std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-      handler::DefaultErrorHandler::createShared(),
-      std::make_shared<HttpProcessor::RequestInterceptors>()
-    )
-  )
+  , m_components(components)
 {}
 
 std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount){

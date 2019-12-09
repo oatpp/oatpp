@@ -24,7 +24,43 @@
 
 #include "HttpProcessor.hpp"
 
+#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
+
 namespace oatpp { namespace web { namespace server {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Components
+
+HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter,
+                                      const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
+                                      const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
+                                      const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
+                                      const std::shared_ptr<Config>& pConfig)
+  : router(pRouter)
+  , bodyDecoder(pBodyDecoder)
+  , errorHandler(pErrorHandler)
+  , requestInterceptors(pRequestInterceptors)
+  , config(pConfig)
+{}
+
+HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter)
+  : Components(pRouter,
+               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
+               handler::DefaultErrorHandler::createShared(),
+               std::make_shared<RequestInterceptors>(),
+               std::make_shared<Config>())
+{}
+
+HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig)
+  : Components(pRouter,
+               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
+               handler::DefaultErrorHandler::createShared(),
+               std::make_shared<RequestInterceptors>(),
+               pConfig)
+{}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other
 
 std::shared_ptr<protocol::http::outgoing::Response>
 HttpProcessor::processRequest(const std::shared_ptr<Components>& components,
@@ -99,14 +135,20 @@ void HttpProcessor::Task::run(){
 
   m_connection->initContexts();
 
-  auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE));
-
   v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
-  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
 
-  oatpp::data::stream::BufferOutputStream headersInBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
-  oatpp::data::stream::BufferOutputStream headersOutBuffer(2048 /* initial capacity */, 2048 /* grow bytes */);
-  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader(&headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */);
+  oatpp::data::stream::BufferOutputStream headersInBuffer(m_components->config->headersInBufferInitial,
+                                                          m_components->config->headersInBufferGrow);
+
+  oatpp::data::stream::BufferOutputStream headersOutBuffer(m_components->config->headersOutBufferInitial,
+                                                           m_components->config->headersOutBufferGrow);
+
+  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader(&headersInBuffer,
+                                                                           m_components->config->headersReaderChunkSize,
+                                                                           m_components->config->headersReaderMaxSize);
+
+  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
+  auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE));
 
   do {
 
@@ -137,10 +179,10 @@ void HttpProcessor::Task::run(){
 HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& components,
                                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
   : m_components(components)
-  , m_headersInBuffer(2048 /* initialCapacity */, 2048 /* growBytes */)
-  , m_headersReader(&m_headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */)
-  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(2048 /* initialCapacity */, 2048 /* growBytes */))
   , m_connection(connection)
+  , m_headersInBuffer(components->config->headersInBufferInitial, components->config->headersInBufferGrow)
+  , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
+  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow))
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
   , m_connectionState(oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
 {}

@@ -48,22 +48,62 @@ public:
 
 public:
 
+  /**
+   * Resource config per connection.
+   */
+  struct Config {
+
+    /**
+     * Buffer used to read headers in request. Initial size of the buffer.
+     */
+    v_buff_size headersInBufferInitial = 2048;
+
+    /**
+     * Buffer used to read headers in request. Size of the chunk to grow.
+     */
+    v_buff_size headersInBufferGrow = 2048;
+
+    /**
+     * Buffer used to write headers in response. Initial size of the buffer.
+     */
+    v_buff_size headersOutBufferInitial = 2048;
+
+    /**
+     * Buffer used to write headers in response. Size of the chunk to grow.
+     */
+    v_buff_size headersOutBufferGrow = 2048;
+
+    /**
+     * Size of the chunk used for iterative-read of headers.
+     */
+    v_buff_size headersReaderChunkSize = 2048;
+
+    /**
+     * Maximum allowed size of requests headers. The overall size of all headers in the request.
+     */
+    v_buff_size headersReaderMaxSize = 4096;
+
+  };
+
+public:
+
   struct Components {
 
     Components(const std::shared_ptr<HttpRouter>& pRouter,
                const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
-               const std::shared_ptr<HttpProcessor::RequestInterceptors>& pRequestInterceptors)
-      : router(pRouter)
-      , bodyDecoder(pBodyDecoder)
-      , errorHandler(pErrorHandler)
-      , requestInterceptors(pRequestInterceptors)
-    {}
+               const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
+               const std::shared_ptr<Config>& pConfig);
+
+    Components(const std::shared_ptr<HttpRouter>& pRouter);
+
+    Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig);
 
     std::shared_ptr<HttpRouter> router;
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> bodyDecoder;
     std::shared_ptr<handler::ErrorHandler> errorHandler;
-    std::shared_ptr<HttpProcessor::RequestInterceptors> requestInterceptors;
+    std::shared_ptr<RequestInterceptors> requestInterceptors;
+    std::shared_ptr<Config> config;
 
   };
 
@@ -93,10 +133,10 @@ public:
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
     std::shared_ptr<Components> m_components;
+    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
     v_int32 m_connectionState;
   private:

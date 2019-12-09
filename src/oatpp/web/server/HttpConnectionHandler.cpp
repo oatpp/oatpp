@@ -39,15 +39,8 @@
 
 namespace oatpp { namespace web { namespace server {
 
-HttpConnectionHandler::HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
-  : m_components(
-      std::make_shared<HttpProcessor::Components>(
-        router,
-        std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-        handler::DefaultErrorHandler::createShared(),
-        std::make_shared<HttpProcessor::RequestInterceptors>()
-      )
-    )
+HttpConnectionHandler::HttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components)
+  : m_components(components)
 {}
 
 std::shared_ptr<HttpConnectionHandler> HttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router){

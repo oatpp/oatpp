@@ -29,8 +29,6 @@
 #include "./handler/ErrorHandler.hpp"
 #include "./HttpRouter.hpp"
 
-#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
-
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/network/Connection.hpp"
 
@@ -44,11 +42,31 @@ class HttpConnectionHandler : public base::Countable, public network::server::Co
 private:
   std::shared_ptr<HttpProcessor::Components> m_components;
 public:
+
+  /**
+   * Constructor.
+   * @param components - &id:oatpp::web::server::HttpProcessor::Components;.
+   */
+  HttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components);
+
   /**
    * Constructor.
    * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
    */
-  HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router);
+  HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
+    : HttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router))
+  {}
+
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @param config - &id:oatpp::web::server::HttpProcessor::Config;.
+   */
+  HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                        const std::shared_ptr<HttpProcessor::Config>& config)
+    : HttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router, config))
+  {}
+
 public:
 
   /**
