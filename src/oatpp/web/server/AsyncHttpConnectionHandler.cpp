@@ -29,10 +29,14 @@ namespace oatpp { namespace web { namespace server {
 AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
                                                        v_int32 threadCount)
   : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
-  , m_router(router)
-  , m_errorHandler(handler::DefaultErrorHandler::createShared())
-  , m_requestInterceptors(std::make_shared<HttpProcessor::RequestInterceptors>())
-  , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
+  , m_components(
+      std::make_shared<HttpProcessor::Components>(
+        router,
+        std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
+        handler::DefaultErrorHandler::createShared(),
+        std::make_shared<HttpProcessor::RequestInterceptors>()
+      )
+    )
 {
   m_executor->detach();
 }
@@ -40,10 +44,14 @@ AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<Htt
 AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
                                                        const std::shared_ptr<oatpp::async::Executor>& executor)
   : m_executor(executor)
-  , m_router(router)
-  , m_errorHandler(handler::DefaultErrorHandler::createShared())
-  , m_requestInterceptors(std::make_shared<HttpProcessor::RequestInterceptors>())
-  , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
+  , m_components(
+    std::make_shared<HttpProcessor::Components>(
+      router,
+      std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
+      handler::DefaultErrorHandler::createShared(),
+      std::make_shared<HttpProcessor::RequestInterceptors>()
+    )
+  )
 {}
 
 std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount){
@@ -55,14 +63,14 @@ std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createSh
 }
 
 void AsyncHttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-  m_errorHandler = errorHandler;
-  if(!m_errorHandler) {
-    m_errorHandler = handler::DefaultErrorHandler::createShared();
+  m_components->errorHandler = errorHandler;
+  if(!m_components->errorHandler) {
+    m_components->errorHandler = handler::DefaultErrorHandler::createShared();
   }
 }
 
 void AsyncHttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
-  m_requestInterceptors->pushBack(interceptor);
+  m_components->requestInterceptors->pushBack(interceptor);
 }
 
 void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection,
@@ -74,20 +82,7 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
   connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
 
-  auto bufferMemory = oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE);
-
-  oatpp::data::share::MemoryLabel inBuffer(bufferMemory,
-                                           &bufferMemory->getData()[0],
-                                           oatpp::data::buffer::IOBuffer::BUFFER_SIZE);
-
-  auto inStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection, inBuffer);
-  
-  m_executor->execute<HttpProcessor::Coroutine>(m_router,
-                                                m_bodyDecoder,
-                                                m_errorHandler,
-                                                m_requestInterceptors,
-                                                connection,
-                                                inStream);
+  m_executor->execute<HttpProcessor::Coroutine>(m_components, connection);
   
 }
 

@@ -46,10 +46,7 @@ private:
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
 private:
-  std::shared_ptr<HttpRouter> m_router;
-  std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  std::shared_ptr<HttpProcessor::RequestInterceptors> m_requestInterceptors;
-  std::shared_ptr<const BodyDecoder> m_bodyDecoder; // TODO make bodyDecoder configurable here
+  std::shared_ptr<HttpProcessor::Components> m_components;
 public:
   AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
   AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor);

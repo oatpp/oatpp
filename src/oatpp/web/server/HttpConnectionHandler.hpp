@@ -42,10 +42,7 @@ namespace oatpp { namespace web { namespace server {
  */
 class HttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
-  std::shared_ptr<HttpRouter> m_router;
-  std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
-  std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  std::shared_ptr<HttpProcessor::RequestInterceptors> m_requestInterceptors;
+  std::shared_ptr<HttpProcessor::Components> m_components;
 public:
   /**
    * Constructor.

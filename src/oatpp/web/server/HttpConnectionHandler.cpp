@@ -40,10 +40,14 @@
 namespace oatpp { namespace web { namespace server {
 
 HttpConnectionHandler::HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
-  : m_router(router)
-  , m_bodyDecoder(std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>())
-  , m_errorHandler(handler::DefaultErrorHandler::createShared())
-  , m_requestInterceptors(std::make_shared<HttpProcessor::RequestInterceptors>())
+  : m_components(
+      std::make_shared<HttpProcessor::Components>(
+        router,
+        std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
+        handler::DefaultErrorHandler::createShared(),
+        std::make_shared<HttpProcessor::RequestInterceptors>()
+      )
+    )
 {}
 
 std::shared_ptr<HttpConnectionHandler> HttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router){
@@ -51,14 +55,14 @@ std::shared_ptr<HttpConnectionHandler> HttpConnectionHandler::createShared(const
 }
 
 void HttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
-  m_errorHandler = errorHandler;
-  if(!m_errorHandler) {
-    m_errorHandler = handler::DefaultErrorHandler::createShared();
+  m_components->errorHandler = errorHandler;
+  if(!m_components->errorHandler) {
+    m_components->errorHandler = handler::DefaultErrorHandler::createShared();
   }
 }
 
 void HttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
-  m_requestInterceptors->pushBack(interceptor);
+  m_components->requestInterceptors->pushBack(interceptor);
 }
   
 void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
@@ -71,7 +75,7 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
   connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
   /* Create working thread */
-  std::thread thread(&HttpProcessor::Task::run, HttpProcessor::Task(m_router, connection, m_bodyDecoder, m_errorHandler, m_requestInterceptors));
+  std::thread thread(&HttpProcessor::Task::run, HttpProcessor::Task(m_components, connection));
   
   /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
   v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();

@@ -25,9 +25,9 @@
 #include "Hex.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-#include <Winsock2.h>
+  #include <WinSock2.h>
 #else
-#include <arpa/inet.h>
+  #include <arpa/inet.h>
 #endif
 
 namespace oatpp { namespace encoding {

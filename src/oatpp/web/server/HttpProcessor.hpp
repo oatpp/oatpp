@@ -46,53 +46,56 @@ public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
   typedef oatpp::web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
 
+public:
+
+  struct Components {
+
+    Components(const std::shared_ptr<HttpRouter>& pRouter,
+               const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
+               const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
+               const std::shared_ptr<HttpProcessor::RequestInterceptors>& pRequestInterceptors)
+      : router(pRouter)
+      , bodyDecoder(pBodyDecoder)
+      , errorHandler(pErrorHandler)
+      , requestInterceptors(pRequestInterceptors)
+    {}
+
+    std::shared_ptr<HttpRouter> router;
+    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> bodyDecoder;
+    std::shared_ptr<handler::ErrorHandler> errorHandler;
+    std::shared_ptr<HttpProcessor::RequestInterceptors> requestInterceptors;
+
+  };
+
 private:
 
   static std::shared_ptr<protocol::http::outgoing::Response>
-  processRequest(HttpRouter* router,
+  processRequest(const std::shared_ptr<Components>& components,
                  RequestHeadersReader& headersReader,
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-                 const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-                 const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                 RequestInterceptors* requestInterceptors,
                  v_int32& connectionState);
-
-public:
-
-
 
 public:
 
   class Task : public base::Countable {
   private:
-    std::shared_ptr<HttpRouter> m_router;
+    std::shared_ptr<Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
-    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    std::shared_ptr<HttpProcessor::RequestInterceptors> m_requestInterceptors;
   public:
-    Task(const std::shared_ptr<HttpRouter>& router,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-         const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-         const std::shared_ptr<HttpProcessor::RequestInterceptors>& requestInterceptors);
+    Task(const std::shared_ptr<Components>& components,
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
   public:
-
     void run();
-
   };
   
 public:
   
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
-    std::shared_ptr<HttpRouter> m_router;
+    std::shared_ptr<Components> m_components;
     oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
-    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
-    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    std::shared_ptr<RequestInterceptors> m_requestInterceptors;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
     v_int32 m_connectionState;
@@ -102,23 +105,8 @@ public:
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
   public:
     
-    Coroutine(const std::shared_ptr<HttpRouter>& router,
-              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-              const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-              const std::shared_ptr<RequestInterceptors>& requestInterceptors,
-              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream)
-      : m_router(router)
-      , m_headersInBuffer(2048 /* initialCapacity */, 2048 /* growBytes */)
-      , m_headersReader(&m_headersInBuffer, 2048 /* read chunk size */, 4096 /* max headers size */)
-      , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(2048 /* initialCapacity */, 2048 /* growBytes */))
-      , m_bodyDecoder(bodyDecoder)
-      , m_errorHandler(errorHandler)
-      , m_requestInterceptors(requestInterceptors)
-      , m_connection(connection)
-      , m_inStream(inStream)
-      , m_connectionState(oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
-    {}
+    Coroutine(const std::shared_ptr<Components>& components,
+              const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
     
     Action act() override;
 
