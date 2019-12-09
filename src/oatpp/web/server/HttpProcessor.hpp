@@ -40,12 +40,14 @@
 #include "oatpp/core/async/Processor.hpp"
 
 namespace oatpp { namespace web { namespace server {
-  
+
+/**
+ * HttpProcessor. Helper class to handle HTTP processing.
+ */
 class HttpProcessor {
 public:
   typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
   typedef oatpp::web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
-
 public:
 
   /**
@@ -87,22 +89,61 @@ public:
 
 public:
 
+  /**
+   * Collection of components needed to serve http-connection.
+   */
   struct Components {
 
+    /**
+     * Constructor.
+     * @param pRouter
+     * @param pBodyDecoder
+     * @param pErrorHandler
+     * @param pRequestInterceptors
+     * @param pConfig
+     */
     Components(const std::shared_ptr<HttpRouter>& pRouter,
                const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
                const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
                const std::shared_ptr<Config>& pConfig);
 
+    /**
+     * Constructor.
+     * @param pRouter
+     */
     Components(const std::shared_ptr<HttpRouter>& pRouter);
 
+    /**
+     * Constructor.
+     * @param pRouter
+     * @param pConfig
+     */
     Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig);
 
+    /**
+     * Router to route incoming requests. &id:oatpp::web::server::HttpRouter;.
+     */
     std::shared_ptr<HttpRouter> router;
+
+    /**
+     * Body decoder. &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
+     */
     std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> bodyDecoder;
+
+    /**
+     * Error handler. &id:oatpp::web::server::handler::ErrorHandler;.
+     */
     std::shared_ptr<handler::ErrorHandler> errorHandler;
+
+    /**
+     * Collection of request interceptors. &id:oatpp::web::server::handler::RequestInterceptor;.
+     */
     std::shared_ptr<RequestInterceptors> requestInterceptors;
+
+    /**
+     * Resource allocation config. &l:HttpProcessor::Config;.
+     */
     std::shared_ptr<Config> config;
 
   };
@@ -117,19 +158,38 @@ private:
 
 public:
 
+  /**
+   * Connection serving task. <br>
+   * Usege example: <br>
+   * `std::thread thread(&HttpProcessor::Task::run, HttpProcessor::Task(components, connection));`
+   */
   class Task : public base::Countable {
   private:
     std::shared_ptr<Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   public:
+
+    /**
+     * Constructor.
+     * @param components - &l:HttpProcessor::Components;.
+     * @param connection - &id:oatpp::data::stream::IOStream;.
+     */
     Task(const std::shared_ptr<Components>& components,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
   public:
+
+    /**
+     * Run loop.
+     */
     void run();
+
   };
   
 public:
-  
+
+  /**
+   * Connection serving coroutiner - &id:oatpp::async::Coroutine;.
+   */
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
     std::shared_ptr<Components> m_components;
@@ -144,7 +204,13 @@ public:
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
   public:
-    
+
+
+    /**
+     * Constructor.
+     * @param components - &l:HttpProcessor::Components;.
+     * @param connection - &id:oatpp::data::stream::IOStream;.
+     */
     Coroutine(const std::shared_ptr<Components>& components,
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
     
