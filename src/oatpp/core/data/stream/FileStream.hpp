@@ -32,45 +32,11 @@
 namespace oatpp { namespace data{ namespace stream {
 
 /**
- * File stream context.
- */
-class FileStreamContext : public Context {
-public:
-  static FileStreamContext DEFAULT_CONTEXT;
-public:
-
-  /**
-   * Initialize stream context. <br>
-   * *This particular implementation does nothing.*
-   */
-  void init() override;
-
-  /**
-   * Initialize stream context in an async manner.
-   * *This particular implementation does nothing.*
-   * @return - &id:oatpp::async::CoroutineStarter;.
-   */
-  async::CoroutineStarter initAsync() override;
-
-  /**
-   * Check if the stream context is initialized.
-   * *This particular implementation always returns `true`.*
-   * @return - `bool`.
-   */
-  bool isInitialized() const override;
-
-  /**
-   * Get stream type.
-   * @return - &id:oatpp::data::stream::StreamType::STREAM_FINITE;.
-   */
-  StreamType getStreamType() const override;
-
-};
-
-/**
  * Wrapper over `std::FILE`.
  */
 class FileInputStream : public InputStream {
+public:
+  static oatpp::data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
   std::FILE* m_file;
   bool m_ownsFile;
@@ -143,6 +109,8 @@ public:
  * Wrapper over `std::FILE`.
  */
 class FileOutputStream : public OutputStream {
+public:
+  static oatpp::data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
   std::FILE* m_file;
   bool m_ownsFile;

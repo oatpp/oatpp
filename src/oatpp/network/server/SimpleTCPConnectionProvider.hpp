@@ -39,12 +39,6 @@ class SimpleTCPConnectionProvider : public base::Countable, public ServerConnect
 public:
 
   /**
-   * Connection stream context with additional data.
-   */
-  class ExtendedConnectionContext : public oatpp::network::ConnectionStreamContext {
-  };
-
-  /**
    * Connection with extra data - ex.: peer address.
    */
   class ExtendedConnection : public oatpp::network::Connection {
@@ -55,14 +49,15 @@ public:
     static const char* const PROPERTY_PEER_PORT;
 
   protected:
-    ExtendedConnectionContext m_context;
+    data::stream::DefaultInitializedContext m_context;
   public:
 
     /**
      * Constructor.
      * @param handle - &id:oatpp::data::v_io_handle;.
+     * @param properties - &id:oatpp::data::stream::Context::Properties;.
      */
-    ExtendedConnection(data::v_io_handle handle);
+    ExtendedConnection(data::v_io_handle handle, data::stream::Context::Properties&& properties);
 
     /**
      * Get output stream context.

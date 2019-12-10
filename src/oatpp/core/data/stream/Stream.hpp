@@ -56,10 +56,30 @@ enum StreamType : v_int32 {
  */
 class Context {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::data::share::LazyStringMap;.
+   */
   typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> Properties;
-protected:
+private:
   Properties m_properties;
+protected:
+  /**
+   * `protected`. Get mutable additional optional context specific properties.
+   * @return - &l:Context::Properties;.
+   */
+  Properties& getMutableProperties();
 public:
+
+  /**
+   * Default constructor.
+   */
+  Context() = default;
+
+  /**
+   * Constructor.
+   * @param properties - &l:Context::Properties;.
+   */
+  Context(Properties&& properties);
 
   /**
    * Initialize stream context.
@@ -68,13 +88,13 @@ public:
 
   /**
    * Initialize stream context in an async manner.
-   * @return
+   * @return - &id:oatpp::async::CoroutineStarter;.
    */
   virtual async::CoroutineStarter initAsync() = 0;
 
   /**
    * Check if the stream context is initialized.
-   * @return
+   * @return - `bool`.
    */
   virtual bool isInitialized() const = 0;
 
@@ -86,15 +106,58 @@ public:
 
   /**
    * Additional optional context specific properties.
-   * @return
+   * @return - &l:Context::Properties;.
    */
   const Properties& getProperties() const;
 
+};
+
+/**
+ * The default implementation for context with no initialization.
+ */
+class DefaultInitializedContext : public oatpp::data::stream::Context {
+private:
+  StreamType m_streamType;
+public:
+
   /**
-   * Get mutable additional optional context specific properties.
-   * @return
+   * Constructor.
+   * @param streamType - &l:StreamType;.
    */
-  Properties& getMutableProperties();
+  DefaultInitializedContext(StreamType streamType);
+
+  /**
+   * Constructor.
+   * @param streamType - &l:StreamType;.
+   * @param properties - &l:Context::Properties;.
+   */
+  DefaultInitializedContext(StreamType streamType, Properties&& properties);
+
+  /**
+   * Initialize stream context. <br>
+   * *This particular implementation does nothing.*
+   */
+  void init() override;
+
+  /**
+   * Initialize stream context in an async manner.
+   * *This particular implementation does nothing.*
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  async::CoroutineStarter initAsync() override;
+
+  /**
+   * Check if the stream context is initialized.
+   * *This particular implementation always returns `true`.*
+   * @return - `bool`.
+   */
+  bool isInitialized() const override;
+
+  /**
+   * Get stream type.
+   * @return - &l:StreamType;.
+   */
+  StreamType getStreamType() const override;
 
 };
 

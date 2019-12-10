@@ -30,43 +30,12 @@
 
 namespace oatpp { namespace network {
 
-class ConnectionStreamContext : public oatpp::data::stream::Context {
-public:
-  static ConnectionStreamContext DEFAULT_CONTEXT;
-public:
-
-  /**
-   * Initialize stream context. <br>
-   * *This particular implementation does nothing.*
-   */
-  void init() override;
-
-  /**
-   * Initialize stream context in an async manner.
-   * *This particular implementation does nothing.*
-   * @return - &id:oatpp::async::CoroutineStarter;.
-   */
-  async::CoroutineStarter initAsync() override;
-
-  /**
-   * Check if the stream context is initialized.
-   * *This particular implementation always returns `true`.*
-   * @return - `bool`.
-   */
-  bool isInitialized() const override;
-
-  /**
-   * Get stream type.
-   * @return - &id:oatpp::data::stream::StreamType::STREAM_INFINITE;.
-   */
-  oatpp::data::stream::StreamType getStreamType() const override;
-
-};
-
 /**
  * TCP Connection implementation. Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
  */
 class Connection : public oatpp::base::Countable, public oatpp::data::stream::IOStream {
+private:
+  static oatpp::data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
   data::v_io_handle m_handle;
 #if defined(WIN32) || defined(_WIN32)

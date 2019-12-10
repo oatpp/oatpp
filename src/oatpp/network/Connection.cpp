@@ -39,28 +39,9 @@
 namespace oatpp { namespace network {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ConnectionStreamContext
-
-ConnectionStreamContext ConnectionStreamContext::DEFAULT_CONTEXT;
-
-void ConnectionStreamContext::init() {
-  // DO NOTHING
-}
-
-async::CoroutineStarter ConnectionStreamContext::initAsync() {
-  return nullptr;
-}
-
-bool ConnectionStreamContext::isInitialized() const {
-  return true;
-}
-
-oatpp::data::stream::StreamType ConnectionStreamContext::getStreamType() const {
-  return oatpp::data::stream::StreamType::STREAM_INFINITE;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connection
+
+oatpp::data::stream::DefaultInitializedContext Connection::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
 Connection::Connection(data::v_io_handle handle)
   : m_handle(handle)
@@ -290,7 +271,7 @@ oatpp::data::stream::IOMode Connection::getOutputStreamIOMode() {
 }
 
 oatpp::data::stream::Context* Connection::getOutputStreamContext() {
-  return &ConnectionStreamContext::DEFAULT_CONTEXT;
+  return &DEFAULT_CONTEXT;
 }
 
 void Connection::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
@@ -302,7 +283,7 @@ oatpp::data::stream::IOMode Connection::getInputStreamIOMode() {
 }
 
 oatpp::data::stream::Context* Connection::getInputStreamContext() {
-  return &ConnectionStreamContext::DEFAULT_CONTEXT;
+  return &DEFAULT_CONTEXT;
 }
 
 void Connection::close(){

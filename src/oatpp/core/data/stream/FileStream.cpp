@@ -26,29 +26,11 @@
 
 namespace oatpp { namespace data{ namespace stream {
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FileStreamContext
-
-FileStreamContext FileStreamContext::DEFAULT_CONTEXT;
-
-void FileStreamContext::init() {
-  // DO NOTHING
-}
-
-async::CoroutineStarter FileStreamContext::initAsync() {
-  return nullptr;
-}
-
-bool FileStreamContext::isInitialized() const {
-  return true;
-}
-
-StreamType FileStreamContext::getStreamType() const {
-  return StreamType::STREAM_FINITE;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileInputStream
+
+oatpp::data::stream::DefaultInitializedContext FileInputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_FINITE);
 
 FileInputStream::FileInputStream(std::FILE* file, bool ownsFile)
   : m_file(file)
@@ -104,11 +86,13 @@ IOMode FileInputStream::getInputStreamIOMode() {
 }
 
 Context* FileInputStream::getInputStreamContext() {
-  return &FileStreamContext::DEFAULT_CONTEXT;
+  return &DEFAULT_CONTEXT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileOutputStream
+
+oatpp::data::stream::DefaultInitializedContext FileOutputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_FINITE);
 
 FileOutputStream::FileOutputStream(std::FILE* file, bool ownsFile)
   : m_file(file)
@@ -165,7 +149,7 @@ IOMode FileOutputStream::getOutputStreamIOMode() {
 }
 
 Context* FileOutputStream::getOutputStreamContext() {
-  return &FileStreamContext::DEFAULT_CONTEXT;
+  return &DEFAULT_CONTEXT;
 }
 
 }}}

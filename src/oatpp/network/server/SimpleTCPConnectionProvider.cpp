@@ -49,8 +49,9 @@ const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER
 const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT = "peer_address_format";
 const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_PORT = "peer_port";
 
-SimpleTCPConnectionProvider::ExtendedConnection::ExtendedConnection(data::v_io_handle handle)
+SimpleTCPConnectionProvider::ExtendedConnection::ExtendedConnection(data::v_io_handle handle, data::stream::Context::Properties&& properties)
   : Connection(handle)
+  , m_context(data::stream::StreamType::STREAM_INFINITE, std::forward<data::stream::Context::Properties>(properties))
 {}
 
 oatpp::data::stream::Context* SimpleTCPConnectionProvider::ExtendedConnection::getOutputStreamContext() {
@@ -229,11 +230,10 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getD
 
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getExtendedConnection() {
 
-  oatpp::String ipAddress;
-  int port;
-  const char* addrFormat;
   struct sockaddr_storage clientAddress;
   socklen_t clientAddressSize = sizeof(clientAddress);
+
+  data::stream::Context::Properties properties;
 
   oatpp::data::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
 
@@ -243,9 +243,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
     struct sockaddr_in* sockAddress = (struct sockaddr_in*) &clientAddress;
     inet_ntop(AF_INET, &sockAddress->sin_addr, strIp, INET_ADDRSTRLEN);
 
-    ipAddress = (const char*) strIp;
-    addrFormat = "ipv4";
-    port = ntohs(sockAddress->sin_port);
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv4");
+    properties.put(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin_port));
 
   } else if (clientAddress.ss_family == AF_INET6) {
 
@@ -253,9 +253,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
     struct sockaddr_in6* sockAddress = (struct sockaddr_in6*) &clientAddress;
     inet_ntop(AF_INET6, &sockAddress->sin6_addr, strIp, INET6_ADDRSTRLEN);
 
-    ipAddress = (const char*) strIp;
-    addrFormat = "ipv6";
-    port = ntohs(sockAddress->sin6_port);
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv6");
+    properties.put(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin6_port));
 
   } else {
 
@@ -271,16 +271,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
   }
 
   if(prepareConnectionHandle(handle)) {
-
-    auto connection = std::make_shared<ExtendedConnection>(handle);
-    auto& properties = connection->getInputStreamContext()->getMutableProperties();
-
-    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, ipAddress);
-    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, addrFormat);
-    properties.put(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(port));
-
-    return connection;
-
+    return std::make_shared<ExtendedConnection>(handle, std::move(properties));
   }
 
   return nullptr;
