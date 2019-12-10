@@ -110,6 +110,14 @@ public:
    */
   const Properties& getProperties() const;
 
+  inline bool operator == (const Context& other){
+    return this == &other;
+  }
+
+  inline bool operator != (const Context& other){
+    return this != &other;
+  }
+
 };
 
 /**
@@ -222,7 +230,7 @@ public:
    * Get stream context. Can be `null`.
    * @return - pointer to &l:Context; or `nullptr`.
    */
-  virtual Context* getOutputStreamContext() = 0;
+  virtual Context& getOutputStreamContext() = 0;
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -298,7 +306,7 @@ public:
    * Get stream context. Can be `null`.
    * @return - pointer to &l:Context; or `nullptr`.
    */
-  virtual Context* getInputStreamContext() = 0;
+  virtual Context& getInputStreamContext() = 0;
 
 };
 
@@ -364,7 +372,7 @@ public:
     return m_outputStream->getOutputStreamIOMode();
   }
 
-  Context* getOutputStreamContext() override {
+  Context& getOutputStreamContext() override {
     return m_outputStream->getOutputStreamContext();
   }
 
@@ -376,7 +384,7 @@ public:
     return m_inputStream->getInputStreamIOMode();
   }
 
-  Context* getInputStreamContext() override {
+  Context& getInputStreamContext() override {
     return m_inputStream->getInputStreamContext();
   }
     

@@ -33,6 +33,8 @@ namespace oatpp { namespace data{ namespace stream {
  * BufferOutputStream
  */
 class BufferOutputStream : public ConsistentOutputStream {
+public:
+  static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
   p_char8 m_data;
   v_buff_size m_capacity;
@@ -76,7 +78,7 @@ public:
    * Get stream context.
    * @return
    */
-  Context* getOutputStreamContext() override;
+  Context& getOutputStreamContext() override;
 
   /**
    * Reserve bytes for future writes.
@@ -143,6 +145,8 @@ public:
  * BufferInputStream
  */
 class BufferInputStream : public InputStream {
+public:
+  static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
   std::shared_ptr<base::StrBuffer> m_memoryHandle;
   p_char8 m_data;
@@ -213,7 +217,7 @@ public:
    * Get stream context.
    * @return
    */
-  Context* getInputStreamContext() override;
+  Context& getInputStreamContext() override;
 
   /**
    * Get data memory handle.

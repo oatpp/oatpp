@@ -79,7 +79,7 @@ public:
    * Get stream context.
    * @return
    */
-  Context* getOutputStreamContext() override;
+  Context& getOutputStreamContext() override;
 
 };
 

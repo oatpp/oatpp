@@ -106,7 +106,7 @@ public:
    * Get output stream context.
    * @return - &id:oatpp::data::stream::Context;.
    */
-  oatpp::data::stream::Context* getOutputStreamContext() override;
+  oatpp::data::stream::Context& getOutputStreamContext() override;
 
   /**
    * Set InputStream I/O mode.
@@ -124,7 +124,7 @@ public:
    * Get input stream context. <br>
    * @return - &id:oatpp::data::stream::Context;.
    */
-  oatpp::data::stream::Context* getInputStreamContext() override;
+  oatpp::data::stream::Context& getInputStreamContext() override;
 
   /**
    * Close socket handle.

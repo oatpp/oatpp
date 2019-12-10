@@ -76,12 +76,12 @@ oatpp::data::stream::IOMode Socket::getInputStreamIOMode() {
   return m_pipeIn->getReader()->getInputStreamIOMode();
 }
 
-oatpp::data::stream::Context* Socket::getOutputStreamContext() {
+oatpp::data::stream::Context& Socket::getOutputStreamContext() {
   return m_pipeOut->getWriter()->getOutputStreamContext();
 }
 
 
-oatpp::data::stream::Context* Socket::getInputStreamContext() {
+oatpp::data::stream::Context& Socket::getInputStreamContext() {
   return m_pipeIn->getReader()->getInputStreamContext();
 }
 

@@ -101,7 +101,7 @@ public:
    * Get stream context.
    * @return
    */
-  Context* getInputStreamContext() override;
+  Context& getInputStreamContext() override;
 
 };
 
@@ -176,7 +176,7 @@ public:
    * Get stream context.
    * @return
    */
-  Context* getOutputStreamContext() override;
+  Context& getOutputStreamContext() override;
 
 };
 

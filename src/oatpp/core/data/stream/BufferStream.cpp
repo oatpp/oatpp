@@ -29,6 +29,8 @@ namespace oatpp { namespace data{ namespace stream {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferOutputStream
 
+data::stream::DefaultInitializedContext BufferOutputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
+
 BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, v_buff_size growBytes)
   : m_data(new v_char8[initialCapacity])
   , m_capacity(initialCapacity)
@@ -60,8 +62,8 @@ IOMode BufferOutputStream::getOutputStreamIOMode() {
   return m_ioMode;
 }
 
-Context* BufferOutputStream::getOutputStreamContext() {
-  return nullptr;
+Context& BufferOutputStream::getOutputStreamContext() {
+  return DEFAULT_CONTEXT;
 }
 
 void BufferOutputStream::reserveBytesUpfront(v_buff_size count) {
@@ -159,6 +161,8 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferInputStream
 
+data::stream::DefaultInitializedContext BufferInputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_FINITE);
+
 BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size)
   : m_memoryHandle(memoryHandle)
   , m_data(data)
@@ -219,8 +223,8 @@ IOMode BufferInputStream::getInputStreamIOMode() {
   return m_ioMode;
 }
 
-Context* BufferInputStream::getInputStreamContext() {
-  return nullptr;
+Context& BufferInputStream::getInputStreamContext() {
+  return DEFAULT_CONTEXT;
 }
 
 std::shared_ptr<base::StrBuffer> BufferInputStream::getDataMemoryHandle() {

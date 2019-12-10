@@ -85,8 +85,8 @@ IOMode FileInputStream::getInputStreamIOMode() {
   return m_ioMode;
 }
 
-Context* FileInputStream::getInputStreamContext() {
-  return &DEFAULT_CONTEXT;
+Context& FileInputStream::getInputStreamContext() {
+  return DEFAULT_CONTEXT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,8 +148,8 @@ IOMode FileOutputStream::getOutputStreamIOMode() {
   return m_ioMode;
 }
 
-Context* FileOutputStream::getOutputStreamContext() {
-  return &DEFAULT_CONTEXT;
+Context& FileOutputStream::getOutputStreamContext() {
+  return DEFAULT_CONTEXT;
 }
 
 }}}

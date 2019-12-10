@@ -54,12 +54,12 @@ SimpleTCPConnectionProvider::ExtendedConnection::ExtendedConnection(data::v_io_h
   , m_context(data::stream::StreamType::STREAM_INFINITE, std::forward<data::stream::Context::Properties>(properties))
 {}
 
-oatpp::data::stream::Context* SimpleTCPConnectionProvider::ExtendedConnection::getOutputStreamContext() {
-  return &m_context;
+oatpp::data::stream::Context& SimpleTCPConnectionProvider::ExtendedConnection::getOutputStreamContext() {
+  return m_context;
 }
 
-oatpp::data::stream::Context* SimpleTCPConnectionProvider::ExtendedConnection::getInputStreamContext() {
-  return &m_context;
+oatpp::data::stream::Context& SimpleTCPConnectionProvider::ExtendedConnection::getInputStreamContext() {
+  return m_context;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

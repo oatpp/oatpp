@@ -153,7 +153,7 @@ Beautifier::IOMode Beautifier::getOutputStreamIOMode() {
   return m_outputStream->getOutputStreamIOMode();
 }
 
-Beautifier::Context* Beautifier::getOutputStreamContext() {
+Beautifier::Context& Beautifier::getOutputStreamContext() {
   return m_outputStream->getOutputStreamContext();
 }
 

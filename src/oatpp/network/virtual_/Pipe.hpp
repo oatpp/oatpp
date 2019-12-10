@@ -52,7 +52,10 @@ public:
    */
   class Reader : public oatpp::data::stream::InputStream {
     friend Pipe;
+  public:
+    static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
   private:
+
     class WaitListListener : public oatpp::async::CoroutineWaitList::Listener {
     private:
       Pipe* m_pipe;
@@ -70,6 +73,7 @@ public:
       }
 
     };
+
   private:
     Pipe* m_pipe;
     oatpp::data::stream::IOMode m_ioMode;
@@ -136,7 +140,7 @@ public:
      * Get stream context.
      * @return
      */
-    oatpp::data::stream::Context* getInputStreamContext() override;
+    oatpp::data::stream::Context& getInputStreamContext() override;
 
     /**
      * Notify coroutine wait-list
@@ -151,6 +155,8 @@ public:
    */
   class Writer : public oatpp::data::stream::OutputStream {
     friend Pipe;
+  public:
+    static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
   private:
     class WaitListListener : public oatpp::async::CoroutineWaitList::Listener {
     private:
@@ -232,7 +238,7 @@ public:
      * Get stream context.
      * @return
      */
-    oatpp::data::stream::Context* getOutputStreamContext() override;
+    oatpp::data::stream::Context& getOutputStreamContext() override;
 
     /**
      * Notify coroutine wait-list
