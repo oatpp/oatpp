@@ -54,7 +54,7 @@ public:
     static const char* const PROPERTY_PEER_ADDRESS_FORMAT;
     static const char* const PROPERTY_PEER_PORT;
 
-  private:
+  protected:
     ExtendedConnectionContext m_context;
   public:
 

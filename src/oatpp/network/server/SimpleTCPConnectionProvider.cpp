@@ -220,7 +220,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getD
   oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
 
   if(prepareConnectionHandle(handle)) {
-    return Connection::createShared(handle);
+    return std::make_shared<Connection>(handle);
   }
 
   return nullptr;
@@ -229,35 +229,53 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getD
 
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getExtendedConnection() {
 
-  socklen_t len;
+  oatpp::String ipAddress;
   int port;
-  int ipStrSize = INET6_ADDRSTRLEN + 1;
-  auto ipstr = std::unique_ptr<char[]>(new char[ipStrSize]);
   const char* addrFormat;
-  struct sockaddr_storage addr;
+  struct sockaddr_storage clientAddress;
+  socklen_t clientAddressSize = sizeof(clientAddress);
 
-  len = sizeof(addr);
+  oatpp::data::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
 
-  oatpp::data::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*)&addr, &len);
+  if (clientAddress.ss_family == AF_INET) {
 
-  if (addr.ss_family == AF_INET) {
-    struct sockaddr_in *s = (struct sockaddr_in *)&addr;
-    port = ntohs(s->sin_port);
-    inet_ntop(AF_INET, &s->sin_addr, ipstr.get(), ipStrSize);
+    char strIp[INET_ADDRSTRLEN];
+    struct sockaddr_in* sockAddress = (struct sockaddr_in*) &clientAddress;
+    inet_ntop(AF_INET, &sockAddress->sin_addr, strIp, INET_ADDRSTRLEN);
+
+    ipAddress = (const char*) strIp;
     addrFormat = "ipv4";
-  } else {
-    struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr;
-    port = ntohs(s->sin6_port);
-    inet_ntop(AF_INET6, &s->sin6_addr, ipstr.get(), ipStrSize);
+    port = ntohs(sockAddress->sin_port);
+
+  } else if (clientAddress.ss_family == AF_INET6) {
+
+    char strIp[INET6_ADDRSTRLEN];
+    struct sockaddr_in6* sockAddress = (struct sockaddr_in6*) &clientAddress;
+    inet_ntop(AF_INET6, &sockAddress->sin6_addr, strIp, INET6_ADDRSTRLEN);
+
+    ipAddress = (const char*) strIp;
     addrFormat = "ipv6";
+    port = ntohs(sockAddress->sin6_port);
+
+  } else {
+
+#if defined(WIN32) || defined(_WIN32)
+    ::closesocket(handle);
+#else
+    ::close(handle);
+#endif
+
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::getExtendedConnection()]", "Error. Unknown address family.");
+    return nullptr;
+
   }
 
   if(prepareConnectionHandle(handle)) {
 
-    auto connection = ExtendedConnection::createShared(handle);
+    auto connection = std::make_shared<ExtendedConnection>(handle);
     auto& properties = connection->getInputStreamContext()->getMutableProperties();
 
-    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) ipstr.get()));
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, ipAddress);
     properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, addrFormat);
     properties.put(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(port));
 
