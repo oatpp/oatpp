@@ -63,7 +63,8 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
 // Other
 
 std::shared_ptr<protocol::http::outgoing::Response>
-HttpProcessor::processRequest(const std::shared_ptr<Components>& components,
+HttpProcessor::processRequest(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                              const std::shared_ptr<Components>& components,
                               RequestHeadersReader& headersReader,
                               const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                               v_int32& connectionState) {
@@ -88,7 +89,8 @@ HttpProcessor::processRequest(const std::shared_ptr<Components>& components,
     return components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
   }
 
-  auto request = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
+  auto request = protocol::http::incoming::Request::createShared(connection,
+                                                                 headersReadResult.startingLine,
                                                                  route.matchMap,
                                                                  headersReadResult.headers,
                                                                  inStream,
@@ -152,7 +154,7 @@ void HttpProcessor::Task::run(){
 
   do {
 
-    response = HttpProcessor::processRequest(m_components, headersReader, inStream, connectionState);
+    response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
 
     if(response) {
       response->send(m_connection.get(), &headersOutBuffer);
@@ -204,7 +206,8 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
 
-  m_currentRequest = protocol::http::incoming::Request::createShared(headersReadResult.startingLine,
+  m_currentRequest = protocol::http::incoming::Request::createShared(m_connection,
+                                                                     headersReadResult.startingLine,
                                                                      m_currentRoute.matchMap,
                                                                      headersReadResult.headers,
                                                                      m_inStream,

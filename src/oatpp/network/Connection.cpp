@@ -56,7 +56,7 @@ bool ConnectionStreamContext::isInitialized() const {
 }
 
 oatpp::data::stream::StreamType ConnectionStreamContext::getStreamType() const {
-  return oatpp::data::stream::StreamType::INFINITE;
+  return oatpp::data::stream::StreamType::STREAM_INFINITE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

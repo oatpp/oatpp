@@ -44,7 +44,7 @@ bool FileStreamContext::isInitialized() const {
 }
 
 StreamType FileStreamContext::getStreamType() const {
-  return StreamType::FINITE;
+  return StreamType::STREAM_FINITE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

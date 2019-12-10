@@ -26,12 +26,14 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-Request::Request(const http::RequestStartingLine& startingLine,
+Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                 const http::RequestStartingLine& startingLine,
                  const url::mapping::Pattern::MatchMap& pathVariables,
                  const http::Headers& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                  const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
-  : m_startingLine(startingLine)
+  : m_connection(connection)
+  , m_startingLine(startingLine)
   , m_pathVariables(pathVariables)
   , m_headers(headers)
   , m_bodyStream(bodyStream)
@@ -39,12 +41,17 @@ Request::Request(const http::RequestStartingLine& startingLine,
   , m_queryParamsParsed(false)
 {}
 
-std::shared_ptr<Request> Request::createShared(const http::RequestStartingLine& startingLine,
+std::shared_ptr<Request> Request::createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                               const http::RequestStartingLine& startingLine,
                                                const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
-  return Shared_Incoming_Request_Pool::allocateShared(startingLine, pathVariables, headers, bodyStream, bodyDecoder);
+  return Shared_Incoming_Request_Pool::allocateShared(connection, startingLine, pathVariables, headers, bodyStream, bodyDecoder);
+}
+
+std::shared_ptr<oatpp::data::stream::IOStream> Request::getConnection() {
+  return m_connection;
 }
 
 const http::RequestStartingLine& Request::getStartingLine() const {

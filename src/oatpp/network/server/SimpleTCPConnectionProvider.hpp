@@ -26,8 +26,8 @@
 #define oatpp_netword_server_SimpleTCPConnectionProvider_hpp
 
 #include "oatpp/network/ConnectionProvider.hpp"
+#include "oatpp/network/Connection.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace server {
@@ -36,20 +36,68 @@ namespace oatpp { namespace network { namespace server {
  * Simple provider of TCP connections.
  */
 class SimpleTCPConnectionProvider : public base::Countable, public ServerConnectionProvider {
+public:
+
+  /**
+   * Connection stream context with additional data.
+   */
+  class ExtendedConnectionContext : public oatpp::network::ConnectionStreamContext {
+  };
+
+  /**
+   * Connection with extra data - ex.: peer address.
+   */
+  class ExtendedConnection : public oatpp::network::Connection {
+  public:
+
+    static const char* const PROPERTY_PEER_ADDRESS;
+    static const char* const PROPERTY_PEER_ADDRESS_FORMAT;
+    static const char* const PROPERTY_PEER_PORT;
+
+  private:
+    ExtendedConnectionContext m_context;
+  public:
+
+    /**
+     * Constructor.
+     * @param handle - &id:oatpp::data::v_io_handle;.
+     */
+    ExtendedConnection(data::v_io_handle handle);
+
+    /**
+     * Get output stream context.
+     * @return - &id:oatpp::data::stream::Context;.
+     */
+    oatpp::data::stream::Context* getOutputStreamContext() override;
+
+    /**
+     * Get input stream context. <br>
+     * @return - &id:oatpp::data::stream::Context;.
+     */
+    oatpp::data::stream::Context* getInputStreamContext() override;
+
+  };
+
 private:
   v_word16 m_port;
   bool m_closed;
   oatpp::data::v_io_handle m_serverHandle;
+  bool m_useExtendedConnections;
 private:
   oatpp::data::v_io_handle instantiateServer();
+private:
+  bool prepareConnectionHandle(oatpp::data::v_io_handle handle);
+  std::shared_ptr<IOStream> getDefaultConnection();
+  std::shared_ptr<IOStream> getExtendedConnection();
 public:
 
   /**
    * Constructor.
    * @param port - port to listen for incoming connections.
-   * @param port
+   * @param useExtendedConnections - set `true` to use &l:SimpleTCPConnectionProvider::ExtendedConnection;.
+   * `false` to use &id:oatpp::network::Connection;.
    */
-  SimpleTCPConnectionProvider(v_word16 port);
+  SimpleTCPConnectionProvider(v_word16 port, bool useExtendedConnections = false);
 public:
 
   /**
@@ -58,8 +106,8 @@ public:
    * @param port
    * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port){
-    return std::make_shared<SimpleTCPConnectionProvider>(port);
+  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool useExtendedConnections = false){
+    return std::make_shared<SimpleTCPConnectionProvider>(port, useExtendedConnections);
   }
 
   /**

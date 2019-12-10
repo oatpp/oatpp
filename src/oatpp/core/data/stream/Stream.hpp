@@ -41,12 +41,13 @@ enum StreamType : v_int32 {
   /**
    * Finite stream.
    */
-  FINITE = 0,
+  STREAM_FINITE = 0,
 
   /**
    * Infinite stream.
    */
-  INFINITE = 1
+  STREAM_INFINITE = 1
+
 };
 
 
@@ -88,6 +89,12 @@ public:
    * @return
    */
   const Properties& getProperties() const;
+
+  /**
+   * Get mutable additional optional context specific properties.
+   * @return
+   */
+  Properties& getMutableProperties();
 
 };
 

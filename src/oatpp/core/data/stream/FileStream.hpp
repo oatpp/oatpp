@@ -61,7 +61,7 @@ public:
 
   /**
    * Get stream type.
-   * @return - &id:oatpp::data::stream::StreamType::FINITE;.
+   * @return - &id:oatpp::data::stream::StreamType::STREAM_FINITE;.
    */
   StreamType getStreamType() const override;
 

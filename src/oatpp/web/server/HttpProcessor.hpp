@@ -151,7 +151,8 @@ public:
 private:
 
   static std::shared_ptr<protocol::http::outgoing::Response>
-  processRequest(const std::shared_ptr<Components>& components,
+  processRequest(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                 const std::shared_ptr<Components>& components,
                  RequestHeadersReader& headersReader,
                  const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
                  v_int32& connectionState);

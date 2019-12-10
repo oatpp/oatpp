@@ -34,6 +34,10 @@ const Context::Properties& Context::getProperties() const {
   return m_properties;
 }
 
+Context::Properties& Context::getMutableProperties() {
+  return m_properties;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IOStream
 
