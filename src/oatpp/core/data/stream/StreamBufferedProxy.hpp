@@ -69,6 +69,12 @@ public:
    */
   oatpp::data::stream::IOMode getOutputStreamIOMode() override;
 
+  /**
+   * Get context of the underlying stream.
+   * @return
+   */
+  Context& getOutputStreamContext() override;
+
   data::v_io_size flush();
   oatpp::async::CoroutineStarter flushAsync();
 
@@ -132,6 +138,12 @@ public:
    * @return
    */
   oatpp::data::stream::IOMode getInputStreamIOMode() override;
+
+  /**
+   * Get context of the underlying stream.
+   * @return
+   */
+  Context& getInputStreamContext() override;
 
   void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
     m_buffer.setBufferPosition(readPosition, writePosition, canRead);

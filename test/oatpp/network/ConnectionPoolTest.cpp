@@ -60,11 +60,19 @@ public:
     throw std::runtime_error("It's a stub!");
   }
 
+  oatpp::data::stream::Context& getOutputStreamContext() override {
+    throw std::runtime_error("It's a stub!");
+  }
+
   void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override {
     throw std::runtime_error("It's a stub!");
   }
 
   oatpp::data::stream::IOMode getInputStreamIOMode() override {
+    throw std::runtime_error("It's a stub!");
+  }
+
+  oatpp::data::stream::Context& getInputStreamContext() override {
     throw std::runtime_error("It's a stub!");
   }
 

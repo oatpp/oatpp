@@ -96,6 +96,14 @@ oatpp::data::stream::IOMode ConnectionPool::ConnectionWrapper::getInputStreamIOM
   return m_connection->getInputStreamIOMode();
 }
 
+oatpp::data::stream::Context& ConnectionPool::ConnectionWrapper::getOutputStreamContext() {
+  return m_connection->getOutputStreamContext();
+}
+
+oatpp::data::stream::Context& ConnectionPool::ConnectionWrapper::getInputStreamContext() {
+  return m_connection->getInputStreamContext();
+}
+
 void ConnectionPool::ConnectionWrapper::invalidate() {
   m_recycleConnection = false;
 }

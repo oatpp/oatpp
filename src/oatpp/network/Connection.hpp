@@ -34,9 +34,8 @@ namespace oatpp { namespace network {
  * TCP Connection implementation. Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
  */
 class Connection : public oatpp::base::Countable, public oatpp::data::stream::IOStream {
-public:
-  OBJECT_POOL(Connection_Pool, Connection, 32);
-  SHARED_OBJECT_POOL(Shared_Connection_Pool, Connection, 32);
+private:
+  static oatpp::data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
   data::v_io_handle m_handle;
 #if defined(WIN32) || defined(_WIN32)
@@ -52,15 +51,6 @@ public:
    */
   Connection(data::v_io_handle handle);
 public:
-
-  /**
-   * Create shared Connection.
-   * @param handle - file descriptor (socket handle). See &id:oatpp::data::v_io_handle;.
-   * @return - shared_ptr to Connection.
-   */
-  static std::shared_ptr<Connection> createShared(data::v_io_handle handle){
-    return Shared_Connection_Pool::allocateShared(handle);
-  }
 
   /**
    * Virtual Destructor (See &id:oatpp::base::Countable;).
@@ -113,6 +103,12 @@ public:
   oatpp::data::stream::IOMode getOutputStreamIOMode() override;
 
   /**
+   * Get output stream context.
+   * @return - &id:oatpp::data::stream::Context;.
+   */
+  oatpp::data::stream::Context& getOutputStreamContext() override;
+
+  /**
    * Set InputStream I/O mode.
    * @param ioMode
    */
@@ -123,6 +119,12 @@ public:
    * @return
    */
   oatpp::data::stream::IOMode getInputStreamIOMode() override;
+
+  /**
+   * Get input stream context. <br>
+   * @return - &id:oatpp::data::stream::Context;.
+   */
+  oatpp::data::stream::Context& getInputStreamContext() override;
 
   /**
    * Close socket handle.

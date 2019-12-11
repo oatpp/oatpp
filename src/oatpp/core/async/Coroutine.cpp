@@ -196,8 +196,13 @@ Action CoroutineStarter::next(Action&& action) {
 }
 
 CoroutineStarter& CoroutineStarter::next(CoroutineStarter&& starter) {
-  m_last->m_parentReturnAction = starter.m_first;
-  m_last = starter.m_last;
+  if(m_last == nullptr) {
+    m_first = starter.m_first;
+    m_last = starter.m_last;
+  } else {
+    m_last->m_parentReturnAction = starter.m_first;
+    m_last = starter.m_last;
+  }
   starter.m_first = nullptr;
   starter.m_last = nullptr;
   return *this;

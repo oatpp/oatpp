@@ -24,7 +24,6 @@
 
 #include "./SimpleTCPConnectionProvider.hpp"
 
-#include "oatpp/network/Connection.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
@@ -43,9 +42,33 @@
 
 namespace oatpp { namespace network { namespace server {
 
-SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ExtendedConnection
+
+const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_ADDRESS = "peer_address";
+const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT = "peer_address_format";
+const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_PORT = "peer_port";
+
+SimpleTCPConnectionProvider::ExtendedConnection::ExtendedConnection(data::v_io_handle handle, data::stream::Context::Properties&& properties)
+  : Connection(handle)
+  , m_context(data::stream::StreamType::STREAM_INFINITE, std::forward<data::stream::Context::Properties>(properties))
+{}
+
+oatpp::data::stream::Context& SimpleTCPConnectionProvider::ExtendedConnection::getOutputStreamContext() {
+  return m_context;
+}
+
+oatpp::data::stream::Context& SimpleTCPConnectionProvider::ExtendedConnection::getInputStreamContext() {
+  return m_context;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SimpleTCPConnectionProvider
+
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool useExtendedConnections)
   : m_port(port)
   , m_closed(false)
+  , m_useExtendedConnections(useExtendedConnections)
 {
   m_serverHandle = instantiateServer();
   setProperty(PROPERTY_HOST, "localhost");
@@ -167,19 +190,17 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
 #endif
 
-std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
-
-  oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
+bool SimpleTCPConnectionProvider::prepareConnectionHandle(oatpp::data::v_io_handle handle) {
 
   if (handle < 0) {
     v_int32 error = errno;
     if(error == EAGAIN || error == EWOULDBLOCK){
-      return nullptr;
+      return false;
     } else {
       if(!m_closed) { // m_serverHandle==0 if ConnectionProvider was closed. Not an error.
-        OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Error. %d", error);
+        OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::prepareConnectionHandle()]", "Error. %d", error);
       }
-      return nullptr;
+      return false;
     }
   }
 
@@ -187,12 +208,81 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   int yes = 1;
   v_int32 ret = setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::prepareConnectionHandle()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
 
-  return Connection::createShared(handle);
+  return true;
 
+}
+
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getDefaultConnection() {
+
+  oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
+
+  if(prepareConnectionHandle(handle)) {
+    return std::make_shared<Connection>(handle);
+  }
+
+  return nullptr;
+
+}
+
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getExtendedConnection() {
+
+  struct sockaddr_storage clientAddress;
+  socklen_t clientAddressSize = sizeof(clientAddress);
+
+  data::stream::Context::Properties properties;
+
+  oatpp::data::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
+
+  if (clientAddress.ss_family == AF_INET) {
+
+    char strIp[INET_ADDRSTRLEN];
+    struct sockaddr_in* sockAddress = (struct sockaddr_in*) &clientAddress;
+    inet_ntop(AF_INET, &sockAddress->sin_addr, strIp, INET_ADDRSTRLEN);
+
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv4");
+    properties.put(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin_port));
+
+  } else if (clientAddress.ss_family == AF_INET6) {
+
+    char strIp[INET6_ADDRSTRLEN];
+    struct sockaddr_in6* sockAddress = (struct sockaddr_in6*) &clientAddress;
+    inet_ntop(AF_INET6, &sockAddress->sin6_addr, strIp, INET6_ADDRSTRLEN);
+
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
+    properties.put(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv6");
+    properties.put(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin6_port));
+
+  } else {
+
+#if defined(WIN32) || defined(_WIN32)
+    ::closesocket(handle);
+#else
+    ::close(handle);
+#endif
+
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::getExtendedConnection()]", "Error. Unknown address family.");
+    return nullptr;
+
+  }
+
+  if(prepareConnectionHandle(handle)) {
+    return std::make_shared<ExtendedConnection>(handle, std::move(properties));
+  }
+
+  return nullptr;
+
+}
+
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
+  if(m_useExtendedConnections) {
+    return getExtendedConnection();
+  }
+  return getDefaultConnection();
 }
 
 }}}

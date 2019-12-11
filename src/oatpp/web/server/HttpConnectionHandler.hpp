@@ -29,8 +29,6 @@
 #include "./handler/ErrorHandler.hpp"
 #include "./HttpRouter.hpp"
 
-#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
-
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/network/Connection.hpp"
 
@@ -42,43 +40,33 @@ namespace oatpp { namespace web { namespace server {
  */
 class HttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
-  
-  class Task : public base::Countable {
-  private:
-    HttpRouter* m_router;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
-    std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-    HttpProcessor::RequestInterceptors* m_requestInterceptors;
-  public:
-    Task(HttpRouter* router,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-         const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-         HttpProcessor::RequestInterceptors* requestInterceptors);
-  public:
-    
-    static std::shared_ptr<Task> createShared(HttpRouter* router,
-                                              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                              const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& bodyDecoder,
-                                              const std::shared_ptr<handler::ErrorHandler>& errorHandler,
-                                              HttpProcessor::RequestInterceptors* requestInterceptors);
-    
-    void run();
-    
-  };
-  
-private:
-  std::shared_ptr<HttpRouter> m_router;
-  std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> m_bodyDecoder;
-  std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  HttpProcessor::RequestInterceptors m_requestInterceptors;
+  std::shared_ptr<HttpProcessor::Components> m_components;
 public:
+
+  /**
+   * Constructor.
+   * @param components - &id:oatpp::web::server::HttpProcessor::Components;.
+   */
+  HttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components);
+
   /**
    * Constructor.
    * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
    */
-  HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router);
+  HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router)
+    : HttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router))
+  {}
+
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @param config - &id:oatpp::web::server::HttpProcessor::Config;.
+   */
+  HttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                        const std::shared_ptr<HttpProcessor::Config>& config)
+    : HttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router, config))
+  {}
+
 public:
 
   /**

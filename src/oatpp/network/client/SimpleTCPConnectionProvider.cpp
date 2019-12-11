@@ -113,7 +113,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   }
 #endif
 
-  return oatpp::network::Connection::createShared(clientHandle);
+  return std::make_shared<oatpp::network::Connection>(clientHandle);
 
 }
 
@@ -234,7 +234,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       auto error = WSAGetLastError();
 
       if(res == 0 || error == WSAEISCONN) {
-        return _return(oatpp::network::Connection::createShared(m_clientHandle));
+        return _return(std::make_shared<oatpp::network::Connection>(m_clientHandle));
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -245,7 +245,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 #else
 
       if(res == 0 || errno == EISCONN) {
-        return _return(oatpp::network::Connection::createShared(m_clientHandle));
+        return _return(std::make_shared<oatpp::network::Connection>(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);

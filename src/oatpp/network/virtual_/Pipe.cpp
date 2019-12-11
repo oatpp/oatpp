@@ -26,6 +26,8 @@
 
 namespace oatpp { namespace network { namespace virtual_ {
 
+data::stream::DefaultInitializedContext Pipe::Reader::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
+
 void Pipe::Reader::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   m_ioMode = ioMode;
 }
@@ -103,11 +105,17 @@ oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioRe
 
 }
 
+oatpp::data::stream::Context& Pipe::Reader::getInputStreamContext() {
+  return DEFAULT_CONTEXT;
+}
+
 void Pipe::Reader::notifyWaitList() {
   m_waitList.notifyAll();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+data::stream::DefaultInitializedContext Pipe::Writer::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
 void Pipe::Writer::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   m_ioMode = ioMode;
@@ -115,6 +123,10 @@ void Pipe::Writer::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
 oatpp::data::stream::IOMode Pipe::Writer::getOutputStreamIOMode() {
   return m_ioMode;
+}
+
+oatpp::data::stream::Context& Pipe::Writer::getOutputStreamContext() {
+  return DEFAULT_CONTEXT;
 }
 
 void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {

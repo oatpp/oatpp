@@ -30,8 +30,6 @@
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/Interceptor.hpp"
 
-#include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
-
 #include "oatpp/network/server/ConnectionHandler.hpp"
 #include "oatpp/core/async/Executor.hpp"
 
@@ -42,17 +40,67 @@ namespace oatpp { namespace web { namespace server {
  */
 class AsyncHttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
 private:
-  typedef oatpp::web::protocol::http::incoming::BodyDecoder BodyDecoder;
-private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
 private:
-  std::shared_ptr<HttpRouter> m_router;
-  std::shared_ptr<handler::ErrorHandler> m_errorHandler;
-  HttpProcessor::RequestInterceptors m_requestInterceptors;
-  std::shared_ptr<const BodyDecoder> m_bodyDecoder; // TODO make bodyDecoder configurable here
+  std::shared_ptr<HttpProcessor::Components> m_components;
 public:
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
-  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor);
+
+  /**
+   * Constructor.
+   * @param components - &id:oatpp::web::server::HttpProcessor::Components;.
+   * @param threadCount - number of threads.
+   */
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED);
+
+  /**
+   * Constructor.
+   * @param components - &id:oatpp::web::server::HttpProcessor::Components;.
+   * @param executor - &id:oatpp::async::Executor;.
+   */
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components, const std::shared_ptr<oatpp::async::Executor>& executor);
+
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @param threadCount - number of threads.
+   */
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router), threadCount)
+  {}
+
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @param executor - &id:oatpp::async::Executor;.
+   */
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router), executor)
+  {}
+
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @param config - &id:oatpp::web::server::HttpProcessor::Config;.
+   * @param threadCount - number of threads.
+   */
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                             const std::shared_ptr<HttpProcessor::Config>& config,
+                             v_int32 threadCount = oatpp::async::Executor::VALUE_SUGGESTED)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router, config), threadCount)
+  {}
+
+  /**
+   * Constructor.
+   * @param router - &id:oatpp::web::server::HttpRouter; to route incoming requests.
+   * @param config - &id:oatpp::web::server::HttpProcessor::Config;.
+   * @param executor - &id:oatpp::async::Executor;.
+   */
+  AsyncHttpConnectionHandler(const std::shared_ptr<HttpRouter>& router,
+                             const std::shared_ptr<HttpProcessor::Config>& config,
+                             const std::shared_ptr<oatpp::async::Executor>& executor)
+    : AsyncHttpConnectionHandler(std::make_shared<HttpProcessor::Components>(router, config), executor)
+  {}
+
 public:
   
   static std::shared_ptr<AsyncHttpConnectionHandler> createShared(const std::shared_ptr<HttpRouter>& router,

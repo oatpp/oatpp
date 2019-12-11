@@ -38,6 +38,11 @@
 
 namespace oatpp { namespace network {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Connection
+
+oatpp::data::stream::DefaultInitializedContext Connection::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
+
 Connection::Connection(data::v_io_handle handle)
   : m_handle(handle)
 {
@@ -265,12 +270,20 @@ oatpp::data::stream::IOMode Connection::getOutputStreamIOMode() {
   return getStreamIOMode();
 }
 
+oatpp::data::stream::Context& Connection::getOutputStreamContext() {
+  return DEFAULT_CONTEXT;
+}
+
 void Connection::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   setStreamIOMode(ioMode);
 }
 
 oatpp::data::stream::IOMode Connection::getInputStreamIOMode() {
   return getStreamIOMode();
+}
+
+oatpp::data::stream::Context& Connection::getInputStreamContext() {
+  return DEFAULT_CONTEXT;
 }
 
 void Connection::close(){

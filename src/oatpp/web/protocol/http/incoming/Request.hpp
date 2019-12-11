@@ -41,6 +41,7 @@ public:
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 private:
 
+  std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   http::RequestStartingLine m_startingLine;
   url::mapping::Pattern::MatchMap m_pathVariables;
   http::Headers m_headers;
@@ -57,18 +58,26 @@ private:
 
 public:
   
-  Request(const http::RequestStartingLine& startingLine,
+  Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+          const http::RequestStartingLine& startingLine,
           const url::mapping::Pattern::MatchMap& pathVariables,
           const http::Headers& headers,
           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 public:
   
-  static std::shared_ptr<Request> createShared(const http::RequestStartingLine& startingLine,
+  static std::shared_ptr<Request> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                               const http::RequestStartingLine& startingLine,
                                                const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
+
+  /**
+   * Get raw connection stream.
+   * @return - &id:std::shared_ptr<oatpp::data::stream::IOStream> m_connection;.
+   */
+  std::shared_ptr<oatpp::data::stream::IOStream> getConnection();
 
   /**
    * Get map of url query parameters.

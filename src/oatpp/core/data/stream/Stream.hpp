@@ -25,12 +25,149 @@
 #ifndef oatpp_data_Stream
 #define oatpp_data_Stream
 
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp/core/data/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
+
+/**
+ * Stream Type.
+ */
+enum StreamType : v_int32 {
+
+  /**
+   * Finite stream.
+   */
+  STREAM_FINITE = 0,
+
+  /**
+   * Infinite stream.
+   */
+  STREAM_INFINITE = 1
+
+};
+
+
+/**
+ * Stream Context.
+ */
+class Context {
+public:
+  /**
+   * Convenience typedef for &id:oatpp::data::share::LazyStringMap;.
+   */
+  typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> Properties;
+private:
+  Properties m_properties;
+protected:
+  /**
+   * `protected`. Get mutable additional optional context specific properties.
+   * @return - &l:Context::Properties;.
+   */
+  Properties& getMutableProperties();
+public:
+
+  /**
+   * Default constructor.
+   */
+  Context() = default;
+
+  /**
+   * Constructor.
+   * @param properties - &l:Context::Properties;.
+   */
+  Context(Properties&& properties);
+
+  /**
+   * Initialize stream context.
+   */
+  virtual void init() = 0;
+
+  /**
+   * Initialize stream context in an async manner.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter initAsync() = 0;
+
+  /**
+   * Check if the stream context is initialized.
+   * @return - `bool`.
+   */
+  virtual bool isInitialized() const = 0;
+
+  /**
+   * Get stream type.
+   * @return - &l:StreamType;.
+   */
+  virtual StreamType getStreamType() const = 0;
+
+  /**
+   * Additional optional context specific properties.
+   * @return - &l:Context::Properties;.
+   */
+  const Properties& getProperties() const;
+
+  inline bool operator == (const Context& other){
+    return this == &other;
+  }
+
+  inline bool operator != (const Context& other){
+    return this != &other;
+  }
+
+};
+
+/**
+ * The default implementation for context with no initialization.
+ */
+class DefaultInitializedContext : public oatpp::data::stream::Context {
+private:
+  StreamType m_streamType;
+public:
+
+  /**
+   * Constructor.
+   * @param streamType - &l:StreamType;.
+   */
+  DefaultInitializedContext(StreamType streamType);
+
+  /**
+   * Constructor.
+   * @param streamType - &l:StreamType;.
+   * @param properties - &l:Context::Properties;.
+   */
+  DefaultInitializedContext(StreamType streamType, Properties&& properties);
+
+  /**
+   * Initialize stream context. <br>
+   * *This particular implementation does nothing.*
+   */
+  void init() override;
+
+  /**
+   * Initialize stream context in an async manner.
+   * *This particular implementation does nothing.*
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  async::CoroutineStarter initAsync() override;
+
+  /**
+   * Check if the stream context is initialized.
+   * *This particular implementation always returns `true`.*
+   * @return - `bool`.
+   */
+  bool isInitialized() const override;
+
+  /**
+   * Get stream type.
+   * @return - &l:StreamType;.
+   */
+  StreamType getStreamType() const override;
+
+};
 
 /**
  * Stream I/O mode.
@@ -88,6 +225,12 @@ public:
    * @return
    */
   virtual IOMode getOutputStreamIOMode() = 0;
+
+  /**
+   * Get stream context. Can be `null`.
+   * @return - pointer to &l:Context; or `nullptr`.
+   */
+  virtual Context& getOutputStreamContext() = 0;
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -159,6 +302,12 @@ public:
    */
   virtual IOMode getInputStreamIOMode() = 0;
 
+  /**
+   * Get stream context. Can be `null`.
+   * @return - pointer to &l:Context; or `nullptr`.
+   */
+  virtual Context& getInputStreamContext() = 0;
+
 };
 
 /**
@@ -166,7 +315,17 @@ public:
  */
 class IOStream : public InputStream, public OutputStream {
 public:
-  typedef data::v_io_size v_size;
+
+  /**
+   * Init input/output stream contexts.
+   */
+  void initContexts();
+
+  /**
+   * Init input/output stream contexts in an async manner.
+   */
+  async::CoroutineStarter initContextsAsync();
+
 };
 
 class CompoundIOStream : public oatpp::base::Countable, public IOStream {
@@ -213,12 +372,20 @@ public:
     return m_outputStream->getOutputStreamIOMode();
   }
 
+  Context& getOutputStreamContext() override {
+    return m_outputStream->getOutputStreamContext();
+  }
+
   void setInputStreamIOMode(IOMode ioMode) override {
     m_inputStream->setInputStreamIOMode(ioMode);
   }
 
   IOMode getInputStreamIOMode() override {
     return m_inputStream->getInputStreamIOMode();
+  }
+
+  Context& getInputStreamContext() override {
+    return m_inputStream->getInputStreamContext();
   }
     
 };
