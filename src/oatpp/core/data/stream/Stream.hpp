@@ -82,6 +82,11 @@ public:
   Context(Properties&& properties);
 
   /**
+   * Virtual destructor.
+   */
+  virtual ~Context() = default;
+
+  /**
    * Initialize stream context.
    */
   virtual void init() = 0;
