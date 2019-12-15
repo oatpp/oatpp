@@ -68,9 +68,9 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
+      return data::IOError::WAIT_RETRY_WRITE; // For async io. In case socket is non_blocking
     } else if(e == WSAEINTR) {
-      return data::IOError::RETRY;
+      return data::IOError::RETRY_WRITE;
     } else if(e == WSAECONNRESET) {
       return data::IOError::BROKEN_PIPE;
     } else {
@@ -93,9 +93,9 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
+      return data::IOError::WAIT_RETRY_WRITE; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
-      return data::IOError::RETRY;
+      return data::IOError::RETRY_WRITE;
     } else if(e == EPIPE) {
       return data::IOError::BROKEN_PIPE;
     } else {
@@ -119,9 +119,9 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
+      return data::IOError::WAIT_RETRY_READ; // For async io. In case socket is non_blocking
     } else if(e == WSAEINTR) {
-      return data::IOError::RETRY;
+      return data::IOError::RETRY_READ;
     } else if(e == WSAECONNRESET) {
       return data::IOError::BROKEN_PIPE;
     } else {
@@ -140,9 +140,9 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::WAIT_RETRY; // For async io. In case socket is non_blocking
+      return data::IOError::WAIT_RETRY_READ; // For async io. In case socket is non_blocking
     } else if(e == EINTR) {
-      return data::IOError::RETRY;
+      return data::IOError::RETRY_READ;
     } else if(e == ECONNRESET) {
       return data::IOError::BROKEN_PIPE;
     } else {
@@ -234,9 +234,9 @@ oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioRes
   }
 
   switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY:
+    case oatpp::data::IOError::WAIT_RETRY_WRITE:
       return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-    case oatpp::data::IOError::RETRY:
+    case oatpp::data::IOError::RETRY_WRITE:
       return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
   }
 
@@ -251,9 +251,9 @@ oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResu
   }
 
   switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY:
+    case oatpp::data::IOError::WAIT_RETRY_READ:
       return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-    case oatpp::data::IOError::RETRY:
+    case oatpp::data::IOError::RETRY_READ:
       return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
   }
 
