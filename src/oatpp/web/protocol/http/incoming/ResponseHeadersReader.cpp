@@ -60,7 +60,8 @@ data::v_io_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<
         }
       }
       
-    } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
+    } else if(res == data::IOError::WAIT_RETRY_READ || res == data::IOError::RETRY_READ ||
+              res == data::IOError::WAIT_RETRY_WRITE || res == data::IOError::RETRY_WRITE) {
       continue;
     } else {
       break;
@@ -145,7 +146,8 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
 
         return m_connection->suggestInputStreamAction(res);
         
-      } else if(res == data::IOError::WAIT_RETRY || res == data::IOError::RETRY) {
+      } else if(res == data::IOError::WAIT_RETRY_READ || res == data::IOError::RETRY_READ ||
+                res == data::IOError::WAIT_RETRY_WRITE || res == data::IOError::RETRY_WRITE) {
         return m_connection->suggestInputStreamAction(res);
       } else if(res == data::IOError::BROKEN_PIPE) {
         return error<oatpp::data::AsyncIOError>(data::IOError::BROKEN_PIPE);

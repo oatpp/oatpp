@@ -156,8 +156,10 @@ public:
   void execute(Args... params) {
     auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
     ++ m_tasksCounter;
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-    m_taskList.push_back(submission);
+    {
+      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+      m_taskList.push_back(submission);
+    }
     m_taskCondition.notify_one();
   }
 

@@ -47,7 +47,7 @@ public:
    * Constructor.
    */
   LazyStringMap()
-    : m_fullyInitialized(false)
+    : m_fullyInitialized(true)
   {}
 
   /**
@@ -61,14 +61,14 @@ public:
    * @param other
    */
   LazyStringMap(LazyStringMap&& other)
-    : m_fullyInitialized(false)
+    : m_fullyInitialized(other.m_fullyInitialized)
     , m_map(std::move(other.m_map))
   {}
 
   LazyStringMap& operator = (LazyStringMap& other) = default;
 
   LazyStringMap& operator = (LazyStringMap&& other){
-    m_fullyInitialized = false;
+    m_fullyInitialized = other.m_fullyInitialized;
     m_map = std::move(other.m_map);
     return *this;
   }
@@ -124,7 +124,7 @@ public:
   /**
    * Get value as a memory label.
    * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
- * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
    * @param key
    * @return
    */
@@ -146,7 +146,7 @@ public:
   /**
    * Get value as a memory label without allocating memory for value.
    * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
- * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
    * @param key
    * @return
    */

@@ -390,7 +390,10 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
         if(writeResult > 0) {
           data = &data[writeResult];
           bytesLeft -= writeResult;
-        } else if (writeResult == data::IOError::RETRY || writeResult == data::IOError::WAIT_RETRY) {
+        } else if (// In general case `OutputStream` may return `RETRY_READ`, `WAIT_RETRY_READ` on
+                   // because of the underlying transport. Check all retry values here!
+                   writeResult == data::IOError::RETRY_READ || writeResult == data::IOError::WAIT_RETRY_READ ||
+                   writeResult == data::IOError::RETRY_WRITE || writeResult == data::IOError::WAIT_RETRY_WRITE) {
           continue;
         } else {
           throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
@@ -400,7 +403,10 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
       progress += readResult;
 
     } else {
-      if(readResult == data::IOError::RETRY || readResult == data::IOError::WAIT_RETRY) {
+      if(// In general case `InputStream` may return `RETRY_WRITE`, `WAIT_RETRY_WRITE` on
+         // because of the underlying transport. Check all retry values here!
+         readResult == data::IOError::RETRY_READ || readResult == data::IOError::WAIT_RETRY_READ ||
+         readResult == data::IOError::RETRY_WRITE || readResult == data::IOError::WAIT_RETRY_WRITE) {
         continue;
       }
       return progress;
@@ -499,31 +505,58 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
 namespace {
 
   oatpp::async::Action asyncOutputStreamActionOnIOError(oatpp::data::stream::OutputStream* stream, data::v_io_size res) {
+
     switch (res) {
-      case IOError::WAIT_RETRY:
+
+      // In general case `OutputStream` may return `RETRY_READ`, `WAIT_RETRY_READ` on
+      // because of the underlying transport. Check all retry values here!
+
+      case IOError::WAIT_RETRY_READ:
         return stream->suggestOutputStreamAction(res);
-      case IOError::RETRY:
+      case IOError::RETRY_READ:
         return stream->suggestOutputStreamAction(res);
+
+      case IOError::WAIT_RETRY_WRITE:
+        return stream->suggestOutputStreamAction(res);
+      case IOError::RETRY_WRITE:
+        return stream->suggestOutputStreamAction(res);
+
       case IOError::BROKEN_PIPE:
         return new AsyncIOError(IOError::BROKEN_PIPE);
       case IOError::ZERO_VALUE:
         return new AsyncIOError(IOError::ZERO_VALUE);
+
     }
+
     return new AsyncIOError("Unknown IO Error result", res);
+
   }
 
   oatpp::async::Action asyncInputStreamActionOnIOError(oatpp::data::stream::InputStream* stream, data::v_io_size res) {
+
     switch (res) {
-      case IOError::WAIT_RETRY:
+
+      // In general case `InputStream` may return `RETRY_WRITE`, `WAIT_RETRY_WRITE` on
+      // because of the underlying transport. Check all retry values here!
+
+      case IOError::WAIT_RETRY_READ:
         return stream->suggestInputStreamAction(res);
-      case IOError::RETRY:
+      case IOError::RETRY_READ:
         return stream->suggestInputStreamAction(res);
+
+      case IOError::WAIT_RETRY_WRITE:
+        return stream->suggestInputStreamAction(res);
+      case IOError::RETRY_WRITE:
+        return stream->suggestInputStreamAction(res);
+
       case IOError::BROKEN_PIPE:
         return new AsyncIOError(IOError::BROKEN_PIPE);
       case IOError::ZERO_VALUE:
         return new AsyncIOError(IOError::ZERO_VALUE);
     }
+
     return new AsyncIOError("Unknown IO Error result", res);
+
   }
 
 }
@@ -619,8 +652,9 @@ oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* strea
     
     if(res > 0) {
       progress += res;
-    } else { // if res == 0 then probably stream handles read() error incorrectly. return.
-      if(res == data::IOError::RETRY || res == data::IOError::WAIT_RETRY) {
+    } else {
+      if(res == data::IOError::RETRY_READ || res == data::IOError::WAIT_RETRY_READ ||
+         res == data::IOError::RETRY_WRITE || res == data::IOError::WAIT_RETRY_WRITE) {
         continue;
       }
       return progress;
@@ -643,8 +677,9 @@ oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* str
     
     if(res > 0) {
       progress += res;
-    } else { // if res == 0 then probably stream handles write() error incorrectly. return.
-      if(res == data::IOError::RETRY || res == data::IOError::WAIT_RETRY) {
+    } else {
+      if(res == data::IOError::RETRY_READ || res == data::IOError::WAIT_RETRY_READ ||
+         res == data::IOError::RETRY_WRITE || res == data::IOError::WAIT_RETRY_WRITE) {
         continue;
       }
       return progress;
