@@ -26,6 +26,7 @@
 #define oatpp_data_share_LazyStringMap_hpp
 
 #include "./MemoryLabel.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 #include <unordered_map>
 
 namespace oatpp { namespace data { namespace share {
@@ -39,6 +40,7 @@ namespace oatpp { namespace data { namespace share {
 template<class Key>
 class LazyStringMap {
 private:
+  mutable concurrency::SpinLock m_lock;
   mutable bool m_fullyInitialized;
   std::unordered_map<Key, StringKeyLabel> m_map;
 public:
@@ -51,26 +53,61 @@ public:
   {}
 
   /**
-   * Default copy-constructor.
+   * Copy-constructor.
    * @param other
    */
-  LazyStringMap(const LazyStringMap& other) = default;
+  LazyStringMap(const LazyStringMap& other) {
+
+    std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
+
+    m_fullyInitialized = other.m_fullyInitialized;
+    m_map = std::unordered_map<Key, StringKeyLabel>(other.m_map);
+
+  }
 
   /**
    * Move constructor.
    * @param other
    */
-  LazyStringMap(LazyStringMap&& other)
-    : m_fullyInitialized(other.m_fullyInitialized)
-    , m_map(std::move(other.m_map))
-  {}
+  LazyStringMap(LazyStringMap&& other) {
 
-  LazyStringMap& operator = (LazyStringMap& other) = default;
+    std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
 
-  LazyStringMap& operator = (LazyStringMap&& other){
     m_fullyInitialized = other.m_fullyInitialized;
     m_map = std::move(other.m_map);
+
+  }
+
+  LazyStringMap& operator = (const LazyStringMap& other) {
+
+    if(this != &other) {
+
+      std::lock_guard<concurrency::SpinLock> thisLock(m_lock);
+      std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
+
+      m_fullyInitialized = other.m_fullyInitialized;
+      m_map = std::unordered_map<Key, StringKeyLabel>(other.m_map);
+
+    }
+
     return *this;
+
+  }
+
+  LazyStringMap& operator = (LazyStringMap&& other) {
+
+    if(this != &other) {
+
+      std::lock_guard<concurrency::SpinLock> thisLock(m_lock);
+      std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
+
+      m_fullyInitialized = other.m_fullyInitialized;
+      m_map = std::move(other.m_map);
+
+    }
+
+    return *this;
+
   }
 
   /**
@@ -79,6 +116,20 @@ public:
    * @param value
    */
   void put(const Key& key, const StringKeyLabel& value) {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
+
+    m_map.insert({key, value});
+    m_fullyInitialized = false;
+
+  }
+
+  /**
+   * Put value to map. Not thread-safe.
+   * @param key
+   * @param value
+   */
+  void put_LockFree(const Key& key, const StringKeyLabel& value) {
     m_map.insert({key, value});
     m_fullyInitialized = false;
   }
@@ -90,6 +141,28 @@ public:
    * @return
    */
   bool putIfNotExists(const Key& key, const StringKeyLabel& value) {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
+
+    auto it = m_map.find(key);
+
+    if(it == m_map.end()) {
+      m_map.insert({key, value});
+      m_fullyInitialized = false;
+      return true;
+    }
+
+    return false;
+
+  }
+
+  /**
+   * Put value to map if not already exists. Not thread-safe.
+   * @param key
+   * @param value
+   * @return
+   */
+  bool putIfNotExists_LockFree(const Key& key, const StringKeyLabel& value) {
 
     auto it = m_map.find(key);
 
@@ -109,6 +182,8 @@ public:
    * @return
    */
   oatpp::String get(const Key& key) const {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
 
     auto it = m_map.find(key);
 
@@ -130,6 +205,8 @@ public:
    */
   template<class T>
   T getAsMemoryLabel(const Key& key) const {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
 
     auto it = m_map.find(key);
 
@@ -153,6 +230,8 @@ public:
   template<class T>
   T getAsMemoryLabel_Unsafe(const Key& key) const {
 
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
+
     auto it = m_map.find(key);
 
     if(it != m_map.end()) {
@@ -169,6 +248,8 @@ public:
    * @return
    */
   const std::unordered_map<Key, StringKeyLabel>& getAll() const {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
 
     if(!m_fullyInitialized) {
 
@@ -197,6 +278,7 @@ public:
    * @return
    */
   v_int32 getSize() const {
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
     return (v_int32) m_map.size();
   }
 
