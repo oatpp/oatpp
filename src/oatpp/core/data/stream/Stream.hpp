@@ -232,8 +232,8 @@ public:
   virtual IOMode getOutputStreamIOMode() = 0;
 
   /**
-   * Get stream context. Can be `null`.
-   * @return - pointer to &l:Context; or `nullptr`.
+   * Get stream context.
+   * @return - &l:Context;.
    */
   virtual Context& getOutputStreamContext() = 0;
 
@@ -308,8 +308,8 @@ public:
   virtual IOMode getInputStreamIOMode() = 0;
 
   /**
-   * Get stream context. Can be `null`.
-   * @return - pointer to &l:Context; or `nullptr`.
+   * Get stream context.
+   * @return - &l:Context;.
    */
   virtual Context& getInputStreamContext() = 0;
 
