@@ -43,7 +43,7 @@ void DtoBody::declareHeaders(Headers& headers) noexcept {
     m_objectMapper->write(m_buffer, m_dto);
   }
   ChunkedBufferBody::declareHeaders(headers);
-  headers.putIfNotExists(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
+  headers.putIfNotExists_LockFree(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
 }
 
 v_buff_size DtoBody::getKnownSize() {

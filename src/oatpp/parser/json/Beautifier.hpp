@@ -29,6 +29,9 @@
 
 namespace oatpp { namespace parser { namespace json {
 
+/**
+ * JSON output stream beautifier.
+ */
 class Beautifier : public oatpp::data::stream::ConsistentOutputStream {
 public:
   typedef oatpp::data::stream::ConsistentOutputStream ConsistentOutputStream;

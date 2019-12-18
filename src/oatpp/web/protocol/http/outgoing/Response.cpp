@@ -78,7 +78,7 @@ void Response::send(data::stream::OutputStream* stream, oatpp::data::stream::Buf
   if(m_body){
     m_body->declareHeaders(m_headers);
   } else {
-    m_headers.put(Header::CONTENT_LENGTH, "0");
+    m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
   }
 
   headersWriteBuffer->setCurrentPosition(0);
@@ -136,7 +136,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
       if(m_this->m_body){
         m_this->m_body->declareHeaders(m_this->m_headers);
       } else {
-        m_this->m_headers.put(Header::CONTENT_LENGTH, "0");
+        m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
       }
 
       m_headersWriteBuffer->setCurrentPosition(0);

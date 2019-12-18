@@ -73,7 +73,7 @@ void Request::send(data::stream::OutputStream* stream){
   if(m_body){
     m_body->declareHeaders(m_headers);
   } else {
-    m_headers.put(Header::CONTENT_LENGTH, "0");
+    m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
   }
 
   oatpp::data::stream::BufferOutputStream buffer;
@@ -130,7 +130,7 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
       if(m_this->m_body){
         m_this->m_body->declareHeaders(m_this->m_headers);
       } else {
-        m_this->m_headers.put(Header::CONTENT_LENGTH, "0");
+        m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
       }
       
       m_headersWriteBuffer->write(m_this->m_method.getData(), m_this->m_method.getSize());
