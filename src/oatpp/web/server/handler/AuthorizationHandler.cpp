@@ -42,7 +42,7 @@ void AuthorizationHandler::renderAuthenticateHeaderValue(ChunkedBuffer& stream) 
 void AuthorizationHandler::addErrorResponseHeaders(Headers& headers) {
   ChunkedBuffer stream;
   renderAuthenticateHeaderValue(stream);
-  headers.put(protocol::http::Header::WWW_AUTHENTICATE, stream.toString());
+  headers.put_LockFree(protocol::http::Header::WWW_AUTHENTICATE, stream.toString());
 }
 
 oatpp::String AuthorizationHandler::getScheme() {

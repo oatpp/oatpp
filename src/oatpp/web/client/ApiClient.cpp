@@ -118,7 +118,7 @@ oatpp::web::protocol::http::Headers ApiClient::convertParamsMap(const std::share
     auto curr = params->getFirstEntry();
     
     while (curr != nullptr) {
-      result.put(curr->getKey(), oatpp::utils::conversion::primitiveToStr(curr->getValue()));
+      result.put_LockFree(curr->getKey(), oatpp::utils::conversion::primitiveToStr(curr->getValue()));
       curr = curr->getNext();
     }
   }

@@ -75,22 +75,34 @@ enum IOError : v_io_size {
   ZERO_VALUE = 0,
 
   /**
-   * I/O operation is not possible any more
-   * Client should give up trying and free all related resources
+   * I/O operation is not possible any more.
+   * Client should give up trying and free all related resources.
    */
   BROKEN_PIPE = -1001,
 
   /**
-   * I/O operation was interrupted because of some reason
-   * Client may retry immediately
+   * I/O operation was interrupted because of some reason.
+   * Client may retry read immediately.
    */
-  RETRY = -1002,
+  RETRY_READ = -1002,
 
   /**
-   * I/O operation is not currently available due to some reason
-   * Client should wait then retry
+   * I/O operation was interrupted because of some reason.
+   * Client may retry immediately.
    */
-  WAIT_RETRY = -1003
+  RETRY_WRITE = -1003,
+
+  /**
+   * I/O operation is not currently available due to some reason.
+   * Client should wait then retry read.
+   */
+  WAIT_RETRY_READ = -1004,
+
+  /**
+   * I/O operation is not currently available due to some reason.
+   * Client should wait then retry write.
+   */
+  WAIT_RETRY_WRITE = -1005
 
 };
 

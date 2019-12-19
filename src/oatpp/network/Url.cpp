@@ -116,10 +116,10 @@ void Url::Parser::parseQueryParams(Url::Parameters& params, oatpp::parser::Caret
         caret.inc();
         auto valueLabel = caret.putLabel();
         caret.findChar('&');
-        params.put(StringKeyLabel(caret.getDataMemoryHandle(), nameLabel.getData(), nameLabel.getSize()),
-                   StringKeyLabel(caret.getDataMemoryHandle(), valueLabel.getData(), valueLabel.getSize()));
+        params.put_LockFree(StringKeyLabel(caret.getDataMemoryHandle(), nameLabel.getData(), nameLabel.getSize()),
+                            StringKeyLabel(caret.getDataMemoryHandle(), valueLabel.getData(), valueLabel.getSize()));
       } else {
-        params.put(StringKeyLabel(caret.getDataMemoryHandle(), nameLabel.getData(), nameLabel.getSize()), "");
+        params.put_LockFree(StringKeyLabel(caret.getDataMemoryHandle(), nameLabel.getData(), nameLabel.getSize()), "");
       }
     } while (caret.canContinueAtChar('&'));
 

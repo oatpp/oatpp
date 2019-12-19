@@ -346,7 +346,7 @@ void Parser::parseOneHeader(Headers& headers,
     caret.skipChar(' ');
     v_buff_size valuePos0 = caret.getPosition();
     caret.findRN();
-    headers.put(name, oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0));
+    headers.put_LockFree(name, oatpp::data::share::StringKeyLabel(headersText, &caret.getData()[valuePos0], caret.getPosition() - valuePos0));
     caret.skipRN();
   } else {
     error = Status::CODE_431;
