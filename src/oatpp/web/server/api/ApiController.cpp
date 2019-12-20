@@ -109,5 +109,5 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoRespons
                                                                                   const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
   return ResponseFactory::createResponse(status, dto, m_defaultObjectMapper.get());
 }
-  
+
 }}}}
