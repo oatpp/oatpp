@@ -60,7 +60,6 @@ void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>
   m_errorHandler = errorHandler;
 }
 
-// TODO - refactor this method
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(const Status& status, const oatpp::String& message) const {
   if(m_errorHandler) {
     return m_errorHandler->handleError(status, message);
