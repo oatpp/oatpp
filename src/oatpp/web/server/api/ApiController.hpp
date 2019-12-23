@@ -171,14 +171,13 @@ protected:
   class HandlerCoroutine : public oatpp::async::CoroutineWithResult<CoroutineT, const std::shared_ptr<OutgoingResponse>&> {
   public:
     
-    HandlerCoroutine(ControllerT* pController,
-                     const std::shared_ptr<protocol::http::incoming::Request>& pRequest)
+    HandlerCoroutine(ControllerT* pController, const std::shared_ptr<IncomingRequest>& pRequest)
       : controller(pController)
       , request(pRequest)
     {}
     
     const ControllerT* controller;
-    std::shared_ptr<protocol::http::incoming::Request> request;
+    std::shared_ptr<IncomingRequest> request;
     
   };
   
@@ -188,9 +187,39 @@ protected:
   template<class T>
   class Handler : public RequestHandler {
   public:
-    typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<protocol::http::incoming::Request>&);
+    typedef std::shared_ptr<OutgoingResponse> (T::*Method)(const std::shared_ptr<IncomingRequest>&);
     typedef oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
-            (T::*MethodAsync)(const std::shared_ptr<protocol::http::incoming::Request>&);
+            (T::*MethodAsync)(const std::shared_ptr<IncomingRequest>&);
+
+  private:
+
+    class ErrorHandlingCoroutine : public oatpp::async::CoroutineWithResult<ErrorHandlingCoroutine, const std::shared_ptr<OutgoingResponse>&> {
+    private:
+      Handler* m_handler;
+      std::shared_ptr<IncomingRequest> m_request;
+    public:
+
+      ErrorHandlingCoroutine(Handler* handler, const std::shared_ptr<IncomingRequest>& request)
+        : m_handler(handler)
+        , m_request(request)
+      {}
+
+      async::Action act() override {
+        return (m_handler->m_controller->*m_handler->m_methodAsync)(m_request)
+          .callbackTo(&ErrorHandlingCoroutine::onResponse);
+      }
+
+      async::Action onResponse(const std::shared_ptr<OutgoingResponse>& response) {
+        return this->_return(response);
+      }
+
+      async::Action handleError(async::Error* error) override {
+        auto response = m_handler->m_controller->m_errorHandler->handleError(protocol::http::Status::CODE_500, error->what());
+        return this->_return(response);
+      }
+
+    };
+
   private:
     T* m_controller;
     Method m_method;
@@ -207,20 +236,49 @@ protected:
       return std::make_shared<Handler>(controller, method, methodAsync);
     }
     
-    std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
-      if(m_method != nullptr) {
-        return (m_controller->*m_method)(request);
-      } else {
-        return m_controller->handleError(Status::CODE_500, "Using simple model for Async endpoint");
+    std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) override {
+
+      if(m_method == nullptr) {
+        if(m_methodAsync == nullptr) {
+          return m_controller->handleError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
+        }
+        return m_controller->handleError(Status::CODE_500, "[ApiController]: Error. Non-async call to async endpoint.");
       }
+
+      if(m_controller->m_errorHandler) {
+
+        try {
+          return (m_controller->*m_method)(request);
+        } catch (oatpp::web::protocol::http::HttpError& error) {
+          return m_controller->m_errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+        } catch (std::exception& error) {
+          return m_controller->m_errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+        } catch (...) {
+          return m_controller->m_errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+        }
+
+      }
+
+      return (m_controller->*m_method)(request);
+
     }
     
     oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
     handleAsync(const std::shared_ptr<protocol::http::incoming::Request>& request) override {
-      if(m_methodAsync != nullptr) {
-        return (m_controller->*m_methodAsync)(request);
+
+      if(m_methodAsync == nullptr) {
+        if(m_method == nullptr) {
+          throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
+        }
+        throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Async call to non-async endpoint.");
       }
-      throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Using Async model for non async endpoint");
+
+      if(m_controller->m_errorHandler) {
+        return ErrorHandlingCoroutine::startForResult(this, request);
+      }
+
+      return (m_controller->*m_methodAsync)(request);
+
     }
 
     Method setMethod(Method method) {
