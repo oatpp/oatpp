@@ -260,6 +260,17 @@ oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(AsyncInlineWrit
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DefaultReadCallback
+
+DefaultReadCallback::DefaultReadCallback(InputStream* stream)
+  : m_stream(stream)
+{}
+
+data::v_io_size DefaultReadCallback::read(void *buffer, v_buff_size count) {
+  return m_stream->read(buffer, count);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
 

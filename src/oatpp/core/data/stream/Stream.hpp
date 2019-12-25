@@ -720,6 +720,29 @@ public:
 };
 
 /**
+ * Default callback for stream read operation.
+ */
+class DefaultReadCallback : public ReadCallback {
+private:
+  InputStream* m_stream;
+public:
+
+  /**
+   * Constructor.
+   * @param stream - stream to read from.
+   */
+  DefaultReadCallback(InputStream* stream);
+
+  /**
+   * Read from source stream
+   * @param buffer - buffer.
+   * @param count - buffer size.
+   * @return - &id:oatpp::data::v_io_size;.
+   */
+  data::v_io_size read(void *buffer, v_buff_size count) override;
+};
+
+/**
  * Error of Asynchronous stream transfer.
  */
 class AsyncTransferError : public oatpp::async::Error {
