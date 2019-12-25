@@ -40,15 +40,32 @@ async::Action BufferBody::WriteToStreamCoroutine::act() {
 }
 
 BufferBody::BufferBody(const oatpp::String& buffer)
-  : m_buffer(buffer)
+	: m_buffer(buffer)
+	, m_objectMapper(nullptr)
 {}
+
+
+BufferBody::BufferBody(const oatpp::String& buffer, oatpp::data::mapping::ObjectMapper* objectMapper)
+	: m_buffer(buffer)
+	, m_objectMapper(objectMapper)
+{
+
+}
 
 std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer) {
   return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
 }
 
+
+std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer, oatpp::data::mapping::ObjectMapper* objectMapper)
+{
+	return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer, objectMapper);
+}
+
 void BufferBody::declareHeaders(Headers& headers) noexcept {
   headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
+  if (m_objectMapper)
+	  headers.putIfNotExists_LockFree(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
 }
 
 void BufferBody::writeToStream(OutputStream* stream) noexcept {

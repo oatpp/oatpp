@@ -99,6 +99,12 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(c
   return ResponseFactory::createResponse(status, chunkedBuffer);
 }
 
+
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createJonsStrResponse(const Status& status, const oatpp::String& jsStr) const
+{
+	return ResponseFactory::createResponse(status, jsStr, m_defaultObjectMapper.get());
+}
+
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
                                                                                   const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                                                   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {

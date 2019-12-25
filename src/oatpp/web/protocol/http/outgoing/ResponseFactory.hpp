@@ -47,6 +47,9 @@ public:
    */
   static std::shared_ptr<Response> createResponse(const Status& status, const oatpp::String& text);
 
+  static std::shared_ptr<Response> createResponse(const Status& status, const oatpp::String& text, 
+												  oatpp::data::mapping::ObjectMapper* objectMapper);
+
   /**
    * Create &id:oatpp::web::protocol::http::outgoing::Response; with &id:oatpp::web::protocol::http::outgoing::ChunkedBufferBody;.
    * @param status - &id:oatpp::web::protocol::http::Status;.

@@ -27,6 +27,7 @@
 
 #include "./Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
@@ -40,8 +41,11 @@ public:
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_BufferBody_Pool, BufferBody, 32)
 private:
   oatpp::String m_buffer;
+  oatpp::data::mapping::ObjectMapper* m_objectMapper;
 public:
   BufferBody(const oatpp::String& buffer);
+  BufferBody(const oatpp::String& buffer,
+			 oatpp::data::mapping::ObjectMapper* objectMapper);
 public:
 
   /**
@@ -50,6 +54,9 @@ public:
    * @return - `std::shared_ptr` to BufferBody.
    */
   static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer);
+
+  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer,
+												  oatpp::data::mapping::ObjectMapper* objectMapper);
 
   /**
    * Declare `Content-Length` header.

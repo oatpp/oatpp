@@ -35,6 +35,14 @@ ResponseFactory::createResponse(const Status& status, const oatpp::String& text)
   return Response::createShared(status, BufferBody::createShared(text));
 }
 
+
+std::shared_ptr<Response> 
+ResponseFactory::createResponse(const Status& status, const oatpp::String& text, 
+								oatpp::data::mapping::ObjectMapper* objectMapper)
+{
+	return Response::createShared(status, BufferBody::createShared(text, objectMapper));
+}
+
 std::shared_ptr<Response>
 ResponseFactory::createResponse(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) {
   return Response::createShared(status, ChunkedBufferBody::createShared(chunkedBuffer));
