@@ -408,7 +408,7 @@ public:
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
                                                    const oatpp::String& str) const;
 
-  std::shared_ptr<OutgoingResponse> createJonsStrResponse(const Status& status,
+  std::shared_ptr<OutgoingResponse> createJsonStrResponse(const Status& status,
 														  const oatpp::String& jsStr) const;
   
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,

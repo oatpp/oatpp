@@ -100,7 +100,7 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(c
 }
 
 
-std::shared_ptr<ApiController::OutgoingResponse> ApiController::createJonsStrResponse(const Status& status, const oatpp::String& jsStr) const
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createJsonStrResponse(const Status& status, const oatpp::String& jsStr) const
 {
 	return ResponseFactory::createResponse(status, jsStr, m_defaultObjectMapper.get());
 }
