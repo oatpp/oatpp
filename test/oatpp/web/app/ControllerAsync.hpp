@@ -151,14 +151,19 @@ public:
         , m_iterations(iterations)
       {}
 
-      oatpp::async::Action readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) override {
+      data::v_io_size read(void *buffer, v_buff_size count) override {
         if(m_counter < m_iterations) {
-          std::memcpy(inlineData.currBufferPtr, m_text->getData(), m_text->getSize());
-          inlineData.inc(m_text->getSize());
+          std::memcpy(buffer, m_text->getData(), m_text->getSize());
+          m_counter ++;
+          return m_text->getSize();
         }
-        m_counter ++;
-        return std::forward<oatpp::async::Action>(nextAction);
+        return 0;
       }
+
+      async::Action suggestInputStreamAction(data::v_io_size ioResult) override {
+        throw std::runtime_error("Not implemented!");
+      }
+
 
     };
 

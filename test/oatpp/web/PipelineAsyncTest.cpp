@@ -149,11 +149,10 @@ void PipelineAsyncTest::onRun() {
       }
 
       oatpp::data::stream::BufferInputStream inputStream(pipelineStream.toString());
-      oatpp::data::stream::DefaultWriteCallback writeCallback(connection.get());
 
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      oatpp::data::stream::transfer(&inputStream, &writeCallback, 0, ioBuffer.getData(), ioBuffer.getSize());
+      oatpp::data::stream::transfer(&inputStream, connection.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
 
     });
 
