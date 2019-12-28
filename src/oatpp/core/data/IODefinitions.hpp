@@ -93,16 +93,16 @@ enum IOError : v_io_size {
   RETRY_WRITE = -1003,
 
   /**
-   * I/O operation is not currently available due to some reason.
-   * Client should wait then retry read.
+   * Applies to Async IO only. <br>
+   * On receive of this error, the client should call suggest read/write action on Async stream.
    */
-  WAIT_RETRY_READ = -1004,
+  SUGGEST_ACTION_READ = -1004,
 
   /**
-   * I/O operation is not currently available due to some reason.
-   * Client should wait then retry write.
+   * Applies to Async IO only. <br>
+   * On receive of this error, the client should call suggest read/write action on Async stream.
    */
-  WAIT_RETRY_WRITE = -1005
+  SUGGEST_ACTION_WRITE = -1005
 
 };
 

@@ -53,7 +53,7 @@ void ChunkedBody::declareHeaders(Headers& headers) noexcept {
 void ChunkedBody::writeToStream(OutputStream* stream) noexcept {
 
   if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::BLOCKING) {
-    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Blocking method called for NON_BLOCKING stream.");
+    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Blocking method called for ASYNCHRONOUS stream.");
   }
 
   if(!m_readCallback) {
@@ -157,7 +157,7 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
 
   };
 
-  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::NON_BLOCKING) {
+  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::ASYNCHRONOUS) {
     throw std::runtime_error("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStreamAsync()]: Error. Async method called for BLOCKING stream.");
   }
 

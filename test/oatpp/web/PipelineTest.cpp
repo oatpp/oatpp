@@ -154,7 +154,7 @@ void PipelineTest::onRun() {
 
     std::thread pipeOutThread([this, connection] {
 
-      connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
+      connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
 
       oatpp::data::stream::ChunkedBuffer pipelineStream;
 

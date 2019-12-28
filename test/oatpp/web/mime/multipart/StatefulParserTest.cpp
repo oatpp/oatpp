@@ -82,8 +82,7 @@ namespace {
     std::unique_ptr<v_char8> buffer(new v_char8[bufferSize]);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    oatpp::data::stream::DefaultWriteCallback writeCallback(&stream);
-    oatpp::data::stream::transfer(part->getInputStream().get(), &writeCallback, 0, buffer.get(), bufferSize);
+    oatpp::data::stream::transfer(part->getInputStream().get(), &stream, 0, buffer.get(), bufferSize);
 
     oatpp::String readData = stream.toString();
 

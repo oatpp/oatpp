@@ -119,11 +119,36 @@ MultipartBody::AsyncMultipartReadCallback::AsyncMultipartReadCallback(const std:
   , m_iterator(multipart->getAllParts().begin())
   , m_state(STATE_BOUNDARY)
   , m_readStream(nullptr, nullptr, 0)
+  , m_wantToRead(data::IOError::RETRY_READ)
 {}
 
-oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData,
-                                                                                oatpp::async::Action&& nextAction)
-{
+data::v_io_size MultipartBody::AsyncMultipartReadCallback::read(void *buffer, v_buff_size count) {
+
+  if(m_wantToRead < 0){
+
+    m_wantToRead = count;
+    if(m_wantToRead > m_buffer.getSize()) {
+      m_wantToRead = m_buffer.getSize();
+    }
+    m_inlineData.set(m_buffer.getData(), m_wantToRead);
+    return data::IOError::SUGGEST_ACTION_READ;
+
+  } else if(count >= m_wantToRead) {
+
+    auto result = m_wantToRead - m_inlineData.bytesLeft;
+    if(result > 0) {
+      std::memcpy(buffer, m_buffer.getData(), result);
+    }
+    m_wantToRead = data::IOError::RETRY_READ;
+    return result;
+
+  }
+
+  return data::IOError::BROKEN_PIPE;
+
+}
+
+async::Action MultipartBody::AsyncMultipartReadCallback::suggestInputStreamAction(data::v_io_size ioResult) {
 
   class ReadCoroutine : public oatpp::async::Coroutine<ReadCoroutine> {
   private:
@@ -230,10 +255,10 @@ oatpp::async::Action MultipartBody::AsyncMultipartReadCallback::readAsyncInline(
   };
 
   if(m_state == STATE_FINISHED) {
-    return std::forward<oatpp::async::Action>(nextAction);
+    return async::Action::createActionByType(async::Action::TYPE_REPEAT);
   }
 
-  return ReadCoroutine::start(this, &inlineData).next(std::forward<oatpp::async::Action>(nextAction));
+  return ReadCoroutine::start(this, &m_inlineData).next(async::Action::createActionByType(async::Action::TYPE_REPEAT));
 
 }
 

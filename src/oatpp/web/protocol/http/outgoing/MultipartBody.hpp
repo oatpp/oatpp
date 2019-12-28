@@ -103,12 +103,17 @@ private:
     std::shared_ptr<Multipart> m_multipart;
     std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
     v_int32 m_state;
-    oatpp::data::stream::BufferInputStream m_readStream;
+    data::stream::BufferInputStream m_readStream;
+    data::v_io_size m_wantToRead;
+    data::stream::AsyncInlineReadData m_inlineData;
+    data::buffer::IOBuffer m_buffer;
   public:
 
     AsyncMultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
 
-    oatpp::async::Action readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) override;
+    data::v_io_size read(void *buffer, v_buff_size count) override;
+
+    async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
 
   };
 

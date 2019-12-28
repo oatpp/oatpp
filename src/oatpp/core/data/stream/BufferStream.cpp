@@ -36,7 +36,7 @@ BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, v_buff_size 
   , m_capacity(initialCapacity)
   , m_position(0)
   , m_growBytes(growBytes)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 BufferOutputStream::~BufferOutputStream() {
@@ -168,7 +168,7 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& mem
   , m_data(data)
   , m_size(size)
   , m_position(0)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 BufferInputStream::BufferInputStream(const oatpp::String& data)

@@ -212,6 +212,9 @@ private:
   std::shared_ptr<AsyncPartsParser> m_partsParser;
   StatefulParser m_parser;
   std::shared_ptr<Multipart> m_multipart;
+  data::v_io_size m_lastIOSize;
+  data::stream::AsyncInlineWriteData m_inlineData;
+  data::buffer::IOBuffer m_buffer;
 public:
 
   /**
@@ -220,7 +223,9 @@ public:
    */
   AsyncReader(const std::shared_ptr<Multipart>& multipart);
 
-  oatpp::async::Action writeAsyncInline(oatpp::data::stream::AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) override;
+  data::v_io_size write(const void *data, v_buff_size count) override;
+
+  async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
 
   /**
    * Set named part reader. <br>

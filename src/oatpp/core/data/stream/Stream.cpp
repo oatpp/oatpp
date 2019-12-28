@@ -71,6 +71,36 @@ StreamType DefaultInitializedContext::getStreamType() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncWriteCallback
+
+oatpp::async::Action AsyncWriteCallback::writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) {
+
+  auto res = write(inlineData.currBufferPtr, inlineData.bytesLeft);
+  if(res > 0) {
+    inlineData.inc(res);
+    return std::forward<oatpp::async::Action>(nextAction);
+  }
+
+  return suggestOutputStreamAction(res);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AsyncReadCallback
+
+oatpp::async::Action AsyncReadCallback::readAsyncInline(AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) {
+
+  auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft);
+  if(res > 0) {
+    inlineData.inc(res);
+    return std::forward<oatpp::async::Action>(nextAction);
+  }
+
+  return suggestInputStreamAction(res);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IOStream
 
 void IOStream::initContexts() {
@@ -228,49 +258,6 @@ void AsyncInlineReadData::setEof() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AsyncWriteCallbackWithCoroutineStarter
-
-oatpp::async::Action AsyncWriteCallbackWithCoroutineStarter::writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) {
-  auto coroutineStarter = writeAsync(inlineData.currBufferPtr, inlineData.bytesLeft);
-  inlineData.setEof();
-  return coroutineStarter.next(std::forward<async::Action>(nextAction));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DefaultWriteCallback
-
-DefaultWriteCallback::DefaultWriteCallback(OutputStream* stream)
-  : m_stream(stream)
-{}
-
-data::v_io_size DefaultWriteCallback::write(const void *data, v_buff_size count) {
-  return writeExactSizeData(m_stream, data, count);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DefaultAsyncWriteCallback
-
-DefaultAsyncWriteCallback::DefaultAsyncWriteCallback(const std::shared_ptr<OutputStream>& stream)
-  : m_stream(stream)
-{}
-
-oatpp::async::Action DefaultAsyncWriteCallback::writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction)
-{
-  return writeExactSizeDataAsyncInline(m_stream.get(), inlineData, std::forward<oatpp::async::Action>(nextAction));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DefaultReadCallback
-
-DefaultReadCallback::DefaultReadCallback(InputStream* stream)
-  : m_stream(stream)
-{}
-
-data::v_io_size DefaultReadCallback::read(void *buffer, v_buff_size count) {
-  return m_stream->read(buffer, count);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
 
@@ -401,10 +388,9 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
         if(writeResult > 0) {
           data = &data[writeResult];
           bytesLeft -= writeResult;
-        } else if (// In general case `OutputStream` may return `RETRY_READ`, `WAIT_RETRY_READ` on
-                   // because of the underlying transport. Check all retry values here!
-                   writeResult == data::IOError::RETRY_READ || writeResult == data::IOError::WAIT_RETRY_READ ||
-                   writeResult == data::IOError::RETRY_WRITE || writeResult == data::IOError::WAIT_RETRY_WRITE) {
+        } else if (// In general case `OutputStream` may return `RETRY_READ`- because of the underlying transport.
+                   // Check all retry values here!.
+                   writeResult == data::IOError::RETRY_READ || writeResult == data::IOError::RETRY_WRITE) {
           continue;
         } else {
           throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
@@ -414,10 +400,9 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
       progress += readResult;
 
     } else {
-      if(// In general case `InputStream` may return `RETRY_WRITE`, `WAIT_RETRY_WRITE` on
-         // because of the underlying transport. Check all retry values here!
-         readResult == data::IOError::RETRY_READ || readResult == data::IOError::WAIT_RETRY_READ ||
-         readResult == data::IOError::RETRY_WRITE || readResult == data::IOError::WAIT_RETRY_WRITE) {
+      if(// In general case `OutputStream` may return `RETRY_READ`- because of the underlying transport.
+         // Check all retry values here!.
+         readResult == data::IOError::RETRY_READ || readResult == data::IOError::RETRY_WRITE) {
         continue;
       }
       return progress;
@@ -522,12 +507,12 @@ namespace {
       // In general case `OutputStream` may return `RETRY_READ`, `WAIT_RETRY_READ` on
       // because of the underlying transport. Check all retry values here!
 
-      case IOError::WAIT_RETRY_READ:
+      case IOError::SUGGEST_ACTION_READ:
         return stream->suggestOutputStreamAction(res);
       case IOError::RETRY_READ:
         return stream->suggestOutputStreamAction(res);
 
-      case IOError::WAIT_RETRY_WRITE:
+      case IOError::SUGGEST_ACTION_WRITE:
         return stream->suggestOutputStreamAction(res);
       case IOError::RETRY_WRITE:
         return stream->suggestOutputStreamAction(res);
@@ -550,12 +535,12 @@ namespace {
       // In general case `InputStream` may return `RETRY_WRITE`, `WAIT_RETRY_WRITE` on
       // because of the underlying transport. Check all retry values here!
 
-      case IOError::WAIT_RETRY_READ:
+      case IOError::SUGGEST_ACTION_READ:
         return stream->suggestInputStreamAction(res);
       case IOError::RETRY_READ:
         return stream->suggestInputStreamAction(res);
 
-      case IOError::WAIT_RETRY_WRITE:
+      case IOError::SUGGEST_ACTION_WRITE:
         return stream->suggestInputStreamAction(res);
       case IOError::RETRY_WRITE:
         return stream->suggestInputStreamAction(res);
@@ -664,8 +649,7 @@ oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* strea
     if(res > 0) {
       progress += res;
     } else {
-      if(res == data::IOError::RETRY_READ || res == data::IOError::WAIT_RETRY_READ ||
-         res == data::IOError::RETRY_WRITE || res == data::IOError::WAIT_RETRY_WRITE) {
+      if(res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
         continue;
       }
       return progress;
@@ -689,8 +673,7 @@ oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* str
     if(res > 0) {
       progress += res;
     } else {
-      if(res == data::IOError::RETRY_READ || res == data::IOError::WAIT_RETRY_READ ||
-         res == data::IOError::RETRY_WRITE || res == data::IOError::WAIT_RETRY_WRITE) {
+      if(res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
         continue;
       }
       return progress;

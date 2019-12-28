@@ -42,7 +42,7 @@ ChunkedBuffer::ChunkedBuffer()
   , m_chunkPos(0)
   , m_firstEntry(nullptr)
   , m_lastEntry(nullptr)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 ChunkedBuffer::~ChunkedBuffer() {

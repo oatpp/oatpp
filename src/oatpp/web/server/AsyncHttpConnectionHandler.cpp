@@ -65,8 +65,8 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
 
   (void)params;
 
-  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
-  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
+  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
 
   m_executor->execute<HttpProcessor::Coroutine>(m_components, connection);
   

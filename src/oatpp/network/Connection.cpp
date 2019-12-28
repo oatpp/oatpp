@@ -68,7 +68,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_WRITE; // For async io. In case socket is non_blocking
+      return data::IOError::SUGGEST_ACTION_WRITE; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_WRITE;
     } else if(e == WSAECONNRESET) {
@@ -93,7 +93,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_WRITE; // For async io. In case socket is non_blocking
+      return data::IOError::SUGGEST_ACTION_WRITE; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
       return data::IOError::RETRY_WRITE;
     } else if(e == EPIPE) {
@@ -119,7 +119,7 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_READ; // For async io. In case socket is non_blocking
+      return data::IOError::SUGGEST_ACTION_READ; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_READ;
     } else if(e == WSAECONNRESET) {
@@ -140,7 +140,7 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_READ; // For async io. In case socket is non_blocking
+      return data::IOError::SUGGEST_ACTION_READ; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
       return data::IOError::RETRY_READ;
     } else if(e == ECONNRESET) {
@@ -168,12 +168,12 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       }
       m_mode = data::stream::BLOCKING;
       break;
-    case data::stream::NON_BLOCKING:
+    case data::stream::ASYNCHRONOUS:
       flags = 1;
       if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
-          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
-      m_mode = data::stream::NON_BLOCKING;
+      m_mode = data::stream::ASYNCHRONOUS;
       break;
   }
 
@@ -195,10 +195,10 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       }
       break;
 
-    case oatpp::data::stream::IOMode::NON_BLOCKING:
+    case oatpp::data::stream::IOMode::ASYNCHRONOUS:
       flags = (flags | O_NONBLOCK);
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
-        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
       break;
 
@@ -219,7 +219,7 @@ oatpp::data::stream::IOMode Connection::getStreamIOMode() {
   }
 
   if((flags & O_NONBLOCK) > 0) {
-    return oatpp::data::stream::IOMode::NON_BLOCKING;
+    return oatpp::data::stream::IOMode::ASYNCHRONOUS;
   }
 
   return oatpp::data::stream::IOMode::BLOCKING;
@@ -234,7 +234,7 @@ oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioRes
   }
 
   switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_WRITE:
+    case oatpp::data::IOError::SUGGEST_ACTION_WRITE:
       return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
     case oatpp::data::IOError::RETRY_WRITE:
       return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -251,7 +251,7 @@ oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResu
   }
 
   switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_READ:
+    case oatpp::data::IOError::SUGGEST_ACTION_READ:
       return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
     case oatpp::data::IOError::RETRY_READ:
       return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);

@@ -161,12 +161,44 @@ AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
   : m_partsParser(std::make_shared<AsyncPartsParser>(multipart.get()))
   , m_parser(multipart->getBoundary(), nullptr, m_partsParser)
   , m_multipart(multipart)
+  , m_lastIOSize(data::IOError::RETRY_WRITE)
 {}
 
-oatpp::async::Action AsyncReader::writeAsyncInline(oatpp::data::stream::AsyncInlineWriteData& inlineData,
-                                                   oatpp::async::Action&& nextAction)
-{
-  return m_parser.parseNextAsyncInline(inlineData, std::forward<async::Action>(nextAction));
+data::v_io_size AsyncReader::write(const void *data, v_buff_size count) {
+
+  if(m_parser.finished()) {
+    return 0;
+  }
+
+  if(m_lastIOSize < 0) {
+
+    m_lastIOSize = count;
+    if (m_lastIOSize > m_buffer.getSize()) {
+      m_lastIOSize = m_buffer.getSize();
+    }
+
+    std::memcpy(m_buffer.getData(), data, m_lastIOSize);
+    m_inlineData.set(m_buffer.getData(), m_lastIOSize);
+    return data::IOError::SUGGEST_ACTION_WRITE;
+
+  } else if(m_lastIOSize <= count){
+    auto result = m_lastIOSize - m_inlineData.bytesLeft;
+    m_lastIOSize = data::IOError::RETRY_WRITE;
+    return result;
+  }
+
+  return data::IOError::BROKEN_PIPE;
+
+}
+
+async::Action AsyncReader::suggestOutputStreamAction(data::v_io_size ioResult) {
+
+  if(m_lastIOSize > 0 && ioResult == data::IOError::RETRY_WRITE) {
+    return m_parser.parseNextAsyncInline(m_inlineData, async::Action::createActionByType(async::Action::TYPE_REPEAT));
+  }
+
+  return new async::Error("[oatpp::web::mime::multipart::AsyncReader::suggestOutputStreamAction]: Invalid state.");
+
 }
 
 void AsyncReader::setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader) {

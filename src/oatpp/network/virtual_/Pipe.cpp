@@ -49,18 +49,18 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count) {
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
-  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
+  if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
     std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
     if(lock.owns_lock()) {
       if (pipe.m_fifo.availableToRead() > 0) {
         result = pipe.m_fifo.read(data, count);
       } else if (pipe.m_open) {
-        result = data::IOError::WAIT_RETRY_READ;
+        result = data::IOError::SUGGEST_ACTION_READ;
       } else {
         result = data::IOError::BROKEN_PIPE;
       }
     } else {
-      result = data::IOError::WAIT_RETRY_READ;
+      result = data::IOError::SUGGEST_ACTION_READ;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
@@ -90,7 +90,7 @@ oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioRe
   }
 
   switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_READ: {
+    case oatpp::data::IOError::SUGGEST_ACTION_READ: {
       std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
       if (m_pipe->m_fifo.availableToRead() > 0 || !m_pipe->m_open) {
         return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
@@ -142,18 +142,18 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count) {
   Pipe& pipe = *m_pipe;
   oatpp::data::v_io_size result;
   
-  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
+  if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
     std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
     if(lock.owns_lock()) {
       if (pipe.m_fifo.availableToWrite() > 0) {
         result = pipe.m_fifo.write(data, count);
       } else if (pipe.m_open) {
-        result = data::IOError::WAIT_RETRY_WRITE;
+        result = data::IOError::SUGGEST_ACTION_WRITE;
       } else {
         result = data::IOError::BROKEN_PIPE;
       }
     } else {
-      result = data::IOError::WAIT_RETRY_WRITE;
+      result = data::IOError::SUGGEST_ACTION_WRITE;
     }
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
@@ -183,7 +183,7 @@ oatpp::async::Action Pipe::Writer::suggestOutputStreamAction(data::v_io_size ioR
   }
 
   switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_WRITE: {
+    case oatpp::data::IOError::SUGGEST_ACTION_WRITE: {
       std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
       if (m_pipe->m_fifo.availableToWrite() > 0 || !m_pipe->m_open) {
         return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);

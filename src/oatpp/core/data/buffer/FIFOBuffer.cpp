@@ -70,7 +70,7 @@ v_buff_size FIFOBuffer::getBufferSize() const {
 data::v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
   
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return data::IOError::RETRY_READ;
   }
   
   if(count == 0) {
@@ -119,7 +119,7 @@ data::v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
 data::v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
 
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return data::IOError::RETRY_READ;
   }
 
   if(count == 0) {
@@ -159,7 +159,7 @@ data::v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
 data::v_io_size FIFOBuffer::commitReadOffset(v_buff_size count) {
 
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return data::IOError::RETRY_READ;
   }
 
   if(count == 0) {
@@ -204,7 +204,7 @@ data::v_io_size FIFOBuffer::commitReadOffset(v_buff_size count) {
 data::v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   
   if(m_canRead && m_writePosition == m_readPosition) {
-    return data::IOError::WAIT_RETRY_WRITE;
+    return data::IOError::RETRY_WRITE;
   }
   
   if(count == 0) {
@@ -249,7 +249,7 @@ data::v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
 data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count) {
 
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return data::IOError::RETRY_READ;
   }
 
   if(count == 0) {
@@ -302,7 +302,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
 data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count) {
 
   if(m_canRead && m_writePosition == m_readPosition) {
-    return data::IOError::WAIT_RETRY_WRITE;
+    return data::IOError::RETRY_WRITE;
   }
 
   if(count == 0) {

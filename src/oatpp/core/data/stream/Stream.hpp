@@ -187,55 +187,75 @@ enum IOMode : v_int32 {
   /**
    * Non-blocking stream I/O mode.
    */
-  NON_BLOCKING = 1
+  ASYNCHRONOUS = 1
 };
 
 /**
- * Output Stream.
+ * Convenience structure for stream Async-Inline write operations.
  */
-class OutputStream {
+struct AsyncInlineWriteData {
+
+  /**
+   * Pointer to current position in the buffer.
+   */
+  const void* currBufferPtr;
+
+  /**
+   * Bytes left to write from the buffer.
+   */
+  v_buff_size bytesLeft;
+
+  /**
+   * Default constructor.
+   */
+  AsyncInlineWriteData();
+
+  /**
+   * Constructor.
+   * @param data
+   * @param size
+   */
+  AsyncInlineWriteData(const void* data, v_buff_size size);
+
+  /**
+   * Set `currBufferPtr` and `bytesLeft` values. <br>
+   * @param data - pointer to buffer containing data to be written.
+   * @param size - size in bytes of the buffer.
+   */
+  void set(const void* data, v_buff_size size);
+
+  /**
+   * Increase position in the write buffer by `amount` bytes. <br>
+   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
+   * @param amount
+   */
+  void inc(v_buff_size amount);
+
+  /**
+   * Same as `inc(bytesLeft).`
+   */
+  void setEof();
+
+};
+
+/**
+ * Callback for stream write operation.
+ */
+class WriteCallback {
 public:
 
   /**
    * Default virtual destructor.
    */
-  virtual ~OutputStream() = default;
+  virtual ~WriteCallback() = default;
 
   /**
-   * Write data to stream up to count bytes, and return number of bytes actually written. <br>
-   * It is a legal case if return result < count. Caller should handle this!
-   * @param data - data to write.
-   * @param count - number of bytes to write.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * Write callback.
+   * @param data - pointer to data.
+   * @param count - size of the data in bytes.
+   * @return - &id:oatpp::data::v_io_size;.
    */
   virtual data::v_io_size write(const void *data, v_buff_size count) = 0;
-
-  /**
-   * Implementation of OutputStream must suggest async actions for I/O results. <br>
-   * Suggested Action is used for scheduling coroutines in async::Executor. <br>
-   * **Stream MUST always give the same file-handle if applicable**
-   * @param ioResult - result of the call to &l:OutputStream::write ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  virtual oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) = 0;
-
-  /**
-   * Set stream I/O mode.
-   * @throws
-   */
-  virtual void setOutputStreamIOMode(IOMode ioMode) = 0;
-
-  /**
-   * Get stream I/O mode.
-   * @return
-   */
-  virtual IOMode getOutputStreamIOMode() = 0;
-
-  /**
-   * Get stream context.
-   * @return - &l:Context;.
-   */
-  virtual Context& getOutputStreamContext() = 0;
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -267,24 +287,147 @@ public:
 };
 
 /**
- * Input Stream.
+ * Callback for stream asynchronous write operation.
  */
-class InputStream {
+class AsyncWriteCallback : public WriteCallback {
 public:
 
   /**
    * Default virtual destructor.
    */
-  virtual ~InputStream() = default;
+  virtual ~AsyncWriteCallback() = default;
 
   /**
-   * Read data from stream up to count bytes, and return number of bytes actually read. <br>
-   * It is a legal case if return result < count. Caller should handle this!
-   * @param data - buffer to read data to.
-   * @param count - size of the buffer.
-   * @return - actual number of bytes read.
+   * Implementation of OutputStream must suggest async actions for I/O results. <br>
+   * Suggested Action is used for scheduling coroutines in async::Executor. <br>
+   * **Stream MUST always give the same file-handle if applicable**
+   * @param ioResult - result of the call to &l:OutputStream::write ();.
+   * @return - &id:oatpp::async::Action;.
    */
-  virtual data::v_io_size read(void *data, v_buff_size count) = 0;
+  virtual oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) = 0;
+
+  /**
+   * Async-Inline write callback.
+   * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
+   * @param nextAction - next action when write finished.
+   * @return - &id:oatpp::async::Action;.
+   */
+  oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction);
+
+};
+
+/**
+ * Output Stream.
+ */
+class OutputStream : public AsyncWriteCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~OutputStream() = default;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  virtual void setOutputStreamIOMode(IOMode ioMode) = 0;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  virtual IOMode getOutputStreamIOMode() = 0;
+
+  /**
+   * Get stream context.
+   * @return - &l:Context;.
+   */
+  virtual Context& getOutputStreamContext() = 0;
+
+};
+
+/**
+ * Convenience structure for stream Async-Inline read operations.
+ */
+struct AsyncInlineReadData {
+
+  /**
+   * Pointer to current position in the buffer.
+   */
+  void* currBufferPtr;
+
+  /**
+   * Bytes left to read to the buffer.
+   */
+  v_buff_size bytesLeft;
+
+  /**
+   * Default constructor.
+   */
+  AsyncInlineReadData();
+
+  /**
+   * Constructor.
+   * @param data
+   * @param size
+   */
+  AsyncInlineReadData(void* data, v_buff_size size);
+
+  /**
+   * Set `currBufferPtr` and `bytesLeft` values. <br>
+   * @param data - pointer to buffer to store read data.
+   * @param size - size in bytes of the buffer.
+   */
+  void set(void* data, v_buff_size size);
+
+  /**
+   * Increase position in the read buffer by `amount` bytes. <br>
+   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
+   * @param amount
+   */
+  void inc(v_buff_size amount);
+
+  /**
+   * Same as `inc(bytesLeft).`
+   */
+  void setEof();
+
+};
+
+/**
+ * Stream read callback.
+ */
+class ReadCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~ReadCallback() = default;
+
+  /**
+   * Read callback. Override this method! <br>
+   * Write up to `count` bytes to `buffer` and return the actual number of bytes written. <br>
+   * **This method must return `0` in order to indicate end-of-file.**
+   * @param buffer - pointer to buffer.
+   * @param count - size of the buffer.
+   * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
+   */
+  virtual data::v_io_size read(void *buffer, v_buff_size count) = 0;
+
+};
+
+/**
+ * Callback for stream asynchronous read operation.
+ */
+class AsyncReadCallback : public ReadCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~AsyncReadCallback() = default;
 
   /**
    * Implementation of InputStream must suggest async actions for I/O results. <br>
@@ -294,6 +437,27 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   virtual oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) = 0;
+
+  /**
+   * Async-Inline read callback.
+   * @param inlineData - &id:oatpp::data::stream::AsyncInlineReadData;.
+   * @param nextAction - next action when read finished.
+   * @return - &id:oatpp::async::Action;.
+   */
+  oatpp::async::Action readAsyncInline(AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction);
+
+};
+
+/**
+ * Input Stream.
+ */
+class InputStream : public AsyncReadCallback {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~InputStream() = default;
 
   /**
    * Set stream I/O mode.
@@ -461,286 +625,6 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
-
-/**
- * Convenience structure for stream Async-Inline write operations.
- */
-struct AsyncInlineWriteData {
-
-  /**
-   * Pointer to current position in the buffer.
-   */
-  const void* currBufferPtr;
-
-  /**
-   * Bytes left to write from the buffer.
-   */
-  v_buff_size bytesLeft;
-
-  /**
-   * Default constructor.
-   */
-  AsyncInlineWriteData();
-
-  /**
-   * Constructor.
-   * @param data
-   * @param size
-   */
-  AsyncInlineWriteData(const void* data, v_buff_size size);
-
-  /**
-   * Set `currBufferPtr` and `bytesLeft` values. <br>
-   * @param data - pointer to buffer containing data to be written.
-   * @param size - size in bytes of the buffer.
-   */
-  void set(const void* data, v_buff_size size);
-
-  /**
-   * Increase position in the write buffer by `amount` bytes. <br>
-   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
-   * @param amount
-   */
-  void inc(v_buff_size amount);
-
-  /**
-   * Same as `inc(bytesLeft).`
-   */
-  void setEof();
-
-};
-
-/**
- * Convenience structure for stream Async-Inline read operations.
- */
-struct AsyncInlineReadData {
-
-  /**
-   * Pointer to current position in the buffer.
-   */
-  void* currBufferPtr;
-
-  /**
-   * Bytes left to read to the buffer.
-   */
-  v_buff_size bytesLeft;
-
-  /**
-   * Default constructor.
-   */
-  AsyncInlineReadData();
-
-  /**
-   * Constructor.
-   * @param data
-   * @param size
-   */
-  AsyncInlineReadData(void* data, v_buff_size size);
-
-  /**
-   * Set `currBufferPtr` and `bytesLeft` values. <br>
-   * @param data - pointer to buffer to store read data.
-   * @param size - size in bytes of the buffer.
-   */
-  void set(void* data, v_buff_size size);
-
-  /**
-   * Increase position in the read buffer by `amount` bytes. <br>
-   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
-   * @param amount
-   */
-  void inc(v_buff_size amount);
-
-  /**
-   * Same as `inc(bytesLeft).`
-   */
-  void setEof();
-
-};
-
-/**
- * Callback for stream write operation.
- */
-class WriteCallback {
-public:
-
-  /**
-   * Default virtual destructor.
-   */
-  virtual ~WriteCallback() = default;
-
-  /**
-   * Write callback.
-   * @param data - pointer to data.
-   * @param count - size of the data in bytes.
-   * @return - &id:oatpp::data::v_io_size;.
-   */
-  virtual data::v_io_size write(const void *data, v_buff_size count) = 0;
-};
-
-/**
- * Callback for stream asynchronous write operation.
- */
-class AsyncWriteCallback {
-public:
-
-  /**
-   * Default virtual destructor.
-   */
-  virtual ~AsyncWriteCallback() = default;
-
-  /**
-   * Async-Inline write callback.
-   * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
-   * @param nextAction - next action when write finished.
-   * @return - &id:oatpp::async::Action;.
-   */
-  virtual oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) = 0;
-};
-
-/**
- * Convenience callback to use coroutine starter instead of async inline method.
- */
-class AsyncWriteCallbackWithCoroutineStarter : public AsyncWriteCallback {
-public:
-
-  /**
-   * Async-Inline write callback. <br>
-   * Calls &l:AsyncWriteCallbackWithCoroutineStarter::writeAsync (); internally.
-   * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
-   * @param nextAction - next action when write finished.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) override;
-
-public:
-
-  /**
-   * Implement this method! <br>
-   * Write Callback. Data should be fully utilized on call to this method - no partial writes for this method. <br>
-   * Return Coroutine starter to start data-processing coroutine or, `nullptr` to do nothing.
-   * @param data - pointer to data.
-   * @param count - data size.
-   * @return - data processing Coroutine-Starter. &id:oatpp::async::CoroutineStarter;.
-   */
-  virtual async::CoroutineStarter writeAsync(const void *data, v_buff_size count) = 0;
-
-};
-
-/**
- * Default callback for stream write operation. <br>
- * Uses &l:writeExactSizeData (); method underhood.
- */
-class DefaultWriteCallback : public WriteCallback {
-private:
-  OutputStream* m_stream;
-public:
-
-  /**
-   * Constructor.
-   * @param stream - stream to write to.
-   */
-  DefaultWriteCallback(OutputStream* stream);
-
-  /**
-   * Write callback.
-   * @param data - pointer to data.
-   * @param count - size of the data in bytes.
-   * @return - &id:oatpp::data::v_io_size;.
-   */
-  data::v_io_size write(const void *data, v_buff_size count) override;
-};
-
-/**
- * Default callback for stream asynchronous write operation.
- * Uses &l:writeExactSizeDataAsyncInline (); method underhood.
- */
-class DefaultAsyncWriteCallback : public AsyncWriteCallback {
-private:
-  std::shared_ptr<OutputStream> m_stream;
-public:
-
-  /**
-   * Constructor.
-   * @param stream - stream to write to.
-   */
-  DefaultAsyncWriteCallback(const std::shared_ptr<OutputStream>& stream);
-
-  /**
-   * Async-Inline write callback.
-   * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
-   * @param nextAction - next action when write finished.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) override;
-};
-
-/**
- * Stream read callback.
- */
-class ReadCallback {
-public:
-
-  /**
-   * Default virtual destructor.
-   */
-  virtual ~ReadCallback() = default;
-
-  /**
-   * Read callback. Override this method! <br>
-   * Write up to `count` bytes to `buffer` and return the actual number of bytes written. <br>
-   * **This method must return `0` in order to indicate end-of-file.**
-   * @param buffer - pointer to buffer.
-   * @param count - size of the buffer.
-   * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
-   */
-  virtual data::v_io_size read(void *buffer, v_buff_size count) = 0;
-
-};
-
-/**
- * Callback for stream asynchronous read operation.
- */
-class AsyncReadCallback {
-public:
-
-  /**
-   * Default virtual destructor.
-   */
-  virtual ~AsyncReadCallback() = default;
-
-  /**
-   * Async-Inline read callback.
-   * @param inlineData - &id:oatpp::data::stream::AsyncInlineReadData;.
-   * @param nextAction - next action when read finished.
-   * @return - &id:oatpp::async::Action;.
-   */
-  virtual oatpp::async::Action readAsyncInline(AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) = 0;
-
-};
-
-/**
- * Default callback for stream read operation.
- */
-class DefaultReadCallback : public ReadCallback {
-private:
-  InputStream* m_stream;
-public:
-
-  /**
-   * Constructor.
-   * @param stream - stream to read from.
-   */
-  DefaultReadCallback(InputStream* stream);
-
-  /**
-   * Read from source stream
-   * @param buffer - buffer.
-   * @param count - buffer size.
-   * @return - &id:oatpp::data::v_io_size;.
-   */
-  data::v_io_size read(void *buffer, v_buff_size count) override;
-};
 
 /**
  * Error of Asynchronous stream transfer.

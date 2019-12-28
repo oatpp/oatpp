@@ -90,8 +90,8 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         auto socket = m_submission->getSocketNonBlocking();
 
         if(socket) {
-          socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
-          socket->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
+          socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+          socket->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
           socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
           return _return(socket);
         }

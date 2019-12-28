@@ -35,7 +35,7 @@ oatpp::data::stream::DefaultInitializedContext FileInputStream::DEFAULT_CONTEXT(
 FileInputStream::FileInputStream(std::FILE* file, bool ownsFile)
   : m_file(file)
   , m_ownsFile(ownsFile)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 FileInputStream::FileInputStream(const char* filename)
@@ -97,7 +97,7 @@ oatpp::data::stream::DefaultInitializedContext FileOutputStream::DEFAULT_CONTEXT
 FileOutputStream::FileOutputStream(std::FILE* file, bool ownsFile)
   : m_file(file)
   , m_ownsFile(ownsFile)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 FileOutputStream::FileOutputStream(const char* filename, const char* mode)
