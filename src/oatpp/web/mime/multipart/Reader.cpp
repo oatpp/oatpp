@@ -193,7 +193,7 @@ data::v_io_size AsyncReader::write(const void *data, v_buff_size count) {
 
 async::Action AsyncReader::suggestOutputStreamAction(data::v_io_size ioResult) {
 
-  if(m_lastIOSize > 0 && ioResult == data::IOError::RETRY_WRITE) {
+  if(m_lastIOSize > 0 && ioResult == data::IOError::SUGGEST_ACTION_WRITE) {
     return m_parser.parseNextAsyncInline(m_inlineData, async::Action::createActionByType(async::Action::TYPE_REPEAT));
   }
 

@@ -306,14 +306,6 @@ public:
    */
   virtual oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) = 0;
 
-  /**
-   * Async-Inline write callback.
-   * @param inlineData - &id:oatpp::data::stream::AsyncInlineWriteData;.
-   * @param nextAction - next action when write finished.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction);
-
 };
 
 /**
@@ -437,14 +429,6 @@ public:
    * @return - &id:oatpp::async::Action;.
    */
   virtual oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) = 0;
-
-  /**
-   * Async-Inline read callback.
-   * @param inlineData - &id:oatpp::data::stream::AsyncInlineReadData;.
-   * @param nextAction - next action when read finished.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action readAsyncInline(AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction);
 
 };
 

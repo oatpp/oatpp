@@ -460,7 +460,8 @@ public:
 private:
   AbstractCoroutine* m_parent;
 protected:
-  oatpp::async::Action m_parentReturnAction;
+  Action m_parentReturnAction;
+  FunctionPtr m_parentReturnFP;
 public:
 
   /**

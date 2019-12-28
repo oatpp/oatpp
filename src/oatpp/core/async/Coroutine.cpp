@@ -233,6 +233,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
 
       case Action::TYPE_COROUTINE: {
         action.m_data.coroutine->m_parent = _CP;
+        action.m_data.coroutine->m_parentReturnFP = _FP;
         _CP = action.m_data.coroutine;
         _FP = &AbstractCoroutine::act;
         action.m_type = Action::TYPE_NONE;
@@ -244,8 +245,8 @@ Action CoroutineHandle::takeAction(Action&& action) {
         /* as funtion pointer (FP) is invalidated */
         action = std::move(_CP->m_parentReturnAction);
         AbstractCoroutine* savedCP = _CP;
+        _FP = _CP->m_parentReturnFP;
         _CP = _CP->m_parent;
-        _FP = nullptr;
         delete savedCP;
         continue;
       }

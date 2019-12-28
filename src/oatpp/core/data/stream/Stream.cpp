@@ -71,36 +71,6 @@ StreamType DefaultInitializedContext::getStreamType() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AsyncWriteCallback
-
-oatpp::async::Action AsyncWriteCallback::writeAsyncInline(AsyncInlineWriteData& inlineData, oatpp::async::Action&& nextAction) {
-
-  auto res = write(inlineData.currBufferPtr, inlineData.bytesLeft);
-  if(res > 0) {
-    inlineData.inc(res);
-    return std::forward<oatpp::async::Action>(nextAction);
-  }
-
-  return suggestOutputStreamAction(res);
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AsyncReadCallback
-
-oatpp::async::Action AsyncReadCallback::readAsyncInline(AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) {
-
-  auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft);
-  if(res > 0) {
-    inlineData.inc(res);
-    return std::forward<oatpp::async::Action>(nextAction);
-  }
-
-  return suggestInputStreamAction(res);
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IOStream
 
 void IOStream::initContexts() {
@@ -482,7 +452,26 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>&
     }
     
     Action doWrite() {
-      return m_writeCallback->writeAsyncInline(m_inlineWriteData, yieldTo(&TransferCoroutine::act));
+
+      if(m_inlineWriteData.bytesLeft > 0) {
+
+        auto res = m_writeCallback->write(m_inlineWriteData.currBufferPtr, m_inlineWriteData.bytesLeft);
+        if(res > 0) {
+          m_inlineWriteData.inc(res);
+        } else {
+          switch (res) {
+            case data::IOError::ZERO_VALUE:
+              return finish();
+            case data::IOError::BROKEN_PIPE:
+              return finish();
+            default:
+              return m_writeCallback->suggestOutputStreamAction(res);
+          }
+        }
+      }
+
+      return yieldTo(&TransferCoroutine::act);
+
     }
     
     Action handleError(Error* error) override {

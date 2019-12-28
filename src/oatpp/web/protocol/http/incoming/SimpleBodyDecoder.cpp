@@ -59,7 +59,7 @@ data::v_io_size SimpleBodyDecoder::readLine(oatpp::data::stream::InputStream* fr
 void SimpleBodyDecoder::doChunkedDecoding(oatpp::data::stream::InputStream* fromStream,
                                           oatpp::data::stream::WriteCallback* writeCallback) {
   
-  auto buffer = oatpp::data::buffer::IOBuffer::createShared();
+  oatpp::data::buffer::IOBuffer buffer;
   
   const v_int32 maxLineSize = 8; // 0xFFFFFFFF 4Gb for chunk
   v_char8 lineBuffer[maxLineSize + 1];
@@ -75,7 +75,7 @@ void SimpleBodyDecoder::doChunkedDecoding(oatpp::data::stream::InputStream* from
     countToRead = strtol((const char*)lineBuffer, nullptr, 16);
     
     if(countToRead > 0) {
-      oatpp::data::stream::transfer(fromStream, writeCallback, countToRead, buffer->getData(), buffer->getSize());
+      oatpp::data::stream::transfer(fromStream, writeCallback, countToRead, buffer.getData(), buffer.getSize());
     }
     
     fromStream->read(lineBuffer, 2); // just skip "\r\n"
