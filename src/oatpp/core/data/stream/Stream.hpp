@@ -625,13 +625,14 @@ public:
 /**
  * Read bytes from `fromStream` and write to `writeCallback` using `buffer` of size `bufferSize`
  * transfer up to transferSize or until error if transferSize == 0
- * @param fromStream
+ * @param readCallback
+ * @param writeCallback
  * @param transferSize
  * @param buffer
  * @param bufferSize
  * @return - amount of bytes actually transferred.
  */
-oatpp::data::v_io_size transfer(InputStream* fromStream,
+oatpp::data::v_io_size transfer(ReadCallback* readCallback,
                                 WriteCallback* writeCallback,
                                 v_buff_size transferSize,
                                 void* buffer,
@@ -641,25 +642,25 @@ oatpp::data::v_io_size transfer(InputStream* fromStream,
 /**
  * Same as transfer but asynchronous
  */
-oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<InputStream>& fromStream,
+oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<AsyncReadCallback>& readCallback,
                                              const std::shared_ptr<AsyncWriteCallback>& writeCallback,
                                              v_buff_size transferSize,
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
-oatpp::async::Action writeExactSizeDataAsyncInline(oatpp::data::stream::OutputStream* stream,
+oatpp::async::Action writeExactSizeDataAsyncInline(AsyncWriteCallback* writeCallback,
                                                    AsyncInlineWriteData& inlineData,
                                                    oatpp::async::Action&& nextAction);
 
-oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& stream,
+oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<AsyncWriteCallback>& stream,
                                                        const void* data, v_buff_size size);
 
-oatpp::async::Action readSomeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readSomeDataAsyncInline(AsyncReadCallback* readCallback,
                                              AsyncInlineReadData& inlineData,
                                              oatpp::async::Action&& nextAction,
                                              bool allowZeroRead = false);
 
-oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStream* stream,
+oatpp::async::Action readExactSizeDataAsyncInline(AsyncReadCallback* readCallback,
                                                   AsyncInlineReadData& inlineData,
                                                   oatpp::async::Action&& nextAction);
 
@@ -668,14 +669,14 @@ oatpp::async::Action readExactSizeDataAsyncInline(oatpp::data::stream::InputStre
  * returns exact amount of bytes was read.
  * return result can be < size only in case of some disaster like connection reset by peer
  */
-oatpp::data::v_io_size readExactSizeData(oatpp::data::stream::InputStream* stream, void* data, v_buff_size size);
+oatpp::data::v_io_size readExactSizeData(ReadCallback* readCallback, void* data, v_buff_size size);
   
 /**
  * Write exact amount of bytes to stream.
  * returns exact amount of bytes was written.
  * return result can be < size only in case of some disaster like broken pipe
  */
-oatpp::data::v_io_size writeExactSizeData(oatpp::data::stream::OutputStream* stream, const void* data, v_buff_size size);
+oatpp::data::v_io_size writeExactSizeData(WriteCallback* writeCallback, const void* data, v_buff_size size);
   
 }}}
 
