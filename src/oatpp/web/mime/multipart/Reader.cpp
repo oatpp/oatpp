@@ -136,14 +136,52 @@ void AsyncPartsParser::setDefaultPartReader(const std::shared_ptr<AsyncPartReade
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // InMemoryReader
 
-Reader::Reader(Multipart* multipart)
+Reader::Reader(Multipart* multipart, data::stream::ReadCallback* readCallback)
   : m_partsParser(std::make_shared<PartsParser>(multipart))
   , m_parser(multipart->getBoundary(), m_partsParser, nullptr)
+  , m_readCallback(readCallback)
 {}
 
-data::v_io_size Reader::write(const void *data, v_buff_size count) {
-  m_parser.parseNext((p_char8) data, count);
-  return count;
+void Reader::readAll() {
+
+  data::v_io_size res = -1;
+  data::buffer::IOBuffer buffer;
+
+  while(!m_parser.finished()) {
+
+    res = m_readCallback->read(buffer.getData(), buffer.getSize());
+
+    if(res > 0) {
+      m_parser.parseNext((p_char8)buffer.getData(), res);
+    } else {
+
+      switch(res) {
+
+        case data::IOError::RETRY_READ:
+          continue;
+
+        case data::IOError::RETRY_WRITE:
+          continue;
+
+        case data::IOError::SUGGEST_ACTION_READ:
+          throw std::runtime_error("[oatpp::web::mime::multipart::Reader::readAll()]: "
+                                   "Error. Async SUGGEST_ACTION_READ requested. "
+                                   "ReadCallback should not operate in Async mode. ");
+
+        case data::IOError::SUGGEST_ACTION_WRITE:
+          throw std::runtime_error("[oatpp::web::mime::multipart::Reader::readAll()]: "
+                                   "Error. Async SUGGEST_ACTION_WRITE requested. "
+                                   "ReadCallback should not operate in Async mode.");
+
+        default:
+          return;
+
+      }
+
+    }
+
+  }
+
 }
 
 void Reader::setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader) {

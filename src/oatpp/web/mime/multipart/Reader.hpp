@@ -170,21 +170,21 @@ public:
 
 /**
  * In memory Multipart reader.
- * Extends - &id:oatpp::data::stream::WriteCallback;.
  */
-class Reader : public oatpp::data::stream::WriteCallback {
+class Reader {
 private:
   std::shared_ptr<PartsParser> m_partsParser;
   StatefulParser m_parser;
+  data::stream::ReadCallback* m_readCallback;
 public:
 
   /**
    * Constructor.
    * @param multipart - Multipart object to save read data to.
    */
-  Reader(Multipart* multipart);
+  Reader(Multipart* multipart, data::stream::ReadCallback*);
 
-  data::v_io_size write(const void *data, v_buff_size count) override;
+  void readAll();
 
   /**
    * Set named part reader. <br>

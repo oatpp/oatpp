@@ -206,10 +206,10 @@ public:
 
     auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
 
-    oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
+    oatpp::web::mime::multipart::Reader multipartReader(multipart.get(), request->getBodyStream().get());
     multipartReader.setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
 
-    request->transferBody(&multipartReader);
+    multipartReader.readAll();
 
     auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());
 
@@ -225,7 +225,7 @@ public:
     auto multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
 
     /* Create multipart reader. */
-    multipart::Reader multipartReader(multipart.get());
+    multipart::Reader multipartReader(multipart.get(), request->getBodyStream().get());
 
     /* Configure to read part with name "part1" into memory */
     multipartReader.setPartReader("part1", multipart::createInMemoryPartReader(256 /* max-data-size */));
@@ -237,7 +237,7 @@ public:
     multipartReader.setDefaultPartReader(multipart::createInMemoryPartReader(16 * 1024 /* max-data-size */));
 
     /* Read multipart body */
-    request->transferBody(&multipartReader);
+    multipartReader.readAll();
 
     /* Print number of uploaded parts */
     OATPP_LOGD("Multipart", "parts_count=%d", multipart->count());
