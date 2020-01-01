@@ -58,9 +58,11 @@ public:
    * Write `count` of bytes to stream.
    * @param data - data to write.
    * @param count - number of bytes to write.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size write(const void *data, v_buff_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.
@@ -189,17 +191,11 @@ public:
    * *Calls to this method are always NON-BLOCKING*
    * @param data - buffer to read data to.
    * @param count - size of the buffer.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes read. 0 - designates end of the buffer.
    */
-  data::v_io_size read(void *data, v_buff_size count) override;
-
-  /**
-   * In case of a `BufferInputStream` suggested Action is always &id:oatpp::async::Action::TYPE_REPEAT; if `ioResult` is greater then zero. <br>
-   * @param ioResult - result of the call to &l:BufferInputStream::read ();.
-   * @return - &id:oatpp::async::Action;.
-   * @throws - `std::runtime_error` if ioResult <= 0.
-   */
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.

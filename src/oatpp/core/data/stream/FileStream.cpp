@@ -57,24 +57,8 @@ std::FILE* FileInputStream::getFile() {
   return m_file;
 }
 
-data::v_io_size FileInputStream::read(void *data, v_buff_size count) {
+data::v_io_size FileInputStream::read(void *data, v_buff_size count, async::Action& action) {
   return std::fread(data, 1, count, m_file);
-}
-
-oatpp::async::Action FileInputStream::suggestInputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  OATPP_LOGE("[oatpp::data::stream::FileInputStream::suggestInputStreamAction()]", "Error. ioResult=%d", ioResult);
-
-  const char* message =
-    "Error. FileInputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
-    "Conceptual error.";
-
-  throw std::runtime_error(message);
-
 }
 
 void FileInputStream::setInputStreamIOMode(IOMode ioMode) {
@@ -119,25 +103,8 @@ std::FILE* FileOutputStream::getFile() {
   return m_file;
 }
 
-data::v_io_size FileOutputStream::write(const void *data, v_buff_size count) {
+data::v_io_size FileOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
   return std::fwrite(data, 1, count, m_file);
-}
-
-
-oatpp::async::Action FileOutputStream::suggestOutputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  OATPP_LOGE("[oatpp::data::stream::FileOutputStream::suggestInputStreamAction()]", "Error. ioResult=%d", ioResult);
-
-  const char* message =
-    "Error. FileOutputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
-    "Conceptual error.";
-
-  throw std::runtime_error(message);
-
 }
 
 void FileOutputStream::setOutputStreamIOMode(IOMode ioMode) {

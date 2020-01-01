@@ -246,7 +246,7 @@ data::v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   
 }
 
-data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count) {
+data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action) {
 
   if(!m_canRead) {
     return data::IOError::RETRY_READ;
@@ -263,7 +263,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
     if(size > count) {
       size = count;
     }
-    auto bytesWritten = stream->write(&m_buffer[m_readPosition], size);
+    auto bytesWritten = stream->write(&m_buffer[m_readPosition], size, action);
     if(bytesWritten > 0) {
       m_readPosition += bytesWritten;
       if (m_readPosition == m_writePosition) {
@@ -280,7 +280,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
     size = count;
   } else if(size == 0) {
 
-    auto bytesWritten = stream->write(m_buffer, m_writePosition);
+    auto bytesWritten = stream->write(m_buffer, m_writePosition, action);
     if(bytesWritten > 0) {
       m_readPosition = bytesWritten;
       if (m_readPosition == m_writePosition) {
@@ -291,7 +291,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
 
   }
 
-  auto bytesWritten = stream->write(&m_buffer[m_readPosition], size);
+  auto bytesWritten = stream->write(&m_buffer[m_readPosition], size, action);
   if(bytesWritten > 0) {
     m_readPosition += bytesWritten;
   }
@@ -299,7 +299,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
 
 }
 
-data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count) {
+data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count, async::Action& action) {
 
   if(m_canRead && m_writePosition == m_readPosition) {
     return data::IOError::RETRY_WRITE;
@@ -316,7 +316,7 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
     if(size > count) {
       size = count;
     }
-    auto bytesRead = stream->read(&m_buffer[m_writePosition], size);
+    auto bytesRead = stream->read(&m_buffer[m_writePosition], size, action);
     if(bytesRead > 0) {
       m_writePosition += bytesRead;
       m_canRead = true;
@@ -331,7 +331,7 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
     size = count;
   } else if(size == 0) {
 
-    auto bytesRead = stream->read(m_buffer, m_readPosition);
+    auto bytesRead = stream->read(m_buffer, m_readPosition, action);
     if(bytesRead > 0) {
       m_writePosition = bytesRead;
       m_canRead = true;
@@ -341,7 +341,7 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
 
   }
 
-  auto bytesRead = stream->read(&m_buffer[m_writePosition], size);
+  auto bytesRead = stream->read(&m_buffer[m_writePosition], size, action);
   if(bytesRead > 0) {
     m_writePosition += bytesRead;
     m_canRead = true;

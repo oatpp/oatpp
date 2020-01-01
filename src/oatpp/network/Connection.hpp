@@ -62,33 +62,21 @@ public:
    * Implementation of &id:oatpp::data::stream::IOStream::write;.
    * @param buff - buffer containing data to write.
    * @param count - bytes count you want to write.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual amount of bytes written. See &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size write(const void *buff, v_buff_size count) override;
+  data::v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
 
   /**
    * Implementation of &id:oatpp::data::stream::IOStream::read;.
    * @param buff - buffer to read data to.
    * @param count - buffer size.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual amount of bytes read. See &id:oatpp::data::v_io_size;.
    */
-  data::v_io_size read(void *buff, v_buff_size count) override;
-
-  /**
-   * Implementation of OutputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
-   * @param ioResult - result of the call to &l:OutputStream::write ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
-
-  /**
-   * Implementation of InputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
-   * @param ioResult - result of the call to &l:InputStream::read ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+  data::v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.

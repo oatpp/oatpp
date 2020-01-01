@@ -65,6 +65,10 @@ Action Action::createWaitListAction(CoroutineWaitList* waitList) {
   return result;
 }
 
+Action::Action()
+  : m_type(TYPE_NONE)
+{}
+
 Action::Action(AbstractCoroutine* coroutine)
   : m_type(TYPE_COROUTINE)
 {
@@ -121,6 +125,10 @@ Action& Action::operator=(Action&& other) {
 
 bool Action::isError() const {
   return m_type == TYPE_ERROR;
+}
+
+bool Action::isNone() const {
+  return m_type == TYPE_NONE;
 }
 
 v_int32 Action::getType() const {

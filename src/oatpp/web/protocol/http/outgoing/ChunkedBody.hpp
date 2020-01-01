@@ -41,27 +41,23 @@ public:
    */
   typedef oatpp::data::stream::ReadCallback ReadCallback;
 
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::AsyncReadCallback;.
-   */
-  typedef oatpp::data::stream::AsyncReadCallback AsyncReadCallback;
 private:
   bool writeData(OutputStream* stream, const void* data, v_buff_size size);
 private:
   std::shared_ptr<ReadCallback> m_readCallback;
-  std::shared_ptr<AsyncReadCallback> m_asyncReadCallback;
+  std::shared_ptr<ReadCallback> m_asyncReadCallback;
   p_char8 m_buffer;
   v_buff_size m_bufferSize;
 public:
 
   /**
-   * Constructor. Must set either `ReadCallback` or `AsyncReadCallback`.
+   * Constructor. Must set either `ReadCallback` or `ReadCallback`.
    * @param readCallback - &id:oatpp::data::stream::ReadCallback;.
-   * @param asyncReadCallback - &id:oatpp::data::stream::AsyncReadCallback;.
+   * @param asyncReadCallback - &id:oatpp::data::stream::ReadCallback;.
    * @param chunkBufferSize - max size of the chunk. Will allocate buffer of size `chunkBufferSize`.
    */
   ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback,
-              const std::shared_ptr<AsyncReadCallback>& asyncReadCallback,
+              const std::shared_ptr<ReadCallback>& asyncReadCallback,
               v_buff_size chunkBufferSize);
 
   /**

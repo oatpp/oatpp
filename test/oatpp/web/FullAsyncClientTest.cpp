@@ -223,7 +223,7 @@ public:
   Action act() override {
     oatpp::data::stream::ChunkedBuffer stream;
     for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
-      stream.write("0123456789", 10);
+      stream.writeSimple("0123456789", 10);
     }
     m_data = stream.toString();
     return appClient->echoBodyAsync(m_data).callbackTo(&ClientCoroutine_echoBodyAsync::onResponse);

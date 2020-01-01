@@ -53,11 +53,6 @@ private:
    */
   typedef oatpp::data::stream::ReadCallback ReadCallback;
 
-  /*
-   * Convenience typedef for &id:oatpp::data::stream::AsyncReadCallback;.
-   */
-  typedef oatpp::data::stream::AsyncReadCallback AsyncReadCallback;
-
 private:
 
   static constexpr v_int32 STATE_BOUNDARY = 0;
@@ -92,13 +87,13 @@ private:
 
     MultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
 
-    data::v_io_size read(void *buffer, v_buff_size count) override;
+    data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
 
   };
 
 private:
 
-  class AsyncMultipartReadCallback : public AsyncReadCallback {
+  class AsyncMultipartReadCallback : public ReadCallback {
   private:
     std::shared_ptr<Multipart> m_multipart;
     std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
@@ -111,9 +106,7 @@ private:
 
     AsyncMultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
 
-    data::v_io_size read(void *buffer, v_buff_size count) override;
-
-    async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+    data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
 
   };
 

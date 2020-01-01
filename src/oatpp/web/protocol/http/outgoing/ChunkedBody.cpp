@@ -30,7 +30,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 ChunkedBody::ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback,
-                         const std::shared_ptr<AsyncReadCallback>& asyncReadCallback,
+                         const std::shared_ptr<ReadCallback>& asyncReadCallback,
                          v_buff_size chunkBufferSize)
   : m_readCallback(readCallback)
   , m_asyncReadCallback(asyncReadCallback)
@@ -52,138 +52,138 @@ void ChunkedBody::declareHeaders(Headers& headers) noexcept {
 
 void ChunkedBody::writeToStream(OutputStream* stream) noexcept {
 
-  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::BLOCKING) {
-    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Blocking method called for ASYNCHRONOUS stream.");
-  }
-
-  if(!m_readCallback) {
-    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. ReadCallback not set.");
-  }
-
-  data::v_io_size size;
-
-  while((size = m_readCallback->read(m_buffer, m_bufferSize)) > 0) {
-
-    auto chunkSizeHex = oatpp::utils::conversion::primitiveToStr(size, "%X");
-
-    bool res = writeData(stream, chunkSizeHex->getData(), chunkSizeHex->getSize()) &&
-               writeData(stream, "\r\n", 2) &&
-               writeData(stream, m_buffer, size) &&
-               writeData(stream, "\r\n", 2);
-
-
-    if(!res) {
-      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Unknown Error. Can't write data.");
-      return;
-    }
-
-  }
-
-  if(!writeData(stream, "0\r\n\r\n", 5)) {
-    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Unknown Error. Can't write data trailing bytes.");
-    return;
-  }
+//  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::BLOCKING) {
+//    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Blocking method called for ASYNCHRONOUS stream.");
+//  }
+//
+//  if(!m_readCallback) {
+//    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. ReadCallback not set.");
+//  }
+//
+//  data::v_io_size size;
+//
+//  while((size = m_readCallback->read(m_buffer, m_bufferSize)) > 0) {
+//
+//    auto chunkSizeHex = oatpp::utils::conversion::primitiveToStr(size, "%X");
+//
+//    bool res = writeData(stream, chunkSizeHex->getData(), chunkSizeHex->getSize()) &&
+//               writeData(stream, "\r\n", 2) &&
+//               writeData(stream, m_buffer, size) &&
+//               writeData(stream, "\r\n", 2);
+//
+//
+//    if(!res) {
+//      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Unknown Error. Can't write data.");
+//      return;
+//    }
+//
+//  }
+//
+//  if(!writeData(stream, "0\r\n\r\n", 5)) {
+//    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Unknown Error. Can't write data trailing bytes.");
+//    return;
+//  }
 
 }
 
 oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
 
-  class WriteCoroutine : public oatpp::async::Coroutine<WriteCoroutine> {
-  private:
-    std::shared_ptr<ChunkedBody> m_body;
-    std::shared_ptr<OutputStream> m_stream;
-    bool m_firstChunk;
-  private:
-    oatpp::String m_chunkSizeHex;
-  private:
-    data::stream::AsyncInlineReadData m_inlineReadData;
-    data::stream::AsyncInlineWriteData m_inlineWriteData;
-    data::stream::AsyncInlineWriteData m_chunkSizeWriteData;
-  public:
-
-    WriteCoroutine(const std::shared_ptr<ChunkedBody>& body,
-                   const std::shared_ptr<OutputStream>& stream)
-      : m_body(body)
-      , m_stream(stream)
-      , m_firstChunk(true)
-    {}
-
-    Action act() override {
-      m_inlineReadData.set(m_body->m_buffer, m_body->m_bufferSize);
-      return yieldTo(&WriteCoroutine::readCallback);
-    }
-
-    Action readCallback() {
-
-      if(m_inlineReadData.bytesLeft > 0) {
-        auto res = m_body->m_asyncReadCallback->read(m_inlineReadData.currBufferPtr, m_inlineReadData.bytesLeft);
-        if(res > 0) {
-          m_inlineReadData.inc(res);
-        } else {
-          switch (res) {
-            case data::IOError::ZERO_VALUE:
-              break;
-            case data::IOError::BROKEN_PIPE:
-              return finish();
-            default:
-              return m_body->m_asyncReadCallback->suggestInputStreamAction(res);
-          }
-        }
-      }
-
-      return yieldTo(&WriteCoroutine::onChunkRead);
-
-    }
-
-    Action onChunkRead() {
-
-      v_buff_size bytesRead = m_body->m_bufferSize - m_inlineReadData.bytesLeft;
-
-      if(bytesRead > 0) {
-
-        if(m_firstChunk) {
-          m_chunkSizeHex = oatpp::utils::conversion::primitiveToStr(bytesRead, "%X") + "\r\n";
-          m_firstChunk = false;
-        } else {
-          m_chunkSizeHex = "\r\n" + oatpp::utils::conversion::primitiveToStr(bytesRead, "%X") + "\r\n";
-        }
-
-        m_chunkSizeWriteData.set(m_chunkSizeHex->getData(), m_chunkSizeHex->getSize());
-        m_inlineWriteData.set(m_body->m_buffer, bytesRead);
-
-        return yieldTo(&WriteCoroutine::writeChunkSize);
-
-      }
-
-      m_chunkSizeWriteData.set("\r\n0\r\n\r\n", 7);
-
-      return yieldTo(&WriteCoroutine::writeTrailingBytes);
-
-    }
-
-    Action writeChunkSize() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_chunkSizeWriteData, yieldTo(&WriteCoroutine::writeChunk));
-    }
-
-    Action writeChunk() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineWriteData, yieldTo(&WriteCoroutine::act));
-    }
-
-    Action writeTrailingBytes() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_chunkSizeWriteData, finish());
-    }
-
-  };
-
-  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::ASYNCHRONOUS) {
-    throw std::runtime_error("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStreamAsync()]: Error. Async method called for BLOCKING stream.");
-  }
-
-  if(!m_asyncReadCallback) {
-    throw std::runtime_error("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStreamAsync()]: Error. AsyncReadCallback not set.");
-  }
-
-  return WriteCoroutine::start(shared_from_this(), stream);
+//  class WriteCoroutine : public oatpp::async::Coroutine<WriteCoroutine> {
+//  private:
+//    std::shared_ptr<ChunkedBody> m_body;
+//    std::shared_ptr<OutputStream> m_stream;
+//    bool m_firstChunk;
+//  private:
+//    oatpp::String m_chunkSizeHex;
+//  private:
+//    data::stream::AsyncInlineReadData m_inlineReadData;
+//    data::stream::AsyncInlineWriteData m_inlineWriteData;
+//    data::stream::AsyncInlineWriteData m_chunkSizeWriteData;
+//  public:
+//
+//    WriteCoroutine(const std::shared_ptr<ChunkedBody>& body,
+//                   const std::shared_ptr<OutputStream>& stream)
+//      : m_body(body)
+//      , m_stream(stream)
+//      , m_firstChunk(true)
+//    {}
+//
+//    Action act() override {
+//      m_inlineReadData.set(m_body->m_buffer, m_body->m_bufferSize);
+//      return yieldTo(&WriteCoroutine::readCallback);
+//    }
+//
+//    Action readCallback() {
+//
+//      if(m_inlineReadData.bytesLeft > 0) {
+//        auto res = m_body->m_asyncReadCallback->read(m_inlineReadData.currBufferPtr, m_inlineReadData.bytesLeft);
+//        if(res > 0) {
+//          m_inlineReadData.inc(res);
+//        } else {
+//          switch (res) {
+//            case data::IOError::ZERO_VALUE:
+//              break;
+//            case data::IOError::BROKEN_PIPE:
+//              return finish();
+//            default:
+//              return m_body->m_asyncReadCallback->suggestInputStreamAction(res);
+//          }
+//        }
+//      }
+//
+//      return yieldTo(&WriteCoroutine::onChunkRead);
+//
+//    }
+//
+//    Action onChunkRead() {
+//
+//      v_buff_size bytesRead = m_body->m_bufferSize - m_inlineReadData.bytesLeft;
+//
+//      if(bytesRead > 0) {
+//
+//        if(m_firstChunk) {
+//          m_chunkSizeHex = oatpp::utils::conversion::primitiveToStr(bytesRead, "%X") + "\r\n";
+//          m_firstChunk = false;
+//        } else {
+//          m_chunkSizeHex = "\r\n" + oatpp::utils::conversion::primitiveToStr(bytesRead, "%X") + "\r\n";
+//        }
+//
+//        m_chunkSizeWriteData.set(m_chunkSizeHex->getData(), m_chunkSizeHex->getSize());
+//        m_inlineWriteData.set(m_body->m_buffer, bytesRead);
+//
+//        return yieldTo(&WriteCoroutine::writeChunkSize);
+//
+//      }
+//
+//      m_chunkSizeWriteData.set("\r\n0\r\n\r\n", 7);
+//
+//      return yieldTo(&WriteCoroutine::writeTrailingBytes);
+//
+//    }
+//
+//    Action writeChunkSize() {
+//      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_chunkSizeWriteData, yieldTo(&WriteCoroutine::writeChunk));
+//    }
+//
+//    Action writeChunk() {
+//      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineWriteData, yieldTo(&WriteCoroutine::act));
+//    }
+//
+//    Action writeTrailingBytes() {
+//      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_chunkSizeWriteData, finish());
+//    }
+//
+//  };
+//
+//  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::ASYNCHRONOUS) {
+//    throw std::runtime_error("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStreamAsync()]: Error. Async method called for BLOCKING stream.");
+//  }
+//
+//  if(!m_asyncReadCallback) {
+//    throw std::runtime_error("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStreamAsync()]: Error. ReadCallback not set.");
+//  }
+//
+//  return WriteCoroutine::start(shared_from_this(), stream);
 
 }
 

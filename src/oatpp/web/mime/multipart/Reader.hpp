@@ -205,16 +205,13 @@ public:
 
 /**
  * In memory Multipart reader.
- * Extends - &id:oatpp::data::stream::AsyncWriteCallback;.
+ * Extends - &id:oatpp::data::stream::WriteCallback;.
  */
-class AsyncReader : public oatpp::data::stream::AsyncWriteCallback {
+class AsyncReader : public oatpp::data::stream::WriteCallback {
 private:
   std::shared_ptr<AsyncPartsParser> m_partsParser;
   StatefulParser m_parser;
   std::shared_ptr<Multipart> m_multipart;
-  data::v_io_size m_lastIOSize;
-  data::stream::AsyncInlineWriteData m_inlineData;
-  data::buffer::IOBuffer m_buffer;
 public:
 
   /**
@@ -223,9 +220,7 @@ public:
    */
   AsyncReader(const std::shared_ptr<Multipart>& multipart);
 
-  data::v_io_size write(const void *data, v_buff_size count) override;
-
-  async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set named part reader. <br>

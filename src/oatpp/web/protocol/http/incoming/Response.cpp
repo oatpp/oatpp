@@ -82,7 +82,7 @@ oatpp::String Response::readBodyToString() const {
   return m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get());
 }
 
-async::CoroutineStarter Response::transferBodyAsync(const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback) const {
+async::CoroutineStarter Response::transferBodyAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const {
   return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, writeCallback);
 }
 

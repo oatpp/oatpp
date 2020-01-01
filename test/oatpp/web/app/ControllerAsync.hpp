@@ -138,7 +138,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(Chunked)
 
-    class ReadCallback : public oatpp::data::stream::AsyncReadCallback {
+    class ReadCallback : public oatpp::data::stream::ReadCallback {
     private:
       oatpp::String m_text;
       v_int32 m_counter;
@@ -151,7 +151,7 @@ public:
         , m_iterations(iterations)
       {}
 
-      data::v_io_size read(void *buffer, v_buff_size count) override {
+      data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
         if(m_counter < m_iterations) {
           std::memcpy(buffer, m_text->getData(), m_text->getSize());
           m_counter ++;
@@ -159,11 +159,6 @@ public:
         }
         return 0;
       }
-
-      async::Action suggestInputStreamAction(data::v_io_size ioResult) override {
-        throw std::runtime_error("Not implemented!");
-      }
-
 
     };
 

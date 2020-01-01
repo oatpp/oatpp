@@ -72,33 +72,21 @@ public:
    * Read data from socket.
    * @param data - buffer to read data to.
    * @param count - buffer size.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual amount of data read from socket.
    */
-  data::v_io_size read(void *data, v_buff_size count) override;
+  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Write data to socket.
    * @param data - data to write to socket.
    * @param count - data size.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual amount of data written to socket.
    */
-  data::v_io_size write(const void *data, v_buff_size count) override;
-
-  /**
-   * Implementation of OutputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
-   * @param ioResult - result of the call to &l:OutputStream::write ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
-
-  /**
-   * Implementation of InputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
-   * @param ioResult - result of the call to &l:InputStream::read ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.

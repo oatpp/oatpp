@@ -43,7 +43,7 @@ BufferOutputStream::~BufferOutputStream() {
   delete [] m_data;
 }
 
-data::v_io_size BufferOutputStream::write(const void *data, v_buff_size count) {
+data::v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
 
   reserveBytesUpfront(count);
 
@@ -189,7 +189,7 @@ void BufferInputStream::reset() {
   m_position = 0;
 }
 
-data::v_io_size BufferInputStream::read(void *data, v_buff_size count) {
+data::v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& action) {
   v_buff_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;
@@ -197,22 +197,6 @@ data::v_io_size BufferInputStream::read(void *data, v_buff_size count) {
   std::memcpy(data, &m_data[m_position], desiredAmount);
   m_position += desiredAmount;
   return desiredAmount;
-}
-
-oatpp::async::Action BufferInputStream::suggestInputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  OATPP_LOGE("[oatpp::data::stream::BufferInputStream::suggestInputStreamAction()]", "Error. ioResult=%d", ioResult);
-
-  const char* message =
-    "Error. BufferInputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
-    "Conceptual error.";
-
-  throw std::runtime_error(message);
-
 }
 
 void BufferInputStream::setInputStreamIOMode(IOMode ioMode) {

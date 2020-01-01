@@ -39,13 +39,13 @@ Beautifier::Beautifier(ConsistentOutputStream* outputStream, const oatpp::String
 {}
 
 void Beautifier::writeIndent(ConsistentOutputStream* outputStream) {
-  outputStream->write(m_newLine->getData(), m_newLine->getSize());
+  outputStream->writeSimple(m_newLine->getData(), m_newLine->getSize());
   for(v_int32 i = 0; i < m_level; i ++ ) {
-    outputStream->write(m_indent->getData(), m_indent->getSize());
+    outputStream->writeSimple(m_indent->getData(), m_indent->getSize());
   }
 }
 
-data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
+data::v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& action) {
 
   oatpp::data::stream::BufferOutputStream buffer;
 
@@ -55,7 +55,7 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
 
     if(m_isCharEscaped) {
       m_isCharEscaped = false;
-      buffer.writeChar(c);
+      buffer.writeCharSimple(c);
       continue;
     }
 
@@ -63,7 +63,7 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
 
       case '\\': {
         m_isCharEscaped = true;
-        buffer.writeChar('\\');
+        buffer.writeCharSimple('\\');
         break;
       }
 
@@ -73,7 +73,7 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
         }
         m_level ++;
         m_wantIndent = true;
-        buffer.writeChar('{');
+        buffer.writeCharSimple('{');
         break;
       }
 
@@ -82,7 +82,7 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
         if(!m_wantIndent) {
           writeIndent(&buffer);
         }
-        buffer.writeChar('}');
+        buffer.writeCharSimple('}');
         m_wantIndent = false;
         break;
       }
@@ -93,7 +93,7 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
         }
         m_level ++;
         m_wantIndent = true;
-        buffer.writeChar('[');
+        buffer.writeCharSimple('[');
         break;
       }
 
@@ -102,14 +102,14 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
         if(!m_wantIndent) {
           writeIndent(&buffer);
         }
-        buffer.writeChar(']');
+        buffer.writeCharSimple(']');
         m_wantIndent = false;
         break;
       }
 
       case ',': {
         m_wantIndent = true;
-        buffer.writeChar(',');
+        buffer.writeCharSimple(',');
         break;
       }
 
@@ -117,7 +117,7 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
         if(m_wantIndent) {
           writeIndent(&buffer);
         }
-        buffer.writeChar('"');
+        buffer.writeCharSimple('"');
         m_wantIndent = false;
         m_isInString = !m_isInString;
         break;
@@ -125,21 +125,21 @@ data::v_io_size Beautifier::write(const void *data, v_buff_size count) {
 
       case ':': {
         if(!m_isInString) {
-          buffer.write(": ", 2);
+          buffer.writeSimple(": ", 2);
         } else {
-          buffer.writeChar(':');
+          buffer.writeCharSimple(':');
         }
         break;
       }
 
       default:
-        buffer.writeChar(c);
+        buffer.writeCharSimple(c);
 
     }
 
   }
 
-  return m_outputStream->write(buffer.getData(), buffer.getCurrentPosition());
+  return m_outputStream->writeSimple(buffer.getData(), buffer.getCurrentPosition());
 
 }
 

@@ -57,7 +57,7 @@ Connection::~Connection(){
   close();
 }
 
-data::v_io_size Connection::write(const void *buff, v_buff_size count){
+data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -68,7 +68,8 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::SUGGEST_ACTION_WRITE; // For async io. In case socket is non-blocking
+      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_WRITE;
     } else if(e == WSAECONNRESET) {
@@ -93,7 +94,8 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::SUGGEST_ACTION_WRITE; // For async io. In case socket is non-blocking
+      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
       return data::IOError::RETRY_WRITE;
     } else if(e == EPIPE) {
@@ -108,7 +110,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
 
 }
 
-data::v_io_size Connection::read(void *buff, v_buff_size count){
+data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -119,7 +121,8 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::SUGGEST_ACTION_READ; // For async io. In case socket is non-blocking
+      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      return data::IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_READ;
     } else if(e == WSAECONNRESET) {
@@ -140,7 +143,8 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::SUGGEST_ACTION_READ; // For async io. In case socket is non-blocking
+      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      return data::IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
       return data::IOError::RETRY_READ;
     } else if(e == ECONNRESET) {
@@ -226,41 +230,6 @@ oatpp::data::stream::IOMode Connection::getStreamIOMode() {
 
 }
 #endif
-
-oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-  }
-
-  switch (ioResult) {
-    case oatpp::data::IOError::SUGGEST_ACTION_WRITE:
-      return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-    case oatpp::data::IOError::RETRY_WRITE:
-      return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-  }
-
-  throw std::runtime_error("[oatpp::network::Connection::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
-
-}
-
-oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-  }
-
-  switch (ioResult) {
-    case oatpp::data::IOError::SUGGEST_ACTION_READ:
-      return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-    case oatpp::data::IOError::RETRY_READ:
-      return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-  }
-
-  throw std::runtime_error("[oatpp::network::Connection::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
-
-
-}
 
 void Connection::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   setStreamIOMode(ioMode);

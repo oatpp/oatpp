@@ -53,9 +53,7 @@ public:
     return Shared_OutputStreamBufferedProxy_Pool::allocateShared(outputStream, memoryLabel);
   }
   
-  data::v_io_size write(const void *data, v_buff_size count) override;
-
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.
@@ -119,13 +117,11 @@ public:
     return Shared_InputStreamBufferedProxy_Pool::allocateShared(inputStream, memoryLabel, bufferReadPosition, bufferWritePosition, bufferCanRead);
   }
   
-  data::v_io_size read(void *data, v_buff_size count) override;
+  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
-  data::v_io_size peek(void *data, v_buff_size count);
+  data::v_io_size peek(void *data, v_buff_size count, async::Action& action);
 
   data::v_io_size commitReadOffset(v_buff_size count);
-
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
 
   /**
    * Set InputStream I/O mode.

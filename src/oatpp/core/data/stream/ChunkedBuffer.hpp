@@ -163,9 +163,11 @@ public:
    * Write data to ChunkedBuffer. Implementation of &id:oatpp::data::stream::OutputStream::write; method.
    * @param data - data to write.
    * @param count - size of data in bytes.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes written.
    */
-  data::v_io_size write(const void *data, v_buff_size count) override;
+  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.

@@ -66,8 +66,12 @@ namespace {
     oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->getData(), text->getSize());
     std::unique_ptr<v_char8> buffer(new v_char8[step]);
     data::v_io_size size;
-    while((size = stream.read(buffer.get(), step)) != 0) {
-      parser.parseNext(buffer.get(), (v_buff_size) size);
+    while((size = stream.readSimple(buffer.get(), step)) != 0) {
+      oatpp::data::stream::AsyncInlineWriteData inlineData(buffer.get(), size);
+      while(inlineData.bytesLeft > 0 && !parser.finished()) {
+        oatpp::async::Action action;
+        parser.parseNext(inlineData, action);
+      }
     }
     OATPP_ASSERT(parser.finished());
 

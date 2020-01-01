@@ -117,7 +117,7 @@ ChunkedBuffer::ChunkEntry* ChunkedBuffer::getChunkForPosition(ChunkEntry* fromCh
   
 }
   
-data::v_io_size ChunkedBuffer::write(const void *data, v_buff_size count){
+data::v_io_size ChunkedBuffer::write(const void *data, v_buff_size count, async::Action& action){
   
   if(count <= 0){
     return 0;

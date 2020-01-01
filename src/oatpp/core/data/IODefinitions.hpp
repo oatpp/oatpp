@@ -92,18 +92,6 @@ enum IOError : v_io_size {
    */
   RETRY_WRITE = -1003,
 
-  /**
-   * Applies to Async IO only. <br>
-   * On receive of this error, the client should call suggest read/write action on Async stream.
-   */
-  SUGGEST_ACTION_READ = -1004,
-
-  /**
-   * Applies to Async IO only. <br>
-   * On receive of this error, the client should call suggest read/write action on Async stream.
-   */
-  SUGGEST_ACTION_WRITE = -1005
-
 };
 
 /**

@@ -85,6 +85,8 @@ public:
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
+  private:
+    async::Action createWaitListAction();
   protected:
     
     Reader(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
@@ -111,18 +113,11 @@ public:
      * Read data from pipe.
      * @param data - buffer to read data to.
      * @param count - max count of bytes to read.
+     * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+     * caller MUST return this action on coroutine iteration.
      * @return - &id:oatpp::data::v_io_size;.
      */
-    data::v_io_size read(void *data, v_buff_size count) override;
-
-    /**
-     * Implementation of InputStream must suggest async actions for I/O results.
-     * Suggested Action is used for scheduling coroutines in async::Executor.
-     * @param ioResult - result of the call to &l:InputStream::read ();.
-     * @return - &id:oatpp::async::Action;.
-     */
-    oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
-
+    data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
     /**
      * Set InputStream I/O mode.
@@ -184,6 +179,8 @@ public:
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
+  private:
+    async::Action createWaitListAction();
   protected:
     
     Writer(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
@@ -210,17 +207,11 @@ public:
      * Write data to pipe.
      * @param data - data to write to pipe.
      * @param count - data size.
+     * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+     * caller MUST return this action on coroutine iteration.
      * @return - &id:oatpp::data::v_io_size;.
      */
-    data::v_io_size write(const void *data, v_buff_size count) override;
-
-    /**
-     * Implementation of OutputStream must suggest async actions for I/O results.
-     * Suggested Action is used for scheduling coroutines in async::Executor.
-     * @param ioResult - result of the call to &l:OutputStream::write ();.
-     * @return - &id:oatpp::async::Action;.
-     */
-    oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+    data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
     /**
      * Set OutputStream I/O mode.

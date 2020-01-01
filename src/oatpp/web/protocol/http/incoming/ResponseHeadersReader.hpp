@@ -67,11 +67,22 @@ public:
      */
     v_buff_size bufferPosEnd;
   };
+private:
+
+  struct ReadHeadersIteration {
+    v_word32 accumulator = 0;
+    v_buff_size progress = 0;
+    bool done = false;
+  };
 
 private:
-  data::v_io_size readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                             oatpp::data::stream::OutputStream* bufferStream,
-                                             Result& result);
+
+  data::v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
+                                              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                              data::stream::ConsistentOutputStream* bufferStream,
+                                              Result& result,
+                                              async::Action& action);
+
 private:
   oatpp::data::share::MemoryLabel m_buffer;
   v_buff_size m_maxHeadersSize;

@@ -44,20 +44,12 @@ void Socket::setMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_si
   m_pipeOut->getWriter()->setMaxAvailableToWrite(maxToWrite);
 }
   
-data::v_io_size Socket::read(void *data, v_buff_size count) {
-  return m_pipeIn->getReader()->read(data, count);
+data::v_io_size Socket::read(void *data, v_buff_size count, async::Action& action) {
+  return m_pipeIn->getReader()->read(data, count, action);
 }
 
-data::v_io_size Socket::write(const void *data, v_buff_size count) {
-  return m_pipeOut->getWriter()->write(data, count);
-}
-
-oatpp::async::Action Socket::suggestOutputStreamAction(data::v_io_size ioResult) {
-  return m_pipeOut->getWriter()->suggestOutputStreamAction(ioResult);
-}
-
-oatpp::async::Action Socket::suggestInputStreamAction(data::v_io_size ioResult) {
-  return m_pipeIn->getReader()->suggestInputStreamAction(ioResult);
+data::v_io_size Socket::write(const void *data, v_buff_size count, async::Action& action) {
+  return m_pipeOut->getWriter()->write(data, count, action);
 }
 
 void Socket::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {

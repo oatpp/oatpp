@@ -70,7 +70,7 @@ void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 d
       OATPP_LOGE("[oatpp::web::mime::multipart::InMemoryPartReader::onPartData()]", "Error. Part size exceeds specified maxDataSize=%d", m_maxDataSize);
       throw std::runtime_error("[oatpp::web::mime::multipart::InMemoryPartReader::onPartData()]: Error. Part size exceeds specified maxDataSize");
     }
-    buffer->write(data, size);
+    buffer->writeSimple(data, size);
   } else {
     auto fullData = buffer->toString();
     buffer->clear();
@@ -125,7 +125,7 @@ async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shar
       OATPP_LOGE("[oatpp::web::mime::multipart::AsyncInMemoryPartReader::onPartDataAsync()]", "Error. Part size exceeds specified maxDataSize=%d", m_maxDataSize);
       throw std::runtime_error("[oatpp::web::mime::multipart::AsyncInMemoryPartReader::onPartDataAsync()]: Error. Part size exceeds specified maxDataSize");
     }
-    buffer->write(data, size);
+    buffer->writeSimple(data, size);
   } else {
     auto fullData = buffer->toString();
     buffer->clear();

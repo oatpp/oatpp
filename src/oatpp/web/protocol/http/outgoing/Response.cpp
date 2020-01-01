@@ -83,15 +83,15 @@ void Response::send(data::stream::OutputStream* stream, oatpp::data::stream::Buf
 
   headersWriteBuffer->setCurrentPosition(0);
 
-  headersWriteBuffer->write("HTTP/1.1 ", 9);
+  headersWriteBuffer->writeSimple("HTTP/1.1 ", 9);
   headersWriteBuffer->writeAsString(m_status.code);
-  headersWriteBuffer->write(" ", 1);
-  headersWriteBuffer->OutputStream::write(m_status.description);
-  headersWriteBuffer->write("\r\n", 2);
+  headersWriteBuffer->writeSimple(" ", 1);
+  headersWriteBuffer->writeSimple(m_status.description);
+  headersWriteBuffer->writeSimple("\r\n", 2);
 
   http::Utils::writeHeaders(m_headers, headersWriteBuffer);
 
-  headersWriteBuffer->write("\r\n", 2);
+  headersWriteBuffer->writeSimple("\r\n", 2);
 
   if(m_body) {
 
@@ -141,15 +141,15 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
 
       m_headersWriteBuffer->setCurrentPosition(0);
 
-      m_headersWriteBuffer->write("HTTP/1.1 ", 9);
+      m_headersWriteBuffer->writeSimple("HTTP/1.1 ", 9);
       m_headersWriteBuffer->writeAsString(m_this->m_status.code);
-      m_headersWriteBuffer->write(" ", 1);
-      m_headersWriteBuffer->OutputStream::write(m_this->m_status.description);
-      m_headersWriteBuffer->write("\r\n", 2);
+      m_headersWriteBuffer->writeSimple(" ", 1);
+      m_headersWriteBuffer->writeSimple(m_this->m_status.description);
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       http::Utils::writeHeaders(m_this->m_headers, m_headersWriteBuffer.get());
       
-      m_headersWriteBuffer->write("\r\n", 2);
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       const auto& body = m_this->m_body;
 

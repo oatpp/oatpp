@@ -26,23 +26,16 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-data::v_io_size OutputStreamBufferedProxy::write(const void *data, v_buff_size count) {
+data::v_io_size OutputStreamBufferedProxy::write(const void *data, v_buff_size count, async::Action& action) {
   if(m_buffer.availableToWrite() > 0) {
     return m_buffer.write(data, count);
   } else {
-    auto bytesFlushed = m_buffer.readAndWriteToStream(m_outputStream.get(), m_buffer.getBufferSize());
+    auto bytesFlushed = m_buffer.readAndWriteToStream(m_outputStream.get(), m_buffer.getBufferSize(), action);
     if(bytesFlushed > 0) {
       return m_buffer.write(data, count);
     }
     return bytesFlushed;
   }
-}
-
-oatpp::async::Action OutputStreamBufferedProxy::suggestOutputStreamAction(data::v_io_size ioResult) {
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-  return m_outputStream->suggestOutputStreamAction(ioResult);
 }
 
 void OutputStreamBufferedProxy::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
@@ -65,12 +58,12 @@ oatpp::async::CoroutineStarter OutputStreamBufferedProxy::flushAsync() {
   return m_buffer.flushToStreamAsync(m_outputStream);
 }
   
-data::v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count) {
+data::v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count, async::Action& action) {
   
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.read(data, count);
   } else {
-    auto bytesBuffered = m_buffer.readFromStreamAndWrite(m_inputStream.get(), m_buffer.getBufferSize());
+    auto bytesBuffered = m_buffer.readFromStreamAndWrite(m_inputStream.get(), m_buffer.getBufferSize(), action);
     if(bytesBuffered > 0) {
       return m_buffer.read(data, count);
     }
@@ -79,12 +72,12 @@ data::v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count) {
   
 }
 
-data::v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count) {
+data::v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count, async::Action& action) {
 
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.peek(data, count);
   } else {
-    auto bytesBuffered = m_buffer.readFromStreamAndWrite(m_inputStream.get(), m_buffer.getBufferSize());
+    auto bytesBuffered = m_buffer.readFromStreamAndWrite(m_inputStream.get(), m_buffer.getBufferSize(), action);
     if(bytesBuffered > 0) {
       return m_buffer.peek(data, count);
     }
@@ -95,13 +88,6 @@ data::v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count) {
 
 data::v_io_size InputStreamBufferedProxy::commitReadOffset(v_buff_size count) {
   return m_buffer.commitReadOffset(count);
-}
-
-oatpp::async::Action InputStreamBufferedProxy::suggestInputStreamAction(data::v_io_size ioResult) {
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-  return m_inputStream->suggestInputStreamAction(ioResult);
 }
 
 void InputStreamBufferedProxy::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {

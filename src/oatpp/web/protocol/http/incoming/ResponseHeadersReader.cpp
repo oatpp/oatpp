@@ -27,58 +27,71 @@
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
-  
-data::v_io_size ResponseHeadersReader::readHeadersSection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                                                  oatpp::data::stream::OutputStream* bufferStream,
-                                                                  Result& result) {
 
-  v_word32 accumulator = 0;
-  v_buff_size progress = 0;
-  data::v_io_size res;
-  while (true) {
-    
-    v_buff_size desiredToRead = m_buffer.getSize();
-    if(progress + desiredToRead > m_maxHeadersSize) {
-      desiredToRead = m_maxHeadersSize - progress;
-      if(desiredToRead <= 0) {
-        return -1;
-      }
-    }
+data::v_io_size ResponseHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,
+                                                                   const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                                                   data::stream::ConsistentOutputStream* bufferStream,
+                                                                   Result& result,
+                                                                   async::Action& action)
+{
 
-    auto bufferData = m_buffer.getData();
-    res = connection->read(bufferData, desiredToRead);
-    if(res > 0) {
-      bufferStream->write(bufferData, res);
-      
-      for(v_buff_size i = 0; i < res; i ++) {
-        accumulator <<= 8;
-        accumulator |= bufferData[i];
-        if(accumulator == SECTION_END) {
-          result.bufferPosStart = i + 1;
-          result.bufferPosEnd = res;
-          return res;
-        }
-      }
-      
-    } else if(res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
-      continue;
-    } else {
-      break;
+  v_buff_size desiredToRead = m_buffer.getSize();
+  if(iteration.progress + desiredToRead > m_maxHeadersSize) {
+    desiredToRead = m_maxHeadersSize - iteration.progress;
+    if(desiredToRead <= 0) {
+      return -1;
     }
-    
   }
-  
+
+  auto bufferData = m_buffer.getData();
+  auto res = connection->read(bufferData, desiredToRead, action);
+  if(res > 0) {
+
+    bufferStream->writeSimple(bufferData, res);
+
+    for(v_buff_size i = 0; i < res; i ++) {
+      iteration.accumulator <<= 8;
+      iteration.accumulator |= bufferData[i];
+      if(iteration.accumulator == SECTION_END) {
+        result.bufferPosStart = i + 1;
+        result.bufferPosEnd = res;
+        iteration.done = true;
+      }
+    }
+
+  }
+
   return res;
-  
+
 }
 
 ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                                  http::HttpError::Info& error) {
   
   Result result;
+  ReadHeadersIteration iteration;
+  async::Action action;
   
   oatpp::data::stream::ChunkedBuffer buffer;
-  error.ioStatus = readHeadersSection(connection, &buffer, result);
+
+  while(!iteration.done) {
+
+    error.ioStatus = readHeadersSectionIterative(iteration, connection, &buffer, result, action);
+
+    if(!action.isNone()) {
+      throw std::runtime_error("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeaders]: Error. Async action is unexpected.");
+    }
+
+    if(error.ioStatus > 0) {
+      continue;
+    } else if(error.ioStatus == data::IOError::RETRY_READ || error.ioStatus == data::IOError::RETRY_WRITE) {
+      continue;
+    } else {
+      break;
+    }
+
+  }
+
   
   if(error.ioStatus > 0) {
     auto headersText = buffer.toString();
@@ -100,62 +113,46 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
   private:
+    ResponseHeadersReader* m_this;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    oatpp::data::share::MemoryLabel m_buffer;
-    v_buff_size m_maxHeadersSize;
     v_word32 m_accumulator;
     v_buff_size m_progress;
+    ReadHeadersIteration m_iteration;
     ResponseHeadersReader::Result m_result;
     oatpp::data::stream::ChunkedBuffer m_bufferStream;
   public:
     
-    ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                    const oatpp::data::share::MemoryLabel buffer, v_buff_size maxHeadersSize)
-    : m_connection(connection)
-    , m_buffer(buffer)
-    , m_maxHeadersSize(maxHeadersSize)
+    ReaderCoroutine(ResponseHeadersReader* _this,
+                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+    : m_this(_this)
+    , m_connection(connection)
     , m_accumulator(0)
     , m_progress(0)
     {}
     
     Action act() override {
-      
-      v_buff_size desiredToRead = m_buffer.getSize();
-      if(m_progress + desiredToRead > m_maxHeadersSize) {
-        desiredToRead = m_maxHeadersSize - m_progress;
-        if(desiredToRead <= 0) {
-          return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Headers section is too large.");
-        }
+
+      async::Action action;
+      auto res = m_this->readHeadersSectionIterative(m_iteration, m_connection, &m_bufferStream, m_result, action);
+
+      if(!action.isNone()) {
+        return action;
       }
-      auto bufferData = m_buffer.getData();
-      auto res = m_connection->read(bufferData, desiredToRead);
-      if(res > 0) {
-        m_bufferStream.write(bufferData, res);
-        m_progress += res;
-        
-        for(v_buff_size i = 0; i < res; i ++) {
-          m_accumulator <<= 8;
-          m_accumulator |= bufferData[i];
-          if(m_accumulator == SECTION_END) {
-            m_result.bufferPosStart = i + 1;
-            m_result.bufferPosEnd = res;
-            return yieldTo(&ReaderCoroutine::parseHeaders);
-          }
+
+      if(m_iteration.done) {
+        return yieldTo(&ReaderCoroutine::parseHeaders);
+      } else {
+
+        if (res > 0) {
+          return repeat();
+        } else if (res == data::IOError::RETRY_READ || data::IOError::RETRY_WRITE) {
+          return repeat();
         }
 
-        return m_connection->suggestInputStreamAction(res);
-        
-      } else if(res == data::IOError::SUGGEST_ACTION_READ || res == data::IOError::RETRY_READ ||
-                res == data::IOError::SUGGEST_ACTION_WRITE || res == data::IOError::RETRY_WRITE) {
-        return m_connection->suggestInputStreamAction(res);
-      } else if(res == data::IOError::BROKEN_PIPE) {
-        return error<oatpp::data::AsyncIOError>(data::IOError::BROKEN_PIPE);
-      } else if(res == data::IOError::ZERO_VALUE) {
-        return error<oatpp::data::AsyncIOError>(data::IOError::BROKEN_PIPE);
-      } else {
-        return error<Error>("[oatpp::web::protocol::http::incoming::ResponseHeadersReader::readHeadersAsync()]: Error. Error reading connection stream.");
       }
-      
+
+      return error<Error>("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeadersAsync()]: Error. Error reading connection stream.");
+
     }
     
     Action parseHeaders() {
@@ -179,7 +176,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
     
   };
   
-  return ReaderCoroutine::startForResult(connection, m_buffer, m_maxHeadersSize);
+  return ReaderCoroutine::startForResult(this, connection);
   
 }
   

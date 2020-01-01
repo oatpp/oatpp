@@ -174,10 +174,10 @@ void PipelineAsyncTest::onRun() {
 
       while(true) {
 
-        readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize());
+        readResult = connection->readSimple(ioBuffer.getData(), ioBuffer.getSize());
         if(readResult > 0) {
           retries = 0;
-          receiveStream.write(ioBuffer.getData(), readResult);
+          receiveStream.writeSimple(ioBuffer.getData(), readResult);
         } else {
           retries ++;
           if(retries == 50) {

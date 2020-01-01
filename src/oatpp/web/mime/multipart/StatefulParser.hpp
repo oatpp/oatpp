@@ -210,20 +210,10 @@ public:
 
   /**
    * Parse next chunk of bytes.
-   * @param data - pointer to data.
-   * @param size - data size.
-   * @return - exact number of parsed bytes. <br>
-   * returned value may be less than size given.
+   * @param inlineData - inline data.
+   * @param action - Async Action in case Async Listener was provided in constructor.
    */
-  v_buff_size parseNext(p_char8 data, v_buff_size size);
-
-  /**
-   * Parse next chunk of bytes in Async-Inline manner.
-   * @param inlineData - data.
-   * @param nextAction - action on when done with current chunk of data.
-   * @return - &id:oatpp::async::Action;.
-   */
-  async::Action parseNextAsyncInline(data::stream::AsyncInlineWriteData& inlineData, async::Action&& nextAction);
+  void parseNext(data::stream::AsyncInlineWriteData& inlineData, async::Action& action);
 
   /**
    * Check if parser done parsing data.

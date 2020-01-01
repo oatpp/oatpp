@@ -197,6 +197,11 @@ protected:
 public:
 
   /**
+   * Default constructor.
+   */
+  Action();
+
+  /**
    * Clone action.
    * @param action - action to clone.
    * @return - cloned action.
@@ -287,6 +292,12 @@ public:
    * @return `true` if action is an error reporting action.
    */
   bool isError() const;
+
+  /**
+   * Check if action is of TYPE_NONE.
+   * @return
+   */
+  bool isNone() const;
 
   /**
    * Get Action type.

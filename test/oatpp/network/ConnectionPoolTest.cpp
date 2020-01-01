@@ -36,19 +36,11 @@ typedef oatpp::network::ConnectionPool ConnectionPool;
 class StubStream : public oatpp::data::stream::IOStream, public oatpp::base::Countable {
 public:
 
-  data::v_io_size write(const void *buff, v_buff_size count) override {
+  data::v_io_size write(const void *buff, v_buff_size count, async::Action& actions) override {
     throw std::runtime_error("It's a stub!");
   }
 
-  data::v_io_size read(void *buff, v_buff_size count) override {
-    throw std::runtime_error("It's a stub!");
-  }
-
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override {
-    throw std::runtime_error("It's a stub!");
-  }
-
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override {
+  data::v_io_size read(void *buff, v_buff_size count, async::Action& action) override {
     throw std::runtime_error("It's a stub!");
   }
 

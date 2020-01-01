@@ -57,7 +57,7 @@ namespace {
     
     void run() {
       while (m_transferedBytes < CHUNK_SIZE * m_chunksToTransfer) {
-        auto res = m_pipe->getWriter()->write(&DATA_CHUNK[m_position], CHUNK_SIZE - m_position);
+        auto res = m_pipe->getWriter()->writeSimple(&DATA_CHUNK[m_position], CHUNK_SIZE - m_position);
         if(res > 0) {
           m_transferedBytes += res;
           m_position += res;
@@ -89,9 +89,9 @@ namespace {
     void run() {
       v_char8 readBuffer[256];
       while (m_buffer->getSize() < CHUNK_SIZE * m_chunksToTransfer) {
-        auto res = m_pipe->getReader()->read(readBuffer, 256);
+        auto res = m_pipe->getReader()->readSimple(readBuffer, 256);
         if(res > 0) {
-          m_buffer->write(readBuffer, res);
+          m_buffer->writeSimple(readBuffer, res);
         }
       }
       OATPP_LOGV("ReaderTask", "sent %d bytes", m_buffer->getSize());
@@ -121,7 +121,7 @@ namespace {
     
     auto ruleBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
     for(v_int32 i = 0; i < chunksToTransfer; i ++) {
-      ruleBuffer->write(DATA_CHUNK, CHUNK_SIZE);
+      ruleBuffer->writeSimple(DATA_CHUNK, CHUNK_SIZE);
     }
     
     auto str1 = buffer->toString();

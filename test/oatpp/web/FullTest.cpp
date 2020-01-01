@@ -295,7 +295,7 @@ void FullTest::onRun() {
       { // test Big Echo with body
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
-          stream.write("0123456789", 10);
+          stream.writeSimple("0123456789", 10);
         }
         auto data = stream.toString();
         auto response = client->echoBody(data, connection);
@@ -391,7 +391,7 @@ void FullTest::onRun() {
         v_int32 numIterations = 10;
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < numIterations; i++) {
-          stream.write(sample->getData(), sample->getSize());
+          stream.writeSimple(sample->getData(), sample->getSize());
         }
         auto data = stream.toString();
         auto response = client->getChunked(sample, numIterations, connection);
