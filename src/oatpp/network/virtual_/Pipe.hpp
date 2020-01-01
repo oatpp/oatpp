@@ -85,8 +85,6 @@ public:
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
-  private:
-    async::Action createWaitListAction();
   protected:
     
     Reader(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)
@@ -179,8 +177,6 @@ public:
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
-  private:
-    async::Action createWaitListAction();
   protected:
     
     Writer(Pipe* pipe, oatpp::data::stream::IOMode ioMode = oatpp::data::stream::IOMode::BLOCKING)

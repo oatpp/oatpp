@@ -259,6 +259,14 @@ public:
    */
   virtual data::v_io_size write(const void *data, v_buff_size count, async::Action& action) = 0;
 
+  data::v_io_size write(AsyncInlineWriteData& inlineData, async::Action& action) {
+    auto res = write(inlineData.currBufferPtr, inlineData.bytesLeft, action);
+    if(res > 0) {
+      inlineData.inc(res);
+    }
+    return res;
+  }
+
   data::v_io_size writeSimple(const void *data, v_buff_size count) {
     async::Action action;
     auto res = write(data, count, action);
@@ -266,6 +274,85 @@ public:
       throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeSimple()]: Error. writeSimple is called on a stream in Async mode.");
     }
     return res;
+  }
+
+  data::v_io_size writeExactSizeDataSimple(AsyncInlineWriteData& inlineData) {
+    auto initialCount = inlineData.bytesLeft;
+    while(inlineData.bytesLeft > 0) {
+      async::Action action;
+      auto res = write(inlineData, action);
+      if(!action.isNone()) {
+        throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeExactSizeDataSimple()]: Error. writeExactSizeDataSimple() is called on a stream in Async mode.");
+      }
+      if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
+        break;
+      }
+    }
+    return initialCount - inlineData.bytesLeft;
+  }
+
+  data::v_io_size writeExactSizeDataSimple(const void *data, v_buff_size count) {
+    AsyncInlineWriteData inlineData(data, count);
+    return writeExactSizeDataSimple(inlineData);
+  }
+
+  async::Action writeExactSizeDataAsyncInline(AsyncInlineWriteData& inlineData, async::Action&& nextAction) {
+
+    if(inlineData.bytesLeft > 0) {
+
+      async::Action action;
+      auto res = write(inlineData, action);
+
+      if (!action.isNone()) {
+        return action;
+      }
+
+      if (res > 0) {
+        return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+      } else {
+        switch (res) {
+          case IOError::BROKEN_PIPE:
+            return new AsyncIOError(data::IOError::BROKEN_PIPE);
+          case IOError::ZERO_VALUE:
+            break;
+          case IOError::RETRY_READ:
+            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+          case IOError::RETRY_WRITE:
+            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+          default:
+            return new async::Error(
+              "[oatpp::data::stream::writeExactSizeDataAsyncInline()]: Error. Unknown IO result.");
+        }
+      }
+
+    }
+
+    return std::forward<async::Action>(nextAction);
+
+  }
+
+  async::CoroutineStarter writeExactSizeDataAsync(const void* data, v_buff_size size) {
+
+    class WriteDataCoroutine : public oatpp::async::Coroutine<WriteDataCoroutine> {
+    private:
+      WriteCallback* m_this;
+      AsyncInlineWriteData m_inlineData;
+    public:
+
+      WriteDataCoroutine(WriteCallback* _this,
+                         const void* data, v_buff_size size)
+        : m_this(_this)
+        , m_inlineData(data, size)
+      {}
+
+      Action act() {
+        return m_this->writeExactSizeDataAsyncInline(m_inlineData, finish());
+      }
+
+    };
+
+    return WriteDataCoroutine::start(this, data, size);
+
   }
 
   /**
@@ -396,6 +483,102 @@ public:
    * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
    */
   virtual data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
+
+  data::v_io_size read(AsyncInlineReadData& inlineData, async::Action& action) {
+    auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
+    if(res > 0) {
+      inlineData.inc(res);
+    }
+    return res;
+  }
+
+  data::v_io_size readExactSizeDataSimple(AsyncInlineReadData& inlineData) {
+    auto initialCount = inlineData.bytesLeft;
+    while(inlineData.bytesLeft > 0) {
+      async::Action action;
+      auto res = read(inlineData, action);
+      if(!action.isNone()) {
+        throw std::runtime_error("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]: Error. readExactSizeDataSimple() is called on a stream in Async mode.");
+      }
+      if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
+        break;
+      }
+    }
+    return initialCount - inlineData.bytesLeft;
+  }
+
+  data::v_io_size readExactSizeDataSimple(void *data, v_buff_size count) {
+    AsyncInlineReadData inlineData(data, count);
+    return readExactSizeDataSimple(inlineData);
+  }
+
+  async::Action readExactSizeDataAsyncInline(AsyncInlineReadData& inlineData, async::Action&& nextAction) {
+
+    if(inlineData.bytesLeft > 0) {
+
+      async::Action action;
+      auto res = read(inlineData, action);
+
+      if (!action.isNone()) {
+        return action;
+      }
+
+      if (res > 0) {
+        return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+      } else {
+        switch (res) {
+          case IOError::BROKEN_PIPE:
+            return new AsyncIOError(data::IOError::BROKEN_PIPE);
+          case IOError::ZERO_VALUE:
+            break;
+          case IOError::RETRY_READ:
+            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+          case IOError::RETRY_WRITE:
+            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+          default:
+            return new async::Error(
+              "[oatpp::data::stream::readExactSizeDataAsyncInline()]: Error. Unknown IO result.");
+        }
+      }
+
+    }
+
+    return std::forward<async::Action>(nextAction);
+
+  }
+
+  async::Action readSomeDataAsyncInline(AsyncInlineReadData& inlineData, async::Action&& nextAction) {
+
+    if(inlineData.bytesLeft > 0) {
+
+      async::Action action;
+      auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
+
+      if(!action.isNone()) {
+        return action;
+      }
+
+      if(res < 0) {
+        switch (res) {
+          case IOError::BROKEN_PIPE:
+            return new AsyncIOError(data::IOError::BROKEN_PIPE);
+//          case IOError::ZERO_VALUE:
+//            break;
+          case IOError::RETRY_READ:
+            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+          case IOError::RETRY_WRITE:
+            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
+          default:
+            return new async::Error(
+              "[oatpp::data::stream::readSomeDataAsyncInline()]: Error. Unknown IO result.");
+        }
+      }
+
+    }
+
+    return std::forward<async::Action>(nextAction);
+
+  }
 
   data::v_io_size readSimple(void *data, v_buff_size count) {
     async::Action action;
@@ -607,36 +790,6 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<ReadCallback>
                                              v_buff_size transferSize,
                                              const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
-  
-oatpp::async::Action writeExactSizeDataAsyncInline(WriteCallback* writeCallback,
-                                                   AsyncInlineWriteData& inlineData,
-                                                   oatpp::async::Action&& nextAction);
-
-oatpp::async::CoroutineStarter writeExactSizeDataAsync(const std::shared_ptr<WriteCallback>& stream,
-                                                       const void* data, v_buff_size size);
-
-oatpp::async::Action readSomeDataAsyncInline(ReadCallback* readCallback,
-                                             AsyncInlineReadData& inlineData,
-                                             oatpp::async::Action&& nextAction,
-                                             bool allowZeroRead = false);
-
-oatpp::async::Action readExactSizeDataAsyncInline(ReadCallback* readCallback,
-                                                  AsyncInlineReadData& inlineData,
-                                                  oatpp::async::Action&& nextAction);
-
-/**
- * Read exact amount of bytes to stream
- * returns exact amount of bytes was read.
- * return result can be < size only in case of some disaster like connection reset by peer
- */
-oatpp::data::v_io_size readExactSizeData(ReadCallback* readCallback, void* data, v_buff_size size);
-  
-/**
- * Write exact amount of bytes to stream.
- * returns exact amount of bytes was written.
- * return result can be < size only in case of some disaster like broken pipe
- */
-oatpp::data::v_io_size writeExactSizeData(WriteCallback* writeCallback, const void* data, v_buff_size size);
   
 }}}
 

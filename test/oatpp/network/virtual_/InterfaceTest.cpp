@@ -55,7 +55,7 @@ namespace {
       auto submission = m_interface->connect();
       auto socket = submission->getSocket();
       
-      auto res = oatpp::data::stream::writeExactSizeData(socket.get(), m_dataSample->getData(), m_dataSample->getSize());
+      auto res = socket->writeExactSizeDataSimple(m_dataSample->getData(), m_dataSample->getSize());
       OATPP_ASSERT(res == m_dataSample->getSize());
       
       v_char8 buffer[100];
@@ -93,7 +93,7 @@ namespace {
       OATPP_ASSERT(stream.getSize() == res);
       OATPP_ASSERT(stream.toString() == m_dataSample);
       
-      res = oatpp::data::stream::writeExactSizeData(m_socket.get(), "OK", 2);
+      res = m_socket->writeExactSizeDataSimple("OK", 2);
       
       OATPP_ASSERT(res == 2);
     }

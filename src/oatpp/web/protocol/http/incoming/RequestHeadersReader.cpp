@@ -54,6 +54,7 @@ data::v_io_size RequestHeadersReader::readHeadersSectionIterative(ReadHeadersIte
       if(iteration.accumulator == SECTION_END) {
         stream->commitReadOffset(i + 1);
         iteration.done = true;
+        return res;
       }
     }
 

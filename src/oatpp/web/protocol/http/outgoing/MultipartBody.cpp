@@ -329,7 +329,7 @@ MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, data::
   , m_multipart(multipart)
 {}
 
-void MultipartBody::declareHeaders(Headers& headers) noexcept {
+void MultipartBody::declareHeaders(Headers& headers) {
   if(m_multipart->getAllParts().empty()) {
     headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, "0");
     return;
@@ -338,7 +338,7 @@ void MultipartBody::declareHeaders(Headers& headers) noexcept {
   headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_TYPE, "multipart/form-data; boundary=" + m_multipart->getBoundary());
 }
 
-void MultipartBody::writeToStream(OutputStream* stream) noexcept {
+void MultipartBody::writeToStream(OutputStream* stream) {
   if(m_multipart->getAllParts().empty()) {
     return;
   }

@@ -222,13 +222,13 @@ bool ChunkedBuffer::flushToStream(OutputStream* stream){
   auto curr = m_firstEntry;
   while (pos > 0) {
     if(pos > CHUNK_ENTRY_SIZE) {
-      auto res = data::stream::writeExactSizeData(stream, curr->chunk, CHUNK_ENTRY_SIZE);
+      auto res = stream->writeExactSizeDataSimple(curr->chunk, CHUNK_ENTRY_SIZE);
       if(res != CHUNK_ENTRY_SIZE) {
         return false;
       }
       pos -= res;
     } else {
-      auto res = data::stream::writeExactSizeData(stream, curr->chunk, pos);
+      auto res = stream->writeExactSizeDataSimple(curr->chunk, pos);
       if(res != pos) {
         return false;
       }
@@ -291,7 +291,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
     }
     
     Action writeCurrData() {
-      return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_currData, Action::clone(m_nextAction));
+      return m_stream->writeExactSizeDataAsyncInline(m_currData, Action::clone(m_nextAction));
     }
     
   };

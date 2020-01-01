@@ -50,20 +50,18 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action&
   oatpp::data::v_io_size result;
   
   if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
-    std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
-    if(lock.owns_lock()) {
-      if (pipe.m_fifo.availableToRead() > 0) {
-        result = pipe.m_fifo.read(data, count);
-      } else if (pipe.m_open) {
-        action = createWaitListAction();
-        result = data::IOError::RETRY_READ;
-      } else {
-        result = data::IOError::BROKEN_PIPE;
-      }
-    } else {
-      action = createWaitListAction();
+
+    std::lock_guard<std::mutex> lock(pipe.m_mutex);
+
+    if (pipe.m_fifo.availableToRead() > 0) {
+      result = pipe.m_fifo.read(data, count);
+    } else if (pipe.m_open) {
+      action = async::Action::createWaitListAction(&m_waitList);
       result = data::IOError::RETRY_READ;
+    } else {
+      result = data::IOError::BROKEN_PIPE;
     }
+
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
     while (pipe.m_fifo.availableToRead() == 0 && pipe.m_open) {
@@ -83,16 +81,6 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action&
   
   return result;
   
-}
-
-async::Action Pipe::Reader::createWaitListAction() {
-
-  std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
-  if (m_pipe->m_fifo.availableToRead() > 0 || !m_pipe->m_open) {
-    return async::Action();
-  }
-  return async::Action::createWaitListAction(&m_waitList);
-
 }
 
 oatpp::data::stream::Context& Pipe::Reader::getInputStreamContext() {
@@ -133,20 +121,18 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::
   oatpp::data::v_io_size result;
   
   if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
-    std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
-    if(lock.owns_lock()) {
-      if (pipe.m_fifo.availableToWrite() > 0) {
-        result = pipe.m_fifo.write(data, count);
-      } else if (pipe.m_open) {
-        action = createWaitListAction();
-        result = data::IOError::RETRY_WRITE;
-      } else {
-        result = data::IOError::BROKEN_PIPE;
-      }
-    } else {
-      action = createWaitListAction();
+
+    std::lock_guard<std::mutex> lock(pipe.m_mutex);
+
+    if (pipe.m_fifo.availableToWrite() > 0) {
+      result = pipe.m_fifo.write(data, count);
+    } else if (pipe.m_open) {
+      action = async::Action::createWaitListAction(&m_waitList);
       result = data::IOError::RETRY_WRITE;
+    } else {
+      result = data::IOError::BROKEN_PIPE;
     }
+
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
     while (pipe.m_fifo.availableToWrite() == 0 && pipe.m_open) {
@@ -166,16 +152,6 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::
   
   return result;
   
-}
-
-async::Action Pipe::Writer::createWaitListAction() {
-
-  std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
-  if (m_pipe->m_fifo.availableToWrite() > 0 || !m_pipe->m_open) {
-    return async::Action();
-  }
-  return async::Action::createWaitListAction(&m_waitList);
-
 }
 
 void Pipe::Writer::notifyWaitList() {

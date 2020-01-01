@@ -69,13 +69,13 @@ public:
    * Declare `Transfer-Encoding: chunked` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  void declareHeaders(Headers& headers) noexcept override;
+  void declareHeaders(Headers& headers) override;
 
   /**
    * Write body data to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(OutputStream* stream) noexcept override;
+  void writeToStream(OutputStream* stream) override;
 
   /**
    * Write body data to stream in asynchronous manner.

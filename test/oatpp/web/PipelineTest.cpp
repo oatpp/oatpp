@@ -169,7 +169,8 @@ void PipelineTest::onRun() {
 
       while(true) {
 
-        readResult = connection->readSimple(ioBuffer.getData(), ioBuffer.getSize());
+        async::Action action; // in this particular case, the action is just ignored.
+        readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize(), action);
         if(readResult > 0) {
           retries = 0;
           receiveStream.writeSimple(ioBuffer.getData(), readResult);

@@ -360,10 +360,10 @@ data::v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream* stream) {
   data::v_io_size result = 0;
 
   if(m_readPosition < m_writePosition) {
-    result = data::stream::writeExactSizeData(stream, &m_buffer[m_readPosition], m_writePosition - m_readPosition);
+    result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_writePosition - m_readPosition);
   } else {
-    auto result = data::stream::writeExactSizeData(stream, &m_buffer[m_readPosition], m_bufferSize - m_readPosition);
-    result += data::stream::writeExactSizeData(stream, m_buffer, m_writePosition);
+    auto result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_bufferSize - m_readPosition);
+    result += stream->writeExactSizeDataSimple(m_buffer, m_writePosition);
   }
 
   setBufferPosition(0, 0, false);
@@ -410,15 +410,15 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
     }
 
     Action fullFlush() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, yieldTo(&FlushCoroutine::beforeFinish));
+      return m_stream->writeExactSizeDataAsyncInline(m_data1, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action partialFlush1() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, yieldTo(&FlushCoroutine::partialFlush2));
+      return m_stream->writeExactSizeDataAsyncInline(m_data1, yieldTo(&FlushCoroutine::partialFlush2));
     }
 
     Action partialFlush2() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data2, yieldTo(&FlushCoroutine::beforeFinish));
+      return m_stream->writeExactSizeDataAsyncInline(m_data2, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action beforeFinish() {

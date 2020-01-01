@@ -125,7 +125,7 @@ oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size coun
 }
 
 oatpp::data::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
-  return oatpp::data::stream::writeExactSizeData(stream, m_data, m_position);
+  return stream->writeExactSizeDataSimple(m_data, m_position);
 }
 
 oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<OutputStream>& stream) {
@@ -148,7 +148,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
         m_inlineData.currBufferPtr = m_this->m_data;
         m_inlineData.bytesLeft = m_this->m_position;
       }
-      return writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
+      return m_stream.get()->writeExactSizeDataAsyncInline(m_inlineData, finish());
     }
 
   };

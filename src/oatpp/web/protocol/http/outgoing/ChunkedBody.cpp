@@ -43,14 +43,14 @@ ChunkedBody::~ChunkedBody() {
 }
 
 bool ChunkedBody::writeData(OutputStream* stream, const void* data, v_buff_size size) {
-  return oatpp::data::stream::writeExactSizeData(stream, data, size) == size;
+  return stream->writeExactSizeDataSimple(data, size) == size;
 }
 
-void ChunkedBody::declareHeaders(Headers& headers) noexcept {
+void ChunkedBody::declareHeaders(Headers& headers) {
   headers.put_LockFree(oatpp::web::protocol::http::Header::TRANSFER_ENCODING, oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED);
 }
 
-void ChunkedBody::writeToStream(OutputStream* stream) noexcept {
+void ChunkedBody::writeToStream(OutputStream* stream) {
 
 //  if(stream->getOutputStreamIOMode() != oatpp::data::stream::IOMode::BLOCKING) {
 //    OATPP_LOGE("[oatpp::web::protocol::http::outgoing::ChunkedBody::writeToStream()]", "Error. Blocking method called for ASYNCHRONOUS stream.");

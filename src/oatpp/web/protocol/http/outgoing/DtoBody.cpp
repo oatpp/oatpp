@@ -38,7 +38,7 @@ std::shared_ptr<DtoBody> DtoBody::createShared(const oatpp::data::mapping::type:
   return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper);
 }
 
-void DtoBody::declareHeaders(Headers& headers) noexcept {
+void DtoBody::declareHeaders(Headers& headers) {
   if(m_dto) {
     m_objectMapper->write(m_buffer, m_dto);
   }

@@ -60,7 +60,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-
+/*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -100,7 +100,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
-
+*/
   {
 
     oatpp::test::web::PipelineTest test_virtual(0, 3000);

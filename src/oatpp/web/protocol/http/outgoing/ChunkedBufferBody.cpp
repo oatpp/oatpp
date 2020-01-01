@@ -34,11 +34,11 @@ std::shared_ptr<ChunkedBufferBody> ChunkedBufferBody::createShared(const std::sh
   return Shared_Http_Outgoing_ChunkedBufferBody_Pool::allocateShared(buffer);
 }
 
-void ChunkedBufferBody::declareHeaders(Headers& headers) noexcept {
+void ChunkedBufferBody::declareHeaders(Headers& headers) {
   headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
 }
 
-void ChunkedBufferBody::writeToStream(OutputStream* stream) noexcept {
+void ChunkedBufferBody::writeToStream(OutputStream* stream) {
   m_buffer->flushToStream(stream);
 }
 

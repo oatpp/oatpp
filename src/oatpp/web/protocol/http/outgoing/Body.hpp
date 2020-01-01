@@ -52,7 +52,7 @@ public:
    * Declare headers describing body.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  virtual void declareHeaders(Headers& headers) noexcept = 0;
+  virtual void declareHeaders(Headers& headers) = 0;
   
   /**
    * write content to stream
@@ -62,7 +62,7 @@ public:
    * Write body content to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  virtual void writeToStream(OutputStream* stream) noexcept = 0;
+  virtual void writeToStream(OutputStream* stream) = 0;
 
   /**
    * Same as &l:Body::writeToStream (); but async.

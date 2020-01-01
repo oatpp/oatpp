@@ -152,17 +152,23 @@ void HttpProcessor::Task::run(){
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
   auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE));
 
-  do {
+  try {
 
-    response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
+    do {
 
-    if(response) {
-      response->send(m_connection.get(), &headersOutBuffer);
-    } else {
-      return;
-    }
+      response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
 
-  } while(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+      if (response) {
+        response->send(m_connection.get(), &headersOutBuffer);
+      } else {
+        return;
+      }
+
+    } while (connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+
+  } catch (...) {
+    return;
+  }
 
   if(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
     auto handler = response->getConnectionUpgradeHandler();

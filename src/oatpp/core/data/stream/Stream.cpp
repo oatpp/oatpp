@@ -422,7 +422,7 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<ReadCallback>
     }
     
     Action doRead() {
-      return oatpp::data::stream::readSomeDataAsyncInline(m_readCallback.get(), m_inlineReadData, yieldTo(&TransferCoroutine::prepareWrite));
+      return m_readCallback->readSomeDataAsyncInline(m_inlineReadData, yieldTo(&TransferCoroutine::prepareWrite));
     }
     
     Action prepareWrite() {
