@@ -145,7 +145,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
 
         if (res > 0) {
           return repeat();
-        } else if (res == data::IOError::RETRY_READ || data::IOError::RETRY_WRITE) {
+        } else if (res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
           return repeat();
         }
 

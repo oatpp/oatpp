@@ -100,7 +100,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
-*/
+
   {
 
     oatpp::test::web::PipelineTest test_virtual(0, 3000);
@@ -120,7 +120,7 @@ void runTests() {
     test_port.run();
 
   }
-
+*/
   {
 
     oatpp::test::web::FullTest test_virtual(0, 1000);

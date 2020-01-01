@@ -169,7 +169,7 @@ void PipelineTest::onRun() {
 
       while(true) {
 
-        async::Action action; // in this particular case, the action is just ignored.
+        async::Action action; // In this particular case, the action is just ignored.
         readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize(), action);
         if(readResult > 0) {
           retries = 0;
