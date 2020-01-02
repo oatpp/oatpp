@@ -29,7 +29,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ChunkedDecodingStream
 
-ChunkedDecodingStream::ChunkedDecodingStream(const std::shared_ptr<data::stream::InputStream>& baseStream)
+ChunkedDecodingStream::ChunkedDecodingStream(const base::ObjectHandle<data::stream::InputStream>& baseStream)
   : m_baseStream(baseStream)
   , m_chunkSize(0)
   , m_lineSize(0)

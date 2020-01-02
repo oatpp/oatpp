@@ -49,6 +49,7 @@ add_library(oatpp
         oatpp/core/base/Countable.hpp
         oatpp/core/base/Environment.cpp
         oatpp/core/base/Environment.hpp
+        oatpp/core/base/ObjectHandle.hpp
         oatpp/core/base/StrBuffer.cpp
         oatpp/core/base/StrBuffer.hpp
         oatpp/core/base/memory/Allocator.cpp

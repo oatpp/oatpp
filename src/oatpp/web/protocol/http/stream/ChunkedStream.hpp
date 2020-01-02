@@ -27,6 +27,7 @@
 
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/base/ObjectHandle.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace stream {
 
@@ -35,7 +36,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class ChunkedDecodingStream : public data::stream::InputStream {
 private:
-  std::shared_ptr<data::stream::InputStream> m_baseStream;
+  base::ObjectHandle<data::stream::InputStream> m_baseStream;
   data::v_io_size m_chunkSize;
   data::v_io_size m_lineSize;   // size in bytes of the "line" string.
   bool m_done;
@@ -48,7 +49,7 @@ public:
    * Constructor.
    * @param baseStream - chunked encoded stream.
    */
-  ChunkedDecodingStream(const std::shared_ptr<data::stream::InputStream>& baseStream);
+  ChunkedDecodingStream(const base::ObjectHandle<data::stream::InputStream>& baseStream);
 
   /**
    * Read decoded bytes.
