@@ -33,13 +33,6 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  * Default implementation of &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
  */
 class SimpleBodyDecoder : public BodyDecoder {
-private:
-  static data::v_io_size readLine(data::stream::InputStream* fromStream, p_char8 buffer, v_buff_size maxLineSize);
-
-  static void doChunkedDecoding(data::stream::InputStream* from, data::stream::WriteCallback* writeCallback);
-  
-  static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<data::stream::InputStream>& fromStream,
-                                                               const std::shared_ptr<data::stream::WriteCallback>& writeCallback);
 public:
 
   /**

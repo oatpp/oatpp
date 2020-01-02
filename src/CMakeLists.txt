@@ -205,6 +205,8 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/Response.hpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.cpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.hpp
+        oatpp/web/protocol/http/stream/ChunkedStream.cpp
+        oatpp/web/protocol/http/stream/ChunkedStream.hpp
         oatpp/web/server/AsyncHttpConnectionHandler.cpp
         oatpp/web/server/AsyncHttpConnectionHandler.hpp
         oatpp/web/server/HttpConnectionHandler.cpp
