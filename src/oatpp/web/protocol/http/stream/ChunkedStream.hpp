@@ -80,6 +80,49 @@ public:
 
 };
 
+/**
+ * Stream to chunked-encode data.
+ */
+class ChunkedEncodingStream : public data::stream::InputStream {
+private:
+  base::ObjectHandle<data::stream::InputStream> m_baseStream;
+public:
+
+  /**
+   * Constructor.
+   * @param baseStream - chunked encoded stream.
+   */
+  ChunkedEncodingStream(const base::ObjectHandle<data::stream::InputStream>& baseStream);
+
+  /**
+   * Read encoded bytes.
+   * @param buffer
+   * @param count
+   * @param action
+   * @return
+   */
+  data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Set stream I/O mode.
+   * @throws
+   */
+  void setInputStreamIOMode(data::stream::IOMode ioMode) override;
+
+  /**
+   * Get stream I/O mode.
+   * @return
+   */
+  data::stream::IOMode getInputStreamIOMode() override;
+
+  /**
+   * Get stream context.
+   * @return - &l:Context;.
+   */
+  data::stream::Context& getInputStreamContext() override;
+
+};
+
 }}}}}
 
 #endif // oatpp_web_protocol_http_stream_ChunkedStream_hpp

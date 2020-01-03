@@ -96,9 +96,9 @@ oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared
 //  private:
 //    oatpp::String m_chunkSizeHex;
 //  private:
-//    data::stream::AsyncInlineReadData m_inlineReadData;
-//    data::stream::AsyncInlineWriteData m_inlineWriteData;
-//    data::stream::AsyncInlineWriteData m_chunkSizeWriteData;
+//    data::stream::InlineReadData m_inlineReadData;
+//    data::stream::InlineWriteData m_inlineWriteData;
+//    data::stream::InlineWriteData m_chunkSizeWriteData;
 //  public:
 //
 //    WriteCoroutine(const std::shared_ptr<ChunkedBody>& body,

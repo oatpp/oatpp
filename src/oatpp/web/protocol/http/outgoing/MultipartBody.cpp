@@ -153,12 +153,12 @@ data::v_io_size MultipartBody::AsyncMultipartReadCallback::read(void *buffer, v_
 //  class ReadCoroutine : public oatpp::async::Coroutine<ReadCoroutine> {
 //  private:
 //    AsyncMultipartReadCallback* m_this;
-//    oatpp::data::stream::AsyncInlineReadData* m_inlineData;
+//    oatpp::data::stream::InlineReadData* m_inlineData;
 //    data::v_io_size m_readResult;
 //    data::v_io_size m_bodyReadPosition0;
 //  public:
 //
-//    ReadCoroutine(AsyncMultipartReadCallback* _this, oatpp::data::stream::AsyncInlineReadData* inlineData)
+//    ReadCoroutine(AsyncMultipartReadCallback* _this, oatpp::data::stream::InlineReadData* inlineData)
 //      : m_this(_this)
 //      , m_inlineData(inlineData)
 //    {}

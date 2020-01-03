@@ -191,10 +191,10 @@ private:
 
 private:
 
-  ListenerCall parseNext_Boundary(data::stream::AsyncInlineWriteData& inlineData);
-  void         parseNext_AfterBoundary(data::stream::AsyncInlineWriteData& inlineData);
-  ListenerCall parseNext_Headers(data::stream::AsyncInlineWriteData& inlineData);
-  ListenerCall parseNext_Data(data::stream::AsyncInlineWriteData& inlineData);
+  ListenerCall parseNext_Boundary(data::stream::InlineWriteData& inlineData);
+  void         parseNext_AfterBoundary(data::stream::InlineWriteData& inlineData);
+  ListenerCall parseNext_Headers(data::stream::InlineWriteData& inlineData);
+  ListenerCall parseNext_Data(data::stream::InlineWriteData& inlineData);
 
 public:
 
@@ -213,7 +213,7 @@ public:
    * @param inlineData - inline data.
    * @param action - Async Action in case Async Listener was provided in constructor.
    */
-  void parseNext(data::stream::AsyncInlineWriteData& inlineData, async::Action& action);
+  void parseNext(data::stream::InlineWriteData& inlineData, async::Action& action);
 
   /**
    * Check if parser done parsing data.

@@ -248,7 +248,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
     ChunkEntry* m_currEntry;
     data::v_io_size m_bytesLeft;
     Action m_nextAction;
-    data::stream::AsyncInlineWriteData m_currData;
+    data::stream::InlineWriteData m_currData;
     bool m_needInit;
   public:
     

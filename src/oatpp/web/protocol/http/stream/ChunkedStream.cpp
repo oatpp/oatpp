@@ -108,4 +108,27 @@ data::stream::Context& ChunkedDecodingStream::getInputStreamContext() {
   return m_baseStream->getInputStreamContext();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ChunkedEncodingStream
+
+ChunkedEncodingStream::ChunkedEncodingStream(const base::ObjectHandle<data::stream::InputStream>& baseStream)
+  : m_baseStream(baseStream)
+{}
+
+data::v_io_size ChunkedEncodingStream::read(void *buffer, v_buff_size count, async::Action& action) {
+
+}
+
+void ChunkedEncodingStream::setInputStreamIOMode(data::stream::IOMode ioMode) {
+  m_baseStream->setInputStreamIOMode(ioMode);
+}
+
+data::stream::IOMode ChunkedEncodingStream::getInputStreamIOMode() {
+  return m_baseStream->getInputStreamIOMode();
+}
+
+data::stream::Context& ChunkedEncodingStream::getInputStreamContext() {
+  return m_baseStream->getInputStreamContext();
+}
+
 }}}}}

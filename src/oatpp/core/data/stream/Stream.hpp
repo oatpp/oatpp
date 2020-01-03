@@ -193,7 +193,7 @@ enum IOMode : v_int32 {
 /**
  * Convenience structure for stream Async-Inline write operations.
  */
-struct AsyncInlineWriteData {
+struct InlineWriteData {
 
   /**
    * Pointer to current position in the buffer.
@@ -208,14 +208,14 @@ struct AsyncInlineWriteData {
   /**
    * Default constructor.
    */
-  AsyncInlineWriteData();
+  InlineWriteData();
 
   /**
    * Constructor.
    * @param data
    * @param size
    */
-  AsyncInlineWriteData(const void* data, v_buff_size size);
+  InlineWriteData(const void* data, v_buff_size size);
 
   /**
    * Set `currBufferPtr` and `bytesLeft` values. <br>
@@ -259,101 +259,17 @@ public:
    */
   virtual data::v_io_size write(const void *data, v_buff_size count, async::Action& action) = 0;
 
-  data::v_io_size write(AsyncInlineWriteData& inlineData, async::Action& action) {
-    auto res = write(inlineData.currBufferPtr, inlineData.bytesLeft, action);
-    if(res > 0) {
-      inlineData.inc(res);
-    }
-    return res;
-  }
+  data::v_io_size write(InlineWriteData& inlineData, async::Action& action);
 
-  data::v_io_size writeSimple(const void *data, v_buff_size count) {
-    async::Action action;
-    auto res = write(data, count, action);
-    if(!action.isNone()) {
-      throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeSimple()]: Error. writeSimple is called on a stream in Async mode.");
-    }
-    return res;
-  }
+  data::v_io_size writeSimple(const void *data, v_buff_size count);
 
-  data::v_io_size writeExactSizeDataSimple(AsyncInlineWriteData& inlineData) {
-    auto initialCount = inlineData.bytesLeft;
-    while(inlineData.bytesLeft > 0) {
-      async::Action action;
-      auto res = write(inlineData, action);
-      if(!action.isNone()) {
-        throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeExactSizeDataSimple()]: Error. writeExactSizeDataSimple() is called on a stream in Async mode.");
-      }
-      if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
-        break;
-      }
-    }
-    return initialCount - inlineData.bytesLeft;
-  }
+  data::v_io_size writeExactSizeDataSimple(InlineWriteData& inlineData);
 
-  data::v_io_size writeExactSizeDataSimple(const void *data, v_buff_size count) {
-    AsyncInlineWriteData inlineData(data, count);
-    return writeExactSizeDataSimple(inlineData);
-  }
+  data::v_io_size writeExactSizeDataSimple(const void *data, v_buff_size count);
 
-  async::Action writeExactSizeDataAsyncInline(AsyncInlineWriteData& inlineData, async::Action&& nextAction) {
+  async::Action writeExactSizeDataAsyncInline(InlineWriteData& inlineData, async::Action&& nextAction);
 
-    if(inlineData.bytesLeft > 0) {
-
-      async::Action action;
-      auto res = write(inlineData, action);
-
-      if (!action.isNone()) {
-        return action;
-      }
-
-      if (res > 0) {
-        return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-      } else {
-        switch (res) {
-          case IOError::BROKEN_PIPE:
-            return new AsyncIOError(data::IOError::BROKEN_PIPE);
-          case IOError::ZERO_VALUE:
-            break;
-          case IOError::RETRY_READ:
-            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-          case IOError::RETRY_WRITE:
-            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-          default:
-            return new async::Error(
-              "[oatpp::data::stream::writeExactSizeDataAsyncInline()]: Error. Unknown IO result.");
-        }
-      }
-
-    }
-
-    return std::forward<async::Action>(nextAction);
-
-  }
-
-  async::CoroutineStarter writeExactSizeDataAsync(const void* data, v_buff_size size) {
-
-    class WriteDataCoroutine : public oatpp::async::Coroutine<WriteDataCoroutine> {
-    private:
-      WriteCallback* m_this;
-      AsyncInlineWriteData m_inlineData;
-    public:
-
-      WriteDataCoroutine(WriteCallback* _this,
-                         const void* data, v_buff_size size)
-        : m_this(_this)
-        , m_inlineData(data, size)
-      {}
-
-      Action act() {
-        return m_this->writeExactSizeDataAsyncInline(m_inlineData, finish());
-      }
-
-    };
-
-    return WriteDataCoroutine::start(this, data, size);
-
-  }
+  async::CoroutineStarter writeExactSizeDataAsync(const void* data, v_buff_size size);
 
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
@@ -418,7 +334,7 @@ public:
 /**
  * Convenience structure for stream Async-Inline read operations.
  */
-struct AsyncInlineReadData {
+struct InlineReadData {
 
   /**
    * Pointer to current position in the buffer.
@@ -433,14 +349,14 @@ struct AsyncInlineReadData {
   /**
    * Default constructor.
    */
-  AsyncInlineReadData();
+  InlineReadData();
 
   /**
    * Constructor.
    * @param data
    * @param size
    */
-  AsyncInlineReadData(void* data, v_buff_size size);
+  InlineReadData(void* data, v_buff_size size);
 
   /**
    * Set `currBufferPtr` and `bytesLeft` values. <br>
@@ -484,110 +400,17 @@ public:
    */
   virtual data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
 
-  data::v_io_size read(AsyncInlineReadData& inlineData, async::Action& action) {
-    auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
-    if(res > 0) {
-      inlineData.inc(res);
-    }
-    return res;
-  }
+  data::v_io_size read(InlineReadData& inlineData, async::Action& action);
 
-  data::v_io_size readExactSizeDataSimple(AsyncInlineReadData& inlineData) {
-    auto initialCount = inlineData.bytesLeft;
-    while(inlineData.bytesLeft > 0) {
-      async::Action action;
-      auto res = read(inlineData, action);
-      if(!action.isNone()) {
-        throw std::runtime_error("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]: Error. readExactSizeDataSimple() is called on a stream in Async mode.");
-      }
-      if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
-        break;
-      }
-    }
-    return initialCount - inlineData.bytesLeft;
-  }
+  data::v_io_size readExactSizeDataSimple(InlineReadData& inlineData);
 
-  data::v_io_size readExactSizeDataSimple(void *data, v_buff_size count) {
-    AsyncInlineReadData inlineData(data, count);
-    return readExactSizeDataSimple(inlineData);
-  }
+  data::v_io_size readExactSizeDataSimple(void *data, v_buff_size count);
 
-  async::Action readExactSizeDataAsyncInline(AsyncInlineReadData& inlineData, async::Action&& nextAction) {
+  async::Action readExactSizeDataAsyncInline(InlineReadData& inlineData, async::Action&& nextAction);
 
-    if(inlineData.bytesLeft > 0) {
+  async::Action readSomeDataAsyncInline(InlineReadData& inlineData, async::Action&& nextAction);
 
-      async::Action action;
-      auto res = read(inlineData, action);
-
-      if (!action.isNone()) {
-        return action;
-      }
-
-      if (res > 0) {
-        return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-      } else {
-        switch (res) {
-          case IOError::BROKEN_PIPE:
-            return new AsyncIOError(data::IOError::BROKEN_PIPE);
-          case IOError::ZERO_VALUE:
-            break;
-          case IOError::RETRY_READ:
-            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-          case IOError::RETRY_WRITE:
-            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-          default:
-            return new async::Error(
-              "[oatpp::data::stream::readExactSizeDataAsyncInline()]: Error. Unknown IO result.");
-        }
-      }
-
-    }
-
-    return std::forward<async::Action>(nextAction);
-
-  }
-
-  async::Action readSomeDataAsyncInline(AsyncInlineReadData& inlineData, async::Action&& nextAction) {
-
-    if(inlineData.bytesLeft > 0) {
-
-      async::Action action;
-      auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
-
-      if(!action.isNone()) {
-        return action;
-      }
-
-      if(res < 0) {
-        switch (res) {
-          case IOError::BROKEN_PIPE:
-            return new AsyncIOError(data::IOError::BROKEN_PIPE);
-//          case IOError::ZERO_VALUE:
-//            break;
-          case IOError::RETRY_READ:
-            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-          case IOError::RETRY_WRITE:
-            return async::Action::createActionByType(async::Action::TYPE_REPEAT);
-          default:
-            return new async::Error(
-              "[oatpp::data::stream::readSomeDataAsyncInline()]: Error. Unknown IO result.");
-        }
-      }
-
-    }
-
-    return std::forward<async::Action>(nextAction);
-
-  }
-
-  data::v_io_size readSimple(void *data, v_buff_size count) {
-    async::Action action;
-    auto res = read(data, count, action);
-    if(!action.isNone()) {
-      throw std::runtime_error("[oatpp::data::stream::ReadCallback::readSimple()]: Error. readSimple is called on a stream in Async mode.");
-    }
-    return res;
-  }
+  data::v_io_size readSimple(void *data, v_buff_size count);
 
 };
 
@@ -638,60 +461,6 @@ public:
    */
   async::CoroutineStarter initContextsAsync();
 
-};
-
-class CompoundIOStream : public oatpp::base::Countable, public IOStream {
-public:
-  OBJECT_POOL(CompoundIOStream_Pool, CompoundIOStream, 32);
-  SHARED_OBJECT_POOL(Shared_CompoundIOStream_Pool, CompoundIOStream, 32);
-private:
-  std::shared_ptr<OutputStream> m_outputStream;
-  std::shared_ptr<InputStream> m_inputStream;
-public:
-  CompoundIOStream(const std::shared_ptr<OutputStream>& outputStream,
-                   const std::shared_ptr<InputStream>& inputStream)
-    : m_outputStream(outputStream)
-    , m_inputStream(inputStream)
-  {}
-public:
-  
-  static std::shared_ptr<CompoundIOStream> createShared(const std::shared_ptr<OutputStream>& outputStream,
-                                                        const std::shared_ptr<InputStream>& inputStream){
-    return Shared_CompoundIOStream_Pool::allocateShared(outputStream, inputStream);
-  }
-  
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override {
-    return m_outputStream->write(data, count, action);
-  }
-  
-  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override {
-    return m_inputStream->read(data, count, action);
-  }
-
-  void setOutputStreamIOMode(IOMode ioMode) override {
-    m_outputStream->setOutputStreamIOMode(ioMode);
-  }
-
-  IOMode getOutputStreamIOMode() override {
-    return m_outputStream->getOutputStreamIOMode();
-  }
-
-  Context& getOutputStreamContext() override {
-    return m_outputStream->getOutputStreamContext();
-  }
-
-  void setInputStreamIOMode(IOMode ioMode) override {
-    m_inputStream->setInputStreamIOMode(ioMode);
-  }
-
-  IOMode getInputStreamIOMode() override {
-    return m_inputStream->getInputStreamIOMode();
-  }
-
-  Context& getInputStreamContext() override {
-    return m_inputStream->getInputStreamContext();
-  }
-    
 };
 
 /**
