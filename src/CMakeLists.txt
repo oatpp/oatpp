@@ -70,6 +70,8 @@ add_library(oatpp
         oatpp/core/data/buffer/FIFOBuffer.hpp
         oatpp/core/data/buffer/IOBuffer.cpp
         oatpp/core/data/buffer/IOBuffer.hpp
+        oatpp/core/data/buffer/Processor.cpp
+        oatpp/core/data/buffer/Processor.hpp
         oatpp/core/data/mapping/ObjectMapper.cpp
         oatpp/core/data/mapping/ObjectMapper.hpp
         oatpp/core/data/mapping/type/List.cpp
