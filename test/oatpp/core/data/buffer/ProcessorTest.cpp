@@ -27,6 +27,8 @@
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/buffer/Processor.hpp"
 
+#include "oatpp/core/async/Executor.hpp"
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace buffer {
 
 namespace {
@@ -131,6 +133,53 @@ public:
 
 };
 
+class TestCoroutine : public oatpp::async::Coroutine<TestCoroutine> {
+public:
+  static std::atomic<v_int64> COUNTER;
+private:
+  oatpp::String m_data;
+  oatpp::String m_etalon;
+  std::shared_ptr<oatpp::data::stream::ReadCallback> m_readCallback;
+  std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_writeCallback;
+  std::shared_ptr<oatpp::data::buffer::Processor> m_processor;
+  std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
+public:
+
+  TestCoroutine(const oatpp::String &mData,
+                const oatpp::String &mEtalon,
+                const std::shared_ptr<oatpp::data::stream::ReadCallback> &mReadCallback,
+                const std::shared_ptr<oatpp::data::stream::BufferOutputStream> &mWriteCallback,
+                const std::shared_ptr<Processor> &mProcessor,
+                const std::shared_ptr<oatpp::data::buffer::IOBuffer> &mBuffer)
+    : m_data(mData)
+    , m_etalon(mEtalon)
+    , m_readCallback(mReadCallback)
+    , m_writeCallback(mWriteCallback)
+    , m_processor(mProcessor)
+    , m_buffer(mBuffer)
+  {
+    COUNTER ++;
+  }
+
+  ~TestCoroutine() {
+    COUNTER --;
+  }
+
+  Action act() {
+    return oatpp::data::stream::transferAsync2(m_readCallback, m_writeCallback, 0, m_buffer, m_processor)
+      .next(yieldTo(&TestCoroutine::compare));
+  }
+
+  Action compare() {
+    auto result = m_writeCallback->toString();
+    OATPP_ASSERT(m_etalon == result);
+    return finish();
+  }
+
+};
+
+std::atomic<v_int64> TestCoroutine::COUNTER(0);
+
 oatpp::String runTestCase(const oatpp::String& data, v_int32 p1N, v_int32 p2N, v_int32 p3N, v_int32 bufferSize) {
 
   oatpp::data::stream::BufferInputStream inStream(data);
@@ -192,6 +241,41 @@ void ProcessorTest::onRun() {
     }
 
   }
+
+  oatpp::async::Executor executor;
+
+  {
+
+    for(v_int32 p1N = 1; p1N < 11; p1N ++) {
+      for(v_int32 p2N = 1; p2N < 11; p2N ++) {
+        for (v_int32 p3N = 1; p3N < 11; p3N++) {
+
+          auto inStream = std::make_shared<oatpp::data::stream::BufferInputStream>(data);
+          auto outStream = std::make_shared<oatpp::data::stream::BufferOutputStream>();
+
+          auto processor = std::shared_ptr<oatpp::data::buffer::ProcessingPipeline>(new oatpp::data::buffer::ProcessingPipeline({
+            oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToUpper>(p1N)),
+            oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorChangeLetter>('A', '-', p2N)),
+            oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToLower>(p3N)),
+          }));
+
+          auto buffer = std::make_shared<oatpp::data::buffer::IOBuffer>();
+
+          executor.execute<TestCoroutine>(data, etalon, inStream, outStream, processor, buffer);
+
+        }
+      }
+    }
+
+    while(TestCoroutine::COUNTER > 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+  }
+
+  executor.stop();
+  executor.waitTasksFinished();
+  executor.join();
 
 }
 

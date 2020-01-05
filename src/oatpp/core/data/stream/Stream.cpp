@@ -533,10 +533,13 @@ data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
         desiredToRead = transferSize - progress;
       }
 
-      data::v_io_size res = data::IOError::RETRY_READ;
+      data::v_io_size res = 0;
 
-      while (res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
-        res = readCallback->readSimple(buffer, desiredToRead);
+      if(desiredToRead > 0) {
+        res = data::IOError::RETRY_READ;
+        while (res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
+          res = readCallback->readSimple(buffer, desiredToRead);
+        }
       }
 
       if (res > 0) {
@@ -584,6 +587,158 @@ data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
   }
 
   return progress;
+
+}
+
+async::CoroutineStarter transferAsync2(const base::ObjectHandle<ReadCallback>& readCallback,
+                                       const base::ObjectHandle<WriteCallback>& writeCallback,
+                                       v_buff_size transferSize,
+                                       const base::ObjectHandle<data::buffer::IOBuffer>& buffer,
+                                       const base::ObjectHandle<data::buffer::Processor>& processor)
+{
+
+  class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
+  private:
+    base::ObjectHandle<ReadCallback> m_readCallback;
+    base::ObjectHandle<WriteCallback> m_writeCallback;
+    v_buff_size m_transferSize;
+    base::ObjectHandle<oatpp::data::buffer::IOBuffer> m_buffer;
+    base::ObjectHandle<data::buffer::Processor> m_processor;
+  private:
+    v_buff_size m_progress;
+  private:
+    v_int32 m_procRes;
+    data::buffer::InlineReadData m_readData;
+    data::buffer::InlineWriteData m_writeData;
+    data::buffer::InlineReadData m_inData;
+    data::buffer::InlineReadData m_outData;
+  public:
+
+    TransferCoroutine(const base::ObjectHandle<ReadCallback>& readCallback,
+                      const base::ObjectHandle<WriteCallback>& writeCallback,
+                      v_buff_size transferSize,
+                      const base::ObjectHandle<buffer::IOBuffer>& buffer,
+                      const base::ObjectHandle<buffer::Processor>& processor)
+      : m_readCallback(readCallback)
+      , m_writeCallback(writeCallback)
+      , m_transferSize(transferSize)
+      , m_buffer(buffer)
+      , m_processor(processor)
+      , m_progress(0)
+      , m_procRes(data::buffer::Processor::Error::PROVIDE_DATA_IN)
+      , m_readData(buffer->getData(), buffer->getSize())
+    {}
+
+    Action act() override {
+
+      if(m_transferSize != 0 && m_progress >= m_transferSize) {
+        return finish();
+      }
+
+      if(m_procRes == data::buffer::Processor::Error::PROVIDE_DATA_IN && m_inData.bytesLeft == 0) {
+
+        auto desiredToRead = m_processor->suggestInputStreamReadSize();
+
+        if (desiredToRead > m_readData.bytesLeft) {
+          desiredToRead = m_readData.bytesLeft;
+        }
+
+        if(m_transferSize > 0 && m_progress + desiredToRead > m_transferSize) {
+          desiredToRead = m_transferSize - m_progress;
+        }
+
+        Action action;
+        data::v_io_size res = 0;
+
+        if(desiredToRead > 0) {
+          res = m_readCallback->read(m_readData.currBufferPtr, desiredToRead, action);
+        }
+
+        if (res > 0) {
+          m_readData.inc(res);
+          m_inData.set(m_buffer->getData(), m_buffer->getSize() - m_readData.bytesLeft);
+          m_progress += res;
+        } else {
+
+          switch(res) {
+
+            case data::IOError::BROKEN_PIPE:
+              return error<AsyncTransferError>("[oatpp::data::stream::transferAsync]: Error. ReadCallback. BROKEN_PIPE.");
+
+            case data::IOError::ZERO_VALUE:
+              m_inData.set(nullptr, 0);
+              break;
+
+            case data::IOError::RETRY_READ:
+              if(!action.isNone()) {
+                return action;
+              }
+              return repeat();
+
+            case data::IOError::RETRY_WRITE:
+              if(!action.isNone()) {
+                return action;
+              }
+              return repeat();
+
+            default:
+              if(!action.isNone()) {
+                return action;
+              }
+              return error<AsyncTransferError>("[oatpp::data::stream::transferAsync]: Error. ReadCallback. Unknown IO error.");
+
+          }
+
+        }
+
+        if(!action.isNone()){
+          return action;
+        }
+
+      }
+
+      return yieldTo(&TransferCoroutine::process);
+
+    }
+
+    Action process() {
+
+      m_procRes = m_processor->iterate(m_inData, m_outData);
+
+      switch(m_procRes) {
+
+        case data::buffer::Processor::Error::OK:
+          return repeat();
+
+        case data::buffer::Processor::Error::PROVIDE_DATA_IN: {
+          m_readData.set(m_buffer->getData(), m_buffer->getSize());
+          return yieldTo(&TransferCoroutine::act);
+        }
+
+        case data::buffer::Processor::Error::FLUSH_DATA_OUT: {
+          m_readData.set(m_buffer->getData(), m_buffer->getSize());
+          m_writeData.set(m_outData.currBufferPtr, m_outData.bytesLeft);
+          m_outData.setEof();
+          return yieldTo(&TransferCoroutine::flushData);
+        }
+
+        case data::buffer::Processor::Error::FINISHED:
+          return finish();
+
+        default:
+          return error<AsyncTransferError>("[oatpp::data::stream::transferAsync]: Error. ReadCallback. Unknown processing error.");
+
+      }
+
+    }
+
+    Action flushData() {
+      return m_writeCallback->writeExactSizeDataAsyncInline(m_writeData, yieldTo(&TransferCoroutine::act));
+    }
+
+  };
+
+  return TransferCoroutine::start(readCallback, writeCallback, transferSize, buffer, processor);
 
 }
 

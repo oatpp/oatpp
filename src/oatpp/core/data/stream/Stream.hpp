@@ -458,6 +458,12 @@ data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
                           v_buff_size bufferSize,
                           const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
 
+async::CoroutineStarter transferAsync2(const base::ObjectHandle<ReadCallback>& readCallback,
+                                      const base::ObjectHandle<WriteCallback>& writeCallback,
+                                      v_buff_size transferSize,
+                                      const base::ObjectHandle<data::buffer::IOBuffer>& buffer,
+                                      const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
+
 /**
  * Read bytes from `fromStream` and write to `writeCallback` using `buffer` of size `bufferSize`
  * transfer up to transferSize or until error if transferSize == 0

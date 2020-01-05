@@ -40,7 +40,8 @@ public:
     : m_object(object)
   {}
 
-  ObjectHandle(const std::shared_ptr<T>& sharedObject)
+  template<class Q>
+  ObjectHandle(const std::shared_ptr<Q>& sharedObject)
     : m_object(sharedObject.get())
     , m_ptr(sharedObject)
   {}
