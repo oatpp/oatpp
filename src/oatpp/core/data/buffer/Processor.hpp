@@ -25,12 +25,107 @@
 #ifndef oatpp_data_buffer_Processor_hpp
 #define oatpp_data_buffer_Processor_hpp
 
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/IODefinitions.hpp"
 #include "oatpp/core/base/ObjectHandle.hpp"
-
 #include <vector>
 
 namespace oatpp { namespace data { namespace buffer {
+
+/**
+ * Convenience structure for stream Async-Inline read operations.
+ */
+struct InlineReadData {
+
+  /**
+   * Pointer to current position in the buffer.
+   */
+  void* currBufferPtr;
+
+  /**
+   * Bytes left to read to the buffer.
+   */
+  v_buff_size bytesLeft;
+
+  /**
+   * Default constructor.
+   */
+  InlineReadData();
+
+  /**
+   * Constructor.
+   * @param data
+   * @param size
+   */
+  InlineReadData(void* data, v_buff_size size);
+
+  /**
+   * Set `currBufferPtr` and `bytesLeft` values. <br>
+   * @param data - pointer to buffer to store read data.
+   * @param size - size in bytes of the buffer.
+   */
+  void set(void* data, v_buff_size size);
+
+  /**
+   * Increase position in the read buffer by `amount` bytes. <br>
+   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
+   * @param amount
+   */
+  void inc(v_buff_size amount);
+
+  /**
+   * Same as `inc(bytesLeft).`
+   */
+  void setEof();
+
+};
+
+/**
+ * Convenience structure for stream Async-Inline write operations.
+ */
+struct InlineWriteData {
+
+  /**
+   * Pointer to current position in the buffer.
+   */
+  const void* currBufferPtr;
+
+  /**
+   * Bytes left to write from the buffer.
+   */
+  v_buff_size bytesLeft;
+
+  /**
+   * Default constructor.
+   */
+  InlineWriteData();
+
+  /**
+   * Constructor.
+   * @param data
+   * @param size
+   */
+  InlineWriteData(const void* data, v_buff_size size);
+
+  /**
+   * Set `currBufferPtr` and `bytesLeft` values. <br>
+   * @param data - pointer to buffer containing data to be written.
+   * @param size - size in bytes of the buffer.
+   */
+  void set(const void* data, v_buff_size size);
+
+  /**
+   * Increase position in the write buffer by `amount` bytes. <br>
+   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
+   * @param amount
+   */
+  void inc(v_buff_size amount);
+
+  /**
+   * Same as `inc(bytesLeft).`
+   */
+  void setEof();
+
+};
 
 /**
  * Buffer processor.
@@ -85,13 +180,13 @@ public:
 
   /**
    * Process data.
-   * @param dataIn - data provided by client to processor. Input data. &id:data::stream::InlineReadData;.
+   * @param dataIn - data provided by client to processor. Input data. &id:data::buffer::InlineReadData;.
    * Set `dataIn` buffer pointer to `nullptr` to designate the end of input.
-   * @param dataOut - data provided to client by processor. Output data. &id:data::stream::InlineReadData;.
+   * @param dataOut - data provided to client by processor. Output data. &id:data::buffer::InlineReadData;.
    * @return - &l:Processor::Error;.
    */
-  virtual v_int32 iterate(data::stream::InlineReadData& dataIn,
-                          data::stream::InlineReadData& dataOut) = 0;
+  virtual v_int32 iterate(data::buffer::InlineReadData& dataIn,
+                          data::buffer::InlineReadData& dataOut) = 0;
 
 };
 
@@ -101,7 +196,7 @@ public:
 class ProcessingPipeline : public Processor {
 private:
   std::vector<base::ObjectHandle<Processor>> m_processors;
-  std::vector<data::stream::InlineReadData> m_intermediateData;
+  std::vector<data::buffer::InlineReadData> m_intermediateData;
 public:
 
   /**
@@ -119,13 +214,13 @@ public:
 
   /**
    * Process data.
-   * @param dataIn - data provided by client to processor. Input data. &id:data::stream::InlineReadData;.
+   * @param dataIn - data provided by client to processor. Input data. &id:data::buffer::InlineReadData;.
    * Set `dataIn` buffer pointer to `nullptr` to designate the end of input.
-   * @param dataOut - data provided to client by processor. Output data. &id:data::stream::InlineReadData;.
+   * @param dataOut - data provided to client by processor. Output data. &id:data::buffer::InlineReadData;.
    * @return - &l:Processor::Error;.
    */
-  v_int32 iterate(data::stream::InlineReadData& dataIn,
-                  data::stream::InlineReadData& dataOut) override;
+  v_int32 iterate(data::buffer::InlineReadData& dataIn,
+                  data::buffer::InlineReadData& dataOut) override;
 
 };
 

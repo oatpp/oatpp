@@ -131,7 +131,7 @@ void StatefulParser::parseHeaders(Headers& headers) {
 
 }
 
-StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::stream::InlineWriteData& inlineData) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
   p_char8 data = (p_char8)inlineData.currBufferPtr;
@@ -190,7 +190,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::stream::In
 
 }
 
-void StatefulParser::parseNext_AfterBoundary(data::stream::InlineWriteData& inlineData) {
+void StatefulParser::parseNext_AfterBoundary(data::buffer::InlineWriteData& inlineData) {
 
   p_char8 data = (p_char8) inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
@@ -232,7 +232,7 @@ void StatefulParser::parseNext_AfterBoundary(data::stream::InlineWriteData& inli
 
 }
 
-StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::InlineWriteData& inlineData) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
 
@@ -276,7 +276,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::Inl
 
 }
 
-StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::InlineWriteData& inlineData) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
 
@@ -309,7 +309,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::Inline
 
 }
 
-void StatefulParser::parseNext(data::stream::InlineWriteData& inlineData, async::Action& action) {
+void StatefulParser::parseNext(data::buffer::InlineWriteData& inlineData, async::Action& action) {
 
   while(inlineData.bytesLeft > 0) {
 

@@ -78,7 +78,7 @@ public:
   private:
     std::shared_ptr<BufferBody> m_body;
     std::shared_ptr<OutputStream> m_stream;
-    oatpp::data::stream::InlineWriteData m_inlineData;
+    oatpp::data::buffer::InlineWriteData m_inlineData;
   public:
 
     /**

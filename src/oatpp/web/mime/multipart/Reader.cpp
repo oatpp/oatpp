@@ -158,7 +158,7 @@ void Reader::readAll() {
 
     if(res > 0) {
 
-      data::stream::InlineWriteData inlineData(buffer.getData(), res);
+      data::buffer::InlineWriteData inlineData(buffer.getData(), res);
       while(inlineData.bytesLeft > 0 && !m_parser.finished()) {
         async::Action action;
         m_parser.parseNext(inlineData, action);
@@ -207,7 +207,7 @@ AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
 
 data::v_io_size AsyncReader::write(const void *data, v_buff_size count, async::Action& action) {
 
-  data::stream::InlineWriteData inlineData(data, count);
+  data::buffer::InlineWriteData inlineData(data, count);
   while(inlineData.bytesLeft > 0 && !m_parser.finished() && action.isNone()) {
     m_parser.parseNext(inlineData, action);
   }

@@ -134,7 +134,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
   private:
     std::shared_ptr<BufferOutputStream> m_this;
     std::shared_ptr<oatpp::data::stream::OutputStream> m_stream;
-    InlineWriteData m_inlineData;
+    data::buffer::InlineWriteData m_inlineData;
   public:
 
     WriteDataCoroutine(const std::shared_ptr<BufferOutputStream>& _this,

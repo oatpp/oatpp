@@ -49,7 +49,7 @@ public:
 
   virtual void process(p_char8 data, v_buff_size size) = 0;
 
-  v_int32 iterate(oatpp::data::stream::InlineReadData& dataIn, oatpp::data::stream::InlineReadData& dataOut) override {
+  v_int32 iterate(oatpp::data::buffer::InlineReadData& dataIn, oatpp::data::buffer::InlineReadData& dataOut) override {
 
     if(dataOut.bytesLeft > 0) {
       return Error::FLUSH_DATA_OUT;
@@ -131,61 +131,21 @@ public:
 
 };
 
-void process(oatpp::data::stream::ReadCallback* readCallback,
-             oatpp::data::stream::WriteCallback* writeCallback,
-             oatpp::data::buffer::Processor* processor,
-             const v_buff_size bufferSize)
-{
+oatpp::String runTestCase(const oatpp::String& data, v_int32 p1N, v_int32 p2N, v_int32 p3N, v_int32 bufferSize) {
+
+  oatpp::data::stream::BufferInputStream inStream(data);
+  oatpp::data::stream::BufferOutputStream outStream;
+
+  oatpp::data::buffer::ProcessingPipeline processor({
+    oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToUpper>(p1N)),
+    oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorChangeLetter>('A', '-', p2N)),
+    oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToLower>(p3N)),
+  });
 
   v_char8 buffer[bufferSize];
+  oatpp::data::stream::transfer2(&inStream, &outStream, 0, buffer, bufferSize, &processor);
 
-  oatpp::data::stream::InlineReadData inData;
-  oatpp::data::stream::InlineReadData outData;
-
-  v_int32 procRes = Processor::Error::PROVIDE_DATA_IN;
-
-  while(true) {
-
-    if(procRes == Processor::Error::PROVIDE_DATA_IN) {
-
-      v_buff_size desiredToRead = processor->suggestInputStreamReadSize();
-      if (desiredToRead > bufferSize) {
-        desiredToRead = bufferSize;
-      }
-
-      auto res = readCallback->readSimple(buffer, desiredToRead);
-
-      if (res > 0) {
-        inData.set(buffer, res);
-      } else {
-        inData.set(nullptr, 0);
-      }
-
-    }
-
-    procRes = processor->iterate(inData, outData);
-
-    switch(procRes) {
-
-      case Processor::Error::PROVIDE_DATA_IN: {
-        continue;
-      }
-
-      case Processor::Error::FLUSH_DATA_OUT: {
-        writeCallback->writeSimple(outData.currBufferPtr, outData.bytesLeft);
-        outData.setEof();
-        break;
-      }
-
-      case Processor::Error::FINISHED:
-        return;
-
-      default:
-        throw std::runtime_error("Unknown buffer processor error.");
-
-    }
-
-  }
+  return outStream.toString();
 
 }
 
@@ -194,24 +154,44 @@ void process(oatpp::data::stream::ReadCallback* readCallback,
 void ProcessorTest::onRun() {
 
   oatpp::String data = ">aaaaa0123456789bbbbb<";
+  oatpp::String etalon = ">-----0123456789bbbbb<";
 
-  {
-    oatpp::data::stream::BufferInputStream inStream(data);
-    oatpp::data::stream::BufferOutputStream outStream;
+  for(v_int32 p1N = 1; p1N < 11; p1N ++) {
+    for(v_int32 p2N = 1; p2N < 11; p2N ++) {
+      for (v_int32 p3N = 1; p3N < 11; p3N++) {
+        for (v_int32 buffSize = 1; buffSize < 11; buffSize++) {
 
-    oatpp::data::buffer::ProcessingPipeline processor({
-      oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToUpper>(1)),
-      oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorChangeLetter>('A', 'C', 10)),
-      oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToLower>(3))
-    });
+          auto result = runTestCase(data, p1N, p2N, p3N, buffSize);
 
-    process(&inStream, &outStream, &processor, 5);
+          if (result != etalon) {
+            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->getData());
+          }
+          OATPP_ASSERT(result == etalon);
 
-    auto str = outStream.toString();
-    OATPP_LOGD(TAG, "result='%s'", str->getData());
-
+        }
+      }
+    }
   }
 
+  {
+
+    v_char8 buffer[1024];
+
+    for(v_int32 i = 1; i < 30; i++) {
+
+      oatpp::data::stream::BufferInputStream inStream(data);
+      oatpp::data::stream::BufferOutputStream outStream;
+
+      auto progress = oatpp::data::stream::transfer2(&inStream, &outStream, 0, buffer, i);
+
+      auto result = outStream.toString();
+
+      OATPP_ASSERT(result == data);
+      OATPP_ASSERT(inStream.getCurrentPosition() == progress);
+
+    }
+
+  }
 
 }
 

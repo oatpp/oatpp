@@ -100,7 +100,7 @@ private:
     v_int32 m_state;
     data::stream::BufferInputStream m_readStream;
     data::v_io_size m_wantToRead;
-    data::stream::InlineReadData m_inlineData;
+    data::buffer::InlineReadData m_inlineData;
     data::buffer::IOBuffer m_buffer;
   public:
 

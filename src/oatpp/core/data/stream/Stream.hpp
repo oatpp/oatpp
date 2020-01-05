@@ -28,6 +28,7 @@
 #include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/core/data/buffer/Processor.hpp"
 
 #include "oatpp/core/data/IODefinitions.hpp"
 
@@ -191,54 +192,6 @@ enum IOMode : v_int32 {
 };
 
 /**
- * Convenience structure for stream Async-Inline write operations.
- */
-struct InlineWriteData {
-
-  /**
-   * Pointer to current position in the buffer.
-   */
-  const void* currBufferPtr;
-
-  /**
-   * Bytes left to write from the buffer.
-   */
-  v_buff_size bytesLeft;
-
-  /**
-   * Default constructor.
-   */
-  InlineWriteData();
-
-  /**
-   * Constructor.
-   * @param data
-   * @param size
-   */
-  InlineWriteData(const void* data, v_buff_size size);
-
-  /**
-   * Set `currBufferPtr` and `bytesLeft` values. <br>
-   * @param data - pointer to buffer containing data to be written.
-   * @param size - size in bytes of the buffer.
-   */
-  void set(const void* data, v_buff_size size);
-
-  /**
-   * Increase position in the write buffer by `amount` bytes. <br>
-   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
-   * @param amount
-   */
-  void inc(v_buff_size amount);
-
-  /**
-   * Same as `inc(bytesLeft).`
-   */
-  void setEof();
-
-};
-
-/**
  * Callback for stream write operation.
  */
 class WriteCallback {
@@ -259,15 +212,15 @@ public:
    */
   virtual data::v_io_size write(const void *data, v_buff_size count, async::Action& action) = 0;
 
-  data::v_io_size write(InlineWriteData& inlineData, async::Action& action);
+  data::v_io_size write(data::buffer::InlineWriteData& inlineData, async::Action& action);
 
   data::v_io_size writeSimple(const void *data, v_buff_size count);
 
-  data::v_io_size writeExactSizeDataSimple(InlineWriteData& inlineData);
+  data::v_io_size writeExactSizeDataSimple(data::buffer::InlineWriteData& inlineData);
 
   data::v_io_size writeExactSizeDataSimple(const void *data, v_buff_size count);
 
-  async::Action writeExactSizeDataAsyncInline(InlineWriteData& inlineData, async::Action&& nextAction);
+  async::Action writeExactSizeDataAsyncInline(data::buffer::InlineWriteData& inlineData, async::Action&& nextAction);
 
   async::CoroutineStarter writeExactSizeDataAsync(const void* data, v_buff_size size);
 
@@ -332,54 +285,6 @@ public:
 };
 
 /**
- * Convenience structure for stream Async-Inline read operations.
- */
-struct InlineReadData {
-
-  /**
-   * Pointer to current position in the buffer.
-   */
-  void* currBufferPtr;
-
-  /**
-   * Bytes left to read to the buffer.
-   */
-  v_buff_size bytesLeft;
-
-  /**
-   * Default constructor.
-   */
-  InlineReadData();
-
-  /**
-   * Constructor.
-   * @param data
-   * @param size
-   */
-  InlineReadData(void* data, v_buff_size size);
-
-  /**
-   * Set `currBufferPtr` and `bytesLeft` values. <br>
-   * @param data - pointer to buffer to store read data.
-   * @param size - size in bytes of the buffer.
-   */
-  void set(void* data, v_buff_size size);
-
-  /**
-   * Increase position in the read buffer by `amount` bytes. <br>
-   * This will increase `currBufferPtr` and descrease `bytesLeft` values.
-   * @param amount
-   */
-  void inc(v_buff_size amount);
-
-  /**
-   * Same as `inc(bytesLeft).`
-   */
-  void setEof();
-
-};
-
-/**
  * Stream read callback.
  */
 class ReadCallback {
@@ -400,15 +305,15 @@ public:
    */
   virtual data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
 
-  data::v_io_size read(InlineReadData& inlineData, async::Action& action);
+  data::v_io_size read(data::buffer::InlineReadData& inlineData, async::Action& action);
 
-  data::v_io_size readExactSizeDataSimple(InlineReadData& inlineData);
+  data::v_io_size readExactSizeDataSimple(data::buffer::InlineReadData& inlineData);
 
   data::v_io_size readExactSizeDataSimple(void *data, v_buff_size count);
 
-  async::Action readExactSizeDataAsyncInline(InlineReadData& inlineData, async::Action&& nextAction);
+  async::Action readExactSizeDataAsyncInline(data::buffer::InlineReadData& inlineData, async::Action&& nextAction);
 
-  async::Action readSomeDataAsyncInline(InlineReadData& inlineData, async::Action&& nextAction);
+  async::Action readSomeDataAsyncInline(data::buffer::InlineReadData& inlineData, async::Action&& nextAction);
 
   data::v_io_size readSimple(void *data, v_buff_size count);
 
@@ -533,6 +438,25 @@ public:
    */
   AsyncTransferError(const char* what) : oatpp::async::Error(what) {}
 };
+
+/**
+ * Plain data transfer processor.
+ * Transfers data as is.
+ */
+class StatelessDataTransferProcessor : public data::buffer::Processor {
+public:
+  static StatelessDataTransferProcessor INSTANCE;
+public:
+  data::v_io_size suggestInputStreamReadSize() override;
+  v_int32 iterate(data::buffer::InlineReadData& dataIn, data::buffer::InlineReadData& dataOut) override;
+};
+
+data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
+                          const base::ObjectHandle<WriteCallback>& writeCallback,
+                          data::v_io_size transferSize,
+                          void* buffer,
+                          v_buff_size bufferSize,
+                          const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
 
 /**
  * Read bytes from `fromStream` and write to `writeCallback` using `buffer` of size `bufferSize`

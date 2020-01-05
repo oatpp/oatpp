@@ -30,7 +30,7 @@ namespace oatpp { namespace data{ namespace stream {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WriteCallback
 
-data::v_io_size WriteCallback::write(InlineWriteData& inlineData, async::Action& action) {
+data::v_io_size WriteCallback::write(data::buffer::InlineWriteData& inlineData, async::Action& action) {
   auto res = write(inlineData.currBufferPtr, inlineData.bytesLeft, action);
   if(res > 0) {
     inlineData.inc(res);
@@ -47,7 +47,7 @@ data::v_io_size WriteCallback::writeSimple(const void *data, v_buff_size count) 
   return res;
 }
 
-data::v_io_size WriteCallback::writeExactSizeDataSimple(InlineWriteData& inlineData) {
+data::v_io_size WriteCallback::writeExactSizeDataSimple(data::buffer::InlineWriteData& inlineData) {
   auto initialCount = inlineData.bytesLeft;
   while(inlineData.bytesLeft > 0) {
     async::Action action;
@@ -63,11 +63,11 @@ data::v_io_size WriteCallback::writeExactSizeDataSimple(InlineWriteData& inlineD
 }
 
 data::v_io_size WriteCallback::writeExactSizeDataSimple(const void *data, v_buff_size count) {
-  InlineWriteData inlineData(data, count);
+  data::buffer::InlineWriteData inlineData(data, count);
   return writeExactSizeDataSimple(inlineData);
 }
 
-async::Action WriteCallback::writeExactSizeDataAsyncInline(InlineWriteData& inlineData, async::Action&& nextAction) {
+async::Action WriteCallback::writeExactSizeDataAsyncInline(data::buffer::InlineWriteData& inlineData, async::Action&& nextAction) {
 
   if(inlineData.bytesLeft > 0) {
 
@@ -107,7 +107,7 @@ async::CoroutineStarter WriteCallback::writeExactSizeDataAsync(const void* data,
   class WriteDataCoroutine : public oatpp::async::Coroutine<WriteDataCoroutine> {
   private:
     WriteCallback* m_this;
-    InlineWriteData m_inlineData;
+    data::buffer::InlineWriteData m_inlineData;
   public:
 
     WriteDataCoroutine(WriteCallback* _this,
@@ -129,7 +129,7 @@ async::CoroutineStarter WriteCallback::writeExactSizeDataAsync(const void* data,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ReadCallback
 
-data::v_io_size ReadCallback::read(InlineReadData& inlineData, async::Action& action) {
+data::v_io_size ReadCallback::read(data::buffer::InlineReadData& inlineData, async::Action& action) {
   auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
   if(res > 0) {
     inlineData.inc(res);
@@ -137,7 +137,7 @@ data::v_io_size ReadCallback::read(InlineReadData& inlineData, async::Action& ac
   return res;
 }
 
-data::v_io_size ReadCallback::readExactSizeDataSimple(InlineReadData& inlineData) {
+data::v_io_size ReadCallback::readExactSizeDataSimple(data::buffer::InlineReadData& inlineData) {
   auto initialCount = inlineData.bytesLeft;
   while(inlineData.bytesLeft > 0) {
     async::Action action;
@@ -153,11 +153,11 @@ data::v_io_size ReadCallback::readExactSizeDataSimple(InlineReadData& inlineData
 }
 
 data::v_io_size ReadCallback::readExactSizeDataSimple(void *data, v_buff_size count) {
-  InlineReadData inlineData(data, count);
+  data::buffer::InlineReadData inlineData(data, count);
   return readExactSizeDataSimple(inlineData);
 }
 
-async::Action ReadCallback::readExactSizeDataAsyncInline(InlineReadData& inlineData, async::Action&& nextAction) {
+async::Action ReadCallback::readExactSizeDataAsyncInline(data::buffer::InlineReadData& inlineData, async::Action&& nextAction) {
 
   if(inlineData.bytesLeft > 0) {
 
@@ -192,7 +192,7 @@ async::Action ReadCallback::readExactSizeDataAsyncInline(InlineReadData& inlineD
 
 }
 
-async::Action ReadCallback::readSomeDataAsyncInline(InlineReadData& inlineData, async::Action&& nextAction) {
+async::Action ReadCallback::readSomeDataAsyncInline(data::buffer::InlineReadData& inlineData, async::Action&& nextAction) {
 
   if(inlineData.bytesLeft > 0) {
 
@@ -363,62 +363,6 @@ data::v_io_size ConsistentOutputStream::writeAsString(bool value) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// InlineWriteData
-
-InlineWriteData::InlineWriteData()
-  : currBufferPtr(nullptr)
-  , bytesLeft(0)
-{}
-
-InlineWriteData::InlineWriteData(const void* data, v_buff_size size)
-  : currBufferPtr(data)
-  , bytesLeft(size)
-{}
-
-void InlineWriteData::set(const void* data, v_buff_size size) {
-  currBufferPtr = data;
-  bytesLeft = size;
-}
-
-void InlineWriteData::inc(v_buff_size amount) {
-  currBufferPtr = &((p_char8) currBufferPtr)[amount];
-  bytesLeft -= amount;
-}
-
-void InlineWriteData::setEof() {
-  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
-  bytesLeft = 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// InlineReadData
-
-InlineReadData::InlineReadData()
-  : currBufferPtr(nullptr)
-  , bytesLeft(0)
-{}
-
-InlineReadData::InlineReadData(void* data, v_buff_size size)
-  : currBufferPtr(data)
-  , bytesLeft(size)
-{}
-
-void InlineReadData::set(void* data, v_buff_size size) {
-  currBufferPtr = data;
-  bytesLeft = size;
-}
-
-void InlineReadData::inc(v_buff_size amount) {
-  currBufferPtr = &((p_char8) currBufferPtr)[amount];
-  bytesLeft -= amount;
-}
-
-void InlineReadData::setEof() {
-  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
-  bytesLeft = 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
 
@@ -524,7 +468,128 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
   }
   return s;
 }
-  
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DataTransferProcessor
+
+StatelessDataTransferProcessor StatelessDataTransferProcessor::INSTANCE;
+
+data::v_io_size StatelessDataTransferProcessor::suggestInputStreamReadSize() {
+  return 32767;
+}
+
+v_int32 StatelessDataTransferProcessor::iterate(data::buffer::InlineReadData& dataIn, data::buffer::InlineReadData& dataOut) {
+
+  if(dataOut.bytesLeft > 0) {
+    return Error::FLUSH_DATA_OUT;
+  }
+
+  if(dataIn.currBufferPtr != nullptr) {
+
+    if(dataIn.bytesLeft == 0){
+      return Error::PROVIDE_DATA_IN;
+    }
+
+    dataOut = dataIn;
+    dataIn.setEof();
+    return Error::FLUSH_DATA_OUT;
+
+  }
+
+  dataOut = dataIn;
+  dataIn.setEof();
+  return Error::FINISHED;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
+data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
+                          const base::ObjectHandle<WriteCallback>& writeCallback,
+                          data::v_io_size transferSize,
+                          void* buffer,
+                          v_buff_size bufferSize,
+                          const base::ObjectHandle<data::buffer::Processor>& processor)
+{
+
+  data::buffer::InlineReadData inData;
+  data::buffer::InlineReadData outData;
+
+  v_int32 procRes = data::buffer::Processor::Error::PROVIDE_DATA_IN;
+  data::v_io_size progress = 0;
+
+  while(transferSize == 0 || progress < transferSize) {
+
+    if(procRes == data::buffer::Processor::Error::PROVIDE_DATA_IN) {
+
+      v_buff_size desiredToRead = processor->suggestInputStreamReadSize();
+
+      if (desiredToRead > bufferSize) {
+        desiredToRead = bufferSize;
+      }
+
+      if(transferSize > 0 && progress + desiredToRead > transferSize) {
+        desiredToRead = transferSize - progress;
+      }
+
+      data::v_io_size res = data::IOError::RETRY_READ;
+
+      while (res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
+        res = readCallback->readSimple(buffer, desiredToRead);
+      }
+
+      if (res > 0) {
+        inData.set(buffer, res);
+        progress += res;
+      } else {
+        inData.set(nullptr, 0);
+      }
+
+    }
+
+    procRes = data::buffer::Processor::Error::OK;
+    while(procRes == data::buffer::Processor::Error::OK) {
+      procRes = processor->iterate(inData, outData);
+    }
+
+    switch(procRes) {
+
+      case data::buffer::Processor::Error::PROVIDE_DATA_IN: {
+        continue;
+      }
+
+      case data::buffer::Processor::Error::FLUSH_DATA_OUT: {
+        data::v_io_size res = data::IOError::RETRY_WRITE;
+        while(res == data::IOError::RETRY_WRITE || res == data::IOError::RETRY_READ) {
+          res = writeCallback->writeSimple(outData.currBufferPtr, outData.bytesLeft);
+        }
+        if(res > 0) {
+          outData.inc(res);
+        } else {
+          return progress;
+        }
+        break;
+      }
+
+      case data::buffer::Processor::Error::FINISHED:
+        return progress;
+
+      default:
+        //throw std::runtime_error("Unknown buffer processor error.");
+        return progress;
+
+    }
+
+  }
+
+  return progress;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Other functions
+
 oatpp::data::v_io_size transfer(ReadCallback* readCallback,
                                 WriteCallback* writeCallback,
                                 v_buff_size transferSize,
@@ -590,8 +655,8 @@ oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<ReadCallback>
 
     v_buff_size m_desiredReadCount;
 
-    InlineReadData m_inlineReadData;
-    InlineWriteData m_inlineWriteData;
+    data::buffer::InlineReadData m_inlineReadData;
+    data::buffer::InlineWriteData m_inlineWriteData;
     
   public:
     

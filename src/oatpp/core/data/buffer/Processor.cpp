@@ -26,11 +26,70 @@
 
 namespace oatpp { namespace data{ namespace buffer {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// InlineReadData
+
+InlineReadData::InlineReadData()
+  : currBufferPtr(nullptr)
+  , bytesLeft(0)
+{}
+
+InlineReadData::InlineReadData(void* data, v_buff_size size)
+  : currBufferPtr(data)
+  , bytesLeft(size)
+{}
+
+void InlineReadData::set(void* data, v_buff_size size) {
+  currBufferPtr = data;
+  bytesLeft = size;
+}
+
+void InlineReadData::inc(v_buff_size amount) {
+  currBufferPtr = &((p_char8) currBufferPtr)[amount];
+  bytesLeft -= amount;
+}
+
+void InlineReadData::setEof() {
+  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  bytesLeft = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// InlineWriteData
+
+InlineWriteData::InlineWriteData()
+  : currBufferPtr(nullptr)
+  , bytesLeft(0)
+{}
+
+InlineWriteData::InlineWriteData(const void* data, v_buff_size size)
+  : currBufferPtr(data)
+  , bytesLeft(size)
+{}
+
+void InlineWriteData::set(const void* data, v_buff_size size) {
+  currBufferPtr = data;
+  bytesLeft = size;
+}
+
+void InlineWriteData::inc(v_buff_size amount) {
+  currBufferPtr = &((p_char8) currBufferPtr)[amount];
+  bytesLeft -= amount;
+}
+
+void InlineWriteData::setEof() {
+  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  bytesLeft = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ProcessingPipeline
+
 ProcessingPipeline::ProcessingPipeline(const std::vector<base::ObjectHandle<Processor>>& processors)
   : m_processors(processors)
 {
   for(v_int32 i = 0; i < m_processors.size() - 1; i ++) {
-    m_intermediateData.push_back(data::stream::InlineReadData());
+    m_intermediateData.push_back(data::buffer::InlineReadData());
   }
 }
 
@@ -38,8 +97,8 @@ data::v_io_size ProcessingPipeline::suggestInputStreamReadSize() {
   return m_processors[0]->suggestInputStreamReadSize();
 }
 
-v_int32 ProcessingPipeline::iterate(data::stream::InlineReadData& dataIn,
-                                    data::stream::InlineReadData& dataOut)
+v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
+                                    data::buffer::InlineReadData& dataOut)
 {
 
   if(dataOut.bytesLeft > 0) {
@@ -53,12 +112,12 @@ v_int32 ProcessingPipeline::iterate(data::stream::InlineReadData& dataIn,
 
     auto& p = m_processors[i];
 
-    data::stream::InlineReadData* currDataIn = &dataIn;
+    data::buffer::InlineReadData* currDataIn = &dataIn;
     if(i > 0) {
       currDataIn = &m_intermediateData[i - 1];
     }
 
-    data::stream::InlineReadData* currDataOut = &dataOut;
+    data::buffer::InlineReadData* currDataOut = &dataOut;
     if(i < m_intermediateData.size()) {
       currDataOut = &m_intermediateData[i];
     }
