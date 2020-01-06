@@ -166,7 +166,7 @@ public:
   }
 
   Action act() {
-    return oatpp::data::stream::transferAsync2(m_readCallback, m_writeCallback, 0, m_buffer, m_processor)
+    return oatpp::data::stream::transferAsync(m_readCallback, m_writeCallback, 0, m_buffer, m_processor)
       .next(yieldTo(&TestCoroutine::compare));
   }
 
@@ -192,7 +192,7 @@ oatpp::String runTestCase(const oatpp::String& data, v_int32 p1N, v_int32 p2N, v
   });
 
   v_char8 buffer[bufferSize];
-  oatpp::data::stream::transfer2(&inStream, &outStream, 0, buffer, bufferSize, &processor);
+  oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &processor);
 
   return outStream.toString();
 
@@ -231,7 +231,7 @@ void ProcessorTest::onRun() {
       oatpp::data::stream::BufferInputStream inStream(data);
       oatpp::data::stream::BufferOutputStream outStream;
 
-      auto progress = oatpp::data::stream::transfer2(&inStream, &outStream, 0, buffer, i);
+      auto progress = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, i);
 
       auto result = outStream.toString();
 

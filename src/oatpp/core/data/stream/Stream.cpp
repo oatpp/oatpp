@@ -505,12 +505,12 @@ v_int32 StatelessDataTransferProcessor::iterate(data::buffer::InlineReadData& da
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
-data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
-                          const base::ObjectHandle<WriteCallback>& writeCallback,
-                          data::v_io_size transferSize,
-                          void* buffer,
-                          v_buff_size bufferSize,
-                          const base::ObjectHandle<data::buffer::Processor>& processor)
+data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
+                         const base::ObjectHandle<WriteCallback>& writeCallback,
+                         data::v_io_size transferSize,
+                         void* buffer,
+                         v_buff_size bufferSize,
+                         const base::ObjectHandle<data::buffer::Processor>& processor)
 {
 
   data::buffer::InlineReadData inData;
@@ -590,11 +590,11 @@ data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
 
 }
 
-async::CoroutineStarter transferAsync2(const base::ObjectHandle<ReadCallback>& readCallback,
-                                       const base::ObjectHandle<WriteCallback>& writeCallback,
-                                       v_buff_size transferSize,
-                                       const base::ObjectHandle<data::buffer::IOBuffer>& buffer,
-                                       const base::ObjectHandle<data::buffer::Processor>& processor)
+async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& readCallback,
+                                      const base::ObjectHandle<WriteCallback>& writeCallback,
+                                      v_buff_size transferSize,
+                                      const base::ObjectHandle<data::buffer::IOBuffer>& buffer,
+                                      const base::ObjectHandle<data::buffer::Processor>& processor)
 {
 
   class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
@@ -740,162 +740,6 @@ async::CoroutineStarter transferAsync2(const base::ObjectHandle<ReadCallback>& r
 
   return TransferCoroutine::start(readCallback, writeCallback, transferSize, buffer, processor);
 
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
-
-oatpp::data::v_io_size transfer(ReadCallback* readCallback,
-                                WriteCallback* writeCallback,
-                                v_buff_size transferSize,
-                                void* buffer,
-                                v_buff_size bufferSize)
-{
-
-  v_buff_size progress = 0;
-  
-  while (transferSize == 0 || progress < transferSize) {
-    v_buff_size desiredReadCount = transferSize - progress;
-    if(transferSize == 0 || desiredReadCount > bufferSize){
-      desiredReadCount = bufferSize;
-    }
-    auto readResult = readCallback->readSimple(buffer, desiredReadCount);
-    if(readResult > 0) {
-
-      p_char8 data = (p_char8) buffer;
-      v_buff_size bytesLeft = readResult;
-      while(bytesLeft > 0) {
-        auto writeResult = writeCallback->writeSimple(data, bytesLeft);
-        if(writeResult > 0) {
-          data = &data[writeResult];
-          bytesLeft -= writeResult;
-        } else if (// In general case `OutputStream` may return `RETRY_READ`- because of the underlying transport.
-                   // Check all retry values here!.
-                   writeResult == data::IOError::RETRY_READ || writeResult == data::IOError::RETRY_WRITE) {
-          continue;
-        } else {
-          throw std::runtime_error("[oatpp::data::stream::transfer()]: Unknown Error. Can't continue transfer.");
-        }
-      }
-
-      progress += readResult;
-
-    } else {
-      if(// In general case `OutputStream` may return `RETRY_READ`- because of the underlying transport.
-         // Check all retry values here!.
-         readResult == data::IOError::RETRY_READ || readResult == data::IOError::RETRY_WRITE) {
-        continue;
-      }
-      return progress;
-    }
-  }
-  
-  return progress;
-  
-}
-
-oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<ReadCallback>& readCallback,
-                                             const std::shared_ptr<WriteCallback>& writeCallback,
-                                             v_buff_size transferSize,
-                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
-{
-  
-  class TransferCoroutine : public oatpp::async::Coroutine<TransferCoroutine> {
-  private:
-    std::shared_ptr<ReadCallback> m_readCallback;
-    std::shared_ptr<WriteCallback> m_writeCallback;
-    v_buff_size m_transferSize;
-    v_buff_size m_progress;
-    std::shared_ptr<oatpp::data::buffer::IOBuffer> m_buffer;
-
-    v_buff_size m_desiredReadCount;
-
-    data::buffer::InlineReadData m_inlineReadData;
-    data::buffer::InlineWriteData m_inlineWriteData;
-    
-  public:
-    
-    TransferCoroutine(const std::shared_ptr<ReadCallback>& readCallback,
-                      const std::shared_ptr<WriteCallback>& writeCallback,
-                      v_buff_size transferSize,
-                      const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer)
-      : m_readCallback(readCallback)
-      , m_writeCallback(writeCallback)
-      , m_transferSize(transferSize)
-      , m_progress(0)
-      , m_buffer(buffer)
-    {}
-    
-    Action act() override {
-      /* m_transferSize == 0 - is a legal state. */
-      if(m_transferSize > 0) {
-        if(m_progress == m_transferSize) {
-          return finish();
-        } else if(m_progress > m_transferSize) {
-          return error<AsyncTransferError>("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_progress > m_transferSize");
-        }
-      } else if(m_transferSize < 0) {
-        return error<AsyncTransferError>("[oatpp::data::stream::transferAsync{TransferCoroutine::act()}]: Invalid state. m_transferSize < 0");
-      }
-      
-      m_desiredReadCount = m_transferSize - m_progress;
-      if(m_transferSize == 0 || m_desiredReadCount > m_buffer->getSize()){
-        m_desiredReadCount = m_buffer->getSize();
-      }
-
-      m_inlineReadData.set(m_buffer->getData(), m_desiredReadCount);
-      
-      return yieldTo(&TransferCoroutine::doRead);
-    }
-    
-    Action doRead() {
-      return m_readCallback->readSomeDataAsyncInline(m_inlineReadData, yieldTo(&TransferCoroutine::prepareWrite));
-    }
-    
-    Action prepareWrite() {
-
-      auto readCount = m_desiredReadCount - m_inlineReadData.bytesLeft;
-      m_inlineWriteData.set(m_buffer->getData(), readCount);
-
-      m_progress += readCount;
-      return yieldTo(&TransferCoroutine::doWrite);
-
-    }
-    
-    Action doWrite() {
-
-      if(m_inlineWriteData.bytesLeft > 0) {
-
-        Action action;
-        auto res = m_writeCallback->write(m_inlineWriteData.currBufferPtr, m_inlineWriteData.bytesLeft, action);
-
-        if(res > 0) {
-          m_inlineWriteData.inc(res);
-        } else if(res == data::IOError::ZERO_VALUE || res == data::IOError::BROKEN_PIPE) {
-          return finish();
-        }
-
-        if(!action.isNone()) {
-          return action;
-        }
-
-      }
-
-      return yieldTo(&TransferCoroutine::act);
-
-    }
-    
-    Action handleError(Error* error) override {
-      if(m_transferSize == 0) {
-        return finish();
-      }
-      return error;
-    }
-    
-  };
-  
-  return TransferCoroutine::start(readCallback, writeCallback, transferSize, buffer);
-  
 }
   
 }}}

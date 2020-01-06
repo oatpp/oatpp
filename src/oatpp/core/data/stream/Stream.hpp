@@ -451,43 +451,37 @@ public:
   v_int32 iterate(data::buffer::InlineReadData& dataIn, data::buffer::InlineReadData& dataOut) override;
 };
 
-data::v_io_size transfer2(const base::ObjectHandle<ReadCallback>& readCallback,
-                          const base::ObjectHandle<WriteCallback>& writeCallback,
-                          data::v_io_size transferSize,
-                          void* buffer,
-                          v_buff_size bufferSize,
-                          const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
+/**
+ * Transfer data from `readCallback` to `writeCallback`.
+ * @param readCallback - &l:ReadCallback;.
+ * @param writeCallback - &l:WriteCallback;.
+ * @param transferSize - how much data should be read from the `readCallback`. `0` - to read until error.
+ * @param buffer - pointer to buffer used to do the transfer by chunks.
+ * @param bufferSize - size of the buffer.
+ * @param processor - data processing to be applied during the transfer.
+ * @return - the actual amout of bytes read from the `readCallback`.
+ */
+data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
+                         const base::ObjectHandle<WriteCallback>& writeCallback,
+                         data::v_io_size transferSize,
+                         void* buffer,
+                         v_buff_size bufferSize,
+                         const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
 
-async::CoroutineStarter transferAsync2(const base::ObjectHandle<ReadCallback>& readCallback,
+/**
+ * Transfer data from `readCallback` to `writeCallback` in Async manner.
+ * @param readCallback - &l:ReadCallback;.
+ * @param writeCallback - &l:WriteCallback;.
+ * @param transferSize - how much data should be read from the `readCallback`. `0` - to read until error.
+ * @param buffer - &id:oatpp::data::buffer::IOBuffer; used to do the transfer by chunks.
+ * @param processor - data processing to be applied during the transfer.
+ * @return - &id:oatpp::async::CoroutineStarter;.
+ */
+async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& readCallback,
                                       const base::ObjectHandle<WriteCallback>& writeCallback,
                                       v_buff_size transferSize,
                                       const base::ObjectHandle<data::buffer::IOBuffer>& buffer,
                                       const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
-
-/**
- * Read bytes from `fromStream` and write to `writeCallback` using `buffer` of size `bufferSize`
- * transfer up to transferSize or until error if transferSize == 0
- * @param readCallback
- * @param writeCallback
- * @param transferSize
- * @param buffer
- * @param bufferSize
- * @return - amount of bytes actually transferred.
- */
-oatpp::data::v_io_size transfer(ReadCallback* readCallback,
-                                WriteCallback* writeCallback,
-                                v_buff_size transferSize,
-                                void* buffer,
-                                v_buff_size bufferSize);
-  
-  
-/**
- * Same as transfer but asynchronous
- */
-oatpp::async::CoroutineStarter transferAsync(const std::shared_ptr<ReadCallback>& readCallback,
-                                             const std::shared_ptr<WriteCallback>& writeCallback,
-                                             v_buff_size transferSize,
-                                             const std::shared_ptr<oatpp::data::buffer::IOBuffer>& buffer);
 
   
 }}}
