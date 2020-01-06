@@ -195,7 +195,7 @@ public:
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
-      (std::make_shared<ReadCallback>(text, numIterations->getValue()), nullptr, 1024);
+      (std::make_shared<ReadCallback>(text, numIterations->getValue()));
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }
 
@@ -211,7 +211,7 @@ public:
 
     multipartReader.readAll();
 
-    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());
+    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart);
 
     return OutgoingResponse::createShared(Status::CODE_200, responseBody);
 

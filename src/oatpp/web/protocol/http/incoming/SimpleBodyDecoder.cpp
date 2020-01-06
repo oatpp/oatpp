@@ -24,7 +24,7 @@
 
 #include "SimpleBodyDecoder.hpp"
 
-#include "oatpp/web/protocol/http/stream/ChunkedStream.hpp"
+#include "oatpp/web/protocol/http/encoding/Chunked.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
@@ -35,9 +35,9 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 
   auto transferEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::TRANSFER_ENCODING);
   if(transferEncoding && transferEncoding == Header::Value::TRANSFER_ENCODING_CHUNKED) {
-    auto decodingStream = std::make_shared<http::stream::ChunkedDecodingStream>(bodyStream);
+    http::encoding::DecoderChunked decoder;
     data::buffer::IOBuffer buffer;
-    data::stream::transfer(decodingStream.get(), writeCallback, 0 /* read until error */, buffer.getData(), buffer.getSize());
+    data::stream::transfer(bodyStream, writeCallback, 0 /* read until error */, buffer.getData(), buffer.getSize(), &decoder);
   } else {
 
     auto contentLengthStr = headers.getAsMemoryLabel<data::share::StringKeyLabel>(Header::CONTENT_LENGTH);
@@ -75,8 +75,8 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
                                                        const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const {
   auto transferEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::TRANSFER_ENCODING);
   if(transferEncoding && transferEncoding == Header::Value::TRANSFER_ENCODING_CHUNKED) {
-    auto decodingStream = std::make_shared<http::stream::ChunkedDecodingStream>(bodyStream);
-    return data::stream::transferAsync(decodingStream, writeCallback, 0 /* read until error */, data::buffer::IOBuffer::createShared());
+    auto decoder = std::make_shared<http::encoding::DecoderChunked>();
+    return data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, data::buffer::IOBuffer::createShared(), decoder);
   } else {
 
     auto contentLengthStr = headers.getAsMemoryLabel<data::share::StringKeyLabel>(Header::CONTENT_LENGTH);

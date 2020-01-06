@@ -88,7 +88,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
   if(m_writeChunkHeader){
 
     async::Action action;
-    data::stream::BufferOutputStream stream(128, 128);
+    data::stream::BufferOutputStream stream(16, 16);
     if(!m_firstChunk) {
       stream.write("\r\n", 2, action);
     }
@@ -146,8 +146,6 @@ v_int32 DecoderChunked::readHeader(data::buffer::InlineReadData& dataIn) {
 
         if (pos > 2 && m_chunkHeaderBuffer.getData()[pos - 2] == '\r' && m_chunkHeaderBuffer.getData()[pos - 1] == '\n') {
 
-          m_chunkHeaderBuffer.writeCharSimple(0);
-
           if(m_firstChunk) {
             m_currentChunkSize = strtol((const char *) m_chunkHeaderBuffer.getData(), nullptr, 16);
           } else {
@@ -169,6 +167,7 @@ v_int32 DecoderChunked::readHeader(data::buffer::InlineReadData& dataIn) {
             m_chunkHeaderBuffer.getData()[pos - 4] == '\r' && m_chunkHeaderBuffer.getData()[pos - 3] == '\n' &&
             m_chunkHeaderBuffer.getData()[pos - 2] == '\r' && m_chunkHeaderBuffer.getData()[pos - 1] == '\n') {
           m_currentChunkSize = 0;
+          m_finished = true;
           return Error::OK;
         }
 

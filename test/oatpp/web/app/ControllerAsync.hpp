@@ -167,7 +167,7 @@ public:
       auto numIterations = oatpp::utils::conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
 
       auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
-        (nullptr, std::make_shared<ReadCallback>(text, numIterations), 1024);
+        (std::make_shared<ReadCallback>(text, numIterations));
 
       return _return(OutgoingResponse::createShared(Status::CODE_200, body));
     }
@@ -196,7 +196,7 @@ public:
 
     Action respond() {
 
-      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart, m_chunkSize);
+      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart);
       return _return(OutgoingResponse::createShared(Status::CODE_200, responseBody));
 
     }

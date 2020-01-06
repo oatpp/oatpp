@@ -86,26 +86,6 @@ private:
   public:
 
     MultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
-
-    data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
-
-  };
-
-private:
-
-  class AsyncMultipartReadCallback : public ReadCallback {
-  private:
-    std::shared_ptr<Multipart> m_multipart;
-    std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
-    v_int32 m_state;
-    data::stream::BufferInputStream m_readStream;
-    data::v_io_size m_wantToRead;
-    data::buffer::InlineReadData m_inlineData;
-    data::buffer::IOBuffer m_buffer;
-  public:
-
-    AsyncMultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
-
     data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
 
   };
@@ -118,13 +98,7 @@ public:
    * Constructor.
    * @param multipart - multipart object.
    */
-
-  /**
-   * Constructor.
-   * @param multipart - multipart object.
-   * @param chunkBufferSize - buffer used for chunks in the `Transfer-Encoding: chunked` body.
-   */
-  MultipartBody(const std::shared_ptr<Multipart>& multipart, data::v_io_size chunkBufferSize = 4096);
+  MultipartBody(const std::shared_ptr<Multipart>& multipart);
 
   /**
    * Declare `Transfer-Encoding: chunked`, `Content-Type: multipart/<type>` header.

@@ -233,7 +233,7 @@ void FullAsyncTest::onRun() {
         map["value2"] = "World";
         auto multipart = createMultipart(map);
 
-        auto body = std::make_shared<MultipartBody>(multipart, i + 1);
+        auto body = std::make_shared<MultipartBody>(multipart);
 
         auto response = client->multipartTest(i + 1, body);
         OATPP_ASSERT(response->getStatusCode() == 200);

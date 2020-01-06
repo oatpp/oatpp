@@ -28,42 +28,29 @@
 #include "./Body.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 /**
  * Body with `Transfer-Encoding: chunked`.
  */
-class ChunkedBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<ChunkedBody>  {
+class ChunkedBody : public oatpp::base::Countable, public Body {
 public:
   /**
    * Convenience typedef for &id:oatpp::data::stream::ReadCallback;.
    */
   typedef oatpp::data::stream::ReadCallback ReadCallback;
-
-private:
-  bool writeData(OutputStream* stream, const void* data, v_buff_size size);
 private:
   std::shared_ptr<ReadCallback> m_readCallback;
-  std::shared_ptr<ReadCallback> m_asyncReadCallback;
-  p_char8 m_buffer;
-  v_buff_size m_bufferSize;
+  std::shared_ptr<data::buffer::IOBuffer> m_buffer;
 public:
 
   /**
-   * Constructor. Must set either `ReadCallback` or `ReadCallback`.
-   * @param readCallback - &id:oatpp::data::stream::ReadCallback;.
-   * @param asyncReadCallback - &id:oatpp::data::stream::ReadCallback;.
-   * @param chunkBufferSize - max size of the chunk. Will allocate buffer of size `chunkBufferSize`.
+   * Constructor.
+   * @param readCallback
    */
-  ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback,
-              const std::shared_ptr<ReadCallback>& asyncReadCallback,
-              v_buff_size chunkBufferSize);
-
-  /**
-   * virtual destructor.
-   */
-  ~ChunkedBody();
+  ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback);
 
   /**
    * Declare `Transfer-Encoding: chunked` header.
