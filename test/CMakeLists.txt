@@ -45,6 +45,8 @@ add_executable(oatppAllTests
         oatpp/parser/json/mapping/DTOMapperTest.hpp
         oatpp/parser/json/mapping/DeserializerTest.cpp
         oatpp/parser/json/mapping/DeserializerTest.hpp
+        oatpp/web/protocol/http/encoding/ChunkedTest.cpp
+        oatpp/web/protocol/http/encoding/ChunkedTest.hpp
         oatpp/web/mime/multipart/StatefulParserTest.cpp
         oatpp/web/mime/multipart/StatefulParserTest.hpp
         oatpp/web/server/api/ApiControllerTest.cpp

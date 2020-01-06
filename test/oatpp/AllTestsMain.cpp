@@ -8,6 +8,8 @@
 #include "oatpp/web/PipelineTest.hpp"
 #include "oatpp/web/PipelineAsyncTest.hpp"
 
+#include "oatpp/web/protocol/http/encoding/ChunkedTest.hpp"
+
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
@@ -100,7 +102,11 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
+*/
 
+  OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
+
+/*
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);

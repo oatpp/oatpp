@@ -129,7 +129,7 @@ struct InlineWriteData {
 
 /**
  * Buffer processor.
- * Note: all processors are considered to stateful.
+ * Note: all processors are considered to be stateful.
  */
 class Processor {
 public:
