@@ -139,6 +139,7 @@ void PipelineAsyncTest::onRun() {
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 
     auto connection = clientConnectionProvider->getConnection();
+    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     std::thread pipeInThread([this, connection] {
 
@@ -158,60 +159,15 @@ void PipelineAsyncTest::onRun() {
 
     std::thread pipeOutThread([this, connection] {
 
-      connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
-
-      oatpp::data::stream::ChunkedBuffer pipelineStream;
-
-      for (v_int32 i = 0; i < m_pipelineSize; i++) {
-        pipelineStream << SAMPLE_OUT;
-      }
-
+      oatpp::String sample = SAMPLE_OUT;
       oatpp::data::stream::ChunkedBuffer receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      v_int32 retries = 0;
-      oatpp::data::v_io_size readResult;
-
-      while(true) {
-
-        async::Action action; // In this particular case, the action is just ignored.
-        readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize(), action);
-        OATPP_LOGD("AAA", "readResult=%d", readResult);
-        if(readResult > 0) {
-          retries = 0;
-          receiveStream.writeSimple(ioBuffer.getData(), readResult);
-        } else {
-          retries ++;
-          if(retries == 50) {
-            break;
-          }
-          std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-
-      }
+      auto res = oatpp::data::stream::transfer(connection.get(), &receiveStream, sample->getSize() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
-      auto wantedResult = pipelineStream.toString();
 
-      if(result != wantedResult) {
-//
-//        if(result->getSize() == wantedResult->getSize()) {
-//          for(v_int32 i = 0; i < result->getSize(); i++) {
-//            if(result->getData()[i] != wantedResult->getData()[i]) {
-//              OATPP_LOGD(TAG, "result='%s'", &result->getData()[i]);
-//              OATPP_LOGD(TAG, "wanted='%s'", &wantedResult->getData()[i]);
-//              OATPP_LOGD(TAG, "diff-pos=%d", i);
-//              break;
-//            }
-//          }
-//        }
-
-        OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
-        OATPP_LOGD(TAG, "last readResult=%d", readResult);
-
-      }
-
-      OATPP_ASSERT(result->getSize() == wantedResult->getSize());
+      OATPP_ASSERT(result->getSize() == sample->getSize() * m_pipelineSize);
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
 
     });

@@ -151,9 +151,7 @@ void PipelineTest::onRun() {
 
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      OATPP_LOGD("AAA", "pipe tranfer begin");
       auto res = oatpp::data::stream::transfer(&inputStream, connection.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
-      OATPP_LOGD("AAA", "pipe tranfer end. %d", res);
 
     });
 
