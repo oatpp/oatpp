@@ -65,6 +65,7 @@ public:
   std::atomic<bool> available;
 
   ENDPOINT("GET", "/", root) {
+    OATPP_LOGD("AAA", "Root Called!");
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
