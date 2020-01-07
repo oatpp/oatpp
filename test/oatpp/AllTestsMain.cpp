@@ -110,18 +110,18 @@ void runTests() {
 */
   {
 
-//    oatpp::test::web::PipelineTest test_virtual(0, 3000);
-//    test_virtual.run();
+    oatpp::test::web::PipelineTest test_virtual(0, 3000);
+    test_virtual.run();
 
-//    oatpp::test::web::PipelineTest test_port(8000, 3000);
-//    test_port.run();
+    oatpp::test::web::PipelineTest test_port(8000, 3000);
+    test_port.run();
 
   }
 
   {
 
-//    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
-//    test_virtual.run();
+    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
+    test_virtual.run();
 
     oatpp::test::web::PipelineAsyncTest test_port(8000, 3000);
     test_port.run();

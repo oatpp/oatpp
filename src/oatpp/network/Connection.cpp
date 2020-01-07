@@ -46,11 +46,29 @@ oatpp::data::stream::DefaultInitializedContext Connection::DEFAULT_CONTEXT(data:
 Connection::Connection(data::v_io_handle handle)
   : m_handle(handle)
 {
+
 #if defined(WIN32) || defined(_WIN32)
-    // in Windows, there is no reliable method to get if a socket is blocking or not.
-    // Eevery socket is created blocking in Windows so we assume this state and pray.
-    m_mode = data::stream::BLOCKING;
+
+  // in Windows, there is no reliable method to get if a socket is blocking or not.
+  // Eevery socket is created blocking in Windows so we assume this state and pray.
+  m_mode = data::stream::BLOCKING;
+
+#else
+
+  auto flags = fcntl(m_handle, F_GETFL);
+
+  if (flags < 0) {
+    throw std::runtime_error("[oatpp::network::Connection::Connection()]: Error. Can't get socket flags.");
+  }
+
+  if((flags & O_NONBLOCK) > 0) {
+    m_mode = data::stream::IOMode::ASYNCHRONOUS;
+  } else {
+    m_mode = data::stream::IOMode::BLOCKING;
+  }
+
 #endif
+
 }
 
 Connection::~Connection(){
@@ -68,7 +86,9 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
       return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_WRITE;
@@ -94,7 +114,9 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
       return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
       return data::IOError::RETRY_WRITE;
@@ -121,7 +143,9 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      }
       return data::IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_READ;
@@ -133,7 +157,6 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
   }
   return result;
 
-
 #else
 
   errno = 0;
@@ -143,7 +166,9 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
   if(result <= 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      }
       return data::IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
       return data::IOError::RETRY_READ;
@@ -210,33 +235,12 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 }
 #endif
 
-#if defined(WIN32) || defined(_WIN32)
-oatpp::data::stream::IOMode Connection::getStreamIOMode() {
-  return m_mode;
-}
-#else
-oatpp::data::stream::IOMode Connection::getStreamIOMode() {
-
-  auto flags = fcntl(m_handle, F_GETFL);
-  if (flags < 0) {
-    throw std::runtime_error("[oatpp::network::Connection::getStreamIOMode()]: Error. Can't get socket flags.");
-  }
-
-  if((flags & O_NONBLOCK) > 0) {
-    return oatpp::data::stream::IOMode::ASYNCHRONOUS;
-  }
-
-  return oatpp::data::stream::IOMode::BLOCKING;
-
-}
-#endif
-
 void Connection::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   setStreamIOMode(ioMode);
 }
 
 oatpp::data::stream::IOMode Connection::getOutputStreamIOMode() {
-  return getStreamIOMode();
+  return m_mode;
 }
 
 oatpp::data::stream::Context& Connection::getOutputStreamContext() {
@@ -248,7 +252,7 @@ void Connection::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 }
 
 oatpp::data::stream::IOMode Connection::getInputStreamIOMode() {
-  return getStreamIOMode();
+  return m_mode;
 }
 
 oatpp::data::stream::Context& Connection::getInputStreamContext() {
