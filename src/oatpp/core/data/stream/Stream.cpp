@@ -42,6 +42,7 @@ data::v_io_size WriteCallback::writeSimple(const void *data, v_buff_size count) 
   async::Action action;
   auto res = write(data, count, action);
   if(!action.isNone()) {
+    OATPP_LOGD("[oatpp::data::stream::WriteCallback::writeSimple()]", "Error. writeSimple is called on a stream in Async mode.");
     throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeSimple()]: Error. writeSimple is called on a stream in Async mode.");
   }
   return res;
