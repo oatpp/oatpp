@@ -143,11 +143,16 @@ void PipelineTest::onRun() {
         pipelineStream << SAMPLE_IN;
       }
 
-      oatpp::data::stream::BufferInputStream inputStream(pipelineStream.toString());
+      auto dataToSend = pipelineStream.toString();
+      OATPP_LOGD(TAG, "Sending %d bytes", dataToSend->getSize());
+
+      oatpp::data::stream::BufferInputStream inputStream(dataToSend);
 
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      oatpp::data::stream::transfer(&inputStream, connection.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
+      OATPP_LOGD("AAA", "pipe tranfer begin");
+      auto res = oatpp::data::stream::transfer(&inputStream, connection.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
+      OATPP_LOGD("AAA", "pipe tranfer end. %d", res);
 
     });
 
