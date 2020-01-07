@@ -63,7 +63,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-/*
+
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -127,7 +127,7 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
   {
 
     oatpp::test::web::FullTest test_virtual(0, 1000);

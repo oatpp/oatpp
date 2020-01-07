@@ -123,9 +123,9 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
     
     ReaderCoroutine(ResponseHeadersReader* _this,
                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
-    : m_this(_this)
-    , m_connection(connection)
-    , m_progress(0)
+      : m_this(_this)
+      , m_connection(connection)
+      , m_progress(0)
     {}
     
     Action act() override {
