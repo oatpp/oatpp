@@ -187,24 +187,24 @@ void PipelineTest::onRun() {
       auto result = receiveStream.toString();
       auto wantedResult = pipelineStream.toString();
 
-//      if(result != wantedResult) {
-//
-//        if(result->getSize() == wantedResult->getSize()) {
-//          for(v_int32 i = 0; i < result->getSize(); i++) {
-//            if(result->getData()[i] != wantedResult->getData()[i]) {
-//              OATPP_LOGD(TAG, "result0='%s'", result->getData());
-//              OATPP_LOGD(TAG, "result='%s'", &result->getData()[i]);
-//              OATPP_LOGD(TAG, "wanted='%s'", &wantedResult->getData()[i]);
-//              OATPP_LOGD(TAG, "diff-pos=%d", i);
-//              break;
-//            }
-//          }
-//        }
-//
-//        OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
-//        OATPP_LOGD(TAG, "last readResult=%d", readResult);
-//
-//      }
+      if(result != wantedResult) {
+
+        if(result->getSize() == wantedResult->getSize()) {
+          for(v_int32 i = 0; i < result->getSize(); i++) {
+            if(result->getData()[i] != wantedResult->getData()[i]) {
+              OATPP_LOGD(TAG, "result0='%s'", result->getData());
+              OATPP_LOGD(TAG, "result='%s'", &result->getData()[i]);
+              OATPP_LOGD(TAG, "wanted='%s'", &wantedResult->getData()[i]);
+              OATPP_LOGD(TAG, "diff-pos=%d", i);
+              break;
+            }
+          }
+        }
+
+        OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
+        OATPP_LOGD(TAG, "last readResult=%d", readResult);
+
+      }
 
       OATPP_ASSERT(result->getSize() == wantedResult->getSize());
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
