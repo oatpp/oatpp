@@ -55,7 +55,7 @@ typedef int v_io_handle;
  * All other values are considered to be a fatal error.
  * application should be terminated.
  */
-typedef ssize_t v_io_size;
+typedef v_int64 v_io_size;
 
 /**
  * Final set of possible I/O operation error values.
