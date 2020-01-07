@@ -565,6 +565,7 @@ data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
       case data::buffer::Processor::Error::FLUSH_DATA_OUT: {
         data::v_io_size res = data::IOError::RETRY_WRITE;
         while(res == data::IOError::RETRY_WRITE || res == data::IOError::RETRY_READ) {
+          OATPP_LOGD("AAA", "transfer write want %d", outData.bytesLeft);
           res = writeCallback->writeSimple(outData.currBufferPtr, outData.bytesLeft);
           OATPP_LOGD("AAA", "transfer write %d", res);
         }
