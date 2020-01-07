@@ -44,7 +44,6 @@ data::v_io_size RequestHeadersReader::readHeadersSectionIterative(ReadHeadersIte
   m_bufferStream->reserveBytesUpfront(desiredToRead);
   auto bufferData = m_bufferStream->getData() + m_bufferStream->getCurrentPosition();
   auto res = stream->peek(bufferData, desiredToRead, action);
-  OATPP_LOGD("AAA", "RequestHeadersReader::read res = %d",res);
   if(res > 0) {
 
     m_bufferStream->setCurrentPosition(m_bufferStream->getCurrentPosition() + res);

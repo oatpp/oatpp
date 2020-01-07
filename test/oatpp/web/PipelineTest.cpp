@@ -176,7 +176,7 @@ void PipelineTest::onRun() {
 
         async::Action action; // In this particular case, the action is just ignored.
         readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize(), action);
-        OATPP_LOGD("AAA", "readResult=%d", readResult);
+        //OATPP_LOGD("AAA", "readResult=%d", readResult);
         if(readResult > 0) {
           retries = 0;
           receiveStream.writeSimple(ioBuffer.getData(), readResult);

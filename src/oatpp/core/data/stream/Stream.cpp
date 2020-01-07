@@ -566,6 +566,7 @@ data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
         data::v_io_size res = data::IOError::RETRY_WRITE;
         while(res == data::IOError::RETRY_WRITE || res == data::IOError::RETRY_READ) {
           res = writeCallback->writeSimple(outData.currBufferPtr, outData.bytesLeft);
+          OATPP_LOGD("AAA", "transfer write %d", res);
         }
         if(res > 0) {
           outData.inc(res);
