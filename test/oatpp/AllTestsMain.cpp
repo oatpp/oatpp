@@ -143,30 +143,30 @@ void runTests() {
 //    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
 //    test_virtual.run();
 
-    oatpp::test::web::FullAsyncTest test_port(8000, 5);
-    test_port.run();
+//    oatpp::test::web::FullAsyncTest test_port(8000, 5);
+//    test_port.run();
 
   }
 
-  {
-
+//  {
+//
 //    oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
 //    test_virtual.run(20);
-
-    oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
-    test_port.run(1);
-
-  }
-
-  {
-
+//
+//    oatpp::test::web::FullAsyncClientTest test_port(8000, 10);
+//    test_port.run(1);
+//
+//  }
+//
+//  {
+//
 //    oatpp::test::web::ClientRetryTest test_virtual(0);
 //    test_virtual.run();
-
-    oatpp::test::web::ClientRetryTest test_port(8000);
-    test_port.run();
-
-  }
+//
+//    oatpp::test::web::ClientRetryTest test_port(8000);
+//    test_port.run();
+//
+//  }
 
 }
 
