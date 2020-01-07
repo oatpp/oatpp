@@ -42,7 +42,7 @@ data::v_io_size WriteCallback::writeSimple(const void *data, v_buff_size count) 
   async::Action action;
   auto res = write(data, count, action);
   if(!action.isNone()) {
-    OATPP_LOGD("[oatpp::data::stream::WriteCallback::writeSimple()]", "Error. writeSimple is called on a stream in Async mode.");
+    OATPP_LOGE("[oatpp::data::stream::WriteCallback::writeSimple()]", "Error. writeSimple is called on a stream in Async mode.");
     throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeSimple()]: Error. writeSimple is called on a stream in Async mode.");
   }
   return res;
@@ -54,6 +54,7 @@ data::v_io_size WriteCallback::writeExactSizeDataSimple(data::buffer::InlineWrit
     async::Action action;
     auto res = write(inlineData, action);
     if(!action.isNone()) {
+      OATPP_LOGE("[oatpp::data::stream::WriteCallback::writeExactSizeDataSimple()]", "Error. writeExactSizeDataSimple() is called on a stream in Async mode.");
       throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeExactSizeDataSimple()]: Error. writeExactSizeDataSimple() is called on a stream in Async mode.");
     }
     if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
@@ -92,6 +93,7 @@ async::Action WriteCallback::writeExactSizeDataAsyncInline(data::buffer::InlineW
         case IOError::RETRY_WRITE:
           return async::Action::createActionByType(async::Action::TYPE_REPEAT);
         default:
+          OATPP_LOGE("[oatpp::data::stream::writeExactSizeDataAsyncInline()]", "Error. Unknown IO result.");
           return new async::Error(
             "[oatpp::data::stream::writeExactSizeDataAsyncInline()]: Error. Unknown IO result.");
       }
@@ -144,6 +146,7 @@ data::v_io_size ReadCallback::readExactSizeDataSimple(data::buffer::InlineReadDa
     async::Action action;
     auto res = read(inlineData, action);
     if(!action.isNone()) {
+      OATPP_LOGE("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]", "Error. readExactSizeDataSimple() is called on a stream in Async mode.");
       throw std::runtime_error("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]: Error. readExactSizeDataSimple() is called on a stream in Async mode.");
     }
     if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
@@ -182,6 +185,7 @@ async::Action ReadCallback::readExactSizeDataAsyncInline(data::buffer::InlineRea
         case IOError::RETRY_WRITE:
           return async::Action::createActionByType(async::Action::TYPE_REPEAT);
         default:
+          OATPP_LOGE("[oatpp::data::stream::readExactSizeDataAsyncInline()]", "Error. Unknown IO result.");
           return new async::Error(
             "[oatpp::data::stream::readExactSizeDataAsyncInline()]: Error. Unknown IO result.");
       }
@@ -215,6 +219,7 @@ async::Action ReadCallback::readSomeDataAsyncInline(data::buffer::InlineReadData
         case IOError::RETRY_WRITE:
           return async::Action::createActionByType(async::Action::TYPE_REPEAT);
         default:
+          OATPP_LOGE("[oatpp::data::stream::readSomeDataAsyncInline()]", "Error. Unknown IO result.");
           return new async::Error(
             "[oatpp::data::stream::readSomeDataAsyncInline()]: Error. Unknown IO result.");
       }
@@ -230,6 +235,7 @@ data::v_io_size ReadCallback::readSimple(void *data, v_buff_size count) {
   async::Action action;
   auto res = read(data, count, action);
   if(!action.isNone()) {
+    OATPP_LOGE("[oatpp::data::stream::ReadCallback::readSimple()]", "Error. readSimple is called on a stream in Async mode.");
     throw std::runtime_error("[oatpp::data::stream::ReadCallback::readSimple()]: Error. readSimple is called on a stream in Async mode.");
   }
   return res;

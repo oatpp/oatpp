@@ -51,7 +51,8 @@ Connection::Connection(data::v_io_handle handle)
 
   // in Windows, there is no reliable method to get if a socket is blocking or not.
   // Eevery socket is created blocking in Windows so we assume this state and pray.
-  m_mode = data::stream::BLOCKING;
+
+  setStreamIOMode(data::stream::BLOCKING);
 
 #else
 
