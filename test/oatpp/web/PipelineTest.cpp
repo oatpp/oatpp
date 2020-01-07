@@ -171,6 +171,7 @@ void PipelineTest::onRun() {
 
         async::Action action; // In this particular case, the action is just ignored.
         readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize(), action);
+        OATPP_LOGD("AAA", "readResult=%d", readResult);
         if(readResult > 0) {
           retries = 0;
           receiveStream.writeSimple(ioBuffer.getData(), readResult);
@@ -179,8 +180,7 @@ void PipelineTest::onRun() {
           if(retries == 50) {
             break;
           }
-          OATPP_LOGD("AAA", "readResult=%d", readResult);
-          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
 
       }
