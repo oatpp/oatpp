@@ -24,7 +24,7 @@
 
 #include "ResponseHeadersReader.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -56,6 +56,7 @@ data::v_io_size ResponseHeadersReader::readHeadersSectionIterative(ReadHeadersIt
         result.bufferPosStart = i + 1;
         result.bufferPosEnd = res;
         iteration.done = true;
+        return res;
       }
     }
 
@@ -72,7 +73,7 @@ ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shar
   ReadHeadersIteration iteration;
   async::Action action;
   
-  oatpp::data::stream::ChunkedBuffer buffer;
+  oatpp::data::stream::BufferOutputStream buffer;
 
   while(!iteration.done) {
 
@@ -92,7 +93,6 @@ ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shar
 
   }
 
-  
   if(error.ioStatus > 0) {
     auto headersText = buffer.toString();
     oatpp::parser::Caret caret (headersText);
@@ -115,18 +115,16 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   private:
     ResponseHeadersReader* m_this;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    v_word32 m_accumulator;
     v_buff_size m_progress;
     ReadHeadersIteration m_iteration;
     ResponseHeadersReader::Result m_result;
-    oatpp::data::stream::ChunkedBuffer m_bufferStream;
+    oatpp::data::stream::BufferOutputStream m_bufferStream;
   public:
     
     ReaderCoroutine(ResponseHeadersReader* _this,
                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
     : m_this(_this)
     , m_connection(connection)
-    , m_accumulator(0)
     , m_progress(0)
     {}
     

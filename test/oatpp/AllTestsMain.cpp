@@ -75,11 +75,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
-*/
 
   OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
-
-/*
 
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
@@ -102,11 +99,9 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
-*/
 
   OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
 
-/*
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);

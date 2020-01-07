@@ -35,6 +35,37 @@ void ChunkedTest::onRun() {
   oatpp::String encoded;
   oatpp::String decoded;
 
+  { // Empty string
+    oatpp::data::stream::BufferInputStream inStream(oatpp::String(""));
+    oatpp::data::stream::BufferOutputStream outStream;
+
+    oatpp::web::protocol::http::encoding::EncoderChunked encoder;
+
+    const v_int32 bufferSize = 5;
+    v_char8 buffer[bufferSize];
+
+    auto count = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &encoder);
+    encoded = outStream.toString();
+
+    OATPP_ASSERT(count == 0);
+    OATPP_ASSERT(encoded == "0\r\n\r\n");
+  }
+
+  { // Empty string
+    oatpp::data::stream::BufferInputStream inStream(encoded);
+    oatpp::data::stream::BufferOutputStream outStream;
+
+    oatpp::web::protocol::http::encoding::DecoderChunked decoder;
+
+    const v_int32 bufferSize = 5;
+    v_char8 buffer[bufferSize];
+
+    auto count = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &decoder);
+    decoded = outStream.toString();
+    OATPP_ASSERT(count == encoded->getSize());
+    OATPP_ASSERT(decoded == "");
+  }
+
   {
     oatpp::data::stream::BufferInputStream inStream(data);
     oatpp::data::stream::BufferOutputStream outStream;

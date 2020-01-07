@@ -82,7 +82,7 @@ private:
     v_int32 m_state;
     oatpp::data::stream::BufferInputStream m_readStream;
   private:
-    data::v_io_size readBody(void *buffer, v_buff_size count);
+    data::v_io_size readBody(void *buffer, v_buff_size count, async::Action& action);
   public:
 
     MultipartReadCallback(const std::shared_ptr<Multipart>& multipart);

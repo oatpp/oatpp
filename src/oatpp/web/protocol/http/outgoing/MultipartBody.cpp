@@ -38,77 +38,77 @@ MultipartBody::MultipartReadCallback::MultipartReadCallback(const std::shared_pt
   , m_readStream(nullptr, nullptr, 0)
 {}
 
-data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_size count) {
-//  auto& part = *m_iterator;
-//  const auto& stream = part->getInputStream();
-//  if(!stream) {
-//    OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream", m_state);
-//    m_iterator ++;
-//    return 0;
-//  }
-//  auto res = stream->read(buffer, count);
-//  if(res == 0) {
-//    m_iterator ++;
-//  }
-//  return res;
+data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_size count, async::Action& action) {
+  auto& part = *m_iterator;
+  const auto& stream = part->getInputStream();
+  if(!stream) {
+    OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream", m_state);
+    m_iterator ++;
+    return 0;
+  }
+  auto res = stream->read(buffer, count, action);
+  if(res == 0) {
+    m_iterator ++;
+  }
+  return res;
 }
 
 data::v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_size count, async::Action& action) {
-//
-//  if(m_state == STATE_FINISHED) {
-//    return 0;
-//  }
-//
-//  p_char8 currBufferPtr = (p_char8) buffer;
-//  data::v_io_size bytesLeft = count;
-//
-//  data::v_io_size res = 0;
-//
-//  while(bytesLeft > 0) {
-//
-//    switch (m_state) {
-//
-//      case STATE_BOUNDARY:
-//        res = readBoundary(m_multipart, m_iterator, m_readStream, currBufferPtr, bytesLeft);
-//        break;
-//
-//      case STATE_HEADERS:
-//        res = readHeaders(m_multipart, m_iterator, m_readStream, currBufferPtr, bytesLeft);
-//        break;
-//
-//      case STATE_BODY:
-//        res = readBody(currBufferPtr, bytesLeft);
-//        break;
-//
-//      default:
-//        OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid state %d", m_state);
-//        return 0;
-//
-//    }
-//
-//    if(res > 0) {
-//      currBufferPtr = &currBufferPtr[res];
-//      bytesLeft -= res;
-//    } else if(res == 0) {
-//
-//      if(m_state == STATE_BOUNDARY && m_iterator == m_multipart->getAllParts().end()) {
-//        m_state = STATE_FINISHED;
-//        break;
-//      }
-//
-//      m_state += 1;
-//      if(m_state == STATE_ROUND) {
-//        m_state = 0;
-//      }
-//
-//    } else {
-//      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid read result %d. State=%d", res, m_state);
-//      return 0;
-//    }
-//
-//  }
-//
-//  return count - bytesLeft;
+
+  if(m_state == STATE_FINISHED) {
+    return 0;
+  }
+
+  p_char8 currBufferPtr = (p_char8) buffer;
+  data::v_io_size bytesLeft = count;
+
+  data::v_io_size res = 0;
+
+  while(bytesLeft > 0 && action.isNone()) {
+
+    switch (m_state) {
+
+      case STATE_BOUNDARY:
+        res = readBoundary(m_multipart, m_iterator, m_readStream, currBufferPtr, bytesLeft);
+        break;
+
+      case STATE_HEADERS:
+        res = readHeaders(m_multipart, m_iterator, m_readStream, currBufferPtr, bytesLeft);
+        break;
+
+      case STATE_BODY:
+        res = readBody(currBufferPtr, bytesLeft, action);
+        break;
+
+      default:
+        OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid state %d", m_state);
+        return 0;
+
+    }
+
+    if(res > 0) {
+      currBufferPtr = &currBufferPtr[res];
+      bytesLeft -= res;
+    } else if(res == 0) {
+
+      if(m_state == STATE_BOUNDARY && m_iterator == m_multipart->getAllParts().end()) {
+        m_state = STATE_FINISHED;
+        break;
+      }
+
+      m_state += 1;
+      if(m_state == STATE_ROUND) {
+        m_state = 0;
+      }
+
+    } else if(action.isNone()) {
+      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid read result %d. State=%d", res, m_state);
+      return 0;
+    }
+
+  }
+
+  return count - bytesLeft;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,28 +120,28 @@ data::v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& mu
                                             void *buffer,
                                             v_buff_size count)
 {
-//  if (!readStream.getDataMemoryHandle()) {
-//
-//    oatpp::String boundary;
-//
-//    if (iterator == multipart->getAllParts().end()) {
-//      boundary = "\r\n--" + multipart->getBoundary() + "--\r\n";
-//    } else if (iterator == multipart->getAllParts().begin()) {
-//      boundary = "--" + multipart->getBoundary() + "\r\n";
-//    } else {
-//      boundary = "\r\n--" + multipart->getBoundary() + "\r\n";
-//    }
-//
-//    readStream.reset(boundary.getPtr(), boundary->getData(), boundary->getSize());
-//
-//  }
-//
-//  auto res = readStream.read(buffer, count);
-//  if(res == 0) {
-//    readStream.reset();
-//  }
-//
-//  return res;
+  if (!readStream.getDataMemoryHandle()) {
+
+    oatpp::String boundary;
+
+    if (iterator == multipart->getAllParts().end()) {
+      boundary = "\r\n--" + multipart->getBoundary() + "--\r\n";
+    } else if (iterator == multipart->getAllParts().begin()) {
+      boundary = "--" + multipart->getBoundary() + "\r\n";
+    } else {
+      boundary = "\r\n--" + multipart->getBoundary() + "\r\n";
+    }
+
+    readStream.reset(boundary.getPtr(), boundary->getData(), boundary->getSize());
+
+  }
+
+  auto res = readStream.readSimple(buffer, count);
+  if(res == 0) {
+    readStream.reset();
+  }
+
+  return res;
 }
 
 data::v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart,

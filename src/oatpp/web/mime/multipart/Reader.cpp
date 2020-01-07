@@ -136,56 +136,15 @@ void AsyncPartsParser::setDefaultPartReader(const std::shared_ptr<AsyncPartReade
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // InMemoryReader
 
-Reader::Reader(Multipart* multipart, data::stream::ReadCallback* readCallback)
+Reader::Reader(Multipart* multipart)
   : m_partsParser(std::make_shared<PartsParser>(multipart))
   , m_parser(multipart->getBoundary(), m_partsParser, nullptr)
-  , m_readCallback(readCallback)
 {}
 
-void Reader::readAll() {
-
-  data::v_io_size res = -1;
-  data::buffer::IOBuffer buffer;
-
-  while(!m_parser.finished()) {
-
-    async::Action action;
-    res = m_readCallback->read(buffer.getData(), buffer.getSize(), action);
-
-    if(!action.isNone()) {
-      throw std::runtime_error("[oatpp::web::mime::multipart::Reader::readAll()]: Error. Async action is unexpected.");
-    }
-
-    if(res > 0) {
-
-      data::buffer::InlineWriteData inlineData(buffer.getData(), res);
-      while(inlineData.bytesLeft > 0 && !m_parser.finished()) {
-        async::Action action;
-        m_parser.parseNext(inlineData, action);
-        if(!action.isNone()) {
-          throw std::runtime_error("[oatpp::web::mime::multipart::Reader::readAll()]: Error. Async action is unexpected.");
-        }
-      }
-
-    } else {
-
-      switch(res) {
-
-        case data::IOError::RETRY_READ:
-          continue;
-
-        case data::IOError::RETRY_WRITE:
-          continue;
-
-        default:
-          return;
-
-      }
-
-    }
-
-  }
-
+data::v_io_size Reader::write(const void *data, v_buff_size count, async::Action& action) {
+  data::buffer::InlineWriteData inlineData(data, count);
+  m_parser.parseNext(inlineData, action);
+  return count - inlineData.bytesLeft;
 }
 
 void Reader::setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader) {
