@@ -69,6 +69,8 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
 
     auto e = WSAGetLastError();
 
+    OATPP_LOGD("AAA", "Connection[%d]::write error %d", this, e);
+
     if(e == WSAEWOULDBLOCK){
       action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
@@ -123,6 +125,8 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
   if(result == SOCKET_ERROR) {
 
     auto e = WSAGetLastError();
+
+    OATPP_LOGD("AAA", "Connection[%d]::read error %d", this, e);
 
     if(e == WSAEWOULDBLOCK){
       action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
