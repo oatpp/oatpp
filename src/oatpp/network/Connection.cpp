@@ -99,6 +99,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
       return data::IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -127,6 +128,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
       return data::IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -158,6 +160,7 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
       return data::IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -181,6 +184,7 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
       return data::IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
