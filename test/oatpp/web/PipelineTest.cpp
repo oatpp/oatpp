@@ -179,6 +179,7 @@ void PipelineTest::onRun() {
           if(retries == 50) {
             break;
           }
+          OATPP_LOGD("AAA", "readResult=%d", readResult);
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
@@ -189,17 +190,17 @@ void PipelineTest::onRun() {
 
       if(result != wantedResult) {
 
-        if(result->getSize() == wantedResult->getSize()) {
-          for(v_int32 i = 0; i < result->getSize(); i++) {
-            if(result->getData()[i] != wantedResult->getData()[i]) {
-              OATPP_LOGD(TAG, "result0='%s'", result->getData());
-              OATPP_LOGD(TAG, "result='%s'", &result->getData()[i]);
-              OATPP_LOGD(TAG, "wanted='%s'", &wantedResult->getData()[i]);
-              OATPP_LOGD(TAG, "diff-pos=%d", i);
-              break;
-            }
-          }
-        }
+//        if(result->getSize() == wantedResult->getSize()) {
+//          for(v_int32 i = 0; i < result->getSize(); i++) {
+//            if(result->getData()[i] != wantedResult->getData()[i]) {
+//              OATPP_LOGD(TAG, "result0='%s'", result->getData());
+//              OATPP_LOGD(TAG, "result='%s'", &result->getData()[i]);
+//              OATPP_LOGD(TAG, "wanted='%s'", &wantedResult->getData()[i]);
+//              OATPP_LOGD(TAG, "diff-pos=%d", i);
+//              break;
+//            }
+//          }
+//        }
 
         OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
         OATPP_LOGD(TAG, "last readResult=%d", readResult);
