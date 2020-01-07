@@ -121,6 +121,9 @@ HttpRequestExecutor::executeOnce(const String& method,
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Connection is null");
   }
+
+  connection->setInputStreamIOMode(data::stream::IOMode::BLOCKING);
+  connection->setOutputStreamIOMode(data::stream::IOMode::BLOCKING);
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
   request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
@@ -215,6 +218,9 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
         throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                     "[oatpp::web::client::HttpRequestExecutor::executeOnceAsync::ExecutorCoroutine{act()}]: Connection is null");
       }
+
+      m_connection->setInputStreamIOMode(data::stream::IOMode::ASYNCHRONOUS);
+      m_connection->setOutputStreamIOMode(data::stream::IOMode::ASYNCHRONOUS);
 
       auto request = OutgoingRequest::createShared(m_method, m_path, m_headers, m_body);
       request->putHeaderIfNotExists(Header::HOST, m_this->m_connectionProvider->getProperty("host"));
