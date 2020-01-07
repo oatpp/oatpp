@@ -79,12 +79,14 @@ Connection::~Connection(){
 data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
-
+  OATPP_LOGD("AAA", "Connection[%d] write want %d", this, count);
   auto result = ::send(m_handle, (const char*) buff, (int)count, 0);
-
+  OATPP_LOGD("AAA", "Connection[%d] write %d", this, result);
   if(result == SOCKET_ERROR) {
 
     auto e = WSAGetLastError();
+
+    OATPP_LOGD("AAA", "Connection[%d] write error %d mode=%d", this, e, m_mode);
 
     if(e == WSAEWOULDBLOCK){
       if(m_mode == data::stream::ASYNCHRONOUS) {
@@ -136,12 +138,14 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
 data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
-
+  OATPP_LOGD("AAA", "Connection[%d] read want %d", this, count);
   auto result = ::recv(m_handle, (char*)buff, (int)count, 0);
-
+  OATPP_LOGD("AAA", "Connection[%d] read %d", this, result);
   if(result == SOCKET_ERROR) {
 
     auto e = WSAGetLastError();
+
+    OATPP_LOGD("AAA", "Connection[%d] read error %d mode=%d", this, e, m_mode);
 
     if(e == WSAEWOULDBLOCK){
       if(m_mode == data::stream::ASYNCHRONOUS) {
