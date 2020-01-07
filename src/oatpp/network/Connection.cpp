@@ -115,7 +115,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
 
   auto result = ::send(m_handle, buff, (size_t)count, flags);
 
-  if(result <= 0) {
+  if(result < 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
       if(m_mode == data::stream::ASYNCHRONOUS) {
@@ -171,7 +171,7 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
 
   auto result = ::read(m_handle, buff, (size_t)count);
 
-  if(result <= 0) {
+  if(result < 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
       if(m_mode == data::stream::ASYNCHRONOUS) {
