@@ -176,6 +176,7 @@ void PipelineAsyncTest::onRun() {
 
         async::Action action; // In this particular case, the action is just ignored.
         readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize(), action);
+        OATPP_LOGD("AAA", "readResult=%d", readResult);
         if(readResult > 0) {
           retries = 0;
           receiveStream.writeSimple(ioBuffer.getData(), readResult);
@@ -192,7 +193,7 @@ void PipelineAsyncTest::onRun() {
       auto result = receiveStream.toString();
       auto wantedResult = pipelineStream.toString();
 
-//      if(result != wantedResult) {
+      if(result != wantedResult) {
 //
 //        if(result->getSize() == wantedResult->getSize()) {
 //          for(v_int32 i = 0; i < result->getSize(); i++) {
@@ -204,11 +205,11 @@ void PipelineAsyncTest::onRun() {
 //            }
 //          }
 //        }
-//
-//        OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
-//        OATPP_LOGD(TAG, "last readResult=%d", readResult);
-//
-//      }
+
+        OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
+        OATPP_LOGD(TAG, "last readResult=%d", readResult);
+
+      }
 
       OATPP_ASSERT(result->getSize() == wantedResult->getSize());
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
