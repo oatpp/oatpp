@@ -87,10 +87,12 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
 
     auto e = WSAGetLastError();
 
-    OATPP_LOGD("AAA", "Connection[%d]::write error %d", this, e);
+    OATPP_LOGD("AAA", "Connection[%d]::write error %d. Stream mode=%d", this, e, m_mode);
 
     if(e == WSAEWOULDBLOCK){
-      action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
       return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
       return data::IOError::RETRY_WRITE;
