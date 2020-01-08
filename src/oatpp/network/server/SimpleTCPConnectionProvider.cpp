@@ -140,6 +140,11 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to listen() failed.");
   }
 
+  u_long flags = 1;
+  if(NO_ERROR != ioctlsocket(ListenSocket, FIONBIO, &flags)) {
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to ioctlsocket failed.");
+  }
+
   return ListenSocket;
 
 }
