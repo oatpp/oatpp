@@ -173,15 +173,6 @@ void PipelineTest::onRun() {
     pipeOutThread.join();
     pipeInThread.join();
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Stop server and unblock accepting thread
-
-    runner.getServer()->stop();
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-    connectionProvider->getConnection();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
   }, std::chrono::minutes(10));
 
   std::this_thread::sleep_for(std::chrono::seconds(1));

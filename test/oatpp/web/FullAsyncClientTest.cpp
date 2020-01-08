@@ -317,15 +317,6 @@ void FullAsyncClientTest::onRun() {
 
     executor->waitTasksFinished(); // Wait executor tasks before quit.
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Stop server and unblock accepting thread
-
-    runner.getServer()->stop();
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-    connectionProvider->getConnection();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
   }, std::chrono::minutes(10));
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);

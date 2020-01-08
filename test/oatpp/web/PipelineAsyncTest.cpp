@@ -179,19 +179,9 @@ void PipelineAsyncTest::onRun() {
     // Stop server and unblock accepting thread
 
     connection.reset();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Stop server and unblock accepting thread
-
-    runner.getServer()->stop();
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-    connectionProvider->getConnection();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
   }, std::chrono::minutes(10));
-
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
   executor->waitTasksFinished();
