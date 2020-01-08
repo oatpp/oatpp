@@ -294,6 +294,14 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
     if (res >= 0) {
       break;
     }
+#if defined(WIN32) || defined(_WIN32)
+    else {
+      auto e = WSAGetLastError();
+
+      OATPP_LOGD("AAA", "select error=%d", e);
+
+    }
+#endif
   }
 
   if(m_useExtendedConnections) {
