@@ -223,7 +223,11 @@ bool SimpleTCPConnectionProvider::prepareConnectionHandle(oatpp::data::v_io_hand
 
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getDefaultConnection() {
 
+  OATPP_LOGD("AAA", "accept begin");
+
   oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
+
+  OATPP_LOGD("AAA", "accept result=%d", handle);
 
   if(prepareConnectionHandle(handle)) {
     return std::make_shared<Connection>(handle);
