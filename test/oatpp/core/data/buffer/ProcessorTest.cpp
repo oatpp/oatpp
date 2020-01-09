@@ -273,8 +273,8 @@ void ProcessorTest::onRun() {
 
   }
 
-  executor.stop();
   executor.waitTasksFinished();
+  executor.stop();
   executor.join();
 
 }

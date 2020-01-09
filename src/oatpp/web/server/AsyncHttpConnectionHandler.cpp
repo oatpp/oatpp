@@ -73,7 +73,7 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
 }
 
 void AsyncHttpConnectionHandler::stop() {
-  m_executor->stop();
+  // DO NOTHING
 }
   
 }}}

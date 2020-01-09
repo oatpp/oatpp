@@ -281,6 +281,7 @@ void FullAsyncTest::onRun() {
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
   executor->waitTasksFinished();
+  executor->stop();
   executor->join();
 
 }

@@ -316,6 +316,7 @@ void FullAsyncClientTest::onRun() {
     OATPP_ASSERT(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == -1); // -1 is success
 
     executor->waitTasksFinished(); // Wait executor tasks before quit.
+    executor->stop();
 
   }, std::chrono::minutes(10));
 
