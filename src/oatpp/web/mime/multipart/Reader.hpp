@@ -56,7 +56,7 @@ public:
    * @param data - pointer to buffer containing chunk data.
    * @param size - size of the buffer.
    */
-  virtual void onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) = 0;
+  virtual void onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) = 0;
 
 };
 
@@ -86,7 +86,7 @@ public:
    * @param size - size of the buffer.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) = 0;
+  virtual async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) = 0;
 
 };
 
@@ -184,7 +184,7 @@ public:
    */
   Reader(Multipart* multipart);
 
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set named part reader. <br>
@@ -220,7 +220,7 @@ public:
    */
   AsyncReader(const std::shared_ptr<Multipart>& multipart);
 
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set named part reader. <br>

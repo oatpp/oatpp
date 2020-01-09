@@ -30,7 +30,7 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
 
 const char* const InMemoryPartReader::TAG_NAME = "[oatpp::web::mime::multipart::InMemoryPartReader::TAG]";
 
-InMemoryPartReader::InMemoryPartReader(data::v_io_size maxDataSize)
+InMemoryPartReader::InMemoryPartReader(v_io_size maxDataSize)
   : m_maxDataSize(maxDataSize)
 {}
 
@@ -48,7 +48,7 @@ void InMemoryPartReader::onNewPart(const std::shared_ptr<Part>& part) {
 
 }
 
-void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) {
+void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {
@@ -83,7 +83,7 @@ void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 d
 
 const char* const AsyncInMemoryPartReader::TAG_NAME = "[oatpp::web::mime::multipart::AsyncInMemoryPartReader::TAG]";
 
-AsyncInMemoryPartReader::AsyncInMemoryPartReader(data::v_io_size maxDataSize)
+AsyncInMemoryPartReader::AsyncInMemoryPartReader(v_io_size maxDataSize)
   : m_maxDataSize(maxDataSize)
 {}
 
@@ -103,7 +103,7 @@ async::CoroutineStarter AsyncInMemoryPartReader::onNewPartAsync(const std::share
 
 }
 
-async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) {
+async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {
@@ -139,12 +139,12 @@ async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shar
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
-std::shared_ptr<PartReader> createInMemoryPartReader(data::v_io_size maxDataSize) {
+std::shared_ptr<PartReader> createInMemoryPartReader(v_io_size maxDataSize) {
   return std::make_shared<InMemoryPartReader>(maxDataSize);
 }
 
 
-std::shared_ptr<AsyncPartReader> createAsyncInMemoryPartReader(data::v_io_size maxDataSize) {
+std::shared_ptr<AsyncPartReader> createAsyncInMemoryPartReader(v_io_size maxDataSize) {
   return std::make_shared<AsyncInMemoryPartReader>(maxDataSize);
 }
 

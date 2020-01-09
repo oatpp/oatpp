@@ -43,7 +43,7 @@ BufferOutputStream::~BufferOutputStream() {
   delete [] m_data;
 }
 
-data::v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
 
   reserveBytesUpfront(count);
 
@@ -124,7 +124,7 @@ oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size coun
   }
 }
 
-oatpp::data::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
+oatpp::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
   return stream->writeExactSizeDataSimple(m_data, m_position);
 }
 
@@ -189,7 +189,7 @@ void BufferInputStream::reset() {
   m_position = 0;
 }
 
-data::v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& action) {
+v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& action) {
   v_buff_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;

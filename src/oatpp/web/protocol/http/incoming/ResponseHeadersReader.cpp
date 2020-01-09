@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-data::v_io_size ResponseHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,
+v_io_size ResponseHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,
                                                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                                    data::stream::ConsistentOutputStream* bufferStream,
                                                                    Result& result,
@@ -85,7 +85,7 @@ ResponseHeadersReader::Result ResponseHeadersReader::readHeaders(const std::shar
 
     if(error.ioStatus > 0) {
       continue;
-    } else if(error.ioStatus == data::IOError::RETRY_READ || error.ioStatus == data::IOError::RETRY_WRITE) {
+    } else if(error.ioStatus == IOError::RETRY_READ || error.ioStatus == IOError::RETRY_WRITE) {
       continue;
     } else {
       break;
@@ -143,7 +143,7 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
 
         if (res > 0) {
           return repeat();
-        } else if (res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
+        } else if (res == IOError::RETRY_READ || res == IOError::RETRY_WRITE) {
           return repeat();
         }
 

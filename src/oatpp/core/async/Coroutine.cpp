@@ -39,14 +39,14 @@ Action Action::createActionByType(v_int32 type) {
   return Action(type);
 }
 
-Action Action::createIOWaitAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action Action::createIOWaitAction(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   Action result(TYPE_IO_WAIT);
   result.m_data.ioData.ioHandle = ioHandle;
   result.m_data.ioData.ioEventType = ioEventType;
   return result;
 }
 
-Action Action::createIORepeatAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action Action::createIORepeatAction(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   Action result(TYPE_IO_REPEAT);
   result.m_data.ioData.ioHandle = ioHandle;
   result.m_data.ioData.ioEventType = ioEventType;
@@ -139,7 +139,7 @@ v_int64 Action::getTimePointMicroseconds() const {
   return m_data.timePointMicroseconds;
 }
 
-oatpp::data::v_io_handle Action::getIOHandle() const {
+oatpp::v_io_handle Action::getIOHandle() const {
   return m_data.ioData.ioHandle;
 }
 
@@ -383,11 +383,11 @@ CoroutineStarter AbstractCoroutine::waitFor(const std::chrono::duration<v_int64,
 
 }
 
-Action AbstractCoroutine::ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action AbstractCoroutine::ioWait(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   return Action::createIOWaitAction(ioHandle, ioEventType);
 }
 
-Action AbstractCoroutine::ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action AbstractCoroutine::ioRepeat(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   return Action::createIORepeatAction(ioHandle, ioEventType);
 }
 

@@ -145,7 +145,7 @@ private:
 
     v_int32 callType;
     p_char8 data;
-    data::v_io_size size;
+    v_io_size size;
 
     void setOnHeadersCall();
     void setOnDataCall(p_char8 pData, v_buff_size pSize);

@@ -73,7 +73,7 @@ public:
 
   /**
    * Body size of chunked body is unknown.
-   * @return - `-1`. &id:oatpp::data::v_io_size;.
+   * @return - `-1`. &id:oatpp::v_io_size;.
    */
   v_buff_size getKnownSize() override;
 

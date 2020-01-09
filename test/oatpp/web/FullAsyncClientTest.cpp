@@ -153,8 +153,8 @@ public:
   }
 
   Action handleError(Error* error) override {
-    if(error->is<oatpp::data::AsyncIOError>()) {
-      auto e = static_cast<oatpp::data::AsyncIOError*>(error);
+    if(error->is<oatpp::AsyncIOError>()) {
+      auto e = static_cast<oatpp::AsyncIOError*>(error);
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. %s", error->what());
@@ -195,8 +195,8 @@ public:
   }
 
   Action handleError(Error* error) override {
-    if(error->is<oatpp::data::AsyncIOError>()) {
-      auto e = static_cast<oatpp::data::AsyncIOError*>(error);
+    if(error->is<oatpp::AsyncIOError>()) {
+      auto e = static_cast<oatpp::AsyncIOError*>(error);
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
     } else {
       OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "Error. %s", error->what());
@@ -242,8 +242,8 @@ public:
 
   Action handleError(Error* error) override {
     if(error) {
-      if(error->is<oatpp::data::AsyncIOError>()) {
-        auto e = static_cast<oatpp::data::AsyncIOError*>(error);
+      if(error->is<oatpp::AsyncIOError>()) {
+        auto e = static_cast<oatpp::AsyncIOError*>(error);
         OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %d", e->what(), e->getCode());
       } else {
         OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what());

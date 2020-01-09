@@ -38,7 +38,7 @@ MultipartBody::MultipartReadCallback::MultipartReadCallback(const std::shared_pt
   , m_readStream(nullptr, nullptr, 0)
 {}
 
-data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_size count, async::Action& action) {
+v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_size count, async::Action& action) {
   auto& part = *m_iterator;
   const auto& stream = part->getInputStream();
   if(!stream) {
@@ -53,16 +53,16 @@ data::v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_b
   return res;
 }
 
-data::v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_size count, async::Action& action) {
+v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_size count, async::Action& action) {
 
   if(m_state == STATE_FINISHED) {
     return 0;
   }
 
   p_char8 currBufferPtr = (p_char8) buffer;
-  data::v_io_size bytesLeft = count;
+  v_io_size bytesLeft = count;
 
-  data::v_io_size res = 0;
+  v_io_size res = 0;
 
   while(bytesLeft > 0 && action.isNone()) {
 
@@ -114,7 +114,7 @@ data::v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MultipartBody
 
-data::v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& multipart,
+v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& multipart,
                                             std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                             data::stream::BufferInputStream& readStream,
                                             void *buffer,
@@ -144,7 +144,7 @@ data::v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& mu
   return res;
 }
 
-data::v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart,
+v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart,
                                            std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                            data::stream::BufferInputStream& readStream,
                                            void *buffer,

@@ -60,9 +60,9 @@ public:
    * @param count - number of bytes to write.
    * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
    * caller MUST return this action on coroutine iteration.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.
@@ -131,7 +131,7 @@ public:
    * @param stream - stream to flush all data to.
    * @return - actual amount of bytes flushed.
    */
-  oatpp::data::v_io_size flushToStream(OutputStream* stream);
+  oatpp::v_io_size flushToStream(OutputStream* stream);
 
   /**
    * Write all bytes from buffer to stream in async manner.
@@ -195,7 +195,7 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes read. 0 - designates end of the buffer.
    */
-  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
+  v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.

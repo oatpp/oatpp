@@ -81,7 +81,7 @@ public:
     /*
      * this one used for testing purposes only
      */
-    data::v_io_size m_maxAvailableToRead;
+    v_io_size m_maxAvailableToRead;
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
@@ -104,7 +104,7 @@ public:
      * set to -1 in order to ignore this value.<br>
      * @param maxAvailableToRead - maximum available amount of bytes to read.
      */
-    void setMaxAvailableToRead(data::v_io_size maxAvailableToRead);
+    void setMaxAvailableToRead(v_io_size maxAvailableToRead);
 
     /**
      * Implements &id:oatpp::data::stream::InputStream::read; method.
@@ -113,9 +113,9 @@ public:
      * @param count - max count of bytes to read.
      * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
      * caller MUST return this action on coroutine iteration.
-     * @return - &id:oatpp::data::v_io_size;.
+     * @return - &id:oatpp::v_io_size;.
      */
-    data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
+    v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
     /**
      * Set InputStream I/O mode.
@@ -173,7 +173,7 @@ public:
     /*
      * this one used for testing purposes only
      */
-    data::v_io_size m_maxAvailableToWrtie;
+    v_io_size m_maxAvailableToWrtie;
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
@@ -196,7 +196,7 @@ public:
      * set to -1 in order to ignore this value.<br>
      * @param maxAvailableToWrite - maximum available amount of bytes to write.
      */
-    void setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite);
+    void setMaxAvailableToWrite(v_io_size maxAvailableToWrite);
 
     /**
      * Implements &id:oatpp::data::stream::OutputStream::write; method.
@@ -205,9 +205,9 @@ public:
      * @param count - data size.
      * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
      * caller MUST return this action on coroutine iteration.
-     * @return - &id:oatpp::data::v_io_size;.
+     * @return - &id:oatpp::v_io_size;.
      */
-    data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+    v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
     /**
      * Set OutputStream I/O mode.

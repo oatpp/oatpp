@@ -113,12 +113,12 @@ private:
   ChunkEntry* obtainNewEntry();
   void freeEntry(ChunkEntry* entry);
   
-  data::v_io_size writeToEntry(ChunkEntry* entry,
+  v_io_size writeToEntry(ChunkEntry* entry,
                                const void *data,
                                v_buff_size count,
                                v_buff_size& outChunkPos);
   
-  data::v_io_size writeToEntryFrom(ChunkEntry* entry,
+  v_io_size writeToEntryFrom(ChunkEntry* entry,
                                    v_buff_size inChunkPos,
                                    const void *data,
                                    v_buff_size count,
@@ -167,7 +167,7 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes written.
    */
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.
@@ -194,7 +194,7 @@ public:
    * @param count - number of bytes to read.
    * @return - actual number of bytes read from ChunkedBuffer and written to buffer.
    */
-  data::v_io_size readSubstring(void *buffer, v_buff_size pos, v_buff_size count);
+  v_io_size readSubstring(void *buffer, v_buff_size pos, v_buff_size count);
 
   /**
    * Create &id:oatpp::String; from part of ChunkedBuffer.

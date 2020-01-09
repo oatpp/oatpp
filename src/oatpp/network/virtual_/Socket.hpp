@@ -66,7 +66,7 @@ public:
    * @param maxToRead - maximum available amount of bytes to read.
    * @param maxToWrite - maximum available amount of bytes to write.
    */
-  void setMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite);
+  void setMaxAvailableToReadWrtie(v_io_size maxToRead, v_io_size maxToWrite);
 
   /**
    * Read data from socket.
@@ -76,7 +76,7 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual amount of data read from socket.
    */
-  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
+  v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Write data to socket.
@@ -86,7 +86,7 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual amount of data written to socket.
    */
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.

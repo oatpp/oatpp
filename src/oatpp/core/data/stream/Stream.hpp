@@ -30,7 +30,7 @@
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/data/buffer/Processor.hpp"
 
-#include "oatpp/core/data/IODefinitions.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
 
@@ -210,15 +210,15 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes written. 0 - to indicate end-of-file.
    */
-  virtual data::v_io_size write(const void *data, v_buff_size count, async::Action& action) = 0;
+  virtual v_io_size write(const void *data, v_buff_size count, async::Action& action) = 0;
 
-  data::v_io_size write(data::buffer::InlineWriteData& inlineData, async::Action& action);
+  v_io_size write(data::buffer::InlineWriteData& inlineData, async::Action& action);
 
-  data::v_io_size writeSimple(const void *data, v_buff_size count);
+  v_io_size writeSimple(const void *data, v_buff_size count);
 
-  data::v_io_size writeExactSizeDataSimple(data::buffer::InlineWriteData& inlineData);
+  v_io_size writeExactSizeDataSimple(data::buffer::InlineWriteData& inlineData);
 
-  data::v_io_size writeExactSizeDataSimple(const void *data, v_buff_size count);
+  v_io_size writeExactSizeDataSimple(const void *data, v_buff_size count);
 
   async::Action writeExactSizeDataAsyncInline(data::buffer::InlineWriteData& inlineData, async::Action&& nextAction);
 
@@ -227,27 +227,27 @@ public:
   /**
    * Same as `write((p_char8)data, std::strlen(data));`.
    * @param data - data to write.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  data::v_io_size writeSimple(const char* data){
+  v_io_size writeSimple(const char* data){
     return writeSimple((p_char8)data, std::strlen(data));
   }
 
   /**
    * Same as `write(str->getData(), str->getSize());`
    * @param str - data to write.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  data::v_io_size writeSimple(const oatpp::String& str){
+  v_io_size writeSimple(const oatpp::String& str){
     return writeSimple(str->getData(), str->getSize());
   }
 
   /**
    * Same as `write(&c, 1);`.
    * @param c - one char to write.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  data::v_io_size writeCharSimple(v_char8 c){
+  v_io_size writeCharSimple(v_char8 c){
     return writeSimple(&c, 1);
   }
 
@@ -303,19 +303,19 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
    */
-  virtual data::v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
+  virtual v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
 
-  data::v_io_size read(data::buffer::InlineReadData& inlineData, async::Action& action);
+  v_io_size read(data::buffer::InlineReadData& inlineData, async::Action& action);
 
-  data::v_io_size readExactSizeDataSimple(data::buffer::InlineReadData& inlineData);
+  v_io_size readExactSizeDataSimple(data::buffer::InlineReadData& inlineData);
 
-  data::v_io_size readExactSizeDataSimple(void *data, v_buff_size count);
+  v_io_size readExactSizeDataSimple(void *data, v_buff_size count);
 
   async::Action readExactSizeDataAsyncInline(data::buffer::InlineReadData& inlineData, async::Action&& nextAction);
 
   async::Action readSomeDataAsyncInline(data::buffer::InlineReadData& inlineData, async::Action&& nextAction);
 
-  data::v_io_size readSimple(void *data, v_buff_size count);
+  v_io_size readSimple(void *data, v_buff_size count);
 
 };
 
@@ -377,37 +377,37 @@ public:
   /**
    * Convert value to string and write to stream.
    * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  data::v_io_size writeAsString(v_int32 value);
+  v_io_size writeAsString(v_int32 value);
 
   /**
    * Convert value to string and write to stream.
    * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  data::v_io_size writeAsString(v_int64 value);
+  v_io_size writeAsString(v_int64 value);
 
   /**
    * Convert value to string and write to stream.
    * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  data::v_io_size writeAsString(v_float32 value);
+  v_io_size writeAsString(v_float32 value);
 
   /**
    * Convert value to string and write to stream.
    * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  data::v_io_size writeAsString(v_float64 value);
+  v_io_size writeAsString(v_float64 value);
 
   /**
    * Convert value to string and write to stream.
    * @param value
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;. <br>
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  data::v_io_size writeAsString(bool value);
+  v_io_size writeAsString(bool value);
 
 };
 
@@ -447,7 +447,7 @@ class StatelessDataTransferProcessor : public data::buffer::Processor {
 public:
   static StatelessDataTransferProcessor INSTANCE;
 public:
-  data::v_io_size suggestInputStreamReadSize() override;
+  v_io_size suggestInputStreamReadSize() override;
   v_int32 iterate(data::buffer::InlineReadData& dataIn, data::buffer::InlineReadData& dataOut) override;
 };
 
@@ -461,9 +461,9 @@ public:
  * @param processor - data processing to be applied during the transfer.
  * @return - the actual amout of bytes read from the `readCallback`.
  */
-data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
+v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
                          const base::ObjectHandle<WriteCallback>& writeCallback,
-                         data::v_io_size transferSize,
+                         v_io_size transferSize,
                          void* buffer,
                          v_buff_size bufferSize,
                          const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);

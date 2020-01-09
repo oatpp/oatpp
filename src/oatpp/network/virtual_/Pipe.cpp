@@ -36,18 +36,18 @@ oatpp::data::stream::IOMode Pipe::Reader::getInputStreamIOMode() {
   return m_ioMode;
 }
 
-void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
+void Pipe::Reader::setMaxAvailableToRead(v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
   
-data::v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action& action) {
+v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action& action) {
   
   if(m_maxAvailableToRead > -1 && count > m_maxAvailableToRead) {
     count = m_maxAvailableToRead;
   }
   
   Pipe& pipe = *m_pipe;
-  oatpp::data::v_io_size result;
+  oatpp::v_io_size result;
   
   if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
 
@@ -57,9 +57,9 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action&
       result = pipe.m_fifo.read(data, count);
     } else if (pipe.m_open) {
       action = async::Action::createWaitListAction(&m_waitList);
-      result = data::IOError::RETRY_READ;
+      result = IOError::RETRY_READ;
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = IOError::BROKEN_PIPE;
     }
 
   } else {
@@ -70,7 +70,7 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action&
     if (pipe.m_fifo.availableToRead() > 0) {
       result = pipe.m_fifo.read(data, count);
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = IOError::BROKEN_PIPE;
     }
   }
 
@@ -107,18 +107,18 @@ oatpp::data::stream::Context& Pipe::Writer::getOutputStreamContext() {
   return DEFAULT_CONTEXT;
 }
 
-void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
+void Pipe::Writer::setMaxAvailableToWrite(v_io_size maxAvailableToWrite) {
   m_maxAvailableToWrtie = maxAvailableToWrite;
 }
   
-data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::Action& action) {
   
   if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
     count = m_maxAvailableToWrtie;
   }
 
   Pipe& pipe = *m_pipe;
-  oatpp::data::v_io_size result;
+  oatpp::v_io_size result;
   
   if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
 
@@ -128,9 +128,9 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::
       result = pipe.m_fifo.write(data, count);
     } else if (pipe.m_open) {
       action = async::Action::createWaitListAction(&m_waitList);
-      result = data::IOError::RETRY_WRITE;
+      result = IOError::RETRY_WRITE;
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = IOError::BROKEN_PIPE;
     }
 
   } else {
@@ -141,7 +141,7 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::
     if (pipe.m_open && pipe.m_fifo.availableToWrite() > 0) {
       result = pipe.m_fifo.write(data, count);
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = IOError::BROKEN_PIPE;
     }
   }
 

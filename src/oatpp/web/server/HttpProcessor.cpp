@@ -272,9 +272,9 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* er
 
   if(error) {
 
-    if(error->is<oatpp::data::AsyncIOError>()) {
-      auto aioe = static_cast<oatpp::data::AsyncIOError*>(error);
-      if(aioe->getCode() == oatpp::data::IOError::BROKEN_PIPE) {
+    if(error->is<oatpp::AsyncIOError>()) {
+      auto aioe = static_cast<oatpp::AsyncIOError*>(error);
+      if(aioe->getCode() == oatpp::IOError::BROKEN_PIPE) {
         return aioe; // do not report BROKEN_PIPE error
       }
     }

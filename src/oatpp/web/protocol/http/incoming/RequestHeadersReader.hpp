@@ -69,7 +69,7 @@ private:
   };
 
 private:
-  data::v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
+  v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
                                               data::stream::InputStreamBufferedProxy* stream,
                                               async::Action& action);
 private:

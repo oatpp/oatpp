@@ -25,7 +25,7 @@
 #ifndef oatpp_data_buffer_Processor_hpp
 #define oatpp_data_buffer_Processor_hpp
 
-#include "oatpp/core/data/IODefinitions.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 #include "oatpp/core/base/ObjectHandle.hpp"
 #include <vector>
 
@@ -176,7 +176,7 @@ public:
    * the client MAY ask the processor for a suggested read size.
    * @return - suggested read size.
    */
-  virtual data::v_io_size suggestInputStreamReadSize() = 0;
+  virtual v_io_size suggestInputStreamReadSize() = 0;
 
   /**
    * Process data.
@@ -210,7 +210,7 @@ public:
    * the client MAY ask the processor for a suggested read size.
    * @return - suggested read size.
    */
-  data::v_io_size suggestInputStreamReadSize() override;
+  v_io_size suggestInputStreamReadSize() override;
 
   /**
    * Process data.

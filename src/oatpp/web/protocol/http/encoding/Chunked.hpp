@@ -39,7 +39,7 @@ private:
   bool m_writeChunkHeader = true;
   bool m_firstChunk = true;
   bool m_finished = false;
-  data::v_io_size m_lastFlush = 0;
+  v_io_size m_lastFlush = 0;
 public:
 
   /**
@@ -47,7 +47,7 @@ public:
    * the client MAY ask the processor for a suggested read size.
    * @return - suggested read size.
    */
-  data::v_io_size suggestInputStreamReadSize() override;
+  v_io_size suggestInputStreamReadSize() override;
 
   /**
    * Process data.
@@ -68,10 +68,10 @@ public:
   static constexpr v_int32 ERROR_CHUNK_HEADER_TOO_LONG = 100;
 private:
   data::stream::BufferOutputStream m_chunkHeaderBuffer;
-  data::v_io_size m_currentChunkSize;
+  v_io_size m_currentChunkSize;
   bool m_firstChunk;
   bool m_finished;
-  data::v_io_size m_lastFlush;
+  v_io_size m_lastFlush;
 private:
   v_int32 readHeader(data::buffer::InlineReadData& dataIn);
 public:
@@ -86,7 +86,7 @@ public:
    * the client MAY ask the processor for a suggested read size.
    * @return - suggested read size.
    */
-  data::v_io_size suggestInputStreamReadSize() override;
+  v_io_size suggestInputStreamReadSize() override;
 
   /**
    * Process data.

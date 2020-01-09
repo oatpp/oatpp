@@ -43,7 +43,7 @@ namespace oatpp { namespace network {
 
 oatpp::data::stream::DefaultInitializedContext Connection::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
-Connection::Connection(data::v_io_handle handle)
+Connection::Connection(v_io_handle handle)
   : m_handle(handle)
 {
 
@@ -76,7 +76,7 @@ Connection::~Connection(){
   close();
 }
 
-data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
+v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -90,14 +90,14 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
-      return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
+      return IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
-      return data::IOError::RETRY_WRITE;
+      return IOError::RETRY_WRITE;
     } else if(e == WSAECONNRESET) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
-      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -119,14 +119,14 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
-      return data::IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
+      return IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
-      return data::IOError::RETRY_WRITE;
+      return IOError::RETRY_WRITE;
     } else if(e == EPIPE) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
-      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -135,7 +135,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count, async::Ac
 
 }
 
-data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
+v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -149,14 +149,14 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
       }
-      return data::IOError::RETRY_READ; // For async io. In case socket is non-blocking
+      return IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
-      return data::IOError::RETRY_READ;
+      return IOError::RETRY_READ;
     } else if(e == WSAECONNRESET) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
-      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -173,14 +173,14 @@ data::v_io_size Connection::read(void *buff, v_buff_size count, async::Action& a
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
       }
-      return data::IOError::RETRY_READ; // For async io. In case socket is non-blocking
+      return IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
-      return data::IOError::RETRY_READ;
+      return IOError::RETRY_READ;
     } else if(e == ECONNRESET) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
-      return data::IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;

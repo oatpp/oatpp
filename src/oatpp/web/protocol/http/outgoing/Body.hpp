@@ -74,7 +74,7 @@ public:
   /**
    * Should return the known size of the body (if known).
    * If body size is unknown then should return -1.
-   * @return - &id:oatpp::data::v_io_size;.
+   * @return - &id:oatpp::v_io_size;.
    */
   virtual v_buff_size getKnownSize() = 0;
   

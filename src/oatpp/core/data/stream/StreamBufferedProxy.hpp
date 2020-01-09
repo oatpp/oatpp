@@ -53,7 +53,7 @@ public:
     return Shared_OutputStreamBufferedProxy_Pool::allocateShared(outputStream, memoryLabel);
   }
   
-  data::v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.
@@ -73,10 +73,10 @@ public:
    */
   Context& getOutputStreamContext() override;
 
-  data::v_io_size flush();
+  v_io_size flush();
   oatpp::async::CoroutineStarter flushAsync();
 
-  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
+  void setBufferPosition(v_io_size readPosition, v_io_size writePosition, bool canRead) {
     m_buffer.setBufferPosition(readPosition, writePosition, canRead);
   }
   
@@ -93,8 +93,8 @@ protected:
 public:
   InputStreamBufferedProxy(const std::shared_ptr<InputStream>& inputStream,
                            const oatpp::data::share::MemoryLabel& memoryLabel,
-                           data::v_io_size bufferReadPosition,
-                           data::v_io_size bufferWritePosition,
+                           v_io_size bufferReadPosition,
+                           v_io_size bufferWritePosition,
                            bool bufferCanRead)
     : m_inputStream(inputStream)
     , m_memoryLabel(memoryLabel)
@@ -110,18 +110,18 @@ public:
   
   static std::shared_ptr<InputStreamBufferedProxy> createShared(const std::shared_ptr<InputStream>& inputStream,
                                                                 const oatpp::data::share::MemoryLabel& memoryLabel,
-                                                                data::v_io_size bufferReadPosition,
-                                                                data::v_io_size bufferWritePosition,
+                                                                v_io_size bufferReadPosition,
+                                                                v_io_size bufferWritePosition,
                                                                 bool bufferCanRead)
   {
     return Shared_InputStreamBufferedProxy_Pool::allocateShared(inputStream, memoryLabel, bufferReadPosition, bufferWritePosition, bufferCanRead);
   }
   
-  data::v_io_size read(void *data, v_buff_size count, async::Action& action) override;
+  v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
-  data::v_io_size peek(void *data, v_buff_size count, async::Action& action);
+  v_io_size peek(void *data, v_buff_size count, async::Action& action);
 
-  data::v_io_size commitReadOffset(v_buff_size count);
+  v_io_size commitReadOffset(v_buff_size count);
 
   /**
    * Set InputStream I/O mode.
@@ -141,7 +141,7 @@ public:
    */
   Context& getInputStreamContext() override;
 
-  void setBufferPosition(data::v_io_size readPosition, data::v_io_size writePosition, bool canRead) {
+  void setBufferPosition(v_io_size readPosition, v_io_size writePosition, bool canRead) {
     m_buffer.setBufferPosition(readPosition, writePosition, canRead);
   }
   

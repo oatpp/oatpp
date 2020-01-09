@@ -22,22 +22,22 @@
  *
  ***************************************************************************/
 
-#include "CommunicationError.hpp"
+#include "IODefinitions.hpp"
 
-namespace oatpp { namespace web { namespace protocol {
-  
-CommunicationError::CommunicationError(oatpp::v_io_size ioStatus, const oatpp::String& message)
-  :std::runtime_error(message->std_str())
-  , m_ioStatus(ioStatus)
-  , m_message(message)
-{}
-  
-oatpp::v_io_size CommunicationError::getIOStatus() {
-  return m_ioStatus;
+#if defined(WIN32) || defined(_WIN32)
+  #include <WinSock2.h>
+#endif
+
+namespace oatpp {
+
+bool isValidIoHandle(v_io_handle handle) {
+
+#if defined(WIN32) || defined(_WIN32)
+  return handle != INVALID_SOCKET;
+#else
+  return handle >= 0;
+#endif
+
 }
 
-oatpp::String& CommunicationError::getMessage(){
-  return m_message;
 }
-  
-}}}

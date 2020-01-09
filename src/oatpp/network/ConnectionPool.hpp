@@ -89,8 +89,8 @@ public:
     ConnectionWrapper(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<Pool>& pool);
     ~ConnectionWrapper();
 
-    data::v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
-    data::v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
+    v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
+    v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
 
     void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
     oatpp::data::stream::IOMode getOutputStreamIOMode() override;

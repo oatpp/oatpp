@@ -26,7 +26,7 @@
 
 namespace oatpp { namespace data{ namespace stream {
   
-data::v_io_size OutputStreamBufferedProxy::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size OutputStreamBufferedProxy::write(const void *data, v_buff_size count, async::Action& action) {
   if(m_buffer.availableToWrite() > 0) {
     return m_buffer.write(data, count);
   } else {
@@ -50,7 +50,7 @@ Context& OutputStreamBufferedProxy::getOutputStreamContext() {
   return m_outputStream->getOutputStreamContext();
 }
 
-data::v_io_size OutputStreamBufferedProxy::flush() {
+v_io_size OutputStreamBufferedProxy::flush() {
   return m_buffer.flushToStream(m_outputStream.get());
 }
 
@@ -58,7 +58,7 @@ oatpp::async::CoroutineStarter OutputStreamBufferedProxy::flushAsync() {
   return m_buffer.flushToStreamAsync(m_outputStream);
 }
   
-data::v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count, async::Action& action) {
+v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count, async::Action& action) {
   
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.read(data, count);
@@ -72,7 +72,7 @@ data::v_io_size InputStreamBufferedProxy::read(void *data, v_buff_size count, as
   
 }
 
-data::v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count, async::Action& action) {
+v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count, async::Action& action) {
 
   if(m_buffer.availableToRead() > 0) {
     return m_buffer.peek(data, count);
@@ -86,7 +86,7 @@ data::v_io_size InputStreamBufferedProxy::peek(void *data, v_buff_size count, as
 
 }
 
-data::v_io_size InputStreamBufferedProxy::commitReadOffset(v_buff_size count) {
+v_io_size InputStreamBufferedProxy::commitReadOffset(v_buff_size count) {
   return m_buffer.commitReadOffset(count);
 }
 

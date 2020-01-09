@@ -29,7 +29,7 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
 const char* const StreamPartReader::TAG_NAME = "[oatpp::web::mime::multipart::StreamPartReader::TAG]";
 
 StreamPartReader::StreamPartReader(const std::shared_ptr<PartReaderStreamProvider>& streamProvider,
-                                   data::v_io_size maxDataSize)
+                                   v_io_size maxDataSize)
   : m_streamProvider(streamProvider)
   , m_maxDataSize(maxDataSize)
 {}
@@ -53,7 +53,7 @@ void StreamPartReader::onNewPart(const std::shared_ptr<Part>& part) {
 
 }
 
-void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) {
+void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {
@@ -92,7 +92,7 @@ void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 dat
 const char* const AsyncStreamPartReader::TAG_NAME = "[oatpp::web::mime::multipart::AsyncStreamPartReader::TAG]";
 
 AsyncStreamPartReader::AsyncStreamPartReader(const std::shared_ptr<AsyncPartReaderStreamProvider>& streamProvider,
-                                             data::v_io_size maxDataSize)
+                                             v_io_size maxDataSize)
   : m_streamProvider(streamProvider)
   , m_maxDataSize(maxDataSize)
 {}
@@ -142,7 +142,7 @@ async::CoroutineStarter AsyncStreamPartReader::onNewPartAsync(const std::shared_
 
 }
 
-async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) {
+async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {

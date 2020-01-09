@@ -25,7 +25,7 @@
 #ifndef oatpp_web_protocol_CommunicationError_hpp
 #define oatpp_web_protocol_CommunicationError_hpp
 
-#include "oatpp/core/data/IODefinitions.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace web { namespace protocol {
 
@@ -34,22 +34,22 @@ namespace oatpp { namespace web { namespace protocol {
  */
 class CommunicationError : public std::runtime_error {
 private:
-  oatpp::data::v_io_size m_ioStatus;
+  oatpp::v_io_size m_ioStatus;
   oatpp::String m_message;
 public:
 
   /**
    * Constructor.
-   * @param ioStatus - I/O error. See &id:oatpp::data::v_io_size;.
+   * @param ioStatus - I/O error. See &id:oatpp::v_io_size;.
    * @param message - error message.
    */
-  CommunicationError(oatpp::data::v_io_size ioStatus, const oatpp::String& message);
+  CommunicationError(oatpp::v_io_size ioStatus, const oatpp::String& message);
 
   /**
-   * Get I/O error. See &id:oatpp::data::v_io_size;.
-   * @return &id:oatpp::data::v_io_size;.
+   * Get I/O error. See &id:oatpp::v_io_size;.
+   * @return &id:oatpp::v_io_size;.
    */
-  oatpp::data::v_io_size getIOStatus();
+  oatpp::v_io_size getIOStatus();
 
   /**
    * Get error message.
@@ -74,10 +74,10 @@ struct ProtocolErrorInfo {
 
   /**
    * Constructor.
-   * @param pIOStatus - I/O level error. See &id:oatpp::data::v_io_size;.
+   * @param pIOStatus - I/O level error. See &id:oatpp::v_io_size;.
    * @param pStatus - configurable arbitrary data type.
    */
-  ProtocolErrorInfo(oatpp::data::v_io_size pIOStatus, const Status& pStatus)
+  ProtocolErrorInfo(oatpp::v_io_size pIOStatus, const Status& pStatus)
     : ioStatus(pIOStatus)
     , status(pStatus)
   {}
@@ -85,7 +85,7 @@ struct ProtocolErrorInfo {
   /**
    * Get I/O level error.
    */
-  oatpp::data::v_io_size ioStatus;
+  oatpp::v_io_size ioStatus;
 
   /**
    * Configurable arbitrary data type.
@@ -135,7 +135,7 @@ public:
  * @tparam Status - arbitrary data type.
  */
 template<class Status>
-class AsyncProtocolError : public oatpp::data::AsyncIOError {
+class AsyncProtocolError : public oatpp::AsyncIOError {
 public:
   /**
    * Cenvenience typedef for ProtocolErrorInfo
@@ -152,7 +152,7 @@ public:
    * @param message - error message.
    */
   AsyncProtocolError(const Info& info, const oatpp::String& message)
-    : oatpp::data::AsyncIOError("AsyncProtocolError", info.ioStatus)
+    : oatpp::AsyncIOError("AsyncProtocolError", info.ioStatus)
     , m_info(info)
     , m_message(message)
   {}

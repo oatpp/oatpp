@@ -31,7 +31,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EncoderChunked
 
-data::v_io_size EncoderChunked::suggestInputStreamReadSize() {
+v_io_size EncoderChunked::suggestInputStreamReadSize() {
   return 32767;
 }
 
@@ -122,7 +122,7 @@ DecoderChunked::DecoderChunked()
   , m_lastFlush(0)
 {}
 
-data::v_io_size DecoderChunked::suggestInputStreamReadSize() {
+v_io_size DecoderChunked::suggestInputStreamReadSize() {
   if(m_currentChunkSize > 0) {
     return m_currentChunkSize;
   }

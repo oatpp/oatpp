@@ -37,16 +37,16 @@ class Connection : public oatpp::base::Countable, public oatpp::data::stream::IO
 private:
   static oatpp::data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
-  data::v_io_handle m_handle;
+  v_io_handle m_handle;
   data::stream::IOMode m_mode;
 private:
   void setStreamIOMode(oatpp::data::stream::IOMode ioMode);
 public:
   /**
    * Constructor.
-   * @param handle - file descriptor (socket handle). See &id:oatpp::data::v_io_handle;.
+   * @param handle - file descriptor (socket handle). See &id:oatpp::v_io_handle;.
    */
-  Connection(data::v_io_handle handle);
+  Connection(v_io_handle handle);
 public:
 
   /**
@@ -61,9 +61,9 @@ public:
    * @param count - bytes count you want to write.
    * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
    * caller MUST return this action on coroutine iteration.
-   * @return - actual amount of bytes written. See &id:oatpp::data::v_io_size;.
+   * @return - actual amount of bytes written. See &id:oatpp::v_io_size;.
    */
-  data::v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
 
   /**
    * Implementation of &id:oatpp::data::stream::IOStream::read;.
@@ -71,9 +71,9 @@ public:
    * @param count - buffer size.
    * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
    * caller MUST return this action on coroutine iteration.
-   * @return - actual amount of bytes read. See &id:oatpp::data::v_io_size;.
+   * @return - actual amount of bytes read. See &id:oatpp::v_io_size;.
    */
-  data::v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
+  v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.
@@ -118,9 +118,9 @@ public:
 
   /**
    * Get socket handle.
-   * @return - socket handle. &id:oatpp::data::v_io_handle;.
+   * @return - socket handle. &id:oatpp::v_io_handle;.
    */
-  data::v_io_handle getHandle(){
+  v_io_handle getHandle(){
     return m_handle;
   }
   

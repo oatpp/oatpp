@@ -77,7 +77,7 @@ private:
 
 private:
 
-  data::v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
+  v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
                                               const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                               data::stream::ConsistentOutputStream* bufferStream,
                                               Result& result,

@@ -30,7 +30,7 @@ namespace oatpp { namespace data{ namespace stream {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WriteCallback
 
-data::v_io_size WriteCallback::write(data::buffer::InlineWriteData& inlineData, async::Action& action) {
+v_io_size WriteCallback::write(data::buffer::InlineWriteData& inlineData, async::Action& action) {
   auto res = write(inlineData.currBufferPtr, inlineData.bytesLeft, action);
   if(res > 0) {
     inlineData.inc(res);
@@ -38,7 +38,7 @@ data::v_io_size WriteCallback::write(data::buffer::InlineWriteData& inlineData, 
   return res;
 }
 
-data::v_io_size WriteCallback::writeSimple(const void *data, v_buff_size count) {
+v_io_size WriteCallback::writeSimple(const void *data, v_buff_size count) {
   async::Action action;
   auto res = write(data, count, action);
   if(!action.isNone()) {
@@ -48,7 +48,7 @@ data::v_io_size WriteCallback::writeSimple(const void *data, v_buff_size count) 
   return res;
 }
 
-data::v_io_size WriteCallback::writeExactSizeDataSimple(data::buffer::InlineWriteData& inlineData) {
+v_io_size WriteCallback::writeExactSizeDataSimple(data::buffer::InlineWriteData& inlineData) {
   auto initialCount = inlineData.bytesLeft;
   while(inlineData.bytesLeft > 0) {
     async::Action action;
@@ -57,14 +57,14 @@ data::v_io_size WriteCallback::writeExactSizeDataSimple(data::buffer::InlineWrit
       OATPP_LOGE("[oatpp::data::stream::WriteCallback::writeExactSizeDataSimple()]", "Error. writeExactSizeDataSimple() is called on a stream in Async mode.");
       throw std::runtime_error("[oatpp::data::stream::WriteCallback::writeExactSizeDataSimple()]: Error. writeExactSizeDataSimple() is called on a stream in Async mode.");
     }
-    if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
+    if(res == IOError::BROKEN_PIPE || res == IOError::ZERO_VALUE) {
       break;
     }
   }
   return initialCount - inlineData.bytesLeft;
 }
 
-data::v_io_size WriteCallback::writeExactSizeDataSimple(const void *data, v_buff_size count) {
+v_io_size WriteCallback::writeExactSizeDataSimple(const void *data, v_buff_size count) {
   data::buffer::InlineWriteData inlineData(data, count);
   return writeExactSizeDataSimple(inlineData);
 }
@@ -85,7 +85,7 @@ async::Action WriteCallback::writeExactSizeDataAsyncInline(data::buffer::InlineW
     } else {
       switch (res) {
         case IOError::BROKEN_PIPE:
-          return new AsyncIOError(data::IOError::BROKEN_PIPE);
+          return new AsyncIOError(IOError::BROKEN_PIPE);
         case IOError::ZERO_VALUE:
           break;
         case IOError::RETRY_READ:
@@ -132,7 +132,7 @@ async::CoroutineStarter WriteCallback::writeExactSizeDataAsync(const void* data,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ReadCallback
 
-data::v_io_size ReadCallback::read(data::buffer::InlineReadData& inlineData, async::Action& action) {
+v_io_size ReadCallback::read(data::buffer::InlineReadData& inlineData, async::Action& action) {
   auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
   if(res > 0) {
     inlineData.inc(res);
@@ -140,7 +140,7 @@ data::v_io_size ReadCallback::read(data::buffer::InlineReadData& inlineData, asy
   return res;
 }
 
-data::v_io_size ReadCallback::readExactSizeDataSimple(data::buffer::InlineReadData& inlineData) {
+v_io_size ReadCallback::readExactSizeDataSimple(data::buffer::InlineReadData& inlineData) {
   auto initialCount = inlineData.bytesLeft;
   while(inlineData.bytesLeft > 0) {
     async::Action action;
@@ -149,14 +149,14 @@ data::v_io_size ReadCallback::readExactSizeDataSimple(data::buffer::InlineReadDa
       OATPP_LOGE("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]", "Error. readExactSizeDataSimple() is called on a stream in Async mode.");
       throw std::runtime_error("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]: Error. readExactSizeDataSimple() is called on a stream in Async mode.");
     }
-    if(res == data::IOError::BROKEN_PIPE || res == data::IOError::ZERO_VALUE) {
+    if(res == IOError::BROKEN_PIPE || res == IOError::ZERO_VALUE) {
       break;
     }
   }
   return initialCount - inlineData.bytesLeft;
 }
 
-data::v_io_size ReadCallback::readExactSizeDataSimple(void *data, v_buff_size count) {
+v_io_size ReadCallback::readExactSizeDataSimple(void *data, v_buff_size count) {
   data::buffer::InlineReadData inlineData(data, count);
   return readExactSizeDataSimple(inlineData);
 }
@@ -177,7 +177,7 @@ async::Action ReadCallback::readExactSizeDataAsyncInline(data::buffer::InlineRea
     } else {
       switch (res) {
         case IOError::BROKEN_PIPE:
-          return new AsyncIOError(data::IOError::BROKEN_PIPE);
+          return new AsyncIOError(IOError::BROKEN_PIPE);
         case IOError::ZERO_VALUE:
           break;
         case IOError::RETRY_READ:
@@ -211,7 +211,7 @@ async::Action ReadCallback::readSomeDataAsyncInline(data::buffer::InlineReadData
     if(res < 0) {
       switch (res) {
         case IOError::BROKEN_PIPE:
-          return new AsyncIOError(data::IOError::BROKEN_PIPE);
+          return new AsyncIOError(IOError::BROKEN_PIPE);
 //          case IOError::ZERO_VALUE:
 //            break;
         case IOError::RETRY_READ:
@@ -231,7 +231,7 @@ async::Action ReadCallback::readSomeDataAsyncInline(data::buffer::InlineReadData
 
 }
 
-data::v_io_size ReadCallback::readSimple(void *data, v_buff_size count) {
+v_io_size ReadCallback::readSimple(void *data, v_buff_size count) {
   async::Action action;
   auto res = read(data, count, action);
   if(!action.isNone()) {
@@ -325,7 +325,7 @@ async::CoroutineStarter IOStream::initContextsAsync() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConsistentOutputStream
 
-data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
+v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   v_char8 a[16];
   v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -334,7 +334,7 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   return 0;
 }
 
-data::v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
+v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
   v_char8 a[32];
   v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
   if(size > 0){
@@ -343,7 +343,7 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
   return 0;
 }
 
-data::v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
+v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
   if(size > 0){
@@ -352,7 +352,7 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   return 0;
 }
 
-data::v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
+v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
   v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
   if(size > 0){
@@ -361,7 +361,7 @@ data::v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   return 0;
 }
   
-data::v_io_size ConsistentOutputStream::writeAsString(bool value) {
+v_io_size ConsistentOutputStream::writeAsString(bool value) {
   if(value){
     return writeSimple("true", 4);
   } else {
@@ -481,7 +481,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
 
 StatelessDataTransferProcessor StatelessDataTransferProcessor::INSTANCE;
 
-data::v_io_size StatelessDataTransferProcessor::suggestInputStreamReadSize() {
+v_io_size StatelessDataTransferProcessor::suggestInputStreamReadSize() {
   return 32767;
 }
 
@@ -512,9 +512,9 @@ v_int32 StatelessDataTransferProcessor::iterate(data::buffer::InlineReadData& da
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
 
-data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
+v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
                          const base::ObjectHandle<WriteCallback>& writeCallback,
-                         data::v_io_size transferSize,
+                         v_io_size transferSize,
                          void* buffer,
                          v_buff_size bufferSize,
                          const base::ObjectHandle<data::buffer::Processor>& processor)
@@ -524,7 +524,7 @@ data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
   data::buffer::InlineReadData outData;
 
   v_int32 procRes = data::buffer::Processor::Error::PROVIDE_DATA_IN;
-  data::v_io_size progress = 0;
+  v_io_size progress = 0;
 
   while(transferSize == 0 || progress < transferSize) {
 
@@ -540,11 +540,11 @@ data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
         desiredToRead = transferSize - progress;
       }
 
-      data::v_io_size res = 0;
+      v_io_size res = 0;
 
       if(desiredToRead > 0) {
-        res = data::IOError::RETRY_READ;
-        while (res == data::IOError::RETRY_READ || res == data::IOError::RETRY_WRITE) {
+        res = IOError::RETRY_READ;
+        while (res == IOError::RETRY_READ || res == IOError::RETRY_WRITE) {
           res = readCallback->readSimple(buffer, desiredToRead);
         }
       }
@@ -570,8 +570,8 @@ data::v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
       }
 
       case data::buffer::Processor::Error::FLUSH_DATA_OUT: {
-        data::v_io_size res = data::IOError::RETRY_WRITE;
-        while(res == data::IOError::RETRY_WRITE || res == data::IOError::RETRY_READ) {
+        v_io_size res = IOError::RETRY_WRITE;
+        while(res == IOError::RETRY_WRITE || res == IOError::RETRY_READ) {
           res = writeCallback->writeSimple(outData.currBufferPtr, outData.bytesLeft);
         }
         if(res > 0) {
@@ -655,7 +655,7 @@ async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& re
         }
 
         Action action;
-        data::v_io_size res = 0;
+        v_io_size res = 0;
 
         if(desiredToRead > 0) {
           res = m_readCallback->read(m_readData.currBufferPtr, desiredToRead, action);
@@ -669,20 +669,20 @@ async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& re
 
           switch(res) {
 
-            case data::IOError::BROKEN_PIPE:
+            case IOError::BROKEN_PIPE:
               return error<AsyncTransferError>("[oatpp::data::stream::transferAsync]: Error. ReadCallback. BROKEN_PIPE.");
 
-            case data::IOError::ZERO_VALUE:
+            case IOError::ZERO_VALUE:
               m_inData.set(nullptr, 0);
               break;
 
-            case data::IOError::RETRY_READ:
+            case IOError::RETRY_READ:
               if(!action.isNone()) {
                 return action;
               }
               return repeat();
 
-            case data::IOError::RETRY_WRITE:
+            case IOError::RETRY_WRITE:
               if(!action.isNone()) {
                 return action;
               }

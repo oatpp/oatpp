@@ -62,14 +62,14 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
     std::shared_ptr<virtual_::Interface> m_interface;
-    data::v_io_size m_maxAvailableToRead;
-    data::v_io_size m_maxAvailableToWrite;
+    v_io_size m_maxAvailableToRead;
+    v_io_size m_maxAvailableToWrite;
     std::shared_ptr<virtual_::Interface::ConnectionSubmission> m_submission;
   public:
     
     ConnectCoroutine(const std::shared_ptr<virtual_::Interface>& interface,
-                     data::v_io_size maxAvailableToRead,
-                     data::v_io_size maxAvailableToWrite)
+                     v_io_size maxAvailableToRead,
+                     v_io_size maxAvailableToWrite)
       : m_interface(interface)
       , m_maxAvailableToRead(maxAvailableToRead)
       , m_maxAvailableToWrite(maxAvailableToWrite)

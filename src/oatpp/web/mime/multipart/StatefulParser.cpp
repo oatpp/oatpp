@@ -138,7 +138,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
   auto size = inlineData.bytesLeft;
 
   p_char8 sampleData = m_nextBoundarySample->getData();
-  data::v_io_size sampleSize = m_nextBoundarySample->getSize();
+  v_io_size sampleSize = m_nextBoundarySample->getSize();
 
   if (m_currPartIndex == 0) {
     sampleData = m_firstBoundarySample->getData();
@@ -148,7 +148,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
     sampleSize = m_nextBoundarySample->getSize();
   }
 
-  data::v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;
+  v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;
   if(checkSize > size) {
     checkSize = size;
   }

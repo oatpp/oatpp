@@ -93,7 +93,7 @@ ProcessingPipeline::ProcessingPipeline(const std::vector<base::ObjectHandle<Proc
   }
 }
 
-data::v_io_size ProcessingPipeline::suggestInputStreamReadSize() {
+v_io_size ProcessingPipeline::suggestInputStreamReadSize() {
   return m_processors[0]->suggestInputStreamReadSize();
 }
 

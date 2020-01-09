@@ -141,7 +141,7 @@ Reader::Reader(Multipart* multipart)
   , m_parser(multipart->getBoundary(), m_partsParser, nullptr)
 {}
 
-data::v_io_size Reader::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size Reader::write(const void *data, v_buff_size count, async::Action& action) {
   data::buffer::InlineWriteData inlineData(data, count);
   m_parser.parseNext(inlineData, action);
   return count - inlineData.bytesLeft;
@@ -164,7 +164,7 @@ AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
   , m_multipart(multipart)
 {}
 
-data::v_io_size AsyncReader::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size AsyncReader::write(const void *data, v_buff_size count, async::Action& action) {
 
   data::buffer::InlineWriteData inlineData(data, count);
   while(inlineData.bytesLeft > 0 && !m_parser.finished() && action.isNone()) {

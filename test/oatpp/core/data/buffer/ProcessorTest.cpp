@@ -45,7 +45,7 @@ public:
     : m_bufferSize(bufferSize)
   {}
 
-  oatpp::data::v_io_size suggestInputStreamReadSize() override {
+  oatpp::v_io_size suggestInputStreamReadSize() override {
     return m_bufferSize;
   }
 

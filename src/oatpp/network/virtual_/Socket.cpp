@@ -39,16 +39,16 @@ std::shared_ptr<Socket> Socket::createShared(const std::shared_ptr<Pipe>& pipeIn
   return std::make_shared<Socket>(pipeIn, pipeOut);
 }
 
-void Socket::setMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite) {
+void Socket::setMaxAvailableToReadWrtie(v_io_size maxToRead, v_io_size maxToWrite) {
   m_pipeIn->getReader()->setMaxAvailableToRead(maxToRead);
   m_pipeOut->getWriter()->setMaxAvailableToWrite(maxToWrite);
 }
   
-data::v_io_size Socket::read(void *data, v_buff_size count, async::Action& action) {
+v_io_size Socket::read(void *data, v_buff_size count, async::Action& action) {
   return m_pipeIn->getReader()->read(data, count, action);
 }
 
-data::v_io_size Socket::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size Socket::write(const void *data, v_buff_size count, async::Action& action) {
   return m_pipeOut->getWriter()->write(data, count, action);
 }
 
