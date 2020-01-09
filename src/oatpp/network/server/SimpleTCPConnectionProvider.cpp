@@ -291,7 +291,6 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
   fd_set set;
   struct timeval timeout;
-  int rv;
   FD_ZERO(&set);
   FD_SET(m_serverHandle, &set);
 
