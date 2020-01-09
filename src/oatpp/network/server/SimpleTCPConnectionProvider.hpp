@@ -75,7 +75,7 @@ public:
 
 private:
   v_word16 m_port;
-  bool m_closed;
+  std::atomic<bool> m_closed;
   oatpp::data::v_io_handle m_serverHandle;
   bool m_useExtendedConnections;
 private:

@@ -299,9 +299,9 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   timeout.tv_usec = 0;
 
   while(!m_closed) {
-    OATPP_LOGD("AAA", "select begin");
+    OATPP_LOGD("AAA", "select %d, %d begin", this, m_serverHandle);
     auto res = select(m_serverHandle + 1, &set, nullptr, nullptr, &timeout);
-    OATPP_LOGD("AAA", "select end res=%d", res);
+    OATPP_LOGD("AAA", "select %d, %d end res=%d", this, m_serverHandle, res);
     if (res >= 0) {
       break;
     }
