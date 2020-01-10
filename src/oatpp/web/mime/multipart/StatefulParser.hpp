@@ -145,7 +145,7 @@ private:
 
     v_int32 callType;
     p_char8 data;
-    data::v_io_size size;
+    v_io_size size;
 
     void setOnHeadersCall();
     void setOnDataCall(p_char8 pData, v_buff_size pSize);
@@ -191,10 +191,10 @@ private:
 
 private:
 
-  ListenerCall parseNext_Boundary(data::stream::AsyncInlineWriteData& inlineData);
-  void         parseNext_AfterBoundary(data::stream::AsyncInlineWriteData& inlineData);
-  ListenerCall parseNext_Headers(data::stream::AsyncInlineWriteData& inlineData);
-  ListenerCall parseNext_Data(data::stream::AsyncInlineWriteData& inlineData);
+  ListenerCall parseNext_Boundary(data::buffer::InlineWriteData& inlineData);
+  void         parseNext_AfterBoundary(data::buffer::InlineWriteData& inlineData);
+  ListenerCall parseNext_Headers(data::buffer::InlineWriteData& inlineData);
+  ListenerCall parseNext_Data(data::buffer::InlineWriteData& inlineData);
 
 public:
 
@@ -210,20 +210,10 @@ public:
 
   /**
    * Parse next chunk of bytes.
-   * @param data - pointer to data.
-   * @param size - data size.
-   * @return - exact number of parsed bytes. <br>
-   * returned value may be less than size given.
+   * @param inlineData - inline data.
+   * @param action - Async Action in case Async Listener was provided in constructor.
    */
-  v_buff_size parseNext(p_char8 data, v_buff_size size);
-
-  /**
-   * Parse next chunk of bytes in Async-Inline manner.
-   * @param inlineData - data.
-   * @param nextAction - action on when done with current chunk of data.
-   * @return - &id:oatpp::async::Action;.
-   */
-  async::Action parseNextAsyncInline(data::stream::AsyncInlineWriteData& inlineData, async::Action&& nextAction);
+  void parseNext(data::buffer::InlineWriteData& inlineData, async::Action& action);
 
   /**
    * Check if parser done parsing data.

@@ -55,13 +55,13 @@ public:
    * Declare `Content-Length` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  void declareHeaders(Headers& headers) noexcept override;
+  void declareHeaders(Headers& headers) override;
 
   /**
    * Write body data to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(OutputStream* stream) noexcept override;
+  void writeToStream(OutputStream* stream) override;
 
   /**
    * Return known size of the body.
@@ -78,7 +78,7 @@ public:
   private:
     std::shared_ptr<BufferBody> m_body;
     std::shared_ptr<OutputStream> m_stream;
-    oatpp::data::stream::AsyncInlineWriteData m_inlineData;
+    oatpp::data::buffer::InlineWriteData m_inlineData;
   public:
 
     /**

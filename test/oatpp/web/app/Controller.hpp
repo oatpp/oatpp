@@ -177,7 +177,7 @@ public:
       , m_iterations(iterations)
     {}
 
-    data::v_io_size read(void *buffer, v_buff_size count) override {
+    v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
       (void)count;
       if(m_counter < m_iterations) {
         std::memcpy(buffer, m_text->getData(), m_text->getSize());
@@ -195,7 +195,7 @@ public:
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
-      (std::make_shared<ReadCallback>(text, numIterations->getValue()), nullptr, 1024);
+      (std::make_shared<ReadCallback>(text, numIterations->getValue()));
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }
 
@@ -211,7 +211,7 @@ public:
 
     request->transferBody(&multipartReader);
 
-    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart, chunkSize->getValue());
+    auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(multipart);
 
     return OutgoingResponse::createShared(Status::CODE_200, responseBody);
 

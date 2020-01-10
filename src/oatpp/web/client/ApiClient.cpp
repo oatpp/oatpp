@@ -69,14 +69,14 @@ ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_buff_size siz
   return result;
 }
   
-void ApiClient::formatPath(oatpp::data::stream::OutputStream* stream,
+void ApiClient::formatPath(oatpp::data::stream::ConsistentOutputStream* stream,
                            const PathPattern& pathPattern,
                            const std::shared_ptr<StringToParamMap>& params) {
   
   for (auto it = pathPattern.begin(); it != pathPattern.end(); ++ it) {
     const PathSegment& seg = *it;
     if(seg.type == PathSegment::SEG_PATH) {
-      stream->write(seg.text.data(), seg.text.size());
+      stream->writeSimple(seg.text.data(), seg.text.size());
     } else {
       auto key = oatpp::String(seg.text.data(), seg.text.length(), false);
       auto& param = params->get(key, oatpp::data::mapping::type::AbstractObjectWrapper::empty());
@@ -85,27 +85,27 @@ void ApiClient::formatPath(oatpp::data::stream::OutputStream* stream,
         throw std::runtime_error("[oatpp::web::client::ApiClient]: Path parameter missing");
       }
       auto value = oatpp::utils::conversion::primitiveToStr(param);
-      stream->data::stream::OutputStream::write(value);
+      stream->data::stream::OutputStream::writeSimple(value);
     }
   }
   
 }
 
-void ApiClient::addPathQueryParams(oatpp::data::stream::OutputStream* stream,
+void ApiClient::addPathQueryParams(data::stream::ConsistentOutputStream* stream,
                                    const std::shared_ptr<StringToParamMap>& params) {
   
   auto curr = params->getFirstEntry();
   if(curr != nullptr) {
-    stream->write("?", 1);
-    stream->data::stream::OutputStream::write(curr->getKey());
-    stream->write("=", 1);
-    stream->data::stream::OutputStream::write(oatpp::utils::conversion::primitiveToStr(curr->getValue()));
+    stream->writeSimple("?", 1);
+    stream->writeSimple(curr->getKey());
+    stream->writeSimple("=", 1);
+    stream->writeSimple(oatpp::utils::conversion::primitiveToStr(curr->getValue()));
     curr = curr->getNext();
     while (curr != nullptr) {
-      stream->write("&", 1);
-      stream->data::stream::OutputStream::write(curr->getKey());
-      stream->write("=", 1);
-      stream->data::stream::OutputStream::write(oatpp::utils::conversion::primitiveToStr(curr->getValue()));
+      stream->writeSimple("&", 1);
+      stream->writeSimple(curr->getKey());
+      stream->writeSimple("=", 1);
+      stream->writeSimple(oatpp::utils::conversion::primitiveToStr(curr->getValue()));
       curr = curr->getNext();
     }
   }

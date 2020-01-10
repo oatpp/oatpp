@@ -122,7 +122,7 @@ private:
     if(value){
       stream->writeAsString(value.get()->getValue());
     } else {
-      stream->write("null", 4);
+      stream->writeSimple("null", 4);
     }
   }
   

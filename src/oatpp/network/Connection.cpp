@@ -43,21 +43,40 @@ namespace oatpp { namespace network {
 
 oatpp::data::stream::DefaultInitializedContext Connection::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
-Connection::Connection(data::v_io_handle handle)
+Connection::Connection(v_io_handle handle)
   : m_handle(handle)
 {
+
 #if defined(WIN32) || defined(_WIN32)
-    // in Windows, there is no reliable method to get if a socket is blocking or not.
-    // Eevery socket is created blocking in Windows so we assume this state and pray.
-    m_mode = data::stream::BLOCKING;
+
+  // in Windows, there is no reliable method to get if a socket is blocking or not.
+  // Eevery socket is created blocking in Windows so we assume this state and pray.
+
+  setStreamIOMode(data::stream::BLOCKING);
+
+#else
+
+  auto flags = fcntl(m_handle, F_GETFL);
+
+  if (flags < 0) {
+    throw std::runtime_error("[oatpp::network::Connection::Connection()]: Error. Can't get socket flags.");
+  }
+
+  if((flags & O_NONBLOCK) > 0) {
+    m_mode = data::stream::IOMode::ASYNCHRONOUS;
+  } else {
+    m_mode = data::stream::IOMode::BLOCKING;
+  }
+
 #endif
+
 }
 
 Connection::~Connection(){
   close();
 }
 
-data::v_io_size Connection::write(const void *buff, v_buff_size count){
+v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -68,13 +87,17 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_WRITE; // For async io. In case socket is non_blocking
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
+      return IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
-      return data::IOError::RETRY_WRITE;
+      return IOError::RETRY_WRITE;
     } else if(e == WSAECONNRESET) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -90,16 +113,20 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
 
   auto result = ::send(m_handle, buff, (size_t)count, flags);
 
-  if(result <= 0) {
+  if(result < 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_WRITE; // For async io. In case socket is non_blocking
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      }
+      return IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
-      return data::IOError::RETRY_WRITE;
+      return IOError::RETRY_WRITE;
     } else if(e == EPIPE) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -108,7 +135,7 @@ data::v_io_size Connection::write(const void *buff, v_buff_size count){
 
 }
 
-data::v_io_size Connection::read(void *buff, v_buff_size count){
+v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -119,17 +146,20 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
     auto e = WSAGetLastError();
 
     if(e == WSAEWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_READ; // For async io. In case socket is non_blocking
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      }
+      return IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == WSAEINTR) {
-      return data::IOError::RETRY_READ;
+      return IOError::RETRY_READ;
     } else if(e == WSAECONNRESET) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
-
 
 #else
 
@@ -137,16 +167,20 @@ data::v_io_size Connection::read(void *buff, v_buff_size count){
 
   auto result = ::read(m_handle, buff, (size_t)count);
 
-  if(result <= 0) {
+  if(result < 0) {
     auto e = errno;
     if(e == EAGAIN || e == EWOULDBLOCK){
-      return data::IOError::WAIT_RETRY_READ; // For async io. In case socket is non_blocking
+      if(m_mode == data::stream::ASYNCHRONOUS) {
+        action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
+      }
+      return IOError::RETRY_READ; // For async io. In case socket is non-blocking
     } else if(e == EINTR) {
-      return data::IOError::RETRY_READ;
+      return IOError::RETRY_READ;
     } else if(e == ECONNRESET) {
-      return data::IOError::BROKEN_PIPE;
+      return IOError::BROKEN_PIPE;
     } else {
       //OATPP_LOGD("Connection", "write errno=%d", e);
+      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
   return result;
@@ -168,12 +202,12 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       }
       m_mode = data::stream::BLOCKING;
       break;
-    case data::stream::NON_BLOCKING:
+    case data::stream::ASYNCHRONOUS:
       flags = 1;
       if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
-          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
-      m_mode = data::stream::NON_BLOCKING;
+      m_mode = data::stream::ASYNCHRONOUS;
       break;
   }
 
@@ -193,81 +227,27 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
         throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
       }
+      m_mode = data::stream::BLOCKING;
       break;
 
-    case oatpp::data::stream::IOMode::NON_BLOCKING:
+    case oatpp::data::stream::IOMode::ASYNCHRONOUS:
       flags = (flags | O_NONBLOCK);
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
-        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::NON_BLOCKING.");
+        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
+      m_mode = data::stream::ASYNCHRONOUS;
       break;
 
   }
 }
 #endif
-
-#if defined(WIN32) || defined(_WIN32)
-oatpp::data::stream::IOMode Connection::getStreamIOMode() {
-  return m_mode;
-}
-#else
-oatpp::data::stream::IOMode Connection::getStreamIOMode() {
-
-  auto flags = fcntl(m_handle, F_GETFL);
-  if (flags < 0) {
-    throw std::runtime_error("[oatpp::network::Connection::getStreamIOMode()]: Error. Can't get socket flags.");
-  }
-
-  if((flags & O_NONBLOCK) > 0) {
-    return oatpp::data::stream::IOMode::NON_BLOCKING;
-  }
-
-  return oatpp::data::stream::IOMode::BLOCKING;
-
-}
-#endif
-
-oatpp::async::Action Connection::suggestOutputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-  }
-
-  switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_WRITE:
-      return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-    case oatpp::data::IOError::RETRY_WRITE:
-      return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-  }
-
-  throw std::runtime_error("[oatpp::network::Connection::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
-
-}
-
-oatpp::async::Action Connection::suggestInputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-  }
-
-  switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_READ:
-      return oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-    case oatpp::data::IOError::RETRY_READ:
-      return oatpp::async::Action::createIORepeatAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
-  }
-
-  throw std::runtime_error("[oatpp::network::Connection::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
-
-
-}
 
 void Connection::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   setStreamIOMode(ioMode);
 }
 
 oatpp::data::stream::IOMode Connection::getOutputStreamIOMode() {
-  return getStreamIOMode();
+  return m_mode;
 }
 
 oatpp::data::stream::Context& Connection::getOutputStreamContext() {
@@ -279,7 +259,7 @@ void Connection::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 }
 
 oatpp::data::stream::IOMode Connection::getInputStreamIOMode() {
-  return getStreamIOMode();
+  return m_mode;
 }
 
 oatpp::data::stream::Context& Connection::getInputStreamContext() {

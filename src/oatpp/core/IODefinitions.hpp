@@ -22,26 +22,33 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_IODefinitions_hpp
-#define oatpp_data_IODefinitions_hpp
+#ifndef oatpp_IODefinitions_hpp
+#define oatpp_IODefinitions_hpp
 
 #include "oatpp/core/async/Error.hpp"
 #include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp {
 
 /**
  * Represents I/O handle (ex.: file descriptor).
  */
 #if defined(WIN32) || defined(_WIN32)
 	#if defined(_WIN64)
-	typedef unsigned long long v_io_handle;
+	  typedef unsigned long long v_io_handle;
 	#else
-	typedef unsigned long v_io_handle;
+	  typedef unsigned long v_io_handle;
 	#endif
 #else
-typedef int v_io_handle;
+  typedef int v_io_handle;
 #endif
+
+/**
+ * Check if IO handle is valid.
+ * @param handle - IO handle.
+ * @return - `true` if valid.
+ */
+bool isValidIoHandle(v_io_handle handle);
 
 /**
  * All I/O buffer operations (like read/write(buffer, size)) should return v_io_size. <br>
@@ -92,18 +99,6 @@ enum IOError : v_io_size {
    */
   RETRY_WRITE = -1003,
 
-  /**
-   * I/O operation is not currently available due to some reason.
-   * Client should wait then retry read.
-   */
-  WAIT_RETRY_READ = -1004,
-
-  /**
-   * I/O operation is not currently available due to some reason.
-   * Client should wait then retry write.
-   */
-  WAIT_RETRY_WRITE = -1005
-
 };
 
 /**
@@ -144,6 +139,6 @@ public:
 
 };
 
-}}
+}
 
-#endif //oatpp_data_IODefinitions_hpp
+#endif // oatpp_IODefinitions_hpp

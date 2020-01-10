@@ -152,17 +152,23 @@ void HttpProcessor::Task::run(){
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
   auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE));
 
-  do {
+  try {
 
-    response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
+    do {
 
-    if(response) {
-      response->send(m_connection.get(), &headersOutBuffer);
-    } else {
-      return;
-    }
+      response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
 
-  } while(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+      if (response) {
+        response->send(m_connection.get(), &headersOutBuffer);
+      } else {
+        return;
+      }
+
+    } while (connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+
+  } catch (...) {
+    return;
+  }
 
   if(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
     auto handler = response->getConnectionUpgradeHandler();
@@ -266,9 +272,9 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* er
 
   if(error) {
 
-    if(error->is<oatpp::data::AsyncIOError>()) {
-      auto aioe = static_cast<oatpp::data::AsyncIOError*>(error);
-      if(aioe->getCode() == oatpp::data::IOError::BROKEN_PIPE) {
+    if(error->is<oatpp::AsyncIOError>()) {
+      auto aioe = static_cast<oatpp::AsyncIOError*>(error);
+      if(aioe->getCode() == oatpp::IOError::BROKEN_PIPE) {
         return aioe; // do not report BROKEN_PIPE error
       }
     }

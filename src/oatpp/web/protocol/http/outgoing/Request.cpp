@@ -78,16 +78,16 @@ void Request::send(data::stream::OutputStream* stream){
 
   oatpp::data::stream::BufferOutputStream buffer;
 
-  buffer.write(m_method.getData(), m_method.getSize());
-  buffer.write(" /", 2);
-  buffer.write(m_path.getData(), m_path.getSize());
-  buffer.write(" ", 1);
-  buffer.write("HTTP/1.1", 8);
-  buffer.write("\r\n", 2);
+  buffer.writeSimple(m_method.getData(), m_method.getSize());
+  buffer.writeSimple(" /", 2);
+  buffer.writeSimple(m_path.getData(), m_path.getSize());
+  buffer.writeSimple(" ", 1);
+  buffer.writeSimple("HTTP/1.1", 8);
+  buffer.writeSimple("\r\n", 2);
 
   http::Utils::writeHeaders(m_headers, &buffer);
 
-  buffer.write("\r\n", 2);
+  buffer.writeSimple("\r\n", 2);
 
   if(m_body) {
 
@@ -133,16 +133,16 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
         m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
       }
       
-      m_headersWriteBuffer->write(m_this->m_method.getData(), m_this->m_method.getSize());
-      m_headersWriteBuffer->write(" /", 2);
-      m_headersWriteBuffer->write(m_this->m_path.getData(), m_this->m_path.getSize());
-      m_headersWriteBuffer->write(" ", 1);
-      m_headersWriteBuffer->write("HTTP/1.1", 8);
-      m_headersWriteBuffer->write("\r\n", 2);
+      m_headersWriteBuffer->writeSimple(m_this->m_method.getData(), m_this->m_method.getSize());
+      m_headersWriteBuffer->writeSimple(" /", 2);
+      m_headersWriteBuffer->writeSimple(m_this->m_path.getData(), m_this->m_path.getSize());
+      m_headersWriteBuffer->writeSimple(" ", 1);
+      m_headersWriteBuffer->writeSimple("HTTP/1.1", 8);
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       http::Utils::writeHeaders(m_this->m_headers, m_headersWriteBuffer.get());
       
-      m_headersWriteBuffer->write("\r\n", 2);
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       const auto& body = m_this->m_body;
 

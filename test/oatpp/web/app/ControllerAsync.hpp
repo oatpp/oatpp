@@ -138,7 +138,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(Chunked)
 
-    class ReadCallback : public oatpp::data::stream::AsyncReadCallback {
+    class ReadCallback : public oatpp::data::stream::ReadCallback {
     private:
       oatpp::String m_text;
       v_int32 m_counter;
@@ -151,13 +151,13 @@ public:
         , m_iterations(iterations)
       {}
 
-      oatpp::async::Action readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) override {
+      v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
         if(m_counter < m_iterations) {
-          std::memcpy(inlineData.currBufferPtr, m_text->getData(), m_text->getSize());
-          inlineData.inc(m_text->getSize());
+          std::memcpy(buffer, m_text->getData(), m_text->getSize());
+          m_counter ++;
+          return m_text->getSize();
         }
-        m_counter ++;
-        return std::forward<oatpp::async::Action>(nextAction);
+        return 0;
       }
 
     };
@@ -167,7 +167,7 @@ public:
       auto numIterations = oatpp::utils::conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
 
       auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
-        (nullptr, std::make_shared<ReadCallback>(text, numIterations), 1024);
+        (std::make_shared<ReadCallback>(text, numIterations));
 
       return _return(OutgoingResponse::createShared(Status::CODE_200, body));
     }
@@ -196,7 +196,7 @@ public:
 
     Action respond() {
 
-      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart, m_chunkSize);
+      auto responseBody = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(m_multipart);
       return _return(OutgoingResponse::createShared(Status::CODE_200, responseBody));
 
     }

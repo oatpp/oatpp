@@ -30,9 +30,9 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
   
 void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
   auto encodedValue = Utils::escapeString(data, size, false);
-  stream->writeChar('\"');
-  stream->write(encodedValue);
-  stream->writeChar('\"');
+  stream->writeCharSimple('\"');
+  stream->writeSimple(encodedValue);
+  stream->writeCharSimple('\"');
 }
 
 void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data) {
@@ -40,45 +40,45 @@ void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream
 }
   
 void Serializer::writeList(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractList::ObjectWrapper& list, const std::shared_ptr<Config>& config) {
-  stream->writeChar('[');
+  stream->writeCharSimple('[');
   bool first = true;
   auto curr = list->getFirstNode();
   
   while(curr != nullptr){
     auto value = curr->getData();
     if(value || config->includeNullFields) {
-      (first) ? first = false : stream->write(",", 1);
+      (first) ? first = false : stream->writeSimple(",", 1);
       writeValue(stream, curr->getData(), config);
     }
     curr = curr->getNext();
   }
   
-  stream->writeChar(']');
+  stream->writeCharSimple(']');
 }
 
 void Serializer::writeFieldsMap(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractFieldsMap::ObjectWrapper& map, const std::shared_ptr<Config>& config) {
-  stream->writeChar('{');
+  stream->writeCharSimple('{');
   bool first = true;
   auto curr = map->getFirstEntry();
   
   while(curr != nullptr){
     auto value = curr->getValue();
     if(value || config->includeNullFields) {
-      (first) ? first = false : stream->write(",", 1);
+      (first) ? first = false : stream->writeSimple(",", 1);
       auto key = curr->getKey();
       writeString(stream, key->getData(), key->getSize());
-      stream->write(":", 1);
+      stream->writeSimple(":", 1);
       writeValue(stream, curr->getValue(), config);
     }
     curr = curr->getNext();
   }
   
-  stream->writeChar('}');
+  stream->writeCharSimple('}');
 }
 
 void Serializer::writeObject(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<Object>& polymorph, const std::shared_ptr<Config>& config) {
   
-  stream->writeChar('{');
+  stream->writeCharSimple('{');
   
   bool first = true;
   auto fields = polymorph.valueType->properties->getList();
@@ -88,22 +88,22 @@ void Serializer::writeObject(oatpp::data::stream::ConsistentOutputStream* stream
     
     auto value = field->get(object);
     if(value || config->includeNullFields) {
-      (first) ? first = false : stream->write(",", 1);
+      (first) ? first = false : stream->writeSimple(",", 1);
       writeString(stream, field->name);
-      stream->write(":", 1);
+      stream->writeSimple(":", 1);
       writeValue(stream, value, config);
     }
     
   }
   
-  stream->writeChar('}');
+  stream->writeCharSimple('}');
   
 }
   
 void Serializer::writeValue(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config) {
 
   if(!polymorph) {
-    stream->write("null", 4);
+    stream->writeSimple("null", 4);
     return;
   }
   

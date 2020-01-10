@@ -41,7 +41,7 @@ std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::
   return std::make_shared<ConnectionProvider>(interface);
 }
 
-void ConnectionProvider::setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite) {
+void ConnectionProvider::setSocketMaxAvailableToReadWrtie(v_io_size maxToRead, v_io_size maxToWrite) {
   m_maxAvailableToRead = maxToRead;
   m_maxAvailableToWrite = maxToWrite;
 }

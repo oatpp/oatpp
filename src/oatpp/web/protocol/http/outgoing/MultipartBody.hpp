@@ -53,11 +53,6 @@ private:
    */
   typedef oatpp::data::stream::ReadCallback ReadCallback;
 
-  /*
-   * Convenience typedef for &id:oatpp::data::stream::AsyncReadCallback;.
-   */
-  typedef oatpp::data::stream::AsyncReadCallback AsyncReadCallback;
-
 private:
 
   static constexpr v_int32 STATE_BOUNDARY = 0;
@@ -67,13 +62,13 @@ private:
   static constexpr v_int32 STATE_FINISHED = 4;
 
 private:
-  static data::v_io_size readBoundary(const std::shared_ptr<Multipart>& multipart,
+  static v_io_size readBoundary(const std::shared_ptr<Multipart>& multipart,
                                       std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                       data::stream::BufferInputStream& readStream,
                                       void *buffer,
                                       v_buff_size count);
 
-  static data::v_io_size readHeaders(const std::shared_ptr<Multipart>& multipart,
+  static v_io_size readHeaders(const std::shared_ptr<Multipart>& multipart,
                                      std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                      data::stream::BufferInputStream& readStream,
                                      void *buffer,
@@ -87,28 +82,11 @@ private:
     v_int32 m_state;
     oatpp::data::stream::BufferInputStream m_readStream;
   private:
-    data::v_io_size readBody(void *buffer, v_buff_size count);
+    v_io_size readBody(void *buffer, v_buff_size count, async::Action& action);
   public:
 
     MultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
-
-    data::v_io_size read(void *buffer, v_buff_size count) override;
-
-  };
-
-private:
-
-  class AsyncMultipartReadCallback : public AsyncReadCallback {
-  private:
-    std::shared_ptr<Multipart> m_multipart;
-    std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
-    v_int32 m_state;
-    oatpp::data::stream::BufferInputStream m_readStream;
-  public:
-
-    AsyncMultipartReadCallback(const std::shared_ptr<Multipart>& multipart);
-
-    oatpp::async::Action readAsyncInline(oatpp::data::stream::AsyncInlineReadData& inlineData, oatpp::async::Action&& nextAction) override;
+    v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
 
   };
 
@@ -120,25 +98,19 @@ public:
    * Constructor.
    * @param multipart - multipart object.
    */
-
-  /**
-   * Constructor.
-   * @param multipart - multipart object.
-   * @param chunkBufferSize - buffer used for chunks in the `Transfer-Encoding: chunked` body.
-   */
-  MultipartBody(const std::shared_ptr<Multipart>& multipart, data::v_io_size chunkBufferSize = 4096);
+  MultipartBody(const std::shared_ptr<Multipart>& multipart);
 
   /**
    * Declare `Transfer-Encoding: chunked`, `Content-Type: multipart/<type>` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  void declareHeaders(Headers& headers) noexcept override;
+  void declareHeaders(Headers& headers) override;
 
   /**
    * Write body data to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(OutputStream* stream) noexcept override;
+  void writeToStream(OutputStream* stream) override;
 
   /**
    * Write body data to stream in asynchronous manner.

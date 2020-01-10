@@ -123,7 +123,7 @@ public:
 
 };
 
-void runServer(v_int32 port, v_int32 delaySeconds, v_int32 iterations, bool stable, const std::shared_ptr<app::Controller>& controller, bool wakeupServer) {
+void runServer(v_int32 port, v_int32 delaySeconds, v_int32 iterations, bool stable, const std::shared_ptr<app::Controller>& controller) {
 
   TestServerComponent component(port);
 
@@ -131,7 +131,7 @@ void runServer(v_int32 port, v_int32 delaySeconds, v_int32 iterations, bool stab
 
   runner.addController(controller);
 
-  runner.run([&runner, delaySeconds, iterations, stable, controller, wakeupServer] {
+  runner.run([&runner, delaySeconds, iterations, stable, controller] {
 
     for(v_int32 i = 0; i < iterations; i ++) {
       std::this_thread::sleep_for(std::chrono::seconds(delaySeconds));
@@ -140,15 +140,6 @@ void runServer(v_int32 port, v_int32 delaySeconds, v_int32 iterations, bool stab
         OATPP_LOGI("Server", "Available=%d", (v_int32)controller->available.load());
       }
     }
-
-    if(wakeupServer) {
-
-      runner.getServer()->stop();
-      OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-      connectionProvider->getConnection();
-
-    }
-
 
   }, std::chrono::minutes(10));
 
@@ -226,7 +217,7 @@ void ClientRetryTest::onRun() {
     OATPP_LOGD(TAG, "Waiting for server to start...");
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    runServer(m_port, 1, 1, true, controller, true);
+    runServer(m_port, 1, 1, true, controller);
 
     for(std::thread& thread : threads) {
       thread.join();
@@ -271,7 +262,7 @@ void ClientRetryTest::onRun() {
 
     });
 
-    runServer(m_port, 2, 6, false, controller, true);
+    runServer(m_port, 2, 6, false, controller);
 
     clientThread.join();
 

@@ -62,7 +62,16 @@ public:
   };
 
 private:
-  data::v_io_size readHeadersSection(data::stream::InputStreamBufferedProxy* stream, Result& result);
+
+  struct ReadHeadersIteration {
+    v_word32 accumulator = 0;
+    bool done = false;
+  };
+
+private:
+  v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
+                                              data::stream::InputStreamBufferedProxy* stream,
+                                              async::Action& action);
 private:
   oatpp::data::stream::BufferOutputStream* m_bufferStream;
   v_buff_size m_readChunkSize;

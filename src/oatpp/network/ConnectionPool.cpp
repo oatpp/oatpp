@@ -64,20 +64,12 @@ ConnectionPool::ConnectionWrapper::~ConnectionWrapper() {
   }
 }
 
-data::v_io_size ConnectionPool::ConnectionWrapper::write(const void *buff, v_buff_size count) {
-  return m_connection->write(buff, count);
+v_io_size ConnectionPool::ConnectionWrapper::write(const void *buff, v_buff_size count, async::Action& action) {
+  return m_connection->write(buff, count, action);
 }
 
-data::v_io_size ConnectionPool::ConnectionWrapper::read(void *buff, v_buff_size count) {
-  return m_connection->read(buff, count);
-}
-
-oatpp::async::Action ConnectionPool::ConnectionWrapper::suggestOutputStreamAction(data::v_io_size ioResult) {
-  return m_connection->suggestOutputStreamAction(ioResult);
-}
-
-oatpp::async::Action ConnectionPool::ConnectionWrapper::suggestInputStreamAction(data::v_io_size ioResult) {
-  return m_connection->suggestInputStreamAction(ioResult);
+v_io_size ConnectionPool::ConnectionWrapper::read(void *buff, v_buff_size count, async::Action& action) {
+  return m_connection->read(buff, count, action);
 }
 
 void ConnectionPool::ConnectionWrapper::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {

@@ -28,58 +28,41 @@
 #include "./Body.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 /**
  * Body with `Transfer-Encoding: chunked`.
  */
-class ChunkedBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<ChunkedBody>  {
+class ChunkedBody : public oatpp::base::Countable, public Body {
 public:
   /**
    * Convenience typedef for &id:oatpp::data::stream::ReadCallback;.
    */
   typedef oatpp::data::stream::ReadCallback ReadCallback;
-
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::AsyncReadCallback;.
-   */
-  typedef oatpp::data::stream::AsyncReadCallback AsyncReadCallback;
-private:
-  bool writeData(OutputStream* stream, const void* data, v_buff_size size);
 private:
   std::shared_ptr<ReadCallback> m_readCallback;
-  std::shared_ptr<AsyncReadCallback> m_asyncReadCallback;
-  p_char8 m_buffer;
-  v_buff_size m_bufferSize;
+  std::shared_ptr<data::buffer::IOBuffer> m_buffer;
 public:
 
   /**
-   * Constructor. Must set either `ReadCallback` or `AsyncReadCallback`.
-   * @param readCallback - &id:oatpp::data::stream::ReadCallback;.
-   * @param asyncReadCallback - &id:oatpp::data::stream::AsyncReadCallback;.
-   * @param chunkBufferSize - max size of the chunk. Will allocate buffer of size `chunkBufferSize`.
+   * Constructor.
+   * @param readCallback
    */
-  ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback,
-              const std::shared_ptr<AsyncReadCallback>& asyncReadCallback,
-              v_buff_size chunkBufferSize);
-
-  /**
-   * virtual destructor.
-   */
-  ~ChunkedBody();
+  ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback);
 
   /**
    * Declare `Transfer-Encoding: chunked` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  void declareHeaders(Headers& headers) noexcept override;
+  void declareHeaders(Headers& headers) override;
 
   /**
    * Write body data to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void writeToStream(OutputStream* stream) noexcept override;
+  void writeToStream(OutputStream* stream) override;
 
   /**
    * Write body data to stream in asynchronous manner.
@@ -90,7 +73,7 @@ public:
 
   /**
    * Body size of chunked body is unknown.
-   * @return - `-1`. &id:oatpp::data::v_io_size;.
+   * @return - `-1`. &id:oatpp::v_io_size;.
    */
   v_buff_size getKnownSize() override;
 

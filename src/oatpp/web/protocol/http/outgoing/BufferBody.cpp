@@ -36,7 +36,7 @@ BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr
 {}
 
 async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
+  return m_stream->writeExactSizeDataAsyncInline(m_inlineData, finish());
 }
 
 BufferBody::BufferBody(const oatpp::String& buffer)
@@ -47,12 +47,12 @@ std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer
   return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
 }
 
-void BufferBody::declareHeaders(Headers& headers) noexcept {
+void BufferBody::declareHeaders(Headers& headers) {
   headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
 }
 
-void BufferBody::writeToStream(OutputStream* stream) noexcept {
-  oatpp::data::stream::writeExactSizeData(stream, m_buffer->getData(), m_buffer->getSize());
+void BufferBody::writeToStream(OutputStream* stream) {
+  stream->writeExactSizeDataSimple(m_buffer->getData(), m_buffer->getSize());
 }
 
 oatpp::async::CoroutineStarter BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {

@@ -70,7 +70,7 @@ public:
    *
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  void declareHeaders(Headers& headers) noexcept override;
+  void declareHeaders(Headers& headers) override;
 
   /**
    * Return known size of the body.

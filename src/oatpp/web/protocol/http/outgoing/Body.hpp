@@ -52,7 +52,7 @@ public:
    * Declare headers describing body.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  virtual void declareHeaders(Headers& headers) noexcept = 0;
+  virtual void declareHeaders(Headers& headers) = 0;
   
   /**
    * write content to stream
@@ -62,7 +62,7 @@ public:
    * Write body content to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  virtual void writeToStream(OutputStream* stream) noexcept = 0;
+  virtual void writeToStream(OutputStream* stream) = 0;
 
   /**
    * Same as &l:Body::writeToStream (); but async.
@@ -74,7 +74,7 @@ public:
   /**
    * Should return the known size of the body (if known).
    * If body size is unknown then should return -1.
-   * @return - &id:oatpp::data::v_io_size;.
+   * @return - &id:oatpp::v_io_size;.
    */
   virtual v_buff_size getKnownSize() = 0;
   

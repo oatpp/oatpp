@@ -49,7 +49,7 @@ const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER
 const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT = "peer_address_format";
 const char* const SimpleTCPConnectionProvider::ExtendedConnection::PROPERTY_PEER_PORT = "peer_port";
 
-SimpleTCPConnectionProvider::ExtendedConnection::ExtendedConnection(data::v_io_handle handle, data::stream::Context::Properties&& properties)
+SimpleTCPConnectionProvider::ExtendedConnection::ExtendedConnection(v_io_handle handle, data::stream::Context::Properties&& properties)
   : Connection(handle)
   , m_context(data::stream::StreamType::STREAM_INFINITE, std::forward<data::stream::Context::Properties>(properties))
 {}
@@ -92,7 +92,7 @@ void SimpleTCPConnectionProvider::close() {
 
 #if defined(WIN32) || defined(_WIN32)
 
-oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
+oatpp::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
   int iResult;
 
@@ -140,15 +140,20 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to listen() failed.");
   }
 
+  u_long flags = 1;
+  if(NO_ERROR != ioctlsocket(ListenSocket, FIONBIO, &flags)) {
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to ioctlsocket failed.");
+  }
+
   return ListenSocket;
 
 }
 
 #else
 
-oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
+oatpp::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
-  oatpp::data::v_io_handle serverHandle;
+  oatpp::v_io_handle serverHandle;
   v_int32 ret;
   int yes = 1;
 
@@ -182,7 +187,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     return -1 ;
   }
 
-  fcntl(serverHandle, F_SETFL, 0);//O_NONBLOCK);
+  fcntl(serverHandle, F_SETFL, O_NONBLOCK);
 
   return serverHandle;
 
@@ -190,7 +195,7 @@ oatpp::data::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
 #endif
 
-bool SimpleTCPConnectionProvider::prepareConnectionHandle(oatpp::data::v_io_handle handle) {
+bool SimpleTCPConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
 
   if (handle < 0) {
     v_int32 error = errno;
@@ -218,7 +223,11 @@ bool SimpleTCPConnectionProvider::prepareConnectionHandle(oatpp::data::v_io_hand
 
 std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getDefaultConnection() {
 
-  oatpp::data::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
+  oatpp::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
+
+  if(!oatpp::isValidIoHandle(handle)) {
+    return nullptr;
+  }
 
   if(prepareConnectionHandle(handle)) {
     return std::make_shared<Connection>(handle);
@@ -235,7 +244,11 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
 
   data::stream::Context::Properties properties;
 
-  oatpp::data::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
+  oatpp::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
+
+  if(!oatpp::isValidIoHandle(handle)) {
+    return nullptr;
+  }
 
   if (clientAddress.ss_family == AF_INET) {
 
@@ -278,11 +291,32 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
 
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection() {
+
+  fd_set set;
+  struct timeval timeout;
+  FD_ZERO(&set);
+  FD_SET(m_serverHandle, &set);
+
+  timeout.tv_sec = 1;
+  timeout.tv_usec = 0;
+
+  while(!m_closed) {
+
+    auto res = select(m_serverHandle + 1, &set, nullptr, nullptr, &timeout);
+
+    if (res >= 0) {
+      break;
+    }
+
+  }
+
   if(m_useExtendedConnections) {
     return getExtendedConnection();
   }
+
   return getDefaultConnection();
+
 }
 
 }}}

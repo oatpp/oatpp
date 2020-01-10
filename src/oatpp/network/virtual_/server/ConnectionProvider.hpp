@@ -40,8 +40,8 @@ private:
   std::shared_ptr<virtual_::Interface> m_interface;
   std::shared_ptr<virtual_::Interface::ListenerLock> m_listenerLock;
   bool m_open;
-  data::v_io_size m_maxAvailableToRead;
-  data::v_io_size m_maxAvailableToWrite;
+  v_io_size m_maxAvailableToRead;
+  v_io_size m_maxAvailableToWrite;
 public:
 
   /**
@@ -63,7 +63,7 @@ public:
    * @param maxToRead - maximum available amount of bytes to read.
    * @param maxToWrite - maximum available amount of bytes to write.
    */
-  void setSocketMaxAvailableToReadWrtie(data::v_io_size maxToRead, data::v_io_size maxToWrite);
+  void setSocketMaxAvailableToReadWrtie(v_io_size maxToRead, v_io_size maxToWrite);
 
   /**
    * Break accepting loop.

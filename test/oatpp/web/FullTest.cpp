@@ -295,7 +295,7 @@ void FullTest::onRun() {
       { // test Big Echo with body
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
-          stream.write("0123456789", 10);
+          stream.writeSimple("0123456789", 10);
         }
         auto data = stream.toString();
         auto response = client->echoBody(data, connection);
@@ -391,7 +391,7 @@ void FullTest::onRun() {
         v_int32 numIterations = 10;
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < numIterations; i++) {
-          stream.write(sample->getData(), sample->getSize());
+          stream.writeSimple(sample->getData(), sample->getSize());
         }
         auto data = stream.toString();
         auto response = client->getChunked(sample, numIterations, connection);
@@ -408,7 +408,7 @@ void FullTest::onRun() {
         map["value2"] = "World";
         auto multipart = createMultipart(map);
 
-        auto body = std::make_shared<MultipartBody>(multipart, i + 1);
+        auto body = std::make_shared<MultipartBody>(multipart);
 
         auto response = client->multipartTest(i + 1, body);
         OATPP_ASSERT(response->getStatusCode() == 200);
@@ -447,15 +447,6 @@ void FullTest::onRun() {
       }
 
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Stop server and unblock accepting thread
-
-    runner.getServer()->stop();
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-    connectionProvider->getConnection();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }, std::chrono::minutes(10));
 
