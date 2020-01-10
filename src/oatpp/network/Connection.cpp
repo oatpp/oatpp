@@ -227,6 +227,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
         throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
       }
+      m_mode = data::stream::BLOCKING;
       break;
 
     case oatpp::data::stream::IOMode::ASYNCHRONOUS:
@@ -234,6 +235,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
         throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
+      m_mode = data::stream::ASYNCHRONOUS;
       break;
 
   }
