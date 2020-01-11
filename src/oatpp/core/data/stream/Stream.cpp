@@ -149,7 +149,7 @@ v_io_size ReadCallback::readExactSizeDataSimple(data::buffer::InlineReadData& in
       OATPP_LOGE("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]", "Error. readExactSizeDataSimple() is called on a stream in Async mode.");
       throw std::runtime_error("[oatpp::data::stream::ReadCallback::readExactSizeDataSimple()]: Error. readExactSizeDataSimple() is called on a stream in Async mode.");
     }
-    if(res == IOError::BROKEN_PIPE || res == IOError::ZERO_VALUE) {
+    if(res <= 0 && res != IOError::RETRY_READ && res != IOError::RETRY_WRITE) {
       break;
     }
   }
@@ -177,7 +177,7 @@ async::Action ReadCallback::readExactSizeDataAsyncInline(data::buffer::InlineRea
     } else {
       switch (res) {
         case IOError::BROKEN_PIPE:
-          return new AsyncIOError(IOError::BROKEN_PIPE);
+          return new AsyncIOError("[oatpp::data::stream::readExactSizeDataAsyncInline()]: IOError::BROKEN_PIPE", IOError::BROKEN_PIPE);
         case IOError::ZERO_VALUE:
           break;
         case IOError::RETRY_READ:
@@ -202,7 +202,7 @@ async::Action ReadCallback::readSomeDataAsyncInline(data::buffer::InlineReadData
   if(inlineData.bytesLeft > 0) {
 
     async::Action action;
-    auto res = read(inlineData.currBufferPtr, inlineData.bytesLeft, action);
+    auto res = read(inlineData, action);
 
     if(!action.isNone()) {
       return action;
