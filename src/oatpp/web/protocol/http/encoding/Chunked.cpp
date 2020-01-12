@@ -237,5 +237,26 @@ v_int32 DecoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ChunkedEncoderProvider
+
+oatpp::String ChunkedEncoderProvider::getEncodingName() {
+  return "chunked";
+}
+
+std::shared_ptr<data::buffer::Processor> ChunkedEncoderProvider::getProcessor() {
+  return std::make_shared<EncoderChunked>();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ChunkedDecoderProvider
+
+oatpp::String ChunkedDecoderProvider::getEncodingName() {
+  return "chunked";
+}
+
+std::shared_ptr<data::buffer::Processor> ChunkedDecoderProvider::getProcessor() {
+  return std::make_shared<DecoderChunked>();
+}
 
 }}}}}
