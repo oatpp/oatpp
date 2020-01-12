@@ -48,7 +48,7 @@ namespace oatpp {
  * @param handle - IO handle.
  * @return - `true` if valid.
  */
-bool isValidIoHandle(v_io_handle handle);
+bool isValidIOHandle(v_io_handle handle);
 
 /**
  * All I/O buffer operations (like read/write(buffer, size)) should return v_io_size. <br>

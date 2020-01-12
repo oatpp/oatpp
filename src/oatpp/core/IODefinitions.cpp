@@ -30,7 +30,7 @@
 
 namespace oatpp {
 
-bool isValidIoHandle(v_io_handle handle) {
+bool isValidIOHandle(v_io_handle handle) {
 
 #if defined(WIN32) || defined(_WIN32)
   return handle != INVALID_SOCKET;

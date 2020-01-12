@@ -225,7 +225,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getD
 
   oatpp::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
 
-  if(!oatpp::isValidIoHandle(handle)) {
+  if(!oatpp::isValidIOHandle(handle)) {
     return nullptr;
   }
 
@@ -246,7 +246,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
 
   oatpp::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
 
-  if(!oatpp::isValidIoHandle(handle)) {
+  if(!oatpp::isValidIOHandle(handle)) {
     return nullptr;
   }
 
