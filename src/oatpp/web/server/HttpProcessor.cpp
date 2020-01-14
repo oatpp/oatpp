@@ -159,7 +159,7 @@ void HttpProcessor::Task::run(){
       response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
 
       if (response) {
-        response->send(m_connection.get(), &headersOutBuffer);
+        response->send(m_connection.get(), &headersOutBuffer, nullptr);
       } else {
         return;
       }
@@ -245,7 +245,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
-  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer)
+  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer, nullptr)
          .next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
 
 }
