@@ -26,13 +26,14 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-BufferBody::BufferBody(const oatpp::String& buffer)
+BufferBody::BufferBody(const oatpp::String& buffer, const data::share::StringKeyLabel& contentType)
   : m_buffer(buffer)
+  , m_contentType(contentType)
   , m_inlineData(m_buffer->getData(), m_buffer->getSize())
 {}
 
-std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer) {
-  return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
+std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer, const data::share::StringKeyLabel& contentType) {
+  return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer, contentType);
 }
 
 v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action& action) {
@@ -57,8 +58,9 @@ v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action& actio
 }
 
 void BufferBody::declareHeaders(Headers& headers) {
-  (void)headers;
-  // DO NOTHING
+  if(m_contentType) {
+    headers.put(Header::CONTENT_TYPE, m_contentType);
+  }
 }
 
 p_char8 BufferBody::getKnownData() {

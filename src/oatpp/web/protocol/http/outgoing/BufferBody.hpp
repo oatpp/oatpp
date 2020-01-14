@@ -40,17 +40,20 @@ public:
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_BufferBody_Pool, BufferBody, 32)
 private:
   oatpp::String m_buffer;
+  oatpp::data::share::StringKeyLabel m_contentType;
   data::buffer::InlineReadData m_inlineData;
 public:
-  BufferBody(const oatpp::String& buffer);
+  BufferBody(const oatpp::String& buffer, const data::share::StringKeyLabel& contentType);
 public:
 
   /**
    * Create shared BufferBody.
    * @param buffer - &id:oatpp::String;.
+   * @param contentType - type of the content.
    * @return - `std::shared_ptr` to BufferBody.
    */
-  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer);
+  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer,
+                                                  const data::share::StringKeyLabel& contentType = data::share::StringKeyLabel());
 
   /**
    * Read operation callback.

@@ -141,9 +141,7 @@ public:
   ENDPOINT("POST", "body-dto", postBodyDto,
            BODY_DTO(TestDto::ObjectWrapper, body)) {
     //OATPP_LOGV(TAG, "POST body %s", body->c_str());
-    auto dto = TestDto::createShared();
-    dto->testValue = body->testValue;
-    return createDtoResponse(Status::CODE_200, dto);
+    return createDtoResponse(Status::CODE_200, body);
   }
 
   ENDPOINT("POST", "echo", echo,

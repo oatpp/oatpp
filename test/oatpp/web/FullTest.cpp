@@ -292,6 +292,16 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testValue == "my_test_body");
       }
 
+      { // test POST with dto body
+        auto dtoIn = app::TestDto::createShared();
+        dtoIn->testValueInt = i;
+        auto response = client->postBodyDto(dtoIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto dtoOut = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        OATPP_ASSERT(dtoOut);
+        OATPP_ASSERT(dtoOut->testValueInt->getValue() == i);
+      }
+
       { // test Big Echo with body
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {

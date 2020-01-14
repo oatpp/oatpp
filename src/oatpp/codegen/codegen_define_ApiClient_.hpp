@@ -127,7 +127,10 @@ __body = OATPP_MACRO_FIRSTARG PARAM_LIST;
 // BODY_DTO MACRO
 
 #define OATPP_MACRO_API_CLIENT_BODY_DTO(TYPE, PARAM_LIST) \
-__body = oatpp::web::protocol::http::outgoing::DtoBody::createShared(OATPP_MACRO_FIRSTARG PARAM_LIST, m_objectMapper.get());
+__body = oatpp::web::protocol::http::outgoing::BufferBody::createShared( \
+    m_objectMapper->writeToString(OATPP_MACRO_FIRSTARG PARAM_LIST), \
+    m_objectMapper->getInfo().http_content_type \
+  );
 
 // BODY_STRING MACRO
 
