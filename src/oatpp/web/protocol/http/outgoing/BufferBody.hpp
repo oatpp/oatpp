@@ -34,12 +34,13 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  * Implementation of &id:oatpp::web::protocol::http::outgoing::Body; class.
  * Implements functionality to use &id::oatpp::String; as data source for http body.
  */
-class BufferBody : public oatpp::base::Countable, public Body, public std::enable_shared_from_this<BufferBody> {
+class BufferBody : public oatpp::base::Countable, public Body {
 public:
   OBJECT_POOL(Http_Outgoing_BufferBody_Pool, BufferBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_BufferBody_Pool, BufferBody, 32)
 private:
   oatpp::String m_buffer;
+  data::buffer::InlineReadData m_inlineData;
 public:
   BufferBody(const oatpp::String& buffer);
 public:
@@ -52,55 +53,32 @@ public:
   static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer);
 
   /**
+   * Read operation callback.
+   * @param buffer - pointer to buffer.
+   * @param count - size of the buffer in bytes.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
+   */
+  v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
+
+  /**
    * Declare `Content-Length` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   void declareHeaders(Headers& headers) override;
 
   /**
-   * Write body data to stream.
-   * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
+   * Pointer to the body known data.
+   * @return - `p_char8`.
    */
-  void writeToStream(OutputStream* stream) override;
+  p_char8 getKnownData() override;
 
   /**
    * Return known size of the body.
    * @return - `v_buff_size`.
    */
   v_buff_size getKnownSize() override;
-  
-public:
-
-  /**
-   * Coroutine used to write &l:BufferBody; to &id:oatpp::data::stream::OutputStream;.
-   */
-  class WriteToStreamCoroutine : public oatpp::async::Coroutine<WriteToStreamCoroutine> {
-  private:
-    std::shared_ptr<BufferBody> m_body;
-    std::shared_ptr<OutputStream> m_stream;
-    oatpp::data::buffer::InlineWriteData m_inlineData;
-  public:
-
-    /**
-     * Constructor.
-     * @param body - &l:BufferBody;.
-     * @param stream - &id:oatpp::data::stream::OutputStream;.
-     */
-    WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
-                           const std::shared_ptr<OutputStream>& stream);
-    
-    Action act() override;
-    
-  };
-  
-public:
-
-  /**
-   * Start &l:BufferBody::WriteToStreamCoroutine; to write buffer data to stream.
-   * @param stream - &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::CoroutineStarter;.
-   */
-  oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) override;
   
 };
   

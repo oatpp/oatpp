@@ -32,7 +32,7 @@
 #include "oatpp/web/mime/multipart/Reader.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
-#include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
+#include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -169,22 +169,44 @@ public:
     oatpp::String m_text;
     v_int32 m_counter;
     v_int32 m_iterations;
+    data::buffer::InlineReadData m_inlineData;
   public:
 
     ReadCallback(const oatpp::String& text, v_int32 iterations)
       : m_text(text)
       , m_counter(0)
       , m_iterations(iterations)
+      , m_inlineData(text->getData(), text->getSize())
     {}
 
     v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
-      (void)count;
+
       if(m_counter < m_iterations) {
-        std::memcpy(buffer, m_text->getData(), m_text->getSize());
-        m_counter ++;
-        return m_text->getSize();
+
+        v_buff_size desiredToRead = m_inlineData.bytesLeft;
+
+        if (desiredToRead > 0) {
+
+          if (desiredToRead > count) {
+            desiredToRead = count;
+          }
+
+          std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+          m_inlineData.inc(desiredToRead);
+
+          if (m_inlineData.bytesLeft == 0) {
+            m_inlineData.set(m_text->getData(), m_text->getSize());
+            m_counter++;
+          }
+
+          return desiredToRead;
+
+        }
+
       }
+
       return 0;
+
     }
 
   };
@@ -194,7 +216,7 @@ public:
            PATH(Int32, numIterations, "num-iterations"),
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
-    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::ChunkedBody>
+    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::StreamingBody>
       (std::make_shared<ReadCallback>(text, numIterations->getValue()));
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }

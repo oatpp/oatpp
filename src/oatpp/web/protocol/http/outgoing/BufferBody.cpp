@@ -24,39 +24,45 @@
 
 #include "BufferBody.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
-
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-
-BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
-                                                           const std::shared_ptr<OutputStream>& stream)
-  : m_body(body)
-  , m_stream(stream)
-  , m_inlineData(m_body->m_buffer->getData(), m_body->m_buffer->getSize())
-{}
-
-async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return m_stream->writeExactSizeDataAsyncInline(m_inlineData, finish());
-}
 
 BufferBody::BufferBody(const oatpp::String& buffer)
   : m_buffer(buffer)
+  , m_inlineData(m_buffer->getData(), m_buffer->getSize())
 {}
 
 std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer) {
   return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
 }
 
+v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action& action) {
+
+  v_buff_size desiredToRead = m_inlineData.bytesLeft;
+
+  if(desiredToRead > 0) {
+
+    if (desiredToRead > count) {
+      desiredToRead = count;
+    }
+
+    std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+    m_inlineData.inc(desiredToRead);
+
+    return desiredToRead;
+
+  }
+
+  return 0;
+
+}
+
 void BufferBody::declareHeaders(Headers& headers) {
-  headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
+  (void)headers;
+  // DO NOTHING
 }
 
-void BufferBody::writeToStream(OutputStream* stream) {
-  stream->writeExactSizeDataSimple(m_buffer->getData(), m_buffer->getSize());
-}
-
-oatpp::async::CoroutineStarter BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
-  return WriteToStreamCoroutine::start(shared_from_this(), stream);
+p_char8 BufferBody::getKnownData() {
+  return m_buffer->getData();
 }
 
 v_buff_size BufferBody::getKnownSize() {

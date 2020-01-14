@@ -27,27 +27,19 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 DtoBody::DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                 oatpp::data::mapping::ObjectMapper* objectMapper)
-  : ChunkedBufferBody(oatpp::data::stream::ChunkedBuffer::createShared())
-  , m_dto(dto)
+                 const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper)
+  : BufferBody(objectMapper->writeToString(dto))
   , m_objectMapper(objectMapper)
 {}
 
 std::shared_ptr<DtoBody> DtoBody::createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                               oatpp::data::mapping::ObjectMapper* objectMapper) {
+                                               const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) {
   return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper);
 }
 
 void DtoBody::declareHeaders(Headers& headers) {
-  if(m_dto) {
-    m_objectMapper->write(m_buffer, m_dto);
-  }
-  ChunkedBufferBody::declareHeaders(headers);
+  BufferBody::declareHeaders(headers);
   headers.putIfNotExists_LockFree(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
-}
-
-v_buff_size DtoBody::getKnownSize() {
-  return m_buffer->getSize();
 }
 
 }}}}}

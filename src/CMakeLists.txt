@@ -193,16 +193,14 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/Body.hpp
         oatpp/web/protocol/http/outgoing/BufferBody.cpp
         oatpp/web/protocol/http/outgoing/BufferBody.hpp
-        oatpp/web/protocol/http/outgoing/ChunkedBody.cpp
-        oatpp/web/protocol/http/outgoing/ChunkedBody.hpp
-        oatpp/web/protocol/http/outgoing/ChunkedBufferBody.cpp
-        oatpp/web/protocol/http/outgoing/ChunkedBufferBody.hpp
-        oatpp/web/protocol/http/outgoing/CommunicationUtils.cpp
-        oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp
         oatpp/web/protocol/http/outgoing/DtoBody.cpp
         oatpp/web/protocol/http/outgoing/DtoBody.hpp
         oatpp/web/protocol/http/outgoing/MultipartBody.cpp
         oatpp/web/protocol/http/outgoing/MultipartBody.hpp
+        oatpp/web/protocol/http/outgoing/StreamingBody.cpp
+        oatpp/web/protocol/http/outgoing/StreamingBody.hpp
+        oatpp/web/protocol/http/outgoing/CommunicationUtils.cpp
+        oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp
         oatpp/web/protocol/http/outgoing/Request.cpp
         oatpp/web/protocol/http/outgoing/Request.hpp
         oatpp/web/protocol/http/outgoing/Response.cpp

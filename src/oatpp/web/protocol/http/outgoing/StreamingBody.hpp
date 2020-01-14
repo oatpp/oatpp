@@ -22,58 +22,57 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_outgoing_Body_hpp
-#define oatpp_web_protocol_http_outgoing_Body_hpp
+#ifndef oatpp_web_protocol_http_outgoing_StreamingBody_hpp
+#define oatpp_web_protocol_http_outgoing_StreamingBody_hpp
 
-#include "oatpp/web/protocol/http/Http.hpp"
-
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/collection/ListMap.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "./Body.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 /**
- * Abstract http outgoing body.
- * You may extend this class in order to implement custom body transferring functionality.
+ * Abstract body for streaming data.
  */
-class Body : public data::stream::ReadCallback {
-protected:
-  typedef http::Headers Headers;
+class StreamingBody : public Body {
+private:
+  std::shared_ptr<data::stream::ReadCallback> m_readCallback;
 public:
 
   /**
-   * Virtual destructor.
+   * Constructor.
+   * @param readCallback
    */
-  virtual ~Body() = default;
-
-  ///////////////////////////
-  // From the ReadCallback //
-  //
-  //virtual v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
+  StreamingBody(const std::shared_ptr<data::stream::ReadCallback>& readCallback);
 
   /**
-   * Declare headers describing body.
-   * **Note:** Do NOT declare the `Content-Length` header.
+   * Proxy method to readCallback::read().
+   * @param buffer - pointer to buffer.
+   * @param count - size of the buffer in bytes.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual number of bytes written to buffer. 0 - to indicate end-of-file.
+   */
+  v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Override this method to declare additional headers.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
-  virtual void declareHeaders(Headers& headers) = 0;
+  void declareHeaders(Headers& headers) override;
 
   /**
    * Pointer to the body known data.
-   * @return - `p_char8`.
+   * @return - `nullptr`.
    */
-  virtual p_char8 getKnownData() = 0;
+  p_char8 getKnownData() override;
 
   /**
-   * Should return the known size of the body (if known).
-   * If body size is unknown then should return -1.
-   * @return - &id:oatpp::v_io_size;.
+   * Return known size of the body.
+   * @return - `-1`.
    */
-  virtual v_buff_size getKnownSize() = 0;
-  
+  v_buff_size getKnownSize() override;
+
 };
-  
+
 }}}}}
 
-#endif /* oatpp_web_protocol_http_outgoing_Body_hpp */
+#endif // oatpp_web_protocol_http_outgoing_StreamingBody_hpp

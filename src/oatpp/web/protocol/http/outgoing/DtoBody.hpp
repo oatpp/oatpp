@@ -25,8 +25,7 @@
 #ifndef oatpp_web_protocol_http_outgoing_DtoBody_hpp
 #define oatpp_web_protocol_http_outgoing_DtoBody_hpp
 
-#include "./ChunkedBufferBody.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
+#include "./BufferBody.hpp"
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
@@ -34,24 +33,23 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 /**
  * Implementation of &id:oatpp::web::protocol::http::outgoing::Body; class. <br>
- * Extends of &id:oatpp::web::protocol::http::outgoing::ChunkedBufferBody; class. <br>
+ * Extends of &id:oatpp::web::protocol::http::outgoing::BufferBody; class. <br>
  * Implements functionality to use DTO Object (see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/)) as data source for http body.
  */
-class DtoBody : public ChunkedBufferBody {
+class DtoBody : public BufferBody {
 public:
   OBJECT_POOL(Http_Outgoing_DtoBody_Pool, DtoBody, 32)
   SHARED_OBJECT_POOL(Shared_Http_Outgoing_DtoBody_Pool, DtoBody, 32)
 private:
-  oatpp::data::mapping::type::AbstractObjectWrapper m_dto;
-  oatpp::data::mapping::ObjectMapper* m_objectMapper;
+  std::shared_ptr<data::mapping::ObjectMapper> m_objectMapper;
 public:
   /**
    * Constructor.
    * @param dto - &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
    * @param objectMapper - &id:oatpp::data::mapping::ObjectMapper;.
    */
-  DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-          oatpp::data::mapping::ObjectMapper* objectMapper);
+  DtoBody(const data::mapping::type::AbstractObjectWrapper& dto,
+          const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper);
 public:
 
   /**
@@ -60,23 +58,14 @@ public:
    * @param objectMapper - &id:oatpp::data::mapping::ObjectMapper;.
    * @return - `std::shared_ptr` to DtoBody.
    */
-  static std::shared_ptr<DtoBody> createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                               oatpp::data::mapping::ObjectMapper* objectMapper);
+  static std::shared_ptr<DtoBody> createShared(const data::mapping::type::AbstractObjectWrapper& dto,
+                                               const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper);
 
   /**
-   * Add `Content-Length` header.<br>
-   * <br>
    * Add `Content-Type` header depending on &id:oatpp::data::mapping::ObjectMapper; used. See &id:oatpp::data::mapping::ObjectMapper::Info;.
-   *
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   void declareHeaders(Headers& headers) override;
-
-  /**
-   * Return known size of the body.
-   * @return - `v_buff_size`.
-   */
-  v_buff_size getKnownSize() override;
   
 };
 

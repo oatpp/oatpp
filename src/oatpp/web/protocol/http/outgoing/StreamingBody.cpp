@@ -22,36 +22,30 @@
  *
  ***************************************************************************/
 
-#include "ChunkedBody.hpp"
-
-#include "oatpp/web/protocol/http/encoding/Chunked.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "StreamingBody.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-ChunkedBody::ChunkedBody(const std::shared_ptr<ReadCallback>& readCallback)
+StreamingBody::StreamingBody(const std::shared_ptr<data::stream::ReadCallback>& readCallback)
   : m_readCallback(readCallback)
-  , m_buffer(std::make_shared<data::buffer::IOBuffer>())
 {}
 
-void ChunkedBody::declareHeaders(Headers& headers) {
-  headers.put_LockFree(oatpp::web::protocol::http::Header::TRANSFER_ENCODING, oatpp::web::protocol::http::Header::Value::TRANSFER_ENCODING_CHUNKED);
+v_io_size StreamingBody::read(void *buffer, v_buff_size count, async::Action& action) {
+  return m_readCallback->read(buffer, count, action);
 }
 
-void ChunkedBody::writeToStream(OutputStream* stream) {
-  http::encoding::EncoderChunked encoder;
-  data::stream::transfer(m_readCallback.get(), stream, 0, m_buffer->getData(), m_buffer->getSize(), &encoder);
+void StreamingBody::declareHeaders(Headers& headers) {
+  (void) headers;
+  // DO NOTHING
 }
 
-oatpp::async::CoroutineStarter ChunkedBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
-  auto encoder = std::make_shared<http::encoding::EncoderChunked>();
-  return data::stream::transferAsync(m_readCallback, stream, 0, m_buffer, encoder);
+p_char8 StreamingBody::getKnownData() {
+  return nullptr;
 }
 
-v_buff_size ChunkedBody::getKnownSize() {
+
+v_buff_size StreamingBody::getKnownSize() {
   return -1;
 }
-
 
 }}}}}
