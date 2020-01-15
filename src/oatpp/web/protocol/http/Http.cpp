@@ -128,6 +128,8 @@ const char* const Header::CORS_METHODS = "Access-Control-Allow-Methods";
 const char* const Header::CORS_HEADERS = "Access-Control-Allow-Headers";
 const char* const Header::CORS_MAX_AGE = "Access-Control-Max-Age";
 
+const char* const Header::ACCEPT_ENCODING = "Accept-Encoding";
+
 const char* const Range::UNIT_BYTES = "bytes";
 const char* const ContentRange::UNIT_BYTES = "bytes";
   

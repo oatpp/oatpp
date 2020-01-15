@@ -27,6 +27,7 @@
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/web/protocol/http/encoding/EncoderCollection.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
@@ -68,6 +69,9 @@ public:
    */
   static v_int32 considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
+
+  static std::shared_ptr<encoding::EncoderProvider> selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
+                                                                  const std::shared_ptr<http::encoding::EncoderCollection>& providers);
   
 };
   

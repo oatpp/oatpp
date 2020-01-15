@@ -32,11 +32,13 @@ namespace oatpp { namespace web { namespace server {
 // Components
 
 HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter,
+                                      const std::shared_ptr<protocol::http::encoding::EncoderCollection>& pContentEncodingProviders,
                                       const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                                       const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
                                       const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
                                       const std::shared_ptr<Config>& pConfig)
   : router(pRouter)
+  , contentEncodingProviders(pContentEncodingProviders)
   , bodyDecoder(pBodyDecoder)
   , errorHandler(pErrorHandler)
   , requestInterceptors(pRequestInterceptors)
@@ -45,6 +47,7 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
 
 HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter)
   : Components(pRouter,
+               nullptr,
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
                handler::DefaultErrorHandler::createShared(),
                std::make_shared<RequestInterceptors>(),
@@ -53,6 +56,7 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
 
 HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig)
   : Components(pRouter,
+               nullptr,
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
                handler::DefaultErrorHandler::createShared(),
                std::make_shared<RequestInterceptors>(),
@@ -62,43 +66,51 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
 
-std::shared_ptr<protocol::http::outgoing::Response>
-HttpProcessor::processRequest(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                              const std::shared_ptr<Components>& components,
-                              RequestHeadersReader& headersReader,
-                              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-                              v_int32& connectionState) {
+HttpProcessor::ProcessingResources::ProcessingResources(const std::shared_ptr<Components>& pComponents,
+                                                        const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection)
+  : components(pComponents)
+  , connection(pConnection)
+  , headersInBuffer(components->config->headersInBufferInitial, components->config->headersInBufferGrow)
+  , headersOutBuffer(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow)
+  , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
+  , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
+{}
+
+bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   oatpp::web::protocol::http::HttpError::Info error;
-  auto headersReadResult = headersReader.readHeaders(inStream.get(), error);
+  auto headersReadResult = resources.headersReader.readHeaders(resources.inStream.get(), error);
 
   if(error.status.code != 0) {
-    connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
-    return components->errorHandler->handleError(error.status, "Invalid request headers");
+    auto response = resources.components->errorHandler->handleError(error.status, "Invalid request headers");
+    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    return false;
   }
 
   if(error.ioStatus <= 0) {
-    connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
-    return nullptr; // connection is in invalid state. should be dropped
+    return false; // connection is in invalid state. should be dropped
   }
 
-  auto route = components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
+  auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
 
   if(!route) {
-    connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
-    return components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    return false;
   }
 
-  auto request = protocol::http::incoming::Request::createShared(connection,
+  auto request = protocol::http::incoming::Request::createShared(resources.connection,
                                                                  headersReadResult.startingLine,
                                                                  route.matchMap,
                                                                  headersReadResult.headers,
-                                                                 inStream,
-                                                                 components->bodyDecoder);
+                                                                 resources.inStream,
+                                                                 resources.components->bodyDecoder);
 
   std::shared_ptr<protocol::http::outgoing::Response> response;
+
   try{
-    auto currInterceptor = components->requestInterceptors->getFirstNode();
+
+    auto currInterceptor = resources.components->requestInterceptors->getFirstNode();
     while (currInterceptor != nullptr) {
       response = currInterceptor->getData()->intercept(request);
       if(response) {
@@ -106,21 +118,57 @@ HttpProcessor::processRequest(const std::shared_ptr<oatpp::data::stream::IOStrea
       }
       currInterceptor = currInterceptor->getNext();
     }
+
     if(!response) {
       response = route.getEndpoint()->handle(request);
     }
+
   } catch (oatpp::web::protocol::http::HttpError& error) {
-    return components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+
+    auto response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    return false;
+
   } catch (std::exception& error) {
-    return components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+
+    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    return false;
+
   } catch (...) {
-    return components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    return false;
   }
 
   response->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
+  auto connectionState = protocol::http::outgoing::CommunicationUtils::considerConnectionState(request, response);
 
-  connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(request, response);
-  return response;
+  auto contentEncoderProvider =
+    protocol::http::outgoing::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
+
+  response->send(resources.connection.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
+
+  switch(connectionState) {
+
+    case protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE: return true;
+
+    case protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE: {
+
+      auto handler = response->getConnectionUpgradeHandler();
+      if(handler) {
+        handler->handleConnection(resources.connection, response->getConnectionUpgradeParameters());
+      } else {
+        OATPP_LOGW("[oatpp::web::server::HttpProcessor::processNextRequest()]", "Warning. ConnectionUpgradeHandler not set!");
+      }
+
+      return false;
+
+    }
+
+  }
+
+  return false;
 
 }
 
@@ -137,46 +185,20 @@ void HttpProcessor::Task::run(){
 
   m_connection->initContexts();
 
-  v_int32 connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_CLOSE;
+  ProcessingResources resources(m_components, m_connection);
 
-  oatpp::data::stream::BufferOutputStream headersInBuffer(m_components->config->headersInBufferInitial,
-                                                          m_components->config->headersInBufferGrow);
-
-  oatpp::data::stream::BufferOutputStream headersOutBuffer(m_components->config->headersOutBufferInitial,
-                                                           m_components->config->headersOutBufferGrow);
-
-  oatpp::web::protocol::http::incoming::RequestHeadersReader headersReader(&headersInBuffer,
-                                                                           m_components->config->headersReaderChunkSize,
-                                                                           m_components->config->headersReaderMaxSize);
-
-  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> response;
-  auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE));
+  bool wantContinue;
 
   try {
 
     do {
 
-      response = HttpProcessor::processRequest(m_connection, m_components, headersReader, inStream, connectionState);
+      wantContinue = HttpProcessor::processNextRequest(resources);
 
-      if (response) {
-        response->send(m_connection.get(), &headersOutBuffer, nullptr);
-      } else {
-        return;
-      }
-
-    } while (connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE);
+    } while (wantContinue);
 
   } catch (...) {
-    return;
-  }
-
-  if(connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
-    auto handler = response->getConnectionUpgradeHandler();
-    if(handler) {
-      handler->handleConnection(m_connection, response->getConnectionUpgradeParameters());
-    } else {
-      OATPP_LOGW("[oatpp::web::server::HttpConnectionHandler::Task::run()]", "Warning. ConnectionUpgradeHandler not set!");
-    }
+    // DO NOTHING
   }
 
 }
