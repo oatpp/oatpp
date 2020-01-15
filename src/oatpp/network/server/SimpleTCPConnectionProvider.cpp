@@ -157,16 +157,26 @@ oatpp::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   v_int32 ret;
   int yes = 1;
 
-  struct sockaddr_in6 addr;
+  struct addrinfo *result = NULL;
+  struct addrinfo hints;
 
-  addr.sin6_family = AF_INET6;
-  addr.sin6_port = htons(m_port);
-  addr.sin6_addr = in6addr_any;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_INET6;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = 0;
+  hints.ai_flags = AI_PASSIVE;
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
 
-  serverHandle = socket(AF_INET6, SOCK_STREAM, 0);
+  ret = getaddrinfo(NULL, (const char *) portStr->getData(), &hints, &result);
+  if (ret != 0) {
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d", ret);
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
+  }
 
-  if(serverHandle < 0){
-    return -1;
+  serverHandle = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+  if (serverHandle < 0) {
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Couldn't open a socket");
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Couldn't open a socket");
   }
 
   ret = setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
@@ -174,7 +184,7 @@ oatpp::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
     OATPP_LOGD("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Warning. Failed to set %s for accepting socket", "SO_REUSEADDR");
   }
 
-  ret = bind(serverHandle, (struct sockaddr *)&addr, sizeof(addr));
+  ret = bind(serverHandle, result->ai_addr, (int) result->ai_addrlen);
 
   if(ret != 0) {
     ::close(serverHandle);
