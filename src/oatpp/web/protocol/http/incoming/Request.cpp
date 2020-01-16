@@ -116,7 +116,7 @@ void Request::transferBody(data::stream::WriteCallback* writeCallback) const {
 }
 
 void Request::transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const {
-  m_bodyDecoder->decodeToStream(m_headers, m_bodyStream.get(), toStream);
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream);
 }
 
 oatpp::String Request::readBodyToString() const {
@@ -128,7 +128,7 @@ async::CoroutineStarter Request::transferBodyAsync(const std::shared_ptr<data::s
 }
 
 async::CoroutineStarter Request::transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-  return m_bodyDecoder->decodeToStreamAsync(m_headers, m_bodyStream, toStream);
+  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream);
 }
 
 async::CoroutineStarterForResult<const oatpp::String&> Request::readBodyToStringAsync() const {

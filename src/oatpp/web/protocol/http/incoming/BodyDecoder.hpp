@@ -61,7 +61,7 @@ private:
     {}
     
     oatpp::async::Action act() override {
-      return m_decoder->decodeToStreamAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(this->yieldTo(&ToDtoDecoder::onDecoded));
+      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(this->yieldTo(&ToDtoDecoder::onDecoded));
     }
     
     oatpp::async::Action onDecoded() {
@@ -92,14 +92,6 @@ public:
   virtual void decode(const Headers& headers, data::stream::InputStream* bodyStream, data::stream::WriteCallback* writeCallback) const = 0;
 
   /**
-   * Decode using &id:oatpp::data::stream::DefaultWriteCallback;.
-   * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
-   * @param bodyStream - pointer to &id:oatpp::data::stream::InputStream;.
-   * @param toStream - pointer to &id:oatpp::data::stream::OutputStream;.
-   */
-  void decodeToStream(const Headers& headers, data::stream::InputStream* bodyStream, data::stream::OutputStream* toStream) const;
-
-  /**
    * Implement this method! Same as &l:BodyDecoder::decode (); but Async.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
@@ -111,17 +103,6 @@ public:
                                                      const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const = 0;
 
   /**
-   * Decode in asynchronous manner using &id:oatpp::data::stream::DefaultWriteCallback;.
-   * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
-   * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
-   * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::CoroutineStarter;.
-   */
-  oatpp::async::CoroutineStarter decodeToStreamAsync(const Headers& headers,
-                                                     const std::shared_ptr<data::stream::InputStream>& bodyStream,
-                                                     const std::shared_ptr<data::stream::OutputStream>& toStream) const;
-
-  /**
    * Read body stream and decode it to string.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - pointer to &id:oatpp::data::stream::InputStream;.
@@ -129,7 +110,7 @@ public:
    */
   oatpp::String decodeToString(const Headers& headers, data::stream::InputStream* bodyStream) const {
     oatpp::data::stream::ChunkedBuffer stream;
-    decodeToStream(headers, bodyStream, &stream);
+    decode(headers, bodyStream, &stream);
     return stream.toString();
   }
 

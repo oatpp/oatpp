@@ -29,20 +29,6 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BodyDecoder
 
-void BodyDecoder::decodeToStream(const Headers& headers,
-                                 data::stream::InputStream* bodyStream,
-                                 data::stream::OutputStream* toStream) const
-{
-  decode(headers, bodyStream, toStream);
-}
-
-async::CoroutineStarter BodyDecoder::decodeToStreamAsync(const Headers& headers,
-                                                         const std::shared_ptr<data::stream::InputStream>& bodyStream,
-                                                         const std::shared_ptr<data::stream::OutputStream>& toStream) const
-{
-  return decodeAsync(headers, bodyStream, toStream);
-}
-
 oatpp::async::CoroutineStarterForResult<const oatpp::String&>
 BodyDecoder::decodeToStringAsync(const Headers& headers, const std::shared_ptr<data::stream::InputStream>& bodyStream) const {
 
@@ -64,7 +50,7 @@ BodyDecoder::decodeToStringAsync(const Headers& headers, const std::shared_ptr<d
     {}
 
     Action act() override {
-      return m_decoder->decodeToStreamAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(yieldTo(&ToStringDecoder::onDecoded));
+      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(yieldTo(&ToStringDecoder::onDecoded));
     }
 
     Action onDecoded() {
