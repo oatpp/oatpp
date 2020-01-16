@@ -142,18 +142,18 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
   }
 
   response->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
-  auto connectionState = protocol::http::outgoing::CommunicationUtils::considerConnectionState(request, response);
+  auto connectionState = protocol::http::utils::CommunicationUtils::considerConnectionState(request, response);
 
   auto contentEncoderProvider =
-    protocol::http::outgoing::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
+    protocol::http::utils::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
 
   response->send(resources.connection.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
 
   switch(connectionState) {
 
-    case protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE: return true;
+    case protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE: return true;
 
-    case protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE: {
+    case protocol::http::utils::CommunicationUtils::CONNECTION_STATE_UPGRADE: {
 
       auto handler = response->getConnectionUpgradeHandler();
       if(handler) {
@@ -214,7 +214,7 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
   , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow))
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
-  , m_connectionState(oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
+  , m_connectionState(oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
 {}
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
@@ -266,7 +266,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
-  m_connectionState = oatpp::web::protocol::http::outgoing::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
+  m_connectionState = oatpp::web::protocol::http::utils::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
   return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer, nullptr)
          .next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
 
@@ -274,11 +274,11 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
   
-  if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
+  if(m_connectionState == oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
     return yieldTo(&HttpProcessor::Coroutine::parseHeaders);
   }
   
-  if(m_connectionState == oatpp::web::protocol::http::outgoing::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
+  if(m_connectionState == oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
     auto handler = m_currentResponse->getConnectionUpgradeHandler();
     if(handler) {
       handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());

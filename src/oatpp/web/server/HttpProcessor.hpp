@@ -36,7 +36,7 @@
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp"
+#include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
 
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/async/Processor.hpp"

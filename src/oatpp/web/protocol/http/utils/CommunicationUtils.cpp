@@ -24,7 +24,7 @@
 
 #include "CommunicationUtils.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
   
 bool CommunicationUtils::headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value) {
   v_int32 size = (v_int32) std::strlen(value);
@@ -118,3 +118,4 @@ CommunicationUtils::selectEncoder(const std::shared_ptr<http::incoming::Request>
 }
   
 }}}}}
+

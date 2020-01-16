@@ -197,8 +197,6 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/MultipartBody.hpp
         oatpp/web/protocol/http/outgoing/StreamingBody.cpp
         oatpp/web/protocol/http/outgoing/StreamingBody.hpp
-        oatpp/web/protocol/http/outgoing/CommunicationUtils.cpp
-        oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp
         oatpp/web/protocol/http/outgoing/Request.cpp
         oatpp/web/protocol/http/outgoing/Request.hpp
         oatpp/web/protocol/http/outgoing/Response.cpp
@@ -210,6 +208,8 @@ add_library(oatpp
         oatpp/web/protocol/http/encoding/EncoderCollection.cpp
         oatpp/web/protocol/http/encoding/EncoderCollection.hpp
         oatpp/web/protocol/http/encoding/EncoderProvider.hpp
+        oatpp/web/protocol/http/utils/CommunicationUtils.cpp
+        oatpp/web/protocol/http/utils/CommunicationUtils.hpp
         oatpp/web/server/AsyncHttpConnectionHandler.cpp
         oatpp/web/server/AsyncHttpConnectionHandler.hpp
         oatpp/web/server/HttpConnectionHandler.cpp

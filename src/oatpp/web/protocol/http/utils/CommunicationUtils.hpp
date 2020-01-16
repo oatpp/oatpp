@@ -22,14 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
-#define oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
+#ifndef oatpp_web_protocol_http_utils_CommunicationUtils_hpp
+#define oatpp_web_protocol_http_utils_CommunicationUtils_hpp
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/encoding/EncoderCollection.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
 
 /**
  * Helper class for communication utils.
@@ -77,4 +77,4 @@ public:
   
 }}}}}
 
-#endif /* CommunicationUtils_hpp */
+#endif /* oatpp_web_protocol_http_utils_CommunicationUtils_hpp */
