@@ -267,7 +267,11 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::utils::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);
-  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer, nullptr)
+
+  auto contentEncoderProvider =
+    protocol::http::utils::CommunicationUtils::selectEncoder(m_currentRequest, m_components->contentEncodingProviders);
+
+  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer, contentEncoderProvider)
          .next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
 
 }
