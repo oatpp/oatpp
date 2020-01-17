@@ -52,6 +52,15 @@ public:
   {}
 
   /**
+   * nullptr constructor.
+   */
+  MemoryLabel(std::nullptr_t)
+    : m_memoryHandle(nullptr)
+    , m_data(nullptr)
+    , m_size(0)
+  {}
+
+  /**
    * Constructor.
    * @param str
    */
@@ -150,6 +159,8 @@ class StringKeyLabel : public MemoryLabel {
 public:
   
   StringKeyLabel() : MemoryLabel() {};
+
+  StringKeyLabel(std::nullptr_t) : MemoryLabel() {}
   
   StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabel(const char* constText);
@@ -172,7 +183,9 @@ class StringKeyLabelCI : public MemoryLabel {
 public:
   
   StringKeyLabelCI() : MemoryLabel() {};
-  
+
+  StringKeyLabelCI(std::nullptr_t) : MemoryLabel() {}
+
   StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabelCI(const char* constText);
   StringKeyLabelCI(const oatpp::String& str);
@@ -194,7 +207,9 @@ public:
  */
 class StringKeyLabelCI_FAST : public MemoryLabel {
 public:
-  
+
+  StringKeyLabelCI_FAST(std::nullptr_t) : MemoryLabel() {}
+
   StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabelCI_FAST(const char* constText);
   StringKeyLabelCI_FAST(const oatpp::String& str);

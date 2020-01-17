@@ -89,7 +89,7 @@ public:
   createShared(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
                const std::shared_ptr<RetryPolicy>& retryPolicy = nullptr,
                const std::shared_ptr<const BodyDecoder>& bodyDecoder =
-               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>());
+               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(nullptr));
 
   /**
    * Get &id:oatpp::web::client::RequestExecutor::ConnectionHandle;
