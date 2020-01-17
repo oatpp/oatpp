@@ -45,7 +45,7 @@ public:
    * Constructor.
    * @param decoders - collection content decoders.
    */
-  SimpleBodyDecoder(const std::shared_ptr<encoding::EncoderCollection>& contentDecoders);
+  SimpleBodyDecoder(const std::shared_ptr<encoding::EncoderCollection>& contentDecoders = nullptr);
 
   /**
    * Decode bodyStream and write decoded data to toStream.

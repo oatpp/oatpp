@@ -48,7 +48,7 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
 HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter)
   : Components(pRouter,
                nullptr,
-               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(nullptr),
+               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
                handler::DefaultErrorHandler::createShared(),
                std::make_shared<RequestInterceptors>(),
                std::make_shared<Config>())
@@ -57,7 +57,7 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
 HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig)
   : Components(pRouter,
                nullptr,
-               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(nullptr),
+               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
                handler::DefaultErrorHandler::createShared(),
                std::make_shared<RequestInterceptors>(),
                pConfig)
