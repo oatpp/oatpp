@@ -37,8 +37,8 @@ class SimpleBodyDecoder : public BodyDecoder {
 private:
   std::shared_ptr<encoding::EncoderCollection> m_contentDecoders;
 private:
-  std::shared_ptr<data::buffer::Processor> getStreamProcessor(const data::share::StringKeyLabelCI& transferEncoding,
-                                                              const data::share::StringKeyLabelCI& contentEncoding) const;
+  base::ObjectHandle<data::buffer::Processor> getStreamProcessor(const data::share::StringKeyLabelCI& transferEncoding,
+                                                                 const data::share::StringKeyLabelCI& contentEncoding) const;
 public:
 
   /**

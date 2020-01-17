@@ -35,18 +35,18 @@ SimpleBodyDecoder::SimpleBodyDecoder(const std::shared_ptr<encoding::EncoderColl
   : m_contentDecoders(contentDecoders)
 {}
 
-std::shared_ptr<data::buffer::Processor>
+base::ObjectHandle<data::buffer::Processor>
 SimpleBodyDecoder::getStreamProcessor (const data::share::StringKeyLabelCI& transferEncoding,
                                        const data::share::StringKeyLabelCI& contentEncoding ) const
 {
 
   if(!transferEncoding && !contentEncoding) {
-    return nullptr;
+    return &data::stream::StatelessDataTransferProcessor::INSTANCE;
   }
 
   if(contentEncoding && !m_contentDecoders) {
     throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::getStreamProcessor()]: "
-                             "Error. Server content decoders are not configured.");
+                             "Error. Server content decoders are NOT configured.");
   }
 
   std::vector<base::ObjectHandle<data::buffer::Processor>> processors;
@@ -73,7 +73,7 @@ SimpleBodyDecoder::getStreamProcessor (const data::share::StringKeyLabelCI& tran
     return processors[0].getPtr();
   }
 
-  return nullptr;
+  return &data::stream::StatelessDataTransferProcessor::INSTANCE;
 
 }
 
@@ -87,10 +87,6 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 
     auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
     auto processor = getStreamProcessor(transferEncoding, contentEncoding);
-
-    if(!processor) {
-      throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::decode()]: Error. Invalid state.");
-    }
 
     data::buffer::IOBuffer buffer;
     data::stream::transfer(bodyStream, writeCallback, 0 /* read until error */, buffer.getData(), buffer.getSize(), processor);
@@ -108,11 +104,8 @@ void SimpleBodyDecoder::decode(const Headers& headers,
         auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
         auto processor = getStreamProcessor(nullptr, contentEncoding);
         data::buffer::IOBuffer buffer;
-        if(processor) {
-          data::stream::transfer(bodyStream, writeCallback, contentLength, buffer.getData(), buffer.getSize(), processor);
-        } else {
-          data::stream::transfer(bodyStream, writeCallback, contentLength, buffer.getData(), buffer.getSize());
-        }
+        data::stream::transfer(bodyStream, writeCallback, contentLength, buffer.getData(), buffer.getSize(), processor);
+
       }
 
     } else {
@@ -124,11 +117,7 @@ void SimpleBodyDecoder::decode(const Headers& headers,
         auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
         auto processor = getStreamProcessor(nullptr, contentEncoding);
         data::buffer::IOBuffer buffer;
-        if(processor) {
-          data::stream::transfer(bodyStream, writeCallback,  0 /* read until error */, buffer.getData(), buffer.getSize(), processor);
-        } else {
-          data::stream::transfer(bodyStream, writeCallback,  0 /* read until error */, buffer.getData(), buffer.getSize());
-        }
+        data::stream::transfer(bodyStream, writeCallback,  0 /* read until error */, buffer.getData(), buffer.getSize(), processor);
 
       } else {
         throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::decode()]: Error. Invalid Request.");
@@ -143,39 +132,52 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
                                                        const std::shared_ptr<data::stream::InputStream>& bodyStream,
                                                        const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const {
-  auto transferEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::TRANSFER_ENCODING);
-  if(transferEncoding && transferEncoding == Header::Value::TRANSFER_ENCODING_CHUNKED) {
-    auto decoder = std::make_shared<http::encoding::DecoderChunked>();
-    return data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, data::buffer::IOBuffer::createShared(), decoder);
+
+  auto transferEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::TRANSFER_ENCODING);
+
+  if(transferEncoding) {
+
+    auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
+    auto processor = getStreamProcessor(transferEncoding, contentEncoding);
+    auto buffer = data::buffer::IOBuffer::createShared();
+    return data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, buffer, processor);
+
   } else {
 
     auto contentLengthStr = headers.getAsMemoryLabel<data::share::StringKeyLabel>(Header::CONTENT_LENGTH);
-    if(!contentLengthStr) {
-
-      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
-      if(connectionStr && connectionStr == "close") {
-        return data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, data::buffer::IOBuffer::createShared());
-      }
-
-      return nullptr; // else - do nothing. invalid response.
-
-    } else {
+    if(contentLengthStr) {
 
       bool success;
       auto contentLength = utils::conversion::strToInt64(contentLengthStr.toString(), success);
 
-      if(!success){
-        throw HttpError(http::Status::CODE_400, "Invalid 'Content-Length' Header");
+      if (success && contentLength > 0) {
+
+        auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
+        auto processor = getStreamProcessor(nullptr, contentEncoding);
+        auto buffer = data::buffer::IOBuffer::createShared();
+        return data::stream::transferAsync(bodyStream, writeCallback, contentLength, buffer, processor);
+
       }
 
-      if(contentLength > 0) {
-        return data::stream::transferAsync(bodyStream, writeCallback, contentLength, data::buffer::IOBuffer::createShared());
-      } else {
-        return nullptr;
+    } else {
+
+      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+
+      if(connectionStr && connectionStr == "close") {
+
+        auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
+        auto processor = getStreamProcessor(nullptr, contentEncoding);
+        auto buffer = data::buffer::IOBuffer::createShared();
+        return data::stream::transferAsync(bodyStream, writeCallback,  0 /* read until error */, buffer, processor);
+
       }
 
     }
+
   }
+
+  throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::decodeAsync()]: Error. Invalid Request.");
+
 }
   
 }}}}}
