@@ -205,8 +205,8 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.hpp
         oatpp/web/protocol/http/encoding/Chunked.cpp
         oatpp/web/protocol/http/encoding/Chunked.hpp
-        oatpp/web/protocol/http/encoding/EncoderCollection.cpp
-        oatpp/web/protocol/http/encoding/EncoderCollection.hpp
+        oatpp/web/protocol/http/encoding/ProviderCollection.cpp
+        oatpp/web/protocol/http/encoding/ProviderCollection.hpp
         oatpp/web/protocol/http/encoding/EncoderProvider.hpp
         oatpp/web/protocol/http/utils/CommunicationUtils.cpp
         oatpp/web/protocol/http/utils/CommunicationUtils.hpp

@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_encoding_EncoderCollection_hpp
-#define oatpp_web_protocol_http_encoding_EncoderCollection_hpp
+#ifndef oatpp_web_protocol_http_encoding_ProviderCollection_hpp
+#define oatpp_web_protocol_http_encoding_ProviderCollection_hpp
 
 #include "EncoderProvider.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
@@ -35,7 +35,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 /**
  * Collection of &id:oatpp::web::protocol::http::encoding::EncoderProvider;.
  */
-class EncoderCollection {
+class ProviderCollection {
 private:
   std::unordered_map<data::share::StringKeyLabelCI, std::shared_ptr<EncoderProvider>> m_providers;
 public:
@@ -44,24 +44,24 @@ public:
    * Add encoder to collection.
    * @param provider
    */
-  void addProvider(const std::shared_ptr<EncoderProvider>& provider);
+  void add(const std::shared_ptr<EncoderProvider>& provider);
 
   /**
    * Get encoder by encoding name.
    * @param encoding - encoding name.
    * @return
    */
-  std::shared_ptr<EncoderProvider> getProvider(const data::share::StringKeyLabelCI& encoding) const;
+  std::shared_ptr<EncoderProvider> get(const data::share::StringKeyLabelCI& encoding) const;
 
   /**
    * Select available provider for set of encodings.
    * @param encodings - set of desired encodings
    * @return
    */
-  std::shared_ptr<EncoderProvider> getAvailableProvider(const std::unordered_set<data::share::StringKeyLabelCI>& encodings) const;
+  std::shared_ptr<EncoderProvider> get(const std::unordered_set<data::share::StringKeyLabelCI>& encodings) const;
 
 };
 
 }}}}}
 
-#endif // oatpp_web_protocol_http_encoding_EncoderCollection_hpp
+#endif // oatpp_web_protocol_http_encoding_ProviderCollection_hpp

@@ -32,7 +32,7 @@ namespace oatpp { namespace web { namespace server {
 // Components
 
 HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter,
-                                      const std::shared_ptr<protocol::http::encoding::EncoderCollection>& pContentEncodingProviders,
+                                      const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
                                       const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                                       const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
                                       const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,

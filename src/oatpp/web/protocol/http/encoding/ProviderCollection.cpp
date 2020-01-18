@@ -22,15 +22,15 @@
  *
  ***************************************************************************/
 
-#include "EncoderCollection.hpp"
+#include "ProviderCollection.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 
-void EncoderCollection::addProvider(const std::shared_ptr<EncoderProvider>& provider) {
+void ProviderCollection::add(const std::shared_ptr<EncoderProvider>& provider) {
   m_providers[provider->getEncodingName()] = provider;
 }
 
-std::shared_ptr<EncoderProvider> EncoderCollection::getProvider(const data::share::StringKeyLabelCI& encoding) const {
+std::shared_ptr<EncoderProvider> ProviderCollection::get(const data::share::StringKeyLabelCI& encoding) const {
   auto it = m_providers.find(encoding);
   if(it != m_providers.end()) {
     return it->second;
@@ -38,10 +38,10 @@ std::shared_ptr<EncoderProvider> EncoderCollection::getProvider(const data::shar
   return nullptr;
 }
 
-std::shared_ptr<EncoderProvider> EncoderCollection::getAvailableProvider(const std::unordered_set<data::share::StringKeyLabelCI>& encodings) const {
+std::shared_ptr<EncoderProvider> ProviderCollection::get(const std::unordered_set<data::share::StringKeyLabelCI>& encodings) const {
 
   for(const auto& encoding : encodings) {
-    auto provider = getProvider(encoding);
+    auto provider = get(encoding);
     if(provider) {
       return provider;
     }

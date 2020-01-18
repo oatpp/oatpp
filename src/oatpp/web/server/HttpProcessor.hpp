@@ -30,7 +30,7 @@
 #include "./handler/Interceptor.hpp"
 #include "./handler/ErrorHandler.hpp"
 
-#include "oatpp/web/protocol/http/encoding/EncoderCollection.hpp"
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
 #include "oatpp/web/protocol/http/incoming/RequestHeadersReader.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
@@ -106,7 +106,7 @@ public:
      * @param pConfig
      */
     Components(const std::shared_ptr<HttpRouter>& pRouter,
-               const std::shared_ptr<protocol::http::encoding::EncoderCollection>& pContentEncodingProviders,
+               const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
                const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
                const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
@@ -131,9 +131,9 @@ public:
     std::shared_ptr<HttpRouter> router;
 
     /**
-     * Content-encoding providers. &id:oatpp::web::protocol::encoding::EncoderCollection;.
+     * Content-encoding providers. &id:oatpp::web::protocol::encoding::ProviderCollection;.
      */
-    std::shared_ptr<protocol::http::encoding::EncoderCollection> contentEncodingProviders;
+    std::shared_ptr<protocol::http::encoding::ProviderCollection> contentEncodingProviders;
 
     /**
      * Body decoder. &id:oatpp::web::protocol::http::incoming::BodyDecoder;.

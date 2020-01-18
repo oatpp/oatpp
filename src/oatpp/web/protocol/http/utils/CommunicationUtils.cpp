@@ -95,7 +95,7 @@ v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protoc
 
 std::shared_ptr<encoding::EncoderProvider>
 CommunicationUtils::selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
-                                  const std::shared_ptr<http::encoding::EncoderCollection>& providers)
+                                  const std::shared_ptr<http::encoding::ProviderCollection>& providers)
 {
   if(providers && request) {
 
@@ -106,7 +106,7 @@ CommunicationUtils::selectEncoder(const std::shared_ptr<http::incoming::Request>
       http::HeaderValueData valueData;
       http::Parser::parseHeaderValueData(valueData, suggested, ',');
 
-      return providers->getAvailableProvider(valueData.tokens);
+      return providers->get(valueData.tokens);
 
     }
 

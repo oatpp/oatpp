@@ -27,7 +27,7 @@
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/web/protocol/http/encoding/EncoderCollection.hpp"
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
 
@@ -71,7 +71,7 @@ public:
                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
 
   static std::shared_ptr<encoding::EncoderProvider> selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
-                                                                  const std::shared_ptr<http::encoding::EncoderCollection>& providers);
+                                                                  const std::shared_ptr<http::encoding::ProviderCollection>& providers);
   
 };
   

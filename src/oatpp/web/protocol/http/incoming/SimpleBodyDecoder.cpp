@@ -31,7 +31,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-SimpleBodyDecoder::SimpleBodyDecoder(const std::shared_ptr<encoding::EncoderCollection>& contentDecoders)
+SimpleBodyDecoder::SimpleBodyDecoder(const std::shared_ptr<encoding::ProviderCollection>& contentDecoders)
   : m_contentDecoders(contentDecoders)
 {}
 
@@ -59,7 +59,7 @@ SimpleBodyDecoder::getStreamProcessor (const data::share::StringKeyLabelCI& tran
   }
 
   if(contentEncoding) {
-    auto provider = m_contentDecoders->getProvider(contentEncoding);
+    auto provider = m_contentDecoders->get(contentEncoding);
     if(!provider) {
       throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::getStreamProcessor()]: "
                                "Error. Unsupported Content-Encoding. '" + contentEncoding.std_str() + "'.");
