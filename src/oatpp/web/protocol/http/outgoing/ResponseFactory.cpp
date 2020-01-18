@@ -25,8 +25,6 @@
 #include "./ResponseFactory.hpp"
 
 #include "./BufferBody.hpp"
-#include "./ChunkedBufferBody.hpp"
-#include "./DtoBody.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
   
@@ -36,15 +34,13 @@ ResponseFactory::createResponse(const Status& status, const oatpp::String& text)
 }
 
 std::shared_ptr<Response>
-ResponseFactory::createResponse(const Status& status, const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) {
-  return Response::createShared(status, ChunkedBufferBody::createShared(chunkedBuffer));
-}
-
-std::shared_ptr<Response>
 ResponseFactory::createResponse(const Status& status,
-                                const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                oatpp::data::mapping::ObjectMapper* objectMapper) {
-  return Response::createShared(status, DtoBody::createShared(dto, objectMapper));
+                                const data::mapping::type::AbstractObjectWrapper& dto,
+                                const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) {
+  return Response::createShared(status, BufferBody::createShared(
+    objectMapper->writeToString(dto),
+    objectMapper->getInfo().http_content_type
+  ));
 }
 
   

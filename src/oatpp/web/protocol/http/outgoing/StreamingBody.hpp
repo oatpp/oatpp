@@ -22,41 +22,29 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_outgoing_BufferBody_hpp
-#define oatpp_web_protocol_http_outgoing_BufferBody_hpp
+#ifndef oatpp_web_protocol_http_outgoing_StreamingBody_hpp
+#define oatpp_web_protocol_http_outgoing_StreamingBody_hpp
 
 #include "./Body.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 /**
- * Implementation of &id:oatpp::web::protocol::http::outgoing::Body; class.
- * Implements functionality to use &id::oatpp::String; as data source for http body.
+ * Abstract body for streaming data.
  */
-class BufferBody : public oatpp::base::Countable, public Body {
-public:
-  OBJECT_POOL(Http_Outgoing_BufferBody_Pool, BufferBody, 32)
-  SHARED_OBJECT_POOL(Shared_Http_Outgoing_BufferBody_Pool, BufferBody, 32)
+class StreamingBody : public Body {
 private:
-  oatpp::String m_buffer;
-  oatpp::data::share::StringKeyLabel m_contentType;
-  data::buffer::InlineReadData m_inlineData;
-public:
-  BufferBody(const oatpp::String& buffer, const data::share::StringKeyLabel& contentType);
+  std::shared_ptr<data::stream::ReadCallback> m_readCallback;
 public:
 
   /**
-   * Create shared BufferBody.
-   * @param buffer - &id:oatpp::String;.
-   * @param contentType - type of the content.
-   * @return - `std::shared_ptr` to BufferBody.
+   * Constructor.
+   * @param readCallback
    */
-  static std::shared_ptr<BufferBody> createShared(const oatpp::String& buffer,
-                                                  const data::share::StringKeyLabel& contentType = data::share::StringKeyLabel());
+  StreamingBody(const std::shared_ptr<data::stream::ReadCallback>& readCallback);
 
   /**
-   * Read operation callback.
+   * Proxy method to readCallback::read().
    * @param buffer - pointer to buffer.
    * @param count - size of the buffer in bytes.
    * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
@@ -66,25 +54,25 @@ public:
   v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
 
   /**
-   * Declare `Content-Length` header.
+   * Override this method to declare additional headers.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   void declareHeaders(Headers& headers) override;
 
   /**
    * Pointer to the body known data.
-   * @return - `p_char8`.
+   * @return - `nullptr`.
    */
   p_char8 getKnownData() override;
 
   /**
    * Return known size of the body.
-   * @return - `v_buff_size`.
+   * @return - `-1`.
    */
   v_buff_size getKnownSize() override;
-  
+
 };
-  
+
 }}}}}
 
-#endif /* oatpp_web_protocol_http_outgoing_BufferBody_hpp */
+#endif // oatpp_web_protocol_http_outgoing_StreamingBody_hpp

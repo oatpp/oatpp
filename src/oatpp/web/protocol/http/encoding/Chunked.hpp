@@ -25,8 +25,8 @@
 #ifndef oatpp_web_protocol_http_encoding_Chunked_hpp
 #define oatpp_web_protocol_http_encoding_Chunked_hpp
 
+#include "EncoderProvider.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/buffer/Processor.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 
@@ -96,6 +96,46 @@ public:
    * @return - &l:Processor::Error;.
    */
   v_int32 iterate(data::buffer::InlineReadData& dataIn, data::buffer::InlineReadData& dataOut) override;
+
+};
+
+/**
+ * EncoderProvider for "chunked" encoding.
+ */
+class ChunkedEncoderProvider : public EncoderProvider {
+public:
+
+  /**
+   * Get encoding name.
+   * @return
+   */
+  oatpp::String getEncodingName() override;
+
+  /**
+   * Get &id:oatpp::data::buffer::Processor; for chunked encoding.
+   * @return - &id:oatpp::data::buffer::Processor;
+   */
+  std::shared_ptr<data::buffer::Processor> getProcessor() override;
+
+};
+
+/**
+ * EncoderProvider for "chunked" decoding.
+ */
+class ChunkedDecoderProvider : public EncoderProvider {
+public:
+
+  /**
+   * Get encoding name.
+   * @return
+   */
+  oatpp::String getEncodingName() override;
+
+  /**
+   * Get &id:oatpp::data::buffer::Processor; for chunked decoding.
+   * @return - &id:oatpp::data::buffer::Processor;
+   */
+  std::shared_ptr<data::buffer::Processor> getProcessor() override;
 
 };
 

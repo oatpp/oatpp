@@ -23,22 +23,12 @@
  ***************************************************************************/
 
 #include "MultipartBody.hpp"
-
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MultipartReadCallback
 
-MultipartBody::MultipartReadCallback::MultipartReadCallback(const std::shared_ptr<Multipart>& multipart)
-  : m_multipart(multipart)
-  , m_iterator(multipart->getAllParts().begin())
-  , m_state(STATE_BOUNDARY)
-  , m_readStream(nullptr, nullptr, 0)
-{}
-
-v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_size count, async::Action& action) {
+v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action& action) {
   auto& part = *m_iterator;
   const auto& stream = part->getInputStream();
   if(!stream) {
@@ -53,7 +43,7 @@ v_io_size MultipartBody::MultipartReadCallback::readBody(void *buffer, v_buff_si
   return res;
 }
 
-v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_size count, async::Action& action) {
+v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& action) {
 
   if(m_state == STATE_FINISHED) {
     return 0;
@@ -111,9 +101,6 @@ v_io_size MultipartBody::MultipartReadCallback::read(void *buffer, v_buff_size c
   return count - bytesLeft;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MultipartBody
-
 v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& multipart,
                                             std::list<std::shared_ptr<Part>>::const_iterator& iterator,
                                             data::stream::BufferInputStream& readStream,
@@ -154,7 +141,7 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
 
   if (!readStream.getDataMemoryHandle()) {
 
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     auto& part = *iterator;
     http::Utils::writeHeaders(part->getHeaders(), &stream);
     stream.writeSimple("\r\n", 2);
@@ -172,31 +159,21 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
 }
 
 MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart)
-  : ChunkedBody(std::make_shared<MultipartReadCallback>(multipart))
-  , m_multipart(multipart)
+  : m_multipart(multipart)
+  , m_iterator(multipart->getAllParts().begin())
+  , m_state(STATE_BOUNDARY)
+  , m_readStream(nullptr, nullptr, 0)
 {}
 
 void MultipartBody::declareHeaders(Headers& headers) {
   if(m_multipart->getAllParts().empty()) {
-    headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, "0");
     return;
   }
-  ChunkedBody::declareHeaders(headers);
   headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_TYPE, "multipart/form-data; boundary=" + m_multipart->getBoundary());
 }
 
-void MultipartBody::writeToStream(OutputStream* stream) {
-  if(m_multipart->getAllParts().empty()) {
-    return;
-  }
-  ChunkedBody::writeToStream(stream);
-}
-
-oatpp::async::CoroutineStarter MultipartBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
-  if(m_multipart->getAllParts().empty()) {
-    return nullptr;
-  }
-  return ChunkedBody::writeToStreamAsync(stream);
+p_char8 MultipartBody::getKnownData() {
+  return nullptr;
 }
 
 v_buff_size MultipartBody::getKnownSize() {

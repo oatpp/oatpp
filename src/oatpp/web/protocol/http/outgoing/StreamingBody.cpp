@@ -22,32 +22,30 @@
  *
  ***************************************************************************/
 
-#include "./DtoBody.hpp"
+#include "StreamingBody.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-DtoBody::DtoBody(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                 oatpp::data::mapping::ObjectMapper* objectMapper)
-  : ChunkedBufferBody(oatpp::data::stream::ChunkedBuffer::createShared())
-  , m_dto(dto)
-  , m_objectMapper(objectMapper)
+StreamingBody::StreamingBody(const std::shared_ptr<data::stream::ReadCallback>& readCallback)
+  : m_readCallback(readCallback)
 {}
 
-std::shared_ptr<DtoBody> DtoBody::createShared(const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
-                                               oatpp::data::mapping::ObjectMapper* objectMapper) {
-  return Shared_Http_Outgoing_DtoBody_Pool::allocateShared(dto, objectMapper);
+v_io_size StreamingBody::read(void *buffer, v_buff_size count, async::Action& action) {
+  return m_readCallback->read(buffer, count, action);
 }
 
-void DtoBody::declareHeaders(Headers& headers) {
-  if(m_dto) {
-    m_objectMapper->write(m_buffer, m_dto);
-  }
-  ChunkedBufferBody::declareHeaders(headers);
-  headers.putIfNotExists_LockFree(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
+void StreamingBody::declareHeaders(Headers& headers) {
+  (void) headers;
+  // DO NOTHING
 }
 
-v_buff_size DtoBody::getKnownSize() {
-  return m_buffer->getSize();
+p_char8 StreamingBody::getKnownData() {
+  return nullptr;
+}
+
+
+v_buff_size StreamingBody::getKnownSize() {
+  return -1;
 }
 
 }}}}}

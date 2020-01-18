@@ -526,9 +526,9 @@ v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
   v_int32 procRes = data::buffer::Processor::Error::PROVIDE_DATA_IN;
   v_io_size progress = 0;
 
-  while(transferSize == 0 || progress < transferSize) {
+  while(procRes != data::buffer::Processor::Error::FINISHED) {
 
-    if(procRes == data::buffer::Processor::Error::PROVIDE_DATA_IN) {
+    if(procRes == data::buffer::Processor::Error::PROVIDE_DATA_IN && inData.bytesLeft == 0) {
 
       v_buff_size desiredToRead = processor->suggestInputStreamReadSize();
 
@@ -638,7 +638,7 @@ async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& re
 
     Action act() override {
 
-      if(m_transferSize != 0 && m_progress >= m_transferSize) {
+      if(m_procRes == data::buffer::Processor::Error::FINISHED) {
         return finish();
       }
 

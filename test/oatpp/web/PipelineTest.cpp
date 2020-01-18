@@ -158,10 +158,13 @@ void PipelineTest::onRun() {
     std::thread pipeOutThread([this, connection] {
 
       oatpp::String sample = SAMPLE_OUT;
-      oatpp::data::stream::ChunkedBuffer receiveStream;
+      oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      auto res = oatpp::data::stream::transfer(connection.get(), &receiveStream, sample->getSize() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());
+      v_io_size transferSize = sample->getSize() * m_pipelineSize;
+
+      OATPP_LOGD(TAG, "want to Receive %d bytes", transferSize);
+      auto res = oatpp::data::stream::transfer(connection.get(), &receiveStream, transferSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
 

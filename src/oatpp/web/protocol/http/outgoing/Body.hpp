@@ -37,10 +37,9 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  * Abstract http outgoing body.
  * You may extend this class in order to implement custom body transferring functionality.
  */
-class Body {
+class Body : public data::stream::ReadCallback {
 protected:
   typedef http::Headers Headers;
-  typedef oatpp::data::stream::OutputStream OutputStream;
 public:
 
   /**
@@ -48,28 +47,23 @@ public:
    */
   virtual ~Body() = default;
 
+  ///////////////////////////
+  // From the ReadCallback //
+  //
+  //virtual v_io_size read(void *buffer, v_buff_size count, async::Action& action) = 0;
+
   /**
    * Declare headers describing body.
+   * **Note:** Do NOT declare the `Content-Length` header.
    * @param headers - &id:oatpp::web::protocol::http::Headers;.
    */
   virtual void declareHeaders(Headers& headers) = 0;
-  
-  /**
-   * write content to stream
-   */
 
   /**
-   * Write body content to stream.
-   * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
+   * Pointer to the body known data.
+   * @return - `p_char8`.
    */
-  virtual void writeToStream(OutputStream* stream) = 0;
-
-  /**
-   * Same as &l:Body::writeToStream (); but async.
-   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
-   * @return - &id:oatpp::async::CoroutineStarter;.
-   */
-  virtual oatpp::async::CoroutineStarter writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) = 0;
+  virtual p_char8 getKnownData() = 0;
 
   /**
    * Should return the known size of the body (if known).

@@ -22,28 +22,33 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_app_DTOs_hpp
-#define oatpp_test_web_app_DTOs_hpp
+#include "ProviderCollection.hpp"
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 
-namespace oatpp { namespace test { namespace web { namespace app {
+void ProviderCollection::add(const std::shared_ptr<EncoderProvider>& provider) {
+  m_providers[provider->getEncodingName()] = provider;
+}
 
-#include OATPP_CODEGEN_BEGIN(DTO)
+std::shared_ptr<EncoderProvider> ProviderCollection::get(const data::share::StringKeyLabelCI& encoding) const {
+  auto it = m_providers.find(encoding);
+  if(it != m_providers.end()) {
+    return it->second;
+  }
+  return nullptr;
+}
 
-class TestDto : public oatpp::data::mapping::type::Object {
-  
-  DTO_INIT(TestDto, Object)
-  
-  DTO_FIELD(String, testValue);
-  DTO_FIELD(Int32, testValueInt);
-  DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
-  
-};
+std::shared_ptr<EncoderProvider> ProviderCollection::get(const std::unordered_set<data::share::StringKeyLabelCI>& encodings) const {
 
-#include OATPP_CODEGEN_END(DTO)
-  
-}}}}
+  for(const auto& encoding : encodings) {
+    auto provider = get(encoding);
+    if(provider) {
+      return provider;
+    }
+  }
 
-#endif /* oatpp_test_web_app_DTOs_hpp */
+  return nullptr;
+
+}
+
+}}}}}

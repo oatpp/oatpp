@@ -29,7 +29,6 @@
 
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 
-#include "oatpp/web/protocol/http/outgoing/DtoBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
 #include "oatpp/encoding/Base64.hpp"

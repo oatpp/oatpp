@@ -26,6 +26,7 @@
 #define oatpp_web_protocol_http_incoming_SimpleBodyDecoder_hpp
 
 #include "BodyDecoder.hpp"
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -33,7 +34,18 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  * Default implementation of &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
  */
 class SimpleBodyDecoder : public BodyDecoder {
+private:
+  std::shared_ptr<encoding::ProviderCollection> m_contentDecoders;
+private:
+  base::ObjectHandle<data::buffer::Processor> getStreamProcessor(const data::share::StringKeyLabelCI& transferEncoding,
+                                                                 const data::share::StringKeyLabelCI& contentEncoding) const;
 public:
+
+  /**
+   * Constructor.
+   * @param decoders - collection content decoders.
+   */
+  SimpleBodyDecoder(const std::shared_ptr<encoding::ProviderCollection>& contentDecoders = nullptr);
 
   /**
    * Decode bodyStream and write decoded data to toStream.

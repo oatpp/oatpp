@@ -22,28 +22,39 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_app_DTOs_hpp
-#define oatpp_test_web_app_DTOs_hpp
+#ifndef oatpp_web_protocol_http_encoding_EncoderProvider_hpp
+#define oatpp_web_protocol_http_encoding_EncoderProvider_hpp
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/core/data/buffer/Processor.hpp"
+#include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 
-#include OATPP_CODEGEN_BEGIN(DTO)
+/**
+ * Provider of encoding or decoding &id:oatpp::data::buffer::Processor;.
+ */
+class EncoderProvider {
+public:
 
-class TestDto : public oatpp::data::mapping::type::Object {
-  
-  DTO_INIT(TestDto, Object)
-  
-  DTO_FIELD(String, testValue);
-  DTO_FIELD(Int32, testValueInt);
-  DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
-  
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~EncoderProvider() = default;
+
+  /**
+   * Get name of the encoding. This name is used in HTTP headers.
+   * @return - name of the encoding. Ex.: "gzip" or "deflate" or "chunked".
+   */
+  virtual oatpp::String getEncodingName() = 0;
+
+  /**
+   * Get &id:oatpp::data::buffer::Processor; for decoding/encoding.
+   * @return - &id:oatpp::data::buffer::Processor;
+   */
+  virtual std::shared_ptr<data::buffer::Processor> getProcessor() = 0;
+
 };
 
-#include OATPP_CODEGEN_END(DTO)
-  
-}}}}
+}}}}}
 
-#endif /* oatpp_test_web_app_DTOs_hpp */
+#endif // oatpp_web_protocol_http_encoding_EncoderProvider_hpp
