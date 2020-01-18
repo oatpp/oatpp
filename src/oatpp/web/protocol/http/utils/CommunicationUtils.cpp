@@ -97,8 +97,7 @@ std::shared_ptr<encoding::EncoderProvider>
 CommunicationUtils::selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
                                   const std::shared_ptr<http::encoding::EncoderCollection>& providers)
 {
-
-  if(providers) {
+  if(providers && request) {
 
     auto suggested = request->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabel>(Header::ACCEPT_ENCODING);
 
