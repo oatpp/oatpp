@@ -408,9 +408,6 @@ public:
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
                                                    const oatpp::String& str) const;
   
-  std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
-                                                   const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const;
-  
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
                                                       const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const;
