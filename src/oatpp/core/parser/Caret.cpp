@@ -100,7 +100,7 @@ Caret::StateSaveGuard::StateSaveGuard(Caret& caret)
   , m_savedErrorCode(caret.m_errorCode)
 {}
 
-    Caret::StateSaveGuard::~StateSaveGuard() {
+Caret::StateSaveGuard::~StateSaveGuard() {
   m_caret.m_pos = m_savedPosition;
   m_caret.m_errorMessage = m_savedErrorMessage;
   m_caret.m_errorCode = m_savedErrorCode;
