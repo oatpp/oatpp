@@ -109,7 +109,7 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
   if(indent) {
     std::cout << "|";
   }
-  std::cout << " " << tag << ":" << message << "\n";
+  std::cout << " " << tag << ":" << message << std::endl;
 
 }
 
