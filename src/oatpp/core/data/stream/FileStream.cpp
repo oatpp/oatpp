@@ -48,7 +48,7 @@ FileInputStream::FileInputStream(const char* filename)
 }
 
 FileInputStream::~FileInputStream() {
-  if(m_ownsFile) {
+  if(m_ownsFile && m_file) {
     std::fclose(m_file);
   }
 }
