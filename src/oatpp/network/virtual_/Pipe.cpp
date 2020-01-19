@@ -36,32 +36,32 @@ oatpp::data::stream::IOMode Pipe::Reader::getInputStreamIOMode() {
   return m_ioMode;
 }
 
-void Pipe::Reader::setMaxAvailableToRead(data::v_io_size maxAvailableToRead) {
+void Pipe::Reader::setMaxAvailableToRead(v_io_size maxAvailableToRead) {
   m_maxAvailableToRead = maxAvailableToRead;
 }
   
-data::v_io_size Pipe::Reader::read(void *data, v_buff_size count) {
+v_io_size Pipe::Reader::read(void *data, v_buff_size count, async::Action& action) {
   
   if(m_maxAvailableToRead > -1 && count > m_maxAvailableToRead) {
     count = m_maxAvailableToRead;
   }
   
   Pipe& pipe = *m_pipe;
-  oatpp::data::v_io_size result;
+  oatpp::v_io_size result;
   
-  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
-    std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
-    if(lock.owns_lock()) {
-      if (pipe.m_fifo.availableToRead() > 0) {
-        result = pipe.m_fifo.read(data, count);
-      } else if (pipe.m_open) {
-        result = data::IOError::WAIT_RETRY_READ;
-      } else {
-        result = data::IOError::BROKEN_PIPE;
-      }
+  if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
+
+    std::lock_guard<std::mutex> lock(pipe.m_mutex);
+
+    if (pipe.m_fifo.availableToRead() > 0) {
+      result = pipe.m_fifo.read(data, count);
+    } else if (pipe.m_open) {
+      action = async::Action::createWaitListAction(&m_waitList);
+      result = IOError::RETRY_READ;
     } else {
-      result = data::IOError::WAIT_RETRY_READ;
+      result = IOError::BROKEN_PIPE;
     }
+
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
     while (pipe.m_fifo.availableToRead() == 0 && pipe.m_open) {
@@ -70,7 +70,7 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count) {
     if (pipe.m_fifo.availableToRead() > 0) {
       result = pipe.m_fifo.read(data, count);
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = IOError::BROKEN_PIPE;
     }
   }
 
@@ -81,28 +81,6 @@ data::v_io_size Pipe::Reader::read(void *data, v_buff_size count) {
   
   return result;
   
-}
-
-oatpp::async::Action Pipe::Reader::suggestInputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_READ: {
-      std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
-      if (m_pipe->m_fifo.availableToRead() > 0 || !m_pipe->m_open) {
-        return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-      }
-      return oatpp::async::Action::createWaitListAction(&m_waitList);
-    }
-    case oatpp::data::IOError::RETRY_READ:
-      return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Reader::suggestInputStreamAction()]: Error. Unable to suggest async action for I/O result.");
-
 }
 
 oatpp::data::stream::Context& Pipe::Reader::getInputStreamContext() {
@@ -129,32 +107,32 @@ oatpp::data::stream::Context& Pipe::Writer::getOutputStreamContext() {
   return DEFAULT_CONTEXT;
 }
 
-void Pipe::Writer::setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite) {
+void Pipe::Writer::setMaxAvailableToWrite(v_io_size maxAvailableToWrite) {
   m_maxAvailableToWrtie = maxAvailableToWrite;
 }
   
-data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count) {
+v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::Action& action) {
   
   if(m_maxAvailableToWrtie > -1 && count > m_maxAvailableToWrtie) {
     count = m_maxAvailableToWrtie;
   }
 
   Pipe& pipe = *m_pipe;
-  oatpp::data::v_io_size result;
+  oatpp::v_io_size result;
   
-  if(m_ioMode == oatpp::data::stream::IOMode::NON_BLOCKING) {
-    std::unique_lock<std::mutex> lock(pipe.m_mutex, std::try_to_lock);
-    if(lock.owns_lock()) {
-      if (pipe.m_fifo.availableToWrite() > 0) {
-        result = pipe.m_fifo.write(data, count);
-      } else if (pipe.m_open) {
-        result = data::IOError::WAIT_RETRY_WRITE;
-      } else {
-        result = data::IOError::BROKEN_PIPE;
-      }
+  if(m_ioMode == oatpp::data::stream::IOMode::ASYNCHRONOUS) {
+
+    std::lock_guard<std::mutex> lock(pipe.m_mutex);
+
+    if (pipe.m_fifo.availableToWrite() > 0) {
+      result = pipe.m_fifo.write(data, count);
+    } else if (pipe.m_open) {
+      action = async::Action::createWaitListAction(&m_waitList);
+      result = IOError::RETRY_WRITE;
     } else {
-      result = data::IOError::WAIT_RETRY_WRITE;
+      result = IOError::BROKEN_PIPE;
     }
+
   } else {
     std::unique_lock<std::mutex> lock(pipe.m_mutex);
     while (pipe.m_fifo.availableToWrite() == 0 && pipe.m_open) {
@@ -163,7 +141,7 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count) {
     if (pipe.m_open && pipe.m_fifo.availableToWrite() > 0) {
       result = pipe.m_fifo.write(data, count);
     } else {
-      result = data::IOError::BROKEN_PIPE;
+      result = IOError::BROKEN_PIPE;
     }
   }
 
@@ -174,28 +152,6 @@ data::v_io_size Pipe::Writer::write(const void *data, v_buff_size count) {
   
   return result;
   
-}
-
-oatpp::async::Action Pipe::Writer::suggestOutputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  switch (ioResult) {
-    case oatpp::data::IOError::WAIT_RETRY_WRITE: {
-      std::unique_lock<std::mutex> lock(m_pipe->m_mutex);
-      if (m_pipe->m_fifo.availableToWrite() > 0 || !m_pipe->m_open) {
-        return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-      }
-      return oatpp::async::Action::createWaitListAction(&m_waitList);
-    }
-    case oatpp::data::IOError::RETRY_WRITE:
-      return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  throw std::runtime_error("[oatpp::network::virtual_::Pipe::Writer::suggestOutputStreamAction()]: Error. Unable to suggest async action for I/O result.");
-
 }
 
 void Pipe::Writer::notifyWaitList() {

@@ -22,13 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
-#define oatpp_web_protocol_http_outgoing_CommunicationUtils_hpp
+#ifndef oatpp_web_protocol_http_utils_CommunicationUtils_hpp
+#define oatpp_web_protocol_http_utils_CommunicationUtils_hpp
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
 
 /**
  * Helper class for communication utils.
@@ -68,9 +69,12 @@ public:
    */
   static v_int32 considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                          const std::shared_ptr<protocol::http::outgoing::Response>& response);
+
+  static std::shared_ptr<encoding::EncoderProvider> selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
+                                                                  const std::shared_ptr<http::encoding::ProviderCollection>& providers);
   
 };
   
 }}}}}
 
-#endif /* CommunicationUtils_hpp */
+#endif /* oatpp_web_protocol_http_utils_CommunicationUtils_hpp */

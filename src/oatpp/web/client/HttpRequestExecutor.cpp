@@ -121,6 +121,9 @@ HttpRequestExecutor::executeOnce(const String& method,
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Connection is null");
   }
+
+  connection->setInputStreamIOMode(data::stream::IOMode::BLOCKING);
+  connection->setOutputStreamIOMode(data::stream::IOMode::BLOCKING);
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
   request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
@@ -180,10 +183,11 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     std::shared_ptr<Body> m_body;
     std::shared_ptr<const BodyDecoder> m_bodyDecoder;
     std::shared_ptr<ConnectionHandle> m_connectionHandle;
+    oatpp::data::share::MemoryLabel m_buffer;
+    ResponseHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_upstream;
   private:
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    oatpp::data::share::MemoryLabel m_buffer;
   public:
     
     ExecutorCoroutine(HttpRequestExecutor* _this,
@@ -200,6 +204,8 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
       , m_body(body)
       , m_bodyDecoder(bodyDecoder)
       , m_connectionHandle(connectionHandle)
+      , m_buffer(base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE))
+      , m_headersReader(m_buffer, 4096)
     {}
     
     Action act() override {
@@ -213,18 +219,19 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
                                     "[oatpp::web::client::HttpRequestExecutor::executeOnceAsync::ExecutorCoroutine{act()}]: Connection is null");
       }
 
+      m_connection->setInputStreamIOMode(data::stream::IOMode::ASYNCHRONOUS);
+      m_connection->setOutputStreamIOMode(data::stream::IOMode::ASYNCHRONOUS);
+
       auto request = OutgoingRequest::createShared(m_method, m_path, m_headers, m_body);
       request->putHeaderIfNotExists(Header::HOST, m_this->m_connectionProvider->getProperty("host"));
       request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
-      m_buffer = oatpp::data::share::MemoryLabel(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, m_buffer);
       return OutgoingRequest::sendAsync(request, m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
 
     }
     
     Action readResponse() {
-      ResponseHeadersReader headersReader(m_buffer, 4096);
-      return headersReader.readHeadersAsync(m_connection).callbackTo(&ExecutorCoroutine::onHeadersParsed);
+      return m_headersReader.readHeadersAsync(m_connection).callbackTo(&ExecutorCoroutine::onHeadersParsed);
     }
     
     Action onHeadersParsed(const ResponseHeadersReader::Result& result) {

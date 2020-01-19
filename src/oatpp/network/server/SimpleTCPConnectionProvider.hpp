@@ -54,10 +54,10 @@ public:
 
     /**
      * Constructor.
-     * @param handle - &id:oatpp::data::v_io_handle;.
+     * @param handle - &id:oatpp::v_io_handle;.
      * @param properties - &id:oatpp::data::stream::Context::Properties;.
      */
-    ExtendedConnection(data::v_io_handle handle, data::stream::Context::Properties&& properties);
+    ExtendedConnection(v_io_handle handle, data::stream::Context::Properties&& properties);
 
     /**
      * Get output stream context.
@@ -75,13 +75,13 @@ public:
 
 private:
   v_word16 m_port;
-  bool m_closed;
-  oatpp::data::v_io_handle m_serverHandle;
+  std::atomic<bool> m_closed;
+  oatpp::v_io_handle m_serverHandle;
   bool m_useExtendedConnections;
 private:
-  oatpp::data::v_io_handle instantiateServer();
+  oatpp::v_io_handle instantiateServer();
 private:
-  bool prepareConnectionHandle(oatpp::data::v_io_handle handle);
+  bool prepareConnectionHandle(oatpp::v_io_handle handle);
   std::shared_ptr<IOStream> getDefaultConnection();
   std::shared_ptr<IOStream> getExtendedConnection();
 public:

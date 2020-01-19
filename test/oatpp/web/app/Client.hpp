@@ -25,9 +25,11 @@
 #ifndef oatpp_test_web_app_Client_hpp
 #define oatpp_test_web_app_Client_hpp
 
+#include "./DTOs.hpp"
+
+#include "oatpp/web/client/ApiClient.hpp"
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 #include "oatpp/encoding/Base64.hpp"
-#include "oatpp/web/client/ApiClient.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
@@ -53,6 +55,7 @@ public:
   API_CALL("GET", "queries/map", getWithQueriesMap, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
+  API_CALL("POST", "body-dto", postBodyDto, BODY_DTO(TestDto::ObjectWrapper, body))
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
 

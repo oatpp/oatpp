@@ -23,7 +23,11 @@
  ***************************************************************************/
 
 #include "Request.hpp"
+
+#include "oatpp/web/protocol/http/encoding/Chunked.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
@@ -69,36 +73,60 @@ std::shared_ptr<Body> Request::getBody() {
 }
 
 void Request::send(data::stream::OutputStream* stream){
-  
+
+  v_buff_size bodySize = -1;
+
   if(m_body){
+
     m_body->declareHeaders(m_headers);
+
+    bodySize = m_body->getKnownSize();
+
+    if(bodySize >= 0) {
+      m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::conversion::int64ToStr(bodySize));
+    } else {
+      m_headers.put_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
+    }
+
   } else {
     m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
   }
 
-  oatpp::data::stream::BufferOutputStream buffer;
+  oatpp::data::stream::BufferOutputStream buffer(2048, 2048);
 
-  buffer.write(m_method.getData(), m_method.getSize());
-  buffer.write(" /", 2);
-  buffer.write(m_path.getData(), m_path.getSize());
-  buffer.write(" ", 1);
-  buffer.write("HTTP/1.1", 8);
-  buffer.write("\r\n", 2);
+  buffer.writeSimple(m_method.getData(), m_method.getSize());
+  buffer.writeSimple(" /", 2);
+  buffer.writeSimple(m_path.getData(), m_path.getSize());
+  buffer.writeSimple(" ", 1);
+  buffer.writeSimple("HTTP/1.1", 8);
+  buffer.writeSimple("\r\n", 2);
 
   http::Utils::writeHeaders(m_headers, &buffer);
 
-  buffer.write("\r\n", 2);
+  buffer.writeSimple("\r\n", 2);
 
   if(m_body) {
 
-    auto bodySize = m_body->getKnownSize();
+    if(bodySize >= 0) {
 
-    if(bodySize >= 0 && bodySize + buffer.getCurrentPosition() < buffer.getCapacity()) {
-      m_body->writeToStream(&buffer);
-      buffer.flushToStream(stream);
+      if(bodySize + buffer.getCurrentPosition() < buffer.getCapacity()) {
+        buffer.writeSimple(m_body->getKnownData(), bodySize);
+        buffer.flushToStream(stream);
+      } else {
+        buffer.flushToStream(stream);
+        stream->writeExactSizeDataSimple(m_body->getKnownData(), bodySize);
+      }
+
     } else {
+
       buffer.flushToStream(stream);
-      m_body->writeToStream(stream);
+
+      http::encoding::EncoderChunked chunkedEncoder;
+
+      /* Reuse headers buffer */
+      buffer.setCurrentPosition(0);
+      data::stream::transfer(m_body, stream, 0, buffer.getData(), buffer.getCapacity(), &chunkedEncoder);
+
     }
 
   } else {
@@ -126,55 +154,67 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
     {}
     
     Action act() {
-      
+
+      v_buff_size bodySize = -1;
+
       if(m_this->m_body){
+
         m_this->m_body->declareHeaders(m_this->m_headers);
+
+        bodySize = m_this->m_body->getKnownSize();
+
+        if(bodySize >= 0) {
+          m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::conversion::int64ToStr(bodySize));
+        } else {
+          m_this->m_headers.put_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
+        }
+
       } else {
         m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
       }
       
-      m_headersWriteBuffer->write(m_this->m_method.getData(), m_this->m_method.getSize());
-      m_headersWriteBuffer->write(" /", 2);
-      m_headersWriteBuffer->write(m_this->m_path.getData(), m_this->m_path.getSize());
-      m_headersWriteBuffer->write(" ", 1);
-      m_headersWriteBuffer->write("HTTP/1.1", 8);
-      m_headersWriteBuffer->write("\r\n", 2);
+      m_headersWriteBuffer->writeSimple(m_this->m_method.getData(), m_this->m_method.getSize());
+      m_headersWriteBuffer->writeSimple(" /", 2);
+      m_headersWriteBuffer->writeSimple(m_this->m_path.getData(), m_this->m_path.getSize());
+      m_headersWriteBuffer->writeSimple(" ", 1);
+      m_headersWriteBuffer->writeSimple("HTTP/1.1", 8);
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       http::Utils::writeHeaders(m_this->m_headers, m_headersWriteBuffer.get());
       
-      m_headersWriteBuffer->write("\r\n", 2);
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
-      const auto& body = m_this->m_body;
+      if(m_this->m_body) {
 
-      if(body) {
+        if(bodySize >= 0) {
 
-        auto bodySize = body->getKnownSize();
+          if(bodySize + m_headersWriteBuffer->getCurrentPosition() < m_headersWriteBuffer->getCapacity()) {
 
-        if(bodySize >= 0 && bodySize + m_headersWriteBuffer->getCurrentPosition() < m_headersWriteBuffer->getCapacity()) {
+            m_headersWriteBuffer->writeSimple(m_this->m_body->getKnownData(), bodySize);
+            return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+              .next(finish());
+          } else {
 
-          return body->writeToStreamAsync(m_headersWriteBuffer)
-            .next(oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream))
-            .next(finish());
+            return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+              .next(m_stream->writeExactSizeDataAsync(m_this->m_body->getKnownData(), bodySize))
+              .next(finish());
+          }
 
         } else {
-          return yieldTo(&SendAsyncCoroutine::writeHeaders);
+
+          auto chunkedEncoder = std::make_shared<http::encoding::EncoderChunked>();
+          return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+                 .next(data::stream::transferAsync(m_this->m_body, m_stream, 0, data::buffer::IOBuffer::createShared(), chunkedEncoder))
+                 .next(finish());
+
         }
 
       } else {
-        return yieldTo(&SendAsyncCoroutine::writeHeaders);
+
+        return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+          .next(finish());
       }
       
-    }
-    
-    Action writeHeaders() {
-      return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream).next(yieldTo(&SendAsyncCoroutine::writeBody));
-    }
-    
-    Action writeBody() {
-      if(m_this->m_body) {
-        return m_this->m_body->writeToStreamAsync(m_stream).next(finish());
-      }
-      return finish();
     }
     
   };

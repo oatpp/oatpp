@@ -104,7 +104,7 @@ void ChunkedBufferTest::onRun() {
     ChunkedBuffer stream;
 
     for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
-      stream.write("0123456789", 10);
+      stream.writeSimple("0123456789", 10);
     }
 
     auto wholeText = stream.toString();

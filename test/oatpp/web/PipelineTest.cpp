@@ -134,6 +134,7 @@ void PipelineTest::onRun() {
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 
     auto connection = clientConnectionProvider->getConnection();
+    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     std::thread pipeInThread([this, connection] {
 
@@ -143,85 +144,37 @@ void PipelineTest::onRun() {
         pipelineStream << SAMPLE_IN;
       }
 
-      oatpp::data::stream::BufferInputStream inputStream(pipelineStream.toString());
-      oatpp::data::stream::DefaultWriteCallback writeCallback(connection.get());
+      auto dataToSend = pipelineStream.toString();
+      OATPP_LOGD(TAG, "Sending %d bytes", dataToSend->getSize());
+
+      oatpp::data::stream::BufferInputStream inputStream(dataToSend);
 
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      oatpp::data::stream::transfer(&inputStream, &writeCallback, 0, ioBuffer.getData(), ioBuffer.getSize());
+      auto res = oatpp::data::stream::transfer(&inputStream, connection.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
 
     });
 
     std::thread pipeOutThread([this, connection] {
 
-      connection->setInputStreamIOMode(oatpp::data::stream::IOMode::NON_BLOCKING);
-
-      oatpp::data::stream::ChunkedBuffer pipelineStream;
-
-      for (v_int32 i = 0; i < m_pipelineSize; i++) {
-        pipelineStream << SAMPLE_OUT;
-      }
-
-      oatpp::data::stream::ChunkedBuffer receiveStream;
+      oatpp::String sample = SAMPLE_OUT;
+      oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      v_int32 retries = 0;
-      oatpp::data::v_io_size readResult;
+      v_io_size transferSize = sample->getSize() * m_pipelineSize;
 
-      while(true) {
-
-        readResult = connection->read(ioBuffer.getData(), ioBuffer.getSize());
-        if(readResult > 0) {
-          retries = 0;
-          receiveStream.write(ioBuffer.getData(), readResult);
-        } else {
-          retries ++;
-          if(retries == 50) {
-            break;
-          }
-          std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-
-      }
+      OATPP_LOGD(TAG, "want to Receive %d bytes", transferSize);
+      auto res = oatpp::data::stream::transfer(connection.get(), &receiveStream, transferSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
-      auto wantedResult = pipelineStream.toString();
 
-//      if(result != wantedResult) {
-//
-//        if(result->getSize() == wantedResult->getSize()) {
-//          for(v_int32 i = 0; i < result->getSize(); i++) {
-//            if(result->getData()[i] != wantedResult->getData()[i]) {
-//              OATPP_LOGD(TAG, "result0='%s'", result->getData());
-//              OATPP_LOGD(TAG, "result='%s'", &result->getData()[i]);
-//              OATPP_LOGD(TAG, "wanted='%s'", &wantedResult->getData()[i]);
-//              OATPP_LOGD(TAG, "diff-pos=%d", i);
-//              break;
-//            }
-//          }
-//        }
-//
-//        OATPP_LOGD(TAG, "result-size=%d, wanted-size=%d", result->getSize(), wantedResult->getSize());
-//        OATPP_LOGD(TAG, "last readResult=%d", readResult);
-//
-//      }
-
-      OATPP_ASSERT(result->getSize() == wantedResult->getSize());
+      OATPP_ASSERT(result->getSize() == sample->getSize() * m_pipelineSize);
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
 
     });
 
     pipeOutThread.join();
     pipeInThread.join();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Stop server and unblock accepting thread
-
-    runner.getServer()->stop();
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
-    connectionProvider->getConnection();
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }, std::chrono::minutes(10));
 

@@ -81,7 +81,7 @@ public:
     /*
      * this one used for testing purposes only
      */
-    data::v_io_size m_maxAvailableToRead;
+    v_io_size m_maxAvailableToRead;
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
@@ -104,25 +104,18 @@ public:
      * set to -1 in order to ignore this value.<br>
      * @param maxAvailableToRead - maximum available amount of bytes to read.
      */
-    void setMaxAvailableToRead(data::v_io_size maxAvailableToRead);
+    void setMaxAvailableToRead(v_io_size maxAvailableToRead);
 
     /**
      * Implements &id:oatpp::data::stream::InputStream::read; method.
      * Read data from pipe.
      * @param data - buffer to read data to.
      * @param count - max count of bytes to read.
-     * @return - &id:oatpp::data::v_io_size;.
+     * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+     * caller MUST return this action on coroutine iteration.
+     * @return - &id:oatpp::v_io_size;.
      */
-    data::v_io_size read(void *data, v_buff_size count) override;
-
-    /**
-     * Implementation of InputStream must suggest async actions for I/O results.
-     * Suggested Action is used for scheduling coroutines in async::Executor.
-     * @param ioResult - result of the call to &l:InputStream::read ();.
-     * @return - &id:oatpp::async::Action;.
-     */
-    oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
-
+    v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
     /**
      * Set InputStream I/O mode.
@@ -180,7 +173,7 @@ public:
     /*
      * this one used for testing purposes only
      */
-    data::v_io_size m_maxAvailableToWrtie;
+    v_io_size m_maxAvailableToWrtie;
 
     oatpp::async::CoroutineWaitList m_waitList;
     WaitListListener m_waitListListener;
@@ -203,24 +196,18 @@ public:
      * set to -1 in order to ignore this value.<br>
      * @param maxAvailableToWrite - maximum available amount of bytes to write.
      */
-    void setMaxAvailableToWrite(data::v_io_size maxAvailableToWrite);
+    void setMaxAvailableToWrite(v_io_size maxAvailableToWrite);
 
     /**
      * Implements &id:oatpp::data::stream::OutputStream::write; method.
      * Write data to pipe.
      * @param data - data to write to pipe.
      * @param count - data size.
-     * @return - &id:oatpp::data::v_io_size;.
+     * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+     * caller MUST return this action on coroutine iteration.
+     * @return - &id:oatpp::v_io_size;.
      */
-    data::v_io_size write(const void *data, v_buff_size count) override;
-
-    /**
-     * Implementation of OutputStream must suggest async actions for I/O results.
-     * Suggested Action is used for scheduling coroutines in async::Executor.
-     * @param ioResult - result of the call to &l:OutputStream::write ();.
-     * @return - &id:oatpp::async::Action;.
-     */
-    oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+    v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
     /**
      * Set OutputStream I/O mode.

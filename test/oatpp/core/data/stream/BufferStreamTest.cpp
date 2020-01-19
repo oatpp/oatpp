@@ -105,7 +105,7 @@ void BufferStreamTest::onRun() {
     v_int32 fragmentsCount = 1024 * 10;
 
     for(v_int32 i = 0; i < fragmentsCount; i++) {
-      stream.write("0123456789", 10);
+      stream.writeSimple("0123456789", 10);
     }
 
     auto wholeText = stream.toString();

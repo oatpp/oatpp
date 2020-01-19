@@ -49,7 +49,7 @@ public:
 
   void writeChar(char c) {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_buffer->writeChar(c);
+    m_buffer->writeCharSimple(c);
   }
 
 };

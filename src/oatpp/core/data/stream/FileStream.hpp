@@ -72,18 +72,11 @@ public:
    * It is a legal case if return result < count. Caller should handle this!
    * @param data - buffer to read data to.
    * @param count - size of the buffer.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes read.
    */
-  data::v_io_size read(void *data, v_buff_size count) override;
-
-  /**
-   * Implementation of InputStream must suggest async actions for I/O results. <br>
-   * Suggested Action is used for scheduling coroutines in async::Executor. <br>
-   * **Stream MUST always give the same file-handle if applicable**
-   * @param ioResult - result of the call to &l:InputStream::read ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+  v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.
@@ -147,18 +140,11 @@ public:
    * It is a legal case if return result < count. Caller should handle this!
    * @param data - data to write.
    * @param count - number of bytes to write.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  data::v_io_size write(const void *data, v_buff_size count) override;
-
-  /**
-   * Implementation of OutputStream must suggest async actions for I/O results. <br>
-   * Suggested Action is used for scheduling coroutines in async::Executor. <br>
-   * **Stream MUST always give the same file-handle if applicable**
-   * @param ioResult - result of the call to &l:OutputStream::write ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.

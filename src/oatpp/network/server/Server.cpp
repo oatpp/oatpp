@@ -50,7 +50,7 @@ void Server::mainLoop(){
   while(getStatus() == STATUS_RUNNING) {
     
     auto connection = m_connectionProvider->getConnection();
-    
+
     if (connection) {
       if(getStatus() == STATUS_RUNNING){
         m_connectionHandler->handleConnection(connection, params /* null params */);

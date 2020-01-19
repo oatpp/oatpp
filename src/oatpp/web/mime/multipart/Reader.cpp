@@ -141,9 +141,10 @@ Reader::Reader(Multipart* multipart)
   , m_parser(multipart->getBoundary(), m_partsParser, nullptr)
 {}
 
-data::v_io_size Reader::write(const void *data, v_buff_size count) {
-  m_parser.parseNext((p_char8) data, count);
-  return count;
+v_io_size Reader::write(const void *data, v_buff_size count, async::Action& action) {
+  data::buffer::InlineWriteData inlineData(data, count);
+  m_parser.parseNext(inlineData, action);
+  return count - inlineData.bytesLeft;
 }
 
 void Reader::setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader) {
@@ -163,10 +164,15 @@ AsyncReader::AsyncReader(const std::shared_ptr<Multipart>& multipart)
   , m_multipart(multipart)
 {}
 
-oatpp::async::Action AsyncReader::writeAsyncInline(oatpp::data::stream::AsyncInlineWriteData& inlineData,
-                                                   oatpp::async::Action&& nextAction)
-{
-  return m_parser.parseNextAsyncInline(inlineData, std::forward<async::Action>(nextAction));
+v_io_size AsyncReader::write(const void *data, v_buff_size count, async::Action& action) {
+
+  data::buffer::InlineWriteData inlineData(data, count);
+  while(inlineData.bytesLeft > 0 && !m_parser.finished() && action.isNone()) {
+    m_parser.parseNext(inlineData, action);
+  }
+
+  return count - inlineData.bytesLeft;
+
 }
 
 void AsyncReader::setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader) {

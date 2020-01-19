@@ -26,8 +26,11 @@
 #define oatpp_web_protocol_http_outgoing_Response_hpp
 
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
+#include "oatpp/web/protocol/http/encoding/EncoderProvider.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
+
 #include "oatpp/network/server/ConnectionHandler.hpp"
+
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
@@ -139,19 +142,24 @@ public:
    * Write this Response to stream.
    * @param stream - pointer to &id:oatpp::data::stream::OutputStream;.
    * @param headersWriteBuffer - pointer to &id:oatpp::data::stream::BufferOutputStream;.
+   * @param contentEncoder - pointer to &id:oatpp::web::protocol::http::encoding::EncoderProvider;.
    */
-  void send(data::stream::OutputStream* stream, oatpp::data::stream::BufferOutputStream* headersWriteBuffer);
+  void send(data::stream::OutputStream* stream,
+            data::stream::BufferOutputStream* headersWriteBuffer,
+            http::encoding::EncoderProvider* contentEncoderProvider);
 
   /**
    * Same as &l:Response::send (); but async.
    * @param _this - `this` response.
    * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
    * @param headersWriteBuffer - `std::shared_ptr` to &id:oatpp::data::stream::BufferOutputStream;.
+   * @param contentEncoderProvider - `std::shared_ptr` to &id:oatpp::web::protocol::http::encoding::EncoderProvider;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   static oatpp::async::CoroutineStarter sendAsync(const std::shared_ptr<Response>& _this,
                                                   const std::shared_ptr<data::stream::OutputStream>& stream,
-                                                  const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& headersWriteBuffer);
+                                                  const std::shared_ptr<data::stream::BufferOutputStream>& headersWriteBuffer,
+                                                  const std::shared_ptr<http::encoding::EncoderProvider>& contentEncoderProvider);
   
 };
   

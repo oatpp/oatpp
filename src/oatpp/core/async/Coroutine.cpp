@@ -39,14 +39,14 @@ Action Action::createActionByType(v_int32 type) {
   return Action(type);
 }
 
-Action Action::createIOWaitAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action Action::createIOWaitAction(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   Action result(TYPE_IO_WAIT);
   result.m_data.ioData.ioHandle = ioHandle;
   result.m_data.ioData.ioEventType = ioEventType;
   return result;
 }
 
-Action Action::createIORepeatAction(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action Action::createIORepeatAction(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   Action result(TYPE_IO_REPEAT);
   result.m_data.ioData.ioHandle = ioHandle;
   result.m_data.ioData.ioEventType = ioEventType;
@@ -64,6 +64,10 @@ Action Action::createWaitListAction(CoroutineWaitList* waitList) {
   result.m_data.waitList = waitList;
   return result;
 }
+
+Action::Action()
+  : m_type(TYPE_NONE)
+{}
 
 Action::Action(AbstractCoroutine* coroutine)
   : m_type(TYPE_COROUTINE)
@@ -123,6 +127,10 @@ bool Action::isError() const {
   return m_type == TYPE_ERROR;
 }
 
+bool Action::isNone() const {
+  return m_type == TYPE_NONE;
+}
+
 v_int32 Action::getType() const {
   return m_type;
 }
@@ -131,7 +139,7 @@ v_int64 Action::getTimePointMicroseconds() const {
   return m_data.timePointMicroseconds;
 }
 
-oatpp::data::v_io_handle Action::getIOHandle() const {
+oatpp::v_io_handle Action::getIOHandle() const {
   return m_data.ioData.ioHandle;
 }
 
@@ -233,6 +241,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
 
       case Action::TYPE_COROUTINE: {
         action.m_data.coroutine->m_parent = _CP;
+        action.m_data.coroutine->m_parentReturnFP = _FP;
         _CP = action.m_data.coroutine;
         _FP = &AbstractCoroutine::act;
         action.m_type = Action::TYPE_NONE;
@@ -244,8 +253,8 @@ Action CoroutineHandle::takeAction(Action&& action) {
         /* as funtion pointer (FP) is invalidated */
         action = std::move(_CP->m_parentReturnAction);
         AbstractCoroutine* savedCP = _CP;
+        _FP = _CP->m_parentReturnFP;
         _CP = _CP->m_parent;
-        _FP = nullptr;
         delete savedCP;
         continue;
       }
@@ -374,11 +383,11 @@ CoroutineStarter AbstractCoroutine::waitFor(const std::chrono::duration<v_int64,
 
 }
 
-Action AbstractCoroutine::ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action AbstractCoroutine::ioWait(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   return Action::createIOWaitAction(ioHandle, ioEventType);
 }
 
-Action AbstractCoroutine::ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType) {
+Action AbstractCoroutine::ioRepeat(v_io_handle ioHandle, Action::IOEventType ioEventType) {
   return Action::createIORepeatAction(ioHandle, ioEventType);
 }
 

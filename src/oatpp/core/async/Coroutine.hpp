@@ -27,7 +27,7 @@
 
 #include "./Error.hpp"
 
-#include "oatpp/core/data/IODefinitions.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 
 #include "oatpp/core/collection/FastQueue.hpp"
 #include "oatpp/core/base/memory/MemoryPool.hpp"
@@ -170,7 +170,7 @@ public:
 private:
 
   struct IOData {
-    oatpp::data::v_io_handle ioHandle;
+    oatpp::v_io_handle ioHandle;
     IOEventType ioEventType;
   };
 
@@ -197,6 +197,11 @@ protected:
 public:
 
   /**
+   * Default constructor.
+   */
+  Action();
+
+  /**
    * Clone action.
    * @param action - action to clone.
    * @return - cloned action.
@@ -212,17 +217,17 @@ public:
 
   /**
    * Create TYPE_IO_WAIT Action
-   * @param ioHandle - &id:oatpp::data::v_io_handle;.
+   * @param ioHandle - &id:oatpp::v_io_handle;.
    * @return - Action.
    */
-  static Action createIOWaitAction(data::v_io_handle ioHandle, IOEventType ioEventType);
+  static Action createIOWaitAction(v_io_handle ioHandle, IOEventType ioEventType);
 
   /**
    * Create TYPE_IO_REPEAT Action
-   * @param ioHandle - &id:oatpp::data::v_io_handle;.
+   * @param ioHandle - &id:oatpp::v_io_handle;.
    * @return - Action.
    */
-  static Action createIORepeatAction(data::v_io_handle ioHandle, IOEventType ioEventType);
+  static Action createIORepeatAction(v_io_handle ioHandle, IOEventType ioEventType);
 
   /**
    * Create TYPE_WAIT_REPEAT Action.
@@ -289,6 +294,12 @@ public:
   bool isError() const;
 
   /**
+   * Check if action is of TYPE_NONE.
+   * @return
+   */
+  bool isNone() const;
+
+  /**
    * Get Action type.
    * @return - action type.
    */
@@ -304,9 +315,9 @@ public:
   /**
    * Get I/O handle which is passed with this action to I/O worker.
    * This method returns meaningful value only if Action is TYPE_IO_WAIT or TYPE_IO_REPEAT.
-   * @return - &id:oatpp::data::v_io_handle;.
+   * @return - &id:oatpp::v_io_handle;.
    */
-  oatpp::data::v_io_handle getIOHandle() const;
+  oatpp::v_io_handle getIOHandle() const;
 
   /**
    * This method returns meaningful value only if Action is TYPE_IO_WAIT or TYPE_IO_REPEAT.
@@ -460,7 +471,8 @@ public:
 private:
   AbstractCoroutine* m_parent;
 protected:
-  oatpp::async::Action m_parentReturnAction;
+  Action m_parentReturnAction;
+  FunctionPtr m_parentReturnFP;
 public:
 
   /**
@@ -526,13 +538,13 @@ public:
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_WAIT_FOR_IO Action.
    */
-  static Action ioWait(data::v_io_handle ioHandle, Action::IOEventType ioEventType);
+  static Action ioWait(v_io_handle ioHandle, Action::IOEventType ioEventType);
 
   /**
    * Convenience method to generate Action of `type == Action::TYPE_IO_WAIT`.
    * @return - TYPE_IO_REPEAT Action.
    */
-  static Action ioRepeat(data::v_io_handle ioHandle, Action::IOEventType ioEventType);
+  static Action ioRepeat(v_io_handle ioHandle, Action::IOEventType ioEventType);
 
   /**
    * Convenience method to generate error reporting Action.

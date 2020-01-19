@@ -131,14 +131,14 @@ void StatefulParser::parseHeaders(Headers& headers) {
 
 }
 
-StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::stream::AsyncInlineWriteData& inlineData) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
   p_char8 data = (p_char8)inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
 
   p_char8 sampleData = m_nextBoundarySample->getData();
-  data::v_io_size sampleSize = m_nextBoundarySample->getSize();
+  v_io_size sampleSize = m_nextBoundarySample->getSize();
 
   if (m_currPartIndex == 0) {
     sampleData = m_firstBoundarySample->getData();
@@ -148,7 +148,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::stream::As
     sampleSize = m_nextBoundarySample->getSize();
   }
 
-  data::v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;
+  v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;
   if(checkSize > size) {
     checkSize = size;
   }
@@ -190,7 +190,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::stream::As
 
 }
 
-void StatefulParser::parseNext_AfterBoundary(data::stream::AsyncInlineWriteData& inlineData) {
+void StatefulParser::parseNext_AfterBoundary(data::buffer::InlineWriteData& inlineData) {
 
   p_char8 data = (p_char8) inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
@@ -232,7 +232,7 @@ void StatefulParser::parseNext_AfterBoundary(data::stream::AsyncInlineWriteData&
 
 }
 
-StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::AsyncInlineWriteData& inlineData) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
 
@@ -250,7 +250,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::Asy
         throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Too large heades.");
       }
 
-      m_headersBuffer.write(data, i);
+      m_headersBuffer.writeSimple(data, i);
 
       result.setOnHeadersCall();
 
@@ -268,7 +268,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::Asy
     throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Too large heades.");
   }
 
-  m_headersBuffer.write(data, size);
+  m_headersBuffer.writeSimple(data, size);
 
   inlineData.inc(size);
 
@@ -276,7 +276,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::stream::Asy
 
 }
 
-StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::AsyncInlineWriteData& inlineData) {
+StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
 
@@ -309,9 +309,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::stream::AsyncI
 
 }
 
-v_buff_size StatefulParser::parseNext(p_char8 data, v_buff_size size) {
-
-  data::stream::AsyncInlineWriteData inlineData(data, size);
+void StatefulParser::parseNext(data::buffer::InlineWriteData& inlineData, async::Action& action) {
 
   while(inlineData.bytesLeft > 0) {
 
@@ -331,68 +329,21 @@ v_buff_size StatefulParser::parseNext(p_char8 data, v_buff_size size) {
         listenerCall = parseNext_Data(inlineData);
         break;
       case STATE_DONE:
-        return size - inlineData.bytesLeft;
+        return;
       default:
         throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext()]: Error. Invalid state.");
     }
 
-    listenerCall.call(this);
-
-  }
-
-  return size - inlineData.bytesLeft;
-
-}
-
-async::Action StatefulParser::parseNextAsyncInline(data::stream::AsyncInlineWriteData& inlineData, async::Action&& nextAction) {
-
-  class ParseCoroutine : public async::Coroutine<ParseCoroutine> {
-  private:
-    StatefulParser* m_this;
-    data::stream::AsyncInlineWriteData* m_inlineData;
-  public:
-
-    ParseCoroutine(StatefulParser* _this, data::stream::AsyncInlineWriteData* inlineData)
-      : m_this(_this)
-      , m_inlineData(inlineData)
-    {}
-
-    Action act() override {
-
-      if(m_inlineData->bytesLeft > 0) {
-
-        ListenerCall listenerCall;
-
-        switch (m_this->m_state) {
-          case STATE_BOUNDARY:
-            listenerCall = m_this->parseNext_Boundary(*m_inlineData);
-            break;
-          case STATE_AFTER_BOUNDARY:
-            m_this->parseNext_AfterBoundary(*m_inlineData);
-            break;
-          case STATE_HEADERS:
-            listenerCall = m_this->parseNext_Headers(*m_inlineData);
-            break;
-          case STATE_DATA:
-            listenerCall = m_this->parseNext_Data(*m_inlineData);
-            break;
-          case STATE_DONE:
-            return finish();
-          default:
-            throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext()]: Error. Invalid state.");
-        }
-
-        return listenerCall.callAsync(m_this).next(yieldTo(&ParseCoroutine::act));
-
+    if(listenerCall) {
+      if(m_asyncListener) {
+        action = listenerCall.callAsync(this).next(async::Action::createActionByType(async::Action::TYPE_REPEAT));
+        break;
+      }else {
+        listenerCall.call(this);
       }
-
-      return finish();
-
     }
 
-  };
-
-  return ParseCoroutine::start(this, &inlineData).next(std::forward<async::Action>(nextAction));
+  }
 
 }
 

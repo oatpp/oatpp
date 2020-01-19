@@ -26,6 +26,7 @@
 #define oatpp_web_protocol_http_incoming_SimpleBodyDecoder_hpp
 
 #include "BodyDecoder.hpp"
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -34,13 +35,17 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class SimpleBodyDecoder : public BodyDecoder {
 private:
-  static data::v_io_size readLine(data::stream::InputStream* fromStream, p_char8 buffer, v_buff_size maxLineSize);
-
-  static void doChunkedDecoding(data::stream::InputStream* from, data::stream::WriteCallback* writeCallback);
-  
-  static oatpp::async::CoroutineStarter doChunkedDecodingAsync(const std::shared_ptr<data::stream::InputStream>& fromStream,
-                                                               const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback);
+  std::shared_ptr<encoding::ProviderCollection> m_contentDecoders;
+private:
+  base::ObjectHandle<data::buffer::Processor> getStreamProcessor(const data::share::StringKeyLabelCI& transferEncoding,
+                                                                 const data::share::StringKeyLabelCI& contentEncoding) const;
 public:
+
+  /**
+   * Constructor.
+   * @param decoders - collection content decoders.
+   */
+  SimpleBodyDecoder(const std::shared_ptr<encoding::ProviderCollection>& contentDecoders = nullptr);
 
   /**
    * Decode bodyStream and write decoded data to toStream.
@@ -54,12 +59,12 @@ public:
    * Same as &l:SimpleBodyDecoder::decode (); but Async.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
-   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::AsyncWriteCallback;.
+   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::WriteCallback;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   oatpp::async::CoroutineStarter decodeAsync(const Headers& headers,
                                              const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                             const std::shared_ptr<oatpp::data::stream::AsyncWriteCallback>& writeCallback) const override;
+                                             const std::shared_ptr<oatpp::data::stream::WriteCallback>& writeCallback) const override;
   
   
 };

@@ -24,7 +24,7 @@
 
 #include "CommunicationUtils.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
   
 bool CommunicationUtils::headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value) {
   v_int32 size = (v_int32) std::strlen(value);
@@ -92,5 +92,29 @@ v_int32 CommunicationUtils::considerConnectionState(const std::shared_ptr<protoc
   return CONNECTION_STATE_CLOSE;
   
 }
+
+std::shared_ptr<encoding::EncoderProvider>
+CommunicationUtils::selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
+                                  const std::shared_ptr<http::encoding::ProviderCollection>& providers)
+{
+  if(providers && request) {
+
+    auto suggested = request->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabel>(Header::ACCEPT_ENCODING);
+
+    if(suggested) {
+
+      http::HeaderValueData valueData;
+      http::Parser::parseHeaderValueData(valueData, suggested, ',');
+
+      return providers->get(valueData.tokens);
+
+    }
+
+  }
+
+  return nullptr;
+
+}
   
 }}}}}
+

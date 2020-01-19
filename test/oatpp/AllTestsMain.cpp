@@ -8,6 +8,8 @@
 #include "oatpp/web/PipelineTest.hpp"
 #include "oatpp/web/PipelineAsyncTest.hpp"
 
+#include "oatpp/web/protocol/http/encoding/ChunkedTest.hpp"
+
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
@@ -23,6 +25,7 @@
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/LazyStringMapTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
+#include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
@@ -60,7 +63,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-
+/*
   OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -72,6 +75,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
@@ -95,12 +100,14 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
 
+  OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
+
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
-
+*/
   {
 
     oatpp::test::web::PipelineTest test_virtual(0, 3000);

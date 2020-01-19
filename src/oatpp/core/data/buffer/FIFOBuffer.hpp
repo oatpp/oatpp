@@ -26,7 +26,7 @@
 #define oatpp_data_buffer_FIFOBuffer_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/data/IODefinitions.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
@@ -69,15 +69,15 @@ public:
 
   /**
    * Amount of bytes currently available to read from buffer.
-   * @return &id:oatpp::data::v_io_size;.
+   * @return &id:oatpp::v_io_size;.
    */
-  data::v_io_size availableToRead() const;
+  v_io_size availableToRead() const;
 
   /**
    * Amount of buffer space currently available for data writes.
-   * @return &id:oatpp::data::v_io_size;.
+   * @return &id:oatpp::v_io_size;.
    */
-  data::v_io_size availableToWrite() const;
+  v_io_size availableToWrite() const;
 
   /**
    * Get FIFOBuffer size.
@@ -91,7 +91,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size read(void *data, v_buff_size count);
+  v_io_size read(void *data, v_buff_size count);
 
   /**
    * Peek up to count of bytes int he buffer
@@ -99,14 +99,14 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size peek(void *data, v_buff_size count);
+  v_io_size peek(void *data, v_buff_size count);
 
   /**
    * Commit read offset
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size commitReadOffset(v_buff_size count);
+  v_io_size commitReadOffset(v_buff_size count);
 
   /**
    * write up to count bytes from data to buffer
@@ -114,30 +114,32 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size write(const void *data, v_buff_size count);
+  v_io_size write(const void *data, v_buff_size count);
 
   /**
    * call read and then write bytes read to output stream
    * @param stream
    * @param count
+   * @param action
    * @return [1..count], IOErrors.
    */
-  data::v_io_size readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count);
+  v_io_size readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action);
 
   /**
    * call stream.read() and then write bytes read to buffer
    * @param stream
    * @param count
+   * @param action
    * @return
    */
-  data::v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count);
+  v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count, async::Action& action);
 
   /**
    * flush all availableToRead bytes to stream
    * @param stream
    * @return
    */
-  data::v_io_size flushToStream(data::stream::OutputStream* stream);
+  v_io_size flushToStream(data::stream::OutputStream* stream);
 
   /**
    * flush all availableToRead bytes to stream in asynchronous manner
@@ -182,15 +184,15 @@ public:
 
   /**
    * Amount of bytes currently available to read from buffer.
-   * @return &id:oatpp::data::v_io_size;.
+   * @return &id:oatpp::v_io_size;.
    */
-  data::v_io_size availableToRead();
+  v_io_size availableToRead();
 
   /**
    * Amount of buffer space currently available for data writes.
-   * @return &id:oatpp::data::v_io_size;.
+   * @return &id:oatpp::v_io_size;.
    */
-  data::v_io_size availableToWrite();
+  v_io_size availableToWrite();
 
   /**
    * read up to count bytes from the buffer to data
@@ -198,7 +200,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size read(void *data, v_buff_size count);
+  v_io_size read(void *data, v_buff_size count);
 
   /**
    * write up to count bytes from data to buffer
@@ -206,7 +208,7 @@ public:
    * @param count
    * @return [1..count], IOErrors.
    */
-  data::v_io_size write(const void *data, v_buff_size count);
+  v_io_size write(const void *data, v_buff_size count);
 
   /* No implementation of other methods */
   /* User should implement his own synchronization for other methods */

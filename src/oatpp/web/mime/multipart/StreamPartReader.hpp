@@ -121,13 +121,13 @@ private:
 
   class TagObject : public oatpp::base::Countable {
   public:
-    data::v_io_size size = 0;
+    v_io_size size = 0;
     std::shared_ptr<oatpp::data::stream::OutputStream> outputStream;
   };
 
 private:
   std::shared_ptr<PartReaderStreamProvider> m_streamProvider;
-  data::v_io_size m_maxDataSize;
+  v_io_size m_maxDataSize;
 public:
 
   /**
@@ -136,7 +136,7 @@ public:
    * @param maxDataSize - use `-1` for no limit.
    */
   StreamPartReader(const std::shared_ptr<PartReaderStreamProvider>& streamProvider,
-                   data::v_io_size maxDataSize = -1);
+                   v_io_size maxDataSize = -1);
 
   /**
    * Called when new part headers are parsed and part object is created.
@@ -151,7 +151,7 @@ public:
    * @param data - pointer to buffer containing chunk data.
    * @param size - size of the buffer.
    */
-  void onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) override;
+  void onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) override;
 
 };
 
@@ -165,7 +165,7 @@ private:
 
   class TagObject : public oatpp::base::Countable {
   public:
-    data::v_io_size size = 0;
+    v_io_size size = 0;
     std::shared_ptr<oatpp::data::stream::OutputStream> outputStream;
   };
 
@@ -173,7 +173,7 @@ private:
   async::CoroutineStarter onPartDone(const std::shared_ptr<Part>& part);
 private:
   std::shared_ptr<AsyncPartReaderStreamProvider> m_streamProvider;
-  data::v_io_size m_maxDataSize;
+  v_io_size m_maxDataSize;
 public:
 
   /**
@@ -182,7 +182,7 @@ public:
    * @param maxDataSize - use `-1` for no limit.
    */
   AsyncStreamPartReader(const std::shared_ptr<AsyncPartReaderStreamProvider>& streamProvider,
-                        data::v_io_size maxDataSize = -1);
+                        v_io_size maxDataSize = -1);
 
   /**
    * Called when new part headers are parsed and part object is created.
@@ -199,7 +199,7 @@ public:
    * @param size - size of the buffer.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::data::v_io_size size) override;
+  async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) override;
 
 };
 

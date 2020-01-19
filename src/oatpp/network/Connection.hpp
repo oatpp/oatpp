@@ -37,19 +37,16 @@ class Connection : public oatpp::base::Countable, public oatpp::data::stream::IO
 private:
   static oatpp::data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
-  data::v_io_handle m_handle;
-#if defined(WIN32) || defined(_WIN32)
-  oatpp::data::stream::IOMode m_mode;
-#endif
+  v_io_handle m_handle;
+  data::stream::IOMode m_mode;
 private:
   void setStreamIOMode(oatpp::data::stream::IOMode ioMode);
-  oatpp::data::stream::IOMode getStreamIOMode();
 public:
   /**
    * Constructor.
-   * @param handle - file descriptor (socket handle). See &id:oatpp::data::v_io_handle;.
+   * @param handle - file descriptor (socket handle). See &id:oatpp::v_io_handle;.
    */
-  Connection(data::v_io_handle handle);
+  Connection(v_io_handle handle);
 public:
 
   /**
@@ -62,33 +59,21 @@ public:
    * Implementation of &id:oatpp::data::stream::IOStream::write;.
    * @param buff - buffer containing data to write.
    * @param count - bytes count you want to write.
-   * @return - actual amount of bytes written. See &id:oatpp::data::v_io_size;.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual amount of bytes written. See &id:oatpp::v_io_size;.
    */
-  data::v_io_size write(const void *buff, v_buff_size count) override;
+  v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
 
   /**
    * Implementation of &id:oatpp::data::stream::IOStream::read;.
    * @param buff - buffer to read data to.
    * @param count - buffer size.
-   * @return - actual amount of bytes read. See &id:oatpp::data::v_io_size;.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual amount of bytes read. See &id:oatpp::v_io_size;.
    */
-  data::v_io_size read(void *buff, v_buff_size count) override;
-
-  /**
-   * Implementation of OutputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
-   * @param ioResult - result of the call to &l:OutputStream::write ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestOutputStreamAction(data::v_io_size ioResult) override;
-
-  /**
-   * Implementation of InputStream must suggest async actions for I/O results.
-   * Suggested Action is used for scheduling coroutines in async::Executor.
-   * @param ioResult - result of the call to &l:InputStream::read ();.
-   * @return - &id:oatpp::async::Action;.
-   */
-  oatpp::async::Action suggestInputStreamAction(data::v_io_size ioResult) override;
+  v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
 
   /**
    * Set OutputStream I/O mode.
@@ -133,9 +118,9 @@ public:
 
   /**
    * Get socket handle.
-   * @return - socket handle. &id:oatpp::data::v_io_handle;.
+   * @return - socket handle. &id:oatpp::v_io_handle;.
    */
-  data::v_io_handle getHandle(){
+  v_io_handle getHandle(){
     return m_handle;
   }
   

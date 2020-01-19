@@ -75,7 +75,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   }
 
   struct addrinfo* currResult = result;
-  oatpp::data::v_io_handle clientHandle =- 1;
+  oatpp::v_io_handle clientHandle =- 1;
 
   while(currResult != nullptr) {
 
@@ -123,7 +123,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
   private:
     oatpp::String m_host;
     v_int32 m_port;
-    oatpp::data::v_io_handle m_clientHandle;
+    oatpp::v_io_handle m_clientHandle;
   private:
     struct addrinfo* m_result;
     struct addrinfo* m_currentResult;

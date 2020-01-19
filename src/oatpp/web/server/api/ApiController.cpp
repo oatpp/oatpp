@@ -94,26 +94,15 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(c
   return ResponseFactory::createResponse(status, str);
 }
 
-std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status,
-                                                                               const std::shared_ptr<oatpp::data::stream::ChunkedBuffer>& chunkedBuffer) const {
-  return ResponseFactory::createResponse(status, chunkedBuffer);
-}
-
-
-std::shared_ptr<ApiController::OutgoingResponse> ApiController::createJsonStrResponse(const Status& status, const oatpp::String& jsStr) const
-{
-	return ResponseFactory::createResponse(status, jsStr, m_defaultObjectMapper.get());
-}
-
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
                                                                                   const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
                                                                                   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-  return ResponseFactory::createResponse(status, dto, objectMapper.get());
+  return ResponseFactory::createResponse(status, dto, objectMapper);
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
                                                                                   const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
-  return ResponseFactory::createResponse(status, dto, m_defaultObjectMapper.get());
+  return ResponseFactory::createResponse(status, dto, m_defaultObjectMapper);
 }
 
 }}}}

@@ -24,56 +24,47 @@
 
 #include "BufferBody.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
-
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
-BufferBody::WriteToStreamCoroutine::WriteToStreamCoroutine(const std::shared_ptr<BufferBody>& body,
-                                                           const std::shared_ptr<OutputStream>& stream)
-  : m_body(body)
-  , m_stream(stream)
-  , m_inlineData(m_body->m_buffer->getData(), m_body->m_buffer->getSize())
+BufferBody::BufferBody(const oatpp::String& buffer, const data::share::StringKeyLabel& contentType)
+  : m_buffer(buffer)
+  , m_contentType(contentType)
+  , m_inlineData(m_buffer->getData(), m_buffer->getSize())
 {}
 
-async::Action BufferBody::WriteToStreamCoroutine::act() {
-  return oatpp::data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
+std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer, const data::share::StringKeyLabel& contentType) {
+  return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer, contentType);
 }
 
-BufferBody::BufferBody(const oatpp::String& buffer)
-	: m_buffer(buffer)
-	, m_objectMapper(nullptr)
-{}
+v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action& action) {
 
+  v_buff_size desiredToRead = m_inlineData.bytesLeft;
 
-BufferBody::BufferBody(const oatpp::String& buffer, oatpp::data::mapping::ObjectMapper* objectMapper)
-	: m_buffer(buffer)
-	, m_objectMapper(objectMapper)
-{
+  if(desiredToRead > 0) {
+
+    if (desiredToRead > count) {
+      desiredToRead = count;
+    }
+
+    std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+    m_inlineData.inc(desiredToRead);
+
+    return desiredToRead;
+
+  }
+
+  return 0;
 
 }
 
-std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer) {
-  return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer);
+void BufferBody::declareHeaders(Headers& headers) {
+  if(m_contentType) {
+    headers.put(Header::CONTENT_TYPE, m_contentType);
+  }
 }
 
-
-std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer, oatpp::data::mapping::ObjectMapper* objectMapper)
-{
-	return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer, objectMapper);
-}
-
-void BufferBody::declareHeaders(Headers& headers) noexcept {
-  headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_LENGTH, oatpp::utils::conversion::int64ToStr(m_buffer->getSize()));
-  if (m_objectMapper)
-	  headers.putIfNotExists_LockFree(Header::CONTENT_TYPE, m_objectMapper->getInfo().http_content_type);
-}
-
-void BufferBody::writeToStream(OutputStream* stream) noexcept {
-  oatpp::data::stream::writeExactSizeData(stream, m_buffer->getData(), m_buffer->getSize());
-}
-
-oatpp::async::CoroutineStarter BufferBody::writeToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
-  return WriteToStreamCoroutine::start(shared_from_this(), stream);
+p_char8 BufferBody::getKnownData() {
+  return m_buffer->getData();
 }
 
 v_buff_size BufferBody::getKnownSize() {

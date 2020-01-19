@@ -156,10 +156,10 @@ public:
   /**
    * Transfer body in Asynchronous manner. <br>
    * Read body chunk by chunk and pass chunks to the `writeCallback`.
-   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::AsyncWriteCallback;.
+   * @param writeCallback - `std::shared_ptr` to &id:oatpp::data::stream::WriteCallback;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::AsyncWriteCallback>& writeCallback) const;
+  async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const;
 
 
   /**

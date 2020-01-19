@@ -43,7 +43,7 @@ void FIFOBuffer::setBufferPosition(v_buff_size readPosition, v_buff_size writePo
   m_canRead = canRead;
 }
 
-data::v_io_size FIFOBuffer::availableToRead() const {
+v_io_size FIFOBuffer::availableToRead() const {
   if(!m_canRead) {
     return 0;
   }
@@ -53,7 +53,7 @@ data::v_io_size FIFOBuffer::availableToRead() const {
   return (m_bufferSize - m_readPosition + m_writePosition);
 }
 
-data::v_io_size FIFOBuffer::availableToWrite() const {
+v_io_size FIFOBuffer::availableToWrite() const {
   if(m_canRead && m_writePosition == m_readPosition) {
     return 0;
   }
@@ -67,10 +67,10 @@ v_buff_size FIFOBuffer::getBufferSize() const {
   return m_bufferSize;
 }
 
-data::v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
+v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
   
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return IOError::RETRY_READ;
   }
   
   if(count == 0) {
@@ -116,10 +116,10 @@ data::v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
   
 }
 
-data::v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
+v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
 
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return IOError::RETRY_READ;
   }
 
   if(count == 0) {
@@ -156,10 +156,10 @@ data::v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
 
 }
 
-data::v_io_size FIFOBuffer::commitReadOffset(v_buff_size count) {
+v_io_size FIFOBuffer::commitReadOffset(v_buff_size count) {
 
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return IOError::RETRY_READ;
   }
 
   if(count == 0) {
@@ -201,10 +201,10 @@ data::v_io_size FIFOBuffer::commitReadOffset(v_buff_size count) {
 
 }
 
-data::v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
+v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   
   if(m_canRead && m_writePosition == m_readPosition) {
-    return data::IOError::WAIT_RETRY_WRITE;
+    return IOError::RETRY_WRITE;
   }
   
   if(count == 0) {
@@ -246,10 +246,10 @@ data::v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   
 }
 
-data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count) {
+v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action) {
 
   if(!m_canRead) {
-    return data::IOError::WAIT_RETRY_READ;
+    return IOError::RETRY_READ;
   }
 
   if(count == 0) {
@@ -263,7 +263,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
     if(size > count) {
       size = count;
     }
-    auto bytesWritten = stream->write(&m_buffer[m_readPosition], size);
+    auto bytesWritten = stream->write(&m_buffer[m_readPosition], size, action);
     if(bytesWritten > 0) {
       m_readPosition += bytesWritten;
       if (m_readPosition == m_writePosition) {
@@ -280,7 +280,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
     size = count;
   } else if(size == 0) {
 
-    auto bytesWritten = stream->write(m_buffer, m_writePosition);
+    auto bytesWritten = stream->write(m_buffer, m_writePosition, action);
     if(bytesWritten > 0) {
       m_readPosition = bytesWritten;
       if (m_readPosition == m_writePosition) {
@@ -291,7 +291,7 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
 
   }
 
-  auto bytesWritten = stream->write(&m_buffer[m_readPosition], size);
+  auto bytesWritten = stream->write(&m_buffer[m_readPosition], size, action);
   if(bytesWritten > 0) {
     m_readPosition += bytesWritten;
   }
@@ -299,10 +299,10 @@ data::v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* str
 
 }
 
-data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count) {
+v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count, async::Action& action) {
 
   if(m_canRead && m_writePosition == m_readPosition) {
-    return data::IOError::WAIT_RETRY_WRITE;
+    return IOError::RETRY_WRITE;
   }
 
   if(count == 0) {
@@ -316,7 +316,7 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
     if(size > count) {
       size = count;
     }
-    auto bytesRead = stream->read(&m_buffer[m_writePosition], size);
+    auto bytesRead = stream->read(&m_buffer[m_writePosition], size, action);
     if(bytesRead > 0) {
       m_writePosition += bytesRead;
       m_canRead = true;
@@ -331,7 +331,7 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
     size = count;
   } else if(size == 0) {
 
-    auto bytesRead = stream->read(m_buffer, m_readPosition);
+    auto bytesRead = stream->read(m_buffer, m_readPosition, action);
     if(bytesRead > 0) {
       m_writePosition = bytesRead;
       m_canRead = true;
@@ -341,7 +341,7 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
 
   }
 
-  auto bytesRead = stream->read(&m_buffer[m_writePosition], size);
+  auto bytesRead = stream->read(&m_buffer[m_writePosition], size, action);
   if(bytesRead > 0) {
     m_writePosition += bytesRead;
     m_canRead = true;
@@ -351,19 +351,19 @@ data::v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* st
 
 }
 
-data::v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream* stream) {
+v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream* stream) {
 
   if(!m_canRead) {
     return 0;
   }
 
-  data::v_io_size result = 0;
+  v_io_size result = 0;
 
   if(m_readPosition < m_writePosition) {
-    result = data::stream::writeExactSizeData(stream, &m_buffer[m_readPosition], m_writePosition - m_readPosition);
+    result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_writePosition - m_readPosition);
   } else {
-    auto result = data::stream::writeExactSizeData(stream, &m_buffer[m_readPosition], m_bufferSize - m_readPosition);
-    result += data::stream::writeExactSizeData(stream, m_buffer, m_writePosition);
+    auto result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_bufferSize - m_readPosition);
+    result += stream->writeExactSizeDataSimple(m_buffer, m_writePosition);
   }
 
   setBufferPosition(0, 0, false);
@@ -380,8 +380,8 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
     FIFOBuffer* m_fifo;
     std::shared_ptr<data::stream::OutputStream> m_stream;
   private:
-    data::stream::AsyncInlineWriteData m_data1;
-    data::stream::AsyncInlineWriteData m_data2;
+    data::buffer::InlineWriteData m_data1;
+    data::buffer::InlineWriteData m_data2;
   public:
 
     FlushCoroutine(FIFOBuffer* fifo, const std::shared_ptr<data::stream::OutputStream>& stream)
@@ -410,15 +410,15 @@ async::CoroutineStarter FIFOBuffer::flushToStreamAsync(const std::shared_ptr<dat
     }
 
     Action fullFlush() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, yieldTo(&FlushCoroutine::beforeFinish));
+      return m_stream->writeExactSizeDataAsyncInline(m_data1, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action partialFlush1() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data1, yieldTo(&FlushCoroutine::partialFlush2));
+      return m_stream->writeExactSizeDataAsyncInline(m_data1, yieldTo(&FlushCoroutine::partialFlush2));
     }
 
     Action partialFlush2() {
-      return data::stream::writeExactSizeDataAsyncInline(m_stream.get(), m_data2, yieldTo(&FlushCoroutine::beforeFinish));
+      return m_stream->writeExactSizeDataAsyncInline(m_data2, yieldTo(&FlushCoroutine::beforeFinish));
     }
 
     Action beforeFinish() {
@@ -446,22 +446,22 @@ void SynchronizedFIFOBuffer::setBufferPosition(v_buff_size readPosition, v_buff_
   m_fifo.setBufferPosition(readPosition, writePosition, canRead);
 }
 
-data::v_io_size SynchronizedFIFOBuffer::availableToRead() {
+v_io_size SynchronizedFIFOBuffer::availableToRead() {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.availableToRead();
 }
 
-data::v_io_size SynchronizedFIFOBuffer::availableToWrite() {
+v_io_size SynchronizedFIFOBuffer::availableToWrite() {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.availableToWrite();
 }
 
-data::v_io_size SynchronizedFIFOBuffer::read(void *data, v_buff_size count) {
+v_io_size SynchronizedFIFOBuffer::read(void *data, v_buff_size count) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.read(data, count);
 }
 
-data::v_io_size SynchronizedFIFOBuffer::write(const void *data, v_buff_size count) {
+v_io_size SynchronizedFIFOBuffer::write(const void *data, v_buff_size count) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
   return m_fifo.write(data, count);
 }

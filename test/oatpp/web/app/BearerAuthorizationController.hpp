@@ -27,13 +27,6 @@
 
 #include "./DTOs.hpp"
 
-#include "oatpp/web/mime/multipart/FileStreamProvider.hpp"
-#include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
-#include "oatpp/web/mime/multipart/Reader.hpp"
-
-#include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
-#include "oatpp/web/protocol/http/outgoing/ChunkedBody.hpp"
-
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"

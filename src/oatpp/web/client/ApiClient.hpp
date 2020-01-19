@@ -29,7 +29,6 @@
 
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 
-#include "oatpp/web/protocol/http/outgoing/DtoBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
 #include "oatpp/encoding/Base64.hpp"
@@ -141,11 +140,11 @@ protected:
   
 private:
   
-  void formatPath(oatpp::data::stream::OutputStream* stream,
+  void formatPath(data::stream::ConsistentOutputStream* stream,
                   const PathPattern& pathPattern,
                   const std::shared_ptr<StringToParamMap>& params);
   
-  void addPathQueryParams(oatpp::data::stream::OutputStream* stream,
+  void addPathQueryParams(data::stream::ConsistentOutputStream* stream,
                           const std::shared_ptr<StringToParamMap>& params);
   
   oatpp::web::protocol::http::Headers convertParamsMap(const std::shared_ptr<StringToParamMap>& params);

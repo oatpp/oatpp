@@ -36,14 +36,14 @@ BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, v_buff_size 
   , m_capacity(initialCapacity)
   , m_position(0)
   , m_growBytes(growBytes)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 BufferOutputStream::~BufferOutputStream() {
   delete [] m_data;
 }
 
-data::v_io_size BufferOutputStream::write(const void *data, v_buff_size count) {
+v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
 
   reserveBytesUpfront(count);
 
@@ -124,8 +124,8 @@ oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size coun
   }
 }
 
-oatpp::data::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
-  return oatpp::data::stream::writeExactSizeData(stream, m_data, m_position);
+oatpp::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
+  return stream->writeExactSizeDataSimple(m_data, m_position);
 }
 
 oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<OutputStream>& stream) {
@@ -134,7 +134,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
   private:
     std::shared_ptr<BufferOutputStream> m_this;
     std::shared_ptr<oatpp::data::stream::OutputStream> m_stream;
-    AsyncInlineWriteData m_inlineData;
+    data::buffer::InlineWriteData m_inlineData;
   public:
 
     WriteDataCoroutine(const std::shared_ptr<BufferOutputStream>& _this,
@@ -148,7 +148,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
         m_inlineData.currBufferPtr = m_this->m_data;
         m_inlineData.bytesLeft = m_this->m_position;
       }
-      return writeExactSizeDataAsyncInline(m_stream.get(), m_inlineData, finish());
+      return m_stream.get()->writeExactSizeDataAsyncInline(m_inlineData, finish());
     }
 
   };
@@ -168,7 +168,7 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& mem
   , m_data(data)
   , m_size(size)
   , m_position(0)
-  , m_ioMode(IOMode::NON_BLOCKING)
+  , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 BufferInputStream::BufferInputStream(const oatpp::String& data)
@@ -189,7 +189,7 @@ void BufferInputStream::reset() {
   m_position = 0;
 }
 
-data::v_io_size BufferInputStream::read(void *data, v_buff_size count) {
+v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& action) {
   v_buff_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;
@@ -197,22 +197,6 @@ data::v_io_size BufferInputStream::read(void *data, v_buff_size count) {
   std::memcpy(data, &m_data[m_position], desiredAmount);
   m_position += desiredAmount;
   return desiredAmount;
-}
-
-oatpp::async::Action BufferInputStream::suggestInputStreamAction(data::v_io_size ioResult) {
-
-  if(ioResult > 0) {
-    return oatpp::async::Action::createActionByType(oatpp::async::Action::TYPE_REPEAT);
-  }
-
-  OATPP_LOGE("[oatpp::data::stream::BufferInputStream::suggestInputStreamAction()]", "Error. ioResult=%d", ioResult);
-
-  const char* message =
-    "Error. BufferInputStream::suggestOutputStreamAction() method is called with (ioResult <= 0).\n"
-    "Conceptual error.";
-
-  throw std::runtime_error(message);
-
 }
 
 void BufferInputStream::setInputStreamIOMode(IOMode ioMode) {

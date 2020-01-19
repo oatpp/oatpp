@@ -62,9 +62,10 @@ public:
    * Write `count` of bytes to stream.
    * @param data - data to write.
    * @param count - number of bytes to write.
-   * @return - actual number of bytes written. &id:oatpp::data::v_io_size;.
+   * @param action
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  data::v_io_size write(const void *data, v_buff_size count) override;
+  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
 
   /**
    * Set stream I/O mode.

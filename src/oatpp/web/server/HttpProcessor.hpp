@@ -30,11 +30,13 @@
 #include "./handler/Interceptor.hpp"
 #include "./handler/ErrorHandler.hpp"
 
-#include "oatpp/web/protocol/http/incoming/RequestHeadersReader.hpp"
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
+#include "oatpp/web/protocol/http/incoming/RequestHeadersReader.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
+
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp"
+#include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
 
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/async/Processor.hpp"
@@ -95,14 +97,16 @@ public:
   struct Components {
 
     /**
-     * Constructor.
+     * Construcotor.
      * @param pRouter
+     * @param pContentEncodingProviders
      * @param pBodyDecoder
      * @param pErrorHandler
      * @param pRequestInterceptors
      * @param pConfig
      */
     Components(const std::shared_ptr<HttpRouter>& pRouter,
+               const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
                const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
                const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
@@ -125,6 +129,11 @@ public:
      * Router to route incoming requests. &id:oatpp::web::server::HttpRouter;.
      */
     std::shared_ptr<HttpRouter> router;
+
+    /**
+     * Content-encoding providers. &id:oatpp::web::protocol::encoding::ProviderCollection;.
+     */
+    std::shared_ptr<protocol::http::encoding::ProviderCollection> contentEncodingProviders;
 
     /**
      * Body decoder. &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
@@ -150,12 +159,21 @@ public:
 
 private:
 
-  static std::shared_ptr<protocol::http::outgoing::Response>
-  processRequest(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                 const std::shared_ptr<Components>& components,
-                 RequestHeadersReader& headersReader,
-                 const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& inStream,
-                 v_int32& connectionState);
+  struct ProcessingResources {
+
+    ProcessingResources(const std::shared_ptr<Components>& pComponents,
+                        const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection);
+
+    std::shared_ptr<Components> components;
+    std::shared_ptr<oatpp::data::stream::IOStream> connection;
+    oatpp::data::stream::BufferOutputStream headersInBuffer;
+    oatpp::data::stream::BufferOutputStream headersOutBuffer;
+    RequestHeadersReader headersReader;
+    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
+
+  };
+
+  static bool processNextRequest(ProcessingResources& resources);
 
 public:
 

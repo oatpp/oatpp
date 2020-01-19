@@ -78,8 +78,8 @@ private:
   oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
   oatpp::concurrency::SpinLock m_backlogLock;
 private:
-  oatpp::data::v_io_handle m_eventQueueHandle;
-  oatpp::data::v_io_handle m_wakeupTrigger;
+  oatpp::v_io_handle m_eventQueueHandle;
+  oatpp::v_io_handle m_wakeupTrigger;
   std::unique_ptr<v_char8[]> m_inEvents;
   v_int32 m_inEventsCount;
   v_int32 m_inEventsCapacity;

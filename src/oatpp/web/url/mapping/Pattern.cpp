@@ -198,14 +198,14 @@ oatpp::String Pattern::toString() {
     const std::shared_ptr<Part>& part = curr->getData();
     curr = curr->getNext();
     if(part->function == Part::FUNCTION_CONST) {
-      stream->write("/", 1);
-      stream->data::stream::OutputStream::write(part->text);
+      stream->writeSimple("/", 1);
+      stream->writeSimple(part->text);
     } else if(part->function == Part::FUNCTION_VAR) {
-      stream->write("/{", 2);
-      stream->data::stream::OutputStream::write(part->text);
-      stream->write("}", 1);
+      stream->writeSimple("/{", 2);
+      stream->writeSimple(part->text);
+      stream->writeSimple("}", 1);
     } else if(part->function == Part::FUNCTION_ANY_END) {
-      stream->write("/*", 2);
+      stream->writeSimple("/*", 2);
     }
   }
   return stream->toString();

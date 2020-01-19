@@ -107,7 +107,7 @@ void ApiControllerTest::onRun() {
     OATPP_ASSERT(response->getStatus().code == 200);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    response->send(&stream, &headersOutBuffer);
+    response->send(&stream, &headersOutBuffer, nullptr);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
@@ -134,7 +134,7 @@ void ApiControllerTest::onRun() {
     OATPP_ASSERT(response->getStatus().code == 200);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    response->send(&stream, &headersOutBuffer);
+    response->send(&stream, &headersOutBuffer, nullptr);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 
@@ -155,7 +155,7 @@ void ApiControllerTest::onRun() {
     OATPP_ASSERT(response->getStatus().code == 200);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    response->send(&stream, &headersOutBuffer);
+    response->send(&stream, &headersOutBuffer, nullptr);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
 

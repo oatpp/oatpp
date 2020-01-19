@@ -128,15 +128,17 @@ const char* const Header::CORS_METHODS = "Access-Control-Allow-Methods";
 const char* const Header::CORS_HEADERS = "Access-Control-Allow-Headers";
 const char* const Header::CORS_MAX_AGE = "Access-Control-Max-Age";
 
+const char* const Header::ACCEPT_ENCODING = "Accept-Encoding";
+
 const char* const Range::UNIT_BYTES = "bytes";
 const char* const ContentRange::UNIT_BYTES = "bytes";
   
 oatpp::String Range::toString() const {
   oatpp::data::stream::ChunkedBuffer stream;
-  stream.write(units->getData(), units->getSize());
-  stream.write("=", 1);
+  stream.writeSimple(units->getData(), units->getSize());
+  stream.writeSimple("=", 1);
   stream.writeAsString(start);
-  stream.write("-", 1);
+  stream.writeSimple("-", 1);
   stream.writeAsString(end);
   return stream.toString();
 }
@@ -178,16 +180,16 @@ Range Range::parse(const oatpp::String& str) {
 
 oatpp::String ContentRange::toString() const {
   oatpp::data::stream::ChunkedBuffer stream;
-  stream.write(units->getData(), units->getSize());
-  stream.write(" ", 1);
+  stream.writeSimple(units->getData(), units->getSize());
+  stream.writeSimple(" ", 1);
   stream.writeAsString(start);
-  stream.write("-", 1);
+  stream.writeSimple("-", 1);
   stream.writeAsString(end);
-  stream.write("/", 1);
+  stream.writeSimple("/", 1);
   if(isSizeKnown) {
     stream.writeAsString(size);
   } else {
-    stream.write("*", 1);
+    stream.writeSimple("*", 1);
   }
   return stream.toString();
 }
@@ -424,10 +426,10 @@ void Utils::writeHeaders(const Headers& headers, data::stream::ConsistentOutputS
   auto& map = headers.getAll_Unsafe();
   auto it = map.begin();
   while(it != map.end()) {
-    stream->write(it->first.getData(), it->first.getSize());
-    stream->write(": ", 2);
-    stream->write(it->second.getData(), it->second.getSize());
-    stream->write("\r\n", 2);
+    stream->writeSimple(it->first.getData(), it->first.getSize());
+    stream->writeSimple(": ", 2);
+    stream->writeSimple(it->second.getData(), it->second.getSize());
+    stream->writeSimple("\r\n", 2);
     it ++;
   }
 

@@ -49,6 +49,7 @@ add_library(oatpp
         oatpp/core/base/Countable.hpp
         oatpp/core/base/Environment.cpp
         oatpp/core/base/Environment.hpp
+        oatpp/core/base/ObjectHandle.hpp
         oatpp/core/base/StrBuffer.cpp
         oatpp/core/base/StrBuffer.hpp
         oatpp/core/base/memory/Allocator.cpp
@@ -64,11 +65,14 @@ add_library(oatpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
         oatpp/core/concurrency/Thread.hpp
-        oatpp/core/data/IODefinitions.hpp
+        oatpp/core/IODefinitions.cpp
+        oatpp/core/IODefinitions.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp
         oatpp/core/data/buffer/FIFOBuffer.hpp
         oatpp/core/data/buffer/IOBuffer.cpp
         oatpp/core/data/buffer/IOBuffer.hpp
+        oatpp/core/data/buffer/Processor.cpp
+        oatpp/core/data/buffer/Processor.hpp
         oatpp/core/data/mapping/ObjectMapper.cpp
         oatpp/core/data/mapping/ObjectMapper.hpp
         oatpp/core/data/mapping/type/List.cpp
@@ -189,22 +193,23 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/Body.hpp
         oatpp/web/protocol/http/outgoing/BufferBody.cpp
         oatpp/web/protocol/http/outgoing/BufferBody.hpp
-        oatpp/web/protocol/http/outgoing/ChunkedBody.cpp
-        oatpp/web/protocol/http/outgoing/ChunkedBody.hpp
-        oatpp/web/protocol/http/outgoing/ChunkedBufferBody.cpp
-        oatpp/web/protocol/http/outgoing/ChunkedBufferBody.hpp
-        oatpp/web/protocol/http/outgoing/CommunicationUtils.cpp
-        oatpp/web/protocol/http/outgoing/CommunicationUtils.hpp
-        oatpp/web/protocol/http/outgoing/DtoBody.cpp
-        oatpp/web/protocol/http/outgoing/DtoBody.hpp
         oatpp/web/protocol/http/outgoing/MultipartBody.cpp
         oatpp/web/protocol/http/outgoing/MultipartBody.hpp
+        oatpp/web/protocol/http/outgoing/StreamingBody.cpp
+        oatpp/web/protocol/http/outgoing/StreamingBody.hpp
         oatpp/web/protocol/http/outgoing/Request.cpp
         oatpp/web/protocol/http/outgoing/Request.hpp
         oatpp/web/protocol/http/outgoing/Response.cpp
         oatpp/web/protocol/http/outgoing/Response.hpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.cpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.hpp
+        oatpp/web/protocol/http/encoding/Chunked.cpp
+        oatpp/web/protocol/http/encoding/Chunked.hpp
+        oatpp/web/protocol/http/encoding/ProviderCollection.cpp
+        oatpp/web/protocol/http/encoding/ProviderCollection.hpp
+        oatpp/web/protocol/http/encoding/EncoderProvider.hpp
+        oatpp/web/protocol/http/utils/CommunicationUtils.cpp
+        oatpp/web/protocol/http/utils/CommunicationUtils.hpp
         oatpp/web/server/AsyncHttpConnectionHandler.cpp
         oatpp/web/server/AsyncHttpConnectionHandler.hpp
         oatpp/web/server/HttpConnectionHandler.cpp
