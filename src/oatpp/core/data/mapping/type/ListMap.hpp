@@ -34,7 +34,7 @@ namespace __class {
   
   class AbstractListMap {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
   };
   
   template<class Key, class Value>
@@ -57,7 +57,7 @@ protected:
   }
   
   static Type* Z__CLASS_GET_TYPE(){
-    static Type type(__class::AbstractListMap::CLASS_NAME, nullptr, &Z__CLASS_OBJECT_CREATOR);
+    static Type type(__class::AbstractListMap::CLASS_ID, nullptr, &Z__CLASS_OBJECT_CREATOR);
     if(type.params.empty()){
       type.params.push_back(Key::Class::getType());
       type.params.push_back(Value::Class::getType());

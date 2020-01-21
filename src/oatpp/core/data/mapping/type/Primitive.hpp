@@ -298,10 +298,10 @@ namespace __class {
   
   class String {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -314,10 +314,10 @@ namespace __class {
   
   class Int8 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -327,10 +327,10 @@ namespace __class {
   
   class Int16 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -340,10 +340,10 @@ namespace __class {
   
   class Int32 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -353,10 +353,10 @@ namespace __class {
   
   class Int64 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -366,10 +366,10 @@ namespace __class {
   
   class Float32 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -379,10 +379,10 @@ namespace __class {
   
   class Float64 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
@@ -392,10 +392,10 @@ namespace __class {
   
   class Boolean {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     

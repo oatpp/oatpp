@@ -180,14 +180,18 @@ public:
   static AbstractObjectWrapper deserialize(oatpp::parser::Caret& caret,
                                            const std::shared_ptr<Config>& config,
                                            const Type* const type) {
-    if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME){
+
+
+    if(type->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
       return readObject(type, caret, config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME){
+    } else if(type->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id) {
       return readList(type, caret, config);
-    } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME){
+    } else if(type->classId.id == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id) {
       return readListMap(type, caret, config);
     }
+
     return AbstractObjectWrapper::empty();
+
   }
   
 };

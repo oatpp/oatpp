@@ -43,7 +43,7 @@ namespace __class {
    */
   class AbstractObject {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
   };
 
   /**

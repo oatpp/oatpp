@@ -107,31 +107,31 @@ void Serializer::writeValue(oatpp::data::stream::ConsistentOutputStream* stream,
     return;
   }
   
-  const char* typeName = polymorph.valueType->name;
+  auto classId = polymorph.valueType->classId.id;
   
-  if(typeName == oatpp::data::mapping::type::__class::String::CLASS_NAME) {
+  if(classId == oatpp::data::mapping::type::__class::String::CLASS_ID.id) {
     auto str = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(polymorph);
     writeString(stream, str->getData(), str->getSize());
-  } else if(typeName == oatpp::data::mapping::type::__class::Int8::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Int8::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int8::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Int16::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Int16::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int16::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Int32::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Int32::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int32::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Int64::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Int64::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int64::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Float32::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Float32::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Float32::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Float64::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Float64::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Float64::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::Boolean::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::Boolean::CLASS_ID.id) {
     writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Boolean::ObjectType>(polymorph));
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id) {
     writeList(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id) {
     // TODO Assert that key is String
     writeFieldsMap(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
-  } else if(typeName == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
+  } else if(classId == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
     writeObject(stream, oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
   } else {
     if(config->throwOnUnknownTypes) {
@@ -149,11 +149,11 @@ void Serializer::serializeToStream(oatpp::data::stream::ConsistentOutputStream* 
 {
 
   auto type = polymorph.valueType;
-  if(type->name == oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME) {
+  if(type->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
     writeObject(stream, oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
-  } else if(type->name == oatpp::data::mapping::type::__class::AbstractList::CLASS_NAME) {
+  } else if(type->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id) {
     writeList(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-  } else if(type->name == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_NAME) {
+  } else if(type->classId.id == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id) {
     writeFieldsMap(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
   } else {
     throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
