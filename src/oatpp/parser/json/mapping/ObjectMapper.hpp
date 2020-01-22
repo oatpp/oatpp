@@ -25,7 +25,7 @@
 #ifndef oatpp_parser_json_mapping_ObjectMapper_hpp
 #define oatpp_parser_json_mapping_ObjectMapper_hpp
 
-#include "./Serializer.hpp"
+#include "./Serializer2.hpp"
 #include "./Deserializer.hpp"
 
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
@@ -43,13 +43,15 @@ private:
     static Info info("application/json");
     return info;
   }
+private:
+  std::shared_ptr<Serializer2> m_serializer;
 public:
   /**
    * Constructor.
    * @param pSerializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
    * @param pDeserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
    */
-  ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig = Serializer::Config::createShared(),
+  ObjectMapper(const std::shared_ptr<Serializer2::Config>& pSerializerConfig = Serializer2::Config::createShared(),
                const std::shared_ptr<Deserializer::Config>& pDeserializerConfig = Deserializer::Config::createShared());
 public:
 
@@ -60,7 +62,7 @@ public:
    * @return - `std::shared_ptr` to ObjectMapper.
    */
   static std::shared_ptr<ObjectMapper>
-  createShared(const std::shared_ptr<Serializer::Config>& serializerConfig = Serializer::Config::createShared(),
+  createShared(const std::shared_ptr<Serializer2::Config>& serializerConfig = Serializer2::Config::createShared(),
                const std::shared_ptr<Deserializer::Config>& deserializerConfig = Deserializer::Config::createShared());
 
   /**
@@ -68,7 +70,7 @@ public:
    * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
    * @param variant - object to serialize &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
    */
-  void write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
+  void write(data::stream::ConsistentOutputStream* stream,
              const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const override;
 
   /**
@@ -83,7 +85,7 @@ public:
   /**
    * Serializer config.
    */
-  std::shared_ptr<Serializer::Config> serializerConfig;
+  std::shared_ptr<Serializer2::Config> serializerConfig;
 
   /**
    * Deserializer config.

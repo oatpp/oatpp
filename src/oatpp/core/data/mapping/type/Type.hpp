@@ -39,6 +39,8 @@ class ClassId {
 private:
   static std::atomic_int ID_COUNTER;
 public:
+  static int getClassCount();
+public:
   ClassId(const char* pName, const char* pQualifier = nullptr);
   const char* const name;
   const char* const qualifier;

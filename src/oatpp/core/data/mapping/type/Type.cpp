@@ -49,6 +49,10 @@ ClassId::ClassId(const char* pName, const char* pQualifier)
   , id(ID_COUNTER ++)
 {}
 
+int ClassId::getClassCount() {
+  return ID_COUNTER;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type::Properties

@@ -35,7 +35,7 @@ namespace {
   
 typedef oatpp::data::mapping::type::Object DTO;
 typedef oatpp::parser::Caret ParsingCaret;
-typedef oatpp::parser::json::mapping::Serializer Serializer;
+typedef oatpp::parser::json::mapping::Serializer2 Serializer;
 typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 
 class EmptyDto : public DTO {

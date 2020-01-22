@@ -26,21 +26,22 @@
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 
-ObjectMapper::ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig,
+ObjectMapper::ObjectMapper(const std::shared_ptr<Serializer2::Config>& pSerializerConfig,
                            const std::shared_ptr<Deserializer::Config>& pDeserializerConfig)
-  : oatpp::data::mapping::ObjectMapper(getMapperInfo())
+  : data::mapping::ObjectMapper(getMapperInfo())
+  , m_serializer(std::make_shared<Serializer2>(pSerializerConfig))
   , serializerConfig(pSerializerConfig)
   , deserializerConfig(pDeserializerConfig)
 {}
 
-std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<Serializer::Config>& serializerConfig,
+std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<Serializer2::Config>& serializerConfig,
                                                          const std::shared_ptr<Deserializer::Config>& deserializerConfig){
   return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
 }
 
-void ObjectMapper::write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
+void ObjectMapper::write(data::stream::ConsistentOutputStream* stream,
                          const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const {
-  Serializer::serialize(stream, variant, serializerConfig);
+  m_serializer->serialize(stream, variant);
 }
 
 oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(oatpp::parser::Caret& caret,
