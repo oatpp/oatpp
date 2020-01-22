@@ -26,7 +26,7 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/parser/json/mapping/Serializer.hpp"
-#include "oatpp/parser/json/mapping/Deserializer2.hpp"
+#include "oatpp/parser/json/mapping/Deserializer.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
@@ -40,7 +40,7 @@ namespace oatpp { namespace test { namespace parser { namespace json { namespace
 namespace {
 
 typedef oatpp::parser::json::mapping::Serializer Serializer;
-typedef oatpp::parser::json::mapping::Deserializer2 Deserializer;
+typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
   
