@@ -32,9 +32,6 @@
 #include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
-#include "oatpp/core/parser/Caret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/Types.hpp"
@@ -147,8 +144,8 @@ private:
                               data::stream::ConsistentOutputStream* stream,
                               const data::mapping::type::AbstractObjectWrapper& polymorph);
 private:
-  std::vector<SerializerMethod> m_methods;
   std::shared_ptr<Config> m_config;
+  std::vector<SerializerMethod> m_methods;
 public:
 
   Serializer(const std::shared_ptr<Config>& config = std::make_shared<Config>());

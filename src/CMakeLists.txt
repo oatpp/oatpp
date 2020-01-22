@@ -232,7 +232,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-)
+        oatpp/parser/json/mapping/Deserializer2.cpp oatpp/parser/json/mapping/Deserializer2.hpp)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11

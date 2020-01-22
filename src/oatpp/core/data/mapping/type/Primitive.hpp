@@ -128,11 +128,13 @@ String operator + (const String& a, const String& b);
 
 /**
  * Template for primitive mapping-enabled types.
- * @tparam ValueType - type of the value ex.: v_int64.
+ * @tparam TValueType - type of the value ex.: v_int64.
  * @tparam Clazz - Class holding static class information.
  */
-template<typename ValueType, class Clazz>
+template<typename TValueType, class Clazz>
 class Primitive : public oatpp::base::Countable {
+public:
+  typedef TValueType ValueType;
 public:
   OBJECT_POOL(Primitive_Type_Pool, Primitive, 32)
   SHARED_OBJECT_POOL(Shared_Primitive_Type_Pool, Primitive, 32)

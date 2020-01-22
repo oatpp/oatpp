@@ -27,15 +27,16 @@
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 
 ObjectMapper::ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig,
-                           const std::shared_ptr<Deserializer::Config>& pDeserializerConfig)
+                           const std::shared_ptr<Deserializer2::Config>& pDeserializerConfig)
   : data::mapping::ObjectMapper(getMapperInfo())
   , m_serializer(std::make_shared<Serializer>(pSerializerConfig))
+  , m_deserializer(std::make_shared<Deserializer2>(pDeserializerConfig))
   , serializerConfig(pSerializerConfig)
   , deserializerConfig(pDeserializerConfig)
 {}
 
 std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<Serializer::Config>& serializerConfig,
-                                                         const std::shared_ptr<Deserializer::Config>& deserializerConfig){
+                                                         const std::shared_ptr<Deserializer2::Config>& deserializerConfig){
   return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
 }
 
@@ -46,7 +47,7 @@ void ObjectMapper::write(data::stream::ConsistentOutputStream* stream,
 
 oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(oatpp::parser::Caret& caret,
                                                                      const oatpp::data::mapping::type::Type* const type) const {
-  return Deserializer::deserialize(caret, deserializerConfig, type);
+  return m_deserializer->deserialize(caret, type);
 }
 
 }}}}

@@ -34,18 +34,18 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
-  m_methods[oatpp::data::mapping::type::__class::String::CLASS_ID.id] = &Serializer::serializeString;
-  m_methods[oatpp::data::mapping::type::__class::Int8::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int8>;
-  m_methods[oatpp::data::mapping::type::__class::Int16::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int16>;
-  m_methods[oatpp::data::mapping::type::__class::Int32::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int32>;
-  m_methods[oatpp::data::mapping::type::__class::Int64::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int64>;
-  m_methods[oatpp::data::mapping::type::__class::Float32::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Float32>;
-  m_methods[oatpp::data::mapping::type::__class::Float64::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Float64>;
-  m_methods[oatpp::data::mapping::type::__class::Boolean::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Boolean>;
+  setSerializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
 
-  m_methods[oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id] = &Serializer::serializeObject;
-  m_methods[oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id] = &Serializer::serializeList;
-  m_methods[oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id] = &Serializer::serializeFieldsMap;
+  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
+  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList);
+  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Serializer::serializeFieldsMap);
 
 }
 
