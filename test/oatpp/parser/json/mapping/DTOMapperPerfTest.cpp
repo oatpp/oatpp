@@ -25,7 +25,7 @@
 #include "DTOMapperPerfTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
-#include "oatpp/parser/json/mapping/Serializer2.hpp"
+#include "oatpp/parser/json/mapping/Serializer.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
@@ -38,7 +38,7 @@ namespace oatpp { namespace test { namespace parser { namespace json { namespace
   
 namespace {
 
-typedef oatpp::parser::json::mapping::Serializer2 Serializer;
+typedef oatpp::parser::json::mapping::Serializer Serializer;
 typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
@@ -72,7 +72,7 @@ void DTOMapperPerfTest::onRun() {
   
   v_int32 numIterations = 1000000;
 
-  auto serializer2 = std::make_shared<oatpp::parser::json::mapping::Serializer2>();
+  auto serializer2 = std::make_shared<oatpp::parser::json::mapping::Serializer>();
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
   auto test1 = Test1::createTestInstance();
@@ -80,7 +80,7 @@ void DTOMapperPerfTest::onRun() {
   OATPP_LOGV(TAG, "json='%s'", (const char*) test1_Text->getData());
 
   {
-    PerformanceChecker checker("Serializer2");
+    PerformanceChecker checker("Serializer");
     for(v_int32 i = 0; i < numIterations; i ++) {
       oatpp::data::stream::BufferOutputStream stream;
       serializer2->serialize(&stream, test1);

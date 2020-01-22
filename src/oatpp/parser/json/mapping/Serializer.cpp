@@ -27,153 +27,168 @@
 #include "oatpp/parser/json/Utils.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
-  
-void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
+
+Serializer::Serializer(const std::shared_ptr<Config>& config)
+  : m_config(config)
+{
+
+  m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
+
+  m_methods[oatpp::data::mapping::type::__class::String::CLASS_ID.id] = &Serializer::serializeString;
+  m_methods[oatpp::data::mapping::type::__class::Int8::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int8>;
+  m_methods[oatpp::data::mapping::type::__class::Int16::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int16>;
+  m_methods[oatpp::data::mapping::type::__class::Int32::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int32>;
+  m_methods[oatpp::data::mapping::type::__class::Int64::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Int64>;
+  m_methods[oatpp::data::mapping::type::__class::Float32::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Float32>;
+  m_methods[oatpp::data::mapping::type::__class::Float64::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Float64>;
+  m_methods[oatpp::data::mapping::type::__class::Boolean::CLASS_ID.id] = &Serializer::serializePrimitive<oatpp::Boolean>;
+
+  m_methods[oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id] = &Serializer::serializeObject;
+  m_methods[oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id] = &Serializer::serializeList;
+  m_methods[oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id] = &Serializer::serializeFieldsMap;
+
+}
+
+void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
+  auto id = classId.id;
+  if(id < m_methods.size()) {
+    m_methods[id] = method;
+  } else {
+    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::setSerializerMethod()]: Error. Unknown classId");
+  }
+}
+
+void Serializer::serializeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
   auto encodedValue = Utils::escapeString(data, size, false);
   stream->writeCharSimple('\"');
   stream->writeSimple(encodedValue);
   stream->writeCharSimple('\"');
 }
 
-void Serializer::writeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data) {
-  writeString(stream, (p_char8)data, std::strlen(data));
-}
-  
-void Serializer::writeList(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractList::ObjectWrapper& list, const std::shared_ptr<Config>& config) {
-  stream->writeCharSimple('[');
-  bool first = true;
-  auto curr = list->getFirstNode();
-  
-  while(curr != nullptr){
-    auto value = curr->getData();
-    if(value || config->includeNullFields) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      writeValue(stream, curr->getData(), config);
-    }
-    curr = curr->getNext();
-  }
-  
-  stream->writeCharSimple(']');
-}
-
-void Serializer::writeFieldsMap(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractFieldsMap::ObjectWrapper& map, const std::shared_ptr<Config>& config) {
-  stream->writeCharSimple('{');
-  bool first = true;
-  auto curr = map->getFirstEntry();
-  
-  while(curr != nullptr){
-    auto value = curr->getValue();
-    if(value || config->includeNullFields) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      auto key = curr->getKey();
-      writeString(stream, key->getData(), key->getSize());
-      stream->writeSimple(":", 1);
-      writeValue(stream, curr->getValue(), config);
-    }
-    curr = curr->getNext();
-  }
-  
-  stream->writeCharSimple('}');
-}
-
-void Serializer::writeObject(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<Object>& polymorph, const std::shared_ptr<Config>& config) {
-  
-  stream->writeCharSimple('{');
-  
-  bool first = true;
-  auto fields = polymorph.valueType->properties->getList();
-  Object* object = polymorph.get();
-  
-  for (auto const& field : fields) {
-    
-    auto value = field->get(object);
-    if(value || config->includeNullFields) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      writeString(stream, field->name);
-      stream->writeSimple(":", 1);
-      writeValue(stream, value, config);
-    }
-    
-  }
-  
-  stream->writeCharSimple('}');
-  
-}
-  
-void Serializer::writeValue(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config) {
+void Serializer::serializeString(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
 
   if(!polymorph) {
     stream->writeSimple("null", 4);
     return;
   }
-  
-  auto classId = polymorph.valueType->classId.id;
-  
-  if(classId == oatpp::data::mapping::type::__class::String::CLASS_ID.id) {
-    auto str = oatpp::data::mapping::type::static_wrapper_cast<oatpp::base::StrBuffer>(polymorph);
-    writeString(stream, str->getData(), str->getSize());
-  } else if(classId == oatpp::data::mapping::type::__class::Int8::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int8::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::Int16::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int16::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::Int32::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int32::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::Int64::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Int64::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::Float32::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Float32::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::Float64::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Float64::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::Boolean::CLASS_ID.id) {
-    writeSimpleData(stream, oatpp::data::mapping::type::static_wrapper_cast<Boolean::ObjectType>(polymorph));
-  } else if(classId == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id) {
-    writeList(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-  } else if(classId == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id) {
-    // TODO Assert that key is String
-    writeFieldsMap(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
-  } else if(classId == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
-    writeObject(stream, oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
-  } else {
-    if(config->throwOnUnknownTypes) {
-      throw std::runtime_error("[oatpp::kafka::protocol::mapping::Serializer::writeField]: Unknown data type");
-    } else {
-      writeString(stream, "<unknown-type>");
+
+  auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
+
+  serializeString(stream, str->getData(), str->getSize());
+
+}
+
+void Serializer::serializeList(Serializer* serializer,
+                                data::stream::ConsistentOutputStream* stream,
+                                const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+
+  if(!polymorph) {
+    stream->writeSimple("null", 4);
+    return;
+  }
+
+  auto* list = static_cast<AbstractList*>(polymorph.get());
+
+  stream->writeCharSimple('[');
+  bool first = true;
+  auto curr = list->getFirstNode();
+
+  while(curr != nullptr){
+    auto value = curr->getData();
+    if(value || serializer->getConfig()->includeNullFields) {
+      (first) ? first = false : stream->writeSimple(",", 1);
+      serializer->serialize(stream, curr->getData());
     }
+    curr = curr->getNext();
   }
-  
+
+  stream->writeCharSimple(']');
+
 }
 
-void Serializer::serializeToStream(oatpp::data::stream::ConsistentOutputStream* stream,
-                                   const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
-                                   const std::shared_ptr<Config>& config)
+void Serializer::serializeFieldsMap(Serializer* serializer,
+                                     data::stream::ConsistentOutputStream* stream,
+                                     const data::mapping::type::AbstractObjectWrapper& polymorph)
 {
 
-  auto type = polymorph.valueType;
-  if(type->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
-    writeObject(stream, oatpp::data::mapping::type::static_wrapper_cast<Object>(polymorph), config);
-  } else if(type->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id) {
-    writeList(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractList>(polymorph), config);
-  } else if(type->classId.id == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id) {
-    writeFieldsMap(stream, oatpp::data::mapping::type::static_wrapper_cast<AbstractFieldsMap>(polymorph), config);
-  } else {
-    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: Unknown parameter type");
+  if(!polymorph) {
+    stream->writeSimple("null", 4);
+    return;
   }
+
+  auto map = static_cast<AbstractFieldsMap*>(polymorph.get());
+
+  stream->writeCharSimple('{');
+  bool first = true;
+  auto curr = map->getFirstEntry();
+
+  while(curr != nullptr){
+    auto value = curr->getValue();
+    if(value || serializer->getConfig()->includeNullFields) {
+      (first) ? first = false : stream->writeSimple(",", 1);
+      auto key = curr->getKey();
+      serializeString(stream, key->getData(), key->getSize());
+      stream->writeSimple(":", 1);
+      serializer->serialize(stream, curr->getValue());
+    }
+    curr = curr->getNext();
+  }
+
+  stream->writeCharSimple('}');
 
 }
 
-void Serializer::serialize(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
-                           const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
-                           const std::shared_ptr<Config>& config)
+void Serializer::serializeObject(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const data::mapping::type::AbstractObjectWrapper& polymorph)
 {
 
-  if(config->useBeautifier) {
-    json::Beautifier beautifier(stream.get(), "  ", "\n");
-    serializeToStream(&beautifier, polymorph, config);
-  } else {
-    serializeToStream(stream.get(), polymorph, config);
+  if(!polymorph) {
+    stream->writeSimple("null", 4);
+    return;
   }
 
+  stream->writeCharSimple('{');
+
+  bool first = true;
+  auto fields = polymorph.valueType->properties->getList();
+  Object* object = static_cast<Object*>(polymorph.get());
+
+  for (auto const& field : fields) {
+
+    auto value = field->get(object);
+    if(value || serializer->getConfig()->includeNullFields) {
+      (first) ? first = false : stream->writeSimple(",", 1);
+      serializeString(stream, (p_char8)field->name, std::strlen(field->name));
+      stream->writeSimple(":", 1);
+      serializer->serialize(stream, value);
+    }
+
+  }
+
+  stream->writeCharSimple('}');
 
 }
-  
+
+void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
+                            const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+  auto id = polymorph.valueType->classId.id;
+  auto& method = m_methods[id];
+  if(method) {
+    (*method)(this, stream, polymorph);
+  } else {
+    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
+                             "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) + "'");
+  }
+}
+
+const std::shared_ptr<Serializer::Config>& Serializer::getConfig() {
+  return m_config;
+}
+
 }}}}
