@@ -34,7 +34,7 @@ namespace oatpp { namespace encoding {
   
 const v_char8 Hex::A_D[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
   /*
-const v_word16 Hex::A_W16[] = {
+const v_uint16 Hex::A_W16[] = {
   htons('0' | ('0' << 8)), htons('1' | ('0' << 8)), htons('2' | ('0' << 8)), htons('3' | ('0' << 8)), htons('4' | ('0' << 8)),
   htons('5' | ('0' << 8)), htons('6' | ('0' << 8)), htons('7' | ('0' << 8)), htons('8' | ('0' << 8)), htons('9' | ('0' << 8)),
   htons('A' | ('0' << 8)), htons('B' | ('0' << 8)), htons('C' | ('0' << 8)), htons('D' | ('0' << 8)), htons('E' | ('0' << 8)),
@@ -90,8 +90,8 @@ const v_word16 Hex::A_W16[] = {
 };
    */
     
-void Hex::writeWord16(v_word16 value, p_char8 buffer){
-  *((p_word32) buffer) = htonl((A_D[ value & 0x000F       ]      ) |
+void Hex::writeUInt16(v_uint16 value, p_char8 buffer){
+  *((p_uint32) buffer) = htonl((A_D[ value & 0x000F       ]      ) |
                                   (A_D[(value & 0x00F0) >>  4] <<  8) |
                                   (A_D[(value & 0x0F00) >>  8] << 16) |
                                   (A_D[(value & 0xF000) >> 12] << 24));
@@ -101,12 +101,12 @@ void Hex::writeWord16(v_word16 value, p_char8 buffer){
   
 }
   
-void Hex::writeWord32(v_word32 value, p_char8 buffer){
-  writeWord16(value >> 16, buffer);
-  writeWord16(value, buffer + 4);
+void Hex::writeUInt32(v_uint32 value, p_char8 buffer){
+  writeUInt16(value >> 16, buffer);
+  writeUInt16(value, buffer + 4);
 }
   
-v_int32 Hex::readWord16(p_char8 buffer, v_word16& value) {
+v_int32 Hex::readUInt16(p_char8 buffer, v_uint16& value) {
   value = 0;
   for(v_int32 i = 0; i < 4; i++){
     v_char8 a = buffer[i];
@@ -123,7 +123,7 @@ v_int32 Hex::readWord16(p_char8 buffer, v_word16& value) {
   return 0;
 }
   
-v_int32 Hex::readWord32(p_char8 buffer, v_word32& value) {
+v_int32 Hex::readUInt32(p_char8 buffer, v_uint32& value) {
   value = 0;
   for(v_int32 i = 0; i < 8; i++){
     v_char8 a = buffer[i];

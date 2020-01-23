@@ -386,7 +386,7 @@ public:
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_word32 value);
+  v_io_size writeAsString(v_uint32 value);
 
   /**
    * Convert value to string and write to stream.
@@ -400,7 +400,7 @@ public:
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_word64 value);
+  v_io_size writeAsString(v_uint64 value);
 
   /**
    * Convert value to string and write to stream.

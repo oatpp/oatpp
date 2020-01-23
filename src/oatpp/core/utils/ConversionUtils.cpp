@@ -40,14 +40,14 @@ namespace oatpp { namespace utils { namespace conversion {
     return result;
   }
 
-  v_word32 strToWord32(const char* str){
+  v_uint32 strToUInt32(const char* str){
     char* end;
-    return (v_word32) std::strtoul(str, &end, 10);
+    return (v_uint32) std::strtoul(str, &end, 10);
   }
 
-  v_word32 strToWord32(const oatpp::String& str, bool& success){
+  v_uint32 strToUInt32(const oatpp::String& str, bool& success){
     char* end;
-    v_word32 result = (v_word32) std::strtoul((const char*)str->getData(), &end, 10);
+    v_uint32 result = (v_uint32) std::strtoul((const char*)str->getData(), &end, 10);
     success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
     return result;
   }
@@ -64,14 +64,14 @@ namespace oatpp { namespace utils { namespace conversion {
     return result;
   }
 
-  v_word64 strToWord64(const char* str){
+  v_uint64 strToUInt64(const char* str){
     char* end;
     return std::strtoull(str, &end, 10);
   }
 
-  v_word64 strToWord64(const oatpp::String& str, bool& success){
+  v_uint64 strToUInt64(const oatpp::String& str, bool& success){
     char* end;
-    v_word64 result = std::strtoull((const char*)str->getData(), &end, 10);
+    v_uint64 result = std::strtoull((const char*)str->getData(), &end, 10);
     success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
     return result;
   }
@@ -80,7 +80,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return snprintf((char*)data, n, "%ld", (long) value);
   }
 
-  v_int32 word32ToCharSequence(v_word32 value, p_char8 data, v_int32 n) {
+  v_int32 word32ToCharSequence(v_uint32 value, p_char8 data, v_int32 n) {
     return snprintf((char*)data, n, "%lu", (unsigned long) value);
   }
   
@@ -88,7 +88,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return snprintf((char*)data, n, "%lld", value);
   }
 
-  v_int32 word64ToCharSequence(v_word64 value, p_char8 data, v_int32 n) {
+  v_int32 word64ToCharSequence(v_uint64 value, p_char8 data, v_int32 n) {
     return snprintf((char*)data, n, "%llu", value);
   }
 
@@ -101,7 +101,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return oatpp::String::empty();
   }
 
-  oatpp::String word32ToStr(v_word32 value){
+  oatpp::String word32ToStr(v_uint32 value){
     v_char8 buff [16]; // Max 10 digits. 16 is plenty enough.
     v_int32 size = word32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
@@ -119,7 +119,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return oatpp::String::empty();
   }
 
-  oatpp::String word64ToStr(v_word64 value){
+  oatpp::String word64ToStr(v_uint64 value){
     v_char8 buff [32]; // Max 20 digits.
     v_int32 size = word64ToCharSequence(value, &buff[0], 32);
     if(size > 0){
@@ -137,7 +137,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return nullptr;
   }
 
-  std::string word32ToStdStr(v_word32 value){
+  std::string word32ToStdStr(v_uint32 value){
     v_char8 buff [16];
     v_int32 size = word32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
@@ -155,7 +155,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return nullptr;
   }
 
-  std::string word64ToStdStr(v_word64 value){
+  std::string word64ToStdStr(v_uint64 value){
     v_char8 buff [32];
     v_int32 size = word64ToCharSequence(value, &buff[0], 32);
     if(size > 0){

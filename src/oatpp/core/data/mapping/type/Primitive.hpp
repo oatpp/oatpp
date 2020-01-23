@@ -38,16 +38,16 @@ namespace __class {
   class String; // FWD
 
   class Int8; // FWD
-  class Word8; // FWD
+  class UInt8; // FWD
 
   class Int16; // FWD
-  class Word16; // FWD
+  class UInt16; // FWD
 
   class Int32; // FWD
-  class Word32; // FWD
+  class UInt32; // FWD
 
   class Int64; // FWD
-  class Word64; // FWD
+  class UInt64; // FWD
 
   class Float32; // FWD
   class Float64; // FWD
@@ -277,9 +277,9 @@ public:
 typedef Primitive<v_int8, __class::Int8>::ObjectWrapper Int8;
 
 /**
- * Word8 is an ObjectWrapper over &l:Primitive; and __class::Word8.
+ * UInt8 is an ObjectWrapper over &l:Primitive; and __class::UInt8.
  */
-typedef Primitive<v_word8, __class::Word8>::ObjectWrapper Word8;
+typedef Primitive<v_uint8, __class::UInt8>::ObjectWrapper UInt8;
 
 /**
  * Int16 is an ObjectWrapper over &l:Primitive; and __class::Int16.
@@ -287,9 +287,9 @@ typedef Primitive<v_word8, __class::Word8>::ObjectWrapper Word8;
 typedef Primitive<v_int16, __class::Int16>::ObjectWrapper Int16;
 
 /**
- * Word16 is an ObjectWrapper over &l:Primitive; and __class::Word16.
+ * UInt16 is an ObjectWrapper over &l:Primitive; and __class::UInt16.
  */
-typedef Primitive<v_word16, __class::Word16>::ObjectWrapper Word16;
+typedef Primitive<v_uint16, __class::UInt16>::ObjectWrapper UInt16;
 
 /**
  * Int32 is an ObjectWrapper over &l:Primitive; and __class::Int32.
@@ -297,9 +297,9 @@ typedef Primitive<v_word16, __class::Word16>::ObjectWrapper Word16;
 typedef Primitive<v_int32, __class::Int32>::ObjectWrapper Int32;
 
 /**
- * Word32 is an ObjectWrapper over &l:Primitive; and __class::Word32.
+ * UInt32 is an ObjectWrapper over &l:Primitive; and __class::UInt32.
  */
-typedef Primitive<v_word32, __class::Word32>::ObjectWrapper Word32;
+typedef Primitive<v_uint32, __class::UInt32>::ObjectWrapper UInt32;
 
 /**
  * Int64 is an ObjectWrapper over &l:Primitive; and __class::Int64.
@@ -307,9 +307,9 @@ typedef Primitive<v_word32, __class::Word32>::ObjectWrapper Word32;
 typedef Primitive<v_int64, __class::Int64>::ObjectWrapper Int64;
 
 /**
- * Word64 is an ObjectWrapper over &l:Primitive; and __class::Word64.
+ * UInt64 is an ObjectWrapper over &l:Primitive; and __class::UInt64.
  */
-typedef Primitive<v_word64, __class::Word64>::ObjectWrapper Word64;
+typedef Primitive<v_uint64, __class::UInt64>::ObjectWrapper UInt64;
 
 /**
  * Float32 is an ObjectWrapper over &l:Primitive; and __class::Float32.
@@ -357,7 +357,7 @@ namespace __class {
     
   };
 
-  class Word8 {
+  class UInt8 {
   public:
     static const ClassId CLASS_ID;
 
@@ -366,7 +366,7 @@ namespace __class {
       return &type;
     }
 
-    static type::Word8 parseFromString(const type::String& str, bool& success);
+    static type::UInt8 parseFromString(const type::String& str, bool& success);
 
   };
 
@@ -383,7 +383,7 @@ namespace __class {
     
   };
 
-  class Word16 {
+  class UInt16 {
   public:
     static const ClassId CLASS_ID;
 
@@ -392,7 +392,7 @@ namespace __class {
       return &type;
     }
 
-    static type::Word16 parseFromString(const type::String& str, bool& success);
+    static type::UInt16 parseFromString(const type::String& str, bool& success);
 
   };
   
@@ -409,7 +409,7 @@ namespace __class {
     
   };
 
-  class Word32 {
+  class UInt32 {
   public:
     static const ClassId CLASS_ID;
 
@@ -418,7 +418,7 @@ namespace __class {
       return &type;
     }
 
-    static type::Word32 parseFromString(const type::String& str, bool& success);
+    static type::UInt32 parseFromString(const type::String& str, bool& success);
 
   };
   
@@ -435,7 +435,7 @@ namespace __class {
     
   };
 
-  class Word64 {
+  class UInt64 {
   public:
     static const ClassId CLASS_ID;
 
@@ -444,7 +444,7 @@ namespace __class {
       return &type;
     }
 
-    static type::Word64 parseFromString(const type::String& str, bool& success);
+    static type::UInt64 parseFromString(const type::String& str, bool& success);
 
   };
 
@@ -497,7 +497,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::String> {
     
     typedef oatpp::data::mapping::type::String argument_type;
-    typedef v_word32 result_type;
+    typedef v_uint32 result_type;
     
     result_type operator()(argument_type const& s) const noexcept {
       
@@ -507,7 +507,7 @@ namespace std {
       result_type result = 0;
       
       for(v_buff_size i = 0; i < size4; i++) {
-        result ^= *((p_word32) data);
+        result ^= *((p_uint32) data);
         data += 4;
       }
       

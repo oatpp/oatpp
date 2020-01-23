@@ -74,7 +74,7 @@ public:
   };
 
 private:
-  v_word16 m_port;
+  v_uint16 m_port;
   std::atomic<bool> m_closed;
   oatpp::v_io_handle m_serverHandle;
   bool m_useExtendedConnections;
@@ -92,7 +92,7 @@ public:
    * @param useExtendedConnections - set `true` to use &l:SimpleTCPConnectionProvider::ExtendedConnection;.
    * `false` to use &id:oatpp::network::Connection;.
    */
-  SimpleTCPConnectionProvider(v_word16 port, bool useExtendedConnections = false);
+  SimpleTCPConnectionProvider(v_uint16 port, bool useExtendedConnections = false);
 public:
 
   /**
@@ -101,7 +101,7 @@ public:
    * @param port
    * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_word16 port, bool useExtendedConnections = false){
+  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_uint16 port, bool useExtendedConnections = false){
     return std::make_shared<SimpleTCPConnectionProvider>(port, useExtendedConnections);
   }
 
@@ -154,7 +154,7 @@ public:
    * Get port.
    * @return
    */
-  v_word16 getPort(){
+  v_uint16 getPort(){
     return m_port;
   }
   

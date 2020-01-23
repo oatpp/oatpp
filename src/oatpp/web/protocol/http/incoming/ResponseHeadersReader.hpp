@@ -40,7 +40,7 @@ public:
    */
   typedef oatpp::async::Action Action;
 private:
-  static constexpr v_word32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
+  static constexpr v_uint32 SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 public:
 
   /**
@@ -70,7 +70,7 @@ public:
 private:
 
   struct ReadHeadersIteration {
-    v_word32 accumulator = 0;
+    v_uint32 accumulator = 0;
     v_buff_size progress = 0;
     bool done = false;
   };

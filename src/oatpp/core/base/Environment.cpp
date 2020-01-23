@@ -164,22 +164,22 @@ void Environment::checkTypes(){
   
   OATPP_ASSERT(sizeof(v_char8) == 1);
   OATPP_ASSERT(sizeof(v_int16) == 2);
-  OATPP_ASSERT(sizeof(v_word16) == 2);
+  OATPP_ASSERT(sizeof(v_uint16) == 2);
   OATPP_ASSERT(sizeof(v_int32) == 4);
   OATPP_ASSERT(sizeof(v_int64) == 8);
-  OATPP_ASSERT(sizeof(v_word32) == 4);
-  OATPP_ASSERT(sizeof(v_word64) == 8);
+  OATPP_ASSERT(sizeof(v_uint32) == 4);
+  OATPP_ASSERT(sizeof(v_uint64) == 8);
   OATPP_ASSERT(sizeof(v_float64) == 8);
   
   v_int32 vInt32 = ~1;
   v_int64 vInt64 = ~1;
-  v_word32 vWord32 = ~1;
-  v_word64 vWord64 = ~1;
+  v_uint32 vUInt32 = ~1;
+  v_uint64 vUInt64 = ~1;
   
   OATPP_ASSERT(vInt32 < 0);
   OATPP_ASSERT(vInt64 < 0);
-  OATPP_ASSERT(vWord32 > 0);
-  OATPP_ASSERT(vWord64 > 0);
+  OATPP_ASSERT(vUInt32 > 0);
+  OATPP_ASSERT(vUInt64 > 0);
   
 }
 

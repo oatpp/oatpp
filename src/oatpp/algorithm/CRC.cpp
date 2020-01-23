@@ -26,10 +26,10 @@
 
 namespace oatpp { namespace algorithm {
   
-const p_word32 CRC32::TABLE_04C11DB7 = generateTable(0x04C11DB7);
+const p_uint32 CRC32::TABLE_04C11DB7 = generateTable(0x04C11DB7);
   
-v_word32 CRC32::bitReverse(v_word32 poly) {
-  v_word32 result = 0;
+v_uint32 CRC32::bitReverse(v_uint32 poly) {
+  v_uint32 result = 0;
   for(v_int32 i = 0; i < 32; i ++) {
     if((poly & (1 << i)) > 0) {
       result |= 1 << (31 - i);
@@ -38,11 +38,11 @@ v_word32 CRC32::bitReverse(v_word32 poly) {
   return result;
 }
   
-p_word32 CRC32::generateTable(v_word32 poly) {
+p_uint32 CRC32::generateTable(v_uint32 poly) {
   
-  p_word32 result = new v_word32[256];
-  v_word32 polyReverse = bitReverse(poly);
-  v_word32 value;
+  p_uint32 result = new v_uint32[256];
+  v_uint32 polyReverse = bitReverse(poly);
+  v_uint32 value;
   
   for(v_int32 i = 0; i < 256; i++) {
     value = i;
@@ -62,9 +62,9 @@ p_word32 CRC32::generateTable(v_word32 poly) {
   
 }
   
-v_word32 CRC32::calc(const void *buffer, v_buff_size size, v_word32 crc, v_word32 initValue, v_word32 xorOut, p_word32 table) {
+v_uint32 CRC32::calc(const void *buffer, v_buff_size size, v_uint32 crc, v_uint32 initValue, v_uint32 xorOut, p_uint32 table) {
   
-  p_word8 data = (p_word8) buffer;
+  p_uint8 data = (p_uint8) buffer;
   crc = crc ^ initValue;
   
   for(v_buff_size i = 0; i < size; i++) {

@@ -107,8 +107,8 @@ v_buff_size Utils::calcUnescapedStringSize(p_char8 data, v_buff_size size, v_int
             errorPosition = i;
             return 0;
           }
-          v_word32 code;
-          errorCode = encoding::Hex::readWord32(&data[i + 3], code);
+          v_uint32 code;
+          errorCode = encoding::Hex::readUInt32(&data[i + 3], code);
           if(errorCode != 0){
             errorPosition = i + 3;
             return 0;
@@ -116,8 +116,8 @@ v_buff_size Utils::calcUnescapedStringSize(p_char8 data, v_buff_size size, v_int
           i += 11;
           result += encoding::Unicode::getUtf8CharSequenceLengthForCode(code);
         } else {
-          v_word16 code;
-          errorCode = encoding::Hex::readWord16(&data[i + 2], code);
+          v_uint16 code;
+          errorCode = encoding::Hex::readUInt16(&data[i + 2], code);
           if(errorCode != 0){
             errorPosition = i + 2;
             return 0;
@@ -129,15 +129,15 @@ v_buff_size Utils::calcUnescapedStringSize(p_char8 data, v_buff_size size, v_int
               errorPosition = i;
               return 0;
             }
-            v_word16 low;
-            errorCode = encoding::Hex::readWord16(&data[i + 8], low);
+            v_uint16 low;
+            errorCode = encoding::Hex::readUInt16(&data[i + 8], low);
             if(errorCode != 0){
               errorPosition = i + 8;
               return 0;
             }
             
             if(low >= 0xDC00 && low <= 0xDFFF){
-              v_word32 bigCode = encoding::Unicode::utf16SurrogatePairToCode(code, low);
+              v_uint32 bigCode = encoding::Unicode::utf16SurrogatePairToCode(code, low);
               i += 12;
               result += encoding::Unicode::getUtf8CharSequenceLengthForCode(bigCode);
             } else {
@@ -174,7 +174,7 @@ v_buff_size Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
   if(code < 0x00010000) {
     buffer[0] = '\\';
     buffer[1] = 'u';
-    oatpp::encoding::Hex::writeWord16(code, &buffer[2]);
+    oatpp::encoding::Hex::writeUInt16(code, &buffer[2]);
     return 6;
   } else if(code < 0x00200000) {
     v_int16 high;
@@ -182,16 +182,16 @@ v_buff_size Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
     oatpp::encoding::Unicode::codeToUtf16SurrogatePair(code, high, low);
     buffer[0] = '\\';
     buffer[1] = 'u';
-    oatpp::encoding::Hex::writeWord16(high, &buffer[2]);
+    oatpp::encoding::Hex::writeUInt16(high, &buffer[2]);
     buffer[6] = '\\';
     buffer[7] = 'u';
-    oatpp::encoding::Hex::writeWord16(low, &buffer[8]);
+    oatpp::encoding::Hex::writeUInt16(low, &buffer[8]);
     return 12;
   } else {
     buffer[0] = '\\';
     buffer[1] = 'u';
     buffer[2] = '+';
-    oatpp::encoding::Hex::writeWord32(code, &buffer[2]);
+    oatpp::encoding::Hex::writeUInt32(code, &buffer[2]);
     return 11;
   }
 }
@@ -223,7 +223,7 @@ oatpp::String Utils::escapeString(p_char8 data, v_buff_size size, bool copyAsOwn
       } else {
         resultData[pos] = '\\';
         resultData[pos + 1] = 'u';
-        oatpp::encoding::Hex::writeWord16(a, &resultData[pos + 2]);
+        oatpp::encoding::Hex::writeUInt16(a, &resultData[pos + 2]);
         pos += 6;
       }
       i ++;
@@ -286,19 +286,19 @@ void Utils::unescapeStringToBuffer(p_char8 data, v_buff_size size, p_char8 resul
         i += 2;
       } else {
         if(data[i + 2] == '+'){ // Not JSON standard case
-          v_word32 code;
-          encoding::Hex::readWord32(&data[i + 3], code);
+          v_uint32 code;
+          encoding::Hex::readUInt32(&data[i + 3], code);
           i += 11;
           pos += encoding::Unicode::decodeUtf8Char(code, &resultData[pos]);
         } else {
           
-          v_word16 code;
-          encoding::Hex::readWord16(&data[i + 2], code);
+          v_uint16 code;
+          encoding::Hex::readUInt16(&data[i + 2], code);
           
           if(code >= 0xD800 && code <= 0xDBFF){
-            v_word16 low;
-            encoding::Hex::readWord16(&data[i + 8], low);
-            v_word32 bigCode = encoding::Unicode::utf16SurrogatePairToCode(code, low);
+            v_uint16 low;
+            encoding::Hex::readUInt16(&data[i + 8], low);
+            v_uint32 bigCode = encoding::Unicode::utf16SurrogatePairToCode(code, low);
             pos += encoding::Unicode::decodeUtf8Char(bigCode, &resultData[pos]);
             i += 12;
           } else {

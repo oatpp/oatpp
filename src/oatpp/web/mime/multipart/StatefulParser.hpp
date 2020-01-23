@@ -45,7 +45,7 @@ private:
   static constexpr v_int32 STATE_DATA = 3;
   static constexpr v_int32 STATE_DONE = 4;
 private:
-  static constexpr v_word32 HEADERS_SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
+  static constexpr v_uint32 HEADERS_SECTION_END = ('\r' << 24) | ('\n' << 16) | ('\r' << 8) | ('\n');
 private:
   /**
    * Typedef for headers map. Headers map key is case-insensitive.
@@ -166,7 +166,7 @@ private:
   bool m_finishingBoundary;
   bool m_readingBody;
 
-  v_word32 m_headerSectionEndAccumulator;
+  v_uint32 m_headerSectionEndAccumulator;
 
   oatpp::String m_firstBoundarySample;
   oatpp::String m_nextBoundarySample;

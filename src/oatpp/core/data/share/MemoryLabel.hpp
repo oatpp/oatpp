@@ -232,7 +232,7 @@ namespace std {
   struct hash<oatpp::data::share::StringKeyLabel> {
     
     typedef oatpp::data::share::StringKeyLabel argument_type;
-    typedef v_word32 result_type;
+    typedef v_uint32 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
       
@@ -242,7 +242,7 @@ namespace std {
       result_type result = 0;
       
       for(v_buff_size i = 0; i < size4; i++) {
-        result ^= *((p_word32) data);
+        result ^= *((p_uint32) data);
         data += 4;
       }
       
@@ -258,7 +258,7 @@ namespace std {
   struct hash<oatpp::data::share::StringKeyLabelCI> {
     
     typedef oatpp::data::share::StringKeyLabelCI argument_type;
-    typedef v_word32 result_type;
+    typedef v_uint32 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
       
@@ -268,7 +268,7 @@ namespace std {
       result_type result = 0;
       
       for(v_buff_size i = 0; i < size4; i++) {
-        result ^= (*((p_word32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
+        result ^= (*((p_uint32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
         data += 4;
       }
       
@@ -284,7 +284,7 @@ namespace std {
   struct hash<oatpp::data::share::StringKeyLabelCI_FAST> {
     
     typedef oatpp::data::share::StringKeyLabelCI_FAST argument_type;
-    typedef v_word32 result_type;
+    typedef v_uint32 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI_FAST const& s) const noexcept {
       
@@ -294,7 +294,7 @@ namespace std {
       result_type result = 0;
       
       for(v_buff_size i = 0; i < size4; i++) {
-        result ^= (*((p_word32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
+        result ^= (*((p_uint32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
         data += 4;
       }
       

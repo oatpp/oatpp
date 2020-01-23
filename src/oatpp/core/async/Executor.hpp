@@ -96,7 +96,7 @@ public:
    */
   static constexpr const v_int32 IO_WORKER_TYPE_EVENT = 1;
 private:
-  std::atomic<v_word32> m_balancer;
+  std::atomic<v_uint32> m_balancer;
 private:
   std::vector<std::shared_ptr<SubmissionProcessor>> m_processorWorkers;
   std::vector<std::shared_ptr<worker::Worker>> m_allWorkers;
