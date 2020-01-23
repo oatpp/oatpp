@@ -52,6 +52,21 @@ namespace oatpp { namespace utils { namespace conversion {
   v_int32 strToInt32(const oatpp::String& str, bool& success);
 
   /**
+   * String to 32-bit unsigned integer.
+   * @param str - string as `const char*`.
+   * @return - 32-bit unsigned integer value.
+   */
+  v_word32 strToWord32(const char* str);
+
+  /**
+   * String to 32-bit unsigned integer.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 32-bit unsigned integer value.
+   */
+  v_word32 strToWord32(const oatpp::String& str, bool& success);
+
+  /**
    * String to 64-bit integer.
    * @param str - string as `const char*`.
    * @return - 64-bit integer value.
@@ -67,6 +82,21 @@ namespace oatpp { namespace utils { namespace conversion {
   v_int64 strToInt64(const oatpp::String& str, bool& success);
 
   /**
+   * String to 64-bit unsigned integer.
+   * @param str - string as `const char*`.
+   * @return - 64-bit unsigned integer value.
+   */
+  v_word64 strToWord64(const char* str);
+
+  /**
+   * String to 64-bit unsigned integer.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 64-bit unsigned integer value.
+   */
+  v_word64 strToWord64(const oatpp::String& str, bool& success);
+
+  /**
    * Convert 32-bit integer to it's string representation.
    * @param value - 32-bit integer value.
    * @param data - buffer to write data to.
@@ -74,6 +104,15 @@ namespace oatpp { namespace utils { namespace conversion {
    * @return - length of the resultant string.
    */
   v_int32 int32ToCharSequence(v_int32 value, p_char8 data, v_int32 n);
+
+  /**
+   * Convert 32-bit unsigned integer to it's string representation.
+   * @param value - 32-bit unsigned integer value.
+   * @param data - buffer to write data to.
+   * @param n - buffer size.
+   * @return - length of the resultant string.
+   */
+  v_int32 word32ToCharSequence(v_word32 value, p_char8 data, v_int32 n);
 
  /**
   * Convert 64-bit integer to it's string representation.
@@ -85,11 +124,27 @@ namespace oatpp { namespace utils { namespace conversion {
  v_int32 int64ToCharSequence(v_int64 value, p_char8 data, v_int32 n);
 
   /**
+   * Convert 64-bit unsigned integer to it's string representation.
+   * @param value - 64-bit unsigned integer value.
+   * @param data - buffer to write data to.
+   * @param n - buffer size.
+   * @return - length of the resultant string.
+   */
+  v_int32 word64ToCharSequence(v_word64 value, p_char8 data, v_int32 n);
+
+  /**
    * Convert 32-bit integer to it's string representation.
    * @param value - 32-bit integer value.
    * @return - value as `oatpp::String`
    */
   oatpp::String int32ToStr(v_int32 value);
+
+  /**
+   * Convert 32-bit unsigned integer to it's string representation.
+   * @param value - 32-bit unsigned integer value.
+   * @return - value as `oatpp::String`
+   */
+  oatpp::String word32ToStr(v_word32 value);
 
   /**
    * Convert 64-bit integer to it's string representation.
@@ -99,6 +154,13 @@ namespace oatpp { namespace utils { namespace conversion {
   oatpp::String int64ToStr(v_int64 value);
 
   /**
+   * Convert 64-bit unsigned integer to it's string representation.
+   * @param value - 64-bit unsigned integer value.
+   * @return - value as `oatpp::String`
+   */
+  oatpp::String word64ToStr(v_word64 value);
+
+  /**
    * Convert 32-bit integer to it's string representation.
    * @param value - 32-bit integer value.
    * @return - value as `std::string`
@@ -106,11 +168,25 @@ namespace oatpp { namespace utils { namespace conversion {
   std::string int32ToStdStr(v_int32 value);
 
   /**
+   * Convert 32-bit unsigned integer to it's string representation.
+   * @param value - 32-bit unsigned integer value.
+   * @return - value as `std::string`
+   */
+  std::string word32ToStdStr(v_word32 value);
+
+  /**
    * Convert 64-bit integer to it's string representation.
    * @param value - 64-bit integer value.
    * @return - value as `std::string`
    */
   std::string int64ToStdStr(v_int64 value);
+
+  /**
+   * Convert 64-bit unsigned integer to it's string representation.
+   * @param value - 64-bit unsigned integer value.
+   * @return - value as `std::string`
+   */
+  std::string word64ToStdStr(v_word64 value);
 
   /**
    * Write value of primitive type (int, float, etc.) as it's string representation with pattern.
@@ -226,7 +302,7 @@ namespace oatpp { namespace utils { namespace conversion {
    * @param primitive - ObjectWrapper.
    * @return - value as string.
    */
-  template<class T>
+  template<class T> // TODO refactor this method
   oatpp::String
   primitiveToStr(const oatpp::data::mapping::type::PolymorphicWrapper<T>& primitive) {
     auto type = primitive.valueType;

@@ -51,28 +51,54 @@ String operator + (const String& a, const String& b) {
 namespace __class {
   
   const ClassId String::CLASS_ID("String");
+
   const ClassId Int8::CLASS_ID("Int8");
+  const ClassId Word8::CLASS_ID("Word8");
+
   const ClassId Int16::CLASS_ID("Int16");
+  const ClassId Word16::CLASS_ID("Word16");
+
   const ClassId Int32::CLASS_ID("Int32");
+  const ClassId Word32::CLASS_ID("Word32");
+
   const ClassId Int64::CLASS_ID("Int64");
+  const ClassId Word64::CLASS_ID("Word64");
+
   const ClassId Float32::CLASS_ID("Float32");
   const ClassId Float64::CLASS_ID("Float64");
+
   const ClassId Boolean::CLASS_ID("Boolean");
   
   type::Int8 Int8::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
-  
+
+  type::Word8 Word8::parseFromString(const oatpp::String& str, bool& success) {
+    return utils::conversion::strToWord32(str, success);
+  }
+
   type::Int16 Int16::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
+  }
+
+  type::Word16 Word16::parseFromString(const oatpp::String& str, bool& success) {
+    return utils::conversion::strToWord32(str, success);
   }
   
   type::Int32 Int32::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt32(str, success);
   }
+
+  type::Word32 Word32::parseFromString(const oatpp::String& str, bool& success) {
+    return utils::conversion::strToWord32(str, success);
+  }
   
   type::Int64 Int64::parseFromString(const oatpp::String& str, bool& success) {
     return utils::conversion::strToInt64(str, success);
+  }
+
+  type::Word64 Word64::parseFromString(const oatpp::String& str, bool& success) {
+    return utils::conversion::strToWord64(str, success);
   }
   
   type::Float32 Float32::parseFromString(const oatpp::String& str, bool& success) {

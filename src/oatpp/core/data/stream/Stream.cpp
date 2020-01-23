@@ -327,7 +327,16 @@ async::CoroutineStarter IOStream::initContextsAsync() {
 
 v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   v_char8 a[16];
-  v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
+  auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_word32 value){
+  v_char8 a[16];
+  auto size = utils::conversion::word32ToCharSequence(value, &a[0], 16);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -336,7 +345,16 @@ v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
   v_char8 a[32];
-  v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
+  auto size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_word64 value){
+  v_char8 a[32];
+  auto size = utils::conversion::word64ToCharSequence(value, &a[0], 32);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -345,7 +363,7 @@ v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
-  v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -354,7 +372,7 @@ v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
-  v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
   if(size > 0){
     return writeSimple(&a[0], size);
   }

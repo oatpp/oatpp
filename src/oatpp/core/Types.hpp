@@ -42,9 +42,19 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Int8 Int8;
 
   /**
+   * Mapping-Enabled 8-bits unsigned int. Can hold nullptr value. &id:oatpp::data::mapping::type::Word8;
+   */
+  typedef oatpp::data::mapping::type::Word8 Word8;
+
+  /**
    * Mapping-Enabled 16-bits int. Can hold nullptr value. &id:oatpp::data::mapping::type::Int16;
    */
   typedef oatpp::data::mapping::type::Int16 Int16;
+
+  /**
+   * Mapping-Enabled 16-bits unsigned int. Can hold nullptr value. &id:oatpp::data::mapping::type::Word16;
+   */
+  typedef oatpp::data::mapping::type::Word16 Word16;
 
   /**
    * Mapping-Enabled 32-bits int. Can hold nullptr value. &id:oatpp::data::mapping::type::Int32;
@@ -52,9 +62,19 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Int32 Int32;
 
   /**
+   * Mapping-Enabled 32-bits unsigned int. Can hold nullptr value. &id:oatpp::data::mapping::type::Word32;
+   */
+  typedef oatpp::data::mapping::type::Word32 Word32;
+
+  /**
    * Mapping-Enabled 64-bits int. Can hold nullptr value. &id:oatpp::data::mapping::type::Int64;
    */
   typedef oatpp::data::mapping::type::Int64 Int64;
+
+  /**
+   * Mapping-Enabled 64-bits unsigned int. Can hold nullptr value. &id:oatpp::data::mapping::type::Word64;
+   */
+  typedef oatpp::data::mapping::type::Word64 Word64;
 
   /**
    * Mapping-Enabled 32-bits float. Can hold nullptr value. &id:oatpp::data::mapping::type::Float32;
