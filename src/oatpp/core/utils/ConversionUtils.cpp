@@ -80,7 +80,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return snprintf((char*)data, n, "%ld", (long) value);
   }
 
-  v_int32 word32ToCharSequence(v_uint32 value, p_char8 data, v_int32 n) {
+  v_int32 uint32ToCharSequence(v_uint32 value, p_char8 data, v_int32 n) {
     return snprintf((char*)data, n, "%lu", (unsigned long) value);
   }
   
@@ -88,7 +88,7 @@ namespace oatpp { namespace utils { namespace conversion {
     return snprintf((char*)data, n, "%lld", value);
   }
 
-  v_int32 word64ToCharSequence(v_uint64 value, p_char8 data, v_int32 n) {
+  v_int32 uint64ToCharSequence(v_uint64 value, p_char8 data, v_int32 n) {
     return snprintf((char*)data, n, "%llu", value);
   }
 
@@ -101,9 +101,9 @@ namespace oatpp { namespace utils { namespace conversion {
     return oatpp::String::empty();
   }
 
-  oatpp::String word32ToStr(v_uint32 value){
+  oatpp::String uint32ToStr(v_uint32 value){
     v_char8 buff [16]; // Max 10 digits. 16 is plenty enough.
-    v_int32 size = word32ToCharSequence(value, &buff[0], 16);
+    v_int32 size = uint32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
@@ -119,9 +119,9 @@ namespace oatpp { namespace utils { namespace conversion {
     return oatpp::String::empty();
   }
 
-  oatpp::String word64ToStr(v_uint64 value){
+  oatpp::String uint64ToStr(v_uint64 value){
     v_char8 buff [32]; // Max 20 digits.
-    v_int32 size = word64ToCharSequence(value, &buff[0], 32);
+    v_int32 size = uint64ToCharSequence(value, &buff[0], 32);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
@@ -137,9 +137,9 @@ namespace oatpp { namespace utils { namespace conversion {
     return nullptr;
   }
 
-  std::string word32ToStdStr(v_uint32 value){
+  std::string uint32ToStdStr(v_uint32 value){
     v_char8 buff [16];
-    v_int32 size = word32ToCharSequence(value, &buff[0], 16);
+    v_int32 size = uint32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
       return std::string((const char*)buff, size);
     }
@@ -155,9 +155,9 @@ namespace oatpp { namespace utils { namespace conversion {
     return nullptr;
   }
 
-  std::string word64ToStdStr(v_uint64 value){
+  std::string uint64ToStdStr(v_uint64 value){
     v_char8 buff [32];
-    v_int32 size = word64ToCharSequence(value, &buff[0], 32);
+    v_int32 size = uint64ToCharSequence(value, &buff[0], 32);
     if(size > 0){
       return std::string((const char*)buff, size);
     }

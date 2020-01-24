@@ -454,7 +454,7 @@ public:
     success = false;
     throw std::runtime_error("[oatpp::web::server::api::ApiController::parseParameterFromString()]: Error. "
                              "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
-                             "Please define the conversion.");
+                             "Please define type conversion.");
   }
 
   template<>
