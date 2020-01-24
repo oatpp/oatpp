@@ -337,11 +337,6 @@ namespace __class {
       return &type;
     }
     
-    static type::String parseFromString(const type::String& str, bool& success){
-      success = true;
-      return str;
-    }
-    
   };
   
   class Int8 {
@@ -352,8 +347,6 @@ namespace __class {
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Int8 parseFromString(const type::String& str, bool& success);
     
   };
 
@@ -366,8 +359,6 @@ namespace __class {
       return &type;
     }
 
-    static type::UInt8 parseFromString(const type::String& str, bool& success);
-
   };
 
   class Int16 {
@@ -378,8 +369,6 @@ namespace __class {
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Int16 parseFromString(const type::String& str, bool& success);
     
   };
 
@@ -392,8 +381,6 @@ namespace __class {
       return &type;
     }
 
-    static type::UInt16 parseFromString(const type::String& str, bool& success);
-
   };
   
   class Int32 {
@@ -404,8 +391,6 @@ namespace __class {
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Int32 parseFromString(const type::String& str, bool& success);
     
   };
 
@@ -418,8 +403,6 @@ namespace __class {
       return &type;
     }
 
-    static type::UInt32 parseFromString(const type::String& str, bool& success);
-
   };
   
   class Int64 {
@@ -430,8 +413,6 @@ namespace __class {
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Int64 parseFromString(const type::String& str, bool& success);
     
   };
 
@@ -444,8 +425,6 @@ namespace __class {
       return &type;
     }
 
-    static type::UInt64 parseFromString(const type::String& str, bool& success);
-
   };
 
   class Float32 {
@@ -456,8 +435,6 @@ namespace __class {
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Float32 parseFromString(const type::String& str, bool& success);
     
   };
   
@@ -470,8 +447,6 @@ namespace __class {
       return &type;
     }
     
-    static type::Float64 parseFromString(const type::String& str, bool& success);
-    
   };
   
   class Boolean {
@@ -482,8 +457,6 @@ namespace __class {
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Boolean parseFromString(const type::String& str, bool& success);
     
   };
   

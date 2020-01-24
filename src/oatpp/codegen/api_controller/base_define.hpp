@@ -74,7 +74,7 @@ if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing HEADER parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Invalid HEADER parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
@@ -86,7 +86,7 @@ if(!__param_str_val_##NAME){ \
   oatpp::String("Missing HEADER parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
                                     oatpp::String("Invalid HEADER parameter '") + \
@@ -117,7 +117,7 @@ if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing PATH parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Invalid PATH parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
@@ -129,7 +129,7 @@ if(!__param_str_val_##NAME){ \
   oatpp::String("Missing PATH parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
                                     oatpp::String("Invalid PATH parameter '") + \
@@ -166,7 +166,7 @@ if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing QUERY parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Invalid QUERY parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
@@ -178,7 +178,7 @@ if(!__param_str_val_##NAME){ \
   oatpp::String("Missing QUERY parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = TYPE::Class::parseFromString(__param_str_val_##NAME, __param_validation_check_##NAME); \
+TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
                                     oatpp::String("Invalid QUERY parameter '") + \

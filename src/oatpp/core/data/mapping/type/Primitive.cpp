@@ -68,51 +68,7 @@ namespace __class {
   const ClassId Float64::CLASS_ID("Float64");
 
   const ClassId Boolean::CLASS_ID("Boolean");
-  
-  type::Int8 Int8::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt32(str, success);
-  }
 
-  type::UInt8 UInt8::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToUInt32(str, success);
-  }
-
-  type::Int16 Int16::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt32(str, success);
-  }
-
-  type::UInt16 UInt16::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToUInt32(str, success);
-  }
-  
-  type::Int32 Int32::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt32(str, success);
-  }
-
-  type::UInt32 UInt32::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToUInt32(str, success);
-  }
-  
-  type::Int64 Int64::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt64(str, success);
-  }
-
-  type::UInt64 UInt64::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToUInt64(str, success);
-  }
-  
-  type::Float32 Float32::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToFloat32(str, success);
-  }
-  
-  type::Float64 Float64::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToFloat64(str, success);
-  }
-  
-  type::Boolean Boolean::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToBool(str, success);
-  }
-  
 }
   
 }}}}
