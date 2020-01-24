@@ -35,10 +35,19 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
   setSerializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
+
   setSerializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
+
   setSerializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt16>);
+
   setSerializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt32>);
+
   setSerializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
+  setSerializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
+
   setSerializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
   setSerializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
   setSerializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
@@ -184,6 +193,17 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
   } else {
     throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
                              "Error. No serialize method for type '" + std::string(polymorph.valueType->classId.name) + "'");
+  }
+}
+
+void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
+                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+  if(m_config->useBeautifier) {
+    json::Beautifier beautifier(stream, "  ", "\n");
+    serialize(&beautifier, polymorph);
+  } else {
+    serialize(stream, polymorph);
   }
 }
 

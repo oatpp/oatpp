@@ -83,15 +83,6 @@ void DTOMapperPerfTest::onRun() {
   {
     PerformanceChecker checker("Serializer");
     for(v_int32 i = 0; i < numIterations; i ++) {
-      oatpp::data::stream::BufferOutputStream stream;
-      serializer2->serialize(&stream, test1);
-      stream.toString();
-    }
-  }
-
-  {
-    PerformanceChecker checker("Serializer");
-    for(v_int32 i = 0; i < numIterations; i ++) {
       mapper->writeToString(test1);
     }
   }

@@ -143,6 +143,9 @@ private:
   static void serializeObject(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
                               const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  void serialize(data::stream::ConsistentOutputStream* stream, const data::mapping::type::AbstractObjectWrapper& polymorph);
+
 private:
   std::shared_ptr<Config> m_config;
   std::vector<SerializerMethod> m_methods;
@@ -152,7 +155,7 @@ public:
 
   void setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method);
 
-  void serialize(data::stream::ConsistentOutputStream* stream, const data::mapping::type::AbstractObjectWrapper& polymorph);
+  void serializeToStream(data::stream::ConsistentOutputStream* stream, const data::mapping::type::AbstractObjectWrapper& polymorph);
 
   const std::shared_ptr<Config>& getConfig();
 

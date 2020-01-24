@@ -149,6 +149,20 @@ private:
 
   }
 
+  template<class T>
+  static AbstractObjectWrapper deserializeUInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
+
+    (void) deserializer;
+    (void) type;
+
+    if(caret.isAtText("null", true)){
+      return AbstractObjectWrapper(T::Class::getType());
+    } else {
+      return AbstractObjectWrapper(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseUnsignedInt()), T::ObjectWrapper::Class::getType());
+    }
+
+  }
+
   static AbstractObjectWrapper deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static AbstractObjectWrapper deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
