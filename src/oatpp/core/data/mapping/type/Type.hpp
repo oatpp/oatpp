@@ -35,15 +35,35 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
   
 class Type; // FWD
 
+/**
+ * Structure representing `ID` of the type class.
+ */
 class ClassId {
 private:
   static std::atomic_int ID_COUNTER;
 public:
+  /**
+   * Get count of all type classes created.
+   * @return
+   */
   static int getClassCount();
 public:
-  ClassId(const char* pName, const char* pQualifier = nullptr);
+
+  /**
+   * Constructor.
+   * @param pName
+   */
+  ClassId(const char* pName);
+
+  /**
+   * Name of the type class.
+   */
   const char* const name;
-  const char* const qualifier;
+
+  /**
+   * Integer ID of the type class. <br>
+   * *Note: class type IDs are integer values incremented continuously from [0 to `getClassCount()`]*
+   */
   const v_int32 id;
 };
 

@@ -43,9 +43,8 @@ namespace __class {
 
 std::atomic_int ClassId::ID_COUNTER(0);
 
-ClassId::ClassId(const char* pName, const char* pQualifier)
+ClassId::ClassId(const char* pName)
   : name(pName)
-  , qualifier(pQualifier)
   , id(ID_COUNTER ++)
 {}
 

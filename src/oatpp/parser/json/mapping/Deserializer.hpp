@@ -179,12 +179,31 @@ private:
   std::vector<DeserializerMethod> m_methods;
 public:
 
+  /**
+   * Constructor.
+   * @param config
+   */
   Deserializer(const std::shared_ptr<Config>& config = std::make_shared<Config>());
 
+  /**
+   * Set deserializer method for type.
+   * @param classId - &id:oatpp::data::mapping::type::ClassId;.
+   * @param method - `typedef AbstractObjectWrapper (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const)`.
+   */
   void setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method);
 
+  /**
+   * Deserialize text.
+   * @param caret - &id:oatpp::parser::Caret;.
+   * @param type - &id:oatpp::data::mapping::type::Type;
+   * @return - `AbstractObjectWrapper` over deserialized object.
+   */
   AbstractObjectWrapper deserialize(parser::Caret& caret, const Type* const type);
 
+  /**
+   * Get deserializer config.
+   * @return
+   */
   const std::shared_ptr<Config>& getConfig();
 
 };

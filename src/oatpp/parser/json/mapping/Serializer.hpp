@@ -151,12 +151,30 @@ private:
   std::vector<SerializerMethod> m_methods;
 public:
 
+  /**
+   * Constructor.
+   * @param config - serializer config.
+   */
   Serializer(const std::shared_ptr<Config>& config = std::make_shared<Config>());
 
+  /**
+   * Set serializer method for type.
+   * @param classId - &id:oatpp::data::mapping::type::ClassId;.
+   * @param method - `typedef void (*SerializerMethod)(Serializer*, data::stream::ConsistentOutputStream*, const data::mapping::type::AbstractObjectWrapper&)`.
+   */
   void setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method);
 
+  /**
+   * Serialize object to stream.
+   * @param stream - &id:oatpp::data::stream::ConsistentOutputStream;.
+   * @param polymorph - DTO as &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   */
   void serializeToStream(data::stream::ConsistentOutputStream* stream, const data::mapping::type::AbstractObjectWrapper& polymorph);
 
+  /**
+   * Get serializer config.
+   * @return
+   */
   const std::shared_ptr<Config>& getConfig();
 
 };
