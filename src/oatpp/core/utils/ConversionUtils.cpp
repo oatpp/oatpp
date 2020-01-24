@@ -191,8 +191,8 @@ namespace oatpp { namespace utils { namespace conversion {
   v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n) {
     return snprintf((char*)data, n, "%f", value);
   }
-  
-  v_int32 float64ToCharSequence(v_float64 value, p_char8 data, v_int32 n) {
+
+v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n) {
     return snprintf((char*)data, n, "%f", value);
   }
   
