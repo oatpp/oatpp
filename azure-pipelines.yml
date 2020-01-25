@@ -68,7 +68,7 @@ jobs:
       workingDirectory: build
 
 - job: ubuntu_18_04_mem_pool_off
-  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
+  displayName: 'Build - Ubuntu 18.04 - No Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'Ubuntu 18.04'
