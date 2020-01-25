@@ -210,6 +210,8 @@ public:
 
   template<typename T>
   oatpp::String convertParameterToString(const oatpp::String& typeName, const T& parameter) {
+    OATPP_LOGE("[oatpp::web::client::ApiClient::convertParameterToString()]",
+              "Error. No conversion from '%s' to '%s' is defined.", typeName->getData(), "oatpp::String");
     throw std::runtime_error("[oatpp::web::client::ApiClient::convertParameterToString()]: Error. "
                              "No conversion from '" + typeName->std_str() + "' to 'oatpp::String' is defined. "
                              "Please define type conversion.");

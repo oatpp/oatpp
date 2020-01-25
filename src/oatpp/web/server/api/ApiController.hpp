@@ -452,6 +452,8 @@ public:
   T parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) text;
     success = false;
+    OATPP_LOGE("[oatpp::web::server::api::ApiController::parseParameterFromString()]",
+              "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->getData());
     throw std::runtime_error("[oatpp::web::server::api::ApiController::parseParameterFromString()]: Error. "
                              "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
                              "Please define type conversion.");
