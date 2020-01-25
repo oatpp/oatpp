@@ -50,43 +50,25 @@ String operator + (const String& a, const String& b) {
   
 namespace __class {
   
-  const char* const String::CLASS_NAME = "String";
-  const char* const Int8::CLASS_NAME = "Int8";
-  const char* const Int16::CLASS_NAME = "Int16";
-  const char* const Int32::CLASS_NAME = "Int32";
-  const char* const Int64::CLASS_NAME = "Int64";
-  const char* const Float32::CLASS_NAME = "Float32";
-  const char* const Float64::CLASS_NAME = "Float64";
-  const char* const Boolean::CLASS_NAME = "Boolean";
-  
-  type::Int8 Int8::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt32(str, success);
-  }
-  
-  type::Int16 Int16::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt32(str, success);
-  }
-  
-  type::Int32 Int32::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt32(str, success);
-  }
-  
-  type::Int64 Int64::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToInt64(str, success);
-  }
-  
-  type::Float32 Float32::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToFloat32(str, success);
-  }
-  
-  type::Float64 Float64::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToFloat64(str, success);
-  }
-  
-  type::Boolean Boolean::parseFromString(const oatpp::String& str, bool& success) {
-    return utils::conversion::strToBool(str, success);
-  }
-  
+  const ClassId String::CLASS_ID("String");
+
+  const ClassId Int8::CLASS_ID("Int8");
+  const ClassId UInt8::CLASS_ID("UInt8");
+
+  const ClassId Int16::CLASS_ID("Int16");
+  const ClassId UInt16::CLASS_ID("UInt16");
+
+  const ClassId Int32::CLASS_ID("Int32");
+  const ClassId UInt32::CLASS_ID("UInt32");
+
+  const ClassId Int64::CLASS_ID("Int64");
+  const ClassId UInt64::CLASS_ID("UInt64");
+
+  const ClassId Float32::CLASS_ID("Float32");
+  const ClassId Float64::CLASS_ID("Float64");
+
+  const ClassId Boolean::CLASS_ID("Boolean");
+
 }
   
 }}}}

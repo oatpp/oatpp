@@ -36,20 +36,30 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 namespace __class {
   
   class String; // FWD
+
   class Int8; // FWD
+  class UInt8; // FWD
+
   class Int16; // FWD
+  class UInt16; // FWD
+
   class Int32; // FWD
+  class UInt32; // FWD
+
   class Int64; // FWD
+  class UInt64; // FWD
+
   class Float32; // FWD
   class Float64; // FWD
+
   class Boolean; // FWD
   
 }
 
 /**
- * Mapping-enables String is &id:oatpp::data::mapping::type::ObjectWrapper; over &id:oatpp::base::StrBuffer;
+ * Mapping-enables String is &id:type::ObjectWrapper; over &id:oatpp::base::StrBuffer;
  */
-class String : public oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String> {
+class String : public type::ObjectWrapper<oatpp::base::StrBuffer, __class::String> {
 public:
   String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType);
 public:
@@ -57,35 +67,35 @@ public:
   String() {}
   
   String(v_buff_size size)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
   {}
   
   String(const char* data, v_buff_size size, bool copyAsOwnData = true)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
   {}
   
   String(const char* data1, v_buff_size size1, const char* data2, v_buff_size size2)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
   {}
   
   String(const char* data, bool copyAsOwnData = true)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createFromCString(data, copyAsOwnData))
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createFromCString(data, copyAsOwnData))
   {}
   
   String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
   {}
   
   String(std::shared_ptr<oatpp::base::StrBuffer>&& ptr)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(ptr))
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(ptr))
   {}
   
   String(const String& other)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(other)
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(other)
   {}
   
   String(String&& other)
-    : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<String>(other))
+    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<String>(other))
   {}
   
   String& operator = (const char* str) {
@@ -128,11 +138,13 @@ String operator + (const String& a, const String& b);
 
 /**
  * Template for primitive mapping-enabled types.
- * @tparam ValueType - type of the value ex.: v_int64.
+ * @tparam TValueType - type of the value ex.: v_int64.
  * @tparam Clazz - Class holding static class information.
  */
-template<typename ValueType, class Clazz>
+template<typename TValueType, class Clazz>
 class Primitive : public oatpp::base::Countable {
+public:
+  typedef TValueType ValueType;
 public:
   OBJECT_POOL(Primitive_Type_Pool, Primitive, 32)
   SHARED_OBJECT_POOL(Shared_Primitive_Type_Pool, Primitive, 32)
@@ -141,10 +153,10 @@ public:
   /**
    * ObjectWrapper template for &l:Primitive;.
    */
-  class ObjectWrapper : public oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz> {
+  class ObjectWrapper : public type::ObjectWrapper<Primitive, Clazz> {
   public:
     ObjectWrapper(const std::shared_ptr<Primitive>& ptr, const type::Type* const valueType)
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>(ptr)
+      : type::ObjectWrapper<Primitive, Clazz>(ptr)
     {
       if(Clazz::getType() != valueType){
         throw std::runtime_error("Value type does not match");
@@ -153,27 +165,27 @@ public:
   public:
     
     ObjectWrapper()
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>()
+      : type::ObjectWrapper<Primitive, Clazz>()
     {}
     
     ObjectWrapper(const std::shared_ptr<Primitive>& ptr)
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>(ptr)
+      : type::ObjectWrapper<Primitive, Clazz>(ptr)
     {}
     
     ObjectWrapper(std::shared_ptr<Primitive>&& ptr)
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>(std::move(ptr))
+      : type::ObjectWrapper<Primitive, Clazz>(std::move(ptr))
     {}
     
     ObjectWrapper(const ObjectWrapper& other)
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>(other)
+      : type::ObjectWrapper<Primitive, Clazz>(other)
     {}
     
     ObjectWrapper(ObjectWrapper&& other)
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>(std::move(other))
+      : type::ObjectWrapper<Primitive, Clazz>(std::move(other))
     {}
     
     ObjectWrapper(const ValueType& value)
-      : oatpp::data::mapping::type::ObjectWrapper<Primitive, Clazz>(Primitive::createShared(value))
+      : type::ObjectWrapper<Primitive, Clazz>(Primitive::createShared(value))
     {}
     
     ObjectWrapper& operator = (const ValueType& value){
@@ -265,9 +277,19 @@ public:
 typedef Primitive<v_int8, __class::Int8>::ObjectWrapper Int8;
 
 /**
+ * UInt8 is an ObjectWrapper over &l:Primitive; and __class::UInt8.
+ */
+typedef Primitive<v_uint8, __class::UInt8>::ObjectWrapper UInt8;
+
+/**
  * Int16 is an ObjectWrapper over &l:Primitive; and __class::Int16.
  */
 typedef Primitive<v_int16, __class::Int16>::ObjectWrapper Int16;
+
+/**
+ * UInt16 is an ObjectWrapper over &l:Primitive; and __class::UInt16.
+ */
+typedef Primitive<v_uint16, __class::UInt16>::ObjectWrapper UInt16;
 
 /**
  * Int32 is an ObjectWrapper over &l:Primitive; and __class::Int32.
@@ -275,9 +297,19 @@ typedef Primitive<v_int16, __class::Int16>::ObjectWrapper Int16;
 typedef Primitive<v_int32, __class::Int32>::ObjectWrapper Int32;
 
 /**
+ * UInt32 is an ObjectWrapper over &l:Primitive; and __class::UInt32.
+ */
+typedef Primitive<v_uint32, __class::UInt32>::ObjectWrapper UInt32;
+
+/**
  * Int64 is an ObjectWrapper over &l:Primitive; and __class::Int64.
  */
 typedef Primitive<v_int64, __class::Int64>::ObjectWrapper Int64;
+
+/**
+ * UInt64 is an ObjectWrapper over &l:Primitive; and __class::UInt64.
+ */
+typedef Primitive<v_uint64, __class::UInt64>::ObjectWrapper UInt64;
 
 /**
  * Float32 is an ObjectWrapper over &l:Primitive; and __class::Float32.
@@ -298,108 +330,133 @@ namespace __class {
   
   class String {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
-    }
-    
-    static oatpp::data::mapping::type::String parseFromString(const oatpp::data::mapping::type::String& str, bool& success){
-      success = true;
-      return str;
     }
     
   };
   
   class Int8 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Int8 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
-  
+
+  class UInt8 {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type* getType(){
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
+  };
+
   class Int16 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
-    static type::Int16 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
-    
+  };
+
+  class UInt16 {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type* getType(){
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
   };
   
   class Int32 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
     
-    static type::Int32 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
-    
+  };
+
+  class UInt32 {
+  public:
+    static const ClassId CLASS_ID;
+
+    static Type* getType(){
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
+
   };
   
   class Int64 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Int64 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
-  
-  class Float32 {
+
+  class UInt64 {
   public:
-    static const char* const CLASS_NAME;
-    
+    static const ClassId CLASS_ID;
+
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
+
+  };
+
+  class Float32 {
+  public:
+    static const ClassId CLASS_ID;
     
-    static type::Float32 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
+    static Type* getType(){
+      static Type type(CLASS_ID, nullptr);
+      return &type;
+    }
     
   };
   
   class Float64 {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Float64 parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
   class Boolean {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
     
     static Type* getType(){
-      static Type type(CLASS_NAME, nullptr);
+      static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
-    static type::Boolean parseFromString(const oatpp::data::mapping::type::String& str, bool& success);
     
   };
   
@@ -413,25 +470,19 @@ namespace std {
   struct hash<oatpp::data::mapping::type::String> {
     
     typedef oatpp::data::mapping::type::String argument_type;
-    typedef v_word32 result_type;
+    typedef v_uint32 result_type;
     
-    result_type operator()(oatpp::data::mapping::type::String const& s) const noexcept {
-      
+    result_type operator()(argument_type const& s) const noexcept {
+
       p_char8 data = s->getData();
-      v_buff_size size4 = s->getSize() >> 2;
-      
       result_type result = 0;
-      
-      for(v_buff_size i = 0; i < size4; i++) {
-        result ^= *((p_word32) data);
-        data += 4;
+      for(v_buff_size i = 0; i < s->getSize(); i++) {
+        v_char8 c = data[i] | 32;
+        result = (31 * result) + c;
       }
-      
-      for(v_buff_size i = 0; i < s->getSize() - (size4 << 2); i++ ) {
-        ((p_char8) &result)[i] ^= data[i];
-      }
-      
+
       return result;
+
     }
     
   };

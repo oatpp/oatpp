@@ -43,14 +43,25 @@ private:
     static Info info("application/json");
     return info;
   }
+private:
+  std::shared_ptr<Serializer> m_serializer;
+  std::shared_ptr<Deserializer> m_deserializer;
 public:
   /**
    * Constructor.
-   * @param pSerializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
-   * @param pDeserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   * @param serializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
+   * @param deserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
    */
-  ObjectMapper(const std::shared_ptr<Serializer::Config>& pSerializerConfig = Serializer::Config::createShared(),
-               const std::shared_ptr<Deserializer::Config>& pDeserializerConfig = Deserializer::Config::createShared());
+  ObjectMapper(const std::shared_ptr<Serializer::Config>& serializerConfig,
+               const std::shared_ptr<Deserializer::Config>& deserializerConfig);
+
+  /**
+   * Constructor.
+   * @param serializer
+   * @param deserializer
+   */
+  ObjectMapper(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>(),
+               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>());
 public:
 
   /**
@@ -60,15 +71,25 @@ public:
    * @return - `std::shared_ptr` to ObjectMapper.
    */
   static std::shared_ptr<ObjectMapper>
-  createShared(const std::shared_ptr<Serializer::Config>& serializerConfig = Serializer::Config::createShared(),
-               const std::shared_ptr<Deserializer::Config>& deserializerConfig = Deserializer::Config::createShared());
+  createShared(const std::shared_ptr<Serializer::Config>& serializerConfig,
+               const std::shared_ptr<Deserializer::Config>& deserializerConfig);
+
+  /**
+   * Create shared ObjectMapper.
+   * @param serializer
+   * @param deserializer
+   * @return
+   */
+  static std::shared_ptr<ObjectMapper>
+  createShared(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>(),
+               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>());
 
   /**
    * Implementation of &id:oatpp::data::mapping::ObjectMapper::write;.
    * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
    * @param variant - object to serialize &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
    */
-  void write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
+  void write(data::stream::ConsistentOutputStream* stream,
              const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const override;
 
   /**
@@ -80,15 +101,18 @@ public:
   oatpp::data::mapping::type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
                                                          const oatpp::data::mapping::type::Type* const type) const override;
 
-  /**
-   * Serializer config.
-   */
-  std::shared_ptr<Serializer::Config> serializerConfig;
 
   /**
-   * Deserializer config.
+   * Get serializer.
+   * @return
    */
-  std::shared_ptr<Deserializer::Config> deserializerConfig;
+  std::shared_ptr<Serializer> getSerializer();
+
+  /**
+   * Get deserializer.
+   * @return
+   */
+  std::shared_ptr<Deserializer> getDeserializer();
   
 };
   

@@ -65,7 +65,7 @@ oatpp::data::stream::Context& SimpleTCPConnectionProvider::ExtendedConnection::g
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SimpleTCPConnectionProvider
 
-SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_word16 port, bool useExtendedConnections)
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_uint16 port, bool useExtendedConnections)
   : m_port(port)
   , m_closed(false)
   , m_useExtendedConnections(useExtendedConnections)

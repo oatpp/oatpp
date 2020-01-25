@@ -735,7 +735,7 @@ namespace std {
   struct hash<oatpp::web::protocol::http::Status> {
     
     typedef oatpp::web::protocol::http::Status argument_type;
-    typedef v_word32 result_type;
+    typedef v_uint32 result_type;
     
     result_type operator()(oatpp::web::protocol::http::Status const& s) const noexcept {
       return s.code;

@@ -27,6 +27,7 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
@@ -47,7 +48,7 @@ private:
     Headers m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
     std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_objectMapper;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_chunkedBuffer = oatpp::data::stream::ChunkedBuffer::createShared();
+    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_outputStream;
   public:
     
     ToDtoDecoder(const BodyDecoder* decoder,
@@ -58,14 +59,15 @@ private:
       , m_headers(headers)
       , m_bodyStream(bodyStream)
       , m_objectMapper(objectMapper)
+      , m_outputStream(std::make_shared<oatpp::data::stream::BufferOutputStream>())
     {}
     
     oatpp::async::Action act() override {
-      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_chunkedBuffer).next(this->yieldTo(&ToDtoDecoder::onDecoded));
+      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_outputStream).next(this->yieldTo(&ToDtoDecoder::onDecoded));
     }
     
     oatpp::async::Action onDecoded() {
-      auto body = m_chunkedBuffer->toString();
+      auto body = m_outputStream->toString();
       oatpp::parser::Caret caret(body);
       auto dto = m_objectMapper->readFromCaret<Type>(caret);
       if(caret.hasError()) {
@@ -109,7 +111,7 @@ public:
    * @return - &oatpp::String;.
    */
   oatpp::String decodeToString(const Headers& headers, data::stream::InputStream* bodyStream) const {
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     decode(headers, bodyStream, &stream);
     return stream.toString();
   }

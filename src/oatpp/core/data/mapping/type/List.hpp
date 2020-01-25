@@ -38,7 +38,7 @@ namespace __class {
   
   class AbstractList {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
   };
   
   template<class T>
@@ -61,7 +61,7 @@ protected:
   }
   
   static Type* Z__CLASS_GET_TYPE(){
-    static Type type(Class::CLASS_NAME, nullptr, &Z__CLASS_OBJECT_CREATOR);
+    static Type type(Class::CLASS_ID, nullptr, &Z__CLASS_OBJECT_CREATOR);
     if(type.params.empty()){
       type.params.push_back(T::Class::getType());
     }

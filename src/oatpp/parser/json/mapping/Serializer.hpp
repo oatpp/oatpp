@@ -32,12 +32,11 @@
 #include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
-#include "oatpp/core/parser/Caret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/Types.hpp"
+
+#include <vector>
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 
@@ -50,17 +49,17 @@ public:
   typedef oatpp::data::mapping::type::Type Type;
   typedef oatpp::data::mapping::type::Type::Property Property;
   typedef oatpp::data::mapping::type::Type::Properties Properties;
-  
+
   typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
-  
+
   template<class T>
   using PolymorphicWrapper = data::mapping::type::PolymorphicWrapper<T>;
-  
+
   typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
   typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
   typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
-  
+
 public:
   /**
    * Serializer config.
@@ -109,47 +108,77 @@ public:
      * Beautifier new line.
      */
     oatpp::String beautifierNewLine = "\n";
-    
+
   };
-  
+public:
+  typedef void (*SerializerMethod)(Serializer*,
+                                   data::stream::ConsistentOutputStream*,
+                                   const data::mapping::type::AbstractObjectWrapper&);
 private:
-  
-  static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size);
-  static void writeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data);
-  
+
   template<class T>
-  static void writeSimpleData(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<T>& value){
-    if(value){
-      stream->writeAsString(value.get()->getValue());
+  static void serializePrimitive(Serializer* serializer,
+                                 data::stream::ConsistentOutputStream* stream,
+                                 const data::mapping::type::AbstractObjectWrapper& polymorph){
+    if(polymorph){
+      stream->writeAsString(static_cast<typename T::ObjectType*>(polymorph.get())->getValue());
     } else {
       stream->writeSimple("null", 4);
     }
   }
-  
-  static void writeList(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractList::ObjectWrapper& list, const std::shared_ptr<Config>& config);
-  static void writeFieldsMap(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractFieldsMap::ObjectWrapper& map, const std::shared_ptr<Config>& config);
-  static void writeObject(oatpp::data::stream::ConsistentOutputStream* stream, const PolymorphicWrapper<Object>& polymorph, const std::shared_ptr<Config>& config);
-  
-  static void writeValue(oatpp::data::stream::ConsistentOutputStream* stream, const AbstractObjectWrapper& polymorph, const std::shared_ptr<Config>& config);
 
-  static void serializeToStream(oatpp::data::stream::ConsistentOutputStream* stream,
-                                const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
-                                const std::shared_ptr<Config>& config);
+  static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size);
+  static void serializeString(Serializer* serializer,
+                              data::stream::ConsistentOutputStream* stream,
+                              const data::mapping::type::AbstractObjectWrapper& polymorph);
 
+  static void serializeList(Serializer* serializer,
+                            data::stream::ConsistentOutputStream* stream,
+                            const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  static void serializeFieldsMap(Serializer* serializer,
+                                 data::stream::ConsistentOutputStream* stream,
+                                 const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  static void serializeObject(Serializer* serializer,
+                              data::stream::ConsistentOutputStream* stream,
+                              const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  void serialize(data::stream::ConsistentOutputStream* stream, const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+private:
+  std::shared_ptr<Config> m_config;
+  std::vector<SerializerMethod> m_methods;
 public:
 
   /**
-   * Serialize DTO object to stream.
-   * @param stream - stream to write serialized object to. &id:oatpp::data::stream::ConsistentOutputStream;. <br>
-   * @param polymorph - DTO object to serialize.
-   * @param config - &l:Serializer::Config;.
+   * Constructor.
+   * @param config - serializer config.
    */
-  static void serialize(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
-                        const oatpp::data::mapping::type::AbstractObjectWrapper& polymorph,
-                        const std::shared_ptr<Config>& config);
-  
+  Serializer(const std::shared_ptr<Config>& config = std::make_shared<Config>());
+
+  /**
+   * Set serializer method for type.
+   * @param classId - &id:oatpp::data::mapping::type::ClassId;.
+   * @param method - `typedef void (*SerializerMethod)(Serializer*, data::stream::ConsistentOutputStream*, const data::mapping::type::AbstractObjectWrapper&)`.
+   */
+  void setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method);
+
+  /**
+   * Serialize object to stream.
+   * @param stream - &id:oatpp::data::stream::ConsistentOutputStream;.
+   * @param polymorph - DTO as &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   */
+  void serializeToStream(data::stream::ConsistentOutputStream* stream, const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  /**
+   * Get serializer config.
+   * @return
+   */
+  const std::shared_ptr<Config>& getConfig();
+
 };
-  
+
 }}}}
 
 #endif /* oatpp_parser_json_mapping_Serializer_hpp */

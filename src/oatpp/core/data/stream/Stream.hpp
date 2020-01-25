@@ -379,6 +379,34 @@ public:
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
+  v_io_size writeAsString(v_int8 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeAsString(v_uint8 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeAsString(v_int16 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeAsString(v_uint16 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
   v_io_size writeAsString(v_int32 value);
 
   /**
@@ -386,7 +414,21 @@ public:
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
+  v_io_size writeAsString(v_uint32 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
   v_io_size writeAsString(v_int64 value);
+
+  /**
+   * Convert value to string and write to stream.
+   * @param value
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeAsString(v_uint64 value);
 
   /**
    * Convert value to string and write to stream.
@@ -413,19 +455,35 @@ public:
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt8& value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt16& value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt32& value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& value);
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt64& value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float32& value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float64& value);
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Boolean& value);
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const char* str);
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value);
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value);
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
+
+template<typename T>
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, T value) {
+  s.writeAsString(value);
+  return s;
+}
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int8 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint8 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int16 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint16 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint32 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint64 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
+//ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
 
 /**
  * Error of Asynchronous stream transfer.

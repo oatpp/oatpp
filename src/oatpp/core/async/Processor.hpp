@@ -92,8 +92,8 @@ private:
   std::vector<oatpp::collection::FastQueue<CoroutineHandle>> m_ioPopQueues;
   std::vector<oatpp::collection::FastQueue<CoroutineHandle>> m_timerPopQueues;
 
-  v_word32 m_ioBalancer = 0;
-  v_word32 m_timerBalancer = 0;
+  v_uint32 m_ioBalancer = 0;
+  v_uint32 m_timerBalancer = 0;
 
 private:
 

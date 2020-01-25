@@ -43,7 +43,7 @@ namespace __class {
    */
   class AbstractObject {
   public:
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
   };
 
   /**
@@ -75,9 +75,13 @@ class Object : public oatpp::base::Countable {
 public:
   typedef oatpp::data::mapping::type::String String;
   typedef oatpp::data::mapping::type::Int8 Int8;
+  typedef oatpp::data::mapping::type::UInt8 UInt8;
   typedef oatpp::data::mapping::type::Int16 Int16;
+  typedef oatpp::data::mapping::type::UInt16 UInt16;
   typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::data::mapping::type::UInt32 UInt32;
   typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::data::mapping::type::UInt64 UInt64;
   typedef oatpp::data::mapping::type::Float32 Float32;
   typedef oatpp::data::mapping::type::Float64 Float64;
   typedef oatpp::data::mapping::type::Boolean Boolean;

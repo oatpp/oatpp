@@ -17,7 +17,6 @@ add_library(oatpp
         oatpp/codegen/codegen_undef_ApiClient_.hpp
         oatpp/codegen/codegen_undef_ApiController_.hpp
         oatpp/codegen/codegen_undef_DTO_.hpp
-        oatpp/core/Types.cpp
         oatpp/core/Types.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp

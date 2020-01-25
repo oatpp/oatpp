@@ -29,7 +29,6 @@
 #include "type/Object.hpp"
 #include "type/Type.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
@@ -81,10 +80,10 @@ public:
 
   /**
    * Serialize object to stream. Implement this method.
-   * @param stream - &id:oatpp::data::stream::OutputStream; to serialize object to.
+   * @param stream - &id:oatpp::data::stream::ConsistentOutputStream; to serialize object to.
    * @param variant - Object to serialize.
    */
-  virtual void write(const std::shared_ptr<oatpp::data::stream::ConsistentOutputStream>& stream,
+  virtual void write(data::stream::ConsistentOutputStream* stream,
                      const type::AbstractObjectWrapper& variant) const = 0;
 
   /**

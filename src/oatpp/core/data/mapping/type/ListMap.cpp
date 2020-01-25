@@ -27,7 +27,7 @@
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
 namespace __class {
-  const char* const AbstractListMap::CLASS_NAME = "ListMap";
+  const ClassId AbstractListMap::CLASS_ID("ListMap");
 }
   
 }}}}

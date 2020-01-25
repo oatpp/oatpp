@@ -26,17 +26,32 @@
 
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 namespace __class {
   
-  const char* const Void::CLASS_NAME = "Void";
+  const ClassId Void::CLASS_ID("Void");
   
   Type* Void::getType(){
-    static Type type(CLASS_NAME, nullptr);
+    static Type type(CLASS_ID, nullptr);
     return &type;
   }
   
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ClassId
+
+std::atomic_int ClassId::ID_COUNTER(0);
+
+ClassId::ClassId(const char* pName)
+  : name(pName)
+  , id(ID_COUNTER ++)
+{}
+
+int ClassId::getClassCount() {
+  return ID_COUNTER;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type::Properties
@@ -80,22 +95,22 @@ AbstractObjectWrapper& Type::Property::getAsRef(void* object) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type
 
-Type::Type(const char* pName, const char* pNameQualifier)
-  : name(pName)
+Type::Type(const ClassId& pClassId, const char* pNameQualifier)
+  : classId(pClassId)
   , nameQualifier(pNameQualifier)
   , creator(nullptr)
   , properties(nullptr)
 {}
 
-Type::Type(const char* pName, const char* pNameQualifier, Creator pCreator)
-  : name(pName)
+Type::Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator)
+  : classId(pClassId)
   , nameQualifier(pNameQualifier)
   , creator(pCreator)
   , properties(nullptr)
 {}
 
-Type::Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
-  : name(pName)
+Type::Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
+  : classId(pClassId)
   , nameQualifier(pNameQualifier)
   , creator(pCreator)
   , properties(pProperties)

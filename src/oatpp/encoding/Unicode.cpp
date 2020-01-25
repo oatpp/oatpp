@@ -60,7 +60,7 @@ v_buff_size Unicode::getUtf8CharSequenceLength(v_char8 firstByte) {
   
 }
   
-v_buff_size Unicode::getUtf8CharSequenceLengthForCode(v_word32 code){
+v_buff_size Unicode::getUtf8CharSequenceLengthForCode(v_uint32 code){
   if(code < 128) {
     return 1;
   } else if(code < 0x00000800){

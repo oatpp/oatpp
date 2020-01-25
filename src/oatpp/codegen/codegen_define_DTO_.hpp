@@ -87,7 +87,7 @@ public: \
   } \
 \
   static oatpp::data::mapping::type::Type* Z__CLASS_GET_TYPE(){ \
-    static oatpp::data::mapping::type::Type type(oatpp::data::mapping::type::__class::AbstractObject::CLASS_NAME, \
+    static oatpp::data::mapping::type::Type type(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, \
                                                  #TYPE_NAME, \
                                                  &Z__CLASS_OBJECT_CREATOR, \
                                                  Z__CLASS_GET_FIELDS_MAP()); \

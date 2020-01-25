@@ -46,6 +46,48 @@ jobs:
       displayName: 'Test'
       workingDirectory: build
 
+- job: ubuntu_18_04_mem_pool_on
+  displayName: 'Build - Ubuntu 18.04 - With Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 18.04'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - script: |
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
+- job: ubuntu_18_04_mem_pool_off
+  displayName: 'Build - Ubuntu 18.04 - No Memory Pool'
+  continueOnError: false
+  pool:
+    vmImage: 'Ubuntu 18.04'
+  workspace:
+    clean: all
+  steps:
+    - script: |
+        mkdir build
+    - script: |
+        cmake -DOATPP_DISABLE_POOL_ALLOCATIONS=ON -DCMAKE_BUILD_TYPE=Release ..
+        make
+      displayName: 'CMake'
+      workingDirectory: build
+
+    - script: |
+        make test ARGS="-V"
+      displayName: 'Test'
+      workingDirectory: build
+
 - job: macOS_mem_pool_on
   displayName: 'Build - macOS - With Memory Pool'
   continueOnError: false

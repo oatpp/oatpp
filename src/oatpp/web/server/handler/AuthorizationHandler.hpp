@@ -30,6 +30,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 
 
 namespace oatpp { namespace web { namespace server { namespace handler {

@@ -87,7 +87,9 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
+
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
+
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);

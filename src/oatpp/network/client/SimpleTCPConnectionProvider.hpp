@@ -38,14 +38,14 @@ namespace oatpp { namespace network { namespace client {
 class SimpleTCPConnectionProvider : public base::Countable, public ClientConnectionProvider {
 protected:
   oatpp::String m_host;
-  v_word16 m_port;
+  v_uint16 m_port;
 public:
   /**
    * Constructor.
    * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
    * @param port - server port.
    */
-  SimpleTCPConnectionProvider(const oatpp::String& host, v_word16 port);
+  SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port);
 public:
 
   /**
@@ -54,7 +54,7 @@ public:
    * @param port - server port.
    * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_word16 port){
+  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_uint16 port){
     return std::make_shared<SimpleTCPConnectionProvider>(host, port);
   }
 
@@ -97,7 +97,7 @@ public:
    * Get port.
    * @return - port.
    */
-  v_word16 getPort(){
+  v_uint16 getPort(){
     return m_port;
   }
   

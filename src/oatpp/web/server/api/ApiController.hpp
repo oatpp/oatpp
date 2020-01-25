@@ -37,6 +37,7 @@
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <unordered_map>
 
@@ -128,14 +129,44 @@ public:
   typedef oatpp::data::mapping::type::String String;
 
   /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int8;.
+   */
+  typedef oatpp::data::mapping::type::Int8 Int8;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::UInt8;.
+   */
+  typedef oatpp::data::mapping::type::UInt8 UInt8;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::Int16;.
+   */
+  typedef oatpp::data::mapping::type::Int16 Int16;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::UInt16;.
+   */
+  typedef oatpp::data::mapping::type::UInt16 UInt16;
+
+  /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
    */
   typedef oatpp::data::mapping::type::Int32 Int32;
 
   /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::UInt32;.
+   */
+  typedef oatpp::data::mapping::type::UInt32 UInt32;
+
+  /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
    */
   typedef oatpp::data::mapping::type::Int64 Int64;
+
+  /**
+   * Convenience typedef for &id:oatpp::data::mapping::type::UInt64;.
+   */
+  typedef oatpp::data::mapping::type::UInt64 UInt64;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
@@ -414,8 +445,94 @@ public:
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
                                                       const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const;
-  
+
+public:
+
+  template<typename T>
+  T parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+    (void) text;
+    success = false;
+    OATPP_LOGE("[oatpp::web::server::api::ApiController::parseParameterFromString()]",
+              "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->getData());
+    throw std::runtime_error("[oatpp::web::server::api::ApiController::parseParameterFromString()]: Error. "
+                             "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
+                             "Please define type conversion.");
+  }
+
 };
+
+template<>
+inline oatpp::String ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  success = true;
+  return text;
+}
+
+template<>
+inline oatpp::Int8 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt32(text, success);
+}
+
+template<>
+inline oatpp::UInt8 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt32(text, success);
+}
+
+template<>
+inline oatpp::Int16 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt32(text, success);
+}
+
+template<>
+inline oatpp::UInt16 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt32(text, success);
+}
+
+template<>
+inline oatpp::Int32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt32(text, success);
+}
+
+template<>
+inline oatpp::UInt32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt32(text, success);
+}
+
+template<>
+inline oatpp::Int64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt64(text, success);
+}
+
+template<>
+inline oatpp::UInt64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt64(text, success);
+}
+
+template<>
+inline oatpp::Float32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToFloat32(text, success);
+}
+
+template<>
+inline oatpp::Float64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToFloat64(text, success);
+}
+
+template<>
+inline oatpp::Boolean ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToBool(text, success);
+}
 
 }}}}
 

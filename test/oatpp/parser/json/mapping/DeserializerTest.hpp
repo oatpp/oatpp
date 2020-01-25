@@ -32,7 +32,7 @@ namespace oatpp { namespace test { namespace parser { namespace json { namespace
 class DeserializerTest : public UnitTest{
 public:
   
-  DeserializerTest():UnitTest("TEST[parser::json::mapping::DeserializerTestTest]"){}
+  DeserializerTest():UnitTest("TEST[parser::json::mapping::DeserializerTest]"){}
   void onRun() override;
   
 };

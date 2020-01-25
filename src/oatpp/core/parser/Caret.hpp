@@ -348,7 +348,7 @@ public:
    * @param base - base is passed to std::strtol function
    * @return parsed value
    */
-  long int parseInt(int base = 10);
+  v_int64 parseInt(int base = 10);
 
   /**
    * parse integer value starting from the current position.
@@ -359,7 +359,7 @@ public:
    * @param base - base is passed to std::strtoul function
    * @return parsed value
    */
-  unsigned long int parseUnsignedInt(int base = 10);
+  v_uint64 parseUnsignedInt(int base = 10);
 
   /**
    * parse float value starting from the current position.

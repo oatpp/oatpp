@@ -25,6 +25,10 @@
 #include "DTOMapperPerfTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/parser/json/mapping/Serializer.hpp"
+#include "oatpp/parser/json/mapping/Deserializer.hpp"
+
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
@@ -68,12 +72,14 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 void DTOMapperPerfTest::onRun() {
   
   v_int32 numIterations = 1000000;
-  
+
+  auto serializer2 = std::make_shared<oatpp::parser::json::mapping::Serializer>();
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
   auto test1 = Test1::createTestInstance();
   auto test1_Text = mapper->writeToString(test1);
   OATPP_LOGV(TAG, "json='%s'", (const char*) test1_Text->getData());
+
   {
     PerformanceChecker checker("Serializer");
     for(v_int32 i = 0; i < numIterations; i ++) {

@@ -89,10 +89,10 @@ public: \
 // HEADER MACRO
 
 #define OATPP_MACRO_API_CLIENT_HEADER_1(TYPE, NAME) \
-__headers->put(#NAME, NAME);
+__headers->put(#NAME, convertParameterToString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_HEADER_2(TYPE, NAME, QUALIFIER) \
-__headers->put(QUALIFIER, NAME);
+__headers->put(QUALIFIER, convertParameterToString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_HEADER(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_HEADER_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -100,10 +100,10 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_HEADER_, TYPE, 
 // PATH MACRO
 
 #define OATPP_MACRO_API_CLIENT_PATH_1(TYPE, NAME) \
-__pathParams->put(#NAME, NAME);
+__pathParams->put(#NAME, convertParameterToString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_PATH_2(TYPE, NAME, QUALIFIER) \
-__pathParams->put(QUALIFIER, NAME);
+__pathParams->put(QUALIFIER, convertParameterToString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_PATH(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_PATH_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -111,10 +111,10 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_PATH_, TYPE, OA
 // QUERY MACRO
 
 #define OATPP_MACRO_API_CLIENT_QUERY_1(TYPE, NAME) \
-__queryParams->put(#NAME, NAME);
+__queryParams->put(#NAME, convertParameterToString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_QUERY_2(TYPE, NAME, QUALIFIER) \
-__queryParams->put(QUALIFIER, NAME);
+__queryParams->put(QUALIFIER, convertParameterToString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_QUERY(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_QUERY_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -192,9 +192,9 @@ std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME(\
 OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
-  auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
-  auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
-  auto __queryParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
+  auto __headers = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
+  auto __pathParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
+  auto __queryParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return executeRequest(METHOD, \
@@ -255,9 +255,9 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protoc
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
-  auto __headers = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
-  auto __pathParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
-  auto __queryParams = oatpp::web::client::ApiClient::StringToParamMap::createShared(); \
+  auto __headers = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
+  auto __pathParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
+  auto __queryParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return executeRequestAsync(METHOD, \

@@ -34,7 +34,40 @@
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
 class Type; // FWD
-  
+
+/**
+ * Structure representing `ID` of the type class.
+ */
+class ClassId {
+private:
+  static std::atomic_int ID_COUNTER;
+public:
+  /**
+   * Get count of all type classes created.
+   * @return
+   */
+  static int getClassCount();
+public:
+
+  /**
+   * Constructor.
+   * @param pName
+   */
+  ClassId(const char* pName);
+
+  /**
+   * Name of the type class.
+   */
+  const char* const name;
+
+  /**
+   * Integer ID of the type class. <br>
+   * *Note: class type IDs are integer values incremented continuously from [0 to `getClassCount()`]*
+   */
+  const v_int32 id;
+};
+
+
 namespace __class {
   /**
    * Void Object Class.
@@ -44,7 +77,7 @@ namespace __class {
     /**
      * Name of the class - CLASS_NAME = "Void".
      */
-    static const char* const CLASS_NAME;
+    static const ClassId CLASS_ID;
 
     /**
      * Get class type information.
@@ -350,32 +383,32 @@ public:
 
   /**
    * Constructor.
-   * @param pName - type name.
+   * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
    */
-  Type(const char* pName, const char* pNameQualifier);
+  Type(const ClassId& pClassId, const char* pNameQualifier);
 
   /**
    * Constructor.
-   * @param pName - type name.
+   * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
    * @param pCreator - function pointer of Creator - function to create instance of this type.
    */
-  Type(const char* pName, const char* pNameQualifier, Creator pCreator);
+  Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator);
 
   /**
    * Constructor.
-   * @param pName - type name.
+   * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
    * @param pCreator - function pointer of Creator - function to create instance of this type.
    * @param pProperties - pointer to type properties.
    */
-  Type(const char* pName, const char* pNameQualifier, Creator pCreator, Properties* pProperties);
+  Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator, Properties* pProperties);
 
   /**
-   * Type name.
+   * type class id.
    */
-  const char* const name;
+  const ClassId classId;
 
   /**
    * Type name qualifier.

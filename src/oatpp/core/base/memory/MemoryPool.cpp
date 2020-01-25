@@ -178,7 +178,7 @@ void* ThreadDistributedMemoryPool::obtain() {
   if(m_deleted) {
     throw std::runtime_error("[oatpp::base::memory::ThreadDistributedMemoryPool::obtain()]. Error. Pool deleted.");
   }
-  static std::atomic<v_word16> base(0);
+  static std::atomic<v_uint16> base(0);
   static thread_local v_int16 index = (++base) % m_shardsCount;
   return m_shards[index]->obtain();
 }

@@ -24,6 +24,8 @@
 
 #include "ApiClient.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
+
 namespace oatpp { namespace web { namespace client {
 
 ApiClient::PathSegment ApiClient::parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position) {
@@ -71,7 +73,7 @@ ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_buff_size siz
   
 void ApiClient::formatPath(oatpp::data::stream::ConsistentOutputStream* stream,
                            const PathPattern& pathPattern,
-                           const std::shared_ptr<StringToParamMap>& params) {
+                           const std::shared_ptr<StringToStringMap>& params) {
   
   for (auto it = pathPattern.begin(); it != pathPattern.end(); ++ it) {
     const PathSegment& seg = *it;
@@ -79,57 +81,43 @@ void ApiClient::formatPath(oatpp::data::stream::ConsistentOutputStream* stream,
       stream->writeSimple(seg.text.data(), seg.text.size());
     } else {
       auto key = oatpp::String(seg.text.data(), seg.text.length(), false);
-      auto& param = params->get(key, oatpp::data::mapping::type::AbstractObjectWrapper::empty());
+      auto& param = params->get(key, oatpp::String::empty());
       if(!param){
         OATPP_LOGD(TAG, "Path parameter '%s' not provided in the api call", seg.text.c_str());
         throw std::runtime_error("[oatpp::web::client::ApiClient]: Path parameter missing");
       }
-      auto value = oatpp::utils::conversion::primitiveToStr(param);
-      stream->data::stream::OutputStream::writeSimple(value);
+      stream->data::stream::OutputStream::writeSimple(param);
     }
   }
   
 }
 
 void ApiClient::addPathQueryParams(data::stream::ConsistentOutputStream* stream,
-                                   const std::shared_ptr<StringToParamMap>& params) {
+                                   const std::shared_ptr<StringToStringMap>& params) {
   
   auto curr = params->getFirstEntry();
   if(curr != nullptr) {
     stream->writeSimple("?", 1);
     stream->writeSimple(curr->getKey());
     stream->writeSimple("=", 1);
-    stream->writeSimple(oatpp::utils::conversion::primitiveToStr(curr->getValue()));
+    stream->writeSimple(curr->getValue());
     curr = curr->getNext();
     while (curr != nullptr) {
       stream->writeSimple("&", 1);
       stream->writeSimple(curr->getKey());
       stream->writeSimple("=", 1);
-      stream->writeSimple(oatpp::utils::conversion::primitiveToStr(curr->getValue()));
+      stream->writeSimple(curr->getValue());
       curr = curr->getNext();
     }
   }
   
 }
 
-oatpp::web::protocol::http::Headers ApiClient::convertParamsMap(const std::shared_ptr<StringToParamMap>& params) {
-  oatpp::web::protocol::http::Headers result;
-  if(params) {
-    auto curr = params->getFirstEntry();
-    
-    while (curr != nullptr) {
-      result.put_LockFree(curr->getKey(), oatpp::utils::conversion::primitiveToStr(curr->getValue()));
-      curr = curr->getNext();
-    }
-  }
-  return result;
-}
-
 oatpp::String ApiClient::formatPath(const PathPattern& pathPattern,
-                                    const std::shared_ptr<StringToParamMap>& pathParams,
-                                    const std::shared_ptr<StringToParamMap>& queryParams)
+                                    const std::shared_ptr<StringToStringMap>& pathParams,
+                                    const std::shared_ptr<StringToStringMap>& queryParams)
 {
-  oatpp::data::stream::ChunkedBuffer stream;
+  oatpp::data::stream::BufferOutputStream stream;
   formatPath(&stream, pathPattern, pathParams);
   if(queryParams) {
     addPathQueryParams(&stream, queryParams);
@@ -137,6 +125,20 @@ oatpp::String ApiClient::formatPath(const PathPattern& pathPattern,
   return stream.toString();
 }
 
+web::protocol::http::Headers ApiClient::mapToHeaders(const std::shared_ptr<StringToStringMap>& params) {
+
+  oatpp::web::protocol::http::Headers result;
+  if(params) {
+    auto curr = params->getFirstEntry();
+
+    while (curr != nullptr) {
+      result.put_LockFree(curr->getKey(), curr->getValue());
+      curr = curr->getNext();
+    }
+  }
+  return result;
+
+}
 
 std::shared_ptr<RequestExecutor::ConnectionHandle> ApiClient::getConnection() {
   return m_requestExecutor->getConnection();
@@ -152,16 +154,16 @@ void ApiClient::invalidateConnection(const std::shared_ptr<RequestExecutor::Conn
 
 std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::String& method,
                                                                const PathPattern& pathPattern,
-                                                               const std::shared_ptr<StringToParamMap>& headers,
-                                                               const std::shared_ptr<StringToParamMap>& pathParams,
-                                                               const std::shared_ptr<StringToParamMap>& queryParams,
+                                                               const std::shared_ptr<StringToStringMap>& headers,
+                                                               const std::shared_ptr<StringToStringMap>& pathParams,
+                                                               const std::shared_ptr<StringToStringMap>& queryParams,
                                                                const std::shared_ptr<RequestExecutor::Body>& body,
                                                                const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle)
 {
 
   return m_requestExecutor->execute(method,
                                     formatPath(pathPattern, pathParams, queryParams),
-                                    convertParamsMap(headers),
+                                    mapToHeaders(headers),
                                     body,
                                     connectionHandle);
 
@@ -170,20 +172,19 @@ std::shared_ptr<ApiClient::Response> ApiClient::executeRequest(const oatpp::Stri
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ApiClient::Response>&>
 ApiClient::executeRequestAsync(const oatpp::String& method,
                                const PathPattern& pathPattern,
-                               const std::shared_ptr<StringToParamMap>& headers,
-                               const std::shared_ptr<StringToParamMap>& pathParams,
-                               const std::shared_ptr<StringToParamMap>& queryParams,
+                               const std::shared_ptr<StringToStringMap>& headers,
+                               const std::shared_ptr<StringToStringMap>& pathParams,
+                               const std::shared_ptr<StringToStringMap>& queryParams,
                                const std::shared_ptr<RequestExecutor::Body>& body,
                                const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle)
 {
 
   return m_requestExecutor->executeAsync(method,
                                          formatPath(pathPattern, pathParams, queryParams),
-                                         convertParamsMap(headers),
+                                         mapToHeaders(headers),
                                          body,
                                          connectionHandle);
 
 }
-
 
 }}}

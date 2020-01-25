@@ -33,8 +33,6 @@
 
 #include "oatpp/encoding/Base64.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
@@ -58,13 +56,8 @@ class ApiClient : public oatpp::base::Countable {
 public:
   static constexpr const char* const TAG = "Client";
 protected:
-  typedef oatpp::collection::ListMap<
-    oatpp::String,
-    oatpp::data::mapping::type::AbstractObjectWrapper
-  > StringToParamMap;
-protected:
   typedef std::unordered_map<std::string, oatpp::String> PathVariablesMap;
-private:
+public:
   typedef oatpp::collection::ListMap<
     oatpp::String,
     oatpp::String
@@ -142,13 +135,17 @@ private:
   
   void formatPath(data::stream::ConsistentOutputStream* stream,
                   const PathPattern& pathPattern,
-                  const std::shared_ptr<StringToParamMap>& params);
+                  const std::shared_ptr<StringToStringMap>& params);
   
   void addPathQueryParams(data::stream::ConsistentOutputStream* stream,
-                          const std::shared_ptr<StringToParamMap>& params);
-  
-  oatpp::web::protocol::http::Headers convertParamsMap(const std::shared_ptr<StringToParamMap>& params);
-  
+                          const std::shared_ptr<StringToStringMap>& params);
+
+  oatpp::String formatPath(const PathPattern& pathPattern,
+                           const std::shared_ptr<StringToStringMap>& pathParams,
+                           const std::shared_ptr<StringToStringMap>& queryParams);
+
+  web::protocol::http::Headers mapToHeaders(const std::shared_ptr<StringToStringMap>& params);
+
 protected:
   
   static PathSegment parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position);
@@ -172,12 +169,6 @@ public:
     return std::make_shared<ApiClient>(requestExecutor, objectMapper);
   }
   
-protected:
-  
-  virtual oatpp::String formatPath(const PathPattern& pathPattern,
-                                   const std::shared_ptr<StringToParamMap>& pathParams,
-                                   const std::shared_ptr<StringToParamMap>& queryParams);
-  
 public:
 
   /**
@@ -200,22 +191,138 @@ public:
 
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const PathPattern& pathPattern,
-                                                   const std::shared_ptr<StringToParamMap>& headers,
-                                                   const std::shared_ptr<StringToParamMap>& pathParams,
-                                                   const std::shared_ptr<StringToParamMap>& queryParams,
+                                                   const std::shared_ptr<StringToStringMap>& headers,
+                                                   const std::shared_ptr<StringToStringMap>& pathParams,
+                                                   const std::shared_ptr<StringToStringMap>& queryParams,
                                                    const std::shared_ptr<RequestExecutor::Body>& body,
                                                    const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
   executeRequestAsync(const oatpp::String& method,
                       const PathPattern& pathPattern,
-                      const std::shared_ptr<StringToParamMap>& headers,
-                      const std::shared_ptr<StringToParamMap>& pathParams,
-                      const std::shared_ptr<StringToParamMap>& queryParams,
+                      const std::shared_ptr<StringToStringMap>& headers,
+                      const std::shared_ptr<StringToStringMap>& pathParams,
+                      const std::shared_ptr<StringToStringMap>& queryParams,
                       const std::shared_ptr<RequestExecutor::Body>& body,
                       const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
-  
+
+public:
+
+  template<typename T>
+  oatpp::String convertParameterToString(const oatpp::String& typeName, const T& parameter) {
+    OATPP_LOGE("[oatpp::web::client::ApiClient::convertParameterToString()]",
+              "Error. No conversion from '%s' to '%s' is defined.", typeName->getData(), "oatpp::String");
+    throw std::runtime_error("[oatpp::web::client::ApiClient::convertParameterToString()]: Error. "
+                             "No conversion from '" + typeName->std_str() + "' to 'oatpp::String' is defined. "
+                             "Please define type conversion.");
+  }
+
 };
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::String& parameter) {
+  (void) typeName;
+  return parameter;
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int8& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::int32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt8& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::uint32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int16& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::int32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt16& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::uint32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int32& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::int32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt32& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::uint32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int64& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::int64ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt64& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::uint64ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Float32& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::float32ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Float64& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::float64ToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
+
+template<>
+inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Boolean& parameter) {
+  (void) typeName;
+  if(parameter) {
+    return utils::conversion::boolToStr(parameter->getValue());
+  }
+  return "nullptr";
+}
   
 }}}
 

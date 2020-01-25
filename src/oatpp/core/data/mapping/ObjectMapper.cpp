@@ -24,6 +24,8 @@
 
 #include "ObjectMapper.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
+
 namespace oatpp { namespace data { namespace mapping {
 
 ObjectMapper::ObjectMapper(const Info& info)
@@ -35,9 +37,9 @@ const ObjectMapper::Info& ObjectMapper::getInfo() const {
 }
 
 oatpp::String ObjectMapper::writeToString(const type::AbstractObjectWrapper& variant) const {
-  auto stream = stream::ChunkedBuffer::createShared();
-  write(stream, variant);
-  return stream->toString();
+  stream::BufferOutputStream stream;
+  write(&stream, variant);
+  return stream.toString();
 }
 
 }}}

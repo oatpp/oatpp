@@ -46,7 +46,7 @@ public:
    * @param code - code of UTF-8 character.
    * @return - length in bytes of UTF-8 character.
    */
-  static v_buff_size getUtf8CharSequenceLengthForCode(v_word32 code);
+  static v_buff_size getUtf8CharSequenceLengthForCode(v_uint32 code);
 
   /**
    * Get code of UTF-8 character.

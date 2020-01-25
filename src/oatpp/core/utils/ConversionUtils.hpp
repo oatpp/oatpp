@@ -52,6 +52,21 @@ namespace oatpp { namespace utils { namespace conversion {
   v_int32 strToInt32(const oatpp::String& str, bool& success);
 
   /**
+   * String to 32-bit unsigned integer.
+   * @param str - string as `const char*`.
+   * @return - 32-bit unsigned integer value.
+   */
+  v_uint32 strToUInt32(const char* str);
+
+  /**
+   * String to 32-bit unsigned integer.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 32-bit unsigned integer value.
+   */
+  v_uint32 strToUInt32(const oatpp::String& str, bool& success);
+
+  /**
    * String to 64-bit integer.
    * @param str - string as `const char*`.
    * @return - 64-bit integer value.
@@ -67,13 +82,37 @@ namespace oatpp { namespace utils { namespace conversion {
   v_int64 strToInt64(const oatpp::String& str, bool& success);
 
   /**
+   * String to 64-bit unsigned integer.
+   * @param str - string as `const char*`.
+   * @return - 64-bit unsigned integer value.
+   */
+  v_uint64 strToUInt64(const char* str);
+
+  /**
+   * String to 64-bit unsigned integer.
+   * @param str - string as `oatpp::String`.
+   * @param success - out parameter. `true` if operation was successful. `false` otherwise.
+   * @return - 64-bit unsigned integer value.
+   */
+  v_uint64 strToUInt64(const oatpp::String& str, bool& success);
+
+  /**
    * Convert 32-bit integer to it's string representation.
    * @param value - 32-bit integer value.
    * @param data - buffer to write data to.
    * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_int32 int32ToCharSequence(v_int32 value, p_char8 data, v_int32 n);
+  v_buff_size int32ToCharSequence(v_int32 value, p_char8 data, v_buff_size n);
+
+  /**
+   * Convert 32-bit unsigned integer to it's string representation.
+   * @param value - 32-bit unsigned integer value.
+   * @param data - buffer to write data to.
+   * @param n - buffer size.
+   * @return - length of the resultant string.
+   */
+  v_buff_size uint32ToCharSequence(v_uint32 value, p_char8 data, v_buff_size n);
 
  /**
   * Convert 64-bit integer to it's string representation.
@@ -82,7 +121,16 @@ namespace oatpp { namespace utils { namespace conversion {
   * @param n - buffer size.
   * @return - length of the resultant string.
   */
- v_int32 int64ToCharSequence(v_int64 value, p_char8 data, v_int32 n);
+ v_buff_size int64ToCharSequence(v_int64 value, p_char8 data, v_buff_size n);
+
+  /**
+   * Convert 64-bit unsigned integer to it's string representation.
+   * @param value - 64-bit unsigned integer value.
+   * @param data - buffer to write data to.
+   * @param n - buffer size.
+   * @return - length of the resultant string.
+   */
+  v_buff_size uint64ToCharSequence(v_uint64 value, p_char8 data, v_buff_size n);
 
   /**
    * Convert 32-bit integer to it's string representation.
@@ -92,11 +140,25 @@ namespace oatpp { namespace utils { namespace conversion {
   oatpp::String int32ToStr(v_int32 value);
 
   /**
+   * Convert 32-bit unsigned integer to it's string representation.
+   * @param value - 32-bit unsigned integer value.
+   * @return - value as `oatpp::String`
+   */
+  oatpp::String uint32ToStr(v_uint32 value);
+
+  /**
    * Convert 64-bit integer to it's string representation.
    * @param value - 64-bit integer value.
    * @return - value as `oatpp::String`
    */
   oatpp::String int64ToStr(v_int64 value);
+
+  /**
+   * Convert 64-bit unsigned integer to it's string representation.
+   * @param value - 64-bit unsigned integer value.
+   * @return - value as `oatpp::String`
+   */
+  oatpp::String uint64ToStr(v_uint64 value);
 
   /**
    * Convert 32-bit integer to it's string representation.
@@ -106,11 +168,25 @@ namespace oatpp { namespace utils { namespace conversion {
   std::string int32ToStdStr(v_int32 value);
 
   /**
+   * Convert 32-bit unsigned integer to it's string representation.
+   * @param value - 32-bit unsigned integer value.
+   * @return - value as `std::string`
+   */
+  std::string uint32ToStdStr(v_uint32 value);
+
+  /**
    * Convert 64-bit integer to it's string representation.
    * @param value - 64-bit integer value.
    * @return - value as `std::string`
    */
   std::string int64ToStdStr(v_int64 value);
+
+  /**
+   * Convert 64-bit unsigned integer to it's string representation.
+   * @param value - 64-bit unsigned integer value.
+   * @return - value as `std::string`
+   */
+  std::string uint64ToStdStr(v_uint64 value);
 
   /**
    * Write value of primitive type (int, float, etc.) as it's string representation with pattern.
@@ -122,7 +198,7 @@ namespace oatpp { namespace utils { namespace conversion {
    * @return - length of the resultant string.
    */
   template<typename T>
-  v_int32 primitiveToCharSequence(T value, p_char8 data, v_int32 n, const char *pattern) {
+  v_buff_size primitiveToCharSequence(T value, p_char8 data, v_buff_size n, const char *pattern) {
     return snprintf((char*)data, n, pattern, value);
   }
 
@@ -136,7 +212,7 @@ namespace oatpp { namespace utils { namespace conversion {
   template<typename T>
   oatpp::String primitiveToStr(T value, const char* pattern){
     v_char8 buff [100];
-    v_int32 size = primitiveToCharSequence(value, &buff[0], 100, pattern);
+    auto size = primitiveToCharSequence(value, &buff[0], 100, pattern);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
@@ -180,7 +256,7 @@ namespace oatpp { namespace utils { namespace conversion {
    * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_int32 float32ToCharSequence(v_float32 value, p_char8 data, v_int32 n);
+  v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n);
 
   /**
    * Convert 64-bit float to it's string representation.
@@ -189,7 +265,7 @@ namespace oatpp { namespace utils { namespace conversion {
    * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_int32 float64ToCharSequence(v_float64 value, p_char8 data, v_int32 n);
+  v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n);
 
   /**
    * Convert 32-bit float to it's string representation.
@@ -219,32 +295,6 @@ namespace oatpp { namespace utils { namespace conversion {
    * @return - boolean value.
    */
   bool strToBool(const oatpp::String& str, bool& success);
-
-  /**
-   * Write value of oatpp-primitive type (oatpp::Int32, oatpp::Int64, oatpp::Boolean, etc.) as it's string representation.
-   * @tparam T - oatpp-primitive type (oatpp::Int32, oatpp::Int64, oatpp::Boolean, etc.).
-   * @param primitive - ObjectWrapper.
-   * @return - value as string.
-   */
-  template<class T>
-  oatpp::String
-  primitiveToStr(const oatpp::data::mapping::type::PolymorphicWrapper<T>& primitive) {
-    auto type = primitive.valueType;
-    if(type == oatpp::data::mapping::type::__class::String::getType()) {
-      return std::static_pointer_cast<oatpp::base::StrBuffer>(primitive.getPtr());
-    } else if(type == oatpp::data::mapping::type::__class::Int32::getType()) {
-      return utils::conversion::int32ToStr(static_cast<oatpp::data::mapping::type::Int32::ObjectType*>(primitive.get())->getValue());
-    } else if(type == oatpp::data::mapping::type::__class::Int64::getType()) {
-      return utils::conversion::int64ToStr(static_cast<oatpp::data::mapping::type::Int64::ObjectType*>(primitive.get())->getValue());
-    } else if(type == oatpp::data::mapping::type::__class::Float32::getType()) {
-      return utils::conversion::float32ToStr(static_cast<oatpp::data::mapping::type::Float32::ObjectType*>(primitive.get())->getValue());
-    } else if(type == oatpp::data::mapping::type::__class::Float64::getType()) {
-      return utils::conversion::float64ToStr(static_cast<oatpp::data::mapping::type::Float64::ObjectType*>(primitive.get())->getValue());
-    } else if(type == oatpp::data::mapping::type::__class::Boolean::getType()) {
-      return utils::conversion::boolToStr(static_cast<oatpp::data::mapping::type::Boolean::ObjectType*>(primitive.get())->getValue());
-    }
-    throw std::runtime_error("[oatpp::utils::conversion::primitiveToStr]: Invalid primitive type");
-  }
   
 }}}
 

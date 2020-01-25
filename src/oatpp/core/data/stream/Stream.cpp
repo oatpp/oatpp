@@ -325,9 +325,54 @@ async::CoroutineStarter IOStream::initContextsAsync() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConsistentOutputStream
 
+v_io_size ConsistentOutputStream::writeAsString(v_int8 value){
+  v_char8 a[16];
+  auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_uint8 value){
+  v_char8 a[16];
+  auto size = utils::conversion::uint32ToCharSequence(value, &a[0], 16);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_int16 value){
+  v_char8 a[16];
+  auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_uint16 value){
+  v_char8 a[16];
+  auto size = utils::conversion::uint32ToCharSequence(value, &a[0], 16);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
 v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   v_char8 a[16];
-  v_int32 size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
+  auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_uint32 value){
+  v_char8 a[16];
+  auto size = utils::conversion::uint32ToCharSequence(value, &a[0], 16);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -336,7 +381,16 @@ v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
   v_char8 a[32];
-  v_int32 size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
+  auto size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
+  if(size > 0){
+    return writeSimple(&a[0], size);
+  }
+  return 0;
+}
+
+v_io_size ConsistentOutputStream::writeAsString(v_uint64 value){
+  v_char8 a[32];
+  auto size = utils::conversion::uint64ToCharSequence(value, &a[0], 32);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -345,7 +399,7 @@ v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
-  v_int32 size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -354,7 +408,7 @@ v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
-  v_int32 size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -390,11 +444,27 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& valu
   return s;
 }
 
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt8& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.writeSimple("[<UInt8(null)>]");
+  return s;
+}
+
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
   s.writeSimple("[<Int16(null)>]");
+  return s;
+}
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt16& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.writeSimple("[<UInt16(null)>]");
   return s;
 }
 
@@ -406,11 +476,27 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& val
   return s;
 }
 
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt32& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.writeSimple("[<UInt32(null)>]");
+  return s;
+}
+
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& value) {
   if(value.getPtr()) {
     return operator << (s, value->getValue());
   }
   s.writeSimple("[<Int64(null)>]");
+  return s;
+}
+
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt64& value) {
+  if(value.getPtr()) {
+    return operator << (s, value->getValue());
+  }
+  s.writeSimple("[<UInt64(null)>]");
   return s;
 }
 
@@ -443,35 +529,6 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const char* str)
     s.writeSimple(str);
   } else {
     s.writeSimple("[<char*(null)>]");
-  }
-  return s;
-}
-
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value) {
-  s.writeAsString(value);
-  return s;
-}
-
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value) {
-  s.writeAsString(value);
-  return s;
-}
-
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value) {
-  s.writeAsString(value);
-  return s;
-}
-
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value) {
-  s.writeAsString(value);
-  return s;
-}
-
-ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value) {
-  if(value) {
-    s.OutputStream::writeSimple("true");
-  } else {
-    s.OutputStream::writeSimple("false");
   }
   return s;
 }

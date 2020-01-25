@@ -43,7 +43,7 @@
 
 namespace oatpp { namespace network { namespace client {
 
-SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& host, v_word16 port)
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port)
   : m_host(host)
   , m_port(port)
 {
