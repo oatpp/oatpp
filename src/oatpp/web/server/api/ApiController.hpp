@@ -461,6 +461,79 @@ public:
 
 };
 
+template<>
+inline oatpp::String ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  success = true;
+  return text;
+}
+
+template<>
+inline oatpp::Int8 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt32(text, success);
+}
+
+template<>
+inline oatpp::UInt8 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt32(text, success);
+}
+
+template<>
+inline oatpp::Int16 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt32(text, success);
+}
+
+template<>
+inline oatpp::UInt16 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt32(text, success);
+}
+
+template<>
+inline oatpp::Int32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt32(text, success);
+}
+
+template<>
+inline oatpp::UInt32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt32(text, success);
+}
+
+template<>
+inline oatpp::Int64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToInt64(text, success);
+}
+
+template<>
+inline oatpp::UInt64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToUInt64(text, success);
+}
+
+template<>
+inline oatpp::Float32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToFloat32(text, success);
+}
+
+template<>
+inline oatpp::Float64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToFloat64(text, success);
+}
+
+template<>
+inline oatpp::Boolean ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+  (void) typeName;
+  return utils::conversion::strToBool(text, success);
+}
+
 }}}}
 
 #endif /* oatpp_web_server_rest_Controller_hpp */
