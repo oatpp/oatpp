@@ -235,22 +235,16 @@ namespace std {
     typedef v_uint32 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
-      
+
       p_char8 data = s.getData();
-      v_buff_size size4 = s.getSize() >> 2;
-      
       result_type result = 0;
-      
-      for(v_buff_size i = 0; i < size4; i++) {
-        result ^= *((p_uint32) data);
-        data += 4;
+      for(v_buff_size i = 0; i < s.getSize(); i++) {
+        v_char8 c = data[i];
+        result = (31 * result) + c;
       }
-      
-      for(v_buff_size i = 0; i < s.getSize() - (size4 << 2); i++ ) {
-        ((p_char8) &result)[i] ^= data[i];
-      }
-      
+
       return result;
+
     }
   };
   
@@ -261,22 +255,16 @@ namespace std {
     typedef v_uint32 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
-      
+
       p_char8 data = s.getData();
-      v_buff_size size4 = s.getSize() >> 2;
-      
       result_type result = 0;
-      
-      for(v_buff_size i = 0; i < size4; i++) {
-        result ^= (*((p_uint32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
-        data += 4;
+      for(v_buff_size i = 0; i < s.getSize(); i++) {
+        v_char8 c = data[i] | 32;
+        result = (31 * result) + c;
       }
-      
-      for(v_buff_size i = 0; i < s.getSize() - (size4 << 2); i++ ) {
-        ((p_char8) &result)[i] ^= (data[i] | 32);
-      }
-      
+
       return result;
+
     }
   };
   
@@ -285,24 +273,18 @@ namespace std {
     
     typedef oatpp::data::share::StringKeyLabelCI_FAST argument_type;
     typedef v_uint32 result_type;
-    
+
     result_type operator()(oatpp::data::share::StringKeyLabelCI_FAST const& s) const noexcept {
-      
+
       p_char8 data = s.getData();
-      v_buff_size size4 = s.getSize() >> 2;
-      
       result_type result = 0;
-      
-      for(v_buff_size i = 0; i < size4; i++) {
-        result ^= (*((p_uint32) data) | 538976288); // 538976288 = 32 | (32 << 8) | (32 << 16) | (32 << 24);
-        data += 4;
+      for(v_buff_size i = 0; i < s.getSize(); i++) {
+        v_char8 c = data[i] | 32;
+        result = (31 * result) + c;
       }
-      
-      for(v_buff_size i = 0; i < s.getSize() - (size4 << 2); i++ ) {
-        ((p_char8) &result)[i] ^= (data[i] | 32);
-      }
-      
+
       return result;
+
     }
   };
   
