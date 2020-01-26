@@ -33,6 +33,12 @@ set(OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT "10" CACHE STRING "Number of 
 
 option(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL "Disable 'thread_local' feature" OFF)
 
+option(OATPP_DISABLE_LOGV "DISABLE logs priority V" OFF)
+option(OATPP_DISABLE_LOGD "DISABLE logs priority D" OFF)
+option(OATPP_DISABLE_LOGI "DISABLE logs priority I" OFF)
+option(OATPP_DISABLE_LOGW "DISABLE logs priority W" OFF)
+option(OATPP_DISABLE_LOGE "DISABLE logs priority E" OFF)
+
 ## Print config ##################################################################################
 
 message("\n############################################################################")
@@ -66,6 +72,26 @@ add_definitions (
 
 if(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
     add_definitions(-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
+endif()
+
+if(OATPP_DISABLE_LOGV)
+    add_definitions(-DOATPP_DISABLE_LOGV)
+endif()
+
+if(OATPP_DISABLE_LOGD)
+    add_definitions(-DOATPP_DISABLE_LOGD)
+endif()
+
+if(OATPP_DISABLE_LOGI)
+    add_definitions(-DOATPP_DISABLE_LOGI)
+endif()
+
+if(OATPP_DISABLE_LOGW)
+    add_definitions(-DOATPP_DISABLE_LOGW)
+endif()
+
+if(OATPP_DISABLE_LOGE)
+    add_definitions(-DOATPP_DISABLE_LOGE)
 endif()
 
 message("\n############################################################################\n")
