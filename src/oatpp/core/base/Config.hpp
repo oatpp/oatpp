@@ -73,6 +73,16 @@
 //#define OATPP_DISABLE_LOGD
 
 /**
+ * DISABLE logs priority I
+ */
+//#define OATPP_DISABLE_LOGI
+
+/**
+ * DISABLE logs priority W
+ */
+//#define OATPP_DISABLE_LOGW
+
+/**
  * DISABLE logs priority E
  */
 //#define OATPP_DISABLE_LOGE
