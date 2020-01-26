@@ -118,26 +118,90 @@ public:
     
   public:
 
+    /**
+     * Constructor;
+     */
     Info();
 
+    /**
+     * Create shared Info.
+     * @return
+     */
     static std::shared_ptr<Info> createShared();
-    
+
+    /**
+     * Endpoint name.
+     */
     oatpp::String name;
+
+    /**
+     * Endpoint summary.
+     */
     oatpp::String summary;
+
+    /**
+     * Endpoint description.
+     */
     oatpp::String description;
+
+    /**
+     * Endpoint path.
+     */
     oatpp::String path;
+
+    /**
+     * HTTP method.
+     */
     oatpp::String method;
+
+    /**
+     * Authorization.
+     */
     oatpp::String authorization;
+
+    /**
+     * Hide endpoint from the documentation.
+     */
     oatpp::Boolean hide;
-    
+
+    /**
+     * Tags to group endpoints in the documentation.
+     */
+    std::list<oatpp::String> tags;
+
+    /**
+     * Body info.
+     */
     Param body;
+
+    /**
+     * Body content type.
+     */
     oatpp::String bodyContentType;
-    
+
+    /**
+     * Consumes.
+     */
     std::list<ContentTypeAndSchema> consumes;
+
+    /**
+     * Security Requirements
+     */
     std::unordered_map<oatpp::String, std::shared_ptr<std::list<oatpp::String>>> securityRequirements;
 
+    /**
+     * Headers.
+     */
     Params headers;
+
+    /**
+     * Path variables.
+     */
     Params pathParams;
+
+    /**
+     * Query params.
+     */
     Params queryParams;
     
     /**
@@ -147,20 +211,45 @@ public:
     std::unordered_map<oatpp::web::protocol::http::Status, ContentTypeAndSchema> responses;
     
     oatpp::String toString();
-    
+
+    /**
+     * Add "consumes" info to endpoint.
+     * @tparam T
+     * @param contentType
+     */
     template<class T>
     void addConsumes(const oatpp::String& contentType) {
       consumes.push_back({contentType, T::Class::getType()});
     }
-    
+
+    /**
+     * Add response info to endpoint
+     * @tparam T
+     * @param status
+     * @param contentType
+     */
     template<class T>
     void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType) {
       responses[status] = {contentType, T::Class::getType()};
     }
 
+    /**
+     * Add security requirement.
+     * @param requirement
+     * @param scopes
+     */
     void addSecurityRequirement(const oatpp::String &requirement, const std::shared_ptr<std::list<oatpp::String>> &scopes = nullptr) {
       securityRequirements[requirement] = scopes;
     }
+
+    /**
+     * Add tag.
+     * @param tag
+     */
+    void addTag(const oatpp::String& tag) {
+      tags.push_back(tag);
+    }
+
   };
 public:
 
