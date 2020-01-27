@@ -245,7 +245,6 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
 
             } else {
 
-              m_headersWriteBuffer->writeSimple(m_this->m_body->getKnownData(), bodySize);
               return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
                 .next(m_stream->writeExactSizeDataAsync(m_this->m_body->getKnownData(), bodySize))
                 .next(finish());
