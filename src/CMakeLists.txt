@@ -248,7 +248,11 @@ if(MSVC)
 elseif(APPLE)
     target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 else(MSVC)
-    target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} atomic)
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+        target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+    else(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+        target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} atomic)
+    endif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 endif(MSVC)
 
 target_include_directories(oatpp PUBLIC
