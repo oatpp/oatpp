@@ -38,6 +38,9 @@
   #include <sys/socket.h>
   #include <netinet/tcp.h>
   #include <unistd.h>
+  #if defined(__FreeBSD__) 
+    #include <netinet/in.h>
+  #endif
 #endif
 
 namespace oatpp { namespace network { namespace server {
