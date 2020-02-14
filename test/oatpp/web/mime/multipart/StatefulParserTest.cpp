@@ -64,7 +64,7 @@ namespace {
     oatpp::web::mime::multipart::StatefulParser parser(boundary, listener, nullptr);
 
     oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->getData(), text->getSize());
-    std::unique_ptr<v_char8> buffer(new v_char8[step]);
+    std::unique_ptr<v_char8[]> buffer(new v_char8[step]);
     v_io_size size;
     while((size = stream.readSimple(buffer.get(), step)) != 0) {
       oatpp::data::buffer::InlineWriteData inlineData(buffer.get(), size);
@@ -83,7 +83,7 @@ namespace {
     OATPP_ASSERT(part->getInMemoryData() == value);
 
     v_int64 bufferSize = 16;
-    std::unique_ptr<v_char8> buffer(new v_char8[bufferSize]);
+    std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
 
     oatpp::data::stream::ChunkedBuffer stream;
     oatpp::data::stream::transfer(part->getInputStream().get(), &stream, 0, buffer.get(), bufferSize);
