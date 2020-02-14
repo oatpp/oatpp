@@ -102,7 +102,7 @@ v_int64 Multipart::count() {
 // Other functions
 
 oatpp::String generateRandomBoundary(v_int32 boundarySize) {
-  std::unique_ptr<v_char8> buffer(new v_char8[boundarySize]);
+  std::unique_ptr<v_char8[]> buffer(new v_char8[boundarySize]);
   utils::random::Random::randomBytes(buffer.get(), boundarySize);
   return encoding::Base64::encode(buffer.get(), boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
 }
