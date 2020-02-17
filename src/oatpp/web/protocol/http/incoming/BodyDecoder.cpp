@@ -37,7 +37,7 @@ BodyDecoder::decodeToStringAsync(const Headers& headers, const std::shared_ptr<d
     const BodyDecoder* m_decoder;
     Headers m_headers;
     std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
-    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_outputStream;
+    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_outputStream;
   public:
 
     ToStringDecoder(const BodyDecoder* decoder,
@@ -46,7 +46,7 @@ BodyDecoder::decodeToStringAsync(const Headers& headers, const std::shared_ptr<d
       : m_decoder(decoder)
       , m_headers(headers)
       , m_bodyStream(bodyStream)
-      , m_outputStream(std::make_shared<data::stream::BufferOutputStream>())
+      , m_outputStream(std::make_shared<data::stream::ChunkedBuffer>())
     {}
 
     Action act() override {
