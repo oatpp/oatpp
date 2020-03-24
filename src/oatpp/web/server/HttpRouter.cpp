@@ -57,7 +57,7 @@ HttpRouter::BranchRouter::Route HttpRouter::getRoute(const StringKeyLabel& metho
 
 void HttpRouter::logRouterMappings() {
   for(auto it : m_branchMap) {
-    it.second->logRouterMappings();
+    it.second->logRouterMappings(it.first);
   }
 }
 
