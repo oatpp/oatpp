@@ -131,11 +131,11 @@ public:
     return Route();
   }
   
-  void logRouterMappings() {
+  void logRouterMappings(const oatpp::data::share::StringKeyLabel &branch) {
 
     for(auto& pair : m_endpointsByPattern) {
       auto mapping = pair.first->toString();
-      OATPP_LOGD("Router", "url '%s' -> mapped", (const char*) mapping->getData());
+      OATPP_LOGD("Router", "url '%s %s' -> mapped", (const char*)branch.getData(), (const char*) mapping->getData());
     }
 
   }
