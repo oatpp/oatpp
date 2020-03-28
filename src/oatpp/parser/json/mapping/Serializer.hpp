@@ -120,6 +120,8 @@ private:
   static void serializePrimitive(Serializer* serializer,
                                  data::stream::ConsistentOutputStream* stream,
                                  const data::mapping::type::AbstractObjectWrapper& polymorph){
+    (void) serializer;
+
     if(polymorph){
       stream->writeAsString(static_cast<typename T::ObjectType*>(polymorph.get())->getValue());
     } else {

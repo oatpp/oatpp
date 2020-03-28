@@ -85,10 +85,12 @@ void IOEventWorker::triggerWakeup() {
 }
 
 void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
+  (void) eventPtr;
   // DO NOTHING
 }
 
 void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr) {
+  (void) eventPtr;
 
   auto& action = getCoroutineScheduledAction(coroutine);
 
