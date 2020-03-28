@@ -163,7 +163,7 @@ void Response::send(data::stream::OutputStream* stream,
   } else {
     headersWriteBuffer->flushToStream(stream);
   }
-  
+
 }
 
 oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Response>& _this,
@@ -171,7 +171,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
                                                    const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& headersWriteBuffer,
                                                    const std::shared_ptr<http::encoding::EncoderProvider>& contentEncoder)
 {
-  
+
   class SendAsyncCoroutine : public oatpp::async::Coroutine<SendAsyncCoroutine> {
   private:
     std::shared_ptr<Response> m_this;
@@ -179,7 +179,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersWriteBuffer;
     std::shared_ptr<http::encoding::EncoderProvider> m_contentEncoderProvider;
   public:
-    
+
     SendAsyncCoroutine(const std::shared_ptr<Response>& _this,
                        const std::shared_ptr<data::stream::OutputStream>& stream,
                        const std::shared_ptr<oatpp::data::stream::BufferOutputStream>& headersWriteBuffer,
@@ -189,7 +189,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
       , m_headersWriteBuffer(headersWriteBuffer)
       , m_contentEncoderProvider(contentEncoderProvider)
     {}
-    
+
     Action act() override {
 
       v_buff_size bodySize = -1;
@@ -226,10 +226,8 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
       m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       http::Utils::writeHeaders(m_this->m_headers, m_headersWriteBuffer.get());
-      
-      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
-      const auto& body = m_this->m_body;
+      m_headersWriteBuffer->writeSimple("\r\n", 2);
 
       if(m_this->m_body) {
 
@@ -280,13 +278,13 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
         return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
           .next(finish());
       }
-    
+
     }
-    
+
   };
-  
+
   return SendAsyncCoroutine::start(_this, stream, headersWriteBuffer, contentEncoder);
-  
+
 }
-  
+
 }}}}}
