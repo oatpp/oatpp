@@ -74,22 +74,22 @@ public:
   PoolSharedObjectAllocator(const AllocatorPoolInfo& info)
     : m_poolInfo(info)
   {};
-  
+
   template<typename U>
   PoolSharedObjectAllocator(const PoolSharedObjectAllocator<U>& other)
     : m_poolInfo(other.m_poolInfo)
-  {};
-  
+  {}
+
   T* allocate(std::size_t n) {
     (void)n;
     return static_cast<T*>(getPool(m_poolInfo).obtain());
   }
-  
+
   void deallocate(T* ptr, size_t n) {
     (void)n;
     oatpp::base::memory::MemoryPool::free(ptr);
   }
-  
+
 };
 
 template <typename T, typename U>
@@ -126,22 +126,22 @@ public:
   ThreadLocalPoolSharedObjectAllocator(const AllocatorPoolInfo& info)
     : m_poolInfo(info)
   {};
-  
+
   template<typename U>
   ThreadLocalPoolSharedObjectAllocator(const ThreadLocalPoolSharedObjectAllocator<U>& other)
     : m_poolInfo(other.m_poolInfo)
-  {};
-  
+  {}
+
   T* allocate(std::size_t n) {
     (void)n;
     return static_cast<T*>(getPool(m_poolInfo).obtain());
   }
-  
+
   void deallocate(T* ptr, size_t n) {
     (void)n;
     oatpp::base::memory::MemoryPool::free(ptr);
   }
-  
+
 };
 
 template <typename T, typename U>
@@ -180,16 +180,16 @@ public:
 public:
   AllocationExtras& m_info;
 public:
-  
+
   SharedObjectAllocator(AllocationExtras& info)
     : m_info(info)
   {};
-  
+
   template<typename U>
   SharedObjectAllocator(const SharedObjectAllocator<U>& other)
     : m_info(other.m_info)
-  {};
-  
+  {}
+
   T* allocate(std::size_t n) {
     (void)n;
     void* mem = ::operator new(sizeof(T) + m_info.extraWanted);
@@ -197,12 +197,12 @@ public:
     m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
     return static_cast<T*>(mem);
   }
-  
+
   void deallocate(T* ptr, size_t n) {
     (void)n;
     ::operator delete(ptr);
   }
-  
+
 };
 
 /**
@@ -218,18 +218,18 @@ public:
   AllocationExtras& m_info;
   P& m_pool;
 public:
-  
+
   CustomPoolSharedObjectAllocator(AllocationExtras& info, P& pool)
     : m_info(info)
     , m_pool(pool)
   {};
-  
+
   template<typename U>
   CustomPoolSharedObjectAllocator(const CustomPoolSharedObjectAllocator<U, P>& other)
     : m_info(other.m_info)
     , m_pool(other.m_pool)
-  {};
-  
+  {}
+
   T* allocate(std::size_t n) {
     (void)n;
     void* mem = m_pool.obtain();
@@ -237,12 +237,12 @@ public:
     m_info.extraPtr = &((p_char8) mem)[sizeof(T)];
     return static_cast<T*>(mem);
   }
-  
+
   void deallocate(T* ptr, size_t n) {
     (void)n;
     oatpp::base::memory::MemoryPool::free(ptr);
   }
-  
+
 };
 
 template <typename T, typename U>
@@ -261,14 +261,14 @@ static std::shared_ptr<T> allocateSharedWithExtras(AllocationExtras& extras, Arg
   _Allocator allocator(extras);
   return std::allocate_shared<T, _Allocator>(allocator, args...);
 }
-  
+
 template<typename T, typename P, typename ... Args>
 static std::shared_ptr<T> customPoolAllocateSharedWithExtras(AllocationExtras& extras, P& pool, Args... args){
   typedef CustomPoolSharedObjectAllocator<T, P> _Allocator;
   _Allocator allocator(extras, pool);
   return std::allocate_shared<T, _Allocator>(allocator, args...);
 }
-  
+
 }}}
 
 #endif /* oatpp_base_memory_Allocator_hpp */
