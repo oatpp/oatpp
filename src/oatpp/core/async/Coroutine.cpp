@@ -249,8 +249,6 @@ Action CoroutineHandle::takeAction(Action&& action) {
       }
 
       case Action::TYPE_FINISH: {
-        /* Please note that savedCP->m_parentReturnAction should not be "REPEAT nor WAIT_RETRY" */
-        /* as funtion pointer (FP) is invalidated */
         action = std::move(_CP->m_parentReturnAction);
         AbstractCoroutine* savedCP = _CP;
         _FP = _CP->m_parentReturnFP;

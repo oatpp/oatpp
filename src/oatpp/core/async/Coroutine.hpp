@@ -389,6 +389,16 @@ public:
    */
   CoroutineStarter& next(CoroutineStarter&& starter);
 
+  /**
+   * Keep variables for the time coroutine pipeline is executed. <br>
+   * Example usage is to keep shared_ptr to an object which calls coroutine.
+   * @tparam Args
+   * @param vars
+   * @return - this starter.
+   */
+  template<typename ... Args>
+  CoroutineStarter& keep(const Args&... vars);
+
 };
 
 /**
@@ -630,6 +640,28 @@ public:
   }
   
 };
+
+template<typename ... Args>
+CoroutineStarter& CoroutineStarter::keep(const Args&... vars) {
+
+  class KeeperCoroutine : public Coroutine<KeeperCoroutine> {
+  private:
+    std::tuple<Args...> m_vars;
+  public:
+
+    KeeperCoroutine(const Args&... vars)
+      : m_vars(std::make_tuple(vars...))
+    {}
+
+    Action act() override {
+      return this->finish();
+    }
+
+  };
+
+  return next(KeeperCoroutine::start(vars...));
+
+}
 
 /**
  * Abstract coroutine with result.
