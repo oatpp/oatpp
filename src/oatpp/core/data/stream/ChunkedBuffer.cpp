@@ -29,7 +29,7 @@ namespace oatpp { namespace data{ namespace stream {
 data::stream::DefaultInitializedContext ChunkedBuffer::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
 const char* ChunkedBuffer::ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA = "ERROR_ASYNC_FAILED_TO_WRITE_ALL_DATA";
-  
+
 const char* const ChunkedBuffer::CHUNK_POOL_NAME = "ChunkedBuffer_Chunk_Pool";
 
 const v_buff_size ChunkedBuffer::CHUNK_ENTRY_SIZE_INDEX_SHIFT = 11;
@@ -64,7 +64,7 @@ void ChunkedBuffer::freeEntry(ChunkEntry* entry){
   oatpp::base::memory::MemoryPool::free(entry->chunk);
   delete entry;
 }
-  
+
 v_io_size ChunkedBuffer::writeToEntry(ChunkEntry* entry,
                                             const void *data,
                                             v_buff_size count,
@@ -80,7 +80,7 @@ v_io_size ChunkedBuffer::writeToEntry(ChunkEntry* entry,
     return count;
   }
 }
-  
+
 v_io_size ChunkedBuffer::writeToEntryFrom(ChunkEntry* entry,
                                                 v_buff_size inChunkPos,
                                                 const void *data,
@@ -98,7 +98,7 @@ v_io_size ChunkedBuffer::writeToEntryFrom(ChunkEntry* entry,
     return count;
   }
 }
-  
+
 ChunkedBuffer::ChunkEntry* ChunkedBuffer::getChunkForPosition(ChunkEntry* fromChunk,
                                                               v_buff_size pos,
                                                               v_buff_size& outChunkPos)
@@ -106,48 +106,49 @@ ChunkedBuffer::ChunkEntry* ChunkedBuffer::getChunkForPosition(ChunkEntry* fromCh
 
   v_buff_size segIndex = pos >> CHUNK_ENTRY_SIZE_INDEX_SHIFT;
   outChunkPos = pos - (segIndex << CHUNK_ENTRY_SIZE_INDEX_SHIFT);
-  
+
   auto curr = fromChunk;
-  
+
   for(v_buff_size i = 0; i < segIndex; i++){
     curr = curr->next;
   }
-  
+
   return curr;
-  
+
 }
-  
+
 v_io_size ChunkedBuffer::write(const void *data, v_buff_size count, async::Action& action){
-  
+  (void) action;
+
   if(count <= 0){
     return 0;
   }
-  
+
   if(m_lastEntry == nullptr){
     obtainNewEntry();
   }
-  
+
   ChunkEntry* entry = m_lastEntry;
   v_buff_size pos = 0;
-  
+
   pos += writeToEntryFrom(entry, m_chunkPos, data, count, m_chunkPos);
-  
+
   if(m_chunkPos == 0){
     entry = obtainNewEntry();
   }
-  
+
   while (pos < count) {
-    
+
     pos += writeToEntry(entry, &((p_char8) data)[pos], count - pos, m_chunkPos);
-    
+
     if(m_chunkPos == 0){
       entry = obtainNewEntry();
     }
   }
-  
+
   m_size += pos; // pos == count
   return count;
-  
+
 }
 
 void ChunkedBuffer::setOutputStreamIOMode(IOMode ioMode) {
@@ -161,16 +162,16 @@ IOMode ChunkedBuffer::getOutputStreamIOMode() {
 Context& ChunkedBuffer::getOutputStreamContext() {
   return DEFAULT_CONTEXT;
 }
-  
+
 v_io_size ChunkedBuffer::readSubstring(void *buffer,
                                              v_buff_size pos,
                                              v_buff_size count)
 {
-  
+
   if(pos < 0 || pos >= m_size){
     return 0;
   }
-  
+
   v_buff_size countToRead;
   if(pos + count > m_size){
     countToRead = m_size - pos;
@@ -183,34 +184,34 @@ v_io_size ChunkedBuffer::readSubstring(void *buffer,
 
   v_buff_size lastChunkPos;
   auto lastChunk = getChunkForPosition(firstChunk, firstChunkPos + countToRead, lastChunkPos);
-  
+
   v_io_size bufferPos = 0;
-  
+
   if(firstChunk != lastChunk){
-    
+
     v_buff_size countToCopy = CHUNK_ENTRY_SIZE - firstChunkPos;
     std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], (size_t)countToCopy);
     bufferPos += countToCopy;
-    
+
     auto curr = firstChunk->next;
-    
+
     while (curr != lastChunk) {
       std::memcpy(&((p_char8)buffer)[bufferPos], curr->chunk, CHUNK_ENTRY_SIZE);
       bufferPos += CHUNK_ENTRY_SIZE;
       curr = curr->next;
     }
-    
+
     std::memcpy(&((p_char8)buffer)[bufferPos], lastChunk->chunk, (size_t)lastChunkPos);
-    
+
   } else {
     v_buff_size countToCopy = lastChunkPos - firstChunkPos;
     std::memcpy(buffer, &((p_char8)firstChunk->chunk)[firstChunkPos], (size_t)countToCopy);
   }
-  
+
   return countToRead;
-  
+
 }
-  
+
 oatpp::String ChunkedBuffer::getSubstring(v_buff_size pos, v_buff_size count){
   auto str = oatpp::String((v_int32) count);
   readSubstring(str->getData(), pos, count);
@@ -240,7 +241,7 @@ bool ChunkedBuffer::flushToStream(OutputStream* stream){
 }
 
 oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
- 
+
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
   private:
     std::shared_ptr<ChunkedBuffer> m_chunkedBuffer;
@@ -251,7 +252,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
     data::buffer::InlineWriteData m_currData;
     bool m_needInit;
   public:
-    
+
     FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
                    const std::shared_ptr<OutputStream>& stream)
       : m_chunkedBuffer(chunkedBuffer)
@@ -289,17 +290,17 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
       }
 
     }
-    
+
     Action writeCurrData() {
       return m_stream->writeExactSizeDataAsyncInline(m_currData, Action::clone(m_nextAction));
     }
-    
+
   };
-  
+
   return FlushCoroutine::start(shared_from_this(), stream);
-  
+
 }
-  
+
 std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {
   auto chunks = Chunks::createShared();
   auto curr = m_firstEntry;
@@ -321,19 +322,19 @@ v_buff_size ChunkedBuffer::getSize(){
 }
 
 void ChunkedBuffer::clear(){
-  
+
   ChunkEntry* curr = m_firstEntry;
   while (curr != nullptr) {
     ChunkEntry* next = curr->next;
     freeEntry(curr);
     curr = next;
   }
-  
+
   m_size = 0;
   m_chunkPos = 0;
   m_firstEntry = nullptr;
   m_lastEntry = nullptr;
-  
+
 }
-  
+
 }}}

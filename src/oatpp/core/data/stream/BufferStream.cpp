@@ -44,6 +44,7 @@ BufferOutputStream::~BufferOutputStream() {
 }
 
 v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
+  (void) action;
 
   reserveBytesUpfront(count);
 
@@ -190,6 +191,7 @@ void BufferInputStream::reset() {
 }
 
 v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& action) {
+  (void) action;
   v_buff_size desiredAmount = count;
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;
