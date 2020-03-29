@@ -90,7 +90,7 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
   }
 
   if(m_config.timeFormat) {
-    time_t seconds = (time_t)std::chrono::duration_cast<std::chrono::seconds>(time).count();
+    time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
     struct tm now;
     localtime_r(&seconds, &now);
     std::cout << std::put_time(&now, m_config.timeFormat);
@@ -159,9 +159,9 @@ void Environment::destroy(){
     WSACleanup();
 #endif
 }
-  
+
 void Environment::checkTypes(){
-  
+
   OATPP_ASSERT(sizeof(v_char8) == 1);
   OATPP_ASSERT(sizeof(v_int16) == 2);
   OATPP_ASSERT(sizeof(v_uint16) == 2);
@@ -170,17 +170,17 @@ void Environment::checkTypes(){
   OATPP_ASSERT(sizeof(v_uint32) == 4);
   OATPP_ASSERT(sizeof(v_uint64) == 8);
   OATPP_ASSERT(sizeof(v_float64) == 8);
-  
+
   v_int32 vInt32 = ~1;
   v_int64 vInt64 = ~1;
   v_uint32 vUInt32 = ~1;
   v_uint64 vUInt64 = ~1;
-  
+
   OATPP_ASSERT(vInt32 < 0);
   OATPP_ASSERT(vInt64 < 0);
   OATPP_ASSERT(vUInt32 > 0);
   OATPP_ASSERT(vUInt64 > 0);
-  
+
 }
 
 void Environment::incObjects(){
@@ -212,7 +212,7 @@ v_counter Environment::getObjectsCount(){
 v_counter Environment::getObjectsCreated(){
   return m_objectsCreated;
 }
-  
+
 v_counter Environment::getThreadLocalObjectsCount(){
 #ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   return m_threadLocalObjectsCount;
@@ -262,7 +262,7 @@ void Environment::log(v_int32 priority, const std::string& tag, const std::strin
     m_logger->log(priority, tag, message);
   }
 }
-  
+
 void Environment::logFormatted(v_int32 priority, const std::string& tag, const char* message, ...) {
   if(message == nullptr) {
     message = "[null]";
@@ -274,7 +274,7 @@ void Environment::logFormatted(v_int32 priority, const std::string& tag, const c
   log(priority, tag, buffer);
   va_end(args);
 }
-  
+
 void Environment::registerComponent(const std::string& typeName, const std::string& componentName, void* component) {
   auto& bucket = m_components[typeName];
   auto it = bucket.find(componentName);
@@ -283,7 +283,7 @@ void Environment::registerComponent(const std::string& typeName, const std::stri
   }
   bucket[componentName] = component;
 }
-  
+
 void Environment::unregisterComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
@@ -324,11 +324,11 @@ void* Environment::getComponent(const std::string& typeName, const std::string& 
   }
   return componentIt->second;
 }
-  
+
 v_int64 Environment::getMicroTickCount(){
   std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>
   (std::chrono::system_clock::now().time_since_epoch());
   return ms.count();
 }
-  
+
 }}
