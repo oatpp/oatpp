@@ -27,13 +27,13 @@
 #include <fstream>
 
 namespace oatpp { namespace base {
-  
+
 void StrBuffer::set(const void* data, v_buff_size size, bool hasOwnData) {
   m_data = (p_char8) data;
   m_size = size;
   m_hasOwnData = hasOwnData;
 }
-  
+
 void StrBuffer::setAndCopy(const void* data, const void* originData, v_buff_size size){
   m_data = (p_char8) data;
   m_size = size;
@@ -58,7 +58,7 @@ std::shared_ptr<StrBuffer> StrBuffer::allocShared(const void* data, v_buff_size 
   }
   return std::make_shared<StrBuffer>(data, size, copyAsOwnData);
 }
-  
+
 p_char8 StrBuffer::allocStrBuffer(const void* originData, v_buff_size size, bool copyAsOwnData) {
   if(copyAsOwnData) {
     p_char8 data = new v_char8[size + 1];
@@ -89,11 +89,11 @@ StrBuffer::~StrBuffer() {
   }
   m_data = nullptr;
 }
-  
+
 std::shared_ptr<StrBuffer> StrBuffer::createShared(const void* data, v_buff_size size, bool copyAsOwnData) {
   return allocShared(data, size, copyAsOwnData);
 }
-  
+
 std::shared_ptr<StrBuffer> StrBuffer::createShared(const char* data, bool copyAsOwnData) {
   return allocShared(data, std::strlen(data), copyAsOwnData);
 }
@@ -112,7 +112,7 @@ std::shared_ptr<StrBuffer> StrBuffer::createSharedConcatenated(const void* data1
   std::memcpy(ptr->m_data + size1, data2, size2);
   return ptr;
 }
-  
+
 std::shared_ptr<StrBuffer> StrBuffer::loadFromFile(const char* filename) {
   std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
   if (file.is_open()) {
@@ -121,7 +121,7 @@ std::shared_ptr<StrBuffer> StrBuffer::loadFromFile(const char* filename) {
     file.read((char*)result->getData(), result->getSize());
     file.close();
     return result;
-    
+
   }
   return nullptr;
 }
@@ -131,7 +131,7 @@ void StrBuffer::saveToFile(const char* filename) {
   fs.write((const char*)m_data, m_size);
   fs.close();
 }
-  
+
 p_char8 StrBuffer::getData() const {
   return m_data;
 }
@@ -143,15 +143,15 @@ v_buff_size StrBuffer::getSize() const {
 const char* StrBuffer::c_str() const {
   return (const char*) m_data;
 }
-  
+
 std::string StrBuffer::std_str() const {
   return std::string((const char*) m_data, m_size);
 }
-  
+
 bool StrBuffer::hasOwnData() const {
   return m_hasOwnData;
 }
-  
+
 std::shared_ptr<StrBuffer> StrBuffer::toLowerCase() const {
   const auto& ptr = allocShared(m_data, m_size, true);
   lowerCase(ptr->m_data, ptr->m_size);
@@ -163,7 +163,7 @@ std::shared_ptr<StrBuffer> StrBuffer::toUpperCase() const {
   upperCase(ptr->m_data, ptr->m_size);
   return ptr;
 }
-  
+
 bool StrBuffer::equals(const void* data, v_buff_size size) const {
   if(m_size == size) {
     return equals(m_data, data, size);
@@ -172,7 +172,7 @@ bool StrBuffer::equals(const void* data, v_buff_size size) const {
 }
 
 bool StrBuffer::equals(const char* data) const {
-  if(m_size == std::strlen(data)) {
+  if(static_cast<std::size_t>(m_size) == std::strlen(data)) {
     return equals(m_data, data, m_size);
   }
   return false;
@@ -205,7 +205,7 @@ bool StrBuffer::startsWith(StrBuffer* data) const {
 }
 
 // static
-  
+
 v_buff_size StrBuffer::compare(const void* data1, const void* data2, v_buff_size size) {
   return std::memcmp(data1, data2, size);
 }
@@ -224,14 +224,14 @@ v_buff_size StrBuffer::compare(StrBuffer* str1, StrBuffer* str2) {
 bool StrBuffer::equals(const void* data1, const void* data2, v_buff_size size) {
   return (data1 == data2) || (std::memcmp(data1, data2, size) == 0);
 }
-  
+
 bool StrBuffer::equals(const char* data1, const char* data2) {
   if(data1 == data2) return true;
   if(data1 == nullptr && data2 == nullptr) return false;
-  v_buff_size size = std::strlen(data1);
+  const auto size = std::strlen(data1);
   return (size == std::strlen(data2) && std::memcmp(data1, data2, size) == 0);
 }
-  
+
 bool StrBuffer::equals(StrBuffer* str1, StrBuffer* str2) {
   return  (str1 == str2) ||
           (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
@@ -251,14 +251,14 @@ bool StrBuffer::equalsCI(const void* data1, const void* data2, v_buff_size size)
   }
   return true;
 }
-  
+
 bool StrBuffer::equalsCI(const char* data1, const char* data2) {
   if(data1 == data2) return true;
   if(data1 == nullptr && data2 == nullptr) return false;
-  v_buff_size size = std::strlen(data1);
+  const auto size = std::strlen(data1);
   return (size == std::strlen(data2) && equalsCI(data1, data2, size) == 0);
 }
-  
+
 bool StrBuffer::equalsCI(StrBuffer* str1, StrBuffer* str2) {
   return  (str1 == str2) ||
           (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
@@ -274,11 +274,11 @@ bool StrBuffer::equalsCI_FAST(const void* data1, const void* data2, v_buff_size 
   }
   return true;
 }
-  
+
 bool StrBuffer::equalsCI_FAST(const char* data1, const char* data2) {
   if(data1 == data2) return true;
   if(data1 == nullptr && data2 == nullptr) return false;
-  v_buff_size size = std::strlen(data1);
+  const auto size = std::strlen(data1);
   return (size == std::strlen(data2) && equalsCI_FAST(data1, data2, size) == 0);
 }
 
@@ -288,7 +288,7 @@ bool StrBuffer::equalsCI_FAST(StrBuffer* str1, StrBuffer* str2) {
    (str1->m_data == str2->m_data || equalsCI_FAST(str1->m_data, str2->m_data, str1->m_size))
    );
 }
-  
+
 bool StrBuffer::equalsCI_FAST(StrBuffer* str1, const char* str2) {
   v_buff_size len = std::strlen(str2);
   return (str1->getSize() == len && equalsCI_FAST(str1->m_data, str2, str1->m_size));
@@ -307,5 +307,5 @@ void StrBuffer::upperCase(const void* data, v_buff_size size) {
     if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;
   }
 }
- 
+
 }}

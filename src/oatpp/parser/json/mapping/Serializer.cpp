@@ -59,7 +59,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 }
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
-  auto id = classId.id;
+  const v_uint32 id = classId.id;
   if(id < m_methods.size()) {
     m_methods[id] = method;
   } else {
