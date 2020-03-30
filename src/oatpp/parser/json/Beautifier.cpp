@@ -46,7 +46,6 @@ void Beautifier::writeIndent(ConsistentOutputStream* outputStream) {
 }
 
 v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& action) {
-  (void) action;
 
   (void) action;
 

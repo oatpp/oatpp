@@ -44,7 +44,6 @@ BufferOutputStream::~BufferOutputStream() {
 }
 
 v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
-  (void) action;
 
   (void) action;
 
