@@ -78,6 +78,7 @@ void Serializer::serializeString(Serializer* serializer,
                                   data::stream::ConsistentOutputStream* stream,
                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
 {
+  (void) serializer;
 
   (void) serializer;
 

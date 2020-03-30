@@ -120,7 +120,6 @@ private:
   static void serializePrimitive(Serializer* serializer,
                                  data::stream::ConsistentOutputStream* stream,
                                  const data::mapping::type::AbstractObjectWrapper& polymorph){
-
     (void) serializer;
 
     if(polymorph){
