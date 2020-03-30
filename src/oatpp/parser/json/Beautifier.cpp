@@ -47,6 +47,8 @@ void Beautifier::writeIndent(ConsistentOutputStream* outputStream) {
 
 v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& action) {
 
+  (void) action;
+
   oatpp::data::stream::BufferOutputStream buffer(count);
 
   for(v_buff_size i = 0; i < count; i ++) {

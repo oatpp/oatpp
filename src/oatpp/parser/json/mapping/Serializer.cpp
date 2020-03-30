@@ -79,6 +79,8 @@ void Serializer::serializeString(Serializer* serializer,
                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
 {
 
+  (void) serializer;
+
   if(!polymorph) {
     stream->writeSimple("null", 4);
     return;

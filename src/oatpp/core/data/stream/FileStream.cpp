@@ -58,6 +58,7 @@ std::FILE* FileInputStream::getFile() {
 }
 
 v_io_size FileInputStream::read(void *data, v_buff_size count, async::Action& action) {
+  (void) action;
   return std::fread(data, 1, count, m_file);
 }
 
@@ -104,6 +105,7 @@ std::FILE* FileOutputStream::getFile() {
 }
 
 v_io_size FileOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
+  (void) action;
   return std::fwrite(data, 1, count, m_file);
 }
 

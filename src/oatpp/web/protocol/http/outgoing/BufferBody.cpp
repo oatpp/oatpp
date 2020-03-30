@@ -38,6 +38,8 @@ std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String& buffer
 
 v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action& action) {
 
+  (void) action;
+
   v_buff_size desiredToRead = m_inlineData.bytesLeft;
 
   if(desiredToRead > 0) {

@@ -39,10 +39,12 @@ bool SimpleRetryPolicy::canRetry(const Context& context) {
 }
 
 bool SimpleRetryPolicy::retryOnResponse(v_int32 responseStatusCode, const Context& context) {
+  (void) context;
   return m_httpCodes.find(responseStatusCode) != m_httpCodes.end();
 }
 
 v_int64 SimpleRetryPolicy::waitForMicroseconds(const Context& context) {
+  (void) context;
   return m_delay;
 }
 
