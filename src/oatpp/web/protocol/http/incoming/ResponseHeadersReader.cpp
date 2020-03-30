@@ -115,7 +115,6 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   private:
     ResponseHeadersReader* m_this;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    v_buff_size m_progress;
     ReadHeadersIteration m_iteration;
     ResponseHeadersReader::Result m_result;
     oatpp::data::stream::BufferOutputStream m_bufferStream;
@@ -125,7 +124,6 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
       : m_this(_this)
       , m_connection(connection)
-      , m_progress(0)
     {}
     
     Action act() override {
