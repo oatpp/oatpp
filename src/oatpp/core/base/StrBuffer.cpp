@@ -172,7 +172,7 @@ bool StrBuffer::equals(const void* data, v_buff_size size) const {
 }
 
 bool StrBuffer::equals(const char* data) const {
-  if(static_cast<std::size_t>(m_size) == std::strlen(data)) {
+  if(m_size == (v_buff_size) std::strlen(data)) {
     return equals(m_data, data, m_size);
   }
   return false;

@@ -88,7 +88,7 @@ void InlineWriteData::setEof() {
 ProcessingPipeline::ProcessingPipeline(const std::vector<base::ObjectHandle<Processor>>& processors)
   : m_processors(processors)
 {
-  for(v_uint32 i = 0; i < m_processors.size() - 1; i ++) {
+  for(v_int32 i = 0; i < (v_int32) m_processors.size() - 1; i ++) {
     m_intermediateData.push_back(data::buffer::InlineReadData());
   }
 }
@@ -118,7 +118,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
     }
 
     data::buffer::InlineReadData* currDataOut = &dataOut;
-    if(i < static_cast<v_int32>(m_intermediateData.size())) {
+    if(i < (v_int32) m_intermediateData.size()) {
       currDataOut = &m_intermediateData[i];
     }
 
