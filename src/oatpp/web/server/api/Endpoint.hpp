@@ -109,11 +109,12 @@ public:
     };
 
     /**
-     * Info about content type and schema
+     * Hints about the response (content-type, schema, description, ...)
      */
-    struct ContentTypeAndSchema {
+    struct ResponseHints {
       oatpp::String contentType;
       oatpp::data::mapping::type::Type* schema;
+      oatpp::String description;
     };
     
   public:
@@ -182,7 +183,7 @@ public:
     /**
      * Consumes.
      */
-    std::list<ContentTypeAndSchema> consumes;
+    std::list<ResponseHints> consumes;
 
     /**
      * Security Requirements
@@ -208,7 +209,7 @@ public:
      *  ResponseCode to {ContentType, Type} mapping.
      *  Example responses[Status::CODE_200] = {"application/json", MyDto::ObjectWrapper::Class::getType()};
      */
-    std::unordered_map<oatpp::web::protocol::http::Status, ContentTypeAndSchema> responses;
+    std::unordered_map<oatpp::web::protocol::http::Status, ResponseHints> responses;
     
     oatpp::String toString();
 
@@ -227,10 +228,11 @@ public:
      * @tparam T
      * @param status
      * @param contentType
+     * @param responseDescription
      */
     template<class T>
-    void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType) {
-      responses[status] = {contentType, T::Class::getType()};
+    void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription = oatpp::String()) {
+      responses[status] = {contentType, T::Class::getType(), responseDescription.get() == nullptr ? status.description : responseDescription};
     }
 
     /**

@@ -47,7 +47,7 @@ public:
 
   ENDPOINT_INFO(root) {
     info->summary = "root_summary";
-    info->addResponse<String>(Status::CODE_200, "text/plain");
+    info->addResponse<String>(Status::CODE_200, "text/plain", "test1-success");
     info->addResponse<String>(Status::CODE_404, "text/plain");
   }
   ENDPOINT("GET", "/", root) {
@@ -98,9 +98,11 @@ void ApiControllerTest::onRun() {
     auto r200 = endpoint->info()->responses[Status::CODE_200];
     OATPP_ASSERT(r200.contentType == "text/plain");
     OATPP_ASSERT(r200.schema == oatpp::String::Class::getType());
+    OATPP_ASSERT(r200.description == "test1-success");
 
     auto r404 = endpoint->info()->responses[Status::CODE_404];
     OATPP_ASSERT(r404.contentType == "text/plain");
+    OATPP_ASSERT(r404.description == "Not Found");
     OATPP_ASSERT(r404.schema == oatpp::String::Class::getType());
 
     auto response = controller.root();
