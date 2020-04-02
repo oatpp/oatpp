@@ -38,7 +38,7 @@
   #include <sys/socket.h>
   #include <netinet/tcp.h>
   #include <unistd.h>
-  #if defined(__FreeBSD__) 
+  #if defined(__FreeBSD__)
     #include <netinet/in.h>
   #endif
 #endif
@@ -178,7 +178,8 @@ oatpp::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
 
   serverHandle = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
   if (serverHandle < 0) {
-    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Couldn't open a socket: %s", strerror(errno));
+    OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Couldn't open a socket: socket(%d, %d, %d) %s",
+               result->ai_family, result->ai_socktype, result->ai_protocol, strerror(errno));
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Couldn't open a socket");
   }
 
