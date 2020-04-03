@@ -216,7 +216,7 @@ namespace oatpp { namespace utils { namespace conversion {
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
 
   /**
