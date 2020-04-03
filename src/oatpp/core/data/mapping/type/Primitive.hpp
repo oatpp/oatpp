@@ -164,6 +164,10 @@ public:
     ObjectWrapper()
       : type::ObjectWrapper<Primitive, Clazz>()
     {}
+
+    ObjectWrapper(std::nullptr_t)
+      : type::ObjectWrapper<Primitive, Clazz>()
+    {}
     
     ObjectWrapper(const std::shared_ptr<Primitive>& ptr)
       : type::ObjectWrapper<Primitive, Clazz>(ptr)
@@ -209,11 +213,6 @@ public:
     
     inline operator ValueType() const {
       return this->get()->getValue();
-    }
-    
-    static const ObjectWrapper& empty(){
-      static ObjectWrapper result;
-      return result;
     }
     
   };
