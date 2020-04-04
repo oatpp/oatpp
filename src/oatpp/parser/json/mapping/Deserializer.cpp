@@ -242,7 +242,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
       caret.skipBlankChars();
       auto item = deserializer->deserialize(caret, itemType);
       if(caret.hasError()){
-        return AbstractObjectWrapper::empty();
+        return nullptr;
       }
 
       list->addPolymorphicItem(item);
@@ -256,13 +256,13 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
       if(!caret.hasError()){
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
       }
-      return AbstractObjectWrapper::empty();
+      return nullptr;
     };
 
     return AbstractObjectWrapper(list.getPtr(), list.valueType);
   } else {
     caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
-    return AbstractObjectWrapper::empty();
+    return nullptr;
   }
 
 }
@@ -296,13 +296,13 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
       caret.skipBlankChars();
       auto key = Utils::parseString(caret);
       if(caret.hasError()){
-        return AbstractObjectWrapper::empty();
+        return nullptr;
       }
 
       caret.skipBlankChars();
       if(!caret.canContinueAtChar(':', 1)){
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
-        return AbstractObjectWrapper::empty();
+        return nullptr;
       }
 
       caret.skipBlankChars();
@@ -318,7 +318,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
       if(!caret.hasError()){
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
       }
-      return AbstractObjectWrapper::empty();
+      return nullptr;
     }
 
     return AbstractObjectWrapper(map.getPtr(), map.valueType);
@@ -327,7 +327,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
     caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
   }
 
-  return AbstractObjectWrapper::empty();
+  return nullptr;
 
 }
 
@@ -352,7 +352,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
       caret.skipBlankChars();
       auto key = Utils::parseStringToStdString(caret);
       if(caret.hasError()){
-        return AbstractObjectWrapper::empty();
+        return nullptr;
       }
 
       auto fieldIterator = fieldsMap.find(key);
@@ -361,7 +361,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
         caret.skipBlankChars();
         if(!caret.canContinueAtChar(':', 1)){
           caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
-          return AbstractObjectWrapper::empty();
+          return nullptr;
         }
 
         caret.skipBlankChars();
@@ -373,13 +373,13 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
         caret.skipBlankChars();
         if(!caret.canContinueAtChar(':', 1)){
           caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()/if(config->allowUnknownFields){}]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
-          return AbstractObjectWrapper::empty();
+          return nullptr;
         }
         caret.skipBlankChars();
         skipValue(caret);
       } else {
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. Unknown field", ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
-        return AbstractObjectWrapper::empty();
+        return nullptr;
       }
 
       caret.skipBlankChars();
@@ -391,7 +391,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
       if(!caret.hasError()){
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
       }
-      return AbstractObjectWrapper::empty();
+      return nullptr;
     }
 
     return object;
@@ -400,7 +400,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
     caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
   }
 
-  return AbstractObjectWrapper::empty();
+  return nullptr;
 
 }
 

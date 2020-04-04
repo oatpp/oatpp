@@ -128,6 +128,10 @@ public:
   PolymorphicWrapper()
     : valueType(Class::getType())
   {}
+
+  PolymorphicWrapper(std::nullptr_t)
+    : valueType(Class::getType())
+  {}
   
   PolymorphicWrapper(const Type* const type)
     : valueType(type)
@@ -142,10 +146,6 @@ public:
     : m_ptr(std::move(other.m_ptr))
     , valueType(other.valueType)
   {}
-  
-  static PolymorphicWrapper empty(){
-    return PolymorphicWrapper();
-  }
   
   PolymorphicWrapper& operator=(const PolymorphicWrapper<T>& other){
     m_ptr = other.m_ptr;
@@ -233,9 +233,9 @@ public:
     : PolymorphicWrapper<T>(Class::getType())
   {}
   
-  ObjectWrapper(std::nullptr_t nullptrt)
-    : PolymorphicWrapper<T>(nullptr, Class::getType())
-  {(void)nullptrt;}
+  ObjectWrapper(std::nullptr_t)
+    : PolymorphicWrapper<T>(Class::getType())
+  {}
   
   ObjectWrapper(const std::shared_ptr<T>& ptr)
     : PolymorphicWrapper<T>(ptr, Class::getType())
@@ -248,10 +248,6 @@ public:
   ObjectWrapper(PolymorphicWrapper<T>&& other)
     : PolymorphicWrapper<T>(std::move(other.getPtr()), Class::getType())
   {}
-  
-  static ObjectWrapper empty(){
-    return ObjectWrapper();
-  }
   
   ObjectWrapper& operator=(const PolymorphicWrapper<T>& other){
     if(this->valueType != other.valueType){
