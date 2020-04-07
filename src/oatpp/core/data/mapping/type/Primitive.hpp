@@ -65,7 +65,9 @@ public:
 public:
   
   String() {}
-  
+
+  String(std::nullptr_t) {}
+
   String(v_buff_size size)
     : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
   {}
@@ -111,11 +113,6 @@ public:
   String& operator = (String&& other){
     m_ptr = std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(other.m_ptr);
     return *this;
-  }
-  
-  static const String& empty(){
-    static String empty;
-    return empty;
   }
   
   bool operator==(const String &other) const {
@@ -167,6 +164,10 @@ public:
     ObjectWrapper()
       : type::ObjectWrapper<Primitive, Clazz>()
     {}
+
+    ObjectWrapper(std::nullptr_t)
+      : type::ObjectWrapper<Primitive, Clazz>()
+    {}
     
     ObjectWrapper(const std::shared_ptr<Primitive>& ptr)
       : type::ObjectWrapper<Primitive, Clazz>(ptr)
@@ -212,11 +213,6 @@ public:
     
     inline operator ValueType() const {
       return this->get()->getValue();
-    }
-    
-    static const ObjectWrapper& empty(){
-      static ObjectWrapper result;
-      return result;
     }
     
   };

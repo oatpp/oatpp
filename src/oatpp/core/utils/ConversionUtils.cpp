@@ -98,7 +98,7 @@ namespace oatpp { namespace utils { namespace conversion {
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
 
   oatpp::String uint32ToStr(v_uint32 value){
@@ -107,7 +107,7 @@ namespace oatpp { namespace utils { namespace conversion {
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
   
   oatpp::String int64ToStr(v_int64 value){
@@ -116,7 +116,7 @@ namespace oatpp { namespace utils { namespace conversion {
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
 
   oatpp::String uint64ToStr(v_uint64 value){
@@ -125,7 +125,7 @@ namespace oatpp { namespace utils { namespace conversion {
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
   
   std::string int32ToStdStr(v_int32 value){
@@ -202,7 +202,7 @@ v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n) 
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
   
   oatpp::String float64ToStr(v_float64 value){
@@ -211,7 +211,7 @@ v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n) 
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
-    return oatpp::String::empty();
+    return nullptr;
   }
   
   oatpp::String boolToStr(bool value) {
