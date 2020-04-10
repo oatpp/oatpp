@@ -104,6 +104,10 @@ bool ConnectionPool::ConnectionWrapper::isValid() {
   return m_connection && m_recycleConnection;
 }
 
+const std::shared_ptr<data::stream::IOStream>& ConnectionPool::ConnectionWrapper::getUnderlyingConnection() {
+  return m_connection;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionPool
 
@@ -310,6 +314,13 @@ void ConnectionPool::close() {
 
 }
 
+void ConnectionPool::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+  auto wrapper = std::static_pointer_cast<ConnectionPool::ConnectionWrapper>(connection);
+  wrapper->invalidate();
+  auto c = wrapper->getUnderlyingConnection();
+  m_connectionProvider->invalidateConnection(c);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ServerConnectionPool
 
@@ -358,8 +369,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 }
 
 void ServerConnectionPool::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
-  auto wrapper = std::static_pointer_cast<ConnectionPool::ConnectionWrapper>(connection);
-  wrapper->invalidate();
+  m_pool.invalidateConnection(connection);
 }
 
 void ServerConnectionPool::close() {
@@ -414,8 +424,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 }
 
 void ClientConnectionPool::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
-  auto wrapper = std::static_pointer_cast<ConnectionPool::ConnectionWrapper>(connection);
-  wrapper->invalidate();
+  m_pool.invalidateConnection(connection);
 }
 
 void ClientConnectionPool::close() {

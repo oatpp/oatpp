@@ -332,4 +332,29 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
 }
 
+void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+
+  /************************************************
+   * WARNING!!!
+   *
+   * shutdown(handle, SHUT_RDWR)    <--- DO!
+   * close(handle);                 <--- DO NOT!
+   *
+   * DO NOT CLOSE file handle here -
+   * USE shutdown instead.
+   * Using close prevent FDs popping out of epoll,
+   * and they'll be stuck there forever.
+   ************************************************/
+
+  auto c = std::static_pointer_cast<network::Connection>(connection);
+  v_io_handle handle = c->getHandle();
+
+#if defined(WIN32) || defined(_WIN32)
+  shutdown(handle, SD_BOTH);
+#else
+  shutdown(handle, SHUT_RDWR);
+#endif
+
+}
+
 }}}
