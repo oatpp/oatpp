@@ -26,7 +26,6 @@
 #define oatpp_Types_hpp
 
 #include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp {
 
@@ -90,6 +89,23 @@ namespace oatpp {
    * Mapping-Enabled Boolean. Can hold nullptr value. &id:oatpp::data::mapping::type::Boolean;
    */
   typedef oatpp::data::mapping::type::Boolean Boolean;
+
+  /**
+   * Mapping-Enabled Object. Base class for all DTO objects. &id:oatpp::data::mapping::type::Object;
+   */
+  typedef oatpp::data::mapping::type::Object Object;
+
+  /*
+   * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;
+   */
+  template <class T>
+  using List = oatpp::data::mapping::type::List<T>;
+
+  /*
+   * Mapping-Enables ListMap<String, Value>. &id:oatpp::data::mapping::type::ListMap;
+   */
+  template <class Value>
+  using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
   
 }
 
