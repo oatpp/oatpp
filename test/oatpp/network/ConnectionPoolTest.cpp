@@ -140,7 +140,7 @@ public:
       return waitFor(std::chrono::milliseconds(100)).next(yieldTo(&ClientCoroutine::useConnection));
     }
     if(m_invalidate) {
-      m_connection->invalidate();
+      m_pool->invalidateConnection(m_connection);
     }
     return finish();
   }
@@ -151,7 +151,7 @@ void clientMethod(std::shared_ptr<ConnectionPool> pool, bool invalidate) {
   auto connection = pool->getConnection();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   if(invalidate) {
-    connection->invalidate();
+    pool->invalidateConnection(connection);
   }
 }
 

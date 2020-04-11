@@ -142,13 +142,11 @@ public:
   }
 
   /**
-   * Does nothing.
+   * Call shutdown read and write on an underlying file descriptor.
+   * `connection` **MUST** be an object previously obtained from **THIS** connection provider.
    * @param connection
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override {
-    (void)connection;
-    // DO Nothing.
-  }
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
 
   /**
    * Get port.

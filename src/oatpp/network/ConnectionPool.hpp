@@ -80,10 +80,13 @@ public:
    * Will acquire connection from the pool on initialization and will return connection to the pool on destruction.
    */
   class ConnectionWrapper : public oatpp::data::stream::IOStream {
+    friend ConnectionPool;
   private:
     std::shared_ptr<IOStream> m_connection;
     std::shared_ptr<Pool> m_pool;
     bool m_recycleConnection;
+  private:
+    void invalidate();
   public:
 
     ConnectionWrapper(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<Pool>& pool);
@@ -102,15 +105,16 @@ public:
     oatpp::data::stream::Context& getInputStreamContext() override;
 
     /**
-     * Mark that this connection cannot be reused in the pool any more.
-     */
-    void invalidate();
-
-    /**
      * Check if connection is still valid.
      * @return
      */
     bool isValid();
+
+    /**
+     * Get underlying connection.
+     * @return
+     */
+    const std::shared_ptr<IOStream>& getUnderlyingConnection();
 
   };
 
@@ -196,6 +200,12 @@ public:
    * Other connections are closed once returned to the pool.
    */
   void close();
+
+  /**
+   * Invalidate connection that was previously obtain by a call to `getConnection()` or `getConnectionAsync()`.
+   * @param connection - **MUST** be instance of `&l:ConnectionPool::ConnectionWrapper;` or its subclass.
+   */
+  void invalidateConnection(const std::shared_ptr<IOStream>& connection);
 
 };
 
