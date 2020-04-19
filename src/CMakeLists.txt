@@ -255,6 +255,11 @@ else(MSVC)
     endif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 endif(MSVC)
 
+# link win32 system libraries for mingw
+if(CMAKE_HOST_WIN32 AND CMAKE_COMPILER_IS_GNUCXX)
+    target_link_libraries(oatpp PUBLIC wsock32 ws2_32)
+endif()
+
 target_include_directories(oatpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
