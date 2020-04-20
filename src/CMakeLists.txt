@@ -243,22 +243,17 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
 find_package(Threads REQUIRED)
 
-if(MSVC)
+if(MSVC OR MINGW)
     target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} wsock32 ws2_32)
 elseif(APPLE)
     target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-else(MSVC)
+else(MSVC OR MINGW)
     if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
         target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
     else(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
         target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} atomic)
     endif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-endif(MSVC)
-
-# link win32 system libraries for mingw
-if(CMAKE_HOST_WIN32 AND CMAKE_COMPILER_IS_GNUCXX)
-    target_link_libraries(oatpp PUBLIC wsock32 ws2_32)
-endif()
+endif(MSVC OR MINGW)
 
 target_include_directories(oatpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
