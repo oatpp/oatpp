@@ -189,11 +189,11 @@ namespace oatpp { namespace utils { namespace conversion {
   }
 
   v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n) {
-    return snprintf((char*)data, n, "%f", value);
+    return snprintf((char*)data, n, "" OATPP_FLOAT_STRING_FORMAT, value);
   }
 
 v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n) {
-    return snprintf((char*)data, n, "%f", value);
+    return snprintf((char*)data, n, "" OATPP_FLOAT_STRING_FORMAT, value);
   }
   
   oatpp::String float32ToStr(v_float32 value){

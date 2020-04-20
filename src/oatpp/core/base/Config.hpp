@@ -62,6 +62,10 @@
  */
 //#define OATPP_COMPAT_BUILD_NO_THREAD_LOCAL 1
 
+#ifndef OATPP_FLOAT_STRING_FORMAT
+  #define OATPP_FLOAT_STRING_FORMAT "%.16g"
+#endif
+
 /**
  * DISABLE logs priority V
  */
