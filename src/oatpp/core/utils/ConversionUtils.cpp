@@ -188,26 +188,26 @@ namespace oatpp { namespace utils { namespace conversion {
     return result;
   }
 
-  v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n) {
-    return snprintf((char*)data, n, "%f", value);
+  v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n, const char* format) {
+    return snprintf((char*)data, n, format, value);
   }
 
-v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n) {
-    return snprintf((char*)data, n, "%f", value);
+v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n, const char* format) {
+    return snprintf((char*)data, n, format, value);
   }
   
-  oatpp::String float32ToStr(v_float32 value){
+  oatpp::String float32ToStr(v_float32 value, const char* format) {
     v_char8 buff [100];
-    auto size = float32ToCharSequence(value, &buff[0], 100);
+    auto size = float32ToCharSequence(value, &buff[0], 100, format);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }
     return nullptr;
   }
   
-  oatpp::String float64ToStr(v_float64 value){
+  oatpp::String float64ToStr(v_float64 value, const char* format) {
     v_char8 buff [100];
-    auto size = float64ToCharSequence(value, &buff[0], 100);
+    auto size = float64ToCharSequence(value, &buff[0], 100, format);
     if(size > 0){
       return oatpp::String((const char*)&buff[0], size, true);
     }

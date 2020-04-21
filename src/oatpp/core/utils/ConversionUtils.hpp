@@ -256,7 +256,7 @@ namespace oatpp { namespace utils { namespace conversion {
    * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n);
+  v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n, const char* format = OATPP_FLOAT_STRING_FORMAT);
 
   /**
    * Convert 64-bit float to it's string representation.
@@ -265,21 +265,21 @@ namespace oatpp { namespace utils { namespace conversion {
    * @param n - buffer size.
    * @return - length of the resultant string.
    */
-  v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n);
+  v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n, const char* format = OATPP_FLOAT_STRING_FORMAT);
 
   /**
    * Convert 32-bit float to it's string representation.
    * @param value - 32-bit float value.
    * @return - value as `oatpp::String`
    */
-  oatpp::String float32ToStr(v_float32 value);
+  oatpp::String float32ToStr(v_float32 value, const char* format = OATPP_FLOAT_STRING_FORMAT);
 
   /**
    * Convert 64-bit float to it's string representation.
    * @param value - 64-bit float value.
    * @return - value as `oatpp::String`
    */
-  oatpp::String float64ToStr(v_float64 value);
+  oatpp::String float64ToStr(v_float64 value, const char* format = OATPP_FLOAT_STRING_FORMAT);
 
   /**
    * Convert boolean to it's string representation.
