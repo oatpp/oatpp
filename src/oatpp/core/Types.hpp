@@ -25,9 +25,16 @@
 #ifndef oatpp_Types_hpp
 #define oatpp_Types_hpp
 
+#include "oatpp/core/data/mapping/type/Any.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
 
 namespace oatpp {
+
+  /**
+   * `Any` - container for mapping-enabled types.
+   * &id:oatpp::data::mapping::type::Any;
+   */
+  typedef oatpp::data::mapping::type::Any Any;
 
   /**
    * Mapping-Enabled String type. &id:oatpp::data::mapping::type::String; <br>

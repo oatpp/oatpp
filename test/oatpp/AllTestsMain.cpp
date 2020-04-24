@@ -39,6 +39,8 @@
 #include "oatpp/core/parser/CaretTest.hpp"
 
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
+#include "oatpp/core/data/mapping/type/AnyTest.hpp"
+
 #include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/core/base/memory/PerfTest.hpp"
@@ -82,6 +84,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
 

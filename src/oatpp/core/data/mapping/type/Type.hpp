@@ -152,7 +152,7 @@ public:
     return *this;
   }
   
-  PolymorphicWrapper& operator=(const PolymorphicWrapper<T>&& other){
+  PolymorphicWrapper& operator=(PolymorphicWrapper<T>&& other){
     m_ptr = std::move(other.m_ptr);
     return *this;
   }
@@ -258,7 +258,7 @@ public:
     return *this;
   }
   
-  ObjectWrapper& operator=(const PolymorphicWrapper<T>&& other){
+  ObjectWrapper& operator=(PolymorphicWrapper<T>&& other){
     if(this->valueType != other.valueType){
       OATPP_LOGE("ObjectWrapper", "Invalid class cast");
       throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper]: Invalid class cast");
