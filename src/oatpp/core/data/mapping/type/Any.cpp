@@ -36,9 +36,9 @@ Any::Any()
 
 Any::Any(std::nullptr_t) : Any() {}
 
-Any::Any(const AbstractObjectWrapper& polymorph)
-  : PolymorphicWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
-{}
+//Any::Any(const AbstractObjectWrapper& polymorph)
+//  : PolymorphicWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
+//{}
 
 Any::Any(const Any& other)
   : PolymorphicWrapper(std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type), __class::Any::getType())

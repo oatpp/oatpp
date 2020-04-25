@@ -134,6 +134,10 @@ private:
                               data::stream::ConsistentOutputStream* stream,
                               const data::mapping::type::AbstractObjectWrapper& polymorph);
 
+  static void serializeAny(Serializer* serializer,
+                           data::stream::ConsistentOutputStream* stream,
+                           const data::mapping::type::AbstractObjectWrapper& polymorph);
+
   static void serializeList(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,
                             const data::mapping::type::AbstractObjectWrapper& polymorph);

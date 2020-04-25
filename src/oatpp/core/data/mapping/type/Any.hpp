@@ -68,10 +68,18 @@ public:
   Any();
 
   Any(std::nullptr_t);
-  Any(const AbstractObjectWrapper& polymorph);
 
   Any(const Any& other);
   Any(Any&& other);
+
+  Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type)
+    : PolymorphicWrapper(std::make_shared<AnyHandle>(ptr, type), __class::Any::getType())
+  {}
+
+  template<class T>
+  Any(const PolymorphicWrapper<T>& polymorph)
+    : PolymorphicWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
+  {}
 
   void store(const AbstractObjectWrapper& polymorph);
 

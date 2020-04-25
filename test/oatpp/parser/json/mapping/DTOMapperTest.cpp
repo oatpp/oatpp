@@ -38,11 +38,9 @@ namespace {
   
 #include OATPP_CODEGEN_BEGIN(DTO)
   
-typedef oatpp::data::mapping::type::Object DTO;
+class TestChild : public oatpp::Object {
   
-class TestChild : public DTO {
-  
-  DTO_INIT(TestChild, DTO)
+  DTO_INIT(TestChild, Object)
   
   static ObjectWrapper createShared(const char* name, const char* secondName){
     auto result = createShared();
@@ -56,9 +54,9 @@ class TestChild : public DTO {
   
 };
 
-class Test : public DTO {
+class Test : public oatpp::Object {
   
-  DTO_INIT(Test, DTO)
+  DTO_INIT(Test, Object)
   
   DTO_FIELD(String, field_string, "string-field-name-qualifier");
   DTO_FIELD(Int32, field_int32, "int32-field-name-qualifier");
@@ -81,6 +79,23 @@ class Test : public DTO {
   DTO_FIELD(TestChild::ObjectWrapper, child1);
   
 };
+
+class TestAny : public oatpp::Object {
+
+  DTO_INIT(TestAny, Object)
+
+  DTO_FIELD(List<Any>::ObjectWrapper, anyList) = List<Any>::createShared();
+
+};
+
+class TestAnyNested : public oatpp::Object {
+
+  DTO_INIT(TestAnyNested, Object)
+
+  DTO_FIELD(String, f1) = "Field_1";
+  DTO_FIELD(String, f2) = "Field_2";
+
+};
   
 #include OATPP_CODEGEN_END(DTO)
   
@@ -89,6 +104,7 @@ class Test : public DTO {
 void DTOMapperTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+  mapper->getSerializer()->getConfig()->useBeautifier = true;
   
   Test::ObjectWrapper test1 = Test::createShared();
   
@@ -137,9 +153,9 @@ void DTOMapperTest::onRun(){
   test1->field_list_object->pushBack(TestChild::createShared("child", "2"));
   test1->field_list_object->pushBack(TestChild::createShared("child", "3"));
   
-  auto l1 = DTO::List<TestChild::ObjectWrapper>::createShared();
-  auto l2 = DTO::List<TestChild::ObjectWrapper>::createShared();
-  auto l3 = DTO::List<TestChild::ObjectWrapper>::createShared();
+  auto l1 = oatpp::List<TestChild::ObjectWrapper>::createShared();
+  auto l2 = oatpp::List<TestChild::ObjectWrapper>::createShared();
+  auto l3 = oatpp::List<TestChild::ObjectWrapper>::createShared();
   
   l1->pushBack(TestChild::createShared("list_1", "item_1"));
   l1->pushBack(TestChild::createShared("list_1", "item_2"));
@@ -189,6 +205,20 @@ void DTOMapperTest::onRun(){
   result = mapper->writeToString(obj);
   
   OATPP_LOGV(TAG, "json='%s'", (const char*) result->getData());
+
+  {
+    auto obj = TestAny::createShared();
+    obj->anyList->pushBack(oatpp::String("Hello Any!!!"));
+    obj->anyList->pushBack(oatpp::Int32(32));
+    obj->anyList->pushBack(oatpp::Int64(64));
+    obj->anyList->pushBack(oatpp::Float64(0.64));
+    obj->anyList->pushBack(oatpp::Float64(0.64));
+    obj->anyList->pushBack(TestAnyNested::createShared());
+
+    auto json = mapper->writeToString(obj);
+    OATPP_LOGV(TAG, "any json='%s'", (const char*) json->getData());
+
+  }
 
 }
   

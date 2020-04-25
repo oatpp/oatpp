@@ -30,6 +30,7 @@
 #include "./Primitive.hpp"
 #include "./ListMap.hpp"
 #include "./List.hpp"
+#include "./Any.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
@@ -73,6 +74,7 @@ namespace __class {
  */
 class Object : public oatpp::base::Countable {
 public:
+  typedef oatpp::data::mapping::type::Any Any;
   typedef oatpp::data::mapping::type::String String;
   typedef oatpp::data::mapping::type::Int8 Int8;
   typedef oatpp::data::mapping::type::UInt8 UInt8;

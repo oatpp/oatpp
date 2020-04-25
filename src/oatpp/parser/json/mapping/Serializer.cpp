@@ -25,6 +25,7 @@
 #include "Serializer.hpp"
 
 #include "oatpp/parser/json/Utils.hpp"
+#include "oatpp/core/data/mapping/type/Any.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 
@@ -35,6 +36,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
   setSerializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
+  setSerializerMethod(oatpp::data::mapping::type::__class::Any::CLASS_ID, &Serializer::serializeAny);
 
   setSerializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
   setSerializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
@@ -89,6 +91,21 @@ void Serializer::serializeString(Serializer* serializer,
   auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
 
   serializeString(stream, str->getData(), str->getSize());
+
+}
+
+void Serializer::serializeAny(Serializer* serializer,
+                              data::stream::ConsistentOutputStream* stream,
+                              const data::mapping::type::AbstractObjectWrapper& polymorph)
+{
+
+  if(!polymorph) {
+    stream->writeSimple("null", 4);
+    return;
+  }
+
+  auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
+  serializer->serialize(stream, data::mapping::type::AbstractObjectWrapper(anyHandle->ptr, anyHandle->type));
 
 }
 
