@@ -105,7 +105,7 @@ void DTOMapperTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   mapper->getSerializer()->getConfig()->useBeautifier = true;
-  
+
   Test::ObjectWrapper test1 = Test::createShared();
   
   test1->field_string = "string value";
@@ -222,6 +222,11 @@ void DTOMapperTest::onRun(){
 
     auto json = mapper->writeToString(obj);
     OATPP_LOGV(TAG, "any json='%s'", (const char*) json->getData());
+
+    auto deserializedAny = mapper->readFromString<oatpp::Fields<oatpp::Any>>(json);
+
+    auto json2 = mapper->writeToString(deserializedAny);
+    OATPP_LOGV(TAG, "any json='%s'", (const char*) json2->getData());
 
   }
 

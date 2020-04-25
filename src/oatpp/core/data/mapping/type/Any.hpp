@@ -62,7 +62,7 @@ public:
 
 };
 
-class Any : public PolymorphicWrapper<AnyHandle>{
+class Any : public ObjectWrapper<AnyHandle, __class::Any>{
 public:
 
   Any();
@@ -72,13 +72,11 @@ public:
   Any(const Any& other);
   Any(Any&& other);
 
-  Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type)
-    : PolymorphicWrapper(std::make_shared<AnyHandle>(ptr, type), __class::Any::getType())
-  {}
+  Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type);
 
   template<class T>
   Any(const PolymorphicWrapper<T>& polymorph)
-    : PolymorphicWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
+    : ObjectWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
   {}
 
   void store(const AbstractObjectWrapper& polymorph);

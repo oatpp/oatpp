@@ -31,21 +31,21 @@ namespace __class {
 }
 
 Any::Any()
-  : PolymorphicWrapper(__class::Any::getType())
+  : ObjectWrapper(__class::Any::getType())
 {}
 
 Any::Any(std::nullptr_t) : Any() {}
 
-//Any::Any(const AbstractObjectWrapper& polymorph)
-//  : PolymorphicWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
-//{}
+Any::Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type)
+  : ObjectWrapper(std::make_shared<AnyHandle>(ptr, type), __class::Any::getType())
+{}
 
 Any::Any(const Any& other)
-  : PolymorphicWrapper(std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type), __class::Any::getType())
+  : ObjectWrapper(std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type), __class::Any::getType())
 {}
 
 Any::Any(Any&& other)
-  : PolymorphicWrapper(std::move(other.m_ptr),  __class::Any::getType())
+  : ObjectWrapper(std::move(other.m_ptr),  __class::Any::getType())
 {}
 
 void Any::store(const AbstractObjectWrapper& polymorph) {

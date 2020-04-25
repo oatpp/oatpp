@@ -134,6 +134,9 @@ private:
   static void skipToken(oatpp::parser::Caret& caret);
   static void skipValue(oatpp::parser::Caret& caret);
 private:
+  static const Type* const guessNumberType(oatpp::parser::Caret& caret);
+  static const Type* const guessType(oatpp::parser::Caret& caret);
+private:
 
   template<class T>
   static AbstractObjectWrapper deserializeInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
@@ -169,6 +172,8 @@ private:
   static AbstractObjectWrapper deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
   static AbstractObjectWrapper deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+
+  static AbstractObjectWrapper deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
   static AbstractObjectWrapper deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static AbstractObjectWrapper deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type);

@@ -36,6 +36,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
   setDeserializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
+  setDeserializerMethod(oatpp::data::mapping::type::__class::Any::CLASS_ID, &Deserializer::deserializeAny);
 
   setDeserializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int8>);
   setDeserializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt8>);
@@ -218,9 +219,58 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
   }
 }
 
+const data::mapping::type::Type* const Deserializer::guessNumberType(oatpp::parser::Caret& caret) {
+  return Float64::Class::getType();
+}
+
+const data::mapping::type::Type* const Deserializer::guessType(oatpp::parser::Caret& caret) {
+  {
+    parser::Caret::StateSaveGuard stateGuard(caret);
+    v_char8 c = *caret.getCurrData();
+    switch (c) {
+      case '"':
+        return String::Class::getType();
+      case '{':
+        return oatpp::Fields<Any>::ObjectWrapper::Class::getType();
+      case '[':
+        return oatpp::List<Any>::ObjectWrapper::Class::getType();
+      case 't':
+        if(caret.isAtText("true")) return Boolean::Class::getType();
+        break;
+      case 'f':
+        if(caret.isAtText("false")) return Boolean::Class::getType();
+        break;
+      default:
+        if (c == '-' || caret.isAtDigitChar()) {
+          return guessNumberType(caret);
+        }
+    }
+  }
+  caret.setError("[oatpp::parser::json::mapping::Deserializer::guessType()]: Error. Can't guess type for oatpp::Any.");
+  return nullptr;
+}
+
+data::mapping::type::AbstractObjectWrapper Deserializer::deserializeAny(Deserializer* deserializer,
+                                                                        parser::Caret& caret,
+                                                                        const Type* const type)
+{
+  (void) type;
+  if(caret.isAtText("null", true)){
+    return AbstractObjectWrapper(Any::Class::getType());
+  } else {
+    const Type* const fieldType = guessType(caret);
+    if(fieldType != nullptr) {
+      auto fieldValue = deserializer->deserialize(caret, fieldType);
+      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
+      return AbstractObjectWrapper(anyHandle, Any::Class::getType());
+    }
+  }
+  return AbstractObjectWrapper(Any::Class::getType());
+}
+
 data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deserializer* deserializer,
-                                                                          parser::Caret& caret,
-                                                                          const Type* const type)
+                                                                         parser::Caret& caret,
+                                                                         const Type* const type)
 {
 
   if(caret.isAtText("null", true)){
@@ -307,7 +357,11 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
 
       caret.skipBlankChars();
 
-      map->putPolymorphicItem(key, deserializer->deserialize(caret, valueType));
+      auto item = deserializer->deserialize(caret, valueType);
+      if(caret.hasError()){
+        return nullptr;
+      }
+      map->putPolymorphicItem(key, item);
 
       caret.skipBlankChars();
       caret.canContinueAtChar(',', 1);
