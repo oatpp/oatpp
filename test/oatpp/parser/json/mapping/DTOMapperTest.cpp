@@ -215,6 +215,11 @@ void DTOMapperTest::onRun(){
     obj->anyList->pushBack(oatpp::Float64(0.64));
     obj->anyList->pushBack(TestAnyNested::createShared());
 
+    auto map = oatpp::Fields<Any>::createShared();
+    map->put("bool-field", oatpp::Boolean(false));
+
+    obj->anyList->pushBack(map);
+
     auto json = mapper->writeToString(obj);
     OATPP_LOGV(TAG, "any json='%s'", (const char*) json->getData());
 
