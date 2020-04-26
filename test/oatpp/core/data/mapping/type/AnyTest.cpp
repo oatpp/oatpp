@@ -58,29 +58,36 @@ class Test : public oatpp::Object {
 void AnyTest::onRun() {
 
   {
+    OATPP_LOGI(TAG, "Test default constructor...");
     oatpp::Any any;
     OATPP_ASSERT(!any);
     OATPP_ASSERT(any.valueType == oatpp::data::mapping::type::__class::Any::getType());
     OATPP_ASSERT(any.getStoredType() == nullptr);
+    OATPP_LOGI(TAG, "OK");
   }
 
   {
+    OATPP_LOGI(TAG, "Test nullptr constructor...");
     oatpp::Any any(nullptr);
     OATPP_ASSERT(!any);
     OATPP_ASSERT(any.valueType == oatpp::data::mapping::type::__class::Any::getType());
     OATPP_ASSERT(any.getStoredType() == nullptr);
+    OATPP_LOGI(TAG, "OK");
   }
 
   {
+    OATPP_LOGI(TAG, "Test retrieve()...");
     oatpp::Any any(oatpp::String("Hello Any!"));
     OATPP_ASSERT(any);
     OATPP_ASSERT(any.valueType == oatpp::data::mapping::type::__class::Any::getType());
     OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::String::getType());
     auto str = any.retrieve<oatpp::String>();
     OATPP_ASSERT(str == "Hello Any!");
+    OATPP_LOGI(TAG, "OK");
   }
 
   {
+    OATPP_LOGI(TAG, "Test store()...");
     oatpp::Any any(oatpp::Int32(32));
 
     OATPP_ASSERT(any);
@@ -95,9 +102,11 @@ void AnyTest::onRun() {
 
     auto str = any.retrieve<oatpp::String>();
     OATPP_ASSERT(str == "Hello Any!");
+    OATPP_LOGI(TAG, "OK");
   }
 
   {
+    OATPP_LOGI(TAG, "Test retrieve() class check...");
     oatpp::Any any(Dto1::createShared());
     OATPP_ASSERT(any);
     OATPP_ASSERT(any.valueType == oatpp::data::mapping::type::__class::Any::getType());
@@ -112,9 +121,11 @@ void AnyTest::onRun() {
     }
 
     OATPP_ASSERT(wasError);
+    OATPP_LOGI(TAG, "OK");
   }
 
   {
+    OATPP_LOGI(TAG, "Test copy-assign operator...");
     oatpp::Any any1(oatpp::String("Hello!"));
     oatpp::Any any2;
 
@@ -137,10 +148,11 @@ void AnyTest::onRun() {
 
     OATPP_ASSERT(str1 == str2);
     OATPP_ASSERT(str1.get() == str2.get() && str1 == "Hello!");
-
+    OATPP_LOGI(TAG, "OK");
   }
 
   {
+    OATPP_LOGI(TAG, "Test move-assign operator...");
     oatpp::Any any1(oatpp::String("Hello!"));
     oatpp::Any any2;
 
@@ -163,7 +175,7 @@ void AnyTest::onRun() {
 
     OATPP_ASSERT(str1 != str2);
     OATPP_ASSERT(str2 == "Hello!");
-
+    OATPP_LOGI(TAG, "OK");
   }
 
 }
