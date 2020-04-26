@@ -96,7 +96,7 @@ public:
        */
       template<class T>
       Param& add(const oatpp::String& name) {
-        return add(name, T::Class::getType());
+        return add(name, T::__Wrapper::Class::getType());
       }
 
       /**
@@ -220,7 +220,7 @@ public:
      */
     template<class T>
     void addConsumes(const oatpp::String& contentType) {
-      consumes.push_back({contentType, T::Class::getType()});
+      consumes.push_back({contentType, T::__Wrapper::Class::getType()});
     }
 
     /**
@@ -232,7 +232,7 @@ public:
      */
     template<class T>
     void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription = oatpp::String()) {
-      responses[status] = {contentType, T::Class::getType(), responseDescription.get() == nullptr ? status.description : responseDescription};
+      responses[status] = {contentType, T::__Wrapper::Class::getType(), responseDescription.get() == nullptr ? status.description : responseDescription};
     }
 
     /**

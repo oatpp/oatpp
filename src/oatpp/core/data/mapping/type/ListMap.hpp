@@ -42,11 +42,16 @@ namespace __class {
   
 }
   
-template<class Key, class Value>
-class ListMap : public oatpp::collection::ListMap<Key, Value> {
+template<class KeyOW, class ValueOW>
+class ListMap : public oatpp::collection::ListMap<typename KeyOW::__Wrapper, typename ValueOW::__Wrapper> {
+public:
+  typedef typename KeyOW::__Wrapper Key;
+  typedef typename ValueOW::__Wrapper Value;
+public:
   friend __class::ListMap<Key, Value>;
 public:
   typedef oatpp::data::mapping::type::ObjectWrapper<ListMap, __class::ListMap<Key, Value>> ObjectWrapper;
+  typedef ObjectWrapper __Wrapper;
 public:
   OBJECT_POOL(DTO_LISTMAP_POOL, ListMap, 32)
   SHARED_OBJECT_POOL(SHARED_DTO_LISTMAP_POOL, ListMap, 32)

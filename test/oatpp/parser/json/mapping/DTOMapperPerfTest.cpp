@@ -50,7 +50,7 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
     
     DTO_FIELD(String, field_string);
     DTO_FIELD(Int32, field_int32);
-    DTO_FIELD(List<Int32>::ObjectWrapper, field_list);
+    DTO_FIELD(List<Int32>, field_list);
     
     static ObjectWrapper createTestInstance(){
       auto result = Test1::createShared();

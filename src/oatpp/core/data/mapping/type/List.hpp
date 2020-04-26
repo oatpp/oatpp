@@ -51,6 +51,7 @@ class ListTypeTemplate : public oatpp::collection::LinkedList<T> {
   friend Class;
 public:
   typedef oatpp::data::mapping::type::ObjectWrapper<ListTypeTemplate, Class> ObjectWrapper;
+  typedef ObjectWrapper __Wrapper;
 public:
   OBJECT_POOL(DTO_LIST_POOL, ListTypeTemplate, 32)
   SHARED_OBJECT_POOL(SHARED_DTO_LIST_POOL, ListTypeTemplate, 32)
@@ -85,7 +86,7 @@ public:
 };
 
 template<class T>
-using List = ListTypeTemplate<T, __class::List<T>>;
+using List = ListTypeTemplate<typename T::__Wrapper, __class::List<typename T::__Wrapper>>;
   
 namespace __class {
   

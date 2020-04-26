@@ -38,7 +38,7 @@ class TestDto : public oatpp::data::mapping::type::Object {
   
   DTO_FIELD(String, testValue);
   DTO_FIELD(Int32, testValueInt);
-  DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
+  DTO_FIELD(Fields<String>, testMap);
   
 };
 

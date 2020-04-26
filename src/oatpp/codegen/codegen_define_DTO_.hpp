@@ -57,6 +57,7 @@ public: \
   typedef TYPE_NAME Z__CLASS; \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
   typedef oatpp::data::mapping::type::ObjectWrapper<Z__CLASS, oatpp::data::mapping::type::__class::Object<Z__CLASS>> ObjectWrapper; \
+  typedef ObjectWrapper __Wrapper; \
 public: \
   OBJECT_POOL(DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
   SHARED_OBJECT_POOL(SHARED_DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
@@ -109,11 +110,11 @@ Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \
                                                      #NAME, \
-                                                     TYPE::Class::getType()); \
+                                                     TYPE::__Wrapper::Class::getType()); \
   return field; \
 } \
 \
-TYPE NAME
+TYPE::__Wrapper NAME
 
 #define OATPP_MACRO_DTO_FIELD_2(TYPE, NAME, QUALIFIER) \
 \
@@ -128,11 +129,11 @@ Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \
                                                      QUALIFIER, \
-                                                     TYPE::Class::getType()); \
+                                                     TYPE::__Wrapper::Class::getType()); \
   return field; \
 } \
 \
-TYPE NAME
+TYPE::__Wrapper NAME
 
 /**
  * Codegen macro to generate fields of DTO object.
