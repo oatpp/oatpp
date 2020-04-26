@@ -5,8 +5,6 @@ add_executable(oatppAllTests
         oatpp/core/async/LockTest.hpp
         oatpp/core/base/CommandLineArgumentsTest.cpp
         oatpp/core/base/CommandLineArgumentsTest.hpp
-        oatpp/core/base/RegRuleTest.cpp
-        oatpp/core/base/RegRuleTest.hpp
         oatpp/core/base/collection/LinkedListTest.cpp
         oatpp/core/base/collection/LinkedListTest.hpp
         oatpp/core/base/memory/MemoryPoolTest.cpp
@@ -17,6 +15,8 @@ add_executable(oatppAllTests
         oatpp/core/data/buffer/ProcessorTest.hpp
         oatpp/core/data/mapping/type/AnyTest.cpp
         oatpp/core/data/mapping/type/AnyTest.hpp
+        oatpp/core/data/mapping/type/ObjectWrapperTest.cpp
+        oatpp/core/data/mapping/type/ObjectWrapperTest.hpp
         oatpp/core/data/mapping/type/TypeTest.cpp
         oatpp/core/data/mapping/type/TypeTest.hpp
         oatpp/core/data/share/LazyStringMapTest.cpp

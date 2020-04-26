@@ -280,7 +280,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
   if(caret.canContinueAtChar('[', 1)) {
 
     auto listWrapper = type->creator();
-    oatpp::data::mapping::type::PolymorphicWrapper<AbstractList>
+    oatpp::data::mapping::type::ObjectWrapper<AbstractList>
       list(std::static_pointer_cast<AbstractList>(listWrapper.getPtr()), listWrapper.valueType);
 
     Type* itemType = *type->params.begin();
@@ -329,7 +329,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
   if(caret.canContinueAtChar('{', 1)) {
 
     auto mapWrapper = type->creator();
-    oatpp::data::mapping::type::PolymorphicWrapper<AbstractFieldsMap>
+    oatpp::data::mapping::type::ObjectWrapper<AbstractFieldsMap>
       map(std::static_pointer_cast<AbstractFieldsMap>(mapWrapper.getPtr()), mapWrapper.valueType);
 
     auto it = type->params.begin();

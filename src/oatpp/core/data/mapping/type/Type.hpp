@@ -88,11 +88,12 @@ namespace __class {
 }
 
 /**
- * PolymorphicWrapper holds std::shared_ptr to object, object static type, plus object dynamic type information.
- * @tparam T - Object Type
+ * ObjectWrapper holds std::shared_ptr to object, object static type, plus object dynamic type information.
+ * @tparam T - Object Type.
+ * @tparam Clazz - Static type info.
  */
-template <class T>
-class PolymorphicWrapper {
+template <class T, class Clazz = __class::Void>
+class ObjectWrapper {
 protected:
   std::shared_ptr<T> m_ptr;
 public:
@@ -102,63 +103,67 @@ public:
   typedef T ObjectType;
 public:
   /**
-   * PolymorphicWrapper has no static object Class info.
-   * It treats object as of class &id:oatpp::data::mapping::type::__class::Void;.
+   * Static object class information.
    */
-  typedef __class::Void Class;
+  typedef Clazz Class;
 public:
-  
-  PolymorphicWrapper(const std::shared_ptr<T>& ptr)
+
+  ObjectWrapper(const std::shared_ptr<T>& ptr)
     : m_ptr(ptr)
     , valueType(Class::getType())
   {}
-  
-  PolymorphicWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
+
+  ObjectWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
     : m_ptr(ptr)
     , valueType(type)
   {}
-  
-  PolymorphicWrapper(std::shared_ptr<T>&& ptr, const Type* const type)
+
+  ObjectWrapper(std::shared_ptr<T>&& ptr, const Type* const type)
     : m_ptr(std::move(ptr))
     , valueType(type)
   {}
   
 public:
-  
-  PolymorphicWrapper()
+
+  ObjectWrapper()
     : valueType(Class::getType())
   {}
 
-  PolymorphicWrapper(std::nullptr_t)
+  ObjectWrapper(std::nullptr_t)
     : valueType(Class::getType())
   {}
-  
-  PolymorphicWrapper(const Type* const type)
+
+  ObjectWrapper(const Type* const type)
     : valueType(type)
   {}
-  
-  PolymorphicWrapper(const PolymorphicWrapper& other)
+
+  ObjectWrapper(const ObjectWrapper& other)
     : m_ptr(other.m_ptr)
     , valueType(other.valueType)
   {}
-  
-  PolymorphicWrapper(PolymorphicWrapper&& other)
+
+  ObjectWrapper(ObjectWrapper&& other)
     : m_ptr(std::move(other.m_ptr))
     , valueType(other.valueType)
   {}
-  
-  PolymorphicWrapper& operator=(const PolymorphicWrapper<T>& other){
+
+  ObjectWrapper& operator=(const ObjectWrapper& other){
     m_ptr = other.m_ptr;
     return *this;
   }
-  
-  PolymorphicWrapper& operator=(PolymorphicWrapper<T>&& other){
+
+  ObjectWrapper& operator=(ObjectWrapper&& other){
     m_ptr = std::move(other.m_ptr);
     return *this;
   }
   
-  inline operator PolymorphicWrapper<oatpp::base::Countable>() const {
-    return PolymorphicWrapper<oatpp::base::Countable>(this->m_ptr, valueType);
+  inline operator ObjectWrapper<oatpp::base::Countable>() const {
+    return ObjectWrapper<oatpp::base::Countable>(this->m_ptr, valueType);
+  }
+
+  template<class Wrapper>
+  Wrapper staticCast() const {
+    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), Wrapper::Class::getType());
   }
   
   T* operator->() const {
@@ -176,12 +181,20 @@ public:
   std::shared_ptr<T> getPtr() const {
     return m_ptr;
   }
+
+  inline bool operator == (std::nullptr_t){
+    return m_ptr.get() == nullptr;
+  }
+
+  inline bool operator != (std::nullptr_t){
+    return m_ptr.get() != nullptr;
+  }
   
-  inline bool operator == (const PolymorphicWrapper& other){
+  inline bool operator == (const ObjectWrapper& other){
     return m_ptr.get() == other.m_ptr.get();
   }
   
-  inline bool operator != (const PolymorphicWrapper& other){
+  inline bool operator != (const ObjectWrapper& other){
     return m_ptr.get() != other.m_ptr.get();
   }
   
@@ -196,83 +209,11 @@ public:
   const Type* const valueType;
   
 };
-  
-template<class T, class F>
-inline PolymorphicWrapper<T> static_wrapper_cast(const F& from){
-  return PolymorphicWrapper<T>(std::static_pointer_cast<T>(from.getPtr()), from.valueType);
-}
 
 /**
- * ObjectWrapper holds std::shared_ptr to object, object static type, object static class information, plus object dynamic type information.
- * @tparam T - Object type.
- * @tparam Clazz - Static Object class information.
+ * ObjectWrapper over &id:oatpp::base::Countable; object.
  */
-template <class T, class Clazz>
-class ObjectWrapper : public PolymorphicWrapper<T>{
-public:
-  /**
-   * Object type.
-   */
-  typedef T ObjectType;
-public:
-  /**
-   * Static object class information.
-   */
-  typedef Clazz Class;
-public:
-  ObjectWrapper(const std::shared_ptr<T>& ptr, const type::Type* const valueType)
-    : PolymorphicWrapper<T>(ptr, Class::getType())
-  {
-    if(Class::getType() != valueType){
-      throw std::runtime_error("Value type does not match");
-    }
-  }
-public:
-  
-  ObjectWrapper()
-    : PolymorphicWrapper<T>(Class::getType())
-  {}
-  
-  ObjectWrapper(std::nullptr_t)
-    : PolymorphicWrapper<T>(Class::getType())
-  {}
-  
-  ObjectWrapper(const std::shared_ptr<T>& ptr)
-    : PolymorphicWrapper<T>(ptr, Class::getType())
-  {}
-  
-  ObjectWrapper(const PolymorphicWrapper<T>& other)
-    : PolymorphicWrapper<T>(other.getPtr(), Class::getType())
-  {}
-  
-  ObjectWrapper(PolymorphicWrapper<T>&& other)
-    : PolymorphicWrapper<T>(std::move(other.getPtr()), Class::getType())
-  {}
-  
-  ObjectWrapper& operator=(const PolymorphicWrapper<T>& other){
-    if(this->valueType != other.valueType){
-      OATPP_LOGE("ObjectWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper]: Invalid class cast");
-    }
-    PolymorphicWrapper<T>::operator = (other);
-    return *this;
-  }
-  
-  ObjectWrapper& operator=(PolymorphicWrapper<T>&& other){
-    if(this->valueType != other.valueType){
-      OATPP_LOGE("ObjectWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper]: Invalid class cast");
-    }
-    PolymorphicWrapper<T>::operator = (std::forward<PolymorphicWrapper<T>>(other));
-    return *this;
-  }
-  
-};
-
-/**
- * PolymorphicWrapper over &id:oatpp::base::Countable; object.
- */
-typedef PolymorphicWrapper<oatpp::base::Countable> AbstractObjectWrapper;
+typedef ObjectWrapper<oatpp::base::Countable, __class::Void> AbstractObjectWrapper;
 
 /**
  * Object type data.

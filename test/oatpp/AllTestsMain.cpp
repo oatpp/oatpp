@@ -38,6 +38,7 @@
 
 #include "oatpp/core/parser/CaretTest.hpp"
 
+#include "oatpp/core/data/mapping/type/ObjectWrapperTest.hpp"
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/core/data/mapping/type/AnyTest.hpp"
 
@@ -45,7 +46,6 @@
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/core/base/memory/PerfTest.hpp"
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
-#include "oatpp/core/base/RegRuleTest.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
@@ -66,7 +66,6 @@ void runTests() {
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
 
-  OATPP_RUN_TEST(oatpp::test::base::RegRuleTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
@@ -82,6 +81,8 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);

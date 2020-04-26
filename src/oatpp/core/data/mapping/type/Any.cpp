@@ -48,10 +48,6 @@ Any::Any(Any&& other)
   : ObjectWrapper(std::move(other.m_ptr),  __class::Any::getType())
 {}
 
-void Any::store(const AbstractObjectWrapper& polymorph) {
-  m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
-}
-
 const Type* const Any::getStoredType() {
   if(m_ptr) {
     return m_ptr->type;

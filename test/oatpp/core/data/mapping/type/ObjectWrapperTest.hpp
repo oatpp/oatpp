@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_RegRuleTest_hpp
-#define oatpp_test_base_RegRuleTest_hpp
+#ifndef oatpp_test_core_data_mapping_type_ObjectWrapperTest_hpp
+#define oatpp_test_core_data_mapping_type_ObjectWrapperTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace base {
-  
-class RegRuleTest : public UnitTest{
-public:
-  
-  RegRuleTest():UnitTest("TEST[base::RegRuleTest]"){}
-  void onRun() override;
-  
-};
-  
-}}}
+namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
-#endif /* oatpp_test_base_RegRuleTest_hpp */
+class ObjectWrapperTest : public UnitTest{
+public:
+
+  ObjectWrapperTest():UnitTest("TEST[core::data::mapping::type::ObjectWrapperTest]"){}
+  void onRun() override;
+
+};
+
+}}}}}}
+
+#endif /* oatpp_test_core_data_mapping_type_ObjectWrapperTest_hpp */

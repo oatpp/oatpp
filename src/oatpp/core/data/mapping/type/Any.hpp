@@ -74,12 +74,15 @@ public:
 
   Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type);
 
-  template<class T>
-  Any(const PolymorphicWrapper<T>& polymorph)
+  template<class T, class C>
+  Any(const ObjectWrapper<T, C>& polymorph)
     : ObjectWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
   {}
 
-  void store(const AbstractObjectWrapper& polymorph);
+  template<class T, class C>
+  void store(const ObjectWrapper<T, C>& polymorph) {
+    m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
+  }
 
   const Type* const getStoredType();
 
