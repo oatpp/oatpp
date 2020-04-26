@@ -140,7 +140,7 @@ public:
   }
 
   ENDPOINT("POST", "body-dto", postBodyDto,
-           BODY_DTO(TestDto::ObjectWrapper, body)) {
+           BODY_DTO(TestDto, body)) {
     //OATPP_LOGV(TAG, "POST body %s", body->c_str());
     return createDtoResponse(Status::CODE_200, body);
   }
