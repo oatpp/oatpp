@@ -65,18 +65,18 @@ class Test : public oatpp::Object {
   DTO_FIELD(Float64, field_float64);
   DTO_FIELD(Boolean, field_boolean);
   
-  DTO_FIELD(List<String>::ObjectWrapper, field_list_string) = List<String>::createShared();
-  DTO_FIELD(List<Int32>::ObjectWrapper, field_list_int32) = List<Int32>::createShared();
-  DTO_FIELD(List<Int64>::ObjectWrapper, field_list_int64) = List<Int64>::createShared();
-  DTO_FIELD(List<Float32>::ObjectWrapper, field_list_float32) = List<Float32>::createShared();
-  DTO_FIELD(List<Float64>::ObjectWrapper, field_list_float64) = List<Float64>::createShared();
-  DTO_FIELD(List<Boolean>::ObjectWrapper, field_list_boolean) = List<Boolean>::createShared();
+  DTO_FIELD(List<String>, field_list_string) = List<String>::createShared();
+  DTO_FIELD(List<Int32>, field_list_int32) = List<Int32>::createShared();
+  DTO_FIELD(List<Int64>, field_list_int64) = List<Int64>::createShared();
+  DTO_FIELD(List<Float32>, field_list_float32) = List<Float32>::createShared();
+  DTO_FIELD(List<Float64>, field_list_float64) = List<Float64>::createShared();
+  DTO_FIELD(List<Boolean>, field_list_boolean) = List<Boolean>::createShared();
   
-  DTO_FIELD(List<TestChild::ObjectWrapper>::ObjectWrapper, field_list_object) = List<TestChild::ObjectWrapper>::createShared();
-  DTO_FIELD(List<List<TestChild::ObjectWrapper>::ObjectWrapper>::ObjectWrapper, field_list_list_object) = List<List<TestChild::ObjectWrapper>::ObjectWrapper>::createShared();
+  DTO_FIELD(List<TestChild>, field_list_object) = List<TestChild>::createShared();
+  DTO_FIELD(List<List<TestChild>>, field_list_list_object) = List<List<TestChild>>::createShared();
   
-  DTO_FIELD(Test::ObjectWrapper, obj1);
-  DTO_FIELD(TestChild::ObjectWrapper, child1);
+  DTO_FIELD(Test, obj1);
+  DTO_FIELD(TestChild, child1);
   
 };
 
@@ -84,7 +84,7 @@ class TestAny : public oatpp::Object {
 
   DTO_INIT(TestAny, Object)
 
-  DTO_FIELD(List<Any>::ObjectWrapper, anyList) = List<Any>::createShared();
+  DTO_FIELD(List<Any>, anyList) = List<Any>::createShared();
 
 };
 
@@ -153,9 +153,9 @@ void DTOMapperTest::onRun(){
   test1->field_list_object->pushBack(TestChild::createShared("child", "2"));
   test1->field_list_object->pushBack(TestChild::createShared("child", "3"));
   
-  auto l1 = oatpp::List<TestChild::ObjectWrapper>::createShared();
-  auto l2 = oatpp::List<TestChild::ObjectWrapper>::createShared();
-  auto l3 = oatpp::List<TestChild::ObjectWrapper>::createShared();
+  auto l1 = oatpp::List<TestChild>::createShared();
+  auto l2 = oatpp::List<TestChild>::createShared();
+  auto l3 = oatpp::List<TestChild>::createShared();
   
   l1->pushBack(TestChild::createShared("list_1", "item_1"));
   l1->pushBack(TestChild::createShared("list_1", "item_2"));
@@ -207,6 +207,10 @@ void DTOMapperTest::onRun(){
   OATPP_LOGV(TAG, "json='%s'", (const char*) result->getData());
 
   {
+
+    TestAny::ObjectWrapper::__Wrapper objOW1;
+    TestAny::__Wrapper objOW2;
+
     auto obj = TestAny::createShared();
     obj->anyList->pushBack(oatpp::String("Hello Any!!!"));
     obj->anyList->pushBack(oatpp::Int32(32));

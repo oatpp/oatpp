@@ -97,11 +97,17 @@ class ObjectWrapper {
 protected:
   std::shared_ptr<T> m_ptr;
 public:
+
+  /**
+   * Convenience self-typedef.
+   */
+  typedef ObjectWrapper __Wrapper;
+
   /**
    * Static object type
    */
   typedef T ObjectType;
-public:
+
   /**
    * Static object class information.
    */

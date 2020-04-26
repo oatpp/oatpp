@@ -111,9 +111,9 @@ public:
    * @throws - depends on implementation.
    */
   template<class Class>
-  typename Class::ObjectWrapper readFromCaret(oatpp::parser::Caret& caret) const {
-    auto type = Class::ObjectWrapper::Class::getType();
-    return read(caret, type).template staticCast<typename Class::ObjectWrapper>();
+  typename Class::__Wrapper readFromCaret(oatpp::parser::Caret& caret) const {
+    auto type = Class::__Wrapper::Class::getType();
+    return read(caret, type).template staticCast<typename Class::__Wrapper>();
   }
 
   /**
@@ -125,10 +125,10 @@ public:
    * @throws - depends on implementation.
    */
   template<class Class>
-  typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {
-    auto type = Class::ObjectWrapper::Class::getType();
+  typename Class::__Wrapper readFromString(const oatpp::String& str) const {
+    auto type = Class::__Wrapper::Class::getType();
     oatpp::parser::Caret caret(str);
-    auto result = read(caret, type).template staticCast<typename Class::ObjectWrapper>();
+    auto result = read(caret, type).template staticCast<typename Class::__Wrapper>();
     if(!result) {
       throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
     }

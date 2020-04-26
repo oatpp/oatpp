@@ -61,6 +61,8 @@ namespace __class {
  */
 class String : public type::ObjectWrapper<base::StrBuffer, __class::String> {
 public:
+  typedef String __Wrapper;
+public:
   String(const std::shared_ptr<base::StrBuffer>& ptr, const type::Type* const valueType);
 public:
   
@@ -176,6 +178,8 @@ public:
    */
   class ObjectWrapper : public type::ObjectWrapper<Primitive, Clazz> {
   public:
+    typedef ObjectWrapper __Wrapper;
+  public:
     ObjectWrapper(const std::shared_ptr<Primitive>& ptr, const type::Type* const valueType)
       : type::ObjectWrapper<Primitive, Clazz>(ptr)
     {
@@ -245,6 +249,13 @@ public:
     
     bool operator != (const ObjectWrapper &other) const {
       return !operator == (other);
+    }
+
+    inline operator ValueType() const {
+      if(!this->m_ptr) {
+        throw std::runtime_error("[oatpp::data::mapping::type::Primitive::ObjectWrapper::operator ValueType()]: Error. Primitive object is null.");
+      }
+      return this->get()->getValue();
     }
     
   };

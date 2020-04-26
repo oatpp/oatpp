@@ -43,13 +43,14 @@ namespace __class {
 }
   
 template<class Key, class Value>
-class ListMap : public oatpp::collection::ListMap<Key, Value> {
+class ListMapTemplate : public oatpp::collection::ListMap<Key, Value> {
   friend __class::ListMap<Key, Value>;
 public:
-  typedef oatpp::data::mapping::type::ObjectWrapper<ListMap, __class::ListMap<Key, Value>> ObjectWrapper;
+  typedef oatpp::data::mapping::type::ObjectWrapper<ListMapTemplate, __class::ListMap<Key, Value>> ObjectWrapper;
+  typedef ObjectWrapper __Wrapper;
 public:
-  OBJECT_POOL(DTO_LISTMAP_POOL, ListMap, 32)
-  SHARED_OBJECT_POOL(SHARED_DTO_LISTMAP_POOL, ListMap, 32)
+  OBJECT_POOL(DTO_LISTMAP_POOL, ListMapTemplate, 32)
+  SHARED_OBJECT_POOL(SHARED_DTO_LISTMAP_POOL, ListMapTemplate, 32)
 protected:
   
   static AbstractObjectWrapper Z__CLASS_OBJECT_CREATOR(){
@@ -66,7 +67,7 @@ protected:
   }
   
 public:
-  ListMap()
+  ListMapTemplate()
   {}
 public:
   
@@ -81,6 +82,9 @@ public:
   }
   
 };
+
+template<class Key, class Value>
+using ListMap = ListMapTemplate<typename Key::__Wrapper, typename Value::__Wrapper>;
 
 namespace __class {
   

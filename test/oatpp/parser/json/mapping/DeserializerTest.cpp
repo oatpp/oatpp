@@ -72,9 +72,9 @@ class Test4 : public DTO {
 
   DTO_INIT(Test4, DTO)
 
-  DTO_FIELD(EmptyDto::ObjectWrapper, object);
-  DTO_FIELD(List<EmptyDto::ObjectWrapper>::ObjectWrapper, list);
-  DTO_FIELD(Fields<EmptyDto::ObjectWrapper>::ObjectWrapper, map);
+  DTO_FIELD(EmptyDto, object);
+  DTO_FIELD(List<EmptyDto>, list);
+  DTO_FIELD(Fields<EmptyDto>, map);
 
 };
   

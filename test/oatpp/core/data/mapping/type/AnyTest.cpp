@@ -115,7 +115,7 @@ void AnyTest::onRun() {
     bool wasError = false;
 
     try {
-      auto obj = any.retrieve<Dto2::ObjectWrapper>(); // wrong object
+      auto obj = any.retrieve<Dto2>(); // wrong object
     } catch (std::runtime_error& e) {
       wasError = true;
     }

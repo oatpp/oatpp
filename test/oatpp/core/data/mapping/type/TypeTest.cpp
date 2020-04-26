@@ -48,14 +48,14 @@ namespace {
     DTO_FIELD(Float64, field_float64);
     DTO_FIELD(Boolean, field_boolean);
     
-    DTO_FIELD(List<String>::ObjectWrapper, field_list_string);
-    DTO_FIELD(List<Int32>::ObjectWrapper, field_list_int32);
-    DTO_FIELD(List<Int64>::ObjectWrapper, field_list_int64);
-    DTO_FIELD(List<Float32>::ObjectWrapper, field_list_float32);
-    DTO_FIELD(List<Float64>::ObjectWrapper, field_list_float64);
-    DTO_FIELD(List<Boolean>::ObjectWrapper, field_list_boolean);
+    DTO_FIELD(List<String>, field_list_string);
+    DTO_FIELD(List<Int32>, field_list_int32);
+    DTO_FIELD(List<Int64>, field_list_int64);
+    DTO_FIELD(List<Float32>, field_list_float32);
+    DTO_FIELD(List<Float64>, field_list_float64);
+    DTO_FIELD(List<Boolean>, field_list_boolean);
     
-    DTO_FIELD(Fields<String>::ObjectWrapper, field_map_string_string);
+    DTO_FIELD(Fields<String>, field_map_string_string);
     
     DTO_FIELD(TestDto::ObjectWrapper, obj1);
     

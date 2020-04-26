@@ -24,7 +24,7 @@
 
 #define OATPP_MACRO_API_CONTROLLER_PARAM_MACRO(MACRO, INFO, TYPE, PARAM_LIST) MACRO(TYPE, PARAM_LIST)
 #define OATPP_MACRO_API_CONTROLLER_PARAM_INFO(MACRO, INFO, TYPE, PARAM_LIST) INFO(TYPE, PARAM_LIST)
-#define OATPP_MACRO_API_CONTROLLER_PARAM_TYPE(MACRO, INFO, TYPE, PARAM_LIST) TYPE
+#define OATPP_MACRO_API_CONTROLLER_PARAM_TYPE(MACRO, INFO, TYPE, PARAM_LIST) const TYPE&
 #define OATPP_MACRO_API_CONTROLLER_PARAM_NAME(MACRO, INFO, TYPE, PARAM_LIST) OATPP_MACRO_FIRSTARG PARAM_LIST
 #define OATPP_MACRO_API_CONTROLLER_PARAM_TYPE_STR(MACRO, INFO, TYPE, PARAM_LIST) #TYPE
 #define OATPP_MACRO_API_CONTROLLER_PARAM_NAME_STR(MACRO, INFO, TYPE, PARAM_LIST) OATPP_MACRO_FIRSTARG_STR PARAM_LIST
@@ -49,7 +49,7 @@ OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_QUERY, OATPP_MACRO_A
 OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_STRING, OATPP_MACRO_API_CONTROLLER_BODY_STRING_INFO, TYPE, (__VA_ARGS__))
 
 #define BODY_DTO(TYPE, ...) \
-OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_DTO, OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO, TYPE, (__VA_ARGS__))
+OATPP_MACRO_API_CONTROLLER_PARAM(OATPP_MACRO_API_CONTROLLER_BODY_DTO, OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO, TYPE::__Wrapper, (__VA_ARGS__))
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_
 // REQUEST MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_REQUEST(TYPE, PARAM_LIST) \
-TYPE OATPP_MACRO_FIRSTARG PARAM_LIST = __request;
+const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request;
 
 #define OATPP_MACRO_API_CONTROLLER_REQUEST_INFO(TYPE, PARAM_LIST)
 
@@ -69,24 +69,24 @@ TYPE OATPP_MACRO_FIRSTARG PARAM_LIST = __request;
 // HEADER MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_HEADER_1(TYPE, NAME) \
-auto __param_str_val_##NAME = __request->getHeader(#NAME); \
+const auto& __param_str_val_##NAME = __request->getHeader(#NAME); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing HEADER parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+const auto& NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Invalid HEADER parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_HEADER_2(TYPE, NAME, QUALIFIER) \
-auto __param_str_val_##NAME = __request->getHeader(QUALIFIER); \
+const auto& __param_str_val_##NAME = __request->getHeader(QUALIFIER); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
   oatpp::String("Missing HEADER parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+const auto& NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
                                     oatpp::String("Invalid HEADER parameter '") + \
@@ -112,24 +112,24 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_HEADER_INFO
 // PATH MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_PATH_1(TYPE, NAME) \
-auto __param_str_val_##NAME = __request->getPathVariable(#NAME); \
+const auto& __param_str_val_##NAME = __request->getPathVariable(#NAME); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing PATH parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+const auto& NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Invalid PATH parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_PATH_2(TYPE, NAME, QUALIFIER) \
-auto __param_str_val_##NAME = __request->getPathVariable(QUALIFIER); \
+const auto& __param_str_val_##NAME = __request->getPathVariable(QUALIFIER); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
   oatpp::String("Missing PATH parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+const auto NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
                                     oatpp::String("Invalid PATH parameter '") + \
@@ -154,31 +154,31 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_PATH_INFO_,
 // QUERIES MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_QUERIES(TYPE, PARAM_LIST) \
-TYPE OATPP_MACRO_FIRSTARG PARAM_LIST = __request->getQueryParameters();
+const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request->getQueryParameters();
 
 #define OATPP_MACRO_API_CONTROLLER_QUERIES_INFO(TYPE, PARAM_LIST)
 
 // QUERY MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_1(TYPE, NAME) \
-auto __param_str_val_##NAME = __request->getQueryParameter(#NAME); \
+const auto& __param_str_val_##NAME = __request->getQueryParameter(#NAME); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Missing QUERY parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+const auto& NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, "Invalid QUERY parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_2(TYPE, NAME, QUALIFIER) \
-auto __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER); \
+const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER); \
 if(!__param_str_val_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
   oatpp::String("Missing QUERY parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
-TYPE NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+const auto& NAME = parseParameterFromString<TYPE>(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
   return ApiController::handleError(Status::CODE_400, \
                                     oatpp::String("Invalid QUERY parameter '") + \
@@ -203,7 +203,7 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_QUERY_INFO_
 // BODY_STRING MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_STRING(TYPE, PARAM_LIST) \
-TYPE OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToString();
+const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToString();
 
 // __INFO
 
@@ -214,8 +214,8 @@ info->body.type = oatpp::data::mapping::type::__class::String::getType();
 // BODY_DTO MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, PARAM_LIST) \
-TYPE OATPP_MACRO_FIRSTARG PARAM_LIST; \
-__request->readBodyToDto(OATPP_MACRO_FIRSTARG PARAM_LIST, getDefaultObjectMapper().get()); \
+const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = \
+__request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
 if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
   return ApiController::handleError(Status::CODE_400, "Missing valid body parameter '" OATPP_MACRO_FIRSTARG_STR PARAM_LIST "'"); \
 }
