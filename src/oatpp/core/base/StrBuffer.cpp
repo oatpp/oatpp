@@ -172,6 +172,9 @@ bool StrBuffer::equals(const void* data, v_buff_size size) const {
 }
 
 bool StrBuffer::equals(const char* data) const {
+  if(data == nullptr) {
+    return m_data == nullptr;
+  }
   if(m_size == (v_buff_size) std::strlen(data)) {
     return equals(m_data, data, m_size);
   }
@@ -179,7 +182,7 @@ bool StrBuffer::equals(const char* data) const {
 }
 
 bool StrBuffer::equals(StrBuffer* other) const {
-  return equals((StrBuffer*) this, other);
+  return equals((StrBuffer*)this, other);
 }
 
 bool StrBuffer::startsWith(const void* data, v_buff_size size) const {
@@ -190,6 +193,7 @@ bool StrBuffer::startsWith(const void* data, v_buff_size size) const {
 }
 
 bool StrBuffer::startsWith(const char* data) const {
+  if(data == nullptr) return false;
   v_buff_size length = std::strlen(data);
   if(m_size >= length) {
     return equals(m_data, data, length);
@@ -198,6 +202,7 @@ bool StrBuffer::startsWith(const char* data) const {
 }
 
 bool StrBuffer::startsWith(StrBuffer* data) const {
+  if(data == nullptr) return false;
   if(m_size >= data->m_size) {
     return equals(m_data, data, data->m_size);
   }
@@ -222,21 +227,23 @@ v_buff_size StrBuffer::compare(StrBuffer* str1, StrBuffer* str2) {
 }
 
 bool StrBuffer::equals(const void* data1, const void* data2, v_buff_size size) {
-  return (data1 == data2) || (std::memcmp(data1, data2, size) == 0);
+  if(data1 == data2) return true;
+  if(data1 == nullptr || data2 == nullptr) return false;
+  return std::memcmp(data1, data2, size) == 0;
 }
 
 bool StrBuffer::equals(const char* data1, const char* data2) {
   if(data1 == data2) return true;
-  if(data1 == nullptr && data2 == nullptr) return false;
+  if(data1 == nullptr || data2 == nullptr) return false;
   const auto size = std::strlen(data1);
   return (size == std::strlen(data2) && std::memcmp(data1, data2, size) == 0);
 }
 
 bool StrBuffer::equals(StrBuffer* str1, StrBuffer* str2) {
-  return  (str1 == str2) ||
-          (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
-            (str1->m_data == str2->m_data || std::memcmp(str1->m_data, str2->m_data, str1->m_size) == 0)
-          );
+  if(str1 == str2) return true;
+  if(str1 == nullptr || str2 == nullptr) return false;
+  if(str1->m_size != str2->m_size) return false;
+  return str1->m_data == str2->m_data || std::memcmp(str1->m_data, str2->m_data, str1->m_size) == 0;
 }
 
 bool StrBuffer::equalsCI(const void* data1, const void* data2, v_buff_size size) {
@@ -254,16 +261,16 @@ bool StrBuffer::equalsCI(const void* data1, const void* data2, v_buff_size size)
 
 bool StrBuffer::equalsCI(const char* data1, const char* data2) {
   if(data1 == data2) return true;
-  if(data1 == nullptr && data2 == nullptr) return false;
+  if(data1 == nullptr || data2 == nullptr) return false;
   const auto size = std::strlen(data1);
   return (size == std::strlen(data2) && equalsCI(data1, data2, size) == 0);
 }
 
 bool StrBuffer::equalsCI(StrBuffer* str1, StrBuffer* str2) {
-  return  (str1 == str2) ||
-          (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
-            (str1->m_data == str2->m_data || equalsCI(str1->m_data, str2->m_data, str1->m_size))
-          );
+  if(str1 == str2) return true;
+  if(str1 == nullptr || str2 == nullptr) return false;
+  if(str1->m_size != str2->m_size) return false;
+  return (str1->m_data == str2->m_data || equalsCI(str1->m_data, str2->m_data, str1->m_size));
 }
 
 bool StrBuffer::equalsCI_FAST(const void* data1, const void* data2, v_buff_size size) {
@@ -277,16 +284,16 @@ bool StrBuffer::equalsCI_FAST(const void* data1, const void* data2, v_buff_size 
 
 bool StrBuffer::equalsCI_FAST(const char* data1, const char* data2) {
   if(data1 == data2) return true;
-  if(data1 == nullptr && data2 == nullptr) return false;
+  if(data1 == nullptr || data2 == nullptr) return false;
   const auto size = std::strlen(data1);
   return (size == std::strlen(data2) && equalsCI_FAST(data1, data2, size) == 0);
 }
 
 bool StrBuffer::equalsCI_FAST(StrBuffer* str1, StrBuffer* str2) {
-  return  (str1 == str2) ||
-  (str1 != nullptr && str2 != nullptr && str1->m_size == str2->m_size &&
-   (str1->m_data == str2->m_data || equalsCI_FAST(str1->m_data, str2->m_data, str1->m_size))
-   );
+  if(str1 == str2) return true;
+  if(str1 == nullptr || str2 == nullptr) return false;
+  if(str1->m_size != str2->m_size) return false;
+  return (str1->m_data == str2->m_data || equalsCI_FAST(str1->m_data, str2->m_data, str1->m_size));
 }
 
 bool StrBuffer::equalsCI_FAST(StrBuffer* str1, const char* str2) {

@@ -84,10 +84,10 @@ public:
     m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
   }
 
-  const Type* const getStoredType();
+  const Type* getStoredType() const;
 
   template<class WrapperType>
-  WrapperType retrieve() {
+  WrapperType retrieve() const {
 
     if(m_ptr) {
 
@@ -109,8 +109,11 @@ public:
   Any& operator=(const Any& other);
   Any& operator=(Any&& other);
 
-  bool operator == (const Any& other);
-  bool operator != (const Any& other);
+  bool operator == (std::nullptr_t) const;
+  bool operator != (std::nullptr_t) const;
+
+  bool operator == (const Any& other) const;
+  bool operator != (const Any& other) const;
 
 };
 

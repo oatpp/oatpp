@@ -219,11 +219,11 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
   }
 }
 
-const data::mapping::type::Type* const Deserializer::guessNumberType(oatpp::parser::Caret& caret) {
+const data::mapping::type::Type* Deserializer::guessNumberType(oatpp::parser::Caret& caret) {
   return Float64::Class::getType();
 }
 
-const data::mapping::type::Type* const Deserializer::guessType(oatpp::parser::Caret& caret) {
+const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& caret) {
   {
     parser::Caret::StateSaveGuard stateGuard(caret);
     v_char8 c = *caret.getCurrData();

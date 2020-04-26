@@ -59,9 +59,9 @@ namespace __class {
 /**
  * Mapping-enables String is &id:type::ObjectWrapper; over &id:oatpp::base::StrBuffer;
  */
-class String : public type::ObjectWrapper<oatpp::base::StrBuffer, __class::String> {
+class String : public type::ObjectWrapper<base::StrBuffer, __class::String> {
 public:
-  String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType);
+  String(const std::shared_ptr<base::StrBuffer>& ptr, const type::Type* const valueType);
 public:
   
   String() {}
@@ -69,39 +69,44 @@ public:
   String(std::nullptr_t) {}
 
   String(v_buff_size size)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(size))
   {}
   
   String(const char* data, v_buff_size size, bool copyAsOwnData = true)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(data, size, copyAsOwnData))
   {}
   
   String(const char* data1, v_buff_size size1, const char* data2, v_buff_size size2)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
   {}
   
   String(const char* data, bool copyAsOwnData = true)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createFromCString(data, copyAsOwnData))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createFromCString(data, copyAsOwnData))
   {}
   
-  String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
+  String(const std::shared_ptr<base::StrBuffer>& ptr)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(ptr)
   {}
   
-  String(std::shared_ptr<oatpp::base::StrBuffer>&& ptr)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(ptr))
+  String(std::shared_ptr<base::StrBuffer>&& ptr)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<std::shared_ptr<base::StrBuffer>>(ptr))
   {}
   
   String(const String& other)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(other)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(other)
   {}
   
   String(String&& other)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<String>(other))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<String>(other))
   {}
-  
+
+  String& operator = (std::nullptr_t) {
+    m_ptr.reset();
+    return *this;
+  }
+
   String& operator = (const char* str) {
-    m_ptr = oatpp::base::StrBuffer::createFromCString(str);
+    m_ptr = base::StrBuffer::createFromCString(str);
     return *this;
   }
   
@@ -111,16 +116,35 @@ public:
   }
   
   String& operator = (String&& other){
-    m_ptr = std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(other.m_ptr);
+    m_ptr = std::forward<std::shared_ptr<base::StrBuffer>>(other.m_ptr);
     return *this;
   }
-  
-  bool operator==(const String &other) const {
-    return m_ptr->equals(other.get());
+
+  bool operator == (std::nullptr_t) const {
+    return m_ptr.get() == nullptr;
+  }
+
+  bool operator != (std::nullptr_t) const {
+    return m_ptr.get() != nullptr;
+  }
+
+  bool operator == (const char* str) const {
+    if(!m_ptr) {
+      return str = nullptr;
+    }
+    return base::StrBuffer::equals(m_ptr.get()->getData(), str, m_ptr.get()->getSize());
+  }
+
+  bool operator != (const char* str) const {
+    return !operator == (str);
   }
   
-  bool operator!=(const String &other) const {
-    return !m_ptr->equals(other.get());
+  bool operator == (const String &other) const {
+    return base::StrBuffer::equals(m_ptr.get(), other.m_ptr.get());
+  }
+  
+  bool operator != (const String &other) const {
+    return !operator == (other);
   }
   
   explicit operator bool() const {
@@ -139,7 +163,7 @@ String operator + (const String& a, const String& b);
  * @tparam Clazz - Class holding static class information.
  */
 template<typename TValueType, class Clazz>
-class Primitive : public oatpp::base::Countable {
+class Primitive : public base::Countable {
 public:
   typedef TValueType ValueType;
 public:
@@ -174,7 +198,7 @@ public:
     {}
     
     ObjectWrapper(std::shared_ptr<Primitive>&& ptr)
-      : type::ObjectWrapper<Primitive, Clazz>(std::move(ptr))
+      : type::ObjectWrapper<Primitive, Clazz>(std::forward<std::shared_ptr<Primitive>>(ptr))
     {}
     
     ObjectWrapper(const ObjectWrapper& other)
@@ -182,14 +206,19 @@ public:
     {}
     
     ObjectWrapper(ObjectWrapper&& other)
-      : type::ObjectWrapper<Primitive, Clazz>(std::move(other))
+      : type::ObjectWrapper<Primitive, Clazz>(std::forward<ObjectWrapper>(other))
     {}
     
     ObjectWrapper(const ValueType& value)
       : type::ObjectWrapper<Primitive, Clazz>(Primitive::createShared(value))
     {}
-    
-    ObjectWrapper& operator = (const ValueType& value){
+
+    ObjectWrapper& operator = (std::nullptr_t) {
+      this->m_ptr.reset();
+      return *this;
+    }
+
+    ObjectWrapper& operator = (const ValueType& value) {
       if(!this->m_ptr){
         this->m_ptr = Primitive::createShared(value);
       } else {
@@ -198,21 +227,24 @@ public:
       return *this;
     }
     
-    ObjectWrapper& operator = (const ObjectWrapper &other){
+    ObjectWrapper& operator = (const ObjectWrapper& other) {
       this->m_ptr = other.m_ptr;
       return *this;
     }
+
+    ObjectWrapper& operator = (const ObjectWrapper&& other) {
+      this->m_ptr = std::move(other.m_ptr);
+      return *this;
+    }
     
-    bool operator==(const ObjectWrapper &other) const {
+    bool operator == (const ObjectWrapper &other) const {
+      if(!this->m_ptr) return other.m_ptr.get() == nullptr;
+      if(!this->m_ptr || !other.m_ptr) return false;
       return this->m_ptr->getValue() == other->getValue();
     }
     
-    bool operator!=(const ObjectWrapper &other) const {
-      return this->m_ptr->getValue() != other->getValue();
-    }
-    
-    inline operator ValueType() const {
-      return this->get()->getValue();
+    bool operator != (const ObjectWrapper &other) const {
+      return !operator == (other);
     }
     
   };

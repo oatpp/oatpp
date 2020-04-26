@@ -131,8 +131,8 @@ private:
   static void skipToken(oatpp::parser::Caret& caret);
   static void skipValue(oatpp::parser::Caret& caret);
 private:
-  static const Type* const guessNumberType(oatpp::parser::Caret& caret);
-  static const Type* const guessType(oatpp::parser::Caret& caret);
+  static const Type* guessNumberType(oatpp::parser::Caret& caret);
+  static const Type* guessType(oatpp::parser::Caret& caret);
 private:
 
   template<class T>

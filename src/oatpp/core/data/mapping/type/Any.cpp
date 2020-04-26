@@ -48,7 +48,7 @@ Any::Any(Any&& other)
   : ObjectWrapper(std::move(other.m_ptr),  __class::Any::getType())
 {}
 
-const Type* const Any::getStoredType() {
+const Type* Any::getStoredType() const {
   if(m_ptr) {
     return m_ptr->type;
   }
@@ -79,13 +79,21 @@ Any& Any::operator=(Any&& other) {
   return *this;
 }
 
-bool Any::operator == (const Any& other) {
+bool Any::operator == (std::nullptr_t) const {
+  return m_ptr == nullptr || m_ptr->ptr == nullptr;
+}
+
+bool Any::operator != (std::nullptr_t) const {
+  return !operator == (nullptr);
+}
+
+bool Any::operator == (const Any& other) const {
   if(!m_ptr && !other.m_ptr) return true;
   if(!m_ptr || !other.m_ptr) return false;
   return m_ptr->ptr.get() == other.m_ptr->ptr.get();
 }
 
-bool Any::operator != (const Any& other) {
+bool Any::operator != (const Any& other) const {
   return !operator == (other);
 }
 
