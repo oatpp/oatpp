@@ -53,9 +53,6 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
 
-  template<class T>
-  using PolymorphicWrapper = data::mapping::type::PolymorphicWrapper<T>;
-
   typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
   typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
   typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
@@ -134,6 +131,9 @@ private:
   static void skipToken(oatpp::parser::Caret& caret);
   static void skipValue(oatpp::parser::Caret& caret);
 private:
+  static const Type* guessNumberType(oatpp::parser::Caret& caret);
+  static const Type* guessType(oatpp::parser::Caret& caret);
+private:
 
   template<class T>
   static AbstractObjectWrapper deserializeInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
@@ -169,6 +169,8 @@ private:
   static AbstractObjectWrapper deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
   static AbstractObjectWrapper deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+
+  static AbstractObjectWrapper deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
   static AbstractObjectWrapper deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static AbstractObjectWrapper deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type);

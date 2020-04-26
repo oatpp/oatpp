@@ -61,13 +61,17 @@ v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& 
       continue;
     }
 
-    switch(c) {
-
-      case '\\': {
+    if(m_isInString) {
+      if(c == '\\') {
         m_isCharEscaped = true;
-        buffer.writeCharSimple('\\');
-        break;
+      } else if(c == '"') {
+        m_isInString = false;
       }
+      buffer.writeCharSimple(c);
+      continue;
+    }
+
+    switch(c) {
 
       case '{': {
         if(m_wantIndent) {
@@ -121,20 +125,20 @@ v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& 
         }
         buffer.writeCharSimple('"');
         m_wantIndent = false;
-        m_isInString = !m_isInString;
+        m_isInString = true;
         break;
       }
 
       case ':': {
-        if(!m_isInString) {
-          buffer.writeSimple(": ", 2);
-        } else {
-          buffer.writeCharSimple(':');
-        }
+        buffer.writeSimple(": ", 2);
         break;
       }
 
       default:
+        if(m_wantIndent) {
+          writeIndent(&buffer);
+          m_wantIndent = false;
+        }
         buffer.writeCharSimple(c);
 
     }

@@ -53,9 +53,6 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
 
-  template<class T>
-  using PolymorphicWrapper = data::mapping::type::PolymorphicWrapper<T>;
-
   typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
   typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
   typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
@@ -133,6 +130,10 @@ private:
   static void serializeString(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
                               const data::mapping::type::AbstractObjectWrapper& polymorph);
+
+  static void serializeAny(Serializer* serializer,
+                           data::stream::ConsistentOutputStream* stream,
+                           const data::mapping::type::AbstractObjectWrapper& polymorph);
 
   static void serializeList(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,

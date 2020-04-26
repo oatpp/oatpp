@@ -207,11 +207,12 @@ public:
    * Transfer body to String and parse it as DTO
    * (used in ApiController's codegens)
    * @tparam Type
+   * @tparam Clazz
    * @param objectMapper
    * @return DTO
    */
-  template<class Type>
-  void readBodyToDto(data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
+  template<class Type, class Clazz>
+  void readBodyToDto(data::mapping::type::ObjectWrapper<Type, Clazz>& objectWrapper,
                      data::mapping::ObjectMapper* objectMapper) const {
     objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
   }
