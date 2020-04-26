@@ -250,6 +250,13 @@ public:
     bool operator != (const ObjectWrapper &other) const {
       return !operator == (other);
     }
+
+    inline operator ValueType() const {
+      if(!this->m_ptr) {
+        throw std::runtime_error("[oatpp::data::mapping::type::Primitive::ObjectWrapper::operator ValueType()]: Error. Primitive object is null.");
+      }
+      return this->get()->getValue();
+    }
     
   };
   
