@@ -26,8 +26,8 @@
  * This file contains source code for basic helper macros used for code-generator.
  */
 
-#ifndef oatpp_macro_ForEach_hpp
-#define oatpp_macro_ForEach_hpp
+#ifndef oatpp_macro_basic_hpp
+#define oatpp_macro_basic_hpp
 
 #define OATPP_MACRO_FOREACH_EXAMPLE_FUNC(INDEX, COUNT, X) \
 ENV::log("macro", "param: %d/%d: '%s'", INDEX, COUNT, #X);
@@ -498,4 +498,4 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_FOREACH_CALL(N - 99, N, M, OATPP_MACRO_FIRSTARG_E
 OATPP_MACRO_FOREACH_98(N, M, OATPP_MACRO_RESTARGS(__VA_ARGS__))
 
 
-#endif /* oatpp_macro_ForEach_hpp */
+#endif /* oatpp_macro_basic_hpp */
