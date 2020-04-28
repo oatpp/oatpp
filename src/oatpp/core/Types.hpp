@@ -112,11 +112,21 @@ namespace oatpp {
   template <class T>
   using Vector = oatpp::data::mapping::type::Vector<T>;
 
+  /**
+   * Abstract Vector.
+   */
+  typedef oatpp::data::mapping::type::AbstractList AbstractVector;
+
   /*
    * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;
    */
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
+
+  /**
+   * Abstract List.
+   */
+  typedef oatpp::data::mapping::type::AbstractList AbstractList;
 
   /*
    * Mapping-Enables ListMap<String, Value>. &id:oatpp::data::mapping::type::ListMap;

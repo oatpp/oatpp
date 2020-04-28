@@ -37,6 +37,13 @@ namespace __class {
   class AbstractVector {
   public:
     static const ClassId CLASS_ID;
+  public:
+
+    class AbstractPolymorphicDispatcher {
+    public:
+      virtual void addPolymorphicItem(void* object, const type::Void& item) const = 0;
+    };
+
   };
 
   template<class T>
@@ -44,90 +51,80 @@ namespace __class {
 
 }
 
-template<class T>
-class VectorTemplate : public base::Countable {
-  friend __class::Vector<T>;
+template<class T, class C>
+class VectorObjectWrapper : public type::ObjectWrapper<std::vector<T>, C> {
 public:
-  typedef T TemplateParameter;
-  typedef __class::Vector<T> TemplateClass;
-public:
-
-  class ObjectWrapper : public type::ObjectWrapper<VectorTemplate, TemplateClass> {
-  public:
-
-    OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(VectorTemplate, TemplateClass)
-
-    ObjectWrapper(std::initializer_list<TemplateParameter> ilist)
-      : type::ObjectWrapper<VectorTemplate, TemplateClass>(std::make_shared<VectorTemplate>(ilist))
-    {}
-
-    ObjectWrapper& operator = (std::initializer_list<TemplateParameter> ilist) {
-      this->m_ptr = std::make_shared<VectorTemplate>(ilist);
-      return *this;
-    }
-
-    std::vector<TemplateParameter>* operator->() const {
-      return &this->m_ptr->m_vector;
-    }
-
-    std::vector<TemplateParameter>& collection() const {
-      return this->m_ptr->m_vector;
-    }
-
-    TemplateParameter& operator[] (v_buff_usize index) const {
-      return this->m_ptr->m_vector.operator [] (index);
-    }
-
-  };
-
-public:
-  typedef ObjectWrapper __Wrapper;
+  typedef std::vector<T> TemplateObjectType;
+  typedef C TemplateObjectClass;
 public:
 
-  static Void Z__CLASS_OBJECT_CREATOR(){
-    return Void(std::make_shared<VectorTemplate>(), Z__CLASS_GET_TYPE());
-  }
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(VectorObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
-  static Type* Z__CLASS_GET_TYPE(){
-    static Type type(__class::AbstractVector::CLASS_ID, nullptr, &Z__CLASS_OBJECT_CREATOR);
-    if(type.params.empty()){
-      type.params.push_back(TemplateParameter::Class::getType());
-    }
-    return &type;
-  }
-
-private:
-  std::vector<TemplateParameter> m_vector;
-public:
-
-  VectorTemplate() = default;
-
-  VectorTemplate(std::initializer_list<TemplateParameter> ilist)
-    : m_vector(ilist)
+  VectorObjectWrapper(std::initializer_list<T> ivector)
+    : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ivector))
   {}
 
-  virtual void addPolymorphicItem(const Void& item){
-    auto ptr = std::static_pointer_cast<typename TemplateParameter::ObjectType>(item.getPtr());
-    m_vector.push_back(TemplateParameter(ptr, item.valueType));
+  static VectorObjectWrapper createShared() {
+    return std::make_shared<TemplateObjectType>();
+  }
+
+  VectorObjectWrapper& operator = (std::initializer_list<T> ivector) {
+    this->m_ptr = std::make_shared<TemplateObjectType>(ivector);
+    return *this;
+  }
+
+  T& operator[] (v_buff_usize index) const {
+    return this->m_ptr->operator [] (index);
+  }
+
+  TemplateObjectType& operator*() const {
+    return this->m_ptr.operator*();
   }
 
 };
 
 template<class T>
-using Vector = VectorTemplate<typename T::__Wrapper>;
+using Vector = VectorObjectWrapper<typename T::__Wrapper, __class::Vector<typename T::__Wrapper>>;
+
+typedef VectorObjectWrapper<type::Void, __class::AbstractVector> AbstractVector;
 
 namespace __class {
 
-template<class T>
-class Vector : public AbstractVector {
-public:
+  template<class T>
+  class Vector : public AbstractVector {
+  private:
 
-  static Type* getType(){
-    static Type* type = static_cast<Type*>(type::Vector<T>::Z__CLASS_GET_TYPE());
-    return type;
-  }
+    class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+    public:
 
-};
+      void addPolymorphicItem(void* object, const type::Void& item) const override {
+        auto vector = static_cast<std::vector<T>*>(object);
+        auto vectorItem = item.staticCast<T>();
+        vector->push_back(vectorItem);
+      }
+
+    };
+
+  private:
+
+    static type::Void creator() {
+      return type::Void(std::make_shared<std::vector<T>>(), getType());
+    }
+
+    static Type createType() {
+      Type type(__class::AbstractVector::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+      type.params.push_back(T::Class::getType());
+      return type;
+    }
+
+  public:
+
+    static Type* getType() {
+      static Type type = createType();
+      return &type;
+    }
+
+  };
 
 }
 

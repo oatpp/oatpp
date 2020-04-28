@@ -95,25 +95,16 @@ Void& Type::Property::getAsRef(void* object) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type
 
-Type::Type(const ClassId& pClassId, const char* pNameQualifier)
-  : classId(pClassId)
-  , nameQualifier(pNameQualifier)
-  , creator(nullptr)
-  , properties(nullptr)
-{}
-
-Type::Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator)
-  : classId(pClassId)
-  , nameQualifier(pNameQualifier)
-  , creator(pCreator)
-  , properties(nullptr)
-{}
-
-Type::Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator, Properties* pProperties)
+Type::Type(const ClassId& pClassId,
+           const char* pNameQualifier,
+           Creator pCreator,
+           Properties* pProperties,
+           void* pPolymorphicDispatcher)
   : classId(pClassId)
   , nameQualifier(pNameQualifier)
   , creator(pCreator)
   , properties(pProperties)
+  , polymorphicDispatcher(pPolymorphicDispatcher)
 {}
   
 }}}}

@@ -28,7 +28,6 @@
 #include "./Type.hpp"
 
 #include <list>
-#include <iterator>
 #include <initializer_list>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
@@ -38,6 +37,13 @@ namespace __class {
   class AbstractList {
   public:
     static const ClassId CLASS_ID;
+  public:
+
+    class AbstractPolymorphicDispatcher {
+    public:
+      virtual void addPolymorphicItem(void* object, const type::Void& item) const = 0;
+    };
+
   };
 
   template<class T>
@@ -45,96 +51,82 @@ namespace __class {
 
 }
 
-template<class T>
-class ListTemplate : public base::Countable {
-  friend __class::List<T>;
+template<class T, class C>
+class ListObjectWrapper : public type::ObjectWrapper<std::list<T>, C> {
 public:
-  typedef T TemplateParameter;
-  typedef __class::List<T> TemplateClass;
-public:
-
-  class ObjectWrapper : public type::ObjectWrapper<ListTemplate, TemplateClass> {
-  public:
-
-    OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListTemplate, TemplateClass)
-
-    ObjectWrapper(std::initializer_list<TemplateParameter> ilist)
-      : type::ObjectWrapper<ListTemplate, TemplateClass>(std::make_shared<ListTemplate>(ilist))
-    {}
-
-    ObjectWrapper& operator = (std::initializer_list<TemplateParameter> ilist) {
-      this->m_ptr = std::make_shared<ListTemplate>(ilist);
-      return *this;
-    }
-
-    std::list<TemplateParameter>* operator->() const {
-      return &this->m_ptr->m_list;
-    }
-
-    std::list<TemplateParameter>& collection() const {
-      return this->m_ptr->m_list;
-    }
-
-  };
-
-public:
-  typedef ObjectWrapper __Wrapper;
+  typedef std::list<T> TemplateObjectType;
+  typedef C TemplateObjectClass;
 public:
 
-  static Void Z__CLASS_OBJECT_CREATOR(){
-    return Void(std::make_shared<ListTemplate>(), Z__CLASS_GET_TYPE());
-  }
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
-  static Type* Z__CLASS_GET_TYPE(){
-    static Type type(__class::AbstractList::CLASS_ID, nullptr, &Z__CLASS_OBJECT_CREATOR);
-    if(type.params.empty()){
-      type.params.push_back(TemplateParameter::Class::getType());
-    }
-    return &type;
-  }
-
-private:
-  std::list<TemplateParameter> m_list;
-public:
-
-  ListTemplate() = default;
-
-  ListTemplate(std::initializer_list<TemplateParameter> ilist)
-    : m_list(ilist)
+  ListObjectWrapper(std::initializer_list<T> ilist)
+    : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))
   {}
 
-  static ObjectWrapper createShared() {
-    return std::make_shared<ListTemplate>();
+  static ListObjectWrapper createShared() {
+    return std::make_shared<TemplateObjectType>();
   }
 
-  virtual void addPolymorphicItem(const Void& item){
-    auto ptr = std::static_pointer_cast<typename TemplateParameter::ObjectType>(item.getPtr());
-    m_list.push_back(TemplateParameter(ptr, item.valueType));
+  ListObjectWrapper& operator = (std::initializer_list<T> ilist) {
+    this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
+    return *this;
   }
 
-  TemplateParameter getItemByIndex(v_uint32 index) {
-    auto it = m_list.begin();
+  T& operator[] (v_buff_usize index) const {
+    auto it = this->m_ptr->begin();
     std::advance(it, index);
     return *it;
   }
 
-};
-
-template<class T>
-using List = ListTemplate<typename T::__Wrapper>;
-
-namespace __class {
-
-template<class T>
-class List : public AbstractList {
-public:
-
-  static Type* getType(){
-    static Type* type = static_cast<Type*>(type::List<T>::Z__CLASS_GET_TYPE());
-    return type;
+  TemplateObjectType& operator*() const {
+    return this->m_ptr.operator*();
   }
 
 };
+
+template<class T>
+using List = ListObjectWrapper<typename T::__Wrapper, __class::List<typename T::__Wrapper>>;
+
+typedef ListObjectWrapper<type::Void, __class::AbstractList> AbstractList;
+
+namespace __class {
+
+  template<class T>
+  class List : public AbstractList {
+  private:
+
+    class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+    public:
+
+      void addPolymorphicItem(void* object, const type::Void& item) const override {
+        auto list = static_cast<std::list<T>*>(object);
+        auto listItem = item.staticCast<T>();
+        list->push_back(listItem);
+      }
+
+    };
+
+  private:
+
+    static type::Void creator() {
+      return type::Void(std::make_shared<std::list<T>>(), getType());
+    }
+
+    static Type createType() {
+      Type type(__class::AbstractList::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+      type.params.push_back(T::Class::getType());
+      return type;
+    }
+
+  public:
+
+    static Type* getType() {
+      static Type type = createType();
+      return &type;
+    }
+
+  };
 
 }
 

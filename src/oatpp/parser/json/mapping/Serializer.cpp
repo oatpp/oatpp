@@ -119,12 +119,12 @@ void Serializer::serializeList(Serializer* serializer,
     return;
   }
 
-  const auto& list = polymorph.staticCast<AbstractList::ObjectWrapper>();
+  const auto& list = polymorph.staticCast<oatpp::AbstractList>();
 
   stream->writeCharSimple('[');
   bool first = true;
 
-  for(auto& value : list.collection()) {
+  for(auto& value : *list) {
     if(value || serializer->getConfig()->includeNullFields) {
       (first) ? first = false : stream->writeSimple(",", 1);
       serializer->serialize(stream, value);

@@ -170,7 +170,7 @@ public:
 
   template<class Wrapper>
   Wrapper staticCast() const {
-    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), Wrapper::Class::getType());
+    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), valueType);
   }
   
   T* operator->() const {
@@ -326,25 +326,14 @@ public:
    * Constructor.
    * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
-   */
-  Type(const ClassId& pClassId, const char* pNameQualifier);
-
-  /**
-   * Constructor.
-   * @param pClassId - type class id.
-   * @param pNameQualifier - type name qualifier.
-   * @param pCreator - function pointer of Creator - function to create instance of this type.
-   */
-  Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator);
-
-  /**
-   * Constructor.
-   * @param pClassId - type class id.
-   * @param pNameQualifier - type name qualifier.
    * @param pCreator - function pointer of Creator - function to create instance of this type.
    * @param pProperties - pointer to type properties.
    */
-  Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator, Properties* pProperties);
+  Type(const ClassId& pClassId,
+       const char* pNameQualifier,
+       Creator pCreator = nullptr,
+       Properties* pProperties = nullptr,
+       void* pPolymorphicDispatcher = nullptr);
 
   /**
    * type class id.
@@ -370,49 +359,54 @@ public:
    * Pointer to type properties.
    */
   const Properties* const properties;
+
+  /**
+   * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
+   */
+  const void* const polymorphicDispatcher;
   
 };
 
-#define OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(OBJECT_TYPE, OBJECT_CLASS) \
+#define OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(WRAPPER_NAME, OBJECT_TYPE, OBJECT_CLASS) \
 public:\
-  typedef ObjectWrapper __Wrapper; \
+  typedef WRAPPER_NAME __Wrapper; \
 public: \
-  ObjectWrapper(const std::shared_ptr<OBJECT_TYPE>& ptr, const type::Type* const valueType) \
+  WRAPPER_NAME(const std::shared_ptr<OBJECT_TYPE>& ptr, const type::Type* const valueType) \
     : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr, valueType) \
   {} \
 public: \
 \
-  ObjectWrapper() {} \
+  WRAPPER_NAME() {} \
 \
-  ObjectWrapper(std::nullptr_t) {} \
+  WRAPPER_NAME(std::nullptr_t) {} \
 \
-  ObjectWrapper(const std::shared_ptr<OBJECT_TYPE>& ptr) \
+  WRAPPER_NAME(const std::shared_ptr<OBJECT_TYPE>& ptr) \
     : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr) \
   {} \
 \
-  ObjectWrapper(std::shared_ptr<OBJECT_TYPE>&& ptr) \
+  WRAPPER_NAME(std::shared_ptr<OBJECT_TYPE>&& ptr) \
     : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<std::shared_ptr<OBJECT_TYPE>>(ptr)) \
   {} \
 \
-  ObjectWrapper(const ObjectWrapper& other) \
+  WRAPPER_NAME(const WRAPPER_NAME& other) \
     : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(other) \
   {} \
 \
-  ObjectWrapper(ObjectWrapper&& other) \
-    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<ObjectWrapper>(other)) \
+  WRAPPER_NAME(WRAPPER_NAME&& other) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<WRAPPER_NAME>(other)) \
   {} \
 \
-  ObjectWrapper& operator = (std::nullptr_t) { \
+  WRAPPER_NAME& operator = (std::nullptr_t) { \
     this->m_ptr.reset(); \
     return *this; \
   } \
 \
-  ObjectWrapper& operator = (const ObjectWrapper& other) { \
+  WRAPPER_NAME& operator = (const WRAPPER_NAME& other) { \
     this->m_ptr = other.m_ptr; \
     return *this; \
   } \
 \
-  ObjectWrapper& operator = (ObjectWrapper&& other) { \
+  WRAPPER_NAME& operator = (WRAPPER_NAME&& other) { \
     this->m_ptr = std::forward<std::shared_ptr<OBJECT_TYPE>>(other.m_ptr); \
     return *this; \
   } \

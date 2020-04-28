@@ -53,7 +53,6 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
 
-  typedef oatpp::data::mapping::type::List<oatpp::Void> AbstractList;
   typedef oatpp::data::mapping::type::ListMap<String, oatpp::Void> AbstractFieldsMap;
 
 public:

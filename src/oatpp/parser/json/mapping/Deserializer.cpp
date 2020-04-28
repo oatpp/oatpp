@@ -280,8 +280,8 @@ oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
   if(caret.canContinueAtChar('[', 1)) {
 
     auto listWrapper = type->creator();
-    oatpp::data::mapping::type::ObjectWrapper<AbstractList>
-      list(std::static_pointer_cast<AbstractList>(listWrapper.getPtr()), listWrapper.valueType);
+    auto polymorphicDispatcher = static_cast<const oatpp::AbstractList::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+    const auto& list = listWrapper.staticCast<oatpp::AbstractList>();
 
     Type* itemType = *type->params.begin();
 
@@ -295,7 +295,7 @@ oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
         return nullptr;
       }
 
-      list->addPolymorphicItem(item);
+      polymorphicDispatcher->addPolymorphicItem(list.get(), item);
       caret.skipBlankChars();
 
       caret.canContinueAtChar(',', 1);

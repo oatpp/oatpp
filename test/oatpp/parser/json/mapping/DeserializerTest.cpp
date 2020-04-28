@@ -156,9 +156,9 @@ void DeserializerTest::onRun(){
   auto list = mapper->readFromString<Test1::List<Test1::Int32>>("[1, 2, 3]");
   OATPP_ASSERT(list);
   OATPP_ASSERT(list->size() == 3);
-  OATPP_ASSERT(list.getPtr()->getItemByIndex(0)->getValue() == 1);
-  OATPP_ASSERT(list.getPtr()->getItemByIndex(1)->getValue() == 2);
-  OATPP_ASSERT(list.getPtr()->getItemByIndex(2)->getValue() == 3);
+  OATPP_ASSERT(list[0]->getValue() == 1);
+  OATPP_ASSERT(list[1]->getValue() == 2);
+  OATPP_ASSERT(list[2]->getValue() == 3);
 
   // Empty test
 
