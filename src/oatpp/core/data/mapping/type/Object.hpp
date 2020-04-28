@@ -75,6 +75,7 @@ namespace __class {
  */
 class Object : public oatpp::base::Countable {
 public:
+  typedef oatpp::data::mapping::type::Void Void;
   typedef oatpp::data::mapping::type::Any Any;
   typedef oatpp::data::mapping::type::String String;
   typedef oatpp::data::mapping::type::Int8 Int8;

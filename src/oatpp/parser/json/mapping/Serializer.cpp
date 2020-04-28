@@ -78,7 +78,7 @@ void Serializer::serializeString(oatpp::data::stream::ConsistentOutputStream* st
 
 void Serializer::serializeString(Serializer* serializer,
                                   data::stream::ConsistentOutputStream* stream,
-                                  const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                  const oatpp::Void& polymorph)
 {
 
   (void) serializer;
@@ -96,7 +96,7 @@ void Serializer::serializeString(Serializer* serializer,
 
 void Serializer::serializeAny(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
-                              const data::mapping::type::AbstractObjectWrapper& polymorph)
+                              const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
@@ -105,13 +105,13 @@ void Serializer::serializeAny(Serializer* serializer,
   }
 
   auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
-  serializer->serialize(stream, data::mapping::type::AbstractObjectWrapper(anyHandle->ptr, anyHandle->type));
+  serializer->serialize(stream, oatpp::Void(anyHandle->ptr, anyHandle->type));
 
 }
 
 void Serializer::serializeList(Serializer* serializer,
                                 data::stream::ConsistentOutputStream* stream,
-                                const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
@@ -137,7 +137,7 @@ void Serializer::serializeList(Serializer* serializer,
 
 void Serializer::serializeFieldsMap(Serializer* serializer,
                                      data::stream::ConsistentOutputStream* stream,
-                                     const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                     const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
@@ -169,7 +169,7 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
 
 void Serializer::serializeObject(Serializer* serializer,
                                   data::stream::ConsistentOutputStream* stream,
-                                  const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                  const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
@@ -200,7 +200,7 @@ void Serializer::serializeObject(Serializer* serializer,
 }
 
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
-                            const data::mapping::type::AbstractObjectWrapper& polymorph)
+                            const oatpp::Void& polymorph)
 {
   auto id = polymorph.valueType->classId.id;
   auto& method = m_methods[id];
@@ -213,7 +213,7 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
 }
 
 void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
-                                   const data::mapping::type::AbstractObjectWrapper& polymorph)
+                                   const oatpp::Void& polymorph)
 {
   if(m_config->useBeautifier) {
     json::Beautifier beautifier(stream, "  ", "\n");

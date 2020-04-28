@@ -83,8 +83,8 @@ public: \
     return &map; \
   } \
 \
-  static oatpp::data::mapping::type::AbstractObjectWrapper Z__CLASS_OBJECT_CREATOR(){ \
-    return oatpp::data::mapping::type::AbstractObjectWrapper(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared(), Z__CLASS_GET_TYPE()); \
+  static oatpp::data::mapping::type::Void Z__CLASS_OBJECT_CREATOR(){ \
+    return oatpp::data::mapping::type::Void(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared(), Z__CLASS_GET_TYPE()); \
   } \
 \
   static oatpp::data::mapping::type::Type* Z__CLASS_GET_TYPE(){ \
@@ -101,11 +101,11 @@ public: \
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
   Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
-                            (oatpp::data::mapping::type::AbstractObjectWrapper*)(&NAME)); \
+                            (oatpp::data::mapping::type::Void*)(&NAME)); \
 \
 static oatpp::data::mapping::type::Type::Property* \
 Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
-                          oatpp::data::mapping::type::AbstractObjectWrapper* _reg) { \
+                          oatpp::data::mapping::type::Void* _reg) { \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \
@@ -120,11 +120,11 @@ TYPE::__Wrapper NAME
 \
 oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
   Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
-                            (oatpp::data::mapping::type::AbstractObjectWrapper*)(&NAME)); \
+                            (oatpp::data::mapping::type::Void*)(&NAME)); \
 \
 static oatpp::data::mapping::type::Type::Property* \
 Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
-                          oatpp::data::mapping::type::AbstractObjectWrapper* _reg) { \
+                          oatpp::data::mapping::type::Void* _reg) { \
   static oatpp::data::mapping::type::Type::Property* field = \
       new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
                                                      (v_int64) _reg - (v_int64) _this, \

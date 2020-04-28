@@ -150,7 +150,7 @@ void Deserializer::skipValue(oatpp::parser::Caret& caret){
   }
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat32(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer,
                                                                              parser::Caret& caret,
                                                                              const Type* const type)
 {
@@ -159,13 +159,13 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat32(Dese
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Float32::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float32::ObjectWrapper::Class::getType());
   } else {
-    return AbstractObjectWrapper(Float32::ObjectType::createAbstract(caret.parseFloat32()), Float32::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float32::ObjectType::createAbstract(caret.parseFloat32()), Float32::ObjectWrapper::Class::getType());
   }
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat64(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer,
                                                                              parser::Caret& caret,
                                                                              const Type* const type)
 {
@@ -174,14 +174,14 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat64(Dese
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Float64::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float64::ObjectWrapper::Class::getType());
   } else {
-    return AbstractObjectWrapper(Float64::ObjectType::createAbstract(caret.parseFloat64()), Float64::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float64::ObjectType::createAbstract(caret.parseFloat64()), Float64::ObjectWrapper::Class::getType());
   }
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer,
                                                                              parser::Caret& caret,
                                                                              const Type* const type)
 {
@@ -190,21 +190,21 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Dese
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+    return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
   } else {
     if(caret.isAtText("true", true)) {
-      return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(true), Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::ObjectType::createAbstract(true), Boolean::ObjectWrapper::Class::getType());
     } else if(caret.isAtText("false", true)) {
-      return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(false), Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::ObjectType::createAbstract(false), Boolean::ObjectWrapper::Class::getType());
     } else {
       caret.setError("[oatpp::parser::json::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
-      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
     }
   }
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeString(Deserializer* deserializer,
                                                                             parser::Caret& caret,
                                                                             const Type* const type)
 {
@@ -213,9 +213,9 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deser
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(String::Class::getType());
+    return oatpp::Void(String::Class::getType());
   } else {
-    return AbstractObjectWrapper(oatpp::parser::json::Utils::parseString(caret).getPtr(), String::Class::getType());
+    return oatpp::Void(oatpp::parser::json::Utils::parseString(caret).getPtr(), String::Class::getType());
   }
 }
 
@@ -250,31 +250,31 @@ const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& c
   return nullptr;
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeAny(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer,
                                                                         parser::Caret& caret,
                                                                         const Type* const type)
 {
   (void) type;
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Any::Class::getType());
+    return oatpp::Void(Any::Class::getType());
   } else {
     const Type* const fieldType = guessType(caret);
     if(fieldType != nullptr) {
       auto fieldValue = deserializer->deserialize(caret, fieldType);
       auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
-      return AbstractObjectWrapper(anyHandle, Any::Class::getType());
+      return oatpp::Void(anyHandle, Any::Class::getType());
     }
   }
-  return AbstractObjectWrapper(Any::Class::getType());
+  return oatpp::Void(Any::Class::getType());
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
                                                                          parser::Caret& caret,
                                                                          const Type* const type)
 {
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(type);
+    return oatpp::Void(type);
   }
 
   if(caret.canContinueAtChar('[', 1)) {
@@ -309,7 +309,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
       return nullptr;
     };
 
-    return AbstractObjectWrapper(list.getPtr(), list.valueType);
+    return oatpp::Void(list.getPtr(), list.valueType);
   } else {
     caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
     return nullptr;
@@ -317,13 +317,13 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deseria
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer,
                                                                                parser::Caret& caret,
                                                                                const Type* const type)
 {
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(type);
+    return oatpp::Void(type);
   }
 
   if(caret.canContinueAtChar('{', 1)) {
@@ -375,7 +375,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
       return nullptr;
     }
 
-    return AbstractObjectWrapper(map.getPtr(), map.valueType);
+    return oatpp::Void(map.getPtr(), map.valueType);
 
   } else {
     caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
@@ -385,13 +385,13 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(De
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deserializer* deserializer,
+oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
                                                                             parser::Caret& caret,
                                                                             const Type* const type)
 {
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(type);
+    return oatpp::Void(type);
   }
 
   if(caret.canContinueAtChar('{', 1)) {
@@ -458,7 +458,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
+oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
   auto id = type->classId.id;
   auto& method = m_methods[id];
   if(method) {

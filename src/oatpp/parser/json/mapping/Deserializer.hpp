@@ -25,12 +25,6 @@
 #ifndef oatpp_parser_json_mapping_Deserializer_hpp
 #define oatpp_parser_json_mapping_Deserializer_hpp
 
-#include "oatpp/core/data/mapping/type/ListMap.hpp"
-#include "oatpp/core/data/mapping/type/List.hpp"
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-
 #include "oatpp/core/parser/Caret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -53,9 +47,8 @@ public:
   typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
 
-  typedef oatpp::data::mapping::type::AbstractObjectWrapper AbstractObjectWrapper;
-  typedef oatpp::data::mapping::type::List<AbstractObjectWrapper> AbstractList;
-  typedef oatpp::data::mapping::type::ListMap<String, AbstractObjectWrapper> AbstractFieldsMap;
+  typedef oatpp::List<oatpp::Void> AbstractList;
+  typedef oatpp::data::mapping::type::ListMap<String, oatpp::Void> AbstractFieldsMap;
 public:
 
   /**
@@ -124,7 +117,7 @@ public:
   };
 
 public:
-  typedef AbstractObjectWrapper (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const);
+  typedef oatpp::Void (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const);
 private:
   static void skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_char8 charClose);
   static void skipString(oatpp::parser::Caret& caret);
@@ -136,45 +129,45 @@ private:
 private:
 
   template<class T>
-  static AbstractObjectWrapper deserializeInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
+  static oatpp::Void deserializeInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
 
     (void) deserializer;
     (void) type;
 
     if(caret.isAtText("null", true)){
-      return AbstractObjectWrapper(T::Class::getType());
+      return oatpp::Void(T::Class::getType());
     } else {
-      return AbstractObjectWrapper(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseInt()), T::ObjectWrapper::Class::getType());
+      return oatpp::Void(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseInt()), T::ObjectWrapper::Class::getType());
     }
 
   }
 
   template<class T>
-  static AbstractObjectWrapper deserializeUInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
+  static oatpp::Void deserializeUInt(Deserializer* deserializer, parser::Caret& caret, const Type* const type){
 
     (void) deserializer;
     (void) type;
 
     if(caret.isAtText("null", true)){
-      return AbstractObjectWrapper(T::Class::getType());
+      return oatpp::Void(T::Class::getType());
     } else {
-      return AbstractObjectWrapper(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseUnsignedInt()), T::ObjectWrapper::Class::getType());
+      return oatpp::Void(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseUnsignedInt()), T::ObjectWrapper::Class::getType());
     }
 
   }
 
-  static AbstractObjectWrapper deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-  static AbstractObjectWrapper deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
-  static AbstractObjectWrapper deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
-  static AbstractObjectWrapper deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
-  static AbstractObjectWrapper deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
-  static AbstractObjectWrapper deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-  static AbstractObjectWrapper deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-  static AbstractObjectWrapper deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
 private:
   std::shared_ptr<Config> m_config;
@@ -190,7 +183,7 @@ public:
   /**
    * Set deserializer method for type.
    * @param classId - &id:oatpp::data::mapping::type::ClassId;.
-   * @param method - `typedef AbstractObjectWrapper (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const)`.
+   * @param method - `typedef oatpp::Void (*DeserializerMethod)(Deserializer*, parser::Caret&, const Type* const)`.
    */
   void setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method);
 
@@ -198,9 +191,9 @@ public:
    * Deserialize text.
    * @param caret - &id:oatpp::parser::Caret;.
    * @param type - &id:oatpp::data::mapping::type::Type;
-   * @return - `AbstractObjectWrapper` over deserialized object.
+   * @return - `oatpp::Void` over deserialized object.
    */
-  AbstractObjectWrapper deserialize(parser::Caret& caret, const Type* const type);
+  oatpp::Void deserialize(parser::Caret& caret, const Type* const type);
 
   /**
    * Get deserializer config.

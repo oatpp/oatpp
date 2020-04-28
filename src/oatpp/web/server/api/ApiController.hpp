@@ -440,11 +440,11 @@ public:
                                                    const oatpp::String& str) const;
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
+                                                      const oatpp::Void& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const;
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const;
+                                                      const oatpp::Void& dto) const;
 
 public:
 

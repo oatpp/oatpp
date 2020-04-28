@@ -26,7 +26,6 @@
 #define oatpp_data_mapping_ObjectMapper_hpp
 
 #include "type/Object.hpp"
-#include "type/Object.hpp"
 #include "type/Type.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
@@ -84,15 +83,15 @@ public:
    * @param variant - Object to serialize.
    */
   virtual void write(data::stream::ConsistentOutputStream* stream,
-                     const type::AbstractObjectWrapper& variant) const = 0;
+                     const type::Void& variant) const = 0;
 
   /**
    * Deserialize object. Implement this method.
    * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
    * @param type - pointer to object type. See &id:oatpp::data::mapping::type::Type;.
-   * @return - deserialized object wrapped in &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   * @return - deserialized object wrapped in &id:oatpp::Void;.
    */
-  virtual mapping::type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
+  virtual mapping::type::Void read(oatpp::parser::Caret& caret,
                                                     const mapping::type::Type* const type) const = 0;
 
   /**
@@ -100,7 +99,7 @@ public:
    * @param variant - Object to serialize.
    * @return - serialized object as &id:oatpp::String;.
    */
-  oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const;
+  oatpp::String writeToString(const type::Void& variant) const;
 
   /**
    * Deserialize object.

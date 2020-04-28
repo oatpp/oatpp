@@ -26,6 +26,7 @@
 #define oatpp_data_type_Type_hpp
 
 #include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -163,8 +164,8 @@ public:
     return *this;
   }
   
-  inline operator ObjectWrapper<oatpp::base::Countable>() const {
-    return ObjectWrapper<oatpp::base::Countable>(this->m_ptr, valueType);
+  inline operator ObjectWrapper<void>() const {
+    return ObjectWrapper<void>(this->m_ptr, valueType);
   }
 
   template<class Wrapper>
@@ -216,17 +217,14 @@ public:
   
 };
 
-/**
- * ObjectWrapper over &id:oatpp::base::Countable; object.
- */
-typedef ObjectWrapper<oatpp::base::Countable, __class::Void> AbstractObjectWrapper;
+typedef ObjectWrapper<void, __class::Void> Void;
 
 /**
  * Object type data.
  */
 class Type {
 public:
-  typedef AbstractObjectWrapper (*Creator)();
+  typedef Void (*Creator)();
 public:
   class Property; // FWD
 public:
@@ -304,21 +302,21 @@ public:
      * @param object - object address.
      * @param value - value to set.
      */
-    void set(void* object, const AbstractObjectWrapper& value);
+    void set(void* object, const Void& value);
 
     /**
      * Get value of object field mapped by this property.
      * @param object - object address.
      * @return - value of the field.
      */
-    AbstractObjectWrapper get(void* object);
+    Void get(void* object);
 
     /**
      * Get reference to ObjectWrapper of the object field.
      * @param object - object address.
      * @return - reference to ObjectWrapper of the object field.
      */
-    AbstractObjectWrapper& getAsRef(void* object);
+    Void& getAsRef(void* object);
     
   };
   

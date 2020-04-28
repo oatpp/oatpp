@@ -77,18 +77,18 @@ Type::Property::Property(Properties* properties, v_int64 pOffset, const char* pN
   properties->pushBack(this);
 }
 
-void Type::Property::set(void* object, const AbstractObjectWrapper& value) {
-  AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+void Type::Property::set(void* object, const Void& value) {
+  Void* property = (Void*)(((v_int64) object) + offset);
   *property = value;
 }
 
-AbstractObjectWrapper Type::Property::get(void* object) {
-  AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+Void Type::Property::get(void* object) {
+  Void* property = (Void*)(((v_int64) object) + offset);
   return *property;
 }
 
-AbstractObjectWrapper& Type::Property::getAsRef(void* object) {
-  AbstractObjectWrapper* property = (AbstractObjectWrapper*)(((v_int64) object) + offset);
+Void& Type::Property::getAsRef(void* object) {
+  Void* property = (Void*)(((v_int64) object) + offset);
   return *property;
 }
 

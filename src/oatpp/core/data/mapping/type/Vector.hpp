@@ -84,8 +84,8 @@ public:
   typedef ObjectWrapper __Wrapper;
 public:
 
-  static AbstractObjectWrapper Z__CLASS_OBJECT_CREATOR(){
-    return AbstractObjectWrapper(std::make_shared<VectorTemplate>(), Z__CLASS_GET_TYPE());
+  static Void Z__CLASS_OBJECT_CREATOR(){
+    return Void(std::make_shared<VectorTemplate>(), Z__CLASS_GET_TYPE());
   }
 
   static Type* Z__CLASS_GET_TYPE(){
@@ -106,7 +106,7 @@ public:
     : m_vector(ilist)
   {}
 
-  virtual void addPolymorphicItem(const AbstractObjectWrapper& item){
+  virtual void addPolymorphicItem(const Void& item){
     auto ptr = std::static_pointer_cast<typename TemplateParameter::ObjectType>(item.getPtr());
     m_vector.push_back(TemplateParameter(ptr, item.valueType));
   }

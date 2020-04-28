@@ -53,8 +53,8 @@ public:
   SHARED_OBJECT_POOL(SHARED_DTO_LISTMAP_POOL, ListMapTemplate, 32)
 protected:
   
-  static AbstractObjectWrapper Z__CLASS_OBJECT_CREATOR(){
-    return AbstractObjectWrapper(SHARED_DTO_LISTMAP_POOL::allocateShared(), Z__CLASS_GET_TYPE());
+  static Void Z__CLASS_OBJECT_CREATOR(){
+    return Void(SHARED_DTO_LISTMAP_POOL::allocateShared(), Z__CLASS_GET_TYPE());
   }
   
   static Type* Z__CLASS_GET_TYPE(){
@@ -75,7 +75,7 @@ public:
     return ObjectWrapper(SHARED_DTO_LISTMAP_POOL::allocateShared());
   }
   
-  virtual void putPolymorphicItem(const AbstractObjectWrapper& key, const AbstractObjectWrapper& value){
+  virtual void putPolymorphicItem(const Void& key, const Void& value){
     auto keyPtr = std::static_pointer_cast<typename Key::ObjectType>(key.getPtr());
     auto valuePtr = std::static_pointer_cast<typename Value::ObjectType>(value.getPtr());
     this->put(Key(keyPtr, key.valueType), Value(valuePtr, value.valueType));

@@ -52,12 +52,12 @@ namespace __class {
 class AnyHandle : public base::Countable {
 public:
 
-  AnyHandle(const std::shared_ptr<base::Countable>& objPtr, const Type* const objType)
+  AnyHandle(const std::shared_ptr<void>& objPtr, const Type* const objType)
     : ptr(objPtr)
     , type(objType)
   {}
 
-  std::shared_ptr<base::Countable> ptr;
+  std::shared_ptr<void> ptr;
   const Type* const type;
 
 };
@@ -106,7 +106,7 @@ public:
   }
 
   Any& operator=(std::nullptr_t);
-  Any& operator=(const AbstractObjectWrapper& other);
+  Any& operator=(const Void& other);
 
   Any& operator=(const Any& other);
   Any& operator=(Any&& other);

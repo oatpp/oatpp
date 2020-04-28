@@ -60,7 +60,7 @@ Any& Any::operator=(std::nullptr_t) {
   return *this;
 }
 
-Any& Any::operator=(const AbstractObjectWrapper& other) {
+Any& Any::operator=(const Void& other) {
   m_ptr = std::make_shared<AnyHandle>(other.getPtr(), other.valueType);
   return *this;
 }

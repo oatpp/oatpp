@@ -30,6 +30,11 @@
 namespace oatpp {
 
   /**
+   * ObjectWrapper over the void*.
+   */
+  typedef oatpp::data::mapping::type::Void Void;
+
+  /**
    * `Any` - container for mapping-enabled types.
    * &id:oatpp::data::mapping::type::Any;
    */
