@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_mapping_type_ListMap_hpp
-#define oatpp_data_mapping_type_ListMap_hpp
+#ifndef oatpp_data_mapping_type_PairList_hpp
+#define oatpp_data_mapping_type_PairList_hpp
 
 #include "./Type.hpp"
 
@@ -35,7 +35,7 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
-class AbstractListMap {
+class AbstractPairList {
 public:
   static const ClassId CLASS_ID;
 public:
@@ -48,32 +48,32 @@ public:
 };
 
 template<class Key, class Value>
-class ListMap;
+class PairList;
 
 }
 
 template<class Key, class Value, class C>
-class ListMapObjectWrapper : public type::ObjectWrapper<std::list<std::pair<Key, Value>>, C> {
+class PairListObjectWrapper : public type::ObjectWrapper<std::list<std::pair<Key, Value>>, C> {
 public:
   typedef std::list<std::pair<Key, Value>> TemplateObjectType;
   typedef C TemplateObjectClass;
 public:
 
-OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListMapObjectWrapper, TemplateObjectType, TemplateObjectClass)
+OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(PairListObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
-  ListMapObjectWrapper(std::initializer_list<std::pair<Key, Value>> ilist)
+  PairListObjectWrapper(std::initializer_list<std::pair<Key, Value>> ilist)
     : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))
   {}
 
-  static ListMapObjectWrapper createShared() {
+  static PairListObjectWrapper createShared() {
     return std::make_shared<TemplateObjectType>();
   }
 
-  ListMapObjectWrapper& operator = (std::initializer_list<std::pair<Key, Value>> ilist) {
+  PairListObjectWrapper& operator = (std::initializer_list<std::pair<Key, Value>> ilist) {
     this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
     return *this;
   }
-
+  
   Value& operator[] (const Key& key) const {
     auto& list = *(this->m_ptr.get());
     auto it = list.begin();
@@ -94,10 +94,10 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListMapObjectWrapper, TemplateObjectType, T
 };
 
 template<class Key, class Value>
-using ListMap = ListMapObjectWrapper<
+using PairList = PairListObjectWrapper<
   typename Key::__Wrapper,
   typename Value::__Wrapper,
-  __class::ListMap<
+  __class::PairList<
     typename Key::__Wrapper,
     typename Value::__Wrapper
   >
@@ -106,17 +106,17 @@ using ListMap = ListMapObjectWrapper<
 namespace __class {
 
 template<class Key, class Value>
-class ListMap : public AbstractListMap {
+class PairList : public AbstractPairList {
 private:
 
   class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
   public:
 
     void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
-      const auto& map = object.staticCast<type::ListMap<Key, Value>>();
+      const auto& map = object.staticCast<type::PairList<Key, Value>>();
       const auto& k = key.staticCast<Key>();
       const auto& v = value.staticCast<Value>();
-      map[k] = v;
+      map->push_back({k, v});
     }
 
   };
@@ -128,7 +128,7 @@ private:
   }
 
   static Type createType() {
-    Type type(__class::AbstractListMap::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+    Type type(__class::AbstractPairList::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
     type.params.push_back(Key::Class::getType());
     type.params.push_back(Value::Class::getType());
     return type;
@@ -147,4 +147,4 @@ public:
 
 }}}}
 
-#endif // oatpp_data_mapping_type_ListMap_hpp
+#endif // oatpp_data_mapping_type_PairList_hpp

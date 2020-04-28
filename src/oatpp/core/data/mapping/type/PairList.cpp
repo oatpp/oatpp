@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#include "ListMap.hpp"
+#include "PairList.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
 namespace __class {
-  const ClassId AbstractListMap::CLASS_ID("ListMap");
+  const ClassId AbstractPairList::CLASS_ID("PairList");
 }
   
 }}}}

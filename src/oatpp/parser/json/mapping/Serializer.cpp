@@ -56,7 +56,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
   setSerializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList);
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Serializer::serializeFieldsMap);
+  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeFieldsMap);
 
 }
 

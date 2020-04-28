@@ -27,7 +27,7 @@
 
 #include "oatpp/parser/json/Beautifier.hpp"
 
-#include "oatpp/core/data/mapping/type/ListMap.hpp"
+#include "oatpp/core/data/mapping/type/PairList.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
@@ -52,9 +52,6 @@ public:
 
   typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
-
-  typedef oatpp::data::mapping::type::ListMap<String, oatpp::Void> AbstractFieldsMap;
-
 public:
   /**
    * Serializer config.

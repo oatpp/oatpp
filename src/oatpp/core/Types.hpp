@@ -129,15 +129,15 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::AbstractList AbstractList;
 
   /*
-   * Mapping-Enables ListMap<String, Value>. &id:oatpp::data::mapping::type::ListMap;
+   * Mapping-Enables PairList<String, Value>. &id:oatpp::data::mapping::type::PairList;
    */
   template <class Value>
-  using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
+  using Fields = oatpp::data::mapping::type::PairList<String, Value>;
 
   /**
    * Abstract Fields
    */
-  typedef data::mapping::type::ListMapObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractListMap> AbstractFields;
+  typedef data::mapping::type::PairListObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractPairList> AbstractFields;
   
 }
 

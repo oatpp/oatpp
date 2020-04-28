@@ -112,7 +112,7 @@ void TypeTest::onRun() {
   OATPP_ASSERT(obj->field_list_boolean.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
   OATPP_LOGV(TAG, "type: '%s'", obj->field_map_string_string.valueType->classId.name);
-  OATPP_ASSERT(obj->field_map_string_string.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id);
+  OATPP_ASSERT(obj->field_map_string_string.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
   
   OATPP_LOGV(TAG, "type: '%s'", obj->obj1.valueType->classId.name);
   OATPP_ASSERT(obj->obj1.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
