@@ -107,7 +107,7 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Object Object;
 
   /*
-   * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;
+   * Mapping-Enabled List. &id:oatpp::data::mapping::type::Vector;
    */
   template <class T>
   using Vector = oatpp::data::mapping::type::Vector<T>;
@@ -138,6 +138,17 @@ namespace oatpp {
    * Abstract Fields
    */
   typedef data::mapping::type::PairListObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractPairList> AbstractFields;
+
+  /*
+   * Mapping-Enables PairList<String, Value>. &id:oatpp::data::mapping::type::UnorderedFields;
+   */
+  template <class Value>
+  using UnorderedFields = oatpp::data::mapping::type::UnorderedMap<String, Value>;
+
+  /**
+   * Abstract UnorderedFields
+   */
+  typedef data::mapping::type::UnorderedMapObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractUnorderedMap> AbstractUnorderedFields;
   
 }
 

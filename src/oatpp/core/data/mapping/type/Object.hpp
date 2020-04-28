@@ -27,11 +27,12 @@
 
 #include "./Type.hpp"
 
+#include "./Any.hpp"
 #include "./Primitive.hpp"
+#include "./UnorderedMap.hpp"
 #include "./PairList.hpp"
 #include "./List.hpp"
 #include "./Vector.hpp"
-#include "./Any.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
@@ -98,6 +99,9 @@ public:
 
   template <class Value>
   using Fields = oatpp::data::mapping::type::PairList<String, Value>;
+
+  template <class Value>
+  using UnorderedFields = oatpp::data::mapping::type::UnorderedMap<String, Value>;
 
 protected:
   
