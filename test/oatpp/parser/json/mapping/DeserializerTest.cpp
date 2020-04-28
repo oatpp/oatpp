@@ -155,10 +155,10 @@ void DeserializerTest::onRun(){
   
   auto list = mapper->readFromString<Test1::List<Test1::Int32>>("[1, 2, 3]");
   OATPP_ASSERT(list);
-  OATPP_ASSERT(list->count() == 3);
-  OATPP_ASSERT(list->get(0)->getValue() == 1);
-  OATPP_ASSERT(list->get(1)->getValue() == 2);
-  OATPP_ASSERT(list->get(2)->getValue() == 3);
+  OATPP_ASSERT(list->size() == 3);
+  OATPP_ASSERT(list.getPtr()->getItemByIndex(0)->getValue() == 1);
+  OATPP_ASSERT(list.getPtr()->getItemByIndex(1)->getValue() == 2);
+  OATPP_ASSERT(list.getPtr()->getItemByIndex(2)->getValue() == 3);
 
   // Empty test
 
@@ -166,14 +166,14 @@ void DeserializerTest::onRun(){
   OATPP_ASSERT(obj4);
   OATPP_ASSERT(obj4->object);
   OATPP_ASSERT(obj4->list);
-  OATPP_ASSERT(obj4->list->count() == 0);
+  OATPP_ASSERT(obj4->list->size() == 0);
   OATPP_ASSERT(obj4->map->count() == 0);
 
   obj4 = mapper->readFromString<Test4>("{\"object\": {\n\r\t}, \"list\": [\n\r\t], \"map\": {\n\r\t}}");
   OATPP_ASSERT(obj4);
   OATPP_ASSERT(obj4->object);
   OATPP_ASSERT(obj4->list);
-  OATPP_ASSERT(obj4->list->count() == 0);
+  OATPP_ASSERT(obj4->list->size() == 0);
   OATPP_ASSERT(obj4->map->count() == 0);
 
 }

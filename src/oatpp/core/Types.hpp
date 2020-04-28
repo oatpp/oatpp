@@ -25,7 +25,6 @@
 #ifndef oatpp_Types_hpp
 #define oatpp_Types_hpp
 
-#include "oatpp/core/data/mapping/type/Any.hpp"
 #include "oatpp/core/data/mapping/type/Object.hpp"
 
 namespace oatpp {
@@ -101,6 +100,12 @@ namespace oatpp {
    * Mapping-Enabled Object. Base class for all DTO objects. &id:oatpp::data::mapping::type::Object;
    */
   typedef oatpp::data::mapping::type::Object Object;
+
+  /*
+   * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;
+   */
+  template <class T>
+  using Vector = oatpp::data::mapping::type::Vector<T>;
 
   /*
    * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;

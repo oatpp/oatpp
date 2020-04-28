@@ -75,8 +75,10 @@ typedef v_int64 v_counter;
  * Use this type to define a size for the buffer.
  */
 typedef intptr_t v_buff_size;
-
 typedef v_buff_size* p_buff_size;
+
+typedef uintptr_t v_buff_usize;
+typedef v_buff_usize* p_buff_usize;
 
 namespace oatpp { namespace base {
 

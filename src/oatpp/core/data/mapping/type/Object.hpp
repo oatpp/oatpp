@@ -30,6 +30,7 @@
 #include "./Primitive.hpp"
 #include "./ListMap.hpp"
 #include "./List.hpp"
+#include "./Vector.hpp"
 #include "./Any.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
@@ -87,6 +88,8 @@ public:
   typedef oatpp::data::mapping::type::Float32 Float32;
   typedef oatpp::data::mapping::type::Float64 Float64;
   typedef oatpp::data::mapping::type::Boolean Boolean;
+  template <class T>
+  using Vector = oatpp::data::mapping::type::Vector<T>;
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
   template <class Value>

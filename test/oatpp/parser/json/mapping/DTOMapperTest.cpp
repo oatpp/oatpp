@@ -117,61 +117,61 @@ void DTOMapperTest::onRun(){
   
   test1->obj1 = Test::createShared();
   test1->obj1->field_string = "inner string";
-  test1->obj1->field_list_string->pushBack("inner str_item_1");
-  test1->obj1->field_list_string->pushBack("inner str_item_2");
-  test1->obj1->field_list_string->pushBack("inner str_item_3");
+  test1->obj1->field_list_string->push_back("inner str_item_1");
+  test1->obj1->field_list_string->push_back("inner str_item_2");
+  test1->obj1->field_list_string->push_back("inner str_item_3");
   
   test1->child1 = TestChild::createShared();
   test1->child1->name = "child1_name";
   test1->child1->secondName = "child1_second_name";
   
-  test1->field_list_string->pushBack("str_item_1");
-  test1->field_list_string->pushBack("str_item_2");
-  test1->field_list_string->pushBack("str_item_3");
+  test1->field_list_string->push_back("str_item_1");
+  test1->field_list_string->push_back("str_item_2");
+  test1->field_list_string->push_back("str_item_3");
   
-  test1->field_list_int32->pushBack(321);
-  test1->field_list_int32->pushBack(322);
-  test1->field_list_int32->pushBack(323);
+  test1->field_list_int32->push_back(321);
+  test1->field_list_int32->push_back(322);
+  test1->field_list_int32->push_back(323);
   
-  test1->field_list_int64->pushBack(641);
-  test1->field_list_int64->pushBack(642);
-  test1->field_list_int64->pushBack(643);
+  test1->field_list_int64->push_back(641);
+  test1->field_list_int64->push_back(642);
+  test1->field_list_int64->push_back(643);
   
-  test1->field_list_float32->pushBack(0.321f);
-  test1->field_list_float32->pushBack(0.322f);
-  test1->field_list_float32->pushBack(0.323f);
+  test1->field_list_float32->push_back(0.321f);
+  test1->field_list_float32->push_back(0.322f);
+  test1->field_list_float32->push_back(0.323f);
   
-  test1->field_list_float64->pushBack(0.641);
-  test1->field_list_float64->pushBack(0.642);
-  test1->field_list_float64->pushBack(0.643);
+  test1->field_list_float64->push_back(0.641);
+  test1->field_list_float64->push_back(0.642);
+  test1->field_list_float64->push_back(0.643);
   
-  test1->field_list_boolean->pushBack(true);
-  test1->field_list_boolean->pushBack(false);
-  test1->field_list_boolean->pushBack(true);
+  test1->field_list_boolean->push_back(true);
+  test1->field_list_boolean->push_back(false);
+  test1->field_list_boolean->push_back(true);
   
-  test1->field_list_object->pushBack(TestChild::createShared("child", "1"));
-  test1->field_list_object->pushBack(TestChild::createShared("child", "2"));
-  test1->field_list_object->pushBack(TestChild::createShared("child", "3"));
+  test1->field_list_object->push_back(TestChild::createShared("child", "1"));
+  test1->field_list_object->push_back(TestChild::createShared("child", "2"));
+  test1->field_list_object->push_back(TestChild::createShared("child", "3"));
   
   auto l1 = oatpp::List<TestChild>::createShared();
   auto l2 = oatpp::List<TestChild>::createShared();
   auto l3 = oatpp::List<TestChild>::createShared();
   
-  l1->pushBack(TestChild::createShared("list_1", "item_1"));
-  l1->pushBack(TestChild::createShared("list_1", "item_2"));
-  l1->pushBack(TestChild::createShared("list_1", "item_3"));
+  l1->push_back(TestChild::createShared("list_1", "item_1"));
+  l1->push_back(TestChild::createShared("list_1", "item_2"));
+  l1->push_back(TestChild::createShared("list_1", "item_3"));
   
-  l2->pushBack(TestChild::createShared("list_2", "item_1"));
-  l2->pushBack(TestChild::createShared("list_2", "item_2"));
-  l2->pushBack(TestChild::createShared("list_2", "item_3"));
+  l2->push_back(TestChild::createShared("list_2", "item_1"));
+  l2->push_back(TestChild::createShared("list_2", "item_2"));
+  l2->push_back(TestChild::createShared("list_2", "item_3"));
   
-  l3->pushBack(TestChild::createShared("list_3", "item_1"));
-  l3->pushBack(TestChild::createShared("list_3", "item_2"));
-  l3->pushBack(TestChild::createShared("list_3", "item_3"));
+  l3->push_back(TestChild::createShared("list_3", "item_1"));
+  l3->push_back(TestChild::createShared("list_3", "item_2"));
+  l3->push_back(TestChild::createShared("list_3", "item_3"));
   
-  test1->field_list_list_object->pushBack(l1);
-  test1->field_list_list_object->pushBack(l2);
-  test1->field_list_list_object->pushBack(l3);
+  test1->field_list_list_object->push_back(l1);
+  test1->field_list_list_object->push_back(l2);
+  test1->field_list_list_object->push_back(l3);
   
   auto result = mapper->writeToString(test1);
   
@@ -212,17 +212,17 @@ void DTOMapperTest::onRun(){
     TestAny::__Wrapper objOW2;
 
     auto obj = TestAny::createShared();
-    obj->anyList->pushBack(oatpp::String("Hello Any!!!"));
-    obj->anyList->pushBack(oatpp::Int32(32));
-    obj->anyList->pushBack(oatpp::Int64(64));
-    obj->anyList->pushBack(oatpp::Float64(0.64));
-    obj->anyList->pushBack(oatpp::Float64(0.64));
-    obj->anyList->pushBack(TestAnyNested::createShared());
+    obj->anyList->push_back(oatpp::String("Hello Any!!!"));
+    obj->anyList->push_back(oatpp::Int32(32));
+    obj->anyList->push_back(oatpp::Int64(64));
+    obj->anyList->push_back(oatpp::Float64(0.64));
+    obj->anyList->push_back(oatpp::Float64(0.64));
+    obj->anyList->push_back(TestAnyNested::createShared());
 
     auto map = oatpp::Fields<Any>::createShared();
     map->put("bool-field", oatpp::Boolean(false));
 
-    obj->anyList->pushBack(map);
+    obj->anyList->push_back(map);
 
     auto json = mapper->writeToString(obj);
     OATPP_LOGV(TAG, "any json='%s'", (const char*) json->getData());

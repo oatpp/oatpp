@@ -374,7 +374,52 @@ public:
   const Properties* const properties;
   
 };
-  
+
+#define OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(OBJECT_TYPE, OBJECT_CLASS) \
+public:\
+  typedef ObjectWrapper __Wrapper; \
+public: \
+  ObjectWrapper(const std::shared_ptr<OBJECT_TYPE>& ptr, const type::Type* const valueType) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr, valueType) \
+  {} \
+public: \
+\
+  ObjectWrapper() {} \
+\
+  ObjectWrapper(std::nullptr_t) {} \
+\
+  ObjectWrapper(const std::shared_ptr<OBJECT_TYPE>& ptr) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr) \
+  {} \
+\
+  ObjectWrapper(std::shared_ptr<OBJECT_TYPE>&& ptr) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<std::shared_ptr<OBJECT_TYPE>>(ptr)) \
+  {} \
+\
+  ObjectWrapper(const ObjectWrapper& other) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(other) \
+  {} \
+\
+  ObjectWrapper(ObjectWrapper&& other) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<ObjectWrapper>(other)) \
+  {} \
+\
+  ObjectWrapper& operator = (std::nullptr_t) { \
+    this->m_ptr.reset(); \
+    return *this; \
+  } \
+\
+  ObjectWrapper& operator = (const ObjectWrapper& other) { \
+    this->m_ptr = other.m_ptr; \
+    return *this; \
+  } \
+\
+  ObjectWrapper& operator = (ObjectWrapper&& other) { \
+    this->m_ptr = std::forward<std::shared_ptr<OBJECT_TYPE>>(other.m_ptr); \
+    return *this; \
+  } \
+
+
 }}}}
   
 #endif /* oatpp_data_type_Type_hpp */

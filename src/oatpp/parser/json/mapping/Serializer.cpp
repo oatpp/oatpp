@@ -119,19 +119,16 @@ void Serializer::serializeList(Serializer* serializer,
     return;
   }
 
-  auto* list = static_cast<AbstractList*>(polymorph.get());
+  const auto& list = polymorph.staticCast<AbstractList::ObjectWrapper>();
 
   stream->writeCharSimple('[');
   bool first = true;
-  auto curr = list->getFirstNode();
 
-  while(curr != nullptr){
-    auto value = curr->getData();
+  for(auto& value : list.collection()) {
     if(value || serializer->getConfig()->includeNullFields) {
       (first) ? first = false : stream->writeSimple(",", 1);
-      serializer->serialize(stream, curr->getData());
+      serializer->serialize(stream, value);
     }
-    curr = curr->getNext();
   }
 
   stream->writeCharSimple(']');

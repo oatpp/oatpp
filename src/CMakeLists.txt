@@ -86,6 +86,8 @@ add_library(oatpp
         oatpp/core/data/mapping/type/Primitive.hpp
         oatpp/core/data/mapping/type/Type.cpp
         oatpp/core/data/mapping/type/Type.hpp
+        oatpp/core/data/mapping/type/Vector.cpp
+        oatpp/core/data/mapping/type/Vector.hpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
