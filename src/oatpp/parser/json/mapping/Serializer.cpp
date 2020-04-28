@@ -145,22 +145,20 @@ void Serializer::serializeFieldsMap(Serializer* serializer,
     return;
   }
 
-  auto map = static_cast<AbstractFieldsMap*>(polymorph.get());
+  const auto& map = polymorph.staticCast<oatpp::AbstractFields>();
 
   stream->writeCharSimple('{');
   bool first = true;
-  auto curr = map->getFirstEntry();
 
-  while(curr != nullptr){
-    auto value = curr->getValue();
+  for(auto& pair : *map) {
+    const auto& value = pair.second;
     if(value || serializer->getConfig()->includeNullFields) {
       (first) ? first = false : stream->writeSimple(",", 1);
-      auto key = curr->getKey();
+      const auto& key = pair.first;
       serializeString(stream, key->getData(), key->getSize());
       stream->writeSimple(":", 1);
-      serializer->serialize(stream, curr->getValue());
+      serializer->serialize(stream, value);
     }
-    curr = curr->getNext();
   }
 
   stream->writeCharSimple('}');

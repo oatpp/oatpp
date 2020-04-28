@@ -167,14 +167,14 @@ void DeserializerTest::onRun(){
   OATPP_ASSERT(obj4->object);
   OATPP_ASSERT(obj4->list);
   OATPP_ASSERT(obj4->list->size() == 0);
-  OATPP_ASSERT(obj4->map->count() == 0);
+  OATPP_ASSERT(obj4->map->size() == 0);
 
   obj4 = mapper->readFromString<Test4>("{\"object\": {\n\r\t}, \"list\": [\n\r\t], \"map\": {\n\r\t}}");
   OATPP_ASSERT(obj4);
   OATPP_ASSERT(obj4->object);
   OATPP_ASSERT(obj4->list);
   OATPP_ASSERT(obj4->list->size() == 0);
-  OATPP_ASSERT(obj4->map->count() == 0);
+  OATPP_ASSERT(obj4->map->size() == 0);
 
 }
   

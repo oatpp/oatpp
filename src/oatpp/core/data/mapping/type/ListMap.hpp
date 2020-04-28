@@ -26,81 +26,125 @@
 #define oatpp_data_mapping_type_ListMap_hpp
 
 #include "./Type.hpp"
-#include "oatpp/core/collection/ListMap.hpp"
+
+#include <list>
+#include <initializer_list>
+#include <utility>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 namespace __class {
-  
-  class AbstractListMap {
+
+class AbstractListMap {
+public:
+  static const ClassId CLASS_ID;
+public:
+
+  class AbstractPolymorphicDispatcher {
   public:
-    static const ClassId CLASS_ID;
+    virtual void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const = 0;
   };
-  
-  template<class Key, class Value>
-  class ListMap; // FWD
-  
-}
-  
-template<class Key, class Value>
-class ListMapTemplate : public oatpp::collection::ListMap<Key, Value> {
-  friend __class::ListMap<Key, Value>;
-public:
-  typedef oatpp::data::mapping::type::ObjectWrapper<ListMapTemplate, __class::ListMap<Key, Value>> ObjectWrapper;
-  typedef ObjectWrapper __Wrapper;
-public:
-  OBJECT_POOL(DTO_LISTMAP_POOL, ListMapTemplate, 32)
-  SHARED_OBJECT_POOL(SHARED_DTO_LISTMAP_POOL, ListMapTemplate, 32)
-protected:
-  
-  static Void Z__CLASS_OBJECT_CREATOR(){
-    return Void(SHARED_DTO_LISTMAP_POOL::allocateShared(), Z__CLASS_GET_TYPE());
-  }
-  
-  static Type* Z__CLASS_GET_TYPE(){
-    static Type type(__class::AbstractListMap::CLASS_ID, nullptr, &Z__CLASS_OBJECT_CREATOR);
-    if(type.params.empty()){
-      type.params.push_back(Key::Class::getType());
-      type.params.push_back(Value::Class::getType());
-    }
-    return &type;
-  }
-  
-public:
-  ListMapTemplate()
-  {}
-public:
-  
-  static ObjectWrapper createShared(){
-    return ObjectWrapper(SHARED_DTO_LISTMAP_POOL::allocateShared());
-  }
-  
-  virtual void putPolymorphicItem(const Void& key, const Void& value){
-    auto keyPtr = std::static_pointer_cast<typename Key::ObjectType>(key.getPtr());
-    auto valuePtr = std::static_pointer_cast<typename Value::ObjectType>(value.getPtr());
-    this->put(Key(keyPtr, key.valueType), Value(valuePtr, value.valueType));
-  }
-  
+
 };
 
 template<class Key, class Value>
-using ListMap = ListMapTemplate<typename Key::__Wrapper, typename Value::__Wrapper>;
+class ListMap;
+
+}
+
+template<class Key, class Value, class C>
+class ListMapObjectWrapper : public type::ObjectWrapper<std::list<std::pair<Key, Value>>, C> {
+public:
+  typedef std::list<std::pair<Key, Value>> TemplateObjectType;
+  typedef C TemplateObjectClass;
+public:
+
+OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListMapObjectWrapper, TemplateObjectType, TemplateObjectClass)
+
+  ListMapObjectWrapper(std::initializer_list<std::pair<Key, Value>> ilist)
+    : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))
+  {}
+
+  static ListMapObjectWrapper createShared() {
+    return std::make_shared<TemplateObjectType>();
+  }
+
+  ListMapObjectWrapper& operator = (std::initializer_list<std::pair<Key, Value>> ilist) {
+    this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
+    return *this;
+  }
+
+  Value& operator[] (const Key& key) const {
+    auto& list = *(this->m_ptr.get());
+    auto it = list.begin();
+    while(it != list.end()) {
+      if(it->first == key) {
+        return it->second;
+      }
+      it ++;
+    }
+    list.push_back({key, nullptr});
+    return list.back().second;
+  }
+
+  TemplateObjectType& operator*() const {
+    return this->m_ptr.operator*();
+  }
+
+};
+
+template<class Key, class Value>
+using ListMap = ListMapObjectWrapper<
+  typename Key::__Wrapper,
+  typename Value::__Wrapper,
+  __class::ListMap<
+    typename Key::__Wrapper,
+    typename Value::__Wrapper
+  >
+>;
 
 namespace __class {
-  
-  template<class Key, class Value>
-  class ListMap : public AbstractListMap{
+
+template<class Key, class Value>
+class ListMap : public AbstractListMap {
+private:
+
+  class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
   public:
-    
-    static Type* getType(){
-      static Type* type = static_cast<Type*>(oatpp::data::mapping::type::ListMap<Key, Value>::Z__CLASS_GET_TYPE());
-      return type;
+
+    void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
+      const auto& map = object.staticCast<type::ListMap<Key, Value>>();
+      const auto& k = key.staticCast<Key>();
+      const auto& v = value.staticCast<Value>();
+      map[k] = v;
     }
-    
+
   };
-  
+
+private:
+
+  static type::Void creator() {
+    return type::Void(std::make_shared<std::list<std::pair<Key, Value>>>(), getType());
+  }
+
+  static Type createType() {
+    Type type(__class::AbstractListMap::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+    type.params.push_back(Key::Class::getType());
+    type.params.push_back(Value::Class::getType());
+    return type;
+  }
+
+public:
+
+  static Type* getType() {
+    static Type type = createType();
+    return &type;
+  }
+
+};
+
 }
-  
+
 }}}}
 
-#endif /* oatpp_data_mapping_type_ListMap_hpp */
+#endif // oatpp_data_mapping_type_ListMap_hpp

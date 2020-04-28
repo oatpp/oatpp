@@ -41,7 +41,7 @@ namespace __class {
 
     class AbstractPolymorphicDispatcher {
     public:
-      virtual void addPolymorphicItem(void* object, const type::Void& item) const = 0;
+      virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
     };
 
   };
@@ -60,16 +60,16 @@ public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(VectorObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
-  VectorObjectWrapper(std::initializer_list<T> ivector)
-    : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ivector))
+  VectorObjectWrapper(std::initializer_list<T> ilist)
+    : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))
   {}
 
   static VectorObjectWrapper createShared() {
     return std::make_shared<TemplateObjectType>();
   }
 
-  VectorObjectWrapper& operator = (std::initializer_list<T> ivector) {
-    this->m_ptr = std::make_shared<TemplateObjectType>(ivector);
+  VectorObjectWrapper& operator = (std::initializer_list<T> ilist) {
+    this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
     return *this;
   }
 
@@ -97,9 +97,9 @@ namespace __class {
     class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
     public:
 
-      void addPolymorphicItem(void* object, const type::Void& item) const override {
-        auto vector = static_cast<std::vector<T>*>(object);
-        auto vectorItem = item.staticCast<T>();
+      void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
+        const auto& vector = object.staticCast<type::Vector<T>>();
+        const auto& vectorItem = item.staticCast<T>();
         vector->push_back(vectorItem);
       }
 

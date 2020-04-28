@@ -60,11 +60,6 @@ Any& Any::operator=(std::nullptr_t) {
   return *this;
 }
 
-Any& Any::operator=(const Void& other) {
-  m_ptr = std::make_shared<AnyHandle>(other.getPtr(), other.valueType);
-  return *this;
-}
-
 Any& Any::operator=(const Any& other) {
   if(other) {
     m_ptr = std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type);

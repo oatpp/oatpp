@@ -106,10 +106,15 @@ public:
   }
 
   Any& operator=(std::nullptr_t);
-  Any& operator=(const Void& other);
 
   Any& operator=(const Any& other);
   Any& operator=(Any&& other);
+
+  template<class T, class C>
+  Any& operator=(const ObjectWrapper<T, C>& polymorph) {
+    m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
+    return *this;
+  }
 
   bool operator == (std::nullptr_t) const;
   bool operator != (std::nullptr_t) const;

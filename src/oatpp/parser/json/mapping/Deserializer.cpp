@@ -150,10 +150,7 @@ void Deserializer::skipValue(oatpp::parser::Caret& caret){
   }
 }
 
-oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type)
-{
+oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
@@ -165,10 +162,7 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer,
   }
 }
 
-oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type)
-{
+oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
@@ -181,10 +175,7 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer,
 
 }
 
-oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type)
-{
+oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
@@ -204,10 +195,7 @@ oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer,
 
 }
 
-oatpp::Void Deserializer::deserializeString(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type)
-{
+oatpp::Void Deserializer::deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
@@ -250,10 +238,7 @@ const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& c
   return nullptr;
 }
 
-oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer,
-                                                                        parser::Caret& caret,
-                                                                        const Type* const type)
-{
+oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
   (void) type;
   if(caret.isAtText("null", true)){
     return oatpp::Void(Any::Class::getType());
@@ -268,10 +253,7 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer,
   return oatpp::Void(Any::Class::getType());
 }
 
-oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
-                                                                         parser::Caret& caret,
-                                                                         const Type* const type)
-{
+oatpp::Void Deserializer::deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   if(caret.isAtText("null", true)){
     return oatpp::Void(type);
@@ -295,7 +277,7 @@ oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
         return nullptr;
       }
 
-      polymorphicDispatcher->addPolymorphicItem(list.get(), item);
+      polymorphicDispatcher->addPolymorphicItem(listWrapper, item);
       caret.skipBlankChars();
 
       caret.canContinueAtChar(',', 1);
@@ -317,10 +299,7 @@ oatpp::Void Deserializer::deserializeList(Deserializer* deserializer,
 
 }
 
-oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer,
-                                                                               parser::Caret& caret,
-                                                                               const Type* const type)
-{
+oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   if(caret.isAtText("null", true)){
     return oatpp::Void(type);
@@ -329,8 +308,8 @@ oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer,
   if(caret.canContinueAtChar('{', 1)) {
 
     auto mapWrapper = type->creator();
-    oatpp::data::mapping::type::ObjectWrapper<AbstractFieldsMap>
-      map(std::static_pointer_cast<AbstractFieldsMap>(mapWrapper.getPtr()), mapWrapper.valueType);
+    auto polymorphicDispatcher = static_cast<const oatpp::AbstractFields::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+    const auto& map = mapWrapper.staticCast<oatpp::AbstractFields>();
 
     auto it = type->params.begin();
     Type* keyType = *it ++;
@@ -361,7 +340,7 @@ oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer,
       if(caret.hasError()){
         return nullptr;
       }
-      map->putPolymorphicItem(key, item);
+      polymorphicDispatcher->addPolymorphicItem(mapWrapper, key, item);
 
       caret.skipBlankChars();
       caret.canContinueAtChar(',', 1);
@@ -385,10 +364,7 @@ oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer,
 
 }
 
-oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type)
-{
+oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   if(caret.isAtText("null", true)){
     return oatpp::Void(type);

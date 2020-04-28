@@ -41,7 +41,7 @@ namespace __class {
 
     class AbstractPolymorphicDispatcher {
     public:
-      virtual void addPolymorphicItem(void* object, const type::Void& item) const = 0;
+      virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
     };
 
   };
@@ -99,9 +99,9 @@ namespace __class {
     class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
     public:
 
-      void addPolymorphicItem(void* object, const type::Void& item) const override {
-        auto list = static_cast<std::list<T>*>(object);
-        auto listItem = item.staticCast<T>();
+      void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
+        const auto& list = object.staticCast<type::List<T>>();
+        const auto& listItem = item.staticCast<T>();
         list->push_back(listItem);
       }
 

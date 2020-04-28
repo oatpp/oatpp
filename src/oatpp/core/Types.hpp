@@ -133,6 +133,11 @@ namespace oatpp {
    */
   template <class Value>
   using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
+
+  /**
+   * Abstract Fields
+   */
+  typedef data::mapping::type::ListMapObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractListMap> AbstractFields;
   
 }
 

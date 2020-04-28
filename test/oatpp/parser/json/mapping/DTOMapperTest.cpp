@@ -220,7 +220,7 @@ void DTOMapperTest::onRun(){
     obj->anyList->push_back(TestAnyNested::createShared());
 
     auto map = oatpp::Fields<Any>::createShared();
-    map->put("bool-field", oatpp::Boolean(false));
+    map["bool-field"] = oatpp::Boolean(false);
 
     obj->anyList->push_back(map);
 
