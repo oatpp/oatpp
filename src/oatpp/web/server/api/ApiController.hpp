@@ -126,62 +126,62 @@ public:
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::String;.
    */
-  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::String String;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Int8;.
    */
-  typedef oatpp::data::mapping::type::Int8 Int8;
+  typedef oatpp::Int8 Int8;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::UInt8;.
    */
-  typedef oatpp::data::mapping::type::UInt8 UInt8;
+  typedef oatpp::UInt8 UInt8;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Int16;.
    */
-  typedef oatpp::data::mapping::type::Int16 Int16;
+  typedef oatpp::Int16 Int16;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::UInt16;.
    */
-  typedef oatpp::data::mapping::type::UInt16 UInt16;
+  typedef oatpp::UInt16 UInt16;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
    */
-  typedef oatpp::data::mapping::type::Int32 Int32;
+  typedef oatpp::Int32 Int32;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::UInt32;.
    */
-  typedef oatpp::data::mapping::type::UInt32 UInt32;
+  typedef oatpp::UInt32 UInt32;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
    */
-  typedef oatpp::data::mapping::type::Int64 Int64;
+  typedef oatpp::Int64 Int64;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::UInt64;.
    */
-  typedef oatpp::data::mapping::type::UInt64 UInt64;
+  typedef oatpp::UInt64 UInt64;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
    */
-  typedef oatpp::data::mapping::type::Float32 Float32;
+  typedef oatpp::Float32 Float32;
 
   /**
    * Convenience typedef for &id:atpp::data::mapping::type::Float64;.
    */
-  typedef oatpp::data::mapping::type::Float64 Float64;
+  typedef oatpp::Float64 Float64;
 
   /**
    * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
    */
-  typedef oatpp::data::mapping::type::Boolean Boolean;
+  typedef oatpp::Boolean Boolean;
 
   /*
    * Convenience typedef for std::function<std::shared_ptr<Endpoint::Info>()>.
@@ -189,9 +189,10 @@ public:
   typedef std::function<std::shared_ptr<Endpoint::Info>()> EndpointInfoBuilder;
 
   template <class T>
-  using List = oatpp::data::mapping::type::List<T>;
+  using List = oatpp::List<T>;
+
   template <class Value>
-  using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
+  using Fields = oatpp::Fields<Value>;
 
 protected:
   
@@ -440,11 +441,11 @@ public:
                                                    const oatpp::String& str) const;
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
+                                                      const oatpp::Void& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const;
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
-                                                      const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const;
+                                                      const oatpp::Void& dto) const;
 
 public:
 

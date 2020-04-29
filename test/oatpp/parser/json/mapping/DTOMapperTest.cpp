@@ -30,6 +30,8 @@
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 
+#include "oatpp/core/utils/ConversionUtils.hpp"
+
 #include "oatpp/core/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
@@ -74,6 +76,10 @@ class Test : public oatpp::Object {
   
   DTO_FIELD(List<TestChild>, field_list_object) = List<TestChild>::createShared();
   DTO_FIELD(List<List<TestChild>>, field_list_list_object) = List<List<TestChild>>::createShared();
+
+  DTO_FIELD(Vector<String>, field_vector);
+  DTO_FIELD(Fields<String>, field_fields);
+  DTO_FIELD(UnorderedFields<String>, field_unordered_fields);
   
   DTO_FIELD(Test, obj1);
   DTO_FIELD(TestChild, child1);
@@ -117,61 +123,93 @@ void DTOMapperTest::onRun(){
   
   test1->obj1 = Test::createShared();
   test1->obj1->field_string = "inner string";
-  test1->obj1->field_list_string->pushBack("inner str_item_1");
-  test1->obj1->field_list_string->pushBack("inner str_item_2");
-  test1->obj1->field_list_string->pushBack("inner str_item_3");
+  test1->obj1->field_list_string->push_back("inner str_item_1");
+  test1->obj1->field_list_string->push_back("inner str_item_2");
+  test1->obj1->field_list_string->push_back("inner str_item_3");
   
   test1->child1 = TestChild::createShared();
   test1->child1->name = "child1_name";
   test1->child1->secondName = "child1_second_name";
   
-  test1->field_list_string->pushBack("str_item_1");
-  test1->field_list_string->pushBack("str_item_2");
-  test1->field_list_string->pushBack("str_item_3");
+  test1->field_list_string->push_back("str_item_1");
+  test1->field_list_string->push_back("str_item_2");
+  test1->field_list_string->push_back("str_item_3");
   
-  test1->field_list_int32->pushBack(321);
-  test1->field_list_int32->pushBack(322);
-  test1->field_list_int32->pushBack(323);
+  test1->field_list_int32->push_back(321);
+  test1->field_list_int32->push_back(322);
+  test1->field_list_int32->push_back(323);
   
-  test1->field_list_int64->pushBack(641);
-  test1->field_list_int64->pushBack(642);
-  test1->field_list_int64->pushBack(643);
+  test1->field_list_int64->push_back(641);
+  test1->field_list_int64->push_back(642);
+  test1->field_list_int64->push_back(643);
   
-  test1->field_list_float32->pushBack(0.321f);
-  test1->field_list_float32->pushBack(0.322f);
-  test1->field_list_float32->pushBack(0.323f);
+  test1->field_list_float32->push_back(0.321f);
+  test1->field_list_float32->push_back(0.322f);
+  test1->field_list_float32->push_back(0.323f);
   
-  test1->field_list_float64->pushBack(0.641);
-  test1->field_list_float64->pushBack(0.642);
-  test1->field_list_float64->pushBack(0.643);
+  test1->field_list_float64->push_back(0.641);
+  test1->field_list_float64->push_back(0.642);
+  test1->field_list_float64->push_back(0.643);
   
-  test1->field_list_boolean->pushBack(true);
-  test1->field_list_boolean->pushBack(false);
-  test1->field_list_boolean->pushBack(true);
+  test1->field_list_boolean->push_back(true);
+  test1->field_list_boolean->push_back(false);
+  test1->field_list_boolean->push_back(true);
   
-  test1->field_list_object->pushBack(TestChild::createShared("child", "1"));
-  test1->field_list_object->pushBack(TestChild::createShared("child", "2"));
-  test1->field_list_object->pushBack(TestChild::createShared("child", "3"));
+  test1->field_list_object->push_back(TestChild::createShared("child", "1"));
+  test1->field_list_object->push_back(TestChild::createShared("child", "2"));
+  test1->field_list_object->push_back(TestChild::createShared("child", "3"));
   
   auto l1 = oatpp::List<TestChild>::createShared();
   auto l2 = oatpp::List<TestChild>::createShared();
   auto l3 = oatpp::List<TestChild>::createShared();
   
-  l1->pushBack(TestChild::createShared("list_1", "item_1"));
-  l1->pushBack(TestChild::createShared("list_1", "item_2"));
-  l1->pushBack(TestChild::createShared("list_1", "item_3"));
+  l1->push_back(TestChild::createShared("list_1", "item_1"));
+  l1->push_back(TestChild::createShared("list_1", "item_2"));
+  l1->push_back(TestChild::createShared("list_1", "item_3"));
   
-  l2->pushBack(TestChild::createShared("list_2", "item_1"));
-  l2->pushBack(TestChild::createShared("list_2", "item_2"));
-  l2->pushBack(TestChild::createShared("list_2", "item_3"));
+  l2->push_back(TestChild::createShared("list_2", "item_1"));
+  l2->push_back(TestChild::createShared("list_2", "item_2"));
+  l2->push_back(TestChild::createShared("list_2", "item_3"));
   
-  l3->pushBack(TestChild::createShared("list_3", "item_1"));
-  l3->pushBack(TestChild::createShared("list_3", "item_2"));
-  l3->pushBack(TestChild::createShared("list_3", "item_3"));
+  l3->push_back(TestChild::createShared("list_3", "item_1"));
+  l3->push_back(TestChild::createShared("list_3", "item_2"));
+  l3->push_back(TestChild::createShared("list_3", "item_3"));
   
-  test1->field_list_list_object->pushBack(l1);
-  test1->field_list_list_object->pushBack(l2);
-  test1->field_list_list_object->pushBack(l3);
+  test1->field_list_list_object->push_back(l1);
+  test1->field_list_list_object->push_back(l2);
+  test1->field_list_list_object->push_back(l3);
+
+  test1->field_vector = {"vector_item1", "vector_item2", "vector_item3"};
+
+  test1->field_fields = {
+    {"key0", "pair_item0"},
+    {"key1", "pair_item1"},
+    {"key2", "pair_item2"},
+    {"key3", "pair_item3"},
+    {"key4", "pair_item4"},
+    {"key5", "pair_item5"},
+    {"key6", "pair_item6"},
+    {"key7", "pair_item7"},
+    {"key8", "pair_item8"},
+    {"key9", "pair_item9"},
+    {"key10", "pair_item10"},
+    {"key11", "pair_item11"}
+  };
+
+  test1->field_unordered_fields = {
+    {"key0", "map_item0"},
+    {"key1", "map_item1"},
+    {"key2", "map_item2"},
+    {"key3", "map_item3"},
+    {"key4", "map_item4"},
+    {"key5", "map_item5"},
+    {"key6", "map_item6"},
+    {"key7", "map_item7"},
+    {"key8", "map_item8"},
+    {"key9", "map_item9"},
+    {"key10", "map_item10"},
+    {"key11", "map_item11"}
+  };
   
   auto result = mapper->writeToString(test1);
   
@@ -201,6 +239,30 @@ void DTOMapperTest::onRun(){
   
   OATPP_ASSERT(obj->field_boolean);
   OATPP_ASSERT(obj->field_boolean->getValue() == test1->field_boolean->getValue());
+
+  {
+    auto c = obj->field_vector;
+    OATPP_ASSERT(c[0] == "vector_item1");
+    OATPP_ASSERT(c[1] == "vector_item2");
+    OATPP_ASSERT(c[2] == "vector_item3");
+  }
+
+  {
+    auto c = obj->field_fields;
+    v_int32 i = 0;
+    for(auto& pair : *c) {
+      OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i));
+      OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i));
+      i++;
+    }
+  }
+
+  {
+    auto c = obj->field_unordered_fields;
+    OATPP_ASSERT(c["key1"] == "map_item1");
+    OATPP_ASSERT(c["key2"] == "map_item2");
+    OATPP_ASSERT(c["key3"] == "map_item3");
+  }
   
   result = mapper->writeToString(obj);
   
@@ -212,17 +274,21 @@ void DTOMapperTest::onRun(){
     TestAny::__Wrapper objOW2;
 
     auto obj = TestAny::createShared();
-    obj->anyList->pushBack(oatpp::String("Hello Any!!!"));
-    obj->anyList->pushBack(oatpp::Int32(32));
-    obj->anyList->pushBack(oatpp::Int64(64));
-    obj->anyList->pushBack(oatpp::Float64(0.64));
-    obj->anyList->pushBack(oatpp::Float64(0.64));
-    obj->anyList->pushBack(TestAnyNested::createShared());
+    obj->anyList = {
+      oatpp::String("Hello Any!!!"),
+      oatpp::Int32(32),
+      oatpp::Int64(64),
+      oatpp::Float64(0.64),
+      oatpp::Float64(0.64),
+      TestAnyNested::createShared()
+    };
 
     auto map = oatpp::Fields<Any>::createShared();
-    map->put("bool-field", oatpp::Boolean(false));
+    map["bool-field"] = oatpp::Boolean(false);
+    map["vector"] = oatpp::Vector<oatpp::String>({"vector_v1", "vector_v2", "vector_v3"});
+    map["unordered_map"] = oatpp::UnorderedFields<oatpp::String>({{"key1", "value1"}, {"key2", "value2"}});
 
-    obj->anyList->pushBack(map);
+    obj->anyList->push_back(map);
 
     auto json = mapper->writeToString(obj);
     OATPP_LOGV(TAG, "any json='%s'", (const char*) json->getData());

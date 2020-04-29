@@ -270,10 +270,10 @@ void FullTest::onRun() {
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testMap);
-        OATPP_ASSERT(dto->testMap->count() == 3);
-        OATPP_ASSERT(dto->testMap->get("key1", "") == "value1");
-        OATPP_ASSERT(dto->testMap->get("key2", "") == "32");
-        OATPP_ASSERT(dto->testMap->get("key3", "") == oatpp::utils::conversion::float32ToStr(0.32f));
+        OATPP_ASSERT(dto->testMap->size() == 3);
+        OATPP_ASSERT(dto->testMap["key1"] == "value1");
+        OATPP_ASSERT(dto->testMap["key2"] == "32");
+        OATPP_ASSERT(dto->testMap["key3"] == oatpp::utils::conversion::float32ToStr(0.32f));
       }
 
       { // test GET with header parameter

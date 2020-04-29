@@ -70,7 +70,7 @@ public:
 
   String(std::nullptr_t) {}
 
-  String(v_buff_size size)
+  explicit String(v_buff_size size)
     : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(size))
   {}
   

@@ -22,24 +22,12 @@
  *
  ***************************************************************************/
 
-#include "ObjectMapper.hpp"
+#include "PairList.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
-namespace oatpp { namespace data { namespace mapping {
-
-ObjectMapper::ObjectMapper(const Info& info)
-  : m_info(info)
-{}
-
-const ObjectMapper::Info& ObjectMapper::getInfo() const {
-  return m_info;
+namespace oatpp { namespace data { namespace mapping { namespace type {
+  
+namespace __class {
+  const ClassId AbstractPairList::CLASS_ID("PairList");
 }
-
-oatpp::String ObjectMapper::writeToString(const type::Void& variant) const {
-  stream::ChunkedBuffer stream;
-  write(&stream, variant);
-  return stream.toString();
-}
-
-}}}
+  
+}}}}

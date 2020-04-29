@@ -57,9 +57,9 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
       result->field_string = "String Field";
       result->field_int32 = 5;
       result->field_list = List<Int32>::createShared();
-      result->field_list->pushBack(1);
-      result->field_list->pushBack(2);
-      result->field_list->pushBack(3);
+      result->field_list->push_back(1);
+      result->field_list->push_back(2);
+      result->field_list->push_back(3);
       return result;
     }
     

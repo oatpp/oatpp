@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#include "ListMap.hpp"
+#include "Vector.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 namespace __class {
-  const ClassId AbstractListMap::CLASS_ID("ListMap");
+  const ClassId AbstractVector::CLASS_ID("Vector");
 }
-  
+
 }}}}

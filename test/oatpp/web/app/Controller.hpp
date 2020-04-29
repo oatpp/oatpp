@@ -116,9 +116,9 @@ public:
   ENDPOINT("GET", "queries/map", getWithQueriesMap,
            QUERIES(QueryParams, queries)) {
     auto dto = TestDto::createShared();
-    dto->testMap = dto->testMap->createShared();
+    dto->testMap = dto->testMap.createShared();
     for(auto& it : queries.getAll()) {
-      dto->testMap->put(it.first.toString(), it.second.toString());
+      dto->testMap[it.first.toString()] = it.second.toString();
     }
     return createDtoResponse(Status::CODE_200, dto);
   }

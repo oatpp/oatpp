@@ -22,19 +22,19 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_mapping_type_List_hpp
-#define oatpp_data_mapping_type_List_hpp
+#ifndef oatpp_data_mapping_type_Vector_hpp
+#define oatpp_data_mapping_type_Vector_hpp
 
 #include "./Type.hpp"
 
-#include <list>
+#include <vector>
 #include <initializer_list>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
-  class AbstractList {
+  class AbstractVector {
   public:
     static const ClassId CLASS_ID;
   public:
@@ -47,36 +47,34 @@ namespace __class {
   };
 
   template<class T>
-  class List;
+  class Vector;
 
 }
 
 template<class T, class C>
-class ListObjectWrapper : public type::ObjectWrapper<std::list<T>, C> {
+class VectorObjectWrapper : public type::ObjectWrapper<std::vector<T>, C> {
 public:
-  typedef std::list<T> TemplateObjectType;
+  typedef std::vector<T> TemplateObjectType;
   typedef C TemplateObjectClass;
 public:
 
-  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListObjectWrapper, TemplateObjectType, TemplateObjectClass)
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(VectorObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
-  ListObjectWrapper(std::initializer_list<T> ilist)
+  VectorObjectWrapper(std::initializer_list<T> ilist)
     : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))
   {}
 
-  static ListObjectWrapper createShared() {
+  static VectorObjectWrapper createShared() {
     return std::make_shared<TemplateObjectType>();
   }
 
-  ListObjectWrapper& operator = (std::initializer_list<T> ilist) {
+  VectorObjectWrapper& operator = (std::initializer_list<T> ilist) {
     this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
     return *this;
   }
 
   T& operator[] (v_buff_usize index) const {
-    auto it = this->m_ptr->begin();
-    std::advance(it, index);
-    return *it;
+    return this->m_ptr->operator [] (index);
   }
 
   TemplateObjectType& operator*() const {
@@ -86,23 +84,23 @@ public:
 };
 
 template<class T>
-using List = ListObjectWrapper<typename T::__Wrapper, __class::List<typename T::__Wrapper>>;
+using Vector = VectorObjectWrapper<typename T::__Wrapper, __class::Vector<typename T::__Wrapper>>;
 
-typedef ListObjectWrapper<type::Void, __class::AbstractList> AbstractList;
+typedef VectorObjectWrapper<type::Void, __class::AbstractVector> AbstractVector;
 
 namespace __class {
 
   template<class T>
-  class List : public AbstractList {
+  class Vector : public AbstractVector {
   private:
 
     class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
     public:
 
       void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
-        const auto& list = object.staticCast<type::List<T>>();
-        const auto& listItem = item.staticCast<T>();
-        list->push_back(listItem);
+        const auto& vector = object.staticCast<type::Vector<T>>();
+        const auto& vectorItem = item.staticCast<T>();
+        vector->push_back(vectorItem);
       }
 
     };
@@ -110,11 +108,11 @@ namespace __class {
   private:
 
     static type::Void creator() {
-      return type::Void(std::make_shared<std::list<T>>(), getType());
+      return type::Void(std::make_shared<std::vector<T>>(), getType());
     }
 
     static Type createType() {
-      Type type(__class::AbstractList::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+      Type type(__class::AbstractVector::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
       type.params.push_back(T::Class::getType());
       return type;
     }
@@ -132,4 +130,4 @@ namespace __class {
 
 }}}}
 
-#endif // oatpp_data_mapping_type_List_hpp
+#endif // oatpp_data_mapping_type_Vector_hpp

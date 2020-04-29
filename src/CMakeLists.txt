@@ -78,14 +78,18 @@ add_library(oatpp
         oatpp/core/data/mapping/type/Any.hpp
         oatpp/core/data/mapping/type/List.cpp
         oatpp/core/data/mapping/type/List.hpp
-        oatpp/core/data/mapping/type/ListMap.cpp
-        oatpp/core/data/mapping/type/ListMap.hpp
+        oatpp/core/data/mapping/type/PairList.cpp
+        oatpp/core/data/mapping/type/PairList.hpp
         oatpp/core/data/mapping/type/Object.cpp
         oatpp/core/data/mapping/type/Object.hpp
         oatpp/core/data/mapping/type/Primitive.cpp
         oatpp/core/data/mapping/type/Primitive.hpp
         oatpp/core/data/mapping/type/Type.cpp
         oatpp/core/data/mapping/type/Type.hpp
+        oatpp/core/data/mapping/type/UnorderedMap.cpp
+        oatpp/core/data/mapping/type/UnorderedMap.hpp
+        oatpp/core/data/mapping/type/Vector.cpp
+        oatpp/core/data/mapping/type/Vector.hpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp

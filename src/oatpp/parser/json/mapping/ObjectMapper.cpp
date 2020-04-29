@@ -51,11 +51,11 @@ std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<S
 }
 
 void ObjectMapper::write(data::stream::ConsistentOutputStream* stream,
-                         const oatpp::data::mapping::type::AbstractObjectWrapper& variant) const {
+                         const oatpp::Void& variant) const {
   m_serializer->serializeToStream(stream, variant);
 }
 
-oatpp::data::mapping::type::AbstractObjectWrapper ObjectMapper::read(oatpp::parser::Caret& caret,
+oatpp::Void ObjectMapper::read(oatpp::parser::Caret& caret,
                                                                      const oatpp::data::mapping::type::Type* const type) const {
   return m_deserializer->deserialize(caret, type);
 }
