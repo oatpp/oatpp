@@ -15,10 +15,22 @@ add_executable(oatppAllTests
         oatpp/core/data/buffer/ProcessorTest.hpp
         oatpp/core/data/mapping/type/AnyTest.cpp
         oatpp/core/data/mapping/type/AnyTest.hpp
+        oatpp/core/data/mapping/type/ListTest.cpp
+        oatpp/core/data/mapping/type/ListTest.hpp
         oatpp/core/data/mapping/type/ObjectWrapperTest.cpp
         oatpp/core/data/mapping/type/ObjectWrapperTest.hpp
+        oatpp/core/data/mapping/type/PairListTest.cpp
+        oatpp/core/data/mapping/type/PairListTest.hpp
+        oatpp/core/data/mapping/type/PrimitiveTest.cpp
+        oatpp/core/data/mapping/type/PrimitiveTest.hpp
+        oatpp/core/data/mapping/type/StringTest.cpp
+        oatpp/core/data/mapping/type/StringTest.hpp
         oatpp/core/data/mapping/type/TypeTest.cpp
         oatpp/core/data/mapping/type/TypeTest.hpp
+        oatpp/core/data/mapping/type/UnorderedMapTest.cpp
+        oatpp/core/data/mapping/type/UnorderedMapTest.hpp
+        oatpp/core/data/mapping/type/VectorTest.cpp
+        oatpp/core/data/mapping/type/VectorTest.hpp
         oatpp/core/data/share/LazyStringMapTest.cpp
         oatpp/core/data/share/LazyStringMapTest.hpp
         oatpp/core/data/share/MemoryLabelTest.cpp

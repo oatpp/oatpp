@@ -73,6 +73,12 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(PairListObjectWrapper, TemplateObjectType, 
     this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
     return *this;
   }
+
+  std::pair<Key, Value>& operator[] (v_buff_usize index) const {
+    auto it = this->m_ptr->begin();
+    std::advance(it, index);
+    return *it;
+  }
   
   Value& operator[] (const Key& key) const {
     auto& list = *(this->m_ptr.get());
