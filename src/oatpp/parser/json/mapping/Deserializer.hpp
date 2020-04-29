@@ -167,7 +167,7 @@ private:
 
       auto listWrapper = type->creator();
       auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
-      const auto& list = listWrapper.staticCast<Collection>();
+      const auto& list = listWrapper.template staticCast<Collection>();
 
       Type* itemType = *type->params.begin();
 
@@ -214,7 +214,7 @@ private:
 
       auto mapWrapper = type->creator();
       auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
-      const auto& map = mapWrapper.staticCast<Collection>();
+      const auto& map = mapWrapper.template staticCast<Collection>();
 
       auto it = type->params.begin();
       Type* keyType = *it ++;
