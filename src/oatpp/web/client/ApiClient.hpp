@@ -232,7 +232,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int8& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::int32ToStr(parameter->getValue());
+    return utils::conversion::int32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -241,7 +241,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt8& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::uint32ToStr(parameter->getValue());
+    return utils::conversion::uint32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -250,7 +250,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int16& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::int32ToStr(parameter->getValue());
+    return utils::conversion::int32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -259,7 +259,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt16& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::uint32ToStr(parameter->getValue());
+    return utils::conversion::uint32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -268,7 +268,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int32& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::int32ToStr(parameter->getValue());
+    return utils::conversion::int32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -277,7 +277,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt32& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::uint32ToStr(parameter->getValue());
+    return utils::conversion::uint32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -286,7 +286,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Int64& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::int64ToStr(parameter->getValue());
+    return utils::conversion::int64ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -295,7 +295,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::UInt64& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::uint64ToStr(parameter->getValue());
+    return utils::conversion::uint64ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -304,7 +304,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Float32& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::float32ToStr(parameter->getValue());
+    return utils::conversion::float32ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -313,7 +313,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Float64& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::float64ToStr(parameter->getValue());
+    return utils::conversion::float64ToStr(*parameter);
   }
   return "nullptr";
 }
@@ -322,7 +322,7 @@ template<>
 inline oatpp::String ApiClient::convertParameterToString(const oatpp::String& typeName, const oatpp::Boolean& parameter) {
   (void) typeName;
   if(parameter) {
-    return utils::conversion::boolToStr(parameter->getValue());
+    return utils::conversion::boolToStr(*parameter);
   }
   return "nullptr";
 }

@@ -111,12 +111,12 @@ void DeserializerTest::onRun(){
   obj2 = mapper->readFromString<Test2>("{\"int32F\": 32}");
   
   OATPP_ASSERT(obj2);
-  OATPP_ASSERT(obj2->int32F->getValue() == 32);
+  OATPP_ASSERT(obj2->int32F == 32);
   
   obj2 = mapper->readFromString<Test2>("{\"int32F\":    -32}");
   
   OATPP_ASSERT(obj2);
-  OATPP_ASSERT(obj2->int32F->getValue() == -32);
+  OATPP_ASSERT(obj2->int32F == -32);
   
   auto obj3 = mapper->readFromString<Test3>("{\"float32F\": null}");
   
@@ -126,7 +126,7 @@ void DeserializerTest::onRun(){
   obj3 = mapper->readFromString<Test3>("{\"float32F\": 32}");
   
   OATPP_ASSERT(obj3);
-  OATPP_ASSERT(obj3->float32F->getValue() == 32);
+  OATPP_ASSERT(obj3->float32F == 32);
   
   obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e1}");
   
@@ -156,9 +156,9 @@ void DeserializerTest::onRun(){
   auto list = mapper->readFromString<Test1::List<Test1::Int32>>("[1, 2, 3]");
   OATPP_ASSERT(list);
   OATPP_ASSERT(list->size() == 3);
-  OATPP_ASSERT(list[0]->getValue() == 1);
-  OATPP_ASSERT(list[1]->getValue() == 2);
-  OATPP_ASSERT(list[2]->getValue() == 3);
+  OATPP_ASSERT(list[0] == 1);
+  OATPP_ASSERT(list[1] == 2);
+  OATPP_ASSERT(list[2] == 3);
 
   // Empty test
 

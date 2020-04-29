@@ -137,7 +137,7 @@ private:
     if(caret.isAtText("null", true)){
       return oatpp::Void(T::Class::getType());
     } else {
-      return oatpp::Void(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseInt()), T::ObjectWrapper::Class::getType());
+      return T(caret.parseInt());
     }
 
   }
@@ -151,7 +151,7 @@ private:
     if(caret.isAtText("null", true)){
       return oatpp::Void(T::Class::getType());
     } else {
-      return oatpp::Void(T::ObjectType::createAbstract((typename T::ObjectType::ValueType) caret.parseUnsignedInt()), T::ObjectWrapper::Class::getType());
+      return T(caret.parseUnsignedInt());
     }
 
   }

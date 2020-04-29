@@ -165,205 +165,100 @@ String operator + (const String& a, const String& b);
  * @tparam Clazz - Class holding static class information.
  */
 template<typename TValueType, class Clazz>
-class Primitive : public base::Countable {
-public:
-  typedef TValueType ValueType;
-public:
-  OBJECT_POOL(Primitive_Type_Pool, Primitive, 32)
-  SHARED_OBJECT_POOL(Shared_Primitive_Type_Pool, Primitive, 32)
+class Primitive : public type::ObjectWrapper<TValueType, Clazz>  {
 public:
 
-  /**
-   * ObjectWrapper template for &l:Primitive;.
-   */
-  class ObjectWrapper : public type::ObjectWrapper<Primitive, Clazz> {
-  public:
-    typedef ObjectWrapper __Wrapper;
-  public:
-    ObjectWrapper(const std::shared_ptr<Primitive>& ptr, const type::Type* const valueType)
-      : type::ObjectWrapper<Primitive, Clazz>(ptr)
-    {
-      if(Clazz::getType() != valueType){
-        throw std::runtime_error("Value type does not match");
-      }
-    }
-  public:
-    
-    ObjectWrapper()
-      : type::ObjectWrapper<Primitive, Clazz>()
-    {}
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Primitive, TValueType, Clazz)
 
-    ObjectWrapper(std::nullptr_t)
-      : type::ObjectWrapper<Primitive, Clazz>()
-    {}
-    
-    ObjectWrapper(const std::shared_ptr<Primitive>& ptr)
-      : type::ObjectWrapper<Primitive, Clazz>(ptr)
-    {}
-    
-    ObjectWrapper(std::shared_ptr<Primitive>&& ptr)
-      : type::ObjectWrapper<Primitive, Clazz>(std::forward<std::shared_ptr<Primitive>>(ptr))
-    {}
-    
-    ObjectWrapper(const ObjectWrapper& other)
-      : type::ObjectWrapper<Primitive, Clazz>(other)
-    {}
-    
-    ObjectWrapper(ObjectWrapper&& other)
-      : type::ObjectWrapper<Primitive, Clazz>(std::forward<ObjectWrapper>(other))
-    {}
-    
-    ObjectWrapper(const ValueType& value)
-      : type::ObjectWrapper<Primitive, Clazz>(Primitive::createShared(value))
-    {}
-
-    ObjectWrapper& operator = (std::nullptr_t) {
-      this->m_ptr.reset();
-      return *this;
-    }
-
-    ObjectWrapper& operator = (const ValueType& value) {
-      if(!this->m_ptr){
-        this->m_ptr = Primitive::createShared(value);
-      } else {
-        this->m_ptr.get()->setValue(value);
-      }
-      return *this;
-    }
-    
-    ObjectWrapper& operator = (const ObjectWrapper& other) {
-      this->m_ptr = other.m_ptr;
-      return *this;
-    }
-
-    ObjectWrapper& operator = (const ObjectWrapper&& other) {
-      this->m_ptr = std::move(other.m_ptr);
-      return *this;
-    }
-    
-    bool operator == (const ObjectWrapper &other) const {
-      if(!this->m_ptr) return other.m_ptr.get() == nullptr;
-      if(!this->m_ptr || !other.m_ptr) return false;
-      return this->m_ptr->getValue() == other->getValue();
-    }
-    
-    bool operator != (const ObjectWrapper &other) const {
-      return !operator == (other);
-    }
-
-    inline operator ValueType() const {
-      if(!this->m_ptr) {
-        throw std::runtime_error("[oatpp::data::mapping::type::Primitive::ObjectWrapper::operator ValueType()]: Error. Primitive object is null.");
-      }
-      return this->get()->getValue();
-    }
-    
-  };
-  
-private:
-  
-  ValueType m_value;
-  
-public:
-  /**
-   * Constructor.
-   * @param value - initial value.
-   */
-  Primitive(const ValueType& value)
-    : m_value(value)
+  Primitive(TValueType value)
+    : type::ObjectWrapper<TValueType, Clazz>(std::make_shared<TValueType>(value))
   {}
-public:
 
-  /**
-   * Create shared primitive.
-   * @param value - initial value.
-   * @return - `std::shared_ptr` to Primitive.
-   */
-  static std::shared_ptr<Primitive> createShared(const ValueType& value){
-    return Shared_Primitive_Type_Pool::allocateShared(value);
+  Primitive& operator = (TValueType value) {
+    this->m_ptr = std::make_shared<TValueType>(value);
+    return *this;
   }
 
-  /**
-   * Create shared primitive upcasted to &id:oatpp::base::Countable;.
-   * @param value - initial value.
-   * @return - `std::shared_ptr` to primitive upcasted to &id:oatpp::base::Countable;.
-   */
-  static std::shared_ptr<Countable> createAbstract(const ValueType& value){
-    return std::static_pointer_cast<Countable>(Shared_Primitive_Type_Pool::allocateShared(value));
+  TValueType operator*() const {
+    return this->m_ptr.operator*();
   }
 
-  /**
-   * Set value.
-   * @param value.
-   */
-  void setValue(const ValueType& value) {
-    m_value = value;
+  bool operator == (TValueType value) const {
+    if(!this->m_ptr) return false;
+    return *this->m_ptr == value;
   }
 
-  /**
-   * Get value.
-   * @return - value.
-   */
-  ValueType getValue() {
-    return m_value;
+  bool operator != (TValueType value) const {
+    if(!this->m_ptr) return true;
+    return *this->m_ptr != value;
+  }
+
+  bool operator == (const Primitive &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  bool operator != (const Primitive &other) const {
+    return !operator == (other);
   }
   
 };
 
 /**
- * Int8 is an ObjectWrapper over &l:Primitive; and __class::Int8.
+ * Int8 is an ObjectWrapper over `v_int8` and __class::Int8.
  */
-typedef Primitive<v_int8, __class::Int8>::ObjectWrapper Int8;
+typedef Primitive<v_int8, __class::Int8> Int8;
 
 /**
- * UInt8 is an ObjectWrapper over &l:Primitive; and __class::UInt8.
+ * UInt8 is an ObjectWrapper over `v_uint8` and __class::UInt8.
  */
-typedef Primitive<v_uint8, __class::UInt8>::ObjectWrapper UInt8;
+typedef Primitive<v_uint8, __class::UInt8> UInt8;
 
 /**
- * Int16 is an ObjectWrapper over &l:Primitive; and __class::Int16.
+ * Int16 is an ObjectWrapper over `v_int16` and __class::Int16.
  */
-typedef Primitive<v_int16, __class::Int16>::ObjectWrapper Int16;
+typedef Primitive<v_int16, __class::Int16> Int16;
 
 /**
- * UInt16 is an ObjectWrapper over &l:Primitive; and __class::UInt16.
+ * UInt16 is an ObjectWrapper over `v_uint16` and __class::UInt16.
  */
-typedef Primitive<v_uint16, __class::UInt16>::ObjectWrapper UInt16;
+typedef Primitive<v_uint16, __class::UInt16> UInt16;
 
 /**
- * Int32 is an ObjectWrapper over &l:Primitive; and __class::Int32.
+ * Int32 is an ObjectWrapper over `v_int32` and __class::Int32.
  */
-typedef Primitive<v_int32, __class::Int32>::ObjectWrapper Int32;
+typedef Primitive<v_int32, __class::Int32> Int32;
 
 /**
- * UInt32 is an ObjectWrapper over &l:Primitive; and __class::UInt32.
+ * UInt32 is an ObjectWrapper over `v_uint32` and __class::UInt32.
  */
-typedef Primitive<v_uint32, __class::UInt32>::ObjectWrapper UInt32;
+typedef Primitive<v_uint32, __class::UInt32> UInt32;
 
 /**
- * Int64 is an ObjectWrapper over &l:Primitive; and __class::Int64.
+ * Int64 is an ObjectWrapper over `v_int64` and __class::Int64.
  */
-typedef Primitive<v_int64, __class::Int64>::ObjectWrapper Int64;
+typedef Primitive<v_int64, __class::Int64> Int64;
 
 /**
- * UInt64 is an ObjectWrapper over &l:Primitive; and __class::UInt64.
+ * UInt64 is an ObjectWrapper over `v_uint64` and __class::UInt64.
  */
-typedef Primitive<v_uint64, __class::UInt64>::ObjectWrapper UInt64;
+typedef Primitive<v_uint64, __class::UInt64> UInt64;
 
 /**
- * Float32 is an ObjectWrapper over &l:Primitive; and __class::Float32.
+ * Float32 is an ObjectWrapper over `v_float32` and __class::Float32.
  */
-typedef Primitive<v_float32, __class::Float32>::ObjectWrapper Float32;
+typedef Primitive<v_float32, __class::Float32> Float32;
 
 /**
- * Float64 is an ObjectWrapper over &l:Primitive; and __class::Float64.
+ * Float64 is an ObjectWrapper over `v_float64` and __class::Float64.
  */
-typedef Primitive<v_float64, __class::Float64>::ObjectWrapper Float64;
+typedef Primitive<v_float64, __class::Float64> Float64;
 
 /**
- * Boolean is an ObjectWrapper over &l:Primitive; and __class::Boolean.
+ * Boolean is an ObjectWrapper over `bool` and __class::Boolean.
  */
-typedef Primitive<bool, __class::Boolean>::ObjectWrapper Boolean;
+typedef Primitive<bool, __class::Boolean> Boolean;
   
 namespace __class {
   

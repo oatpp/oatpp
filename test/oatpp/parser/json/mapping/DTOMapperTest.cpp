@@ -226,19 +226,19 @@ void DTOMapperTest::onRun(){
   OATPP_ASSERT(obj->field_string == test1->field_string);
   
   OATPP_ASSERT(obj->field_int32);
-  OATPP_ASSERT(obj->field_int32->getValue() == test1->field_int32->getValue());
+  OATPP_ASSERT(obj->field_int32 == test1->field_int32);
   
   OATPP_ASSERT(obj->field_int64);
-  OATPP_ASSERT(obj->field_int64->getValue() == test1->field_int64->getValue());
+  OATPP_ASSERT(obj->field_int64 == test1->field_int64);
   
   OATPP_ASSERT(obj->field_float32);
-  OATPP_ASSERT(obj->field_float32->getValue() == test1->field_float32->getValue());
+  OATPP_ASSERT(obj->field_float32 == test1->field_float32);
   
   OATPP_ASSERT(obj->field_float64);
-  OATPP_ASSERT(obj->field_float64->getValue() == test1->field_float64->getValue());
+  OATPP_ASSERT(obj->field_float64 == test1->field_float64);
   
   OATPP_ASSERT(obj->field_boolean);
-  OATPP_ASSERT(obj->field_boolean->getValue() == test1->field_boolean->getValue());
+  OATPP_ASSERT(obj->field_boolean == test1->field_boolean);
 
   {
     auto c = obj->field_vector;
