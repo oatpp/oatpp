@@ -65,20 +65,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-
-  auto v = oatpp::UnorderedFields<oatpp::String>::createShared();
-  v = {{"a", "v1"}, {"b", "v2"}, {"c", "v3"}};
-
-  v["b"] = "world";
-
-  for(auto& item : *v) {
-    OATPP_LOGD("AAA", "k='%s', v='%s'", item.first->c_str(), item.second->c_str());
-  }
-
-  OATPP_LOGD("AAA", "type=%s", v.valueType->classId.name);
-
-
-
+  
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);

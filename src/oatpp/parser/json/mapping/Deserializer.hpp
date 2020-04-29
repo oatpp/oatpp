@@ -25,6 +25,8 @@
 #ifndef oatpp_parser_json_mapping_Deserializer_hpp
 #define oatpp_parser_json_mapping_Deserializer_hpp
 
+#include "oatpp/parser/json/Utils.hpp"
+
 #include "oatpp/core/parser/Caret.hpp"
 
 #include "oatpp/core/collection/LinkedList.hpp"
@@ -154,17 +156,124 @@ private:
 
   }
 
+  template<class Collection>
+  static oatpp::Void deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+
+    if(caret.isAtText("null", true)){
+      return oatpp::Void(type);
+    }
+
+    if(caret.canContinueAtChar('[', 1)) {
+
+      auto listWrapper = type->creator();
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      const auto& list = listWrapper.staticCast<Collection>();
+
+      Type* itemType = *type->params.begin();
+
+      caret.skipBlankChars();
+
+      while(!caret.isAtChar(']') && caret.canContinue()){
+
+        caret.skipBlankChars();
+        auto item = deserializer->deserialize(caret, itemType);
+        if(caret.hasError()){
+          return nullptr;
+        }
+
+        polymorphicDispatcher->addPolymorphicItem(listWrapper, item);
+        caret.skipBlankChars();
+
+        caret.canContinueAtChar(',', 1);
+
+      }
+
+      if(!caret.canContinueAtChar(']', 1)){
+        if(!caret.hasError()){
+          caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
+        }
+        return nullptr;
+      };
+
+      return oatpp::Void(list.getPtr(), list.valueType);
+    } else {
+      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
+      return nullptr;
+    }
+
+  }
+
+  template<class Collection>
+  static oatpp::Void deserializeKeyValue(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+
+    if(caret.isAtText("null", true)){
+      return oatpp::Void(type);
+    }
+
+    if(caret.canContinueAtChar('{', 1)) {
+
+      auto mapWrapper = type->creator();
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      const auto& map = mapWrapper.staticCast<Collection>();
+
+      auto it = type->params.begin();
+      Type* keyType = *it ++;
+      if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
+        throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserializeKeyValue()]: Invalid json map key. Key should be String");
+      }
+      Type* valueType = *it;
+
+      caret.skipBlankChars();
+
+      while (!caret.isAtChar('}') && caret.canContinue()) {
+
+        caret.skipBlankChars();
+        auto key = Utils::parseString(caret);
+        if(caret.hasError()){
+          return nullptr;
+        }
+
+        caret.skipBlankChars();
+        if(!caret.canContinueAtChar(':', 1)){
+          caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeKeyValue()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+          return nullptr;
+        }
+
+        caret.skipBlankChars();
+
+        auto item = deserializer->deserialize(caret, valueType);
+        if(caret.hasError()){
+          return nullptr;
+        }
+        polymorphicDispatcher->addPolymorphicItem(mapWrapper, key, item);
+
+        caret.skipBlankChars();
+        caret.canContinueAtChar(',', 1);
+
+      }
+
+      if(!caret.canContinueAtChar('}', 1)){
+        if(!caret.hasError()){
+          caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeKeyValue()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
+        }
+        return nullptr;
+      }
+
+      return oatpp::Void(map.getPtr(), map.valueType);
+
+    } else {
+      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeKeyValue()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+    }
+
+    return nullptr;
+
+  }
+
   static oatpp::Void deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-
   static oatpp::Void deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-
   static oatpp::Void deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-
   static oatpp::Void deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-
-  static oatpp::Void deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
-  static oatpp::Void deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
 private:

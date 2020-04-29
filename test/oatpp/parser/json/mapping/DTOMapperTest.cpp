@@ -30,6 +30,8 @@
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 
+#include "oatpp/core/utils/ConversionUtils.hpp"
+
 #include "oatpp/core/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
@@ -74,6 +76,10 @@ class Test : public oatpp::Object {
   
   DTO_FIELD(List<TestChild>, field_list_object) = List<TestChild>::createShared();
   DTO_FIELD(List<List<TestChild>>, field_list_list_object) = List<List<TestChild>>::createShared();
+
+  DTO_FIELD(Vector<String>, field_vector);
+  DTO_FIELD(Fields<String>, field_fields);
+  DTO_FIELD(UnorderedFields<String>, field_unordered_fields);
   
   DTO_FIELD(Test, obj1);
   DTO_FIELD(TestChild, child1);
@@ -172,6 +178,38 @@ void DTOMapperTest::onRun(){
   test1->field_list_list_object->push_back(l1);
   test1->field_list_list_object->push_back(l2);
   test1->field_list_list_object->push_back(l3);
+
+  test1->field_vector = {"vector_item1", "vector_item2", "vector_item3"};
+
+  test1->field_fields = {
+    {"key0", "pair_item0"},
+    {"key1", "pair_item1"},
+    {"key2", "pair_item2"},
+    {"key3", "pair_item3"},
+    {"key4", "pair_item4"},
+    {"key5", "pair_item5"},
+    {"key6", "pair_item6"},
+    {"key7", "pair_item7"},
+    {"key8", "pair_item8"},
+    {"key9", "pair_item9"},
+    {"key10", "pair_item10"},
+    {"key11", "pair_item11"}
+  };
+
+  test1->field_unordered_fields = {
+    {"key0", "map_item0"},
+    {"key1", "map_item1"},
+    {"key2", "map_item2"},
+    {"key3", "map_item3"},
+    {"key4", "map_item4"},
+    {"key5", "map_item5"},
+    {"key6", "map_item6"},
+    {"key7", "map_item7"},
+    {"key8", "map_item8"},
+    {"key9", "map_item9"},
+    {"key10", "map_item10"},
+    {"key11", "map_item11"}
+  };
   
   auto result = mapper->writeToString(test1);
   
@@ -201,6 +239,30 @@ void DTOMapperTest::onRun(){
   
   OATPP_ASSERT(obj->field_boolean);
   OATPP_ASSERT(obj->field_boolean->getValue() == test1->field_boolean->getValue());
+
+  {
+    auto c = obj->field_vector;
+    OATPP_ASSERT(c[0] == "vector_item1");
+    OATPP_ASSERT(c[1] == "vector_item2");
+    OATPP_ASSERT(c[2] == "vector_item3");
+  }
+
+  {
+    auto c = obj->field_fields;
+    v_int32 i = 0;
+    for(auto& pair : *c) {
+      OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i));
+      OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i));
+      i++;
+    }
+  }
+
+  {
+    auto c = obj->field_unordered_fields;
+    OATPP_ASSERT(c["key1"] == "map_item1");
+    OATPP_ASSERT(c["key2"] == "map_item2");
+    OATPP_ASSERT(c["key3"] == "map_item3");
+  }
   
   result = mapper->writeToString(obj);
   
@@ -212,15 +274,19 @@ void DTOMapperTest::onRun(){
     TestAny::__Wrapper objOW2;
 
     auto obj = TestAny::createShared();
-    obj->anyList->push_back(oatpp::String("Hello Any!!!"));
-    obj->anyList->push_back(oatpp::Int32(32));
-    obj->anyList->push_back(oatpp::Int64(64));
-    obj->anyList->push_back(oatpp::Float64(0.64));
-    obj->anyList->push_back(oatpp::Float64(0.64));
-    obj->anyList->push_back(TestAnyNested::createShared());
+    obj->anyList = {
+      oatpp::String("Hello Any!!!"),
+      oatpp::Int32(32),
+      oatpp::Int64(64),
+      oatpp::Float64(0.64),
+      oatpp::Float64(0.64),
+      TestAnyNested::createShared()
+    };
 
     auto map = oatpp::Fields<Any>::createShared();
     map["bool-field"] = oatpp::Boolean(false);
+    map["vector"] = oatpp::Vector<oatpp::String>({"vector_v1", "vector_v2", "vector_v3"});
+    map["unordered_map"] = oatpp::UnorderedFields<oatpp::String>({{"key1", "value1"}, {"key2", "value2"}});
 
     obj->anyList->push_back(map);
 

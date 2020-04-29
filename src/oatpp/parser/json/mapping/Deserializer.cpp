@@ -24,7 +24,6 @@
 
 #include "Deserializer.hpp"
 
-#include "oatpp/parser/json/Utils.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
@@ -35,28 +34,32 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Any::CLASS_ID, &Deserializer::deserializeAny);
+  setDeserializerMethod(data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
+  setDeserializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Deserializer::deserializeAny);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int8>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt8>);
+  setDeserializerMethod(data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int8>);
+  setDeserializerMethod(data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt8>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int16>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt16>);
+  setDeserializerMethod(data::mapping::type::__class::Int16::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int16>);
+  setDeserializerMethod(data::mapping::type::__class::UInt16::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt16>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int32>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt32>);
+  setDeserializerMethod(data::mapping::type::__class::Int32::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int32>);
+  setDeserializerMethod(data::mapping::type::__class::UInt32::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt32>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int64>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt64>);
+  setDeserializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int64>);
+  setDeserializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt64>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializeFloat32);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializeFloat64);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
+  setDeserializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializeFloat32);
+  setDeserializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializeFloat64);
+  setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeFieldsMap);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
+  setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
+
+  setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractVector>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractList>);
+
+  setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractFields>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractUnorderedFields>);
 
 }
 
@@ -251,117 +254,6 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Car
     }
   }
   return oatpp::Void(Any::Class::getType());
-}
-
-oatpp::Void Deserializer::deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
-
-  if(caret.isAtText("null", true)){
-    return oatpp::Void(type);
-  }
-
-  if(caret.canContinueAtChar('[', 1)) {
-
-    auto listWrapper = type->creator();
-    auto polymorphicDispatcher = static_cast<const oatpp::AbstractList::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
-    const auto& list = listWrapper.staticCast<oatpp::AbstractList>();
-
-    Type* itemType = *type->params.begin();
-
-    caret.skipBlankChars();
-
-    while(!caret.isAtChar(']') && caret.canContinue()){
-
-      caret.skipBlankChars();
-      auto item = deserializer->deserialize(caret, itemType);
-      if(caret.hasError()){
-        return nullptr;
-      }
-
-      polymorphicDispatcher->addPolymorphicItem(listWrapper, item);
-      caret.skipBlankChars();
-
-      caret.canContinueAtChar(',', 1);
-
-    }
-
-    if(!caret.canContinueAtChar(']', 1)){
-      if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
-      }
-      return nullptr;
-    };
-
-    return oatpp::Void(list.getPtr(), list.valueType);
-  } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
-    return nullptr;
-  }
-
-}
-
-oatpp::Void Deserializer::deserializeFieldsMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
-
-  if(caret.isAtText("null", true)){
-    return oatpp::Void(type);
-  }
-
-  if(caret.canContinueAtChar('{', 1)) {
-
-    auto mapWrapper = type->creator();
-    auto polymorphicDispatcher = static_cast<const oatpp::AbstractFields::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
-    const auto& map = mapWrapper.staticCast<oatpp::AbstractFields>();
-
-    auto it = type->params.begin();
-    Type* keyType = *it ++;
-    if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
-      throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Invalid json map key. Key should be String");
-    }
-    Type* valueType = *it;
-
-    caret.skipBlankChars();
-
-    while (!caret.isAtChar('}') && caret.canContinue()) {
-
-      caret.skipBlankChars();
-      auto key = Utils::parseString(caret);
-      if(caret.hasError()){
-        return nullptr;
-      }
-
-      caret.skipBlankChars();
-      if(!caret.canContinueAtChar(':', 1)){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
-        return nullptr;
-      }
-
-      caret.skipBlankChars();
-
-      auto item = deserializer->deserialize(caret, valueType);
-      if(caret.hasError()){
-        return nullptr;
-      }
-      polymorphicDispatcher->addPolymorphicItem(mapWrapper, key, item);
-
-      caret.skipBlankChars();
-      caret.canContinueAtChar(',', 1);
-
-    }
-
-    if(!caret.canContinueAtChar('}', 1)){
-      if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
-      }
-      return nullptr;
-    }
-
-    return oatpp::Void(map.getPtr(), map.valueType);
-
-  } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
-  }
-
-  return nullptr;
-
 }
 
 oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {

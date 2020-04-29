@@ -35,28 +35,32 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
-  setSerializerMethod(oatpp::data::mapping::type::__class::Any::CLASS_ID, &Serializer::serializeAny);
+  setSerializerMethod(data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
+  setSerializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Serializer::serializeAny);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
+  setSerializerMethod(data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
+  setSerializerMethod(data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt16>);
+  setSerializerMethod(data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
+  setSerializerMethod(data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt16>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt32>);
+  setSerializerMethod(data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
+  setSerializerMethod(data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt32>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
+  setSerializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
+  setSerializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
-  setSerializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
+  setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
+  setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
+  setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
 
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList);
-  setSerializerMethod(oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeFieldsMap);
+  setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
+
+  setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Serializer::serializeList<oatpp::AbstractVector>);
+  setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList<oatpp::AbstractList>);
+
+  setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeKeyValue<oatpp::AbstractFields>);
+  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Serializer::serializeKeyValue<oatpp::AbstractUnorderedFields>);
 
 }
 
@@ -69,7 +73,7 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
   }
 }
 
-void Serializer::serializeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
+void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
   auto encodedValue = Utils::escapeString(data, size, false);
   stream->writeCharSimple('\"');
   stream->writeSimple(encodedValue);
@@ -106,62 +110,6 @@ void Serializer::serializeAny(Serializer* serializer,
 
   auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
   serializer->serialize(stream, oatpp::Void(anyHandle->ptr, anyHandle->type));
-
-}
-
-void Serializer::serializeList(Serializer* serializer,
-                                data::stream::ConsistentOutputStream* stream,
-                                const oatpp::Void& polymorph)
-{
-
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
-  }
-
-  const auto& list = polymorph.staticCast<oatpp::AbstractList>();
-
-  stream->writeCharSimple('[');
-  bool first = true;
-
-  for(auto& value : *list) {
-    if(value || serializer->getConfig()->includeNullFields) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      serializer->serialize(stream, value);
-    }
-  }
-
-  stream->writeCharSimple(']');
-
-}
-
-void Serializer::serializeFieldsMap(Serializer* serializer,
-                                     data::stream::ConsistentOutputStream* stream,
-                                     const oatpp::Void& polymorph)
-{
-
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
-  }
-
-  const auto& map = polymorph.staticCast<oatpp::AbstractFields>();
-
-  stream->writeCharSimple('{');
-  bool first = true;
-
-  for(auto& pair : *map) {
-    const auto& value = pair.second;
-    if(value || serializer->getConfig()->includeNullFields) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      const auto& key = pair.first;
-      serializeString(stream, key->getData(), key->getSize());
-      stream->writeSimple(":", 1);
-      serializer->serialize(stream, value);
-    }
-  }
-
-  stream->writeCharSimple('}');
 
 }
 

@@ -115,7 +115,7 @@ namespace oatpp {
   /**
    * Abstract Vector.
    */
-  typedef oatpp::data::mapping::type::AbstractList AbstractVector;
+  typedef oatpp::data::mapping::type::AbstractVector AbstractVector;
 
   /*
    * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;
