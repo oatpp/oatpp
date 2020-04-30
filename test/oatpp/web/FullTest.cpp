@@ -299,7 +299,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto dtoOut = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dtoOut);
-        OATPP_ASSERT(dtoOut->testValueInt->getValue() == i);
+        OATPP_ASSERT(dtoOut->testValueInt == i);
       }
 
       { // test Big Echo with body

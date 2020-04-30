@@ -107,7 +107,7 @@ namespace __class {
         const auto& map = object.staticCast<type::UnorderedMap<Key, Value>>();
         const auto& k = key.staticCast<Key>();
         const auto& v = value.staticCast<Value>();
-        map->insert({k, v});
+        map[k] = v;
       }
 
     };

@@ -161,7 +161,7 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float32::ObjectWrapper::Class::getType());
   } else {
-    return oatpp::Void(Float32::ObjectType::createAbstract(caret.parseFloat32()), Float32::ObjectWrapper::Class::getType());
+    return Float32(caret.parseFloat32());
   }
 }
 
@@ -173,7 +173,7 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float64::ObjectWrapper::Class::getType());
   } else {
-    return oatpp::Void(Float64::ObjectType::createAbstract(caret.parseFloat64()), Float64::ObjectWrapper::Class::getType());
+    return Float64(caret.parseFloat64());
   }
 
 }
@@ -187,9 +187,9 @@ oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer, parser:
     return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
   } else {
     if(caret.isAtText("true", true)) {
-      return oatpp::Void(Boolean::ObjectType::createAbstract(true), Boolean::ObjectWrapper::Class::getType());
+      return Boolean(true);
     } else if(caret.isAtText("false", true)) {
-      return oatpp::Void(Boolean::ObjectType::createAbstract(false), Boolean::ObjectWrapper::Class::getType());
+      return Boolean(false);
     } else {
       caret.setError("[oatpp::parser::json::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
       return oatpp::Void(Boolean::ObjectWrapper::Class::getType());

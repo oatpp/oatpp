@@ -115,7 +115,7 @@ private:
     (void) serializer;
 
     if(polymorph){
-      stream->writeAsString(static_cast<typename T::ObjectType*>(polymorph.get())->getValue());
+      stream->writeAsString(* static_cast<typename T::ObjectType*>(polymorph.get()));
     } else {
       stream->writeSimple("null", 4);
     }

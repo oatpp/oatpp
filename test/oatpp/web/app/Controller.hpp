@@ -109,7 +109,7 @@ public:
   ENDPOINT("GET", "queries", getWithQueries,
            QUERY(String, name), QUERY(Int32, age)) {
     auto dto = TestDto::createShared();
-    dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(age->getValue());
+    dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(*age);
     return createDtoResponse(Status::CODE_200, dto);
   }
 
@@ -216,7 +216,7 @@ public:
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::StreamingBody>
-      (std::make_shared<ReadCallback>(text, numIterations->getValue()));
+      (std::make_shared<ReadCallback>(text, *numIterations));
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }
 
