@@ -206,6 +206,64 @@ public:
 };
 
 /**
+ * ObjectWrapper for Boolean.
+ */
+class Boolean : public type::ObjectWrapper<bool, __class::Boolean>  {
+public:
+
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Boolean, bool, __class::Boolean)
+
+  Boolean(bool value)
+    : type::ObjectWrapper<bool, __class::Boolean>(std::make_shared<bool>(value))
+  {}
+
+  Boolean& operator = (bool value) {
+    this->m_ptr = std::make_shared<bool>(value);
+    return *this;
+  }
+
+  bool operator*() const {
+    return this->m_ptr.operator*();
+  }
+
+  inline bool operator == (std::nullptr_t){
+    return m_ptr.get() == nullptr;
+  }
+
+  inline bool operator != (std::nullptr_t){
+    return m_ptr.get() != nullptr;
+  }
+
+  bool operator == (bool value) const {
+    if(!this->m_ptr) return false;
+    return *this->m_ptr == value;
+  }
+
+  bool operator != (bool value) const {
+    if(!this->m_ptr) return true;
+    return *this->m_ptr != value;
+  }
+
+  bool operator == (const Boolean &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  bool operator != (const Boolean &other) const {
+    return !operator == (other);
+  }
+
+  explicit operator bool() const {
+    if(this->m_ptr) {
+      return *(this->m_ptr);
+    }
+    return false;
+  }
+
+};
+
+/**
  * Int8 is an ObjectWrapper over `v_int8` and __class::Int8.
  */
 typedef Primitive<v_int8, __class::Int8> Int8;
@@ -254,11 +312,6 @@ typedef Primitive<v_float32, __class::Float32> Float32;
  * Float64 is an ObjectWrapper over `v_float64` and __class::Float64.
  */
 typedef Primitive<v_float64, __class::Float64> Float64;
-
-/**
- * Boolean is an ObjectWrapper over `bool` and __class::Boolean.
- */
-typedef Primitive<bool, __class::Boolean> Boolean;
   
 namespace __class {
   

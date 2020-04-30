@@ -90,15 +90,15 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
 */
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::StringTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
+//  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
 
 /*
   OATPP_RUN_TEST(oatpp::test::async::LockTest);

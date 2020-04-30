@@ -26,9 +26,113 @@
 
 #include "oatpp/core/Types.hpp"
 
+#include <functional>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 void StringTest::onRun() {
+
+  {
+    oatpp::String s = "hello"; // check hash function exists
+    std::hash<oatpp::String>{}(s);
+  }
+
+  {
+    OATPP_LOGI(TAG, "test default constructor");
+    oatpp::String s;
+    OATPP_ASSERT(!s);
+    OATPP_ASSERT(s == nullptr);
+    OATPP_ASSERT(s == (const char*) nullptr);
+    OATPP_ASSERT(s.valueType == oatpp::String::Class::getType());
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "test const char* constructor");
+    oatpp::String s("");
+    OATPP_ASSERT(s);
+    OATPP_ASSERT(s != nullptr);
+    OATPP_ASSERT(s != (const char*) nullptr)
+    OATPP_ASSERT(s->getSize() == 0);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "test const char* implicit constructor");
+    oatpp::String s = "";
+    OATPP_ASSERT(s);
+    OATPP_ASSERT(s != nullptr);
+    OATPP_ASSERT(s != (const char*) nullptr)
+    OATPP_ASSERT(s->getSize() == 0);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "test '==', '!=' operators");
+    oatpp::String s1 = "a";
+    oatpp::String s2;
+
+    OATPP_ASSERT(s1 != s2);
+    OATPP_ASSERT(s2 != s1);
+
+    OATPP_ASSERT(s1 == "a");
+    OATPP_ASSERT(s1 != "aa");
+    OATPP_ASSERT(s1 != "");
+
+    s2 = "aa";
+
+    OATPP_ASSERT(s1 != s2);
+    OATPP_ASSERT(s2 != s1);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "test copy-asssign operator");
+    oatpp::String s1 = "s1";
+    oatpp::String s2;
+
+    s2 = s1;
+
+    OATPP_ASSERT(s1 == s2);
+    OATPP_ASSERT(s1.get() == s2.get());
+
+    s1 = "s2";
+
+    OATPP_ASSERT(s1 != s2);
+    OATPP_ASSERT(s2 != s1);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "test const char* assign operator");
+    oatpp::String s1 = "s1";
+    oatpp::String s2(s1);
+
+    OATPP_ASSERT(s1 == s2);
+    OATPP_ASSERT(s1.get() == s2.get());
+
+    s1 = "s2";
+
+    OATPP_ASSERT(s1 != s2);
+    OATPP_ASSERT(s2 != s1);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "test move assign operator");
+    oatpp::String s1 = "s1";
+    oatpp::String s2;
+
+    s2 = std::move(s1);
+
+    OATPP_ASSERT(s1 == nullptr);
+    OATPP_ASSERT(s2 != nullptr);
+    OATPP_ASSERT(s2 == "s1");
+
+    OATPP_ASSERT(s1 != s2);
+    OATPP_ASSERT(s1.get() != s2.get());
+    OATPP_LOGI(TAG, "OK");
+  }
 
 }
 
