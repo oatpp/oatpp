@@ -473,6 +473,150 @@ namespace std {
     }
     
   };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Boolean> {
+
+    typedef oatpp::data::mapping::type::Boolean argument_type;
+    typedef v_uint8 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 2;
+      return result_type(*v);
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int8> {
+
+    typedef oatpp::data::mapping::type::Int8 argument_type;
+    typedef v_uint8 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt8> {
+
+    typedef oatpp::data::mapping::type::UInt8 argument_type;
+    typedef v_uint8 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int16> {
+
+    typedef oatpp::data::mapping::type::Int16 argument_type;
+    typedef v_uint16 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt16> {
+
+    typedef oatpp::data::mapping::type::UInt16 argument_type;
+    typedef v_uint16 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int32> {
+
+    typedef oatpp::data::mapping::type::Int32 argument_type;
+    typedef v_uint32 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt32> {
+
+    typedef oatpp::data::mapping::type::UInt32 argument_type;
+    typedef v_uint32 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int64> {
+
+    typedef oatpp::data::mapping::type::Int64 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt64> {
+
+    typedef oatpp::data::mapping::type::UInt64 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Float32> {
+
+    typedef oatpp::data::mapping::type::Float32 argument_type;
+    typedef v_uint32 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return *((result_type*) v.get());
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Float64> {
+
+    typedef oatpp::data::mapping::type::Float64 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return *((result_type*) v.get());
+    }
+
+  };
+
 }
 
 #endif /* oatpp_base_Countable_PrimitiveDataTypes_hpp */

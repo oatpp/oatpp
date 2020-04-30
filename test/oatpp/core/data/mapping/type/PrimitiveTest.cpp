@@ -32,7 +32,8 @@ namespace {
 
   template<class T>
   void checkHash(const T& val) {
-    std::hash<T>{}(val);
+    auto h = std::hash<T>{}(val);
+    OATPP_LOGI("HASH", "type='%s', hash=%llu", val.valueType->classId.name, h);
   }
 
 }
@@ -40,8 +41,17 @@ namespace {
 void PrimitiveTest::onRun() {
 
   {
-    //checkHash(oatpp::Int8(8));
-    //checkHash(oatpp::UInt8(8));
+    checkHash(oatpp::Boolean(true));
+    checkHash(oatpp::Int8(0xFF));
+    checkHash(oatpp::UInt8(0xFF));
+    checkHash(oatpp::Int16(0xFFFF));
+    checkHash(oatpp::UInt16(0xFFFF));
+    checkHash(oatpp::Int32(0xFFFFFFFF));
+    checkHash(oatpp::UInt32(0xFFFFFFFF));
+    checkHash(oatpp::Int64(0xFFFFFFFFFFFFFFFF));
+    checkHash(oatpp::UInt64(0xFFFFFFFFFFFFFFFF));
+    checkHash(oatpp::Float32(0.2));
+    checkHash(oatpp::Float64(0.2));
   }
 
   {
