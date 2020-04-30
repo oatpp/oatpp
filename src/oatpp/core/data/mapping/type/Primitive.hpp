@@ -226,20 +226,18 @@ public:
     return this->m_ptr.operator*();
   }
 
-  inline bool operator == (std::nullptr_t){
-    return m_ptr.get() == nullptr;
-  }
-
-  inline bool operator != (std::nullptr_t){
-    return m_ptr.get() != nullptr;
-  }
-
-  bool operator == (bool value) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
+  >
+  bool operator == (T value) const {
     if(!this->m_ptr) return false;
     return *this->m_ptr == value;
   }
 
-  bool operator != (bool value) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
+  >
+  bool operator != (T value) const {
     if(!this->m_ptr) return true;
     return *this->m_ptr != value;
   }
