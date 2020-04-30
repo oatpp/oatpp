@@ -227,6 +227,20 @@ public:
   }
 
   template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T){
+    return m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T){
+    return m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
   >
   bool operator == (T value) const {

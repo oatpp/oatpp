@@ -160,6 +160,17 @@ void PrimitiveTest::onRun() {
   }
 
   {
+    OATPP_LOGI(TAG, "Test Boolean nullptr constructor");
+    oatpp::Boolean b = nullptr;
+
+    OATPP_ASSERT(!b);
+    OATPP_ASSERT(b == nullptr);
+    OATPP_ASSERT(b != false);
+    OATPP_ASSERT(b != true);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
     OATPP_LOGI(TAG, "Test Boolean [false]");
     oatpp::Boolean b = false;
 
