@@ -154,12 +154,12 @@ public:
     , valueType(other.valueType)
   {}
 
-  ObjectWrapper& operator=(const ObjectWrapper& other){
+  inline ObjectWrapper& operator=(const ObjectWrapper& other){
     m_ptr = other.m_ptr;
     return *this;
   }
 
-  ObjectWrapper& operator=(ObjectWrapper&& other){
+  inline ObjectWrapper& operator=(ObjectWrapper&& other){
     m_ptr = std::move(other.m_ptr);
     return *this;
   }
@@ -172,8 +172,8 @@ public:
   Wrapper staticCast() const {
     return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), valueType);
   }
-  
-  T* operator->() const {
+
+  inline T* operator->() const {
     return m_ptr.operator->();
   }
   
@@ -205,7 +205,7 @@ public:
     return m_ptr.get() != other.m_ptr.get();
   }
   
-  explicit operator bool() const {
+  explicit inline operator bool() const {
     return m_ptr.operator bool();
   }
 
@@ -396,17 +396,17 @@ public: \
     : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<WRAPPER_NAME>(other)) \
   {} \
 \
-  WRAPPER_NAME& operator = (std::nullptr_t) { \
+  inline WRAPPER_NAME& operator = (std::nullptr_t) { \
     this->m_ptr.reset(); \
     return *this; \
   } \
 \
-  WRAPPER_NAME& operator = (const WRAPPER_NAME& other) { \
+  inline WRAPPER_NAME& operator = (const WRAPPER_NAME& other) { \
     this->m_ptr = other.m_ptr; \
     return *this; \
   } \
 \
-  WRAPPER_NAME& operator = (WRAPPER_NAME&& other) { \
+  inline WRAPPER_NAME& operator = (WRAPPER_NAME&& other) { \
     this->m_ptr = std::forward<std::shared_ptr<OBJECT_TYPE>>(other.m_ptr); \
     return *this; \
   } \

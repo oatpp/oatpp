@@ -183,24 +183,54 @@ public:
     return this->m_ptr.operator*();
   }
 
-  bool operator == (TValueType value) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T){
+    return this->m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T){
+    return this->m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, TValueType>::value, void>::type
+  >
+  inline bool operator == (T value) const {
     if(!this->m_ptr) return false;
     return *this->m_ptr == value;
   }
 
-  bool operator != (TValueType value) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, TValueType>::value, void>::type
+  >
+  inline bool operator != (T value) const {
     if(!this->m_ptr) return true;
     return *this->m_ptr != value;
   }
 
-  bool operator == (const Primitive &other) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, Primitive>::value, void>::type
+  >
+  inline bool operator == (const T &other) const {
     if(this->m_ptr.get() == other.m_ptr.get()) return true;
     if(!this->m_ptr || !other.m_ptr) return false;
     return *this->m_ptr == *other.m_ptr;
   }
 
-  bool operator != (const Primitive &other) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, Primitive>::value, void>::type
+  >
+  inline bool operator != (const T &other) const {
     return !operator == (other);
+  }
+
+  inline operator TValueType() const {
+    return *this->m_ptr;
   }
   
 };
@@ -222,7 +252,7 @@ public:
     return *this;
   }
 
-  bool operator*() const {
+  inline bool operator*() const {
     return this->m_ptr.operator*();
   }
 
@@ -243,7 +273,7 @@ public:
   template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
   >
-  bool operator == (T value) const {
+  inline bool operator == (T value) const {
     if(!this->m_ptr) return false;
     return *this->m_ptr == value;
   }
@@ -251,22 +281,22 @@ public:
   template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
   >
-  bool operator != (T value) const {
+  inline bool operator != (T value) const {
     if(!this->m_ptr) return true;
     return *this->m_ptr != value;
   }
 
-  bool operator == (const Boolean &other) const {
+  inline bool operator == (const Boolean &other) const {
     if(this->m_ptr.get() == other.m_ptr.get()) return true;
     if(!this->m_ptr || !other.m_ptr) return false;
     return *this->m_ptr == *other.m_ptr;
   }
 
-  bool operator != (const Boolean &other) const {
+  inline bool operator != (const Boolean &other) const {
     return !operator == (other);
   }
 
-  explicit operator bool() const {
+  inline operator bool() const {
     if(this->m_ptr) {
       return *(this->m_ptr);
     }

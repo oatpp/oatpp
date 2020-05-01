@@ -149,6 +149,13 @@ void PrimitiveTest::onRun() {
   }
 
   {
+    OATPP_LOGI(TAG, "test move-assign operator");
+    oatpp::Int32 i = 0;
+    v_int32 v = i;
+    OATPP_ASSERT(v == i);
+  }
+
+  {
     OATPP_LOGI(TAG, "Test Boolean [nullptr]");
     oatpp::Boolean b;
 
