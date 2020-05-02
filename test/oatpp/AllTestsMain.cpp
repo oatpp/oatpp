@@ -64,6 +64,41 @@
 
 #ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 namespace {
+//
+//#include OATPP_CODEGEN_BEGIN(DTO)
+//
+//ENUM(MyEnum0, v_int32)
+//
+//ENUM(MyEnum1, v_int32,
+//  VALUE(CODE_1, 1001, "Error - code 1"),
+//  VALUE(CODE_2, 1002)
+//)
+//
+//#include OATPP_CODEGEN_END(DTO)
+//
+//enum MyE : v_int32 {
+//
+//};
+//
+//enum MyE1 : v_int32 {
+//
+//};
+//
+//template<typename T>
+//struct EnumInfo {
+//  typedef T Enum;
+//  static constexpr const char* name = "Unknown";
+//};
+//
+//template<>
+//struct EnumInfo <MyE> {
+//  static constexpr const char* name = "MyE";
+//};
+//
+//template<>
+//struct EnumInfo <int> : public oatpp::String {
+//  static constexpr const char* name = "MyE1";
+//};
 
 void runTests() {
 
@@ -71,6 +106,9 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
+
+  //OATPP_LOGD("AAA", "e-name='%s'", EnumInfo<int>::name);
+
 
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 

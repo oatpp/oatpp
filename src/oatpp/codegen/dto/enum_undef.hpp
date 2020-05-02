@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <bam@icognize.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,29 +22,3 @@
  * limitations under the License.
  *
  ***************************************************************************/
-
-/**[info]
- * This file contains "defines" for DTO code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(DTO)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(DTO)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
- *   <li>&id:oatpp::data::mapping::type::Object;</li>
- * </ul>
- */
-
-#include "oatpp/core/macro/basic.hpp"
-#include "oatpp/core/macro/codegen.hpp"
-
-#include "./dto/base_define.hpp"
-#include "./dto/enum_define.hpp"
