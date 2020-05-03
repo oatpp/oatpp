@@ -63,7 +63,7 @@ void PartsParser::onPartData(p_char8 data, v_buff_size size) {
       m_currReader->onPartData(m_currPart, data, size);
     }
   } else {
-    m_multipart->addPart(m_currPart);
+    m_multipart->writeNextPart(m_currPart);
     if(m_currReader) {
       m_currReader->onPartData(m_currPart, data, size);
     }
@@ -117,7 +117,7 @@ async::CoroutineStarter AsyncPartsParser::onPartDataAsync(p_char8 data, v_buff_s
       return m_currReader->onPartDataAsync(m_currPart, data, size);
     }
   } else {
-    m_multipart->addPart(m_currPart);
+    m_multipart->writeNextPart(m_currPart);
     if(m_currReader) {
       return m_currReader->onPartDataAsync(m_currPart, data, size);
     }

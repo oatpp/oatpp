@@ -30,15 +30,16 @@
 #include "oatpp/web/mime/multipart/FileStreamProvider.hpp"
 #include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
+#include "oatpp/web/mime/multipart/PartList.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
-
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
+
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
-
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 
@@ -202,13 +203,13 @@ public:
     ENDPOINT_ASYNC_INIT(MultipartTest)
 
     v_int32 m_chunkSize;
-    std::shared_ptr<oatpp::web::mime::multipart::Multipart> m_multipart;
+    std::shared_ptr<oatpp::web::mime::multipart::PartList> m_multipart;
 
     Action act() override {
 
       m_chunkSize = oatpp::utils::conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
 
-      m_multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
+      m_multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(request->getHeaders());
       auto multipartReader = std::make_shared<oatpp::web::mime::multipart::AsyncReader>(m_multipart);
 
       multipartReader->setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::AsyncInMemoryPartReader>(10));
@@ -232,11 +233,11 @@ public:
     ENDPOINT_ASYNC_INIT(MultipartUpload)
 
     /* Coroutine State */
-    std::shared_ptr<multipart::Multipart> m_multipart;
+    std::shared_ptr<multipart::PartList> m_multipart;
 
     Action act() override {
 
-      m_multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
+      m_multipart = std::make_shared<multipart::PartList>(request->getHeaders());
       auto multipartReader = std::make_shared<multipart::AsyncReader>(m_multipart);
 
       /* Configure to read part with name "part1" into memory */

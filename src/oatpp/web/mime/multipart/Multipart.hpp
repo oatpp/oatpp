@@ -37,13 +37,11 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
 typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 
 /**
- * Structure that holds parts of Multipart.
+ * Abstract Multipart.
  */
 class Multipart {
 private:
   oatpp::String m_boundary;
-  std::unordered_map<oatpp::String, std::shared_ptr<Part>> m_namedParts;
-  std::list<std::shared_ptr<Part>> m_parts;
 public:
 
   /**
@@ -53,23 +51,9 @@ public:
   Multipart(const oatpp::String& boundary);
 
   /**
-   * Constructor.
-   * @param requestHeaders - request headers. Headers must contain "Content-Type" header.
-   */
-  Multipart(const Headers& requestHeaders);
-
-  /**
    * Default virtual Destructor.
    */
   virtual ~Multipart() = default;
-
-  /**
-   * Create Multipart object with random boundary. <br>
-   * It will generate random vector of size `boundarySize` in bytes encoded in base64.
-   * @param boundarySize - size of the random vecrot in bytes.
-   * @return - `std::shared_ptr` to Multipart.
-   */
-  static std::shared_ptr<Multipart> createSharedWithRandomBoundary(v_int32 boundarySize = 15);
 
   /**
    * Get multipart boundary value.
@@ -78,30 +62,16 @@ public:
   oatpp::String getBoundary();
 
   /**
-   * Add part to Multipart.
-   * @param part - &id:oatpp::web::mime::multipart::Part;.
+   * Read part-by-part from Multipart.
+   * @return
    */
-  void addPart(const std::shared_ptr<Part>& part);
+  virtual std::shared_ptr<Part> readNextPart() = 0;
 
   /**
-   * Get part by name <br>
-   * Applicable to named parts only.
-   * @param name - &id:oatpp::String;.
-   * @return - &id:oatpp::web::mime::multipart::Part;.
+   * Write part-by-part to Multipart.
+   * @param part
    */
-  std::shared_ptr<Part> getNamedPart(const oatpp::String& name);
-
-  /**
-   * Get list of all parts.
-   * @return - `std::list` of `std::shared_ptr` to &id:oatpp::web::mime::multipart::Part;.
-   */
-  const std::list<std::shared_ptr<Part>>& getAllParts();
-
-  /**
-   * Get parts count.
-   * @return - parts count.
-   */
-  v_int64 count();
+  virtual void writeNextPart(const std::shared_ptr<Part>& part) = 0;
 
 };
 
@@ -111,6 +81,13 @@ public:
  * @return - &id:oatpp::String;.
  */
 oatpp::String generateRandomBoundary(v_int32 boundarySize = 15);
+
+/**
+ * Parse boundary value from headers
+ * @param headers
+ * @return
+ */
+oatpp::String parseBoundaryFromHeaders(const Headers& requestHeaders);
 
 }}}}
 

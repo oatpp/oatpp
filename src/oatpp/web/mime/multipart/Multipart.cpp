@@ -30,72 +30,12 @@
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
-
 Multipart::Multipart(const oatpp::String& boundary)
   : m_boundary(boundary)
 {}
 
-
-Multipart::Multipart(const Headers& requestHeaders){
-
-  auto contentType = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Content-Type");
-  if(contentType) {
-
-    oatpp::web::protocol::http::HeaderValueData valueData;
-    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, contentType, ';');
-
-    m_boundary = valueData.getTitleParamValue("boundary");
-
-    if(!m_boundary) {
-      throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::Multipart()]: Error. Boundary not defined.");
-    }
-
-  } else {
-    throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::Multipart()]: Error. 'Content-Type' header is missing.");
-  }
-
-}
-
-std::shared_ptr<Multipart> Multipart::createSharedWithRandomBoundary(v_int32 boundarySize) {
-  auto boundary = generateRandomBoundary(boundarySize);
-  return std::make_shared<Multipart>(boundary);
-}
-
 oatpp::String Multipart::getBoundary() {
   return m_boundary;
-}
-
-void Multipart::addPart(const std::shared_ptr<Part>& part) {
-
-  if(part->getName()) {
-    auto it = m_namedParts.find(part->getName());
-    if(it != m_namedParts.end()) {
-      throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::addPart()]: Error. Part with such name already exists.");
-    }
-    m_namedParts.insert({part->getName(), part});
-  }
-
-  m_parts.push_back(part);
-
-}
-
-std::shared_ptr<Part> Multipart::getNamedPart(const oatpp::String& name) {
-
-  auto it = m_namedParts.find(name);
-  if(it != m_namedParts.end()) {
-    return it->second;
-  }
-
-  return nullptr;
-
-}
-
-const std::list<std::shared_ptr<Part>>& Multipart::getAllParts() {
-  return m_parts;
-}
-
-v_int64 Multipart::count() {
-  return m_parts.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +45,21 @@ oatpp::String generateRandomBoundary(v_int32 boundarySize) {
   std::unique_ptr<v_char8[]> buffer(new v_char8[boundarySize]);
   utils::random::Random::randomBytes(buffer.get(), boundarySize);
   return encoding::Base64::encode(buffer.get(), boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
+}
+
+oatpp::String parseBoundaryFromHeaders(const Headers& requestHeaders) {
+
+  oatpp::String boundary;
+  auto contentType = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Content-Type");
+
+  if(contentType) {
+    oatpp::web::protocol::http::HeaderValueData valueData;
+    oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, contentType, ';');
+    boundary = valueData.getTitleParamValue("boundary");
+  }
+
+  return boundary;
+
 }
 
 }}}}

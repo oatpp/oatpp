@@ -60,22 +60,58 @@ private:
   static constexpr v_int32 STATE_FINISHED = 4;
 
 private:
+
+  class PartIterator {
+  private:
+    std::shared_ptr<Multipart> m_multipart;
+    std::shared_ptr<Part> m_part;
+    bool m_isFirst;
+  public:
+
+    PartIterator(const std::shared_ptr<Multipart>& multipart)
+      : m_multipart(multipart)
+      , m_part(m_multipart->readNextPart())
+      , m_isFirst(true)
+    {}
+
+    void inc() {
+      m_part = m_multipart->readNextPart();
+      m_isFirst = false;
+    }
+
+    bool finished() {
+      return m_part == nullptr;
+    }
+
+    bool isFirst() {
+      return m_isFirst;
+    }
+
+    std::shared_ptr<Part> get() {
+      return m_part;
+    }
+
+  };
+
+private:
+
   static v_io_size readBoundary(const std::shared_ptr<Multipart>& multipart,
-                                      std::list<std::shared_ptr<Part>>::const_iterator& iterator,
-                                      data::stream::BufferInputStream& readStream,
-                                      void *buffer,
-                                      v_buff_size count);
+                                PartIterator& iterator,
+                                data::stream::BufferInputStream& readStream,
+                                void *buffer,
+                                v_buff_size count);
 
   static v_io_size readHeaders(const std::shared_ptr<Multipart>& multipart,
-                                     std::list<std::shared_ptr<Part>>::const_iterator& iterator,
-                                     data::stream::BufferInputStream& readStream,
-                                     void *buffer,
-                                     v_buff_size count);
+                               PartIterator& iterator,
+                               data::stream::BufferInputStream& readStream,
+                               void *buffer,
+                               v_buff_size count);
 
 private:
   std::shared_ptr<Multipart> m_multipart;
+  oatpp::String m_contentType;
 private:
-  std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
+  PartIterator m_iterator;
   v_int32 m_state;
   oatpp::data::stream::BufferInputStream m_readStream;
 private:
@@ -86,7 +122,13 @@ public:
    * Constructor.
    * @param multipart - multipart object.
    */
-  MultipartBody(const std::shared_ptr<Multipart>& multipart);
+
+  /**
+   * Constructor.
+   * @param multipart - multipart object.
+   * @param contentType - type of the multipart. Default value = `"multipart/form-data"`.
+   */
+  MultipartBody(const std::shared_ptr<Multipart>& multipart, const oatpp::String& contentType = "multipart/form-data");
 
   /**
    * Read operation callback.
