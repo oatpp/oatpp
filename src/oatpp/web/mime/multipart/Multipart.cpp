@@ -38,16 +38,13 @@ oatpp::String Multipart::getBoundary() {
   return m_boundary;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other functions
-
-oatpp::String generateRandomBoundary(v_int32 boundarySize) {
+oatpp::String Multipart::generateRandomBoundary(v_int32 boundarySize) {
   std::unique_ptr<v_char8[]> buffer(new v_char8[boundarySize]);
   utils::random::Random::randomBytes(buffer.get(), boundarySize);
   return encoding::Base64::encode(buffer.get(), boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
 }
 
-oatpp::String parseBoundaryFromHeaders(const Headers& requestHeaders) {
+oatpp::String Multipart::parseBoundaryFromHeaders(const Headers& requestHeaders) {
 
   oatpp::String boundary;
   auto contentType = requestHeaders.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Content-Type");

@@ -37,11 +37,14 @@
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+
+#include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 
 #include <sstream>
+#include <thread>
 
 namespace oatpp { namespace test { namespace web { namespace app {
 
@@ -282,6 +285,64 @@ public:
 
     return createResponse(Status::CODE_200, "OK");
 
+  }
+
+  class MPStream : public oatpp::web::mime::multipart::Multipart {
+  public:
+    typedef oatpp::web::mime::multipart::Part Part;
+  private:
+    v_uint32 counter = 0;
+  public:
+
+    MPStream()
+      : oatpp::web::mime::multipart::Multipart(generateRandomBoundary())
+    {}
+
+    std::shared_ptr<Part> readNextPart() override {
+
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+
+      auto part = std::make_shared<Part>();
+      part->putHeader(Header::CONTENT_TYPE, "text/html");
+
+//      oatpp::String frameData;
+//
+//      if(counter % 2 == 0) {
+//        frameData = "<html><body>0</body></html>";
+//      } else {
+//        frameData = "<html><body>1</body></html>";
+//      }
+//
+//      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(frameData));
+
+      if(counter % 2 == 0) {
+        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame1.jpg"));
+      } else {
+        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame2.jpg"));
+      }
+
+      ++ counter;
+
+      OATPP_LOGD("Multipart", "Frame sent!");
+
+      return part;
+
+    }
+
+    void writeNextPart(const std::shared_ptr<Part>& part) override {
+      throw std::runtime_error("No writes here!!!");
+    }
+
+  };
+
+  ENDPOINT("GET", "multipart-stream", multipartStream) {
+    auto multipart = std::make_shared<MPStream>();
+    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
+      multipart,
+      "multipart/x-mixed-replace",
+      false /* flush frames immediately */
+    );
+    return OutgoingResponse::createShared(Status::CODE_200, body);
   }
   
 };

@@ -114,6 +114,7 @@ private:
   PartIterator m_iterator;
   v_int32 m_state;
   oatpp::data::stream::BufferInputStream m_readStream;
+  bool m_flushImmediately;
 private:
   v_io_size readBody(void *buffer, v_buff_size count, async::Action& action);
 public:
@@ -121,14 +122,11 @@ public:
   /**
    * Constructor.
    * @param multipart - multipart object.
-   */
-
-  /**
-   * Constructor.
-   * @param multipart - multipart object.
    * @param contentType - type of the multipart. Default value = `"multipart/form-data"`.
    */
-  MultipartBody(const std::shared_ptr<Multipart>& multipart, const oatpp::String& contentType = "multipart/form-data");
+  MultipartBody(const std::shared_ptr<Multipart>& multipart,
+                const oatpp::String& contentType = "multipart/form-data",
+                bool flushImmediately = false);
 
   /**
    * Read operation callback.

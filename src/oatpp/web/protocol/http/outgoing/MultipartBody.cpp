@@ -88,6 +88,9 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
       m_state += 1;
       if(m_state == STATE_ROUND) {
         m_state = 0;
+        if(m_flushImmediately) {
+          break;
+        }
       }
 
     } else if(action.isNone()) {
@@ -157,12 +160,13 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
   return res;
 }
 
-MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, const oatpp::String& contentType)
+MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, const oatpp::String& contentType, bool flushImmediately)
   : m_multipart(multipart)
   , m_contentType(contentType)
   , m_iterator(multipart)
   , m_state(STATE_BOUNDARY)
   , m_readStream(nullptr, nullptr, 0)
+  , m_flushImmediately(flushImmediately)
 {}
 
 void MultipartBody::declareHeaders(Headers& headers) {

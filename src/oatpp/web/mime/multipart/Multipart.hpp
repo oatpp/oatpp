@@ -73,21 +73,25 @@ public:
    */
   virtual void writeNextPart(const std::shared_ptr<Part>& part) = 0;
 
+public:
+
+  /**
+   * Generate random boundary for Multipart object. Base64 encoded.
+   * @param boundarySize - size in bytes of random vector.
+   * @return - &id:oatpp::String;.
+   */
+  static oatpp::String generateRandomBoundary(v_int32 boundarySize = 15);
+
+  /**
+   * Parse boundary value from headers
+   * @param headers
+   * @return
+   */
+  static oatpp::String parseBoundaryFromHeaders(const Headers& requestHeaders);
+
 };
 
-/**
- * Generate random boundary for Multipart object. Base64 encoded.
- * @param boundarySize - size in bytes of random vector.
- * @return - &id:oatpp::String;.
- */
-oatpp::String generateRandomBoundary(v_int32 boundarySize = 15);
 
-/**
- * Parse boundary value from headers
- * @param headers
- * @return
- */
-oatpp::String parseBoundaryFromHeaders(const Headers& requestHeaders);
 
 }}}}
 

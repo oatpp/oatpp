@@ -147,7 +147,7 @@ void FullTest::onRun() {
   runner.addController(app::BearerAuthorizationController::createShared());
 
   runner.run([this, &runner] {
-
+/*
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
 
@@ -457,6 +457,9 @@ void FullTest::onRun() {
       }
 
     }
+*/
+
+    std::this_thread::sleep_for(std::chrono::minutes(10));
 
   }, std::chrono::minutes(10));
 
