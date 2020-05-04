@@ -42,7 +42,7 @@ StringKeyLabel::StringKeyLabel(const char* constText)
   : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, std::strlen(constText))
 {}
   
-StringKeyLabel::StringKeyLabel(const oatpp::String& str)
+StringKeyLabel::StringKeyLabel(const String& str)
   : oatpp::data::share::MemoryLabel(str.getPtr(), str->getData(), str->getSize())
 {}
   
@@ -54,7 +54,7 @@ StringKeyLabelCI::StringKeyLabelCI(const char* constText)
   : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, std::strlen(constText))
 {}
 
-StringKeyLabelCI::StringKeyLabelCI(const oatpp::String& str)
+StringKeyLabelCI::StringKeyLabelCI(const String& str)
   : oatpp::data::share::MemoryLabel(str.getPtr(), str->getData(), str->getSize())
 {}
   
@@ -66,7 +66,7 @@ StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const char* constText)
   : oatpp::data::share::MemoryLabel(nullptr, (p_char8)constText, std::strlen(constText))
 {}
 
-StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const oatpp::String& str)
+StringKeyLabelCI_FAST::StringKeyLabelCI_FAST(const String& str)
   : oatpp::data::share::MemoryLabel(str.getPtr(), str->getData(), str->getSize())
 {}
   

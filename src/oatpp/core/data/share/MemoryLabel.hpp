@@ -26,7 +26,7 @@
 #define oatpp_data_share_MemoryLabel_hpp
 
 #include "oatpp/core/base/StrBuffer.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace data { namespace share {
   
@@ -36,6 +36,8 @@ namespace oatpp { namespace data { namespace share {
  * You may allocate separate buffer for data copy later once you need it.
  */
 class MemoryLabel {
+public:
+  typedef oatpp::data::mapping::type::String String;
 protected:
   mutable std::shared_ptr<base::StrBuffer> m_memoryHandle;
   mutable p_char8 m_data;
@@ -134,8 +136,8 @@ public:
    * Create oatpp::String from memory label
    * @return oatpp::String(data, size)
    */
-  oatpp::String toString() const {
-    return oatpp::String((const char*) m_data, m_size, true);
+  String toString() const {
+    return String((const char*) m_data, m_size, true);
   }
 
   /**
@@ -164,7 +166,7 @@ public:
   
   StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabel(const char* constText);
-  StringKeyLabel(const oatpp::String& str);
+  StringKeyLabel(const String& str);
   
   bool operator==(const StringKeyLabel &other) const {
     return m_size == other.m_size && base::StrBuffer::equals(m_data, other.m_data, m_size);
@@ -188,7 +190,7 @@ public:
 
   StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabelCI(const char* constText);
-  StringKeyLabelCI(const oatpp::String& str);
+  StringKeyLabelCI(const String& str);
   
   bool operator==(const StringKeyLabelCI &other) const {
     return m_size == other.m_size && base::StrBuffer::equalsCI(m_data, other.m_data, m_size);
@@ -212,7 +214,7 @@ public:
 
   StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
   StringKeyLabelCI_FAST(const char* constText);
-  StringKeyLabelCI_FAST(const oatpp::String& str);
+  StringKeyLabelCI_FAST(const String& str);
   
   bool operator==(const StringKeyLabelCI_FAST &other) const {
     return m_size == other.m_size && base::StrBuffer::equalsCI_FAST(m_data, other.m_data, m_size);

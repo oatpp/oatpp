@@ -80,6 +80,8 @@ add_library(oatpp
         oatpp/core/data/mapping/ObjectMapper.hpp
         oatpp/core/data/mapping/type/Any.cpp
         oatpp/core/data/mapping/type/Any.hpp
+        oatpp/core/data/mapping/type/Enum.cpp
+        oatpp/core/data/mapping/type/Enum.hpp
         oatpp/core/data/mapping/type/List.cpp
         oatpp/core/data/mapping/type/List.hpp
         oatpp/core/data/mapping/type/PairList.cpp

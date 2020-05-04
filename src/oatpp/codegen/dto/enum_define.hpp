@@ -43,10 +43,20 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (NAME, __VA_
 // VALUE MACRO
 
 #define OATPP_MACRO_DTO_ENUM_VALUE_1(NAME, VAL) \
-IMPL{ NAME = VAL }
+{ \
+  oatpp::data::mapping::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, #NAME}; \
+  info.byName.insert({#NAME, entry}); \
+  info.byValue.insert({static_cast<v_uint64>(EnumType::NAME), entry}); \
+  info.byIndex.push_back(entry); \
+}
 
 #define OATPP_MACRO_DTO_ENUM_VALUE_2(NAME, VAL, QUALIFIER) \
-IMPL{ NAME (QUALIFIER) = VAL }
+{ \
+  oatpp::data::mapping::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, QUALIFIER}; \
+  info.byName.insert({QUALIFIER, entry}); \
+  info.byValue.insert({static_cast<v_uint64>(EnumType::NAME), entry}); \
+  info.byIndex.push_back(entry); \
+}
 
 #define OATPP_MACRO_DTO_ENUM_VALUE(NAME, PARAM_LIST) \
 OATPP_MACRO_DTO_ENUM_MACRO_SELECTOR(OATPP_MACRO_DTO_ENUM_VALUE_, NAME, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -60,31 +70,30 @@ OATPP_MACRO_DTO_ENUM_PARAM_NAME X = OATPP_MACRO_DTO_ENUM_PARAM_VALUE X
 , OATPP_MACRO_DTO_ENUM_PARAM_NAME X = OATPP_MACRO_DTO_ENUM_PARAM_VALUE X
 
 #define OATPP_MACRO_DTO_ENUM_PARAM_PUT(INDEX, COUNT, X) \
-{ \
-  "name": OATPP_MACRO_DTO_ENUM_PARAM_NAME X; \
-  "value": OATPP_MACRO_DTO_ENUM_PARAM_VALUE X; \
-  "name-str": OATPP_MACRO_DTO_ENUM_PARAM_NAME_STR X; \
-  "value-str": OATPP_MACRO_DTO_ENUM_PARAM_VALUE_STR X; \
-  "body": { \
-    OATPP_MACRO_DTO_ENUM_PARAM_MACRO X \
-  } \
-}
+OATPP_MACRO_DTO_ENUM_PARAM_MACRO X
 
 // ENUM MACRO
 
 #define OATPP_ENUM_0(NAME, ORDINAL_TYPE) \
-enum NAME : ORDINAL_TYPE {}; \
+enum class NAME : ORDINAL_TYPE {}; \
 \
-template<> \
-struct EnumInfo <NAME> { \
-public: \
-  typedef ORDINAL_TYPE ValueType; \
-public: \
-  static constexpr const char* name = #NAME; \
-};
+class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
+private: \
+\
+  static bool init() { \
+    auto& info = EnumMeta<NAME>::__info; \
+    info.nameQualifier = #NAME; \
+    return true; \
+  } \
+\
+private: \
+  static bool initialized; \
+}; \
+\
+bool Z__OATPP_ENUM_META_##NAME::initialized = Z__OATPP_ENUM_META_##NAME::init();
 
 #define OATPP_ENUM_1(NAME, ORDINAL_TYPE, ...) \
-enum NAME : ORDINAL_TYPE { \
+enum class NAME : ORDINAL_TYPE { \
   OATPP_MACRO_FOREACH_FIRST_AND_REST( \
     OATPP_MACRO_DTO_ENUM_PARAM_DECL_FIRST, \
     OATPP_MACRO_DTO_ENUM_PARAM_DECL_REST, \
@@ -92,16 +101,22 @@ enum NAME : ORDINAL_TYPE { \
   ) \
 }; \
 \
-template<> \
-struct EnumInfo <NAME> { \
-public: \
-  typedef ORDINAL_TYPE ValueType; \
-public: \
-  static constexpr const char* name = #NAME; \
-  \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_DTO_ENUM_PARAM_PUT, __VA_ARGS__) \
-  \
-};
+class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
+private: \
+\
+  static bool init() { \
+    auto& info = EnumMeta<NAME>::__info; \
+    v_int32 index = 0; \
+    info.nameQualifier = #NAME; \
+    OATPP_MACRO_FOREACH(OATPP_MACRO_DTO_ENUM_PARAM_PUT, __VA_ARGS__) \
+    return true; \
+  } \
+\
+private: \
+  static bool initialized; \
+}; \
+\
+bool Z__OATPP_ENUM_META_##NAME::initialized = Z__OATPP_ENUM_META_##NAME::init();
 
 // Chooser
 

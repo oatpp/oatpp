@@ -55,6 +55,7 @@
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Enum.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -63,42 +64,25 @@
 #include <mutex>
 
 #ifdef OATPP_ENABLE_ALL_TESTS_MAIN
+
 namespace {
-//
-//#include OATPP_CODEGEN_BEGIN(DTO)
-//
-//ENUM(MyEnum0, v_int32)
-//
-//ENUM(MyEnum1, v_int32,
-//  VALUE(CODE_1, 1001, "Error - code 1"),
-//  VALUE(CODE_2, 1002)
-//)
-//
-//#include OATPP_CODEGEN_END(DTO)
-//
-//enum MyE : v_int32 {
-//
-//};
-//
-//enum MyE1 : v_int32 {
-//
-//};
-//
-//template<typename T>
-//struct EnumInfo {
-//  typedef T Enum;
-//  static constexpr const char* name = "Unknown";
-//};
-//
-//template<>
-//struct EnumInfo <MyE> {
-//  static constexpr const char* name = "MyE";
-//};
-//
-//template<>
-//struct EnumInfo <int> : public oatpp::String {
-//  static constexpr const char* name = "MyE1";
-//};
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+ENUM(MyEnum0, v_int32)
+
+ENUM(MyEnum1, v_int32,
+  VALUE(CODE_1, 1001, "Error - code 1"),
+  VALUE(CODE_2, 1002),
+  VALUE(CODE_3, -1)
+)
+
+ENUM(MyEnum2, v_uint64,
+     VALUE(CODE_1, 1001, "Error - code 1"),
+     VALUE(CODE_2, 1002)
+)
+
+#include OATPP_CODEGEN_END(DTO)
 
 void runTests() {
 
@@ -107,9 +91,32 @@ void runTests() {
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
 
-  //OATPP_LOGD("AAA", "e-name='%s'", EnumInfo<int>::name);
+  v_uint16 v = static_cast<v_uint16>(MyEnum1::CODE_3);
 
+  OATPP_LOGD("AAA", "name='%s'", oatpp::Enum<MyEnum1>::Class::getType()->nameQualifier);
+  OATPP_LOGD("AAA", "name='%s'", oatpp::Enum<MyEnum2>::Class::getType()->nameQualifier);
 
+  {
+    auto entry = oatpp::Enum<MyEnum1>::getEntryByName("Error - code 1");
+    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
+  }
+
+  {
+    auto entry = oatpp::Enum<MyEnum1>::getEntryByValue(MyEnum1::CODE_3);
+    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
+  }
+
+  {
+    auto entry = oatpp::Enum<MyEnum1>::getEntryByIndex(2);
+    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
+  }
+
+  {
+    auto entry = oatpp::Enum<MyEnum1>::getEntryByUnderlyingValue(1003);
+    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
+  }
+
+/*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
@@ -222,7 +229,7 @@ void runTests() {
     test_port.run();
 
   }
-
+*/
 }
 
 }
