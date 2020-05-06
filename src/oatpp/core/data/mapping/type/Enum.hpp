@@ -48,7 +48,7 @@ namespace __class {
 
   };
 
-  template<class T>
+  template<class T, class Interpreter>
   class Enum;
 
 }
@@ -63,19 +63,24 @@ struct EnumValueInfo {
 template<typename T>
 struct EnumInfo {
 public:
-  const char* nameQualifier;
+  const char* nameQualifier = nullptr;
   std::unordered_map<data::share::StringKeyLabel, EnumValueInfo<T>> byName;
   std::unordered_map<v_uint64, EnumValueInfo<T>> byValue;
   std::vector<EnumValueInfo<T>> byIndex;
 };
 
-template<class T>
-class Enum; // FWD
+template<class T, class Interpreter>
+class EnumObjectWrapper; // FWD
 
 template<class T>
 class EnumMeta {
-  friend __class::Enum<T>;
-  friend Enum<T>;
+
+  template<class Type, class Interpreter>
+  friend class __class::Enum;
+
+  template<class Type, class Interpreter>
+  friend class EnumObjectWrapper;
+
 public:
   typedef T EnumType;
 protected:
@@ -85,10 +90,40 @@ protected:
 template<class T>
 EnumInfo<T> EnumMeta<T>::__info;
 
-template<class T>
-class Enum : public ObjectWrapper<T, __class::Enum<T>>{
+template<class T, bool nullable>
+class EnumInterpreterAsString {
+public:
+  template <bool N>
+  using InterpreterType = EnumInterpreterAsString<T, N>;
+public:
+  constexpr static bool isNullable = nullable;
+public:
+  static Void toInterpretation(T value);
+  static T fromInterpretation(const Void& value);
+};
+
+template<class T, bool nullable>
+class EnumInterpreterAsInteger {
+public:
+  template <bool N>
+  using InterpreterType = EnumInterpreterAsInteger<T, N>;
+public:
+  constexpr static bool isNullable = nullable;
+public:
+  static Void toInterpretation(T value);
+  static T fromInterpretation(const Void& value);
+};
+
+template<class T, class EnumInterpreter>
+class EnumObjectWrapper : public ObjectWrapper<T, __class::Enum<T, EnumInterpreter>>{
 public:
   typedef typename std::underlying_type<T>::type UnderlyingType;
+  typedef __class::Enum<T, EnumInterpreter> EnumObjectClass;
+  typedef EnumInterpreter Interpreter;
+public:
+  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, true>> AsString;
+  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, true>> AsInteger;
+  typedef EnumObjectWrapper<T, typename EnumInterpreter::template InterpreterType<false>> NotNull;
 public:
 
   static EnumValueInfo<T> getEntryByName(const String& name) {
@@ -128,9 +163,49 @@ public:
 
 };
 
+template <class T>
+using Enum = EnumObjectWrapper<T, EnumInterpreterAsString<T, true>>;
+
+template<class T, bool nullable>
+Void EnumInterpreterAsString<T, nullable>::toInterpretation(T value) {
+  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>>::getEntryByValue(value);
+  return entry.name.toString();
+}
+
+template<class T, bool nullable>
+T EnumInterpreterAsString<T, nullable>::fromInterpretation(const Void& value) {
+  if(value.valueType != String::Class::getType()) {
+    throw std::runtime_error("[oatpp::data::mapping::type::EnumInterpreterAsString::fromInterpretation()]: Error. Interpretation must be a String.");
+  }
+  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>>::getEntryByName(value.staticCast<String>());
+  return entry.value;
+}
+
+template<class T, bool nullable>
+Void EnumInterpreterAsInteger<T, nullable>::toInterpretation(T value) {
+  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>>::getEntryByValue(value);
+  typedef typename std::underlying_type<T>::type EnumUT;
+  typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper OW;
+  OW result(static_cast<EnumUT>(value));
+  return result;
+}
+
+template<class T, bool nullable>
+T EnumInterpreterAsInteger<T, nullable>::fromInterpretation(const Void& value) {
+
+  typedef typename std::underlying_type<T>::type EnumUT;
+  typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper OW;
+
+  if(value.valueType != OW::Class::getType()) {
+    throw std::runtime_error("[oatpp::data::mapping::type::EnumInterpreterAsInteger::fromInterpretation()]: Error. Interpretation value type doesn't match.");
+  }
+  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>>::getEntryByUnderlyingValue(value.staticCast<OW>());
+  return entry.value;
+}
+
 namespace __class {
 
-  template<class T>
+  template<class T, class Interpreter>
   class Enum : public AbstractEnum {
   private:
 

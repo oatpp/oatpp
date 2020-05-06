@@ -47,6 +47,7 @@
 #include "oatpp/core/data/mapping/type/ObjectWrapperTest.hpp"
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/core/data/mapping/type/AnyTest.hpp"
+#include "oatpp/core/data/mapping/type/EnumTest.hpp"
 
 #include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
@@ -91,31 +92,6 @@ void runTests() {
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
 
-  v_uint16 v = static_cast<v_uint16>(MyEnum1::CODE_3);
-
-  OATPP_LOGD("AAA", "name='%s'", oatpp::Enum<MyEnum1>::Class::getType()->nameQualifier);
-  OATPP_LOGD("AAA", "name='%s'", oatpp::Enum<MyEnum2>::Class::getType()->nameQualifier);
-
-  {
-    auto entry = oatpp::Enum<MyEnum1>::getEntryByName("Error - code 1");
-    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
-  }
-
-  {
-    auto entry = oatpp::Enum<MyEnum1>::getEntryByValue(MyEnum1::CODE_3);
-    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
-  }
-
-  {
-    auto entry = oatpp::Enum<MyEnum1>::getEntryByIndex(2);
-    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
-  }
-
-  {
-    auto entry = oatpp::Enum<MyEnum1>::getEntryByUnderlyingValue(1003);
-    OATPP_LOGD("Entry", "name='%s', value=%d, index=%d", entry.name.toString()->getData(), entry.value, entry.index);
-  }
-
 /*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
@@ -135,14 +111,16 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::StringTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
-
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
+*/
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
+/*
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);

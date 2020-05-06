@@ -167,6 +167,8 @@ String operator + (const String& a, const String& b);
 template<typename TValueType, class Clazz>
 class Primitive : public type::ObjectWrapper<TValueType, Clazz>  {
 public:
+  typedef TValueType UnderlyingType;
+public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Primitive, TValueType, Clazz)
 
@@ -239,6 +241,8 @@ public:
  * ObjectWrapper for Boolean.
  */
 class Boolean : public type::ObjectWrapper<bool, __class::Boolean>  {
+public:
+  typedef bool UnderlyingType;
 public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Boolean, bool, __class::Boolean)
@@ -354,6 +358,52 @@ typedef Primitive<v_float32, __class::Float32> Float32;
  * Float64 is an ObjectWrapper over `v_float64` and __class::Float64.
  */
 typedef Primitive<v_float64, __class::Float64> Float64;
+
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int8> {
+  typedef Int8 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint8> {
+  typedef UInt8 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int16> {
+  typedef Int16 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint16> {
+  typedef UInt16 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int32> {
+  typedef Int32 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint32> {
+  typedef UInt32 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int64> {
+  typedef Int64 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint64> {
+  typedef UInt64 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <bool> {
+  typedef Boolean ObjectWrapper;
+};
   
 namespace __class {
   
