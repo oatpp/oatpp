@@ -43,14 +43,29 @@ void EnumTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Declaration...");
-    OATPP_ASSERT(oatpp::Enum<Enum1>::Interpreter::isNullable == true);
-    OATPP_ASSERT(oatpp::Enum<Enum1>::NotNull::Interpreter::isNullable == false);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::Interpreter::notNull == false);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::NotNull::Interpreter::notNull == true);
 
-    OATPP_ASSERT(oatpp::Enum<Enum1>::AsString::Interpreter::isNullable == true);
-    OATPP_ASSERT(oatpp::Enum<Enum1>::AsString::NotNull::Interpreter::isNullable == false);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::AsString::Interpreter::notNull == false);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::AsString::NotNull::Interpreter::notNull == true);
 
-    OATPP_ASSERT(oatpp::Enum<Enum1>::AsInteger::Interpreter::isNullable == true);
-    OATPP_ASSERT(oatpp::Enum<Enum1>::AsInteger::NotNull::Interpreter::isNullable == false);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::AsInteger::Interpreter::notNull == false);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::AsInteger::NotNull::Interpreter::notNull == true);
+
+    OATPP_ASSERT(oatpp::Enum<Enum1>::NotNull::AsString::Interpreter::notNull == true);
+    OATPP_ASSERT(oatpp::Enum<Enum1>::NotNull::AsInteger::Interpreter::notNull == true);
+
+    auto pd1 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+      oatpp::Enum<Enum1>::Class::getType()->polymorphicDispatcher
+    );
+
+    auto pd2 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+      oatpp::Enum<Enum1>::NotNull::Class::getType()->polymorphicDispatcher
+    );
+
+    OATPP_ASSERT(pd1->notNull == false);
+    OATPP_ASSERT(pd2->notNull == true);
+
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -79,6 +94,107 @@ void EnumTest::onRun() {
     OATPP_ASSERT(value == Enum1::NAME_1);
     OATPP_LOGI(TAG, "OK");
   }
+
+  {
+    OATPP_LOGI(TAG, "Test default constructors and == operators...");
+    oatpp::Enum<Enum1>::AsString e1;
+    oatpp::Enum<Enum1>::AsString e2;
+
+    OATPP_ASSERT(!e1);
+    OATPP_ASSERT(e1 == nullptr);
+    OATPP_ASSERT(e1 == e2);
+    OATPP_ASSERT(e2 == e1);
+
+    oatpp::Enum<Enum1>::NotNull e3;
+
+    OATPP_ASSERT(e1 == e3);
+    OATPP_ASSERT(e3 == e1);
+
+    oatpp::Enum<Enum1>::AsInteger::NotNull e4;
+
+    OATPP_ASSERT(e1 == e4);
+    OATPP_ASSERT(e4 == e1);
+
+    OATPP_ASSERT(e1.valueType != e4.valueType); // Types are not equal because interpreters are different
+    OATPP_ASSERT(e1.valueType->classId.id == e4.valueType->classId.id); // But classId is the same
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test value constructor and == operators...");
+    oatpp::Enum<Enum1> e1(Enum1::NAME_1);
+    oatpp::Enum<Enum1> e2(Enum1::NAME_1);
+    oatpp::Enum<Enum1> e3;
+
+    OATPP_ASSERT(e1);
+    OATPP_ASSERT(e1 != nullptr);
+    OATPP_ASSERT(e1 == e2);
+    OATPP_ASSERT(e1 != e3);
+    OATPP_ASSERT(e3 != e1);
+
+    OATPP_ASSERT(e1 == Enum1::NAME_1);
+    OATPP_ASSERT(e1 != Enum1::NAME_2);
+    OATPP_ASSERT(e3 != Enum1::NAME_1);
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test copy-assignment operator...");
+    oatpp::Enum<Enum1>::AsString e1;
+    oatpp::Enum<Enum1>::AsInteger e2(Enum1::NAME_1);
+    Enum1 ve;
+
+    OATPP_ASSERT(e1.valueType == oatpp::Enum<Enum1>::AsString::Class::getType());
+    OATPP_ASSERT(e2.valueType == oatpp::Enum<Enum1>::AsInteger::Class::getType());
+    OATPP_ASSERT(e1.valueType != e2.valueType);
+
+    e1 = e2;
+
+    OATPP_ASSERT(e1.valueType == oatpp::Enum<Enum1>::AsString::Class::getType());
+    OATPP_ASSERT(e2.valueType == oatpp::Enum<Enum1>::AsInteger::Class::getType());
+    OATPP_ASSERT(e1.valueType != e2.valueType);
+
+    OATPP_ASSERT(e1 == e2);
+    OATPP_ASSERT(e2 == e1);
+    OATPP_ASSERT(e1.get() == e2.get());
+
+    e1 = Enum1::NAME_2;
+
+    OATPP_ASSERT(e1 != e2);
+    OATPP_ASSERT(e2 != e1);
+    OATPP_ASSERT(e1.get() != e2.get());
+
+    OATPP_ASSERT(e1 == Enum1::NAME_2);
+    OATPP_ASSERT(e2 == Enum1::NAME_1);
+
+    ve = e1;
+
+    OATPP_ASSERT(ve == Enum1::NAME_2);
+
+    ve = e2;
+
+    OATPP_ASSERT(ve == Enum1::NAME_1);
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test move-assignment operator...");
+    oatpp::Enum<Enum1>::AsString e1;
+    oatpp::Enum<Enum1>::AsInteger e2(Enum1::NAME_1);
+
+    e1 = std::move(e2);
+
+    OATPP_ASSERT(e1);
+    OATPP_ASSERT(!e2);
+
+    OATPP_ASSERT(e1 == Enum1::NAME_1);
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
 
 }
 

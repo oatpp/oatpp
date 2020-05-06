@@ -44,6 +44,14 @@ namespace __class {
     class AbstractPolymorphicDispatcher {
     public:
 
+      AbstractPolymorphicDispatcher(bool pNotNull)
+        : notNull(pNotNull)
+      {}
+
+      const bool notNull;
+
+
+
     };
 
   };
@@ -96,7 +104,7 @@ public:
   template <bool N>
   using InterpreterType = EnumInterpreterAsString<T, N>;
 public:
-  constexpr static bool isNullable = nullable;
+  constexpr static bool notNull = nullable;
 public:
   static Void toInterpretation(T value);
   static T fromInterpretation(const Void& value);
@@ -108,7 +116,7 @@ public:
   template <bool N>
   using InterpreterType = EnumInterpreterAsInteger<T, N>;
 public:
-  constexpr static bool isNullable = nullable;
+  constexpr static bool notNull = nullable;
 public:
   static Void toInterpretation(T value);
   static T fromInterpretation(const Void& value);
@@ -116,14 +124,132 @@ public:
 
 template<class T, class EnumInterpreter>
 class EnumObjectWrapper : public ObjectWrapper<T, __class::Enum<T, EnumInterpreter>>{
+  template<class Type, class Interpreter>
+  friend class EnumObjectWrapper;
 public:
-  typedef typename std::underlying_type<T>::type UnderlyingType;
+  typedef EnumObjectWrapper __Wrapper;
+public:
+  typedef typename std::underlying_type<T>::type UnderlyingEnumType;
+  typedef T Z__EnumType;
   typedef __class::Enum<T, EnumInterpreter> EnumObjectClass;
   typedef EnumInterpreter Interpreter;
 public:
-  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, true>> AsString;
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, true>> AsInteger;
-  typedef EnumObjectWrapper<T, typename EnumInterpreter::template InterpreterType<false>> NotNull;
+  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, EnumInterpreter::notNull>> AsString;
+  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, EnumInterpreter::notNull>> AsInteger;
+  typedef EnumObjectWrapper<T, typename EnumInterpreter::template InterpreterType<true>> NotNull;
+public:
+
+  EnumObjectWrapper(const std::shared_ptr<T>& ptr, const type::Type* const valueType)
+    : type::ObjectWrapper<T, EnumObjectClass>(ptr, valueType)
+  {}
+
+  EnumObjectWrapper() {}
+
+  EnumObjectWrapper(std::nullptr_t) {}
+
+  EnumObjectWrapper(const std::shared_ptr<T>& ptr)
+    : type::ObjectWrapper<T, EnumObjectClass>(ptr)
+  {}
+
+  EnumObjectWrapper(std::shared_ptr<T>&& ptr)
+    : type::ObjectWrapper<T, EnumObjectClass>(std::forward<std::shared_ptr<T>>(ptr))
+  {}
+
+  template<class OtherInter>
+  EnumObjectWrapper(const EnumObjectWrapper<T, OtherInter>& other)
+    : type::ObjectWrapper<T, EnumObjectClass>(other)
+  {}
+
+  template<class OtherInter>
+  EnumObjectWrapper(EnumObjectWrapper<T, OtherInter>&& other)
+    : type::ObjectWrapper<T, EnumObjectClass>(std::forward<EnumObjectWrapper>(other))
+  {}
+
+  inline EnumObjectWrapper& operator = (std::nullptr_t) {
+    this->m_ptr.reset();
+    return *this;
+  }
+
+  template<class OtherInter>
+  inline EnumObjectWrapper& operator = (const EnumObjectWrapper<T, OtherInter>& other) {
+    this->m_ptr = other.m_ptr;
+    return *this;
+  }
+
+  template<class OtherInter>
+  inline EnumObjectWrapper& operator = (EnumObjectWrapper<T, OtherInter>&& other) {
+    this->m_ptr = std::forward<std::shared_ptr<T>>(other.m_ptr);
+    return *this;
+  }
+
+public:
+
+  EnumObjectWrapper(T value)
+    : type::ObjectWrapper<T, EnumObjectClass>(std::make_shared<T>(value))
+  {}
+
+  EnumObjectWrapper& operator = (T value) {
+    this->m_ptr = std::make_shared<T>(value);
+    return *this;
+  }
+
+  T operator*() const {
+    return this->m_ptr.operator*();
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<TP, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (TP){
+    return this->m_ptr.get() == nullptr;
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<TP, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (TP){
+    return this->m_ptr.get() != nullptr;
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<TP, T>::value, void>::type
+  >
+  inline bool operator == (TP value) const {
+    if(!this->m_ptr) return false;
+    return *this->m_ptr == value;
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<TP, T>::value, void>::type
+  >
+  inline bool operator != (TP value) const {
+    if(!this->m_ptr) return true;
+    return *this->m_ptr != value;
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<typename TP::Z__EnumType, Z__EnumType>::value, void>::type
+  >
+  inline bool operator == (const TP &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<typename TP::Z__EnumType, Z__EnumType>::value, void>::type
+  >
+  inline bool operator != (const TP &other) const {
+    return !operator == (other);
+  }
+
+  template<typename TP,
+    typename enabled = typename std::enable_if<std::is_same<TP, T>::value, void>::type
+  >
+  inline operator TP() const {
+    return *this->m_ptr;
+  }
+
 public:
 
   static EnumValueInfo<T> getEntryByName(const String& name) {
@@ -142,7 +268,7 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByValue()]: Error. Entry not found.");
   }
 
-  static EnumValueInfo<T> getEntryByUnderlyingValue(UnderlyingType value) {
+  static EnumValueInfo<T> getEntryByUnderlyingValue(UnderlyingEnumType value) {
     auto it = EnumMeta<T>::__info.byValue.find(static_cast<v_uint64>(value));
     if(it != EnumMeta<T>::__info.byValue.end()) {
       return it->second;
@@ -164,7 +290,7 @@ public:
 };
 
 template <class T>
-using Enum = EnumObjectWrapper<T, EnumInterpreterAsString<T, true>>;
+using Enum = EnumObjectWrapper<T, EnumInterpreterAsString<T, false>>;
 
 template<class T, bool nullable>
 Void EnumInterpreterAsString<T, nullable>::toInterpretation(T value) {
@@ -211,7 +337,9 @@ namespace __class {
 
     class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
     public:
-
+      PolymorphicDispatcher()
+        : AbstractPolymorphicDispatcher(Interpreter::notNull)
+      {}
     };
 
   private:
