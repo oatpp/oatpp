@@ -92,11 +92,11 @@ class EnumMeta {
 public:
   typedef T EnumType;
 protected:
-  static EnumInfo<T> __info;
+  static EnumInfo<T>* getInfo() {
+    static EnumInfo<T> info;
+    return &info;
+  }
 };
-
-template<class T>
-EnumInfo<T> EnumMeta<T>::__info;
 
 template<class T, bool nullable>
 class EnumInterpreterAsString {
@@ -253,38 +253,38 @@ public:
 public:
 
   static EnumValueInfo<T> getEntryByName(const String& name) {
-    auto it = EnumMeta<T>::__info.byName.find(name);
-    if(it != EnumMeta<T>::__info.byName.end()) {
+    auto it = EnumMeta<T>::getInfo()->byName.find(name);
+    if(it != EnumMeta<T>::getInfo()->byName.end()) {
       return it->second;
     }
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByName()]: Error. Entry not found.");
   }
 
   static EnumValueInfo<T> getEntryByValue(T value) {
-    auto it = EnumMeta<T>::__info.byValue.find(static_cast<v_uint64>(value));
-    if(it != EnumMeta<T>::__info.byValue.end()) {
+    auto it = EnumMeta<T>::getInfo()->byValue.find(static_cast<v_uint64>(value));
+    if(it != EnumMeta<T>::getInfo()->byValue.end()) {
       return it->second;
     }
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByValue()]: Error. Entry not found.");
   }
 
   static EnumValueInfo<T> getEntryByUnderlyingValue(UnderlyingEnumType value) {
-    auto it = EnumMeta<T>::__info.byValue.find(static_cast<v_uint64>(value));
-    if(it != EnumMeta<T>::__info.byValue.end()) {
+    auto it = EnumMeta<T>::getInfo()->byValue.find(static_cast<v_uint64>(value));
+    if(it != EnumMeta<T>::getInfo()->byValue.end()) {
       return it->second;
     }
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByUnderlyingValue()]: Error. Entry not found.");
   }
 
   static EnumValueInfo<T> getEntryByIndex(v_int32 index) {
-    if(index >= 0 && index < EnumMeta<T>::__info.byIndex.size()) {
-      return EnumMeta<T>::__info.byIndex[index];
+    if(index >= 0 && index < EnumMeta<T>::getInfo()->byIndex.size()) {
+      return EnumMeta<T>::getInfo()->byIndex[index];
     }
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByIndex()]: Error. Entry not found.");
   }
 
   static const std::vector<EnumValueInfo<T>>& getEntries() {
-    return EnumMeta<T>::__info.byIndex;
+    return EnumMeta<T>::getInfo()->byIndex;
   }
 
 };
@@ -349,7 +349,7 @@ namespace __class {
     }
 
     static Type createType() {
-      Type type(__class::AbstractEnum::CLASS_ID, type::EnumMeta<T>::__info.nameQualifier, &creator, nullptr, new PolymorphicDispatcher());
+      Type type(__class::AbstractEnum::CLASS_ID, type::EnumMeta<T>::getInfo()->nameQualifier, &creator, nullptr, new PolymorphicDispatcher());
       return type;
     }
 
