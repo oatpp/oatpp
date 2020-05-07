@@ -26,16 +26,7 @@
 #define oatpp_parser_json_mapping_Serializer_hpp
 
 #include "oatpp/parser/json/Beautifier.hpp"
-
-#include "oatpp/core/data/mapping/type/PairList.hpp"
-#include "oatpp/core/data/mapping/type/List.hpp"
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/Types.hpp"
-
 #include <vector>
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
@@ -181,6 +172,10 @@ private:
   static void serializeAny(Serializer* serializer,
                            data::stream::ConsistentOutputStream* stream,
                            const oatpp::Void& polymorph);
+
+  static void serializeEnum(Serializer* serializer,
+                            data::stream::ConsistentOutputStream* stream,
+                            const oatpp::Void& polymorph);
 
   static void serializeObject(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,

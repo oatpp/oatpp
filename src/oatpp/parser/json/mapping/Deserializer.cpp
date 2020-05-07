@@ -54,6 +54,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
 
   setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
+  setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Deserializer::deserializeEnum);
 
   setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractVector>);
   setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractList>);
@@ -254,6 +255,13 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Car
     }
   }
   return oatpp::Void(Any::Class::getType());
+}
+
+oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+    type->polymorphicDispatcher
+  );
+  return polymorphicDispatcher->fromInterpretation(deserializer->deserialize(caret, polymorphicDispatcher->getInterpretationType()));
 }
 
 oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
