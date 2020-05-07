@@ -92,7 +92,7 @@ private: \
 public: \
 \
   static bool initializer() { \
-    bool initialized = init(); \
+    static bool initialized = init(); \
     return initialized; \
   } \
 \
@@ -127,7 +127,7 @@ private: \
 public: \
 \
   static bool initializer() { \
-    bool initialized = init(); \
+    static bool initialized = init(); \
     return initialized; \
   } \
 \
