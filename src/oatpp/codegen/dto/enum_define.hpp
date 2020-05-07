@@ -77,20 +77,30 @@ OATPP_MACRO_DTO_ENUM_PARAM_MACRO X
 #define OATPP_ENUM_0(NAME, ORDINAL_TYPE) \
 enum class NAME : ORDINAL_TYPE {}; \
 \
+namespace { \
+\
 class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
 private: \
 \
   static bool init() { \
-    auto& info = EnumMeta<NAME>::__info; \
+    auto& info = *EnumMeta<NAME>::getInfo(); \
+    v_int32 index = 0; \
     info.nameQualifier = #NAME; \
     return true; \
   } \
 \
-private: \
-  static bool initialized; \
+public: \
+\
+  static bool initializer() { \
+    static bool initialized = init(); \
+    return initialized; \
+  } \
+\
 }; \
 \
-bool Z__OATPP_ENUM_META_##NAME::initialized = Z__OATPP_ENUM_META_##NAME::init();
+bool Z__OATPP_ENUM_META_INITIALIZER_##NAME = Z__OATPP_ENUM_META_##NAME::initializer(); \
+\
+}
 
 #define OATPP_ENUM_1(NAME, ORDINAL_TYPE, ...) \
 enum class NAME : ORDINAL_TYPE { \
@@ -101,22 +111,31 @@ enum class NAME : ORDINAL_TYPE { \
   ) \
 }; \
 \
+namespace { \
+\
 class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
 private: \
 \
   static bool init() { \
-    auto& info = EnumMeta<NAME>::__info; \
+    auto& info = *EnumMeta<NAME>::getInfo(); \
     v_int32 index = 0; \
     info.nameQualifier = #NAME; \
     OATPP_MACRO_FOREACH(OATPP_MACRO_DTO_ENUM_PARAM_PUT, __VA_ARGS__) \
     return true; \
   } \
 \
-private: \
-  static bool initialized; \
+public: \
+\
+  static bool initializer() { \
+    static bool initialized = init(); \
+    return initialized; \
+  } \
+\
 }; \
 \
-bool Z__OATPP_ENUM_META_##NAME::initialized = Z__OATPP_ENUM_META_##NAME::init();
+bool Z__OATPP_ENUM_META_INITIALIZER_##NAME = Z__OATPP_ENUM_META_##NAME::initializer(); \
+\
+}
 
 // Chooser
 

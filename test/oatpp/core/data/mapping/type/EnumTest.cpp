@@ -37,6 +37,14 @@ ENUM(Enum1, v_int32,
   VALUE(NAME_3, 3, "name-3")
 )
 
+ENUM(Enum2, v_int32,
+     VALUE(NAME_1, 1, "name-1"),
+     VALUE(NAME_2, 2, "name-2"),
+     VALUE(NAME_3, 3, "name-3")
+)
+
+ENUM(Enum3, v_int32)
+
 #include OATPP_CODEGEN_END(DTO)
 
 void EnumTest::onRun() {
