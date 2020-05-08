@@ -102,54 +102,54 @@ public:
     : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<String>(other))
   {}
 
-  String& operator = (std::nullptr_t) {
+  inline String& operator = (std::nullptr_t) {
     m_ptr.reset();
     return *this;
   }
 
-  String& operator = (const char* str) {
+  inline String& operator = (const char* str) {
     m_ptr = base::StrBuffer::createFromCString(str);
     return *this;
   }
-  
-  String& operator = (const String& other){
+
+  inline String& operator = (const String& other){
     m_ptr = other.m_ptr;
     return *this;
   }
-  
-  String& operator = (String&& other){
+
+  inline String& operator = (String&& other){
     m_ptr = std::forward<std::shared_ptr<base::StrBuffer>>(other.m_ptr);
     return *this;
   }
 
-  bool operator == (std::nullptr_t) const {
+  inline bool operator == (std::nullptr_t) const {
     return m_ptr.get() == nullptr;
   }
 
-  bool operator != (std::nullptr_t) const {
+  inline bool operator != (std::nullptr_t) const {
     return m_ptr.get() != nullptr;
   }
 
-  bool operator == (const char* str) const {
+  inline bool operator == (const char* str) const {
     if(!m_ptr) return str == nullptr;
     if(str == nullptr) return false;
     if(m_ptr->getSize() != std::strlen(str)) return false;
     return base::StrBuffer::equals(m_ptr->getData(), str, m_ptr->getSize());
   }
 
-  bool operator != (const char* str) const {
+  inline bool operator != (const char* str) const {
     return !operator == (str);
   }
-  
-  bool operator == (const String &other) const {
+
+  inline bool operator == (const String &other) const {
     return base::StrBuffer::equals(m_ptr.get(), other.m_ptr.get());
   }
-  
-  bool operator != (const String &other) const {
+
+  inline bool operator != (const String &other) const {
     return !operator == (other);
   }
-  
-  explicit operator bool() const {
+
+  inline explicit operator bool() const {
     return m_ptr.operator bool();
   }
   

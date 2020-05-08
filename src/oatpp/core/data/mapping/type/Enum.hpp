@@ -95,9 +95,10 @@ namespace __class {
 
 template<typename T>
 struct EnumValueInfo {
-  const T value;
-  const v_int32 index;
-  const data::share::StringKeyLabel name;
+  T value;
+  v_int32 index;
+  data::share::StringKeyLabel name;
+  data::share::StringKeyLabel description;
 };
 
 template<typename T>
@@ -106,7 +107,7 @@ public:
   const char* nameQualifier = nullptr;
   std::unordered_map<data::share::StringKeyLabel, EnumValueInfo<T>> byName;
   std::unordered_map<v_uint64, EnumValueInfo<T>> byValue;
-  std::vector<EnumValueInfo<T>> byIndex;
+  std::vector<const EnumValueInfo<T>> byIndex;
 };
 
 template<class T, class Interpreter>
@@ -286,7 +287,7 @@ public:
 
 public:
 
-  static EnumValueInfo<T> getEntryByName(const String& name) {
+  static const EnumValueInfo<T>& getEntryByName(const String& name) {
     auto it = EnumMeta<T>::getInfo()->byName.find(name);
     if(it != EnumMeta<T>::getInfo()->byName.end()) {
       return it->second;
@@ -294,7 +295,7 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByName()]: Error. Entry not found.");
   }
 
-  static EnumValueInfo<T> getEntryByValue(T value) {
+  static const EnumValueInfo<T>& getEntryByValue(T value) {
     auto it = EnumMeta<T>::getInfo()->byValue.find(static_cast<v_uint64>(value));
     if(it != EnumMeta<T>::getInfo()->byValue.end()) {
       return it->second;
@@ -302,7 +303,7 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByValue()]: Error. Entry not found.");
   }
 
-  static EnumValueInfo<T> getEntryByUnderlyingValue(UnderlyingEnumType value) {
+  static const EnumValueInfo<T>& getEntryByUnderlyingValue(UnderlyingEnumType value) {
     auto it = EnumMeta<T>::getInfo()->byValue.find(static_cast<v_uint64>(value));
     if(it != EnumMeta<T>::getInfo()->byValue.end()) {
       return it->second;
@@ -310,14 +311,14 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByUnderlyingValue()]: Error. Entry not found.");
   }
 
-  static EnumValueInfo<T> getEntryByIndex(v_int32 index) {
+  static const EnumValueInfo<T>& getEntryByIndex(v_int32 index) {
     if(index >= 0 && index < EnumMeta<T>::getInfo()->byIndex.size()) {
       return EnumMeta<T>::getInfo()->byIndex[index];
     }
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByIndex()]: Error. Entry not found.");
   }
 
-  static const std::vector<EnumValueInfo<T>>& getEntries() {
+  static const std::vector<const EnumValueInfo<T>>& getEntries() {
     return EnumMeta<T>::getInfo()->byIndex;
   }
 
