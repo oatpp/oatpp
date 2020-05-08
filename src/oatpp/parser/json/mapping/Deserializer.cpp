@@ -258,10 +258,32 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Car
 }
 
 oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
     type->polymorphicDispatcher
   );
-  return polymorphicDispatcher->fromInterpretation(deserializer->deserialize(caret, polymorphicDispatcher->getInterpretationType()));
+
+  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  const auto& value = deserializer->deserialize(caret, polymorphicDispatcher->getInterpretationType());
+  if(caret.hasError()) {
+    return nullptr;
+  }
+  const auto& result = polymorphicDispatcher->fromInterpretation(value, e);
+
+  if(e == data::mapping::type::EnumInterpreterError::OK) {
+    return result;
+  }
+
+  switch(e) {
+    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+      break;
+    default:
+      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Can't deserialize Enum.");
+  }
+
+  return nullptr;
+
 }
 
 oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {

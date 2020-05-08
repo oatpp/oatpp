@@ -79,14 +79,18 @@ void EnumTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Test Interpreter AsString...");
-    auto inter = oatpp::Enum<Enum1>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum1>::AsString(Enum1::NAME_1));
+    oatpp::data::mapping::type::EnumInterpreterError e = oatpp::data::mapping::type::EnumInterpreterError::OK;
+    auto inter = oatpp::Enum<Enum1>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum1>::AsString(Enum1::NAME_1), e);
     OATPP_ASSERT(inter.valueType == oatpp::String::Class::getType());
+    OATPP_ASSERT(e == oatpp::data::mapping::type::EnumInterpreterError::OK);
 
     auto interValue = inter.staticCast<oatpp::String>();
     OATPP_ASSERT(interValue == "name-1");
 
-    oatpp::Void voidValue = oatpp::Enum<Enum1>::AsString::Interpreter::fromInterpretation(interValue);
+    oatpp::Void voidValue = oatpp::Enum<Enum1>::AsString::Interpreter::fromInterpretation(interValue, e);
     OATPP_ASSERT(voidValue.valueType == oatpp::Enum<Enum1>::AsString::Class::getType());
+    OATPP_ASSERT(e == oatpp::data::mapping::type::EnumInterpreterError::OK);
+
     auto value = voidValue.staticCast<oatpp::Enum<Enum1>::AsString>();
     OATPP_ASSERT(value == Enum1::NAME_1);
     OATPP_LOGI(TAG, "OK");
@@ -94,14 +98,18 @@ void EnumTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Test Interpreter AsInteger...");
-    auto inter = oatpp::Enum<Enum1>::AsInteger::Interpreter::toInterpretation(oatpp::Enum<Enum1>::AsInteger(Enum1::NAME_1));
+    oatpp::data::mapping::type::EnumInterpreterError e = oatpp::data::mapping::type::EnumInterpreterError::OK;
+    auto inter = oatpp::Enum<Enum1>::AsInteger::Interpreter::toInterpretation(oatpp::Enum<Enum1>::AsInteger(Enum1::NAME_1), e);
     OATPP_ASSERT(inter.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(e == oatpp::data::mapping::type::EnumInterpreterError::OK);
 
     auto interValue = inter.staticCast<oatpp::Int32>();
     OATPP_ASSERT(interValue == static_cast<v_int32>(Enum1::NAME_1));
 
-    oatpp::Void voidValue = oatpp::Enum<Enum1>::AsInteger::Interpreter::fromInterpretation(interValue);
+    oatpp::Void voidValue = oatpp::Enum<Enum1>::AsInteger::Interpreter::fromInterpretation(interValue, e);
     OATPP_ASSERT(voidValue.valueType == oatpp::Enum<Enum1>::AsInteger::Class::getType());
+    OATPP_ASSERT(e == oatpp::data::mapping::type::EnumInterpreterError::OK);
+
     auto value = voidValue.staticCast<oatpp::Enum<Enum1>::AsInteger>();
     OATPP_ASSERT(value == Enum1::NAME_1);
     OATPP_LOGI(TAG, "OK");

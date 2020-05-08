@@ -121,7 +121,21 @@ void Serializer::serializeEnum(Serializer* serializer,
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
     polymorph.valueType->polymorphicDispatcher
   );
-  serializer->serialize(stream, polymorphicDispatcher->toInterpretation(polymorph));
+
+  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  serializer->serialize(stream, polymorphicDispatcher->toInterpretation(polymorph, e));
+
+  if(e == data::mapping::type::EnumInterpreterError::OK) {
+    return;
+  }
+
+  switch(e) {
+    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+    default:
+      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
+  }
+
 }
 
 void Serializer::serializeObject(Serializer* serializer,

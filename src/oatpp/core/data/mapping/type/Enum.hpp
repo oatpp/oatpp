@@ -34,6 +34,36 @@
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
+/**
+ * Errors of enum interpretation.
+ */
+enum class EnumInterpreterError : v_int32 {
+
+  /**
+   * The interpretation was successful.
+   */
+  OK = 0,
+
+  /**
+   * Wrong `Interpreter` is used to interpret the variable. <br>
+   * This may also occur if for example: <br>
+   * `oatpp::Enum<T>` is passed to interpreter of `oatpp::Enum<T>::NotNull`.
+   */
+  TYPE_MISMATCH_ENUM = 1,
+
+  /**
+   * Wrong &id:oatpp::data::mapping::type::Primitive; is passed to interpreter.
+   */
+  TYPE_MISMATCH_ENUM_VALUE = 2,
+
+  /**
+   * Interpreter constraint is violated. <br>
+   * The constraint was set to `NotNull` but interpretation to/from `nullptr` is requested.
+   */
+  CONSTRAINT_NOT_NULL = 3
+
+};
+
 namespace __class {
 
   class AbstractEnum {
@@ -50,8 +80,8 @@ namespace __class {
 
       const bool notNull;
 
-      virtual type::Void toInterpretation(const type::Void& enumValue) const = 0;
-      virtual type::Void fromInterpretation(const type::Void& interValue) const = 0;
+      virtual type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const = 0;
+      virtual type::Void fromInterpretation(const type::Void& interValue, EnumInterpreterError& error) const = 0;
       virtual type::Type* getInterpretationType() const = 0;
 
     };
@@ -100,29 +130,29 @@ protected:
   }
 };
 
-template<class T, bool nullable>
+template<class T, bool notnull>
 class EnumInterpreterAsString {
 public:
   template <bool N>
   using InterpreterType = EnumInterpreterAsString<T, N>;
 public:
-  constexpr static bool notNull = nullable;
+  constexpr static bool notNull = notnull;
 public:
-  static Void toInterpretation(const Void& enumValue);
-  static Void fromInterpretation(const Void& interValue);
+  static Void toInterpretation(const Void& enumValue, EnumInterpreterError& error);
+  static Void fromInterpretation(const Void& interValue, EnumInterpreterError& error);
   static Type* getInterpretationType();
 };
 
-template<class T, bool nullable>
+template<class T, bool notnull>
 class EnumInterpreterAsInteger {
 public:
   template <bool N>
   using InterpreterType = EnumInterpreterAsInteger<T, N>;
 public:
-  constexpr static bool notNull = nullable;
+  constexpr static bool notNull = notnull;
 public:
-  static Void toInterpretation(const Void& enumValue);
-  static Void fromInterpretation(const Void& interValue);
+  static Void toInterpretation(const Void& enumValue, EnumInterpreterError& error);
+  static Void fromInterpretation(const Void& interValue, EnumInterpreterError& error);
   static Type* getInterpretationType();
 };
 
@@ -296,12 +326,21 @@ public:
 template <class T>
 using Enum = EnumObjectWrapper<T, EnumInterpreterAsString<T, false>>;
 
-template<class T, bool nullable>
-Void EnumInterpreterAsString<T, nullable>::toInterpretation(const Void& enumValue) {
-  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>> EnumOW;
+template<class T, bool notnull>
+Void EnumInterpreterAsString<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
+  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>> EnumOW;
 
   if(enumValue.valueType != EnumOW::Class::getType()) {
-    throw std::runtime_error("[oatpp::data::mapping::type::EnumInterpreterAsString::toInterpretation()]: Error. Enum type doesn't match.");
+    error = EnumInterpreterError::TYPE_MISMATCH_ENUM;
+    return Void(nullptr, String::Class::getType());
+  }
+
+  if(!enumValue) {
+    if(notnull) {
+      error = EnumInterpreterError::CONSTRAINT_NOT_NULL;
+      return Void(nullptr, String::Class::getType());
+    }
+    return Void(nullptr, String::Class::getType());
   }
 
   const auto& ow = enumValue.staticCast<EnumOW>();
@@ -309,32 +348,50 @@ Void EnumInterpreterAsString<T, nullable>::toInterpretation(const Void& enumValu
   return entry.name.toString();
 }
 
-template<class T, bool nullable>
-Void EnumInterpreterAsString<T, nullable>::fromInterpretation(const Void& interValue) {
-  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>> EnumOW;
+template<class T, bool notnull>
+Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
+  typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>> EnumOW;
 
   if(interValue.valueType != String::Class::getType()) {
-    throw std::runtime_error("[oatpp::data::mapping::type::EnumInterpreterAsString::fromInterpretation()]: Error. Interpretation must be a String.");
+    error = EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE;
+    return Void(nullptr, EnumOW::Class::getType());
   }
 
-  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, nullable>>::getEntryByName(interValue.staticCast<String>());
+  if(!interValue) {
+    if(notnull) {
+      error = EnumInterpreterError::CONSTRAINT_NOT_NULL;
+      return Void(nullptr, EnumOW::Class::getType());
+    }
+    return Void(nullptr, EnumOW::Class::getType());
+  }
+
+  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>>::getEntryByName(interValue.staticCast<String>());
   return EnumOW(entry.value);
 }
 
-template<class T, bool nullable>
-Type* EnumInterpreterAsString<T, nullable>::getInterpretationType() {
+template<class T, bool notnull>
+Type* EnumInterpreterAsString<T, notnull>::getInterpretationType() {
   return String::Class::getType();
 }
 
-template<class T, bool nullable>
-Void EnumInterpreterAsInteger<T, nullable>::toInterpretation(const Void& enumValue) {
+template<class T, bool notnull>
+Void EnumInterpreterAsInteger<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
 
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, nullable>> EnumOW;
+  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, notnull>> EnumOW;
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper UTOW;
 
   if(enumValue.valueType != EnumOW::Class::getType()) {
-    throw std::runtime_error("[oatpp::data::mapping::type::EnumInterpreterAsInteger::toInterpretation()]: Error. Enum type doesn't match.");
+    error = EnumInterpreterError::TYPE_MISMATCH_ENUM;
+    return Void(nullptr, UTOW::Class::getType());
+  }
+
+  if(!enumValue) {
+    if(notnull) {
+      error = EnumInterpreterError::CONSTRAINT_NOT_NULL;
+      return Void(nullptr, UTOW::Class::getType());
+    }
+    return Void(nullptr, UTOW::Class::getType());
   }
 
   const auto& ow = enumValue.staticCast<EnumOW>();
@@ -342,23 +399,32 @@ Void EnumInterpreterAsInteger<T, nullable>::toInterpretation(const Void& enumVal
 
 }
 
-template<class T, bool nullable>
-Void EnumInterpreterAsInteger<T, nullable>::fromInterpretation(const Void& interValue) {
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, nullable>> EnumOW;
+template<class T, bool notnull>
+Void EnumInterpreterAsInteger<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
+  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, notnull>> EnumOW;
 
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper OW;
 
   if(interValue.valueType != OW::Class::getType()) {
-    throw std::runtime_error("[oatpp::data::mapping::type::EnumInterpreterAsInteger::fromInterpretation()]: Error. Interpretation value type doesn't match.");
+    error = EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE;
+    return Void(nullptr, EnumOW::Class::getType());
   }
 
-  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsInteger<T, nullable>>::getEntryByUnderlyingValue(interValue.staticCast<OW>());
+  if(!interValue) {
+    if(notnull) {
+      error = EnumInterpreterError::CONSTRAINT_NOT_NULL;
+      return Void(nullptr, EnumOW::Class::getType());
+    }
+    return Void(nullptr, EnumOW::Class::getType());
+  }
+
+  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsInteger<T, notnull>>::getEntryByUnderlyingValue(interValue.staticCast<OW>());
   return EnumOW(entry.value);
 }
 
-template<class T, bool nullable>
-Type* EnumInterpreterAsInteger<T, nullable>::getInterpretationType() {
+template<class T, bool notnull>
+Type* EnumInterpreterAsInteger<T, notnull>::getInterpretationType() {
   typedef typename std::underlying_type<T>::type EnumUT;
   return ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper::Class::getType();
 }
@@ -375,12 +441,12 @@ namespace __class {
         : AbstractPolymorphicDispatcher(Interpreter::notNull)
       {}
 
-      type::Void toInterpretation(const type::Void& enumValue) const override {
-        return Interpreter::toInterpretation(enumValue);
+      type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const override {
+        return Interpreter::toInterpretation(enumValue, error);
       }
 
-      type::Void fromInterpretation(const type::Void& interValue) const override {
-        return Interpreter::fromInterpretation(interValue);
+      type::Void fromInterpretation(const type::Void& interValue, EnumInterpreterError& error) const override {
+        return Interpreter::fromInterpretation(interValue, error);
       }
 
       type::Type* getInterpretationType() const override {
