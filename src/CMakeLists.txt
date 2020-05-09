@@ -94,6 +94,8 @@ add_library(oatpp
         oatpp/core/data/mapping/type/Type.hpp
         oatpp/core/data/mapping/type/UnorderedMap.cpp
         oatpp/core/data/mapping/type/UnorderedMap.hpp
+        oatpp/core/data/mapping/type/UnorderedSet.cpp
+        oatpp/core/data/mapping/type/UnorderedSet.hpp
         oatpp/core/data/mapping/type/Vector.cpp
         oatpp/core/data/mapping/type/Vector.hpp
         oatpp/core/data/share/LazyStringMap.hpp

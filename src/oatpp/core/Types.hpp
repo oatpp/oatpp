@@ -118,6 +118,12 @@ namespace oatpp {
   template <class T>
   using Vector = oatpp::data::mapping::type::Vector<T>;
 
+  /*
+   * Mapping-Enabled UnorderedSet. &id:oatpp::data::mapping::type::UnorderedSet;
+   */
+  template <class T>
+  using UnorderedSet = oatpp::data::mapping::type::UnorderedSet<T>;
+
   /**
    * Abstract Vector.
    */
