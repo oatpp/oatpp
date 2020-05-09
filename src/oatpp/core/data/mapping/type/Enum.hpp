@@ -134,6 +134,8 @@ protected:
 template<class T, bool notnull>
 class EnumInterpreterAsString {
 public:
+  typedef String UnderlyingTypeObjectWrapper;
+public:
   template <bool N>
   using InterpreterType = EnumInterpreterAsString<T, N>;
 public:
@@ -146,6 +148,10 @@ public:
 
 template<class T, bool notnull>
 class EnumInterpreterAsInteger {
+private:
+  typedef typename std::underlying_type<T>::type EnumUnderlyingType;
+public:
+  typedef typename ObjectWrapperByUnderlyingType<EnumUnderlyingType>::ObjectWrapper UnderlyingTypeObjectWrapper;
 public:
   template <bool N>
   using InterpreterType = EnumInterpreterAsInteger<T, N>;

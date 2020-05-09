@@ -282,6 +282,12 @@ public:
     return createResponse(Status::CODE_200, "OK");
 
   }
+
+  ENDPOINT("GET", "enum/{enum}", testEnum,
+           PATH(oatpp::Enum<AllowedPathParams>::AsInteger, enumValue, "enum"))
+  {
+    return createResponse(Status::CODE_200, "OK");
+  }
   
 };
 

@@ -42,6 +42,11 @@ class TestDto : public oatpp::data::mapping::type::Object {
   
 };
 
+ENUM(AllowedPathParams, v_int32,
+  VALUE(HELLO, 100, "hello"),
+  VALUE(WORLD, 200, "world")
+)
+
 #include OATPP_CODEGEN_END(DTO)
   
 }}}}

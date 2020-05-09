@@ -450,90 +450,139 @@ public:
 public:
 
   template<typename T>
-  T parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-    (void) text;
-    success = false;
-    OATPP_LOGE("[oatpp::web::server::api::ApiController::parseParameterFromString()]",
-              "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->getData());
-    throw std::runtime_error("[oatpp::web::server::api::ApiController::parseParameterFromString()]: Error. "
-                             "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
-                             "Please define type conversion.");
-  }
+  struct TypeInterpretation {
+
+    static T fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) text;
+      success = false;
+      OATPP_LOGE("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]",
+                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->getData());
+      throw std::runtime_error("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]: Error. "
+                               "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
+                                                                                                 "Please define type conversion.");
+    }
+
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::String> {
+    static oatpp::String fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      success = true;
+      return text;
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Int8> {
+    static oatpp::Int8 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToInt32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::UInt8> {
+    static oatpp::UInt8 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToUInt32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Int16> {
+    static oatpp::Int16 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToInt32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::UInt16> {
+    static oatpp::UInt16 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToUInt32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Int32> {
+    static oatpp::Int32 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToInt32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::UInt32> {
+    static oatpp::UInt32 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToUInt32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Int64> {
+    static oatpp::Int64 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToInt64(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::UInt64> {
+    static oatpp::UInt64 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToUInt64(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Float32> {
+    static oatpp::Float32 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToFloat32(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Float64> {
+    static oatpp::Float64 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToFloat64(text, success);
+    }
+  };
+
+  template<>
+  struct TypeInterpretation <oatpp::Boolean> {
+    static oatpp::Boolean fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      (void) typeName;
+      return utils::conversion::strToBool(text, success);
+    }
+  };
+
+  template<class T, class I>
+  struct TypeInterpretation <data::mapping::type::EnumObjectWrapper<T, I>> {
+
+    typedef data::mapping::type::EnumObjectWrapper<T, I> EnumOW;
+    typedef typename I::UnderlyingTypeObjectWrapper UTOW;
+
+    static EnumOW fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
+      const auto& parsedValue = ApiController::TypeInterpretation<UTOW>::fromString(typeName, text, success);
+      if(success) {
+        data::mapping::type::EnumInterpreterError error = data::mapping::type::EnumInterpreterError::OK;
+        const auto& result = I::fromInterpretation(parsedValue, error);
+        if(error == data::mapping::type::EnumInterpreterError::OK) {
+          return result.template staticCast<EnumOW>();
+        }
+        success = false;
+      }
+      return nullptr;
+    }
+
+  };
 
 };
-
-template<>
-inline oatpp::String ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  success = true;
-  return text;
-}
-
-template<>
-inline oatpp::Int8 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToInt32(text, success);
-}
-
-template<>
-inline oatpp::UInt8 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToUInt32(text, success);
-}
-
-template<>
-inline oatpp::Int16 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToInt32(text, success);
-}
-
-template<>
-inline oatpp::UInt16 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToUInt32(text, success);
-}
-
-template<>
-inline oatpp::Int32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToInt32(text, success);
-}
-
-template<>
-inline oatpp::UInt32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToUInt32(text, success);
-}
-
-template<>
-inline oatpp::Int64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToInt64(text, success);
-}
-
-template<>
-inline oatpp::UInt64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToUInt64(text, success);
-}
-
-template<>
-inline oatpp::Float32 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToFloat32(text, success);
-}
-
-template<>
-inline oatpp::Float64 ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToFloat64(text, success);
-}
-
-template<>
-inline oatpp::Boolean ApiController::parseParameterFromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
-  (void) typeName;
-  return utils::conversion::strToBool(text, success);
-}
 
 }}}}
 
