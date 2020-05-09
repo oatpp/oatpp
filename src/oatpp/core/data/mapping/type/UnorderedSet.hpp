@@ -73,6 +73,14 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(UnorderedSetObjectWrapper, TemplateObjectTy
     return *this;
   }
 
+  bool operator[] (const T& key) const {
+    if(this->m_ptr) {
+      auto it = this->m_ptr->find(key);
+      return it != this->m_ptr->end();
+    }
+    return false;
+  }
+
   TemplateObjectType& operator*() const {
     return this->m_ptr.operator*();
   }
@@ -96,7 +104,7 @@ private:
     void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
       const auto& set = object.staticCast<type::UnorderedSet<T>>();
       const auto& setItem = item.staticCast<T>();
-      set->push_back(setItem);
+      set->insert(setItem);
     }
 
   };
