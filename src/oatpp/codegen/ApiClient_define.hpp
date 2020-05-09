@@ -89,10 +89,10 @@ public: \
 // HEADER MACRO
 
 #define OATPP_MACRO_API_CLIENT_HEADER_1(TYPE, NAME) \
-__headers->put(#NAME, convertParameterToString(#TYPE, NAME));
+__headers->put(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_HEADER_2(TYPE, NAME, QUALIFIER) \
-__headers->put(QUALIFIER, convertParameterToString(#TYPE, NAME));
+__headers->put(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_HEADER(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_HEADER_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -100,10 +100,10 @@ OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_HEADER_, TYPE, OATP
 // PATH MACRO
 
 #define OATPP_MACRO_API_CLIENT_PATH_1(TYPE, NAME) \
-__pathParams->put(#NAME, convertParameterToString(#TYPE, NAME));
+__pathParams->put(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_PATH_2(TYPE, NAME, QUALIFIER) \
-__pathParams->put(QUALIFIER, convertParameterToString(#TYPE, NAME));
+__pathParams->put(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_PATH(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_PATH_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -111,10 +111,10 @@ OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_PATH_, TYPE, OATPP_
 // QUERY MACRO
 
 #define OATPP_MACRO_API_CLIENT_QUERY_1(TYPE, NAME) \
-__queryParams->put(#NAME, convertParameterToString(#TYPE, NAME));
+__queryParams->put(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_QUERY_2(TYPE, NAME, QUALIFIER) \
-__queryParams->put(QUALIFIER, convertParameterToString(#TYPE, NAME));
+__queryParams->put(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_QUERY(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_QUERY_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)

@@ -84,7 +84,7 @@ void ApiClient::formatPath(oatpp::data::stream::ConsistentOutputStream* stream,
       auto& param = params->get(key, nullptr);
       if(!param){
         OATPP_LOGD(TAG, "Path parameter '%s' not provided in the api call", seg.text.c_str());
-        throw std::runtime_error("[oatpp::web::client::ApiClient]: Path parameter missing");
+        throw std::runtime_error("[oatpp::web::client::ApiClient::formatPath()]: Path parameter missing");
       }
       stream->data::stream::OutputStream::writeSimple(param);
     }
@@ -132,7 +132,12 @@ web::protocol::http::Headers ApiClient::mapToHeaders(const std::shared_ptr<Strin
     auto curr = params->getFirstEntry();
 
     while (curr != nullptr) {
-      result.put_LockFree(curr->getKey(), curr->getValue());
+      if(curr->getValue()) {
+        result.put_LockFree(curr->getKey(), curr->getValue());
+      } else {
+        OATPP_LOGE(TAG, "Header parameter '%s' not provided in the api call", curr->getKey()->c_str());
+        throw std::runtime_error("[oatpp::web::client::ApiClient::mapToHeaders()]: Header parameter missing");
+      }
       curr = curr->getNext();
     }
   }

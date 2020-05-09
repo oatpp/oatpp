@@ -97,11 +97,11 @@ void EnumTest::onRun() {
     OATPP_ASSERT(oatpp::Enum<Enum2>::AsString::Interpreter::notNull == false);
     OATPP_ASSERT(oatpp::Enum<Enum2>::AsString::NotNull::Interpreter::notNull == true);
 
-    OATPP_ASSERT(oatpp::Enum<Enum2>::AsInteger::Interpreter::notNull == false);
-    OATPP_ASSERT(oatpp::Enum<Enum2>::AsInteger::NotNull::Interpreter::notNull == true);
+    OATPP_ASSERT(oatpp::Enum<Enum2>::AsNumber::Interpreter::notNull == false);
+    OATPP_ASSERT(oatpp::Enum<Enum2>::AsNumber::NotNull::Interpreter::notNull == true);
 
     OATPP_ASSERT(oatpp::Enum<Enum2>::NotNull::AsString::Interpreter::notNull == true);
-    OATPP_ASSERT(oatpp::Enum<Enum2>::NotNull::AsInteger::Interpreter::notNull == true);
+    OATPP_ASSERT(oatpp::Enum<Enum2>::NotNull::AsNumber::Interpreter::notNull == true);
 
     auto pd1 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
       oatpp::Enum<Enum2>::Class::getType()->polymorphicDispatcher
@@ -137,20 +137,20 @@ void EnumTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsInteger...");
+    OATPP_LOGI(TAG, "Test Interpreter AsNumber...");
     oatpp::data::mapping::type::EnumInterpreterError e = oatpp::data::mapping::type::EnumInterpreterError::OK;
-    auto inter = oatpp::Enum<Enum2>::AsInteger::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsInteger(Enum2::NAME_1), e);
+    auto inter = oatpp::Enum<Enum2>::AsNumber::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsNumber(Enum2::NAME_1), e);
     OATPP_ASSERT(inter.valueType == oatpp::Int32::Class::getType());
     OATPP_ASSERT(e == oatpp::data::mapping::type::EnumInterpreterError::OK);
 
     auto interValue = inter.staticCast<oatpp::Int32>();
     OATPP_ASSERT(interValue == static_cast<v_int32>(Enum2::NAME_1));
 
-    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsInteger::Interpreter::fromInterpretation(interValue, e);
-    OATPP_ASSERT(voidValue.valueType == oatpp::Enum<Enum2>::AsInteger::Class::getType());
+    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsNumber::Interpreter::fromInterpretation(interValue, e);
+    OATPP_ASSERT(voidValue.valueType == oatpp::Enum<Enum2>::AsNumber::Class::getType());
     OATPP_ASSERT(e == oatpp::data::mapping::type::EnumInterpreterError::OK);
 
-    auto value = voidValue.staticCast<oatpp::Enum<Enum2>::AsInteger>();
+    auto value = voidValue.staticCast<oatpp::Enum<Enum2>::AsNumber>();
     OATPP_ASSERT(value == Enum2::NAME_1);
     OATPP_LOGI(TAG, "OK");
   }
@@ -170,7 +170,7 @@ void EnumTest::onRun() {
     OATPP_ASSERT(e1 == e3);
     OATPP_ASSERT(e3 == e1);
 
-    oatpp::Enum<Enum2>::AsInteger::NotNull e4;
+    oatpp::Enum<Enum2>::AsNumber::NotNull e4;
 
     OATPP_ASSERT(e1 == e4);
     OATPP_ASSERT(e4 == e1);
@@ -203,17 +203,17 @@ void EnumTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test copy-assignment operator...");
     oatpp::Enum<Enum2>::AsString e1;
-    oatpp::Enum<Enum2>::AsInteger e2(Enum2::NAME_1);
+    oatpp::Enum<Enum2>::AsNumber e2(Enum2::NAME_1);
     Enum2 ve;
 
     OATPP_ASSERT(e1.valueType == oatpp::Enum<Enum2>::AsString::Class::getType());
-    OATPP_ASSERT(e2.valueType == oatpp::Enum<Enum2>::AsInteger::Class::getType());
+    OATPP_ASSERT(e2.valueType == oatpp::Enum<Enum2>::AsNumber::Class::getType());
     OATPP_ASSERT(e1.valueType != e2.valueType);
 
     e1 = e2;
 
     OATPP_ASSERT(e1.valueType == oatpp::Enum<Enum2>::AsString::Class::getType());
-    OATPP_ASSERT(e2.valueType == oatpp::Enum<Enum2>::AsInteger::Class::getType());
+    OATPP_ASSERT(e2.valueType == oatpp::Enum<Enum2>::AsNumber::Class::getType());
     OATPP_ASSERT(e1.valueType != e2.valueType);
 
     OATPP_ASSERT(e1 == e2);
@@ -243,7 +243,7 @@ void EnumTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test move-assignment operator...");
     oatpp::Enum<Enum2>::AsString e1;
-    oatpp::Enum<Enum2>::AsInteger e2(Enum2::NAME_1);
+    oatpp::Enum<Enum2>::AsNumber e2(Enum2::NAME_1);
 
     e1 = std::move(e2);
 

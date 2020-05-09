@@ -60,7 +60,12 @@ enum class EnumInterpreterError : v_int32 {
    * Interpreter constraint is violated. <br>
    * The constraint was set to `NotNull` but interpretation to/from `nullptr` is requested.
    */
-  CONSTRAINT_NOT_NULL = 3
+  CONSTRAINT_NOT_NULL = 3,
+
+  /**
+   * Enum entry not found.
+   */
+  ENTRY_NOT_FOUND = 4,
 
 };
 
@@ -176,7 +181,7 @@ public:
   typedef EnumInterpreter Interpreter;
 public:
   typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, EnumInterpreter::notNull>> AsString;
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, EnumInterpreter::notNull>> AsInteger;
+  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, EnumInterpreter::notNull>> AsNumber;
   typedef EnumObjectWrapper<T, typename EnumInterpreter::template InterpreterType<true>> NotNull;
 public:
 
@@ -198,12 +203,12 @@ public:
 
   template<class OtherInter>
   EnumObjectWrapper(const EnumObjectWrapper<T, OtherInter>& other)
-    : type::ObjectWrapper<T, EnumObjectClass>(other)
+    : type::ObjectWrapper<T, EnumObjectClass>(other.getPtr())
   {}
 
   template<class OtherInter>
   EnumObjectWrapper(EnumObjectWrapper<T, OtherInter>&& other)
-    : type::ObjectWrapper<T, EnumObjectClass>(std::forward<EnumObjectWrapper>(other))
+    : type::ObjectWrapper<T, EnumObjectClass>(std::move(other.getPtr()))
   {}
 
   inline EnumObjectWrapper& operator = (std::nullptr_t) {
@@ -372,8 +377,15 @@ Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interVa
     return Void(nullptr, EnumOW::Class::getType());
   }
 
-  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>>::getEntryByName(interValue.staticCast<String>());
-  return EnumOW(entry.value);
+  try {
+    const auto &entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>>::getEntryByName(
+      interValue.staticCast<String>()
+    );
+    return EnumOW(entry.value);
+  } catch (const std::runtime_error& e) { // TODO - add a specific error for this.
+    error = EnumInterpreterError::ENTRY_NOT_FOUND;
+  }
+  return Void(nullptr, EnumOW::Class::getType());
 }
 
 template<class T, bool notnull>
@@ -426,8 +438,15 @@ Void EnumInterpreterAsInteger<T, notnull>::fromInterpretation(const Void& interV
     return Void(nullptr, EnumOW::Class::getType());
   }
 
-  const auto& entry = EnumObjectWrapper<T, EnumInterpreterAsInteger<T, notnull>>::getEntryByUnderlyingValue(interValue.staticCast<OW>());
-  return EnumOW(entry.value);
+  try{
+    const auto& entry = EnumOW::getEntryByUnderlyingValue(
+      interValue.staticCast<OW>()
+    );
+    return EnumOW(entry.value);
+  } catch (const std::runtime_error& e) { // TODO - add a specific error for this.
+    error = EnumInterpreterError::ENTRY_NOT_FOUND;
+  }
+  return Void(nullptr, EnumOW::Class::getType());
 }
 
 template<class T, bool notnull>

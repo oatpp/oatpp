@@ -194,6 +194,9 @@ public:
   template <class Value>
   using Fields = oatpp::Fields<Value>;
 
+  template <class T>
+  using Enum = oatpp::data::mapping::type::Enum<T>;
+
 protected:
   
   /*
@@ -459,7 +462,7 @@ public:
                  "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->getData());
       throw std::runtime_error("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]: Error. "
                                "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
-                                                                                                 "Please define type conversion.");
+                               "Please define type conversion.");
     }
 
   };

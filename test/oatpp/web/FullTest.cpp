@@ -302,6 +302,18 @@ void FullTest::onRun() {
         OATPP_ASSERT(dtoOut->testValueInt == i);
       }
 
+      { // test Enum as String
+        oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
+        auto response = client->getHeaderEnumAsString(v);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      { // test Enum as String
+        oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
+        auto response = client->getHeaderEnumAsNumber(v);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
       { // test Big Echo with body
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
