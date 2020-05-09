@@ -95,10 +95,10 @@ namespace __class {
 
 template<typename T>
 struct EnumValueInfo {
-  T value;
-  v_int32 index;
-  data::share::StringKeyLabel name;
-  data::share::StringKeyLabel description;
+  const T value;
+  const v_int32 index;
+  const data::share::StringKeyLabel name;
+  const data::share::StringKeyLabel description;
 };
 
 template<typename T>
@@ -107,7 +107,7 @@ public:
   const char* nameQualifier = nullptr;
   std::unordered_map<data::share::StringKeyLabel, EnumValueInfo<T>> byName;
   std::unordered_map<v_uint64, EnumValueInfo<T>> byValue;
-  std::vector<const EnumValueInfo<T>> byIndex;
+  std::vector<EnumValueInfo<T>> byIndex;
 };
 
 template<class T, class Interpreter>
@@ -318,7 +318,7 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByIndex()]: Error. Entry not found.");
   }
 
-  static const std::vector<const EnumValueInfo<T>>& getEntries() {
+  static const std::vector<EnumValueInfo<T>>& getEntries() {
     return EnumMeta<T>::getInfo()->byIndex;
   }
 
