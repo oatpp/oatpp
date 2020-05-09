@@ -1,5 +1,13 @@
 # Oat++ [![oatpp build status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp)](https://dev.azure.com/lganzzzo/lganzzzo/_build?definitionId=1) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/oatpp/oatpp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/oatpp/oatpp/context:cpp) [![Join the chat at https://gitter.im/oatpp-framework/Lobby](https://badges.gitter.im/oatpp-framework/Lobby.svg)](https://gitter.im/oatpp-framework/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+---
+
+**Attention**  
+The new release `1.1.0` is about to be merged. It will introduce breaking changes.
+See [change-log](https://github.com/oatpp/oatpp/blob/v_1.1.0/changelog/1.1.0.md) to prepare for migration.
+
+---
+
 Oat++ is the modern Web Framework for C++. It's fully loaded and contains all necessary components for
 effective production level development. It's also light and has small memory footprint.
 
