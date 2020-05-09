@@ -22,3 +22,52 @@
  * limitations under the License.
  *
  ***************************************************************************/
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_MACRO
+#undef OATPP_MACRO_DTO_ENUM_PARAM_NAME
+#undef OATPP_MACRO_DTO_ENUM_PARAM_NAME_STR
+#undef OATPP_MACRO_DTO_ENUM_PARAM_VALUE
+#undef OATPP_MACRO_DTO_ENUM_PARAM_VALUE_STR
+#undef OATPP_MACRO_DTO_ENUM_PARAM
+
+#undef VALUE
+
+//////////////////////////////////////////////////////////////////////////
+
+#undef OATPP_MACRO_DTO_ENUM_MACRO_SELECTOR
+
+//////////////////////////////////////////////////////////////////////////
+
+// VALUE MACRO
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE_1
+
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE_2
+
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE_3
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE
+
+// FOR EACH
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_DECL_FIRST
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_DECL_REST
+
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_PUT
+
+// ENUM MACRO
+
+#undef OATPP_ENUM_0
+
+#undef OATPP_ENUM_1
+// Chooser
+
+#undef OATPP_ENUM_MACRO_0
+
+#undef OATPP_ENUM_MACRO_1
+
+#undef ENUM
