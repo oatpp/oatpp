@@ -89,8 +89,7 @@ public:
    * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
    * @param variant - object to serialize &id:oatpp::Void;.
    */
-  void write(data::stream::ConsistentOutputStream* stream,
-             const oatpp::Void& variant) const override;
+  void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant) const override;
 
   /**
    * Implementation of &id:oatpp::data::mapping::ObjectMapper::read;.
@@ -98,8 +97,7 @@ public:
    * @param type - type of resultant object &id:oatpp::data::mapping::type::Type;.
    * @return - &id:oatpp::Void; holding resultant object.
    */
-  oatpp::Void read(oatpp::parser::Caret& caret,
-                                                         const oatpp::data::mapping::type::Type* const type) const override;
+  oatpp::Void read(oatpp::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const override;
 
 
   /**

@@ -31,6 +31,7 @@
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
 #include "oatpp/parser/json/mapping/EnumTest.hpp"
+#include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
 
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
@@ -58,7 +59,6 @@
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/mapping/type/Enum.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -112,6 +112,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
+*/
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
+/*
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);

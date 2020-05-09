@@ -416,5 +416,21 @@ public: \
 
 
 }}}}
+
+namespace std {
+
+template<>
+struct hash<oatpp::data::mapping::type::Void> {
+
+  typedef oatpp::data::mapping::type::Void argument_type;
+  typedef v_buff_usize result_type;
+
+  result_type operator()(argument_type const& v) const noexcept {
+    return (result_type) v.get();
+  }
+
+};
+
+}
   
 #endif /* oatpp_data_type_Type_hpp */
