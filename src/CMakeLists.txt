@@ -15,6 +15,10 @@ add_library(oatpp
         oatpp/codegen/ApiController_undef.hpp
         oatpp/codegen/ApiClient_define.hpp
         oatpp/codegen/ApiClient_undef.hpp
+        oatpp/codegen/dto/base_define.hpp
+        oatpp/codegen/dto/base_undef.hpp
+        oatpp/codegen/dto/enum_define.hpp
+        oatpp/codegen/dto/enum_undef.hpp
         oatpp/codegen/DTO_define.hpp
         oatpp/codegen/DTO_undef.hpp
         oatpp/core/Types.hpp
@@ -76,6 +80,8 @@ add_library(oatpp
         oatpp/core/data/mapping/ObjectMapper.hpp
         oatpp/core/data/mapping/type/Any.cpp
         oatpp/core/data/mapping/type/Any.hpp
+        oatpp/core/data/mapping/type/Enum.cpp
+        oatpp/core/data/mapping/type/Enum.hpp
         oatpp/core/data/mapping/type/List.cpp
         oatpp/core/data/mapping/type/List.hpp
         oatpp/core/data/mapping/type/PairList.cpp

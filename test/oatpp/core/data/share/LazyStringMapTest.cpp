@@ -25,6 +25,7 @@
 #include "LazyStringMapTest.hpp"
 
 #include "oatpp/core/data/share/LazyStringMap.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace share {
 

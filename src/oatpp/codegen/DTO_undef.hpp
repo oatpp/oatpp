@@ -42,10 +42,5 @@
  * </ul>
  */
 
-#undef DTO_INIT
-
-// Fields
-
-#undef OATPP_MACRO_DTO_FIELD_1
-#undef OATPP_MACRO_DTO_FIELD_2
-#undef DTO_FIELD
+#include "./dto/base_undef.hpp"
+#include "./dto/enum_undef.hpp"

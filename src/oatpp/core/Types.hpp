@@ -107,6 +107,12 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Object Object;
 
   /*
+   * Mapping-Enabled Enum. &id:oatpp::data::mapping::type::Enum;
+   */
+  template <class T>
+  using Enum = oatpp::data::mapping::type::Enum<T>;
+
+  /*
    * Mapping-Enabled List. &id:oatpp::data::mapping::type::Vector;
    */
   template <class T>

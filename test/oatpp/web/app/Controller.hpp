@@ -282,6 +282,18 @@ public:
     return createResponse(Status::CODE_200, "OK");
 
   }
+
+  ENDPOINT("GET", "enum/as-string", testEnumString,
+           HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
+  {
+    return createResponse(Status::CODE_200, "OK");
+  }
+
+  ENDPOINT("GET", "enum/as-number", testEnumNumber,
+           HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
+  {
+    return createResponse(Status::CODE_200, "OK");
+  }
   
 };
 

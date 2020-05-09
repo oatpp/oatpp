@@ -15,6 +15,8 @@ add_executable(oatppAllTests
         oatpp/core/data/buffer/ProcessorTest.hpp
         oatpp/core/data/mapping/type/AnyTest.cpp
         oatpp/core/data/mapping/type/AnyTest.hpp
+        oatpp/core/data/mapping/type/EnumTest.cpp
+        oatpp/core/data/mapping/type/EnumTest.hpp
         oatpp/core/data/mapping/type/ListTest.cpp
         oatpp/core/data/mapping/type/ListTest.hpp
         oatpp/core/data/mapping/type/ObjectWrapperTest.cpp
@@ -59,6 +61,8 @@ add_executable(oatppAllTests
         oatpp/parser/json/mapping/DTOMapperTest.hpp
         oatpp/parser/json/mapping/DeserializerTest.cpp
         oatpp/parser/json/mapping/DeserializerTest.hpp
+        oatpp/parser/json/mapping/EnumTest.cpp
+        oatpp/parser/json/mapping/EnumTest.hpp
         oatpp/web/protocol/http/encoding/ChunkedTest.cpp
         oatpp/web/protocol/http/encoding/ChunkedTest.hpp
         oatpp/web/mime/multipart/StatefulParserTest.cpp

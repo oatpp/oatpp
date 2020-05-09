@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <bam@icognize.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,28 +23,51 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "defines" for DTO code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(DTO)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(DTO)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
- *   <li>&id:oatpp::data::mapping::type::Object;</li>
- * </ul>
- */
+#undef OATPP_MACRO_DTO_ENUM_PARAM_MACRO
+#undef OATPP_MACRO_DTO_ENUM_PARAM_NAME
+#undef OATPP_MACRO_DTO_ENUM_PARAM_NAME_STR
+#undef OATPP_MACRO_DTO_ENUM_PARAM_VALUE
+#undef OATPP_MACRO_DTO_ENUM_PARAM_VALUE_STR
+#undef OATPP_MACRO_DTO_ENUM_PARAM
 
-#include "oatpp/core/macro/basic.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#undef VALUE
 
-#include "./dto/base_define.hpp"
-#include "./dto/enum_define.hpp"
+//////////////////////////////////////////////////////////////////////////
+
+#undef OATPP_MACRO_DTO_ENUM_MACRO_SELECTOR
+
+//////////////////////////////////////////////////////////////////////////
+
+// VALUE MACRO
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE_1
+
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE_2
+
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE_3
+
+#undef OATPP_MACRO_DTO_ENUM_VALUE
+
+// FOR EACH
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_DECL_FIRST
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_DECL_REST
+
+
+#undef OATPP_MACRO_DTO_ENUM_PARAM_PUT
+
+// ENUM MACRO
+
+#undef OATPP_ENUM_0
+
+#undef OATPP_ENUM_1
+// Chooser
+
+#undef OATPP_ENUM_MACRO_0
+
+#undef OATPP_ENUM_MACRO_1
+
+#undef ENUM

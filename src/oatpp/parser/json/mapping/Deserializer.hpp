@@ -26,10 +26,7 @@
 #define oatpp_parser_json_mapping_Deserializer_hpp
 
 #include "oatpp/parser/json/Utils.hpp"
-
 #include "oatpp/core/parser/Caret.hpp"
-
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <vector>
@@ -274,6 +271,7 @@ private:
   static oatpp::Void deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+  static oatpp::Void deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
 private:

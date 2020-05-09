@@ -30,6 +30,7 @@
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
+#include "oatpp/parser/json/mapping/EnumTest.hpp"
 
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
@@ -47,6 +48,7 @@
 #include "oatpp/core/data/mapping/type/ObjectWrapperTest.hpp"
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/core/data/mapping/type/AnyTest.hpp"
+#include "oatpp/core/data/mapping/type/EnumTest.hpp"
 
 #include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
@@ -55,6 +57,7 @@
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Enum.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -90,21 +93,23 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::StringTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
+
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
-
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
-
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);

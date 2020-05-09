@@ -55,6 +55,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
 
   setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
+  setSerializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Serializer::serializeEnum);
 
   setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Serializer::serializeList<oatpp::AbstractVector>);
   setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeList<oatpp::AbstractList>);
@@ -110,6 +111,30 @@ void Serializer::serializeAny(Serializer* serializer,
 
   auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
   serializer->serialize(stream, oatpp::Void(anyHandle->ptr, anyHandle->type));
+
+}
+
+void Serializer::serializeEnum(Serializer* serializer,
+                               data::stream::ConsistentOutputStream* stream,
+                               const oatpp::Void& polymorph)
+{
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+    polymorph.valueType->polymorphicDispatcher
+  );
+
+  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  serializer->serialize(stream, polymorphicDispatcher->toInterpretation(polymorph, e));
+
+  if(e == data::mapping::type::EnumInterpreterError::OK) {
+    return;
+  }
+
+  switch(e) {
+    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+    default:
+      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
+  }
 
 }
 

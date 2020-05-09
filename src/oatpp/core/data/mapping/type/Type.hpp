@@ -219,6 +219,9 @@ public:
 
 typedef ObjectWrapper<void, __class::Void> Void;
 
+template <typename T>
+struct ObjectWrapperByUnderlyingType {};
+
 /**
  * Object type data.
  */

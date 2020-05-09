@@ -29,6 +29,7 @@
 
 #include "./Any.hpp"
 #include "./Primitive.hpp"
+#include "./Enum.hpp"
 #include "./UnorderedMap.hpp"
 #include "./PairList.hpp"
 #include "./List.hpp"

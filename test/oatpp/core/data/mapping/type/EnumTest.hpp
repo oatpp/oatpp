@@ -22,28 +22,21 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "defines" for DTO code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(DTO)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(DTO)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
- *   <li>&id:oatpp::data::mapping::type::Object;</li>
- * </ul>
- */
+#ifndef oatpp_test_core_data_mapping_type_EnumTest_hpp
+#define oatpp_test_core_data_mapping_type_EnumTest_hpp
 
-#include "oatpp/core/macro/basic.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp-test/UnitTest.hpp"
 
-#include "./dto/base_define.hpp"
-#include "./dto/enum_define.hpp"
+namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
+
+class EnumTest : public UnitTest{
+public:
+
+  EnumTest():UnitTest("TEST[core::data::mapping::type::EnumTest]"){}
+  void onRun() override;
+
+};
+
+}}}}}}
+
+#endif /* oatpp_test_core_data_mapping_type_EnumTest_hpp */

@@ -102,54 +102,54 @@ public:
     : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<String>(other))
   {}
 
-  String& operator = (std::nullptr_t) {
+  inline String& operator = (std::nullptr_t) {
     m_ptr.reset();
     return *this;
   }
 
-  String& operator = (const char* str) {
+  inline String& operator = (const char* str) {
     m_ptr = base::StrBuffer::createFromCString(str);
     return *this;
   }
-  
-  String& operator = (const String& other){
+
+  inline String& operator = (const String& other){
     m_ptr = other.m_ptr;
     return *this;
   }
-  
-  String& operator = (String&& other){
+
+  inline String& operator = (String&& other){
     m_ptr = std::forward<std::shared_ptr<base::StrBuffer>>(other.m_ptr);
     return *this;
   }
 
-  bool operator == (std::nullptr_t) const {
+  inline bool operator == (std::nullptr_t) const {
     return m_ptr.get() == nullptr;
   }
 
-  bool operator != (std::nullptr_t) const {
+  inline bool operator != (std::nullptr_t) const {
     return m_ptr.get() != nullptr;
   }
 
-  bool operator == (const char* str) const {
+  inline bool operator == (const char* str) const {
     if(!m_ptr) return str == nullptr;
     if(str == nullptr) return false;
     if(m_ptr->getSize() != std::strlen(str)) return false;
     return base::StrBuffer::equals(m_ptr->getData(), str, m_ptr->getSize());
   }
 
-  bool operator != (const char* str) const {
+  inline bool operator != (const char* str) const {
     return !operator == (str);
   }
-  
-  bool operator == (const String &other) const {
+
+  inline bool operator == (const String &other) const {
     return base::StrBuffer::equals(m_ptr.get(), other.m_ptr.get());
   }
-  
-  bool operator != (const String &other) const {
+
+  inline bool operator != (const String &other) const {
     return !operator == (other);
   }
-  
-  explicit operator bool() const {
+
+  inline explicit operator bool() const {
     return m_ptr.operator bool();
   }
   
@@ -166,6 +166,8 @@ String operator + (const String& a, const String& b);
  */
 template<typename TValueType, class Clazz>
 class Primitive : public type::ObjectWrapper<TValueType, Clazz>  {
+public:
+  typedef TValueType UnderlyingType;
 public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Primitive, TValueType, Clazz)
@@ -239,6 +241,8 @@ public:
  * ObjectWrapper for Boolean.
  */
 class Boolean : public type::ObjectWrapper<bool, __class::Boolean>  {
+public:
+  typedef bool UnderlyingType;
 public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Boolean, bool, __class::Boolean)
@@ -354,6 +358,52 @@ typedef Primitive<v_float32, __class::Float32> Float32;
  * Float64 is an ObjectWrapper over `v_float64` and __class::Float64.
  */
 typedef Primitive<v_float64, __class::Float64> Float64;
+
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int8> {
+  typedef Int8 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint8> {
+  typedef UInt8 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int16> {
+  typedef Int16 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint16> {
+  typedef UInt16 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int32> {
+  typedef Int32 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint32> {
+  typedef UInt32 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int64> {
+  typedef Int64 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint64> {
+  typedef UInt64 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <bool> {
+  typedef Boolean ObjectWrapper;
+};
   
 namespace __class {
   
