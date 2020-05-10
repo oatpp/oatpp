@@ -34,6 +34,7 @@
 #include "./PairList.hpp"
 #include "./List.hpp"
 #include "./Vector.hpp"
+#include "./UnorderedSet.hpp"
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
@@ -94,6 +95,9 @@ public:
 
   template <class T>
   using Vector = oatpp::data::mapping::type::Vector<T>;
+
+  template <class T>
+  using UnorderedSet = oatpp::data::mapping::type::UnorderedSet<T>;
 
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;

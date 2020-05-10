@@ -135,6 +135,17 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::AbstractList AbstractList;
 
   /*
+   * Mapping-Enabled UnorderedSet. &id:oatpp::data::mapping::type::UnorderedSet;
+   */
+  template <class T>
+  using UnorderedSet = oatpp::data::mapping::type::UnorderedSet<T>;
+
+  /**
+   * Abstract UnorderedSet.
+   */
+  typedef oatpp::data::mapping::type::AbstractUnorderedSet AbstractUnorderedSet;
+
+  /*
    * Mapping-Enables PairList<String, Value>. &id:oatpp::data::mapping::type::PairList;
    */
   template <class Value>

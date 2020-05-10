@@ -31,6 +31,7 @@
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
 #include "oatpp/parser/json/mapping/EnumTest.hpp"
+#include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
 
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
@@ -42,6 +43,7 @@
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
 #include "oatpp/core/data/mapping/type/PairListTest.hpp"
 #include "oatpp/core/data/mapping/type/VectorTest.hpp"
+#include "oatpp/core/data/mapping/type/UnorderedSetTest.hpp"
 #include "oatpp/core/data/mapping/type/ListTest.hpp"
 #include "oatpp/core/data/mapping/type/StringTest.hpp"
 #include "oatpp/core/data/mapping/type/PrimitiveTest.hpp"
@@ -57,7 +59,6 @@
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/mapping/type/Enum.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
@@ -74,7 +75,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-
+/*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
@@ -97,6 +98,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
+*/
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedSetTest);
+/*
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
@@ -108,6 +112,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
+*/
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
+/*
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
@@ -189,7 +196,7 @@ void runTests() {
     test_port.run();
 
   }
-
+*/
 }
 
 }

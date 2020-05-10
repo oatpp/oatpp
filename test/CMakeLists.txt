@@ -31,6 +31,8 @@ add_executable(oatppAllTests
         oatpp/core/data/mapping/type/TypeTest.hpp
         oatpp/core/data/mapping/type/UnorderedMapTest.cpp
         oatpp/core/data/mapping/type/UnorderedMapTest.hpp
+        oatpp/core/data/mapping/type/UnorderedSetTest.cpp
+        oatpp/core/data/mapping/type/UnorderedSetTest.hpp
         oatpp/core/data/mapping/type/VectorTest.cpp
         oatpp/core/data/mapping/type/VectorTest.hpp
         oatpp/core/data/share/LazyStringMapTest.cpp
@@ -63,6 +65,8 @@ add_executable(oatppAllTests
         oatpp/parser/json/mapping/DeserializerTest.hpp
         oatpp/parser/json/mapping/EnumTest.cpp
         oatpp/parser/json/mapping/EnumTest.hpp
+        oatpp/parser/json/mapping/UnorderedSetTest.cpp
+        oatpp/parser/json/mapping/UnorderedSetTest.hpp
         oatpp/web/protocol/http/encoding/ChunkedTest.cpp
         oatpp/web/protocol/http/encoding/ChunkedTest.hpp
         oatpp/web/mime/multipart/StatefulParserTest.cpp

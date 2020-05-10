@@ -82,8 +82,7 @@ public:
    * @param stream - &id:oatpp::data::stream::ConsistentOutputStream; to serialize object to.
    * @param variant - Object to serialize.
    */
-  virtual void write(data::stream::ConsistentOutputStream* stream,
-                     const type::Void& variant) const = 0;
+  virtual void write(data::stream::ConsistentOutputStream* stream, const type::Void& variant) const = 0;
 
   /**
    * Deserialize object. Implement this method.
@@ -91,8 +90,7 @@ public:
    * @param type - pointer to object type. See &id:oatpp::data::mapping::type::Type;.
    * @return - deserialized object wrapped in &id:oatpp::Void;.
    */
-  virtual mapping::type::Void read(oatpp::parser::Caret& caret,
-                                                    const mapping::type::Type* const type) const = 0;
+  virtual mapping::type::Void read(oatpp::parser::Caret& caret, const mapping::type::Type* const type) const = 0;
 
   /**
    * Serialize object to String.
