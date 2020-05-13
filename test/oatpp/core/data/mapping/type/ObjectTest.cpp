@@ -106,9 +106,8 @@ void ObjectTest::onRun() {
     OATPP_LOGI(TAG, "Test 4...");
     auto a = Dto0::createShared();
     auto b = Dto0::createShared();
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == 1);
-    OATPP_ASSERT(b->hashCode() == 1);
+    OATPP_ASSERT(a != b);
+    OATPP_ASSERT(a->hashCode() != b->hashCode());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -210,7 +209,6 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(set[e] == true);
     OATPP_LOGI(TAG, "OK");
   }
-
 
 }
 

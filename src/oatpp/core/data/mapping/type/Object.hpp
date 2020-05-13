@@ -124,12 +124,20 @@ public:
     return &map;
   }
 
+  virtual v_uint64 defaultHashCode() const {
+    return (v_uint64) reinterpret_cast<v_buff_usize>(this);
+  }
+
+  virtual bool defaultEquals(const Object& other) const {
+    return this == &other;
+  }
+
   v_uint64 hashCode() const {
-    return 1;
+    return defaultHashCode();
   }
 
   bool operator==(const Object& other) const {
-    return true;
+    return defaultEquals(other);
   }
 
 };
@@ -194,7 +202,6 @@ namespace std {
         return ow->hashCode();
       }
       return 0;
-
     }
 
   };

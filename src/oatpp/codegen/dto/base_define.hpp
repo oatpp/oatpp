@@ -131,6 +131,14 @@ result = ((result << 5) - result) + std::hash<decltype(X)>{}(X);
 && X == other.X
 
 #define DTO_HASHCODE_AND_EQUALS(...) \
+v_uint64 defaultHashCode() const override { \
+  return 1; \
+} \
+\
+bool defaultEquals(const Object& other) const override { \
+  return true; \
+} \
+\
 v_uint64 hashCode() const { \
   v_uint64 result = 1; \
   result = ((result << 5) - result) + static_cast<const Z__CLASS_EXTENDED&>(*this).hashCode(); \
