@@ -45,6 +45,7 @@
 #include "oatpp/core/data/mapping/type/VectorTest.hpp"
 #include "oatpp/core/data/mapping/type/UnorderedSetTest.hpp"
 #include "oatpp/core/data/mapping/type/ListTest.hpp"
+#include "oatpp/core/data/mapping/type/ObjectTest.hpp"
 #include "oatpp/core/data/mapping/type/StringTest.hpp"
 #include "oatpp/core/data/mapping/type/PrimitiveTest.hpp"
 #include "oatpp/core/data/mapping/type/ObjectWrapperTest.hpp"
@@ -75,7 +76,7 @@ void runTests() {
 
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
-/*
+
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
@@ -98,23 +99,22 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
-*/
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedSetTest);
-/*
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
-*/
+
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
-/*
+
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
@@ -196,7 +196,7 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
 }
 
 }

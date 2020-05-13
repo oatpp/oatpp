@@ -39,6 +39,8 @@
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
 
+#include <type_traits>
+
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
 namespace __class {
@@ -121,9 +123,82 @@ public:
     static oatpp::data::mapping::type::Type::Properties map;
     return &map;
   }
-  
+
+  v_uint64 hashCode() const {
+    return 1;
+  }
+
+  bool operator==(const Object& other) const {
+    return true;
+  }
+
+};
+
+template<class ObjT>
+class DTOWrapper : public ObjectWrapper<ObjT, __class::Object<ObjT>> {
+public:
+  typedef ObjT TemplateObjectType;
+  typedef __class::Object<ObjT> TemplateObjectClass;
+public:
+
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)
+
+  static DTOWrapper createShared() {
+    return std::make_shared<TemplateObjectType>();
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T){
+    return this->m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T){
+    return this->m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, DTOWrapper>::value, void>::type
+  >
+  inline bool operator == (const T &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, DTOWrapper>::value, void>::type
+  >
+  inline bool operator != (const T &other) const {
+    return !operator == (other);
+  }
+
 };
   
 }}}}
+
+namespace std {
+
+  template<class T>
+  struct hash<oatpp::data::mapping::type::DTOWrapper<T>> {
+
+    typedef oatpp::data::mapping::type::DTOWrapper<T> argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const &ow) const noexcept {
+      if(ow) {
+        return ow->hashCode();
+      }
+      return 0;
+
+    }
+
+  };
+
+}
 
 #endif /* oatpp_data_type_Object_hpp */

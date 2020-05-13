@@ -7,7 +7,6 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
- *                         Benedikt-Alexander Mokroß <bam@icognize.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +22,21 @@
  *
  ***************************************************************************/
 
+#ifndef oatpp_test_core_data_mapping_type_ObjectTest_hpp
+#define oatpp_test_core_data_mapping_type_ObjectTest_hpp
 
-#undef DTO_INIT
+#include "oatpp-test/UnitTest.hpp"
 
-// Fields
+namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
-#undef OATPP_MACRO_DTO_FIELD_1
-#undef OATPP_MACRO_DTO_FIELD_2
-#undef DTO_FIELD
+class ObjectTest : public UnitTest{
+public:
 
-// Hashcode & Equals
+  ObjectTest():UnitTest("TEST[core::data::mapping::type::ObjectTest]"){}
+  void onRun() override;
 
-#undef OATPP_MACRO_DTO_HC_EQ_PARAM_HC
-#undef OATPP_MACRO_DTO_HC_EQ_PARAM_EQ
-#undef DTO_HASHCODE_AND_EQUALS
-#undef DTO_HC_EQ
+};
+
+}}}}}}
+
+#endif /* oatpp_test_core_data_mapping_type_ObjectTest_hpp */

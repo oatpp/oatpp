@@ -34,7 +34,7 @@
 public: \
   typedef TYPE_NAME Z__CLASS; \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
-  typedef oatpp::data::mapping::type::ObjectWrapper<Z__CLASS, oatpp::data::mapping::type::__class::Object<Z__CLASS>> ObjectWrapper; \
+  typedef oatpp::data::mapping::type::DTOWrapper<Z__CLASS> ObjectWrapper; \
   typedef ObjectWrapper __Wrapper; \
 public: \
   OBJECT_POOL(DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
@@ -121,3 +121,35 @@ TYPE::__Wrapper NAME
  */
 #define DTO_FIELD(TYPE, ...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, (__VA_ARGS__)) (TYPE, __VA_ARGS__))
+
+// FOR EACH
+
+#define OATPP_MACRO_DTO_HC_EQ_PARAM_HC(INDEX, COUNT, X) \
+result = ((result << 5) - result) + std::hash<decltype(X)>{}(X);
+
+#define OATPP_MACRO_DTO_HC_EQ_PARAM_EQ(INDEX, COUNT, X) \
+&& X == other.X
+
+#define DTO_HASHCODE_AND_EQUALS(...) \
+v_uint64 hashCode() const { \
+  v_uint64 result = 1; \
+  result = ((result << 5) - result) + static_cast<const Z__CLASS_EXTENDED&>(*this).hashCode(); \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_DTO_HC_EQ_PARAM_HC, __VA_ARGS__) \
+  return result; \
+} \
+\
+bool operator==(const Z__CLASS& other) const { \
+  return static_cast<const Z__CLASS_EXTENDED&>(*this) == static_cast<const Z__CLASS_EXTENDED&>(other) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_DTO_HC_EQ_PARAM_EQ, __VA_ARGS__) \
+  ; \
+} \
+\
+bool operator!=(const Z__CLASS& other) const { \
+  return !this->operator==(other); \
+}
+
+/**
+ * Hashcode and Equals macro. <br>
+ * List DTO-fields which should count in hashcode and equals operators.
+ */
+#define DTO_HC_EQ(...) DTO_HASHCODE_AND_EQUALS(__VA_ARGS__)

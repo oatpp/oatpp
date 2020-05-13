@@ -334,7 +334,7 @@ namespace std {
   struct hash<oatpp::data::share::StringKeyLabel> {
     
     typedef oatpp::data::share::StringKeyLabel argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
 
@@ -354,7 +354,7 @@ namespace std {
   struct hash<oatpp::data::share::StringKeyLabelCI> {
     
     typedef oatpp::data::share::StringKeyLabelCI argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
 
@@ -374,7 +374,7 @@ namespace std {
   struct hash<oatpp::data::share::StringKeyLabelCI_FAST> {
     
     typedef oatpp::data::share::StringKeyLabelCI_FAST argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(oatpp::data::share::StringKeyLabelCI_FAST const& s) const noexcept {
 

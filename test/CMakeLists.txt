@@ -19,6 +19,8 @@ add_executable(oatppAllTests
         oatpp/core/data/mapping/type/EnumTest.hpp
         oatpp/core/data/mapping/type/ListTest.cpp
         oatpp/core/data/mapping/type/ListTest.hpp
+        oatpp/core/data/mapping/type/ObjectTest.cpp
+        oatpp/core/data/mapping/type/ObjectTest.hpp
         oatpp/core/data/mapping/type/ObjectWrapperTest.cpp
         oatpp/core/data/mapping/type/ObjectWrapperTest.hpp
         oatpp/core/data/mapping/type/PairListTest.cpp
