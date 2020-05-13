@@ -549,9 +549,10 @@ namespace std {
   struct hash<oatpp::data::mapping::type::String> {
     
     typedef oatpp::data::mapping::type::String argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
     
     result_type operator()(argument_type const& s) const noexcept {
+      if(s.get() == nullptr) return 0;
 
       p_char8 data = s->getData();
       result_type result = 0;
@@ -570,7 +571,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::Boolean> {
 
     typedef oatpp::data::mapping::type::Boolean argument_type;
-    typedef v_uint8 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 2;
@@ -583,7 +584,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::Int8> {
 
     typedef oatpp::data::mapping::type::Int8 argument_type;
-    typedef v_uint8 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
@@ -596,7 +597,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::UInt8> {
 
     typedef oatpp::data::mapping::type::UInt8 argument_type;
-    typedef v_uint8 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
@@ -609,7 +610,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::Int16> {
 
     typedef oatpp::data::mapping::type::Int16 argument_type;
-    typedef v_uint16 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
@@ -622,7 +623,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::UInt16> {
 
     typedef oatpp::data::mapping::type::UInt16 argument_type;
-    typedef v_uint16 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
@@ -635,7 +636,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::Int32> {
 
     typedef oatpp::data::mapping::type::Int32 argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
@@ -648,7 +649,7 @@ namespace std {
   struct hash<oatpp::data::mapping::type::UInt32> {
 
     typedef oatpp::data::mapping::type::UInt32 argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
@@ -687,11 +688,11 @@ namespace std {
   struct hash<oatpp::data::mapping::type::Float32> {
 
     typedef oatpp::data::mapping::type::Float32 argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return *((result_type*) v.get());
+      return *((v_uint32*) v.get());
     }
 
   };
