@@ -49,8 +49,6 @@ private: \
   } \
 public: \
 \
-  TYPE_NAME() = default; \
-\
   static ObjectWrapper createShared(){ \
     return ObjectWrapper(std::make_shared<Z__CLASS>(), ObjectWrapper::Class::getType()); \
   }
@@ -74,9 +72,13 @@ static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME(
   return property; \
 } \
 \
+static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */) { \
+  Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  return true; \
+} \
+\
 static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
-  static oatpp::data::mapping::type::Type::Property* property = \
-    Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
   return TYPE::__Wrapper(); \
 } \
 \
@@ -99,9 +101,13 @@ static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME(
   return property; \
 } \
 \
+static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */) { \
+  Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  return true; \
+} \
+\
 static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
-  static oatpp::data::mapping::type::Type::Property* property = \
-    Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
   return TYPE::__Wrapper(); \
 } \
 \
@@ -120,17 +126,11 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, (__VA_ARGS
 
 #define DTO_FIELD_INFO(NAME) \
 \
-static bool Z__PROPERTY_ADD_INFO_SINGLETON_##NAME() { \
-  static bool isInitialized = Z__PROPERTY_ADD_INFO_CALLER_##NAME(); \
-  return isInitialized; \
-} \
-\
-static bool Z__PROPERTY_ADD_INFO_CALLER_##NAME() { \
+static bool Z__PROPERTY_INIT_##NAME(int) { \
+  Z__PROPERTY_INIT_##NAME(); /* call first initialization */ \
   Z__PROPERTY_ADD_INFO_##NAME(&Z__PROPERTY_SINGLETON_##NAME()->info); \
   return true; \
 } \
-\
-const bool Z__PROPERTY_ADD_INFO_INITIALIZER_##NAME = Z__PROPERTY_ADD_INFO_SINGLETON_##NAME(); \
 \
 static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::Type::Property::Info* info)
 
