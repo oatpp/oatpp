@@ -56,9 +56,10 @@ int ClassId::getClassCount() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type::Properties
 
-void Type::Properties::pushBack(Property* property) {
+Type::Property* Type::Properties::pushBack(Property* property) {
   m_map.insert({property->name, property});
   m_list.push_back(property);
+  return property;
 }
   
 void Type::Properties::pushFrontAll(Properties* properties) {
@@ -69,13 +70,11 @@ void Type::Properties::pushFrontAll(Properties* properties) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type::Property
 
-Type::Property::Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType)
+Type::Property::Property(v_int64 pOffset, const char* pName, Type* pType)
   : offset(pOffset)
   , name(pName)
   , type(pType)
-{
-  properties->pushBack(this);
-}
+{}
 
 void Type::Property::set(void* object, const Void& value) {
   Void* property = (Void*)(((v_int64) object) + offset);

@@ -77,41 +77,53 @@ public: \
 
 #define OATPP_MACRO_DTO_FIELD_1(TYPE, NAME) \
 \
-oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
-  Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
-                            (oatpp::data::mapping::type::Void*)(&NAME)); \
-\
-static oatpp::data::mapping::type::Type::Property* \
-Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
-                          oatpp::data::mapping::type::Void* _reg) { \
-  static oatpp::data::mapping::type::Type::Property* field = \
-      new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
-                                                     (v_int64) _reg - (v_int64) _this, \
-                                                     #NAME, \
-                                                     TYPE::__Wrapper::Class::getType()); \
-  return field; \
+static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
+  char buffer[sizeof(Z__CLASS)]; \
+  auto obj = static_cast<Z__CLASS*>((void*)buffer); \
+  auto ptr = &obj->NAME; \
+  return (v_int64) ptr - (v_int64) buffer; \
 } \
 \
-TYPE::__Wrapper NAME
+static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME() { \
+  static oatpp::data::mapping::type::Type::Property* property = \
+      new oatpp::data::mapping::type::Type::Property(Z__PROPERTY_OFFSET_##NAME(), \
+                                                     #NAME, \
+                                                     TYPE::__Wrapper::Class::getType()); \
+  return property; \
+} \
+\
+static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
+  static oatpp::data::mapping::type::Type::Property* property = \
+    Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  return TYPE::__Wrapper(); \
+} \
+\
+TYPE::__Wrapper NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
 
 #define OATPP_MACRO_DTO_FIELD_2(TYPE, NAME, QUALIFIER) \
 \
-oatpp::data::mapping::type::Type::Property* Z__CLASS_FIELD_##NAME = \
-  Z__CLASS_GET_FIELD_##NAME(static_cast<oatpp::base::Countable*>(this), \
-                            (oatpp::data::mapping::type::Void*)(&NAME)); \
-\
-static oatpp::data::mapping::type::Type::Property* \
-Z__CLASS_GET_FIELD_##NAME(oatpp::base::Countable* _this, \
-                          oatpp::data::mapping::type::Void* _reg) { \
-  static oatpp::data::mapping::type::Type::Property* field = \
-      new oatpp::data::mapping::type::Type::Property(Z__CLASS_GET_FIELDS_MAP(), \
-                                                     (v_int64) _reg - (v_int64) _this, \
-                                                     QUALIFIER, \
-                                                     TYPE::__Wrapper::Class::getType()); \
-  return field; \
+static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
+  char buffer[sizeof(Z__CLASS)]; \
+  auto obj = static_cast<Z__CLASS*>((void*)buffer); \
+  auto ptr = &obj->NAME; \
+  return (v_int64) ptr - (v_int64) buffer; \
 } \
 \
-TYPE::__Wrapper NAME
+static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME() { \
+  static oatpp::data::mapping::type::Type::Property* property = \
+      new oatpp::data::mapping::type::Type::Property(Z__PROPERTY_OFFSET_##NAME(), \
+                                                     QUALIFIER, \
+                                                     TYPE::__Wrapper::Class::getType()); \
+  return property; \
+} \
+\
+static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
+  static oatpp::data::mapping::type::Type::Property* property = \
+    Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  return TYPE::__Wrapper(); \
+} \
+\
+TYPE::__Wrapper NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
 
 /**
  * Codegen macro to generate fields of DTO object.

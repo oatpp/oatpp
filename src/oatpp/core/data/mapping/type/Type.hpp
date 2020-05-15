@@ -245,7 +245,7 @@ public:
      * Add property to the end of the list.
      * @param property
      */
-    void pushBack(Property* property);
+    Property* pushBack(Property* property);
 
     /**
      * Add all properties to the beginning of the list.
@@ -277,18 +277,29 @@ public:
    * Class to map object properties.
    */
   class Property {
+  public:
+
+    /**
+     * Editional Info about Property.
+     */
+    struct Info {
+      /**
+       * Description.
+       */
+      std::string description = "";
+    };
+
   private:
     const v_int64 offset;
   public:
 
     /**
      * Constructor.
-     * @param properties - &l:Type::Properties;*. to push this property to.
      * @param pOffset - memory offset of object field from object start address.
      * @param pName - name of the property.
      * @param pType - &l:Type; of the property.
      */
-    Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType);
+    Property(v_int64 pOffset, const char* pName, Type* pType);
 
     /**
      * Property name.
@@ -299,6 +310,11 @@ public:
      * Property type.
      */
     const Type* const type;
+
+    /**
+     * Property additional info.
+     */
+    Info info;
 
     /**
      * Set value of object field mapped by this property.
