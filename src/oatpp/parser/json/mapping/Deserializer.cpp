@@ -296,7 +296,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
   if(caret.canContinueAtChar('{', 1)) {
 
     auto object = type->creator();
-    const auto& fieldsMap = type->properties->getMap();
+    const auto& fieldsMap = type->propertiesGetter()->getMap();
 
     caret.skipBlankChars();
 

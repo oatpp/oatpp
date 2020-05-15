@@ -59,14 +59,31 @@ namespace __class {
    */
   template<class T>
   class Object : public AbstractObject {
+  private:
+
+    static type::Void creator() {
+      return type::Void(std::make_shared<T>(), getType());
+    }
+
+    static type::Type::Properties* initProperties() {
+      T obj; // initializer;
+      T::Z__CLASS_EXTEND(T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), T::Z__CLASS_EXTENDED::Z__CLASS_GET_FIELDS_MAP());
+      return T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP();
+    }
+
+    static const Type::Properties* propertiesGetter() {
+      static type::Type::Properties* properties = initProperties();
+      return properties;
+    }
+
   public:
 
     /**
      * Get type describing this class.
      * @return - &id:oatpp::data::mapping::type::Type;
      */
-    static Type* getType(){
-      static Type* type = static_cast<Type*>(T::Z__CLASS_GET_TYPE());
+    static Type* getType() {
+      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), creator, propertiesGetter);
       return type;
     }
     
@@ -79,6 +96,8 @@ namespace __class {
  * For more info about Data Transfer Object (DTO) see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
  */
 class Object : public oatpp::base::Countable {
+  template<class T>
+  friend class __class::Object;
 public:
   typedef oatpp::data::mapping::type::Void Void;
   typedef oatpp::data::mapping::type::Any Any;
@@ -110,19 +129,19 @@ public:
   template <class Value>
   using UnorderedFields = oatpp::data::mapping::type::UnorderedMap<String, Value>;
 
-protected:
+private:
   
   static Type::Properties* Z__CLASS_EXTEND(Type::Properties* properties, Type::Properties* extensionProperties) {
     properties->pushFrontAll(extensionProperties);
     return properties;
   }
-  
-public:
-  
+
   static oatpp::data::mapping::type::Type::Properties* Z__CLASS_GET_FIELDS_MAP(){
     static oatpp::data::mapping::type::Type::Properties map;
     return &map;
   }
+  
+public:
 
   virtual v_uint64 defaultHashCode() const {
     return (v_uint64) reinterpret_cast<v_buff_usize>(this);

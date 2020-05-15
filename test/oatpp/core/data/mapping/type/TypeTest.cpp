@@ -26,6 +26,7 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
   
@@ -33,11 +34,9 @@ namespace {
   
 #include OATPP_CODEGEN_BEGIN(DTO)
   
-  typedef oatpp::data::mapping::type::Object DTO;
-  
-  class TestDto : public DTO {
+  class TestDto : public oatpp::Object {
     
-    DTO_INIT(TestDto, DTO);
+    DTO_INIT(TestDto, Object);
 
     DTO_FIELD(String, field_string);
     DTO_FIELD(Int8, field_int8);
@@ -57,7 +56,7 @@ namespace {
     
     DTO_FIELD(Fields<String>, field_map_string_string);
     
-    DTO_FIELD(TestDto::ObjectWrapper, obj1);
+    DTO_FIELD(TestDto, obj1);
     
   };
   
