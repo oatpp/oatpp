@@ -48,9 +48,15 @@ class DtoA : public oatpp::Object {
   DTO_FIELD_INFO(id) {
     info->description = "identifier";
   }
-  DTO_FIELD(String, id);
+  DTO_FIELD(String, id) = "Some default id";
 
   DTO_HC_EQ(id)
+
+public:
+
+  DtoA(const String& pId)
+    : id(pId)
+  {}
 
 };
 
@@ -105,6 +111,11 @@ void ObjectTest::onRun() {
   {
     oatpp::test::PerformanceChecker timer("DTO - Initializations.");
     runDtoInitializetionsInThreads();
+  }
+
+  {
+    auto dto = DtoA::createShared("id1");
+    OATPP_ASSERT(dto->id == "id1");
   }
 
   {

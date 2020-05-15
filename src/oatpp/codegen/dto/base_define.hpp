@@ -49,8 +49,11 @@ private: \
   } \
 public: \
 \
-  static ObjectWrapper createShared(){ \
-    return ObjectWrapper(std::make_shared<Z__CLASS>(), ObjectWrapper::Class::getType()); \
+  TYPE_NAME() = default; \
+\
+  template<typename ... Args> \
+  static ObjectWrapper createShared(Args... args){ \
+    return ObjectWrapper(std::make_shared<Z__CLASS>(args...), ObjectWrapper::Class::getType()); \
   }
 
 // Fields
