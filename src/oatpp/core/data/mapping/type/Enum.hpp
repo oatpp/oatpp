@@ -505,4 +505,21 @@ namespace __class {
 
 }}}}
 
+namespace std {
+
+  template<class T, class I>
+  struct hash <oatpp::data::mapping::type::EnumObjectWrapper<T, I>> {
+
+    typedef oatpp::data::mapping::type::EnumObjectWrapper<T, I> argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const &e) const noexcept {
+      if (e.get() == nullptr) return 0;
+      return static_cast<v_uint64>(*e);
+    }
+
+  };
+
+}
+
 #endif // oatpp_data_mapping_type_Enum_hpp

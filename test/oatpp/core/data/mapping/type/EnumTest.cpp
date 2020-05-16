@@ -27,6 +27,8 @@
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
+#include <unordered_map>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
@@ -54,6 +56,43 @@ ENUM(Enum3, v_int32,
 #include OATPP_CODEGEN_END(DTO)
 
 void EnumTest::onRun() {
+
+  {
+    OATPP_LOGI(TAG, "Check Hash...");
+
+    {
+      auto v = std::hash<oatpp::Enum<Enum1>>{}(oatpp::Enum<Enum1>());
+      OATPP_ASSERT(v == 0);
+    }
+
+    {
+      auto v = std::hash<oatpp::Enum<Enum1>>{}(oatpp::Enum<Enum1>(Enum1::V1));
+      OATPP_ASSERT(v == 1);
+    }
+
+    {
+      auto v = std::hash<oatpp::Enum<Enum1>>{}(oatpp::Enum<Enum1>(Enum1::V2));
+      OATPP_ASSERT(v == 2);
+    }
+
+    {
+      auto v = std::hash<oatpp::Enum<Enum1>>{}(oatpp::Enum<Enum1>(Enum1::V3));
+      OATPP_ASSERT(v == 3);
+    }
+
+    std::unordered_map<oatpp::Enum<Enum1>, oatpp::String> map({
+      {Enum1::V1, "v1"},
+      {Enum1::V2, "v2"},
+      {Enum1::V3, "v3"},
+    });
+
+    OATPP_ASSERT(map.size() == 3);
+    OATPP_ASSERT(map[Enum1::V1] == "v1");
+    OATPP_ASSERT(map[Enum1::V2] == "v2");
+    OATPP_ASSERT(map[Enum1::V3] == "v3");
+
+    OATPP_LOGI(TAG, "OK");
+  }
 
   {
     OATPP_LOGI(TAG, "Check Meta...");
