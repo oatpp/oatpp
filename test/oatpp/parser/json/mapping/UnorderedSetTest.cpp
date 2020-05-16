@@ -22,30 +22,32 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "undefs" for DTO code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(DTO)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(DTO)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[Data Transfer Object(DTO) component](https://oatpp.io/docs/components/dto/)</li>
- *   <li>&id:oatpp::data::mapping::type::Object;</li>
- * </ul>
- */
+#include "UnorderedSetTest.hpp"
 
-#undef DTO_INIT
+#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
-// Fields
+namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
 
-#undef OATPP_MACRO_DTO_FIELD_1
-#undef OATPP_MACRO_DTO_FIELD_2
-#undef DTO_FIELD
+void UnorderedSetTest::onRun() {
+
+  oatpp::parser::json::mapping::ObjectMapper mapper;
+
+  {
+    oatpp::UnorderedSet<oatpp::String> set = {"Hello", "World", "!"};
+    auto json = mapper.writeToString(set);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+  }
+
+  {
+    oatpp::String json = "[\"Hello\",\"World\",\"!\",\"Hello\",\"World\",\"!\"]";
+    auto set = mapper.readFromString<oatpp::UnorderedSet<oatpp::String>>(json);
+    OATPP_ASSERT(set);
+    OATPP_ASSERT(set->size() == 3);
+    for(auto& item : *set) {
+      OATPP_LOGD(TAG, "item='%s'", item->c_str());
+    }
+  }
+  
+}
+
+}}}}}

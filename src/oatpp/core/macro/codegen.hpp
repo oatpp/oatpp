@@ -35,14 +35,21 @@
  *
  */
 
-#ifndef codegen_hpp
-#define codegen_hpp
+#ifndef oatpp_macro_codegen_hpp
+#define oatpp_macro_codegen_hpp
 
 #include "./basic.hpp"
 
-#define OATPP_MACRO_CODEGEN_EXPAND(X) OATPP_MACRO_STR(X)
+#define OATPP_CODEGEN_DEFINE_ApiController "oatpp/codegen/ApiController_define.hpp"
+#define OATPP_CODEGEN_UNDEF_ApiController "oatpp/codegen/ApiController_undef.hpp"
 
-#define OATPP_CODEGEN_BEGIN(NAME) OATPP_MACRO_CODEGEN_EXPAND(OATPP_MACRO_CONCAT2(oatpp/codegen/codegen_define_, NAME##_.hpp))
-#define OATPP_CODEGEN_END(NAME) OATPP_MACRO_CODEGEN_EXPAND(OATPP_MACRO_CONCAT2(oatpp/codegen/codegen_undef_, NAME##_.hpp))
+#define OATPP_CODEGEN_DEFINE_ApiClient "oatpp/codegen/ApiClient_define.hpp"
+#define OATPP_CODEGEN_UNDEF_ApiClient "oatpp/codegen/ApiClient_undef.hpp"
 
-#endif /* codegen_hpp */
+#define OATPP_CODEGEN_DEFINE_DTO "oatpp/codegen/DTO_define.hpp"
+#define OATPP_CODEGEN_UNDEF_DTO "oatpp/codegen/DTO_undef.hpp"
+
+#define OATPP_CODEGEN_BEGIN(NAME) OATPP_MACRO_EXPAND(OATPP_CODEGEN_DEFINE_ ## NAME)
+#define OATPP_CODEGEN_END(NAME) OATPP_MACRO_EXPAND(OATPP_CODEGEN_UNDEF_ ## NAME)
+
+#endif /* oatpp_macro_codegen_hpp */

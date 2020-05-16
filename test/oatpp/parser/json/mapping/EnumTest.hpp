@@ -22,12 +22,21 @@
  *
  ***************************************************************************/
 
-#include "ListMap.hpp"
+#ifndef oatpp_test_parser_json_mapping_EnumTest_hpp
+#define oatpp_test_parser_json_mapping_EnumTest_hpp
 
-namespace oatpp { namespace data { namespace mapping { namespace type {
-  
-namespace __class {
-  const ClassId AbstractListMap::CLASS_ID("ListMap");
-}
-  
-}}}}
+#include "oatpp-test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+
+class EnumTest : public UnitTest{
+public:
+
+  EnumTest():UnitTest("TEST[parser::json::mapping::EnumTest]"){}
+  void onRun() override;
+
+};
+
+}}}}}
+
+#endif /* oatpp_test_parser_json_mapping_EnumTest_hpp */

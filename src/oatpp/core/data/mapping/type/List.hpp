@@ -27,81 +27,109 @@
 
 #include "./Type.hpp"
 
-#include "oatpp/core/collection/LinkedList.hpp"
-
-#include "oatpp/core/base/memory/ObjectPool.hpp"
-#include "oatpp/core/base/Countable.hpp"
+#include <list>
+#include <initializer_list>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 namespace __class {
-  
+
   class AbstractList {
   public:
     static const ClassId CLASS_ID;
+  public:
+
+    class AbstractPolymorphicDispatcher {
+    public:
+      virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
+    };
+
   };
-  
+
   template<class T>
-  class List; // FWD
-  
+  class List;
+
 }
-  
-template<class T, class Class>
-class ListTypeTemplate : public oatpp::collection::LinkedList<T> {
-  friend Class;
+
+template<class T, class C>
+class ListObjectWrapper : public type::ObjectWrapper<std::list<T>, C> {
 public:
-  typedef oatpp::data::mapping::type::ObjectWrapper<ListTypeTemplate, Class> ObjectWrapper;
+  typedef std::list<T> TemplateObjectType;
+  typedef C TemplateObjectClass;
 public:
-  OBJECT_POOL(DTO_LIST_POOL, ListTypeTemplate, 32)
-  SHARED_OBJECT_POOL(SHARED_DTO_LIST_POOL, ListTypeTemplate, 32)
-protected:
-  
-  static AbstractObjectWrapper Z__CLASS_OBJECT_CREATOR(){
-    return AbstractObjectWrapper(SHARED_DTO_LIST_POOL::allocateShared(), Z__CLASS_GET_TYPE());
-  }
-  
-  static Type* Z__CLASS_GET_TYPE(){
-    static Type type(Class::CLASS_ID, nullptr, &Z__CLASS_OBJECT_CREATOR);
-    if(type.params.empty()){
-      type.params.push_back(T::Class::getType());
-    }
-    return &type;
-  }
-  
-public:
-  ListTypeTemplate()
+
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(ListObjectWrapper, TemplateObjectType, TemplateObjectClass)
+
+  ListObjectWrapper(std::initializer_list<T> ilist)
+    : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))
   {}
-public:
-  
-  static ObjectWrapper createShared(){
-    return ObjectWrapper(SHARED_DTO_LIST_POOL::allocateShared());
+
+  static ListObjectWrapper createShared() {
+    return std::make_shared<TemplateObjectType>();
   }
-  
-  virtual void addPolymorphicItem(const AbstractObjectWrapper& item){
-    auto ptr = std::static_pointer_cast<typename T::ObjectType>(item.getPtr());
-    this->pushBack(T(ptr, item.valueType));
+
+  ListObjectWrapper& operator = (std::initializer_list<T> ilist) {
+    this->m_ptr = std::make_shared<TemplateObjectType>(ilist);
+    return *this;
   }
-  
+
+  T& operator[] (v_buff_usize index) const {
+    auto it = this->m_ptr->begin();
+    std::advance(it, index);
+    return *it;
+  }
+
+  TemplateObjectType& operator*() const {
+    return this->m_ptr.operator*();
+  }
+
 };
 
 template<class T>
-using List = ListTypeTemplate<T, __class::List<T>>;
-  
+using List = ListObjectWrapper<typename T::__Wrapper, __class::List<typename T::__Wrapper>>;
+
+typedef ListObjectWrapper<type::Void, __class::AbstractList> AbstractList;
+
 namespace __class {
-  
+
   template<class T>
   class List : public AbstractList {
-  public:
-    
-    static Type* getType(){
-      static Type* type = static_cast<Type*>(oatpp::data::mapping::type::List<T>::Z__CLASS_GET_TYPE());
+  private:
+
+    class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+    public:
+
+      void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
+        const auto& list = object.staticCast<type::List<T>>();
+        const auto& listItem = item.staticCast<T>();
+        list->push_back(listItem);
+      }
+
+    };
+
+  private:
+
+    static type::Void creator() {
+      return type::Void(std::make_shared<std::list<T>>(), getType());
+    }
+
+    static Type createType() {
+      Type type(__class::AbstractList::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+      type.params.push_back(T::Class::getType());
       return type;
     }
-    
+
+  public:
+
+    static Type* getType() {
+      static Type type = createType();
+      return &type;
+    }
+
   };
-  
+
 }
-  
+
 }}}}
 
-#endif /* oatpp_data_mapping_type_List_hpp */
+#endif // oatpp_data_mapping_type_List_hpp

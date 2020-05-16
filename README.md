@@ -50,7 +50,7 @@ For more info see [Api Controller](https://oatpp.io/docs/components/api-controll
 ```cpp
 ENDPOINT("PUT", "/users/{userId}", putUser,
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+         BODY_DTO(dto::UserDto, userDto)) 
 {
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
@@ -65,7 +65,7 @@ For more info see [Api Controller / CORS](https://oatpp.io/docs/components/api-c
 ADD_CORS(putUser)
 ENDPOINT("PUT", "/users/{userId}", putUser,
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+         BODY_DTO(dto::UserDto, userDto)) 
 {
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
@@ -82,7 +82,7 @@ using namespace oatpp::web::server::handler;
 ENDPOINT("PUT", "/users/{userId}", putUser,
          AUTHORIZATION(std::shared_ptr<DefaultBasicAuthorizationObject>, authObject),
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+         BODY_DTO(dto::UserDto, userDto)) 
 {
   OATPP_ASSERT_HTTP(authObject->userId == "Ivan" && authObject->password == "admin", Status::CODE_401, "Unauthorized");
   userDto->id = userId;
@@ -100,15 +100,15 @@ For more info see [Endpoint Annotation And API Documentation](https://oatpp.io/d
 ENDPOINT_INFO(putUser) {
   // general
   info->summary = "Update User by userId";
-  info->addConsumes<dto::UserDto::ObjectWrapper>("application/json");
-  info->addResponse<dto::UserDto::ObjectWrapper>(Status::CODE_200, "application/json");
+  info->addConsumes<dto::UserDto>("application/json");
+  info->addResponse<dto::UserDto>(Status::CODE_200, "application/json");
   info->addResponse<String>(Status::CODE_404, "text/plain");
   // params specific
   info->pathParams["userId"].description = "User Identifier";
 }
 ENDPOINT("PUT", "/users/{userId}", putUser,
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto::ObjectWrapper, userDto)) 
+         BODY_DTO(dto::UserDto, userDto)) 
 {
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));

@@ -59,71 +59,97 @@ namespace __class {
 /**
  * Mapping-enables String is &id:type::ObjectWrapper; over &id:oatpp::base::StrBuffer;
  */
-class String : public type::ObjectWrapper<oatpp::base::StrBuffer, __class::String> {
+class String : public type::ObjectWrapper<base::StrBuffer, __class::String> {
 public:
-  String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType);
+  typedef String __Wrapper;
+public:
+  String(const std::shared_ptr<base::StrBuffer>& ptr, const type::Type* const valueType);
 public:
   
   String() {}
 
   String(std::nullptr_t) {}
 
-  String(v_buff_size size)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(size))
+  explicit String(v_buff_size size)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(size))
   {}
   
   String(const char* data, v_buff_size size, bool copyAsOwnData = true)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createShared(data, size, copyAsOwnData))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(data, size, copyAsOwnData))
   {}
   
   String(const char* data1, v_buff_size size1, const char* data2, v_buff_size size2)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
   {}
   
   String(const char* data, bool copyAsOwnData = true)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(oatpp::base::StrBuffer::createFromCString(data, copyAsOwnData))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createFromCString(data, copyAsOwnData))
   {}
   
-  String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
+  String(const std::shared_ptr<base::StrBuffer>& ptr)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(ptr)
   {}
   
-  String(std::shared_ptr<oatpp::base::StrBuffer>&& ptr)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(ptr))
+  String(std::shared_ptr<base::StrBuffer>&& ptr)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<std::shared_ptr<base::StrBuffer>>(ptr))
   {}
   
   String(const String& other)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(other)
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(other)
   {}
   
   String(String&& other)
-    : type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(std::forward<String>(other))
+    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<String>(other))
   {}
-  
-  String& operator = (const char* str) {
-    m_ptr = oatpp::base::StrBuffer::createFromCString(str);
+
+  inline String& operator = (std::nullptr_t) {
+    m_ptr.reset();
     return *this;
   }
-  
-  String& operator = (const String& other){
+
+  inline String& operator = (const char* str) {
+    m_ptr = base::StrBuffer::createFromCString(str);
+    return *this;
+  }
+
+  inline String& operator = (const String& other){
     m_ptr = other.m_ptr;
     return *this;
   }
-  
-  String& operator = (String&& other){
-    m_ptr = std::forward<std::shared_ptr<oatpp::base::StrBuffer>>(other.m_ptr);
+
+  inline String& operator = (String&& other){
+    m_ptr = std::forward<std::shared_ptr<base::StrBuffer>>(other.m_ptr);
     return *this;
   }
-  
-  bool operator==(const String &other) const {
-    return m_ptr->equals(other.get());
+
+  inline bool operator == (std::nullptr_t) const {
+    return m_ptr.get() == nullptr;
   }
-  
-  bool operator!=(const String &other) const {
-    return !m_ptr->equals(other.get());
+
+  inline bool operator != (std::nullptr_t) const {
+    return m_ptr.get() != nullptr;
   }
-  
-  explicit operator bool() const {
+
+  inline bool operator == (const char* str) const {
+    if(!m_ptr) return str == nullptr;
+    if(str == nullptr) return false;
+    if(m_ptr->getSize() != std::strlen(str)) return false;
+    return base::StrBuffer::equals(m_ptr->getData(), str, m_ptr->getSize());
+  }
+
+  inline bool operator != (const char* str) const {
+    return !operator == (str);
+  }
+
+  inline bool operator == (const String &other) const {
+    return base::StrBuffer::equals(m_ptr.get(), other.m_ptr.get());
+  }
+
+  inline bool operator != (const String &other) const {
+    return !operator == (other);
+  }
+
+  inline explicit operator bool() const {
     return m_ptr.operator bool();
   }
   
@@ -139,188 +165,245 @@ String operator + (const String& a, const String& b);
  * @tparam Clazz - Class holding static class information.
  */
 template<typename TValueType, class Clazz>
-class Primitive : public oatpp::base::Countable {
+class Primitive : public type::ObjectWrapper<TValueType, Clazz>  {
 public:
-  typedef TValueType ValueType;
-public:
-  OBJECT_POOL(Primitive_Type_Pool, Primitive, 32)
-  SHARED_OBJECT_POOL(Shared_Primitive_Type_Pool, Primitive, 32)
+  typedef TValueType UnderlyingType;
 public:
 
-  /**
-   * ObjectWrapper template for &l:Primitive;.
-   */
-  class ObjectWrapper : public type::ObjectWrapper<Primitive, Clazz> {
-  public:
-    ObjectWrapper(const std::shared_ptr<Primitive>& ptr, const type::Type* const valueType)
-      : type::ObjectWrapper<Primitive, Clazz>(ptr)
-    {
-      if(Clazz::getType() != valueType){
-        throw std::runtime_error("Value type does not match");
-      }
-    }
-  public:
-    
-    ObjectWrapper()
-      : type::ObjectWrapper<Primitive, Clazz>()
-    {}
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Primitive, TValueType, Clazz)
 
-    ObjectWrapper(std::nullptr_t)
-      : type::ObjectWrapper<Primitive, Clazz>()
-    {}
-    
-    ObjectWrapper(const std::shared_ptr<Primitive>& ptr)
-      : type::ObjectWrapper<Primitive, Clazz>(ptr)
-    {}
-    
-    ObjectWrapper(std::shared_ptr<Primitive>&& ptr)
-      : type::ObjectWrapper<Primitive, Clazz>(std::move(ptr))
-    {}
-    
-    ObjectWrapper(const ObjectWrapper& other)
-      : type::ObjectWrapper<Primitive, Clazz>(other)
-    {}
-    
-    ObjectWrapper(ObjectWrapper&& other)
-      : type::ObjectWrapper<Primitive, Clazz>(std::move(other))
-    {}
-    
-    ObjectWrapper(const ValueType& value)
-      : type::ObjectWrapper<Primitive, Clazz>(Primitive::createShared(value))
-    {}
-    
-    ObjectWrapper& operator = (const ValueType& value){
-      if(!this->m_ptr){
-        this->m_ptr = Primitive::createShared(value);
-      } else {
-        this->m_ptr.get()->setValue(value);
-      }
-      return *this;
-    }
-    
-    ObjectWrapper& operator = (const ObjectWrapper &other){
-      this->m_ptr = other.m_ptr;
-      return *this;
-    }
-    
-    bool operator==(const ObjectWrapper &other) const {
-      return this->m_ptr->getValue() == other->getValue();
-    }
-    
-    bool operator!=(const ObjectWrapper &other) const {
-      return this->m_ptr->getValue() != other->getValue();
-    }
-    
-    inline operator ValueType() const {
-      return this->get()->getValue();
-    }
-    
-  };
-  
-private:
-  
-  ValueType m_value;
-  
-public:
-  /**
-   * Constructor.
-   * @param value - initial value.
-   */
-  Primitive(const ValueType& value)
-    : m_value(value)
+  Primitive(TValueType value)
+    : type::ObjectWrapper<TValueType, Clazz>(std::make_shared<TValueType>(value))
   {}
-public:
 
-  /**
-   * Create shared primitive.
-   * @param value - initial value.
-   * @return - `std::shared_ptr` to Primitive.
-   */
-  static std::shared_ptr<Primitive> createShared(const ValueType& value){
-    return Shared_Primitive_Type_Pool::allocateShared(value);
+  Primitive& operator = (TValueType value) {
+    this->m_ptr = std::make_shared<TValueType>(value);
+    return *this;
   }
 
-  /**
-   * Create shared primitive upcasted to &id:oatpp::base::Countable;.
-   * @param value - initial value.
-   * @return - `std::shared_ptr` to primitive upcasted to &id:oatpp::base::Countable;.
-   */
-  static std::shared_ptr<Countable> createAbstract(const ValueType& value){
-    return std::static_pointer_cast<Countable>(Shared_Primitive_Type_Pool::allocateShared(value));
+  TValueType operator*() const {
+    return this->m_ptr.operator*();
   }
 
-  /**
-   * Set value.
-   * @param value.
-   */
-  void setValue(const ValueType& value) {
-    m_value = value;
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T){
+    return this->m_ptr.get() == nullptr;
   }
 
-  /**
-   * Get value.
-   * @return - value.
-   */
-  ValueType getValue() {
-    return m_value;
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T){
+    return this->m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, TValueType>::value, void>::type
+  >
+  inline bool operator == (T value) const {
+    if(!this->m_ptr) return false;
+    return *this->m_ptr == value;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, TValueType>::value, void>::type
+  >
+  inline bool operator != (T value) const {
+    if(!this->m_ptr) return true;
+    return *this->m_ptr != value;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, Primitive>::value, void>::type
+  >
+  inline bool operator == (const T &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, Primitive>::value, void>::type
+  >
+  inline bool operator != (const T &other) const {
+    return !operator == (other);
+  }
+
+  inline operator TValueType() const {
+    return *this->m_ptr;
   }
   
 };
 
 /**
- * Int8 is an ObjectWrapper over &l:Primitive; and __class::Int8.
+ * ObjectWrapper for Boolean.
  */
-typedef Primitive<v_int8, __class::Int8>::ObjectWrapper Int8;
+class Boolean : public type::ObjectWrapper<bool, __class::Boolean>  {
+public:
+  typedef bool UnderlyingType;
+public:
+
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(Boolean, bool, __class::Boolean)
+
+  Boolean(bool value)
+    : type::ObjectWrapper<bool, __class::Boolean>(std::make_shared<bool>(value))
+  {}
+
+  Boolean& operator = (bool value) {
+    this->m_ptr = std::make_shared<bool>(value);
+    return *this;
+  }
+
+  inline bool operator*() const {
+    return this->m_ptr.operator*();
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T){
+    return m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T){
+    return m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
+  >
+  inline bool operator == (T value) const {
+    if(!this->m_ptr) return false;
+    return *this->m_ptr == value;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, bool>::value, void>::type
+  >
+  inline bool operator != (T value) const {
+    if(!this->m_ptr) return true;
+    return *this->m_ptr != value;
+  }
+
+  inline bool operator == (const Boolean &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  inline bool operator != (const Boolean &other) const {
+    return !operator == (other);
+  }
+
+  inline operator bool() const {
+    if(this->m_ptr) {
+      return *(this->m_ptr);
+    }
+    return false;
+  }
+
+};
 
 /**
- * UInt8 is an ObjectWrapper over &l:Primitive; and __class::UInt8.
+ * Int8 is an ObjectWrapper over `v_int8` and __class::Int8.
  */
-typedef Primitive<v_uint8, __class::UInt8>::ObjectWrapper UInt8;
+typedef Primitive<v_int8, __class::Int8> Int8;
 
 /**
- * Int16 is an ObjectWrapper over &l:Primitive; and __class::Int16.
+ * UInt8 is an ObjectWrapper over `v_uint8` and __class::UInt8.
  */
-typedef Primitive<v_int16, __class::Int16>::ObjectWrapper Int16;
+typedef Primitive<v_uint8, __class::UInt8> UInt8;
 
 /**
- * UInt16 is an ObjectWrapper over &l:Primitive; and __class::UInt16.
+ * Int16 is an ObjectWrapper over `v_int16` and __class::Int16.
  */
-typedef Primitive<v_uint16, __class::UInt16>::ObjectWrapper UInt16;
+typedef Primitive<v_int16, __class::Int16> Int16;
 
 /**
- * Int32 is an ObjectWrapper over &l:Primitive; and __class::Int32.
+ * UInt16 is an ObjectWrapper over `v_uint16` and __class::UInt16.
  */
-typedef Primitive<v_int32, __class::Int32>::ObjectWrapper Int32;
+typedef Primitive<v_uint16, __class::UInt16> UInt16;
 
 /**
- * UInt32 is an ObjectWrapper over &l:Primitive; and __class::UInt32.
+ * Int32 is an ObjectWrapper over `v_int32` and __class::Int32.
  */
-typedef Primitive<v_uint32, __class::UInt32>::ObjectWrapper UInt32;
+typedef Primitive<v_int32, __class::Int32> Int32;
 
 /**
- * Int64 is an ObjectWrapper over &l:Primitive; and __class::Int64.
+ * UInt32 is an ObjectWrapper over `v_uint32` and __class::UInt32.
  */
-typedef Primitive<v_int64, __class::Int64>::ObjectWrapper Int64;
+typedef Primitive<v_uint32, __class::UInt32> UInt32;
 
 /**
- * UInt64 is an ObjectWrapper over &l:Primitive; and __class::UInt64.
+ * Int64 is an ObjectWrapper over `v_int64` and __class::Int64.
  */
-typedef Primitive<v_uint64, __class::UInt64>::ObjectWrapper UInt64;
+typedef Primitive<v_int64, __class::Int64> Int64;
 
 /**
- * Float32 is an ObjectWrapper over &l:Primitive; and __class::Float32.
+ * UInt64 is an ObjectWrapper over `v_uint64` and __class::UInt64.
  */
-typedef Primitive<v_float32, __class::Float32>::ObjectWrapper Float32;
+typedef Primitive<v_uint64, __class::UInt64> UInt64;
 
 /**
- * Float64 is an ObjectWrapper over &l:Primitive; and __class::Float64.
+ * Float32 is an ObjectWrapper over `v_float32` and __class::Float32.
  */
-typedef Primitive<v_float64, __class::Float64>::ObjectWrapper Float64;
+typedef Primitive<v_float32, __class::Float32> Float32;
 
 /**
- * Boolean is an ObjectWrapper over &l:Primitive; and __class::Boolean.
+ * Float64 is an ObjectWrapper over `v_float64` and __class::Float64.
  */
-typedef Primitive<bool, __class::Boolean>::ObjectWrapper Boolean;
+typedef Primitive<v_float64, __class::Float64> Float64;
+
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int8> {
+  typedef Int8 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint8> {
+  typedef UInt8 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int16> {
+  typedef Int16 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint16> {
+  typedef UInt16 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int32> {
+  typedef Int32 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint32> {
+  typedef UInt32 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_int64> {
+  typedef Int64 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <v_uint64> {
+  typedef UInt64 ObjectWrapper;
+};
+
+template<>
+struct ObjectWrapperByUnderlyingType <bool> {
+  typedef Boolean ObjectWrapper;
+};
   
 namespace __class {
   
@@ -466,9 +549,10 @@ namespace std {
   struct hash<oatpp::data::mapping::type::String> {
     
     typedef oatpp::data::mapping::type::String argument_type;
-    typedef v_uint32 result_type;
+    typedef v_uint64 result_type;
     
     result_type operator()(argument_type const& s) const noexcept {
+      if(s.get() == nullptr) return 0;
 
       p_char8 data = s->getData();
       result_type result = 0;
@@ -482,6 +566,150 @@ namespace std {
     }
     
   };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Boolean> {
+
+    typedef oatpp::data::mapping::type::Boolean argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 2;
+      return result_type(*v);
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int8> {
+
+    typedef oatpp::data::mapping::type::Int8 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt8> {
+
+    typedef oatpp::data::mapping::type::UInt8 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int16> {
+
+    typedef oatpp::data::mapping::type::Int16 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt16> {
+
+    typedef oatpp::data::mapping::type::UInt16 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int32> {
+
+    typedef oatpp::data::mapping::type::Int32 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt32> {
+
+    typedef oatpp::data::mapping::type::UInt32 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Int64> {
+
+    typedef oatpp::data::mapping::type::Int64 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::UInt64> {
+
+    typedef oatpp::data::mapping::type::UInt64 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return (result_type) *v;
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Float32> {
+
+    typedef oatpp::data::mapping::type::Float32 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return *((v_uint32*) v.get());
+    }
+
+  };
+
+  template<>
+  struct hash<oatpp::data::mapping::type::Float64> {
+
+    typedef oatpp::data::mapping::type::Float64 argument_type;
+    typedef v_uint64 result_type;
+
+    result_type operator()(argument_type const& v) const noexcept {
+      if(v.get() == nullptr) return 0;
+      return *((result_type*) v.get());
+    }
+
+  };
+
 }
 
 #endif /* oatpp_base_Countable_PrimitiveDataTypes_hpp */

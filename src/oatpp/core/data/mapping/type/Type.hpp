@@ -26,6 +26,7 @@
 #define oatpp_data_type_Type_hpp
 
 #include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -88,80 +89,91 @@ namespace __class {
 }
 
 /**
- * PolymorphicWrapper holds std::shared_ptr to object, object static type, plus object dynamic type information.
- * @tparam T - Object Type
+ * ObjectWrapper holds std::shared_ptr to object, object static type, plus object dynamic type information.
+ * @tparam T - Object Type.
+ * @tparam Clazz - Static type info.
  */
-template <class T>
-class PolymorphicWrapper {
+template <class T, class Clazz = __class::Void>
+class ObjectWrapper {
 protected:
   std::shared_ptr<T> m_ptr;
 public:
+
+  /**
+   * Convenience self-typedef.
+   */
+  typedef ObjectWrapper __Wrapper;
+
   /**
    * Static object type
    */
   typedef T ObjectType;
-public:
+
   /**
-   * PolymorphicWrapper has no static object Class info.
-   * It treats object as of class &id:oatpp::data::mapping::type::__class::Void;.
+   * Static object class information.
    */
-  typedef __class::Void Class;
+  typedef Clazz Class;
 public:
-  
-  PolymorphicWrapper(const std::shared_ptr<T>& ptr)
+
+  ObjectWrapper(const std::shared_ptr<T>& ptr)
     : m_ptr(ptr)
     , valueType(Class::getType())
   {}
-  
-  PolymorphicWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
+
+  ObjectWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
     : m_ptr(ptr)
     , valueType(type)
   {}
-  
-  PolymorphicWrapper(std::shared_ptr<T>&& ptr, const Type* const type)
+
+  ObjectWrapper(std::shared_ptr<T>&& ptr, const Type* const type)
     : m_ptr(std::move(ptr))
     , valueType(type)
   {}
   
 public:
-  
-  PolymorphicWrapper()
+
+  ObjectWrapper()
     : valueType(Class::getType())
   {}
 
-  PolymorphicWrapper(std::nullptr_t)
+  ObjectWrapper(std::nullptr_t)
     : valueType(Class::getType())
   {}
-  
-  PolymorphicWrapper(const Type* const type)
+
+  ObjectWrapper(const Type* const type)
     : valueType(type)
   {}
-  
-  PolymorphicWrapper(const PolymorphicWrapper& other)
+
+  ObjectWrapper(const ObjectWrapper& other)
     : m_ptr(other.m_ptr)
     , valueType(other.valueType)
   {}
-  
-  PolymorphicWrapper(PolymorphicWrapper&& other)
+
+  ObjectWrapper(ObjectWrapper&& other)
     : m_ptr(std::move(other.m_ptr))
     , valueType(other.valueType)
   {}
-  
-  PolymorphicWrapper& operator=(const PolymorphicWrapper<T>& other){
+
+  inline ObjectWrapper& operator=(const ObjectWrapper& other){
     m_ptr = other.m_ptr;
     return *this;
   }
-  
-  PolymorphicWrapper& operator=(const PolymorphicWrapper<T>&& other){
+
+  inline ObjectWrapper& operator=(ObjectWrapper&& other){
     m_ptr = std::move(other.m_ptr);
     return *this;
   }
   
-  inline operator PolymorphicWrapper<oatpp::base::Countable>() const {
-    return PolymorphicWrapper<oatpp::base::Countable>(this->m_ptr, valueType);
+  inline operator ObjectWrapper<void>() const {
+    return ObjectWrapper<void>(this->m_ptr, valueType);
   }
-  
-  T* operator->() const {
+
+  template<class Wrapper>
+  Wrapper staticCast() const {
+    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), valueType);
+  }
+
+  inline T* operator->() const {
     return m_ptr.operator->();
   }
   
@@ -176,16 +188,24 @@ public:
   std::shared_ptr<T> getPtr() const {
     return m_ptr;
   }
+
+  inline bool operator == (std::nullptr_t){
+    return m_ptr.get() == nullptr;
+  }
+
+  inline bool operator != (std::nullptr_t){
+    return m_ptr.get() != nullptr;
+  }
   
-  inline bool operator == (const PolymorphicWrapper& other){
+  inline bool operator == (const ObjectWrapper& other){
     return m_ptr.get() == other.m_ptr.get();
   }
   
-  inline bool operator != (const PolymorphicWrapper& other){
+  inline bool operator != (const ObjectWrapper& other){
     return m_ptr.get() != other.m_ptr.get();
   }
   
-  explicit operator bool() const {
+  explicit inline operator bool() const {
     return m_ptr.operator bool();
   }
 
@@ -196,90 +216,16 @@ public:
   const Type* const valueType;
   
 };
-  
-template<class T, class F>
-inline PolymorphicWrapper<T> static_wrapper_cast(const F& from){
-  return PolymorphicWrapper<T>(std::static_pointer_cast<T>(from.getPtr()), from.valueType);
-}
 
-/**
- * ObjectWrapper holds std::shared_ptr to object, object static type, object static class information, plus object dynamic type information.
- * @tparam T - Object type.
- * @tparam Clazz - Static Object class information.
- */
-template <class T, class Clazz>
-class ObjectWrapper : public PolymorphicWrapper<T>{
-public:
-  /**
-   * Object type.
-   */
-  typedef T ObjectType;
-public:
-  /**
-   * Static object class information.
-   */
-  typedef Clazz Class;
-public:
-  ObjectWrapper(const std::shared_ptr<T>& ptr, const type::Type* const valueType)
-    : PolymorphicWrapper<T>(ptr, Class::getType())
-  {
-    if(Class::getType() != valueType){
-      throw std::runtime_error("Value type does not match");
-    }
-  }
-public:
-  
-  ObjectWrapper()
-    : PolymorphicWrapper<T>(Class::getType())
-  {}
-  
-  ObjectWrapper(std::nullptr_t)
-    : PolymorphicWrapper<T>(Class::getType())
-  {}
-  
-  ObjectWrapper(const std::shared_ptr<T>& ptr)
-    : PolymorphicWrapper<T>(ptr, Class::getType())
-  {}
-  
-  ObjectWrapper(const PolymorphicWrapper<T>& other)
-    : PolymorphicWrapper<T>(other.getPtr(), Class::getType())
-  {}
-  
-  ObjectWrapper(PolymorphicWrapper<T>&& other)
-    : PolymorphicWrapper<T>(std::move(other.getPtr()), Class::getType())
-  {}
-  
-  ObjectWrapper& operator=(const PolymorphicWrapper<T>& other){
-    if(this->valueType != other.valueType){
-      OATPP_LOGE("ObjectWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper]: Invalid class cast");
-    }
-    PolymorphicWrapper<T>::operator = (other);
-    return *this;
-  }
-  
-  ObjectWrapper& operator=(const PolymorphicWrapper<T>&& other){
-    if(this->valueType != other.valueType){
-      OATPP_LOGE("ObjectWrapper", "Invalid class cast");
-      throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper]: Invalid class cast");
-    }
-    PolymorphicWrapper<T>::operator = (std::forward<PolymorphicWrapper<T>>(other));
-    return *this;
-  }
-  
-};
+typedef ObjectWrapper<void, __class::Void> Void;
 
-/**
- * PolymorphicWrapper over &id:oatpp::base::Countable; object.
- */
-typedef PolymorphicWrapper<oatpp::base::Countable> AbstractObjectWrapper;
+template <typename T>
+struct ObjectWrapperByUnderlyingType {};
 
 /**
  * Object type data.
  */
 class Type {
-public:
-  typedef AbstractObjectWrapper (*Creator)();
 public:
   class Property; // FWD
 public:
@@ -297,7 +243,7 @@ public:
      * Add property to the end of the list.
      * @param property
      */
-    void pushBack(Property* property);
+    Property* pushBack(Property* property);
 
     /**
      * Add all properties to the beginning of the list.
@@ -329,18 +275,29 @@ public:
    * Class to map object properties.
    */
   class Property {
+  public:
+
+    /**
+     * Editional Info about Property.
+     */
+    struct Info {
+      /**
+       * Description.
+       */
+      std::string description = "";
+    };
+
   private:
     const v_int64 offset;
   public:
 
     /**
      * Constructor.
-     * @param properties - &l:Type::Properties;*. to push this property to.
      * @param pOffset - memory offset of object field from object start address.
      * @param pName - name of the property.
      * @param pType - &l:Type; of the property.
      */
-    Property(Properties* properties, v_int64 pOffset, const char* pName, Type* pType);
+    Property(v_int64 pOffset, const char* pName, Type* pType);
 
     /**
      * Property name.
@@ -353,53 +310,51 @@ public:
     const Type* const type;
 
     /**
+     * Property additional info.
+     */
+    Info info;
+
+    /**
      * Set value of object field mapped by this property.
      * @param object - object address.
      * @param value - value to set.
      */
-    void set(void* object, const AbstractObjectWrapper& value);
+    void set(void* object, const Void& value);
 
     /**
      * Get value of object field mapped by this property.
      * @param object - object address.
      * @return - value of the field.
      */
-    AbstractObjectWrapper get(void* object);
+    Void get(void* object);
 
     /**
      * Get reference to ObjectWrapper of the object field.
      * @param object - object address.
      * @return - reference to ObjectWrapper of the object field.
      */
-    AbstractObjectWrapper& getAsRef(void* object);
+    Void& getAsRef(void* object);
     
   };
-  
+
+public:
+  typedef Void (*Creator)();
+  typedef const Properties* (*PropertiesGetter)();
 public:
 
   /**
    * Constructor.
    * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
-   */
-  Type(const ClassId& pClassId, const char* pNameQualifier);
-
-  /**
-   * Constructor.
-   * @param pClassId - type class id.
-   * @param pNameQualifier - type name qualifier.
    * @param pCreator - function pointer of Creator - function to create instance of this type.
+   * @param pPropertiesGetter - function to get properties of the type.
+   * @param pPolymorphicDispatcher - dispatcher to correctly address methods of the type.
    */
-  Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator);
-
-  /**
-   * Constructor.
-   * @param pClassId - type class id.
-   * @param pNameQualifier - type name qualifier.
-   * @param pCreator - function pointer of Creator - function to create instance of this type.
-   * @param pProperties - pointer to type properties.
-   */
-  Type(const ClassId& pClassId, const char* pNameQualifier, Creator pCreator, Properties* pProperties);
+  Type(const ClassId& pClassId,
+       const char* pNameQualifier,
+       Creator pCreator = nullptr,
+       PropertiesGetter pPropertiesGetter = nullptr,
+       void* pPolymorphicDispatcher = nullptr);
 
   /**
    * type class id.
@@ -422,12 +377,78 @@ public:
   const Creator creator;
 
   /**
-   * Pointer to type properties.
+   * PropertiesGetter - function to get properties of the type.
    */
-  const Properties* const properties;
+  const PropertiesGetter propertiesGetter;
+
+  /**
+   * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
+   */
+  const void* const polymorphicDispatcher;
   
 };
-  
+
+#define OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(WRAPPER_NAME, OBJECT_TYPE, OBJECT_CLASS) \
+public:\
+  typedef WRAPPER_NAME __Wrapper; \
+public: \
+  WRAPPER_NAME(const std::shared_ptr<OBJECT_TYPE>& ptr, const type::Type* const valueType) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr, valueType) \
+  {} \
+public: \
+\
+  WRAPPER_NAME() {} \
+\
+  WRAPPER_NAME(std::nullptr_t) {} \
+\
+  WRAPPER_NAME(const std::shared_ptr<OBJECT_TYPE>& ptr) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr) \
+  {} \
+\
+  WRAPPER_NAME(std::shared_ptr<OBJECT_TYPE>&& ptr) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<std::shared_ptr<OBJECT_TYPE>>(ptr)) \
+  {} \
+\
+  WRAPPER_NAME(const WRAPPER_NAME& other) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(other) \
+  {} \
+\
+  WRAPPER_NAME(WRAPPER_NAME&& other) \
+    : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(std::forward<WRAPPER_NAME>(other)) \
+  {} \
+\
+  inline WRAPPER_NAME& operator = (std::nullptr_t) { \
+    this->m_ptr.reset(); \
+    return *this; \
+  } \
+\
+  inline WRAPPER_NAME& operator = (const WRAPPER_NAME& other) { \
+    this->m_ptr = other.m_ptr; \
+    return *this; \
+  } \
+\
+  inline WRAPPER_NAME& operator = (WRAPPER_NAME&& other) { \
+    this->m_ptr = std::forward<std::shared_ptr<OBJECT_TYPE>>(other.m_ptr); \
+    return *this; \
+  } \
+
+
 }}}}
+
+namespace std {
+
+template<>
+struct hash<oatpp::data::mapping::type::Void> {
+
+  typedef oatpp::data::mapping::type::Void argument_type;
+  typedef v_uint64 result_type;
+
+  result_type operator()(argument_type const& v) const noexcept {
+    return (result_type) v.get();
+  }
+
+};
+
+}
   
 #endif /* oatpp_data_type_Type_hpp */

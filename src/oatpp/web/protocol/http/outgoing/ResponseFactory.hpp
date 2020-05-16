@@ -55,7 +55,7 @@ public:
    * @return - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
   static std::shared_ptr<Response> createResponse(const Status& status,
-                                                  const data::mapping::type::AbstractObjectWrapper& dto,
+                                                  const oatpp::Void& dto,
                                                   const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper);
   
 };

@@ -35,7 +35,7 @@ ResponseFactory::createResponse(const Status& status, const oatpp::String& text)
 
 std::shared_ptr<Response>
 ResponseFactory::createResponse(const Status& status,
-                                const data::mapping::type::AbstractObjectWrapper& dto,
+                                const oatpp::Void& dto,
                                 const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) {
   return Response::createShared(status, BufferBody::createShared(
     objectMapper->writeToString(dto),

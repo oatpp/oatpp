@@ -36,7 +36,7 @@ const ObjectMapper::Info& ObjectMapper::getInfo() const {
   return m_info;
 }
 
-oatpp::String ObjectMapper::writeToString(const type::AbstractObjectWrapper& variant) const {
+oatpp::String ObjectMapper::writeToString(const type::Void& variant) const {
   stream::ChunkedBuffer stream;
   write(&stream, variant);
   return stream.toString();

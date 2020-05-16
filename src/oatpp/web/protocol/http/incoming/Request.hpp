@@ -199,21 +199,8 @@ public:
    * @return DTO
    */
   template<class Type>
-  typename Type::ObjectWrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
+  typename Type::__Wrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
     return objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
-  }
-
-  /**
-   * Transfer body to String and parse it as DTO
-   * (used in ApiController's codegens)
-   * @tparam Type
-   * @param objectMapper
-   * @return DTO
-   */
-  template<class Type>
-  void readBodyToDto(data::mapping::type::PolymorphicWrapper<Type>& objectWrapper,
-                     data::mapping::ObjectMapper* objectMapper) const {
-    objectWrapper = objectMapper->readFromString<Type>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
   }
   
   // Async
@@ -246,7 +233,7 @@ public:
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
   template<class DtoType>
-  oatpp::async::CoroutineStarterForResult<const typename DtoType::ObjectWrapper&>
+  oatpp::async::CoroutineStarterForResult<const typename DtoType::__Wrapper&>
   readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
     return m_bodyDecoder->decodeToDtoAsync<DtoType>(m_headers, m_bodyStream, objectMapper);
   }

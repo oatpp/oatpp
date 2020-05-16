@@ -36,7 +36,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#define OATPP_VERSION "1.0.0"
+#define OATPP_VERSION "1.1.0"
 
 typedef unsigned char v_char8;
 typedef v_char8 *p_char8;
@@ -75,8 +75,10 @@ typedef v_int64 v_counter;
  * Use this type to define a size for the buffer.
  */
 typedef intptr_t v_buff_size;
-
 typedef v_buff_size* p_buff_size;
+
+typedef uintptr_t v_buff_usize;
+typedef v_buff_usize* p_buff_usize;
 
 namespace oatpp { namespace base {
 

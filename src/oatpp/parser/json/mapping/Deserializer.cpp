@@ -24,7 +24,6 @@
 
 #include "Deserializer.hpp"
 
-#include "oatpp/parser/json/Utils.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
@@ -35,27 +34,34 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 
   m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
+  setDeserializerMethod(data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
+  setDeserializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Deserializer::deserializeAny);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int8>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt8>);
+  setDeserializerMethod(data::mapping::type::__class::Int8::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int8>);
+  setDeserializerMethod(data::mapping::type::__class::UInt8::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt8>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int16::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int16>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt16::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt16>);
+  setDeserializerMethod(data::mapping::type::__class::Int16::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int16>);
+  setDeserializerMethod(data::mapping::type::__class::UInt16::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt16>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int32::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int32>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt32::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt32>);
+  setDeserializerMethod(data::mapping::type::__class::Int32::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int32>);
+  setDeserializerMethod(data::mapping::type::__class::UInt32::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt32>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Int64::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int64>);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::UInt64::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt64>);
+  setDeserializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Deserializer::deserializeInt<oatpp::Int64>);
+  setDeserializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Deserializer::deserializeUInt<oatpp::UInt64>);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializeFloat32);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializeFloat64);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
+  setDeserializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Deserializer::deserializeFloat32);
+  setDeserializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Deserializer::deserializeFloat64);
+  setDeserializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Deserializer::deserializeBoolean);
 
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID, &Deserializer::deserializeFieldsMap);
-  setDeserializerMethod(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
+  setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
+  setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Deserializer::deserializeEnum);
+
+  setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractVector>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractList>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractUnorderedSet>);
+
+  setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractFields>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractUnorderedFields>);
 
 }
 
@@ -149,201 +155,148 @@ void Deserializer::skipValue(oatpp::parser::Caret& caret){
   }
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat32(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type)
-{
+oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Float32::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float32::ObjectWrapper::Class::getType());
   } else {
-    return AbstractObjectWrapper(Float32::ObjectType::createAbstract(caret.parseFloat32()), Float32::ObjectWrapper::Class::getType());
+    return Float32(caret.parseFloat32());
   }
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFloat64(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type)
-{
+oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Float64::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float64::ObjectWrapper::Class::getType());
   } else {
-    return AbstractObjectWrapper(Float64::ObjectType::createAbstract(caret.parseFloat64()), Float64::ObjectWrapper::Class::getType());
+    return Float64(caret.parseFloat64());
   }
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeBoolean(Deserializer* deserializer,
-                                                                             parser::Caret& caret,
-                                                                             const Type* const type)
-{
+oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+    return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
   } else {
     if(caret.isAtText("true", true)) {
-      return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(true), Boolean::ObjectWrapper::Class::getType());
+      return Boolean(true);
     } else if(caret.isAtText("false", true)) {
-      return AbstractObjectWrapper(Boolean::ObjectType::createAbstract(false), Boolean::ObjectWrapper::Class::getType());
+      return Boolean(false);
     } else {
       caret.setError("[oatpp::parser::json::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
-      return AbstractObjectWrapper(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
     }
   }
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeString(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type)
-{
+oatpp::Void Deserializer::deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   (void) deserializer;
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(String::Class::getType());
+    return oatpp::Void(String::Class::getType());
   } else {
-    return AbstractObjectWrapper(oatpp::parser::json::Utils::parseString(caret).getPtr(), String::Class::getType());
+    return oatpp::Void(oatpp::parser::json::Utils::parseString(caret).getPtr(), String::Class::getType());
   }
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeList(Deserializer* deserializer,
-                                                                          parser::Caret& caret,
-                                                                          const Type* const type)
-{
+const data::mapping::type::Type* Deserializer::guessNumberType(oatpp::parser::Caret& caret) {
+  return Float64::Class::getType();
+}
 
-  if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(type);
-  }
-
-  if(caret.canContinueAtChar('[', 1)) {
-
-    auto listWrapper = type->creator();
-    oatpp::data::mapping::type::PolymorphicWrapper<AbstractList>
-      list(std::static_pointer_cast<AbstractList>(listWrapper.getPtr()), listWrapper.valueType);
-
-    Type* itemType = *type->params.begin();
-
-    caret.skipBlankChars();
-
-    while(!caret.isAtChar(']') && caret.canContinue()){
-
-      caret.skipBlankChars();
-      auto item = deserializer->deserialize(caret, itemType);
-      if(caret.hasError()){
-        return nullptr;
-      }
-
-      list->addPolymorphicItem(item);
-      caret.skipBlankChars();
-
-      caret.canContinueAtChar(',', 1);
-
+const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& caret) {
+  {
+    parser::Caret::StateSaveGuard stateGuard(caret);
+    v_char8 c = *caret.getCurrData();
+    switch (c) {
+      case '"':
+        return String::Class::getType();
+      case '{':
+        return oatpp::Fields<Any>::ObjectWrapper::Class::getType();
+      case '[':
+        return oatpp::List<Any>::ObjectWrapper::Class::getType();
+      case 't':
+        if(caret.isAtText("true")) return Boolean::Class::getType();
+        break;
+      case 'f':
+        if(caret.isAtText("false")) return Boolean::Class::getType();
+        break;
+      default:
+        if (c == '-' || caret.isAtDigitChar()) {
+          return guessNumberType(caret);
+        }
     }
+  }
+  caret.setError("[oatpp::parser::json::mapping::Deserializer::guessType()]: Error. Can't guess type for oatpp::Any.");
+  return nullptr;
+}
 
-    if(!caret.canContinueAtChar(']', 1)){
-      if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
-      }
-      return nullptr;
-    };
-
-    return AbstractObjectWrapper(list.getPtr(), list.valueType);
+oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+  (void) type;
+  if(caret.isAtText("null", true)){
+    return oatpp::Void(Any::Class::getType());
   } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::readList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
+    const Type* const fieldType = guessType(caret);
+    if(fieldType != nullptr) {
+      auto fieldValue = deserializer->deserialize(caret, fieldType);
+      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
+      return oatpp::Void(anyHandle, Any::Class::getType());
+    }
+  }
+  return oatpp::Void(Any::Class::getType());
+}
+
+oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+    type->polymorphicDispatcher
+  );
+
+  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  const auto& value = deserializer->deserialize(caret, polymorphicDispatcher->getInterpretationType());
+  if(caret.hasError()) {
     return nullptr;
   }
+  const auto& result = polymorphicDispatcher->fromInterpretation(value, e);
 
-}
-
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeFieldsMap(Deserializer* deserializer,
-                                                                               parser::Caret& caret,
-                                                                               const Type* const type)
-{
-
-  if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(type);
+  if(e == data::mapping::type::EnumInterpreterError::OK) {
+    return result;
   }
 
-  if(caret.canContinueAtChar('{', 1)) {
-
-    auto mapWrapper = type->creator();
-    oatpp::data::mapping::type::PolymorphicWrapper<AbstractFieldsMap>
-      map(std::static_pointer_cast<AbstractFieldsMap>(mapWrapper.getPtr()), mapWrapper.valueType);
-
-    auto it = type->params.begin();
-    Type* keyType = *it ++;
-    if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
-      throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Invalid json map key. Key should be String");
-    }
-    Type* valueType = *it;
-
-    caret.skipBlankChars();
-
-    while (!caret.isAtChar('}') && caret.canContinue()) {
-
-      caret.skipBlankChars();
-      auto key = Utils::parseString(caret);
-      if(caret.hasError()){
-        return nullptr;
-      }
-
-      caret.skipBlankChars();
-      if(!caret.canContinueAtChar(':', 1)){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
-        return nullptr;
-      }
-
-      caret.skipBlankChars();
-
-      map->putPolymorphicItem(key, deserializer->deserialize(caret, valueType));
-
-      caret.skipBlankChars();
-      caret.canContinueAtChar(',', 1);
-
-    }
-
-    if(!caret.canContinueAtChar('}', 1)){
-      if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
-      }
-      return nullptr;
-    }
-
-    return AbstractObjectWrapper(map.getPtr(), map.valueType);
-
-  } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::readListMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+  switch(e) {
+    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+      break;
+    default:
+      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Can't deserialize Enum.");
   }
 
   return nullptr;
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deserializer* deserializer,
-                                                                            parser::Caret& caret,
-                                                                            const Type* const type)
-{
+oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   if(caret.isAtText("null", true)){
-    return AbstractObjectWrapper(type);
+    return oatpp::Void(type);
   }
 
   if(caret.canContinueAtChar('{', 1)) {
 
     auto object = type->creator();
-    const auto& fieldsMap = type->properties->getMap();
+    const auto& fieldsMap = type->propertiesGetter()->getMap();
 
     caret.skipBlankChars();
 
@@ -404,7 +357,7 @@ data::mapping::type::AbstractObjectWrapper Deserializer::deserializeObject(Deser
 
 }
 
-data::mapping::type::AbstractObjectWrapper Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
+oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
   auto id = type->classId.id;
   auto& method = m_methods[id];
   if(method) {

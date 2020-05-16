@@ -38,9 +38,14 @@ class TestDto : public oatpp::data::mapping::type::Object {
   
   DTO_FIELD(String, testValue);
   DTO_FIELD(Int32, testValueInt);
-  DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
+  DTO_FIELD(Fields<String>, testMap);
   
 };
+
+ENUM(AllowedPathParams, v_int32,
+  VALUE(HELLO, 100, "hello"),
+  VALUE(WORLD, 200, "world")
+)
 
 #include OATPP_CODEGEN_END(DTO)
   

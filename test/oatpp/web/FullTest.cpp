@@ -270,10 +270,10 @@ void FullTest::onRun() {
         auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testMap);
-        OATPP_ASSERT(dto->testMap->count() == 3);
-        OATPP_ASSERT(dto->testMap->get("key1", "") == "value1");
-        OATPP_ASSERT(dto->testMap->get("key2", "") == "32");
-        OATPP_ASSERT(dto->testMap->get("key3", "") == oatpp::utils::conversion::float32ToStr(0.32f));
+        OATPP_ASSERT(dto->testMap->size() == 3);
+        OATPP_ASSERT(dto->testMap["key1"] == "value1");
+        OATPP_ASSERT(dto->testMap["key2"] == "32");
+        OATPP_ASSERT(dto->testMap["key3"] == oatpp::utils::conversion::float32ToStr(0.32f));
       }
 
       { // test GET with header parameter
@@ -299,7 +299,19 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto dtoOut = response->readBodyToDto<app::TestDto>(objectMapper.get());
         OATPP_ASSERT(dtoOut);
-        OATPP_ASSERT(dtoOut->testValueInt->getValue() == i);
+        OATPP_ASSERT(dtoOut->testValueInt == i);
+      }
+
+      { // test Enum as String
+        oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
+        auto response = client->getHeaderEnumAsString(v);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      { // test Enum as String
+        oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
+        auto response = client->getHeaderEnumAsNumber(v);
+        OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       { // test Big Echo with body

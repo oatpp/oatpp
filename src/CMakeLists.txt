@@ -11,12 +11,16 @@ add_library(oatpp
         oatpp/codegen/api_controller/auth_undef.hpp
         oatpp/codegen/api_controller/cors_define.hpp
         oatpp/codegen/api_controller/cors_undef.hpp
-        oatpp/codegen/codegen_define_ApiClient_.hpp
-        oatpp/codegen/codegen_define_ApiController_.hpp
-        oatpp/codegen/codegen_define_DTO_.hpp
-        oatpp/codegen/codegen_undef_ApiClient_.hpp
-        oatpp/codegen/codegen_undef_ApiController_.hpp
-        oatpp/codegen/codegen_undef_DTO_.hpp
+        oatpp/codegen/ApiController_define.hpp
+        oatpp/codegen/ApiController_undef.hpp
+        oatpp/codegen/ApiClient_define.hpp
+        oatpp/codegen/ApiClient_undef.hpp
+        oatpp/codegen/dto/base_define.hpp
+        oatpp/codegen/dto/base_undef.hpp
+        oatpp/codegen/dto/enum_define.hpp
+        oatpp/codegen/dto/enum_undef.hpp
+        oatpp/codegen/DTO_define.hpp
+        oatpp/codegen/DTO_undef.hpp
         oatpp/core/Types.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
@@ -74,16 +78,26 @@ add_library(oatpp
         oatpp/core/data/buffer/Processor.hpp
         oatpp/core/data/mapping/ObjectMapper.cpp
         oatpp/core/data/mapping/ObjectMapper.hpp
+        oatpp/core/data/mapping/type/Any.cpp
+        oatpp/core/data/mapping/type/Any.hpp
+        oatpp/core/data/mapping/type/Enum.cpp
+        oatpp/core/data/mapping/type/Enum.hpp
         oatpp/core/data/mapping/type/List.cpp
         oatpp/core/data/mapping/type/List.hpp
-        oatpp/core/data/mapping/type/ListMap.cpp
-        oatpp/core/data/mapping/type/ListMap.hpp
+        oatpp/core/data/mapping/type/PairList.cpp
+        oatpp/core/data/mapping/type/PairList.hpp
         oatpp/core/data/mapping/type/Object.cpp
         oatpp/core/data/mapping/type/Object.hpp
         oatpp/core/data/mapping/type/Primitive.cpp
         oatpp/core/data/mapping/type/Primitive.hpp
         oatpp/core/data/mapping/type/Type.cpp
         oatpp/core/data/mapping/type/Type.hpp
+        oatpp/core/data/mapping/type/UnorderedMap.cpp
+        oatpp/core/data/mapping/type/UnorderedMap.hpp
+        oatpp/core/data/mapping/type/UnorderedSet.cpp
+        oatpp/core/data/mapping/type/UnorderedSet.hpp
+        oatpp/core/data/mapping/type/Vector.cpp
+        oatpp/core/data/mapping/type/Vector.hpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
