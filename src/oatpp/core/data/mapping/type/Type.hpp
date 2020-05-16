@@ -227,8 +227,6 @@ struct ObjectWrapperByUnderlyingType {};
  */
 class Type {
 public:
-  typedef Void (*Creator)();
-public:
   class Property; // FWD
 public:
 
@@ -338,7 +336,10 @@ public:
     Void& getAsRef(void* object);
     
   };
-  
+
+public:
+  typedef Void (*Creator)();
+  typedef const Properties* (*PropertiesGetter)();
 public:
 
   /**
@@ -346,12 +347,13 @@ public:
    * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
    * @param pCreator - function pointer of Creator - function to create instance of this type.
-   * @param pProperties - pointer to type properties.
+   * @param pPropertiesGetter - function to get properties of the type.
+   * @param pPolymorphicDispatcher - dispatcher to correctly address methods of the type.
    */
   Type(const ClassId& pClassId,
        const char* pNameQualifier,
        Creator pCreator = nullptr,
-       Properties* pProperties = nullptr,
+       PropertiesGetter pPropertiesGetter = nullptr,
        void* pPolymorphicDispatcher = nullptr);
 
   /**
@@ -375,9 +377,9 @@ public:
   const Creator creator;
 
   /**
-   * Pointer to type properties.
+   * PropertiesGetter - function to get properties of the type.
    */
-  const Properties* const properties;
+  const PropertiesGetter propertiesGetter;
 
   /**
    * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.

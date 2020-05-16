@@ -31,46 +31,29 @@
  * @param TYPE_EXTEND - name of the parent DTO class. If DTO extends &id:oatpp::data::mapping::type::Object; TYPE_EXETENDS should be `Object`.
  */
 #define DTO_INIT(TYPE_NAME, TYPE_EXTEND) \
+  template<class __Z__T__PARAM> \
+  friend class oatpp::data::mapping::type::__class::Object; \
 public: \
   typedef TYPE_NAME Z__CLASS; \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
   typedef oatpp::data::mapping::type::DTOWrapper<Z__CLASS> ObjectWrapper; \
   typedef ObjectWrapper __Wrapper; \
-public: \
-  OBJECT_POOL(DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
-  SHARED_OBJECT_POOL(SHARED_DTO_OBJECT_POOL_##TYPE_NAME, TYPE_NAME, 32) \
-protected: \
-  oatpp::data::mapping::type::Type::Properties* Z__CLASS_INIT_FIELDS(oatpp::data::mapping::type::Type::Properties* properties, \
-                                                                     oatpp::data::mapping::type::Type::Properties* extensionProperties) { \
-    static oatpp::data::mapping::type::Type::Properties* ptr = Z__CLASS_EXTEND(properties, extensionProperties); \
-    return ptr; \
-  } \
-public: \
-  TYPE_NAME() \
-  { \
-    Z__CLASS_INIT_FIELDS(Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), TYPE_EXTEND::Z__CLASS_GET_FIELDS_MAP()); \
-  } \
-public: \
-\
-  static ObjectWrapper createShared(){ \
-    return ObjectWrapper(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared()); \
+private: \
+  static const char* Z__CLASS_TYPE_NAME() { \
+    return #TYPE_NAME; \
   } \
 \
   static oatpp::data::mapping::type::Type::Properties* Z__CLASS_GET_FIELDS_MAP(){ \
     static oatpp::data::mapping::type::Type::Properties map = oatpp::data::mapping::type::Type::Properties(); \
     return &map; \
   } \
+public: \
 \
-  static oatpp::data::mapping::type::Void Z__CLASS_OBJECT_CREATOR(){ \
-    return oatpp::data::mapping::type::Void(SHARED_DTO_OBJECT_POOL_##TYPE_NAME::allocateShared(), Z__CLASS_GET_TYPE()); \
-  } \
+  TYPE_NAME() = default; \
 \
-  static oatpp::data::mapping::type::Type* Z__CLASS_GET_TYPE(){ \
-    static oatpp::data::mapping::type::Type type(oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID, \
-                                                 #TYPE_NAME, \
-                                                 &Z__CLASS_OBJECT_CREATOR, \
-                                                 Z__CLASS_GET_FIELDS_MAP()); \
-    return &type; \
+  template<typename ... Args> \
+  static ObjectWrapper createShared(Args... args){ \
+    return ObjectWrapper(std::make_shared<Z__CLASS>(args...), ObjectWrapper::Class::getType()); \
   }
 
 // Fields
@@ -92,9 +75,13 @@ static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME(
   return property; \
 } \
 \
+static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */) { \
+  Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  return true; \
+} \
+\
 static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
-  static oatpp::data::mapping::type::Type::Property* property = \
-    Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
   return TYPE::__Wrapper(); \
 } \
 \
@@ -117,9 +104,13 @@ static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME(
   return property; \
 } \
 \
+static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */) { \
+  Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  return true; \
+} \
+\
 static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
-  static oatpp::data::mapping::type::Type::Property* property = \
-    Z__CLASS_GET_FIELDS_MAP()->pushBack(Z__PROPERTY_SINGLETON_##NAME()); \
+  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
   return TYPE::__Wrapper(); \
 } \
 \
@@ -133,6 +124,18 @@ TYPE::__Wrapper NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
  */
 #define DTO_FIELD(TYPE, ...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, (__VA_ARGS__)) (TYPE, __VA_ARGS__))
+
+// DTO_FIELD_INFO
+
+#define DTO_FIELD_INFO(NAME) \
+\
+static bool Z__PROPERTY_INIT_##NAME(int) { \
+  Z__PROPERTY_INIT_##NAME(); /* call first initialization */ \
+  Z__PROPERTY_ADD_INFO_##NAME(&Z__PROPERTY_SINGLETON_##NAME()->info); \
+  return true; \
+} \
+\
+static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::Type::Property::Info* info)
 
 // FOR EACH
 

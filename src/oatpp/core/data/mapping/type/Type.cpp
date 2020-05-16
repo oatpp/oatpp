@@ -97,12 +97,12 @@ Void& Type::Property::getAsRef(void* object) {
 Type::Type(const ClassId& pClassId,
            const char* pNameQualifier,
            Creator pCreator,
-           Properties* pProperties,
+           PropertiesGetter pPropertiesGetter,
            void* pPolymorphicDispatcher)
   : classId(pClassId)
   , nameQualifier(pNameQualifier)
   , creator(pCreator)
-  , properties(pProperties)
+  , propertiesGetter(pPropertiesGetter)
   , polymorphicDispatcher(pPolymorphicDispatcher)
 {}
   

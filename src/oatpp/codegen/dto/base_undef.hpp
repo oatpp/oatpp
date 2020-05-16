@@ -32,6 +32,10 @@
 #undef OATPP_MACRO_DTO_FIELD_2
 #undef DTO_FIELD
 
+// Fields Info
+
+#undef DTO_FIELD_INFO
+
 // Hashcode & Equals
 
 #undef OATPP_MACRO_DTO_HC_EQ_PARAM_HC

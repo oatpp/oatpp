@@ -152,7 +152,7 @@ void Serializer::serializeObject(Serializer* serializer,
   stream->writeCharSimple('{');
 
   bool first = true;
-  auto fields = polymorph.valueType->properties->getList();
+  auto fields = polymorph.valueType->propertiesGetter()->getList();
   Object* object = static_cast<Object*>(polymorph.get());
 
   for (auto const& field : fields) {

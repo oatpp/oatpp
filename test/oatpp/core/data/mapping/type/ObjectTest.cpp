@@ -27,6 +27,10 @@
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
 
+#include "oatpp-test/Checker.hpp"
+
+#include <thread>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 namespace {
@@ -41,9 +45,18 @@ class DtoA : public oatpp::Object {
 
   DTO_INIT(DtoA, Object)
 
-  DTO_FIELD(String, id);
+  DTO_FIELD_INFO(id) {
+    info->description = "identifier";
+  }
+  DTO_FIELD(String, id) = "Some default id";
 
   DTO_HC_EQ(id)
+
+public:
+
+  DtoA(const String& pId)
+    : id(pId)
+  {}
 
 };
 
@@ -51,7 +64,10 @@ class DtoB : public DtoA {
 
   DTO_INIT(DtoB, DtoA)
 
-  DTO_FIELD(String, a);
+  DTO_FIELD_INFO(a) {
+    info->description = "some field with a qualified name";
+  }
+  DTO_FIELD(String, a, "field-a") = "default-value";
 
 };
 
@@ -69,9 +85,76 @@ class DtoC : public DtoA {
 
 #include OATPP_CODEGEN_END(DTO)
 
+void runDtoInitializations() {
+  for(v_int32 i = 0; i < 1000; i ++) {
+    auto dto = DtoB::createShared();
+  }
+}
+
+void runDtoInitializetionsInThreads() {
+
+  std::list<std::thread> threads;
+  for(v_int32 i = 0; i < 500; i++) {
+    threads.push_back(std::thread(runDtoInitializations));
+  }
+
+  for(auto& t : threads) {
+    t.join();
+  }
+
+}
+
 }
 
 void ObjectTest::onRun() {
+
+  {
+    oatpp::test::PerformanceChecker timer("DTO - Initializations.");
+    runDtoInitializetionsInThreads();
+  }
+
+  {
+    auto dto = DtoA::createShared("id1");
+    OATPP_ASSERT(dto->id == "id1");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test Meta 1...");
+
+    auto type = DtoA::ObjectWrapper::Class::getType();
+    const auto& propsMap = type->propertiesGetter()->getMap();
+
+    OATPP_ASSERT(propsMap.size() == 1);
+
+    auto it = propsMap.find("id");
+    OATPP_ASSERT(it != propsMap.end());
+    OATPP_ASSERT(it->second->info.description == "identifier");
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test Meta 2...");
+
+    auto type = DtoB::ObjectWrapper::Class::getType();
+    const auto& propsMap = type->propertiesGetter()->getMap();
+
+    OATPP_ASSERT(propsMap.size() == 2);
+
+    {
+      auto it = propsMap.find("id");
+      OATPP_ASSERT("id" && it != propsMap.end());
+      OATPP_ASSERT(it->second->info.description == "identifier");
+    }
+
+    {
+      auto it = propsMap.find("field-a");
+      OATPP_ASSERT("field-a" && it != propsMap.end());
+      OATPP_ASSERT(it->second->info.description == "some field with a qualified name");
+    }
+
+    OATPP_LOGI(TAG, "OK");
+  }
 
   {
     OATPP_LOGI(TAG, "Test 1...");
@@ -135,6 +218,9 @@ void ObjectTest::onRun() {
     OATPP_LOGI(TAG, "Test 6...");
     auto a = DtoB::createShared();
     auto b = DtoB::createShared();
+
+    OATPP_ASSERT(a->a == "default-value");
+    OATPP_ASSERT(b->a == "default-value");
 
     a->a = "value1"; // value that is ignored in HC & EQ
     a->a = "value2"; // value that is ignored in HC & EQ
