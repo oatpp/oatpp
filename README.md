@@ -3,7 +3,7 @@
 ---
 
 **Attention**  
-The version `1.1.0` introduces breaking changes. See the 
+Version `1.1.0` introduces breaking changes. See the 
 [changelog](changelog/1.1.0.md) for details.
 
 ---
