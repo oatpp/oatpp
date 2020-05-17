@@ -115,6 +115,9 @@ public:
   typedef oatpp::data::mapping::type::Boolean Boolean;
 
   template <class T>
+  using Enum = oatpp::data::mapping::type::Enum<T>;
+
+  template <class T>
   using Vector = oatpp::data::mapping::type::Vector<T>;
 
   template <class T>

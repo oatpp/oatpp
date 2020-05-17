@@ -3,8 +3,8 @@
 ---
 
 **Attention**  
-The new release `1.1.0` is about to be merged. It will introduce breaking changes.
-See [change-log](https://github.com/oatpp/oatpp/blob/v_1.1.0/changelog/1.1.0.md) to prepare for migration.
+The version `1.1.0` introduces breaking changes. See the 
+[changelog](changelog/1.1.0.md) for details.
 
 ---
 
@@ -50,7 +50,7 @@ For more info see [Api Controller](https://oatpp.io/docs/components/api-controll
 ```cpp
 ENDPOINT("PUT", "/users/{userId}", putUser,
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto, userDto)) 
+         BODY_DTO(UserDto, userDto)) 
 {
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
@@ -65,7 +65,7 @@ For more info see [Api Controller / CORS](https://oatpp.io/docs/components/api-c
 ADD_CORS(putUser)
 ENDPOINT("PUT", "/users/{userId}", putUser,
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto, userDto)) 
+         BODY_DTO(UserDto, userDto)) 
 {
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
@@ -82,7 +82,7 @@ using namespace oatpp::web::server::handler;
 ENDPOINT("PUT", "/users/{userId}", putUser,
          AUTHORIZATION(std::shared_ptr<DefaultBasicAuthorizationObject>, authObject),
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto, userDto)) 
+         BODY_DTO(UserDto, userDto)) 
 {
   OATPP_ASSERT_HTTP(authObject->userId == "Ivan" && authObject->password == "admin", Status::CODE_401, "Unauthorized");
   userDto->id = userId;
@@ -100,15 +100,15 @@ For more info see [Endpoint Annotation And API Documentation](https://oatpp.io/d
 ENDPOINT_INFO(putUser) {
   // general
   info->summary = "Update User by userId";
-  info->addConsumes<dto::UserDto>("application/json");
-  info->addResponse<dto::UserDto>(Status::CODE_200, "application/json");
+  info->addConsumes<UserDto>("application/json");
+  info->addResponse<UserDto>(Status::CODE_200, "application/json");
   info->addResponse<String>(Status::CODE_404, "text/plain");
   // params specific
   info->pathParams["userId"].description = "User Identifier";
 }
 ENDPOINT("PUT", "/users/{userId}", putUser,
          PATH(Int64, userId),
-         BODY_DTO(dto::UserDto, userDto)) 
+         BODY_DTO(UserDto, userDto)) 
 {
   userDto->id = userId;
   return createDtoResponse(Status::CODE_200, m_database->updateUser(userDto));
@@ -170,6 +170,48 @@ auto objectMapper = ObjectMapper::createShared();
 auto json = objectMapper->writeToString(user);
 ```
 
+Output:
+
+```json
+{
+  "id": 1,
+  "name": "Ivan"
+}
+```
+
+#### Serialize/Deserialize Data In Free Form
+
+While DTO objects apply strict rules on data ser/de, you can also
+serialize/deserialize data in free form using type `oatpp::Any`.
+
+```cpp
+oatpp::Fields<oatpp::Any> map = {
+  {"title", oatpp::String("Hello Any!")},
+  {"listOfAny",
+   oatpp::List<oatpp::Any>({
+     oatpp::Int32(32),
+     oatpp::Float32(0.32),
+     oatpp::Boolean(true)
+   })
+  }
+};
+
+auto json = mapper->writeToString(map); 
+```
+
+Output:
+
+```json
+{
+  "title": "Hello Any!",
+  "listOfAny": [
+    32,
+    0.3199999928474426,
+    true
+  ]
+}
+```
+
 ### Read Next
 
 - [Well Structured Project](https://oatpp.io/docs/start/step-by-step/#well-structured-project)
@@ -183,6 +225,8 @@ auto json = objectMapper->writeToString(user);
 - [AsyncApi](https://github.com/oatpp/example-async-api) - Example project of how-to use asynchronous API for handling large number of simultaneous connections.
 - [ApiClient-Demo](https://github.com/oatpp/example-api-client) - Example project of how-to use Retrofit-like client wrapper (ApiClient) and how it works.
 - [TLS-Libressl](https://github.com/oatpp/example-libressl) - Example project of how-to setup secure connection and serve via HTTPS.
+- [Microservices](https://github.com/oatpp/example-microservices) - Example project on how to build microservices with Oat++, 
+and example on how to consolidate those microservices using [monolithization](https://oatpp.io/docs/monolithization/) technique.
 - [Consul](https://github.com/oatpp/example-consul) - Example project of how-to use oatpp::consul::Client. Integration with Consul.
 - [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
 - [WebSocket](https://github.com/oatpp/example-websocket) - Collection of oatpp WebSocket examples.
