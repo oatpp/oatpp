@@ -103,6 +103,10 @@ void PairListTest::onRun() {
 
     OATPP_ASSERT(map2["key1"] == "b");
     OATPP_ASSERT(map2["key2"] == "c");
+    OATPP_ASSERT(map2.getValueByKey("key1") == "b");
+    OATPP_ASSERT(map2.getValueByKey("key2") == "c");
+    OATPP_ASSERT(map2.getValueByKey("key3") == nullptr);
+    OATPP_ASSERT(map2.getValueByKey("key3", "default-val") == "default-val");
     OATPP_LOGI(TAG, "OK");
   }
 

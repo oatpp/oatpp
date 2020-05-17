@@ -93,6 +93,18 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(PairListObjectWrapper, TemplateObjectType, 
     return list.back().second;
   }
 
+  Value getValueByKey(const Key& key, const Value& defValue = nullptr) const {
+    auto& list = *(this->m_ptr.get());
+    auto it = list.begin();
+    while(it != list.end()) {
+      if(it->first == key) {
+        return it->second;
+      }
+      it ++;
+    }
+    return defValue;
+  }
+
   TemplateObjectType& operator*() const {
     return this->m_ptr.operator*();
   }
