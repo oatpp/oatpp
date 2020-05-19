@@ -119,8 +119,6 @@ enum class NAME : ORDINAL_TYPE { \
   ) \
 }; \
 \
-namespace { \
-\
 class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
 private: \
 \
@@ -141,9 +139,7 @@ public: \
 \
 }; \
 \
-bool Z__OATPP_ENUM_META_INITIALIZER_##NAME = Z__OATPP_ENUM_META_##NAME::initializer(); \
-\
-}
+static bool Z__OATPP_ENUM_META_INITIALIZER_##NAME = Z__OATPP_ENUM_META_##NAME::initializer();
 
 // Chooser
 

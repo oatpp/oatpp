@@ -303,6 +303,9 @@ void FullTest::onRun() {
       }
 
       { // test Enum as String
+
+        OATPP_ASSERT(oatpp::Enum<app::AllowedPathParams>::getEntries().size() == 2);
+
         oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
         auto response = client->getHeaderEnumAsString(v);
         OATPP_ASSERT(response->getStatusCode() == 200);
