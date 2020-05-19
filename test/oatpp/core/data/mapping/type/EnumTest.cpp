@@ -153,6 +153,12 @@ void EnumTest::onRun() {
     OATPP_ASSERT(pd1->notNull == false);
     OATPP_ASSERT(pd2->notNull == true);
 
+    {
+      auto interEnum = pd1->getInterpretedEnum();
+      OATPP_ASSERT(interEnum.size() == 3);
+      OATPP_ASSERT(interEnum[0].getStoredType() == oatpp::String::Class::getType());
+    }
+
     OATPP_LOGI(TAG, "OK");
   }
 

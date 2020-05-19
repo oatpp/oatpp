@@ -25,6 +25,7 @@
 #ifndef oatpp_data_mapping_type_Enum_hpp
 #define oatpp_data_mapping_type_Enum_hpp
 
+#include "./Any.hpp"
 #include "./Primitive.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 
@@ -88,6 +89,7 @@ namespace __class {
       virtual type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const = 0;
       virtual type::Void fromInterpretation(const type::Void& interValue, EnumInterpreterError& error) const = 0;
       virtual type::Type* getInterpretationType() const = 0;
+      virtual std::vector<type::Any> getInterpretedEnum() const = 0;
 
     };
 
@@ -378,9 +380,7 @@ Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interVa
   }
 
   try {
-    const auto &entry = EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>>::getEntryByName(
-      interValue.staticCast<String>()
-    );
+    const auto &entry = EnumOW::getEntryByName(interValue.staticCast<String>());
     return EnumOW(entry.value);
   } catch (const std::runtime_error& e) { // TODO - add a specific error for this.
     error = EnumInterpreterError::ENTRY_NOT_FOUND;
@@ -477,6 +477,24 @@ namespace __class {
 
       type::Type* getInterpretationType() const override {
         return Interpreter::getInterpretationType();
+      }
+
+      std::vector<type::Any> getInterpretedEnum() const override {
+
+        typedef type::EnumObjectWrapper<T, Interpreter> EnumOW;
+
+        std::vector<type::Any> result({});
+
+        for(const auto& e : EnumOW::getEntries()) {
+          type::EnumInterpreterError error = type::EnumInterpreterError::OK;
+          result.push_back(type::Any(toInterpretation(EnumOW(e.value), error)));
+          if(error != type::EnumInterpreterError::OK) {
+            throw std::runtime_error("[oatpp::data::mapping::type::__class::Enum<T, Interpreter>::getInterpretedEnum()]: Unknown error.");
+          }
+        }
+
+        return result;
+
       }
 
     };
