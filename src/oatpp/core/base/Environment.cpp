@@ -287,12 +287,12 @@ void Environment::registerComponent(const std::string& typeName, const std::stri
 void Environment::unregisterComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto& bucket = bucketIt->second;
   auto componentIt = bucket.find(componentName);
   if(componentIt == bucket.end()) {
-    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component with given name does't exist: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component with given name doesn't exist: name='" + componentName + "'");
   }
   bucket.erase(componentIt);
   if(bucket.size() == 0) {
@@ -303,7 +303,7 @@ void Environment::unregisterComponent(const std::string& typeName, const std::st
 void* Environment::getComponent(const std::string& typeName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
   if(bucket.size() > 1){
@@ -315,12 +315,12 @@ void* Environment::getComponent(const std::string& typeName) {
 void* Environment::getComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
   auto componentIt = bucket.find(componentName);
   if(componentIt == bucket.end()) {
-    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component with given name does't exist: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component with given name doesn't exist: name='" + componentName + "'");
   }
   return componentIt->second;
 }
