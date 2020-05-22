@@ -44,9 +44,9 @@ typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
   
-  class Test1 : public oatpp::data::mapping::type::Object {
+  class Test1 : public oatpp::DTO {
     
-    DTO_INIT(Test1, Object)
+    DTO_INIT(Test1, DTO)
     
     DTO_FIELD(String, field_string);
     DTO_FIELD(Int32, field_int32);

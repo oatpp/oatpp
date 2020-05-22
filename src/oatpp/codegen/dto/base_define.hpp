@@ -149,7 +149,7 @@ v_uint64 defaultHashCode() const override { \
   return 1; \
 } \
 \
-bool defaultEquals(const Object& other) const override { \
+bool defaultEquals(const DTO& other) const override { \
   return true; \
 } \
 \

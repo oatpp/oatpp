@@ -32,19 +32,18 @@ namespace oatpp { namespace test { namespace parser { namespace json { namespace
 namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
-  
-typedef oatpp::data::mapping::type::Object DTO;
+
 typedef oatpp::parser::Caret ParsingCaret;
 typedef oatpp::parser::json::mapping::Serializer Serializer;
 typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 
-class EmptyDto : public DTO {
+class EmptyDto : public oatpp::DTO {
 
   DTO_INIT(EmptyDto, DTO)
 
 };
 
-class Test1 : public DTO {
+class Test1 : public oatpp::DTO {
   
   DTO_INIT(Test1, DTO)
   
@@ -52,7 +51,7 @@ class Test1 : public DTO {
   
 };
   
-class Test2 : public DTO {
+class Test2 : public oatpp::DTO {
   
   DTO_INIT(Test2, DTO)
   
@@ -60,7 +59,7 @@ class Test2 : public DTO {
   
 };
   
-class Test3 : public DTO {
+class Test3 : public oatpp::DTO {
   
   DTO_INIT(Test3, DTO)
   
@@ -68,7 +67,7 @@ class Test3 : public DTO {
   
 };
 
-class Test4 : public DTO {
+class Test4 : public oatpp::DTO {
 
   DTO_INIT(Test4, DTO)
 

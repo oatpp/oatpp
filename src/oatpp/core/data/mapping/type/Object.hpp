@@ -95,7 +95,7 @@ namespace __class {
  * Base class for all DTO objects.
  * For more info about Data Transfer Object (DTO) see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
  */
-class Object : public oatpp::base::Countable {
+class DTO : public oatpp::base::Countable {
   template<class T>
   friend class __class::Object;
 public:
@@ -150,7 +150,7 @@ public:
     return (v_uint64) reinterpret_cast<v_buff_usize>(this);
   }
 
-  virtual bool defaultEquals(const Object& other) const {
+  virtual bool defaultEquals(const DTO& other) const {
     return this == &other;
   }
 
@@ -158,7 +158,7 @@ public:
     return defaultHashCode();
   }
 
-  bool operator==(const Object& other) const {
+  bool operator==(const DTO& other) const {
     return defaultEquals(other);
   }
 

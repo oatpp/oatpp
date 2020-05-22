@@ -40,9 +40,9 @@ namespace {
   
 #include OATPP_CODEGEN_BEGIN(DTO)
   
-class TestChild : public oatpp::Object {
+class TestChild : public oatpp::DTO {
   
-  DTO_INIT(TestChild, Object)
+  DTO_INIT(TestChild, DTO)
   
   DTO_FIELD(String, name) = "Name";
   DTO_FIELD(String, secondName) = "Second Name";
@@ -56,9 +56,9 @@ public:
 
 };
 
-class Test : public oatpp::Object {
+class Test : public oatpp::DTO {
   
-  DTO_INIT(Test, Object)
+  DTO_INIT(Test, DTO)
   
   DTO_FIELD(String, field_string, "string-field-name-qualifier");
   DTO_FIELD(Int32, field_int32, "int32-field-name-qualifier");
@@ -86,17 +86,17 @@ class Test : public oatpp::Object {
   
 };
 
-class TestAny : public oatpp::Object {
+class TestAny : public oatpp::DTO {
 
-  DTO_INIT(TestAny, Object)
+  DTO_INIT(TestAny, DTO)
 
   DTO_FIELD(List<Any>, anyList) = List<Any>::createShared();
 
 };
 
-class TestAnyNested : public oatpp::Object {
+class TestAnyNested : public oatpp::DTO {
 
-  DTO_INIT(TestAnyNested, Object)
+  DTO_INIT(TestAnyNested, DTO)
 
   DTO_FIELD(String, f1) = "Field_1";
   DTO_FIELD(String, f2) = "Field_2";

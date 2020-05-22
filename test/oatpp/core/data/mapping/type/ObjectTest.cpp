@@ -37,13 +37,13 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Dto0 : public oatpp::Object {
-  DTO_INIT(Dto0, Object)
+class Dto0 : public oatpp::DTO {
+  DTO_INIT(Dto0, DTO)
 };
 
-class DtoA : public oatpp::Object {
+class DtoA : public oatpp::DTO {
 
-  DTO_INIT(DtoA, Object)
+  DTO_INIT(DtoA, DTO)
 
   DTO_FIELD_INFO(id) {
     info->description = "identifier";
