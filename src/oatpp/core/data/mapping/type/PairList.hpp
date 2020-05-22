@@ -112,14 +112,7 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(PairListObjectWrapper, TemplateObjectType, 
 };
 
 template<class Key, class Value>
-using PairList = PairListObjectWrapper<
-  typename Key::__Wrapper,
-  typename Value::__Wrapper,
-  __class::PairList<
-    typename Key::__Wrapper,
-    typename Value::__Wrapper
-  >
->;
+using PairList = PairListObjectWrapper<Key, Value, __class::PairList<Key, Value>>;
 
 namespace __class {
 

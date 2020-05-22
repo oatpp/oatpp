@@ -36,8 +36,7 @@
 public: \
   typedef TYPE_NAME Z__CLASS; \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
-  typedef oatpp::data::mapping::type::DTOWrapper<Z__CLASS> ObjectWrapper; \
-  typedef ObjectWrapper __Wrapper; \
+  typedef oatpp::data::mapping::type::DTOWrapper<Z__CLASS> Wrapper; \
 private: \
   static const char* Z__CLASS_TYPE_NAME() { \
     return #TYPE_NAME; \
@@ -52,8 +51,8 @@ public: \
   TYPE_NAME() = default; \
 \
   template<typename ... Args> \
-  static ObjectWrapper createShared(Args... args){ \
-    return ObjectWrapper(std::make_shared<Z__CLASS>(args...), ObjectWrapper::Class::getType()); \
+  static Wrapper createShared(Args... args){ \
+    return Wrapper(std::make_shared<Z__CLASS>(args...), Wrapper::Class::getType()); \
   }
 
 // Fields
@@ -71,7 +70,7 @@ static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME(
   static oatpp::data::mapping::type::Type::Property* property = \
       new oatpp::data::mapping::type::Type::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                      #NAME, \
-                                                     TYPE::__Wrapper::Class::getType()); \
+                                                     TYPE::Class::getType()); \
   return property; \
 } \
 \
@@ -80,12 +79,12 @@ static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */)
   return true; \
 } \
 \
-static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
+static TYPE Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
   static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
-  return TYPE::__Wrapper(); \
+  return TYPE(); \
 } \
 \
-TYPE::__Wrapper NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
+TYPE NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
 
 #define OATPP_MACRO_DTO_FIELD_2(TYPE, NAME, QUALIFIER) \
 \
@@ -100,7 +99,7 @@ static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME(
   static oatpp::data::mapping::type::Type::Property* property = \
       new oatpp::data::mapping::type::Type::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                      QUALIFIER, \
-                                                     TYPE::__Wrapper::Class::getType()); \
+                                                     TYPE::Class::getType()); \
   return property; \
 } \
 \
@@ -109,12 +108,12 @@ static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */)
   return true; \
 } \
 \
-static TYPE::__Wrapper Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
+static TYPE Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
   static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
-  return TYPE::__Wrapper(); \
+  return TYPE(); \
 } \
 \
-TYPE::__Wrapper NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
+TYPE NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
 
 /**
  * Codegen macro to generate fields of DTO object.

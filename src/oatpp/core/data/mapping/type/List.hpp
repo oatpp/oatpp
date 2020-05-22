@@ -86,7 +86,7 @@ public:
 };
 
 template<class T>
-using List = ListObjectWrapper<typename T::__Wrapper, __class::List<typename T::__Wrapper>>;
+using List = ListObjectWrapper<T, __class::List<T>>;
 
 typedef ListObjectWrapper<type::Void, __class::AbstractList> AbstractList;
 

@@ -175,8 +175,6 @@ class EnumObjectWrapper : public ObjectWrapper<T, __class::Enum<T, EnumInterpret
   template<class Type, class Interpreter>
   friend class EnumObjectWrapper;
 public:
-  typedef EnumObjectWrapper __Wrapper;
-public:
   typedef typename std::underlying_type<T>::type UnderlyingEnumType;
   typedef T Z__EnumType;
   typedef __class::Enum<T, EnumInterpreter> EnumObjectClass;

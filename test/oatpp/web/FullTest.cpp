@@ -251,7 +251,7 @@ void FullTest::onRun() {
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        auto dto = response->readBodyToDto<app::TestDto::Wrapper>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_param");
       }
@@ -259,7 +259,7 @@ void FullTest::onRun() {
       { // test GET with query parameters
         auto response = client->getWithQueries("oatpp", 1, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        auto dto = response->readBodyToDto<app::TestDto::Wrapper>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "name=oatpp&age=1");
       }
@@ -267,7 +267,7 @@ void FullTest::onRun() {
       { // test GET with query parameters
         auto response = client->getWithQueriesMap("value1", 32, 0.32f, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        auto dto = response->readBodyToDto<app::TestDto::Wrapper>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testMap);
         OATPP_ASSERT(dto->testMap->size() == 3);
@@ -279,7 +279,7 @@ void FullTest::onRun() {
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        auto dto = response->readBodyToDto<app::TestDto::Wrapper>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_header");
       }
@@ -287,7 +287,7 @@ void FullTest::onRun() {
       { // test POST with body
         auto response = client->postBody("my_test_body", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dto = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        auto dto = response->readBodyToDto<app::TestDto::Wrapper>(objectMapper.get());
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_body");
       }
@@ -297,7 +297,7 @@ void FullTest::onRun() {
         dtoIn->testValueInt = i;
         auto response = client->postBodyDto(dtoIn, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
-        auto dtoOut = response->readBodyToDto<app::TestDto>(objectMapper.get());
+        auto dtoOut = response->readBodyToDto<app::TestDto::Wrapper>(objectMapper.get());
         OATPP_ASSERT(dtoOut);
         OATPP_ASSERT(dtoOut->testValueInt == i);
       }

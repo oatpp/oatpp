@@ -44,16 +44,16 @@ class TestChild : public oatpp::Object {
   
   DTO_INIT(TestChild, Object)
   
-  static ObjectWrapper createShared(const char* name, const char* secondName){
-    auto result = createShared();
-    result->name = name;
-    result->secondName = secondName;
-    return result;
-  }
-  
   DTO_FIELD(String, name) = "Name";
   DTO_FIELD(String, secondName) = "Second Name";
-  
+
+public:
+
+  TestChild(const char* pName, const char* pSecondName)
+    : name(pName)
+    , secondName(pSecondName)
+  {}
+
 };
 
 class Test : public oatpp::Object {
@@ -67,22 +67,22 @@ class Test : public oatpp::Object {
   DTO_FIELD(Float64, field_float64);
   DTO_FIELD(Boolean, field_boolean);
   
-  DTO_FIELD(List<String>, field_list_string) = List<String>::createShared();
-  DTO_FIELD(List<Int32>, field_list_int32) = List<Int32>::createShared();
-  DTO_FIELD(List<Int64>, field_list_int64) = List<Int64>::createShared();
-  DTO_FIELD(List<Float32>, field_list_float32) = List<Float32>::createShared();
-  DTO_FIELD(List<Float64>, field_list_float64) = List<Float64>::createShared();
-  DTO_FIELD(List<Boolean>, field_list_boolean) = List<Boolean>::createShared();
+  DTO_FIELD(List<String>, field_list_string) = {};
+  DTO_FIELD(List<Int32>, field_list_int32) = {};
+  DTO_FIELD(List<Int64>, field_list_int64) = {};
+  DTO_FIELD(List<Float32>, field_list_float32) = {};
+  DTO_FIELD(List<Float64>, field_list_float64) = {};
+  DTO_FIELD(List<Boolean>, field_list_boolean) = {};
   
-  DTO_FIELD(List<TestChild>, field_list_object) = List<TestChild>::createShared();
-  DTO_FIELD(List<List<TestChild>>, field_list_list_object) = List<List<TestChild>>::createShared();
+  DTO_FIELD(List<TestChild::Wrapper>, field_list_object) = {};
+  DTO_FIELD(List<List<TestChild::Wrapper>>, field_list_list_object) = {};
 
   DTO_FIELD(Vector<String>, field_vector);
   DTO_FIELD(Fields<String>, field_fields);
   DTO_FIELD(UnorderedFields<String>, field_unordered_fields);
   
-  DTO_FIELD(Test, obj1);
-  DTO_FIELD(TestChild, child1);
+  DTO_FIELD(Test::Wrapper, obj1);
+  DTO_FIELD(TestChild::Wrapper, child1);
   
 };
 
@@ -112,7 +112,7 @@ void DTOMapperTest::onRun(){
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   mapper->getSerializer()->getConfig()->useBeautifier = true;
 
-  Test::ObjectWrapper test1 = Test::createShared();
+  auto test1 = Test::createShared();
   
   test1->field_string = "string value";
   test1->field_int32 = 32;
@@ -159,9 +159,9 @@ void DTOMapperTest::onRun(){
   test1->field_list_object->push_back(TestChild::createShared("child", "2"));
   test1->field_list_object->push_back(TestChild::createShared("child", "3"));
   
-  auto l1 = oatpp::List<TestChild>::createShared();
-  auto l2 = oatpp::List<TestChild>::createShared();
-  auto l3 = oatpp::List<TestChild>::createShared();
+  auto l1 = oatpp::List<TestChild::Wrapper>::createShared();
+  auto l2 = oatpp::List<TestChild::Wrapper>::createShared();
+  auto l3 = oatpp::List<TestChild::Wrapper>::createShared();
   
   l1->push_back(TestChild::createShared("list_1", "item_1"));
   l1->push_back(TestChild::createShared("list_1", "item_2"));
@@ -220,7 +220,7 @@ void DTOMapperTest::onRun(){
   OATPP_LOGV(TAG, "...");
 
   oatpp::parser::Caret caret(result);
-  auto obj = mapper->readFromCaret<Test>(caret);
+  auto obj = mapper->readFromCaret<Test::Wrapper>(caret);
   
   OATPP_ASSERT(obj->field_string);
   OATPP_ASSERT(obj->field_string == test1->field_string);
@@ -269,9 +269,6 @@ void DTOMapperTest::onRun(){
   OATPP_LOGV(TAG, "json='%s'", (const char*) result->getData());
 
   {
-
-    TestAny::ObjectWrapper::__Wrapper objOW1;
-    TestAny::__Wrapper objOW2;
 
     auto obj = TestAny::createShared();
     obj->anyList = {
