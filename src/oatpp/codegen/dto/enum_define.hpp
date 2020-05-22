@@ -31,7 +31,15 @@
 #define OATPP_MACRO_DTO_ENUM_PARAM_VALUE_STR(MACRO, NAME, PARAM_LIST) OATPP_MACRO_FIRSTARG_STR PARAM_LIST
 #define OATPP_MACRO_DTO_ENUM_PARAM(MACRO, NAME, PARAM_LIST) (MACRO, NAME, PARAM_LIST)
 
-#define VALUE(NAME, ...) OATPP_MACRO_DTO_ENUM_PARAM(OATPP_MACRO_DTO_ENUM_VALUE, NAME, (__VA_ARGS__))
+/**
+ * Enum entry value.
+ * @param NAME - name of the enum. **required**.
+ * @param ORDINAL_VALUE - corresponding ordinal value. **required**.
+ * @param QUALIFIER - name qualifier to be used instead of the `NAME`. **optional**.
+ * @param DESCRIPTION - description of the enum value. **optional**.
+ */
+#define VALUE(NAME, ...) \
+OATPP_MACRO_DTO_ENUM_PARAM(OATPP_MACRO_DTO_ENUM_VALUE, NAME, (__VA_ARGS__))
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -150,11 +158,10 @@ OATPP_ENUM_0(NAME, ORDINAL_TYPE)
 OATPP_ENUM_1(NAME, ORDINAL_TYPE, __VA_ARGS__)
 
 /**
- * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate REST API-Calls.
- * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
- * @param PATH - Path to endpoint (without host)
- * @param NAME - Name of the generated method
- * @return - std::shared_ptr to &id:oatpp::web::protocol::http::incoming::Response;
+ * Codegen macoro to generate oatpp mapping-enabled enum.
+ * @param NAME - name of the enum. **required**.
+ * @param UNDERLYING_TYPE - underlying ordinal type. **required**.
+ * @param ... - enum values defined with &l:VALUE (...);. macro.
  */
 #define ENUM(NAME, ...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_ENUM_MACRO_, (__VA_ARGS__)) (NAME, __VA_ARGS__))
