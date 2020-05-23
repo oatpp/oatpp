@@ -59,7 +59,7 @@ public:
   typedef C TemplateObjectClass;
 public:
 
-OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(UnorderedMapObjectWrapper, TemplateObjectType, TemplateObjectClass)
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(UnorderedMapObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
   UnorderedMapObjectWrapper(std::initializer_list<std::pair<const Key, Value>> ilist)
     : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))

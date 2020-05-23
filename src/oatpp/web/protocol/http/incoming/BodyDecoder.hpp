@@ -118,17 +118,17 @@ public:
 
   /**
    * Read body stream, decode, and deserialize it as DTO Object (see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/)).
-   * @tparam Type - DTO object type.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - pointer to &id:oatpp::data::stream::InputStream;.
    * @param objectMapper - pointer to &id:oatpp::data::mapping::ObjectMapper;.
    * @return - deserialized DTO object.
    */
-  template<class Type>
-  typename Type::ObjectWrapper decodeToDto(const Headers& headers,
-                                           data::stream::InputStream* bodyStream,
-                                           data::mapping::ObjectMapper* objectMapper) const {
-    return objectMapper->readFromString<Type>(decodeToString(headers, bodyStream));
+  template<class Wrapper>
+  Wrapper decodeToDto(const Headers& headers,
+                      data::stream::InputStream* bodyStream,
+                      data::mapping::ObjectMapper* objectMapper) const {
+    return objectMapper->readFromString<Wrapper>(decodeToString(headers, bodyStream));
   }
 
   /**
