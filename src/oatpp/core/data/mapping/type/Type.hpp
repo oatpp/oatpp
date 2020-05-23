@@ -100,11 +100,6 @@ protected:
 public:
 
   /**
-   * Convenience self-typedef.
-   */
-  typedef ObjectWrapper __Wrapper;
-
-  /**
    * Static object type
    */
   typedef T ObjectType;
@@ -389,8 +384,6 @@ public:
 };
 
 #define OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(WRAPPER_NAME, OBJECT_TYPE, OBJECT_CLASS) \
-public:\
-  typedef WRAPPER_NAME __Wrapper; \
 public: \
   WRAPPER_NAME(const std::shared_ptr<OBJECT_TYPE>& ptr, const type::Type* const valueType) \
     : type::ObjectWrapper<OBJECT_TYPE, OBJECT_CLASS>(ptr, valueType) \

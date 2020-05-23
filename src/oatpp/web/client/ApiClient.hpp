@@ -136,6 +136,9 @@ public:
 
   template <class T>
   using Enum = oatpp::data::mapping::type::Enum<T>;
+
+  template <class T>
+  using Object = oatpp::Object<T>;
 public:
 
   /**

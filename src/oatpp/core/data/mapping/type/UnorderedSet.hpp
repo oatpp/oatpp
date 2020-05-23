@@ -88,7 +88,7 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(UnorderedSetObjectWrapper, TemplateObjectTy
 };
 
 template<class T>
-using UnorderedSet = UnorderedSetObjectWrapper<typename T::__Wrapper, __class::UnorderedSet<typename T::__Wrapper>>;
+using UnorderedSet = UnorderedSetObjectWrapper<T, __class::UnorderedSet<T>>;
 
 typedef UnorderedSetObjectWrapper<type::Void, __class::AbstractUnorderedSet> AbstractUnorderedSet;
 

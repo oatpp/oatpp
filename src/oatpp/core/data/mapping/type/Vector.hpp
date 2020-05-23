@@ -84,7 +84,7 @@ public:
 };
 
 template<class T>
-using Vector = VectorObjectWrapper<typename T::__Wrapper, __class::Vector<typename T::__Wrapper>>;
+using Vector = VectorObjectWrapper<T, __class::Vector<T>>;
 
 typedef VectorObjectWrapper<type::Void, __class::AbstractVector> AbstractVector;
 

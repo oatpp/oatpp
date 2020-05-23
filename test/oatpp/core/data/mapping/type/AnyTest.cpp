@@ -35,17 +35,17 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Dto1 : public oatpp::Object {
-  DTO_INIT(Dto1, Object);
+class Dto1 : public oatpp::DTO {
+  DTO_INIT(Dto1, DTO);
 };
 
-class Dto2 : public oatpp::Object {
-  DTO_INIT(Dto2, Object);
+class Dto2 : public oatpp::DTO {
+  DTO_INIT(Dto2, DTO);
 };
 
-class Test : public oatpp::Object {
+class Test : public oatpp::DTO {
 
-  DTO_INIT(Test, Object);
+  DTO_INIT(Test, DTO);
 
   DTO_FIELD(oatpp::Any, any);
 
@@ -110,12 +110,12 @@ void AnyTest::onRun() {
     oatpp::Any any(Dto1::createShared());
     OATPP_ASSERT(any);
     OATPP_ASSERT(any.valueType == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == Dto1::ObjectWrapper::Class::getType());
+    OATPP_ASSERT(any.getStoredType() == Object<Dto1>::Class::getType());
 
     bool wasError = false;
 
     try {
-      auto obj = any.retrieve<Dto2>(); // wrong object
+      auto obj = any.retrieve<oatpp::Object<Dto2>>(); // wrong object
     } catch (std::runtime_error& e) {
       wasError = true;
     }

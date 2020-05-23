@@ -67,8 +67,6 @@ public:
  */
 class Any : public ObjectWrapper<AnyHandle, __class::Any>{
 public:
-  typedef Any __Wrapper;
-public:
 
   /**
    * Default constructor.
@@ -129,15 +127,15 @@ public:
    * @throws - `std::runtime_error` - if stored type and type requested (`WrapperType`) do not match.
    */
   template<class WrapperType>
-  typename WrapperType::__Wrapper retrieve() const {
+  WrapperType retrieve() const {
 
     if(m_ptr) {
 
-      if(m_ptr->type != WrapperType::__Wrapper::Class::getType()) {
+      if(m_ptr->type != WrapperType::Class::getType()) {
         throw std::runtime_error("[oatpp::data::mapping::type::Any::retrieve()]: Error. The value type doesn't match.");
       }
 
-      return typename WrapperType::__Wrapper(std::static_pointer_cast<typename WrapperType::__Wrapper::ObjectType>(m_ptr->ptr), m_ptr->type);
+      return WrapperType(std::static_pointer_cast<typename WrapperType::ObjectType>(m_ptr->ptr), m_ptr->type);
 
     }
 
