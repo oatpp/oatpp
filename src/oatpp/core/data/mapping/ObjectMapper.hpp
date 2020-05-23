@@ -102,30 +102,30 @@ public:
   /**
    * Deserialize object.
    * If nullptr is returned - check caret.getError()
-   * @tparam Class - object class.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
    * @return - deserialized Object.
    * @throws - depends on implementation.
    */
-  template<class Class>
-  typename Class::__Wrapper readFromCaret(oatpp::parser::Caret& caret) const {
-    auto type = Class::__Wrapper::Class::getType();
-    return read(caret, type).template staticCast<typename Class::__Wrapper>();
+  template<class Wrapper>
+  Wrapper readFromCaret(oatpp::parser::Caret& caret) const {
+    auto type = Wrapper::Class::getType();
+    return read(caret, type).template staticCast<Wrapper>();
   }
 
   /**
    * Deserialize object.
-   * @tparam Class - object class.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param str - serialized data.
    * @return - deserialized Object.
    * @throws - &id:oatpp::parser::ParsingError;
    * @throws - depends on implementation.
    */
-  template<class Class>
-  typename Class::__Wrapper readFromString(const oatpp::String& str) const {
-    auto type = Class::__Wrapper::Class::getType();
+  template<class Wrapper>
+  Wrapper readFromString(const oatpp::String& str) const {
+    auto type = Wrapper::Class::getType();
     oatpp::parser::Caret caret(str);
-    auto result = read(caret, type).template staticCast<typename Class::__Wrapper>();
+    auto result = read(caret, type).template staticCast<Wrapper>();
     if(!result) {
       throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
     }

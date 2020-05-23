@@ -37,13 +37,13 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class Dto0 : public oatpp::Object {
-  DTO_INIT(Dto0, Object)
+class Dto0 : public oatpp::DTO {
+  DTO_INIT(Dto0, DTO)
 };
 
-class DtoA : public oatpp::Object {
+class DtoA : public oatpp::DTO {
 
-  DTO_INIT(DtoA, Object)
+  DTO_INIT(DtoA, DTO)
 
   DTO_FIELD_INFO(id) {
     info->description = "identifier";
@@ -121,7 +121,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test Meta 1...");
 
-    auto type = DtoA::ObjectWrapper::Class::getType();
+    auto type = Object<DtoA>::Class::getType();
     const auto& propsMap = type->propertiesGetter()->getMap();
 
     OATPP_ASSERT(propsMap.size() == 1);
@@ -136,7 +136,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test Meta 2...");
 
-    auto type = DtoB::ObjectWrapper::Class::getType();
+    auto type = Object<DtoB>::Class::getType();
     const auto& propsMap = type->propertiesGetter()->getMap();
 
     OATPP_ASSERT(propsMap.size() == 2);
@@ -158,7 +158,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Test 1...");
-    DtoA::ObjectWrapper a;
+    Object<DtoA> a;
     OATPP_ASSERT(!a);
     OATPP_ASSERT(a == nullptr);
     OATPP_ASSERT(a.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
@@ -167,8 +167,8 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Test 2...");
-    DtoA::ObjectWrapper a;
-    DtoA::ObjectWrapper b;
+    Object<DtoA> a;
+    Object<DtoA> b;
     OATPP_ASSERT(a == b);
     OATPP_LOGI(TAG, "OK");
   }
@@ -176,11 +176,11 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test 3...");
     auto a = DtoA::createShared();
-    DtoA::ObjectWrapper b;
+    Object<DtoA> b;
     OATPP_ASSERT(a != b);
     OATPP_ASSERT(b != a);
     auto ohc = a->hashCode();
-    auto whc = std::hash<DtoA::ObjectWrapper>{}(a);
+    auto whc = std::hash<oatpp::Object<DtoA>>{}(a);
     OATPP_ASSERT(ohc == whc);
     OATPP_LOGI(TAG, "OK");
   }
@@ -285,7 +285,7 @@ void ObjectTest::onRun() {
     a->id = "1";
     e->id = "1";
 
-    oatpp::UnorderedSet<DtoB> set = {a, b, c, d, e};
+    oatpp::UnorderedSet<oatpp::Object<DtoB>> set = {a, b, c, d, e};
 
     OATPP_ASSERT(set->size() == 2);
     OATPP_ASSERT(set[a] == true);

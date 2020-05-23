@@ -189,6 +189,9 @@ public:
   typedef std::function<std::shared_ptr<Endpoint::Info>()> EndpointInfoBuilder;
 
   template <class T>
+  using Object = oatpp::Object<T>;
+
+  template <class T>
   using List = oatpp::List<T>;
 
   template <class Value>

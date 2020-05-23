@@ -41,7 +41,6 @@ public:
   typedef oatpp::data::mapping::type::Type::Property Property;
   typedef oatpp::data::mapping::type::Type::Properties Properties;
 
-  typedef oatpp::data::mapping::type::Object Object;
   typedef oatpp::String String;
 public:
   /**

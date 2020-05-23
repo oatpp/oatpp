@@ -85,14 +85,7 @@ OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(UnorderedMapObjectWrapper, TemplateObjectTy
 };
 
 template<class Key, class Value>
-using UnorderedMap = UnorderedMapObjectWrapper<
-  typename Key::__Wrapper,
-  typename Value::__Wrapper,
-  __class::UnorderedMap<
-    typename Key::__Wrapper,
-    typename Value::__Wrapper
-  >
->;
+using UnorderedMap = UnorderedMapObjectWrapper<Key, Value, __class::UnorderedMap<Key, Value>>;
 
 namespace __class {
 

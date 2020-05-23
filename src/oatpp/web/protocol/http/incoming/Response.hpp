@@ -179,14 +179,14 @@ public:
 
   /**
    * Same as &l:Response::readBodyToDto (); but Async.
-   * @tparam DtoType - DTO object type.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param objectMapper - `std::shared_ptr` to &id:oatpp::data::mapping::ObjectMapper;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  template<class DtoType>
-  oatpp::async::CoroutineStarterForResult<const typename DtoType::ObjectWrapper&>
+  template<class Wrapper>
+  oatpp::async::CoroutineStarterForResult<const Wrapper&>
   readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return m_bodyDecoder->decodeToDtoAsync<DtoType>(m_headers, m_bodyStream, objectMapper);
+    return m_bodyDecoder->decodeToDtoAsync<Wrapper>(m_headers, m_bodyStream, objectMapper);
   }
   
 };

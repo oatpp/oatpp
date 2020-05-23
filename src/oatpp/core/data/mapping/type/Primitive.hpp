@@ -61,8 +61,6 @@ namespace __class {
  */
 class String : public type::ObjectWrapper<base::StrBuffer, __class::String> {
 public:
-  typedef String __Wrapper;
-public:
   String(const std::shared_ptr<base::StrBuffer>& ptr, const type::Type* const valueType);
 public:
   

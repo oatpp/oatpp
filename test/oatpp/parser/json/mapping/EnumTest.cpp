@@ -42,9 +42,9 @@ ENUM(Enum1, v_int32,
   VALUE(V3, 30, "enum1-v3")
 );
 
-class DTO1 : public oatpp::Object {
+class DTO1 : public oatpp::DTO {
 
-  DTO_INIT(DTO1, Object)
+  DTO_INIT(DTO1, DTO)
 
   DTO_FIELD(Enum<Enum1>::AsString, enum1);
 
