@@ -121,7 +121,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test Meta 1...");
 
-    auto type = DtoA::Wrapper::Class::getType();
+    auto type = Object<DtoA>::Class::getType();
     const auto& propsMap = type->propertiesGetter()->getMap();
 
     OATPP_ASSERT(propsMap.size() == 1);
@@ -136,7 +136,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test Meta 2...");
 
-    auto type = DtoB::Wrapper::Class::getType();
+    auto type = Object<DtoB>::Class::getType();
     const auto& propsMap = type->propertiesGetter()->getMap();
 
     OATPP_ASSERT(propsMap.size() == 2);
@@ -158,7 +158,7 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Test 1...");
-    DtoA::Wrapper a;
+    Object<DtoA> a;
     OATPP_ASSERT(!a);
     OATPP_ASSERT(a == nullptr);
     OATPP_ASSERT(a.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
@@ -167,8 +167,8 @@ void ObjectTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Test 2...");
-    DtoA::Wrapper a;
-    DtoA::Wrapper b;
+    Object<DtoA> a;
+    Object<DtoA> b;
     OATPP_ASSERT(a == b);
     OATPP_LOGI(TAG, "OK");
   }
@@ -176,11 +176,11 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test 3...");
     auto a = DtoA::createShared();
-    DtoA::Wrapper b;
+    Object<DtoA> b;
     OATPP_ASSERT(a != b);
     OATPP_ASSERT(b != a);
     auto ohc = a->hashCode();
-    auto whc = std::hash<DtoA::Wrapper>{}(a);
+    auto whc = std::hash<oatpp::Object<DtoA>>{}(a);
     OATPP_ASSERT(ohc == whc);
     OATPP_LOGI(TAG, "OK");
   }
@@ -285,7 +285,7 @@ void ObjectTest::onRun() {
     a->id = "1";
     e->id = "1";
 
-    oatpp::UnorderedSet<DtoB::Wrapper> set = {a, b, c, d, e};
+    oatpp::UnorderedSet<oatpp::Object<DtoB>> set = {a, b, c, d, e};
 
     OATPP_ASSERT(set->size() == 2);
     OATPP_ASSERT(set[a] == true);

@@ -92,7 +92,7 @@ void DTOMapperPerfTest::onRun() {
     oatpp::parser::Caret caret(test1_Text);
     for(v_int32 i = 0; i < numIterations; i ++) {
       caret.setPosition(0);
-      mapper->readFromCaret<Test1::Wrapper>(caret);
+      mapper->readFromCaret<oatpp::Object<Test1>>(caret);
     }
   }
 

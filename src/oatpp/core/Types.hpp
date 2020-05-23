@@ -102,9 +102,15 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Boolean Boolean;
 
   /**
-   * Mapping-Enabled DTO Object. Base class for all DTO objects. &id:oatpp::data::mapping::type::Object;
+   * Base class for all DTO objects. &id:oatpp::data::mapping::type::DTO;
    */
   typedef oatpp::data::mapping::type::DTO DTO;
+
+  /*
+   * Mapping-Enabled DTO Object.
+   */
+  template <class T>
+  using Object = oatpp::data::mapping::type::DTOWrapper<T>;
 
   /*
    * Mapping-Enabled Enum. &id:oatpp::data::mapping::type::Enum;

@@ -92,6 +92,55 @@ namespace __class {
 }
 
 /**
+ * ObjectWrapper for &l:DTO;. AKA `oatpp::Object<T>`.
+ * @tparam ObjT - class extended from &l:DTO;.
+ */
+template<class ObjT>
+class DTOWrapper : public ObjectWrapper<ObjT, __class::Object<ObjT>> {
+public:
+  typedef ObjT TemplateObjectType;
+  typedef __class::Object<ObjT> TemplateObjectClass;
+public:
+
+OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)
+
+  static DTOWrapper createShared() {
+    return std::make_shared<TemplateObjectType>();
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T){
+    return this->m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T){
+    return this->m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, DTOWrapper>::value, void>::type
+  >
+  inline bool operator == (const T &other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return true;
+    if(!this->m_ptr || !other.m_ptr) return false;
+    return *this->m_ptr == *other.m_ptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, DTOWrapper>::value, void>::type
+  >
+  inline bool operator != (const T &other) const {
+    return !operator == (other);
+  }
+
+};
+
+/**
  * Base class for all DTO objects.
  * For more info about Data Transfer Object (DTO) see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
  */
@@ -113,6 +162,9 @@ public:
   typedef oatpp::data::mapping::type::Float32 Float32;
   typedef oatpp::data::mapping::type::Float64 Float64;
   typedef oatpp::data::mapping::type::Boolean Boolean;
+
+  template <class T>
+  using Object = DTOWrapper<T>;
 
   template <class T>
   using Enum = oatpp::data::mapping::type::Enum<T>;
@@ -160,51 +212,6 @@ public:
 
   bool operator==(const DTO& other) const {
     return defaultEquals(other);
-  }
-
-};
-
-template<class ObjT>
-class DTOWrapper : public ObjectWrapper<ObjT, __class::Object<ObjT>> {
-public:
-  typedef ObjT TemplateObjectType;
-  typedef __class::Object<ObjT> TemplateObjectClass;
-public:
-
-  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)
-
-  static DTOWrapper createShared() {
-    return std::make_shared<TemplateObjectType>();
-  }
-
-  template<typename T,
-    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
-  >
-  inline bool operator == (T){
-    return this->m_ptr.get() == nullptr;
-  }
-
-  template<typename T,
-    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
-  >
-  inline bool operator != (T){
-    return this->m_ptr.get() != nullptr;
-  }
-
-  template<typename T,
-    typename enabled = typename std::enable_if<std::is_same<T, DTOWrapper>::value, void>::type
-  >
-  inline bool operator == (const T &other) const {
-    if(this->m_ptr.get() == other.m_ptr.get()) return true;
-    if(!this->m_ptr || !other.m_ptr) return false;
-    return *this->m_ptr == *other.m_ptr;
-  }
-
-  template<typename T,
-    typename enabled = typename std::enable_if<std::is_same<T, DTOWrapper>::value, void>::type
-  >
-  inline bool operator != (const T &other) const {
-    return !operator == (other);
   }
 
 };

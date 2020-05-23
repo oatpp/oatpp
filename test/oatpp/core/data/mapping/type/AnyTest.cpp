@@ -110,12 +110,12 @@ void AnyTest::onRun() {
     oatpp::Any any(Dto1::createShared());
     OATPP_ASSERT(any);
     OATPP_ASSERT(any.valueType == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == Dto1::Wrapper::Class::getType());
+    OATPP_ASSERT(any.getStoredType() == Object<Dto1>::Class::getType());
 
     bool wasError = false;
 
     try {
-      auto obj = any.retrieve<Dto2::Wrapper>(); // wrong object
+      auto obj = any.retrieve<oatpp::Object<Dto2>>(); // wrong object
     } catch (std::runtime_error& e) {
       wasError = true;
     }

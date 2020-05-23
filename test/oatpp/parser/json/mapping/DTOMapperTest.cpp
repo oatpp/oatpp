@@ -74,15 +74,15 @@ class Test : public oatpp::DTO {
   DTO_FIELD(List<Float64>, field_list_float64) = {};
   DTO_FIELD(List<Boolean>, field_list_boolean) = {};
   
-  DTO_FIELD(List<TestChild::Wrapper>, field_list_object) = {};
-  DTO_FIELD(List<List<TestChild::Wrapper>>, field_list_list_object) = {};
+  DTO_FIELD(List<Object<TestChild>>, field_list_object) = {};
+  DTO_FIELD(List<List<Object<TestChild>>>, field_list_list_object) = {};
 
   DTO_FIELD(Vector<String>, field_vector);
   DTO_FIELD(Fields<String>, field_fields);
   DTO_FIELD(UnorderedFields<String>, field_unordered_fields);
   
-  DTO_FIELD(Test::Wrapper, obj1);
-  DTO_FIELD(TestChild::Wrapper, child1);
+  DTO_FIELD(Object<Test>, obj1);
+  DTO_FIELD(Object<TestChild>, child1);
   
 };
 
@@ -159,9 +159,9 @@ void DTOMapperTest::onRun(){
   test1->field_list_object->push_back(TestChild::createShared("child", "2"));
   test1->field_list_object->push_back(TestChild::createShared("child", "3"));
   
-  auto l1 = oatpp::List<TestChild::Wrapper>::createShared();
-  auto l2 = oatpp::List<TestChild::Wrapper>::createShared();
-  auto l3 = oatpp::List<TestChild::Wrapper>::createShared();
+  auto l1 = oatpp::List<oatpp::Object<TestChild>>::createShared();
+  auto l2 = oatpp::List<oatpp::Object<TestChild>>::createShared();
+  auto l3 = oatpp::List<oatpp::Object<TestChild>>::createShared();
   
   l1->push_back(TestChild::createShared("list_1", "item_1"));
   l1->push_back(TestChild::createShared("list_1", "item_2"));
@@ -220,7 +220,7 @@ void DTOMapperTest::onRun(){
   OATPP_LOGV(TAG, "...");
 
   oatpp::parser::Caret caret(result);
-  auto obj = mapper->readFromCaret<Test::Wrapper>(caret);
+  auto obj = mapper->readFromCaret<oatpp::Object<Test>>(caret);
   
   OATPP_ASSERT(obj->field_string);
   OATPP_ASSERT(obj->field_string == test1->field_string);

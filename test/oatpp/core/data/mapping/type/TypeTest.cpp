@@ -56,7 +56,7 @@ namespace {
     
     DTO_FIELD(Fields<String>, field_map_string_string);
     
-    DTO_FIELD(TestDto::Wrapper, obj1);
+    DTO_FIELD(Object<TestDto>, obj1);
     
   };
   
