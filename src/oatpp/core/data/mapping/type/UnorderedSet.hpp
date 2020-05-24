@@ -34,23 +34,42 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
-class AbstractUnorderedSet {
-public:
-  static const ClassId CLASS_ID;
-public:
-
-  class AbstractPolymorphicDispatcher {
+  /**
+   * Abstract Unordered Set class.
+   */
+  class AbstractUnorderedSet {
   public:
-    virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
+    /**
+     * Class Id.
+     */
+    static const ClassId CLASS_ID;
+  public:
+
+    /**
+     * Polymorphic Dispatcher.
+     */
+    class AbstractPolymorphicDispatcher {
+    public:
+      /**
+       * Add Item.
+       * @param object - UnorderedSet.
+       * @param item - Item.
+       */
+      virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
+    };
+
   };
 
-};
-
-template<class T>
-class UnorderedSet;
+  template<class T>
+  class UnorderedSet;
 
 }
 
+/**
+ * `ObjectWrapper` over `std::unordered_set<T>`
+ * @tparam T - Key `ObjectWrapper` type.
+ * @tparam C - Class.
+ */
 template<class T, class C>
 class UnorderedSetObjectWrapper : public type::ObjectWrapper<std::unordered_set<T>, C> {
 public:

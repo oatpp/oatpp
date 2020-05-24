@@ -36,8 +36,15 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
+  /**
+   * Any class.
+   */
   class Any {
   public:
+
+    /**
+     * Class Id.
+     */
     static const ClassId CLASS_ID;
 
     static Type *getType() {

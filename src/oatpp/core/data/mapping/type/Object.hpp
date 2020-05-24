@@ -102,7 +102,7 @@ public:
   typedef __class::Object<ObjT> TemplateObjectClass;
 public:
 
-OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)
 
   static DTOWrapper createShared() {
     return std::make_shared<TemplateObjectType>();

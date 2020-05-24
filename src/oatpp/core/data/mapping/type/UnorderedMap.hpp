@@ -35,13 +35,28 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
+  /**
+   * Abstract Unordered Map class.
+   */
   class AbstractUnorderedMap {
   public:
+    /**
+     * Class Id.
+     */
     static const ClassId CLASS_ID;
   public:
 
+    /**
+     * Polymorphic Dispatcher.
+     */
     class AbstractPolymorphicDispatcher {
     public:
+      /**
+       * Add item.
+       * @param object - Unordered Map.
+       * @param key - Key.
+       * @param value - Value.
+       */
       virtual void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const = 0;
     };
 
@@ -52,6 +67,12 @@ namespace __class {
 
 }
 
+/**
+ * `ObjectWrapper` for `std::unordered_map<Key, Value>`
+ * @tparam Key - Key `ObjectWrapper` type.
+ * @tparam Value - Value `ObjectWrapper` type.
+ * @tparam C - Class.
+ */
 template<class Key, class Value, class C>
 class UnorderedMapObjectWrapper : public type::ObjectWrapper<std::unordered_map<Key, Value>, C> {
 public:
