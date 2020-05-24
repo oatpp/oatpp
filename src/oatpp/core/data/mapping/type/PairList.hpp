@@ -35,23 +35,44 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
-class AbstractPairList {
-public:
-  static const ClassId CLASS_ID;
-public:
-
-  class AbstractPolymorphicDispatcher {
+  /**
+   * Abstract PairList class.
+   */
+  class AbstractPairList {
   public:
-    virtual void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const = 0;
+    /**
+     * Class id.
+     */
+    static const ClassId CLASS_ID;
+  public:
+
+    /**
+     * Polymorphic Dispatcher.
+     */
+    class AbstractPolymorphicDispatcher {
+    public:
+      /**
+       * Add key-value pair to pair-list.
+       * @param object - pair list.
+       * @param key - key.
+       * @param value - value.
+       */
+      virtual void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const = 0;
+    };
+
   };
 
-};
-
-template<class Key, class Value>
-class PairList;
+  template<class Key, class Value>
+  class PairList;
 
 }
 
+/**
+ * `ObjectWrapper` over `std::list<std::pair<Key, Value>>`
+ * @tparam Key - Key `ObjectWrapper` type.
+ * @tparam Value - Value `ObjectWrapper` type.
+ * @tparam C - Class.
+ */
 template<class Key, class Value, class C>
 class PairListObjectWrapper : public type::ObjectWrapper<std::list<std::pair<Key, Value>>, C> {
 public:
@@ -59,7 +80,7 @@ public:
   typedef C TemplateObjectClass;
 public:
 
-OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(PairListObjectWrapper, TemplateObjectType, TemplateObjectClass)
+  OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(PairListObjectWrapper, TemplateObjectType, TemplateObjectClass)
 
   PairListObjectWrapper(std::initializer_list<std::pair<Key, Value>> ilist)
     : type::ObjectWrapper<TemplateObjectType, TemplateObjectClass>(std::make_shared<TemplateObjectType>(ilist))

@@ -161,7 +161,7 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return oatpp::Void(Float32::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float32::Class::getType());
   } else {
     return Float32(caret.parseFloat32());
   }
@@ -173,7 +173,7 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return oatpp::Void(Float64::ObjectWrapper::Class::getType());
+    return oatpp::Void(Float64::Class::getType());
   } else {
     return Float64(caret.parseFloat64());
   }
@@ -186,7 +186,7 @@ oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer, parser:
   (void) type;
 
   if(caret.isAtText("null", true)){
-    return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
+    return oatpp::Void(Boolean::Class::getType());
   } else {
     if(caret.isAtText("true", true)) {
       return Boolean(true);
@@ -194,7 +194,7 @@ oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer, parser:
       return Boolean(false);
     } else {
       caret.setError("[oatpp::parser::json::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
-      return oatpp::Void(Boolean::ObjectWrapper::Class::getType());
+      return oatpp::Void(Boolean::Class::getType());
     }
   }
 
@@ -224,9 +224,9 @@ const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& c
       case '"':
         return String::Class::getType();
       case '{':
-        return oatpp::Fields<Any>::ObjectWrapper::Class::getType();
+        return oatpp::Fields<Any>::Class::getType();
       case '[':
-        return oatpp::List<Any>::ObjectWrapper::Class::getType();
+        return oatpp::List<Any>::Class::getType();
       case 't':
         if(caret.isAtText("true")) return Boolean::Class::getType();
         break;

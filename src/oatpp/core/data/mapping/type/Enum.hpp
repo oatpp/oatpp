@@ -72,6 +72,9 @@ enum class EnumInterpreterError : v_int32 {
 
 namespace __class {
 
+  /**
+   * Abstract Enum class.
+   */
   class AbstractEnum {
   public:
     static const ClassId CLASS_ID;
@@ -100,11 +103,32 @@ namespace __class {
 
 }
 
+/**
+ * Enum value info.
+ * @tparam T - underlying enum type.
+ */
 template<typename T>
 struct EnumValueInfo {
+  /**
+   * Entry value. T - enum type.
+   */
   const T value;
+
+  /**
+   * Index of the entry.
+   */
   const v_int32 index;
+
+  /**
+   * Name of the enum entry or name-qualifier, if qualifier was specified. <br>
+   * &id:oatpp::data::share::StringKeyLabel;.
+   */
   const data::share::StringKeyLabel name;
+  
+  /**
+   * Description of the enum etry. <br>
+   * &id:oatpp::data::share::StringKeyLabel;.
+   */
   const data::share::StringKeyLabel description;
 };
 
@@ -138,6 +162,11 @@ protected:
   }
 };
 
+/**
+ * Enum interpreter `AsString`
+ * @tparam T 
+ * @tparam notnull 
+ */
 template<class T, bool notnull>
 class EnumInterpreterAsString {
 public:
@@ -153,15 +182,20 @@ public:
   static Type* getInterpretationType();
 };
 
+/**
+ * Enum interpreter `AsNumber`
+ * @tparam T 
+ * @tparam notnull 
+ */
 template<class T, bool notnull>
-class EnumInterpreterAsInteger {
+class EnumInterpreterAsNumber {
 private:
   typedef typename std::underlying_type<T>::type EnumUnderlyingType;
 public:
   typedef typename ObjectWrapperByUnderlyingType<EnumUnderlyingType>::ObjectWrapper UnderlyingTypeObjectWrapper;
 public:
   template <bool N>
-  using InterpreterType = EnumInterpreterAsInteger<T, N>;
+  using InterpreterType = EnumInterpreterAsNumber<T, N>;
 public:
   constexpr static bool notNull = notnull;
 public:
@@ -170,6 +204,11 @@ public:
   static Type* getInterpretationType();
 };
 
+/**
+ * Template class for `oatpp::Enum<T>`.
+ * @tparam T - enum type.
+ * @tparam EnumInterpreter - enum interpreter.
+ */
 template<class T, class EnumInterpreter>
 class EnumObjectWrapper : public ObjectWrapper<T, __class::Enum<T, EnumInterpreter>>{
   template<class Type, class Interpreter>
@@ -178,10 +217,25 @@ public:
   typedef typename std::underlying_type<T>::type UnderlyingEnumType;
   typedef T Z__EnumType;
   typedef __class::Enum<T, EnumInterpreter> EnumObjectClass;
+
+  /**
+   * Template parameter - `Interpreter`.
+   */
   typedef EnumInterpreter Interpreter;
 public:
+  /**
+   * Enum interpreted `AsString`.
+   */
   typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, EnumInterpreter::notNull>> AsString;
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, EnumInterpreter::notNull>> AsNumber;
+
+  /**
+   * Enum interpreted `AsNumber`.
+   */
+  typedef EnumObjectWrapper<T, EnumInterpreterAsNumber<T, EnumInterpreter::notNull>> AsNumber;
+
+  /**
+   * Enum with `NotNull` interpretation constraint.
+   */
   typedef EnumObjectWrapper<T, typename EnumInterpreter::template InterpreterType<true>> NotNull;
 public:
 
@@ -189,23 +243,47 @@ public:
     : type::ObjectWrapper<T, EnumObjectClass>(ptr, valueType)
   {}
 
+  /**
+   * Default constructor.
+   */
   EnumObjectWrapper() {}
 
+  /**
+   * Nullptr constructor.
+   */
   EnumObjectWrapper(std::nullptr_t) {}
 
+  /**
+   * Constructor.
+   * @param ptr
+   */
   EnumObjectWrapper(const std::shared_ptr<T>& ptr)
     : type::ObjectWrapper<T, EnumObjectClass>(ptr)
   {}
 
+  /**
+   * Constructor.
+   * @param ptr
+   */
   EnumObjectWrapper(std::shared_ptr<T>&& ptr)
     : type::ObjectWrapper<T, EnumObjectClass>(std::forward<std::shared_ptr<T>>(ptr))
   {}
 
+  /**
+   * Copy-constructor.
+   * @tparam OtherInter
+   * @param other
+   */
   template<class OtherInter>
   EnumObjectWrapper(const EnumObjectWrapper<T, OtherInter>& other)
     : type::ObjectWrapper<T, EnumObjectClass>(other.getPtr())
   {}
 
+  /**
+   * Move-constructor.
+   * @tparam OtherInter
+   * @param other
+   */
   template<class OtherInter>
   EnumObjectWrapper(EnumObjectWrapper<T, OtherInter>&& other)
     : type::ObjectWrapper<T, EnumObjectClass>(std::move(other.getPtr()))
@@ -230,6 +308,10 @@ public:
 
 public:
 
+  /**
+   * Constructor by value.
+   * @param value
+   */
   EnumObjectWrapper(T value)
     : type::ObjectWrapper<T, EnumObjectClass>(std::make_shared<T>(value))
   {}
@@ -298,6 +380,12 @@ public:
 
 public:
 
+  /**
+   * Get &l:EnumValueInfo <T>; by name.
+   * @param name - name or name-qualifier of the enum entry.
+   * @return - &l:EnumValueInfo <T>;.
+   * @throws - `std::runtime_error` if not found.
+   */
   static const EnumValueInfo<T>& getEntryByName(const String& name) {
     auto it = EnumMeta<T>::getInfo()->byName.find(name);
     if(it != EnumMeta<T>::getInfo()->byName.end()) {
@@ -306,6 +394,12 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByName()]: Error. Entry not found.");
   }
 
+  /**
+   * Get &l:EnumValueInfo <T>; by enum value.
+   * @param value - enum value.
+   * @return - &l:EnumValueInfo <T>;.
+   * @throws - `std::runtime_error` if not found.
+   */
   static const EnumValueInfo<T>& getEntryByValue(T value) {
     auto it = EnumMeta<T>::getInfo()->byValue.find(static_cast<v_uint64>(value));
     if(it != EnumMeta<T>::getInfo()->byValue.end()) {
@@ -314,6 +408,12 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByValue()]: Error. Entry not found.");
   }
 
+  /**
+   * Get &l:EnumValueInfo <T>; by integer value.
+   * @param value - integer value.
+   * @return - &l:EnumValueInfo <T>;.
+   * @throws - `std::runtime_error` if not found.
+   */
   static const EnumValueInfo<T>& getEntryByUnderlyingValue(UnderlyingEnumType value) {
     auto it = EnumMeta<T>::getInfo()->byValue.find(static_cast<v_uint64>(value));
     if(it != EnumMeta<T>::getInfo()->byValue.end()) {
@@ -322,6 +422,12 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByUnderlyingValue()]: Error. Entry not found.");
   }
 
+  /**
+   * Get &l:EnumValueInfo <T>; by index.
+   * @param index - index of the entry in the enum.
+   * @return - &l:EnumValueInfo <T>;.
+   * @throws - `std::runtime_error` if not found.
+   */
   static const EnumValueInfo<T>& getEntryByIndex(v_int32 index) {
     if(index >= 0 && index < EnumMeta<T>::getInfo()->byIndex.size()) {
       return EnumMeta<T>::getInfo()->byIndex[index];
@@ -329,6 +435,10 @@ public:
     throw std::runtime_error("[oatpp::data::mapping::type::Enum::getEntryByIndex()]: Error. Entry not found.");
   }
 
+  /**
+   * Get `std::vector` of &l:EnumValueInfo <T>;.
+   * @return - `std::vector` of &l:EnumValueInfo <T>;.
+   */
   static const std::vector<EnumValueInfo<T>>& getEntries() {
     return EnumMeta<T>::getInfo()->byIndex;
   }
@@ -392,9 +502,9 @@ Type* EnumInterpreterAsString<T, notnull>::getInterpretationType() {
 }
 
 template<class T, bool notnull>
-Void EnumInterpreterAsInteger<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
+Void EnumInterpreterAsNumber<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
 
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, notnull>> EnumOW;
+  typedef EnumObjectWrapper<T, EnumInterpreterAsNumber<T, notnull>> EnumOW;
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper UTOW;
 
@@ -417,8 +527,8 @@ Void EnumInterpreterAsInteger<T, notnull>::toInterpretation(const Void& enumValu
 }
 
 template<class T, bool notnull>
-Void EnumInterpreterAsInteger<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
-  typedef EnumObjectWrapper<T, EnumInterpreterAsInteger<T, notnull>> EnumOW;
+Void EnumInterpreterAsNumber<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
+  typedef EnumObjectWrapper<T, EnumInterpreterAsNumber<T, notnull>> EnumOW;
 
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper OW;
@@ -448,7 +558,7 @@ Void EnumInterpreterAsInteger<T, notnull>::fromInterpretation(const Void& interV
 }
 
 template<class T, bool notnull>
-Type* EnumInterpreterAsInteger<T, notnull>::getInterpretationType() {
+Type* EnumInterpreterAsNumber<T, notnull>::getInterpretationType() {
   typedef typename std::underlying_type<T>::type EnumUT;
   return ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper::Class::getType();
 }

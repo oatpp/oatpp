@@ -34,13 +34,27 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
+  /**
+   * Abstract Vector Class.
+   */
   class AbstractVector {
   public:
+    /**
+     * Class Id.
+     */
     static const ClassId CLASS_ID;
   public:
 
+    /**
+     * Polymorphic Dispatcher.
+     */
     class AbstractPolymorphicDispatcher {
     public:
+      /**
+       * Add Item.
+       * @param object - Vector.
+       * @param item - Item to add.
+       */
       virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
     };
 
@@ -51,6 +65,11 @@ namespace __class {
 
 }
 
+/**
+ * `ObjectWrapper` over `std::vector<T>`.
+ * @tparam T - Item `ObjectWrapper` type.
+ * @tparam C - Class.
+ */
 template<class T, class C>
 class VectorObjectWrapper : public type::ObjectWrapper<std::vector<T>, C> {
 public:

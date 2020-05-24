@@ -36,8 +36,15 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
+  /**
+   * Any class.
+   */
   class Any {
   public:
+
+    /**
+     * Class Id.
+     */
     static const ClassId CLASS_ID;
 
     static Type *getType() {
@@ -62,30 +69,70 @@ public:
 
 };
 
+/**
+ * Any - ObjectWrapper to hold Any oatpp mapping-enabled type.
+ */
 class Any : public ObjectWrapper<AnyHandle, __class::Any>{
 public:
 
+  /**
+   * Default constructor.
+   */
   Any();
 
+  /**
+   * Nullptr constructor.
+   */
   Any(std::nullptr_t);
 
+  /**
+   * Copy constructor.
+   * @param other - other Any.
+   */
   Any(const Any& other);
+
+  /**
+   * Move constructor.
+   * @param other
+   */
   Any(Any&& other);
 
   Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type);
 
+  /**
+   * Constructor.
+   * @tparam T - Underlying type of ObjectWrapper.
+   * @tparam C - __class of ObjectWrapper.
+   * @param polymorph - any ObjectWrapper.
+   */
   template<class T, class C>
   Any(const ObjectWrapper<T, C>& polymorph)
     : ObjectWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
   {}
 
+  /**
+   * Store any ObjectWrapper in Any.
+   * @tparam T
+   * @tparam C
+   * @param polymorph - ObjectWrapper. Ex.: `oatpp::String`, `oatpp::List<...>`, etc.
+   */
   template<class T, class C>
   void store(const ObjectWrapper<T, C>& polymorph) {
     m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
   }
 
+  /**
+   * Get `Type` of the stored object.
+   * @return - &id:oatpp::data::mapping::type::Type;.
+   */
   const Type* getStoredType() const;
 
+  /**
+   * Retrieve stored object.
+   * @tparam WrapperType - type of the object to retrieve.
+   * @return - ObjectWrapper of type - `WrapperType`.
+   * @throws - `std::runtime_error` - if stored type and type requested (`WrapperType`) do not match.
+   */
   template<class WrapperType>
   WrapperType retrieve() const {
 

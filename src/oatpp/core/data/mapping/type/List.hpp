@@ -34,13 +34,27 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
 
+  /**
+   * Abstract list class.
+   */
   class AbstractList {
   public:
+    /**
+     * Class Id.
+     */
     static const ClassId CLASS_ID;
   public:
 
+    /**
+     * Polymorphic Dispatcher
+     */
     class AbstractPolymorphicDispatcher {
     public:
+      /**
+       * Add item.
+       * @param object - List to add item to.
+       * @param item - Item to add.
+       */
       virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
     };
 
@@ -51,6 +65,11 @@ namespace __class {
 
 }
 
+/**
+ * `ObjectWrapper` over `std::list<T>`
+ * @tparam T - Item `ObjectWrapper` type.
+ * @tparam C - Class.
+ */
 template<class T, class C>
 class ListObjectWrapper : public type::ObjectWrapper<std::list<T>, C> {
 public:
