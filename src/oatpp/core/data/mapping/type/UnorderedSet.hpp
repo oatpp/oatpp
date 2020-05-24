@@ -106,6 +106,9 @@ public:
 
 };
 
+/**
+ * Mapping-Enabled UnorderedSet. See &l:UnorderedSetObjectWrapper;.
+ */
 template<class T>
 using UnorderedSet = UnorderedSetObjectWrapper<T, __class::UnorderedSet<T>>;
 

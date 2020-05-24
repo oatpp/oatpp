@@ -104,6 +104,9 @@ public:
 
 };
 
+/**
+ * Mapping-Enabled List. See - &l:ListObjectWrapper;.
+ */
 template<class T>
 using List = ListObjectWrapper<T, __class::List<T>>;
 

@@ -445,6 +445,9 @@ public:
 
 };
 
+/**
+ * Mapping-enabled Enum. See &l:EnumObjectWrapper;.
+ */
 template <class T>
 using Enum = EnumObjectWrapper<T, EnumInterpreterAsString<T, false>>;
 

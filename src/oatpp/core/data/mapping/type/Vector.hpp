@@ -102,6 +102,9 @@ public:
 
 };
 
+/**
+ * Mapping-enabled Vector. See &l:VectorObjectWrapper;.
+ */
 template<class T>
 using Vector = VectorObjectWrapper<T, __class::Vector<T>>;
 

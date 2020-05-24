@@ -105,6 +105,9 @@ public:
 
 };
 
+/**
+ * Mapping-Enables UnorderedMap<Key, Value>. See &l:UnorderedMapObjectWrapper;.
+ */
 template<class Key, class Value>
 using UnorderedMap = UnorderedMapObjectWrapper<Key, Value, __class::UnorderedMap<Key, Value>>;
 

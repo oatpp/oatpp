@@ -132,6 +132,9 @@ public:
 
 };
 
+/**
+ * Mapping-Enables PairList<Key, Value>. See &l:PairListObjectWrapper;.
+ */
 template<class Key, class Value>
 using PairList = PairListObjectWrapper<Key, Value, __class::PairList<Key, Value>>;
 
