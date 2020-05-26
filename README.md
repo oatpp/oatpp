@@ -220,13 +220,30 @@ Output:
 
 ### Examples:
 
-- [Media-Stream (Http-Live-Streaming)](https://github.com/oatpp/example-hls-media-stream) - Example project of how-to build HLS-streaming server using oat++ Async-API.
-- [CRUD](https://github.com/oatpp/example-crud) - Example project of how-to create basic CRUD endpoints.
-- [AsyncApi](https://github.com/oatpp/example-async-api) - Example project of how-to use asynchronous API for handling large number of simultaneous connections.
+#### REST-API
+
 - [ApiClient-Demo](https://github.com/oatpp/example-api-client) - Example project of how-to use Retrofit-like client wrapper (ApiClient) and how it works.
-- [TLS-Libressl](https://github.com/oatpp/example-libressl) - Example project of how-to setup secure connection and serve via HTTPS.
+- [AsyncApi](https://github.com/oatpp/example-async-api) - Example project of how-to use asynchronous API for handling large number of simultaneous connections.
+- [CRUD](https://github.com/oatpp/example-crud) - Example project of how-to create basic CRUD endpoints.
+- [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
+
+#### WebSocket
+
+- [Can-Chat](https://github.com/lganzzzo/canchat) - Feature-complete rooms-based chat for tens of thousands users. Client plus Server.
+- [WebSocket](https://github.com/oatpp/example-websocket) - Collection of oatpp WebSocket examples.
+- [YUV-Websocket-Stream](https://github.com/oatpp/example-yuv-websocket-stream) - Example project how-to create a YUV image stream from a V4L device (i.E. Webcam) using websockets.
+
+#### Streaming
+
+- [Media-Stream (Http-Live-Streaming)](https://github.com/oatpp/example-hls-media-stream) - Example project of how-to build HLS-streaming server using oat++ Async-API.
+- [YUV-Websocket-Stream](https://github.com/oatpp/example-yuv-websocket-stream) - Example project how-to create a YUV image stream from a V4L device (i.E. Webcam) using websockets.
+
+#### TLS
+
+- [TLS-Libressl](https://github.com/oatpp/example-libressl) - Example project how-to setup secure connection and serve via HTTPS.
+
+#### Microservices
+
+- [Consul](https://github.com/oatpp/example-consul) - Example project of how-to use oatpp::consul::Client. Integration with Consul.
 - [Microservices](https://github.com/oatpp/example-microservices) - Example project on how to build microservices with Oat++, 
 and example on how to consolidate those microservices using [monolithization](https://oatpp.io/docs/monolithization/) technique.
-- [Consul](https://github.com/oatpp/example-consul) - Example project of how-to use oatpp::consul::Client. Integration with Consul.
-- [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
-- [WebSocket](https://github.com/oatpp/example-websocket) - Collection of oatpp WebSocket examples.
