@@ -97,7 +97,7 @@ public:
    */
   Any(Any&& other);
 
-  Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type);
+  Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type);
 
   /**
    * Constructor.

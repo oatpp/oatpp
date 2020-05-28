@@ -36,8 +36,8 @@ Any::Any()
 
 Any::Any(std::nullptr_t) : Any() {}
 
-Any::Any(const std::shared_ptr<base::Countable>& ptr, const Type* const type)
-  : ObjectWrapper(std::make_shared<AnyHandle>(ptr, type), __class::Any::getType())
+Any::Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type)
+  : ObjectWrapper(handle, __class::Any::getType())
 {}
 
 Any::Any(const Any& other)
