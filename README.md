@@ -8,20 +8,23 @@ Version `1.1.0` introduces breaking changes. See the
 
 ---
 
-Oat++ is the modern Web Framework for C++. It's fully loaded and contains all necessary components for
-effective production level development. It's also light and has small memory footprint.
+Oat++ is a modern Web Framework for C++. 
+It's fully loaded and contains all necessary components for effective production level development. 
+It's also light and has a small memory footprint.
 
+**Start**
+- [Get Started](https://oatpp.io/docs/start/)
+- [Build For Unix/Linux](https://oatpp.io/docs/installation/unix-linux/)
+- [Build For Windows](https://oatpp.io/docs/installation/windows/)
+
+**About**
 - [Website](https://oatpp.io/)
-- [Docs](https://oatpp.io/docs/start/)
-- [Api Reference](https://oatpp.io/api/latest/)
 - [Supported Platforms](https://oatpp.io/supported-platforms/)
 - Latest Benchmarks: [5 Million WebSockets](https://oatpp.io/benchmark/websocket/5-million/)
+- [Contributing to Oat++](CONTRIBUTING.md)
 
-**Contributors wanted!**  
-- See [Contributing to Oat++](CONTRIBUTING.md)
-
-**Join the community**
-- Join discussion on **Gitter**. [oat++ framework/Lobby](https://gitter.im/oatpp-framework/Lobby)
+**Join Our Community**
+- Chat on **Gitter**. [Oat++ framework/Lobby](https://gitter.im/oatpp-framework/Lobby)
 - Follow us on **Twitter** for latest news. [@oatpp_io](https://twitter.com/oatpp_io)
 - Join community on **Reddit**. [r/oatpp](https://www.reddit.com/r/oatpp/)
 
@@ -212,12 +215,6 @@ Output:
 }
 ```
 
-### Read Next
-
-- [Well Structured Project](https://oatpp.io/docs/start/step-by-step/#well-structured-project)
-- [Build For Unix/Linux](https://oatpp.io/docs/installation/unix-linux/)
-- [Build For Windows](https://oatpp.io/docs/installation/windows/)
-
 ### Examples:
 
 #### REST-API
@@ -225,6 +222,11 @@ Output:
 - [ApiClient-Demo](https://github.com/oatpp/example-api-client) - Example project of how-to use Retrofit-like client wrapper (ApiClient) and how it works.
 - [AsyncApi](https://github.com/oatpp/example-async-api) - Example project of how-to use asynchronous API for handling large number of simultaneous connections.
 - [CRUD](https://github.com/oatpp/example-crud) - Example project of how-to create basic CRUD endpoints.
+
+#### Databases
+
+- [MongoDB](https://github.com/oatpp/example-mongodb) - Example project how to work with MongoDB using [oatpp-mongo](https://github.com/oatpp/oatpp-mongo) mondule.
+Project is a web-service with basic CRUD and Swagger-UI.
 - [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
 
 #### WebSocket
