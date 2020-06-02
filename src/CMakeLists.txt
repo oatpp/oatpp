@@ -257,17 +257,20 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
 find_package(Threads REQUIRED)
 
+#######################################################################################################
+## Link external libraries
+
 if(MSVC OR MINGW)
-    target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} wsock32 ws2_32)
-elseif(APPLE)
-    target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-else(MSVC OR MINGW)
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-        target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-    else(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-        target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT} atomic)
-    endif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-endif(MSVC OR MINGW)
+        SET(ADD_LINK_LIBS wsock32 ws2_32)
+elseif(NOT APPLE AND ${CMAKE_SYSTEM_NAME} NOT STREQUAL "FreeBSD")
+        if(OATPP_LINK_ATOMIC)
+                SET(ADD_LINK_LIBS atomic)
+        endif()
+endif()
+
+target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT}
+        ${ADD_LINK_LIBS}
+)
 
 target_include_directories(oatpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -299,7 +302,7 @@ target_include_directories(oatpp-test PUBLIC
 add_dependencies(oatpp-test oatpp)
 
 #######################################################################################################
-## install targets
+## Install targets
 
 if(OATPP_INSTALL)
     include("../cmake/module-install.cmake")

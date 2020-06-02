@@ -20,6 +20,7 @@ project(oatpp VERSION ${OATPP_THIS_MODULE_VERSION} LANGUAGES CXX)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
+option(OATPP_LINK_ATOMIC "Link atomic library for other platform than MSVC|MINGW|APPLE|FreeBSD" ON)
 
 ###################################################################################################
 ## COMPILATION CONFIG #############################################################################
