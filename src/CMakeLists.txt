@@ -262,7 +262,7 @@ find_package(Threads REQUIRED)
 
 if(MSVC OR MINGW)
         SET(ADD_LINK_LIBS wsock32 ws2_32)
-elseif(NOT APPLE AND ${CMAKE_SYSTEM_NAME} NOT STREQUAL "FreeBSD")
+elseif(NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
         if(OATPP_LINK_ATOMIC)
                 SET(ADD_LINK_LIBS atomic)
         endif()
