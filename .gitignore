@@ -49,3 +49,7 @@ test/build/
 
 Dockerfile
 
+# VS
+.vs/
+out/
+CMakeSettings.json

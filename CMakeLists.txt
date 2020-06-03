@@ -95,6 +95,10 @@ if(OATPP_DISABLE_LOGE)
     add_definitions(-DOATPP_DISABLE_LOGE)
 endif()
 
+if(CMAKE_COMPILER_IS_GNUCXX AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
+    add_definitions(-DOATPP_DISABLE_STD_PUT_TIME)
+endif()
+
 message("\n############################################################################\n")
 
 ###################################################################################################
