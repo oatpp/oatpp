@@ -46,10 +46,10 @@
     #define OATPP_IO_EVENT_INTERFACE "kqueue"
     #define OATPP_IO_EVENT_INTERFACE_KQUEUE
 
-  #elif defined(WIN32) || defined(_WIN32)
+  #else
 
-    #define OATPP_IO_EVENT_INTERFACE "not-implementer(windows)"
-    #define OATPP_IO_EVENT_INTERFACE_WIN
+    #define OATPP_IO_EVENT_INTERFACE "not-implemented(windows)"
+    #define OATPP_IO_EVENT_INTERFACE_STUB
 
   #endif
 

@@ -24,7 +24,7 @@
 
 #include "IOEventWorker.hpp"
 
-#ifdef OATPP_IO_EVENT_INTERFACE_WIN
+#ifdef OATPP_IO_EVENT_INTERFACE_STUB
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // windows based implementation
@@ -34,29 +34,29 @@
 namespace oatpp { namespace async { namespace worker {
 
 void IOEventWorker::initEventQueue() {
-  throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 void IOEventWorker::triggerWakeup() {
-  throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
-  throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr) {
-  throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 void IOEventWorker::consumeBacklog() {
-  throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 void IOEventWorker::waitEvents() {
-  throw std::runtime_error("[IOEventWorker for Windows OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 }}}
 
-#endif // #ifdef OATPP_IO_EVENT_INTERFACE_KQUEUE
+#endif // #ifdef OATPP_IO_EVENT_INTERFACE_STUB

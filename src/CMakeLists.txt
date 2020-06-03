@@ -39,7 +39,7 @@ add_library(oatpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
-        oatpp/core/async/worker/IOEventWorker_win.cpp
+        oatpp/core/async/worker/IOEventWorker_stub.cpp
         oatpp/core/async/worker/IOEventWorker.hpp
         oatpp/core/async/worker/IOWorker.cpp
         oatpp/core/async/worker/IOWorker.hpp
@@ -260,16 +260,20 @@ find_package(Threads REQUIRED)
 #######################################################################################################
 ## Link external libraries
 
+SET(OATPP_ADD_LINK_LIBS "")
+
 if(MSVC OR MINGW)
-        SET(ADD_LINK_LIBS wsock32 ws2_32)
+        SET(OATPP_ADD_LINK_LIBS wsock32 ws2_32)
 elseif(NOT APPLE AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
         if(OATPP_LINK_ATOMIC)
-                SET(ADD_LINK_LIBS atomic)
+                SET(OATPP_ADD_LINK_LIBS atomic)
         endif()
 endif()
 
+message("OATPP_ADD_LINK_LIBS=${OATPP_ADD_LINK_LIBS}")
+
 target_link_libraries(oatpp PUBLIC ${CMAKE_THREAD_LIBS_INIT}
-        ${ADD_LINK_LIBS}
+        ${OATPP_ADD_LINK_LIBS}
 )
 
 target_include_directories(oatpp PUBLIC
