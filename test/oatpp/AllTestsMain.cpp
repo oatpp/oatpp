@@ -67,7 +67,6 @@
 #include <iostream>
 #include <mutex>
 
-#ifdef OATPP_ENABLE_ALL_TESTS_MAIN
 namespace {
 
 void runTests() {
@@ -219,4 +218,4 @@ int main() {
   
   return 0;
 }
-#endif
+
