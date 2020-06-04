@@ -109,7 +109,4 @@ set_target_properties(oatppAllTests PROPERTIES
 
 target_include_directories(oatppAllTests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_definitions(oatppAllTests
-    PRIVATE OATPP_ENABLE_ALL_TESTS_MAIN
-)
 add_test(oatppAllTests oatppAllTests)

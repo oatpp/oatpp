@@ -45,7 +45,7 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
   // The below line compiles on Android but has not been tested.
   //result = sched_setaffinity(nativeHandle, sizeof(cpu_set_t), &cpuset);
 
-  #ifndef __ANDROID__
+  #if !defined(__ANDROID__) && !defined(OATPP_COMPAT_BUILD_NO_SET_AFFINITY)
 
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
