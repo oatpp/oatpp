@@ -359,4 +359,8 @@ void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOS
 
 }
 
+oatpp::v_io_handle SimpleTCPConnectionProvider::getHandler() {
+  return m_serverHandle;
+}
+
 }}}

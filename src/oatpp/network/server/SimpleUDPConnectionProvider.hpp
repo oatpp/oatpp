@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <oatpp@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,97 +23,59 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_server_SimpleTCPConnectionProvider_hpp
-#define oatpp_netword_server_SimpleTCPConnectionProvider_hpp
+#ifndef oatpp_netword_server_SimpleUDPConnectionProvider_hpp
+#define oatpp_netword_server_SimpleUDPConnectionProvider_hpp
 
 #include "oatpp/network/ConnectionProvider.hpp"
-#include "oatpp/network/Connection.hpp"
+#include "oatpp/network/BufferedUDPConnection.hpp"
 
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace server {
 
 /**
- * Simple provider of TCP connections.
+ * Simple provider of Buffered UDP connections.
  */
-class SimpleTCPConnectionProvider : public base::Countable, public ServerConnectionProvider {
-public:
+class SimpleUDPConnectionProvider : public base::Countable, public ServerConnectionProvider {
+ public:
 
-  /**
-   * Connection with extra data - ex.: peer address.
-   */
-  class ExtendedConnection : public oatpp::network::Connection {
-  public:
-
-    static const char* const PROPERTY_PEER_ADDRESS;
-    static const char* const PROPERTY_PEER_ADDRESS_FORMAT;
-    static const char* const PROPERTY_PEER_PORT;
-
-  protected:
-    data::stream::DefaultInitializedContext m_context;
-  public:
-
-    /**
-     * Constructor.
-     * @param handle - &id:oatpp::v_io_handle;.
-     * @param properties - &id:oatpp::data::stream::Context::Properties;.
-     */
-    ExtendedConnection(v_io_handle handle, data::stream::Context::Properties&& properties);
-
-    /**
-     * Get output stream context.
-     * @return - &id:oatpp::data::stream::Context;.
-     */
-    oatpp::data::stream::Context& getOutputStreamContext() override;
-
-    /**
-     * Get input stream context. <br>
-     * @return - &id:oatpp::data::stream::Context;.
-     */
-    oatpp::data::stream::Context& getInputStreamContext() override;
-
-  };
-
-private:
+ private:
   v_uint16 m_port;
   std::atomic<bool> m_closed;
   oatpp::v_io_handle m_serverHandle;
-  bool m_useExtendedConnections;
 
-private:
+ protected:
+  oatpp::v_io_handle getHandle();
+
+ private:
   oatpp::v_io_handle instantiateServer();
-  bool prepareConnectionHandle(oatpp::v_io_handle handle);
-  std::shared_ptr<IOStream> getDefaultConnection();
-  std::shared_ptr<IOStream> getExtendedConnection();
+  std::shared_ptr<IOStream> getUDPConnection();
 
-protected:
-  oatpp::v_io_handle getHandler();
-
-public:
+ public:
 
   /**
    * Constructor.
    * @param port - port to listen for incoming connections.
-   * @param useExtendedConnections - set `true` to use &l:SimpleTCPConnectionProvider::ExtendedConnection;.
+   * @param useExtendedConnections - set `true` to use &l:SimpleUDPConnectionProvider::ExtendedConnection;.
    * `false` to use &id:oatpp::network::Connection;.
    */
-  SimpleTCPConnectionProvider(v_uint16 port, bool useExtendedConnections = false);
-public:
+  SimpleUDPConnectionProvider(v_uint16 port);
+ public:
 
   /**
-   * Create shared SimpleTCPConnectionProvider.
+   * Create shared SimpleUDPConnectionProvider.
    * @param port - port to listen for incoming connections.
    * @param port
-   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
+   * @return - `std::shared_ptr` to SimpleUDPConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_uint16 port, bool useExtendedConnections = false){
-    return std::make_shared<SimpleTCPConnectionProvider>(port, useExtendedConnections);
+  static std::shared_ptr<SimpleUDPConnectionProvider> createShared(v_uint16 port){
+    return std::make_shared<SimpleUDPConnectionProvider>(port);
   }
 
   /**
    * Virtual destructor.
    */
-  ~SimpleTCPConnectionProvider();
+  ~SimpleUDPConnectionProvider();
 
   /**
    * Close accept-socket.
@@ -142,7 +105,7 @@ public:
      *
      *  It may be implemented later
      */
-    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
+    throw std::runtime_error("[oatpp::network::server::SimpleUDPConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
   }
 
   /**
@@ -159,9 +122,9 @@ public:
   v_uint16 getPort(){
     return m_port;
   }
-  
+
 };
-  
+
 }}}
 
-#endif /* oatpp_netword_server_SimpleTCPConnectionProvider_hpp */
+#endif /* oatpp_netword_server_SimpleUDPConnectionProvider_hpp */

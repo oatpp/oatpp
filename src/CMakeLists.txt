@@ -148,6 +148,8 @@ add_library(oatpp
         oatpp/network/server/Server.hpp
         oatpp/network/server/SimpleTCPConnectionProvider.cpp
         oatpp/network/server/SimpleTCPConnectionProvider.hpp
+        oatpp/network/server/SimpleUDPConnectionProvider.cpp
+        oatpp/network/server/SimpleUDPConnectionProvider.hpp
         oatpp/network/virtual_/Interface.cpp
         oatpp/network/virtual_/Interface.hpp
         oatpp/network/virtual_/Pipe.cpp
