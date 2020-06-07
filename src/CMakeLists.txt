@@ -128,6 +128,10 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
+        oatpp/network/BufferedConnection.cpp
+        oatpp/network/BufferedConnection.hpp
+        oatpp/network/BufferedUDPConnection.cpp
+        oatpp/network/BufferedUDPConnection.hpp
         oatpp/network/Connection.cpp
         oatpp/network/Connection.hpp
         oatpp/network/ConnectionPool.cpp
