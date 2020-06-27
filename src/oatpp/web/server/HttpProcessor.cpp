@@ -125,19 +125,19 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   } catch (oatpp::web::protocol::http::HttpError& error) {
 
-    auto response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    auto response1 = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+    response1->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
     return false;
 
   } catch (std::exception& error) {
 
-    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    auto response1 = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+    response1->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
     return false;
 
   } catch (...) {
-    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    auto response1 = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+    response1->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
     return false;
   }
 

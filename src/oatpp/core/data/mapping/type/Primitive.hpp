@@ -131,7 +131,7 @@ public:
   inline bool operator == (const char* str) const {
     if(!m_ptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_ptr->getSize() != std::strlen(str)) return false;
+    if(m_ptr->getSize() != v_buff_size(std::strlen(str))) return false;
     return base::StrBuffer::equals(m_ptr->getData(), str, m_ptr->getSize());
   }
 

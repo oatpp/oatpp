@@ -133,6 +133,7 @@ private:
     if(caret.isAtText("null", true)){
       return oatpp::Void(T::Class::getType());
     } else {
+      //TODO: the below gives warning C4244: 'argument': conversion from 'v_int64' to 'TValueType', possible loss of data
       return T(caret.parseInt());
     }
 
@@ -147,6 +148,7 @@ private:
     if(caret.isAtText("null", true)){
       return oatpp::Void(T::Class::getType());
     } else {
+      //TODO: the below gives warning C4244: 'argument': conversion from 'v_uint64' to 'TValueType', possible loss of data
       return T(caret.parseUnsignedInt());
     }
 

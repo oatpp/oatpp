@@ -126,7 +126,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
       res = p->iterate(*currDataIn, *currDataOut);
     }
 
-    const v_int32 numOfProcessors = m_processors.size();
+    const v_int32 numOfProcessors = v_int32(m_processors.size());
 
     switch (res) {
       case Error::PROVIDE_DATA_IN:

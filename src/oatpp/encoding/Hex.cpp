@@ -103,7 +103,7 @@ void Hex::writeUInt16(v_uint16 value, p_char8 buffer){
   
 void Hex::writeUInt32(v_uint32 value, p_char8 buffer){
   writeUInt16(value >> 16, buffer);
-  writeUInt16(value, buffer + 4);
+  writeUInt16(v_uint16(value), buffer + 4);
 }
   
 v_int32 Hex::readUInt16(p_char8 buffer, v_uint16& value) {

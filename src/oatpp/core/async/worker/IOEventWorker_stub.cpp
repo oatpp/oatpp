@@ -42,10 +42,14 @@ void IOEventWorker::triggerWakeup() {
 }
 
 void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
+  (void)eventPtr;
   throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
 void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation, p_char8 eventPtr) {
+  (void)eventPtr;
+  (void)coroutine;
+  (void)operation;
   throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 

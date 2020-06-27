@@ -362,7 +362,8 @@ v_io_size FIFOBuffer::flushToStream(data::stream::OutputStream* stream) {
   if(m_readPosition < m_writePosition) {
     result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_writePosition - m_readPosition);
   } else {
-    auto result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_bufferSize - m_readPosition);
+    //TODO: what was the original intent here? The statement before my fix had no effect on the result returned
+    result = stream->writeExactSizeDataSimple(&m_buffer[m_readPosition], m_bufferSize - m_readPosition);
     result += stream->writeExactSizeDataSimple(m_buffer, m_writePosition);
   }
 

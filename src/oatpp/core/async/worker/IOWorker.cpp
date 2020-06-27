@@ -78,8 +78,11 @@ void IOWorker::run() {
   v_int32 consumeIteration = 0;
   v_int32 roundIteration = 0;
 
-  std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-  v_int64 tick = ms.count();
+  v_int64 tick;
+  {
+    std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    tick = ms.count();
+  }
 
   while(m_running) {
 

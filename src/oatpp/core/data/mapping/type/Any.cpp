@@ -38,7 +38,10 @@ Any::Any(std::nullptr_t) : Any() {}
 
 Any::Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type)
   : ObjectWrapper(handle, __class::Any::getType())
-{}
+{
+  //TODO: is there indeed no use for |type| parameter passed above?
+  (void)type;
+}
 
 Any::Any(const Any& other)
   : ObjectWrapper(std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type), __class::Any::getType())
