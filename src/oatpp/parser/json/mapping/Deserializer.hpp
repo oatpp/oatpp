@@ -136,7 +136,7 @@ private:
       //TODO: shall we handle overflow cases like
       // oatpp::String json = "128";
       // auto value = jsonObjectMapper->readFromString<oatpp::Int8>(json); // UInt8 will overflow to -128
-      return T(static_cast<T::UnderlyingType>(caret.parseInt()));
+      return T(static_cast<typename T::UnderlyingType>(caret.parseInt()));
     }
 
   }
@@ -153,7 +153,7 @@ private:
       //TODO: shall we handle overflow cases like
       // oatpp::String json = "256";
       // auto value = jsonObjectMapper->readFromString<oatpp::UInt8>(json); // UInt8 will overflow to 0
-      return T(static_cast<T::UnderlyingType>(caret.parseUnsignedInt()));
+      return T(static_cast<typename T::UnderlyingType>(caret.parseUnsignedInt()));
     }
 
   }
