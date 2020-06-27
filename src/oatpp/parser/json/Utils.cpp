@@ -174,7 +174,7 @@ v_buff_size Utils::escapeUtf8Char(p_char8 sequence, p_char8 buffer){
   if(code < 0x00010000) {
     buffer[0] = '\\';
     buffer[1] = 'u';
-    oatpp::encoding::Hex::writeUInt16(code, &buffer[2]);
+    oatpp::encoding::Hex::writeUInt16(v_uint16(code), &buffer[2]);
     return 6;
   } else if(code < 0x00200000) {
     v_int16 high;
@@ -203,52 +203,65 @@ oatpp::String Utils::escapeString(p_char8 data, v_buff_size size, bool copyAsOwn
     return String((const char*)data, size, copyAsOwnData);
   }
   auto result = String(escapedSize);
-  v_buff_size i = 0;
   p_char8 resultData = result->getData();
   v_buff_size pos = 0;
-  
-  while (i < safeSize) {
-    v_char8 a = data[i];
-    if(a < 32) {
-      if(a == '\b'){
-        resultData[pos] = '\\'; resultData[pos + 1] = 'b'; pos += 2;
-      } else if(a == '\f'){
-        resultData[pos] = '\\'; resultData[pos + 1] = 'f'; pos += 2;
-      } else if(a == '\n'){
-        resultData[pos] = '\\'; resultData[pos + 1] = 'n'; pos += 2;
-      } else if(a == '\r'){
-        resultData[pos] = '\\'; resultData[pos + 1] = 'r'; pos += 2;
-      } else if(a == '\t'){
-        resultData[pos] = '\\'; resultData[pos + 1] = 't'; pos += 2;
-      } else {
-        resultData[pos] = '\\';
-        resultData[pos + 1] = 'u';
-        oatpp::encoding::Hex::writeUInt16(a, &resultData[pos + 2]);
-        pos += 6;
+
+  {
+    v_buff_size i = 0;
+    while (i < safeSize) {
+      v_char8 a = data[i];
+      if (a < 32) {
+        if (a == '\b') {
+          resultData[pos] = '\\'; resultData[pos + 1] = 'b'; pos += 2;
+        }
+        else if (a == '\f') {
+          resultData[pos] = '\\'; resultData[pos + 1] = 'f'; pos += 2;
+        }
+        else if (a == '\n') {
+          resultData[pos] = '\\'; resultData[pos + 1] = 'n'; pos += 2;
+        }
+        else if (a == '\r') {
+          resultData[pos] = '\\'; resultData[pos + 1] = 'r'; pos += 2;
+        }
+        else if (a == '\t') {
+          resultData[pos] = '\\'; resultData[pos + 1] = 't'; pos += 2;
+        }
+        else {
+          resultData[pos] = '\\';
+          resultData[pos + 1] = 'u';
+          oatpp::encoding::Hex::writeUInt16(a, &resultData[pos + 2]);
+          pos += 6;
+        }
+        i++;
       }
-      i ++;
-    } else if(a < 128){
-      if(a == '\"'){
-        resultData[pos] = '\\'; resultData[pos + 1] = '"'; pos += 2;
-      } else if(a == '\\'){
-        resultData[pos] = '\\'; resultData[pos + 1] = '\\'; pos += 2;
-      } else if(a == '/'){
-        resultData[pos] = '\\'; resultData[pos + 1] = '/'; pos += 2;
-      } else {
-        resultData[pos] = data[i];
-        pos ++;
+      else if (a < 128) {
+        if (a == '\"') {
+          resultData[pos] = '\\'; resultData[pos + 1] = '"'; pos += 2;
+        }
+        else if (a == '\\') {
+          resultData[pos] = '\\'; resultData[pos + 1] = '\\'; pos += 2;
+        }
+        else if (a == '/') {
+          resultData[pos] = '\\'; resultData[pos + 1] = '/'; pos += 2;
+        }
+        else {
+          resultData[pos] = data[i];
+          pos++;
+        }
+        i++;
       }
-      i ++;
-    } else {
-      v_buff_size charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
-      if(charSize != 0) {
-        pos += escapeUtf8Char(&data[i], &resultData[pos]);
-        i += charSize;
-      } else {
-        // invalid char
-        resultData[pos] = data[i];
-        i ++;
-        pos ++;
+      else {
+        v_buff_size charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
+        if (charSize != 0) {
+          pos += escapeUtf8Char(&data[i], &resultData[pos]);
+          i += charSize;
+        }
+        else {
+          // invalid char
+          resultData[pos] = data[i];
+          i++;
+          pos++;
+        }
       }
     }
   }

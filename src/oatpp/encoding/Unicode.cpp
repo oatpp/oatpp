@@ -74,7 +74,6 @@ v_buff_size Unicode::getUtf8CharSequenceLengthForCode(v_uint32 code){
   } else {
     return 6;
   }
-  return 1;
 }
   
 v_int32 Unicode::encodeUtf8Char(p_char8 sequence, v_buff_size& length){
@@ -148,7 +147,7 @@ v_buff_size Unicode::decodeUtf8Char(v_int32 code, p_char8 buffer) {
     *((p_int16) &buffer[4]) = htons(((((code >> 6 ) & 63) | 128) << 8) | (code & 63));
     return 6;
   }
-  buffer[0] = code;
+  buffer[0] = v_char8(code);
   return 1;
 }
   

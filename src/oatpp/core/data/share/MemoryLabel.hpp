@@ -187,7 +187,7 @@ public:
   inline bool operator==(const char* str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_size != std::strlen(str)) return false;
+    if(m_size != v_buff_size(std::strlen(str))) return false;
     return base::StrBuffer::equals(m_data, str, m_size);
   }
 
@@ -241,7 +241,7 @@ public:
   inline bool operator==(const char* str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_size != std::strlen(str)) return false;
+    if(m_size != v_buff_size(std::strlen(str))) return false;
     return base::StrBuffer::equalsCI(m_data, str, m_size);
   }
 
@@ -297,7 +297,7 @@ public:
   inline bool operator==(const char* str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_size != std::strlen(str)) return false;
+    if(m_size != v_buff_size(std::strlen(str))) return false;
     return base::StrBuffer::equalsCI_FAST(m_data, str, m_size);
   }
 

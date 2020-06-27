@@ -38,7 +38,12 @@ Any::Any(std::nullptr_t) : Any() {}
 
 Any::Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type)
   : ObjectWrapper(handle, __class::Any::getType())
-{}
+{
+  // As an ObjectWrapper, Any must have this constructor. It is used in ObjectWrapper.staticCast<T>(...) method.
+  // However, unlike other ObjectWrappers Any won't change its valueType.
+  // Any is always object wrapper above AnyHandler.
+  (void)type;
+}
 
 Any::Any(const Any& other)
   : ObjectWrapper(std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type), __class::Any::getType())

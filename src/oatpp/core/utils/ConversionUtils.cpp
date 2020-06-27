@@ -148,7 +148,7 @@ namespace oatpp { namespace utils { namespace conversion {
   
   std::string int64ToStdStr(v_int64 value){
     v_char8 buff [32];
-    v_int32 size = int64ToCharSequence(value, &buff[0], 32);
+    v_int32 size = v_int32(int64ToCharSequence(value, &buff[0], 32));
     if(size > 0){
       return std::string((const char*)buff, size);
     }

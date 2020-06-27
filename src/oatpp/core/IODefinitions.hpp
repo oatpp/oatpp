@@ -28,6 +28,10 @@
 #include "oatpp/core/async/Error.hpp"
 #include "oatpp/core/Types.hpp"
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WinSock2.h>
+#endif // defined(WIN32) || defined(_WIN32)
+
 namespace oatpp {
 
 /**
@@ -39,8 +43,10 @@ namespace oatpp {
 	#else
 	  typedef unsigned long v_io_handle;
 	#endif
+    constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle(INVALID_SOCKET);
 #else
   typedef int v_io_handle;
+  constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle (-1);
 #endif
 
 /**
