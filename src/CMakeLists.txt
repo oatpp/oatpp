@@ -101,6 +101,8 @@ add_library(oatpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
+        oatpp/core/data/share/StringTemplate.cpp
+        oatpp/core/data/share/StringTemplate.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
@@ -164,6 +166,10 @@ add_library(oatpp
         oatpp/parser/json/mapping/ObjectMapper.hpp
         oatpp/parser/json/mapping/Serializer.cpp
         oatpp/parser/json/mapping/Serializer.hpp
+        oatpp/ql/Client.cpp
+        oatpp/ql/Client.hpp
+        oatpp/ql/Executor.cpp
+        oatpp/ql/Executor.hpp
         oatpp/web/client/ApiClient.cpp
         oatpp/web/client/ApiClient.hpp
         oatpp/web/client/HttpRequestExecutor.cpp

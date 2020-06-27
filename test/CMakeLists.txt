@@ -41,6 +41,8 @@ add_executable(oatppAllTests
         oatpp/core/data/share/LazyStringMapTest.hpp
         oatpp/core/data/share/MemoryLabelTest.cpp
         oatpp/core/data/share/MemoryLabelTest.hpp
+        oatpp/core/data/share/StringTemplateTest.cpp
+        oatpp/core/data/share/StringTemplateTest.hpp
         oatpp/core/data/stream/BufferStreamTest.cpp
         oatpp/core/data/stream/BufferStreamTest.hpp
         oatpp/core/data/stream/ChunkedBufferTest.cpp
