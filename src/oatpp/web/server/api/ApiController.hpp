@@ -485,8 +485,8 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::Int8> {
   static oatpp::Int8 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: the below gives warning C4244: 'argument': conversion from 'v_int32' to 'TValueType', possible loss of data
-    return utils::conversion::strToInt32(text, success);
+    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
+    return static_cast<Int8::UnderlyingType>(utils::conversion::strToInt32(text, success));
   }
 };
 
@@ -494,8 +494,8 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::UInt8> {
   static oatpp::UInt8 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: the below gives 'argument': conversion from 'v_uint32' to 'TValueType', possible loss of data
-    return utils::conversion::strToUInt32(text, success);
+    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
+    return static_cast<UInt8::UnderlyingType>(utils::conversion::strToUInt32(text, success));
   }
 };
 
@@ -503,8 +503,8 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::Int16> {
   static oatpp::Int16 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: the below gives warning C4244: 'argument': conversion from 'v_int32' to 'TValueType', possible loss of data
-    return utils::conversion::strToInt32(text, success);
+    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
+    return static_cast<Int16::UnderlyingType>(utils::conversion::strToInt32(text, success));
   }
 };
 
@@ -512,8 +512,8 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::UInt16> {
   static oatpp::UInt16 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: the below gives 'argument': conversion from 'v_uint32' to 'TValueType', possible loss of data
-    return utils::conversion::strToUInt32(text, success);
+    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
+    return static_cast<UInt16::UnderlyingType>(utils::conversion::strToUInt32(text, success));
   }
 };
 

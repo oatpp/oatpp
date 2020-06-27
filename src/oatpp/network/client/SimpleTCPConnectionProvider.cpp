@@ -75,7 +75,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   }
 
   struct addrinfo* currResult = result;
-  oatpp::v_io_handle clientHandle = oatpp::v_io_handle(-1);
+  oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
 
   while(currResult != nullptr) {
 
