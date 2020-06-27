@@ -24,6 +24,10 @@
 
 #include "IODefinitions.hpp"
 
+#if defined(WIN32) || defined(_WIN32)
+  #include <WinSock2.h>
+#endif
+
 namespace oatpp {
 
 bool isValidIOHandle(v_io_handle handle) {
