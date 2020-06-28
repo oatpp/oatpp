@@ -31,8 +31,6 @@
 
 #include <unordered_map>
 
-#undef interface
-
 namespace oatpp { namespace network { namespace virtual_ {
 
 /**
