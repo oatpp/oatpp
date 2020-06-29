@@ -318,7 +318,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
   while(!m_closed) {
 
-    auto res = select(m_serverHandle + 1, &set, nullptr, nullptr, &timeout);
+    auto res = select(int(m_serverHandle + 1), &set, nullptr, nullptr, &timeout);
 
     if (res >= 0) {
       break;

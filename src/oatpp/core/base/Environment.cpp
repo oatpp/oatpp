@@ -168,19 +168,19 @@ void Environment::destroy(){
 
 void Environment::checkTypes(){
 
-  OATPP_ASSERT(sizeof(v_char8) == 1);
-  OATPP_ASSERT(sizeof(v_int16) == 2);
-  OATPP_ASSERT(sizeof(v_uint16) == 2);
-  OATPP_ASSERT(sizeof(v_int32) == 4);
-  OATPP_ASSERT(sizeof(v_int64) == 8);
-  OATPP_ASSERT(sizeof(v_uint32) == 4);
-  OATPP_ASSERT(sizeof(v_uint64) == 8);
-  OATPP_ASSERT(sizeof(v_float64) == 8);
+  static_assert(sizeof(v_char8) == 1, "");
+  static_assert(sizeof(v_int16) == 2, "");
+  static_assert(sizeof(v_uint16) == 2, "");
+  static_assert(sizeof(v_int32) == 4, "");
+  static_assert(sizeof(v_int64) == 8, "");
+  static_assert(sizeof(v_uint32) == 4, "");
+  static_assert(sizeof(v_uint64) == 8, "");
+  static_assert(sizeof(v_float64) == 8, "");
 
-  v_int32 vInt32 = ~1;
-  v_int64 vInt64 = ~1;
-  v_uint32 vUInt32 = ~1;
-  v_uint64 vUInt64 = ~1;
+  v_int32 vInt32 = ~v_int32(1);
+  v_int64 vInt64 = ~v_int64(1);
+  v_uint32 vUInt32 = ~v_uint32(1);
+  v_uint64 vUInt64 = ~v_uint64(1);
 
   OATPP_ASSERT(vInt32 < 0);
   OATPP_ASSERT(vInt64 < 0);

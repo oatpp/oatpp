@@ -133,7 +133,10 @@ private:
     if(caret.isAtText("null", true)){
       return oatpp::Void(T::Class::getType());
     } else {
-      return T(caret.parseInt());
+      //TODO: shall we handle overflow cases like
+      // oatpp::String json = "128";
+      // auto value = jsonObjectMapper->readFromString<oatpp::Int8>(json); // UInt8 will overflow to -128
+      return T(static_cast<typename T::UnderlyingType>(caret.parseInt()));
     }
 
   }
@@ -147,7 +150,10 @@ private:
     if(caret.isAtText("null", true)){
       return oatpp::Void(T::Class::getType());
     } else {
-      return T(caret.parseUnsignedInt());
+      //TODO: shall we handle overflow cases like
+      // oatpp::String json = "256";
+      // auto value = jsonObjectMapper->readFromString<oatpp::UInt8>(json); // UInt8 will overflow to 0
+      return T(static_cast<typename T::UnderlyingType>(caret.parseUnsignedInt()));
     }
 
   }

@@ -213,6 +213,7 @@ oatpp::Void Deserializer::deserializeString(Deserializer* deserializer, parser::
 }
 
 const data::mapping::type::Type* Deserializer::guessNumberType(oatpp::parser::Caret& caret) {
+  (void)caret;
   return Float64::Class::getType();
 }
 
