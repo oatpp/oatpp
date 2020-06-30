@@ -22,15 +22,9 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_ql_Executor_hpp
-#define oatpp_ql_Executor_hpp
+#include "QueryResult.hpp"
 
-namespace oatpp { namespace ql {
+namespace oatpp { namespace db {
 
-class Executor {
-
-};
 
 }}
-
-#endif // oatpp_ql_Executor_hpp

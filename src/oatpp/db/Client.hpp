@@ -22,8 +22,47 @@
  *
  ***************************************************************************/
 
+#ifndef oatpp_db_Client_hpp
+#define oatpp_db_Client_hpp
+
 #include "Executor.hpp"
 
-namespace oatpp { namespace ql {
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
+
+namespace oatpp { namespace db {
+
+class Client {
+private:
+  std::shared_ptr<Executor> m_executor;
+public:
+
+  Client(const std::shared_ptr<Executor>& executor);
+  virtual ~Client() = default;
+
+//  QUERY(getUserById,
+//        "SELECT * FROM user WHERE userId=:userId",
+//        PARAM(String, userId))
+//
+//  QUERY(deleteUserById,
+//        "DELETE FROM user WHERE userId=:userId",
+//        PARAM(String, userId))
+
+  oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_getUserById =
+    m_executor->parseQueryTemplate("SELECT * FROM user WHERE userId=:userId");
+
+  oatpp::db::QueryResult getUserById(const oatpp::String& userId) {
+    std::unordered_map<oatpp::String, oatpp::Any> __params;
+    __params["userId"] = userId;
+    return m_executor->execute(Z_QUERY_TEMPLATE_getUserById, __params);
+  }
+
+
+
+};
 
 }}
+
+#endif // oatpp_db_Client_hpp

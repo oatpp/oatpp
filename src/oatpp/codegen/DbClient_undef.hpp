@@ -22,14 +22,3 @@
  *
  ***************************************************************************/
 
-#include "Client.hpp"
-
-#include "oatpp/core/data/stream/BufferStream.hpp"
-
-namespace oatpp { namespace ql {
-
-Client::Client(const std::shared_ptr<Executor>& executor)
-  : m_executor(executor)
-{}
-
-}}

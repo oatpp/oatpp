@@ -5,6 +5,8 @@
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp
+        oatpp/codegen/ApiClient_define.hpp
+        oatpp/codegen/ApiClient_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
@@ -13,8 +15,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
         oatpp/codegen/ApiController_undef.hpp
-        oatpp/codegen/ApiClient_define.hpp
-        oatpp/codegen/ApiClient_undef.hpp
+        oatpp/codegen/DbClient_define.hpp
+        oatpp/codegen/DbClient_undef.hpp
         oatpp/codegen/dto/base_define.hpp
         oatpp/codegen/dto/base_undef.hpp
         oatpp/codegen/dto/enum_define.hpp
@@ -124,6 +126,12 @@ add_library(oatpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/core/utils/Random.cpp
         oatpp/core/utils/Random.hpp
+        oatpp/db/Client.cpp
+        oatpp/db/Client.hpp
+        oatpp/db/Executor.cpp
+        oatpp/db/Executor.hpp
+        oatpp/db/QueryResult.cpp
+        oatpp/db/QueryResult.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
@@ -166,10 +174,6 @@ add_library(oatpp
         oatpp/parser/json/mapping/ObjectMapper.hpp
         oatpp/parser/json/mapping/Serializer.cpp
         oatpp/parser/json/mapping/Serializer.hpp
-        oatpp/ql/Client.cpp
-        oatpp/ql/Client.hpp
-        oatpp/ql/Executor.cpp
-        oatpp/ql/Executor.hpp
         oatpp/web/client/ApiClient.cpp
         oatpp/web/client/ApiClient.hpp
         oatpp/web/client/HttpRequestExecutor.cpp
