@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <oatpp@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,27 +93,27 @@ public:
   /**
    * Log priority V-verbouse.
    */
-  static constexpr v_int32 PRIORITY_V = 0;
+  static constexpr v_uint32 PRIORITY_V = (1 << 0);
 
   /**
    * Log priority D-debug.
    */
-  static constexpr v_int32 PRIORITY_D = 1;
+  static constexpr v_uint32 PRIORITY_D = (1 << 1);
 
   /**
    * Log priority I-Info.
    */
-  static constexpr v_int32 PRIORITY_I = 2;
+  static constexpr v_uint32 PRIORITY_I = (1 << 2);
 
   /**
    * Log priority W-Warning.
    */
-  static constexpr v_int32 PRIORITY_W = 3;
+  static constexpr v_uint32 PRIORITY_W = (1 << 3);
 
   /**
    * Log priority E-error.
    */
-  static constexpr v_int32 PRIORITY_E = 4;
+  static constexpr v_uint32 PRIORITY_E = (1 << 4);
 public:
   /**
    * Virtual Destructor.
@@ -125,7 +126,7 @@ public:
    * @param tag - tag of the log message.
    * @param message - message.
    */
-  virtual void log(v_int32 priority, const std::string& tag, const std::string& message) = 0;
+  virtual void log(v_uint32 priority, const std::string& tag, const std::string& message) = 0;
 };
 
 /**
@@ -143,9 +144,10 @@ public:
      * @param tfmt - time format.
      * @param printMicroTicks - show ticks in microseconds.
      */
-    Config(const char* tfmt, bool printMicroTicks)
+    Config(const char* tfmt, bool printMicroTicks, v_uint32 initialLogMask)
       : timeFormat(tfmt)
       , printTicks(printMicroTicks)
+      , logMask(initialLogMask)
     {}
 
     /**
@@ -158,6 +160,11 @@ public:
      * Print micro-ticks in the log message.
      */
     bool printTicks;
+
+    /**
+     * Log mask to enable/disable certain priorities
+     */
+    v_uint32 logMask;
   };
 private:
   Config m_config;
@@ -168,7 +175,11 @@ public:
    * Constructor.
    * @param config - Logger config.
    */
-  DefaultLogger(const Config& config = Config("%Y-%m-%d %H:%M:%S", true));
+  DefaultLogger(const Config& config = Config(
+          "%Y-%m-%d %H:%M:%S",
+          true,
+          PRIORITY_V | PRIORITY_D | PRIORITY_I | PRIORITY_W | PRIORITY_E
+          ));
 
   /**
    * Log message with priority, tag, message.
@@ -176,7 +187,19 @@ public:
    * @param tag - tag of the log message.
    * @param message - message.
    */
-  void log(v_int32 priority, const std::string& tag, const std::string& message) override;
+  void log(v_uint32 priority, const std::string& tag, const std::string& message) override;
+
+  /**
+   * Enables logging of one or multiple priorities for this instance
+   * @param priorities - the priority levels to enable
+   */
+  void enablePriority(v_uint32 priorities);
+
+  /**
+   * Disables logging of one or multiple priorities for this instance
+   * @param priorities - the priority levels to disable
+   */
+  void disablePriority(v_uint32 priorities);
 };
 
 /**
@@ -314,6 +337,12 @@ public:
    * @param logger - system-wide logger.
    */
   static void setLogger(const std::shared_ptr<Logger>& logger);
+
+  /**
+   * Gets the current environment logger
+   * @return - current logger
+   */
+  static std::shared_ptr<Logger> getLogger();
 
   /**
    * Print debug information of compilation config.<br>

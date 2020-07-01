@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <oatpp@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +58,11 @@ DefaultLogger::DefaultLogger(const Config& config)
   : m_config(config)
 {}
 
-void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::string& message) {
+void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::string& message) {
+
+  if (!(m_config.logMask & priority)) {
+    return;
+  }
 
   bool indent = false;
   auto time = std::chrono::system_clock::now().time_since_epoch();
@@ -89,7 +94,7 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
       std::cout << " " << priority << " |";
   }
 
-  if(m_config.timeFormat) {
+  if (m_config.timeFormat) {
 	time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
     struct tm now;
     localtime_r(&seconds, &now);
@@ -103,7 +108,7 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
     indent = true;
   }
 
-  if(m_config.printTicks) {
+  if (m_config.printTicks) {
     auto ticks = std::chrono::duration_cast<std::chrono::microseconds>(time).count();
     if(indent) {
       std::cout << " ";
@@ -117,6 +122,14 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
   }
   std::cout << " " << tag << ":" << message << std::endl;
 
+}
+
+void DefaultLogger::enablePriority(v_uint32 priorities) {
+  m_config.logMask |= priorities;
+}
+
+void DefaultLogger::disablePriority(v_uint32 priorities) {
+  m_config.logMask &= ~priorities;
 }
 
 
@@ -237,6 +250,10 @@ v_counter Environment::getThreadLocalObjectsCreated(){
 
 void Environment::setLogger(const std::shared_ptr<Logger>& logger){
   m_logger = logger;
+}
+
+std::shared_ptr<Logger> Environment::getLogger() {
+  return m_logger;
 }
 
 void Environment::printCompilationConfig() {

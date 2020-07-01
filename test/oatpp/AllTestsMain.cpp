@@ -57,6 +57,7 @@
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/core/base/memory/PerfTest.hpp"
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
+#include "oatpp/core/base/LoggerTest.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
@@ -77,6 +78,7 @@ void runTests() {
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
 
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
+  OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
