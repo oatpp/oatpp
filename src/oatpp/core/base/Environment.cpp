@@ -113,10 +113,15 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
     indent = true;
   }
 
-  if(indent) {
+  if (indent) {
     std::cout << "|";
   }
-  std::cout << " " << tag << ":" << message << std::endl;
+
+  if (message.empty()) {
+    std::cout << " " << tag << std::endl;
+  } else {
+    std::cout << " " << tag << ":" << message << std::endl;
+  }
 
 }
 
@@ -295,7 +300,7 @@ void Environment::logFormatted(v_int32 priority, const std::string& tag, const c
   }
   // if we dont need to format anything, just print the message
   if(message == nullptr) {
-    log(priority, tag, "[null]");
+    log(priority, tag, std::string());
     return;
   }
   // check how big our buffer has to be
