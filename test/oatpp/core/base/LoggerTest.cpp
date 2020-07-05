@@ -37,8 +37,8 @@ void LoggerTest::onRun() {
   OATPP_LOGW("LoggerTest", "Warning Log");
   OATPP_LOGE("LoggerTest", "Error Log");
 
-  OATPP_LOGV("LoggerTest", "Disabling Debug and Info Log");
-  logger->disablePriority(oatpp::base::DefaultLogger::PRIORITY_D | oatpp::base::DefaultLogger::PRIORITY_I);
+  OATPP_LOGV("LoggerTest", "Disabling Debug Log");
+  logger->disablePriority(oatpp::base::DefaultLogger::PRIORITY_D);
 
   OATPP_LOGV("LoggerTest", "Verbose Log");
   OATPP_LOGD("LoggerTest", "Debug Log");
@@ -46,8 +46,8 @@ void LoggerTest::onRun() {
   OATPP_LOGW("LoggerTest", "Warning Log");
   OATPP_LOGE("LoggerTest", "Error Log");
 
-  OATPP_LOGV("LoggerTest", "Enabling Debug and Info Log again");
-  logger->enablePriority(oatpp::base::DefaultLogger::PRIORITY_D | oatpp::base::DefaultLogger::PRIORITY_I);
+  OATPP_LOGV("LoggerTest", "Enabling Debug Log again");
+  logger->enablePriority(oatpp::base::DefaultLogger::PRIORITY_D);
 
   OATPP_LOGV("LoggerTest", "Verbose Log");
   OATPP_LOGD("LoggerTest", "Debug Log");

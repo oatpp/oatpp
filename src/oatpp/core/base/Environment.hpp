@@ -93,27 +93,27 @@ public:
   /**
    * Log priority V-verbouse.
    */
-  static constexpr v_uint32 PRIORITY_V = (1 << 0);
+  static constexpr v_uint32 PRIORITY_V = 0;
 
   /**
    * Log priority D-debug.
    */
-  static constexpr v_uint32 PRIORITY_D = (1 << 1);
+  static constexpr v_uint32 PRIORITY_D = 1;
 
   /**
    * Log priority I-Info.
    */
-  static constexpr v_uint32 PRIORITY_I = (1 << 2);
+  static constexpr v_uint32 PRIORITY_I = 2;
 
   /**
    * Log priority W-Warning.
    */
-  static constexpr v_uint32 PRIORITY_W = (1 << 3);
+  static constexpr v_uint32 PRIORITY_W = 3;
 
   /**
    * Log priority E-error.
    */
-  static constexpr v_uint32 PRIORITY_E = (1 << 4);
+  static constexpr v_uint32 PRIORITY_E = 4;
 public:
   /**
    * Virtual Destructor.
@@ -127,6 +127,23 @@ public:
    * @param message - message.
    */
   virtual void log(v_uint32 priority, const std::string& tag, const std::string& message) = 0;
+
+  /**
+   * Returns wether or not a priority should be logged/printed
+   * @param priority
+   * @return - true if given priority should be logged
+   */
+  virtual bool isLogPriorityEnabled(v_uint32 priority) {
+    return true;
+  }
+
+  /**
+   * Should return the maximum amount of bytes that should be allocated for a single log message
+   * @return - maximum buffer size
+   */
+  virtual v_buff_size getMaxFormattingBufferSize() {
+    return 4096;
+  }
 };
 
 /**
@@ -178,7 +195,7 @@ public:
   DefaultLogger(const Config& config = Config(
           "%Y-%m-%d %H:%M:%S",
           true,
-          PRIORITY_V | PRIORITY_D | PRIORITY_I | PRIORITY_W | PRIORITY_E
+          (1 << PRIORITY_V) | (1 << PRIORITY_D) | (1 << PRIORITY_I) | (1 << PRIORITY_W) | (1 << PRIORITY_E)
           ));
 
   /**
@@ -190,16 +207,23 @@ public:
   void log(v_uint32 priority, const std::string& tag, const std::string& message) override;
 
   /**
-   * Enables logging of one or multiple priorities for this instance
-   * @param priorities - the priority levels to enable
+   * Enables logging of a priorities for this instance
+   * @param priority - the priority level to enable
    */
-  void enablePriority(v_uint32 priorities);
+  void enablePriority(v_uint32 priority);
 
   /**
-   * Disables logging of one or multiple priorities for this instance
-   * @param priorities - the priority levels to disable
+   * Disables logging of a priority for this instance
+   * @param priority - the priority level to disable
    */
-  void disablePriority(v_uint32 priorities);
+  void disablePriority(v_uint32 priority);
+
+  /**
+   * Returns wether or not a priority should be logged/printed
+   * @param priority
+   * @return - true if given priority should be logged
+   */
+  bool isLogPriorityEnabled(v_uint32 priority) override;
 };
 
 /**

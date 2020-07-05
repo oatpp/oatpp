@@ -60,10 +60,6 @@ DefaultLogger::DefaultLogger(const Config& config)
 
 void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::string& message) {
 
-  if (!(m_config.logMask & priority)) {
-    return;
-  }
-
   bool indent = false;
   auto time = std::chrono::system_clock::now().time_since_epoch();
 
@@ -124,14 +120,20 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 
 }
 
-void DefaultLogger::enablePriority(v_uint32 priorities) {
-  m_config.logMask |= priorities;
+void DefaultLogger::enablePriority(v_uint32 priority) {
+  m_config.logMask |= (1 << priority);
 }
 
-void DefaultLogger::disablePriority(v_uint32 priorities) {
-  m_config.logMask &= ~priorities;
+void DefaultLogger::disablePriority(v_uint32 priority) {
+  m_config.logMask &= ~(1 << priority);
 }
 
+bool DefaultLogger::isLogPriorityEnabled(v_uint32 priority) {
+  if (priority > PRIORITY_E) {
+    return true;
+  }
+  return m_config.logMask & (1 << priority);
+}
 
 void Environment::init() {
   init(std::make_shared<DefaultLogger>());
@@ -287,15 +289,34 @@ void Environment::log(v_int32 priority, const std::string& tag, const std::strin
 }
 
 void Environment::logFormatted(v_int32 priority, const std::string& tag, const char* message, ...) {
-  if(message == nullptr) {
-    message = "[null]";
+  // do we have a logger and the priority is enabled?
+  if (m_logger == nullptr || !m_logger->isLogPriorityEnabled(priority)) {
+    return;
   }
-  char buffer[4097];
+  // if we dont need to format anything, just print the message
+  if(message == nullptr) {
+    log(priority, tag, "[null]");
+    return;
+  }
+  // check how big our buffer has to be
   va_list args;
-  va_start (args, message);
-  vsnprintf(buffer, 4096, message, args);
-  log(priority, tag, buffer);
+  va_start(args, message);
+  v_buff_size allocsize = vsnprintf(nullptr, 0, message, args) + 1;
   va_end(args);
+  // alloc the buffer (or the max size)
+  if (allocsize > m_logger->getMaxFormattingBufferSize()) {
+    allocsize = m_logger->getMaxFormattingBufferSize();
+  }
+  char* buffer = new char[allocsize];
+  memset(buffer, 0, allocsize);
+  // actually format
+  va_start(args, message);
+  vsnprintf(buffer, allocsize, message, args);
+  // call (user) providen log function
+  log(priority, tag, buffer);
+  // cleanup
+  va_end(args);
+  delete[] buffer;
 }
 
 void Environment::registerComponent(const std::string& typeName, const std::string& componentName, void* component) {
