@@ -28,6 +28,38 @@
 
 namespace oatpp { namespace data { namespace share {
 
+StringTemplate::VectorValueProvider::VectorValueProvider(const std::vector<oatpp::String> *params)
+  : m_params(params)
+{}
+
+oatpp::String StringTemplate::VectorValueProvider::getValue(const Variable& variable, v_uint32 index) {
+  (void) variable;
+  return m_params->at(index);
+}
+
+StringTemplate::MapValueProvider::MapValueProvider(const std::unordered_map<oatpp::String, oatpp::String> *params)
+  : m_params(params)
+{}
+
+oatpp::String StringTemplate::MapValueProvider::getValue(const Variable& variable, v_uint32 index) {
+  (void) index;
+  auto it = m_params->find(variable.name);
+  if(it != m_params->end()) {
+    return it->second;
+  }
+  return nullptr;
+}
+
+StringTemplate::SingleValueProvider::SingleValueProvider(const oatpp::String& value)
+  : m_value(value)
+{}
+
+oatpp::String StringTemplate::SingleValueProvider::getValue(const Variable& variable, v_uint32 index) {
+  (void) variable;
+  (void) index;
+  return m_value;
+}
+
 StringTemplate::StringTemplate(const oatpp::String& text, std::vector<Variable>&& variables)
   : m_text(text)
   , m_variables(variables)
@@ -50,23 +82,24 @@ StringTemplate::StringTemplate(const oatpp::String& text, std::vector<Variable>&
   }
 }
 
-void StringTemplate::format(stream::ConsistentOutputStream* stream, const std::vector<oatpp::String>& params) const {
-
-  if(params.size() != m_variables.size()) {
-    throw std::runtime_error("[oatpp::data::share::StringTemplate::format()]: Error. Wrong number of arguments.");
-  }
+void StringTemplate::format(stream::ConsistentOutputStream* stream, ValueProvider* valueProvider) const {
 
   v_buff_size prevPos = 0;
-  for(v_int32 i = 0; i < m_variables.size(); i++) {
+  for(v_uint32 i = 0; i < m_variables.size(); i++) {
 
     const auto& var = m_variables[i];
-    const auto& param = params[i];
+    const auto& value = valueProvider->getValue(var, i);
+
+    if(!value) {
+      throw std::runtime_error("[oatpp::data::share::StringTemplate::format()]: "
+                               "Error. No value provided for the parameter name=" + var.name->std_str());
+    }
 
     if(prevPos < var.posStart) {
       stream->writeSimple(m_text->getData() + prevPos, var.posStart - prevPos);
     }
 
-    stream->writeSimple(param->getData(), param->getSize());
+    stream->writeSimple(value->getData(), value->getSize());
 
     prevPos = var.posEnd + 1;
 
@@ -78,33 +111,19 @@ void StringTemplate::format(stream::ConsistentOutputStream* stream, const std::v
 
 }
 
+void StringTemplate::format(stream::ConsistentOutputStream* stream, const std::vector<oatpp::String>& params) const {
+  VectorValueProvider vp(&params);
+  format(stream, &vp);
+}
+
 void StringTemplate::format(stream::ConsistentOutputStream* stream, const std::unordered_map<oatpp::String, oatpp::String>& params) const {
+  MapValueProvider vp(&params);
+  format(stream, &vp);
+}
 
-  v_buff_size prevPos = 0;
-  for(v_int32 i = 0; i < m_variables.size(); i++) {
-
-    const auto& var = m_variables[i];
-    auto paramIt = params.find(var.name);
-    if(paramIt == params.end()) {
-      throw std::runtime_error("[oatpp::data::share::StringTemplate::format()]: Error. Parameter not found. Name=" + var.name->std_str());
-    }
-
-    const auto& param = paramIt->second;
-
-    if(prevPos < var.posStart) {
-      stream->writeSimple(m_text->getData() + prevPos, var.posStart - prevPos);
-    }
-
-    stream->writeSimple(param->getData(), param->getSize());
-
-    prevPos = var.posEnd + 1;
-
-  }
-
-  if(prevPos < m_text->getSize()) {
-    stream->writeSimple(m_text->getData() + prevPos, m_text->getSize() - prevPos);
-  }
-
+void StringTemplate::format(stream::ConsistentOutputStream* stream, const oatpp::String& singleValue) const {
+  SingleValueProvider vp(singleValue);
+  format(stream, &vp);
 }
 
 oatpp::String StringTemplate::format(const std::vector<oatpp::String>& params) const {
@@ -117,6 +136,16 @@ oatpp::String StringTemplate::format(const std::unordered_map<oatpp::String, oat
   stream::BufferOutputStream stream;
   format(&stream, params);
   return stream.toString();
+}
+
+oatpp::String StringTemplate::format(const oatpp::String& singleValue) const {
+  stream::BufferOutputStream stream;
+  format(&stream, singleValue);
+  return stream.toString();
+}
+
+const std::vector<StringTemplate::Variable>& StringTemplate::getTemplateVariables() const {
+  return m_variables;
 }
 
 }}}

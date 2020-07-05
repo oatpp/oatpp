@@ -33,13 +33,90 @@
 
 namespace oatpp { namespace data { namespace share {
 
+/**
+ * String template.
+ */
 class StringTemplate {
 public:
 
+  /**
+   * Template variable.
+   */
   struct Variable {
+
+    /**
+     * Position of the first char in the original template string.
+     */
     v_buff_size posStart;
+
+    /**
+     * Position of the last char in the original template string.
+     */
     v_buff_size posEnd;
+
+    /**
+     * Name of the template variable.
+     */
     oatpp::String name;
+
+    /**
+     * Some auxiliary data.
+     */
+    std::shared_ptr<void> extra;
+  };
+
+public:
+
+  /**
+   * Abstract template value provider.
+   */
+  class ValueProvider {
+  public:
+    /**
+     * Default virtual destructor.
+     */
+    virtual ~ValueProvider() = default;
+
+    /**
+     * Get value for variable.
+     * @param variable - &l:StringTemplate::Variable;.
+     * @param index - index of the variable in the template.
+     * @return - value for the given variable.
+     */
+    virtual oatpp::String getValue(const Variable& variable, v_uint32 index) = 0;
+  };
+
+  /**
+   * Provider of template variable-values based on the std::vector.
+   */
+  class VectorValueProvider : public ValueProvider {
+  private:
+    const std::vector<oatpp::String>* m_params;
+  public:
+    VectorValueProvider(const std::vector<oatpp::String>* params);
+    oatpp::String getValue(const Variable& variable, v_uint32 index) override;
+  };
+
+  /**
+   * Provider of template variable-values based on the std::unordered_map.
+   */
+  class MapValueProvider : public ValueProvider {
+  private:
+    const std::unordered_map<oatpp::String, oatpp::String>* m_params;
+  public:
+    MapValueProvider(const std::unordered_map<oatpp::String, oatpp::String>* params);
+    oatpp::String getValue(const Variable& variable, v_uint32 index) override;
+  };
+
+  /**
+   * Provider of template variable-values which returns the same value for all variables.
+   */
+  class SingleValueProvider : public ValueProvider {
+  private:
+    oatpp::String m_value;
+  public:
+    SingleValueProvider(const oatpp::String& value);
+    oatpp::String getValue(const Variable& variable, v_uint32 index) override;
   };
 
 private:
@@ -47,13 +124,67 @@ private:
   std::vector<Variable> m_variables;
 public:
 
+  /**
+   * Constructor.
+   * @param text - original template text.
+   * @param variables - template variables.
+   */
   StringTemplate(const oatpp::String& text, std::vector<Variable>&& variables);
 
+  /**
+   * Format template.
+   * @param stream - stream to write result to.
+   * @param valueProvider - &l:StringTemplate::ValueProvider;.
+   */
+  void format(stream::ConsistentOutputStream* stream, ValueProvider* valueProvider) const;
+
+  /**
+   * Format template using &l:StringTemplate::VectorValueProvider;.
+   * @param stream - stream to write result to.
+   * @param params - `std::vector<oatpp::String>`.
+   */
   void format(stream::ConsistentOutputStream* stream, const std::vector<oatpp::String>& params) const;
+
+  /**
+   * Format template using &l:StringTemplate::MapValueProvider;.
+   * @param stream - stream to write result to.
+   * @param params - `std::unordered_map<oatpp::String, oatpp::String>`.
+   */
   void format(stream::ConsistentOutputStream* stream, const std::unordered_map<oatpp::String, oatpp::String>& params) const;
 
+  /**
+   * Format template using &l:StringTemplate::SingleValueProvider;.
+   * @param stream - stream to write result to.
+   * @param singleValue - value.
+   */
+  void format(stream::ConsistentOutputStream* stream, const oatpp::String& singleValue) const;
+
+  /**
+   * Format template using &l:StringTemplate::VectorValueProvider;.
+   * @param params - `std::vector<oatpp::String>`.
+   * @return - resultant string.
+   */
   oatpp::String format(const std::vector<oatpp::String>& params) const;
+
+  /**
+   * Format template using &l:StringTemplate::MapValueProvider;.
+   * @param params - `std::unordered_map<oatpp::String, oatpp::String>`.
+   * @return - resultant string.
+   */
   oatpp::String format(const std::unordered_map<oatpp::String, oatpp::String>& params) const;
+
+  /**
+   * Format template using &l:StringTemplate::SingleValueProvider;.
+   * @param singleValue - value.
+   * @return - resultant string.
+   */
+  oatpp::String format(const oatpp::String& singleValue) const;
+
+  /**
+   * Get all template variables.
+   * @return - `std::vector` of &l:StringTemplate::Variable;.
+   */
+  const std::vector<Variable>& getTemplateVariables() const;
 
 };
 

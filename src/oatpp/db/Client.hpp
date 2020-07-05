@@ -35,7 +35,7 @@
 namespace oatpp { namespace db {
 
 class Client {
-private:
+protected:
   std::shared_ptr<Executor> m_executor;
 public:
 
@@ -49,17 +49,6 @@ public:
 //  QUERY(deleteUserById,
 //        "DELETE FROM user WHERE userId=:userId",
 //        PARAM(String, userId))
-
-  oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_getUserById =
-    m_executor->parseQueryTemplate("SELECT * FROM user WHERE userId=:userId");
-
-  oatpp::db::QueryResult getUserById(const oatpp::String& userId) {
-    std::unordered_map<oatpp::String, oatpp::Any> __params;
-    __params["userId"] = userId;
-    return m_executor->execute(Z_QUERY_TEMPLATE_getUserById, __params);
-  }
-
-
 
 };
 
