@@ -148,4 +148,12 @@ const std::vector<StringTemplate::Variable>& StringTemplate::getTemplateVariable
   return m_variables;
 }
 
+void StringTemplate::setExtraData(const std::shared_ptr<void>& data) {
+  m_extra = data;
+}
+
+std::shared_ptr<void> StringTemplate::getExtraData() {
+  return m_extra;
+}
+
 }}}

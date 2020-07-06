@@ -122,6 +122,7 @@ public:
 private:
   oatpp::String m_text;
   std::vector<Variable> m_variables;
+  std::shared_ptr<void> m_extra;
 public:
 
   /**
@@ -185,6 +186,18 @@ public:
    * @return - `std::vector` of &l:StringTemplate::Variable;.
    */
   const std::vector<Variable>& getTemplateVariables() const;
+
+  /**
+   * Set some extra data associated with the template.
+   * @param data
+   */
+  void setExtraData(const std::shared_ptr<void>& data);
+
+  /**
+   * Get extra data associated with the template.
+   * @return
+   */
+  std::shared_ptr<void> getExtraData();
 
 };
 
