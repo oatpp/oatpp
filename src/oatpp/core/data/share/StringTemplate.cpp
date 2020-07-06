@@ -152,7 +152,7 @@ void StringTemplate::setExtraData(const std::shared_ptr<void>& data) {
   m_extra = data;
 }
 
-std::shared_ptr<void> StringTemplate::getExtraData() {
+std::shared_ptr<void> StringTemplate::getExtraData() const {
   return m_extra;
 }
 

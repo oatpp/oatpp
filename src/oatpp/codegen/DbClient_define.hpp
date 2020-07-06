@@ -66,7 +66,7 @@ OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
 // QUERY MACRO
 
 #define OATPP_QUERY_0(NAME, QUERY_TEXT) \
-oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(QUERY_TEXT); \
+oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(#NAME, QUERY_TEXT); \
 \
 oatpp::db::QueryResult NAME() { \
   std::unordered_map<oatpp::String, oatpp::Any> __params; \
@@ -76,7 +76,7 @@ oatpp::db::QueryResult NAME() { \
 
 
 #define OATPP_QUERY_1(NAME, QUERY_TEXT, ...) \
-oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(QUERY_TEXT); \
+oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(#NAME, QUERY_TEXT); \
 \
 oatpp::db::QueryResult NAME( \
   OATPP_MACRO_FOREACH_FIRST_AND_REST( \

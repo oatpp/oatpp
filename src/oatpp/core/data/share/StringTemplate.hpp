@@ -197,7 +197,7 @@ public:
    * Get extra data associated with the template.
    * @return
    */
-  std::shared_ptr<void> getExtraData();
+  std::shared_ptr<void> getExtraData() const;
 
 };
 

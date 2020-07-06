@@ -35,7 +35,7 @@ public:
   typedef oatpp::data::share::StringTemplate StringTemplate;
 public:
 
-  virtual StringTemplate parseQueryTemplate(const oatpp::String& text) = 0;
+  virtual StringTemplate parseQueryTemplate(const oatpp::String& name, const oatpp::String& text) = 0;
 
   virtual QueryResult execute(const StringTemplate& queryTemplate, const std::unordered_map<oatpp::String, oatpp::Any>& params) = 0;
 
