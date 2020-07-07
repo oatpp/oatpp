@@ -126,12 +126,13 @@ add_library(oatpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/core/utils/Random.cpp
         oatpp/core/utils/Random.hpp
-        oatpp/db/Client.cpp
-        oatpp/db/Client.hpp
-        oatpp/db/Executor.cpp
-        oatpp/db/Executor.hpp
-        oatpp/db/QueryResult.cpp
-        oatpp/db/QueryResult.hpp
+        oatpp/database/Connection.hpp
+        oatpp/database/DbClient.cpp
+        oatpp/database/DbClient.hpp
+        oatpp/database/Executor.cpp
+        oatpp/database/Executor.hpp
+        oatpp/database/QueryResult.cpp
+        oatpp/database/QueryResult.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp

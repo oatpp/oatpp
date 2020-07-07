@@ -22,15 +22,31 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_db_QueryResult_hpp
-#define oatpp_db_QueryResult_hpp
+#ifndef oatpp_database_Executor_hpp
+#define oatpp_database_Executor_hpp
 
-namespace oatpp { namespace db {
+#include "Connection.hpp"
+#include "QueryResult.hpp"
 
-class QueryResult {
+#include "oatpp/core/data/share/StringTemplate.hpp"
+
+namespace oatpp { namespace database {
+
+class Executor {
+public:
+  typedef oatpp::data::share::StringTemplate StringTemplate;
+public:
+
+  virtual std::shared_ptr<Connection> getConnection() = 0;
+
+  virtual StringTemplate parseQueryTemplate(const oatpp::String& name, const oatpp::String& text) = 0;
+
+  virtual QueryResult execute(const StringTemplate& queryTemplate,
+                              const std::unordered_map<oatpp::String, oatpp::Any>& params,
+                              const std::shared_ptr<Connection>& connection = nullptr) = 0;
 
 };
 
 }}
 
-#endif // oatpp_db_QueryResult_hpp
+#endif // oatpp_database_Executor_hpp

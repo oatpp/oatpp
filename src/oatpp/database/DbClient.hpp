@@ -22,25 +22,36 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_db_Executor_hpp
-#define oatpp_db_Executor_hpp
+#ifndef oatpp_database_DbClient_hpp
+#define oatpp_database_DbClient_hpp
 
-#include "QueryResult.hpp"
-#include "oatpp/core/data/share/StringTemplate.hpp"
+#include "Executor.hpp"
 
-namespace oatpp { namespace db {
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/Types.hpp"
 
-class Executor {
+#include <unordered_map>
+
+namespace oatpp { namespace database {
+
+class DbClient {
+protected:
+  std::shared_ptr<Executor> m_executor;
 public:
-  typedef oatpp::data::share::StringTemplate StringTemplate;
-public:
 
-  virtual StringTemplate parseQueryTemplate(const oatpp::String& name, const oatpp::String& text) = 0;
+  DbClient(const std::shared_ptr<Executor>& executor);
+  virtual ~DbClient() = default;
 
-  virtual QueryResult execute(const StringTemplate& queryTemplate, const std::unordered_map<oatpp::String, oatpp::Any>& params) = 0;
+//  QUERY(getUserById,
+//        "SELECT * FROM user WHERE userId=:userId",
+//        PARAM(String, userId))
+//
+//  QUERY(deleteUserById,
+//        "DELETE FROM user WHERE userId=:userId",
+//        PARAM(String, userId))
 
 };
 
 }}
 
-#endif // oatpp_db_Executor_hpp
+#endif // oatpp_database_DbClient_hpp

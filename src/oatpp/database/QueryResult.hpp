@@ -22,8 +22,15 @@
  *
  ***************************************************************************/
 
-#include "Executor.hpp"
+#ifndef oatpp_database_QueryResult_hpp
+#define oatpp_database_QueryResult_hpp
 
-namespace oatpp { namespace db {
+namespace oatpp { namespace database {
+
+class QueryResult {
+
+};
 
 }}
+
+#endif // oatpp_database_QueryResult_hpp

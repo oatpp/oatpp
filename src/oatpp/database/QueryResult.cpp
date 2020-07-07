@@ -22,14 +22,9 @@
  *
  ***************************************************************************/
 
-#include "Client.hpp"
+#include "QueryResult.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+namespace oatpp { namespace database {
 
-namespace oatpp { namespace db {
-
-Client::Client(const std::shared_ptr<Executor>& executor)
-  : m_executor(executor)
-{}
 
 }}

@@ -22,9 +22,32 @@
  *
  ***************************************************************************/
 
-#include "QueryResult.hpp"
+#ifndef oatpp_database_Connection_hpp
+#define oatpp_database_Connection_hpp
 
-namespace oatpp { namespace db {
+#include "oatpp/core/base/Countable.hpp"
 
+namespace oatpp { namespace database {
+
+/**
+ * Abstract database connection.
+ */
+class Connection : public base::Countable {
+public:
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~Connection() = default;
+
+  /**
+   * Get a database-specific connection handle.
+   * @return
+   */
+  virtual void* getHandler() = 0;
+
+};
 
 }}
+
+#endif // oatpp_database_Connection_hpp

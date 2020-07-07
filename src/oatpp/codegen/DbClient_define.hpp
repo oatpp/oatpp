@@ -54,11 +54,8 @@ OATPP_MACRO_DB_CLIENT_MACRO_SELECTOR(OATPP_MACRO_DB_CLIENT_PARAM_PARAM_, TYPE, O
 
 // FOR EACH
 
-#define OATPP_MACRO_DB_CLIENT_PARAM_DECL_FIRST(INDEX, COUNT, X) \
-OATPP_MACRO_DB_CLIENT_PARAM_TYPE X OATPP_MACRO_DB_CLIENT_PARAM_NAME X
-
-#define OATPP_MACRO_DB_CLIENT_PARAM_DECL_REST(INDEX, COUNT, X) \
-, OATPP_MACRO_DB_CLIENT_PARAM_TYPE X OATPP_MACRO_DB_CLIENT_PARAM_NAME X
+#define OATPP_MACRO_DB_CLIENT_PARAM_DECL_PUT(INDEX, COUNT, X) \
+OATPP_MACRO_DB_CLIENT_PARAM_TYPE X OATPP_MACRO_DB_CLIENT_PARAM_NAME X,
 
 #define OATPP_MACRO_DB_CLIENT_PARAM_PUT(INDEX, COUNT, X) \
 OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
@@ -68,26 +65,22 @@ OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
 #define OATPP_QUERY_0(NAME, QUERY_TEXT) \
 oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(#NAME, QUERY_TEXT); \
 \
-oatpp::db::QueryResult NAME() { \
+oatpp::database::QueryResult NAME(const std::shared_ptr<oatpp::database::Connection>& connection = nullptr) { \
   std::unordered_map<oatpp::String, oatpp::Any> __params; \
-  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params); \
+  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
-
 
 
 #define OATPP_QUERY_1(NAME, QUERY_TEXT, ...) \
 oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(#NAME, QUERY_TEXT); \
 \
-oatpp::db::QueryResult NAME( \
-  OATPP_MACRO_FOREACH_FIRST_AND_REST( \
-    OATPP_MACRO_DB_CLIENT_PARAM_DECL_FIRST, \
-    OATPP_MACRO_DB_CLIENT_PARAM_DECL_REST, \
-    __VA_ARGS__ \
-  ) \
+oatpp::database::QueryResult NAME( \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_DECL_PUT, __VA_ARGS__) \
+  const std::shared_ptr<oatpp::database::Connection>& connection = nullptr \
 ) { \
   std::unordered_map<oatpp::String, oatpp::Any> __params; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT, __VA_ARGS__) \
-  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params); \
+  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
 
 // Chooser
