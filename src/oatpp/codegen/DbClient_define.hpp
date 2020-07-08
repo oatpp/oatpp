@@ -25,14 +25,17 @@
 #include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
-#define OATPP_MACRO_DB_CLIENT_PARAM_MACRO(MACRO, TYPE, PARAM_LIST) MACRO(TYPE, PARAM_LIST)
-#define OATPP_MACRO_DB_CLIENT_PARAM_TYPE(MACRO, TYPE, PARAM_LIST) const TYPE&
+#define OATPP_MACRO_DB_CLIENT_PARAM_TYPE(MACRO, TYPE, PARAM_LIST) TYPE
 #define OATPP_MACRO_DB_CLIENT_PARAM_NAME(MACRO, TYPE, PARAM_LIST) OATPP_MACRO_FIRSTARG PARAM_LIST
 #define OATPP_MACRO_DB_CLIENT_PARAM_TYPE_STR(MACRO, TYPE, PARAM_LIST) #TYPE
 #define OATPP_MACRO_DB_CLIENT_PARAM_NAME_STR(MACRO, TYPE, PARAM_LIST) OATPP_MACRO_FIRSTARG_STR PARAM_LIST
+
+#define OATPP_MACRO_DB_CLIENT_PARAM_MACRO(MACRO, TYPE, PARAM_LIST) MACRO(TYPE, PARAM_LIST)
+#define OATPP_MACRO_DB_CLIENT_PARAM_MACRO_TYPE(MACRO, TYPE, PARAM_LIST) MACRO ##_TYPE(TYPE, PARAM_LIST)
+
 #define OATPP_MACRO_DB_CLIENT_PARAM(MACRO, TYPE, PARAM_LIST) (MACRO, TYPE, PARAM_LIST)
 
-#define PARAM(TYPE, ...) OATPP_MACRO_DB_CLIENT_PARAM(OATPP_MACRO_DB_CLIENT_PARAM_PARAM, TYPE, (__VA_ARGS__))
+#define PARAM(TYPE, ...)        OATPP_MACRO_DB_CLIENT_PARAM(OATPP_MACRO_DB_CLIENT_PARAM_PARAM, TYPE, (__VA_ARGS__))
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -44,18 +47,33 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_
 // PARAM MACRO
 
 #define OATPP_MACRO_DB_CLIENT_PARAM_PARAM_1(TYPE, NAME) \
-__params[#NAME] = NAME;
+__params.insert({#NAME, NAME});
 
 #define OATPP_MACRO_DB_CLIENT_PARAM_PARAM_2(TYPE, NAME, QUALIFIER) \
-__params[QUALIFIER] = NAME;
+__params.insert({QUALIFIER, NAME});
 
 #define OATPP_MACRO_DB_CLIENT_PARAM_PARAM(TYPE, PARAM_LIST) \
 OATPP_MACRO_DB_CLIENT_MACRO_SELECTOR(OATPP_MACRO_DB_CLIENT_PARAM_PARAM_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
 
+// PARAM_TYPE MACRO
+
+#define OATPP_MACRO_DB_CLIENT_PARAM_PARAM_TYPE_1(TYPE, NAME) \
+map.insert({#NAME, TYPE::Class::getType()});
+
+#define OATPP_MACRO_DB_CLIENT_PARAM_PARAM_TYPE_2(TYPE, NAME, QUALIFIER) \
+map.insert({QUALIFIER, TYPE::Class::getType()});
+
+#define OATPP_MACRO_DB_CLIENT_PARAM_PARAM_TYPE(TYPE, PARAM_LIST) \
+OATPP_MACRO_DB_CLIENT_MACRO_SELECTOR(OATPP_MACRO_DB_CLIENT_PARAM_PARAM_TYPE_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
+
+
 // FOR EACH
 
-#define OATPP_MACRO_DB_CLIENT_PARAM_DECL_PUT(INDEX, COUNT, X) \
-OATPP_MACRO_DB_CLIENT_PARAM_TYPE X OATPP_MACRO_DB_CLIENT_PARAM_NAME X,
+#define OATPP_MACRO_DB_CLIENT_PARAM_PUT_DECL(INDEX, COUNT, X) \
+const OATPP_MACRO_DB_CLIENT_PARAM_TYPE X & OATPP_MACRO_DB_CLIENT_PARAM_NAME X,
+
+#define OATPP_MACRO_DB_CLIENT_PARAM_PUT_TYPE(INDEX, COUNT, X) \
+OATPP_MACRO_DB_CLIENT_PARAM_MACRO_TYPE X
 
 #define OATPP_MACRO_DB_CLIENT_PARAM_PUT(INDEX, COUNT, X) \
 OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
@@ -63,22 +81,36 @@ OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
 // QUERY MACRO
 
 #define OATPP_QUERY_0(NAME, QUERY_TEXT) \
-oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(#NAME, QUERY_TEXT); \
+const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
+  m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, {}); \
 \
 oatpp::database::QueryResult NAME(const std::shared_ptr<oatpp::database::Connection>& connection = nullptr) { \
-  std::unordered_map<oatpp::String, oatpp::Any> __params; \
+  std::unordered_map<oatpp::String, oatpp::Void> __params; \
   return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
 
 
 #define OATPP_QUERY_1(NAME, QUERY_TEXT, ...) \
-oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = m_executor->parseQueryTemplate(#NAME, QUERY_TEXT); \
+\
+static oatpp::database::Executor::ParamsTypeMap Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_CREATOR_##NAME() { \
+  oatpp::database::Executor::ParamsTypeMap map;  \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_TYPE, __VA_ARGS__) \
+  return map; \
+} \
+\
+static const oatpp::database::Executor::ParamsTypeMap& Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_SINGLETON_##NAME() { \
+  static oatpp::database::Executor::ParamsTypeMap map = Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_CREATOR_##NAME();  \
+  return map; \
+} \
+\
+const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
+  m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_SINGLETON_##NAME()); \
 \
 oatpp::database::QueryResult NAME( \
-  OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_DECL_PUT, __VA_ARGS__) \
+  OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::database::Connection>& connection = nullptr \
 ) { \
-  std::unordered_map<oatpp::String, oatpp::Any> __params; \
+  std::unordered_map<oatpp::String, oatpp::Void> __params; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }

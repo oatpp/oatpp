@@ -28,6 +28,7 @@
 #include "Connection.hpp"
 #include "QueryResult.hpp"
 
+#include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/data/share/StringTemplate.hpp"
 
 namespace oatpp { namespace database {
@@ -35,14 +36,17 @@ namespace oatpp { namespace database {
 class Executor {
 public:
   typedef oatpp::data::share::StringTemplate StringTemplate;
+  typedef std::unordered_map<oatpp::String, oatpp::data::mapping::type::Type*> ParamsTypeMap;
 public:
 
   virtual std::shared_ptr<Connection> getConnection() = 0;
 
-  virtual StringTemplate parseQueryTemplate(const oatpp::String& name, const oatpp::String& text) = 0;
+  virtual StringTemplate parseQueryTemplate(const oatpp::String& name,
+                                            const oatpp::String& text,
+                                            const ParamsTypeMap& paramsTypeMap) = 0;
 
   virtual QueryResult execute(const StringTemplate& queryTemplate,
-                              const std::unordered_map<oatpp::String, oatpp::Any>& params,
+                              const std::unordered_map<oatpp::String, oatpp::Void>& params,
                               const std::shared_ptr<Connection>& connection = nullptr) = 0;
 
 };
