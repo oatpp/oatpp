@@ -5,6 +5,8 @@ add_executable(oatppAllTests
         oatpp/core/async/LockTest.hpp
         oatpp/core/base/CommandLineArgumentsTest.cpp
         oatpp/core/base/CommandLineArgumentsTest.hpp
+        oatpp/core/base/LoggerTest.cpp
+        oatpp/core/base/LoggerTest.hpp
         oatpp/core/base/collection/LinkedListTest.cpp
         oatpp/core/base/collection/LinkedListTest.hpp
         oatpp/core/base/memory/MemoryPoolTest.cpp
@@ -98,8 +100,7 @@ add_executable(oatppAllTests
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
         oatpp/web/app/ControllerWithInterceptors.hpp
-        oatpp/web/app/ControllerWithInterceptorsAsync.hpp
-)
+        oatpp/web/app/ControllerWithInterceptorsAsync.hpp)
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
 
