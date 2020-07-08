@@ -312,16 +312,15 @@ void Environment::logFormatted(v_int32 priority, const std::string& tag, const c
   if (allocsize > m_logger->getMaxFormattingBufferSize()) {
     allocsize = m_logger->getMaxFormattingBufferSize();
   }
-  char* buffer = new char[allocsize];
-  memset(buffer, 0, allocsize);
+  auto buffer = std::unique_ptr<char[]>(new char[allocsize]);
+  memset(buffer.get(), 0, allocsize);
   // actually format
   va_start(args, message);
-  vsnprintf(buffer, allocsize, message, args);
+  vsnprintf(buffer.get(), allocsize, message, args);
   // call (user) providen log function
-  log(priority, tag, buffer);
+  log(priority, tag, buffer.get());
   // cleanup
   va_end(args);
-  delete[] buffer;
 }
 
 void Environment::registerComponent(const std::string& typeName, const std::string& componentName, void* component) {
