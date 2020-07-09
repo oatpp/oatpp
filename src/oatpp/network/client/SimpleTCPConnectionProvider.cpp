@@ -67,7 +67,8 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
-    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() faild.");
+    std::string errorString = "[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
+	throw std::runtime_error(errorString.append(gai_strerror(res)));
   }
 
   if (result == nullptr) {
@@ -158,7 +159,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &m_result);
       if (res != 0) {
         return error<async::Error>(
-          "[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() faild.");
+          "[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() failed.");
       }
 
       m_currentResult = m_result;
