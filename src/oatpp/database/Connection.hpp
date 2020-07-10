@@ -44,7 +44,7 @@ public:
    * Get a database-specific connection handle.
    * @return
    */
-  virtual void* getHandler() = 0;
+  virtual void* getHandle() = 0;
 
 };
 
