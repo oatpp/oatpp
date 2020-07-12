@@ -135,6 +135,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       : m_host(host)
       , m_port(port)
       , m_result(nullptr)
+      , m_currentResult(nullptr)
       , m_isHandleOpened(false)
     {}
 
