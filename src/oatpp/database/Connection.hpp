@@ -40,12 +40,6 @@ public:
    */
   virtual ~Connection() = default;
 
-  /**
-   * Get a database-specific connection handle.
-   * @return
-   */
-  virtual void* getHandle() = 0;
-
 };
 
 }}

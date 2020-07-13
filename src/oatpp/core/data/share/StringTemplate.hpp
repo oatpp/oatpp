@@ -161,6 +161,13 @@ public:
   void format(stream::ConsistentOutputStream* stream, const oatpp::String& singleValue) const;
 
   /**
+   * Format template.
+   * @param valueProvider - &l:StringTemplate::ValueProvider;.
+   * @return - &id:oatpp::String;.
+   */
+  oatpp::String format(ValueProvider* valueProvider) const;
+
+  /**
    * Format template using &l:StringTemplate::VectorValueProvider;.
    * @param params - `std::vector<oatpp::String>`.
    * @return - resultant string.

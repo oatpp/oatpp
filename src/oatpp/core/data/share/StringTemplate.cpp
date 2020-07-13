@@ -126,6 +126,12 @@ void StringTemplate::format(stream::ConsistentOutputStream* stream, const oatpp:
   format(stream, &vp);
 }
 
+oatpp::String StringTemplate::format(ValueProvider* valueProvider) const {
+  stream::BufferOutputStream stream;
+  format(&stream, valueProvider);
+  return stream.toString();
+}
+
 oatpp::String StringTemplate::format(const std::vector<oatpp::String>& params) const {
   stream::BufferOutputStream stream;
   format(&stream, params);
