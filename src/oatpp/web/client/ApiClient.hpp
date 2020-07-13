@@ -389,10 +389,7 @@ template<>
 struct ApiClient::TypeInterpretation<oatpp::Boolean> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Boolean &parameter) {
     (void) typeName;
-    if (parameter) {
-      return utils::conversion::boolToStr(*parameter);
-    }
-    return nullptr;
+    return utils::conversion::boolToStr(*parameter);
   }
 };
 
