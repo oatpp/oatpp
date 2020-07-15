@@ -47,6 +47,7 @@ class DtoA : public oatpp::DTO {
 
   DTO_FIELD_INFO(id) {
     info->description = "identifier";
+    info->default_value = "Some default id";
   }
   DTO_FIELD(String, id) = "Some default id";
 
@@ -66,6 +67,7 @@ class DtoB : public DtoA {
 
   DTO_FIELD_INFO(a) {
     info->description = "some field with a qualified name";
+    info->default_value = "default-value";
   }
   DTO_FIELD(String, a, "field-a") = "default-value";
 
@@ -129,6 +131,7 @@ void ObjectTest::onRun() {
     auto it = propsMap.find("id");
     OATPP_ASSERT(it != propsMap.end());
     OATPP_ASSERT(it->second->info.description == "identifier");
+    OATPP_ASSERT(it->second->info.default_value == "Some default id");
 
     OATPP_LOGI(TAG, "OK");
   }
@@ -145,12 +148,14 @@ void ObjectTest::onRun() {
       auto it = propsMap.find("id");
       OATPP_ASSERT("id" && it != propsMap.end());
       OATPP_ASSERT(it->second->info.description == "identifier");
+      OATPP_ASSERT(it->second->info.default_value == "Some default id");
     }
 
     {
       auto it = propsMap.find("field-a");
       OATPP_ASSERT("field-a" && it != propsMap.end());
       OATPP_ASSERT(it->second->info.description == "some field with a qualified name");
+      OATPP_ASSERT(it->second->info.default_value == "default-value");
     }
 
     OATPP_LOGI(TAG, "OK");
