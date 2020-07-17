@@ -280,7 +280,7 @@ public:
        * Description.
        */
       std::string description = "";
-      std::string default_value = "";
+      std::string defaultValue = "";
     };
 
   private:
