@@ -118,6 +118,8 @@ add_library(oatpp
         oatpp/core/parser/Caret.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
+        oatpp/core/utils/Binary.cpp
+        oatpp/core/utils/Binary.hpp
         oatpp/core/utils/ConversionUtils.cpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/core/utils/Random.cpp
