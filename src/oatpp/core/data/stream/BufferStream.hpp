@@ -39,7 +39,7 @@ private:
   p_char8 m_data;
   v_buff_size m_capacity;
   v_buff_size m_position;
-  v_buff_size m_growBytes;
+  v_buff_size m_maxCapacity;
   IOMode m_ioMode;
 public:
 
@@ -47,7 +47,7 @@ public:
    * Constructor.
    * @param growBytes
    */
-  BufferOutputStream(v_buff_size initialCapacity = 2048, v_buff_size growBytes = 2048);
+  BufferOutputStream(v_buff_size initialCapacity = 2048);
 
   /**
    * Virtual destructor.

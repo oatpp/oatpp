@@ -63,19 +63,9 @@ public:
     v_buff_size headersInBufferInitial = 2048;
 
     /**
-     * Buffer used to read headers in request. Size of the chunk to grow.
-     */
-    v_buff_size headersInBufferGrow = 2048;
-
-    /**
      * Buffer used to write headers in response. Initial size of the buffer.
      */
     v_buff_size headersOutBufferInitial = 2048;
-
-    /**
-     * Buffer used to write headers in response. Size of the chunk to grow.
-     */
-    v_buff_size headersOutBufferGrow = 2048;
 
     /**
      * Size of the chunk used for iterative-read of headers.

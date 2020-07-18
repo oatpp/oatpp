@@ -92,7 +92,7 @@ void Request::send(data::stream::OutputStream* stream){
     m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
   }
 
-  oatpp::data::stream::BufferOutputStream buffer(2048, 2048);
+  oatpp::data::stream::BufferOutputStream buffer(2048);
 
   buffer.writeSimple(m_method.getData(), m_method.getSize());
   buffer.writeSimple(" /", 2);
