@@ -160,6 +160,7 @@ private:
     oatpp::data::stream::BufferOutputStream headersOutBuffer;
     RequestHeadersReader headersReader;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
+    std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> outStream;
 
   };
 

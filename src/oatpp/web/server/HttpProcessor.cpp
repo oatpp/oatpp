@@ -74,6 +74,7 @@ HttpProcessor::ProcessingResources::ProcessingResources(const std::shared_ptr<Co
   , headersOutBuffer(components->config->headersOutBufferInitial)
   , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
   , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
+  , outStream(data::stream::OutputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
 {}
 
 bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
@@ -83,7 +84,8 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   if(error.status.code != 0) {
     auto response = resources.components->errorHandler->handleError(error.status, "Invalid request headers");
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
+    resources.outStream->flush();
     return false;
   }
 
@@ -95,7 +97,8 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   if(!route) {
     auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
+    resources.outStream->flush();
     return false;
   }
 
@@ -126,18 +129,21 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
   } catch (oatpp::web::protocol::http::HttpError& error) {
 
     response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
+    resources.outStream->flush();
     return false;
 
   } catch (std::exception& error) {
 
     response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
+    resources.outStream->flush();
     return false;
 
   } catch (...) {
     response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
+    resources.outStream->flush();
     return false;
   }
 
@@ -147,7 +153,10 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
   auto contentEncoderProvider =
     protocol::http::utils::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
 
-  response->send(resources.connection.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
+  response->send(resources.outStream.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
+  //if(!resources.inStream->hasUnreadData()) {
+    resources.outStream->flush();
+  //}
 
   switch(connectionState) {
 

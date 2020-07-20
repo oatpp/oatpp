@@ -123,6 +123,8 @@ public:
 
   v_io_size commitReadOffset(v_buff_size count);
 
+  bool hasUnreadData();
+
   /**
    * Set InputStream I/O mode.
    * @param ioMode

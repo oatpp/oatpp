@@ -90,6 +90,10 @@ v_io_size InputStreamBufferedProxy::commitReadOffset(v_buff_size count) {
   return m_buffer.commitReadOffset(count);
 }
 
+bool InputStreamBufferedProxy::hasUnreadData() {
+  return m_buffer.availableToRead() > 0;
+}
+
 void InputStreamBufferedProxy::setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
   m_inputStream->setInputStreamIOMode(ioMode);
 }

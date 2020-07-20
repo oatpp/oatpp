@@ -70,18 +70,6 @@
 
 namespace {
 
-v_int64 calcNextP2(v_int64 v) {
-  v--;
-  v |= v >> 1;
-  v |= v >> 2;
-  v |= v >> 4;
-  v |= v >> 8;
-  v |= v >> 16;
-  v |= v >> 32;
-  v++;
-  return v;
-}
-
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
@@ -89,6 +77,7 @@ void runTests() {
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
 
+/*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
 
@@ -169,11 +158,11 @@ void runTests() {
     test_port.run();
 
   }
-
+*/
   {
 
-    oatpp::test::web::FullTest test_virtual(0, 1000);
-    test_virtual.run();
+//    oatpp::test::web::FullTest test_virtual(0, 1000);
+//    test_virtual.run();
 
     oatpp::test::web::FullTest test_port(8000, 10);
     test_port.run();
