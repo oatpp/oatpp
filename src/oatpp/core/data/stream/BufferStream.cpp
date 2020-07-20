@@ -24,6 +24,8 @@
 
 #include "BufferStream.hpp"
 
+#include "oatpp/core/utils/Binary.hpp"
+
 namespace oatpp { namespace data{ namespace stream {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,11 +33,11 @@ namespace oatpp { namespace data{ namespace stream {
 
 data::stream::DefaultInitializedContext BufferOutputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
-BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, v_buff_size growBytes)
+BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity)
   : m_data(new v_char8[initialCapacity])
   , m_capacity(initialCapacity)
   , m_position(0)
-  , m_growBytes(growBytes)
+  , m_maxCapacity(-1)
   , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
@@ -70,20 +72,20 @@ Context& BufferOutputStream::getOutputStreamContext() {
 
 void BufferOutputStream::reserveBytesUpfront(v_buff_size count) {
 
-  if(m_position + count > m_capacity) {
+  v_buff_size capacityNeeded = m_position + count;
 
-    if(m_growBytes <= 0) {
-      throw std::runtime_error("[oatpp::data::stream::BufferOutputStream::reserveBytesUpfront()]: Error. Buffer was not allowed to grow.");
+  if(capacityNeeded > m_capacity) {
+
+    v_buff_size newCapacity = utils::Binary::nextP2(capacityNeeded);
+
+    if(newCapacity < 0 || (m_maxCapacity > 0 && newCapacity > m_maxCapacity)) {
+      newCapacity = m_maxCapacity;
     }
 
-    v_buff_size extraNeeded = m_position + count - m_capacity;
-    v_buff_size extraChunks = extraNeeded / m_growBytes;
-
-    if(extraChunks * m_growBytes < extraNeeded) {
-      extraChunks ++;
+    if(newCapacity < capacityNeeded) {
+      throw std::runtime_error("[oatpp::data::stream::BufferOutputStream::reserveBytesUpfront()]: Error. Unable to allocate requested memory.");
     }
 
-    v_buff_size newCapacity = m_capacity + extraChunks * m_growBytes;
     p_char8 newData = new v_char8[newCapacity];
 
     std::memcpy(newData, m_data, m_position);

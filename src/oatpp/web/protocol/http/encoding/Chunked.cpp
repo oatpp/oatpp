@@ -60,7 +60,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
     if(m_writeChunkHeader) {
 
       async::Action action;
-      data::stream::BufferOutputStream stream(16, 16);
+      data::stream::BufferOutputStream stream(16);
       if(!m_firstChunk) {
         stream.write("\r\n", 2, action);
       }
@@ -88,7 +88,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
   if(m_writeChunkHeader){
 
     async::Action action;
-    data::stream::BufferOutputStream stream(16, 16);
+    data::stream::BufferOutputStream stream(16);
     if(!m_firstChunk) {
       stream.write("\r\n", 2, action);
     }
@@ -115,7 +115,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
 // DecoderChunked
 
 DecoderChunked::DecoderChunked()
-  : m_chunkHeaderBuffer(16, 16)
+  : m_chunkHeaderBuffer(16)
   , m_currentChunkSize(-1)
   , m_firstChunk(true)
   , m_finished(false)

@@ -70,8 +70,8 @@ HttpProcessor::ProcessingResources::ProcessingResources(const std::shared_ptr<Co
                                                         const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection)
   : components(pComponents)
   , connection(pConnection)
-  , headersInBuffer(components->config->headersInBufferInitial, components->config->headersInBufferGrow)
-  , headersOutBuffer(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow)
+  , headersInBuffer(components->config->headersInBufferInitial)
+  , headersOutBuffer(components->config->headersOutBufferInitial)
   , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
   , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
 {}
@@ -210,9 +210,9 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
                                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
   : m_components(components)
   , m_connection(connection)
-  , m_headersInBuffer(components->config->headersInBufferInitial, components->config->headersInBufferGrow)
+  , m_headersInBuffer(components->config->headersInBufferInitial)
   , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
-  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow))
+  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
   , m_connectionState(oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
 {}
