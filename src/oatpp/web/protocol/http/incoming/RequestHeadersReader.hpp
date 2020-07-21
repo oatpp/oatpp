@@ -70,8 +70,8 @@ private:
 
 private:
   v_io_size readHeadersSectionIterative(ReadHeadersIteration& iteration,
-                                              data::stream::InputStreamBufferedProxy* stream,
-                                              async::Action& action);
+                                        data::stream::IOStreamBufferedProxy* stream,
+                                        async::Action& action);
 private:
   oatpp::data::stream::BufferOutputStream* m_bufferStream;
   v_buff_size m_readChunkSize;
@@ -93,18 +93,18 @@ public:
 
   /**
    * Read and parse http headers from stream.
-   * @param stream - &id:oatpp::data::stream::InputStreamBufferedProxy;.
+   * @param stream - &id:oatpp::data::stream::IOStreamBufferedProxy;.
    * @param error - out parameter &id:oatpp::web::protocol::ProtocolError::Info;.
    * @return - &l:RequestHeadersReader::Result;.
    */
-  Result readHeaders(data::stream::InputStreamBufferedProxy* stream, http::HttpError::Info& error);
+  Result readHeaders(data::stream::IOStreamBufferedProxy* stream, http::HttpError::Info& error);
 
   /**
    * Read and parse http headers from stream in asynchronous manner.
-   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::InputStreamBufferedProxy;.
+   * @param stream - `std::shared_ptr` to &id:oatpp::data::stream::IOStreamBufferedProxy;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream);
+  oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&> readHeadersAsync(const std::shared_ptr<data::stream::IOStreamBufferedProxy>& stream);
   
 };
   

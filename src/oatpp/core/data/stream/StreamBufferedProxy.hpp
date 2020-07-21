@@ -79,6 +79,8 @@ public:
   void setBufferPosition(v_io_size readPosition, v_io_size writePosition, bool canRead) {
     m_buffer.setBufferPosition(readPosition, writePosition, canRead);
   }
+
+  v_io_size getBytesBufferedCount();
   
 };
   
@@ -147,6 +149,139 @@ public:
     m_buffer.setBufferPosition(readPosition, writePosition, canRead);
   }
   
+};
+
+class IOStreamBufferedProxy : public IOStream {
+private:
+  std::shared_ptr<IOStream> m_stream;
+  p_char8 m_buffer;
+  buffer::FIFOBuffer m_inFifo;
+  buffer::FIFOBuffer m_outFifo;
+public:
+
+  /**
+   * Constructor.
+   * @param stream - base stream.
+   * @param inBufferSize - input buffer size.
+   * @param outBufferSize - output buffer size.
+   */
+  IOStreamBufferedProxy(const std::shared_ptr<IOStream>& stream,
+                        v_buff_size inBufferSize,
+                        v_buff_size outBufferSize);
+
+  /**
+   * Virtual destructor.
+   */
+  ~IOStreamBufferedProxy();
+
+  /**
+   * Implementation of &id:oatpp::data::stream::IOStream::write;.
+   * @param buff - buffer containing data to write.
+   * @param count - bytes count you want to write.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual amount of bytes written. See &id:oatpp::v_io_size;.
+   */
+  v_io_size write(const void *buff, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Flush output buffer to the underlying stream.
+   * @return
+   */
+  v_io_size flush();
+
+  /**
+   * Flush output buffer to the underlying stream (Asynchronously).
+   * @return
+   */
+  oatpp::async::CoroutineStarter flushAsync();
+
+  /**
+   * Implementation of &id:oatpp::data::stream::IOStream::read;.
+   * @param buff - buffer to read data to.
+   * @param count - buffer size.
+   * @param action - async specific action. If action is NOT &id:oatpp::async::Action::TYPE_NONE;, then
+   * caller MUST return this action on coroutine iteration.
+   * @return - actual amount of bytes read. See &id:oatpp::v_io_size;.
+   */
+  v_io_size read(void *buff, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Peek data available in buffer or read from stream.
+   * @param buff
+   * @param count
+   * @param action
+   * @return
+   */
+  v_io_size peek(void *buff, v_buff_size count, async::Action& action);
+
+  /**
+   * Claim amount of bytes read. Typically called after `peek()`.
+   * @param count
+   * @return
+   */
+  v_io_size commitReadOffset(v_buff_size count);
+
+  /**
+   * Check if the input buffer has unread data.
+   * @return
+   */
+  bool hasUnreadData();
+
+  /**
+   * Set OutputStream I/O mode.
+   * @param ioMode
+   */
+  void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Set OutputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getOutputStreamIOMode() override;
+
+  /**
+   * Get output stream context.
+   * @return - &id:oatpp::data::stream::Context;.
+   */
+  oatpp::data::stream::Context& getOutputStreamContext() override;
+
+  /**
+   * Set InputStream I/O mode.
+   * @param ioMode
+   */
+  void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override;
+
+  /**
+   * Get InputStream I/O mode.
+   * @return
+   */
+  oatpp::data::stream::IOMode getInputStreamIOMode() override;
+
+  /**
+   * Get input stream context. <br>
+   * @return - &id:oatpp::data::stream::Context;.
+   */
+  oatpp::data::stream::Context& getInputStreamContext() override;
+
+  /**
+   * Get the underlying stream.
+   * @return
+   */
+  std::shared_ptr<IOStream> getBaseStream();
+
+  /**
+   * Get output FIFO - &id:oatpp::data::buffer::FIFOBuffer;.
+   * @return
+   */
+  buffer::FIFOBuffer& getOutputFifo();
+
+  /**
+   * Get input FIFO - &id:oatpp::data::buffer::FIFOBuffer;.
+   * @return
+   */
+  buffer::FIFOBuffer& getInputFifo();
+
 };
   
 }}}

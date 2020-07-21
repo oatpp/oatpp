@@ -41,11 +41,10 @@ public:
   SHARED_OBJECT_POOL(Shared_Incoming_Request_Pool, Request, 32)
 private:
 
-  std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+  std::shared_ptr<data::stream::IOStream> m_connection;
   http::RequestStartingLine m_startingLine;
   url::mapping::Pattern::MatchMap m_pathVariables;
   http::Headers m_headers;
-  std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
   
   /*
    * Request should be preconfigured with default BodyDecoder.
@@ -62,7 +61,6 @@ public:
           const http::RequestStartingLine& startingLine,
           const url::mapping::Pattern::MatchMap& pathVariables,
           const http::Headers& headers,
-          const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 public:
   
@@ -70,7 +68,6 @@ public:
                                                const http::RequestStartingLine& startingLine,
                                                const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Headers& headers,
-                                               const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
 
   /**
@@ -200,7 +197,7 @@ public:
    */
   template<class Wrapper>
   Wrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
-    return objectMapper->readFromString<Wrapper>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
+    return objectMapper->readFromString<Wrapper>(m_bodyDecoder->decodeToString(m_headers, m_connection.get()));
   }
   
   // Async
@@ -235,7 +232,7 @@ public:
   template<class Wrapper>
   oatpp::async::CoroutineStarterForResult<const Wrapper&>
   readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return m_bodyDecoder->decodeToDtoAsync<Wrapper>(m_headers, m_bodyStream, objectMapper);
+    return m_bodyDecoder->decodeToDtoAsync<Wrapper>(m_headers, m_connection, objectMapper);
   }
   
 };

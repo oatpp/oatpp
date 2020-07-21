@@ -77,6 +77,18 @@ public:
      */
     v_buff_size headersReaderMaxSize = 4096;
 
+    /**
+     * Buffer to read data from the connection.
+     * The max amount of bytes to attempt to read per one read operation.
+     */
+    v_buff_size readBufferSize = 4096;
+
+    /**
+     * Connection write buffer.
+     * Amount of bytes to buffer before flushing to connection.
+     */
+    v_buff_size writeBufferSize = 4096;
+
   };
 
 public:
@@ -155,12 +167,11 @@ private:
                         const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection);
 
     std::shared_ptr<Components> components;
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
+    std::shared_ptr<data::stream::IOStream> connection;
+    std::shared_ptr<data::stream::IOStreamBufferedProxy> stream;
     oatpp::data::stream::BufferOutputStream headersInBuffer;
     oatpp::data::stream::BufferOutputStream headersOutBuffer;
     RequestHeadersReader headersReader;
-    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
-    std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> outStream;
 
   };
 
@@ -204,10 +215,10 @@ public:
   private:
     std::shared_ptr<Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<data::stream::IOStreamBufferedProxy> m_stream;
     oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
-    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
     v_int32 m_connectionState;
   private:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;

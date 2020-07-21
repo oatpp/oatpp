@@ -64,7 +64,7 @@ public:
   {}
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor)([] {
-    return std::make_shared<oatpp::async::Executor>(1, 1, 1);
+    return std::make_shared<oatpp::async::Executor>();
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::virtual_::Interface>, virtualInterface)([] {
@@ -147,7 +147,7 @@ void FullAsyncTest::onRun() {
   runner.addController(app::ControllerWithInterceptorsAsync::createShared());
 
   runner.run([this, &runner] {
-
+/*
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
 
@@ -275,6 +275,9 @@ void FullAsyncTest::onRun() {
 
     connection.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
+*/
+
+    std::this_thread::sleep_for(std::chrono::minutes(10));
 
   }, std::chrono::minutes(10));
 

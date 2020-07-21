@@ -29,8 +29,8 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 v_io_size RequestHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,
-                                                                  data::stream::InputStreamBufferedProxy* stream,
-                                                                  async::Action& action)
+                                                            data::stream::IOStreamBufferedProxy* stream,
+                                                            async::Action& action)
 {
 
   v_buff_size desiredToRead = m_readChunkSize;
@@ -66,7 +66,7 @@ v_io_size RequestHeadersReader::readHeadersSectionIterative(ReadHeadersIteration
   
 }
   
-RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::InputStreamBufferedProxy* stream,
+RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::IOStreamBufferedProxy* stream,
                                                                http::HttpError::Info& error) {
 
   m_bufferStream->setCurrentPosition(0);
@@ -109,19 +109,19 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
   
   
 oatpp::async::CoroutineStarterForResult<const RequestHeadersReader::Result&>
-RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream)
+RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::IOStreamBufferedProxy>& stream)
 {
   
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const Result&> {
   private:
-    std::shared_ptr<data::stream::InputStreamBufferedProxy> m_stream;
+    std::shared_ptr<data::stream::IOStreamBufferedProxy> m_stream;
     RequestHeadersReader* m_this;
     ReadHeadersIteration m_iteration;
     RequestHeadersReader::Result m_result;
   public:
     
     ReaderCoroutine(RequestHeadersReader* _this,
-                    const std::shared_ptr<data::stream::InputStreamBufferedProxy>& stream)
+                    const std::shared_ptr<data::stream::IOStreamBufferedProxy>& stream)
       : m_stream(stream)
       , m_this(_this)
     {

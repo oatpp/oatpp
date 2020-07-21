@@ -70,43 +70,41 @@ HttpProcessor::ProcessingResources::ProcessingResources(const std::shared_ptr<Co
                                                         const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection)
   : components(pComponents)
   , connection(pConnection)
+  , stream(std::make_shared<data::stream::IOStreamBufferedProxy>(connection,
+                                                                 components->config->readBufferSize,
+                                                                 components->config->writeBufferSize))
   , headersInBuffer(components->config->headersInBufferInitial)
   , headersOutBuffer(components->config->headersOutBufferInitial)
   , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
-  , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
-  , outStream(data::stream::OutputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
 {}
 
 bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   oatpp::web::protocol::http::HttpError::Info error;
-  auto headersReadResult = resources.headersReader.readHeaders(resources.inStream.get(), error);
+  auto headersReadResult = resources.headersReader.readHeaders(resources.stream.get(), error);
 
   if(error.status.code != 0) {
     auto response = resources.components->errorHandler->handleError(error.status, "Invalid request headers");
-    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
-    resources.outStream->flush();
+    response->send(resources.stream.get(), &resources.headersOutBuffer, nullptr);
     return false;
   }
 
   if(error.ioStatus <= 0) {
-    return false; // connection is in invalid state. should be dropped
+    return false; // connection is in the invalid state. should be dropped.
   }
 
   auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
 
   if(!route) {
     auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
-    resources.outStream->flush();
+    response->send(resources.stream.get(), &resources.headersOutBuffer, nullptr);
     return false;
   }
 
-  auto request = protocol::http::incoming::Request::createShared(resources.connection,
+  auto request = protocol::http::incoming::Request::createShared(resources.stream,
                                                                  headersReadResult.startingLine,
                                                                  route.matchMap,
                                                                  headersReadResult.headers,
-                                                                 resources.inStream,
                                                                  resources.components->bodyDecoder);
 
   std::shared_ptr<protocol::http::outgoing::Response> response;
@@ -129,22 +127,21 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
   } catch (oatpp::web::protocol::http::HttpError& error) {
 
     response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
-    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
-    resources.outStream->flush();
+    response->send(resources.stream.get(), &resources.headersOutBuffer, nullptr);
     return false;
 
   } catch (std::exception& error) {
 
     response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
-    resources.outStream->flush();
+    response->send(resources.stream.get(), &resources.headersOutBuffer, nullptr);
     return false;
 
   } catch (...) {
+
     response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
-    response->send(resources.outStream.get(), &resources.headersOutBuffer, nullptr);
-    resources.outStream->flush();
+    response->send(resources.stream.get(), &resources.headersOutBuffer, nullptr);
     return false;
+
   }
 
   response->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
@@ -153,10 +150,7 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
   auto contentEncoderProvider =
     protocol::http::utils::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
 
-  response->send(resources.outStream.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
-  //if(!resources.inStream->hasUnreadData()) {
-    resources.outStream->flush();
-  //}
+  response->send(resources.stream.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
 
   switch(connectionState) {
 
@@ -204,6 +198,10 @@ void HttpProcessor::Task::run(){
 
       wantContinue = HttpProcessor::processNextRequest(resources);
 
+      if(!wantContinue || !resources.stream->hasUnreadData()) {
+        resources.stream->flush();
+      }
+
     } while (wantContinue);
 
   } catch (...) {
@@ -219,10 +217,12 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
                                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
   : m_components(components)
   , m_connection(connection)
+  , m_stream(std::make_shared<data::stream::IOStreamBufferedProxy>(connection,
+                                                                   components->config->readBufferSize,
+                                                                   components->config->writeBufferSize))
   , m_headersInBuffer(components->config->headersInBufferInitial)
   , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
   , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
-  , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
   , m_connectionState(oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
 {}
 
@@ -231,7 +231,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseHeaders() {
-  return m_headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
+  return m_headersReader.readHeadersAsync(m_stream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
 oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHeadersReader::Result& headersReadResult) {
@@ -243,11 +243,10 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
     return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
 
-  m_currentRequest = protocol::http::incoming::Request::createShared(m_connection,
+  m_currentRequest = protocol::http::incoming::Request::createShared(m_stream,
                                                                      headersReadResult.startingLine,
                                                                      m_currentRoute.matchMap,
                                                                      headersReadResult.headers,
-                                                                     m_inStream,
                                                                      m_components->bodyDecoder);
 
   auto currInterceptor = m_components->requestInterceptors->getFirstNode();
@@ -280,27 +279,36 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
   auto contentEncoderProvider =
     protocol::http::utils::CommunicationUtils::selectEncoder(m_currentRequest, m_components->contentEncodingProviders);
 
-  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer, contentEncoderProvider)
+  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_stream, m_headersOutBuffer, contentEncoderProvider)
          .next(yieldTo(&HttpProcessor::Coroutine::onRequestDone));
 
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
-  
-  if(m_connectionState == oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE) {
-    return yieldTo(&HttpProcessor::Coroutine::parseHeaders);
-  }
-  
-  if(m_connectionState == oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_UPGRADE) {
-    auto handler = m_currentResponse->getConnectionUpgradeHandler();
-    if(handler) {
-      handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
-    } else {
-      OATPP_LOGW("[oatpp::web::server::HttpProcessor::Coroutine::onRequestDone()]", "Warning. ConnectionUpgradeHandler not set!");
+
+  switch (m_connectionState) {
+
+    case web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE: {
+      if(!m_stream->hasUnreadData()) {
+        return m_stream->flushAsync().next(yieldTo(&HttpProcessor::Coroutine::parseHeaders));
+      }
+      return yieldTo(&HttpProcessor::Coroutine::parseHeaders);
     }
+
+    case web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_UPGRADE: {
+      auto handler = m_currentResponse->getConnectionUpgradeHandler();
+      if(handler) {
+        handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
+      } else {
+        OATPP_LOGW("[oatpp::web::server::HttpProcessor::Coroutine::onRequestDone()]", "Warning. ConnectionUpgradeHandler not set!");
+      }
+      break;
+    }
+
   }
-  
-  return finish();
+
+  return m_stream->flushAsync().next(finish());
+
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* error) {
