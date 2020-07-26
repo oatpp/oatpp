@@ -49,6 +49,8 @@ add_executable(oatppAllTests
         oatpp/core/data/stream/ChunkedBufferTest.hpp
         oatpp/core/parser/CaretTest.cpp
         oatpp/core/parser/CaretTest.hpp
+        oatpp/core/provider/PoolTest.cpp
+        oatpp/core/provider/PoolTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
@@ -98,7 +100,8 @@ add_executable(oatppAllTests
         oatpp/web/app/ControllerAsync.hpp
         oatpp/web/app/DTOs.hpp
         oatpp/web/app/ControllerWithInterceptors.hpp
-        oatpp/web/app/ControllerWithInterceptorsAsync.hpp)
+        oatpp/web/app/ControllerWithInterceptorsAsync.hpp
+)
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
 
