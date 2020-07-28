@@ -29,6 +29,7 @@
 #include "oatpp/core/async/CoroutineWaitList.hpp"
 
 #include <thread>
+#include <condition_variable>
 
 namespace oatpp { namespace provider {
 
