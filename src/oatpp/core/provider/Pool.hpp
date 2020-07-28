@@ -28,6 +28,8 @@
 #include "Provider.hpp"
 #include "oatpp/core/async/CoroutineWaitList.hpp"
 
+#include <thread>
+
 namespace oatpp { namespace provider {
 
 template<class TResource, class AcquisitionProxyImpl>
@@ -125,6 +127,53 @@ private:
 
   }
 
+private:
+
+  static void cleanupTask(std::shared_ptr<Pool> pool) {
+
+    while(pool->m_running) { // timer-based cleanup loop
+
+      {
+        std::lock_guard<std::mutex> guard(pool->m_lock);
+        auto ticks = oatpp::base::Environment::getMicroTickCount();
+
+        auto i = pool->m_bench.begin();
+        while (i != pool->m_bench.end()) {
+
+          auto elapsed = ticks - i->timestamp;
+          if(elapsed > pool->m_maxResourceTTL) {
+            pool->m_provider->invalidate(i->resource);
+            i = pool->m_bench.erase(i);
+            pool->m_counter --;
+          } else {
+            i ++;
+          }
+
+        }
+
+      }
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    }
+
+    { /* invalidate all pooled resources */
+
+      std::lock_guard<std::mutex> guard(pool->m_lock);
+      auto i = pool->m_bench.begin();
+      while (i != pool->m_bench.end()) {
+        pool->m_provider->invalidate(i->resource);
+        i = pool->m_bench.erase(i);
+        pool->m_counter --;
+      }
+
+      pool->m_finished = true;
+
+    }
+
+    pool->m_condition.notify_all();
+
+  }
 
 private:
   std::shared_ptr<Provider<TResource>> m_provider;
@@ -132,12 +181,13 @@ private:
   v_int64 m_maxResources;
   v_int64 m_maxResourceTTL;
   std::atomic<bool> m_running;
+  bool m_finished;
 private:
   std::list<PoolRecord> m_bench;
   async::CoroutineWaitList m_waitList;
   std::condition_variable m_condition;
   std::mutex m_lock;
-public:
+private:
 
   Pool(const std::shared_ptr<Provider<TResource>>& provider, v_int64 maxResources, v_int64 maxResourceTTL)
     : m_provider(provider)
@@ -145,6 +195,7 @@ public:
     , m_maxResources(maxResources)
     , m_maxResourceTTL(maxResourceTTL)
     , m_running(true)
+    , m_finished(false)
   {}
 
 public:
@@ -153,7 +204,11 @@ public:
                                             v_int64 maxResources,
                                             const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
   {
-    return std::make_shared<Pool>(provider, maxResources, maxResourceTTL.count());
+    /* "new" is called directly to keep constructor private */
+    auto ptr = std::shared_ptr<Pool>(new Pool(provider, maxResources, maxResourceTTL.count()));
+    std::thread poolCleanupTask(cleanupTask, ptr);
+    poolCleanupTask.detach();
+    return ptr;
   }
 
   std::shared_ptr<TResource> get() override {
@@ -275,6 +330,14 @@ public:
 
     m_condition.notify_all();
     m_waitList.notifyAll();
+
+    {
+      std::unique_lock<std::mutex> guard(m_lock);
+      while (!m_finished) {
+        m_condition.wait(guard);
+      }
+
+    }
 
     m_provider->stop();
 
