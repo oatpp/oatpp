@@ -59,9 +59,9 @@ public:
   }
 
   /**
-   * Implements &id:oatpp::network::ConnectionProvider::close;. Here does nothing.
+   * Implements &id:oatpp::provider::Provider::stop;. Here does nothing.
    */
-  void close() override {
+  void stop() override {
     // DO NOTHING
   }
 
@@ -69,20 +69,20 @@ public:
    * Get connection.
    * @return - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<IOStream> getConnection() override;
+  std::shared_ptr<IOStream> get() override;
 
   /**
    * Get connection in asynchronous manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override;
 
   /**
    * Call shutdown read and write on an underlying file descriptor.
    * `connection` **MUST** be an object previously obtained from **THIS** connection provider.
    * @param connection
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+  void invalidate(const std::shared_ptr<IOStream>& connection) override;
 
   /**
    * Get host name.

@@ -176,7 +176,7 @@ public:
    * This call will wait until connection is available.
    * @return
    */
-  std::shared_ptr<ConnectionWrapper> getConnection();
+  std::shared_ptr<ConnectionWrapper> get();
 
   /**
    * Get connection in Async manner.
@@ -185,27 +185,27 @@ public:
    * @return
    */
   static oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionWrapper>&>
-  getConnectionAsync(const std::shared_ptr<ConnectionProvider>& connectionProvider, const std::shared_ptr<Pool>& poolInstance);
+  getAsync(const std::shared_ptr<ConnectionProvider>& connectionProvider, const std::shared_ptr<Pool>& poolInstance);
 
   /**
    * Get connection in Async manner.
    * This call will wait until connection is available.
    * @return
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionWrapper>&> getConnectionAsync();
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<ConnectionWrapper>&> getAsync();
 
   /**
    * Close all connections.
    * All free connections that are currently in the pool are closed immediately.
    * Other connections are closed once returned to the pool.
    */
-  void close();
+  void stop();
 
   /**
    * Invalidate connection that was previously obtain by a call to `getConnection()` or `getConnectionAsync()`.
    * @param connection - **MUST** be instance of `&l:ConnectionPool::ConnectionWrapper;` or its subclass.
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection);
+  void invalidate(const std::shared_ptr<IOStream>& connection);
 
 };
 
@@ -232,26 +232,26 @@ public:
    * This call will wait until connection is available.
    * @return
    */
-  std::shared_ptr<IOStream> getConnection() override;
+  std::shared_ptr<IOStream> get() override;
 
   /**
    * Get connection in Async manner.
    * This call will wait until connection is available.
    * @return
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<IOStream>&> getConnectionAsync() override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<IOStream>&> getAsync() override;
 
   /**
    * Invalidate connection that was previously created by this provider.
    * Ex.: if provider is pool based - you can signal that this connection should not be reused anymore.
    * @param connection
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+  void invalidate(const std::shared_ptr<IOStream>& connection) override;
 
   /**
    * Close pool.
    */
-  void close() override;
+  void stop() override;
 
 };
 
@@ -278,26 +278,26 @@ public:
    * This call will wait until connection is available.
    * @return
    */
-  std::shared_ptr<IOStream> getConnection() override;
+  std::shared_ptr<IOStream> get() override;
 
   /**
    * Get connection in Async manner.
    * This call will wait until connection is available.
    * @return
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<IOStream>&> getConnectionAsync() override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<IOStream>&> getAsync() override;
 
   /**
    * Invalidate connection that was previously created by this provider.
    * Ex.: if provider is pool based - you can signal that this connection should not be reused anymore.
    * @param connection
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+  void invalidate(const std::shared_ptr<IOStream>& connection) override;
 
   /**
    * Close pool.
    */
-  void close() override;
+  void stop() override;
 
 };
 

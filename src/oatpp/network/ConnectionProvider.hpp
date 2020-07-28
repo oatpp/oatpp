@@ -27,7 +27,8 @@
 
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/provider/Provider.hpp"
+
 #include <unordered_map>
 
 namespace oatpp { namespace network {
@@ -38,7 +39,7 @@ namespace oatpp { namespace network {
  * User of ConnectionProvider should care about IOStream only.
  * All other properties are optional.
  */
-class ConnectionProvider {
+class ConnectionProvider : public provider::Provider<data::stream::IOStream> {
 public:
   /**
    * Predefined property key for HOST.
@@ -69,37 +70,6 @@ protected:
    */
   void setProperty(const oatpp::String& key, const oatpp::String& value);
 public:
-
-  /**
-   * Virtual default destructor.
-   */
-  virtual ~ConnectionProvider() = default;
-
-  /**
-   * Implement this method.
-   * Get IOStream representing connection to resource.
-   * @return - &id:oatpp::data::stream::IOStream;.
-   */
-  virtual std::shared_ptr<IOStream> getConnection() = 0;
-
-  /**
-   * Implement this method.
-   * Obtain IOStream representing connection to resource.
-   * @return - &id:oatpp::async::CoroutineStarterForResult;.
-   */
-  virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() = 0;
-
-  /**
-   * Invalidate connection that was previously created by this provider.
-   * Ex.: if provider is pool based - you can signal that this connection should not be reused anymore.
-   * @param connection
-   */
-  virtual void invalidateConnection(const std::shared_ptr<IOStream>& connection) = 0;
-
-  /**
-   * Should close all handles here.
-   */
-  virtual void close() = 0;
   
   /**
    * Some optional properties that user might want to know. <br>

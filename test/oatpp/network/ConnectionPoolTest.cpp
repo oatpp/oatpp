@@ -79,12 +79,12 @@ public:
 
   std::atomic<v_int64> counter;
 
-  std::shared_ptr<IOStream> getConnection() override {
+  std::shared_ptr<IOStream> get() override {
     ++ counter;
     return std::make_shared<StubStream>();
   }
 
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override {
 
     class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
     public:
@@ -100,11 +100,11 @@ public:
 
   }
 
-  void close() override {
+  void stop() override {
     // DO NOTHING
   }
 
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override {
+  void invalidate(const std::shared_ptr<IOStream>& connection) override {
     (void)connection;
     // DO Nothing.
   }
@@ -126,7 +126,7 @@ public:
   {}
 
   Action act() override {
-    return m_pool->getConnectionAsync().callbackTo(&ClientCoroutine::onConnection);
+    return m_pool->getAsync().callbackTo(&ClientCoroutine::onConnection);
   }
 
   Action onConnection(const std::shared_ptr<ConnectionPool::ConnectionWrapper>& connection) {
@@ -140,7 +140,7 @@ public:
       return waitFor(std::chrono::milliseconds(100)).next(yieldTo(&ClientCoroutine::useConnection));
     }
     if(m_invalidate) {
-      m_pool->invalidateConnection(m_connection);
+      m_pool->invalidate(m_connection);
     }
     return finish();
   }
@@ -148,10 +148,10 @@ public:
 };
 
 void clientMethod(std::shared_ptr<ConnectionPool> pool, bool invalidate) {
-  auto connection = pool->getConnection();
+  auto connection = pool->get();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   if(invalidate) {
-    pool->invalidateConnection(connection);
+    pool->invalidate(connection);
   }
 }
 
@@ -182,7 +182,7 @@ void ConnectionPoolTest::onRun() {
   OATPP_LOGD(TAG, "connections_counter=%d", connectionProvider->counter.load());
   OATPP_ASSERT(connectionProvider->counter <= 10);
 
-  pool->close();
+  pool->stop();
 
   executor.stop();
   executor.join();

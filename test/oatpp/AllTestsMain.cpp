@@ -75,7 +75,6 @@ void runTests() {
   OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
 
-/*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
 
@@ -110,9 +109,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
-*/
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
-/*
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
 
@@ -199,7 +196,7 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
 }
 
 }
