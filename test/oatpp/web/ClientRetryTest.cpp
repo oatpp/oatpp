@@ -265,6 +265,7 @@ void ClientRetryTest::onRun() {
     runServer(m_port, 2, 6, false, controller);
 
     clientThread.join();
+    connectionPool->stop();
 
   }
 

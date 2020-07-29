@@ -74,7 +74,7 @@ public:
    * Get incoming connection.
    * @return &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<IOStream> get() override;
+  std::shared_ptr<data::stream::IOStream> get() override;
 
   /**
    * **NOT IMPLEMENTED!**<br>
@@ -85,7 +85,7 @@ public:
    * <br>
    * *It may be implemented later.*
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
@@ -101,7 +101,7 @@ public:
    * Does nothing.
    * @param connection
    */
-  void invalidate(const std::shared_ptr<IOStream>& connection) override {
+  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override {
     (void)connection;
     // DO Nothing.
   }

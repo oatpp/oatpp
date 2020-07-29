@@ -75,19 +75,19 @@ public:
    * Get connection.
    * @return - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<IOStream> get() override;
+  std::shared_ptr<data::stream::IOStream> get() override;
 
   /**
    * Get connection in asynchronous manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override;
 
   /**
    * Does nothing.
    * @param connection
    */
-  void invalidate(const std::shared_ptr<IOStream>& connection) override {
+  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override {
     (void)connection;
     // DO Nothing.
   }

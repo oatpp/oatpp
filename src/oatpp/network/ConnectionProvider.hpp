@@ -41,6 +41,7 @@ namespace oatpp { namespace network {
  */
 class ConnectionProvider : public provider::Provider<data::stream::IOStream> {
 public:
+
   /**
    * Predefined property key for HOST.
    */
@@ -50,38 +51,7 @@ public:
    * Predefined property key for PORT.
    */
   static const char* const PROPERTY_PORT;
-public:
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::IOStream;.
-   */
-  typedef oatpp::data::stream::IOStream IOStream;
 
-  /**
-   * Convenience typedef for &id:oatpp::async::Action;.
-   */
-  typedef oatpp::async::Action Action;
-  typedef oatpp::async::Action (oatpp::async::AbstractCoroutine::*AsyncCallback)(const std::shared_ptr<IOStream>&);
-private:
-  std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel> m_properties;
-protected:
-
-  /*
-   * Set optional property
-   */
-  void setProperty(const oatpp::String& key, const oatpp::String& value);
-public:
-  
-  /**
-   * Some optional properties that user might want to know. <br>
-   * Note: All properties are optional and user should not rely on this.
-   */
-  const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& getProperties();
-  
-  /**
-   * Get optional property
-   */
-  oatpp::data::share::StringKeyLabel getProperty(const oatpp::String& key);
-  
 };
   
 /**

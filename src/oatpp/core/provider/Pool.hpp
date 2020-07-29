@@ -365,7 +365,9 @@ public:
 
   Pool(const std::shared_ptr<TProvider>& provider, v_int64 maxResources, v_int64 maxResourceTTL)
     : PoolTemplate<TResource, AcquisitionProxyImpl>(provider, maxResources, maxResourceTTL)
-  {}
+  {
+    TProvider::m_properties = provider->getProperties();
+  }
 
 public:
 

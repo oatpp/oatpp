@@ -52,7 +52,7 @@ void ConnectionProvider::stop() {
   m_interface->notifyAcceptors();
 }
 
-std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::get() {
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
   auto socket = m_interface->accept(m_open);
   if(socket) {
     socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);

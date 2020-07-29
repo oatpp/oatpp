@@ -334,7 +334,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::get(
 
 }
 
-void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<IOStream>& connection) {
+void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
   /************************************************
    * WARNING!!!

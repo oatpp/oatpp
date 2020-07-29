@@ -26,6 +26,7 @@
 #define oatpp_provider_Provider_hpp
 
 #include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 
 namespace oatpp { namespace provider {
 
@@ -35,12 +36,52 @@ namespace oatpp { namespace provider {
  */
 template <class T>
 class Provider {
+protected:
+
+  void setProperty(const oatpp::String& key, const oatpp::String& value) {
+    m_properties[key] = value;
+  }
+
+protected:
+  std::unordered_map<data::share::StringKeyLabelCI, data::share::StringKeyLabel> m_properties;
 public:
+
+  /**
+   * Default constructor.
+   */
+  Provider() = default;
+
+  /**
+   * Constructor.
+   * @param properties
+   */
+  Provider(const std::unordered_map<data::share::StringKeyLabelCI, data::share::StringKeyLabel>& properties)
+    : m_properties(properties)
+  {}
 
   /**
    * Virtual destructor.
    */
   virtual ~Provider() = default;
+
+  /**
+   * Some optional properties that user might want to know. <br>
+   * Note: All properties are optional and user should not rely on this.
+   */
+  const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& getProperties() const {
+    return m_properties;
+  }
+
+  /**
+   * Get optional property
+   */
+  data::share::StringKeyLabel getProperty(const oatpp::String& key) const {
+    auto it = m_properties.find(key);
+    if(it == m_properties.end()) {
+      return nullptr;
+    }
+    return it->second;
+  }
 
   /**
    * Get resource.

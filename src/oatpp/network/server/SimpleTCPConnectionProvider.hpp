@@ -82,8 +82,8 @@ private:
   oatpp::v_io_handle instantiateServer();
 private:
   bool prepareConnectionHandle(oatpp::v_io_handle handle);
-  std::shared_ptr<IOStream> getDefaultConnection();
-  std::shared_ptr<IOStream> getExtendedConnection();
+  std::shared_ptr<data::stream::IOStream> getDefaultConnection();
+  std::shared_ptr<data::stream::IOStream> getExtendedConnection();
 public:
 
   /**
@@ -119,7 +119,7 @@ public:
    * Get incoming connection.
    * @return &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<IOStream> get() override;
+  std::shared_ptr<data::stream::IOStream> get() override;
 
   /**
    * No need to implement this.<br>
@@ -129,7 +129,7 @@ public:
    * <br>
    * *It may be implemented later*
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
@@ -146,7 +146,7 @@ public:
    * `connection` **MUST** be an object previously obtained from **THIS** connection provider.
    * @param connection
    */
-  void invalidate(const std::shared_ptr<IOStream>& connection) override;
+  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
    * Get port.

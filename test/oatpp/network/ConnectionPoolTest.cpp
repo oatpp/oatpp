@@ -83,7 +83,7 @@ public:
 
   std::atomic<v_int64> counter;
 
-  std::shared_ptr<IOStream> get() override {
+  std::shared_ptr<oatpp::data::stream::IOStream> get() override {
     ++ counter;
     return std::make_shared<StubStream>();
   }
@@ -108,7 +108,7 @@ public:
     // DO NOTHING
   }
 
-  void invalidate(const std::shared_ptr<IOStream>& connection) override {
+  void invalidate(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override {
     (void)connection;
     // DO Nothing.
   }

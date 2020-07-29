@@ -268,7 +268,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
 }
 
-void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<IOStream>& connection) {
+void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
   /************************************************
    * WARNING!!!

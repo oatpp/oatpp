@@ -43,7 +43,7 @@ void ConnectionProvider::stop() {
 
 }
 
-std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::get() {
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
   auto submission = m_interface->connect();
   if(submission->isValid()) {
     auto socket = submission->getSocket();
