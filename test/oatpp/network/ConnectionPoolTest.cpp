@@ -31,7 +31,11 @@ namespace oatpp { namespace test { namespace network {
 
 namespace {
 
-typedef oatpp::network::ConnectionPool ConnectionPool;
+typedef oatpp::provider::Pool<
+  oatpp::network::ConnectionProvider,
+  oatpp::data::stream::IOStream,
+  oatpp::network::ConnectionAcquisitionProxy
+> ConnectionPool;
 
 class StubStream : public oatpp::data::stream::IOStream, public oatpp::base::Countable {
 public:
@@ -114,7 +118,7 @@ public:
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
 private:
   std::shared_ptr<ConnectionPool> m_pool;
-  std::shared_ptr<ConnectionPool::ConnectionWrapper> m_connection;
+  std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   v_int32 m_repeats;
   bool m_invalidate;
 public:
@@ -129,7 +133,7 @@ public:
     return m_pool->getAsync().callbackTo(&ClientCoroutine::onConnection);
   }
 
-  Action onConnection(const std::shared_ptr<ConnectionPool::ConnectionWrapper>& connection) {
+  Action onConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
     m_connection = connection;
     return yieldTo(&ClientCoroutine::useConnection);
   }
@@ -162,7 +166,7 @@ void ConnectionPoolTest::onRun() {
   oatpp::async::Executor executor(1, 1, 1);
 
   auto connectionProvider = std::make_shared<StubStreamProvider>();
-  auto pool = std::make_shared<ConnectionPool>(connectionProvider, 10 /* maxConnections */, std::chrono::seconds(10) /* maxConnectionTTL */);
+  auto pool = ConnectionPool::createShared(connectionProvider, 10 /* maxConnections */, std::chrono::seconds(10) /* maxConnectionTTL */);
 
   std::list<std::thread> threads;
 

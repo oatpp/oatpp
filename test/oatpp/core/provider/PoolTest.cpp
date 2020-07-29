@@ -113,7 +113,7 @@ struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, Acq
 
 };
 
-typedef oatpp::provider::Pool<Resource, AcquisitionProxy> Pool;
+typedef oatpp::provider::Pool<oatpp::provider::Provider<Resource>, Resource, AcquisitionProxy> Pool;
 
 
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
@@ -174,7 +174,7 @@ void PoolTest::onRun() {
 
   OATPP_ASSERT(pool->getCounter() == 10);
   OATPP_LOGD(TAG, "Waiting...");
-  std::this_thread::sleep_for(std::chrono::seconds(4));
+  std::this_thread::sleep_for(std::chrono::seconds(5));
   OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 0);
 
@@ -186,7 +186,7 @@ void PoolTest::onRun() {
 
   OATPP_ASSERT(pool->getCounter() == 10);
   OATPP_LOGD(TAG, "Waiting...");
-  std::this_thread::sleep_for(std::chrono::seconds(4));
+  std::this_thread::sleep_for(std::chrono::seconds(5));
   OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 0);
 
