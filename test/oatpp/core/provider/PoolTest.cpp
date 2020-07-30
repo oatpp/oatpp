@@ -158,7 +158,7 @@ void clientMethod(std::shared_ptr<Pool> pool, bool invalidate) {
 
 void PoolTest::onRun() {
 
-  oatpp::async::Executor executor(1, 1, 1);
+  oatpp::async::Executor executor(10, 1, 1);
 
   auto provider = std::make_shared<Provider>();
   auto pool = Pool::createShared(provider, 10, std::chrono::seconds(1));
@@ -174,7 +174,7 @@ void PoolTest::onRun() {
 
   OATPP_ASSERT(pool->getCounter() == 10);
   OATPP_LOGD(TAG, "Waiting...");
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(6));
   OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 0);
 
@@ -186,7 +186,7 @@ void PoolTest::onRun() {
 
   OATPP_ASSERT(pool->getCounter() == 10);
   OATPP_LOGD(TAG, "Waiting...");
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(6));
   OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 0);
 
