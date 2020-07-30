@@ -36,10 +36,18 @@ namespace oatpp { namespace provider {
 template<class TResource, class AcquisitionProxyImpl>
 class PoolTemplate; // FWD
 
+/**
+ * Pool acquisition proxy template.
+ * @tparam TResource - abstract resource interface type, Ex.: `IOStream`.
+ * @tparam AcquisitionProxyImpl - implementation of proxy.
+ */
 template<class TResource, class AcquisitionProxyImpl>
 class AcquisitionProxy : public TResource {
   friend PoolTemplate<TResource, AcquisitionProxyImpl>;
 public:
+  /**
+   * Convenience typedef for Pool.
+   */
   typedef PoolTemplate<TResource, AcquisitionProxyImpl> PoolInstance;
 private:
 
@@ -53,18 +61,26 @@ private:
 
 protected:
   std::shared_ptr<TResource> _obj;
-public:
+private:
   std::shared_ptr<PoolInstance> m_pool;
   bool m_valid;
 public:
 
+  /**
+   * Constructor.
+   * @param resource - base resource.
+   * @param pool - &l:AcquisitionProxy::PoolInstance;.
+   */
   AcquisitionProxy(const std::shared_ptr<TResource>& resource, const std::shared_ptr<PoolInstance>& pool)
     : _obj(resource)
     , m_pool(pool)
     , m_valid(true)
   {}
 
-  ~AcquisitionProxy() {
+  /**
+   * Virtual destructor.
+   */
+  virtual ~AcquisitionProxy() {
     m_pool->release(std::move(_obj), m_valid);
   }
 
@@ -202,8 +218,8 @@ protected:
 public:
 
   static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider<TResource>>& provider,
-                                            v_int64 maxResources,
-                                            const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
+                                                    v_int64 maxResources,
+                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
   {
     /* "new" is called directly to keep constructor private */
     auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
@@ -354,6 +370,12 @@ public:
 
 };
 
+/**
+ * Pool template class.
+ * @tparam TProvider - base class for pool to inherit, ex.: ServerConnectionProvider.
+ * @tparam TResource - abstract resource interface type, Ex.: `IOStream`. Must be the same as a return-type of Provider.
+ * @tparam AcquisitionProxyImpl - implementation of &l:AcquisitionProxy;.
+ */
 template<class TProvider, class TResource, class AcquisitionProxyImpl>
 class Pool :
   public TProvider,
@@ -361,8 +383,14 @@ class Pool :
   public PoolTemplate<TResource, AcquisitionProxyImpl> {
 private:
   typedef PoolTemplate<TResource, AcquisitionProxyImpl> TPool;
-public:
+protected:
 
+  /**
+   * Protected Constructor.
+   * @param provider
+   * @param maxResources
+   * @param maxResourceTTL
+   */
   Pool(const std::shared_ptr<TProvider>& provider, v_int64 maxResources, v_int64 maxResourceTTL)
     : PoolTemplate<TResource, AcquisitionProxyImpl>(provider, maxResources, maxResourceTTL)
   {
@@ -371,32 +399,59 @@ public:
 
 public:
 
+  /**
+   * Create shared Pool.
+   * @param provider - resource provider.
+   * @param maxResources - max resource count in the pool.
+   * @param maxResourceTTL - max time-to-live for unused resource in the pool.
+   * @return - `std::shared_ptr` of `Pool`.
+   */
   static std::shared_ptr<Pool> createShared(const std::shared_ptr<TProvider>& provider,
                                             v_int64 maxResources,
                                             const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
   {
     /* "new" is called directly to keep constructor private */
-    auto ptr = std::make_shared<Pool>(provider, maxResources, maxResourceTTL.count());
+    auto ptr = std::shared_ptr<Pool>(new Pool(provider, maxResources, maxResourceTTL.count()));
     ptr->startCleanupTask(ptr);
     return ptr;
   }
 
+  /**
+   * Get resource.
+   * @return
+   */
   std::shared_ptr<TResource> get() override {
     return TPool::get(this->shared_from_this());
   }
 
+  /**
+   * Get resource asynchronously.
+   * @return
+   */
   async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync() override {
     return TPool::getAsync(this->shared_from_this());
   }
 
+  /**
+   * Invalidate resource.
+   * @param resource
+   */
   void invalidate(const std::shared_ptr<TResource>& resource) override {
     TPool::invalidate(resource);
   }
 
+  /**
+   * Stop pool. <br>
+   * *Note: call to stop() may block.*
+   */
   void stop() override {
     TPool::stop();
   }
 
+  /**
+   * Get pool resource count. Both acquired and available.
+   * @return
+   */
   v_int64 getCounter() {
     return TPool::getCounter();
   }
