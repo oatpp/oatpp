@@ -233,7 +233,7 @@ void ClientRetryTest::onRun() {
     OATPP_LOGI(TAG, "Test: unstable server!");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(-1, std::chrono::seconds(1));
-    auto connectionPool = std::make_shared<oatpp::network::ClientConnectionPool>(connectionProvider, 10, std::chrono::seconds(1));
+    auto connectionPool = oatpp::network::ClientConnectionPool::createShared(connectionProvider, 10, std::chrono::seconds(1));
     auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(connectionPool, retryPolicy);
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
@@ -265,6 +265,7 @@ void ClientRetryTest::onRun() {
     runServer(m_port, 2, 6, false, controller);
 
     clientThread.join();
+    connectionPool->stop();
 
   }
 

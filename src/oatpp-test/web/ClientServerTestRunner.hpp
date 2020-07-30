@@ -105,7 +105,7 @@ public:
 
       m_server->stop();
       m_connectionHandler->stop();
-      m_connectionProvider->close();
+      m_connectionProvider->stop();
 
     });
 

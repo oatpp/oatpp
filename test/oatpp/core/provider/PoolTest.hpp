@@ -22,11 +22,22 @@
  *
  ***************************************************************************/
 
-#include "./ConnectionProvider.hpp"
+#ifndef oatpp_test_provider_PoolTest_hpp
+#define oatpp_test_provider_PoolTest_hpp
 
-namespace oatpp { namespace network {
-  
-const char* const ConnectionProvider::PROPERTY_HOST = "host";
-const char* const ConnectionProvider::PROPERTY_PORT = "port";
-  
-}}
+#include "oatpp-test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace core { namespace provider {
+
+class PoolTest : public UnitTest{
+public:
+
+  PoolTest():UnitTest("TEST[provider::PoolTest]"){}
+  void onRun() override;
+
+};
+
+}}}}
+
+
+#endif //oatpp_test_provider_PoolTest_hpp

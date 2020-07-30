@@ -133,7 +133,7 @@ void PipelineTest::onRun() {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 
-    auto connection = clientConnectionProvider->getConnection();
+    auto connection = clientConnectionProvider->get();
     connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     std::thread pipeInThread([this, connection] {
