@@ -22,26 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_database_Connection_hpp
-#define oatpp_database_Connection_hpp
+#include "DbClient.hpp"
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace database {
+namespace oatpp { namespace orm {
 
-/**
- * Abstract database connection.
- */
-class Connection : public base::Countable {
-public:
-
-  /**
-   * Virtual destructor.
-   */
-  virtual ~Connection() = default;
-
-};
+DbClient::DbClient(const std::shared_ptr<Executor>& executor)
+  : m_executor(executor)
+{}
 
 }}
-
-#endif // oatpp_database_Connection_hpp

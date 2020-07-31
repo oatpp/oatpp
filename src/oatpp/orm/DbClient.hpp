@@ -22,8 +22,36 @@
  *
  ***************************************************************************/
 
+#ifndef oatpp_orm_DbClient_hpp
+#define oatpp_orm_DbClient_hpp
+
 #include "Executor.hpp"
 
-namespace oatpp { namespace database {
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
+
+namespace oatpp { namespace orm {
+
+class DbClient {
+protected:
+  std::shared_ptr<Executor> m_executor;
+public:
+
+  DbClient(const std::shared_ptr<Executor>& executor);
+  virtual ~DbClient() = default;
+
+//  QUERY(getUserById,
+//        "SELECT * FROM user WHERE userId=:userId",
+//        PARAM(String, userId))
+//
+//  QUERY(deleteUserById,
+//        "DELETE FROM user WHERE userId=:userId",
+//        PARAM(String, userId))
+
+};
 
 }}
+
+#endif // oatpp_orm_DbClient_hpp

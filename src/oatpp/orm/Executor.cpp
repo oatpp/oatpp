@@ -22,9 +22,8 @@
  *
  ***************************************************************************/
 
-#include "QueryResult.hpp"
+#include "Executor.hpp"
 
-namespace oatpp { namespace database {
-
+namespace oatpp { namespace orm {
 
 }}

@@ -22,10 +22,10 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_database_QueryResult_hpp
-#define oatpp_database_QueryResult_hpp
+#ifndef oatpp_orm_QueryResult_hpp
+#define oatpp_orm_QueryResult_hpp
 
-namespace oatpp { namespace database {
+namespace oatpp { namespace orm {
 
 class QueryResult {
 
@@ -33,4 +33,4 @@ class QueryResult {
 
 }}
 
-#endif // oatpp_database_QueryResult_hpp
+#endif // oatpp_orm_QueryResult_hpp

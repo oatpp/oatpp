@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_database_Executor_hpp
-#define oatpp_database_Executor_hpp
+#ifndef oatpp_orm_Executor_hpp
+#define oatpp_orm_Executor_hpp
 
 #include "Connection.hpp"
 #include "QueryResult.hpp"
@@ -32,7 +32,7 @@
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/share/StringTemplate.hpp"
 
-namespace oatpp { namespace database {
+namespace oatpp { namespace orm {
 
 class Executor {
 public:
@@ -54,4 +54,4 @@ public:
 
 }}
 
-#endif // oatpp_database_Executor_hpp
+#endif // oatpp_orm_Executor_hpp

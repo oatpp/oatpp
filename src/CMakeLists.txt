@@ -130,13 +130,6 @@ add_library(oatpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/core/utils/Random.cpp
         oatpp/core/utils/Random.hpp
-        oatpp/database/Connection.hpp
-        oatpp/database/DbClient.cpp
-        oatpp/database/DbClient.hpp
-        oatpp/database/Executor.cpp
-        oatpp/database/Executor.hpp
-        oatpp/database/QueryResult.cpp
-        oatpp/database/QueryResult.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
@@ -169,6 +162,13 @@ add_library(oatpp
         oatpp/network/virtual_/client/ConnectionProvider.hpp
         oatpp/network/virtual_/server/ConnectionProvider.cpp
         oatpp/network/virtual_/server/ConnectionProvider.hpp
+        oatpp/orm/Connection.hpp
+        oatpp/orm/DbClient.cpp
+        oatpp/orm/DbClient.hpp
+        oatpp/orm/Executor.cpp
+        oatpp/orm/Executor.hpp
+        oatpp/orm/QueryResult.cpp
+        oatpp/orm/QueryResult.hpp
         oatpp/parser/json/Beautifier.cpp
         oatpp/parser/json/Beautifier.hpp
         oatpp/parser/json/Utils.cpp

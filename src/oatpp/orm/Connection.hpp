@@ -22,36 +22,26 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_database_DbClient_hpp
-#define oatpp_database_DbClient_hpp
+#ifndef oatpp_orm_Connection_hpp
+#define oatpp_orm_Connection_hpp
 
-#include "Executor.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/Types.hpp"
+namespace oatpp { namespace orm {
 
-#include <unordered_map>
-
-namespace oatpp { namespace database {
-
-class DbClient {
-protected:
-  std::shared_ptr<Executor> m_executor;
+/**
+ * Abstract database connection.
+ */
+class Connection : public base::Countable {
 public:
 
-  DbClient(const std::shared_ptr<Executor>& executor);
-  virtual ~DbClient() = default;
-
-//  QUERY(getUserById,
-//        "SELECT * FROM user WHERE userId=:userId",
-//        PARAM(String, userId))
-//
-//  QUERY(deleteUserById,
-//        "DELETE FROM user WHERE userId=:userId",
-//        PARAM(String, userId))
+  /**
+   * Virtual destructor.
+   */
+  virtual ~Connection() = default;
 
 };
 
 }}
 
-#endif // oatpp_database_DbClient_hpp
+#endif // oatpp_orm_Connection_hpp
