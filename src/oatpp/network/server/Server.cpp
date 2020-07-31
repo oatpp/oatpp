@@ -49,7 +49,7 @@ void Server::mainLoop(){
 
   while(getStatus() == STATUS_RUNNING) {
     
-    auto connection = m_connectionProvider->getConnection();
+    auto connection = m_connectionProvider->get();
 
     if (connection) {
       if(getStatus() == STATUS_RUNNING){

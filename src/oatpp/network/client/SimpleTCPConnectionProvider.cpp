@@ -51,7 +51,7 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& ho
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::get() {
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
 
@@ -118,7 +118,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getAsync() {
 
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
@@ -268,7 +268,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
 }
 
-void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
   /************************************************
    * WARNING!!!

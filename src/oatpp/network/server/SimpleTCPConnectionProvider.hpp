@@ -82,8 +82,8 @@ private:
   oatpp::v_io_handle instantiateServer();
 private:
   bool prepareConnectionHandle(oatpp::v_io_handle handle);
-  std::shared_ptr<IOStream> getDefaultConnection();
-  std::shared_ptr<IOStream> getExtendedConnection();
+  std::shared_ptr<data::stream::IOStream> getDefaultConnection();
+  std::shared_ptr<data::stream::IOStream> getExtendedConnection();
 public:
 
   /**
@@ -113,13 +113,13 @@ public:
   /**
    * Close accept-socket.
    */
-  void close() override;
+  void stop() override;
 
   /**
    * Get incoming connection.
    * @return &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<IOStream> getConnection() override;
+  std::shared_ptr<data::stream::IOStream> get() override;
 
   /**
    * No need to implement this.<br>
@@ -129,7 +129,7 @@ public:
    * <br>
    * *It may be implemented later*
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
@@ -138,7 +138,7 @@ public:
      *
      *  It may be implemented later
      */
-    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
+    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getAsync()]: Error. Not implemented.");
   }
 
   /**
@@ -146,7 +146,7 @@ public:
    * `connection` **MUST** be an object previously obtained from **THIS** connection provider.
    * @param connection
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
    * Get port.
