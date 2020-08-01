@@ -35,6 +35,7 @@
 #include "oatpp/core/base/Environment.hpp"
 
 #include <atomic>
+#include <thread>
 
 namespace oatpp { namespace network { namespace server {
 
@@ -45,17 +46,20 @@ namespace oatpp { namespace network { namespace server {
 class Server : public base::Countable {
 private:
 
-  void mainLoop();
+  static void mainLoop(Server *instance);
   
   bool setStatus(v_int32 expectedStatus, v_int32 newStatus);
   void setStatus(v_int32 status);
 
 private:
-  
+
   std::atomic<v_int32> m_status;
+  std::thread m_thread;
   
   std::shared_ptr<ServerConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
+
+  bool m_blocking;
   
 public:
 
@@ -66,13 +70,20 @@ public:
    */
   Server(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
          const std::shared_ptr<ConnectionHandler>& connectionHandler);
-  
-public:
+
+  virtual ~Server();
+
+ public:
 
   /**
    * Status constant.
    */
   static const v_int32 STATUS_CREATED;
+
+  /**
+   * Status constant.
+   */
+  static const v_int32 STATUS_STARTING;
 
   /**
    * Status constant.
@@ -103,8 +114,9 @@ public:
   /**
    * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
    * to &id:oatpp::network::server::ConnectionHandler;.
+   * @param blocking - Start the server blocking (thread of callee) or non-blocking (own thread)
    */
-  void run();
+  void run(bool blocking = false);
 
   /**
    * Break server loop.
