@@ -116,7 +116,7 @@ public:
    * to &id:oatpp::network::server::ConnectionHandler;.
    * @param blocking - Start the server blocking (thread of callee) or non-blocking (own thread)
    */
-  void run(bool blocking = false);
+  void run(bool blocking = true);
 
   /**
    * Break server loop.

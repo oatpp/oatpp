@@ -73,8 +73,12 @@ void Server::run(bool blocking) {
     setStatus(STATUS_CREATED, STATUS_STARTING);
     mainLoop(this);
   } else {
-    if (getStatus() == STATUS_RUNNING)
-      return;
+    switch (getStatus()) {
+      case STATUS_STARTING:
+      case STATUS_RUNNING:
+        // Maybe throw an exception here instead of just silently return?
+        return;
+    }
     m_blocking = blocking;
     setStatus(STATUS_CREATED, STATUS_STARTING);
     m_thread = std::thread(mainLoop, this);
