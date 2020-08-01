@@ -79,10 +79,10 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_uint16 port, bool use
 }
 
 SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
-  close();
+  stop();
 }
 
-void SimpleTCPConnectionProvider::close() {
+void SimpleTCPConnectionProvider::stop() {
   if(!m_closed) {
     m_closed = true;
 #if defined(WIN32) || defined(_WIN32)
@@ -306,7 +306,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getE
 
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection() {
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::get() {
 
   fd_set set;
   struct timeval timeout;
@@ -318,7 +318,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
   while(!m_closed) {
 
-    auto res = select(m_serverHandle + 1, &set, nullptr, nullptr, &timeout);
+    auto res = select(int(m_serverHandle + 1), &set, nullptr, nullptr, &timeout);
 
     if (res >= 0) {
       break;
@@ -334,7 +334,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
 }
 
-void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
   /************************************************
    * WARNING!!!

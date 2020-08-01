@@ -438,7 +438,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::Str
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Int8(null)>]");
   return s;
@@ -446,7 +446,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int8& valu
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt8& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<UInt8(null)>]");
   return s;
@@ -454,7 +454,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt8& val
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Int16(null)>]");
   return s;
@@ -462,7 +462,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int16& val
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt16& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<UInt16(null)>]");
   return s;
@@ -470,7 +470,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt16& va
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Int32(null)>]");
   return s;
@@ -478,7 +478,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int32& val
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt32& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<UInt32(null)>]");
   return s;
@@ -486,7 +486,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt32& va
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Int64(null)>]");
   return s;
@@ -494,7 +494,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Int64& val
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt64& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<UInt64(null)>]");
   return s;
@@ -502,7 +502,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const UInt64& va
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float32& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Float32(null)>]");
   return s;
@@ -510,7 +510,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float32& v
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float64& value) {
   if(value.getPtr()) {
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Float64(null)>]");
   return s;
@@ -518,7 +518,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Float64& v
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const Boolean& value) {
   if(value.getPtr()) { // use getPtr() here to avoid false to nullptr conversion
-    return operator << (s, value->getValue());
+    return operator << (s, *value);
   }
   s.writeSimple("[<Boolean(null)>]");
   return s;

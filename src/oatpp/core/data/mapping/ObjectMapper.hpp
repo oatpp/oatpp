@@ -26,7 +26,6 @@
 #define oatpp_data_mapping_ObjectMapper_hpp
 
 #include "type/Object.hpp"
-#include "type/Object.hpp"
 #include "type/Type.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
@@ -83,52 +82,50 @@ public:
    * @param stream - &id:oatpp::data::stream::ConsistentOutputStream; to serialize object to.
    * @param variant - Object to serialize.
    */
-  virtual void write(data::stream::ConsistentOutputStream* stream,
-                     const type::AbstractObjectWrapper& variant) const = 0;
+  virtual void write(data::stream::ConsistentOutputStream* stream, const type::Void& variant) const = 0;
 
   /**
    * Deserialize object. Implement this method.
    * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
    * @param type - pointer to object type. See &id:oatpp::data::mapping::type::Type;.
-   * @return - deserialized object wrapped in &id:oatpp::data::mapping::type::AbstractObjectWrapper;.
+   * @return - deserialized object wrapped in &id:oatpp::Void;.
    */
-  virtual mapping::type::AbstractObjectWrapper read(oatpp::parser::Caret& caret,
-                                                    const mapping::type::Type* const type) const = 0;
+  virtual mapping::type::Void read(oatpp::parser::Caret& caret, const mapping::type::Type* const type) const = 0;
 
   /**
    * Serialize object to String.
    * @param variant - Object to serialize.
    * @return - serialized object as &id:oatpp::String;.
    */
-  oatpp::String writeToString(const type::AbstractObjectWrapper& variant) const;
+  oatpp::String writeToString(const type::Void& variant) const;
 
   /**
    * Deserialize object.
    * If nullptr is returned - check caret.getError()
-   * @tparam Class - object class.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
    * @return - deserialized Object.
    * @throws - depends on implementation.
    */
-  template<class Class>
-  typename Class::ObjectWrapper readFromCaret(oatpp::parser::Caret& caret) const {
-    auto type = Class::ObjectWrapper::Class::getType();
-    return oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
+  template<class Wrapper>
+  Wrapper readFromCaret(oatpp::parser::Caret& caret) const {
+    auto type = Wrapper::Class::getType();
+    return read(caret, type).template staticCast<Wrapper>();
   }
 
   /**
    * Deserialize object.
-   * @tparam Class - object class.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param str - serialized data.
    * @return - deserialized Object.
    * @throws - &id:oatpp::parser::ParsingError;
    * @throws - depends on implementation.
    */
-  template<class Class>
-  typename Class::ObjectWrapper readFromString(const oatpp::String& str) const {
-    auto type = Class::ObjectWrapper::Class::getType();
+  template<class Wrapper>
+  Wrapper readFromString(const oatpp::String& str) const {
+    auto type = Wrapper::Class::getType();
     oatpp::parser::Caret caret(str);
-    auto result = oatpp::data::mapping::type::static_wrapper_cast<typename Class::ObjectWrapper::ObjectType>(read(caret, type));
+    auto result = read(caret, type).template staticCast<Wrapper>();
     if(!result) {
       throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
     }

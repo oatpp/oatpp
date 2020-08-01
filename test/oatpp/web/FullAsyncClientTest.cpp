@@ -184,10 +184,10 @@ public:
 
   Action onResponse(const std::shared_ptr<IncomingResponse>& response) {
     OATPP_ASSERT(response->getStatusCode() == 200 && "ClientCoroutine_postBodyAsync");
-    return response->readBodyToDtoAsync<app::TestDto>(objectMapper).callbackTo(&ClientCoroutine_postBodyAsync::onBodyRead);
+    return response->readBodyToDtoAsync<oatpp::Object<app::TestDto>>(objectMapper).callbackTo(&ClientCoroutine_postBodyAsync::onBodyRead);
   }
 
-  Action onBodyRead(const app::TestDto::ObjectWrapper& body) {
+  Action onBodyRead(const oatpp::Object<app::TestDto>& body) {
     OATPP_ASSERT(body);
     OATPP_ASSERT(body->testValue == "my_test_body");
     ++ SUCCESS_COUNTER;

@@ -26,6 +26,7 @@
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/utils/Binary.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace stream {
 
@@ -128,22 +129,18 @@ void BufferStreamTest::onRun() {
       text = text + sample;
     }
 
-    for(v_int32 incStep = 1; incStep <= 1024; incStep ++) {
+    BufferOutputStream stream(0);
 
-      BufferOutputStream stream(0, incStep);
+    for(v_int32 i = 0; i < 1024; i++ ) {
+      stream << sample;
 
-      for(v_int32 i = 0; i < 1024; i++ ) {
-        stream << sample;
-
-        OATPP_ASSERT(stream.getCapacity() >= stream.getCurrentPosition());
-
-      }
-
-      OATPP_ASSERT(text == stream.toString());
-
-      OATPP_ASSERT(stream.getCapacity() < 1024 * (10 + 1));
+      OATPP_ASSERT(stream.getCapacity() >= stream.getCurrentPosition());
 
     }
+
+    OATPP_ASSERT(text == stream.toString());
+
+    OATPP_ASSERT(stream.getCapacity() == oatpp::utils::Binary::nextP2(1024 * (10)));
 
   }
 

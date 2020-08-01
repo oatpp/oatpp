@@ -31,7 +31,11 @@ namespace oatpp { namespace test { namespace network {
 
 namespace {
 
-typedef oatpp::network::ConnectionPool ConnectionPool;
+typedef oatpp::provider::Pool<
+  oatpp::network::ConnectionProvider,
+  oatpp::data::stream::IOStream,
+  oatpp::network::ConnectionAcquisitionProxy
+> ConnectionPool;
 
 class StubStream : public oatpp::data::stream::IOStream, public oatpp::base::Countable {
 public:
@@ -79,12 +83,12 @@ public:
 
   std::atomic<v_int64> counter;
 
-  std::shared_ptr<IOStream> getConnection() override {
+  std::shared_ptr<oatpp::data::stream::IOStream> get() override {
     ++ counter;
     return std::make_shared<StubStream>();
   }
 
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override {
 
     class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
     public:
@@ -100,11 +104,11 @@ public:
 
   }
 
-  void close() override {
+  void stop() override {
     // DO NOTHING
   }
 
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override {
+  void invalidate(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override {
     (void)connection;
     // DO Nothing.
   }
@@ -114,7 +118,7 @@ public:
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
 private:
   std::shared_ptr<ConnectionPool> m_pool;
-  std::shared_ptr<ConnectionPool::ConnectionWrapper> m_connection;
+  std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   v_int32 m_repeats;
   bool m_invalidate;
 public:
@@ -126,10 +130,10 @@ public:
   {}
 
   Action act() override {
-    return m_pool->getConnectionAsync().callbackTo(&ClientCoroutine::onConnection);
+    return m_pool->getAsync().callbackTo(&ClientCoroutine::onConnection);
   }
 
-  Action onConnection(const std::shared_ptr<ConnectionPool::ConnectionWrapper>& connection) {
+  Action onConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
     m_connection = connection;
     return yieldTo(&ClientCoroutine::useConnection);
   }
@@ -140,7 +144,7 @@ public:
       return waitFor(std::chrono::milliseconds(100)).next(yieldTo(&ClientCoroutine::useConnection));
     }
     if(m_invalidate) {
-      m_pool->invalidateConnection(m_connection);
+      m_pool->invalidate(m_connection);
     }
     return finish();
   }
@@ -148,10 +152,10 @@ public:
 };
 
 void clientMethod(std::shared_ptr<ConnectionPool> pool, bool invalidate) {
-  auto connection = pool->getConnection();
+  auto connection = pool->get();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   if(invalidate) {
-    pool->invalidateConnection(connection);
+    pool->invalidate(connection);
   }
 }
 
@@ -162,7 +166,7 @@ void ConnectionPoolTest::onRun() {
   oatpp::async::Executor executor(1, 1, 1);
 
   auto connectionProvider = std::make_shared<StubStreamProvider>();
-  auto pool = std::make_shared<ConnectionPool>(connectionProvider, 10 /* maxConnections */, std::chrono::seconds(10) /* maxConnectionTTL */);
+  auto pool = ConnectionPool::createShared(connectionProvider, 10 /* maxConnections */, std::chrono::seconds(10) /* maxConnectionTTL */);
 
   std::list<std::thread> threads;
 
@@ -182,7 +186,7 @@ void ConnectionPoolTest::onRun() {
   OATPP_LOGD(TAG, "connections_counter=%d", connectionProvider->counter.load());
   OATPP_ASSERT(connectionProvider->counter <= 10);
 
-  pool->close();
+  pool->stop();
 
   executor.stop();
   executor.join();

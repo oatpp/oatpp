@@ -26,6 +26,7 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
   
@@ -33,9 +34,7 @@ namespace {
   
 #include OATPP_CODEGEN_BEGIN(DTO)
   
-  typedef oatpp::data::mapping::type::Object DTO;
-  
-  class TestDto : public DTO {
+  class TestDto : public oatpp::DTO {
     
     DTO_INIT(TestDto, DTO);
 
@@ -48,16 +47,16 @@ namespace {
     DTO_FIELD(Float64, field_float64);
     DTO_FIELD(Boolean, field_boolean);
     
-    DTO_FIELD(List<String>::ObjectWrapper, field_list_string);
-    DTO_FIELD(List<Int32>::ObjectWrapper, field_list_int32);
-    DTO_FIELD(List<Int64>::ObjectWrapper, field_list_int64);
-    DTO_FIELD(List<Float32>::ObjectWrapper, field_list_float32);
-    DTO_FIELD(List<Float64>::ObjectWrapper, field_list_float64);
-    DTO_FIELD(List<Boolean>::ObjectWrapper, field_list_boolean);
+    DTO_FIELD(List<String>, field_list_string);
+    DTO_FIELD(List<Int32>, field_list_int32);
+    DTO_FIELD(List<Int64>, field_list_int64);
+    DTO_FIELD(List<Float32>, field_list_float32);
+    DTO_FIELD(List<Float64>, field_list_float64);
+    DTO_FIELD(List<Boolean>, field_list_boolean);
     
-    DTO_FIELD(Fields<String>::ObjectWrapper, field_map_string_string);
+    DTO_FIELD(Fields<String>, field_map_string_string);
     
-    DTO_FIELD(TestDto::ObjectWrapper, obj1);
+    DTO_FIELD(Object<TestDto>, obj1);
     
   };
   
@@ -112,7 +111,7 @@ void TypeTest::onRun() {
   OATPP_ASSERT(obj->field_list_boolean.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
   OATPP_LOGV(TAG, "type: '%s'", obj->field_map_string_string.valueType->classId.name);
-  OATPP_ASSERT(obj->field_map_string_string.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractListMap::CLASS_ID.id);
+  OATPP_ASSERT(obj->field_map_string_string.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
   
   OATPP_LOGV(TAG, "type: '%s'", obj->obj1.valueType->classId.name);
   OATPP_ASSERT(obj->obj1.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);

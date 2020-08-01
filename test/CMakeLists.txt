@@ -5,8 +5,8 @@ add_executable(oatppAllTests
         oatpp/core/async/LockTest.hpp
         oatpp/core/base/CommandLineArgumentsTest.cpp
         oatpp/core/base/CommandLineArgumentsTest.hpp
-        oatpp/core/base/RegRuleTest.cpp
-        oatpp/core/base/RegRuleTest.hpp
+        oatpp/core/base/LoggerTest.cpp
+        oatpp/core/base/LoggerTest.hpp
         oatpp/core/base/collection/LinkedListTest.cpp
         oatpp/core/base/collection/LinkedListTest.hpp
         oatpp/core/base/memory/MemoryPoolTest.cpp
@@ -15,8 +15,30 @@ add_executable(oatppAllTests
         oatpp/core/base/memory/PerfTest.hpp
         oatpp/core/data/buffer/ProcessorTest.cpp
         oatpp/core/data/buffer/ProcessorTest.hpp
+        oatpp/core/data/mapping/type/AnyTest.cpp
+        oatpp/core/data/mapping/type/AnyTest.hpp
+        oatpp/core/data/mapping/type/EnumTest.cpp
+        oatpp/core/data/mapping/type/EnumTest.hpp
+        oatpp/core/data/mapping/type/ListTest.cpp
+        oatpp/core/data/mapping/type/ListTest.hpp
+        oatpp/core/data/mapping/type/ObjectTest.cpp
+        oatpp/core/data/mapping/type/ObjectTest.hpp
+        oatpp/core/data/mapping/type/ObjectWrapperTest.cpp
+        oatpp/core/data/mapping/type/ObjectWrapperTest.hpp
+        oatpp/core/data/mapping/type/PairListTest.cpp
+        oatpp/core/data/mapping/type/PairListTest.hpp
+        oatpp/core/data/mapping/type/PrimitiveTest.cpp
+        oatpp/core/data/mapping/type/PrimitiveTest.hpp
+        oatpp/core/data/mapping/type/StringTest.cpp
+        oatpp/core/data/mapping/type/StringTest.hpp
         oatpp/core/data/mapping/type/TypeTest.cpp
         oatpp/core/data/mapping/type/TypeTest.hpp
+        oatpp/core/data/mapping/type/UnorderedMapTest.cpp
+        oatpp/core/data/mapping/type/UnorderedMapTest.hpp
+        oatpp/core/data/mapping/type/UnorderedSetTest.cpp
+        oatpp/core/data/mapping/type/UnorderedSetTest.hpp
+        oatpp/core/data/mapping/type/VectorTest.cpp
+        oatpp/core/data/mapping/type/VectorTest.hpp
         oatpp/core/data/share/LazyStringMapTest.cpp
         oatpp/core/data/share/LazyStringMapTest.hpp
         oatpp/core/data/share/MemoryLabelTest.cpp
@@ -27,6 +49,8 @@ add_executable(oatppAllTests
         oatpp/core/data/stream/ChunkedBufferTest.hpp
         oatpp/core/parser/CaretTest.cpp
         oatpp/core/parser/CaretTest.hpp
+        oatpp/core/provider/PoolTest.cpp
+        oatpp/core/provider/PoolTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
@@ -45,6 +69,10 @@ add_executable(oatppAllTests
         oatpp/parser/json/mapping/DTOMapperTest.hpp
         oatpp/parser/json/mapping/DeserializerTest.cpp
         oatpp/parser/json/mapping/DeserializerTest.hpp
+        oatpp/parser/json/mapping/EnumTest.cpp
+        oatpp/parser/json/mapping/EnumTest.hpp
+        oatpp/parser/json/mapping/UnorderedSetTest.cpp
+        oatpp/parser/json/mapping/UnorderedSetTest.hpp
         oatpp/web/protocol/http/encoding/ChunkedTest.cpp
         oatpp/web/protocol/http/encoding/ChunkedTest.hpp
         oatpp/web/mime/multipart/StatefulParserTest.cpp
@@ -85,7 +113,4 @@ set_target_properties(oatppAllTests PROPERTIES
 
 target_include_directories(oatppAllTests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_definitions(oatppAllTests
-    PRIVATE OATPP_ENABLE_ALL_TESTS_MAIN
-)
 add_test(oatppAllTests oatppAllTests)

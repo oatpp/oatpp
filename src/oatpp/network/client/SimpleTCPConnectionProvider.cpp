@@ -51,7 +51,7 @@ SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& ho
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
+std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::get() {
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
 
@@ -67,7 +67,8 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
-    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() faild.");
+    std::string errorString = "[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
+	throw std::runtime_error(errorString.append(gai_strerror(res)));
   }
 
   if (result == nullptr) {
@@ -75,7 +76,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   }
 
   struct addrinfo* currResult = result;
-  oatpp::v_io_handle clientHandle =- 1;
+  oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
 
   while(currResult != nullptr) {
 
@@ -117,7 +118,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
 
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getAsync() {
 
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
@@ -134,6 +135,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       : m_host(host)
       , m_port(port)
       , m_result(nullptr)
+      , m_currentResult(nullptr)
       , m_isHandleOpened(false)
     {}
 
@@ -158,7 +160,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &m_result);
       if (res != 0) {
         return error<async::Error>(
-          "[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() faild.");
+          "[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() failed.");
       }
 
       m_currentResult = m_result;
@@ -266,7 +268,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
 }
 
-void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+void SimpleTCPConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
   /************************************************
    * WARNING!!!

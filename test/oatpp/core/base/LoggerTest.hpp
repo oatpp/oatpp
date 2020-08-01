@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <oatpp@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +23,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_RegRuleTest_hpp
-#define oatpp_test_base_RegRuleTest_hpp
+#ifndef oatpp_test_base_LoggerTest_hpp
+#define oatpp_test_base_LoggerTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace base {
-  
-class RegRuleTest : public UnitTest{
-public:
-  
-  RegRuleTest():UnitTest("TEST[base::RegRuleTest]"){}
+
+class LoggerTest : public UnitTest{
+ public:
+
+  LoggerTest():UnitTest("TEST[base::LoggerTest]"){}
   void onRun() override;
-  
+
 };
-  
+
 }}}
 
-#endif /* oatpp_test_base_RegRuleTest_hpp */
+#endif /* oatpp_test_base_LoggerTest_hpp */

@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <oatpp@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#define OATPP_VERSION "1.0.0"
+#define OATPP_VERSION "1.1.0"
 
 typedef unsigned char v_char8;
 typedef v_char8 *p_char8;
@@ -75,8 +76,10 @@ typedef v_int64 v_counter;
  * Use this type to define a size for the buffer.
  */
 typedef intptr_t v_buff_size;
-
 typedef v_buff_size* p_buff_size;
+
+typedef uintptr_t v_buff_usize;
+typedef v_buff_usize* p_buff_usize;
 
 namespace oatpp { namespace base {
 
@@ -90,27 +93,27 @@ public:
   /**
    * Log priority V-verbouse.
    */
-  static constexpr v_int32 PRIORITY_V = 0;
+  static constexpr v_uint32 PRIORITY_V = 0;
 
   /**
    * Log priority D-debug.
    */
-  static constexpr v_int32 PRIORITY_D = 1;
+  static constexpr v_uint32 PRIORITY_D = 1;
 
   /**
    * Log priority I-Info.
    */
-  static constexpr v_int32 PRIORITY_I = 2;
+  static constexpr v_uint32 PRIORITY_I = 2;
 
   /**
    * Log priority W-Warning.
    */
-  static constexpr v_int32 PRIORITY_W = 3;
+  static constexpr v_uint32 PRIORITY_W = 3;
 
   /**
    * Log priority E-error.
    */
-  static constexpr v_int32 PRIORITY_E = 4;
+  static constexpr v_uint32 PRIORITY_E = 4;
 public:
   /**
    * Virtual Destructor.
@@ -123,7 +126,24 @@ public:
    * @param tag - tag of the log message.
    * @param message - message.
    */
-  virtual void log(v_int32 priority, const std::string& tag, const std::string& message) = 0;
+  virtual void log(v_uint32 priority, const std::string& tag, const std::string& message) = 0;
+
+  /**
+   * Returns wether or not a priority should be logged/printed
+   * @param priority
+   * @return - true if given priority should be logged
+   */
+  virtual bool isLogPriorityEnabled(v_uint32 priority) {
+    return true;
+  }
+
+  /**
+   * Should return the maximum amount of bytes that should be allocated for a single log message
+   * @return - maximum buffer size
+   */
+  virtual v_buff_size getMaxFormattingBufferSize() {
+    return 4096;
+  }
 };
 
 /**
@@ -141,9 +161,10 @@ public:
      * @param tfmt - time format.
      * @param printMicroTicks - show ticks in microseconds.
      */
-    Config(const char* tfmt, bool printMicroTicks)
+    Config(const char* tfmt, bool printMicroTicks, v_uint32 initialLogMask)
       : timeFormat(tfmt)
       , printTicks(printMicroTicks)
+      , logMask(initialLogMask)
     {}
 
     /**
@@ -156,6 +177,11 @@ public:
      * Print micro-ticks in the log message.
      */
     bool printTicks;
+
+    /**
+     * Log mask to enable/disable certain priorities
+     */
+    v_uint32 logMask;
   };
 private:
   Config m_config;
@@ -166,7 +192,11 @@ public:
    * Constructor.
    * @param config - Logger config.
    */
-  DefaultLogger(const Config& config = Config("%Y-%m-%d %H:%M:%S", true));
+  DefaultLogger(const Config& config = Config(
+          "%Y-%m-%d %H:%M:%S",
+          true,
+          (1 << PRIORITY_V) | (1 << PRIORITY_D) | (1 << PRIORITY_I) | (1 << PRIORITY_W) | (1 << PRIORITY_E)
+          ));
 
   /**
    * Log message with priority, tag, message.
@@ -174,7 +204,26 @@ public:
    * @param tag - tag of the log message.
    * @param message - message.
    */
-  void log(v_int32 priority, const std::string& tag, const std::string& message) override;
+  void log(v_uint32 priority, const std::string& tag, const std::string& message) override;
+
+  /**
+   * Enables logging of a priorities for this instance
+   * @param priority - the priority level to enable
+   */
+  void enablePriority(v_uint32 priority);
+
+  /**
+   * Disables logging of a priority for this instance
+   * @param priority - the priority level to disable
+   */
+  void disablePriority(v_uint32 priority);
+
+  /**
+   * Returns wether or not a priority should be logged/printed
+   * @param priority
+   * @return - true if given priority should be logged
+   */
+  bool isLogPriorityEnabled(v_uint32 priority) override;
 };
 
 /**
@@ -312,6 +361,12 @@ public:
    * @param logger - system-wide logger.
    */
   static void setLogger(const std::shared_ptr<Logger>& logger);
+
+  /**
+   * Gets the current environment logger
+   * @return - current logger
+   */
+  static std::shared_ptr<Logger> getLogger();
 
   /**
    * Print debug information of compilation config.<br>

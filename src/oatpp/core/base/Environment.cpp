@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <oatpp@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +58,7 @@ DefaultLogger::DefaultLogger(const Config& config)
   : m_config(config)
 {}
 
-void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::string& message) {
+void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::string& message) {
 
   bool indent = false;
   auto time = std::chrono::system_clock::now().time_since_epoch();
@@ -89,15 +90,21 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
       std::cout << " " << priority << " |";
   }
 
-  if(m_config.timeFormat) {
-    time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
+  if (m_config.timeFormat) {
+	time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
     struct tm now;
     localtime_r(&seconds, &now);
-    std::cout << std::put_time(&now, m_config.timeFormat);
+#ifdef OATPP_DISABLE_STD_PUT_TIME
+	  char timeBuffer[50];
+      strftime(timeBuffer, sizeof(timeBuffer), m_config.timeFormat, &now);
+      std::cout << timeBuffer;
+#else
+      std::cout << std::put_time(&now, m_config.timeFormat);
+#endif
     indent = true;
   }
 
-  if(m_config.printTicks) {
+  if (m_config.printTicks) {
     auto ticks = std::chrono::duration_cast<std::chrono::microseconds>(time).count();
     if(indent) {
       std::cout << " ";
@@ -106,13 +113,32 @@ void DefaultLogger::log(v_int32 priority, const std::string& tag, const std::str
     indent = true;
   }
 
-  if(indent) {
+  if (indent) {
     std::cout << "|";
   }
-  std::cout << " " << tag << ":" << message << std::endl;
+
+  if (message.empty()) {
+    std::cout << " " << tag << std::endl;
+  } else {
+    std::cout << " " << tag << ":" << message << std::endl;
+  }
 
 }
 
+void DefaultLogger::enablePriority(v_uint32 priority) {
+  m_config.logMask |= (1 << priority);
+}
+
+void DefaultLogger::disablePriority(v_uint32 priority) {
+  m_config.logMask &= ~(1 << priority);
+}
+
+bool DefaultLogger::isLogPriorityEnabled(v_uint32 priority) {
+  if (priority > PRIORITY_E) {
+    return true;
+  }
+  return m_config.logMask & (1 << priority);
+}
 
 void Environment::init() {
   init(std::make_shared<DefaultLogger>());
@@ -162,19 +188,19 @@ void Environment::destroy(){
 
 void Environment::checkTypes(){
 
-  OATPP_ASSERT(sizeof(v_char8) == 1);
-  OATPP_ASSERT(sizeof(v_int16) == 2);
-  OATPP_ASSERT(sizeof(v_uint16) == 2);
-  OATPP_ASSERT(sizeof(v_int32) == 4);
-  OATPP_ASSERT(sizeof(v_int64) == 8);
-  OATPP_ASSERT(sizeof(v_uint32) == 4);
-  OATPP_ASSERT(sizeof(v_uint64) == 8);
-  OATPP_ASSERT(sizeof(v_float64) == 8);
+  static_assert(sizeof(v_char8) == 1, "");
+  static_assert(sizeof(v_int16) == 2, "");
+  static_assert(sizeof(v_uint16) == 2, "");
+  static_assert(sizeof(v_int32) == 4, "");
+  static_assert(sizeof(v_int64) == 8, "");
+  static_assert(sizeof(v_uint32) == 4, "");
+  static_assert(sizeof(v_uint64) == 8, "");
+  static_assert(sizeof(v_float64) == 8, "");
 
-  v_int32 vInt32 = ~1;
-  v_int64 vInt64 = ~1;
-  v_uint32 vUInt32 = ~1;
-  v_uint64 vUInt64 = ~1;
+  v_int32 vInt32 = ~v_int32(1);
+  v_int64 vInt64 = ~v_int64(1);
+  v_uint32 vUInt32 = ~v_uint32(1);
+  v_uint64 vUInt64 = ~v_uint64(1);
 
   OATPP_ASSERT(vInt32 < 0);
   OATPP_ASSERT(vInt64 < 0);
@@ -233,6 +259,10 @@ void Environment::setLogger(const std::shared_ptr<Logger>& logger){
   m_logger = logger;
 }
 
+std::shared_ptr<Logger> Environment::getLogger() {
+  return m_logger;
+}
+
 void Environment::printCompilationConfig() {
 
   OATPP_LOGD("oatpp-version", OATPP_VERSION);
@@ -264,14 +294,32 @@ void Environment::log(v_int32 priority, const std::string& tag, const std::strin
 }
 
 void Environment::logFormatted(v_int32 priority, const std::string& tag, const char* message, ...) {
-  if(message == nullptr) {
-    message = "[null]";
+  // do we have a logger and the priority is enabled?
+  if (m_logger == nullptr || !m_logger->isLogPriorityEnabled(priority)) {
+    return;
   }
-  char buffer[4097];
+  // if we dont need to format anything, just print the message
+  if(message == nullptr) {
+    log(priority, tag, std::string());
+    return;
+  }
+  // check how big our buffer has to be
   va_list args;
-  va_start (args, message);
-  vsnprintf(buffer, 4096, message, args);
-  log(priority, tag, buffer);
+  va_start(args, message);
+  v_buff_size allocsize = vsnprintf(nullptr, 0, message, args) + 1;
+  va_end(args);
+  // alloc the buffer (or the max size)
+  if (allocsize > m_logger->getMaxFormattingBufferSize()) {
+    allocsize = m_logger->getMaxFormattingBufferSize();
+  }
+  auto buffer = std::unique_ptr<char[]>(new char[allocsize]);
+  memset(buffer.get(), 0, allocsize);
+  // actually format
+  va_start(args, message);
+  vsnprintf(buffer.get(), allocsize, message, args);
+  // call (user) providen log function
+  log(priority, tag, buffer.get());
+  // cleanup
   va_end(args);
 }
 
@@ -287,12 +335,12 @@ void Environment::registerComponent(const std::string& typeName, const std::stri
 void Environment::unregisterComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto& bucket = bucketIt->second;
   auto componentIt = bucket.find(componentName);
   if(componentIt == bucket.end()) {
-    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component with given name does't exist: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component with given name doesn't exist: name='" + componentName + "'");
   }
   bucket.erase(componentIt);
   if(bucket.size() == 0) {
@@ -303,7 +351,7 @@ void Environment::unregisterComponent(const std::string& typeName, const std::st
 void* Environment::getComponent(const std::string& typeName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
   if(bucket.size() > 1){
@@ -315,12 +363,12 @@ void* Environment::getComponent(const std::string& typeName) {
 void* Environment::getComponent(const std::string& typeName, const std::string& componentName) {
   auto bucketIt = m_components.find(typeName);
   if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
-    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type does't exist: type='" + typeName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
   auto componentIt = bucket.find(componentName);
   if(componentIt == bucket.end()) {
-    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component with given name does't exist: name='" + componentName + "'");
+    throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component with given name doesn't exist: name='" + componentName + "'");
   }
   return componentIt->second;
 }

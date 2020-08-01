@@ -55,7 +55,11 @@ public:
   API_CALL("GET", "queries/map", getWithQueriesMap, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
-  API_CALL("POST", "body-dto", postBodyDto, BODY_DTO(TestDto::ObjectWrapper, body))
+  API_CALL("POST", "body-dto", postBodyDto, BODY_DTO(Object<TestDto>, body))
+
+  API_CALL("GET", "enum/as-string", getHeaderEnumAsString, HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
+  API_CALL("GET", "enum/as-number", getHeaderEnumAsNumber, HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
+
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
 

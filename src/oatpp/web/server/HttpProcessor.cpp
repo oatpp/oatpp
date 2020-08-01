@@ -70,8 +70,8 @@ HttpProcessor::ProcessingResources::ProcessingResources(const std::shared_ptr<Co
                                                         const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection)
   : components(pComponents)
   , connection(pConnection)
-  , headersInBuffer(components->config->headersInBufferInitial, components->config->headersInBufferGrow)
-  , headersOutBuffer(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow)
+  , headersInBuffer(components->config->headersInBufferInitial)
+  , headersOutBuffer(components->config->headersOutBufferInitial)
   , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
   , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
 {}
@@ -125,18 +125,18 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   } catch (oatpp::web::protocol::http::HttpError& error) {
 
-    auto response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+    response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
     response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
     return false;
 
   } catch (std::exception& error) {
 
-    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+    response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
     response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
     return false;
 
   } catch (...) {
-    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+    response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
     response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
     return false;
   }
@@ -210,9 +210,9 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
                                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
   : m_components(components)
   , m_connection(connection)
-  , m_headersInBuffer(components->config->headersInBufferInitial, components->config->headersInBufferGrow)
+  , m_headersInBuffer(components->config->headersInBufferInitial)
   , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
-  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial, components->config->headersOutBufferGrow))
+  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
   , m_connectionState(oatpp::web::protocol::http::utils::CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE)
 {}

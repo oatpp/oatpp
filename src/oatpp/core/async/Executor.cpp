@@ -164,7 +164,7 @@ v_int32 Executor::chooseTimerWorkersCount(v_int32 timerWorkersCount) {
 v_int32 Executor::chooseIOWorkerType(v_int32 ioWorkerType) {
 
   if(ioWorkerType == VALUE_SUGGESTED) {
-#if defined(WIN32) || defined(_WIN32)
+#if defined(OATPP_IO_EVENT_INTERFACE_STUB)
     return IO_WORKER_TYPE_NAIVE;
 #else
     return IO_WORKER_TYPE_EVENT;

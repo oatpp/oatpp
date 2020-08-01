@@ -218,21 +218,21 @@ public:
      * @tparam T
      * @param contentType
      */
-    template<class T>
-    void addConsumes(const oatpp::String& contentType) {
-      consumes.push_back({contentType, T::Class::getType()});
+    template<class Wrapper>
+    void addConsumes(const oatpp::String& contentType, const oatpp::String& description = oatpp::String()) {
+      consumes.push_back({contentType, Wrapper::Class::getType(), description});
     }
 
     /**
      * Add response info to endpoint
-     * @tparam T
+     * @tparam Wrapper
      * @param status
      * @param contentType
      * @param responseDescription
      */
-    template<class T>
+    template<class Wrapper>
     void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription = oatpp::String()) {
-      responses[status] = {contentType, T::Class::getType(), responseDescription.get() == nullptr ? status.description : responseDescription};
+      responses[status] = {contentType, Wrapper::Class::getType(), responseDescription.get() == nullptr ? status.description : responseDescription};
     }
 
     /**

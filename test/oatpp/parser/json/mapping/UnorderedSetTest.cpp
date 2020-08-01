@@ -22,12 +22,32 @@
  *
  ***************************************************************************/
 
-#include "ListMap.hpp"
+#include "UnorderedSetTest.hpp"
 
-namespace oatpp { namespace data { namespace mapping { namespace type {
+#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+
+namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+
+void UnorderedSetTest::onRun() {
+
+  oatpp::parser::json::mapping::ObjectMapper mapper;
+
+  {
+    oatpp::UnorderedSet<oatpp::String> set = {"Hello", "World", "!"};
+    auto json = mapper.writeToString(set);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+  }
+
+  {
+    oatpp::String json = "[\"Hello\",\"World\",\"!\",\"Hello\",\"World\",\"!\"]";
+    auto set = mapper.readFromString<oatpp::UnorderedSet<oatpp::String>>(json);
+    OATPP_ASSERT(set);
+    OATPP_ASSERT(set->size() == 3);
+    for(auto& item : *set) {
+      OATPP_LOGD(TAG, "item='%s'", item->c_str());
+    }
+  }
   
-namespace __class {
-  const ClassId AbstractListMap::CLASS_ID("ListMap");
 }
-  
-}}}}
+
+}}}}}

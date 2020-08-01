@@ -41,8 +41,8 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 class BodyDecoder {
 private:
   
-  template<class Type>
-  class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Type>, const typename Type::ObjectWrapper&> {
+  template<class Wrapper>
+  class ToDtoDecoder : public oatpp::async::CoroutineWithResult<ToDtoDecoder<Wrapper>, const Wrapper&> {
   private:
     const BodyDecoder* m_decoder;
     Headers m_headers;
@@ -69,7 +69,7 @@ private:
     oatpp::async::Action onDecoded() {
       auto body = m_outputStream->toString();
       oatpp::parser::Caret caret(body);
-      auto dto = m_objectMapper->readFromCaret<Type>(caret);
+      auto dto = m_objectMapper->readFromCaret<Wrapper>(caret);
       if(caret.hasError()) {
         return this->template error<oatpp::async::Error>(caret.getErrorMessage());
       }
@@ -118,17 +118,17 @@ public:
 
   /**
    * Read body stream, decode, and deserialize it as DTO Object (see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/)).
-   * @tparam Type - DTO object type.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - pointer to &id:oatpp::data::stream::InputStream;.
    * @param objectMapper - pointer to &id:oatpp::data::mapping::ObjectMapper;.
    * @return - deserialized DTO object.
    */
-  template<class Type>
-  typename Type::ObjectWrapper decodeToDto(const Headers& headers,
-                                           data::stream::InputStream* bodyStream,
-                                           data::mapping::ObjectMapper* objectMapper) const {
-    return objectMapper->readFromString<Type>(decodeToString(headers, bodyStream));
+  template<class Wrapper>
+  Wrapper decodeToDto(const Headers& headers,
+                      data::stream::InputStream* bodyStream,
+                      data::mapping::ObjectMapper* objectMapper) const {
+    return objectMapper->readFromString<Wrapper>(decodeToString(headers, bodyStream));
   }
 
   /**
@@ -142,18 +142,18 @@ public:
 
   /**
    * Same as &l:BodyDecoder::decodeToDto (); but Async.
-   * @tparam DtoType - DTO object type.
+   * @tparam Wrapper - ObjectWrapper type.
    * @param headers - Headers map. &id:oatpp::web::protocol::http::Headers;.
    * @param bodyStream - `std::shared_ptr` to &id:oatpp::data::stream::InputStream;.
    * @param objectMapper - `std::shared_ptr` to &id:oatpp::data::mapping::ObjectMapper;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  template<class DtoType>
-  oatpp::async::CoroutineStarterForResult<const typename DtoType::ObjectWrapper&>
+  template<class Wrapper>
+  oatpp::async::CoroutineStarterForResult<const Wrapper&>
   decodeToDtoAsync(const Headers& headers,
                    const std::shared_ptr<data::stream::InputStream>& bodyStream,
                    const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) const {
-    return ToDtoDecoder<DtoType>::startForResult(this, headers, bodyStream, objectMapper);
+    return ToDtoDecoder<Wrapper>::startForResult(this, headers, bodyStream, objectMapper);
   }
   
 };

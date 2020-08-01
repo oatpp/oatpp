@@ -95,13 +95,13 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(c
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
-                                                                                  const oatpp::data::mapping::type::AbstractObjectWrapper& dto,
+                                                                                  const oatpp::Void& dto,
                                                                                   const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
   return ResponseFactory::createResponse(status, dto, objectMapper);
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
-                                                                                  const oatpp::data::mapping::type::AbstractObjectWrapper& dto) const {
+                                                                                  const oatpp::Void& dto) const {
   return ResponseFactory::createResponse(status, dto, m_defaultObjectMapper);
 }
 

@@ -39,6 +39,8 @@ namespace oatpp { namespace data { namespace share {
  */
 template<class Key>
 class LazyStringMap {
+public:
+  typedef oatpp::data::mapping::type::String String;
 private:
   mutable concurrency::SpinLock m_lock;
   mutable bool m_fullyInitialized;
@@ -181,7 +183,7 @@ public:
    * @param key
    * @return
    */
-  oatpp::String get(const Key& key) const {
+  String get(const Key& key) const {
 
     std::lock_guard<concurrency::SpinLock> lock(m_lock);
 

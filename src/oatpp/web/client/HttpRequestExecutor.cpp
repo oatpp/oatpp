@@ -62,7 +62,7 @@ HttpRequestExecutor::createShared(const std::shared_ptr<ClientConnectionProvider
 }
 
 std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getConnection() {
-  auto connection = m_connectionProvider->getConnection();
+  auto connection = m_connectionProvider->get();
   if(!connection){
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                 "[oatpp::web::client::HttpRequestExecutor::getConnection()]: ConnectionProvider failed to provide Connection");
@@ -83,7 +83,7 @@ HttpRequestExecutor::getConnectionAsync() {
     {}
     
     Action act() override {
-      return m_connectionProvider->getConnectionAsync().callbackTo(&GetConnectionCoroutine::onConnectionReady);
+      return m_connectionProvider->getAsync().callbackTo(&GetConnectionCoroutine::onConnectionReady);
     }
     
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
@@ -100,7 +100,7 @@ void HttpRequestExecutor::invalidateConnection(const std::shared_ptr<ConnectionH
 
   if(connectionHandle) {
     auto connection = static_cast<HttpConnectionHandle*>(connectionHandle.get())->connection;
-    m_connectionProvider->invalidateConnection(connection);
+    m_connectionProvider->invalidate(connection);
   }
 
 }

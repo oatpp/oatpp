@@ -25,22 +25,27 @@
 #ifndef oatpp_test_web_app_DTOs_hpp
 #define oatpp_test_web_app_DTOs_hpp
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class TestDto : public oatpp::data::mapping::type::Object {
+class TestDto : public oatpp::DTO {
   
-  DTO_INIT(TestDto, Object)
+  DTO_INIT(TestDto, DTO)
   
   DTO_FIELD(String, testValue);
   DTO_FIELD(Int32, testValueInt);
-  DTO_FIELD(Fields<String>::ObjectWrapper, testMap);
+  DTO_FIELD(Fields<String>, testMap);
   
 };
+
+ENUM(AllowedPathParams, v_int32,
+  VALUE(HELLO, 100, "hello"),
+  VALUE(WORLD, 200, "world")
+)
 
 #include OATPP_CODEGEN_END(DTO)
   

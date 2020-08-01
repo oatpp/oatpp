@@ -113,16 +113,16 @@ public:
   ENDPOINT("GET", "queries", getWithQueries,
            QUERY(String, name), QUERY(Int32, age)) {
     auto dto = TestDto::createShared();
-    dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(age->getValue());
+    dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(*age);
     return createDtoResponse(Status::CODE_200, dto);
   }
 
   ENDPOINT("GET", "queries/map", getWithQueriesMap,
            QUERIES(QueryParams, queries)) {
     auto dto = TestDto::createShared();
-    dto->testMap = dto->testMap->createShared();
+    dto->testMap = dto->testMap.createShared();
     for(auto& it : queries.getAll()) {
-      dto->testMap->put(it.first.toString(), it.second.toString());
+      dto->testMap[it.first.toString()] = it.second.toString();
     }
     return createDtoResponse(Status::CODE_200, dto);
   }
@@ -144,7 +144,7 @@ public:
   }
 
   ENDPOINT("POST", "body-dto", postBodyDto,
-           BODY_DTO(TestDto::ObjectWrapper, body)) {
+           BODY_DTO(Object<TestDto>, body)) {
     //OATPP_LOGV(TAG, "POST body %s", body->c_str());
     return createDtoResponse(Status::CODE_200, body);
   }
@@ -220,7 +220,7 @@ public:
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::StreamingBody>
-      (std::make_shared<ReadCallback>(text, numIterations->getValue()));
+      (std::make_shared<ReadCallback>(text, *numIterations));
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }
 
@@ -343,6 +343,18 @@ public:
       false /* flush frames immediately */
     );
     return OutgoingResponse::createShared(Status::CODE_200, body);
+  }
+
+  ENDPOINT("GET", "enum/as-string", testEnumString,
+           HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
+  {
+    return createResponse(Status::CODE_200, "OK");
+  }
+
+  ENDPOINT("GET", "enum/as-number", testEnumNumber,
+           HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
+  {
+    return createResponse(Status::CODE_200, "OK");
   }
   
 };

@@ -30,6 +30,17 @@
 namespace oatpp {
 
   /**
+   * ObjectWrapper over the `void*`.
+   */
+  typedef oatpp::data::mapping::type::Void Void;
+
+  /**
+   * `Any` - container for mapping-enabled types.
+   * &id:oatpp::data::mapping::type::Any;
+   */
+  typedef oatpp::data::mapping::type::Any Any;
+
+  /**
    * Mapping-Enabled String type. &id:oatpp::data::mapping::type::String; <br>
    * For `oatpp::String` methods see &id:oatpp::base::StrBuffer;
    */
@@ -91,21 +102,88 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Boolean Boolean;
 
   /**
-   * Mapping-Enabled Object. Base class for all DTO objects. &id:oatpp::data::mapping::type::Object;
+   * Base class for all DTO objects. &id:oatpp::data::mapping::type::DTO;
    */
-  typedef oatpp::data::mapping::type::Object Object;
+  typedef oatpp::data::mapping::type::DTO DTO;
 
-  /*
+  /**
+   * Mapping-Enabled DTO Object. &id:oatpp::data::mapping::type::DTOWrapper;
+   */
+  template <class T>
+  using Object = oatpp::data::mapping::type::DTOWrapper<T>;
+
+  /**
+   * Mapping-Enabled Enum. &id:oatpp::data::mapping::type::Enum;
+   */
+  template <class T>
+  using Enum = oatpp::data::mapping::type::Enum<T>;
+
+  /**
+   * Mapping-Enabled Vector. &id:oatpp::data::mapping::type::Vector;
+   */
+  template <class T>
+  using Vector = oatpp::data::mapping::type::Vector<T>;
+
+  /**
+   * Abstract Vector.
+   */
+  typedef oatpp::data::mapping::type::AbstractVector AbstractVector;
+
+  /**
    * Mapping-Enabled List. &id:oatpp::data::mapping::type::List;
    */
   template <class T>
   using List = oatpp::data::mapping::type::List<T>;
 
-  /*
-   * Mapping-Enables ListMap<String, Value>. &id:oatpp::data::mapping::type::ListMap;
+  /**
+   * Abstract List.
+   */
+  typedef oatpp::data::mapping::type::AbstractList AbstractList;
+
+  /**
+   * Mapping-Enabled UnorderedSet. &id:oatpp::data::mapping::type::UnorderedSet;
+   */
+  template <class T>
+  using UnorderedSet = oatpp::data::mapping::type::UnorderedSet<T>;
+
+  /**
+   * Abstract UnorderedSet.
+   */
+  typedef oatpp::data::mapping::type::AbstractUnorderedSet AbstractUnorderedSet;
+
+  /**
+   * Mapping-Enabled PairList<Key, Value>. &id:oatpp::data::mapping::type::PairList;
+   */
+  template <class Key, class Value>
+  using PairList = oatpp::data::mapping::type::PairList<Key, Value>;
+
+  /**
+   * Mapping-Enabled PairList<String, Value>. &id:oatpp::data::mapping::type::PairList;
    */
   template <class Value>
-  using Fields = oatpp::data::mapping::type::ListMap<String, Value>;
+  using Fields = oatpp::PairList<String, Value>;
+
+  /**
+   * Abstract Fields
+   */
+  typedef data::mapping::type::PairListObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractPairList> AbstractFields;
+
+  /**
+   * Mapping-Enabled UnorderedMap<Key, Value>. &id:oatpp::data::mapping::type::UnorderedMap;.
+   */
+  template <class Key, class Value>
+  using UnorderedMap = oatpp::data::mapping::type::UnorderedMap<Key, Value>;
+
+  /**
+   * Mapping-Enabled UnorderedMap<String, Value>. &id:oatpp::data::mapping::type::UnorderedMap;.
+   */
+  template <class Value>
+  using UnorderedFields = oatpp::UnorderedMap<String, Value>;
+
+  /**
+   * Abstract UnorderedFields
+   */
+  typedef data::mapping::type::UnorderedMapObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractUnorderedMap> AbstractUnorderedFields;
   
 }
 

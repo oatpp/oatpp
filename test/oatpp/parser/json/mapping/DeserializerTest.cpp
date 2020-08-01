@@ -32,19 +32,18 @@ namespace oatpp { namespace test { namespace parser { namespace json { namespace
 namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
-  
-typedef oatpp::data::mapping::type::Object DTO;
+
 typedef oatpp::parser::Caret ParsingCaret;
 typedef oatpp::parser::json::mapping::Serializer Serializer;
 typedef oatpp::parser::json::mapping::Deserializer Deserializer;
 
-class EmptyDto : public DTO {
+class EmptyDto : public oatpp::DTO {
 
   DTO_INIT(EmptyDto, DTO)
 
 };
 
-class Test1 : public DTO {
+class Test1 : public oatpp::DTO {
   
   DTO_INIT(Test1, DTO)
   
@@ -52,7 +51,7 @@ class Test1 : public DTO {
   
 };
   
-class Test2 : public DTO {
+class Test2 : public oatpp::DTO {
   
   DTO_INIT(Test2, DTO)
   
@@ -60,7 +59,7 @@ class Test2 : public DTO {
   
 };
   
-class Test3 : public DTO {
+class Test3 : public oatpp::DTO {
   
   DTO_INIT(Test3, DTO)
   
@@ -68,13 +67,13 @@ class Test3 : public DTO {
   
 };
 
-class Test4 : public DTO {
+class Test4 : public oatpp::DTO {
 
   DTO_INIT(Test4, DTO)
 
-  DTO_FIELD(EmptyDto::ObjectWrapper, object);
-  DTO_FIELD(List<EmptyDto::ObjectWrapper>::ObjectWrapper, list);
-  DTO_FIELD(Fields<EmptyDto::ObjectWrapper>::ObjectWrapper, map);
+  DTO_FIELD(Object<EmptyDto>, object);
+  DTO_FIELD(List<Object<EmptyDto>>, list);
+  DTO_FIELD(Fields<Object<EmptyDto>>, map);
 
 };
   
@@ -86,95 +85,95 @@ void DeserializerTest::onRun(){
   
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   
-  auto obj1 = mapper->readFromString<Test1>("{}");
+  auto obj1 = mapper->readFromString<oatpp::Object<Test1>>("{}");
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(!obj1->strF);
   
-  obj1 = mapper->readFromString<Test1>("{\"strF\":\"value1\"}");
+  obj1 = mapper->readFromString<oatpp::Object<Test1>>("{\"strF\":\"value1\"}");
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(obj1->strF);
   OATPP_ASSERT(obj1->strF->equals("value1"));
   
-  obj1 = mapper->readFromString<Test1>("{\n\r\t\f\"strF\"\n\r\t\f:\n\r\t\f\"value1\"\n\r\t\f}");
+  obj1 = mapper->readFromString<oatpp::Object<Test1>>("{\n\r\t\f\"strF\"\n\r\t\f:\n\r\t\f\"value1\"\n\r\t\f}");
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(obj1->strF);
   OATPP_ASSERT(obj1->strF->equals("value1"));
   
-  auto obj2 = mapper->readFromString<Test2>("{\"int32F\": null}");
+  auto obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\": null}");
   
   OATPP_ASSERT(obj2);
   OATPP_ASSERT(!obj2->int32F);
   
-  obj2 = mapper->readFromString<Test2>("{\"int32F\": 32}");
+  obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\": 32}");
   
   OATPP_ASSERT(obj2);
-  OATPP_ASSERT(obj2->int32F->getValue() == 32);
+  OATPP_ASSERT(obj2->int32F == 32);
   
-  obj2 = mapper->readFromString<Test2>("{\"int32F\":    -32}");
+  obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\":    -32}");
   
   OATPP_ASSERT(obj2);
-  OATPP_ASSERT(obj2->int32F->getValue() == -32);
+  OATPP_ASSERT(obj2->int32F == -32);
   
-  auto obj3 = mapper->readFromString<Test3>("{\"float32F\": null}");
+  auto obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": null}");
   
   OATPP_ASSERT(obj3);
   OATPP_ASSERT(!obj3->float32F);
   
-  obj3 = mapper->readFromString<Test3>("{\"float32F\": 32}");
+  obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 32}");
   
   OATPP_ASSERT(obj3);
-  OATPP_ASSERT(obj3->float32F->getValue() == 32);
+  OATPP_ASSERT(obj3->float32F == 32);
   
-  obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e1}");
-  
-  OATPP_ASSERT(obj3);
-  OATPP_ASSERT(obj3->float32F);
-  
-  obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e+1 }");
+  obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e1}");
   
   OATPP_ASSERT(obj3);
   OATPP_ASSERT(obj3->float32F);
   
-  obj3 = mapper->readFromString<Test3>("{\"float32F\": 1.32e-1 }");
+  obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e+1 }");
   
   OATPP_ASSERT(obj3);
   OATPP_ASSERT(obj3->float32F);
   
-  obj3 = mapper->readFromString<Test3>("{\"float32F\": -1.32E-1 }");
+  obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e-1 }");
   
   OATPP_ASSERT(obj3);
   OATPP_ASSERT(obj3->float32F);
   
-  obj3 = mapper->readFromString<Test3>("{\"float32F\": -1.32E1 }");
+  obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": -1.32E-1 }");
   
   OATPP_ASSERT(obj3);
   OATPP_ASSERT(obj3->float32F);
   
-  auto list = mapper->readFromString<Test1::List<Test1::Int32>>("[1, 2, 3]");
+  obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": -1.32E1 }");
+  
+  OATPP_ASSERT(obj3);
+  OATPP_ASSERT(obj3->float32F);
+  
+  auto list = mapper->readFromString<oatpp::List<oatpp::Int32>>("[1, 2, 3]");
   OATPP_ASSERT(list);
-  OATPP_ASSERT(list->count() == 3);
-  OATPP_ASSERT(list->get(0)->getValue() == 1);
-  OATPP_ASSERT(list->get(1)->getValue() == 2);
-  OATPP_ASSERT(list->get(2)->getValue() == 3);
+  OATPP_ASSERT(list->size() == 3);
+  OATPP_ASSERT(list[0] == 1);
+  OATPP_ASSERT(list[1] == 2);
+  OATPP_ASSERT(list[2] == 3);
 
   // Empty test
 
-  auto obj4 = mapper->readFromString<Test4>("{\"object\": {}, \"list\": [], \"map\": {}}");
+  auto obj4 = mapper->readFromString<oatpp::Object<Test4>>("{\"object\": {}, \"list\": [], \"map\": {}}");
   OATPP_ASSERT(obj4);
   OATPP_ASSERT(obj4->object);
   OATPP_ASSERT(obj4->list);
-  OATPP_ASSERT(obj4->list->count() == 0);
-  OATPP_ASSERT(obj4->map->count() == 0);
+  OATPP_ASSERT(obj4->list->size() == 0);
+  OATPP_ASSERT(obj4->map->size() == 0);
 
-  obj4 = mapper->readFromString<Test4>("{\"object\": {\n\r\t}, \"list\": [\n\r\t], \"map\": {\n\r\t}}");
+  obj4 = mapper->readFromString<oatpp::Object<Test4>>("{\"object\": {\n\r\t}, \"list\": [\n\r\t], \"map\": {\n\r\t}}");
   OATPP_ASSERT(obj4);
   OATPP_ASSERT(obj4->object);
   OATPP_ASSERT(obj4->list);
-  OATPP_ASSERT(obj4->list->count() == 0);
-  OATPP_ASSERT(obj4->map->count() == 0);
+  OATPP_ASSERT(obj4->list->size() == 0);
+  OATPP_ASSERT(obj4->map->size() == 0);
 
 }
   
