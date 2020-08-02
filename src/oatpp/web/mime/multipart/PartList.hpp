@@ -64,13 +64,13 @@ public:
    * Read part-by-part from Multipart.
    * @return
    */
-  std::shared_ptr<Part> readNextPart() override;
+  std::shared_ptr<Part> readNextPart(async::Action& action) override;
 
   /**
    * Write part-by-part to Multipart.
    * @param part
    */
-  void writeNextPart(const std::shared_ptr<Part>& part) override;
+  void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) override;
 
   /**
    * Get part by name <br>

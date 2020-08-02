@@ -38,6 +38,25 @@ oatpp::String Multipart::getBoundary() {
   return m_boundary;
 }
 
+std::shared_ptr<Part> Multipart::readNextPartSimple() {
+  async::Action action;
+  auto result = readNextPart(action);
+  if(!action.isNone()) {
+    throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::readNextPartSimple()]. Error."
+                             "Async method is called for non-async API.");
+  }
+  return result;
+}
+
+void Multipart::writeNextPartSimple(const std::shared_ptr<Part>& part) {
+  async::Action action;
+  writeNextPart(part, action);
+  if(!action.isNone()) {
+    throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::writeNextPartSimple()]. Error."
+                             "Async method is called for non-async API.");
+  }
+}
+
 oatpp::String Multipart::generateRandomBoundary(v_int32 boundarySize) {
   std::unique_ptr<v_char8[]> buffer(new v_char8[boundarySize]);
   utils::random::Random::randomBytes(buffer.get(), boundarySize);

@@ -65,13 +65,27 @@ public:
    * Read part-by-part from Multipart.
    * @return
    */
-  virtual std::shared_ptr<Part> readNextPart() = 0;
+  virtual std::shared_ptr<Part> readNextPart(async::Action& action) = 0;
 
   /**
    * Write part-by-part to Multipart.
    * @param part
    */
-  virtual void writeNextPart(const std::shared_ptr<Part>& part) = 0;
+  virtual void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) = 0;
+
+  /**
+   * Read part-by-part from Multipart. <br>
+   * Call writeNextPart(...) and throw if `action.isNone() == false`.
+   * @return
+   */
+  std::shared_ptr<Part> readNextPartSimple();
+
+  /**
+   * Write part-by-part to Multipart.
+   * Call writeNextPartSimple(...) and throw if `action.isNone() == false`.
+   * @param part
+   */
+  void writeNextPartSimple(const std::shared_ptr<Part>& part);
 
 public:
 

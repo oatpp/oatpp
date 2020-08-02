@@ -32,12 +32,14 @@ v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action
   const auto& stream = part->getInputStream();
   if(!stream) {
     OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream", m_state);
-    m_iterator.inc();
+    m_iterator.inc(action);
     return 0;
   }
   auto res = stream->read(buffer, count, action);
   if(res == 0) {
-    m_iterator.inc();
+    if(action.isNone()) {
+      m_iterator.inc(action);
+    }
   }
   return res;
 }
@@ -45,6 +47,11 @@ v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action
 v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& action) {
 
   if(m_state == STATE_FINISHED) {
+    return 0;
+  }
+
+  m_iterator.init(action);
+  if(!action.isNone()) {
     return 0;
   }
 
@@ -170,9 +177,6 @@ MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, const 
 {}
 
 void MultipartBody::declareHeaders(Headers& headers) {
-  if(m_iterator.finished()) {
-    return;
-  }
   headers.put_LockFree(oatpp::web::protocol::http::Header::CONTENT_TYPE, m_contentType + "; boundary=" + m_multipart->getBoundary());
 }
 

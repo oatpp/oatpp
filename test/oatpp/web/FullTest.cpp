@@ -122,7 +122,7 @@ std::shared_ptr<PartList> createMultipart(const std::unordered_map<oatpp::String
 
     oatpp::web::mime::multipart::Headers partHeaders;
     auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
-    multipart->writeNextPart(part);
+    multipart->writeNextPartSimple(part);
     part->putHeader("Content-Disposition", "form-data; name=\"" + pair.first + "\"");
     part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(pair.second));
 

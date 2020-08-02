@@ -66,17 +66,28 @@ private:
     std::shared_ptr<Multipart> m_multipart;
     std::shared_ptr<Part> m_part;
     bool m_isFirst;
+    bool m_initialized;
   public:
 
     PartIterator(const std::shared_ptr<Multipart>& multipart)
       : m_multipart(multipart)
-      , m_part(m_multipart->readNextPart())
+      , m_part(nullptr)
       , m_isFirst(true)
+      , m_initialized(false)
     {}
 
-    void inc() {
-      m_part = m_multipart->readNextPart();
-      m_isFirst = false;
+    void init(async::Action& action) {
+      if(!m_initialized) {
+        m_part = m_multipart->readNextPart(action);
+        m_initialized = true;
+      }
+    }
+
+    void inc(async::Action& action) {
+      m_part = m_multipart->readNextPart(action);
+      if(m_part) {
+        m_isFirst = false;
+      }
     }
 
     bool finished() {

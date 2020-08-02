@@ -298,21 +298,24 @@ public:
       : oatpp::web::mime::multipart::Multipart(generateRandomBoundary())
     {}
 
-    std::shared_ptr<Part> readNextPart() override {
+    std::shared_ptr<Part> readNextPart(async::Action& action) override {
+
+      if(counter == 5) {
+        return nullptr;
+      }
 
       std::this_thread::sleep_for(std::chrono::seconds(1));
 
       auto part = std::make_shared<Part>();
       part->putHeader(Header::CONTENT_TYPE, "text/html");
 
-//      oatpp::String frameData;
-//
+      oatpp::String frameData;
+
 //      if(counter % 2 == 0) {
 //        frameData = "<html><body>0</body></html>";
 //      } else {
 //        frameData = "<html><body>1</body></html>";
 //      }
-//
 //      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(frameData));
 
       if(counter % 2 == 0) {
@@ -329,7 +332,7 @@ public:
 
     }
 
-    void writeNextPart(const std::shared_ptr<Part>& part) override {
+    void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) override {
       throw std::runtime_error("No writes here!!!");
     }
 
@@ -340,7 +343,7 @@ public:
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
       multipart,
       "multipart/x-mixed-replace",
-      false /* flush frames immediately */
+      true /* flush frames immediately */
     );
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }
