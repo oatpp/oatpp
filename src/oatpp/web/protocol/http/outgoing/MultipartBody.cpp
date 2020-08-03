@@ -32,16 +32,17 @@ v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action
   const auto& stream = part->getInputStream();
   if(!stream) {
     OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream", m_state);
-    m_iterator.inc(action);
     return 0;
   }
-  auto res = stream->read(buffer, count, action);
-  if(res == 0) {
-    if(action.isNone()) {
-      m_iterator.inc(action);
-    }
+  return stream->read(buffer, count, action);
+}
+
+v_io_size MultipartBody::incPart(async::Action& action) {
+  m_iterator.inc(action);
+  if(action.isNone()) {
+    return 0;
   }
-  return res;
+  return oatpp::IOError::RETRY_READ;
 }
 
 v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& action) {
@@ -76,6 +77,10 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
         res = readBody(currBufferPtr, bytesLeft, action);
         break;
 
+      case STATE_INC_PART:
+        res = incPart(action);
+        break;
+
       default:
         OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid state %d", m_state);
         return 0;
@@ -93,11 +98,13 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
       }
 
       m_state += 1;
+
+      if(m_state == STATE_INC_PART && m_flushParts && bytesLeft < count) {
+        break;
+      }
+
       if(m_state == STATE_ROUND) {
         m_state = 0;
-        if(m_flushImmediately) {
-          break;
-        }
       }
 
     } else if(action.isNone()) {
@@ -167,13 +174,13 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
   return res;
 }
 
-MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, const oatpp::String& contentType, bool flushImmediately)
+MultipartBody::MultipartBody(const std::shared_ptr<Multipart>& multipart, const oatpp::String& contentType, bool flushParts)
   : m_multipart(multipart)
   , m_contentType(contentType)
   , m_iterator(multipart)
   , m_state(STATE_BOUNDARY)
   , m_readStream(nullptr, nullptr, 0)
-  , m_flushImmediately(flushImmediately)
+  , m_flushParts(flushParts)
 {}
 
 void MultipartBody::declareHeaders(Headers& headers) {

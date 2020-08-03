@@ -300,7 +300,7 @@ public:
 
     std::shared_ptr<Part> readNextPart(async::Action& action) override {
 
-      if(counter == 5) {
+      if(counter == 10) {
         return nullptr;
       }
 
@@ -343,7 +343,7 @@ public:
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
       multipart,
       "multipart/x-mixed-replace",
-      true /* flush frames immediately */
+      true /* flush parts */
     );
     return OutgoingResponse::createShared(Status::CODE_200, body);
   }

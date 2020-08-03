@@ -56,8 +56,9 @@ private:
   static constexpr v_int32 STATE_BOUNDARY = 0;
   static constexpr v_int32 STATE_HEADERS = 1;
   static constexpr v_int32 STATE_BODY = 2;
-  static constexpr v_int32 STATE_ROUND = 3; // number of possible states. used to round the state.
-  static constexpr v_int32 STATE_FINISHED = 4;
+  static constexpr v_int32 STATE_INC_PART = 3;
+  static constexpr v_int32 STATE_ROUND = 4; // number of possible states. used to round the state.
+  static constexpr v_int32 STATE_FINISHED = 5;
 
 private:
 
@@ -85,9 +86,7 @@ private:
 
     void inc(async::Action& action) {
       m_part = m_multipart->readNextPart(action);
-      if(m_part) {
-        m_isFirst = false;
-      }
+      m_isFirst = false;
     }
 
     bool finished() {
@@ -125,19 +124,21 @@ private:
   PartIterator m_iterator;
   v_int32 m_state;
   oatpp::data::stream::BufferInputStream m_readStream;
-  bool m_flushImmediately;
+  bool m_flushParts;
 private:
   v_io_size readBody(void *buffer, v_buff_size count, async::Action& action);
+  v_io_size incPart(async::Action& action);
 public:
 
   /**
    * Constructor.
    * @param multipart - multipart object.
    * @param contentType - type of the multipart. Default value = `"multipart/form-data"`.
+   * @param flushParts - flush data part by part.
    */
   MultipartBody(const std::shared_ptr<Multipart>& multipart,
                 const oatpp::String& contentType = "multipart/form-data",
-                bool flushImmediately = false);
+                bool flushParts = false);
 
   /**
    * Read operation callback.

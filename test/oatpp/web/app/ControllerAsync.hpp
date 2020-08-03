@@ -38,6 +38,7 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
+#include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
@@ -280,6 +281,81 @@ public:
 
       return _return(controller->createResponse(Status::CODE_200, "OK"));
 
+    }
+
+  };
+
+
+  class MPStream : public oatpp::web::mime::multipart::Multipart {
+  public:
+    typedef oatpp::web::mime::multipart::Part Part;
+  private:
+    v_uint32 counter = 0;
+    bool m_wait = false;
+  public:
+
+    MPStream()
+      : oatpp::web::mime::multipart::Multipart(generateRandomBoundary())
+    {}
+
+    std::shared_ptr<Part> readNextPart(async::Action& action) override {
+
+      if(counter == 10) {
+        return nullptr;
+      }
+
+      if(m_wait) {
+        m_wait = false;
+        action = async::Action::createWaitRepeatAction(1000 * 1000 + oatpp::base::Environment::getMicroTickCount());
+        return nullptr;
+      }
+
+      m_wait = true;
+
+      auto part = std::make_shared<Part>();
+      part->putHeader(Header::CONTENT_TYPE, "text/html");
+
+      oatpp::String frameData;
+
+//      if(counter % 2 == 0) {
+//        frameData = "<html><body>0</body></html>";
+//      } else {
+//        frameData = "<html><body>1</body></html>";
+//      }
+//      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(frameData));
+
+      if(counter % 2 == 0) {
+        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame1.jpg"));
+      } else {
+        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame2.jpg"));
+      }
+
+      ++ counter;
+
+      OATPP_LOGD("Multipart", "Frame sent!");
+
+      return part;
+
+    }
+
+    void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) override {
+      throw std::runtime_error("No writes here!!!");
+    }
+
+  };
+
+  ENDPOINT_ASYNC("GET", "multipart-stream", MultipartStream) {
+
+    ENDPOINT_ASYNC_INIT(MultipartStream)
+
+    Action act() {
+      auto multipart = std::make_shared<MPStream>();
+      auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
+        multipart,
+        "multipart/x-mixed-replace",
+        true /* flush parts */
+      );
+      return _return(OutgoingResponse::createShared(Status::CODE_200, body));
     }
 
   };
