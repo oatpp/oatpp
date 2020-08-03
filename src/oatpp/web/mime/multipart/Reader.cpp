@@ -135,7 +135,7 @@ async::CoroutineStarter AsyncPartsParser::onPartDone(const std::shared_ptr<Part>
     Action putPart() {
       async::Action action;
       m_multipart->writeNextPart(m_part, action);
-      if(action.isNone()) {
+      if(!action.isNone()) {
         return action;
       }
       return finish();
