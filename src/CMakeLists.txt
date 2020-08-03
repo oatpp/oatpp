@@ -184,6 +184,8 @@ add_library(oatpp
         oatpp/web/mime/multipart/Multipart.hpp
         oatpp/web/mime/multipart/Part.cpp
         oatpp/web/mime/multipart/Part.hpp
+        oatpp/web/mime/multipart/PartList.cpp
+        oatpp/web/mime/multipart/PartList.hpp
         oatpp/web/mime/multipart/Reader.cpp
         oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
@@ -249,7 +251,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
-        oatpp/web/mime/multipart/PartList.cpp oatpp/web/mime/multipart/PartList.hpp)
+)
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
