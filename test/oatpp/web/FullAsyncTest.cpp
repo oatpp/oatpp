@@ -51,7 +51,7 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
-typedef oatpp::web::mime::multipart::Multipart Multipart;
+typedef oatpp::web::mime::multipart::PartList PartList;
 typedef oatpp::web::protocol::http::outgoing::MultipartBody MultipartBody;
 
 class TestComponent {
@@ -117,15 +117,15 @@ public:
 
 };
 
-std::shared_ptr<Multipart> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
+std::shared_ptr<PartList> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
 
-  auto multipart = oatpp::web::mime::multipart::Multipart::createSharedWithRandomBoundary();
+  auto multipart = oatpp::web::mime::multipart::PartList::createSharedWithRandomBoundary();
 
   for(auto& pair : map) {
 
     oatpp::web::mime::multipart::Headers partHeaders;
     auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
-    multipart->addPart(part);
+    multipart->writeNextPartSimple(part);
     part->putHeader("Content-Disposition", "form-data; name=\"" + pair.first + "\"");
     part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(pair.second));
 
@@ -238,7 +238,7 @@ void FullAsyncTest::onRun() {
         auto response = client->multipartTest(i + 1, body);
         OATPP_ASSERT(response->getStatusCode() == 200);
 
-        multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(response->getHeaders());
+        multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(response->getHeaders());
 
         oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
         multipartReader.setPartReader("value1", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));

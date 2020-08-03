@@ -71,6 +71,11 @@ public:
   Part(const Headers& headers);
 
   /**
+   * Default constructor.
+   */
+  Part();
+
+  /**
    * Set part data info.
    * @param inputStream - input stream of the part data.
    * @param inMemoryData - possible in-memory data of the part. Same data as the referred by input stream. For convenience purposes.

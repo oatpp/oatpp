@@ -24,6 +24,7 @@
 
 #include "StatefulParserTest.hpp"
 
+#include "oatpp/web/mime/multipart/PartList.hpp"
 #include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 
@@ -102,7 +103,7 @@ void StatefulParserTest::onRun() {
 
   for(v_int32 i = 1; i < text->getSize(); i++) {
 
-    oatpp::web::mime::multipart::Multipart multipart("12345");
+    oatpp::web::mime::multipart::PartList multipart("12345");
 
     auto listener = std::make_shared<oatpp::web::mime::multipart::PartsParser>(&multipart);
     listener->setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(128));

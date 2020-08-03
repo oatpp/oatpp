@@ -37,13 +37,11 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
 typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 
 /**
- * Structure that holds parts of Multipart.
+ * Abstract Multipart.
  */
 class Multipart {
 private:
   oatpp::String m_boundary;
-  std::unordered_map<oatpp::String, std::shared_ptr<Part>> m_namedParts;
-  std::list<std::shared_ptr<Part>> m_parts;
 public:
 
   /**
@@ -53,23 +51,9 @@ public:
   Multipart(const oatpp::String& boundary);
 
   /**
-   * Constructor.
-   * @param requestHeaders - request headers. Headers must contain "Content-Type" header.
-   */
-  Multipart(const Headers& requestHeaders);
-
-  /**
    * Default virtual Destructor.
    */
   virtual ~Multipart() = default;
-
-  /**
-   * Create Multipart object with random boundary. <br>
-   * It will generate random vector of size `boundarySize` in bytes encoded in base64.
-   * @param boundarySize - size of the random vecrot in bytes.
-   * @return - `std::shared_ptr` to Multipart.
-   */
-  static std::shared_ptr<Multipart> createSharedWithRandomBoundary(v_int32 boundarySize = 15);
 
   /**
    * Get multipart boundary value.
@@ -78,39 +62,50 @@ public:
   oatpp::String getBoundary();
 
   /**
-   * Add part to Multipart.
-   * @param part - &id:oatpp::web::mime::multipart::Part;.
+   * Read part-by-part from Multipart.
+   * @return
    */
-  void addPart(const std::shared_ptr<Part>& part);
+  virtual std::shared_ptr<Part> readNextPart(async::Action& action) = 0;
 
   /**
-   * Get part by name <br>
-   * Applicable to named parts only.
-   * @param name - &id:oatpp::String;.
-   * @return - &id:oatpp::web::mime::multipart::Part;.
+   * Write part-by-part to Multipart.
+   * @param part
    */
-  std::shared_ptr<Part> getNamedPart(const oatpp::String& name);
+  virtual void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) = 0;
 
   /**
-   * Get list of all parts.
-   * @return - `std::list` of `std::shared_ptr` to &id:oatpp::web::mime::multipart::Part;.
+   * Read part-by-part from Multipart. <br>
+   * Call writeNextPart(...) and throw if `action.isNone() == false`.
+   * @return
    */
-  const std::list<std::shared_ptr<Part>>& getAllParts();
+  std::shared_ptr<Part> readNextPartSimple();
 
   /**
-   * Get parts count.
-   * @return - parts count.
+   * Write part-by-part to Multipart.
+   * Call writeNextPartSimple(...) and throw if `action.isNone() == false`.
+   * @param part
    */
-  v_int64 count();
+  void writeNextPartSimple(const std::shared_ptr<Part>& part);
+
+public:
+
+  /**
+   * Generate random boundary for Multipart object. Base64 encoded.
+   * @param boundarySize - size in bytes of random vector.
+   * @return - &id:oatpp::String;.
+   */
+  static oatpp::String generateRandomBoundary(v_int32 boundarySize = 15);
+
+  /**
+   * Parse boundary value from headers
+   * @param headers
+   * @return
+   */
+  static oatpp::String parseBoundaryFromHeaders(const Headers& requestHeaders);
 
 };
 
-/**
- * Generate random boundary for Multipart object. Base64 encoded.
- * @param boundarySize - size in bytes of random vector.
- * @return - &id:oatpp::String;.
- */
-oatpp::String generateRandomBoundary(v_int32 boundarySize = 15);
+
 
 }}}}
 
