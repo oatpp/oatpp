@@ -280,6 +280,7 @@ public:
        * Description.
        */
       std::string description = "";
+      std::string pattern = "";
     };
 
   private:
