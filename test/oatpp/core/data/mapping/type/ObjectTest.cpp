@@ -47,6 +47,7 @@ class DtoA : public oatpp::DTO {
 
   DTO_FIELD_INFO(id) {
     info->description = "identifier";
+    info->pattern = "^[a-z0-9]+$";
   }
   DTO_FIELD(String, id) = "Some default id";
 
@@ -129,6 +130,7 @@ void ObjectTest::onRun() {
     auto it = propsMap.find("id");
     OATPP_ASSERT(it != propsMap.end());
     OATPP_ASSERT(it->second->info.description == "identifier");
+    OATPP_ASSERT(it->second->info.pattern == "^[a-z0-9]+$");
 
     OATPP_LOGI(TAG, "OK");
   }

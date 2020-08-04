@@ -63,10 +63,10 @@ void PartsParser::onPartData(p_char8 data, v_buff_size size) {
       m_currReader->onPartData(m_currPart, data, size);
     }
   } else {
-    m_multipart->addPart(m_currPart);
     if(m_currReader) {
-      m_currReader->onPartData(m_currPart, data, size);
+      m_currReader->onPartData(m_currPart, nullptr, 0);
     }
+    m_multipart->writeNextPartSimple(m_currPart);
   }
 }
 
@@ -111,16 +111,49 @@ async::CoroutineStarter AsyncPartsParser::onPartHeadersAsync(const Headers& part
 
 }
 
+async::CoroutineStarter AsyncPartsParser::onPartDone(const std::shared_ptr<Part>& part) {
+
+  class PutPartCoroutine : public async::Coroutine<PutPartCoroutine> {
+  private:
+    Multipart* m_multipart;
+    std::shared_ptr<AsyncPartReader> m_currReader;
+    std::shared_ptr<Part> m_part;
+  public:
+
+    PutPartCoroutine(Multipart* multipart,
+                     const std::shared_ptr<AsyncPartReader>& currReader,
+                     const std::shared_ptr<Part>& part)
+      : m_multipart(multipart)
+      , m_currReader(currReader)
+      , m_part(part)
+    {}
+
+    Action act() override {
+      return m_currReader->onPartDataAsync(m_part, nullptr, 0).next(yieldTo(&PutPartCoroutine::putPart));
+    }
+
+    Action putPart() {
+      async::Action action;
+      m_multipart->writeNextPart(m_part, action);
+      if(!action.isNone()) {
+        return action;
+      }
+      return finish();
+    }
+
+  };
+
+  return PutPartCoroutine::start(m_multipart, m_currReader, part);
+
+}
+
 async::CoroutineStarter AsyncPartsParser::onPartDataAsync(p_char8 data, v_buff_size size) {
   if(size > 0) {
     if(m_currReader) {
       return m_currReader->onPartDataAsync(m_currPart, data, size);
     }
   } else {
-    m_multipart->addPart(m_currPart);
-    if(m_currReader) {
-      return m_currReader->onPartDataAsync(m_currPart, data, size);
-    }
+    return onPartDone(m_currPart);
   }
   return nullptr;
 }

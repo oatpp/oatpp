@@ -195,6 +195,8 @@ add_library(oatpp
         oatpp/web/mime/multipart/Multipart.hpp
         oatpp/web/mime/multipart/Part.cpp
         oatpp/web/mime/multipart/Part.hpp
+        oatpp/web/mime/multipart/PartList.cpp
+        oatpp/web/mime/multipart/PartList.hpp
         oatpp/web/mime/multipart/Reader.cpp
         oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
