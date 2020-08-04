@@ -55,11 +55,12 @@ private:
 
   std::atomic<v_int32> m_status;
   std::thread m_thread;
-  
+  std::mutex m_mutex;
+
   std::shared_ptr<ServerConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
 
-  bool m_blocking;
+  bool m_threaded;
   
 public:
 
@@ -114,9 +115,9 @@ public:
   /**
    * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
    * to &id:oatpp::network::server::ConnectionHandler;.
-   * @param blocking - Start the server blocking (thread of callee) or non-blocking (own thread)
+   * @param startAsNewThread - Start the server blocking (thread of callee) or non-blocking (own thread)
    */
-  void run(bool blocking = true);
+  void run(bool startAsNewThread = false);
 
   /**
    * Break server loop.
