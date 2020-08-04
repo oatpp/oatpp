@@ -17,8 +17,6 @@
 
 # Oat++ 
 
----
-
 **Attention**  
 
 - Version `1.2.0` is comming soon. Follow the [changelog](changelog/1.2.0.md) for details.
