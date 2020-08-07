@@ -84,7 +84,7 @@ OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
 const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
   m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, {}); \
 \
-oatpp::database::QueryResult NAME(const std::shared_ptr<oatpp::database::Connection>& connection = nullptr) { \
+oatpp::orm::QueryResult NAME(const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr) { \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
   return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
@@ -92,23 +92,23 @@ oatpp::database::QueryResult NAME(const std::shared_ptr<oatpp::database::Connect
 
 #define OATPP_QUERY_1(NAME, QUERY_TEXT, ...) \
 \
-static oatpp::database::Executor::ParamsTypeMap Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_CREATOR_##NAME() { \
-  oatpp::database::Executor::ParamsTypeMap map;  \
+static oatpp::orm::Executor::ParamsTypeMap Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_CREATOR_##NAME() { \
+  oatpp::orm::Executor::ParamsTypeMap map;  \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_TYPE, __VA_ARGS__) \
   return map; \
 } \
 \
-static const oatpp::database::Executor::ParamsTypeMap& Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_SINGLETON_##NAME() { \
-  static oatpp::database::Executor::ParamsTypeMap map = Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_CREATOR_##NAME();  \
+static const oatpp::orm::Executor::ParamsTypeMap& Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_SINGLETON_##NAME() { \
+  static oatpp::orm::Executor::ParamsTypeMap map = Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_CREATOR_##NAME();  \
   return map; \
 } \
 \
 const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
   m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_SINGLETON_##NAME()); \
 \
-oatpp::database::QueryResult NAME( \
+oatpp::orm::QueryResult NAME( \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_DECL, __VA_ARGS__) \
-  const std::shared_ptr<oatpp::database::Connection>& connection = nullptr \
+  const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr \
 ) { \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT, __VA_ARGS__) \
