@@ -84,7 +84,7 @@ OATPP_MACRO_DB_CLIENT_PARAM_MACRO X
 const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
   m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, {}); \
 \
-oatpp::orm::QueryResult NAME(const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr) { \
+std::shared_ptr<oatpp::orm::QueryResult> NAME(const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr) { \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
   return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
@@ -106,7 +106,7 @@ static const oatpp::orm::Executor::ParamsTypeMap& Z_QUERY_TEMPLATE_PARAMS_TYPE_M
 const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
   m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, Z_QUERY_TEMPLATE_PARAMS_TYPE_MAP_SINGLETON_##NAME()); \
 \
-oatpp::orm::QueryResult NAME( \
+std::shared_ptr<oatpp::orm::QueryResult> NAME( \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr \
 ) { \

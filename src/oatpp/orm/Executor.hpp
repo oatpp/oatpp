@@ -46,9 +46,9 @@ public:
                                             const oatpp::String& text,
                                             const ParamsTypeMap& paramsTypeMap) = 0;
 
-  virtual QueryResult execute(const StringTemplate& queryTemplate,
-                              const std::unordered_map<oatpp::String, oatpp::Void>& params,
-                              const std::shared_ptr<Connection>& connection = nullptr) = 0;
+  virtual std::shared_ptr<QueryResult> execute(const StringTemplate& queryTemplate,
+                                               const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                               const std::shared_ptr<Connection>& connection = nullptr) = 0;
 
 };
 

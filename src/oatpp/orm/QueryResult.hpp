@@ -25,9 +25,22 @@
 #ifndef oatpp_orm_QueryResult_hpp
 #define oatpp_orm_QueryResult_hpp
 
+#include "oatpp/core/Types.hpp"
+
 namespace oatpp { namespace orm {
 
 class QueryResult {
+public:
+
+  virtual ~QueryResult() = default;
+
+  virtual bool isSuccess() = 0;
+
+  virtual v_int64 count() = 0;
+
+  virtual std::vector<std::vector<oatpp::Void>> fetchRows(v_int64 count) = 0;
+
+  virtual void fetch(oatpp::Void& polymorph, v_int64 count) = 0;
 
 };
 
