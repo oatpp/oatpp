@@ -28,6 +28,7 @@
 #include "Executor.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <unordered_map>
@@ -35,20 +36,23 @@
 namespace oatpp { namespace orm {
 
 class DbClient {
+private:
+  typedef oatpp::data::mapping::type::Type Type;
+protected:
+  static void types_putDtoFields(Executor::ParamsTypeMap& map,
+                                 const Type* type,
+                                 const data::share::StringKeyLabel& paramNamespace);
+
+  static void params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                  const oatpp::Void& object,
+                                  const data::share::StringKeyLabel& paramNamespace);
+
 protected:
   std::shared_ptr<Executor> m_executor;
 public:
 
   DbClient(const std::shared_ptr<Executor>& executor);
   virtual ~DbClient() = default;
-
-//  QUERY(getUserById,
-//        "SELECT * FROM user WHERE userId=:userId",
-//        PARAM(String, userId))
-//
-//  QUERY(deleteUserById,
-//        "DELETE FROM user WHERE userId=:userId",
-//        PARAM(String, userId))
 
 };
 

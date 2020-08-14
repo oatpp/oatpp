@@ -37,8 +37,10 @@ namespace oatpp { namespace orm {
 class Executor {
 public:
   typedef oatpp::data::share::StringTemplate StringTemplate;
-  typedef std::unordered_map<data::share::StringKeyLabel, oatpp::data::mapping::type::Type*> ParamsTypeMap;
+  typedef std::unordered_map<data::share::StringKeyLabel, const oatpp::data::mapping::type::Type*> ParamsTypeMap;
 public:
+
+  virtual ~Executor() = default;
 
   virtual std::shared_ptr<Connection> getConnection() = 0;
 

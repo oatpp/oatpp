@@ -32,4 +32,68 @@ DbClient::DbClient(const std::shared_ptr<Executor>& executor)
   : m_executor(executor)
 {}
 
+void DbClient::types_putDtoFields(Executor::ParamsTypeMap& map,
+                                  const Type* type,
+                                  const data::share::StringKeyLabel& paramNamespace)
+{
+
+  if(type->classId.id != data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
+    throw std::runtime_error("[oatpp::orm::DbClient::types_putDtoFields()]: "
+                             "Error. At the moment 'PARAMS_DTO' macro supports 'DTO' data-type only.");
+  }
+
+  const auto& fieldsMap = type->propertiesGetter()->getMap();
+
+  data::stream::BufferOutputStream stream;
+  stream.writeSimple(paramNamespace.getData(), paramNamespace.getSize());
+  stream.writeSimple(".", 1);
+
+  for(auto& f : fieldsMap) {
+
+    const std::string& fname = f.first;
+    auto field = f.second;
+
+    stream.setCurrentPosition(paramNamespace.getSize() + 1);
+    stream.writeSimple(fname.data(), fname.size());
+
+    data::share::StringKeyLabel key = stream.toString();
+    map.insert({ key, field->type});
+
+  }
+
+}
+
+void DbClient::params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                   const oatpp::Void& object,
+                                   const data::share::StringKeyLabel& paramNamespace)
+{
+
+  auto type = object.valueType;
+
+  if(type->classId.id != data::mapping::type::__class::AbstractObject::CLASS_ID.id) {
+    throw std::runtime_error("[oatpp::orm::DbClient::params_putDtoFields()]: "
+                             "Error. At the moment 'PARAMS_DTO' macro supports 'DTO' data-type only.");
+  }
+
+  const auto& fieldsMap = type->propertiesGetter()->getMap();
+
+  data::stream::BufferOutputStream stream;
+  stream.writeSimple(paramNamespace.getData(), paramNamespace.getSize());
+  stream.writeSimple(".", 1);
+
+  for(auto& f : fieldsMap) {
+
+    const std::string& fname = f.first;
+    auto field = f.second;
+
+    stream.setCurrentPosition(paramNamespace.getSize() + 1);
+    stream.writeSimple(fname.data(), fname.size());
+
+    oatpp::String key = stream.toString();
+    params.insert({key, field->get(object.get())});
+
+  }
+
+}
+
 }}
