@@ -46,11 +46,13 @@ public:
 
   virtual StringTemplate parseQueryTemplate(const oatpp::String& name,
                                             const oatpp::String& text,
-                                            const ParamsTypeMap& paramsTypeMap) = 0;
+                                            const ParamsTypeMap& paramsTypeMap,
+                                            bool prepare = false) = 0;
 
   virtual std::shared_ptr<QueryResult> execute(const StringTemplate& queryTemplate,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
-                                               const std::shared_ptr<Connection>& connection = nullptr) = 0;
+                                               const std::shared_ptr<Connection>& connection = nullptr,
+                                               bool prepare = false) = 0;
 
 };
 
