@@ -36,6 +36,8 @@ public:
 
   virtual bool isSuccess() const = 0;
 
+  virtual oatpp::String getErrorMessage() const = 0;
+
   virtual v_int64 position() const = 0;
 
   virtual v_int64 count() const = 0;
