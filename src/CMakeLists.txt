@@ -169,6 +169,8 @@ add_library(oatpp
         oatpp/orm/Executor.hpp
         oatpp/orm/QueryResult.cpp
         oatpp/orm/QueryResult.hpp
+        oatpp/orm/Transaction.cpp
+        oatpp/orm/Transaction.hpp
         oatpp/parser/json/Beautifier.cpp
         oatpp/parser/json/Beautifier.hpp
         oatpp/parser/json/Utils.cpp

@@ -51,8 +51,15 @@ public:
 
   virtual std::shared_ptr<QueryResult> execute(const StringTemplate& queryTemplate,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
-                                               const std::shared_ptr<Connection>& connection = nullptr,
-                                               bool prepare = false) = 0;
+                                               const std::shared_ptr<Connection>& connection = nullptr) = 0;
+
+  virtual std::shared_ptr<QueryResult> begin(const std::shared_ptr<Connection>& connection = nullptr) = 0;
+
+  virtual std::shared_ptr<QueryResult> commit(const std::shared_ptr<Connection>& connection) = 0;
+
+  virtual std::shared_ptr<QueryResult> rollback(const std::shared_ptr<Connection>& connection) = 0;
+
+
 
 };
 

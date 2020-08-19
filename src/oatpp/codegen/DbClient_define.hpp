@@ -122,8 +122,7 @@ OATPP_MACRO_DB_CLIENT_MACRO_SELECTOR(OATPP_MACRO_DB_CLIENT_PARAM_PARAMS_DTO_TYPE
 #define OATPP_MACRO_DB_CLIENT_PARAM_PREPARE_PUT_TYPE(X) \
 OATPP_MACRO_DB_CLIENT_PREPARE_MACRO X
 
-#define OATPP_MACRO_DB_CLIENT_PARAM_PREPARE_PUT_BODY(X) \
-OATPP_MACRO_DB_CLIENT_PREPARE_MACRO X
+#define OATPP_MACRO_DB_CLIENT_PARAM_PREPARE_PUT_BODY(X)
 
 // PREPARE MACRO
 
@@ -155,7 +154,7 @@ const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
 \
 std::shared_ptr<oatpp::orm::QueryResult> NAME(const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr) { \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
-  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection, false); \
+  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
 
 
@@ -176,10 +175,9 @@ std::shared_ptr<oatpp::orm::QueryResult> NAME( \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr \
 ) { \
-  bool __prepare = false; \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT, __VA_ARGS__) \
-  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection, __prepare); \
+  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
 
 // Chooser

@@ -25,6 +25,7 @@
 #ifndef oatpp_orm_QueryResult_hpp
 #define oatpp_orm_QueryResult_hpp
 
+#include "Connection.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace orm {
@@ -34,13 +35,15 @@ public:
 
   virtual ~QueryResult() = default;
 
+  virtual std::shared_ptr<Connection> getConnection() const = 0;
+
   virtual bool isSuccess() const = 0;
 
   virtual oatpp::String getErrorMessage() const = 0;
 
-  virtual v_int64 position() const = 0;
+  virtual v_int64 getPosition() const = 0;
 
-  virtual v_int64 count() const = 0;
+  virtual v_int64 getCount() const = 0;
 
   virtual void fetch(oatpp::Void& polymorph, v_int64 count) = 0;
 
@@ -53,7 +56,7 @@ public:
 
   template<class Wrapper>
   Wrapper fetch() {
-    return fetch<Wrapper>(this->count());
+    return fetch<Wrapper>(this->getCount());
   }
 
 };

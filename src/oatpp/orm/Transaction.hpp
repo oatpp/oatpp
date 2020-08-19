@@ -22,46 +22,37 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_orm_DbClient_hpp
-#define oatpp_orm_DbClient_hpp
+#ifndef oatpp_orm_Transaction_hpp
+#define oatpp_orm_Transaction_hpp
 
 #include "Executor.hpp"
-#include "Transaction.hpp"
-
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/Types.hpp"
-
-#include <unordered_map>
 
 namespace oatpp { namespace orm {
 
-class DbClient {
+class Transaction {
 private:
-  typedef oatpp::data::mapping::type::Type Type;
-protected:
-  static void types_putDtoFields(Executor::ParamsTypeMap& map,
-                                 const Type* type,
-                                 const data::share::StringKeyLabel& paramNamespace);
-
-  static void params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void>& params,
-                                  const oatpp::Void& object,
-                                  const data::share::StringKeyLabel& paramNamespace);
-
-protected:
   std::shared_ptr<Executor> m_executor;
+  bool m_open;
+private:
+  std::shared_ptr<Connection> m_connection;
 public:
 
-  DbClient(const std::shared_ptr<Executor>& executor);
+  Transaction(const std::shared_ptr<Executor>& executor, const std::shared_ptr<Connection>& connection = nullptr);
+  Transaction(const Transaction& other) = delete;
+  Transaction(Transaction&& other);
 
-  virtual ~DbClient() = default;
+  ~Transaction();
 
-  std::shared_ptr<Connection> getConnection();
+  Transaction& operator=(const Transaction& other) = delete;
+  Transaction& operator=(Transaction&& other);
 
-  Transaction beginTransaction(const std::shared_ptr<Connection>& connection = nullptr);
+  std::shared_ptr<Connection> getConnection() const;
+
+  std::shared_ptr<QueryResult> commit();
+  std::shared_ptr<QueryResult> rollback();
 
 };
 
 }}
 
-#endif // oatpp_orm_DbClient_hpp
+#endif // oatpp_orm_Transaction_hpp

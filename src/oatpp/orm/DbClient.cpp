@@ -96,4 +96,12 @@ void DbClient::params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void
 
 }
 
+std::shared_ptr<Connection> DbClient::getConnection() {
+  return m_executor->getConnection();
+}
+
+Transaction DbClient::beginTransaction(const std::shared_ptr<Connection>& connection) {
+  return Transaction(m_executor, connection);
+}
+
 }}
