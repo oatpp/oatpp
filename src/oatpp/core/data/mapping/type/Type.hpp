@@ -332,6 +332,39 @@ public:
     Void& getAsRef(void* object);
     
   };
+public:
+
+  class AbstractInterpretation {
+  public:
+    virtual Void toInterpretation(const Void& originalValue) const = 0;
+    virtual Void fromInterpretation(const Void& interValue) const = 0;
+    virtual Type* getInterpretationType() const = 0;
+  };
+
+  template<class OriginalWrapper, class InterWrapper>
+  class Interpretation : public AbstractInterpretation {
+  public:
+
+    Void toInterpretation(const Void& originalValue) const override {
+      return interpret(originalValue.staticCast<OriginalWrapper>());
+    }
+
+    Void fromInterpretation(const Void& interValue) const override {
+      return reproduce(interValue.staticCast<InterWrapper>());
+    }
+
+    Type* getInterpretationType() const override {
+      return InterWrapper::Class::getType();
+    }
+
+  public:
+
+    virtual InterWrapper interpret(const OriginalWrapper& value) const = 0;
+    virtual OriginalWrapper reproduce(const InterWrapper& value) const = 0;
+
+  };
+
+  typedef std::unordered_map<std::string, const AbstractInterpretation*> InterpretationMap;
 
 public:
   typedef Void (*Creator)();
@@ -345,12 +378,14 @@ public:
    * @param pCreator - function pointer of Creator - function to create instance of this type.
    * @param pPropertiesGetter - function to get properties of the type.
    * @param pPolymorphicDispatcher - dispatcher to correctly address methods of the type.
+   * @param pInterpretationMap - Map of type Interpretations.
    */
   Type(const ClassId& pClassId,
        const char* pNameQualifier,
        Creator pCreator = nullptr,
        PropertiesGetter pPropertiesGetter = nullptr,
-       void* pPolymorphicDispatcher = nullptr);
+       void* pPolymorphicDispatcher = nullptr,
+       InterpretationMap&& pInterpretationMap = {});
 
   /**
    * type class id.
@@ -381,6 +416,11 @@ public:
    * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
    */
   const void* const polymorphicDispatcher;
+
+  /**
+   * Map of type Interpretations.
+   */
+  const InterpretationMap interpretationMap;
   
 };
 

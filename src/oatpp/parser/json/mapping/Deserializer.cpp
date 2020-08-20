@@ -358,12 +358,29 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
 }
 
+const oatpp::Type::AbstractInterpretation* Deserializer::findTypeInterpretation(const oatpp::Type* type) {
+  const auto& intMap = type->interpretationMap;
+  for(auto& name : m_config->enableInterpretations) {
+    auto it = intMap.find(name);
+    if(it != intMap.end()) {
+      return it->second;
+    }
+  }
+  return nullptr;
+}
+
 oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
   auto id = type->classId.id;
   auto& method = m_methods[id];
   if(method) {
     return (*method)(this, caret, type);
   } else {
+
+    auto* interpretation = findTypeInterpretation(type);
+    if(interpretation) {
+      return interpretation->fromInterpretation(deserialize(caret, interpretation->getInterpretationType()));
+    }
+
     throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
                              "Error. No deserialize method for type '" + std::string(type->classId.name) + "'");
   }

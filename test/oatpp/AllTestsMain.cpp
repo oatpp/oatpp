@@ -40,6 +40,8 @@
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/core/data/mapping/type/AnyTest.hpp"
 #include "oatpp/core/data/mapping/type/EnumTest.hpp"
+#include "oatpp/core/data/mapping/type/InterpretationTest.hpp"
+
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/LazyStringMapTest.hpp"
@@ -99,8 +101,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
