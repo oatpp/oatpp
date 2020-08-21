@@ -25,7 +25,9 @@
 #ifndef oatpp_concurrency_SpinLock_hpp
 #define oatpp_concurrency_SpinLock_hpp
 
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif // _CRT_SECURE_NO_WARNINGS
 #include <atomic>
 
 namespace oatpp { namespace concurrency {
