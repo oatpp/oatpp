@@ -55,7 +55,7 @@ ApiClient::PathSegment ApiClient::parseVarSegment(p_char8 data, v_buff_size size
   position = size;
   return result;
 }
-  
+
 ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_buff_size size) {
   v_buff_size pos = 0;
   PathPattern result;
@@ -70,11 +70,11 @@ ApiClient::PathPattern ApiClient::parsePathPattern(p_char8 data, v_buff_size siz
   }
   return result;
 }
-  
+
 void ApiClient::formatPath(oatpp::data::stream::ConsistentOutputStream* stream,
                            const PathPattern& pathPattern,
                            const std::shared_ptr<StringToStringMap>& params) {
-  
+
   for (auto it = pathPattern.begin(); it != pathPattern.end(); ++ it) {
     const PathSegment& seg = *it;
     if(seg.type == PathSegment::SEG_PATH) {
@@ -89,28 +89,27 @@ void ApiClient::formatPath(oatpp::data::stream::ConsistentOutputStream* stream,
       stream->data::stream::OutputStream::writeSimple(param);
     }
   }
-  
+
 }
 
 void ApiClient::addPathQueryParams(data::stream::ConsistentOutputStream* stream,
                                    const std::shared_ptr<StringToStringMap>& params) {
-  
+  bool first = true;
   auto curr = params->getFirstEntry();
-  if(curr != nullptr) {
-    stream->writeSimple("?", 1);
-    stream->writeSimple(curr->getKey());
-    stream->writeSimple("=", 1);
-    stream->writeSimple(curr->getValue());
-    curr = curr->getNext();
-    while (curr != nullptr) {
-      stream->writeSimple("&", 1);
+  while (curr != nullptr) {
+    if (curr->getValue()->getSize()) {
+      if (first) {
+        stream->writeSimple("?", 1);
+        first = false;
+      } else {
+        stream->writeSimple("&", 1);
+      }
       stream->writeSimple(curr->getKey());
       stream->writeSimple("=", 1);
       stream->writeSimple(curr->getValue());
-      curr = curr->getNext();
     }
+    curr = curr->getNext();
   }
-  
 }
 
 oatpp::String ApiClient::formatPath(const PathPattern& pathPattern,
