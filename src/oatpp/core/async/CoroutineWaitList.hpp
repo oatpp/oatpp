@@ -121,8 +121,7 @@ public:
   CoroutineWaitList& operator=(CoroutineWaitList&& other) {
     notifyAll();
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
-    std::memcpy(&m_list, &other.m_list, sizeof(m_list));
-    std::memset(&other.m_list, 0, sizeof(m_list));
+    m_list = std::move(other.m_list);
     return *this;
   }
 

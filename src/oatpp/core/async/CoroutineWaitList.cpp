@@ -30,8 +30,7 @@ namespace oatpp { namespace async {
 
 
 CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
-  std::memcpy(&m_list, &other.m_list, sizeof(m_list));
-  std::memset(&other.m_list, 0, sizeof(m_list));
+    m_list = std::move(other.m_list);
 }
 
 CoroutineWaitList::~CoroutineWaitList() {
@@ -72,13 +71,10 @@ void CoroutineWaitList::notifyFirst() {
 
 void CoroutineWaitList::notifyAll() {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
-  auto curr = m_list.first;
-  while(curr != nullptr) {
-    auto next = curr->_ref;
-    curr->_PP->pushOneTask(curr);
-    curr = next;
-  }
-  std::memset(&m_list, 0, sizeof(m_list));
+    while (!m_list.empty()) {
+        auto curr = m_list.popFront();
+        curr->_PP->pushOneTask(curr);
+    }
 }
 
 

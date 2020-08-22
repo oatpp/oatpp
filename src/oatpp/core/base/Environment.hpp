@@ -133,7 +133,7 @@ public:
    * @param priority
    * @return - true if given priority should be logged
    */
-  virtual bool isLogPriorityEnabled(v_uint32 priority) {
+  virtual bool isLogPriorityEnabled(v_uint32 ) {
     return true;
   }
 

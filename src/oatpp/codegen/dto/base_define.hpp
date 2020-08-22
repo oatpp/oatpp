@@ -81,6 +81,7 @@ static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */)
 \
 static TYPE Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
   static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
+  (void)initialized; \
   return TYPE(); \
 } \
 \
@@ -110,6 +111,7 @@ static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */)
 \
 static TYPE Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
   static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
+  (void)initialized; \
   return TYPE(); \
 } \
 \
@@ -149,7 +151,7 @@ v_uint64 defaultHashCode() const override { \
   return 1; \
 } \
 \
-bool defaultEquals(const DTO& other) const override { \
+bool defaultEquals(const DTO&) const override { \
   return true; \
 } \
 \
