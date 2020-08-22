@@ -26,9 +26,7 @@
 #define oatpp_encoding_Hex_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-
-
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace encoding {
 
@@ -37,13 +35,31 @@ namespace oatpp { namespace encoding {
  */
 class Hex {
 public:
-  static const v_char8 A_D[];
-  static const v_uint16 A_W16[];
+  static const char* ALPHABET_UPPER;
+  static const char* ALPHABET_LOWER;
 public:
   /**
    * Unknown symbol error.
    */
   static constexpr v_int32 ERROR_UNKNOWN_SYMBOL = 1;
+public:
+
+  /**
+   * DecodingError.
+   */
+  class DecodingError : public std::runtime_error {
+  public:
+
+    /**
+     * Constructor.
+     * @param message - error message.
+     */
+    DecodingError(const char* message)
+      :std::runtime_error(message)
+    {}
+
+  };
+
 public:
 
   /**
@@ -75,6 +91,28 @@ public:
    * @return - 0 on success. Negative value on failure.
    */
   static v_int32 readUInt32(p_char8 buffer, v_uint32& value);
+
+  /**
+   * Write binary data as HEX string.
+   * @param stream
+   * @param data
+   * @param size
+   * @param alphabet
+   */
+  static void encode(data::stream::ConsistentOutputStream* stream,
+                     const void* data, v_buff_size size,
+                     const char* alphabet = ALPHABET_UPPER);
+
+  /**
+   * Read binary data from hex string.
+   * @param stream
+   * @param data
+   * @param size
+   * @param allowSeparators - skip any char which is not ([A-Z], [a-z], [0-9]) without error.
+   * @throws - &l:Hex::DecodingError;
+   */
+  static void decode(data::stream::ConsistentOutputStream* stream,
+                     const void* data, v_buff_size size, bool allowSeparators = false);
   
 };
   
