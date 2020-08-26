@@ -30,33 +30,70 @@
 
 namespace oatpp { namespace orm {
 
+/**
+ * Result of DB query.
+ */
 class QueryResult {
 public:
 
+  /**
+   * Virtual destructor.
+   */
   virtual ~QueryResult() = default;
 
+  /**
+   * Get DB connection associated with this result.
+   * @return
+   */
   virtual std::shared_ptr<Connection> getConnection() const = 0;
 
+  /**
+   * Check if the query was successful.
+   * @return
+   */
   virtual bool isSuccess() const = 0;
 
+  /**
+   * Get error message in case `isSuccess() == false`
+   * @return
+   */
   virtual oatpp::String getErrorMessage() const = 0;
 
+  /**
+   * Get result read position.
+   * @return
+   */
   virtual v_int64 getPosition() const = 0;
 
-  virtual v_int64 getCount() const = 0;
+  /**
+   * Get result entries count in the case it's known.
+   * @return - `[0..N]` - in case known. `-1` - otherwise.
+   */
+  virtual v_int64 getKnownCount() const = 0;
 
-  virtual void fetch(oatpp::Void& polymorph, v_int64 count) = 0;
+  /**
+   * Check if there is more data to fetch.
+   * @return
+   */
+  virtual bool hasMoreToFetch() const = 0;
 
+  /**
+   * Fetch result entries.
+   * @param resultType - wanted output type.
+   * @param count - how many entries to fetch. Use `-1` to fetch all.
+   * @return - `oatpp::Void`.
+   */
+  virtual oatpp::Void fetch(const oatpp::Type* const resultType, v_int64 count) = 0;
+
+  /**
+   * Fetch result entries.
+   * @tparam Wrapper - output type.
+   * @param count - how many entries to fetch.
+   * @return - `Wrapper`.
+   */
   template<class Wrapper>
-  Wrapper fetch(v_int64 count) {
-    oatpp::Void polymorph(Wrapper::Class::getType());
-    fetch(polymorph, count);
-    return polymorph.template staticCast<Wrapper>();
-  }
-
-  template<class Wrapper>
-  Wrapper fetch() {
-    return fetch<Wrapper>(this->getCount());
+  Wrapper fetch(v_int64 count = -1) {
+    return fetch(Wrapper::Class::getType(), count).template staticCast<Wrapper>();
   }
 
 };
