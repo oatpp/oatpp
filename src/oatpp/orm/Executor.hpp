@@ -59,7 +59,13 @@ public:
 
   virtual std::shared_ptr<QueryResult> rollback(const std::shared_ptr<Connection>& connection) = 0;
 
+  virtual v_int64 getSchemaVersion(const oatpp::String& suffix = nullptr,
+                                   const std::shared_ptr<Connection>& connection = nullptr) = 0;
 
+  virtual void migrateSchema(const oatpp::String& script,
+                             v_int64 newVersion,
+                             const oatpp::String& suffix = nullptr,
+                             const std::shared_ptr<Connection>& connection = nullptr) = 0;
 
 };
 

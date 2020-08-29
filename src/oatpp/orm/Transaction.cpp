@@ -26,7 +26,7 @@
 
 namespace oatpp { namespace orm {
 
-Transaction::Transaction(const std::shared_ptr<Executor>& executor, const std::shared_ptr<Connection>& connection)
+Transaction::Transaction(const base::ObjectHandle<Executor>& executor, const std::shared_ptr<Connection>& connection)
   : m_executor(executor)
   , m_open(true)
 {

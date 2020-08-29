@@ -22,37 +22,40 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_orm_Transaction_hpp
-#define oatpp_orm_Transaction_hpp
+#ifndef oatpp_orm_SchemaMigration_hpp
+#define oatpp_orm_SchemaMigration_hpp
 
 #include "Executor.hpp"
 
 namespace oatpp { namespace orm {
 
-class Transaction {
+class SchemaMigration {
+private:
+
+  static constexpr v_int32 SOURCE_TEXT = 0;
+  static constexpr v_int32 SOURCE_FILE = 1;
+
+  struct Source {
+    v_int64 version;
+    v_int32 type;
+    oatpp::String param;
+  };
+
 private:
   base::ObjectHandle<Executor> m_executor;
-  bool m_open;
-private:
-  std::shared_ptr<Connection> m_connection;
+  oatpp::String m_suffix;
+  std::vector<Source> m_scripts;
 public:
 
-  Transaction(const base::ObjectHandle<Executor>& executor, const std::shared_ptr<Connection>& connection = nullptr);
-  Transaction(const Transaction& other) = delete;
-  Transaction(Transaction&& other);
+  SchemaMigration(const base::ObjectHandle<Executor>& executor, const oatpp::String& suffix = nullptr);
 
-  ~Transaction();
+  void addText(v_int64 version, const oatpp::String& script);
+  void addFile(v_int64 version, const oatpp::String& filename);
 
-  Transaction& operator=(const Transaction& other) = delete;
-  Transaction& operator=(Transaction&& other);
-
-  std::shared_ptr<Connection> getConnection() const;
-
-  std::shared_ptr<QueryResult> commit();
-  std::shared_ptr<QueryResult> rollback();
+  void migrate();
 
 };
 
 }}
 
-#endif // oatpp_orm_Transaction_hpp
+#endif // oatpp_orm_SchemaMigration_hpp
