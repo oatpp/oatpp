@@ -26,4 +26,12 @@
 
 namespace oatpp { namespace orm {
 
+std::shared_ptr<QueryResult> Executor::execute(const oatpp::String& query,
+                                               const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                               const std::shared_ptr<Connection>& connection)
+{
+  const auto& qt = parseQueryTemplate(nullptr, query, {}, false);
+  return execute(qt, params, connection);
+}
+
 }}

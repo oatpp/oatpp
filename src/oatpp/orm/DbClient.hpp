@@ -36,6 +36,9 @@
 
 namespace oatpp { namespace orm {
 
+/**
+ * Database client.
+ */
 class DbClient {
 private:
   typedef oatpp::data::mapping::type::Type Type;
@@ -52,12 +55,39 @@ protected:
   std::shared_ptr<Executor> m_executor;
 public:
 
+  /**
+   * Constructor.
+   * @param executor - &id:oatpp::orm::Executor;.
+   */
   DbClient(const std::shared_ptr<Executor>& executor);
 
+  /**
+   * Virtual destructor.
+   */
   virtual ~DbClient() = default;
 
+  /**
+   * Get database connection.
+   * @return
+   */
   std::shared_ptr<Connection> getConnection();
 
+  /**
+   * Execute arbitrary query.
+   * @param query - query text.
+   * @param params - query parameters.
+   * @param connection - database connection.
+   * @return - &id:oatpp::orm::QueryResult;.
+   */
+  std::shared_ptr<QueryResult> executeQuery(const oatpp::String& query,
+                                            const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                            const std::shared_ptr<Connection>& connection = nullptr);
+
+  /**
+   * Begin database transaction.
+   * @param connection - database connection.
+   * @return - &id:oatpp::orm::Transaction;.
+   */
   Transaction beginTransaction(const std::shared_ptr<Connection>& connection = nullptr);
 
 };

@@ -29,6 +29,9 @@
 
 namespace oatpp { namespace orm {
 
+/**
+ * Database transaction.
+ */
 class Transaction {
 private:
   base::ObjectHandle<Executor> m_executor;
@@ -37,18 +40,51 @@ private:
   std::shared_ptr<Connection> m_connection;
 public:
 
+  /**
+   * Constructor.
+   * @param executor - &id:oatpp::orm::Executor;.
+   * @param connection - database connection.
+   */
   Transaction(const base::ObjectHandle<Executor>& executor, const std::shared_ptr<Connection>& connection = nullptr);
+
+  /**
+   * Copy constructor.
+   * @param other
+   */
   Transaction(const Transaction& other) = delete;
+
+  /**
+   * Move constructor.
+   * @param other
+   */
   Transaction(Transaction&& other);
 
-  ~Transaction();
+  /**
+   * Virtual destructor. <br>
+   * Will automatically call &l:Transaction::rollback (); if there was no prior call to &l:Transaction::commit (); method.
+   */
+  virtual ~Transaction();
 
   Transaction& operator=(const Transaction& other) = delete;
   Transaction& operator=(Transaction&& other);
 
+  /**
+   * Get the database connection associated with the transaction. <br>
+   * **Note:** all database queries within the transaction MUST be called on this connection.
+   * @return
+   */
   std::shared_ptr<Connection> getConnection() const;
 
+  /**
+   * Commit transaction.
+   * @return
+   */
   std::shared_ptr<QueryResult> commit();
+
+  /**
+   * Rollback transaction.
+   * @return
+   */
   std::shared_ptr<QueryResult> rollback();
 
 };

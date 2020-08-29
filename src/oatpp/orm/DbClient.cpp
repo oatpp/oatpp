@@ -100,6 +100,13 @@ std::shared_ptr<Connection> DbClient::getConnection() {
   return m_executor->getConnection();
 }
 
+std::shared_ptr<QueryResult> DbClient::executeQuery(const oatpp::String& query,
+                                                    const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                                    const std::shared_ptr<Connection>& connection)
+{
+  return m_executor->execute(query, params, connection);
+}
+
 Transaction DbClient::beginTransaction(const std::shared_ptr<Connection>& connection) {
   return Transaction(m_executor, connection);
 }

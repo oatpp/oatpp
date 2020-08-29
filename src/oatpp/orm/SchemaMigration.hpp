@@ -29,6 +29,9 @@
 
 namespace oatpp { namespace orm {
 
+/**
+ * Database schema migration helper.
+ */
 class SchemaMigration {
 private:
 
@@ -47,11 +50,35 @@ private:
   std::vector<Source> m_scripts;
 public:
 
+  /**
+   * Constructor.
+   * @param executor - &id:oatpp::orm::Executor;.
+   * @param suffix - suffix of schema version control table.
+   */
   SchemaMigration(const base::ObjectHandle<Executor>& executor, const oatpp::String& suffix = nullptr);
 
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~SchemaMigration() = default;
+
+  /**
+   * Add migration script as text.
+   * @param version - schema version corresponding to this script.
+   * @param script - script text.
+   */
   void addText(v_int64 version, const oatpp::String& script);
+
+  /**
+   * Add migration script file.
+   * @param version - schema version corresponding to this script.
+   * @param script - path to script file.
+   */
   void addFile(v_int64 version, const oatpp::String& filename);
 
+  /**
+   * Run database schema migration.
+   */
   void migrate();
 
 };

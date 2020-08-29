@@ -88,7 +88,7 @@ public:
   /**
    * Fetch result entries.
    * @tparam Wrapper - output type.
-   * @param count - how many entries to fetch.
+   * @param count - how many entries to fetch. Use `-1` to fetch all.
    * @return - `Wrapper`.
    */
   template<class Wrapper>
