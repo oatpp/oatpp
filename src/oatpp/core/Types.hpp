@@ -30,6 +30,16 @@
 namespace oatpp {
 
   /**
+   * &id:oatpp::data::mapping::type::Type;.
+   */
+  typedef oatpp::data::mapping::type::Type Type;
+
+  /**
+   * &id:oatpp::data::mapping::type::ClassId;.
+   */
+  typedef oatpp::data::mapping::type::ClassId ClassId;
+
+  /**
    * ObjectWrapper over the `void*`.
    */
   typedef oatpp::data::mapping::type::Void Void;

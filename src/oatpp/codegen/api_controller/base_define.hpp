@@ -393,7 +393,7 @@ Z__PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME(const std::shared_ptr<oat
 template<class T> \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
 Z__USER_PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
-  T* controller, \
+  T*, \
   const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
 ) { \
   auto intercepted = static_cast<typename Handler<T>::Method>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \
@@ -507,7 +507,7 @@ Z__PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME(const std::shared_ptr<oat
 template<class T> \
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::outgoing::Response>&> \
 Z__USER_PROXY_INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME( \
-  T* controller, \
+  T*, \
   const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& request \
 ) { \
   auto intercepted = static_cast<typename Handler<T>::MethodAsync>(Z__INTERCEPTOR_METHOD_##ENDPOINT_NAME ##_ ##NAME); \

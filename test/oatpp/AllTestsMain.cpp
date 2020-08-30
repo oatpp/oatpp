@@ -1,19 +1,13 @@
 
 #include "oatpp/web/ClientRetryTest.hpp"
-
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
 #include "oatpp/web/FullAsyncClientTest.hpp"
-
 #include "oatpp/web/PipelineTest.hpp"
 #include "oatpp/web/PipelineAsyncTest.hpp"
-
 #include "oatpp/web/protocol/http/encoding/ChunkedTest.hpp"
-
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
-
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
-
 #include "oatpp/web/mime/multipart/StatefulParserTest.hpp"
 
 #include "oatpp/network/virtual_/PipeTest.hpp"
@@ -30,6 +24,10 @@
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
 
+#include "oatpp/core/parser/CaretTest.hpp"
+#include "oatpp/core/provider/PoolTest.hpp"
+#include "oatpp/core/async/LockTest.hpp"
+
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
 #include "oatpp/core/data/mapping/type/PairListTest.hpp"
 #include "oatpp/core/data/mapping/type/VectorTest.hpp"
@@ -42,14 +40,14 @@
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/core/data/mapping/type/AnyTest.hpp"
 #include "oatpp/core/data/mapping/type/EnumTest.hpp"
+#include "oatpp/core/data/mapping/type/InterpretationTest.hpp"
+
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/LazyStringMapTest.hpp"
+#include "oatpp/core/data/share/StringTemplateTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 #include "oatpp/core/data/buffer/ProcessorTest.hpp"
-#include "oatpp/core/parser/CaretTest.hpp"
-#include "oatpp/core/provider/PoolTest.hpp"
-#include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
@@ -84,8 +82,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::share::StringTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
 
@@ -103,8 +101,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);

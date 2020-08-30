@@ -101,6 +101,7 @@ private: \
   static bool init() { \
     auto& info = *EnumMeta<NAME>::getInfo(); \
     v_int32 index = 0; \
+    (void)index; \
     info.nameQualifier = #NAME; \
     return true; \
   } \

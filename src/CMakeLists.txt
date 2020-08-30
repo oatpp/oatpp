@@ -5,6 +5,8 @@
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp
+        oatpp/codegen/ApiClient_define.hpp
+        oatpp/codegen/ApiClient_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
@@ -13,8 +15,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
         oatpp/codegen/ApiController_undef.hpp
-        oatpp/codegen/ApiClient_define.hpp
-        oatpp/codegen/ApiClient_undef.hpp
+        oatpp/codegen/DbClient_define.hpp
+        oatpp/codegen/DbClient_undef.hpp
         oatpp/codegen/dto/base_define.hpp
         oatpp/codegen/dto/base_undef.hpp
         oatpp/codegen/dto/enum_define.hpp
@@ -101,6 +103,8 @@ add_library(oatpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
+        oatpp/core/data/share/StringTemplate.cpp
+        oatpp/core/data/share/StringTemplate.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
@@ -158,6 +162,17 @@ add_library(oatpp
         oatpp/network/virtual_/client/ConnectionProvider.hpp
         oatpp/network/virtual_/server/ConnectionProvider.cpp
         oatpp/network/virtual_/server/ConnectionProvider.hpp
+        oatpp/orm/Connection.hpp
+        oatpp/orm/DbClient.cpp
+        oatpp/orm/DbClient.hpp
+        oatpp/orm/Executor.cpp
+        oatpp/orm/Executor.hpp
+        oatpp/orm/QueryResult.cpp
+        oatpp/orm/QueryResult.hpp
+        oatpp/orm/SchemaMigration.cpp
+        oatpp/orm/SchemaMigration.hpp
+        oatpp/orm/Transaction.cpp
+        oatpp/orm/Transaction.hpp
         oatpp/parser/json/Beautifier.cpp
         oatpp/parser/json/Beautifier.hpp
         oatpp/parser/json/Utils.cpp

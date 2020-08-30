@@ -98,12 +98,14 @@ Type::Type(const ClassId& pClassId,
            const char* pNameQualifier,
            Creator pCreator,
            PropertiesGetter pPropertiesGetter,
-           void* pPolymorphicDispatcher)
+           void* pPolymorphicDispatcher,
+           InterpretationMap&& pInterpretationMap)
   : classId(pClassId)
   , nameQualifier(pNameQualifier)
   , creator(pCreator)
   , propertiesGetter(pPropertiesGetter)
   , polymorphicDispatcher(pPolymorphicDispatcher)
+  , interpretationMap(pInterpretationMap)
 {}
   
 }}}}

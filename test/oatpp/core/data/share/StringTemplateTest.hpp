@@ -22,48 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_concurrency_SpinLock_hpp
-#define oatpp_concurrency_SpinLock_hpp
+#ifndef oatpp_test_core_data_share_StringTemplateTest_hpp
+#define oatpp_test_core_data_share_StringTemplateTest_hpp
 
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif // _CRT_SECURE_NO_WARNINGS
-#include <atomic>
+#include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace concurrency {
+namespace oatpp { namespace test { namespace core { namespace data { namespace share {
 
-/**
- * SpinLock implementation based on atomic.
- * Meets the `Lockable` requirements.
- */
-class SpinLock {
-protected:
-  std::atomic<bool> m_atom;
+class StringTemplateTest : public UnitTest{
 public:
 
-  /**
-   * Constructor.
-   */
-  SpinLock();
-
-  /**
-   * Lock spin-lock
-   */
-  void lock();
-
-  /**
-   * Unlock spin-lock
-   */
-  void unlock();
-
-  /**
-   * Try to lock.
-   * @return - `true` if the lock was acquired, `false` otherwise.
-   */
-  bool try_lock();
+  StringTemplateTest():UnitTest("TEST[core::data::share::StringTemplateTest]"){}
+  void onRun() override;
 
 };
-  
-}}
 
-#endif /* oatpp_concurrency_SpinLock_hpp */
+}}}}}
+
+#endif /* oatpp_test_core_data_share_StringTemplateTest_hpp */

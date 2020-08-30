@@ -22,48 +22,16 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_concurrency_SpinLock_hpp
-#define oatpp_concurrency_SpinLock_hpp
+#include "Executor.hpp"
 
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif // _CRT_SECURE_NO_WARNINGS
-#include <atomic>
+namespace oatpp { namespace orm {
 
-namespace oatpp { namespace concurrency {
+std::shared_ptr<QueryResult> Executor::execute(const oatpp::String& query,
+                                               const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                               const std::shared_ptr<Connection>& connection)
+{
+  const auto& qt = parseQueryTemplate(nullptr, query, {}, false);
+  return execute(qt, params, connection);
+}
 
-/**
- * SpinLock implementation based on atomic.
- * Meets the `Lockable` requirements.
- */
-class SpinLock {
-protected:
-  std::atomic<bool> m_atom;
-public:
-
-  /**
-   * Constructor.
-   */
-  SpinLock();
-
-  /**
-   * Lock spin-lock
-   */
-  void lock();
-
-  /**
-   * Unlock spin-lock
-   */
-  void unlock();
-
-  /**
-   * Try to lock.
-   * @return - `true` if the lock was acquired, `false` otherwise.
-   */
-  bool try_lock();
-
-};
-  
 }}
-
-#endif /* oatpp_concurrency_SpinLock_hpp */

@@ -40,11 +40,14 @@
 
 #include "./basic.hpp"
 
+#define OATPP_CODEGEN_DEFINE_ApiClient "oatpp/codegen/ApiClient_define.hpp"
+#define OATPP_CODEGEN_UNDEF_ApiClient "oatpp/codegen/ApiClient_undef.hpp"
+
 #define OATPP_CODEGEN_DEFINE_ApiController "oatpp/codegen/ApiController_define.hpp"
 #define OATPP_CODEGEN_UNDEF_ApiController "oatpp/codegen/ApiController_undef.hpp"
 
-#define OATPP_CODEGEN_DEFINE_ApiClient "oatpp/codegen/ApiClient_define.hpp"
-#define OATPP_CODEGEN_UNDEF_ApiClient "oatpp/codegen/ApiClient_undef.hpp"
+#define OATPP_CODEGEN_DEFINE_DbClient "oatpp/codegen/DbClient_define.hpp"
+#define OATPP_CODEGEN_UNDEF_DbClient "oatpp/codegen/DbClient_undef.hpp"
 
 #define OATPP_CODEGEN_DEFINE_DTO "oatpp/codegen/DTO_define.hpp"
 #define OATPP_CODEGEN_UNDEF_DTO "oatpp/codegen/DTO_undef.hpp"

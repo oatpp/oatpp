@@ -46,7 +46,10 @@ Any::Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type)
 }
 
 Any::Any(const Any& other)
-  : ObjectWrapper(std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type), __class::Any::getType())
+  : ObjectWrapper(
+      (other.m_ptr) ? std::make_shared<AnyHandle>(other.m_ptr->ptr, other.m_ptr->type) : nullptr,
+      __class::Any::getType()
+    )
 {}
 
 Any::Any(Any&& other)

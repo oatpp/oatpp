@@ -22,48 +22,26 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_concurrency_SpinLock_hpp
-#define oatpp_concurrency_SpinLock_hpp
+#ifndef oatpp_orm_Connection_hpp
+#define oatpp_orm_Connection_hpp
 
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif // _CRT_SECURE_NO_WARNINGS
-#include <atomic>
+#include "oatpp/core/base/Countable.hpp"
 
-namespace oatpp { namespace concurrency {
+namespace oatpp { namespace orm {
 
 /**
- * SpinLock implementation based on atomic.
- * Meets the `Lockable` requirements.
+ * Abstract database connection.
  */
-class SpinLock {
-protected:
-  std::atomic<bool> m_atom;
+class Connection : public base::Countable {
 public:
 
   /**
-   * Constructor.
+   * Virtual destructor.
    */
-  SpinLock();
-
-  /**
-   * Lock spin-lock
-   */
-  void lock();
-
-  /**
-   * Unlock spin-lock
-   */
-  void unlock();
-
-  /**
-   * Try to lock.
-   * @return - `true` if the lock was acquired, `false` otherwise.
-   */
-  bool try_lock();
+  virtual ~Connection() = default;
 
 };
-  
+
 }}
 
-#endif /* oatpp_concurrency_SpinLock_hpp */
+#endif // oatpp_orm_Connection_hpp

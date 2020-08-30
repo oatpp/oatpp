@@ -43,10 +43,41 @@ public:
   ~FastQueue(){
     clear();
   }
+
+  FastQueue(const FastQueue &) = delete;
+
+  FastQueue(FastQueue &&other) noexcept
+    : FastQueue() {
+      using std::swap;
+      swap(first, other.first);
+      swap(last, other.last);
+      swap(count, other.count);
+  }
+
+  FastQueue &operator=(const FastQueue &) = delete;
+
+  FastQueue &operator=(FastQueue &&other) noexcept {
+      if (this != std::addressof(other)) {
+          using std::swap;
+          swap(first, other.first);
+          swap(last, other.last);
+          swap(count, other.count);
+      }
+      return *this;
+  }
+
   
   T* first;
   T* last;
-  v_int32 count;
+  v_int32 count{};
+
+  v_int32 Count() {
+      return count;
+  }
+
+  bool empty() {
+      return count == 0;
+  }
   
   void pushFront(T* entry) {
     entry->_ref = first;
