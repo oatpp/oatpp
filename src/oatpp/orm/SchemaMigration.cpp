@@ -24,6 +24,8 @@
 
 #include "SchemaMigration.hpp"
 
+#include <algorithm>
+
 namespace oatpp { namespace orm {
 
 SchemaMigration::SchemaMigration(const base::ObjectHandle<Executor>& executor, const oatpp::String& suffix)
