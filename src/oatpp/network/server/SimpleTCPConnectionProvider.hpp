@@ -93,6 +93,15 @@ public:
    * `false` to use &id:oatpp::network::Connection;.
    */
   SimpleTCPConnectionProvider(v_uint16 port, bool useExtendedConnections = false);
+
+  /**
+   * Constructor.
+   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
+   * @param port - port to listen for incoming connections.
+   * @param useExtendedConnections - set `true` to use &l:SimpleTCPConnectionProvider::ExtendedConnection;.
+   * `false` to use &id:oatpp::network::Connection;.
+   */
+  SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port, bool useExtendedConnections = false);
 public:
 
   /**
@@ -104,6 +113,17 @@ public:
   static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_uint16 port, bool useExtendedConnections = false){
     return std::make_shared<SimpleTCPConnectionProvider>(port, useExtendedConnections);
   }
+
+  /**
+   * Create shared SimpleTCPConnectionProvider.
+   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
+   * @param port - port to listen for incoming connections.
+   * @param port
+   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
+   */
+    static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_uint16 port, bool useExtendedConnections = false){
+        return std::make_shared<SimpleTCPConnectionProvider>(host, port, useExtendedConnections);
+    }
 
   /**
    * Virtual destructor.

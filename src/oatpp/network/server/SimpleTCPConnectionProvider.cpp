@@ -69,13 +69,18 @@ oatpp::data::stream::Context& SimpleTCPConnectionProvider::ExtendedConnection::g
 // SimpleTCPConnectionProvider
 
 SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(v_uint16 port, bool useExtendedConnections)
-  : m_port(port)
-  , m_closed(false)
-  , m_useExtendedConnections(useExtendedConnections)
+  :SimpleTCPConnectionProvider("localhost", port, useExtendedConnections)
 {
-  m_serverHandle = instantiateServer();
-  setProperty(PROPERTY_HOST, "localhost");
+}
+
+SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port, bool useExtendedConnections)
+        : m_port(port)
+        , m_closed(false)
+        , m_useExtendedConnections(useExtendedConnections)
+{
+  setProperty(PROPERTY_HOST, host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
+  m_serverHandle = instantiateServer();
 }
 
 SimpleTCPConnectionProvider::~SimpleTCPConnectionProvider() {
@@ -164,13 +169,13 @@ oatpp::v_io_handle SimpleTCPConnectionProvider::instantiateServer(){
   struct addrinfo hints;
 
   memset(&hints, 0, sizeof(hints));
-  hints.ai_family = AF_INET6;
+  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = 0;
   hints.ai_flags = AI_PASSIVE;
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
-
-  ret = getaddrinfo(NULL, (const char *) portStr->getData(), &hints, &result);
+  auto hostStr = getProperty(PROPERTY_HOST);
+  ret = getaddrinfo((const char *)hostStr.getData(), (const char *) portStr->getData(), &hints, &result);
   if (ret != 0) {
     OATPP_LOGE("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d: %s", ret, strerror(errno));
     throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
