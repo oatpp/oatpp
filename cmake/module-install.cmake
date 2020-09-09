@@ -6,7 +6,7 @@
 ##
 ## prefix/
 ##  |
-##  |- include/oatpp-<version>/<module-name>
+##  |- include/<module-name>
 ##   - lib/
 ##       |
 ##       |- cmake/<module-name>-<version>/
@@ -14,7 +14,7 @@
 ##       |    |- <module-name>Config.cmake
 ##       |     - <module-name>ConfigVersion.cmake
 ##       |
-##        - oatpp-<version>/
+##        - oatpp/
 ##            |
 ##            |- lib1.a
 ##            |- lib2.a
@@ -44,7 +44,7 @@ set(OATPP_MODULE_VERSION "${OATPP_THIS_MODULE_VERSION}" CACHE STRING "oatpp modu
 set(OATPP_MODULE_LIBRARIES
         "${OATPP_THIS_MODULE_LIBRARIES}" ## list libraries to find when find_package is called
         CACHE INTERNAL "oatpp module libraries"
-)
+        )
 set(OATPP_MODULE_LIBDIR ${CMAKE_INSTALL_LIBDIR} CACHE STRING "lib folder name")
 
 #######################################################################################
@@ -59,22 +59,22 @@ endforeach()
 
 install(TARGETS ${OATPP_THIS_MODULE_TARGETS}
         EXPORT "${OATPP_MODULE_NAME}Targets"
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}/oatpp-${OATPP_MODULE_VERSION}"
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/oatpp-${OATPP_MODULE_VERSION}"
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}/oatpp-${OATPP_MODULE_VERSION}"
-        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/oatpp-${OATPP_MODULE_VERSION}/${OATPP_MODULE_NAME}"
-)
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}/oatpp"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/oatpp"
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}/oatpp"
+        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${OATPP_MODULE_NAME}"
+        )
 
 install(DIRECTORY ${OATPP_DIRS_TO_INSTALL}
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/oatpp-${OATPP_MODULE_VERSION}/${OATPP_MODULE_NAME}"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
         FILES_MATCHING PATTERN "*.hpp"
-)
+        )
 
 install(EXPORT "${OATPP_MODULE_NAME}Targets"
         FILE "${OATPP_MODULE_NAME}Targets.cmake"
         NAMESPACE oatpp::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${OATPP_MODULE_NAME}-${OATPP_MODULE_VERSION}"
-)
+        )
 
 include(CMakePackageConfigHelpers)
 
