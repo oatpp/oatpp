@@ -110,7 +110,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
-      oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", m_port)
+      oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", m_port)
     );
 
   }());

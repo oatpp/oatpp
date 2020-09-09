@@ -116,7 +116,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
-      oatpp::network::client::SimpleTCPConnectionProvider::createShared("127.0.0.1", m_port)
+      oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", m_port)
     );
 
   }());
@@ -207,7 +207,7 @@ void ClientRetryTest::onRun() {
     for(v_int32 i = 0; i < 100; i ++) {
       threads.push_back(std::thread([client]{
         auto response = client->getRoot();
-        OATPP_ASSERT(response);
+        OATPP_ASSERT(response && "Test: server pops up");
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto data = response->readBodyToString();
         OATPP_ASSERT(data == "Hello World!!!");
@@ -217,7 +217,7 @@ void ClientRetryTest::onRun() {
     OATPP_LOGD(TAG, "Waiting for server to start...");
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    runServer(m_port, 1, 1, true, controller);
+    runServer(m_port, 2, 2, true, controller);
 
     for(std::thread& thread : threads) {
       thread.join();
@@ -248,7 +248,7 @@ void ClientRetryTest::onRun() {
       while(oatpp::base::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
 
         auto response = client->getAvailability();
-        OATPP_ASSERT(response);
+        OATPP_ASSERT(response && "Test: unstable server!");
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto data = response->readBodyToString();
         OATPP_ASSERT(data == "Hello World!!!");
