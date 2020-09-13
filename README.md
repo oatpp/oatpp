@@ -3,8 +3,8 @@
 ---
 
 **Attention**  
-Version `1.1.0` introduces breaking changes. See the 
-[changelog](changelog/1.1.0.md) for details.
+
+The new oatpp `1.2.0` is coming soon. Follow the [changelog](https://github.com/oatpp/oatpp/blob/v_1.2.0/changelog/1.2.0.md) for details.
 
 ---
 
