@@ -50,7 +50,11 @@ Transaction::Transaction(Transaction&& other)
 
 Transaction::~Transaction() {
   if(m_open) {
-    rollback();
+    try {
+      rollback();
+    } catch (...) {
+      // DO NOTHING
+    }
   }
 }
 
