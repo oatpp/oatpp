@@ -302,6 +302,13 @@ void FullTest::onRun() {
         OATPP_ASSERT(dtoOut->testValueInt == i);
       }
 
+      { // test POST with invalid dto body
+        auto dtoIn = app::AnotherTestDto::createShared();
+        dtoIn->testValue = i;
+        auto response = client->postInvalidBodyDto(dtoIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 400);
+      }
+
       { // test Enum as String
 
         OATPP_ASSERT(oatpp::Enum<app::AllowedPathParams>::getEntries().size() == 2);

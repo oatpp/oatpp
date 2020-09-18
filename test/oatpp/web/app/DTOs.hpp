@@ -42,6 +42,14 @@ class TestDto : public oatpp::DTO {
   
 };
 
+class AnotherTestDto : public oatpp::DTO {
+    DTO_INIT(AnotherTestDto, DTO);
+
+    DTO_FIELD(Int32, testValue);
+    DTO_FIELD(String, testValueStr);
+    DTO_FIELD(Fields<Int32>, testMap);
+};
+
 ENUM(AllowedPathParams, v_int32,
   VALUE(HELLO, 100, "hello"),
   VALUE(WORLD, 200, "world")
