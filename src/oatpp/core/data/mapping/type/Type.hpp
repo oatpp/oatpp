@@ -76,7 +76,7 @@ namespace __class {
   class Void {
   public:
     /**
-     * Name of the class - CLASS_NAME = "Void".
+     * Class id.
      */
     static const ClassId CLASS_ID;
 
@@ -86,6 +86,20 @@ namespace __class {
      */
     static Type* getType();
   };
+
+  /**
+   * AbstractObject class.
+   */
+  class AbstractObject {
+  public:
+
+    /**
+     * Class id.
+     */
+    static const ClassId CLASS_ID;
+
+  };
+
 }
 
 /**
@@ -218,6 +232,22 @@ template <typename T>
 struct ObjectWrapperByUnderlyingType {};
 
 /**
+ * Base class of all object-like mapping-enabled structures ex.: oatpp::DTO.
+ */
+class BaseObject : public oatpp::base::Countable {
+  friend Type;
+private:
+  void* m_basePointer = this;
+private:
+  void set(v_int64 offset, const Void& value);
+  Void get(v_int64 offset) const;
+  Void& getAsRef(v_int64 offset) const;
+protected:
+  void setBasePointer(void* basePointer);
+  void* getBasePointer() const;
+};
+
+/**
  * Object type data.
  */
 class Type {
@@ -293,7 +323,7 @@ public:
      * @param pName - name of the property.
      * @param pType - &l:Type; of the property.
      */
-    Property(v_int64 pOffset, const char* pName, Type* pType);
+    Property(v_int64 pOffset, const char* pName, const Type* pType);
 
     /**
      * Property name.
@@ -315,21 +345,21 @@ public:
      * @param object - object address.
      * @param value - value to set.
      */
-    void set(void* object, const Void& value);
+    void set(BaseObject* object, const Void& value);
 
     /**
      * Get value of object field mapped by this property.
      * @param object - object address.
      * @return - value of the field.
      */
-    Void get(void* object);
+    Void get(BaseObject* object);
 
     /**
      * Get reference to ObjectWrapper of the object field.
      * @param object - object address.
      * @return - reference to ObjectWrapper of the object field.
      */
-    Void& getAsRef(void* object);
+    Void& getAsRef(BaseObject* object);
     
   };
 public:
@@ -367,8 +397,8 @@ public:
   typedef std::unordered_map<std::string, const AbstractInterpretation*> InterpretationMap;
 
 public:
-  typedef Void (*Creator)();
-  typedef const Properties* (*PropertiesGetter)();
+  typedef std::function<Void ()> Creator;
+  typedef std::function<const Properties* ()> PropertiesGetter;
 public:
 
   /**

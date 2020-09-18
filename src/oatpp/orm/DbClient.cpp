@@ -81,6 +81,8 @@ void DbClient::params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void
   stream.writeSimple(paramNamespace.getData(), paramNamespace.getSize());
   stream.writeSimple(".", 1);
 
+  auto baseObject = static_cast<oatpp::BaseObject*>(object.get());
+
   for(auto& f : fieldsMap) {
 
     const std::string& fname = f.first;
@@ -90,7 +92,7 @@ void DbClient::params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void
     stream.writeSimple(fname.data(), fname.size());
 
     oatpp::String key = stream.toString();
-    params.insert({key, field->get(object.get())});
+    params.insert({key, field->get(baseObject)});
 
   }
 

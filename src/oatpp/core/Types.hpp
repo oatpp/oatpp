@@ -112,6 +112,11 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::Boolean Boolean;
 
   /**
+   * Base class for all Object-like Mapping-enabled structures. &id:oatpp::data::mapping::type::BaseObject;
+   */
+  typedef oatpp::data::mapping::type::BaseObject BaseObject;
+
+  /**
    * Base class for all DTO objects. &id:oatpp::data::mapping::type::DTO;
    */
   typedef oatpp::data::mapping::type::DTO DTO;

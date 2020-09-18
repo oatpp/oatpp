@@ -25,9 +25,15 @@
 #include "./Object.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
-namespace __class {
-  const ClassId AbstractObject::CLASS_ID("Object");
+
+Type::Properties* DTO::Z__CLASS_EXTEND(Type::Properties* properties, Type::Properties* extensionProperties) {
+  properties->pushFrontAll(extensionProperties);
+  return properties;
+}
+
+oatpp::data::mapping::type::Type::Properties* DTO::Z__CLASS_GET_FIELDS_MAP() {
+  static data::mapping::type::Type::Properties map;
+  return &map;
 }
   
 }}}}

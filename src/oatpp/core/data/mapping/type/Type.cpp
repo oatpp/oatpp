@@ -35,6 +35,8 @@ namespace __class {
     static Type type(CLASS_ID, nullptr);
     return &type;
   }
+
+  const ClassId AbstractObject::CLASS_ID("Object");
   
 }
 
@@ -52,6 +54,31 @@ int ClassId::getClassCount() {
   return ID_COUNTER;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BaseObject
+
+void BaseObject::set(v_int64 offset, const Void& value) {
+  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  *property = value;
+}
+
+Void BaseObject::get(v_int64 offset) const {
+  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  return *property;
+}
+
+Void& BaseObject::getAsRef(v_int64 offset) const {
+  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  return *property;
+}
+
+void BaseObject::setBasePointer(void* basePointer) {
+  m_basePointer = basePointer;
+}
+
+void* BaseObject::getBasePointer() const {
+  return m_basePointer;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type::Properties
@@ -70,25 +97,22 @@ void Type::Properties::pushFrontAll(Properties* properties) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type::Property
 
-Type::Property::Property(v_int64 pOffset, const char* pName, Type* pType)
+Type::Property::Property(v_int64 pOffset, const char* pName, const Type* pType)
   : offset(pOffset)
   , name(pName)
   , type(pType)
 {}
 
-void Type::Property::set(void* object, const Void& value) {
-  Void* property = (Void*)(((v_int64) object) + offset);
-  *property = value;
+void Type::Property::set(BaseObject* object, const Void& value) {
+  object->set(offset, value);
 }
 
-Void Type::Property::get(void* object) {
-  Void* property = (Void*)(((v_int64) object) + offset);
-  return *property;
+Void Type::Property::get(BaseObject* object) {
+  return object->get(offset);
 }
 
-Void& Type::Property::getAsRef(void* object) {
-  Void* property = (Void*)(((v_int64) object) + offset);
-  return *property;
+Void& Type::Property::getAsRef(BaseObject* object) {
+  return object->getAsRef(offset);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

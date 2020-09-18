@@ -321,7 +321,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         caret.skipBlankChars();
 
         auto field = fieldIterator->second;
-        field->set(object.get(), deserializer->deserialize(caret, field->type));
+        field->set(static_cast<oatpp::BaseObject*>(object.get()), deserializer->deserialize(caret, field->type));
 
       } else if (deserializer->getConfig()->allowUnknownFields) {
         caret.skipBlankChars();

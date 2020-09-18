@@ -153,7 +153,7 @@ void Serializer::serializeObject(Serializer* serializer,
 
   bool first = true;
   auto fields = polymorph.valueType->propertiesGetter()->getList();
-  oatpp::DTO* object = static_cast<oatpp::DTO*>(polymorph.get());
+  auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
 
   for (auto const& field : fields) {
 
