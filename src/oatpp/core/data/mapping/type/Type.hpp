@@ -368,7 +368,7 @@ public:
   public:
     virtual Void toInterpretation(const Void& originalValue) const = 0;
     virtual Void fromInterpretation(const Void& interValue) const = 0;
-    virtual Type* getInterpretationType() const = 0;
+    virtual const Type* getInterpretationType() const = 0;
   };
 
   template<class OriginalWrapper, class InterWrapper>
@@ -383,7 +383,7 @@ public:
       return reproduce(interValue.staticCast<InterWrapper>());
     }
 
-    Type* getInterpretationType() const override {
+    const Type* getInterpretationType() const override {
       return InterWrapper::Class::getType();
     }
 
