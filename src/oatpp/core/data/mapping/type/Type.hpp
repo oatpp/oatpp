@@ -87,19 +87,6 @@ namespace __class {
     static Type* getType();
   };
 
-  /**
-   * AbstractObject class.
-   */
-  class AbstractObject {
-  public:
-
-    /**
-     * Class id.
-     */
-    static const ClassId CLASS_ID;
-
-  };
-
 }
 
 /**
@@ -397,23 +384,16 @@ public:
   typedef std::unordered_map<std::string, const AbstractInterpretation*> InterpretationMap;
 
 public:
-  typedef std::function<Void ()> Creator;
-  typedef std::function<const Properties* ()> PropertiesGetter;
-public:
 
   /**
    * Constructor.
    * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
    * @param pCreator - function pointer of Creator - function to create instance of this type.
-   * @param pPropertiesGetter - function to get properties of the type.
-   * @param pPolymorphicDispatcher - dispatcher to correctly address methods of the type.
    * @param pInterpretationMap - Map of type Interpretations.
    */
   Type(const ClassId& pClassId,
        const char* pNameQualifier,
-       Creator pCreator = nullptr,
-       PropertiesGetter pPropertiesGetter = nullptr,
        void* pPolymorphicDispatcher = nullptr,
        InterpretationMap&& pInterpretationMap = {});
 
@@ -431,16 +411,6 @@ public:
    * List of type parameters - for templated types.
    */
   std::list<Type*> params;
-
-  /**
-   * Creator - function to create instance of this type.
-   */
-  const Creator creator;
-
-  /**
-   * PropertiesGetter - function to get properties of the type.
-   */
-  const PropertiesGetter propertiesGetter;
 
   /**
    * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.

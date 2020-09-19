@@ -48,8 +48,11 @@ namespace __class {
     /**
      * Polymorphic Dispatcher.
      */
-    class AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher {
     public:
+
+      virtual type::Void createObject() const = 0;
+
       /**
        * Add Item.
        * @param object - UnorderedSet.
@@ -118,10 +121,14 @@ namespace __class {
 
 template<class T>
 class UnorderedSet : public AbstractUnorderedSet {
-private:
+public:
 
-  class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+  class PolymorphicDispatcher : public AbstractUnorderedSet::PolymorphicDispatcher {
   public:
+
+    type::Void createObject() const override {
+      return type::Void(std::make_shared<std::unordered_set<T>>(), getType());
+    }
 
     void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
       const auto& set = object.staticCast<type::UnorderedSet<T>>();
@@ -133,12 +140,8 @@ private:
 
 private:
 
-  static type::Void creator() {
-    return type::Void(std::make_shared<std::unordered_set<T>>(), getType());
-  }
-
   static Type createType() {
-    Type type(__class::AbstractUnorderedSet::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+    Type type(__class::AbstractUnorderedSet::CLASS_ID, nullptr, new PolymorphicDispatcher());
     type.params.push_back(T::Class::getType());
     return type;
   }

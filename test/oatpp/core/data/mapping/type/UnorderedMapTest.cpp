@@ -144,7 +144,7 @@ void UnorderedMapTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::UnorderedFields<String> map = {{"key1", "a"}, {"key2", "b"}, {"key3", "c"}};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedFields<String>::Class::AbstractPolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedFields<String>::Class::PolymorphicDispatcher*>(
       map.valueType->polymorphicDispatcher
     );
 

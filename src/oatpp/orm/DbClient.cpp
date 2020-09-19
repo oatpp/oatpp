@@ -42,7 +42,8 @@ void DbClient::types_putDtoFields(Executor::ParamsTypeMap& map,
                              "Error. At the moment 'PARAMS_DTO' macro supports 'DTO' data-type only.");
   }
 
-  const auto& fieldsMap = type->propertiesGetter()->getMap();
+  auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+  const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
   data::stream::BufferOutputStream stream;
   stream.writeSimple(paramNamespace.getData(), paramNamespace.getSize());
@@ -75,7 +76,8 @@ void DbClient::params_putDtoFields(std::unordered_map<oatpp::String, oatpp::Void
                              "Error. At the moment 'PARAMS_DTO' macro supports 'DTO' data-type only.");
   }
 
-  const auto& fieldsMap = type->propertiesGetter()->getMap();
+  auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+  const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
   data::stream::BufferOutputStream stream;
   stream.writeSimple(paramNamespace.getData(), paramNamespace.getSize());

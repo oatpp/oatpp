@@ -46,16 +46,51 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 namespace __class {
 
   /**
+   * AbstractObject class.
+   */
+  class AbstractObject {
+  public:
+
+    class PolymorphicDispatcher {
+    public:
+
+      virtual type::Void createObject() const = 0;
+
+      virtual const type::Type::Properties* getProperties() const = 0;
+
+    };
+
+  public:
+
+    /**
+     * Class id.
+     */
+    static const ClassId CLASS_ID;
+
+  };
+
+  /**
    * Template for Object class of type T.
    * @tparam T - object type.
    */
   template<class T>
   class Object : public AbstractObject {
-  private:
+  public:
 
-    static type::Void creator() {
-      return type::Void(std::make_shared<T>(), getType());
-    }
+    class PolymorphicDispatcher : public AbstractObject::PolymorphicDispatcher {
+    public:
+
+      type::Void createObject() const override {
+        return type::Void(std::make_shared<T>(), getType());
+      }
+
+      const type::Type::Properties* getProperties() const override {
+        return propertiesGetter();
+      }
+
+    };
+
+  private:
 
     static type::Type::Properties* initProperties() {
       T obj; // initializer;
@@ -75,7 +110,7 @@ namespace __class {
      * @return - &id:oatpp::data::mapping::type::Type;
      */
     static Type* getType() {
-      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), creator, propertiesGetter);
+      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), new PolymorphicDispatcher());
       return type;
     }
     

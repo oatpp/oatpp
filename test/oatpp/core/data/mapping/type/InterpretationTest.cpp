@@ -91,7 +91,7 @@ namespace __class {
 
     static oatpp::Type* getType(){
       static Type type(
-        CLASS_ID, nullptr, nullptr, nullptr, nullptr,
+        CLASS_ID, nullptr, nullptr,
         {
           {"test", new Inter()}
         }
@@ -138,7 +138,7 @@ namespace __class {
 
     static oatpp::Type* getType(){
       static Type type(
-        CLASS_ID, nullptr, nullptr, nullptr, nullptr,
+        CLASS_ID, nullptr, nullptr,
         {
           {"test", new Inter()}
         }

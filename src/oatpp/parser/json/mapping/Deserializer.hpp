@@ -172,8 +172,8 @@ private:
 
     if(caret.canContinueAtChar('[', 1)) {
 
-      auto listWrapper = type->creator();
-      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto listWrapper = polymorphicDispatcher->createObject();
       const auto& list = listWrapper.template staticCast<Collection>();
 
       Type* itemType = *type->params.begin();
@@ -219,8 +219,8 @@ private:
 
     if(caret.canContinueAtChar('{', 1)) {
 
-      auto mapWrapper = type->creator();
-      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto mapWrapper = polymorphicDispatcher->createObject();
       const auto& map = mapWrapper.template staticCast<Collection>();
 
       auto it = type->params.begin();

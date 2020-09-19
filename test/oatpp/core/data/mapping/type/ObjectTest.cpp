@@ -123,7 +123,8 @@ void ObjectTest::onRun() {
     OATPP_LOGI(TAG, "Test Meta 1...");
 
     auto type = Object<DtoA>::Class::getType();
-    const auto& propsMap = type->propertiesGetter()->getMap();
+    auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    const auto& propsMap = dispatcher->getProperties()->getMap();
 
     OATPP_ASSERT(propsMap.size() == 1);
 
@@ -139,7 +140,8 @@ void ObjectTest::onRun() {
     OATPP_LOGI(TAG, "Test Meta 2...");
 
     auto type = Object<DtoB>::Class::getType();
-    const auto& propsMap = type->propertiesGetter()->getMap();
+    auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    const auto& propsMap = dispatcher->getProperties()->getMap();
 
     OATPP_ASSERT(propsMap.size() == 2);
 

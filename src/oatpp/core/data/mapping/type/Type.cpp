@@ -35,8 +35,6 @@ namespace __class {
     static Type type(CLASS_ID, nullptr);
     return &type;
   }
-
-  const ClassId AbstractObject::CLASS_ID("Object");
   
 }
 
@@ -120,14 +118,10 @@ Void& Type::Property::getAsRef(BaseObject* object) {
 
 Type::Type(const ClassId& pClassId,
            const char* pNameQualifier,
-           Creator pCreator,
-           PropertiesGetter pPropertiesGetter,
            void* pPolymorphicDispatcher,
            InterpretationMap&& pInterpretationMap)
   : classId(pClassId)
   , nameQualifier(pNameQualifier)
-  , creator(pCreator)
-  , propertiesGetter(pPropertiesGetter)
   , polymorphicDispatcher(pPolymorphicDispatcher)
   , interpretationMap(pInterpretationMap)
 {}
