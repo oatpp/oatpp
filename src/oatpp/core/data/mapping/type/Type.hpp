@@ -262,7 +262,7 @@ public:
    * Constructor.
    * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
-   * @param pCreator - function pointer of Creator - function to create instance of this type.
+   * @param pPolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
    * @param pInterpretationMap - Map of type Interpretations.
    */
   Type(const ClassId& pClassId,
