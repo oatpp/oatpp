@@ -26,19 +26,84 @@
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BaseObject
+
+void BaseObject::set(v_int64 offset, const Void& value) {
+  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  *property = value;
+}
+
+Void BaseObject::get(v_int64 offset) const {
+  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  return *property;
+}
+
+Void& BaseObject::getAsRef(v_int64 offset) const {
+  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  return *property;
+}
+
+void BaseObject::setBasePointer(void* basePointer) {
+  m_basePointer = basePointer;
+}
+
+void* BaseObject::getBasePointer() const {
+  return m_basePointer;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BaseObject::Properties
+
+BaseObject::Property* BaseObject::Properties::pushBack(Property* property) {
+  m_map.insert({property->name, property});
+  m_list.push_back(property);
+  return property;
+}
+
+void BaseObject::Properties::pushFrontAll(Properties* properties) {
+  m_map.insert(properties->m_map.begin(), properties->m_map.end());
+  m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BaseObject::Property
+
+BaseObject::Property::Property(v_int64 pOffset, const char* pName, const Type* pType)
+  : offset(pOffset)
+  , name(pName)
+  , type(pType)
+{}
+
+void BaseObject::Property::set(BaseObject* object, const Void& value) {
+  object->set(offset, value);
+}
+
+Void BaseObject::Property::get(BaseObject* object) {
+  return object->get(offset);
+}
+
+Void& BaseObject::Property::getAsRef(BaseObject* object) {
+  return object->getAsRef(offset);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Object
+
 namespace __class {
 
   const ClassId AbstractObject::CLASS_ID("Object");
 
 }
 
-Type::Properties* DTO::Z__CLASS_EXTEND(Type::Properties* properties, Type::Properties* extensionProperties) {
+BaseObject::Properties* DTO::Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties) {
   properties->pushFrontAll(extensionProperties);
   return properties;
 }
 
-oatpp::data::mapping::type::Type::Properties* DTO::Z__CLASS_GET_FIELDS_MAP() {
-  static data::mapping::type::Type::Properties map;
+oatpp::data::mapping::type::BaseObject::Properties* DTO::Z__CLASS_GET_FIELDS_MAP() {
+  static data::mapping::type::BaseObject::Properties map;
   return &map;
 }
   

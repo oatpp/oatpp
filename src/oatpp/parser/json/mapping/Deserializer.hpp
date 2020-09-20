@@ -40,8 +40,8 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
 class Deserializer {
 public:
   typedef oatpp::data::mapping::type::Type Type;
-  typedef oatpp::data::mapping::type::Type::Property Property;
-  typedef oatpp::data::mapping::type::Type::Properties Properties;
+  typedef oatpp::data::mapping::type::BaseObject::Property Property;
+  typedef oatpp::data::mapping::type::BaseObject::Properties Properties;
 
   typedef oatpp::String String;
 

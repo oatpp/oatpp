@@ -53,67 +53,6 @@ int ClassId::getClassCount() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BaseObject
-
-void BaseObject::set(v_int64 offset, const Void& value) {
-  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
-  *property = value;
-}
-
-Void BaseObject::get(v_int64 offset) const {
-  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
-  return *property;
-}
-
-Void& BaseObject::getAsRef(v_int64 offset) const {
-  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
-  return *property;
-}
-
-void BaseObject::setBasePointer(void* basePointer) {
-  m_basePointer = basePointer;
-}
-
-void* BaseObject::getBasePointer() const {
-  return m_basePointer;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Type::Properties
-
-Type::Property* Type::Properties::pushBack(Property* property) {
-  m_map.insert({property->name, property});
-  m_list.push_back(property);
-  return property;
-}
-  
-void Type::Properties::pushFrontAll(Properties* properties) {
-  m_map.insert(properties->m_map.begin(), properties->m_map.end());
-  m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Type::Property
-
-Type::Property::Property(v_int64 pOffset, const char* pName, const Type* pType)
-  : offset(pOffset)
-  , name(pName)
-  , type(pType)
-{}
-
-void Type::Property::set(BaseObject* object, const Void& value) {
-  object->set(offset, value);
-}
-
-Void Type::Property::get(BaseObject* object) {
-  return object->get(offset);
-}
-
-Void& Type::Property::getAsRef(BaseObject* object) {
-  return object->getAsRef(offset);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type
 
 Type::Type(const ClassId& pClassId,
