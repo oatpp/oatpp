@@ -283,7 +283,7 @@ public:
   /**
    * List of type parameters - for templated types.
    */
-  std::list<Type*> params;
+  std::list<const Type*> params;
 
   /**
    * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.

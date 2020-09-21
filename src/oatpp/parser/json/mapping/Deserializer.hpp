@@ -176,7 +176,7 @@ private:
       auto listWrapper = polymorphicDispatcher->createObject();
       const auto& list = listWrapper.template staticCast<Collection>();
 
-      Type* itemType = *type->params.begin();
+      auto itemType = *type->params.begin();
 
       caret.skipBlankChars();
 
@@ -224,11 +224,11 @@ private:
       const auto& map = mapWrapper.template staticCast<Collection>();
 
       auto it = type->params.begin();
-      Type* keyType = *it ++;
+      auto keyType = *it ++;
       if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
         throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserializeKeyValue()]: Invalid json map key. Key should be String");
       }
-      Type* valueType = *it;
+      auto valueType = *it;
 
       caret.skipBlankChars();
 
