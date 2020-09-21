@@ -142,11 +142,11 @@ void EnumTest::onRun() {
     OATPP_ASSERT(oatpp::Enum<Enum2>::NotNull::AsString::Interpreter::notNull == true);
     OATPP_ASSERT(oatpp::Enum<Enum2>::NotNull::AsNumber::Interpreter::notNull == true);
 
-    auto pd1 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+    auto pd1 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
       oatpp::Enum<Enum2>::Class::getType()->polymorphicDispatcher
     );
 
-    auto pd2 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+    auto pd2 = static_cast<const oatpp::data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
       oatpp::Enum<Enum2>::NotNull::Class::getType()->polymorphicDispatcher
     );
 

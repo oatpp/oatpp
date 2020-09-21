@@ -76,7 +76,7 @@ namespace __class {
   class Void {
   public:
     /**
-     * Name of the class - CLASS_NAME = "Void".
+     * Class id.
      */
     static const ClassId CLASS_ID;
 
@@ -86,6 +86,7 @@ namespace __class {
      */
     static Type* getType();
   };
+
 }
 
 /**
@@ -222,123 +223,12 @@ struct ObjectWrapperByUnderlyingType {};
  */
 class Type {
 public:
-  class Property; // FWD
-public:
-
-  /**
-   * Object type properties table.
-   */
-  class Properties {
-  private:
-    std::unordered_map<std::string, Property*> m_map;
-    std::list<Property*> m_list;
-  public:
-
-    /**
-     * Add property to the end of the list.
-     * @param property
-     */
-    Property* pushBack(Property* property);
-
-    /**
-     * Add all properties to the beginning of the list.
-     * @param properties
-     */
-    void pushFrontAll(Properties* properties);
-
-    /**
-     * Get properties as unordered map for random access.
-     * @return reference to std::unordered_map of std::string to &id:oatpp::data::mapping::type::Type::Property;*.
-     */
-    const std::unordered_map<std::string, Property*>& getMap() const {
-      return m_map;
-    }
-
-    /**
-     * Get properties in ordered way.
-     * @return std::list of &id:oatpp::data::mapping::type::Type::Property;*.
-     */
-    const std::list<Property*>& getList() const {
-      return m_list;
-    }
-    
-  };
-
-public:
-
-  /**
-   * Class to map object properties.
-   */
-  class Property {
-  public:
-
-    /**
-     * Editional Info about Property.
-     */
-    struct Info {
-      /**
-       * Description.
-       */
-      std::string description = "";
-      std::string pattern = "";
-    };
-
-  private:
-    const v_int64 offset;
-  public:
-
-    /**
-     * Constructor.
-     * @param pOffset - memory offset of object field from object start address.
-     * @param pName - name of the property.
-     * @param pType - &l:Type; of the property.
-     */
-    Property(v_int64 pOffset, const char* pName, Type* pType);
-
-    /**
-     * Property name.
-     */
-    const char* const name;
-
-    /**
-     * Property type.
-     */
-    const Type* const type;
-
-    /**
-     * Property additional info.
-     */
-    Info info;
-
-    /**
-     * Set value of object field mapped by this property.
-     * @param object - object address.
-     * @param value - value to set.
-     */
-    void set(void* object, const Void& value);
-
-    /**
-     * Get value of object field mapped by this property.
-     * @param object - object address.
-     * @return - value of the field.
-     */
-    Void get(void* object);
-
-    /**
-     * Get reference to ObjectWrapper of the object field.
-     * @param object - object address.
-     * @return - reference to ObjectWrapper of the object field.
-     */
-    Void& getAsRef(void* object);
-    
-  };
-public:
 
   class AbstractInterpretation {
   public:
     virtual Void toInterpretation(const Void& originalValue) const = 0;
     virtual Void fromInterpretation(const Void& interValue) const = 0;
-    virtual Type* getInterpretationType() const = 0;
+    virtual const Type* getInterpretationType() const = 0;
   };
 
   template<class OriginalWrapper, class InterWrapper>
@@ -353,7 +243,7 @@ public:
       return reproduce(interValue.staticCast<InterWrapper>());
     }
 
-    Type* getInterpretationType() const override {
+    const Type* getInterpretationType() const override {
       return InterWrapper::Class::getType();
     }
 
@@ -367,23 +257,16 @@ public:
   typedef std::unordered_map<std::string, const AbstractInterpretation*> InterpretationMap;
 
 public:
-  typedef Void (*Creator)();
-  typedef const Properties* (*PropertiesGetter)();
-public:
 
   /**
    * Constructor.
    * @param pClassId - type class id.
    * @param pNameQualifier - type name qualifier.
-   * @param pCreator - function pointer of Creator - function to create instance of this type.
-   * @param pPropertiesGetter - function to get properties of the type.
-   * @param pPolymorphicDispatcher - dispatcher to correctly address methods of the type.
+   * @param pPolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
    * @param pInterpretationMap - Map of type Interpretations.
    */
   Type(const ClassId& pClassId,
        const char* pNameQualifier,
-       Creator pCreator = nullptr,
-       PropertiesGetter pPropertiesGetter = nullptr,
        void* pPolymorphicDispatcher = nullptr,
        InterpretationMap&& pInterpretationMap = {});
 
@@ -400,17 +283,7 @@ public:
   /**
    * List of type parameters - for templated types.
    */
-  std::list<Type*> params;
-
-  /**
-   * Creator - function to create instance of this type.
-   */
-  const Creator creator;
-
-  /**
-   * PropertiesGetter - function to get properties of the type.
-   */
-  const PropertiesGetter propertiesGetter;
+  std::list<const Type*> params;
 
   /**
    * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.

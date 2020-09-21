@@ -40,8 +40,8 @@ namespace oatpp { namespace parser { namespace json { namespace mapping {
 class Deserializer {
 public:
   typedef oatpp::data::mapping::type::Type Type;
-  typedef oatpp::data::mapping::type::Type::Property Property;
-  typedef oatpp::data::mapping::type::Type::Properties Properties;
+  typedef oatpp::data::mapping::type::BaseObject::Property Property;
+  typedef oatpp::data::mapping::type::BaseObject::Properties Properties;
 
   typedef oatpp::String String;
 
@@ -172,11 +172,11 @@ private:
 
     if(caret.canContinueAtChar('[', 1)) {
 
-      auto listWrapper = type->creator();
-      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto listWrapper = polymorphicDispatcher->createObject();
       const auto& list = listWrapper.template staticCast<Collection>();
 
-      Type* itemType = *type->params.begin();
+      auto itemType = *type->params.begin();
 
       caret.skipBlankChars();
 
@@ -219,16 +219,16 @@ private:
 
     if(caret.canContinueAtChar('{', 1)) {
 
-      auto mapWrapper = type->creator();
-      auto polymorphicDispatcher = static_cast<const typename Collection::Class::AbstractPolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+      auto mapWrapper = polymorphicDispatcher->createObject();
       const auto& map = mapWrapper.template staticCast<Collection>();
 
       auto it = type->params.begin();
-      Type* keyType = *it ++;
+      auto keyType = *it ++;
       if(keyType->classId.id != oatpp::data::mapping::type::__class::String::CLASS_ID.id){
         throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserializeKeyValue()]: Invalid json map key. Key should be String");
       }
-      Type* valueType = *it;
+      auto valueType = *it;
 
       caret.skipBlankChars();
 

@@ -42,7 +42,130 @@
 #include <type_traits>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
+/**
+ * Base class of all object-like mapping-enabled structures ex.: oatpp::DTO.
+ */
+class BaseObject : public oatpp::base::Countable {
+public:
+
+  /**
+   * Class to map object properties.
+   */
+  class Property {
+  public:
+
+    /**
+     * Editional Info about Property.
+     */
+    struct Info {
+      /**
+       * Description.
+       */
+      std::string description = "";
+      std::string pattern = "";
+    };
+
+  private:
+    const v_int64 offset;
+  public:
+
+    /**
+     * Constructor.
+     * @param pOffset - memory offset of object field from object start address.
+     * @param pName - name of the property.
+     * @param pType - &l:Type; of the property.
+     */
+    Property(v_int64 pOffset, const char* pName, const Type* pType);
+
+    /**
+     * Property name.
+     */
+    const char* const name;
+
+    /**
+     * Property type.
+     */
+    const Type* const type;
+
+    /**
+     * Property additional info.
+     */
+    Info info;
+
+    /**
+     * Set value of object field mapped by this property.
+     * @param object - object address.
+     * @param value - value to set.
+     */
+    void set(BaseObject* object, const Void& value);
+
+    /**
+     * Get value of object field mapped by this property.
+     * @param object - object address.
+     * @return - value of the field.
+     */
+    Void get(BaseObject* object);
+
+    /**
+     * Get reference to ObjectWrapper of the object field.
+     * @param object - object address.
+     * @return - reference to ObjectWrapper of the object field.
+     */
+    Void& getAsRef(BaseObject* object);
+
+  };
+
+  /**
+   * Object type properties table.
+   */
+  class Properties {
+  private:
+    std::unordered_map<std::string, Property*> m_map;
+    std::list<Property*> m_list;
+  public:
+
+    /**
+     * Add property to the end of the list.
+     * @param property
+     */
+    Property* pushBack(Property* property);
+
+    /**
+     * Add all properties to the beginning of the list.
+     * @param properties
+     */
+    void pushFrontAll(Properties* properties);
+
+    /**
+     * Get properties as unordered map for random access.
+     * @return reference to std::unordered_map of std::string to &id:oatpp::data::mapping::type::BaseObject::Property;*.
+     */
+    const std::unordered_map<std::string, Property*>& getMap() const {
+      return m_map;
+    }
+
+    /**
+     * Get properties in ordered way.
+     * @return std::list of &id:oatpp::data::mapping::type::BaseObject::Property;*.
+     */
+    const std::list<Property*>& getList() const {
+      return m_list;
+    }
+
+  };
+
+private:
+  void* m_basePointer = this;
+private:
+  void set(v_int64 offset, const Void& value);
+  Void get(v_int64 offset) const;
+  Void& getAsRef(v_int64 offset) const;
+protected:
+  void setBasePointer(void* basePointer);
+  void* getBasePointer() const;
+};
+
 namespace __class {
 
   /**
@@ -50,7 +173,23 @@ namespace __class {
    */
   class AbstractObject {
   public:
+
+    class PolymorphicDispatcher {
+    public:
+
+      virtual type::Void createObject() const = 0;
+
+      virtual const type::BaseObject::Properties* getProperties() const = 0;
+
+    };
+
+  public:
+
+    /**
+     * Class id.
+     */
     static const ClassId CLASS_ID;
+
   };
 
   /**
@@ -59,20 +198,31 @@ namespace __class {
    */
   template<class T>
   class Object : public AbstractObject {
+  public:
+
+    class PolymorphicDispatcher : public AbstractObject::PolymorphicDispatcher {
+    public:
+
+      type::Void createObject() const override {
+        return type::Void(std::make_shared<T>(), getType());
+      }
+
+      const type::BaseObject::Properties* getProperties() const override {
+        return propertiesGetter();
+      }
+
+    };
+
   private:
 
-    static type::Void creator() {
-      return type::Void(std::make_shared<T>(), getType());
-    }
-
-    static type::Type::Properties* initProperties() {
+    static type::BaseObject::Properties* initProperties() {
       T obj; // initializer;
       T::Z__CLASS_EXTEND(T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), T::Z__CLASS_EXTENDED::Z__CLASS_GET_FIELDS_MAP());
       return T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP();
     }
 
-    static const Type::Properties* propertiesGetter() {
-      static type::Type::Properties* properties = initProperties();
+    static const BaseObject::Properties* propertiesGetter() {
+      static type::BaseObject::Properties* properties = initProperties();
       return properties;
     }
 
@@ -83,7 +233,7 @@ namespace __class {
      * @return - &id:oatpp::data::mapping::type::Type;
      */
     static Type* getType() {
-      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), creator, propertiesGetter);
+      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), new PolymorphicDispatcher());
       return type;
     }
     
@@ -144,7 +294,7 @@ public:
  * Base class for all DTO objects.
  * For more info about Data Transfer Object (DTO) see [Data Transfer Object (DTO)](https://oatpp.io/docs/components/dto/).
  */
-class DTO : public oatpp::base::Countable {
+class DTO : public BaseObject {
   template<class T>
   friend class __class::Object;
 public:
@@ -186,15 +336,8 @@ public:
 
 private:
   
-  static Type::Properties* Z__CLASS_EXTEND(Type::Properties* properties, Type::Properties* extensionProperties) {
-    properties->pushFrontAll(extensionProperties);
-    return properties;
-  }
-
-  static oatpp::data::mapping::type::Type::Properties* Z__CLASS_GET_FIELDS_MAP(){
-    static oatpp::data::mapping::type::Type::Properties map;
-    return &map;
-  }
+  static BaseObject::Properties* Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties);
+  static data::mapping::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP();
   
 public:
 

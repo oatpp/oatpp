@@ -261,7 +261,7 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Car
 
 oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
-  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::AbstractPolymorphicDispatcher*>(
+  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     type->polymorphicDispatcher
   );
 
@@ -296,8 +296,9 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
   if(caret.canContinueAtChar('{', 1)) {
 
-    auto object = type->creator();
-    const auto& fieldsMap = type->propertiesGetter()->getMap();
+    auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto object = dispatcher->createObject();
+    const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
     caret.skipBlankChars();
 
@@ -321,7 +322,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         caret.skipBlankChars();
 
         auto field = fieldIterator->second;
-        field->set(object.get(), deserializer->deserialize(caret, field->type));
+        field->set(static_cast<oatpp::BaseObject*>(object.get()), deserializer->deserialize(caret, field->type));
 
       } else if (deserializer->getConfig()->allowUnknownFields) {
         caret.skipBlankChars();

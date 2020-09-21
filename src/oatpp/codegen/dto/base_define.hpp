@@ -42,8 +42,8 @@ private: \
     return #TYPE_NAME; \
   } \
 \
-  static oatpp::data::mapping::type::Type::Properties* Z__CLASS_GET_FIELDS_MAP(){ \
-    static oatpp::data::mapping::type::Type::Properties map = oatpp::data::mapping::type::Type::Properties(); \
+  static oatpp::data::mapping::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP(){ \
+    static oatpp::data::mapping::type::BaseObject::Properties map = oatpp::data::mapping::type::BaseObject::Properties(); \
     return &map; \
   } \
 public: \
@@ -66,9 +66,9 @@ static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
   return (v_int64) ptr - (v_int64) buffer; \
 } \
 \
-static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME() { \
-  static oatpp::data::mapping::type::Type::Property* property = \
-      new oatpp::data::mapping::type::Type::Property(Z__PROPERTY_OFFSET_##NAME(), \
+static oatpp::data::mapping::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
+  static oatpp::data::mapping::type::BaseObject::Property* property = \
+      new oatpp::data::mapping::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                      #NAME, \
                                                      TYPE::Class::getType()); \
   return property; \
@@ -96,9 +96,9 @@ static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
   return (v_int64) ptr - (v_int64) buffer; \
 } \
 \
-static oatpp::data::mapping::type::Type::Property* Z__PROPERTY_SINGLETON_##NAME() { \
-  static oatpp::data::mapping::type::Type::Property* property = \
-      new oatpp::data::mapping::type::Type::Property(Z__PROPERTY_OFFSET_##NAME(), \
+static oatpp::data::mapping::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
+  static oatpp::data::mapping::type::BaseObject::Property* property = \
+      new oatpp::data::mapping::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                      QUALIFIER, \
                                                      TYPE::Class::getType()); \
   return property; \
@@ -136,7 +136,7 @@ static bool Z__PROPERTY_INIT_##NAME(int) { \
   return true; \
 } \
 \
-static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::Type::Property::Info* info)
+static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::BaseObject::Property::Info* info)
 
 // FOR EACH
 

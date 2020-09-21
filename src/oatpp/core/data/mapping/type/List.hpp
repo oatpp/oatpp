@@ -48,8 +48,11 @@ namespace __class {
     /**
      * Polymorphic Dispatcher
      */
-    class AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher {
     public:
+
+      virtual type::Void createObject() const = 0;
+
       /**
        * Add item.
        * @param object - List to add item to.
@@ -116,10 +119,14 @@ namespace __class {
 
   template<class T>
   class List : public AbstractList {
-  private:
+  public:
 
-    class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher : public AbstractList::PolymorphicDispatcher {
     public:
+
+      type::Void createObject() const override {
+        return type::Void(std::make_shared<std::list<T>>(), getType());
+      }
 
       void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
         const auto& list = object.staticCast<type::List<T>>();
@@ -131,12 +138,8 @@ namespace __class {
 
   private:
 
-    static type::Void creator() {
-      return type::Void(std::make_shared<std::list<T>>(), getType());
-    }
-
     static Type createType() {
-      Type type(__class::AbstractList::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+      Type type(__class::AbstractList::CLASS_ID, nullptr, new PolymorphicDispatcher());
       type.params.push_back(T::Class::getType());
       return type;
     }
