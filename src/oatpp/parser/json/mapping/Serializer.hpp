@@ -188,8 +188,6 @@ private:
   void serialize(data::stream::ConsistentOutputStream* stream, const oatpp::Void& polymorph);
 
 private:
-  const oatpp::Type::AbstractInterpretation* findTypeInterpretation(const oatpp::Type* type);
-private:
   std::shared_ptr<Config> m_config;
   std::vector<SerializerMethod> m_methods;
 public:

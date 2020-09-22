@@ -172,17 +172,6 @@ void Serializer::serializeObject(Serializer* serializer,
 
 }
 
-const oatpp::Type::AbstractInterpretation* Serializer::findTypeInterpretation(const oatpp::Type* type) {
-  const auto& intMap = type->interpretationMap;
-  for(auto& name : m_config->enableInterpretations) {
-    auto it = intMap.find(name);
-    if(it != intMap.end()) {
-      return it->second;
-    }
-  }
-  return nullptr;
-}
-
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
                             const oatpp::Void& polymorph)
 {
@@ -192,7 +181,7 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
     (*method)(this, stream, polymorph);
   } else {
 
-    auto* interpretation = findTypeInterpretation(polymorph.valueType);
+    auto* interpretation = polymorph.valueType->findInterpretation(m_config->enableInterpretations);
     if(interpretation) {
       serialize(stream, interpretation->toInterpretation(polymorph));
     } else {

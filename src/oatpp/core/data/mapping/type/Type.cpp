@@ -22,8 +22,7 @@
  *
  ***************************************************************************/
 
-#include "./Type.hpp"
-
+#include "Type.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
@@ -64,5 +63,15 @@ Type::Type(const ClassId& pClassId,
   , polymorphicDispatcher(pPolymorphicDispatcher)
   , interpretationMap(pInterpretationMap)
 {}
-  
+
+const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<std::string>& names) const {
+  for(const std::string& name : names) {
+    auto it = interpretationMap.find(name);
+    if(it != interpretationMap.end()) {
+      return it->second;
+    }
+  }
+  return nullptr;
+}
+
 }}}}

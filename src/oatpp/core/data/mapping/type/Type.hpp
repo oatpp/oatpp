@@ -30,6 +30,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <vector>
 #include <string>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
@@ -224,10 +225,29 @@ struct ObjectWrapperByUnderlyingType {};
 class Type {
 public:
 
+  /**
+   * Type Abstract Interpretation.
+   */
   class AbstractInterpretation {
   public:
+    /**
+     * Convert the object to its interpretation.
+     * @param originalValue
+     * @return
+     */
     virtual Void toInterpretation(const Void& originalValue) const = 0;
+
+    /**
+     * Convert interpretation back to the original object.
+     * @param interValue
+     * @return
+     */
     virtual Void fromInterpretation(const Void& interValue) const = 0;
+
+    /**
+     * Type of the interpretation.
+     * @return
+     */
     virtual const Type* getInterpretationType() const = 0;
   };
 
@@ -294,6 +314,16 @@ public:
    * Map of type Interpretations.
    */
   const InterpretationMap interpretationMap;
+
+public:
+
+  /**
+   * Find type interpretation.
+   * @param names - list of possible interpretation names.
+   * @return - &l:Type::AbstractInterpretation;. Returns the first interpretation found from the list or NULL if no
+   * interpretations found.
+   */
+  const AbstractInterpretation* findInterpretation(const std::vector<std::string>& names) const;
   
 };
 

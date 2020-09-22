@@ -285,8 +285,6 @@ private:
   static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
 private:
-  const oatpp::Type::AbstractInterpretation* findTypeInterpretation(const oatpp::Type* type);
-private:
   std::shared_ptr<Config> m_config;
   std::vector<DeserializerMethod> m_methods;
 public:
