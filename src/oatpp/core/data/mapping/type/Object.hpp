@@ -155,6 +155,39 @@ public:
 
   };
 
+  class PropertyTraverser {
+  private:
+    bool isKnownType(const ClassId& classId) const;
+
+    const Type* findPropertyType(const Type* baseType,
+                                 const std::vector<std::string>& path,
+                                 v_uint32 pathPosition,
+                                 const std::vector<std::string>& allowedInterpretations) const;
+
+    Void findPropertyValue(const Void& baseObject,
+                           const std::vector<std::string>& path,
+                           v_uint32 pathPosition,
+                           const std::vector<std::string>& allowedInterpretations) const;
+
+  private:
+    std::vector<bool> m_knownTypes;
+  public:
+
+    PropertyTraverser();
+
+    const Type* findPropertyType(const Type* baseType,
+                                 const std::vector<std::string>& path,
+                                 const std::vector<std::string>& allowedInterpretations) const;
+
+    Void findPropertyValue(const Void& baseObject,
+                           const std::vector<std::string>& path,
+                           const std::vector<std::string>& allowedInterpretations) const;
+
+    void setKnownType(const ClassId& classId, bool isKnownType);
+    void addKnownTypes(const std::vector<ClassId>& knownTypes);
+
+  };
+
 private:
   void* m_basePointer = this;
 private:

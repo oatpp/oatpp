@@ -70,8 +70,9 @@ void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
-  OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
-  OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
+  OATPP_LOGD("Tests", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
+  OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
+  OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
 
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
@@ -102,7 +103,6 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);

@@ -189,6 +189,30 @@ void InterpretationTest::onRun() {
 
   OATPP_ASSERT(json1 == json2);
 
+  {
+    oatpp::data::mapping::type::BaseObject::PropertyTraverser traverser;
+    auto v = traverser.findPropertyValue(l, {"p1", "x"}, {"test"});
+    OATPP_ASSERT(v);
+    OATPP_ASSERT(v.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 1);
+  }
+
+  {
+    oatpp::data::mapping::type::BaseObject::PropertyTraverser traverser;
+    auto v = traverser.findPropertyValue(l, {"p1", "y"}, {"test"});
+    OATPP_ASSERT(v);
+    OATPP_ASSERT(v.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 2);
+  }
+
+  {
+    oatpp::data::mapping::type::BaseObject::PropertyTraverser traverser;
+    auto v = traverser.findPropertyValue(l, {"p1", "z"}, {"test"});
+    OATPP_ASSERT(v);
+    OATPP_ASSERT(v.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 3);
+  }
+
 }
 
 }}}}}}
