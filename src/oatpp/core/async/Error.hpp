@@ -26,6 +26,7 @@
 #define oatpp_async_Error_hpp
 
 #include "oatpp/core/base/Countable.hpp"
+#include <string>
 
 namespace oatpp { namespace async {
 
@@ -34,14 +35,14 @@ namespace oatpp { namespace async {
  */
 class Error : public oatpp::base::Countable {
 private:
-  const char* m_what;
+  std::string m_what;
 public:
 
   /**
    * Constructor.
    * @param what - error explanation.
    */
-  Error(const char* what);
+  Error(const std::string& what);
 
   /**
    * Virtual destructor.
