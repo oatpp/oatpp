@@ -48,11 +48,19 @@ protocol::http::Headers& Response::getHeaders() {
   return m_headers;
 }
 
-void Response::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+void Response::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
 
-bool Response::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Response::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value) {
+  return m_headers.putIfNotExists(key, value);
+}
+
+void Response::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers.put(key, value);
+}
+
+bool Response::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
 }
 

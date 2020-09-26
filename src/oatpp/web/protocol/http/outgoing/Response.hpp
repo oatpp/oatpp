@@ -91,10 +91,25 @@ public:
 
   /**
    * Add http header.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
+   */
+  void putHeader(const oatpp::String& key, const oatpp::String& value);
+
+  /**
+   * Add http header if not already exists.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
+   * @return - `true` if header was added.
+   */
+  bool putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value);
+
+  /**
+   * Add http header.
    * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
    */
-  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  void putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Add http header if not already exists.
@@ -102,7 +117,7 @@ public:
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
    * @return - `true` if header was added.
    */
-  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  bool putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Get header value
