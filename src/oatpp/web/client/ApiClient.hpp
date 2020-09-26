@@ -28,20 +28,15 @@
 #include "./RequestExecutor.hpp"
 
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
-
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
 #include "oatpp/encoding/Base64.hpp"
 
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/share/StringTemplate.hpp"
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
-
-#include "oatpp/core/collection/ListMap.hpp"
+#include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
-
-#include "oatpp/core/base/Countable.hpp"
 
 #include <string>
 #include <list>
@@ -55,13 +50,6 @@ namespace oatpp { namespace web { namespace client {
 class ApiClient : public oatpp::base::Countable {
 public:
   static constexpr const char* const TAG = "Client";
-protected:
-  typedef std::unordered_map<std::string, oatpp::String> PathVariablesMap;
-public:
-  typedef oatpp::collection::ListMap<
-    oatpp::String,
-    oatpp::String
-  > StringToStringMap;
 public:
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::Status;.
@@ -141,6 +129,13 @@ public:
   using Object = oatpp::Object<T>;
 public:
 
+  typedef oatpp::data::share::StringTemplate StringTemplate;
+
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
+   */
+  typedef oatpp::web::protocol::http::Headers Headers;
+
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Response;.
    */
@@ -152,43 +147,20 @@ public:
    */
   typedef RequestExecutor::AsyncCallback AsyncCallback;
 protected:
-  
-  class PathSegment {
-  public:
-    constexpr static const v_int32 SEG_PATH = 0;
-    constexpr static const v_int32 SEG_VAR = 1;
-  public:
-    PathSegment(const std::string& pText, v_int32 pType)
-      : text (pText)
-      , type (pType)
-    {}
-    const std::string text;
-    const v_int32 type;
+
+  struct PathTemplateExtra {
+    oatpp::String name;
+    bool hasQueryParams;
   };
-  
-  typedef std::list<PathSegment> PathPattern;
-  
-private:
-  
-  void formatPath(data::stream::ConsistentOutputStream* stream,
-                  const PathPattern& pathPattern,
-                  const std::shared_ptr<StringToStringMap>& params);
-  
-  void addPathQueryParams(data::stream::ConsistentOutputStream* stream,
-                          const std::shared_ptr<StringToStringMap>& params);
-
-  oatpp::String formatPath(const PathPattern& pathPattern,
-                           const std::shared_ptr<StringToStringMap>& pathParams,
-                           const std::shared_ptr<StringToStringMap>& queryParams);
-
-  web::protocol::http::Headers mapToHeaders(const std::shared_ptr<StringToStringMap>& params);
 
 protected:
-  
-  static PathSegment parsePathSegment(p_char8 data, v_buff_size size, v_buff_size& position);
-  static PathSegment parseVarSegment(p_char8 data, v_buff_size size, v_buff_size& position);
-  static PathPattern parsePathPattern(p_char8 data, v_buff_size size);
-  
+
+  StringTemplate parsePathTemplate(const oatpp::String& name, const oatpp::String& text);
+
+  oatpp::String formatPath(const StringTemplate& pathTemplate,
+                           const std::unordered_map<oatpp::String, oatpp::String>& pathParams,
+                           const std::unordered_map<oatpp::String, oatpp::String>& queryParams);
+
 protected:
   std::shared_ptr<RequestExecutor> m_requestExecutor;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_objectMapper;
@@ -202,7 +174,7 @@ public:
 public:
   
   static std::shared_ptr<ApiClient> createShared(const std::shared_ptr<RequestExecutor>& requestExecutor,
-                                           const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) {
+                                                 const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) {
     return std::make_shared<ApiClient>(requestExecutor, objectMapper);
   }
   
@@ -227,19 +199,19 @@ public:
   void invalidateConnection(const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle);
 
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
-                                                   const PathPattern& pathPattern,
-                                                   const std::shared_ptr<StringToStringMap>& headers,
-                                                   const std::shared_ptr<StringToStringMap>& pathParams,
-                                                   const std::shared_ptr<StringToStringMap>& queryParams,
+                                                   const StringTemplate& pathTemplate,
+                                                   const Headers& headers,
+                                                   const std::unordered_map<oatpp::String, oatpp::String>& pathParams,
+                                                   const std::unordered_map<oatpp::String, oatpp::String>& queryParams,
                                                    const std::shared_ptr<RequestExecutor::Body>& body,
                                                    const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
   
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Response>&>
   executeRequestAsync(const oatpp::String& method,
-                      const PathPattern& pathPattern,
-                      const std::shared_ptr<StringToStringMap>& headers,
-                      const std::shared_ptr<StringToStringMap>& pathParams,
-                      const std::shared_ptr<StringToStringMap>& queryParams,
+                      const StringTemplate& pathTemplate,
+                      const Headers& headers,
+                      const std::unordered_map<oatpp::String, oatpp::String>& pathParams,
+                      const std::unordered_map<oatpp::String, oatpp::String>& queryParams,
                       const std::shared_ptr<RequestExecutor::Body>& body,
                       const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle = nullptr);
 
