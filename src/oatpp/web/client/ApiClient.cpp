@@ -54,11 +54,10 @@ ApiClient::StringTemplate ApiClient::parsePathTemplate(const oatpp::String& name
       caret.findChar('}');
       label.end();
 
-      StringTemplate::Variable var {
-        .posStart = label.getStartPosition() - 1,
-        .posEnd = label.getEndPosition(),
-        .name = label.toString()
-      };
+      StringTemplate::Variable var;
+      var.posStart = label.getStartPosition() - 1;
+      var.posEnd = label.getEndPosition();
+      var.name = label.toString();
 
       variables.push_back(var);
 
