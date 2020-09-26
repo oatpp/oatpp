@@ -136,22 +136,21 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
-        oatpp/network/Connection.cpp
-        oatpp/network/Connection.hpp
+        oatpp/network/ConnectionHandler.hpp
         oatpp/network/ConnectionPool.cpp
         oatpp/network/ConnectionPool.hpp
         oatpp/network/ConnectionProvider.cpp
         oatpp/network/ConnectionProvider.hpp
+        oatpp/network/Server.cpp
+        oatpp/network/Server.hpp
         oatpp/network/Url.cpp
         oatpp/network/Url.hpp
-        oatpp/network/client/SimpleTCPConnectionProvider.cpp
-        oatpp/network/client/SimpleTCPConnectionProvider.hpp
-        oatpp/network/server/ConnectionHandler.cpp
-        oatpp/network/server/ConnectionHandler.hpp
-        oatpp/network/server/Server.cpp
-        oatpp/network/server/Server.hpp
-        oatpp/network/server/SimpleTCPConnectionProvider.cpp
-        oatpp/network/server/SimpleTCPConnectionProvider.hpp
+        oatpp/network/tcp/client/ConnectionProvider.cpp
+        oatpp/network/tcp/client/ConnectionProvider.hpp
+        oatpp/network/tcp/server/ConnectionProvider.cpp
+        oatpp/network/tcp/server/ConnectionProvider.hpp
+        oatpp/network/tcp/Connection.cpp
+        oatpp/network/tcp/Connection.hpp
         oatpp/network/virtual_/Interface.cpp
         oatpp/network/virtual_/Interface.hpp
         oatpp/network/virtual_/Pipe.cpp

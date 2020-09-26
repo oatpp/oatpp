@@ -22,20 +22,20 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_client_SimpleTCPConnectionProvider_hpp
-#define oatpp_netword_client_SimpleTCPConnectionProvider_hpp
+#ifndef oatpp_netword_tcp_client_ConnectionProvider_hpp
+#define oatpp_netword_tcp_client_ConnectionProvider_hpp
 
 #include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace network { namespace client {
+namespace oatpp { namespace network { namespace tcp { namespace client {
 
 /**
  * Simple provider of clinet TCP connections.
  */
-class SimpleTCPConnectionProvider : public base::Countable, public ClientConnectionProvider {
+class ConnectionProvider : public base::Countable, public ClientConnectionProvider {
 protected:
   oatpp::String m_host;
   v_uint16 m_port;
@@ -45,17 +45,17 @@ public:
    * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
    * @param port - server port.
    */
-  SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port);
+  ConnectionProvider(const oatpp::String& host, v_uint16 port);
 public:
 
   /**
-   * Create shared client SimpleTCPConnectionProvider.
+   * Create shared client ConnectionProvider.
    * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
    * @param port - server port.
-   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
+   * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_uint16 port){
-    return std::make_shared<SimpleTCPConnectionProvider>(host, port);
+  static std::shared_ptr<ConnectionProvider> createShared(const oatpp::String& host, v_uint16 port){
+    return std::make_shared<ConnectionProvider>(host, port);
   }
 
   /**
@@ -102,6 +102,6 @@ public:
   
 };
   
-}}}
+}}}}
 
-#endif /* oatpp_netword_client_SimpleTCPConnectionProvider_hpp */
+#endif /* oatpp_netword_tcp_client_ConnectionProvider_hpp */

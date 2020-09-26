@@ -36,8 +36,8 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
-#include "oatpp/network/server/SimpleTCPConnectionProvider.hpp"
-#include "oatpp/network/client/SimpleTCPConnectionProvider.hpp"
+#include "oatpp/network/tcp/server/ConnectionProvider.hpp"
+#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
 
 #include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
@@ -81,7 +81,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ServerConnectionProvider>(
-      oatpp::network::server::SimpleTCPConnectionProvider::createShared(m_port)
+      oatpp::network::tcp::server::ConnectionProvider::createShared(m_port)
     );
 
   }());
@@ -90,7 +90,7 @@ public:
     return oatpp::web::server::HttpRouter::createShared();
   }());
 
-  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, serverConnectionHandler)([] {
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
     OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
     return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
@@ -110,7 +110,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
-      oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", m_port)
+      oatpp::network::tcp::client::ConnectionProvider::createShared("localhost", m_port)
     );
 
   }());

@@ -29,16 +29,16 @@
 #include "./handler/ErrorHandler.hpp"
 #include "./HttpRouter.hpp"
 
-#include "oatpp/network/server/ConnectionHandler.hpp"
-#include "oatpp/network/Connection.hpp"
+#include "oatpp/network/ConnectionHandler.hpp"
+#include "oatpp/network/tcp/Connection.hpp"
 
 namespace oatpp { namespace web { namespace server {
 
 /**
- * Simple ConnectionHandler (&id:oatpp::network::server::ConnectionHandler;) for handling HTTP communication. <br>
+ * Simple ConnectionHandler (&id:oatpp::network::ConnectionHandler;) for handling HTTP communication. <br>
  * Will create one thread per each connection to handle communication.
  */
-class HttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
+class HttpConnectionHandler : public base::Countable, public network::ConnectionHandler {
 private:
   std::shared_ptr<HttpProcessor::Components> m_components;
 public:
@@ -90,7 +90,7 @@ public:
   void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
 
   /**
-   * Implementation of &id:oatpp::network::server::ConnectionHandler::handleConnection;.
+   * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream; representing connection.
    */
   void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;

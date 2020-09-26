@@ -28,7 +28,7 @@
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
-#include "oatpp/network/Connection.hpp"
+#include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 

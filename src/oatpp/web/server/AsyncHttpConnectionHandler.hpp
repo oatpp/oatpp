@@ -30,15 +30,15 @@
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/Interceptor.hpp"
 
-#include "oatpp/network/server/ConnectionHandler.hpp"
+#include "oatpp/network/ConnectionHandler.hpp"
 #include "oatpp/core/async/Executor.hpp"
 
 namespace oatpp { namespace web { namespace server {
 
 /**
- * Asynchronous &id:oatpp::network::server::ConnectionHandler; for handling http communication.
+ * Asynchronous &id:oatpp::network::ConnectionHandler; for handling http communication.
  */
-class AsyncHttpConnectionHandler : public base::Countable, public network::server::ConnectionHandler {
+class AsyncHttpConnectionHandler : public base::Countable, public network::ConnectionHandler {
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
 private:

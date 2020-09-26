@@ -27,7 +27,7 @@
 #include <thread>
 #include <chrono>
 
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace network {
 
 const v_int32 Server::STATUS_CREATED = 0;
 const v_int32 Server::STATUS_STARTING = 1;
@@ -119,4 +119,4 @@ Server::~Server() {
   stop();
 }
 
-}}}
+}}
