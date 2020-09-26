@@ -351,13 +351,32 @@ public:
   ENDPOINT("GET", "enum/as-string", testEnumString,
            HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
   {
-    return createResponse(Status::CODE_200, "OK");
+    return createResponse(Status::CODE_200, "");
   }
 
   ENDPOINT("GET", "enum/as-number", testEnumNumber,
            HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
   {
-    return createResponse(Status::CODE_200, "OK");
+    return createResponse(Status::CODE_200, "");
+  }
+
+  ENDPOINT("GET", "default_headers", getDefaultHeaders1,
+           HEADER(String, header, "X-DEFAULT"))
+  {
+    if(header == "hello_1") {
+      return createResponse(Status::CODE_200, "");
+    }
+    return createResponse(Status::CODE_400, "");
+  }
+
+  ENDPOINT("GET", "default_headers/{param}", getDefaultHeaders2,
+           HEADER(String, header, "X-DEFAULT"),
+           PATH(String, param))
+  {
+    if(header == "hello_2") {
+      return createResponse(Status::CODE_200, "");
+    }
+    return createResponse(Status::CODE_400, "");
   }
   
 };

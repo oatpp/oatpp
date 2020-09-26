@@ -307,13 +307,13 @@ void FullTest::onRun() {
         OATPP_ASSERT(oatpp::Enum<app::AllowedPathParams>::getEntries().size() == 2);
 
         oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
-        auto response = client->getHeaderEnumAsString(v);
+        auto response = client->getHeaderEnumAsString(v, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
       { // test Enum as String
         oatpp::Enum<app::AllowedPathParams> v = app::AllowedPathParams::HELLO;
-        auto response = client->getHeaderEnumAsNumber(v);
+        auto response = client->getHeaderEnumAsNumber(v, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 
@@ -332,6 +332,16 @@ void FullTest::onRun() {
 
       {
         auto response = client->headerValueSet("   VALUE_1, VALUE_2,  VALUE_3", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      {
+        auto response = client->getDefaultHeaders1(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+      }
+
+      {
+        auto response = client->getDefaultHeaders2("some param", connection);
         OATPP_ASSERT(response->getStatusCode() == 200);
       }
 

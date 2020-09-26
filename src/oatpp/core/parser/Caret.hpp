@@ -82,6 +82,18 @@ public:
     v_buff_size getSize();
 
     /**
+     * Get start position of the label.
+     * @return
+     */
+    v_buff_size getStartPosition();
+
+    /**
+     * Get end position of the label.
+     * @return - end position of the label or `-1` if end() wasn't called yet.
+     */
+    v_buff_size getEndPosition();
+
+    /**
      * Create &id:oatpp::String; from labeled data.
      * @param saveAsOwnData - `true` - allocate new memory block for string. `false` - string will point to the same data as label.
      * @return - &id:oatpp::String;.

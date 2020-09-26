@@ -66,6 +66,14 @@ namespace oatpp { namespace parser {
     return m_end - m_start;
   }
 
+  v_buff_size Caret::Label::getStartPosition() {
+    return m_start;
+  };
+
+  v_buff_size Caret::Label::getEndPosition() {
+    return m_end;
+  };
+
   oatpp::String Caret::Label::toString(bool saveAsOwnData){
     v_buff_size end = m_end;
     if(end == -1){
