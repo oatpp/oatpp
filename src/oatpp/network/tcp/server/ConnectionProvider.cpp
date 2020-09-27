@@ -110,7 +110,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   hints.ai_protocol = 0;
   hints.ai_flags = AI_PASSIVE;
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
   iResult = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (iResult != 0) {
@@ -139,11 +139,10 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   }
 
   if (result == nullptr) {
-    std::string err = WSAGetLastError();
     OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
-               "Error. Couldn't bind. %s", err.c_str());
+               "Error. Couldn't bind. WSAGetLastError=%ld", WSAGetLastError());
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: "
-                             "Error. Couldn't bind " + err);
+                             "Error. Couldn't bind ");
   }
 
   u_long flags = 1;
