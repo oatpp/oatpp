@@ -60,10 +60,10 @@ typedef oatpp::web::server::api::ApiController ApiController;
 
 class TestServerComponent {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
 public:
 
-  TestServerComponent(v_int32 port)
+  TestServerComponent(v_uint16 port)
     : m_port(port)
   {}
 
@@ -77,7 +77,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ServerConnectionProvider>(
-      oatpp::network::tcp::server::ConnectionProvider::createShared(m_port)
+      oatpp::network::tcp::server::ConnectionProvider::createShared({"localhost", m_port})
     );
 
   }());
@@ -99,10 +99,10 @@ public:
 
 class TestClientComponent {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
 public:
 
-  TestClientComponent(v_int32 port)
+  TestClientComponent(v_uint16 port)
     : m_port(port)
   {}
 
@@ -116,14 +116,14 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
-      oatpp::network::tcp::client::ConnectionProvider::createShared("localhost", m_port)
+      oatpp::network::tcp::client::ConnectionProvider::createShared({"localhost", m_port})
     );
 
   }());
 
 };
 
-void runServer(v_int32 port, v_int32 delaySeconds, v_int32 iterations, bool stable, const std::shared_ptr<app::Controller>& controller) {
+void runServer(v_uint16 port, v_int32 delaySeconds, v_int32 iterations, bool stable, const std::shared_ptr<app::Controller>& controller) {
 
   TestServerComponent component(port);
 

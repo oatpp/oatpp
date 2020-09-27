@@ -49,10 +49,10 @@ namespace {
 
 class TestComponent {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
 public:
 
-  TestComponent(v_int32 port)
+  TestComponent(v_uint16 port)
     : m_port(port)
   {}
 
@@ -74,7 +74,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ServerConnectionProvider>(
-      oatpp::network::tcp::server::ConnectionProvider::createShared(m_port)
+      oatpp::network::tcp::server::ConnectionProvider::createShared({"localhost", m_port})
     );
 
   }());
@@ -103,7 +103,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
-      oatpp::network::tcp::client::ConnectionProvider::createShared("localhost", m_port)
+      oatpp::network::tcp::client::ConnectionProvider::createShared({"localhost", m_port})
     );
 
   }());

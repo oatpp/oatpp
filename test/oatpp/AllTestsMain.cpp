@@ -73,7 +73,7 @@ void runTests() {
   OATPP_LOGD("Tests", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
   OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
-
+/*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
 
@@ -145,11 +145,11 @@ void runTests() {
     test_port.run();
 
   }
-
+*/
   {
 
-    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
-    test_virtual.run();
+//    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
+//    test_virtual.run();
 
     oatpp::test::web::PipelineAsyncTest test_port(8000, 3000);
     test_port.run();

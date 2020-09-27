@@ -31,11 +31,11 @@ namespace oatpp { namespace test { namespace web {
 
 class FullAsyncClientTest : public UnitTest {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
   v_int32 m_connectionsPerEndpoint;
 public:
 
-  FullAsyncClientTest(v_int32 port, v_int32 connectionsPerEndpoint)
+  FullAsyncClientTest(v_uint16 port, v_int32 connectionsPerEndpoint)
     : UnitTest("TEST[web::FullAsyncClientTest]")
     , m_port(port)
     , m_connectionsPerEndpoint(connectionsPerEndpoint)

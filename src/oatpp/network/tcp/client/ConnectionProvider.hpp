@@ -25,9 +25,9 @@
 #ifndef oatpp_netword_tcp_client_ConnectionProvider_hpp
 #define oatpp_netword_tcp_client_ConnectionProvider_hpp
 
-#include "oatpp/network/ConnectionProvider.hpp"
+#include "oatpp/network/Address.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace tcp { namespace client {
@@ -37,25 +37,22 @@ namespace oatpp { namespace network { namespace tcp { namespace client {
  */
 class ConnectionProvider : public base::Countable, public ClientConnectionProvider {
 protected:
-  oatpp::String m_host;
-  v_uint16 m_port;
+  network::Address m_address;
 public:
   /**
    * Constructor.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - server port.
+   * @param address - &id:oatpp::network::Address;.
    */
-  ConnectionProvider(const oatpp::String& host, v_uint16 port);
+  ConnectionProvider(const network::Address& address);
 public:
 
   /**
    * Create shared client ConnectionProvider.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - server port.
+   * @param address - &id:oatpp::network::Address;.
    * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<ConnectionProvider> createShared(const oatpp::String& host, v_uint16 port){
-    return std::make_shared<ConnectionProvider>(host, port);
+  static std::shared_ptr<ConnectionProvider> createShared(const network::Address& address){
+    return std::make_shared<ConnectionProvider>(address);
   }
 
   /**
@@ -85,19 +82,11 @@ public:
   void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
-   * Get host name.
-   * @return - host name.
+   * Get address - &id:oatpp::network::Address;.
+   * @return
    */
-  oatpp::String getHost() {
-    return m_host;
-  }
-
-  /**
-   * Get port.
-   * @return - port.
-   */
-  v_uint16 getPort(){
-    return m_port;
+  const network::Address& getAddress() const {
+    return m_address;
   }
   
 };

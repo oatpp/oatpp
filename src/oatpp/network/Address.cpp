@@ -22,27 +22,10 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_ClientRetryTest_hpp
-#define oatpp_test_web_ClientRetryTest_hpp
+#include "Address.hpp"
 
-#include "oatpp-test/UnitTest.hpp"
+namespace oatpp { namespace network {
 
-namespace oatpp { namespace test { namespace web {
 
-class ClientRetryTest : public UnitTest {
-private:
-  v_uint16 m_port;
-public:
 
-  ClientRetryTest(v_uint16 port)
-    : UnitTest("TEST[web::ClientRetryTest]")
-    , m_port(port)
-  {}
-
-  void onRun() override;
-
-};
-
-}}}
-
-#endif /* oatpp_test_web_ClientRetryTest_hpp */
+}}

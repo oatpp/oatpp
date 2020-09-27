@@ -25,6 +25,7 @@
 #ifndef oatpp_netword_tcp_server_ConnectionProvider_hpp
 #define oatpp_netword_tcp_server_ConnectionProvider_hpp
 
+#include "oatpp/network/Address.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/Connection.hpp"
 
@@ -74,7 +75,7 @@ public:
   };
 
 private:
-  v_uint16 m_port;
+  network::Address m_address;
   std::atomic<bool> m_closed;
   oatpp::v_io_handle m_serverHandle;
   bool m_useExtendedConnections;
@@ -88,42 +89,24 @@ public:
 
   /**
    * Constructor.
-   * @param port - port to listen for incoming connections.
+   * @param address - &id:oatpp::network::Address;.
    * @param useExtendedConnections - set `true` to use &l:ConnectionProvider::ExtendedConnection;.
    * `false` to use &id:oatpp::network::tcp::Connection;.
    */
-  ConnectionProvider(v_uint16 port, bool useExtendedConnections = false);
+  ConnectionProvider(const network::Address& address, bool useExtendedConnections = false);
 
-  /**
-   * Constructor.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - port to listen for incoming connections.
-   * @param useExtendedConnections - set `true` to use &l:ConnectionProvider::ExtendedConnection;.
-   * `false` to use &id:oatpp::network::tcp::Connection;.
-   */
-  ConnectionProvider(const oatpp::String& host, v_uint16 port, bool useExtendedConnections = false);
 public:
 
   /**
    * Create shared ConnectionProvider.
-   * @param port - port to listen for incoming connections.
-   * @param port
+   * @param address - &id:oatpp::network::Address;.
+   * @param useExtendedConnections - set `true` to use &l:ConnectionProvider::ExtendedConnection;.
+   * `false` to use &id:oatpp::network::tcp::Connection;.
    * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<ConnectionProvider> createShared(v_uint16 port, bool useExtendedConnections = false){
-    return std::make_shared<ConnectionProvider>(port, useExtendedConnections);
+  static std::shared_ptr<ConnectionProvider> createShared(const network::Address& address, bool useExtendedConnections = false){
+    return std::make_shared<ConnectionProvider>(address, useExtendedConnections);
   }
-
-  /**
-   * Create shared ConnectionProvider.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - port to listen for incoming connections.
-   * @param port
-   * @return - `std::shared_ptr` to ConnectionProvider.
-   */
-    static std::shared_ptr<ConnectionProvider> createShared(const oatpp::String& host, v_uint16 port, bool useExtendedConnections = false){
-        return std::make_shared<ConnectionProvider>(host, port, useExtendedConnections);
-    }
 
   /**
    * Virtual destructor.
@@ -169,11 +152,11 @@ public:
   void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
-   * Get port.
+   * Get address - &id:oatpp::network::Address;.
    * @return
    */
-  v_uint16 getPort(){
-    return m_port;
+  const network::Address& getAddress() const {
+    return m_address;
   }
   
 };

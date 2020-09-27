@@ -43,17 +43,16 @@
 
 namespace oatpp { namespace network { namespace tcp { namespace client {
 
-ConnectionProvider::ConnectionProvider(const oatpp::String& host, v_uint16 port)
-  : m_host(host)
-  , m_port(port)
+ConnectionProvider::ConnectionProvider(const network::Address& address)
+  : m_address(address)
 {
-  setProperty(PROPERTY_HOST, m_host);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
+  setProperty(PROPERTY_HOST, address.host);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
 
 std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
   struct addrinfo hints;
 
@@ -64,7 +63,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   hints.ai_protocol = 0;
 
   struct addrinfo* result;
-  auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &result);
+  auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
     std::string errorString = "[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
@@ -122,8 +121,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
-    oatpp::String m_host;
-    v_int32 m_port;
+    network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
   private:
     struct addrinfo* m_result;
@@ -131,9 +129,8 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     bool m_isHandleOpened;
   public:
 
-    ConnectCoroutine(const oatpp::String& host, v_int32 port)
-      : m_host(host)
-      , m_port(port)
+    ConnectCoroutine(const network::Address& address)
+      : m_address(address)
       , m_result(nullptr)
       , m_currentResult(nullptr)
       , m_isHandleOpened(false)
@@ -146,7 +143,8 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     }
 
     Action act() override {
-      auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+
+      auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
       struct addrinfo hints;
 
@@ -157,7 +155,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       hints.ai_protocol = 0;
 
       // TODO make call to get addrinfo non-blocking !!!
-      auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &m_result);
+      auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &m_result);
       if (res != 0) {
         return error<async::Error>(
           "[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() failed.");
@@ -264,7 +262,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
   };
 
-  return ConnectCoroutine::startForResult(m_host, m_port);
+  return ConnectCoroutine::startForResult(m_address);
 
 }
 

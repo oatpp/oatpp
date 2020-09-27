@@ -68,18 +68,13 @@ oatpp::data::stream::Context& ConnectionProvider::ExtendedConnection::getInputSt
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionProvider
 
-ConnectionProvider::ConnectionProvider(v_uint16 port, bool useExtendedConnections)
-  :ConnectionProvider("localhost", port, useExtendedConnections)
-{
-}
-
-ConnectionProvider::ConnectionProvider(const oatpp::String& host, v_uint16 port, bool useExtendedConnections)
-        : m_port(port)
+ConnectionProvider::ConnectionProvider(const network::Address& address, bool useExtendedConnections)
+        : m_address(address)
         , m_closed(false)
         , m_useExtendedConnections(useExtendedConnections)
 {
-  setProperty(PROPERTY_HOST, host);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
+  setProperty(PROPERTY_HOST, m_address.host);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(m_address.port));
   m_serverHandle = instantiateServer();
 }
 
@@ -104,56 +99,59 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
   int iResult;
 
-  SOCKET ListenSocket = INVALID_SOCKET;
+  SOCKET serverHandle = INVALID_SOCKET;
 
-  struct addrinfo *result = NULL;
+  struct addrinfo *result = nullptr;
   struct addrinfo hints;
 
   ZeroMemory(&hints, sizeof(hints));
-  hints.ai_family = AF_INET;
+  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
-  hints.ai_protocol = IPPROTO_TCP;
+  hints.ai_protocol = 0;
   hints.ai_flags = AI_PASSIVE;
+
   auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
 
-  iResult = getaddrinfo(NULL, (const char*) portStr->getData(), &hints, &result);
-  if ( iResult != 0 ) {
-    printf("getaddrinfo failed with error: %d\n", iResult);
+  iResult = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
+  if (iResult != 0) {
     OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d", iResult);
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
   }
 
-  ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-  if (ListenSocket == INVALID_SOCKET) {
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to socket() failed with result=%ld", WSAGetLastError());
-    freeaddrinfo(result);
-    throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to socket() failed.");
+  while(result != nullptr) {
+
+    serverHandle = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+
+    if (serverHandle != INVALID_SOCKET) {
+
+      if (bind(serverHandle, result->ai_addr, (int) result->ai_addrlen) != SOCKET_ERROR &&
+          listen(serverHandle, SOMAXCONN) != SOCKET_ERROR)
+      {
+        break;
+      }
+
+      closesocket(serverHandle);
+
+    }
+
+    result = result->ai_next;
+
   }
 
-  // Setup the TCP listening socket
-  iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-  if (iResult == SOCKET_ERROR) {
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to bind() failed with result=%ld", WSAGetLastError());
-    freeaddrinfo(result);
-    closesocket(ListenSocket);
-    throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to bind() failed.");
-  }
-
-  freeaddrinfo(result);
-
-  iResult = listen(ListenSocket, SOMAXCONN);
-  if (iResult == SOCKET_ERROR) {
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to listen() failed with result=%ld", WSAGetLastError());
-    closesocket(ListenSocket);
-    throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to listen() failed.");
+  if (result == nullptr) {
+    std::string err = WSAGetLastError();
+    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
+               "Error. Couldn't bind. %s", err.c_str());
+    throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: "
+                             "Error. Couldn't bind " + err);
   }
 
   u_long flags = 1;
-  if(NO_ERROR != ioctlsocket(ListenSocket, FIONBIO, &flags)) {
+  if(NO_ERROR != ioctlsocket(serverHandle, FIONBIO, &flags)) {
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to ioctlsocket failed.");
   }
 
-  return ListenSocket;
+  return serverHandle;
 
 }
 
@@ -174,10 +172,9 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   hints.ai_protocol = 0;
   hints.ai_flags = AI_PASSIVE;
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
-  auto hostStr = getProperty(PROPERTY_HOST);
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
-  ret = getaddrinfo((const char *)hostStr.getData(), (const char *) portStr->getData(), &hints, &result);
+  ret = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (ret != 0) {
     OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d: %s", ret, strerror(errno));
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");

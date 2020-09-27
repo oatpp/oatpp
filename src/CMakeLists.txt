@@ -136,15 +136,6 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
-        oatpp/network/ConnectionHandler.hpp
-        oatpp/network/ConnectionPool.cpp
-        oatpp/network/ConnectionPool.hpp
-        oatpp/network/ConnectionProvider.cpp
-        oatpp/network/ConnectionProvider.hpp
-        oatpp/network/Server.cpp
-        oatpp/network/Server.hpp
-        oatpp/network/Url.cpp
-        oatpp/network/Url.hpp
         oatpp/network/tcp/client/ConnectionProvider.cpp
         oatpp/network/tcp/client/ConnectionProvider.hpp
         oatpp/network/tcp/server/ConnectionProvider.cpp
@@ -161,6 +152,17 @@ add_library(oatpp
         oatpp/network/virtual_/client/ConnectionProvider.hpp
         oatpp/network/virtual_/server/ConnectionProvider.cpp
         oatpp/network/virtual_/server/ConnectionProvider.hpp
+        oatpp/network/Address.cpp
+        oatpp/network/Address.hpp
+        oatpp/network/ConnectionHandler.hpp
+        oatpp/network/ConnectionPool.cpp
+        oatpp/network/ConnectionPool.hpp
+        oatpp/network/ConnectionProvider.cpp
+        oatpp/network/ConnectionProvider.hpp
+        oatpp/network/Server.cpp
+        oatpp/network/Server.hpp
+        oatpp/network/Url.cpp
+        oatpp/network/Url.hpp
         oatpp/orm/Connection.hpp
         oatpp/orm/DbClient.cpp
         oatpp/orm/DbClient.hpp
