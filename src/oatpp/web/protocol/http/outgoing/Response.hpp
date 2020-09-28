@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/encoding/EncoderProvider.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-#include "oatpp/network/server/ConnectionHandler.hpp"
+#include "oatpp/network/ConnectionHandler.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
@@ -48,9 +48,9 @@ public:
   typedef http::Headers Headers;
 
   /**
-   * Convenience typedef for &id:oatpp::network::server::ConnectionHandler;.
+   * Convenience typedef for &id:oatpp::network::ConnectionHandler;.
    */
-  typedef oatpp::network::server::ConnectionHandler ConnectionHandler;
+  typedef oatpp::network::ConnectionHandler ConnectionHandler;
 public:
   OBJECT_POOL(Outgoing_Response_Pool, Response, 32)
   SHARED_OBJECT_POOL(Shared_Outgoing_Response_Pool, Response, 32)
@@ -130,26 +130,26 @@ public:
    * Set connection upgreade header. <br>
    * Use it together with corresponding headers being set when Response is created as: <br>
    * Response(&id:oatpp::web::protocol::http::Status::CODE_101;, nullptr);<br>
-   * @param handler - `std::shared_ptr` to &id:oatpp::network::server::ConnectionHandler;.
+   * @param handler - `std::shared_ptr` to &id:oatpp::network::ConnectionHandler;.
    */
   void setConnectionUpgradeHandler(const std::shared_ptr<ConnectionHandler>& handler);
 
   /**
    * Get currently set connection upgrade handler.
-   * @return - `std::shared_ptr` to &id:oatpp::network::server::ConnectionHandler;.
+   * @return - `std::shared_ptr` to &id:oatpp::network::ConnectionHandler;.
    */
   std::shared_ptr<ConnectionHandler> getConnectionUpgradeHandler();
 
   /**
    * Set connection upgrade parameters. <br>
    * Use it to set additional parameters for upgraded connection handling. See &l:Response::setConnectionUpgradeHandler ();.
-   * @param parameters - `std::shared_ptr` to const &id:oatpp::network::server::ConnectionHandler::ParameterMap;.
+   * @param parameters - `std::shared_ptr` to const &id:oatpp::network::ConnectionHandler::ParameterMap;.
    */
   void setConnectionUpgradeParameters(const std::shared_ptr<const ConnectionHandler::ParameterMap>& parameters);
 
   /**
    * Get connection upgrade parameters.
-   * @return - `std::shared_ptr` to const &id:oatpp::network::server::ConnectionHandler::ParametersMap;.
+   * @return - `std::shared_ptr` to const &id:oatpp::network::ConnectionHandler::ParametersMap;.
    */
   std::shared_ptr<const ConnectionHandler::ParameterMap> getConnectionUpgradeParameters();
 

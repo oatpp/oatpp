@@ -22,27 +22,67 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_ClientRetryTest_hpp
-#define oatpp_test_web_ClientRetryTest_hpp
+#ifndef oatpp_network_Address_hpp
+#define oatpp_network_Address_hpp
 
-#include "oatpp-test/UnitTest.hpp"
+#include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace test { namespace web {
+namespace oatpp { namespace network {
 
-class ClientRetryTest : public UnitTest {
-private:
-  v_uint16 m_port;
+/**
+ * Network address.
+ */
+class Address {
 public:
 
-  ClientRetryTest(v_uint16 port)
-    : UnitTest("TEST[web::ClientRetryTest]")
-    , m_port(port)
-  {}
+  /**
+   * Address family.
+   */
+  enum Family : v_int32 {
 
-  void onRun() override;
+    /**
+     * IPv4.
+     */
+    IP_4 = 0,
+
+    /**
+     * IPv6.
+     */
+    IP_6 = 1,
+
+    /**
+     * Unspecified.
+     */
+    UNSPEC = 2
+  };
+
+public:
+
+  /**
+   * Constructor.
+   * @param pHost
+   * @param pPort
+   * @param pFamily
+   */
+  Address(const oatpp::String& pHost, v_uint16 pPort, Family pFamily = UNSPEC);
+
+  /**
+   * Host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
+   */
+  oatpp::String host;
+
+  /**
+   * Port.
+   */
+  v_uint16 port;
+
+  /**
+   * Family &l:Address::Family;.
+   */
+  Family family;
 
 };
 
-}}}
+}}
 
-#endif /* oatpp_test_web_ClientRetryTest_hpp */
+#endif // oatpp_network_Address_hpp

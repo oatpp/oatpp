@@ -68,11 +68,11 @@ oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAS
   return m_headers.get(headerName);
 }
 
-void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
+void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::ConnectionHandler>& handler) {
   m_connectionUpgradeHandler = handler;
 }
 
-std::shared_ptr<oatpp::network::server::ConnectionHandler> Response::getConnectionUpgradeHandler() {
+std::shared_ptr<oatpp::network::ConnectionHandler> Response::getConnectionUpgradeHandler() {
   return m_connectionUpgradeHandler;
 }
 

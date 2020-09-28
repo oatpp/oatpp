@@ -22,40 +22,37 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_client_SimpleTCPConnectionProvider_hpp
-#define oatpp_netword_client_SimpleTCPConnectionProvider_hpp
+#ifndef oatpp_netword_tcp_client_ConnectionProvider_hpp
+#define oatpp_netword_tcp_client_ConnectionProvider_hpp
+
+#include "oatpp/network/Address.hpp"
 
 #include "oatpp/network/ConnectionProvider.hpp"
-
-#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace network { namespace client {
+namespace oatpp { namespace network { namespace tcp { namespace client {
 
 /**
  * Simple provider of clinet TCP connections.
  */
-class SimpleTCPConnectionProvider : public base::Countable, public ClientConnectionProvider {
+class ConnectionProvider : public base::Countable, public ClientConnectionProvider {
 protected:
-  oatpp::String m_host;
-  v_uint16 m_port;
+  network::Address m_address;
 public:
   /**
    * Constructor.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - server port.
+   * @param address - &id:oatpp::network::Address;.
    */
-  SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port);
+  ConnectionProvider(const network::Address& address);
 public:
 
   /**
-   * Create shared client SimpleTCPConnectionProvider.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - server port.
-   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
+   * Create shared client ConnectionProvider.
+   * @param address - &id:oatpp::network::Address;.
+   * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_uint16 port){
-    return std::make_shared<SimpleTCPConnectionProvider>(host, port);
+  static std::shared_ptr<ConnectionProvider> createShared(const network::Address& address){
+    return std::make_shared<ConnectionProvider>(address);
   }
 
   /**
@@ -85,23 +82,15 @@ public:
   void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
-   * Get host name.
-   * @return - host name.
+   * Get address - &id:oatpp::network::Address;.
+   * @return
    */
-  oatpp::String getHost() {
-    return m_host;
-  }
-
-  /**
-   * Get port.
-   * @return - port.
-   */
-  v_uint16 getPort(){
-    return m_port;
+  const network::Address& getAddress() const {
+    return m_address;
   }
   
 };
   
-}}}
+}}}}
 
-#endif /* oatpp_netword_client_SimpleTCPConnectionProvider_hpp */
+#endif /* oatpp_netword_tcp_client_ConnectionProvider_hpp */
