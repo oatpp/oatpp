@@ -57,10 +57,16 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   struct addrinfo hints;
 
   memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
+
+  switch(m_address.family) {
+    case Address::IP_4: hints.ai_family = AF_INET; break;
+    case Address::IP_6: hints.ai_family = AF_INET6; break;
+    default:
+      hints.ai_family = AF_UNSPEC;
+  }
 
   struct addrinfo* result;
   auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
@@ -149,10 +155,16 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       struct addrinfo hints;
 
       memset(&hints, 0, sizeof(struct addrinfo));
-      hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
       hints.ai_flags = 0;
       hints.ai_protocol = 0;
+
+      switch(m_address.family) {
+        case Address::IP_4: hints.ai_family = AF_INET; break;
+        case Address::IP_6: hints.ai_family = AF_INET6; break;
+        default:
+          hints.ai_family = AF_UNSPEC;
+      }
 
       // TODO make call to get addrinfo non-blocking !!!
       auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &m_result);

@@ -32,7 +32,8 @@ namespace oatpp { namespace network {
 /**
  * Network address.
  */
-struct Address {
+class Address {
+public:
 
   /**
    * Address family.
@@ -42,13 +43,28 @@ struct Address {
     /**
      * IPv4.
      */
-    IPv4 = 0,
+    IP_4 = 0,
 
     /**
      * IPv6.
      */
-    IPv6 = 1
+    IP_6 = 1,
+
+    /**
+     * Unspecified.
+     */
+    UNSPEC = 2
   };
+
+public:
+
+  /**
+   * Constructor.
+   * @param pHost
+   * @param pPort
+   * @param pFamily
+   */
+  Address(const oatpp::String& pHost, v_uint16 pPort, Family pFamily = UNSPEC);
 
   /**
    * Host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".

@@ -105,10 +105,16 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   struct addrinfo hints;
 
   ZeroMemory(&hints, sizeof(hints));
-  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = 0;
   hints.ai_flags = AI_PASSIVE;
+
+  switch(m_address.family) {
+    case Address::IP_4: hints.ai_family = AF_INET; break;
+    case Address::IP_6: hints.ai_family = AF_INET6; break;
+    default:
+      hints.ai_family = AF_UNSPEC;
+  }
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
@@ -166,10 +172,16 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   struct addrinfo hints;
 
   memset(&hints, 0, sizeof(hints));
-  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = 0;
   hints.ai_flags = AI_PASSIVE;
+
+  switch(m_address.family) {
+    case Address::IP_4: hints.ai_family = AF_INET; break;
+    case Address::IP_6: hints.ai_family = AF_INET6; break;
+    default:
+      hints.ai_family = AF_UNSPEC;
+  }
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 

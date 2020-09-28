@@ -26,6 +26,10 @@
 
 namespace oatpp { namespace network {
 
-
+Address::Address(const oatpp::String& pHost, v_uint16 pPort, Family pFamily)
+  : host(pHost)
+  , port(pPort)
+  , family(pFamily)
+{}
 
 }}
