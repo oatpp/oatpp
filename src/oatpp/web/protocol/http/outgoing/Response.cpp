@@ -48,11 +48,19 @@ protocol::http::Headers& Response::getHeaders() {
   return m_headers;
 }
 
-void Response::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+void Response::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
 
-bool Response::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Response::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value) {
+  return m_headers.putIfNotExists(key, value);
+}
+
+void Response::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers.put(key, value);
+}
+
+bool Response::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
 }
 
@@ -60,11 +68,11 @@ oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAS
   return m_headers.get(headerName);
 }
 
-void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::server::ConnectionHandler>& handler) {
+void Response::setConnectionUpgradeHandler(const std::shared_ptr<oatpp::network::ConnectionHandler>& handler) {
   m_connectionUpgradeHandler = handler;
 }
 
-std::shared_ptr<oatpp::network::server::ConnectionHandler> Response::getConnectionUpgradeHandler() {
+std::shared_ptr<oatpp::network::ConnectionHandler> Response::getConnectionUpgradeHandler() {
   return m_connectionUpgradeHandler;
 }
 

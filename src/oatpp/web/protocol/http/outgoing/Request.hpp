@@ -95,20 +95,41 @@ public:
   Headers& getHeaders();
 
   /**
-   * Put http header to headers map.
-   * @param key - header name &id:oatpp::data::share::StringKeyLabelCI_FAST;.
-   * @param value - header value &id:oatpp::data::share::StringKeyLabel;.
+   * Add http header.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
    */
-  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  void putHeader(const oatpp::String& key, const oatpp::String& value);
 
   /**
-   * Put http header to headers map if no header with such name exists.
-   * Leave old "name: value" in case such header exists.
-   * @param key - header name &id:oatpp::data::share::StringKeyLabelCI_FAST;.
-   * @param value - header value &id:oatpp::data::share::StringKeyLabel;.
-   * @return - `true` if header was added to the map.
+   * Add http header if not already exists.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
+   * @return - `true` if header was added.
    */
-  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  bool putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value);
+
+  /**
+   * Add http header.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   */
+  void putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
+   * Add http header if not already exists.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   * @return - `true` if header was added.
+   */
+  bool putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
+   * Get header value
+   * @param headerName - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @return - &id:oatpp::String;.
+   */
+  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
 
   /**
    * Get http body.

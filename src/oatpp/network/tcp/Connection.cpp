@@ -36,7 +36,7 @@
 #include <chrono>
 #include <fcntl.h>
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace network { namespace tcp {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connection
@@ -59,7 +59,7 @@ Connection::Connection(v_io_handle handle)
   auto flags = fcntl(m_handle, F_GETFL);
 
   if (flags < 0) {
-    throw std::runtime_error("[oatpp::network::Connection::Connection()]: Error. Can't get socket flags.");
+    throw std::runtime_error("[oatpp::network::tcp::Connection::Connection()]: Error. Can't get socket flags.");
   }
 
   if((flags & O_NONBLOCK) > 0) {
@@ -198,14 +198,14 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
     case data::stream::BLOCKING:
       flags = 0;
       if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
-          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
+          throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
       }
       m_mode = data::stream::BLOCKING;
       break;
     case data::stream::ASYNCHRONOUS:
       flags = 1;
       if(NO_ERROR != ioctlsocket(m_handle, FIONBIO, &flags)) {
-          throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
+          throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
       m_mode = data::stream::ASYNCHRONOUS;
       break;
@@ -217,7 +217,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
 
   auto flags = fcntl(m_handle, F_GETFL);
   if (flags < 0) {
-    throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't get socket flags.");
+    throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't get socket flags.");
   }
 
   switch(ioMode) {
@@ -225,7 +225,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
     case oatpp::data::stream::IOMode::BLOCKING:
       flags = flags & (~O_NONBLOCK);
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
-        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
+        throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::BLOCKING.");
       }
       m_mode = data::stream::BLOCKING;
       break;
@@ -233,7 +233,7 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
     case oatpp::data::stream::IOMode::ASYNCHRONOUS:
       flags = (flags | O_NONBLOCK);
       if (fcntl(m_handle, F_SETFL, flags) < 0) {
-        throw std::runtime_error("[oatpp::network::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
+        throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
       m_mode = data::stream::ASYNCHRONOUS;
       break;
@@ -274,4 +274,4 @@ void Connection::close(){
 #endif
 }
 
-}}
+}}}

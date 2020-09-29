@@ -57,6 +57,8 @@ Part::Part(const Headers &headers,
 
 Part::Part(const Headers& headers) : Part(headers, nullptr, nullptr, -1) {}
 
+Part::Part() : Part(Headers(), nullptr, nullptr, -1) {}
+
 void Part::setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream,
                        const oatpp::String inMemoryData,
                        v_int64 knownSize)

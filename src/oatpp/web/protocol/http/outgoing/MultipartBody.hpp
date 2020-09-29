@@ -56,37 +56,89 @@ private:
   static constexpr v_int32 STATE_BOUNDARY = 0;
   static constexpr v_int32 STATE_HEADERS = 1;
   static constexpr v_int32 STATE_BODY = 2;
-  static constexpr v_int32 STATE_ROUND = 3; // number of possible states. used to round the state.
-  static constexpr v_int32 STATE_FINISHED = 4;
+  static constexpr v_int32 STATE_INC_PART = 3;
+  static constexpr v_int32 STATE_ROUND = 4; // number of possible states. used to round the state.
+  static constexpr v_int32 STATE_FINISHED = 5;
 
 private:
+
+  class PartIterator {
+  private:
+    std::shared_ptr<Multipart> m_multipart;
+    std::shared_ptr<Part> m_part;
+    bool m_isFirst;
+    bool m_initialized;
+  public:
+
+    PartIterator(const std::shared_ptr<Multipart>& multipart)
+      : m_multipart(multipart)
+      , m_part(nullptr)
+      , m_isFirst(true)
+      , m_initialized(false)
+    {}
+
+    void init(async::Action& action) {
+      if(!m_initialized) {
+        m_part = m_multipart->readNextPart(action);
+        m_initialized = true;
+      }
+    }
+
+    void inc(async::Action& action) {
+      m_part = m_multipart->readNextPart(action);
+      m_isFirst = false;
+    }
+
+    bool finished() {
+      return m_part == nullptr;
+    }
+
+    bool isFirst() {
+      return m_isFirst;
+    }
+
+    std::shared_ptr<Part> get() {
+      return m_part;
+    }
+
+  };
+
+private:
+
   static v_io_size readBoundary(const std::shared_ptr<Multipart>& multipart,
-                                      std::list<std::shared_ptr<Part>>::const_iterator& iterator,
-                                      data::stream::BufferInputStream& readStream,
-                                      void *buffer,
-                                      v_buff_size count);
+                                PartIterator& iterator,
+                                data::stream::BufferInputStream& readStream,
+                                void *buffer,
+                                v_buff_size count);
 
   static v_io_size readHeaders(const std::shared_ptr<Multipart>& multipart,
-                                     std::list<std::shared_ptr<Part>>::const_iterator& iterator,
-                                     data::stream::BufferInputStream& readStream,
-                                     void *buffer,
-                                     v_buff_size count);
+                               PartIterator& iterator,
+                               data::stream::BufferInputStream& readStream,
+                               void *buffer,
+                               v_buff_size count);
 
 private:
   std::shared_ptr<Multipart> m_multipart;
+  oatpp::String m_contentType;
 private:
-  std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
+  PartIterator m_iterator;
   v_int32 m_state;
   oatpp::data::stream::BufferInputStream m_readStream;
+  bool m_flushParts;
 private:
   v_io_size readBody(void *buffer, v_buff_size count, async::Action& action);
+  v_io_size incPart(async::Action& action);
 public:
 
   /**
    * Constructor.
    * @param multipart - multipart object.
+   * @param contentType - type of the multipart. Default value = `"multipart/form-data"`.
+   * @param flushParts - flush data part by part.
    */
-  MultipartBody(const std::shared_ptr<Multipart>& multipart);
+  MultipartBody(const std::shared_ptr<Multipart>& multipart,
+                const oatpp::String& contentType = "multipart/form-data",
+                bool flushParts = false);
 
   /**
    * Read operation callback.

@@ -46,13 +46,13 @@ void ConnectionProvider::setSocketMaxAvailableToReadWrtie(v_io_size maxToRead, v
   m_maxAvailableToWrite = maxToWrite;
 }
 
-void ConnectionProvider::close() {
+void ConnectionProvider::stop() {
   m_open = false;
   m_listenerLock.reset();
   m_interface->notifyAcceptors();
 }
 
-std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
   auto socket = m_interface->accept(m_open);
   if(socket) {
     socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);

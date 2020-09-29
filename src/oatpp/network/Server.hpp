@@ -22,11 +22,10 @@
  *
  ***************************************************************************/
 
-#ifndef network_server_Server_hpp
-#define network_server_Server_hpp
+#ifndef oatpp_network_Server_hpp
+#define oatpp_network_Server_hpp
 
-#include "./ConnectionHandler.hpp"
-
+#include "oatpp/network/ConnectionHandler.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/Types.hpp"
@@ -37,11 +36,11 @@
 #include <atomic>
 #include <thread>
 
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace network {
 
 /**
- * Server calls &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
- * to &id:oatpp::network::server::ConnectionHandler;.
+ * Server calls &id:oatpp::network::ConnectionProvider::get; in the loop and passes obtained Connection
+ * to &id:oatpp::network::ConnectionHandler;.
  */
 class Server : public base::Countable {
 private:
@@ -67,7 +66,7 @@ public:
   /**
    * Constructor.
    * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
-   * @param connectionHandler - &id:oatpp::network::server::ConnectionHandler;.
+   * @param connectionHandler - &id:oatpp::network::ConnectionHandler;.
    */
   Server(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
          const std::shared_ptr<ConnectionHandler>& connectionHandler);
@@ -104,7 +103,7 @@ public:
   /**
    * Create shared Server.
    * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
-   * @param connectionHandler - &id:oatpp::network::server::ConnectionHandler;.
+   * @param connectionHandler - &id:oatpp::network::ConnectionHandler;.
    * @return - `std::shared_ptr` to Server.
    */
   static std::shared_ptr<Server> createShared(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
@@ -114,7 +113,7 @@ public:
 
   /**
    * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
-   * to &id:oatpp::network::server::ConnectionHandler;.
+   * to &id:oatpp::network::ConnectionHandler;.
    * @param startAsNewThread - Start the server blocking (thread of callee) or non-blocking (own thread)
    */
   void run(bool startAsNewThread = false);
@@ -140,6 +139,6 @@ public:
 };
 
   
-}}}
+}}
 
-#endif /* network_server_Server_hpp */
+#endif /* oatpp_network_Server_hpp */

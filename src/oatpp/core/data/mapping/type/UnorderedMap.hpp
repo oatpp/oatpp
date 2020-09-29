@@ -49,8 +49,11 @@ namespace __class {
     /**
      * Polymorphic Dispatcher.
      */
-    class AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher {
     public:
+
+      virtual type::Void createObject() const = 0;
+
       /**
        * Add item.
        * @param object - Unordered Map.
@@ -115,10 +118,14 @@ namespace __class {
 
   template<class Key, class Value>
   class UnorderedMap : public AbstractUnorderedMap {
-  private:
+  public:
 
-    class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher : public AbstractUnorderedMap::PolymorphicDispatcher {
     public:
+
+      type::Void createObject() const override {
+        return type::Void(std::make_shared<std::unordered_map<Key, Value>>(), getType());
+      }
 
       void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
         const auto& map = object.staticCast<type::UnorderedMap<Key, Value>>();
@@ -131,12 +138,8 @@ namespace __class {
 
   private:
 
-    static type::Void creator() {
-      return type::Void(std::make_shared<std::unordered_map<Key, Value>>(), getType());
-    }
-
     static Type createType() {
-      Type type(__class::AbstractUnorderedMap::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+      Type type(__class::AbstractUnorderedMap::CLASS_ID, nullptr, new PolymorphicDispatcher());
       type.params.push_back(Key::Class::getType());
       type.params.push_back(Value::Class::getType());
       return type;

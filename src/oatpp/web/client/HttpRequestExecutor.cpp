@@ -28,7 +28,7 @@
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
-#include "oatpp/network/Connection.hpp"
+#include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
@@ -62,7 +62,7 @@ HttpRequestExecutor::createShared(const std::shared_ptr<ClientConnectionProvider
 }
 
 std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getConnection() {
-  auto connection = m_connectionProvider->getConnection();
+  auto connection = m_connectionProvider->get();
   if(!connection){
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                 "[oatpp::web::client::HttpRequestExecutor::getConnection()]: ConnectionProvider failed to provide Connection");
@@ -83,7 +83,7 @@ HttpRequestExecutor::getConnectionAsync() {
     {}
     
     Action act() override {
-      return m_connectionProvider->getConnectionAsync().callbackTo(&GetConnectionCoroutine::onConnectionReady);
+      return m_connectionProvider->getAsync().callbackTo(&GetConnectionCoroutine::onConnectionReady);
     }
     
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
@@ -100,7 +100,7 @@ void HttpRequestExecutor::invalidateConnection(const std::shared_ptr<ConnectionH
 
   if(connectionHandle) {
     auto connection = static_cast<HttpConnectionHandle*>(connectionHandle.get())->connection;
-    m_connectionProvider->invalidateConnection(connection);
+    m_connectionProvider->invalidate(connection);
   }
 
 }
@@ -126,8 +126,8 @@ HttpRequestExecutor::executeOnce(const String& method,
   connection->setOutputStreamIOMode(data::stream::IOMode::BLOCKING);
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
-  request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
-  request->putHeaderIfNotExists(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
+  request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
+  request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
 
   oatpp::data::share::MemoryLabel buffer(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
 
@@ -223,8 +223,8 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
       m_connection->setOutputStreamIOMode(data::stream::IOMode::ASYNCHRONOUS);
 
       auto request = OutgoingRequest::createShared(m_method, m_path, m_headers, m_body);
-      request->putHeaderIfNotExists(Header::HOST, m_this->m_connectionProvider->getProperty("host"));
-      request->putHeaderIfNotExists(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
+      request->putHeaderIfNotExists_Unsafe(Header::HOST, m_this->m_connectionProvider->getProperty("host"));
+      request->putHeaderIfNotExists_Unsafe(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, m_buffer);
       return OutgoingRequest::sendAsync(request, m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
 

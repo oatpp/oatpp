@@ -91,11 +91,19 @@ std::shared_ptr<const http::incoming::BodyDecoder> Request::getBodyDecoder() con
   return m_bodyDecoder;
 }
 
-void Request::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+void Request::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
 
-bool Request::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Request::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value) {
+  return m_headers.putIfNotExists(key, value);
+}
+
+void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers.put(key, value);
+}
+
+bool Request::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
 }
 

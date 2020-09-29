@@ -1,10 +1,27 @@
-# Oat++ [![oatpp build status](https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp)](https://dev.azure.com/lganzzzo/lganzzzo/_build?definitionId=1) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/oatpp/oatpp.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/oatpp/oatpp/context:cpp) [![Join the chat at https://gitter.im/oatpp-framework/Lobby](https://badges.gitter.im/oatpp-framework/Lobby.svg)](https://gitter.im/oatpp-framework/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+<div align="center">
+  <img alt="Oat++ Logo" src="https://raw.githubusercontent.com/lganzzzo/oatpp-website-res/master/logo_x400.png" width="200px"/>
+</div>
+<p>&nbsp;</p>
 
----
+<p align="center">
+  <a href="https://dev.azure.com/lganzzzo/lganzzzo/_build?definitionId=1">
+    <img src="https://dev.azure.com/lganzzzo/lganzzzo/_apis/build/status/oatpp.oatpp" alt="oatpp build status" />
+  </a>
+  <a href="https://lgtm.com/projects/g/oatpp/oatpp/context:cpp">
+    <img src="https://img.shields.io/lgtm/grade/cpp/g/oatpp/oatpp.svg?logo=lgtm&logoWidth=18" alt="Language grade: C/C++" />
+  </a>
+  <a href="https://gitter.im/oatpp-framework/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img src="https://badges.gitter.im/oatpp-framework/Lobby.svg" alt="Join the chat at https://gitter.im/oatpp-framework/Lobby" />
+  </a>
+</p>
+
+# Oat++ 
 
 **Attention**  
 
-The new oatpp `1.2.0` is coming soon. Follow the [changelog](https://github.com/oatpp/oatpp/blob/v_1.2.0/changelog/1.2.0.md) for details.
+- Version `1.2.0` is now merged to Master and soon will receive a release tag. Get ready to migrate - see the [changelog](changelog/1.2.0.md) for details.
+- To checkout the latest `1.1.0` code use this commit - [e577681355ca652f317867c609e07cefabc37c0a](https://github.com/oatpp/oatpp/tree/e577681355ca652f317867c609e07cefabc37c0a)
+
 
 ---
 

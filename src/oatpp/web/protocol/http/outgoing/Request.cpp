@@ -60,12 +60,24 @@ protocol::http::Headers& Request::getHeaders() {
   return m_headers;
 }
 
-void Request::putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+void Request::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
 
-bool Request::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Request::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value) {
   return m_headers.putIfNotExists(key, value);
+}
+
+void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  m_headers.put(key, value);
+}
+
+bool Request::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+  return m_headers.putIfNotExists(key, value);
+}
+
+oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const{
+  return m_headers.get(headerName);
 }
 
 std::shared_ptr<Body> Request::getBody() {

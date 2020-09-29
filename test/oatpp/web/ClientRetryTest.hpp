@@ -31,10 +31,10 @@ namespace oatpp { namespace test { namespace web {
 
 class ClientRetryTest : public UnitTest {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
 public:
 
-  ClientRetryTest(v_int32 port)
+  ClientRetryTest(v_uint16 port)
     : UnitTest("TEST[web::ClientRetryTest]")
     , m_port(port)
   {}

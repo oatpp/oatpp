@@ -5,6 +5,8 @@
 add_library(oatpp
         oatpp/algorithm/CRC.cpp
         oatpp/algorithm/CRC.hpp
+        oatpp/codegen/ApiClient_define.hpp
+        oatpp/codegen/ApiClient_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
@@ -13,8 +15,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
         oatpp/codegen/ApiController_undef.hpp
-        oatpp/codegen/ApiClient_define.hpp
-        oatpp/codegen/ApiClient_undef.hpp
+        oatpp/codegen/DbClient_define.hpp
+        oatpp/codegen/DbClient_undef.hpp
         oatpp/codegen/dto/base_define.hpp
         oatpp/codegen/dto/base_undef.hpp
         oatpp/codegen/dto/enum_define.hpp
@@ -101,6 +103,8 @@ add_library(oatpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
+        oatpp/core/data/share/StringTemplate.cpp
+        oatpp/core/data/share/StringTemplate.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
@@ -118,6 +122,8 @@ add_library(oatpp
         oatpp/core/parser/Caret.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
+        oatpp/core/provider/Pool.hpp
+        oatpp/core/provider/Provider.hpp
         oatpp/core/utils/Binary.cpp
         oatpp/core/utils/Binary.hpp
         oatpp/core/utils/ConversionUtils.cpp
@@ -130,22 +136,12 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
-        oatpp/network/Connection.cpp
-        oatpp/network/Connection.hpp
-        oatpp/network/ConnectionPool.cpp
-        oatpp/network/ConnectionPool.hpp
-        oatpp/network/ConnectionProvider.cpp
-        oatpp/network/ConnectionProvider.hpp
-        oatpp/network/Url.cpp
-        oatpp/network/Url.hpp
-        oatpp/network/client/SimpleTCPConnectionProvider.cpp
-        oatpp/network/client/SimpleTCPConnectionProvider.hpp
-        oatpp/network/server/ConnectionHandler.cpp
-        oatpp/network/server/ConnectionHandler.hpp
-        oatpp/network/server/Server.cpp
-        oatpp/network/server/Server.hpp
-        oatpp/network/server/SimpleTCPConnectionProvider.cpp
-        oatpp/network/server/SimpleTCPConnectionProvider.hpp
+        oatpp/network/tcp/client/ConnectionProvider.cpp
+        oatpp/network/tcp/client/ConnectionProvider.hpp
+        oatpp/network/tcp/server/ConnectionProvider.cpp
+        oatpp/network/tcp/server/ConnectionProvider.hpp
+        oatpp/network/tcp/Connection.cpp
+        oatpp/network/tcp/Connection.hpp
         oatpp/network/virtual_/Interface.cpp
         oatpp/network/virtual_/Interface.hpp
         oatpp/network/virtual_/Pipe.cpp
@@ -156,6 +152,28 @@ add_library(oatpp
         oatpp/network/virtual_/client/ConnectionProvider.hpp
         oatpp/network/virtual_/server/ConnectionProvider.cpp
         oatpp/network/virtual_/server/ConnectionProvider.hpp
+        oatpp/network/Address.cpp
+        oatpp/network/Address.hpp
+        oatpp/network/ConnectionHandler.hpp
+        oatpp/network/ConnectionPool.cpp
+        oatpp/network/ConnectionPool.hpp
+        oatpp/network/ConnectionProvider.cpp
+        oatpp/network/ConnectionProvider.hpp
+        oatpp/network/Server.cpp
+        oatpp/network/Server.hpp
+        oatpp/network/Url.cpp
+        oatpp/network/Url.hpp
+        oatpp/orm/Connection.hpp
+        oatpp/orm/DbClient.cpp
+        oatpp/orm/DbClient.hpp
+        oatpp/orm/Executor.cpp
+        oatpp/orm/Executor.hpp
+        oatpp/orm/QueryResult.cpp
+        oatpp/orm/QueryResult.hpp
+        oatpp/orm/SchemaMigration.cpp
+        oatpp/orm/SchemaMigration.hpp
+        oatpp/orm/Transaction.cpp
+        oatpp/orm/Transaction.hpp
         oatpp/parser/json/Beautifier.cpp
         oatpp/parser/json/Beautifier.hpp
         oatpp/parser/json/Utils.cpp
@@ -182,6 +200,8 @@ add_library(oatpp
         oatpp/web/mime/multipart/Multipart.hpp
         oatpp/web/mime/multipart/Part.cpp
         oatpp/web/mime/multipart/Part.hpp
+        oatpp/web/mime/multipart/PartList.cpp
+        oatpp/web/mime/multipart/PartList.hpp
         oatpp/web/mime/multipart/Reader.cpp
         oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp

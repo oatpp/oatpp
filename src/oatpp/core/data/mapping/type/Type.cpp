@@ -22,8 +22,7 @@
  *
  ***************************************************************************/
 
-#include "./Type.hpp"
-
+#include "Type.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
@@ -52,58 +51,27 @@ int ClassId::getClassCount() {
   return ID_COUNTER;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Type::Properties
-
-Type::Property* Type::Properties::pushBack(Property* property) {
-  m_map.insert({property->name, property});
-  m_list.push_back(property);
-  return property;
-}
-  
-void Type::Properties::pushFrontAll(Properties* properties) {
-  m_map.insert(properties->m_map.begin(), properties->m_map.end());
-  m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Type::Property
-
-Type::Property::Property(v_int64 pOffset, const char* pName, Type* pType)
-  : offset(pOffset)
-  , name(pName)
-  , type(pType)
-{}
-
-void Type::Property::set(void* object, const Void& value) {
-  Void* property = (Void*)(((v_int64) object) + offset);
-  *property = value;
-}
-
-Void Type::Property::get(void* object) {
-  Void* property = (Void*)(((v_int64) object) + offset);
-  return *property;
-}
-
-Void& Type::Property::getAsRef(void* object) {
-  Void* property = (Void*)(((v_int64) object) + offset);
-  return *property;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type
 
 Type::Type(const ClassId& pClassId,
            const char* pNameQualifier,
-           Creator pCreator,
-           PropertiesGetter pPropertiesGetter,
-           void* pPolymorphicDispatcher)
+           void* pPolymorphicDispatcher,
+           InterpretationMap&& pInterpretationMap)
   : classId(pClassId)
   , nameQualifier(pNameQualifier)
-  , creator(pCreator)
-  , propertiesGetter(pPropertiesGetter)
   , polymorphicDispatcher(pPolymorphicDispatcher)
+  , interpretationMap(pInterpretationMap)
 {}
-  
+
+const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<std::string>& names) const {
+  for(const std::string& name : names) {
+    auto it = interpretationMap.find(name);
+    if(it != interpretationMap.end()) {
+      return it->second;
+    }
+  }
+  return nullptr;
+}
+
 }}}}
