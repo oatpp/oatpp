@@ -55,9 +55,7 @@ public:
     static std::once_flag flag;
     static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr;
     std::call_once(flag, []() {
-      if (pool == nullptr) {
-        pool = new oatpp::base::memory::ThreadDistributedMemoryPool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE, CHUNK_CHUNK_SIZE);
-      }
+      pool = new oatpp::base::memory::ThreadDistributedMemoryPool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE, CHUNK_CHUNK_SIZE);
     });
     return *pool;
   }

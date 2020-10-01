@@ -48,9 +48,7 @@ private:
     static std::once_flag flag;
     static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr;
     std::call_once(flag, []() {
-      if (pool == nullptr) {
-        pool = new oatpp::base::memory::ThreadDistributedMemoryPool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
-      }
+      pool = new oatpp::base::memory::ThreadDistributedMemoryPool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
     });
     return *pool;
   }

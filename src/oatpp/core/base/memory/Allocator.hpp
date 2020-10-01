@@ -70,9 +70,7 @@ public:
     static std::once_flag flag;
     static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr;
     std::call_once(flag, [&]() {
-      if (pool == nullptr) {
-        pool = new oatpp::base::memory::ThreadDistributedMemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
-      }
+      pool = new oatpp::base::memory::ThreadDistributedMemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
     });
     return *pool;
   }
@@ -128,9 +126,7 @@ public:
     static std::once_flag flag;
     static oatpp::base::memory::MemoryPool *pool = nullptr;
     std::call_once(flag, [&]() {
-      if (pool == nullptr) {
-        pool = new oatpp::base::memory::MemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
-      }
+      pool = new oatpp::base::memory::MemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
     });
     return *pool;
 #endif
