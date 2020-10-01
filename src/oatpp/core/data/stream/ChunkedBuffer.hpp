@@ -52,8 +52,8 @@ public:
   static const v_buff_size CHUNK_CHUNK_SIZE;
 
   static oatpp::base::memory::ThreadDistributedMemoryPool& getSegemntPool(){
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE,  CHUNK_CHUNK_SIZE);
-    return pool;
+    auto pool = new oatpp::base::memory::ThreadDistributedMemoryPool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE,  CHUNK_CHUNK_SIZE);
+    return *pool;
   }
   
 private:
