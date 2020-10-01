@@ -41,7 +41,13 @@ private:
   static constexpr v_buff_size SM_STRING_POOL_ENTRY_SIZE = 256;
   
   static oatpp::base::memory::ThreadDistributedMemoryPool& getSmallStringPool() {
-    static auto pool = new oatpp::base::memory::ThreadDistributedMemoryPool("Small_String_Pool", SM_STRING_POOL_ENTRY_SIZE, 16);
+    static std::once_flag flag;
+    static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr;
+    std::call_once(flag, []() {
+      if (pool == nullptr) {
+        pool = new oatpp::base::memory::ThreadDistributedMemoryPool("Small_String_Pool", SM_STRING_POOL_ENTRY_SIZE, 16);
+      }
+    });
     return *pool;
   }
   
