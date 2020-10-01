@@ -45,8 +45,12 @@ public:
   static constexpr v_buff_size BUFFER_SIZE = 4096;
 private:
   static oatpp::base::memory::ThreadDistributedMemoryPool& getBufferPool(){
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
-    return pool;
+    static std::once_flag flag;
+    static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr;
+    std::call_once(flag, []() {
+      pool = new oatpp::base::memory::ThreadDistributedMemoryPool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
+    });
+    return *pool;
   }
 private:
   void* m_entry;

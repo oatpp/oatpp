@@ -103,8 +103,12 @@ class POOL_NAME { \
 public: \
 \
   static oatpp::base::memory::ThreadDistributedMemoryPool& getPool(){ \
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
-    return pool; \
+    static std::once_flag flag; \
+    static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr; \
+    std::call_once(flag, []() { \
+      pool = new oatpp::base::memory::ThreadDistributedMemoryPool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
+    }); \
+    return *pool; \
   } \
 \
 }; \
@@ -189,8 +193,12 @@ static void operator delete(void* ptr, void* entry) { \
   public: \
   \
     static oatpp::base::memory::MemoryPool& getPool(){ \
-      static oatpp::base::memory::MemoryPool pool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
-      return pool; \
+      static std::once_flag flag; \
+      static oatpp::base::memory::MemoryPool *pool = nullptr; \
+      std::call_once(flag, []() { \
+        pool = new oatpp::base::memory::MemoryPool(#POOL_NAME"<"#TYPE">", sizeof(TYPE), CHUNK_SIZE); \
+      }); \
+      return *pool; \
     } \
   \
   };
