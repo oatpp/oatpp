@@ -66,12 +66,8 @@ public:
 public:
   const AllocatorPoolInfo& m_poolInfo;
 public:
-  static oatpp::base::memory::ThreadDistributedMemoryPool& getPool(const AllocatorPoolInfo& info){
-    static std::once_flag flag;
-    static oatpp::base::memory::ThreadDistributedMemoryPool *pool = nullptr;
-    std::call_once(flag, [&]() {
-      pool = new oatpp::base::memory::ThreadDistributedMemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
-    });
+  static ThreadDistributedMemoryPool& getPool(const AllocatorPoolInfo& info){
+    static auto pool = new ThreadDistributedMemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
     return *pool;
   }
 public:
@@ -123,11 +119,7 @@ public:
     static thread_local oatpp::base::memory::MemoryPool pool(info.poolName, sizeof(T), info.poolChunkSize);
     return pool;
 #else
-    static std::once_flag flag;
-    static oatpp::base::memory::MemoryPool *pool = nullptr;
-    std::call_once(flag, [&]() {
-      pool = new oatpp::base::memory::MemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
-    });
+    static auto pool = new MemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
     return *pool;
 #endif
   }
