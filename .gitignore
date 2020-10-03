@@ -46,8 +46,9 @@ srt/build/
 test/build/
 
 # Docker
-
 Dockerfile
+docker-compose.yaml
+docker-compose.yml
 
 # VS
 .vs/
