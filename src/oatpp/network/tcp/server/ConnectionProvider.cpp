@@ -124,13 +124,14 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
   }
 
-  while(result != nullptr) {
+  struct addrinfo* currResult = result;
+  while(currResult != nullptr) {
 
-    serverHandle = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    serverHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
 
     if (serverHandle != INVALID_SOCKET) {
 
-      if (bind(serverHandle, result->ai_addr, (int) result->ai_addrlen) != SOCKET_ERROR &&
+      if (bind(serverHandle, currResult->ai_addr, (int) currResult->ai_addrlen) != SOCKET_ERROR &&
           listen(serverHandle, SOMAXCONN) != SOCKET_ERROR)
       {
         break;
@@ -140,11 +141,13 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
     }
 
-    result = result->ai_next;
+    currResult = currResult->ai_next;
 
   }
 
-  if (result == nullptr) {
+  freeaddrinfo(result);
+
+  if (currResult == nullptr) {
     OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
                "Error. Couldn't bind. WSAGetLastError=%ld", WSAGetLastError());
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: "
@@ -191,9 +194,10 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
   }
 
-  while(result != nullptr) {
+  struct addrinfo* currResult = result;
+  while(currResult != nullptr) {
 
-    serverHandle = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    serverHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
 
     if (serverHandle >= 0) {
 
@@ -202,7 +206,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
                    "Warning. Failed to set %s for accepting socket: %s", "SO_REUSEADDR", strerror(errno));
       }
 
-      if (bind(serverHandle, result->ai_addr, (int) result->ai_addrlen) == 0 &&
+      if (bind(serverHandle, currResult->ai_addr, (int) currResult->ai_addrlen) == 0 &&
           listen(serverHandle, 10000) == 0)
       {
         break;
@@ -212,11 +216,13 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
     }
 
-    result = result->ai_next;
+    currResult = currResult->ai_next;
 
   }
 
-  if (result == nullptr) {
+  freeaddrinfo(result);
+
+  if (currResult == nullptr) {
     std::string err = strerror(errno);
     OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
                "Error. Couldn't bind. %s", err.c_str());
