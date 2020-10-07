@@ -181,7 +181,7 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
     (*method)(this, stream, polymorph);
   } else {
 
-    auto* interpretation = polymorph.valueType->findInterpretation(m_config->enableInterpretations);
+    auto* interpretation = polymorph.valueType->findInterpretation(m_config->enabledInterpretations);
     if(interpretation) {
       serialize(stream, interpretation->toInterpretation(polymorph));
     } else {

@@ -29,10 +29,7 @@
 #include "Transaction.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/Types.hpp"
-
-#include <unordered_map>
 
 namespace oatpp { namespace orm {
 
@@ -41,9 +38,9 @@ namespace oatpp { namespace orm {
  */
 class DbClient {
 private:
-  typedef oatpp::data::mapping::type::Type Type;
-protected:
   std::shared_ptr<Executor> m_executor;
+protected:
+  std::shared_ptr<data::mapping::TypeResolver> m_typeResolver;
 public:
 
   /**
@@ -62,6 +59,42 @@ public:
    * @return
    */
   std::shared_ptr<Connection> getConnection();
+
+  /**
+   * Set enabled type interpretations.
+   * @param enabledInterpretations
+   */
+  void setEnabledInterpretations(const std::vector<std::string>& enabledInterpretations);
+
+  /**
+   * Get type resolver.
+   * @return - &id:oatpp::data::mapping::TypeResolver;.
+   */
+  std::shared_ptr<const data::mapping::TypeResolver> getTypeResolver();
+
+  /**
+   * Parse query template.
+   * @param name - template name.
+   * @param text - template text.
+   * @param paramsTypeMap - template parameter types.
+   * @param prepare - `true` if the query should use prepared statement, `false` otherwise.
+   * @return - &id:oatpp::data::share::StringTemplate;.
+   */
+  data::share::StringTemplate parseQueryTemplate(const oatpp::String& name,
+                                                 const oatpp::String& text,
+                                                 const Executor::ParamsTypeMap& paramsTypeMap,
+                                                 bool prepare = false);
+
+  /**
+   * Execute query using template.
+   * @param queryTemplate - a query template obtained in a prior call to &l:DbClient::parseQueryTemplate (); method.
+   * @param params - query parameters.
+   * @param connection - database connection.
+   * @return - &id:oatpp::orm::QueryResult;.
+   */
+  std::shared_ptr<QueryResult> execute(const data::share::StringTemplate& queryTemplate,
+                                       const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                       const std::shared_ptr<Connection>& connection = nullptr);
 
   /**
    * Execute arbitrary query.

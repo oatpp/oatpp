@@ -116,11 +116,11 @@ OATPP_MACRO_PARAM_USECASE_BODY X
 
 #define OATPP_QUERY_0(NAME, QUERY_TEXT) \
 const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = \
-  m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, {}, false); \
+  this->parseQueryTemplate(#NAME, QUERY_TEXT, {}, false); \
 \
 std::shared_ptr<oatpp::orm::QueryResult> NAME(const std::shared_ptr<oatpp::orm::Connection>& connection = nullptr) { \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
-  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
+  return this->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
 
 
@@ -132,7 +132,7 @@ oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_CREATOR_##NAME() { \
   \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT_TYPE, __VA_ARGS__) \
   \
-  return m_executor->parseQueryTemplate(#NAME, QUERY_TEXT, map, __prepare); \
+  return this->parseQueryTemplate(#NAME, QUERY_TEXT, map, __prepare); \
 } \
 \
 const oatpp::data::share::StringTemplate Z_QUERY_TEMPLATE_##NAME = Z_QUERY_TEMPLATE_CREATOR_##NAME(); \
@@ -143,7 +143,7 @@ std::shared_ptr<oatpp::orm::QueryResult> NAME( \
 ) { \
   std::unordered_map<oatpp::String, oatpp::Void> __params; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_DB_CLIENT_PARAM_PUT, __VA_ARGS__) \
-  return m_executor->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
+  return this->execute(Z_QUERY_TEMPLATE_##NAME, __params, connection); \
 }
 
 // Chooser

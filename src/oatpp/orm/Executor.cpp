@@ -26,12 +26,21 @@
 
 namespace oatpp { namespace orm {
 
+Executor::Executor()
+  : m_defaultTypeResolver(std::make_shared<data::mapping::TypeResolver>())
+{}
+
+std::shared_ptr<const data::mapping::TypeResolver> Executor::getDefaultTypeResolver() {
+  return m_defaultTypeResolver;
+}
+
 std::shared_ptr<QueryResult> Executor::execute(const oatpp::String& query,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                               const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
                                                const std::shared_ptr<Connection>& connection)
 {
-  const auto& qt = parseQueryTemplate(nullptr, query, {}, false);
-  return execute(qt, params, connection);
+  const auto& qt = parseQueryTemplate(nullptr, query, {}, typeResolver, false);
+  return execute(qt, params, typeResolver, connection);
 }
 
 }}

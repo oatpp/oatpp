@@ -28,6 +28,7 @@
 #include "Connection.hpp"
 #include "QueryResult.hpp"
 
+#include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/share/StringTemplate.hpp"
@@ -40,13 +41,32 @@ namespace oatpp { namespace orm {
 class Executor {
 public:
   typedef oatpp::data::share::StringTemplate StringTemplate;
-  typedef std::unordered_map<data::share::StringKeyLabel, const oatpp::data::mapping::type::Type*> ParamsTypeMap;
+  typedef std::unordered_map<data::share::StringKeyLabel, const oatpp::Type*> ParamsTypeMap;
+protected:
+  std::shared_ptr<data::mapping::TypeResolver> m_defaultTypeResolver;
 public:
+
+  /**
+   * Default constructor.
+   */
+  Executor();
 
   /**
    * Default virtual destructor.
    */
   virtual ~Executor() = default;
+
+  /**
+   * Get default type resolver.
+   * @return
+   */
+  std::shared_ptr<const data::mapping::TypeResolver> getDefaultTypeResolver();
+
+  /**
+   * Create new type resolver.
+   * @return
+   */
+  virtual std::shared_ptr<data::mapping::TypeResolver> createTypeResolver() = 0;
 
   /**
    * Get database connection.
@@ -59,23 +79,27 @@ public:
    * @param name - template name.
    * @param text - template text.
    * @param paramsTypeMap - template parameter types.
+   * @param typeResolver - parameters type resolver - &id:oatpp::data::mapping::TypeResolver;.
    * @param prepare - `true` if the query should use prepared statement, `false` otherwise.
    * @return - &id:oatpp::data::share::StringTemplate;.
    */
   virtual StringTemplate parseQueryTemplate(const oatpp::String& name,
                                             const oatpp::String& text,
                                             const ParamsTypeMap& paramsTypeMap,
+                                            const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver = nullptr,
                                             bool prepare = false) = 0;
 
   /**
    * Execute database query using a query template.
    * @param queryTemplate - a query template obtained in a prior call to &l:Executor::parseQueryTemplate (); method.
    * @param params - query parameters.
+   * @param enabledInterpretations - enabled type interpretations.
    * @param connection - database connection.
    * @return - &id:oatpp::orm::QueryResult;.
    */
   virtual std::shared_ptr<QueryResult> execute(const StringTemplate& queryTemplate,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                               const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver = nullptr,
                                                const std::shared_ptr<Connection>& connection = nullptr) = 0;
 
   /**
@@ -84,11 +108,13 @@ public:
    * The query template will be created by a call to `parseQueryTemplate(nullptr, query, {}, false)`.
    * @param query - query text.
    * @param params - query parameters.
+   * @param enabledInterpretations - enabled type interpretations.
    * @param connection - database connection.
    * @return - &id:oatpp::orm::QueryResult;.
    */
   virtual std::shared_ptr<QueryResult> execute(const oatpp::String& query,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
+                                               const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver = nullptr,
                                                const std::shared_ptr<Connection>& connection = nullptr);
 
   /**

@@ -95,34 +95,34 @@ BaseObject::PropertyTraverser::PropertyTraverser() {
 
   m_knownTypes.resize(data::mapping::type::ClassId::getClassCount(), false);
 
-  setKnownType(data::mapping::type::__class::String::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::Any::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::String::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Any::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::Int8::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::UInt8::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Int8::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::UInt8::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::Int16::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::UInt16::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Int16::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::UInt16::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::Int32::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::UInt32::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Int32::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::UInt32::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::Int64::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::UInt64::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Int64::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::UInt64::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::Float32::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::Float64::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::Boolean::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Float32::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Float64::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::Boolean::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::AbstractObject::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::AbstractEnum::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractObject::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractEnum::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::AbstractVector::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::AbstractList::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractVector::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractList::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, true);
 
-  setKnownType(data::mapping::type::__class::AbstractPairList::CLASS_ID, true);
-  setKnownType(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractPairList::CLASS_ID, true);
+  setKnownClass(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, true);
 
 }
 
@@ -134,18 +134,18 @@ bool BaseObject::PropertyTraverser::isKnownType(const ClassId& classId) const {
   return false;
 }
 
-void BaseObject::PropertyTraverser::setKnownType(const ClassId& classId, bool isKnownType) {
+void BaseObject::PropertyTraverser::setKnownClass(const ClassId& classId, bool isKnown) {
   const v_uint32 id = classId.id;
   if(id < m_knownTypes.size()) {
-    m_knownTypes[id] = isKnownType;
+    m_knownTypes[id] = isKnown;
   } else {
-    throw std::runtime_error("[oatpp::data::mapping::type::BaseObject::PropertyTraverser::setKnownType()]: Error. Unknown classId");
+    throw std::runtime_error("[oatpp::data::mapping::type::BaseObject::PropertyTraverser::setKnownClass()]: Error. Unknown classId");
   }
 }
 
-void BaseObject::PropertyTraverser::addKnownTypes(const std::vector<ClassId>& knownTypes) {
-  for(const ClassId& id : knownTypes) {
-    setKnownType(id, true);
+void BaseObject::PropertyTraverser::addKnownClasses(const std::vector<ClassId>& knownClasses) {
+  for(const ClassId& id : knownClasses) {
+    setKnownClass(id, true);
   }
 }
 

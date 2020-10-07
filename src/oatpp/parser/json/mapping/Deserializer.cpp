@@ -366,7 +366,7 @@ oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const ty
     return (*method)(this, caret, type);
   } else {
 
-    auto* interpretation = type->findInterpretation(m_config->enableInterpretations);
+    auto* interpretation = type->findInterpretation(m_config->enabledInterpretations);
     if(interpretation) {
       return interpretation->fromInterpretation(deserialize(caret, interpretation->getInterpretationType()));
     }

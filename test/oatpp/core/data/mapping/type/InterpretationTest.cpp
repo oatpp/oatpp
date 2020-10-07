@@ -163,13 +163,13 @@ void InterpretationTest::onRun() {
 
   {
     auto config = mapper.getSerializer()->getConfig();
-    config->enableInterpretations = {"test"};
+    config->enabledInterpretations = {"test"};
     config->useBeautifier = false;
   }
 
   {
     auto config = mapper.getDeserializer()->getConfig();
-    config->enableInterpretations = {"test"};
+    config->enabledInterpretations = {"test"};
   }
 
   Point p1 ({1, 2, 3});

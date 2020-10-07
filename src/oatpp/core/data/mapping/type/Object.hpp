@@ -157,7 +157,6 @@ public:
 
   class PropertyTraverser {
   private:
-    bool isKnownType(const ClassId& classId) const;
 
     const Type* findPropertyType(const Type* baseType,
                                  const std::vector<std::string>& path,
@@ -183,8 +182,10 @@ public:
                            const std::vector<std::string>& path,
                            const std::vector<std::string>& allowedInterpretations) const;
 
-    void setKnownType(const ClassId& classId, bool isKnownType);
-    void addKnownTypes(const std::vector<ClassId>& knownTypes);
+    void setKnownClass(const ClassId& classId, bool isKnown);
+    void addKnownClasses(const std::vector<ClassId>& knownClasses);
+
+    bool isKnownType(const ClassId& classId) const;
 
   };
 

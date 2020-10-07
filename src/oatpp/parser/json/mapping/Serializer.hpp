@@ -94,7 +94,7 @@ public:
     /**
      * Enable type interpretations.
      */
-    std::vector<std::string> enableInterpretations = {};
+    std::vector<std::string> enabledInterpretations = {};
 
   };
 public:
