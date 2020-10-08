@@ -79,14 +79,12 @@ public:
    * @param name - template name.
    * @param text - template text.
    * @param paramsTypeMap - template parameter types.
-   * @param typeResolver - parameters type resolver - &id:oatpp::data::mapping::TypeResolver;.
    * @param prepare - `true` if the query should use prepared statement, `false` otherwise.
    * @return - &id:oatpp::data::share::StringTemplate;.
    */
   virtual StringTemplate parseQueryTemplate(const oatpp::String& name,
                                             const oatpp::String& text,
                                             const ParamsTypeMap& paramsTypeMap,
-                                            const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver = nullptr,
                                             bool prepare = false) = 0;
 
   /**

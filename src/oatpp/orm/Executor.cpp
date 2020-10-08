@@ -39,7 +39,7 @@ std::shared_ptr<QueryResult> Executor::execute(const oatpp::String& query,
                                                const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
                                                const std::shared_ptr<Connection>& connection)
 {
-  const auto& qt = parseQueryTemplate(nullptr, query, {}, typeResolver, false);
+  const auto& qt = parseQueryTemplate(nullptr, query, {}, false);
   return execute(qt, params, typeResolver, connection);
 }
 

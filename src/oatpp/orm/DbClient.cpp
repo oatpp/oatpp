@@ -50,7 +50,7 @@ data::share::StringTemplate DbClient::parseQueryTemplate(const oatpp::String& na
                                                          const Executor::ParamsTypeMap& paramsTypeMap,
                                                          bool prepare)
 {
-  return m_executor->parseQueryTemplate(name, text, paramsTypeMap, m_typeResolver, prepare);
+  return m_executor->parseQueryTemplate(name, text, paramsTypeMap, prepare);
 }
 
 std::shared_ptr<QueryResult> DbClient::execute(const data::share::StringTemplate& queryTemplate,
