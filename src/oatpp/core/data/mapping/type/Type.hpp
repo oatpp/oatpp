@@ -186,19 +186,19 @@ public:
     return m_ptr;
   }
 
-  inline bool operator == (std::nullptr_t){
+  inline bool operator == (std::nullptr_t) const {
     return m_ptr.get() == nullptr;
   }
 
-  inline bool operator != (std::nullptr_t){
+  inline bool operator != (std::nullptr_t) const {
     return m_ptr.get() != nullptr;
   }
   
-  inline bool operator == (const ObjectWrapper& other){
+  inline bool operator == (const ObjectWrapper& other) const {
     return m_ptr.get() == other.m_ptr.get();
   }
   
-  inline bool operator != (const ObjectWrapper& other){
+  inline bool operator != (const ObjectWrapper& other) const {
     return m_ptr.get() != other.m_ptr.get();
   }
   

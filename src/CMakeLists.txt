@@ -80,6 +80,8 @@ add_library(oatpp
         oatpp/core/data/buffer/Processor.hpp
         oatpp/core/data/mapping/ObjectMapper.cpp
         oatpp/core/data/mapping/ObjectMapper.hpp
+        oatpp/core/data/mapping/TypeResolver.cpp
+        oatpp/core/data/mapping/TypeResolver.hpp
         oatpp/core/data/mapping/type/Any.cpp
         oatpp/core/data/mapping/type/Any.hpp
         oatpp/core/data/mapping/type/Enum.cpp

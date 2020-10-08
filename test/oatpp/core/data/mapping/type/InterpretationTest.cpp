@@ -25,6 +25,7 @@
 #include "InterpretationTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -72,14 +73,16 @@ namespace __class {
     public:
 
       oatpp::Object<PointDto> interpret(const Point& value) const override {
-          auto dto = PointDto::createShared();
-          dto->x = value->x;
-          dto->y = value->y;
-          dto->z = value->z;
-          return dto;
+        OATPP_LOGD("Point::Interpretation", "interpret");
+        auto dto = PointDto::createShared();
+        dto->x = value->x;
+        dto->y = value->y;
+        dto->z = value->z;
+        return dto;
       }
 
       Point reproduce(const oatpp::Object<PointDto>& value) const override {
+        OATPP_LOGD("Point::Interpretation", "reproduce");
         return Point({value->x, value->y, value->z});
       }
 
@@ -119,6 +122,7 @@ namespace __class {
     public:
 
       oatpp::Object<LineDto> interpret(const Line& value) const override {
+        OATPP_LOGD("Line::Interpretation", "interpret");
         auto dto = LineDto::createShared();
         dto->p1 = {value->p1.x, value->p1.y, value->p1.z};
         dto->p2 = {value->p2.x, value->p2.y, value->p2.z};
@@ -126,6 +130,7 @@ namespace __class {
       }
 
       Line reproduce(const oatpp::Object<LineDto>& value) const override {
+        OATPP_LOGD("Line::Interpretation", "reproduce");
         return Line({{value->p1->x, value->p1->y, value->p1->z},
                      {value->p2->x, value->p2->y, value->p2->z}});
       }
@@ -150,7 +155,6 @@ namespace __class {
 
   const oatpp::ClassId LineClass::CLASS_ID("test::Line");
 
-
 }
 
 #include OATPP_CODEGEN_END(DTO)
@@ -163,13 +167,13 @@ void InterpretationTest::onRun() {
 
   {
     auto config = mapper.getSerializer()->getConfig();
-    config->enableInterpretations = {"test"};
+    config->enabledInterpretations = {"test"};
     config->useBeautifier = false;
   }
 
   {
     auto config = mapper.getDeserializer()->getConfig();
-    config->enableInterpretations = {"test"};
+    config->enabledInterpretations = {"test"};
   }
 
   Point p1 ({1, 2, 3});
@@ -189,25 +193,39 @@ void InterpretationTest::onRun() {
 
   OATPP_ASSERT(json1 == json2);
 
+  oatpp::data::mapping::TypeResolver::Cache cache;
+
   {
-    oatpp::data::mapping::type::BaseObject::PropertyTraverser traverser;
-    auto v = traverser.findPropertyValue(l, {"p1", "x"}, {"test"});
+    oatpp::data::mapping::TypeResolver tr;
+    tr.setEnabledInterpretations({"test"});
+
+    //oatpp::data::mapping::TypeResolver::Cache cache;
+
+    auto v = tr.resolveObjectPropertyValue(l, {"p1", "x"}, cache);
     OATPP_ASSERT(v);
     OATPP_ASSERT(v.valueType == oatpp::Int32::Class::getType());
     OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 1);
   }
 
   {
-    oatpp::data::mapping::type::BaseObject::PropertyTraverser traverser;
-    auto v = traverser.findPropertyValue(l, {"p1", "y"}, {"test"});
+    oatpp::data::mapping::TypeResolver tr;
+    tr.setEnabledInterpretations({"test"});
+
+    //oatpp::data::mapping::TypeResolver::Cache cache;
+
+    auto v = tr.resolveObjectPropertyValue(l, {"p1", "y"}, cache);
     OATPP_ASSERT(v);
     OATPP_ASSERT(v.valueType == oatpp::Int32::Class::getType());
     OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 2);
   }
 
   {
-    oatpp::data::mapping::type::BaseObject::PropertyTraverser traverser;
-    auto v = traverser.findPropertyValue(l, {"p1", "z"}, {"test"});
+    oatpp::data::mapping::TypeResolver tr;
+    tr.setEnabledInterpretations({"test"});
+
+    //oatpp::data::mapping::TypeResolver::Cache cache;
+
+    auto v = tr.resolveObjectPropertyValue(l, {"p1", "z"}, cache);
     OATPP_ASSERT(v);
     OATPP_ASSERT(v.valueType == oatpp::Int32::Class::getType());
     OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 3);

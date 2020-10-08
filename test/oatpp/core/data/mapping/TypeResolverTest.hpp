@@ -22,25 +22,21 @@
  *
  ***************************************************************************/
 
-#include "Executor.hpp"
+#ifndef oatpp_test_core_data_mapping_TypeResolverTest_hpp
+#define oatpp_test_core_data_mapping_TypeResolverTest_hpp
 
-namespace oatpp { namespace orm {
+#include "oatpp-test/UnitTest.hpp"
 
-Executor::Executor()
-  : m_defaultTypeResolver(std::make_shared<data::mapping::TypeResolver>())
-{}
+namespace oatpp { namespace test { namespace core { namespace data { namespace mapping {
 
-std::shared_ptr<const data::mapping::TypeResolver> Executor::getDefaultTypeResolver() {
-  return m_defaultTypeResolver;
-}
+class TypeResolverTest : public UnitTest{
+public:
 
-std::shared_ptr<QueryResult> Executor::execute(const oatpp::String& query,
-                                               const std::unordered_map<oatpp::String, oatpp::Void>& params,
-                                               const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver,
-                                               const std::shared_ptr<Connection>& connection)
-{
-  const auto& qt = parseQueryTemplate(nullptr, query, {}, false);
-  return execute(qt, params, typeResolver, connection);
-}
+  TypeResolverTest():UnitTest("TEST[core::data::mapping::type::TypeResolverTest]"){}
+  void onRun() override;
 
-}}
+};
+
+}}}}}
+
+#endif /* oatpp_test_core_data_mapping_TypeResolverTest_hpp */
