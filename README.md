@@ -19,7 +19,8 @@
 
 **Attention**  
 
-- Version `1.2.0` is now merged to Master and soon will receive a release tag. Get ready to migrate - see the [changelog](changelog/1.2.0.md) for details.
+- Version `1.2.0` is now merged to Master and soon will receive a release tag. Get ready to migrate - see the [changelog](changelog/1.2.0.md) for details.  
+   To get the best overview of `1.2.0` - checkout the new [example-crud](https://github.com/oatpp/example-crud) - CRUD + ORM + Swagger-UI.
 - To checkout the latest `1.1.0` code use this commit - [e577681355ca652f317867c609e07cefabc37c0a](https://github.com/oatpp/oatpp/tree/e577681355ca652f317867c609e07cefabc37c0a)
 
 
