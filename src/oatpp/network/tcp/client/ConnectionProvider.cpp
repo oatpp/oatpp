@@ -72,8 +72,13 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
+#if defined(WIN32) || defined(_WIN32)
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. "
+                             "Error. Call to getaddrinfo() failed with code " + std::to_string(res));
+#else
     std::string errorString = "[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
-	throw std::runtime_error(errorString.append(gai_strerror(res)));
+	  throw std::runtime_error(errorString.append(gai_strerror(res)));
+#endif
   }
 
   if (result == nullptr) {
