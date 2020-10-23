@@ -288,7 +288,7 @@ public:
   Type(const ClassId& pClassId,
        const char* pNameQualifier,
        void* pPolymorphicDispatcher = nullptr,
-       InterpretationMap&& pInterpretationMap = {});
+       InterpretationMap&& pInterpretationMap = InterpretationMap{});
 
   /**
    * type class id.
