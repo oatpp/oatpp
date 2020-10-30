@@ -35,7 +35,7 @@ void StringTemplateTest::onRun() {
   {
     OATPP_LOGI(TAG, "Case1 ...");
     StringTemplate t("{} World!", {{0, 1, "p1"}});
-    auto result = t.format({oatpp::String("Hello")});
+    auto result = t.format(std::vector<oatpp::String>({"Hello"}));
     OATPP_ASSERT(result == "Hello World!");
     OATPP_LOGI(TAG, "OK");
   }
@@ -51,7 +51,7 @@ void StringTemplateTest::onRun() {
   {
     OATPP_LOGI(TAG, "Case3 ...");
     StringTemplate t("Hello {}", {{6, 7, "p1"}});
-    auto result = t.format({oatpp::String("World!")});
+    auto result = t.format(std::vector<oatpp::String>({"World!"}));
     OATPP_ASSERT(result == "Hello World!");
     OATPP_LOGI(TAG, "OK");
   }
@@ -67,7 +67,7 @@ void StringTemplateTest::onRun() {
   {
     OATPP_LOGI(TAG, "Case5 ...");
     StringTemplate t("Hello {} World!", {{6, 7, "p1"}});
-    auto result = t.format({oatpp::String("My")});
+    auto result = t.format(std::vector<oatpp::String>({"My"}));
     OATPP_ASSERT(result == "Hello My World!");
     OATPP_LOGI(TAG, "OK");
   }
@@ -83,7 +83,7 @@ void StringTemplateTest::onRun() {
   {
     OATPP_LOGI(TAG, "Case7 ...");
     StringTemplate t("? ? ?", {{0, 0, "p1"}, {2, 2, "p2"}, {4, 4, "p3"}});
-    auto result = t.format({"Hello", "World", "Oat++!"});
+    auto result = t.format(std::vector<oatpp::String>({"Hello", "World", "Oat++!"}));
     OATPP_ASSERT(result == "Hello World Oat++!");
     OATPP_LOGI(TAG, "OK");
   }
