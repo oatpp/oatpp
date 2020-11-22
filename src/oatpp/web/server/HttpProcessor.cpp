@@ -101,7 +101,7 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   auto request = protocol::http::incoming::Request::createShared(resources.connection,
                                                                  headersReadResult.startingLine,
-                                                                 route.matchMap,
+                                                                 route.getMatchMap(),
                                                                  headersReadResult.headers,
                                                                  resources.inStream,
                                                                  resources.components->bodyDecoder);
@@ -236,7 +236,7 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 
   m_currentRequest = protocol::http::incoming::Request::createShared(m_connection,
                                                                      headersReadResult.startingLine,
-                                                                     m_currentRoute.matchMap,
+                                                                     m_currentRoute.getMatchMap(),
                                                                      headersReadResult.headers,
                                                                      m_inStream,
                                                                      m_components->bodyDecoder);

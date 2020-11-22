@@ -8,6 +8,7 @@
 #include "oatpp/web/protocol/http/encoding/ChunkedTest.hpp"
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
+#include "oatpp/web/server/HttpRouterTest.hpp"
 #include "oatpp/web/mime/multipart/StatefulParserTest.hpp"
 
 #include "oatpp/network/virtual_/PipeTest.hpp"
@@ -135,8 +136,8 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
 
+  OATPP_RUN_TEST(oatpp::test::web::server::HttpRouterTest);
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
-
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
 
   {
