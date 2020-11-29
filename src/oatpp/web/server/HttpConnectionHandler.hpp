@@ -25,12 +25,8 @@
 #ifndef oatpp_web_server_HttpConnectionHandler_hpp
 #define oatpp_web_server_HttpConnectionHandler_hpp
 
-#include "./HttpProcessor.hpp"
-#include "./handler/ErrorHandler.hpp"
-#include "./HttpRouter.hpp"
-
+#include "oatpp/web/server/HttpProcessor.hpp"
 #include "oatpp/network/ConnectionHandler.hpp"
-#include "oatpp/network/tcp/Connection.hpp"
 
 namespace oatpp { namespace web { namespace server {
 
@@ -84,10 +80,18 @@ public:
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
 
   /**
-   * Set request interceptor. Request intercepted after route is resolved but before corresponding route endpoint is called.
-   * @param interceptor - &id:oatpp::web::server::handler::RequestInterceptor;.
+   * Add request interceptor. Request interceptors are called before routing happens.
+   * If multiple interceptors set then the order of interception is the same as the order of calls to `addRequestInterceptor`.
+   * @param interceptor - &id:oatpp::web::server::interceptor::RequestInterceptor;.
    */
-  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
+  void addRequestInterceptor(const std::shared_ptr<interceptor::RequestInterceptor>& interceptor);
+
+  /**
+   * Add response interceptor.
+   * If multiple interceptors set then the order of interception is the same as the order of calls to `addResponseInterceptor`.
+   * @param interceptor - &id:oatpp::web::server::interceptor::RequestInterceptor;.
+   */
+  void addResponseInterceptor(const std::shared_ptr<interceptor::ResponseInterceptor>& interceptor);
 
   /**
    * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.

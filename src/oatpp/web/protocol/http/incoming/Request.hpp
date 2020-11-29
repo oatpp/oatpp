@@ -60,7 +60,6 @@ public:
   
   Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
           const http::RequestStartingLine& startingLine,
-          const url::mapping::Pattern::MatchMap& pathVariables,
           const http::Headers& headers,
           const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
           const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
@@ -68,7 +67,6 @@ public:
   
   static std::shared_ptr<Request> createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                const http::RequestStartingLine& startingLine,
-                                               const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder);
@@ -107,6 +105,12 @@ public:
    * @return starting line structure
    */
   const http::RequestStartingLine& getStartingLine() const;
+
+  /**
+   * Set request path variables.
+   * @param pathVariables - &id:oatpp::web::url::mapping::Pattern::MatchMap;.
+   */
+  void setPathVariables(const url::mapping::Pattern::MatchMap& pathVariables);
 
   /**
    * Get path variables according to path-pattern. <br>

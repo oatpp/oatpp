@@ -263,8 +263,8 @@ add_library(oatpp
         oatpp/web/server/handler/AuthorizationHandler.hpp
         oatpp/web/server/handler/ErrorHandler.cpp
         oatpp/web/server/handler/ErrorHandler.hpp
-        oatpp/web/server/handler/Interceptor.cpp
-        oatpp/web/server/handler/Interceptor.hpp
+        oatpp/web/server/interceptor/RequestInterceptor.hpp
+        oatpp/web/server/interceptor/ResponseInterceptor.hpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
