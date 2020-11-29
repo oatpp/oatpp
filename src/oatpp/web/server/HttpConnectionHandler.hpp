@@ -25,12 +25,8 @@
 #ifndef oatpp_web_server_HttpConnectionHandler_hpp
 #define oatpp_web_server_HttpConnectionHandler_hpp
 
-#include "./HttpProcessor.hpp"
-#include "./handler/ErrorHandler.hpp"
-#include "./HttpRouter.hpp"
-
+#include "oatpp/web/server/HttpProcessor.hpp"
 #include "oatpp/network/ConnectionHandler.hpp"
-#include "oatpp/network/tcp/Connection.hpp"
 
 namespace oatpp { namespace web { namespace server {
 
