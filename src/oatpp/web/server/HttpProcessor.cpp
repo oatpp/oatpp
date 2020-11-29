@@ -91,17 +91,8 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
     return false; // connection is in invalid state. should be dropped
   }
 
-  auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
-
-  if(!route) {
-    auto response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-    response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
-    return false;
-  }
-
   auto request = protocol::http::incoming::Request::createShared(resources.connection,
                                                                  headersReadResult.startingLine,
-                                                                 route.getMatchMap(),
                                                                  headersReadResult.headers,
                                                                  resources.inStream,
                                                                  resources.components->bodyDecoder);
@@ -118,6 +109,16 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
       }
       currInterceptor = currInterceptor->getNext();
     }
+
+    auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
+
+    if(!route) {
+      response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+      response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+      return false;
+    }
+
+    request->setPathVariables(route.getMatchMap());
 
     if(!response) {
       response = route.getEndpoint()->handle(request);
@@ -227,16 +228,8 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseHeaders() {
 
 oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHeadersReader::Result& headersReadResult) {
 
-  m_currentRoute = m_components->router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
-
-  if(!m_currentRoute) {
-    m_currentResponse = m_components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
-  }
-
   m_currentRequest = protocol::http::incoming::Request::createShared(m_connection,
                                                                      headersReadResult.startingLine,
-                                                                     m_currentRoute.getMatchMap(),
                                                                      headersReadResult.headers,
                                                                      m_inStream,
                                                                      m_components->bodyDecoder);
@@ -249,6 +242,15 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
     }
     currInterceptor = currInterceptor->getNext();
   }
+
+  m_currentRoute = m_components->router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
+
+  if(!m_currentRoute) {
+    m_currentResponse = m_components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+  }
+
+  m_currentRequest->setPathVariables(m_currentRoute.getMatchMap());
 
   return yieldTo(&HttpProcessor::Coroutine::onRequestFormed);
 
