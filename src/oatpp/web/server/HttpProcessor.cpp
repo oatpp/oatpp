@@ -35,13 +35,15 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
                                       const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
                                       const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                                       const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
-                                      const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
+                                      const RequestInterceptors& pRequestInterceptors,
+                                      const ResponseInterceptors& pResponseInterceptors,
                                       const std::shared_ptr<Config>& pConfig)
   : router(pRouter)
   , contentEncodingProviders(pContentEncodingProviders)
   , bodyDecoder(pBodyDecoder)
   , errorHandler(pErrorHandler)
   , requestInterceptors(pRequestInterceptors)
+  , responseInterceptors(pResponseInterceptors)
   , config(pConfig)
 {}
 
@@ -50,7 +52,8 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
                nullptr,
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
                handler::DefaultErrorHandler::createShared(),
-               std::make_shared<RequestInterceptors>(),
+               {},
+               {},
                std::make_shared<Config>())
 {}
 
@@ -59,7 +62,8 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
                nullptr,
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
                handler::DefaultErrorHandler::createShared(),
-               std::make_shared<RequestInterceptors>(),
+               {},
+               {},
                pConfig)
 {}
 
@@ -101,13 +105,11 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
   try{
 
-    auto currInterceptor = resources.components->requestInterceptors->getFirstNode();
-    while (currInterceptor != nullptr) {
-      response = currInterceptor->getData()->intercept(request);
+    for(auto interceptor : resources.components->requestInterceptors) {
+      response = interceptor->intercept(request);
       if(response) {
         break;
       }
-      currInterceptor = currInterceptor->getNext();
     }
 
     auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
@@ -122,6 +124,15 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
 
     if(!response) {
       response = route.getEndpoint()->handle(request);
+    }
+
+    for(auto interceptor : resources.components->responseInterceptors) {
+      response = interceptor->intercept(response);
+      if(!response) {
+        response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Invalid Response - 'null'.");
+        response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+        return false;
+      }
     }
 
   } catch (oatpp::web::protocol::http::HttpError& error) {
@@ -234,13 +245,11 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
                                                                      m_inStream,
                                                                      m_components->bodyDecoder);
 
-  auto currInterceptor = m_components->requestInterceptors->getFirstNode();
-  while (currInterceptor != nullptr) {
-    m_currentResponse = currInterceptor->getData()->intercept(m_currentRequest);
+  for(auto interceptor : m_components->requestInterceptors) {
+    m_currentResponse = interceptor->intercept(m_currentRequest);
     if(m_currentResponse) {
       return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
     }
-    currInterceptor = currInterceptor->getNext();
   }
 
   m_currentRoute = m_components->router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
@@ -266,6 +275,13 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
+
+  for(auto interceptor : m_components->responseInterceptors) {
+    m_currentResponse = interceptor->intercept(m_currentResponse);
+    if(!m_currentResponse) {
+      m_currentResponse = m_components->errorHandler->handleError(protocol::http::Status::CODE_500, "Invalid Response - 'null'.");
+    }
+  }
 
   m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
   m_connectionState = oatpp::web::protocol::http::utils::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse);

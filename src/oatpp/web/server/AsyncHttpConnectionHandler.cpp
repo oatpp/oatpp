@@ -55,8 +55,12 @@ void AsyncHttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::
   }
 }
 
-void AsyncHttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor) {
-  m_components->requestInterceptors->pushBack(interceptor);
+void AsyncHttpConnectionHandler::addRequestInterceptor(const std::shared_ptr<interceptor::RequestInterceptor>& interceptor) {
+  m_components->requestInterceptors.push_back(interceptor);
+}
+
+void AsyncHttpConnectionHandler::addResponseInterceptor(const std::shared_ptr<interceptor::ResponseInterceptor>& interceptor) {
+  m_components->responseInterceptors.push_back(interceptor);
 }
 
 void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection,

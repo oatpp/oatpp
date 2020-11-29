@@ -22,14 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_handler_Interceptor_hpp
-#define oatpp_web_server_handler_Interceptor_hpp
+#ifndef oatpp_web_server_interceptor_RequestInterceptor_hpp
+#define oatpp_web_server_interceptor_RequestInterceptor_hpp
 
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace handler {
+namespace oatpp { namespace web { namespace server { namespace interceptor {
 
 /**
  * RequestInterceptor.
@@ -65,4 +65,4 @@ public:
   
 }}}}
 
-#endif /* oatpp_web_server_handler_Interceptor_hpp */
+#endif /* oatpp_web_server_interceptor_RequestInterceptor_hpp */

@@ -28,7 +28,7 @@
 #include "oatpp/web/server/HttpProcessor.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
-#include "oatpp/web/server/handler/Interceptor.hpp"
+#include "oatpp/web/server/interceptor/RequestInterceptor.hpp"
 
 #include "oatpp/network/ConnectionHandler.hpp"
 #include "oatpp/core/async/Executor.hpp"
@@ -110,8 +110,21 @@ public:
                                                                   const std::shared_ptr<oatpp::async::Executor>& executor);
   
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
-  
-  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
+
+  /**
+   * Add request interceptor. Request interceptors are called before routing happens.
+   * If multiple interceptors set then the order of interception is the same as the order of calls to `addRequestInterceptor`.
+   * @param interceptor - &id:oatpp::web::server::interceptor::RequestInterceptor;.
+   */
+  void addRequestInterceptor(const std::shared_ptr<interceptor::RequestInterceptor>& interceptor);
+
+  /**
+   * Add response interceptor.
+   * If multiple interceptors set then the order of interception is the same as the order of calls to `addResponseInterceptor`.
+   * @param interceptor - &id:oatpp::web::server::interceptor::RequestInterceptor;.
+   */
+  void addResponseInterceptor(const std::shared_ptr<interceptor::ResponseInterceptor>& interceptor);
+
   
   void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
