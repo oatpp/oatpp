@@ -112,18 +112,19 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
       }
     }
 
-    auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
-
-    if(!route) {
-      response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
-      response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
-      return false;
-    }
-
-    request->setPathVariables(route.getMatchMap());
-
     if(!response) {
+
+      auto route = resources.components->router->getRoute(headersReadResult.startingLine.method, headersReadResult.startingLine.path);
+
+      if(!route) {
+        response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, "Current url has no mapping");
+        response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
+        return false;
+      }
+
+      request->setPathVariables(route.getMatchMap());
       response = route.getEndpoint()->handle(request);
+
     }
 
     for(auto interceptor : resources.components->responseInterceptors) {
