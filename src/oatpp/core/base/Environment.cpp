@@ -126,10 +126,16 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 }
 
 void DefaultLogger::enablePriority(v_uint32 priority) {
+  if (priority > PRIORITY_E) {
+    return;
+  }
   m_config.logMask |= (1 << priority);
 }
 
 void DefaultLogger::disablePriority(v_uint32 priority) {
+  if (priority > PRIORITY_E) {
+    return;
+  }
   m_config.logMask &= ~(1 << priority);
 }
 
@@ -138,6 +144,27 @@ bool DefaultLogger::isLogPriorityEnabled(v_uint32 priority) {
     return true;
   }
   return m_config.logMask & (1 << priority);
+}
+
+void LogCategory::enablePriority(v_uint32 priority) {
+  if (priority > Logger::PRIORITY_E) {
+    return;
+  }
+  enabledPriorities |= (1 << priority);
+}
+
+void LogCategory::disablePriority(v_uint32 priority) {
+  if (priority > Logger::PRIORITY_E) {
+    return;
+  }
+  enabledPriorities &= ~(1 << priority);
+}
+
+bool LogCategory::isLogPriorityEnabled(v_uint32 priority) {
+  if (priority > Logger::PRIORITY_E) {
+    return true;
+  }
+  return enabledPriorities & (1 << priority);
 }
 
 void Environment::init() {
@@ -287,13 +314,30 @@ void Environment::printCompilationConfig() {
 
 }
 
-void Environment::log(v_int32 priority, const std::string& tag, const std::string& message) {
+void Environment::log(v_uint32 priority, const std::string& tag, const std::string& message) {
   if(m_logger != nullptr) {
     m_logger->log(priority, tag, message);
   }
 }
 
-void Environment::logFormatted(v_int32 priority, const std::string& tag, const char* message, ...) {
+
+void Environment::logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) {
+  if (category.categoryEnabled && (category.enabledPriorities & (1 << priority))) {
+    va_list args;
+    va_start(args, message);
+    vlogFormatted(priority, category.tag, message, args);
+    va_end(args);
+  }
+}
+
+void Environment::logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...) {
+    va_list args;
+    va_start(args, message);
+    vlogFormatted(priority, tag, message, args);
+    va_end(args);
+}
+
+void Environment::vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args) {
   // do we have a logger and the priority is enabled?
   if (m_logger == nullptr || !m_logger->isLogPriorityEnabled(priority)) {
     return;
@@ -304,10 +348,9 @@ void Environment::logFormatted(v_int32 priority, const std::string& tag, const c
     return;
   }
   // check how big our buffer has to be
-  va_list args;
-  va_start(args, message);
-  v_buff_size allocsize = vsnprintf(nullptr, 0, message, args) + 1;
-  va_end(args);
+  va_list argscpy;
+  va_copy(argscpy, args);
+  v_buff_size allocsize = vsnprintf(nullptr, 0, message, argscpy) + 1;
   // alloc the buffer (or the max size)
   if (allocsize > m_logger->getMaxFormattingBufferSize()) {
     allocsize = m_logger->getMaxFormattingBufferSize();
@@ -315,12 +358,9 @@ void Environment::logFormatted(v_int32 priority, const std::string& tag, const c
   auto buffer = std::unique_ptr<char[]>(new char[allocsize]);
   memset(buffer.get(), 0, allocsize);
   // actually format
-  va_start(args, message);
   vsnprintf(buffer.get(), allocsize, message, args);
   // call (user) providen log function
   log(priority, tag, buffer.get());
-  // cleanup
-  va_end(args);
 }
 
 void Environment::registerComponent(const std::string& typeName, const std::string& componentName, void* component) {
