@@ -35,6 +35,7 @@
 #include <unordered_map>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <stdlib.h>
 
 #define OATPP_VERSION "1.2.0"
@@ -114,6 +115,7 @@ public:
    * Log priority E-error.
    */
   static constexpr v_uint32 PRIORITY_E = 4;
+
 public:
   /**
    * Virtual Destructor.
@@ -144,6 +146,54 @@ public:
   virtual v_buff_size getMaxFormattingBufferSize() {
     return 4096;
   }
+};
+
+/**
+ * Describes a logging category (i.e. a logging "namespace")
+ */
+class LogCategory {
+ public:
+  /**
+   * Constructs a logging category.
+   * @param pTag - Tag of this logging category
+   * @param pCategoryEnabled - Enable or disable the category completely
+   * @param pEnabledPriorities - Bitmap of initially active logging categories.
+   */
+  LogCategory(std::string pTag, bool pCategoryEnabled, v_uint32 pEnabledPriorities = ((1<<Logger::PRIORITY_V) | (1<<Logger::PRIORITY_D) | (1<<Logger::PRIORITY_I) | (1<<Logger::PRIORITY_W) | (1<<Logger::PRIORITY_E))) : tag(std::move(pTag)), categoryEnabled(pCategoryEnabled), enabledPriorities(pEnabledPriorities) {};
+
+  /**
+   * Priorities to print that are logged in this category
+   */
+  v_uint32 enabledPriorities;
+
+  /**
+   * Generally enable or disable this category
+   */
+  bool categoryEnabled;
+
+  /**
+   * The tag for this category
+   */
+  const std::string tag;
+
+  /**
+   * Enables logging of a priorities for this category
+   * @param priority - the priority level to enable
+   */
+  void enablePriority(v_uint32 priority);
+
+  /**
+   * Disabled logging of a priorities for this category
+   * @param priority - the priority level to disable
+   */
+  void disablePriority(v_uint32 priority);
+
+  /**
+   * Returns wether or not a priority of this category should be logged/printed
+   * @param priority
+   * @return - true if given priority should be logged
+   */
+  bool isLogPriorityEnabled(v_uint32 priority);
 };
 
 /**
@@ -301,6 +351,7 @@ public:
 private:
   static void registerComponent(const std::string& typeName, const std::string& componentName, void* component);
   static void unregisterComponent(const std::string& typeName, const std::string& componentName);
+  static void vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args);
 public:
 
   /**
@@ -384,7 +435,7 @@ public:
    * @param tag - tag of the log message.
    * @param message - message.
    */
-  static void log(v_int32 priority, const std::string& tag, const std::string& message);
+  static void log(v_uint32 priority, const std::string& tag, const std::string& message);
 
   /**
    * Format message and call `Logger::log()`<br>
@@ -394,7 +445,17 @@ public:
    * @param message - message.
    * @param ... - format arguments.
    */
-  static void logFormatted(v_int32 priority, const std::string& tag, const char* message, ...);
+  static void logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...);
+
+  /**
+   * Format message and call `Logger::log()`<br>
+   * Message is formatted using `vsnprintf` method.
+   * @param priority - log-priority channel of the message.
+   * @param category - category of the log message.
+   * @param message - message.
+   * @param ... - format arguments.
+   */
+  static void logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...);
 
   /**
    * Get component object by typeName.
@@ -428,7 +489,24 @@ if(!(EXP)) { \
   OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", #EXP); \
   exit(EXIT_FAILURE); \
 }
-  
+
+/**
+ * Convenience macro to declare a logging category directly in a class header.
+ * @param NAME - variable-name of the category which is later used to reference the category.
+ */
+#define OATPP_DECLARE_LOG_CATEGORY(NAME) \
+  static oatpp::base::LogCategory NAME;
+
+/**
+ * Convenience macro to implement a logging category directly in a class header.
+ * @param NAME - variable-name of the category which is later used to reference the category.
+ * @param TAG - tag printed with each message printed usig this category.
+ * @param ENABLED - enable or disable a category (bool).
+ */
+#define OATPP_LOG_CATEGORY(NAME, TAG, ENABLED) \
+  oatpp::base::LogCategory NAME = oatpp::base::LogCategory(TAG, ENABLED);
+
+
 #ifndef OATPP_DISABLE_LOGV
 
   /**
