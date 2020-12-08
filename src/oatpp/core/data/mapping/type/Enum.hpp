@@ -80,14 +80,16 @@ namespace __class {
     static const ClassId CLASS_ID;
   public:
 
-    class AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher {
     public:
 
-      AbstractPolymorphicDispatcher(bool pNotNull)
+      PolymorphicDispatcher(bool pNotNull)
         : notNull(pNotNull)
       {}
 
       const bool notNull;
+
+      virtual type::Void createObject() const = 0;
 
       virtual type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const = 0;
       virtual type::Void fromInterpretation(const type::Void& interValue, EnumInterpreterError& error) const = 0;
@@ -572,11 +574,16 @@ namespace __class {
   class Enum : public AbstractEnum {
   private:
 
-    class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher : public AbstractEnum::PolymorphicDispatcher {
     public:
+
       PolymorphicDispatcher()
-        : AbstractPolymorphicDispatcher(Interpreter::notNull)
+        : AbstractEnum::PolymorphicDispatcher(Interpreter::notNull)
       {}
+
+      type::Void createObject() const override {
+        return type::Void(std::make_shared<T>(), getType());
+      }
 
       type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const override {
         return Interpreter::toInterpretation(enumValue, error);
@@ -612,12 +619,8 @@ namespace __class {
 
   private:
 
-    static type::Void creator() {
-      return type::Void(std::make_shared<T>(), getType());
-    }
-
     static Type createType() {
-      Type type(__class::AbstractEnum::CLASS_ID, type::EnumMeta<T>::getInfo()->nameQualifier, &creator, nullptr, new PolymorphicDispatcher());
+      Type type(__class::AbstractEnum::CLASS_ID, type::EnumMeta<T>::getInfo()->nameQualifier, new PolymorphicDispatcher());
       return type;
     }
 

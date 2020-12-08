@@ -27,7 +27,7 @@
 #include <thread>
 #include <chrono>
 
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace network {
 
 const v_int32 Server::STATUS_CREATED = 0;
 const v_int32 Server::STATUS_STARTING = 1;
@@ -50,13 +50,13 @@ void Server::mainLoop(Server *instance) {
 
   while (instance->getStatus() == STATUS_RUNNING) {
 
-    auto connection = instance->m_connectionProvider->getConnection();
+    auto connection = instance->m_connectionProvider->get();
 
     if (connection) {
       if (instance->getStatus() == STATUS_RUNNING) {
         instance->m_connectionHandler->handleConnection(connection, params /* null params */);
       } else {
-        OATPP_LOGD("Server", "Already stopped. Closing connection...");
+        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
       }
     }
 
@@ -74,13 +74,13 @@ void Server::run(bool startAsNewThread) {
     case STATUS_RUNNING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already started");
   }
-  if (startAsNewThread) {
-    m_threaded = startAsNewThread;
-    setStatus(STATUS_CREATED, STATUS_STARTING);
+
+  m_threaded = startAsNewThread;
+  setStatus(STATUS_CREATED, STATUS_STARTING);
+
+  if (m_threaded) {
     m_thread = std::thread(mainLoop, this);
   } else {
-    m_threaded = startAsNewThread;
-    setStatus(STATUS_CREATED, STATUS_STARTING);
     ul.unlock(); // early unlock
     mainLoop(this);
   }
@@ -119,4 +119,4 @@ Server::~Server() {
   stop();
 }
 
-}}}
+}}

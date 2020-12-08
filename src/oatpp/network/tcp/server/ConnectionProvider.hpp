@@ -22,26 +22,27 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_server_SimpleTCPConnectionProvider_hpp
-#define oatpp_netword_server_SimpleTCPConnectionProvider_hpp
+#ifndef oatpp_netword_tcp_server_ConnectionProvider_hpp
+#define oatpp_netword_tcp_server_ConnectionProvider_hpp
 
+#include "oatpp/network/Address.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
-#include "oatpp/network/Connection.hpp"
+#include "oatpp/network/tcp/Connection.hpp"
 
 #include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace network { namespace tcp { namespace server {
 
 /**
  * Simple provider of TCP connections.
  */
-class SimpleTCPConnectionProvider : public base::Countable, public ServerConnectionProvider {
+class ConnectionProvider : public base::Countable, public ServerConnectionProvider {
 public:
 
   /**
    * Connection with extra data - ex.: peer address.
    */
-  class ExtendedConnection : public oatpp::network::Connection {
+  class ExtendedConnection : public oatpp::network::tcp::Connection {
   public:
 
     static const char* const PROPERTY_PEER_ADDRESS;
@@ -74,7 +75,7 @@ public:
   };
 
 private:
-  v_uint16 m_port;
+  network::Address m_address;
   std::atomic<bool> m_closed;
   oatpp::v_io_handle m_serverHandle;
   bool m_useExtendedConnections;
@@ -82,64 +83,46 @@ private:
   oatpp::v_io_handle instantiateServer();
 private:
   bool prepareConnectionHandle(oatpp::v_io_handle handle);
-  std::shared_ptr<IOStream> getDefaultConnection();
-  std::shared_ptr<IOStream> getExtendedConnection();
+  std::shared_ptr<data::stream::IOStream> getDefaultConnection();
+  std::shared_ptr<data::stream::IOStream> getExtendedConnection();
 public:
 
   /**
    * Constructor.
-   * @param port - port to listen for incoming connections.
-   * @param useExtendedConnections - set `true` to use &l:SimpleTCPConnectionProvider::ExtendedConnection;.
-   * `false` to use &id:oatpp::network::Connection;.
+   * @param address - &id:oatpp::network::Address;.
+   * @param useExtendedConnections - set `true` to use &l:ConnectionProvider::ExtendedConnection;.
+   * `false` to use &id:oatpp::network::tcp::Connection;.
    */
-  SimpleTCPConnectionProvider(v_uint16 port, bool useExtendedConnections = false);
+  ConnectionProvider(const network::Address& address, bool useExtendedConnections = false);
 
-  /**
-   * Constructor.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - port to listen for incoming connections.
-   * @param useExtendedConnections - set `true` to use &l:SimpleTCPConnectionProvider::ExtendedConnection;.
-   * `false` to use &id:oatpp::network::Connection;.
-   */
-  SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port, bool useExtendedConnections = false);
 public:
 
   /**
-   * Create shared SimpleTCPConnectionProvider.
-   * @param port - port to listen for incoming connections.
-   * @param port
-   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
+   * Create shared ConnectionProvider.
+   * @param address - &id:oatpp::network::Address;.
+   * @param useExtendedConnections - set `true` to use &l:ConnectionProvider::ExtendedConnection;.
+   * `false` to use &id:oatpp::network::tcp::Connection;.
+   * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<SimpleTCPConnectionProvider> createShared(v_uint16 port, bool useExtendedConnections = false){
-    return std::make_shared<SimpleTCPConnectionProvider>(port, useExtendedConnections);
+  static std::shared_ptr<ConnectionProvider> createShared(const network::Address& address, bool useExtendedConnections = false){
+    return std::make_shared<ConnectionProvider>(address, useExtendedConnections);
   }
-
-  /**
-   * Create shared SimpleTCPConnectionProvider.
-   * @param host - host name without schema and port. Ex.: "oatpp.io", "127.0.0.1", "localhost".
-   * @param port - port to listen for incoming connections.
-   * @param port
-   * @return - `std::shared_ptr` to SimpleTCPConnectionProvider.
-   */
-    static std::shared_ptr<SimpleTCPConnectionProvider> createShared(const oatpp::String& host, v_uint16 port, bool useExtendedConnections = false){
-        return std::make_shared<SimpleTCPConnectionProvider>(host, port, useExtendedConnections);
-    }
 
   /**
    * Virtual destructor.
    */
-  ~SimpleTCPConnectionProvider();
+  ~ConnectionProvider();
 
   /**
    * Close accept-socket.
    */
-  void close() override;
+  void stop() override;
 
   /**
    * Get incoming connection.
    * @return &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<IOStream> getConnection() override;
+  std::shared_ptr<data::stream::IOStream> get() override;
 
   /**
    * No need to implement this.<br>
@@ -149,7 +132,7 @@ public:
    * <br>
    * *It may be implemented later*
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getConnectionAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
@@ -158,7 +141,7 @@ public:
      *
      *  It may be implemented later
      */
-    throw std::runtime_error("[oatpp::network::server::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
+    throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::getAsync()]: Error. Not implemented.");
   }
 
   /**
@@ -166,18 +149,18 @@ public:
    * `connection` **MUST** be an object previously obtained from **THIS** connection provider.
    * @param connection
    */
-  void invalidateConnection(const std::shared_ptr<IOStream>& connection) override;
+  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
-   * Get port.
+   * Get address - &id:oatpp::network::Address;.
    * @return
    */
-  v_uint16 getPort(){
-    return m_port;
+  const network::Address& getAddress() const {
+    return m_address;
   }
   
 };
   
-}}}
+}}}}
 
-#endif /* oatpp_netword_server_SimpleTCPConnectionProvider_hpp */
+#endif /* oatpp_netword_tcp_server_ConnectionProvider_hpp */

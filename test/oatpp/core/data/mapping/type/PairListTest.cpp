@@ -148,7 +148,7 @@ void PairListTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::Fields<String> map = {{"key1", "a"}, {"key2", "b"}, {"key3", "c"}};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::Fields<String>::Class::AbstractPolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const typename oatpp::Fields<String>::Class::PolymorphicDispatcher*>(
       map.valueType->polymorphicDispatcher
     );
 

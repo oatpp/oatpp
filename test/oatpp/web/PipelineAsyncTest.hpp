@@ -31,11 +31,11 @@ namespace oatpp { namespace test { namespace web {
 
 class PipelineAsyncTest : public UnitTest {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
   v_int32 m_pipelineSize;
 public:
 
-  PipelineAsyncTest(v_int32 port, v_int32 pipelineSize)
+  PipelineAsyncTest(v_uint16 port, v_int32 pipelineSize)
     : UnitTest("TEST[web::PipelineAsyncTest]")
     , m_port(port)
     , m_pipelineSize(pipelineSize)

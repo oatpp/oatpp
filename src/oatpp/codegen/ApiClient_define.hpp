@@ -89,10 +89,10 @@ public: \
 // HEADER MACRO
 
 #define OATPP_MACRO_API_CLIENT_HEADER_1(TYPE, NAME) \
-__headers->put(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
+__headers.put_LockFree(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_HEADER_2(TYPE, NAME, QUALIFIER) \
-__headers->put(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
+__headers.put_LockFree(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
 
 #define OATPP_MACRO_API_CLIENT_HEADER(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_HEADER_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -100,10 +100,10 @@ OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_HEADER_, TYPE, OATP
 // PATH MACRO
 
 #define OATPP_MACRO_API_CLIENT_PATH_1(TYPE, NAME) \
-__pathParams->put(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
+__pathParams.insert({#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME)});
 
 #define OATPP_MACRO_API_CLIENT_PATH_2(TYPE, NAME, QUALIFIER) \
-__pathParams->put(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
+__pathParams.insert({QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME)});
 
 #define OATPP_MACRO_API_CLIENT_PATH(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_PATH_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -111,10 +111,10 @@ OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_PATH_, TYPE, OATPP_
 // QUERY MACRO
 
 #define OATPP_MACRO_API_CLIENT_QUERY_1(TYPE, NAME) \
-__queryParams->put(#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
+__queryParams.insert({#NAME, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME)});
 
 #define OATPP_MACRO_API_CLIENT_QUERY_2(TYPE, NAME, QUALIFIER) \
-__queryParams->put(QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME));
+__queryParams.insert({QUALIFIER, ApiClient::TypeInterpretation<TYPE>::toString(#TYPE, NAME)});
 
 #define OATPP_MACRO_API_CLIENT_QUERY(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_QUERY_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -140,7 +140,7 @@ __body = oatpp::web::protocol::http::outgoing::BufferBody::createShared(OATPP_MA
 // AUTHORIZATION MACRO
 
 #define OATPP_MACRO_API_CLIENT_AUTHORIZATION_2(TYPE, TOKEN, SCHEME) \
-__headers->put("Authorization", String(SCHEME " ") + String(TOKEN));
+__headers.put_LockFree("Authorization", String(SCHEME " ") + String(TOKEN));
 
 #define OATPP_MACRO_API_CLIENT_AUTHORIZATION(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_AUTHORIZATION_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -148,7 +148,7 @@ OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_AUTHORIZATION_, TYP
 // AUTHORIZATION_BASIC MACRO
 
 #define OATPP_MACRO_API_CLIENT_AUTHORIZATION_BASIC_1(TYPE, TOKEN) \
-__headers->put("Authorization", String("Basic ") + oatpp::encoding::Base64::encode(TOKEN));
+__headers.put_LockFree("Authorization", String("Basic ") + oatpp::encoding::Base64::encode(TOKEN));
 
 #define OATPP_MACRO_API_CLIENT_AUTHORIZATION_BASIC(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CLIENT_MACRO_SELECTOR(OATPP_MACRO_API_CLIENT_AUTHORIZATION_BASIC_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
@@ -164,41 +164,46 @@ OATPP_MACRO_API_CLIENT_PARAM_MACRO X
 // API_CALL MACRO
 
 #define OATPP_API_CALL_0(NAME, METHOD, PATH) \
-static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
-  static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
-  return pattern; \
+const oatpp::data::share::StringTemplate Z_PATH_TEMPLATE_##NAME = parsePathTemplate(#NAME, PATH); \
+\
+static void Z_ADD_HEADERS_##NAME(oatpp::web::client::ApiClient::Headers& headers, ...) { \
+  (void) headers; \
 } \
 \
 std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME( \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
+  oatpp::web::client::ApiClient::Headers __headers; \
+  Z_ADD_HEADERS_##NAME(__headers, 1); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
   return executeRequest(METHOD, \
-                        Z_getPathPattern_##NAME(PATH), \
-                        nullptr, \
-                        nullptr, \
-                        nullptr, \
+                        Z_PATH_TEMPLATE_##NAME, \
+                        __headers, \
+                        {}, \
+                        {}, \
                         body, \
                         __connectionHandle); \
 }
 
 #define OATPP_API_CALL_1(NAME, METHOD, PATH, ...) \
-static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
-  static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
-  return pattern; \
+const oatpp::data::share::StringTemplate Z_PATH_TEMPLATE_##NAME = parsePathTemplate(#NAME, PATH); \
+\
+static void Z_ADD_HEADERS_##NAME(oatpp::web::client::ApiClient::Headers& headers, ...) { \
+  (void) headers; \
 } \
 \
 std::shared_ptr<oatpp::web::protocol::http::incoming::Response> NAME(\
 OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
-  auto __headers = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
-  auto __pathParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
-  auto __queryParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
+  oatpp::web::client::ApiClient::Headers __headers; \
+  Z_ADD_HEADERS_##NAME(__headers, 1); \
+  std::unordered_map<oatpp::String, oatpp::String> __pathParams; \
+  std::unordered_map<oatpp::String, oatpp::String> __queryParams; \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return executeRequest(METHOD, \
-                        Z_getPathPattern_##NAME(PATH), \
+                        Z_PATH_TEMPLATE_##NAME, \
                         __headers, \
                         __pathParams, \
                         __queryParams, \
@@ -227,41 +232,46 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_API_CALL_MACRO_, (__V
 // API_CALL_ASYNC MACRO
 
 #define OATPP_API_CALL_ASYNC_0(NAME, METHOD, PATH) \
-static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
-  static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
-  return pattern; \
+const oatpp::data::share::StringTemplate Z_PATH_TEMPLATE_##NAME = parsePathTemplate(#NAME, PATH); \
+\
+static void Z_ADD_HEADERS_##NAME(oatpp::web::client::ApiClient::Headers& headers, ...) { \
+  (void) headers; \
 } \
 \
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME( \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
+  oatpp::web::client::ApiClient::Headers __headers; \
+  Z_ADD_HEADERS_##NAME(__headers, 1); \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> body; \
   return executeRequestAsync(METHOD, \
-                             Z_getPathPattern_##NAME(PATH), \
-                             nullptr, \
-                             nullptr, \
-                             nullptr, \
+                             Z_PATH_TEMPLATE_##NAME, \
+                             __headers, \
+                             {}, \
+                             {}, \
                              body, \
                              __connectionHandle); \
 }
 
 #define OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, ...) \
-static PathPattern Z_getPathPattern_##NAME(const oatpp::String& path) { \
-  static PathPattern pattern = parsePathPattern(path->getData(), path->getSize()); \
-  return pattern; \
+const oatpp::data::share::StringTemplate Z_PATH_TEMPLATE_##NAME = parsePathTemplate(#NAME, PATH); \
+\
+static void Z_ADD_HEADERS_##NAME(oatpp::web::client::ApiClient::Headers& headers, ...) { \
+  (void) headers; \
 } \
 \
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>&> NAME(\
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_DECL, __VA_ARGS__) \
   const std::shared_ptr<oatpp::web::client::RequestExecutor::ConnectionHandle>& __connectionHandle = nullptr \
 ) { \
-  auto __headers = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
-  auto __pathParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
-  auto __queryParams = oatpp::web::client::ApiClient::StringToStringMap::createShared(); \
+  oatpp::web::client::ApiClient::Headers __headers; \
+  Z_ADD_HEADERS_##NAME(__headers, 1); \
+  std::unordered_map<oatpp::String, oatpp::String> __pathParams; \
+  std::unordered_map<oatpp::String, oatpp::String> __queryParams; \
   std::shared_ptr<oatpp::web::protocol::http::outgoing::Body> __body; \
   OATPP_MACRO_FOREACH(OATPP_MACRO_API_CLIENT_PARAM_PUT, __VA_ARGS__) \
   return executeRequestAsync(METHOD, \
-                             Z_getPathPattern_##NAME(PATH), \
+                             Z_PATH_TEMPLATE_##NAME, \
                              __headers, \
                              __pathParams, \
                              __queryParams, \
@@ -276,7 +286,7 @@ OATPP_API_CALL_ASYNC_0(NAME, METHOD, PATH)
 OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, __VA_ARGS__)
 
 /**
- * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate Asynchronous REST API-Calls.
+ * Codegen macro to be used in `oatpp::web::client::ApiClient` to generate Asynchronous REST API-Calls.
  * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
  * @param PATH - Path to endpoint (without host)
  * @param NAME - Name of the generated method
@@ -284,3 +294,15 @@ OATPP_API_CALL_ASYNC_1(NAME, METHOD, PATH, __VA_ARGS__)
  */
 #define API_CALL_ASYNC(METHOD, PATH, ...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_API_CALL_ASYNC_MACRO_, (__VA_ARGS__)) (METHOD, PATH, __VA_ARGS__))
+
+/**
+ * Codegen macro to add default headers to API_CALL
+ */
+#define API_CALL_HEADERS(NAME) \
+\
+static void Z_ADD_HEADERS_##NAME(oatpp::web::client::ApiClient::Headers& headers, int) { \
+  Z_ADD_HEADERS_##NAME(headers); /* call first method */ \
+  Z_ADD_DEFAULT_HEADERS_##NAME(headers); \
+} \
+\
+static void Z_ADD_DEFAULT_HEADERS_##NAME(oatpp::web::client::ApiClient::Headers& headers)

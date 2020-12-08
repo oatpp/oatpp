@@ -36,8 +36,8 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
-#include "oatpp/network/server/SimpleTCPConnectionProvider.hpp"
-#include "oatpp/network/client/SimpleTCPConnectionProvider.hpp"
+#include "oatpp/network/tcp/server/ConnectionProvider.hpp"
+#include "oatpp/network/tcp/client/ConnectionProvider.hpp"
 
 #include "oatpp/network/virtual_/client/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
@@ -51,15 +51,15 @@ namespace oatpp { namespace test { namespace web {
 
 namespace {
 
-typedef oatpp::web::mime::multipart::Multipart Multipart;
+typedef oatpp::web::mime::multipart::PartList PartList;
 typedef oatpp::web::protocol::http::outgoing::MultipartBody MultipartBody;
 
 class TestComponent {
 private:
-  v_int32 m_port;
+  v_uint16 m_port;
 public:
 
-  TestComponent(v_int32 port)
+  TestComponent(v_uint16 port)
     : m_port(port)
   {}
 
@@ -81,7 +81,7 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ServerConnectionProvider>(
-      oatpp::network::server::SimpleTCPConnectionProvider::createShared(m_port)
+      oatpp::network::tcp::server::ConnectionProvider::createShared({"localhost", m_port})
     );
 
   }());
@@ -90,7 +90,7 @@ public:
     return oatpp::web::server::HttpRouter::createShared();
   }());
 
-  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, serverConnectionHandler)([] {
+  OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
     OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
     return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
@@ -110,22 +110,22 @@ public:
     }
 
     return std::static_pointer_cast<oatpp::network::ClientConnectionProvider>(
-      oatpp::network::client::SimpleTCPConnectionProvider::createShared("localhost", m_port)
+      oatpp::network::tcp::client::ConnectionProvider::createShared({"localhost", m_port})
     );
 
   }());
 
 };
 
-std::shared_ptr<Multipart> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
+std::shared_ptr<PartList> createMultipart(const std::unordered_map<oatpp::String, oatpp::String>& map) {
 
-  auto multipart = oatpp::web::mime::multipart::Multipart::createSharedWithRandomBoundary();
+  auto multipart = oatpp::web::mime::multipart::PartList::createSharedWithRandomBoundary();
 
   for(auto& pair : map) {
 
     oatpp::web::mime::multipart::Headers partHeaders;
     auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
-    multipart->addPart(part);
+    multipart->writeNextPartSimple(part);
     part->putHeader("Content-Disposition", "form-data; name=\"" + pair.first + "\"");
     part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(pair.second));
 
@@ -238,7 +238,7 @@ void FullAsyncTest::onRun() {
         auto response = client->multipartTest(i + 1, body);
         OATPP_ASSERT(response->getStatusCode() == 200);
 
-        multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(response->getHeaders());
+        multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(response->getHeaders());
 
         oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
         multipartReader.setPartReader("value1", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));

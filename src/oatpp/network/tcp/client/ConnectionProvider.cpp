@@ -22,9 +22,9 @@
  *
  ***************************************************************************/
 
-#include "./SimpleTCPConnectionProvider.hpp"
+#include "./ConnectionProvider.hpp"
 
-#include "oatpp/network/Connection.hpp"
+#include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
@@ -41,38 +41,48 @@
   #include <unistd.h>
 #endif
 
-namespace oatpp { namespace network { namespace client {
+namespace oatpp { namespace network { namespace tcp { namespace client {
 
-SimpleTCPConnectionProvider::SimpleTCPConnectionProvider(const oatpp::String& host, v_uint16 port)
-  : m_host(host)
-  , m_port(port)
+ConnectionProvider::ConnectionProvider(const network::Address& address)
+  : m_address(address)
 {
-  setProperty(PROPERTY_HOST, m_host);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(port));
+  setProperty(PROPERTY_HOST, address.host);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getConnection(){
+std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
   struct addrinfo hints;
 
   memset(&hints, 0, sizeof(struct addrinfo));
-  hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
 
+  switch(m_address.family) {
+    case Address::IP_4: hints.ai_family = AF_INET; break;
+    case Address::IP_6: hints.ai_family = AF_INET6; break;
+    default:
+      hints.ai_family = AF_UNSPEC;
+  }
+
   struct addrinfo* result;
-  auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &result);
+  auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
-    std::string errorString = "[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
-	throw std::runtime_error(errorString.append(gai_strerror(res)));
+#if defined(WIN32) || defined(_WIN32)
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. "
+                             "Error. Call to getaddrinfo() failed with code " + std::to_string(res));
+#else
+    std::string errorString = "[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
+	  throw std::runtime_error(errorString.append(gai_strerror(res)));
+#endif
   }
 
   if (result == nullptr) {
-    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]. Error. Call to getaddrinfo() returned no results.");
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() returned no results.");
   }
 
   struct addrinfo* currResult = result;
@@ -103,27 +113,26 @@ std::shared_ptr<oatpp::data::stream::IOStream> SimpleTCPConnectionProvider::getC
   freeaddrinfo(result);
 
   if(currResult == nullptr) {
-    throw std::runtime_error("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]: Error. Can't connect.");
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]: Error. Can't connect.");
   }
 
 #ifdef SO_NOSIGPIPE
   int yes = 1;
   v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
 
-  return std::make_shared<oatpp::network::Connection>(clientHandle);
+  return std::make_shared<oatpp::network::tcp::Connection>(clientHandle);
 
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> SimpleTCPConnectionProvider::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
 
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
-    oatpp::String m_host;
-    v_int32 m_port;
+    network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
   private:
     struct addrinfo* m_result;
@@ -131,9 +140,8 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     bool m_isHandleOpened;
   public:
 
-    ConnectCoroutine(const oatpp::String& host, v_int32 port)
-      : m_host(host)
-      , m_port(port)
+    ConnectCoroutine(const network::Address& address)
+      : m_address(address)
       , m_result(nullptr)
       , m_currentResult(nullptr)
       , m_isHandleOpened(false)
@@ -146,28 +154,35 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     }
 
     Action act() override {
-      auto portStr = oatpp::utils::conversion::int32ToStr(m_port);
+
+      auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
       struct addrinfo hints;
 
       memset(&hints, 0, sizeof(struct addrinfo));
-      hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
       hints.ai_flags = 0;
       hints.ai_protocol = 0;
 
+      switch(m_address.family) {
+        case Address::IP_4: hints.ai_family = AF_INET; break;
+        case Address::IP_6: hints.ai_family = AF_INET6; break;
+        default:
+          hints.ai_family = AF_UNSPEC;
+      }
+
       // TODO make call to get addrinfo non-blocking !!!
-      auto res = getaddrinfo(m_host->c_str(), portStr->c_str(), &hints, &m_result);
+      auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &m_result);
       if (res != 0) {
         return error<async::Error>(
-          "[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() failed.");
+          "[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() failed.");
       }
 
       m_currentResult = m_result;
 
       if (m_result == nullptr) {
         return error<async::Error>(
-          "[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() returned no results.");
+          "[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() returned no results.");
       }
 
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
@@ -213,7 +228,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
         if(ret < 0) {
-          OATPP_LOGD("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
         }
 #endif
 
@@ -222,7 +237,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
       }
 
-      return error<Error>("[oatpp::network::client::SimpleTCPConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
+      return error<Error>("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
 
     }
 
@@ -236,7 +251,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       auto error = WSAGetLastError();
 
       if(res == 0 || error == WSAEISCONN) {
-        return _return(std::make_shared<oatpp::network::Connection>(m_clientHandle));
+        return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -247,7 +262,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 #else
 
       if(res == 0 || errno == EISCONN) {
-        return _return(std::make_shared<oatpp::network::Connection>(m_clientHandle));
+        return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -264,11 +279,11 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
   };
 
-  return ConnectCoroutine::startForResult(m_host, m_port);
+  return ConnectCoroutine::startForResult(m_address);
 
 }
 
-void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOStream>& connection) {
+void ConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
   /************************************************
    * WARNING!!!
@@ -282,7 +297,7 @@ void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOS
    * and they'll be stuck there forever.
    ************************************************/
 
-  auto c = std::static_pointer_cast<network::Connection>(connection);
+  auto c = std::static_pointer_cast<network::tcp::Connection>(connection);
   v_io_handle handle = c->getHandle();
 
 #if defined(WIN32) || defined(_WIN32)
@@ -293,4 +308,4 @@ void SimpleTCPConnectionProvider::invalidateConnection(const std::shared_ptr<IOS
 
 }
 
-}}}
+}}}}

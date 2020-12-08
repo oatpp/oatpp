@@ -140,7 +140,7 @@ void VectorTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::Vector<oatpp::String> vector = {"a", "b", "c"};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::Vector<oatpp::String>::Class::AbstractPolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const typename oatpp::Vector<oatpp::String>::Class::PolymorphicDispatcher*>(
       vector.valueType->polymorphicDispatcher
     );
 

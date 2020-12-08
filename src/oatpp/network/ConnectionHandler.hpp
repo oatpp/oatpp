@@ -22,13 +22,13 @@
  *
  ***************************************************************************/
 
-#ifndef network_server_ConnectionHandler_hpp
-#define network_server_ConnectionHandler_hpp
+#ifndef oatpp_network_ConnectionHandler_hpp
+#define oatpp_network_ConnectionHandler_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
 #include <unordered_map>
 
-namespace oatpp { namespace network { namespace server {
+namespace oatpp { namespace network {
 
 /**
  * Abstract ConnectionHandler.
@@ -64,6 +64,6 @@ public:
   virtual void stop() = 0;
 };
   
-}}}
+}}
 
-#endif /* network_server_ConnectionHandler_hpp */
+#endif /* oatpp_network_ConnectionHandler_hpp */

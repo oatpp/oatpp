@@ -30,17 +30,21 @@
 #include "oatpp/web/mime/multipart/FileStreamProvider.hpp"
 #include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
+#include "oatpp/web/mime/multipart/PartList.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+
+#include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 
 #include <sstream>
+#include <thread>
 
 namespace oatpp { namespace test { namespace web { namespace app {
 
@@ -225,7 +229,7 @@ public:
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
 
-    auto multipart = std::make_shared<oatpp::web::mime::multipart::Multipart>(request->getHeaders());
+    auto multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(request->getHeaders());
 
     oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
     multipartReader.setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
@@ -243,7 +247,7 @@ public:
   {
 
     /* Prepare multipart container. */
-    auto multipart = std::make_shared<multipart::Multipart>(request->getHeaders());
+    auto multipart = std::make_shared<multipart::PartList>(request->getHeaders());
 
     /* Create multipart reader. */
     multipart::Reader multipartReader(multipart.get());
@@ -283,16 +287,96 @@ public:
 
   }
 
+  class MPStream : public oatpp::web::mime::multipart::Multipart {
+  public:
+    typedef oatpp::web::mime::multipart::Part Part;
+  private:
+    v_uint32 counter = 0;
+  public:
+
+    MPStream()
+      : oatpp::web::mime::multipart::Multipart(generateRandomBoundary())
+    {}
+
+    std::shared_ptr<Part> readNextPart(async::Action& action) override {
+
+      if(counter == 10) {
+        return nullptr;
+      }
+
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+
+      auto part = std::make_shared<Part>();
+      part->putHeader(Header::CONTENT_TYPE, "text/html");
+
+      oatpp::String frameData;
+
+//      if(counter % 2 == 0) {
+//        frameData = "<html><body>0</body></html>";
+//      } else {
+//        frameData = "<html><body>1</body></html>";
+//      }
+//      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(frameData));
+
+      if(counter % 2 == 0) {
+        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame1.jpg"));
+      } else {
+        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame2.jpg"));
+      }
+
+      ++ counter;
+
+      OATPP_LOGD("Multipart", "Frame sent!");
+
+      return part;
+
+    }
+
+    void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) override {
+      throw std::runtime_error("No writes here!!!");
+    }
+
+  };
+
+  ENDPOINT("GET", "multipart-stream", multipartStream) {
+    auto multipart = std::make_shared<MPStream>();
+    auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
+      multipart,
+      "multipart/x-mixed-replace",
+      true /* flush parts */
+    );
+    return OutgoingResponse::createShared(Status::CODE_200, body);
+  }
+
   ENDPOINT("GET", "enum/as-string", testEnumString,
            HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
   {
-    return createResponse(Status::CODE_200, "OK");
+    return createResponse(Status::CODE_200, "");
   }
 
   ENDPOINT("GET", "enum/as-number", testEnumNumber,
            HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
   {
-    return createResponse(Status::CODE_200, "OK");
+    return createResponse(Status::CODE_200, "");
+  }
+
+  ENDPOINT("GET", "default_headers", getDefaultHeaders1,
+           HEADER(String, header, "X-DEFAULT"))
+  {
+    if(header == "hello_1") {
+      return createResponse(Status::CODE_200, "");
+    }
+    return createResponse(Status::CODE_400, "");
+  }
+
+  ENDPOINT("GET", "default_headers/{param}", getDefaultHeaders2,
+           HEADER(String, header, "X-DEFAULT"),
+           PATH(String, param))
+  {
+    if(header == "hello_2") {
+      return createResponse(Status::CODE_200, "");
+    }
+    return createResponse(Status::CODE_400, "");
   }
   
 };

@@ -66,9 +66,9 @@ public:
 public:
   const AllocatorPoolInfo& m_poolInfo;
 public:
-  static oatpp::base::memory::ThreadDistributedMemoryPool& getPool(const AllocatorPoolInfo& info){
-    static oatpp::base::memory::ThreadDistributedMemoryPool pool(info.poolName, sizeof(T), info.poolChunkSize);
-    return pool;
+  static ThreadDistributedMemoryPool& getPool(const AllocatorPoolInfo& info){
+    static auto pool = new ThreadDistributedMemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
+    return *pool;
   }
 public:
   PoolSharedObjectAllocator(const AllocatorPoolInfo& info)
@@ -117,10 +117,11 @@ public:
   static oatpp::base::memory::MemoryPool& getPool(const AllocatorPoolInfo& info){
 #ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
     static thread_local oatpp::base::memory::MemoryPool pool(info.poolName, sizeof(T), info.poolChunkSize);
-#else
-    static oatpp::base::memory::MemoryPool pool(info.poolName, sizeof(T), info.poolChunkSize);
-#endif
     return pool;
+#else
+    static auto pool = new MemoryPool(info.poolName, sizeof(T), info.poolChunkSize);
+    return *pool;
+#endif
   }
 public:
   ThreadLocalPoolSharedObjectAllocator(const AllocatorPoolInfo& info)

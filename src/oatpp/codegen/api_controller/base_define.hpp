@@ -300,6 +300,9 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   info->name = #NAME; \
   info->path = ((m_routerPrefix != nullptr) ? m_routerPrefix + PATH : PATH); \
   info->method = METHOD; \
+  if (info->path == "") { \
+    info->path = "/"; \
+  } \
   return info; \
 }; \
 \

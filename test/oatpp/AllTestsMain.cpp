@@ -1,31 +1,19 @@
 
 #include "oatpp/web/ClientRetryTest.hpp"
-
 #include "oatpp/web/FullTest.hpp"
 #include "oatpp/web/FullAsyncTest.hpp"
 #include "oatpp/web/FullAsyncClientTest.hpp"
-
 #include "oatpp/web/PipelineTest.hpp"
 #include "oatpp/web/PipelineAsyncTest.hpp"
-
 #include "oatpp/web/protocol/http/encoding/ChunkedTest.hpp"
-
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
-
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
-
 #include "oatpp/web/mime/multipart/StatefulParserTest.hpp"
 
 #include "oatpp/network/virtual_/PipeTest.hpp"
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
 #include "oatpp/network/UrlTest.hpp"
 #include "oatpp/network/ConnectionPoolTest.hpp"
-
-#include "oatpp/core/data/stream/BufferStreamTest.hpp"
-#include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
-#include "oatpp/core/data/share/LazyStringMapTest.hpp"
-#include "oatpp/core/data/share/MemoryLabelTest.hpp"
-#include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
@@ -36,9 +24,9 @@
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
 
-#include "oatpp/core/async/LockTest.hpp"
-
 #include "oatpp/core/parser/CaretTest.hpp"
+#include "oatpp/core/provider/PoolTest.hpp"
+#include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
 #include "oatpp/core/data/mapping/type/PairListTest.hpp"
@@ -52,6 +40,15 @@
 #include "oatpp/core/data/mapping/type/TypeTest.hpp"
 #include "oatpp/core/data/mapping/type/AnyTest.hpp"
 #include "oatpp/core/data/mapping/type/EnumTest.hpp"
+#include "oatpp/core/data/mapping/type/InterpretationTest.hpp"
+#include "oatpp/core/data/mapping/TypeResolverTest.hpp"
+
+#include "oatpp/core/data/stream/BufferStreamTest.hpp"
+#include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
+#include "oatpp/core/data/share/LazyStringMapTest.hpp"
+#include "oatpp/core/data/share/StringTemplateTest.hpp"
+#include "oatpp/core/data/share/MemoryLabelTest.hpp"
+#include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
 #include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
@@ -70,24 +67,13 @@
 
 namespace {
 
-v_int64 calcNextP2(v_int64 v) {
-  v--;
-  v |= v >> 1;
-  v |= v >> 2;
-  v |= v >> 4;
-  v |= v >> 8;
-  v |= v >> 16;
-  v |= v >> 32;
-  v++;
-  return v;
-}
-
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
-  OATPP_LOGD("aaa", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
-  OATPP_LOGD("aaa", "action size=%d", sizeof(oatpp::async::Action));
+  OATPP_LOGD("Tests", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
+  OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
+  OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
 
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
@@ -98,8 +84,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::share::StringTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
 
@@ -117,12 +103,15 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
 
-  OATPP_RUN_TEST(oatpp::test::async::LockTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::mapping::TypeResolverTest);
 
+  OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
 

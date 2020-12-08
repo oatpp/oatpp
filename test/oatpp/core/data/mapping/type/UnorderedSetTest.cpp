@@ -120,7 +120,7 @@ void UnorderedSetTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::UnorderedSet<oatpp::String> set = {"a", "b", "c"};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedSet<oatpp::String>::Class::AbstractPolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedSet<oatpp::String>::Class::PolymorphicDispatcher*>(
       set.valueType->polymorphicDispatcher
     );
 

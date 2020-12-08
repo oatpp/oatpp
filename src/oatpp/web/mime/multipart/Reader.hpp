@@ -143,6 +143,8 @@ typedef std::unordered_map<oatpp::String, std::shared_ptr<AsyncPartReader>> Asyn
 class AsyncPartsParser : public StatefulParser::AsyncListener {
   friend AsyncReader;
 private:
+  async::CoroutineStarter onPartDone(const std::shared_ptr<Part>& part);
+private:
   AsyncPartReadersMap m_readers;
   std::shared_ptr<AsyncPartReader> m_defaultReader;
   std::shared_ptr<AsyncPartReader> m_currReader;

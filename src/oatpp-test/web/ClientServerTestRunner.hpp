@@ -28,7 +28,7 @@
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
-#include "oatpp/network/server/Server.hpp"
+#include "oatpp/network/Server.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/macro/component.hpp"
@@ -49,11 +49,11 @@ public:
   typedef oatpp::web::server::HttpRouter HttpRouter;
   typedef oatpp::web::server::api::ApiController ApiController;
 private:
-  std::shared_ptr<oatpp::network::server::Server> m_server;
+  std::shared_ptr<oatpp::network::Server> m_server;
   std::list<std::shared_ptr<ApiController>> m_controllers;
   OATPP_COMPONENT(std::shared_ptr<HttpRouter>, m_router);
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, m_connectionProvider);
-  OATPP_COMPONENT(std::shared_ptr<oatpp::network::server::ConnectionHandler>, m_connectionHandler);
+  OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, m_connectionHandler);
 public:
 
   std::shared_ptr<HttpRouter> getRouter() {
@@ -69,7 +69,7 @@ public:
     m_controllers.push_back(controller);
   }
 
-  std::shared_ptr<oatpp::network::server::Server> getServer() {
+  std::shared_ptr<oatpp::network::Server> getServer() {
     return m_server;
   }
 
@@ -90,7 +90,7 @@ public:
     std::mutex timeoutMutex;
     std::condition_variable timeoutCondition;
 
-    m_server = std::make_shared<oatpp::network::server::Server>(m_connectionProvider, m_connectionHandler);
+    m_server = std::make_shared<oatpp::network::Server>(m_connectionProvider, m_connectionHandler);
     OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %lld(micro)\033[0m",
                m_connectionProvider->getProperty("port").toString()->c_str(),
                timeout.count());
@@ -105,7 +105,7 @@ public:
 
       m_server->stop();
       m_connectionHandler->stop();
-      m_connectionProvider->close();
+      m_connectionProvider->stop();
 
     });
 

@@ -39,11 +39,11 @@ std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::
   return std::make_shared<ConnectionProvider>(interface);
 }
 
-void ConnectionProvider::close() {
+void ConnectionProvider::stop() {
 
 }
 
-std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection() {
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
   auto submission = m_interface->connect();
   if(submission->isValid()) {
     auto socket = submission->getSocket();
@@ -57,7 +57,7 @@ std::shared_ptr<ConnectionProvider::IOStream> ConnectionProvider::getConnection(
   throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + m_interface->getName()->std_str());
 }
   
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getConnectionAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:

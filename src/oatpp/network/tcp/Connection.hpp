@@ -22,13 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_network_Connection_hpp
-#define oatpp_network_Connection_hpp
+#ifndef oatpp_network_tcp_Connection_hpp
+#define oatpp_network_tcp_Connection_hpp
 
-#include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace network { namespace tcp {
 
 /**
  * TCP Connection implementation. Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
@@ -126,6 +125,6 @@ public:
   
 };
   
-}}
+}}}
 
-#endif /* oatpp_network_Connection_hpp */
+#endif /* oatpp_network_tcp_Connection_hpp */

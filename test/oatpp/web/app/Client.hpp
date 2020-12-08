@@ -76,6 +76,16 @@ public:
 
   API_CALL("GET", "test/interceptors", getInterceptors)
 
+  API_CALL_HEADERS(getDefaultHeaders1) {
+    headers.put("X-DEFAULT", "hello_1");
+  }
+  API_CALL("GET", "default_headers", getDefaultHeaders1)
+
+  API_CALL_HEADERS(getDefaultHeaders2) {
+    headers.put("X-DEFAULT", "hello_2");
+  }
+  API_CALL("GET", "default_headers/{param}", getDefaultHeaders2, PATH(String, param))
+
   API_CALL_ASYNC("GET", "/", getRootAsync)
   API_CALL_ASYNC("GET", "/", getRootAsyncWithCKA, HEADER(String, connection, "Connection"))
   API_CALL_ASYNC("GET", "params/{param}", getWithParamsAsync, PATH(String, param))
@@ -88,7 +98,17 @@ public:
   API_CALL_ASYNC("GET", "header-value-set", headerValueSetAsync, HEADER(String, valueSet, "X-VALUE-SET"))
 
   API_CALL_ASYNC("GET", "chunked/{text-value}/{num-iterations}", getChunkedAsync, PATH(String, text, "text-value"), PATH(Int32, numIterations, "num-iterations"))
-  
+
+  API_CALL_HEADERS(GetDefaultHeaders3) {
+    headers.put("X-DEFAULT", "hello_3");
+  }
+  API_CALL_ASYNC("GET", "default_headers", GetDefaultHeaders3)
+
+  API_CALL_HEADERS(GetDefaultHeaders4) {
+    headers.put("X-DEFAULT", "hello_4");
+  }
+  API_CALL_ASYNC("GET", "default_headers/{param}", GetDefaultHeaders4, PATH(String, param))
+
 #include OATPP_CODEGEN_END(ApiClient)
 };
   

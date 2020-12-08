@@ -30,6 +30,16 @@
 namespace oatpp {
 
   /**
+   * &id:oatpp::data::mapping::type::Type;.
+   */
+  typedef oatpp::data::mapping::type::Type Type;
+
+  /**
+   * &id:oatpp::data::mapping::type::ClassId;.
+   */
+  typedef oatpp::data::mapping::type::ClassId ClassId;
+
+  /**
    * ObjectWrapper over the `void*`.
    */
   typedef oatpp::data::mapping::type::Void Void;
@@ -100,6 +110,11 @@ namespace oatpp {
    * Mapping-Enabled Boolean. Can hold nullptr value. &id:oatpp::data::mapping::type::Boolean;
    */
   typedef oatpp::data::mapping::type::Boolean Boolean;
+
+  /**
+   * Base class for all Object-like Mapping-enabled structures. &id:oatpp::data::mapping::type::BaseObject;
+   */
+  typedef oatpp::data::mapping::type::BaseObject BaseObject;
 
   /**
    * Base class for all DTO objects. &id:oatpp::data::mapping::type::DTO;

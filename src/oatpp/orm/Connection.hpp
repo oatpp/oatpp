@@ -22,4 +22,26 @@
  *
  ***************************************************************************/
 
-#include "./ConnectionHandler.hpp"
+#ifndef oatpp_orm_Connection_hpp
+#define oatpp_orm_Connection_hpp
+
+#include "oatpp/core/base/Countable.hpp"
+
+namespace oatpp { namespace orm {
+
+/**
+ * Abstract database connection.
+ */
+class Connection : public base::Countable {
+public:
+
+  /**
+   * Virtual destructor.
+   */
+  virtual ~Connection() = default;
+
+};
+
+}}
+
+#endif // oatpp_orm_Connection_hpp

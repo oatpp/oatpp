@@ -49,8 +49,11 @@ namespace __class {
     /**
      * Polymorphic Dispatcher.
      */
-    class AbstractPolymorphicDispatcher {
+    class PolymorphicDispatcher {
     public:
+
+      virtual type::Void createObject() const = 0;
+
       /**
        * Add key-value pair to pair-list.
        * @param object - pair list.
@@ -142,10 +145,14 @@ namespace __class {
 
 template<class Key, class Value>
 class PairList : public AbstractPairList {
-private:
+public:
 
-  class PolymorphicDispatcher : public AbstractPolymorphicDispatcher {
+  class PolymorphicDispatcher : public AbstractPairList::PolymorphicDispatcher {
   public:
+
+    type::Void createObject() const override {
+      return type::Void(std::make_shared<std::list<std::pair<Key, Value>>>(), getType());
+    }
 
     void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
       const auto& map = object.staticCast<type::PairList<Key, Value>>();
@@ -158,12 +165,8 @@ private:
 
 private:
 
-  static type::Void creator() {
-    return type::Void(std::make_shared<std::list<std::pair<Key, Value>>>(), getType());
-  }
-
   static Type createType() {
-    Type type(__class::AbstractPairList::CLASS_ID, nullptr, &creator, nullptr, new PolymorphicDispatcher());
+    Type type(__class::AbstractPairList::CLASS_ID, nullptr, new PolymorphicDispatcher());
     type.params.push_back(Key::Class::getType());
     type.params.push_back(Value::Class::getType());
     return type;
