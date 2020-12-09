@@ -28,15 +28,14 @@
 
 #include "./Config.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 #include <atomic>
 #include <mutex>
 #include <string>
 #include <unordered_map>
 #include <memory>
 #include <stdexcept>
-#include <utility>
-#include <stdlib.h>
+#include <cstdlib>
 
 #define OATPP_VERSION "1.2.0"
 
