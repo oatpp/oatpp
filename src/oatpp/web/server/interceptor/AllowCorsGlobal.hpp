@@ -32,7 +32,7 @@ namespace oatpp { namespace web { namespace server { namespace interceptor {
 
 class AllowOptionsGlobal : public RequestInterceptor {
 public:
-  std::shared_ptr<OutgoingResponse> intercept(std::shared_ptr<IncomingRequest> &request) override;
+  std::shared_ptr<OutgoingResponse> intercept(const std::shared_ptr<IncomingRequest>& request) override;
 };
 
 class AllowCorsGlobal : public ResponseInterceptor {
@@ -48,7 +48,8 @@ public:
                   const oatpp::String &headers = "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization",
                   const oatpp::String &maxAge = "1728000");
 
-  std::shared_ptr<OutgoingResponse> intercept(std::shared_ptr<OutgoingResponse> &request) override;
+  std::shared_ptr<OutgoingResponse> intercept(const std::shared_ptr<IncomingRequest>& request,
+                                              const std::shared_ptr<OutgoingResponse>& response) override;
 
 };
 

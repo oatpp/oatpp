@@ -25,6 +25,7 @@
 #ifndef oatpp_web_server_interceptor_ResponseInterceptor_hpp
 #define oatpp_web_server_interceptor_ResponseInterceptor_hpp
 
+#include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
@@ -35,6 +36,10 @@ namespace oatpp { namespace web { namespace server { namespace interceptor {
  */
 class ResponseInterceptor {
 public:
+  /**
+   * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Request;.
+   */
+  typedef oatpp::web::protocol::http::incoming::Request IncomingRequest;
 
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::Response;.
@@ -53,8 +58,12 @@ public:
    * <br><br>
    * possible usage ex: add extra headers to the response.
    *
+   * @param request - the corresponding request.
+   * @param response - response to the request
+   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  virtual std::shared_ptr<OutgoingResponse> intercept(std::shared_ptr<OutgoingResponse>& response) = 0;
+  virtual std::shared_ptr<OutgoingResponse> intercept(const std::shared_ptr<IncomingRequest>& request,
+                                                      const std::shared_ptr<OutgoingResponse>& response) = 0;
 
 };
 

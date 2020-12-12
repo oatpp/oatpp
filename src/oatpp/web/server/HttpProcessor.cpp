@@ -128,7 +128,7 @@ bool HttpProcessor::processNextRequest(ProcessingResources& resources) {
     }
 
     for(auto interceptor : resources.components->responseInterceptors) {
-      response = interceptor->intercept(response);
+      response = interceptor->intercept(request, response);
       if(!response) {
         response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Invalid Response - 'null'.");
         response->send(resources.connection.get(), &resources.headersOutBuffer, nullptr);
@@ -278,7 +278,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 
   for(auto interceptor : m_components->responseInterceptors) {
-    m_currentResponse = interceptor->intercept(m_currentResponse);
+    m_currentResponse = interceptor->intercept(m_currentRequest, m_currentResponse);
     if(!m_currentResponse) {
       m_currentResponse = m_components->errorHandler->handleError(protocol::http::Status::CODE_500, "Invalid Response - 'null'.");
     }

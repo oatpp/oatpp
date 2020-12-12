@@ -59,7 +59,7 @@ public:
    *  possible usage ex: return 301 - redirect if needed
    *
    */
-  virtual std::shared_ptr<OutgoingResponse> intercept(std::shared_ptr<IncomingRequest>& request) = 0;
+  virtual std::shared_ptr<OutgoingResponse> intercept(const std::shared_ptr<IncomingRequest>& request) = 0;
   
 };
   
