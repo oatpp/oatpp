@@ -254,23 +254,38 @@ public:
   /**
    * Compare data1, data2 using `std::memcmp`.
    * @param data1 - pointer to data1.
+   * @param size1 - size of data1.
    * @param data2 - pointer to data2.
-   * @param size - number of characters to compare.
+   * @param size2 - size of data2.
    * @return - Negative value if the first differing byte (reinterpreted as unsigned char) in data1 is less than the corresponding byte in data2.<br>
-   * ​0​ if all count bytes of data1 and data2 are equal.<br>
+   * 0 if all count bytes of data1 and data2 are equal.<br>
    * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
    */
-  static v_buff_size compare(const void* data1, const void* data2, v_buff_size size);
+  static v_buff_size compare(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
 
   /**
-   * Compare data1, data2 using `std::memcmp`.
-   * @param data1 - data1 as `StrBuffer`.
-   * @param data2 - data2 as `StrBuffer`.
+   * Compare data1, data2 - case insensitive.
+   * @param data1 - pointer to data1.
+   * @param size1 - size of data1.
+   * @param data2 - pointer to data2.
+   * @param size2 - size of data2.
    * @return - Negative value if the first differing byte (reinterpreted as unsigned char) in data1 is less than the corresponding byte in data2.<br>
-   * ​0​ if all count bytes of data1 and data2 are equal.<br>
+   * 0 if all count bytes of data1 and data2 are equal.<br>
    * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
    */
-  static v_buff_size compare(StrBuffer* data1, StrBuffer* data2);
+  static v_buff_size compareCI(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
+
+  /**
+   * Compare data1, data2 - case insensitive (ASCII only, correct compare if one of strings contains letters only).
+   * @param data1 - pointer to data1.
+   * @param size1 - size of data1.
+   * @param data2 - pointer to data2.
+   * @param size2 - size of data2.s
+   * @return - Negative value if the first differing byte (reinterpreted as unsigned char) in data1 is less than the corresponding byte in data2.<br>
+   * 0 if all count bytes of data1 and data2 are equal.<br>
+   * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
+   */
+  static v_buff_size compareCI_FAST(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
 
   /**
    * Check string equality of data1 to data2.

@@ -319,6 +319,39 @@ void MemoryLabelTest::onRun() {
 
   }
 
+  {
+
+    v_int32 iterationsCount = 100;
+
+    oatpp::String headersText =
+      "header0: value0\r\n"
+      "header0: value1\r\n"
+      "header1: value2\r\n"
+      "header1: value3\r\n"
+      "header2: value4\r\n"
+      "header2: value5\r\n"
+      "header3: value6\r\n"
+      "header3: value7\r\n"
+      "header4: value8\r\n"
+      "header4: value9\r\n"
+      "\r\n";
+
+    oatpp::parser::Caret caret(headersText);
+    oatpp::web::protocol::http::Status status;
+    oatpp::web::protocol::http::Headers headers;
+    oatpp::web::protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
+
+    OATPP_ASSERT(status.code == 0);
+    OATPP_ASSERT(headers.getSize() == 10);
+
+    for(auto& h : headers.getAll()) {
+      auto key = h.first.toString();
+      auto val = h.second.toString();
+      OATPP_LOGD(TAG, "'%s': '%s'", key->c_str(), val->c_str());
+    }
+
+  }
+
 }
   
 }}}}}
