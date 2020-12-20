@@ -52,6 +52,7 @@ public:
   typedef std::list<std::shared_ptr<web::server::interceptor::RequestInterceptor>> RequestInterceptors;
   typedef std::list<std::shared_ptr<web::server::interceptor::ResponseInterceptor>> ResponseInterceptors;
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
+  typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
 public:
 
   /**
@@ -171,7 +172,12 @@ private:
 
   };
 
-  static bool processNextRequest(ProcessingResources& resources);
+  static
+  std::shared_ptr<protocol::http::outgoing::Response>
+  processNextRequest(ProcessingResources& resources,
+                     const std::shared_ptr<protocol::http::incoming::Request>& request,
+                     ConnectionState& connectionState);
+  static ConnectionState processNextRequest(ProcessingResources& resources);
 
 public:
 
@@ -215,7 +221,7 @@ public:
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
-    v_int32 m_connectionState;
+    ConnectionState m_connectionState;
   private:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
