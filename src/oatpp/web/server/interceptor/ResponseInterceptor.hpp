@@ -22,19 +22,19 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_handler_Interceptor_hpp
-#define oatpp_web_server_handler_Interceptor_hpp
+#ifndef oatpp_web_server_interceptor_ResponseInterceptor_hpp
+#define oatpp_web_server_interceptor_ResponseInterceptor_hpp
 
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
+#include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace handler {
+namespace oatpp { namespace web { namespace server { namespace interceptor {
 
 /**
- * RequestInterceptor.
+ * ResponseInterceptor.
  */
-class RequestInterceptor {
+class ResponseInterceptor {
 public:
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::incoming::Request;.
@@ -46,23 +46,27 @@ public:
    */
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
 public:
-  
+
   /**
    *
-   *  This method should not do any "heavy" nor I/O operations
-   *  as it is used for both "Simple" and "Async" API
-   *  NOT FOR I/O operations!!!
+   * This method should not do any "heavy" nor I/O operations <br>
+   * as it is used for both "Simple" and "Async" API <br>
+   * NOT FOR I/O operations!!! <br>
+   * <br>
+   * - return the same response, or the new one. <br>
+   * - do **NOT** return `nullptr`.
+   * <br><br>
+   * possible usage ex: add extra headers to the response.
    *
-   *  - return nullptr to continue.
-   *  - return OutgoingResponse to send response immediately
-   *
-   *  possible usage ex: return 301 - redirect if needed
-   *
+   * @param request - the corresponding request.
+   * @param response - response to the request
+   * @return - &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  virtual std::shared_ptr<OutgoingResponse> intercept(std::shared_ptr<IncomingRequest>& request) = 0;
-  
+  virtual std::shared_ptr<OutgoingResponse> intercept(const std::shared_ptr<IncomingRequest>& request,
+                                                      const std::shared_ptr<OutgoingResponse>& response) = 0;
+
 };
-  
+
 }}}}
 
-#endif /* oatpp_web_server_handler_Interceptor_hpp */
+#endif /* oatpp_web_server_interceptor_ResponseInterceptor_hpp */

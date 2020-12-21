@@ -213,7 +213,15 @@ public:
   inline bool operator!=(const StringKeyLabel &other) const {
     return !(m_size == other.m_size && base::StrBuffer::equals(m_data, other.m_data, m_size));
   }
-  
+
+  inline bool operator < (const StringKeyLabel &other) const {
+    return base::StrBuffer::compare(m_data, m_size, other.m_data, other.m_size) < 0;
+  }
+
+  inline bool operator > (const StringKeyLabel &other) const {
+    return base::StrBuffer::compare(m_data, m_size, other.m_data, other.m_size) > 0;
+  }
+
 };
 
 /**
@@ -266,6 +274,14 @@ public:
 
   inline bool operator!=(const StringKeyLabelCI &other) const {
     return !(m_size == other.m_size && base::StrBuffer::equalsCI(m_data, other.m_data, m_size));
+  }
+
+  inline bool operator < (const StringKeyLabelCI &other) const {
+    return base::StrBuffer::compareCI(m_data, m_size, other.m_data, other.m_size) < 0;
+  }
+
+  inline bool operator > (const StringKeyLabelCI &other) const {
+    return base::StrBuffer::compareCI(m_data, m_size, other.m_data, other.m_size) > 0;
   }
 
 };
@@ -322,6 +338,14 @@ public:
 
   inline bool operator!=(const StringKeyLabelCI_FAST &other) const {
     return !(m_size == other.m_size && base::StrBuffer::equalsCI_FAST(m_data, other.m_data, m_size));
+  }
+
+  inline bool operator < (const StringKeyLabelCI_FAST &other) const {
+    return base::StrBuffer::compareCI_FAST(m_data, m_size, other.m_data, other.m_size) < 0;
+  }
+
+  inline bool operator > (const StringKeyLabelCI_FAST &other) const {
+    return base::StrBuffer::compareCI_FAST(m_data, m_size, other.m_data, other.m_size) > 0;
   }
   
 };

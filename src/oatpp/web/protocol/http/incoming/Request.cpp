@@ -28,13 +28,11 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                  const http::RequestStartingLine& startingLine,
-                 const url::mapping::Pattern::MatchMap& pathVariables,
                  const http::Headers& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                  const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
   : m_connection(connection)
   , m_startingLine(startingLine)
-  , m_pathVariables(pathVariables)
   , m_headers(headers)
   , m_bodyStream(bodyStream)
   , m_bodyDecoder(bodyDecoder)
@@ -43,11 +41,11 @@ Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connectio
 
 std::shared_ptr<Request> Request::createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                const http::RequestStartingLine& startingLine,
-                                               const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                               const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
-  return Shared_Incoming_Request_Pool::allocateShared(connection, startingLine, pathVariables, headers, bodyStream, bodyDecoder);
+                                               const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
+{
+  return Shared_Incoming_Request_Pool::allocateShared(connection, startingLine, headers, bodyStream, bodyDecoder);
 }
 
 std::shared_ptr<oatpp::data::stream::IOStream> Request::getConnection() {
@@ -56,6 +54,10 @@ std::shared_ptr<oatpp::data::stream::IOStream> Request::getConnection() {
 
 const http::RequestStartingLine& Request::getStartingLine() const {
   return m_startingLine;
+}
+
+void Request::setPathVariables(const url::mapping::Pattern::MatchMap& pathVariables) {
+  m_pathVariables = pathVariables;
 }
 
 const url::mapping::Pattern::MatchMap& Request::getPathVariables() const {

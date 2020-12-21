@@ -67,6 +67,10 @@ public:
     oatpp::String getTail() const {
       return m_tail.toString();
     }
+
+    const Variables& getVariables() const {
+      return m_variables;
+    }
     
   };
   

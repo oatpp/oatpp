@@ -19,8 +19,11 @@
 
 **News**  
 
-- The new `1.2.0` version is now released. See [changelog](changelog/1.2.0.md) for details.  
-- Check out the new oatpp ORM - read more [here](https://oatpp.io/docs/components/orm/#declare-dbclient).  
+- Hey, meet the new oatpp version `1.2.5`. 
+It's now in the master, and soon will receive its release tag!  
+See [changelog](changelog/1.2.5.md) for details.  
+*please wait a release tag before updating your CIs*.
+- Check out the new oatpp ORM - read more [here](https://oatpp.io/docs/components/orm/).  
 
 ---
 
