@@ -31,7 +31,6 @@
 
 #include "oatpp/core/async/Processor.hpp"
 
-#include <unistd.h>
 #include <sys/event.h>
 
 namespace oatpp { namespace async { namespace worker {

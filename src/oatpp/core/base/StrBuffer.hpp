@@ -28,7 +28,7 @@
 #include "memory/ObjectPool.hpp"
 #include "./Countable.hpp"
 
-#include <cstring> // c
+#include <cstring>
 
 namespace oatpp { namespace base {
 
