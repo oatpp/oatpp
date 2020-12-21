@@ -25,7 +25,6 @@
 #include "./ConnectionProvider.hpp"
 
 #include "oatpp/network/tcp/Connection.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
@@ -36,7 +35,6 @@
   #include <WS2tcpip.h>
 #else
   #include <netdb.h>
-  #include <arpa/inet.h>
   #include <sys/socket.h>
   #include <unistd.h>
 #endif

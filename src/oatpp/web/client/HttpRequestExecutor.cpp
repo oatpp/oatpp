@@ -26,21 +26,12 @@
 
 #include "oatpp/web/protocol/http/incoming/ResponseHeadersReader.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
-#include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
 #include "oatpp/network/tcp/Connection.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
-#include <stdlib.h>
-#include <sys/types.h>
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
-#else
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <unistd.h>
 #endif
 
 namespace oatpp { namespace web { namespace client {
