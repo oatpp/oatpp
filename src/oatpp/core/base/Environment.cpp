@@ -30,7 +30,7 @@
 #include <iostream>
 #include <cstring>
 #include <ctime>
-#include <stdarg.h>
+#include <cstdarg>
 
 #if defined(WIN32) || defined(_WIN32)
 #include <WinSock2.h>

@@ -24,7 +24,6 @@
 
 #include "Caret.hpp"
 
-#include <stdlib.h>
 #include <cstdlib>
 #include <algorithm>
 
