@@ -158,12 +158,16 @@ class LogCategory {
    * @param pCategoryEnabled - Enable or disable the category completely
    * @param pEnabledPriorities - Bitmap of initially active logging categories.
    */
-  LogCategory(std::string pTag, bool pCategoryEnabled, v_uint32 pEnabledPriorities = ((1<<Logger::PRIORITY_V) | (1<<Logger::PRIORITY_D) | (1<<Logger::PRIORITY_I) | (1<<Logger::PRIORITY_W) | (1<<Logger::PRIORITY_E))) : tag(std::move(pTag)), categoryEnabled(pCategoryEnabled), enabledPriorities(pEnabledPriorities) {};
+  LogCategory(std::string pTag, bool pCategoryEnabled, v_uint32 pEnabledPriorities = ((1<<Logger::PRIORITY_V) | (1<<Logger::PRIORITY_D) | (1<<Logger::PRIORITY_I) | (1<<Logger::PRIORITY_W) | (1<<Logger::PRIORITY_E)))
+    : tag(std::move(pTag))
+    , categoryEnabled(pCategoryEnabled)
+    , enabledPriorities(pEnabledPriorities)
+  {};
 
   /**
-   * Priorities to print that are logged in this category
+   * The tag for this category
    */
-  v_uint32 enabledPriorities;
+  const std::string tag;
 
   /**
    * Generally enable or disable this category
@@ -171,9 +175,9 @@ class LogCategory {
   bool categoryEnabled;
 
   /**
-   * The tag for this category
+   * Priorities to print that are logged in this category
    */
-  const std::string tag;
+  v_uint32 enabledPriorities;
 
   /**
    * Enables logging of a priorities for this category
