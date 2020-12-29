@@ -35,6 +35,7 @@
 
 #include <atomic>
 #include <thread>
+#include <functional>
 
 namespace oatpp { namespace network {
 
@@ -46,13 +47,14 @@ class Server : public base::Countable {
 private:
 
   static void mainLoop(Server *instance);
-  
+
   bool setStatus(v_int32 expectedStatus, v_int32 newStatus);
   void setStatus(v_int32 status);
 
 private:
 
   std::atomic<v_int32> m_status;
+  std::function<bool()> m_condition;
   std::thread m_thread;
   std::mutex m_mutex;
 
@@ -116,7 +118,8 @@ public:
    * to &id:oatpp::network::ConnectionHandler;.
    * @param startAsNewThread - Start the server blocking (thread of callee) or non-blocking (own thread)
    */
-  void run(bool startAsNewThread = false);
+  void run(bool startAsNewThread, std::function<bool()> conditional = nullptr);
+
 
   /**
    * Break server loop.

@@ -89,21 +89,25 @@ public:
     std::atomic<bool> running(true);
     std::mutex timeoutMutex;
     std::condition_variable timeoutCondition;
+    bool runConditionForLambda = true;
 
     m_server = std::make_shared<oatpp::network::Server>(m_connectionProvider, m_connectionHandler);
     OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %lld(micro)\033[0m",
                m_connectionProvider->getProperty("port").toString()->c_str(),
                timeout.count());
 
-    std::thread serverThread([this]{
-      m_server->run();
-    });
+    std::function<bool()> condition = [runConditionForLambda](){
+        return runConditionForLambda;
+    };
 
-    std::thread clientThread([this, &lambda]{
+    m_server->run(true, condition);
+
+    std::thread clientThread([&runConditionForLambda, this, &lambda]{
 
       lambda();
 
-      m_server->stop();
+//      m_server->stop();
+      runConditionForLambda = false;
       m_connectionHandler->stop();
       m_connectionProvider->stop();
 
@@ -120,7 +124,6 @@ public:
 
     });
 
-    serverThread.join();
     clientThread.join();
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - startTime);

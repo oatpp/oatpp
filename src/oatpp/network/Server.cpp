@@ -26,6 +26,7 @@
 
 #include <thread>
 #include <chrono>
+#include <utility>
 
 namespace oatpp { namespace network {
 
@@ -45,28 +46,48 @@ Server::Server(const std::shared_ptr<ServerConnectionProvider> &connectionProvid
 void Server::mainLoop(Server *instance) {
 
   instance->setStatus(STATUS_STARTING, STATUS_RUNNING);
-
   std::shared_ptr<const std::unordered_map<oatpp::String, oatpp::String>> params;
 
-  while (instance->getStatus() == STATUS_RUNNING) {
+  // Code duplication to extract unnecessary checks for the conditional to maintain performance when the conditional isn't used.
+  if (instance->m_condition) {
+    while (instance->getStatus() == STATUS_RUNNING) {
+      if (instance->m_condition()) {
+        auto connection = instance->m_connectionProvider->get();
 
-    auto connection = instance->m_connectionProvider->get();
-
-    if (connection) {
-      if (instance->getStatus() == STATUS_RUNNING) {
-        instance->m_connectionHandler->handleConnection(connection, params /* null params */);
+        if (connection) {
+          if (instance->getStatus() == STATUS_RUNNING) {
+            if (instance->m_condition()) {
+              instance->m_connectionHandler->handleConnection(connection, params /* null params */);
+            } else {
+              instance->setStatus(STATUS_STOPPING);
+            }
+          } else {
+            OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+          }
+        }
       } else {
-        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+        instance->setStatus(STATUS_STOPPING);
       }
     }
+  } else {
+    while (instance->getStatus() == STATUS_RUNNING) {
+      auto connection = instance->m_connectionProvider->get();
 
+      if (connection) {
+        if (instance->getStatus() == STATUS_RUNNING) {
+          instance->m_connectionHandler->handleConnection(connection, params /* null params */);
+        } else {
+          OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+        }
+      }
+    }
   }
 
   instance->setStatus(STATUS_DONE);
 
 }
 
-void Server::run(bool startAsNewThread) {
+void Server::run(bool startAsNewThread, std::function<bool()> conditional) {
   std::unique_lock<std::mutex> ul(m_mutex);
   switch (getStatus()) {
     case STATUS_STARTING:
@@ -77,6 +98,8 @@ void Server::run(bool startAsNewThread) {
 
   m_threaded = startAsNewThread;
   setStatus(STATUS_CREATED, STATUS_STARTING);
+
+  m_condition = std::move(conditional);
 
   if (m_threaded) {
     m_thread = std::thread(mainLoop, this);
