@@ -47,6 +47,7 @@ class Server : public base::Countable {
 private:
 
   static void mainLoop(Server *instance);
+  void conditionalMainLoop();
 
   bool setStatus(v_int32 expectedStatus, v_int32 newStatus);
   void setStatus(v_int32 status);
@@ -116,10 +117,18 @@ public:
   /**
    * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
    * to &id:oatpp::network::ConnectionHandler;.
-   * @param startAsNewThread - Start the server blocking (thread of callee) or non-blocking (own thread)
+   * @param conditional - Function that is called every mainloop iteration to check if the server should continue to run <br>
+   * Return true to let the server continue, false to shut it down.
    */
-  void run(bool startAsNewThread, std::function<bool()> conditional = nullptr);
+  void run(std::function<bool()> conditional = nullptr);
 
+  /**
+   * Call &id:oatpp::network::ConnectionProvider::getConnection; in the loop and passes obtained Connection
+   * to &id:oatpp::network::ConnectionHandler;.
+   * @param startAsNewThread - Start the server blocking (thread of callee) or non-blocking (own thread)
+   * @deprecated Deprecated since 1.3.0, will be removed in the next release.
+   */
+  void run(bool startAsNewThread);
 
   /**
    * Break server loop.

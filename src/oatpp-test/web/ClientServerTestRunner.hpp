@@ -100,12 +100,13 @@ public:
         return runConditionForLambda;
     };
 
-    m_server->run(true, condition);
+    std::thread serverThread([&condition, this]{
+      m_server->run(condition);
+    });
 
     std::thread clientThread([&runConditionForLambda, this, &lambda]{
 
       lambda();
-
 //      m_server->stop();
       runConditionForLambda = false;
       m_connectionHandler->stop();
@@ -124,6 +125,7 @@ public:
 
     });
 
+    serverThread.join();
     clientThread.join();
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - startTime);
