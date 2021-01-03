@@ -67,7 +67,12 @@ public:
       oatpp::Boolean required = true;
       oatpp::Boolean deprecated = false;
       oatpp::Boolean allowEmptyValue;
-      oatpp::Any example;
+      std::list<std::pair<oatpp::String, oatpp::Any>> examples;
+
+      Param& addExample(const oatpp::String& title, const oatpp::Any& example) {
+        examples.push_back({title, example});
+        return *this;
+      }
 
     };
 
@@ -116,7 +121,12 @@ public:
       oatpp::String contentType;
       oatpp::data::mapping::type::Type* schema;
       oatpp::String description;
-      oatpp::Any example;
+      std::list<std::pair<oatpp::String, oatpp::Any>> examples;
+
+      ContentHints& addExample(const oatpp::String& title, const oatpp::Any& example) {
+        examples.push_back({title, example});
+        return *this;
+      }
     };
     
   public:
