@@ -67,7 +67,8 @@ public:
       oatpp::Boolean required = true;
       oatpp::Boolean deprecated = false;
       oatpp::Boolean allowEmptyValue;
-      
+      oatpp::Any example;
+
     };
 
     /**
@@ -111,10 +112,11 @@ public:
     /**
      * Hints about the response (content-type, schema, description, ...)
      */
-    struct ResponseHints {
+    struct ContentHints {
       oatpp::String contentType;
       oatpp::data::mapping::type::Type* schema;
       oatpp::String description;
+      oatpp::Any example;
     };
     
   public:
@@ -183,7 +185,7 @@ public:
     /**
      * Consumes.
      */
-    std::list<ResponseHints> consumes;
+    std::list<ContentHints> consumes;
 
     /**
      * Security Requirements
@@ -209,7 +211,7 @@ public:
      *  ResponseCode to {ContentType, Type} mapping.
      *  Example responses[Status::CODE_200] = {"application/json", MyDto::ObjectWrapper::Class::getType()};
      */
-    std::unordered_map<oatpp::web::protocol::http::Status, ResponseHints> responses;
+    std::unordered_map<oatpp::web::protocol::http::Status, ContentHints> responses;
     
     oatpp::String toString();
 
@@ -219,8 +221,9 @@ public:
      * @param contentType
      */
     template<class Wrapper>
-    void addConsumes(const oatpp::String& contentType, const oatpp::String& description = oatpp::String()) {
+    ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& description = oatpp::String()) {
       consumes.push_back({contentType, Wrapper::Class::getType(), description});
+      return consumes.back();
     }
 
     /**
@@ -231,8 +234,12 @@ public:
      * @param responseDescription
      */
     template<class Wrapper>
-    void addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription = oatpp::String()) {
-      responses[status] = {contentType, Wrapper::Class::getType(), responseDescription.get() == nullptr ? status.description : responseDescription};
+    ContentHints& addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription = oatpp::String()) {
+      auto& hint = responses[status];
+      hint.contentType = contentType;
+      hint.description = responseDescription.get() == nullptr ? status.description : responseDescription;
+      hint.schema = Wrapper::Class::getType();
+      return hint;
     }
 
     /**
