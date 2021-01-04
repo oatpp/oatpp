@@ -96,7 +96,7 @@ public:
                m_connectionProvider->getProperty("port").toString()->c_str(),
                timeout.count());
 
-    std::function<bool()> condition = [runConditionForLambda](){
+    std::function<bool()> condition = [&runConditionForLambda](){
         return runConditionForLambda;
     };
 
