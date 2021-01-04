@@ -106,7 +106,7 @@ void Server::run(std::function<bool()> conditional) {
   m_condition = std::move(conditional);
 
   ul.unlock(); // early unlock
-  mainLoop(this);
+  conditionalMainLoop();
 }
 
 void Server::run(bool startAsNewThread) {
