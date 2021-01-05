@@ -103,10 +103,14 @@ void Server::run(std::function<bool()> conditional) {
   m_threaded = false;
   setStatus(STATUS_CREATED, STATUS_STARTING);
 
-  m_condition = std::move(conditional);
-
-  ul.unlock(); // early unlock
-  conditionalMainLoop();
+  if (conditional) {
+    m_condition = std::move(conditional);
+    ul.unlock(); // early unlock
+    conditionalMainLoop();
+  } else {
+    ul.unlock();
+    mainLoop(this);
+  }
 }
 
 void Server::run(bool startAsNewThread) {
