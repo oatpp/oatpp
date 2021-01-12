@@ -52,6 +52,7 @@ public:
   API_CALL("GET", "/cors-origin-methods-headers", getCorsOriginMethodsHeader)
   API_CALL("GET", "params/{param}", getWithParams, PATH(String, param))
   API_CALL("GET", "queries", getWithQueries, QUERY(String, name), QUERY(Int32, age))
+  API_CALL("GET", "queries/optional", getWithOptQueries, QUERY(String, name))
   API_CALL("GET", "queries/map", getWithQueriesMap, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
