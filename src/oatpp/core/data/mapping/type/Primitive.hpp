@@ -110,6 +110,10 @@ public:
     return *this;
   }
 
+  inline String& operator = (const std::string& str) {
+    return operator=(str.c_str()); 
+  }
+
   inline String& operator = (const String& other){
     m_ptr = other.m_ptr;
     return *this;
