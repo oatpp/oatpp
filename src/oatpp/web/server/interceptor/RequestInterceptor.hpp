@@ -47,6 +47,9 @@ public:
   typedef oatpp::web::protocol::http::outgoing::Response OutgoingResponse;
 public:
   
+  /** virtual destructor for base-class deletions */
+  virtual ~RequestInterceptor();
+  
   /**
    *
    *  This method should not do any "heavy" nor I/O operations
