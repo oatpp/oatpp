@@ -48,6 +48,11 @@ public:
 public:
   
   /**
+   * Default virtual destructor.
+   */
+  virtual ~RequestInterceptor() = default;
+  
+  /**
    *
    *  This method should not do any "heavy" nor I/O operations
    *  as it is used for both "Simple" and "Async" API
