@@ -22,4 +22,21 @@
  *
  ***************************************************************************/
 
-#include "Interceptor.hpp"
+#ifndef oatpp_test_web_server_HttpRouterTest_hpp
+#define oatpp_test_web_server_HttpRouterTest_hpp
+
+#include "oatpp-test/UnitTest.hpp"
+
+namespace oatpp { namespace test { namespace web { namespace server {
+
+class HttpRouterTest : public UnitTest {
+public:
+
+  HttpRouterTest():UnitTest("TEST[web::server::HttpRouterTest]"){}
+  void onRun() override;
+
+};
+
+}}}}
+
+#endif /* oatpp_test_web_server_HttpRouterTest_hpp */

@@ -334,9 +334,10 @@ void Parser::parseResponseStartingLine(ResponseStartingLine& line,
 }
   
 void Parser::parseOneHeader(Headers& headers,
-                              const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
-                              oatpp::parser::Caret& caret,
-                              Status& error) {
+                            const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                            oatpp::parser::Caret& caret,
+                            Status& error)
+{
   caret.skipChar(' ');
   auto name = parseHeaderNameLabel(headersText, caret);
   if(name.getData() != nullptr) {
@@ -357,9 +358,10 @@ void Parser::parseOneHeader(Headers& headers,
 }
 
 void Parser::parseHeaders(Headers& headers,
-                            const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
-                            oatpp::parser::Caret& caret,
-                            Status& error) {
+                          const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                          oatpp::parser::Caret& caret,
+                          Status& error)
+{
   
   while (!caret.isAtRN()) {
     parseOneHeader(headers, headersText, caret, error);

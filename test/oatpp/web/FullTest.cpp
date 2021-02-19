@@ -264,6 +264,14 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testValue == "name=oatpp&age=1");
       }
 
+      { // test GET with optional query parameters
+        auto response = client->getWithOptQueries("oatpp", connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto dto = response->readBodyToDto<oatpp::Object<app::TestDto>>(objectMapper.get());
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "name=oatpp&age=101");
+      }
+
       { // test GET with query parameters
         auto response = client->getWithQueriesMap("value1", 32, 0.32f, connection);
         OATPP_ASSERT(response->getStatusCode() == 200);

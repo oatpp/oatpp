@@ -25,6 +25,7 @@
 #ifndef oatpp_test_UnitTest_hpp
 #define oatpp_test_UnitTest_hpp
 
+#include <functional>
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test {

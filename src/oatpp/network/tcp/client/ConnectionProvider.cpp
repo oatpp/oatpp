@@ -25,7 +25,6 @@
 #include "./ConnectionProvider.hpp"
 
 #include "oatpp/network/tcp/Connection.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>

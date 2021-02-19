@@ -27,7 +27,8 @@
 
 #include "./HttpRouter.hpp"
 
-#include "./handler/Interceptor.hpp"
+#include "./interceptor/RequestInterceptor.hpp"
+#include "./interceptor/ResponseInterceptor.hpp"
 #include "./handler/ErrorHandler.hpp"
 
 #include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
@@ -48,8 +49,10 @@ namespace oatpp { namespace web { namespace server {
  */
 class HttpProcessor {
 public:
-  typedef oatpp::collection::LinkedList<std::shared_ptr<oatpp::web::server::handler::RequestInterceptor>> RequestInterceptors;
-  typedef oatpp::web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
+  typedef std::list<std::shared_ptr<web::server::interceptor::RequestInterceptor>> RequestInterceptors;
+  typedef std::list<std::shared_ptr<web::server::interceptor::ResponseInterceptor>> ResponseInterceptors;
+  typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
+  typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
 public:
 
   /**
@@ -99,7 +102,8 @@ public:
                const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
                const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
                const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
-               const std::shared_ptr<RequestInterceptors>& pRequestInterceptors,
+               const RequestInterceptors& pRequestInterceptors,
+               const ResponseInterceptors& pResponseInterceptors,
                const std::shared_ptr<Config>& pConfig);
 
     /**
@@ -136,9 +140,14 @@ public:
     std::shared_ptr<handler::ErrorHandler> errorHandler;
 
     /**
-     * Collection of request interceptors. &id:oatpp::web::server::handler::RequestInterceptor;.
+     * Collection of request interceptors. &id:oatpp::web::server::interceptor::RequestInterceptor;.
      */
-    std::shared_ptr<RequestInterceptors> requestInterceptors;
+    RequestInterceptors requestInterceptors;
+
+    /**
+     * Collection of request interceptors. &id:oatpp::web::server::interceptor::ResponseInterceptor;.
+     */
+    ResponseInterceptors responseInterceptors;
 
     /**
      * Resource allocation config. &l:HttpProcessor::Config;.
@@ -163,7 +172,12 @@ private:
 
   };
 
-  static bool processNextRequest(ProcessingResources& resources);
+  static
+  std::shared_ptr<protocol::http::outgoing::Response>
+  processNextRequest(ProcessingResources& resources,
+                     const std::shared_ptr<protocol::http::incoming::Request>& request,
+                     ConnectionState& connectionState);
+  static ConnectionState processNextRequest(ProcessingResources& resources);
 
 public:
 
@@ -207,7 +221,7 @@ public:
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
-    v_int32 m_connectionState;
+    ConnectionState m_connectionState;
   private:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;

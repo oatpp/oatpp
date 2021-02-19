@@ -27,6 +27,8 @@
 
 namespace oatpp { namespace test { namespace base {
 
+OATPP_LOG_CATEGORY(LoggerTest::TESTCATEGORY, "LogCategory", true);
+
 void LoggerTest::onRun() {
 
   auto logger = std::static_pointer_cast<oatpp::base::DefaultLogger>(oatpp::base::Environment::getLogger());
@@ -37,8 +39,9 @@ void LoggerTest::onRun() {
   OATPP_LOGW("LoggerTest", "Warning Log");
   OATPP_LOGE("LoggerTest", "Error Log");
 
-  OATPP_LOGV("LoggerTest", "Disabling Debug Log");
+  OATPP_LOGI("LoggerTest", " --- Disabling Debug Log");
   logger->disablePriority(oatpp::base::DefaultLogger::PRIORITY_D);
+  OATPP_ASSERT(!logger->isLogPriorityEnabled(oatpp::base::DefaultLogger::PRIORITY_D))
 
   OATPP_LOGV("LoggerTest", "Verbose Log");
   OATPP_LOGD("LoggerTest", "Debug Log");
@@ -46,14 +49,31 @@ void LoggerTest::onRun() {
   OATPP_LOGW("LoggerTest", "Warning Log");
   OATPP_LOGE("LoggerTest", "Error Log");
 
-  OATPP_LOGV("LoggerTest", "Enabling Debug Log again");
+  OATPP_LOGI("LoggerTest", " --- Enabling Debug Log again");
   logger->enablePriority(oatpp::base::DefaultLogger::PRIORITY_D);
+  OATPP_ASSERT(logger->isLogPriorityEnabled(oatpp::base::DefaultLogger::PRIORITY_D))
 
   OATPP_LOGV("LoggerTest", "Verbose Log");
   OATPP_LOGD("LoggerTest", "Debug Log");
   OATPP_LOGI("LoggerTest", "Info Log");
   OATPP_LOGW("LoggerTest", "Warning Log");
   OATPP_LOGE("LoggerTest", "Error Log");
+
+  OATPP_LOGI(TESTCATEGORY, " --- Log-Test with category");
+  OATPP_LOGV(TESTCATEGORY, "Verbose Log");
+  OATPP_LOGD(TESTCATEGORY, "Debug Log");
+  OATPP_LOGI(TESTCATEGORY, "Info Log");
+  OATPP_LOGW(TESTCATEGORY, "Warning Log");
+  OATPP_LOGE(TESTCATEGORY, "Error Log");
+
+  OATPP_LOGI(TESTCATEGORY, " --- Disabling Debug Log for category");
+  TESTCATEGORY.disablePriority(oatpp::base::DefaultLogger::PRIORITY_D);
+  OATPP_ASSERT(!TESTCATEGORY.isLogPriorityEnabled(oatpp::base::DefaultLogger::PRIORITY_D))
+  OATPP_LOGV(TESTCATEGORY, "Verbose Log");
+  OATPP_LOGD(TESTCATEGORY, "Debug Log");
+  OATPP_LOGI(TESTCATEGORY, "Info Log");
+  OATPP_LOGW(TESTCATEGORY, "Warning Log");
+  OATPP_LOGE(TESTCATEGORY, "Error Log");
 
 }
 

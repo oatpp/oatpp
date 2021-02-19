@@ -43,7 +43,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http {
  * Typedef for headers map. Headers map key is case-insensitive.
  * For more info see &id:oatpp::data::share::LazyStringMap;.
  */
-typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
+typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
 
 /**
  * Typedef for query parameters map.

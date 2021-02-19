@@ -36,6 +36,7 @@ class LoggerTest : public UnitTest{
   LoggerTest():UnitTest("TEST[base::LoggerTest]"){}
   void onRun() override;
 
+  OATPP_DECLARE_LOG_CATEGORY(TESTCATEGORY);
 };
 
 }}}

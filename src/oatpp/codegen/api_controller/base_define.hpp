@@ -186,6 +186,17 @@ if(!__param_validation_check_##NAME){ \
                                     "'. Expected type is '" #TYPE "'"); \
 }
 
+#define OATPP_MACRO_API_CONTROLLER_QUERY_3(TYPE, NAME, QUALIFIER, DEFAULT) \
+const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER, DEFAULT); \
+bool __param_validation_check_##NAME; \
+const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+if(!__param_validation_check_##NAME){ \
+  return ApiController::handleError(Status::CODE_400, \
+                                    oatpp::String("Invalid QUERY parameter '") + \
+                                    QUALIFIER + \
+                                    "'. Expected type is '" #TYPE "'"); \
+}
+
 #define OATPP_MACRO_API_CONTROLLER_QUERY(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_QUERY_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
 
@@ -195,6 +206,9 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_QUERY_, TYP
 info->queryParams.add(#NAME, TYPE::Class::getType());
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_2(TYPE, NAME, QUALIFIER) \
+info->queryParams.add(QUALIFIER, TYPE::Class::getType());
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_3(TYPE, NAME, QUALIFIER, DEFAULT) \
 info->queryParams.add(QUALIFIER, TYPE::Class::getType());
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_INFO(TYPE, PARAM_LIST) \
@@ -209,11 +223,18 @@ const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToString();
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_STRING_INFO(TYPE, PARAM_LIST) \
 info->body.name = OATPP_MACRO_FIRSTARG_STR PARAM_LIST; \
-info->body.type = oatpp::data::mapping::type::__class::String::getType();
+info->body.required = true; \
+info->body.type = oatpp::data::mapping::type::__class::String::getType(); \
+if(getDefaultObjectMapper()) { \
+  info->bodyContentType = getDefaultObjectMapper()->getInfo().http_content_type; \
+}
 
 // BODY_DTO MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, PARAM_LIST) \
+if(!getDefaultObjectMapper()) { \
+  return ApiController::handleError(Status::CODE_500, "ObjectMapper was NOT set. Can't deserialize the request body."); \
+} \
 TYPE OATPP_MACRO_FIRSTARG PARAM_LIST; \
 try { \
   OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
@@ -224,7 +245,7 @@ try { \
   oatpp::data::stream::BufferOutputStream buffer(pe.getMessage()->getSize() + 20); \
   buffer.writeSimple(pe.getMessage()); \
   buffer.writeSimple(" (Position: "); \
-  buffer.writeAsString(pe.getPosition()); \
+  buffer.writeAsString((v_int64) pe.getPosition()); \
   buffer.writeSimple(")"); \
   return ApiController::handleError(Status::CODE_400, buffer.toString()); \
 } catch (const std::runtime_error &re) {                     \
@@ -234,7 +255,11 @@ try { \
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO(TYPE, PARAM_LIST) \
 info->body.name = OATPP_MACRO_FIRSTARG_STR PARAM_LIST; \
-info->body.type = TYPE::Class::getType();
+info->body.required = true; \
+info->body.type = TYPE::Class::getType(); \
+if(getDefaultObjectMapper()) { \
+  info->bodyContentType = getDefaultObjectMapper()->getInfo().http_content_type; \
+}
 
 // FOR EACH // ------------------------------------------------------
 
