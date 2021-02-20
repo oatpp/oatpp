@@ -313,7 +313,7 @@ void FullTest::onRun() {
       { // test POST with invalid dto body
         auto dtoIn = app::AnotherTestDto::createShared();
         dtoIn->testValue = i;
-        auto response = client->postInvalidBodyDto(dtoIn, connection);
+        auto response = client->postInvalidBodyDto(dtoIn/*, connection */);
         OATPP_ASSERT(response->getStatusCode() == 400);
       }
 
