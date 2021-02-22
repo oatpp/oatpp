@@ -190,6 +190,7 @@ public:
   private:
     std::shared_ptr<Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<std::atomic_ulong> m_counter;
   public:
 
     /**
@@ -198,7 +199,14 @@ public:
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
     Task(const std::shared_ptr<Components>& components,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+         const std::shared_ptr<std::atomic_ulong>& taskCounter);
+
+    /**
+     * Destructor, needed for counting.
+     */
+    ~Task();
+
   public:
 
     /**
@@ -226,6 +234,7 @@ public:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
+    std::shared_ptr<std::atomic_ulong> m_counter;
   public:
 
 
@@ -235,7 +244,8 @@ public:
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
     Coroutine(const std::shared_ptr<Components>& components,
-              const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+              const std::shared_ptr<std::atomic_ulong>& taskCounter);
     
     Action act() override;
 
@@ -249,6 +259,8 @@ public:
     Action onRequestDone();
     
     Action handleError(Error* error) override;
+
+    ~Coroutine();
     
   };
   

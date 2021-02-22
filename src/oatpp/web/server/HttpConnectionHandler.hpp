@@ -37,6 +37,7 @@ namespace oatpp { namespace web { namespace server {
 class HttpConnectionHandler : public base::Countable, public network::ConnectionHandler {
 private:
   std::shared_ptr<HttpProcessor::Components> m_components;
+  std::shared_ptr<std::atomic_ulong> m_spawns;
 public:
 
   /**

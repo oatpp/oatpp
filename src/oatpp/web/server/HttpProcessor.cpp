@@ -219,12 +219,16 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
 // Task
 
 HttpProcessor::Task::Task(const std::shared_ptr<Components>& components,
-                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                          const std::shared_ptr<std::atomic_ulong>& taskCounter)
   : m_components(components)
   , m_connection(connection)
+  , m_counter(taskCounter)
 {}
 
 void HttpProcessor::Task::run(){
+
+  (*m_counter)++;
 
   m_connection->initContexts();
 
@@ -244,13 +248,16 @@ void HttpProcessor::Task::run(){
     // DO NOTHING
   }
 
+  (*m_counter)--;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HttpProcessor::Coroutine
 
 HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& components,
-                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+                                    const std::shared_ptr<std::atomic_ulong>& taskCounter)
   : m_components(components)
   , m_connection(connection)
   , m_headersInBuffer(components->config->headersInBufferInitial)
@@ -258,7 +265,14 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
   , m_connectionState(ConnectionState::ALIVE)
-{}
+  , m_counter(taskCounter)
+{
+  (*m_counter)++;
+}
+
+HttpProcessor::Coroutine::~Coroutine() {
+  (*m_counter)--;
+}
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
   return m_connection->initContextsAsync().next(yieldTo(&HttpProcessor::Coroutine::parseHeaders));
