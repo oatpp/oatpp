@@ -208,6 +208,11 @@ public:
     Task(const Task &copy);
 
     /**
+     * Move-Constructor to correclty count tasks;
+     */
+     Task(Task &&move);
+
+    /**
      * Destructor, needed for counting.
      */
     ~Task() override;

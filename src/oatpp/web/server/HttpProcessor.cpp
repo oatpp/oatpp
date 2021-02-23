@@ -236,6 +236,14 @@ HttpProcessor::Task::Task(const HttpProcessor::Task &copy)
   (*m_counter)++;
 }
 
+HttpProcessor::Task::Task(HttpProcessor::Task &&move)
+  : m_components(std::move(move.m_components))
+  , m_connection(std::move(move.m_connection))
+  , m_counter(move.m_counter)
+{
+  move.m_counter = nullptr;
+}
+
 void HttpProcessor::Task::run(){
 
   m_connection->initContexts();
@@ -258,7 +266,9 @@ void HttpProcessor::Task::run(){
 
 }
 HttpProcessor::Task::~Task() {
-  (*m_counter)--;
+  if (m_counter != nullptr) {
+    (*m_counter)--;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

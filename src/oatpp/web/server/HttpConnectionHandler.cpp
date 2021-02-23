@@ -74,7 +74,7 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
     connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     /* Create working thread */
-    std::thread thread(&HttpProcessor::Task::run, HttpProcessor::Task(m_components, connection, &m_spawns));
+    std::thread thread(&HttpProcessor::Task::run, std::move(HttpProcessor::Task(m_components, connection, &m_spawns)));
 
     /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
     v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
