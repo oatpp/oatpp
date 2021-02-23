@@ -224,11 +224,19 @@ HttpProcessor::Task::Task(const std::shared_ptr<Components>& components,
   : m_components(components)
   , m_connection(connection)
   , m_counter(taskCounter)
-{}
+{
+  (*m_counter)++;
+}
+
+HttpProcessor::Task::Task(const HttpProcessor::Task &copy)
+  : m_components(copy.m_components)
+  , m_connection(copy.m_connection)
+  , m_counter(copy.m_counter)
+{
+  (*m_counter)++;
+}
 
 void HttpProcessor::Task::run(){
-
-  (*m_counter)++;
 
   m_connection->initContexts();
 
@@ -248,8 +256,9 @@ void HttpProcessor::Task::run(){
     // DO NOTHING
   }
 
+}
+HttpProcessor::Task::~Task() {
   (*m_counter)--;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

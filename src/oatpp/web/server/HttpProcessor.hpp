@@ -203,6 +203,11 @@ public:
          std::atomic_long *taskCounter);
 
     /**
+     * Copy-Constructor to correctly count tasks.
+     */
+    Task(const Task &copy);
+
+    /**
      * Destructor, needed for counting.
      */
     ~Task() override;
