@@ -208,9 +208,23 @@ public:
     Task(const Task &copy);
 
     /**
+     * Copy-Assignment to correctly count tasks.
+     * @param t - Task to copy
+     * @return
+     */
+    Task &operator=(const Task &t);
+
+    /**
      * Move-Constructor to correclty count tasks;
      */
      Task(Task &&move);
+
+     /**
+      * Move-Assignment to correctly count tasks.
+      * @param t
+      * @return
+      */
+    Task &operator=(Task &&t);
 
     /**
      * Destructor, needed for counting.

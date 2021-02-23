@@ -244,6 +244,24 @@ HttpProcessor::Task::Task(HttpProcessor::Task &&move)
   move.m_counter = nullptr;
 }
 
+HttpProcessor::Task &HttpProcessor::Task::operator=(const HttpProcessor::Task &t) {
+  if (this != &t) {
+    m_components = t.m_components;
+    m_connection = t.m_connection;
+    m_counter = t.m_counter;
+    (*m_counter)++;
+  }
+  return *this;
+}
+
+HttpProcessor::Task &HttpProcessor::Task::operator=(HttpProcessor::Task &&t) {
+  m_components = std::move(t.m_components);
+  m_connection = std::move(t.m_connection);
+  m_counter = t.m_counter;
+  t.m_counter = nullptr;
+  return *this;
+}
+
 void HttpProcessor::Task::run(){
 
   m_connection->initContexts();
