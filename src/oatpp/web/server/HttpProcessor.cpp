@@ -220,7 +220,7 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
 
 HttpProcessor::Task::Task(const std::shared_ptr<Components>& components,
                           const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                          const std::shared_ptr<std::atomic_ulong>& taskCounter)
+                          std::atomic_long *taskCounter)
   : m_components(components)
   , m_connection(connection)
   , m_counter(taskCounter)
@@ -257,7 +257,7 @@ void HttpProcessor::Task::run(){
 
 HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& components,
                                     const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                    const std::shared_ptr<std::atomic_ulong>& taskCounter)
+                                    std::atomic_long *taskCounter)
   : m_components(components)
   , m_connection(connection)
   , m_headersInBuffer(components->config->headersInBufferInitial)

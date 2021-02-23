@@ -30,7 +30,8 @@ AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<Htt
                                                        v_int32 threadCount)
   : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
   , m_components(components)
-  , m_spawns(std::make_shared<std::atomic_ulong>(0))
+  , m_spawns(0)
+  , m_continue(true)
 {
   m_executor->detach();
 }
@@ -39,7 +40,8 @@ AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<Htt
                                                        const std::shared_ptr<oatpp::async::Executor>& executor)
   : m_executor(executor)
   , m_components(components)
-  , m_spawns(std::make_shared<std::atomic_ulong>(0))
+  , m_spawns(0)
+  , m_continue(true)
 {}
 
 std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount){
@@ -71,28 +73,22 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
 
   (void)params;
 
-  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
-  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+  if (m_continue.load()) {
 
-  m_executor->execute<HttpProcessor::Coroutine>(m_components, connection, m_spawns);
+    connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+
+    m_executor->execute<HttpProcessor::Coroutine>(m_components, connection, &m_spawns);
+
+  }
   
 }
 
 void AsyncHttpConnectionHandler::stop() {
-  /* Wait until all connection-threads are done but no longer than 1min */
-  auto startTime = std::chrono::system_clock::now();
-  auto timeout = std::chrono::minutes(1);
-
-  while(m_spawns->load() != 0) {
-    auto elapsed = std::chrono::system_clock::now() - startTime;
-    if(elapsed < timeout) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    } else {
-      if (m_spawns->load() > 0) {
-        OATPP_LOGW("[oatpp::web::server::AsyncHttpConnectionHandler::stop()]", "Timeout while waiting 1 minute for all connections to close. There are %ul connections still alive.", m_spawns->load());
-      }
-      break;
-    }
+  /* Wait until all connection-threads are done */
+  m_continue.store(false);
+  while(m_spawns.load() != 0) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
   
