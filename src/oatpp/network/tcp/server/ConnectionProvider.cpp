@@ -43,7 +43,9 @@
   #endif
 #endif
 
-#if _WIN32_WINNT < 0x0600
+
+// Workaround for MinGW from: https://www.mail-archive.com/users@ipv6.org/msg02107.html
+#if defined(__MINGW32__) && _WIN32_WINNT < 0x0600
   const char * inet_ntop (int af, const void *src, char *dst, socklen_t cnt) {
     if (af == AF_INET) {
       struct sockaddr_in in;
@@ -62,7 +64,7 @@
       return dst;
     }
 
-      return NULL;
+    return NULL;
   }
 #endif
 
