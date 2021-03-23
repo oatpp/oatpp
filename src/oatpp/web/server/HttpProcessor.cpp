@@ -155,6 +155,11 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
 
     response = processNextRequest(resources, request, connectionState);
 
+    // Silently close connection when endpoint returned a nullptr.
+    if (!response) {
+      return ConnectionState::CLOSING;
+    }
+
     try {
 
       for (auto& interceptor : resources.components->responseInterceptors) {
@@ -357,6 +362,10 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
+  // Silently close connection when endpoint returned a nullptr.
+  if (!response) {
+    return finish();
+  }
   m_currentResponse = response;
   return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
 }

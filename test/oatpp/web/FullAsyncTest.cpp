@@ -187,6 +187,11 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(dto);
         OATPP_ASSERT(dto->testValue == "my_test_header-Async");
       }
+
+      // { // test silent connection close
+      //   auto response = client->silentClose();
+      //   OATPP_ASSERT(response == nullptr);
+      // }
       
       { // test POST with body
         auto response = client->postBody("my_test_body-Async", connection);

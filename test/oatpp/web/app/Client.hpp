@@ -55,6 +55,7 @@ public:
   API_CALL("GET", "queries/optional", getWithOptQueries, QUERY(String, name))
   API_CALL("GET", "queries/map", getWithQueriesMap, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
+  API_CALL("GET", "close", silentClose)
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
   API_CALL("POST", "body-dto", postBodyDto, BODY_DTO(Object<TestDto>, body))
 
@@ -92,6 +93,7 @@ public:
   API_CALL_ASYNC("GET", "queries", getWithQueriesAsync, QUERY(String, name), QUERY(Int32, age))
   API_CALL_ASYNC("GET", "queries/map", getWithQueriesMapAsync, QUERY(String, key1), QUERY(Int32, key2), QUERY(Float32, key3))
   API_CALL_ASYNC("GET", "headers", getWithHeadersAsync, HEADER(String, param, "X-TEST-HEADER"))
+  API_CALL_ASYNC("GET", "close", silentCloseAsync)
   API_CALL_ASYNC("POST", "body", postBodyAsync, BODY_STRING(String, body))
   API_CALL_ASYNC("POST", "echo", echoBodyAsync, BODY_STRING(String, body))
 

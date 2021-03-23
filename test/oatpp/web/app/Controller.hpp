@@ -141,7 +141,11 @@ public:
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
+  ENDPOINT("GET", "close", silentClose) {
+    return nullptr;
+  }
+
   ENDPOINT("POST", "body", postBody,
            BODY_STRING(String, body)) {
     //OATPP_LOGV(TAG, "POST body %s", body->c_str());

@@ -90,7 +90,7 @@ public:
 
   ENDPOINT_ASYNC("GET", "headers", GetWithHeaders) {
 
-    ENDPOINT_ASYNC_INIT(GetWithHeaders)
+   ENDPOINT_ASYNC_INIT(GetWithHeaders)
 
     Action act() {
       auto param = request->getHeader("X-TEST-HEADER");
@@ -98,6 +98,16 @@ public:
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
+    }
+
+  };
+
+  ENDPOINT_ASYNC("GET", "close", SilentClose) {
+
+   ENDPOINT_ASYNC_INIT(SilentClose)
+
+    Action act() {
+      return _return(nullptr);
     }
 
   };
