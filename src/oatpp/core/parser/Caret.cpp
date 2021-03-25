@@ -54,7 +54,7 @@ namespace oatpp { namespace parser {
     m_end = m_caret->m_pos;
   }
 
-  p_char8 Caret::Label::getData(){
+  const char* Caret::Label::getData(){
     return &m_caret->m_data[m_start];
   }
 
@@ -73,16 +73,12 @@ namespace oatpp { namespace parser {
     return m_end;
   };
 
-  oatpp::String Caret::Label::toString(bool saveAsOwnData){
+  oatpp::String Caret::Label::toString(){
     v_buff_size end = m_end;
     if(end == -1){
       end = m_caret->m_pos;
     }
-    return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start, saveAsOwnData);
-  }
-
-  oatpp::String Caret::Label::toString(){
-    return toString(true);
+    return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start);
   }
 
   std::string Caret::Label::std_str(){
@@ -129,10 +125,10 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
 // Caret
 
   Caret::Caret(const char* text)
-    : Caret((p_char8)text, std::strlen(text))
+    : Caret(text, std::strlen(text))
   {}
   
-  Caret::Caret(p_char8 parseData, v_buff_size dataSize)
+  Caret::Caret(const char* parseData, v_buff_size dataSize)
     : m_data(parseData)
     , m_size(dataSize)
     , m_pos(0)
@@ -141,7 +137,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   {}
   
   Caret::Caret(const oatpp::String& str)
-    : Caret(str->getData(), str->getSize())
+    : Caret(str->data(), str->size())
   {
     m_dataMemoryHandle = str.getPtr();
   }
@@ -150,22 +146,22 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return std::make_shared<Caret>(text);
   }
   
-  std::shared_ptr<Caret> Caret::createShared(p_char8 parseData, v_buff_size dataSize){
+  std::shared_ptr<Caret> Caret::createShared(const char* parseData, v_buff_size dataSize){
     return std::make_shared<Caret>(parseData, dataSize);
   }
   
   std::shared_ptr<Caret> Caret::createShared(const oatpp::String& str){
-    return std::make_shared<Caret>(str->getData(), str->getSize());
+    return std::make_shared<Caret>(str->data(), str->size());
   }
   
   Caret::~Caret(){
   }
   
-  p_char8 Caret::getData(){
+  const char* Caret::getData(){
     return m_data;
   }
   
-  p_char8 Caret::getCurrData(){
+  const char* Caret::getCurrData(){
     return &m_data[m_pos];
   }
   
@@ -173,7 +169,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return m_size;
   }
 
-  std::shared_ptr<oatpp::base::StrBuffer> Caret::getDataMemoryHandle() {
+  std::shared_ptr<std::string> Caret::getDataMemoryHandle() {
     return m_dataMemoryHandle;
   }
 
@@ -252,10 +248,10 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   }
   
   bool Caret::skipCharsFromSet(const char* set){
-    return skipCharsFromSet((p_char8)set, std::strlen(set));
+    return skipCharsFromSet(set, std::strlen(set));
   }
   
-  bool Caret::skipCharsFromSet(p_char8 set, v_buff_size setSize){
+  bool Caret::skipCharsFromSet(const char* set, v_buff_size setSize){
     
     while(m_pos < m_size){
       if(!isAtCharFromSet(set, setSize)){
@@ -269,10 +265,10 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   }
   
   v_buff_size Caret::findCharFromSet(const char* set){
-    return findCharFromSet((p_char8) set, std::strlen(set));
+    return findCharFromSet(set, std::strlen(set));
   }
   
-  v_buff_size Caret::findCharFromSet(p_char8 set, v_buff_size setSize){
+  v_buff_size Caret::findCharFromSet(const char* set, v_buff_size setSize){
     
     while(m_pos < m_size){
       
@@ -399,10 +395,10 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   }
   
   bool Caret::isAtText(const char* text, bool skipIfTrue){
-    return isAtText((p_char8)text, std::strlen(text), skipIfTrue);
+    return isAtText(text, std::strlen(text), skipIfTrue);
   }
   
-  bool Caret::isAtText(p_char8 text, v_buff_size textSize, bool skipIfTrue){
+  bool Caret::isAtText(const char* text, v_buff_size textSize, bool skipIfTrue){
     
     if(textSize <= m_size - m_pos){
       
@@ -427,10 +423,10 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   }
   
   bool Caret::isAtTextNCS(const char* text, bool skipIfTrue){
-    return isAtTextNCS((p_char8)text, std::strlen(text), skipIfTrue);
+    return isAtTextNCS(text, std::strlen(text), skipIfTrue);
   }
   
-  bool Caret::isAtTextNCS(p_char8 text, v_buff_size textSize, bool skipIfTrue){
+  bool Caret::isAtTextNCS(const char* text, v_buff_size textSize, bool skipIfTrue){
     
     if(textSize <= m_size - m_pos){
       
@@ -496,19 +492,19 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   }
 
   bool Caret::findText(const char* text) {
-    return findText((p_char8) text, std::strlen(text));
+    return findText(text, std::strlen(text));
   }
   
-  bool Caret::findText(p_char8 text, v_buff_size textSize) {
+  bool Caret::findText(const char* text, v_buff_size textSize) {
     m_pos = (std::search(&m_data[m_pos], &m_data[m_size], text, text + textSize) - m_data);
     return m_pos != m_size;
   }
 
   bool Caret::isAtCharFromSet(const char* set) const{
-    return isAtCharFromSet((p_char8)set, std::strlen(set));
+    return isAtCharFromSet(set, std::strlen(set));
   }
   
-  bool Caret::isAtCharFromSet(p_char8 set, v_buff_size setSize) const{
+  bool Caret::isAtCharFromSet(const char* set, v_buff_size setSize) const{
     
     v_char8 a = m_data[m_pos];
     

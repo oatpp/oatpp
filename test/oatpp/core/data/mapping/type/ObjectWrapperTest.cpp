@@ -38,7 +38,7 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check default valueType is assigned (default tparam Clazz)...");
-    ObjectWrapper<base::StrBuffer> pw;
+    ObjectWrapper<std::string> pw;
     OATPP_ASSERT(!pw);
     OATPP_ASSERT(pw == nullptr);
     OATPP_ASSERT(pw.valueType == oatpp::data::mapping::type::__class::Void::getType());
@@ -47,7 +47,7 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check default valueType is assigned (specified tparam Clazz)...");
-    ObjectWrapper<base::StrBuffer, oatpp::data::mapping::type::__class::String> pw;
+    ObjectWrapper<std::string, oatpp::data::mapping::type::__class::String> pw;
     OATPP_ASSERT(!pw);
     OATPP_ASSERT(pw == nullptr);
     OATPP_ASSERT(pw.valueType == oatpp::data::mapping::type::__class::String::getType());
@@ -56,7 +56,7 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check valueType is assigned from constructor...");
-    ObjectWrapper<base::StrBuffer> pw(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw(oatpp::data::mapping::type::__class::String::getType());
     OATPP_ASSERT(!pw);
     OATPP_ASSERT(pw == nullptr);
     OATPP_ASSERT(pw.valueType == oatpp::data::mapping::type::__class::String::getType());
@@ -65,24 +65,24 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check valueType is assigned from copy constructor...");
-    ObjectWrapper<base::StrBuffer> pw1(oatpp::data::mapping::type::__class::String::getType());
-    ObjectWrapper<base::StrBuffer> pw2(pw1);
+    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw2(pw1);
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::String::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
   {
     OATPP_LOGI(TAG, "Check valueType is assigned from move constructor...");
-    ObjectWrapper<base::StrBuffer> pw1(oatpp::data::mapping::type::__class::String::getType());
-    ObjectWrapper<base::StrBuffer> pw2(std::move(pw1));
+    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw2(std::move(pw1));
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::String::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
   {
     OATPP_LOGI(TAG, "Check valueType is NOT assigned from copy-assign operator...");
-    ObjectWrapper<base::StrBuffer> pw1(oatpp::data::mapping::type::__class::String::getType());
-    ObjectWrapper<base::StrBuffer> pw2;
+    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw2;
     pw2 = pw1;
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::Void::getType());
     OATPP_LOGI(TAG, "OK");
@@ -90,8 +90,8 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check valueType is NOT assigned from move-assign operator...");
-    ObjectWrapper<base::StrBuffer> pw1(oatpp::data::mapping::type::__class::String::getType());
-    ObjectWrapper<base::StrBuffer> pw2;
+    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw2;
     pw2 = std::move(pw1);
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::Void::getType());
     OATPP_LOGI(TAG, "OK");
@@ -99,12 +99,12 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check copy-assign operator. Check == operator...");
-    ObjectWrapper<base::StrBuffer> pw1;
+    ObjectWrapper<std::string> pw1;
     OATPP_ASSERT(!pw1);
     OATPP_ASSERT(pw1 == nullptr);
     OATPP_ASSERT(pw1.valueType == oatpp::data::mapping::type::__class::Void::getType());
 
-    ObjectWrapper<base::StrBuffer> pw2 = base::StrBuffer::createShared("Hello!");
+    ObjectWrapper<std::string> pw2 = std::make_shared<std::string>("Hello!");
     OATPP_ASSERT(pw2);
     OATPP_ASSERT(pw2 != nullptr);
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::Void::getType());
@@ -124,12 +124,12 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check != operator...");
-    ObjectWrapper<base::StrBuffer, oatpp::data::mapping::type::__class::String> pw1(base::StrBuffer::createShared("Hello!"));
+    ObjectWrapper<std::string, oatpp::data::mapping::type::__class::String> pw1(std::make_shared<std::string>("Hello!"));
     OATPP_ASSERT(pw1);
     OATPP_ASSERT(pw1 != nullptr);
     OATPP_ASSERT(pw1.valueType == oatpp::data::mapping::type::__class::String::getType());
 
-    ObjectWrapper<base::StrBuffer, oatpp::data::mapping::type::__class::String> pw2(base::StrBuffer::createShared("Hello!"));
+    ObjectWrapper<std::string, oatpp::data::mapping::type::__class::String> pw2(std::make_shared<std::string>("Hello!"));
     OATPP_ASSERT(pw2);
     OATPP_ASSERT(pw2 != nullptr);
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::String::getType());
@@ -141,12 +141,12 @@ void ObjectWrapperTest::onRun() {
 
   {
     OATPP_LOGI(TAG, "Check move-assign operator. Check != operator...");
-    ObjectWrapper<base::StrBuffer> pw1;
+    ObjectWrapper<std::string> pw1;
     OATPP_ASSERT(!pw1);
     OATPP_ASSERT(pw1 == nullptr);
     OATPP_ASSERT(pw1.valueType == oatpp::data::mapping::type::__class::Void::getType());
 
-    ObjectWrapper<base::StrBuffer> pw2 = base::StrBuffer::createShared("Hello!");
+    ObjectWrapper<std::string> pw2 = std::make_shared<std::string>("Hello!");
     OATPP_ASSERT(pw2);
     OATPP_ASSERT(pw2 != nullptr);
     OATPP_ASSERT(pw2.valueType == oatpp::data::mapping::type::__class::Void::getType());

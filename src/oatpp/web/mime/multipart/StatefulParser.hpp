@@ -51,7 +51,7 @@ private:
    * Typedef for headers map. Headers map key is case-insensitive.
    * For more info see &id:oatpp::data::share::LazyStringMap;.
    */
-  typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
+  typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI> Headers;
 public:
 
   /**
@@ -63,7 +63,7 @@ public:
      * Typedef for headers map. Headers map key is case-insensitive.
      * For more info see &id:oatpp::data::share::LazyStringMap;.
      */
-    typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
+    typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI> Headers;
   public:
 
     /**
@@ -85,7 +85,7 @@ public:
      * @param data - pointer to data.
      * @param size - size of the data in bytes.
      */
-    virtual void onPartData(p_char8 data, v_buff_size size) = 0;
+    virtual void onPartData(const char* data, v_buff_size size) = 0;
 
   };
 
@@ -100,7 +100,7 @@ public:
      * Typedef for headers map. Headers map key is case-insensitive.
      * For more info see &id:oatpp::data::share::LazyStringMap;.
      */
-    typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
+    typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI> Headers;
   public:
 
     /**
@@ -122,7 +122,7 @@ public:
      * @param data - pointer to data.
      * @param size - size of the data in bytes.
      */
-    virtual async::CoroutineStarter onPartDataAsync(p_char8 data, v_buff_size size) = 0;
+    virtual async::CoroutineStarter onPartDataAsync(const char* data, v_buff_size size) = 0;
 
   };
 
@@ -144,11 +144,11 @@ private:
     {}
 
     v_int32 callType;
-    p_char8 data;
+    const char* data;
     v_io_size size;
 
     void setOnHeadersCall();
-    void setOnDataCall(p_char8 pData, v_buff_size pSize);
+    void setOnDataCall(const char* pData, v_buff_size pSize);
 
     void call(StatefulParser* parser);
     async::CoroutineStarter callAsync(StatefulParser* parser);

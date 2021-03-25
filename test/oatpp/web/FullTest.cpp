@@ -403,7 +403,7 @@ void FullTest::onRun() {
         // should also add the WWW-Authenticate header when Authorization is missing or wrong
         auto header = response->getHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
         OATPP_ASSERT(header);
-        OATPP_ASSERT(header->startsWith("Basic realm=\"custom-test-realm\""));
+        OATPP_ASSERT(header == "Basic realm=\"custom-test-realm\"");
       }
 
       { // test custom authorization handler with custom authorization method
@@ -434,7 +434,7 @@ void FullTest::onRun() {
         v_int32 numIterations = 10;
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < numIterations; i++) {
-          stream.writeSimple(sample->getData(), sample->getSize());
+          stream.writeSimple(sample->data(), sample->size());
         }
         auto data = stream.toString();
         auto response = client->getChunked(sample, numIterations, connection);

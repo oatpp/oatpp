@@ -27,7 +27,7 @@
 namespace oatpp { namespace web { namespace protocol {
   
 CommunicationError::CommunicationError(oatpp::v_io_size ioStatus, const oatpp::String& message)
-  :std::runtime_error(message->std_str())
+  :std::runtime_error(*message)
   , m_ioStatus(ioStatus)
   , m_message(message)
 {}

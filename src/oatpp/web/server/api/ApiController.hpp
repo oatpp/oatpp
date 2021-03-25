@@ -462,9 +462,9 @@ public:
       (void) text;
       success = false;
       OATPP_LOGE("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->getData());
+                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->c_str());
       throw std::runtime_error("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]: Error. "
-                               "No conversion from 'oatpp::String' to '" + typeName->std_str() + "' is defined. "
+                               "No conversion from 'oatpp::String' to '" + *typeName + "' is defined. "
                                "Please define type conversion.");
     }
 

@@ -61,16 +61,16 @@ void AuthorizationHandlerTest::onRun() {
     MyBasicAuthorizationHandler basicAuthHandler;
     auto auth = std::static_pointer_cast<MyBasicAuthorizationObject>(basicAuthHandler.handleAuthorization(header));
     OATPP_LOGV(TAG, "header=\"%s\" -> user=\"%s\" password=\"%s\"", header->c_str(), auth->userId->c_str(), auth->password->c_str());
-    OATPP_ASSERT(auth->userId->equals("foo"));
-    OATPP_ASSERT(auth->password->equals("bar"));
+    OATPP_ASSERT(auth->userId == "foo");
+    OATPP_ASSERT(auth->password == "bar");
   }
 
   {
     oatpp::web::server::handler::BasicAuthorizationHandler defaultBasicAuthHandler;
     auto auth = std::static_pointer_cast<oatpp::web::server::handler::DefaultBasicAuthorizationObject>(defaultBasicAuthHandler.handleAuthorization(header));
     OATPP_LOGV(TAG, "header=\"%s\" -> user=\"%s\" password=\"%s\"", header->c_str(), auth->userId->c_str(), auth->password->c_str());
-    OATPP_ASSERT(auth->userId->equals("foo"));
-    OATPP_ASSERT(auth->password->equals("bar"));
+    OATPP_ASSERT(auth->userId == "foo");
+    OATPP_ASSERT(auth->password == "bar");
   }
 
 }

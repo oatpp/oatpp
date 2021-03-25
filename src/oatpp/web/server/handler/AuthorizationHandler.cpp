@@ -62,15 +62,15 @@ BasicAuthorizationHandler::BasicAuthorizationHandler(const oatpp::String& realm)
 
 std::shared_ptr<handler::AuthorizationObject> BasicAuthorizationHandler::handleAuthorization(const oatpp::String &header) {
 
-  if(header && header->getSize() > 6 && header->startsWith("Basic ")) {
+  if(header && header->size() > 6 && utils::String::compare(header->data(), 6, "Basic ", 6) == 0) {
 
-    oatpp::String auth = oatpp::encoding::Base64::decode(header->c_str() + 6, header->getSize() - 6);
+    oatpp::String auth = oatpp::encoding::Base64::decode(header->c_str() + 6, header->size() - 6);
     parser::Caret caret(auth);
 
     if (caret.findChar(':')) {
-      oatpp::String userId((const char *) &caret.getData()[0], caret.getPosition(), true /* copy as own data */);
+      oatpp::String userId((const char *) &caret.getData()[0], caret.getPosition());
       oatpp::String password((const char *) &caret.getData()[caret.getPosition() + 1],
-                             caret.getDataSize() - caret.getPosition() - 1, true /* copy as own data */);
+                             caret.getDataSize() - caret.getPosition() - 1);
       auto authResult = authorize(userId, password);
       if(authResult) {
         return authResult;
@@ -108,9 +108,9 @@ BearerAuthorizationHandler::BearerAuthorizationHandler(const oatpp::String& real
 
 std::shared_ptr<AuthorizationObject> BearerAuthorizationHandler::handleAuthorization(const oatpp::String &header) {
 
-  if(header && header->getSize() > 7 && header->startsWith("Bearer ")) {
+  if(header && header->size() > 7 && utils::String::compare(header->data(), 7, "Bearer ", 7) == 0) {
 
-    oatpp::String token = oatpp::String(header->c_str() + 7, header->getSize() - 7, true);
+    oatpp::String token = oatpp::String(header->c_str() + 7, header->size() - 7);
 
     auto authResult = authorize(token);
     if(authResult) {

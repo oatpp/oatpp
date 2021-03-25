@@ -28,6 +28,7 @@
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 
 #include "oatpp/network/tcp/Connection.hpp"
+
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
@@ -120,7 +121,7 @@ HttpRequestExecutor::executeOnce(const String& method,
   request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
   request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
 
-  oatpp::data::share::MemoryLabel buffer(oatpp::base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE));
+  oatpp::data::share::MemoryLabel buffer(std::make_shared<std::string>(oatpp::data::buffer::IOBuffer::BUFFER_SIZE, 0));
 
   oatpp::data::stream::OutputStreamBufferedProxy upStream(connection, buffer);
   request->send(&upStream);
@@ -195,7 +196,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
       , m_body(body)
       , m_bodyDecoder(bodyDecoder)
       , m_connectionHandle(connectionHandle)
-      , m_buffer(base::StrBuffer::createShared(oatpp::data::buffer::IOBuffer::BUFFER_SIZE))
+      , m_buffer(std::make_shared<std::string>(oatpp::data::buffer::IOBuffer::BUFFER_SIZE, 0))
       , m_headersReader(m_buffer, 4096)
     {}
     

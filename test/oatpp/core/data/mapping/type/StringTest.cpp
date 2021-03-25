@@ -53,7 +53,7 @@ void StringTest::onRun() {
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
     OATPP_ASSERT(s != (const char*) nullptr)
-    OATPP_ASSERT(s->getSize() == 0);
+    OATPP_ASSERT(s->size() == 0);
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -63,7 +63,7 @@ void StringTest::onRun() {
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
     OATPP_ASSERT(s != (const char*) nullptr)
-    OATPP_ASSERT(s->getSize() == 0);
+    OATPP_ASSERT(s->size() == 0);
     OATPP_LOGI(TAG, "OK");
   }
 

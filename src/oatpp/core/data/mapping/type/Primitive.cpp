@@ -24,12 +24,13 @@
 
 #include "./Primitive.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
-String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType)
-  : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
+String::String(const std::shared_ptr<std::string>& ptr, const type::Type* const valueType)
+  : oatpp::data::mapping::type::ObjectWrapper<std::string, __class::String>(ptr)
 {
   if(type::__class::String::getType() != valueType) {
     throw std::runtime_error("Value type does not match");
@@ -37,15 +38,21 @@ String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::T
 }
   
 String operator + (const char* a, const String& b) {
-  return oatpp::base::StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
+  data::stream::BufferOutputStream stream;
+  stream << a << b;
+  return stream.toString();
 }
 
-String operator + (const String& b, const char* a) {
-  return oatpp::base::StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
+String operator + (const String& a, const char* b) {
+  data::stream::BufferOutputStream stream;
+  stream << a << b;
+  return stream.toString();
 }
 
 String operator + (const String& a, const String& b) {
-  return oatpp::base::StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
+  data::stream::BufferOutputStream stream;
+  stream << a << b;
+  return stream.toString();
 }
   
 namespace __class {

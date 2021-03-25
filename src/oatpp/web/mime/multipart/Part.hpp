@@ -39,7 +39,7 @@ public:
    * Typedef for headers map. Headers map key is case-insensitive.
    * For more info see &id:oatpp::data::share::LazyStringMap;.
    */
-  typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
+  typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI> Headers;
 private:
   oatpp::String m_name;
   oatpp::String m_filename;
@@ -114,22 +114,22 @@ public:
    * @param headerName
    * @return header value
    */
-  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
+  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI& headerName) const;
 
   /**
    * Add http header.
-   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI;.
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
    */
-  void putHeader(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  void putHeader(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Add http header if not already exists.
-   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI;.
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
    * @return - `true` if header was added.
    */
-  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  bool putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Get input stream of the part data.

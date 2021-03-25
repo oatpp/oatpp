@@ -29,7 +29,6 @@
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/StrBuffer.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
   
@@ -57,11 +56,11 @@ namespace __class {
 }
 
 /**
- * Mapping-enables String is &id:type::ObjectWrapper; over &id:oatpp::base::StrBuffer;
+ * Mapping-enables String is &id:type::ObjectWrapper; over `std::string`;
  */
-class String : public type::ObjectWrapper<base::StrBuffer, __class::String> {
+class String : public type::ObjectWrapper<std::string, __class::String> {
 public:
-  String(const std::shared_ptr<base::StrBuffer>& ptr, const type::Type* const valueType);
+  String(const std::shared_ptr<std::string>& ptr, const type::Type* const valueType);
 public:
   
   String() {}
@@ -69,36 +68,36 @@ public:
   String(std::nullptr_t) {}
 
   explicit String(v_buff_size size)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(size))
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(size, 0))
   {}
   
-  String(const char* data, v_buff_size size, bool copyAsOwnData = true)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(data, size, copyAsOwnData))
+  String(const char* data, v_buff_size size)
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(data, size))
   {}
   
-  String(const char* data1, v_buff_size size1, const char* data2, v_buff_size size2)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
+  String(const char* data)
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(data))
   {}
   
-  String(const char* data, bool copyAsOwnData = true)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createFromCString(data, copyAsOwnData))
+  String(const std::shared_ptr<std::string>& ptr)
+    : type::ObjectWrapper<std::string, __class::String>(ptr)
   {}
   
-  String(const std::shared_ptr<base::StrBuffer>& ptr)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(ptr)
-  {}
-  
-  String(std::shared_ptr<base::StrBuffer>&& ptr)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<std::shared_ptr<base::StrBuffer>>(ptr))
+  String(std::shared_ptr<std::string>&& ptr)
+    : type::ObjectWrapper<std::string, __class::String>(std::forward<std::shared_ptr<std::string>>(ptr))
   {}
   
   String(const String& other)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(other)
+    : type::ObjectWrapper<std::string, __class::String>(other)
   {}
   
   String(String&& other)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<String>(other))
+    : type::ObjectWrapper<std::string, __class::String>(std::forward<String>(other))
   {}
+
+  const std::string& operator*() const {
+    return this->m_ptr.operator*();
+  }
 
   inline String& operator = (std::nullptr_t) {
     m_ptr.reset();
@@ -106,7 +105,7 @@ public:
   }
 
   inline String& operator = (const char* str) {
-    m_ptr = base::StrBuffer::createFromCString(str);
+    m_ptr = std::make_shared<std::string>(str);
     return *this;
   }
 
@@ -115,24 +114,15 @@ public:
     return *this;
   }
 
-  inline String& operator = (String&& other){
-    m_ptr = std::forward<std::shared_ptr<base::StrBuffer>>(other.m_ptr);
+  inline String& operator = (String&& other) noexcept {
+    m_ptr = std::move(other.m_ptr);
     return *this;
-  }
-
-  inline bool operator == (std::nullptr_t) const {
-    return m_ptr.get() == nullptr;
-  }
-
-  inline bool operator != (std::nullptr_t) const {
-    return m_ptr.get() != nullptr;
   }
 
   inline bool operator == (const char* str) const {
     if(!m_ptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_ptr->getSize() != v_buff_size(std::strlen(str))) return false;
-    return base::StrBuffer::equals(m_ptr->getData(), str, m_ptr->getSize());
+    return *m_ptr == str;
   }
 
   inline bool operator != (const char* str) const {
@@ -140,21 +130,19 @@ public:
   }
 
   inline bool operator == (const String &other) const {
-    return base::StrBuffer::equals(m_ptr.get(), other.m_ptr.get());
+    if(!m_ptr) return other == nullptr;
+    if(other == nullptr) return false;
+    return *m_ptr == *other;
   }
 
   inline bool operator != (const String &other) const {
     return !operator == (other);
   }
-
-  inline explicit operator bool() const {
-    return m_ptr.operator bool();
-  }
   
 };
   
 String operator + (const char* a, const String& b);
-String operator + (const String& b, const char* a);
+String operator + (const String& a, const char* b);
 String operator + (const String& a, const String& b);
 
 /**
@@ -551,16 +539,7 @@ namespace std {
     
     result_type operator()(argument_type const& s) const noexcept {
       if(s.get() == nullptr) return 0;
-
-      p_char8 data = s->getData();
-      result_type result = 0;
-      for(v_buff_size i = 0; i < s->getSize(); i++) {
-        v_char8 c = data[i] | 32;
-        result = (31 * result) + c;
-      }
-
-      return result;
-
+      return hash<std::string> {} (*s);
     }
     
   };

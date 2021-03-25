@@ -82,7 +82,7 @@ public:
    * @param value - out parameter. Resultant value.
    * @return - 0 on success. Negative value on failure.
    */
-  static v_int32 readUInt16(p_char8 buffer, v_uint16& value);
+  static v_int32 readUInt16(const char* buffer, v_uint16& value);
 
   /**
    * Parse 8-char hex string to int32.
@@ -90,7 +90,7 @@ public:
    * @param value - out parameter. Resultant value.
    * @return - 0 on success. Negative value on failure.
    */
-  static v_int32 readUInt32(p_char8 buffer, v_uint32& value);
+  static v_int32 readUInt32(const char* buffer, v_uint32& value);
 
   /**
    * Write binary data as HEX string.

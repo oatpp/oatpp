@@ -74,7 +74,7 @@ v_buff_size Unicode::getUtf8CharSequenceLengthForCode(v_uint32 code){
   }
 }
   
-v_int32 Unicode::encodeUtf8Char(p_char8 sequence, v_buff_size& length){
+v_int32 Unicode::encodeUtf8Char(const char* sequence, v_buff_size& length){
   v_char8 byte = sequence[0];
   if(byte > 127){
     v_int32 code;

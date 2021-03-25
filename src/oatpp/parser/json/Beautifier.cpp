@@ -39,9 +39,9 @@ Beautifier::Beautifier(ConsistentOutputStream* outputStream, const oatpp::String
 {}
 
 void Beautifier::writeIndent(ConsistentOutputStream* outputStream) {
-  outputStream->writeSimple(m_newLine->getData(), m_newLine->getSize());
+  outputStream->writeSimple(m_newLine->data(), m_newLine->size());
   for(v_int32 i = 0; i < m_level; i ++ ) {
-    outputStream->writeSimple(m_indent->getData(), m_indent->getSize());
+    outputStream->writeSimple(m_indent->data(), m_indent->size());
   }
 }
 

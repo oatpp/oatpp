@@ -69,7 +69,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
       stream.write("\r\n", 2, action);
 
       m_chunkHeader = stream.toString();
-      dataOut.set(m_chunkHeader->getData(), m_chunkHeader->getSize());
+      dataOut.set((p_char8) m_chunkHeader->data(), m_chunkHeader->size());
 
       m_firstChunk = false;
       m_writeChunkHeader = false;
@@ -96,7 +96,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
     stream.write("0\r\n\r\n", 5, action);
 
     m_chunkHeader = stream.toString();
-    dataOut.set(m_chunkHeader->getData(), m_chunkHeader->getSize());
+    dataOut.set((p_char8) m_chunkHeader->data(), m_chunkHeader->size());
 
     m_firstChunk = false;
     m_writeChunkHeader = false;

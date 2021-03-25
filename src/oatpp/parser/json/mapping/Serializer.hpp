@@ -158,7 +158,7 @@ private:
       if(value || serializer->getConfig()->includeNullFields) {
         (first) ? first = false : stream->writeSimple(",", 1);
         const auto& key = pair.first;
-        serializeString(stream, key->getData(), key->getSize());
+        serializeString(stream, key->data(), key->size());
         stream->writeSimple(":", 1);
         serializer->serialize(stream, value);
       }
@@ -168,7 +168,7 @@ private:
 
   }
 
-  static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size);
+  static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size);
   static void serializeString(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
                               const oatpp::Void& polymorph);
