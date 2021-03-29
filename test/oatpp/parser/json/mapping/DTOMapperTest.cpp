@@ -49,6 +49,8 @@ class TestChild : public oatpp::DTO {
 
 public:
 
+  TestChild() = default;
+
   TestChild(const char* pName, const char* pSecondName)
     : name(pName)
     , secondName(pSecondName)
