@@ -65,8 +65,6 @@ public:
   
   String() {}
 
-  String(std::nullptr_t) {}
-
   explicit String(v_buff_size size)
     : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(size, 0))
   {}
@@ -74,9 +72,35 @@ public:
   String(const char* data, v_buff_size size)
     : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(data, size))
   {}
-  
-  String(const char* data)
-    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(data))
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  String(T) {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  String(const T* data)
+    : type::ObjectWrapper<std::string, __class::String>(
+        data == nullptr ? nullptr : std::make_shared<std::string>(data)
+      )
+  {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  String(const T& str)
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(str))
+  {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  String(T&& str)
+    : type::ObjectWrapper<std::string, __class::String>(
+        std::make_shared<std::string>(std::forward<std::string>(str))
+      )
   {}
   
   String(const std::shared_ptr<std::string>& ptr)
@@ -99,13 +123,35 @@ public:
     return this->m_ptr.operator*();
   }
 
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
   inline String& operator = (std::nullptr_t) {
     m_ptr.reset();
     return *this;
   }
 
-  inline String& operator = (const char* str) {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  inline String& operator = (const T* str) {
     m_ptr = std::make_shared<std::string>(str);
+    return *this;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline String& operator = (const T& str) {
+    m_ptr = std::make_shared<std::string>(str);
+    return *this;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline String& operator = (T&& str) {
+    m_ptr = std::make_shared<std::string>(std::forward<std::string>(str));
     return *this;
   }
 
@@ -119,20 +165,55 @@ public:
     return *this;
   }
 
-  inline bool operator == (const char* str) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T) const {
+    return m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T) const {
+    return m_ptr.get() != nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  inline bool operator == (const T* str) const {
     if(!m_ptr) return str == nullptr;
     if(str == nullptr) return false;
     return *m_ptr == str;
   }
 
-  inline bool operator != (const char* str) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  inline bool operator != (const T* str) const {
+    return !operator == (str);
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline bool operator == (const T& str) const {
+    if(!m_ptr) return false;
+    return *m_ptr == str;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline bool operator != (const T& str) const {
     return !operator == (str);
   }
 
   inline bool operator == (const String &other) const {
-    if(!m_ptr) return other == nullptr;
-    if(other == nullptr) return false;
-    return *m_ptr == *other;
+    if(!m_ptr) return !other.m_ptr;
+    if(!other.m_ptr) return false;
+    return *m_ptr == *other.m_ptr;
   }
 
   inline bool operator != (const String &other) const {
