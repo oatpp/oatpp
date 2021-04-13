@@ -154,18 +154,12 @@ public:
 
   inline ObjectWrapper& operator=(const ObjectWrapper& other){
     m_ptr = other.m_ptr;
-    m_valueType = other.m_valueType;
     return *this;
   }
 
   inline ObjectWrapper& operator=(ObjectWrapper&& other){
     m_ptr = std::move(other.m_ptr);
-    m_valueType = other.m_valueType;
     return *this;
-  }
-  
-  inline operator ObjectWrapper<void>() const {
-    return ObjectWrapper<void>(this->m_ptr, m_valueType);
   }
 
   template<class Wrapper>
@@ -219,7 +213,88 @@ public:
   
 };
 
-typedef ObjectWrapper<void, __class::Void> Void;
+class Void : public ObjectWrapper<void, __class::Void> {
+public:
+  Void(const std::shared_ptr<void>& ptr, const type::Type* const valueType)
+    : ObjectWrapper<void, __class::Void>(ptr, valueType)
+  {}
+public:
+
+  Void() {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  Void(T) {}
+
+  Void(const Type* const type)
+    : ObjectWrapper<void, __class::Void>(type)
+  {}
+
+  Void(const std::shared_ptr<void>& ptr)
+    : type::ObjectWrapper<void, __class::Void>(ptr)
+  {}
+
+  Void(std::shared_ptr<void>&& ptr)
+    : type::ObjectWrapper<void, __class::Void>(std::forward<std::shared_ptr<void>>(ptr))
+  {}
+
+  template<typename T, typename C>
+  Void(const ObjectWrapper<T, C>& other)
+    : type::ObjectWrapper<void, __class::Void>(other.getPtr(), other.getValueType())
+  {}
+
+  template<typename T, typename C>
+  Void(ObjectWrapper<T, C>&& other)
+    : type::ObjectWrapper<void, __class::Void>(std::move(other.getPtr()), other.getValueType())
+  {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline Void& operator = (std::nullptr_t) {
+    m_ptr.reset();
+    return *this;
+  }
+
+  template<typename T, typename C>
+  inline Void& operator = (const ObjectWrapper<T, C>& other){
+    m_ptr = other.m_ptr;
+    m_valueType = other.getValueType();
+    return *this;
+  }
+
+  template<typename T, typename C>
+  inline Void& operator = (ObjectWrapper<T, C>&& other){
+    m_ptr = std::move(other.m_ptr);
+    m_valueType = other.getValueType();
+    return *this;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T) const {
+    return m_ptr.get() == nullptr;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T) const {
+    return m_ptr.get() != nullptr;
+  }
+
+  template<typename T, typename C>
+  inline bool operator == (const ObjectWrapper<T, C> &other) const {
+    return m_ptr.get() == other.get();
+  }
+
+  template<typename T, typename C>
+  inline bool operator != (const ObjectWrapper<T, C> &other) const {
+    return m_ptr.get() != other.get();
+  }
+};
 
 template <typename T>
 struct ObjectWrapperByUnderlyingType {};

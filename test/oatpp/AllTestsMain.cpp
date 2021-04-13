@@ -106,6 +106,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
+
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
