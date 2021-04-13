@@ -33,7 +33,7 @@ namespace {
   template<class T>
   void checkHash(const T& val) {
     auto h = std::hash<T>{}(val);
-    OATPP_LOGI("HASH", "type='%s', hash=%llu", val.valueType->classId.name, h);
+    OATPP_LOGI("HASH", "type='%s', hash=%llu", val.getValueType()->classId.name, h);
   }
 
 }
@@ -59,7 +59,7 @@ void PrimitiveTest::onRun() {
     oatpp::Int32 i;
     OATPP_ASSERT(!i);
     OATPP_ASSERT(i == nullptr);
-    OATPP_ASSERT(i.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -69,7 +69,7 @@ void PrimitiveTest::onRun() {
     OATPP_ASSERT(i);
     OATPP_ASSERT(i != nullptr);
     OATPP_ASSERT(i == 0);
-    OATPP_ASSERT(i.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -79,7 +79,7 @@ void PrimitiveTest::onRun() {
     OATPP_ASSERT(i);
     OATPP_ASSERT(i != nullptr);
     OATPP_ASSERT(i == 0);
-    OATPP_ASSERT(i.valueType == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 

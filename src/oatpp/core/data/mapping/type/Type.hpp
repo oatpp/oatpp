@@ -99,6 +99,7 @@ template <class T, class Clazz = __class::Void>
 class ObjectWrapper {
 protected:
   std::shared_ptr<T> m_ptr;
+  const Type* m_valueType;
 public:
 
   /**
@@ -114,60 +115,62 @@ public:
 
   ObjectWrapper(const std::shared_ptr<T>& ptr)
     : m_ptr(ptr)
-    , valueType(Class::getType())
+    , m_valueType(Class::getType())
   {}
 
   ObjectWrapper(const std::shared_ptr<T>& ptr, const Type* const type)
     : m_ptr(ptr)
-    , valueType(type)
+    , m_valueType(type)
   {}
 
   ObjectWrapper(std::shared_ptr<T>&& ptr, const Type* const type)
     : m_ptr(std::move(ptr))
-    , valueType(type)
+    , m_valueType(type)
   {}
   
 public:
 
   ObjectWrapper()
-    : valueType(Class::getType())
+    : m_valueType(Class::getType())
   {}
 
   ObjectWrapper(std::nullptr_t)
-    : valueType(Class::getType())
+    : m_valueType(Class::getType())
   {}
 
   ObjectWrapper(const Type* const type)
-    : valueType(type)
+    : m_valueType(type)
   {}
 
   ObjectWrapper(const ObjectWrapper& other)
     : m_ptr(other.m_ptr)
-    , valueType(other.valueType)
+    , m_valueType(other.m_valueType)
   {}
 
   ObjectWrapper(ObjectWrapper&& other)
     : m_ptr(std::move(other.m_ptr))
-    , valueType(other.valueType)
+    , m_valueType(other.m_valueType)
   {}
 
   inline ObjectWrapper& operator=(const ObjectWrapper& other){
     m_ptr = other.m_ptr;
+    m_valueType = other.m_valueType;
     return *this;
   }
 
   inline ObjectWrapper& operator=(ObjectWrapper&& other){
     m_ptr = std::move(other.m_ptr);
+    m_valueType = other.m_valueType;
     return *this;
   }
   
   inline operator ObjectWrapper<void>() const {
-    return ObjectWrapper<void>(this->m_ptr, valueType);
+    return ObjectWrapper<void>(this->m_ptr, m_valueType);
   }
 
   template<class Wrapper>
   Wrapper staticCast() const {
-    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), valueType);
+    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), m_valueType);
   }
 
   inline T* operator->() const {
@@ -207,10 +210,12 @@ public:
   }
 
   /**
-   * Value type information.
-   * See &l:Type;.
+   * Get value type
+   * @return
    */
-  const Type* const valueType;
+  const Type* getValueType() const {
+    return m_valueType;
+  }
   
 };
 

@@ -43,7 +43,7 @@ void StringTest::onRun() {
     OATPP_ASSERT(!s);
     OATPP_ASSERT(s == nullptr);
     OATPP_ASSERT(s == (const char*) nullptr);
-    OATPP_ASSERT(s.valueType == oatpp::String::Class::getType());
+    OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -53,7 +53,7 @@ void StringTest::onRun() {
     OATPP_ASSERT(!s);
     OATPP_ASSERT(s == nullptr);
     OATPP_ASSERT(s == (const char*) nullptr);
-    OATPP_ASSERT(s.valueType == oatpp::String::Class::getType());
+    OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 

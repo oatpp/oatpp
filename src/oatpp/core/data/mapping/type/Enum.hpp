@@ -457,7 +457,7 @@ template<class T, bool notnull>
 Void EnumInterpreterAsString<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
   typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>> EnumOW;
 
-  if(enumValue.valueType != EnumOW::Class::getType()) {
+  if(enumValue.getValueType() != EnumOW::Class::getType()) {
     error = EnumInterpreterError::TYPE_MISMATCH_ENUM;
     return Void(nullptr, String::Class::getType());
   }
@@ -479,7 +479,7 @@ template<class T, bool notnull>
 Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
   typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>> EnumOW;
 
-  if(interValue.valueType != String::Class::getType()) {
+  if(interValue.getValueType() != String::Class::getType()) {
     error = EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE;
     return Void(nullptr, EnumOW::Class::getType());
   }
@@ -513,7 +513,7 @@ Void EnumInterpreterAsNumber<T, notnull>::toInterpretation(const Void& enumValue
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper UTOW;
 
-  if(enumValue.valueType != EnumOW::Class::getType()) {
+  if(enumValue.getValueType() != EnumOW::Class::getType()) {
     error = EnumInterpreterError::TYPE_MISMATCH_ENUM;
     return Void(nullptr, UTOW::Class::getType());
   }
@@ -538,7 +538,7 @@ Void EnumInterpreterAsNumber<T, notnull>::fromInterpretation(const Void& interVa
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper OW;
 
-  if(interValue.valueType != OW::Class::getType()) {
+  if(interValue.getValueType() != OW::Class::getType()) {
     error = EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE;
     return Void(nullptr, EnumOW::Class::getType());
   }

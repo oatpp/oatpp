@@ -120,7 +120,7 @@ void Serializer::serializeEnum(Serializer* serializer,
                                const oatpp::Void& polymorph)
 {
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
-    polymorph.valueType->polymorphicDispatcher
+    polymorph.getValueType()->polymorphicDispatcher
   );
 
   data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
@@ -152,7 +152,9 @@ void Serializer::serializeObject(Serializer* serializer,
   stream->writeCharSimple('{');
 
   bool first = true;
-  auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(polymorph.valueType->polymorphicDispatcher);
+  auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(
+    polymorph.getValueType()->polymorphicDispatcher
+  );
   auto fields = dispatcher->getProperties()->getList();
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
 
@@ -175,19 +177,19 @@ void Serializer::serializeObject(Serializer* serializer,
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
                             const oatpp::Void& polymorph)
 {
-  auto id = polymorph.valueType->classId.id;
+  auto id = polymorph.getValueType()->classId.id;
   auto& method = m_methods[id];
   if(method) {
     (*method)(this, stream, polymorph);
   } else {
 
-    auto* interpretation = polymorph.valueType->findInterpretation(m_config->enabledInterpretations);
+    auto* interpretation = polymorph.getValueType()->findInterpretation(m_config->enabledInterpretations);
     if(interpretation) {
       serialize(stream, interpretation->toInterpretation(polymorph));
     } else {
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
                                "Error. No serialize method for type '" +
-                               std::string(polymorph.valueType->classId.name) + "'");
+                               std::string(polymorph.getValueType()->classId.name) + "'");
     }
 
   }

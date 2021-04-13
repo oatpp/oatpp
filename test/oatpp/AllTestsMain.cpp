@@ -95,7 +95,9 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::StringTest);
+
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);

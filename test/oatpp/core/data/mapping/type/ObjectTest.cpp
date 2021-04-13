@@ -167,7 +167,7 @@ void ObjectTest::onRun() {
     Object<DtoA> a;
     OATPP_ASSERT(!a);
     OATPP_ASSERT(a == nullptr);
-    OATPP_ASSERT(a.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
+    OATPP_ASSERT(a.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
     OATPP_LOGI(TAG, "OK");
   }
 

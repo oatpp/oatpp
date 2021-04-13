@@ -39,9 +39,9 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set == nullptr);
 
     OATPP_ASSERT(set.get() == nullptr);
-    OATPP_ASSERT(set.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID.id);
-    OATPP_ASSERT(set.valueType->params.size() == 1);
-    OATPP_ASSERT(set.valueType->params.front() == oatpp::String::Class::getType());
+    OATPP_ASSERT(set.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID.id);
+    OATPP_ASSERT(set.getValueType()->params.size() == 1);
+    OATPP_ASSERT(set.getValueType()->params.front() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -54,9 +54,9 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set->size() == 0);
 
     OATPP_ASSERT(set.get() != nullptr);
-    OATPP_ASSERT(set.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID.id);
-    OATPP_ASSERT(set.valueType->params.size() == 1);
-    OATPP_ASSERT(set.valueType->params.front() == oatpp::String::Class::getType());
+    OATPP_ASSERT(set.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID.id);
+    OATPP_ASSERT(set.getValueType()->params.size() == 1);
+    OATPP_ASSERT(set.getValueType()->params.front() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -69,7 +69,7 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set->size() == 0);
 
     OATPP_ASSERT(set.get() != nullptr);
-    OATPP_ASSERT(set.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID.id);
+    OATPP_ASSERT(set.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID.id);
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -121,7 +121,7 @@ void UnorderedSetTest::onRun() {
     oatpp::UnorderedSet<oatpp::String> set = {"a", "b", "c"};
 
     auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedSet<oatpp::String>::Class::PolymorphicDispatcher*>(
-      set.valueType->polymorphicDispatcher
+      set.getValueType()->polymorphicDispatcher
     );
 
     polymorphicDispatcher->addPolymorphicItem(set, oatpp::String("a"));
