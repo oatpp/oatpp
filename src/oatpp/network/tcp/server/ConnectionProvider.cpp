@@ -184,6 +184,13 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to ioctlsocket failed.");
   }
 
+  // Update port after binding (typicaly in case of port = 0)
+  struct ::sockaddr_in s_in;
+  ::memset(&s_in, 0, sizeof(s_in));
+  ::socklen_t s_in_len = sizeof(s_in);
+  ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)))
+
   return serverHandle;
 
 }
@@ -256,6 +263,13 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   }
 
   fcntl(serverHandle, F_SETFL, O_NONBLOCK);
+
+  // Update port after binding (typicaly in case of port = 0)
+  struct ::sockaddr_in s_in;
+  ::memset(&s_in, 0, sizeof(s_in));
+  ::socklen_t s_in_len = sizeof(s_in);
+  ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)))
 
   return serverHandle;
 
