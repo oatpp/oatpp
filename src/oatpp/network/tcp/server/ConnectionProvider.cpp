@@ -189,7 +189,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   ::memset(&s_in, 0, sizeof(s_in));
   ::socklen_t s_in_len = sizeof(s_in);
   ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)))
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
 
@@ -269,7 +269,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   ::memset(&s_in, 0, sizeof(s_in));
   ::socklen_t s_in_len = sizeof(s_in);
   ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)))
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
 
