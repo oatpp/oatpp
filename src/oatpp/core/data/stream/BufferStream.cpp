@@ -147,7 +147,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
       , m_stream(stream)
     {}
 
-    virtual Action act() override {
+    Action act() override {
       if(m_inlineData.currBufferPtr == nullptr) {
         m_inlineData.currBufferPtr = m_this->m_data;
         m_inlineData.bytesLeft = m_this->m_position;

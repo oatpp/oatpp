@@ -119,7 +119,7 @@ async::CoroutineStarter WriteCallback::writeExactSizeDataAsync(const void* data,
       , m_inlineData(data, size)
     {}
 
-    virtual Action act() override {
+    Action act() override {
       return m_this->writeExactSizeDataAsyncInline(m_inlineData, finish());
     }
 
