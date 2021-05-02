@@ -180,7 +180,7 @@ bool Processor::iterate(v_int32 numIterations) {
 
     auto CP = m_queue.first;
     if (CP == nullptr) {
-      goto end_loop;
+      break;
     }
     if (CP->finished()) {
       m_queue.popFrontNoData();
@@ -216,8 +216,6 @@ bool Processor::iterate(v_int32 numIterations) {
     }
 
   }
-
-  end_loop:
 
   popTasks();
 
