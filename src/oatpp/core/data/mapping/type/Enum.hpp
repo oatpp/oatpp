@@ -87,6 +87,8 @@ namespace __class {
         : notNull(pNotNull)
       {}
 
+      virtual ~PolymorphicDispatcher() = default;
+
       const bool notNull;
 
       virtual type::Void createObject() const = 0;

@@ -759,7 +759,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(const AbstractCoroutine::FunctionPtr& ptr) override {
+  Action call(const AbstractCoroutine::FunctionPtr& ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
