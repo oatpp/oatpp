@@ -165,7 +165,7 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
       , m_headersWriteBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>())
     {}
     
-    Action act() {
+    virtual Action act() override {
 
       v_buff_size bodySize = -1;
 
