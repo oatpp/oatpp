@@ -597,8 +597,8 @@ public:
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   template<typename ...ConstructorArgs>
-  static CoroutineStarter start(ConstructorArgs... args) {
-    return new T(args...);
+  static CoroutineStarter start(ConstructorArgs&&... args) {
+    return new T(std::forward<ConstructorArgs>(args)...);
   }
 
   /**
