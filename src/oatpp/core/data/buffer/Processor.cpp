@@ -86,11 +86,8 @@ void InlineWriteData::setEof() {
 // ProcessingPipeline
 
 ProcessingPipeline::ProcessingPipeline(const std::vector<base::ObjectHandle<Processor>>& processors)
-  : m_processors(processors)
+  : m_processors(processors), m_intermediateData(processors.size() - 1)
 {
-  for(v_int32 i = 0; i < (v_int32) m_processors.size() - 1; i ++) {
-    m_intermediateData.push_back(data::buffer::InlineReadData());
-  }
 }
 
 v_io_size ProcessingPipeline::suggestInputStreamReadSize() {
