@@ -341,6 +341,11 @@ class CoroutineStarter {
 private:
   AbstractCoroutine* m_first;
   AbstractCoroutine* m_last;
+
+private:
+
+  void freeCoroutines();
+
 public:
 
   /**
@@ -686,6 +691,9 @@ public:
      * Move assignment operator.
      */
     StarterForResult& operator=(StarterForResult&& other) {
+      if (this == std::addressof(other)) return *this;
+        
+      delete m_coroutine;
       m_coroutine = other.m_coroutine;
       other.m_coroutine = nullptr;
       return *this;
