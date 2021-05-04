@@ -29,10 +29,10 @@
 
 namespace oatpp { namespace test { namespace core { namespace provider {
 
-class PoolTemplateTest : public UnitTest {
+class PoolTemplateTest : public UnitTest{
 public:
 
-	PoolTemplateTest() :UnitTest("TEST[provider::PoolTemplateTest]") {}
+  PoolTemplateTest():UnitTest("TEST[provider::PoolTemplateTest]"){}
   void onRun() override;
 
 };

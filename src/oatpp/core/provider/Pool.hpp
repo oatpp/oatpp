@@ -30,7 +30,6 @@
 
 #include <thread>
 #include <condition_variable>
-#include <limits>
 
 namespace oatpp { namespace provider {
 
