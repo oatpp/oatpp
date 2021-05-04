@@ -30,6 +30,7 @@
 
 #include <thread>
 #include <condition_variable>
+#include <limits>
 
 namespace oatpp { namespace provider {
 
@@ -223,7 +224,7 @@ public:
   {
     /* "new" is called directly to keep constructor private */
     auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
-    ptr->startCleanupTask();
+    ptr->startCleanupTask(ptr);
     return ptr;
   }
 
@@ -231,14 +232,16 @@ public:
     stop();
   }
 
-  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
+  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::max()) {
 
     {
 
       std::unique_lock<std::mutex> guard(m_lock);
 
-      while (m_running && m_bench.size() == 0 && m_counter >= m_maxResources ) {
-        m_condition.wait(guard);
+      auto finishedPredicate = [this]() { return !m_running || !m_bench.empty() || m_counter < m_maxResources; };
+      if (!m_condition.wait_for(guard, timeout, std::move(finishedPredicate)))
+      {
+          return nullptr;
       }
 
       if(!m_running) {

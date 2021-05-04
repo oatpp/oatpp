@@ -57,6 +57,8 @@ add_executable(oatppAllTests
         oatpp/core/parser/CaretTest.hpp
         oatpp/core/provider/PoolTest.cpp
         oatpp/core/provider/PoolTest.hpp
+        oatpp/core/provider/PoolTemplateTest.cpp
+        oatpp/core/provider/PoolTemplateTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp

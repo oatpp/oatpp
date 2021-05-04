@@ -27,6 +27,7 @@
 
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
+#include "oatpp/core/provider/PoolTemplateTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -78,21 +79,21 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::StringTemplateTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::StringTest);
@@ -105,99 +106,100 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::TypeResolverTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
+  OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
-
+  
   OATPP_RUN_TEST(oatpp::test::web::server::HttpRouterTest);
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
-
+  
   {
-
+  
     oatpp::test::web::PipelineTest test_virtual(0, 3000);
     test_virtual.run();
-
+  
     oatpp::test::web::PipelineTest test_port(8000, 3000);
     test_port.run();
-
+  
   }
-
+  
   {
-
+  
     oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
     test_virtual.run();
-
+  
     oatpp::test::web::PipelineAsyncTest test_port(8000, 3000);
     test_port.run();
-
+  
   }
-
+  
   {
-
+  
     oatpp::test::web::FullTest test_virtual(0, 1000);
     test_virtual.run();
-
+  
     oatpp::test::web::FullTest test_port(8000, 5);
     test_port.run();
-
+  
   }
-
+  
   {
-
+  
     oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
     test_virtual.run();
-
+  
     oatpp::test::web::FullAsyncTest test_port(8000, 5);
     test_port.run();
-
+  
   }
-
+  
   {
-
+  
     oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
     test_virtual.run(20);
-
+  
     oatpp::test::web::FullAsyncClientTest test_port(8000, 5);
     test_port.run(1);
-
+  
   }
-
+  
   {
-
+  
     oatpp::test::web::ClientRetryTest test_virtual(0);
     test_virtual.run();
-
+  
     oatpp::test::web::ClientRetryTest test_port(8000);
     test_port.run();
-
+  
   }
 
 }
