@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +140,32 @@ private:
 
   }
 
+  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>&_this, std::unique_lock<std::mutex>&& guard) {
+
+    if(!m_running) {
+      return nullptr;
+    }
+
+    if (m_bench.size() > 0) {
+      auto record = m_bench.front();
+      m_bench.pop_front();
+      return std::make_shared<AcquisitionProxyImpl>(record.resource, _this);
+    } else {
+      ++ m_counter;
+    }
+
+    guard.unlock();
+
+    try {
+      return std::make_shared<AcquisitionProxyImpl>(m_provider->get(), _this);
+    } catch (...) {
+      std::lock_guard<std::mutex> guard(m_lock);
+      -- m_counter;
+      return nullptr;
+    }
+
+  }
+
 private:
 
   static void cleanupTask(std::shared_ptr<PoolTemplate> pool) {
@@ -210,7 +237,7 @@ protected:
     , m_finished(false)
   {}
 
-  void startCleanupTask(const std::shared_ptr<PoolTemplate>& _this) {
+  static void startCleanupTask(const std::shared_ptr<PoolTemplate>& _this) {
     std::thread poolCleanupTask(cleanupTask, _this);
     poolCleanupTask.detach();
   }
@@ -223,7 +250,7 @@ public:
   {
     /* "new" is called directly to keep constructor private */
     auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
-    ptr->startCleanupTask(ptr);
+    startCleanupTask(ptr);
     return ptr;
   }
 
@@ -231,39 +258,28 @@ public:
     stop();
   }
 
-  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::max()) {
+  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
+    
+    std::unique_lock<std::mutex> guard(m_lock);
 
-    {
-
-      std::unique_lock<std::mutex> guard(m_lock);
-
-      auto finishedPredicate = [this]() { return !m_running || !m_bench.empty() || m_counter < m_maxResources; };
-      if (!m_condition.wait_for(guard, timeout, std::move(finishedPredicate)))
-      {
-          return nullptr;
-      }
-
-      if(!m_running) {
-        return nullptr;
-      }
-
-      if (m_bench.size() > 0) {
-        auto record = m_bench.front();
-        m_bench.pop_front();
-        return std::make_shared<AcquisitionProxyImpl>(record.resource, _this);
-      } else {
-        ++ m_counter;
-      }
-
-    }
-
-    try {
-      return std::make_shared<AcquisitionProxyImpl>(m_provider->get(), _this);
-    } catch (...) {
-      std::lock_guard<std::mutex> guard(m_lock);
-      -- m_counter;
+    auto finishedPredicate = [this]() { return !m_running || !m_bench.empty() || m_counter < m_maxResources; };
+    if (!m_condition.wait_for(guard, timeout, std::move(finishedPredicate))) {
       return nullptr;
     }
+
+    return get(_this, std::move(guard));
+
+  }
+
+  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
+    
+    std::unique_lock<std::mutex> guard(m_lock);
+
+    while (m_running && m_bench.empty() && m_counter >= m_maxResources ) {
+      m_condition.wait(guard);
+    }
+
+    return get(_this, std::move(guard));
 
   }
 
