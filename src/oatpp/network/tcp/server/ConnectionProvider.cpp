@@ -27,6 +27,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#include <future>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -371,24 +372,26 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::getExtendedCo
 
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
-
+std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get(const std::chrono::duration<v_int64, std::micro>& timeout) {
   fd_set set;
-  struct timeval timeout;
+  struct timeval selectTimeout;
   FD_ZERO(&set);
   FD_SET(m_serverHandle, &set);
 
-  timeout.tv_sec = 1;
-  timeout.tv_usec = 0;
+  selectTimeout.tv_sec = 1;
+  selectTimeout.tv_usec = 0;
 
+  auto secondsWaited = std::chrono::seconds::zero();
   while(!m_closed) {
 
-    auto res = select(int(m_serverHandle + 1), &set, nullptr, nullptr, &timeout);
+    auto res = select(int(m_serverHandle + 1), &set, nullptr, nullptr, &selectTimeout);
 
     if (res >= 0) {
       break;
     }
-
+    if (timeout != std::chrono::microseconds::zero() && timeout < ++secondsWaited) {
+      return nullptr;
+    }
   }
 
   if(m_useExtendedConnections) {

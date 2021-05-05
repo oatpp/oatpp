@@ -83,12 +83,12 @@ public:
 
   std::atomic<v_int64> counter;
 
-  std::shared_ptr<oatpp::data::stream::IOStream> get() override {
+  std::shared_ptr<oatpp::data::stream::IOStream> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
     ++ counter;
     return std::make_shared<StubStream>();
   }
 
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override {
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
 
     class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
     public:

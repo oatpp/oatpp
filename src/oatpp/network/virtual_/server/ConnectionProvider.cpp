@@ -22,6 +22,7 @@
  *
  ***************************************************************************/
 
+#include <future>
 #include "ConnectionProvider.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
@@ -52,12 +53,23 @@ void ConnectionProvider::stop() {
   m_interface->notifyAcceptors();
 }
 
-std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
-  auto socket = m_interface->accept(m_open);
-  if(socket) {
-    socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get(const std::chrono::duration<v_int64, std::micro>& timeout) {
+  std::packaged_task<std::shared_ptr<data::stream::IOStream>()> task{[=]() {
+    auto socket = m_interface->accept(m_open);
+    if(socket) {
+      socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+    }
+    return socket;
+  }};
+  auto future = task.get_future();
+
+  if(timeout == std::chrono::microseconds::zero()) {
+    task();
+    return future.get();
   }
-  return socket;
+
+  std::thread{std::move(task)}.detach();
+  return future.wait_for(timeout) == std::future_status::ready ? future.get() : nullptr;
 }
 
 }}}}

@@ -28,6 +28,7 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#include <future>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -49,9 +50,8 @@ ConnectionProvider::ConnectionProvider(const network::Address& address)
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
-
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
+static std::shared_ptr<oatpp::data::stream::IOStream> getConnection(network::Address address) {
+  auto portStr = oatpp::utils::conversion::int32ToStr(address.port);
 
   struct addrinfo hints;
 
@@ -60,7 +60,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
 
-  switch(m_address.family) {
+  switch(address.family) {
     case Address::IP_4: hints.ai_family = AF_INET; break;
     case Address::IP_6: hints.ai_family = AF_INET6; break;
     default:
@@ -68,7 +68,7 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   }
 
   struct addrinfo* result;
-  auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
+  auto res = getaddrinfo(address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
 #if defined(WIN32) || defined(_WIN32)
@@ -124,10 +124,22 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
 #endif
 
   return std::make_shared<oatpp::network::tcp::Connection>(clientHandle);
-
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
+std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get(const std::chrono::duration<v_int64, std::micro>& timeout) {  
+  std::packaged_task<std::shared_ptr<oatpp::data::stream::IOStream>(network::Address)> task{&getConnection};
+  auto future = task.get_future();
+
+  if (timeout == std::chrono::microseconds::zero()) {
+      task(m_address);
+      return future.get();
+  }
+  
+  std::thread{std::move(task), m_address}.detach();
+  return future.wait_for(timeout) == std::future_status::ready ? future.get() : nullptr;
+}
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync(const std::chrono::duration<v_int64, std::micro>& timeout) {
 
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:

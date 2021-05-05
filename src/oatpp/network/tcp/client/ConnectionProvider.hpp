@@ -66,13 +66,13 @@ public:
    * Get connection.
    * @return - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<data::stream::IOStream> get() override;
+  std::shared_ptr<data::stream::IOStream> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override;
 
   /**
    * Get connection in asynchronous manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override;
 
   /**
    * Call shutdown read and write on an underlying file descriptor.
@@ -88,7 +88,7 @@ public:
   const network::Address& getAddress() const {
     return m_address;
   }
-  
+
 };
   
 }}}}

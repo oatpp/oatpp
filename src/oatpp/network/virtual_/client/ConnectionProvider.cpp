@@ -22,6 +22,8 @@
  *
  ***************************************************************************/
 
+#include <future>
+
 #include "ConnectionProvider.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
@@ -43,21 +45,36 @@ void ConnectionProvider::stop() {
 
 }
 
-std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
-  auto submission = m_interface->connect();
+static std::shared_ptr<data::stream::IOStream> getSocket(std::shared_ptr<virtual_::Interface> interface,
+                                                         v_io_size maxAvailableToRead,
+                                                         v_io_size maxAvailableToWrite) {
+  auto submission = interface->connect();
   if(submission->isValid()) {
     auto socket = submission->getSocket();
     if (socket) {
       socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
       socket->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
-      socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
+      socket->setMaxAvailableToReadWrtie(maxAvailableToRead, maxAvailableToWrite);
       return socket;
     }
   }
-  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + m_interface->getName()->std_str());
+  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + interface->getName()->std_str());
+}
+
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get(const std::chrono::duration<v_int64, std::micro>& timeout) {
+  std::packaged_task<std::shared_ptr<data::stream::IOStream>(std::shared_ptr<virtual_::Interface>, v_io_size, v_io_size)> task{getSocket};
+  auto future = task.get_future();
+
+  if (timeout == std::chrono::microseconds::zero()) {
+    task(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
+    return future.get();
+  }
+
+  std::thread{std::move(task), m_interface, m_maxAvailableToRead, m_maxAvailableToWrite}.detach();
+  return future.wait_for(timeout) == std::future_status::ready ? future.get() : nullptr;
 }
   
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync(const std::chrono::duration<v_int64, std::micro>& timeout) {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:

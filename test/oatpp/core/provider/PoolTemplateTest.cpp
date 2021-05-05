@@ -38,11 +38,11 @@ struct Resource {
 class Provider : public oatpp::provider::Provider<Resource> {
 public:
 
-  std::shared_ptr<Resource> get() override {
+  std::shared_ptr<Resource> get(const std::chrono::duration<v_int64, std::micro>&) override {
     return std::make_shared<Resource>();
   }
 
-  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync() override {
+  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync(const std::chrono::duration<v_int64, std::micro>&) override {
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<Resource>&> {
     private:
