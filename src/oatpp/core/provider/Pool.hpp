@@ -140,33 +140,33 @@ private:
 
   }
 
-  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>&_this, std::unique_lock<std::mutex>&& guard) {
+private:
 
-    if(!m_running) {
+  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>&_this, std::unique_lock<std::mutex>&& guard) {
+
+    if(!_this->m_running) {
       return nullptr;
     }
 
-    if (m_bench.size() > 0) {
-      auto record = m_bench.front();
-      m_bench.pop_front();
+    if (_this->m_bench.size() > 0) {
+      auto record = _this->m_bench.front();
+      _this->m_bench.pop_front();
       return std::make_shared<AcquisitionProxyImpl>(record.resource, _this);
     } else {
-      ++ m_counter;
+      ++ _this->m_counter;
     }
 
     guard.unlock();
 
     try {
-      return std::make_shared<AcquisitionProxyImpl>(m_provider->get(), _this);
+      return std::make_shared<AcquisitionProxyImpl>(_this->m_provider->get(), _this);
     } catch (...) {
-      std::lock_guard<std::mutex> guard(m_lock);
-      -- m_counter;
+      guard.lock();
+      --_this->m_counter;
       return nullptr;
     }
 
   }
-
-private:
 
   static void cleanupTask(std::shared_ptr<PoolTemplate> pool) {
 
@@ -242,28 +242,12 @@ protected:
     poolCleanupTask.detach();
   }
 
-public:
-
-  static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider<TResource>>& provider,
-                                                    v_int64 maxResources,
-                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
-  {
-    /* "new" is called directly to keep constructor private */
-    auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
-    startCleanupTask(ptr);
-    return ptr;
-  }
-
-  virtual ~PoolTemplate() {
-    stop();
-  }
-
-  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
+  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
     
-    std::unique_lock<std::mutex> guard(m_lock);
+    std::unique_lock<std::mutex> guard(_this->m_lock);
 
-    auto finishedPredicate = [this]() { return !m_running || !m_bench.empty() || m_counter < m_maxResources; };
-    if (!m_condition.wait_for(guard, timeout, std::move(finishedPredicate))) {
+    auto finishedPredicate = [&_this]() { return !_this->m_running || !_this->m_bench.empty() || _this->m_counter < _this->m_maxResources; };
+    if (!_this->m_condition.wait_for(guard, timeout, std::move(finishedPredicate))) {
       return nullptr;
     }
 
@@ -271,29 +255,27 @@ public:
 
   }
 
-  std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
+  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
     
-    std::unique_lock<std::mutex> guard(m_lock);
+    std::unique_lock<std::mutex> guard(_this->m_lock);
 
-    while (m_running && m_bench.empty() && m_counter >= m_maxResources ) {
-      m_condition.wait(guard);
+    while (_this->m_running && _this->m_bench.empty() && _this->m_counter >= _this->m_maxResources ) {
+        _this->m_condition.wait(guard);
     }
 
     return get(_this, std::move(guard));
 
   }
 
-  async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
+  static async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<TResource>&> {
     private:
       std::shared_ptr<PoolTemplate> m_pool;
-      std::shared_ptr<Provider<TResource>> m_provider;
     public:
 
-      GetCoroutine(const std::shared_ptr<PoolTemplate>& pool, const std::shared_ptr<Provider<TResource>>& provider)
+      GetCoroutine(const std::shared_ptr<PoolTemplate>& pool)
         : m_pool(pool)
-        , m_provider(provider)
       {}
 
       async::Action act() override {
@@ -323,7 +305,7 @@ public:
 
         }
 
-        return m_provider->getAsync().callbackTo(&GetCoroutine::onGet);
+        return m_pool->m_provider->getAsync().callbackTo(&GetCoroutine::onGet);
 
       }
 
@@ -342,8 +324,24 @@ public:
 
     };
 
-    return GetCoroutine::startForResult(_this, m_provider);
+    return GetCoroutine::startForResult(_this);
 
+  }
+
+public:
+
+  static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider<TResource>>& provider,
+                                                    v_int64 maxResources,
+                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
+  {
+    /* "new" is called directly to keep constructor private */
+    auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
+    startCleanupTask(ptr);
+    return ptr;
+  }
+
+  virtual ~PoolTemplate() {
+    stop();
   }
 
   void invalidate(const std::shared_ptr<TResource>& resource) {
