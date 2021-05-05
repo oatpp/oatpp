@@ -437,7 +437,7 @@ public:
    * @return
    */
   std::shared_ptr<TResource> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
-    return timeout == std::chrono::microseconds::zero() ? TPool::get(shared_from_this()) : TPool::get(shared_from_this(), timeout);
+    return timeout == std::chrono::microseconds::zero() ? TPool::get(this->shared_from_this()) : TPool::get(this->shared_from_this(), timeout);
   }
 
   /**
@@ -445,7 +445,7 @@ public:
    * @return
    */
   async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
-    return TPool::getAsync(shared_from_this());
+    return TPool::getAsync(this->shared_from_this());
   }
 
   /**
