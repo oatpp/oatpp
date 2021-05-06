@@ -497,7 +497,7 @@ Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interVa
   try {
     const auto &entry = EnumOW::getEntryByName(interValue.staticCast<String>());
     return EnumOW(entry.value);
-  } catch (const std::runtime_error& e) { // TODO - add a specific error for this.
+  } catch (const std::runtime_error&) { // TODO - add a specific error for this.
     error = EnumInterpreterError::ENTRY_NOT_FOUND;
   }
   return Void(nullptr, EnumOW::Class::getType());
@@ -558,7 +558,7 @@ Void EnumInterpreterAsNumber<T, notnull>::fromInterpretation(const Void& interVa
       interValue.staticCast<OW>()
     );
     return EnumOW(entry.value);
-  } catch (const std::runtime_error& e) { // TODO - add a specific error for this.
+  } catch (const std::runtime_error&) { // TODO - add a specific error for this.
     error = EnumInterpreterError::ENTRY_NOT_FOUND;
   }
   return Void(nullptr, EnumOW::Class::getType());

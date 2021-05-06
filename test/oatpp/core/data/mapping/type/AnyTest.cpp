@@ -116,7 +116,7 @@ void AnyTest::onRun() {
 
     try {
       auto obj = any.retrieve<oatpp::Object<Dto2>>(); // wrong object
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error&) {
       wasError = true;
     }
 
