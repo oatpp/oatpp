@@ -267,22 +267,34 @@ protected:
 
   }
 
-  static async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
+  static async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<TResource>&> {
     private:
       std::shared_ptr<PoolTemplate> m_pool;
+
+      std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
+      std::chrono::duration<v_int64, std::micro> m_timeout;
     public:
 
-      GetCoroutine(const std::shared_ptr<PoolTemplate>& pool)
+      GetCoroutine(const std::shared_ptr<PoolTemplate>& pool, const std::chrono::duration<v_int64, std::micro>& timeout)
         : m_pool(pool)
+        , m_timeout(timeout)
       {}
+
+      bool timedout() const noexcept {
+        return m_timeout != std::chrono::microseconds::zero() && m_timeout < (std::chrono::steady_clock::now() - m_startTime);
+      }
 
       async::Action act() override {
 
         {
           /* Careful!!! Using non-async lock */
-          std::unique_lock<std::mutex> guard(m_pool->m_lock);
+          std::unique_lock<std::mutex> guard(m_pool->m_lock, std::try_to_lock);
+
+          if (!guard.owns_lock()) {
+            return timedout() ? this->_return(nullptr) : this->waitRepeat(std::chrono::milliseconds(100));
+          }
 
           if (m_pool->m_running && m_pool->m_bench.size() == 0 && m_pool->m_counter >= m_pool->m_maxResources) {
             guard.unlock();
@@ -305,7 +317,8 @@ protected:
 
         }
 
-        return m_pool->m_provider->getAsync().callbackTo(&GetCoroutine::onGet);
+        const auto passedTime = std::chrono::duration_cast<std::chrono::duration<v_int64, std::micro>>(std::chrono::steady_clock::now() - m_startTime);
+        return m_pool->m_provider->getAsync(m_timeout - passedTime).callbackTo(&GetCoroutine::onGet);
 
       }
 
@@ -324,7 +337,7 @@ protected:
 
     };
 
-    return GetCoroutine::startForResult(_this);
+    return GetCoroutine::startForResult(_this, timeout);
 
   }
 
@@ -445,7 +458,7 @@ public:
    * @return
    */
   async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
-    return TPool::getAsync(this->shared_from_this());
+    return TPool::getAsync(this->shared_from_this(), timeout);
   }
 
   /**

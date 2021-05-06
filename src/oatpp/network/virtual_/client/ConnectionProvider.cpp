@@ -82,22 +82,31 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     v_io_size m_maxAvailableToRead;
     v_io_size m_maxAvailableToWrite;
     std::shared_ptr<virtual_::Interface::ConnectionSubmission> m_submission;
+
+    std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
+    std::chrono::duration<v_int64, std::micro> m_timeout;
   public:
     
     ConnectCoroutine(const std::shared_ptr<virtual_::Interface>& interface,
                      v_io_size maxAvailableToRead,
-                     v_io_size maxAvailableToWrite)
+                     v_io_size maxAvailableToWrite,
+                     const std::chrono::duration<v_int64, std::micro>& timeout)
       : m_interface(interface)
       , m_maxAvailableToRead(maxAvailableToRead)
       , m_maxAvailableToWrite(maxAvailableToWrite)
+      , m_timeout(timeout)
     {}
     
+    bool timedout() const noexcept {
+      return m_timeout != std::chrono::microseconds::zero() && m_timeout < (std::chrono::steady_clock::now() - m_startTime);
+    }
+
     Action act() override {
       m_submission = m_interface->connectNonBlocking();
       if(m_submission){
         return yieldTo(&ConnectCoroutine::obtainSocket);
       }
-      return waitRepeat(std::chrono::milliseconds(100));
+      return timedout() ? _return(nullptr) : waitRepeat(std::chrono::milliseconds(100));
     }
 
     Action obtainSocket() {
@@ -113,7 +122,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           return _return(socket);
         }
 
-        return waitRepeat(std::chrono::milliseconds(100));
+        return timedout() ? _return(nullptr) : waitRepeat(std::chrono::milliseconds(100));
       }
 
       return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
@@ -122,7 +131,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     
   };
   
-  return ConnectCoroutine::startForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
+  return ConnectCoroutine::startForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite, timeout);
   
 }
   

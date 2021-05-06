@@ -94,8 +94,8 @@ struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
     return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::get(_this);
   }
 
-  static async::CoroutineStarterForResult<const std::shared_ptr<Resource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
-    return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::getAsync(_this);
+  static async::CoroutineStarterForResult<const std::shared_ptr<Resource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
+    return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::getAsync(_this, timeout);
   }
 
   static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider>& provider,
