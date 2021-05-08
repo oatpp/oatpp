@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,22 +147,62 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
   private:
-    struct addrinfo* m_result;
+    struct AddrinfoWrapper {
+      struct addrinfo* m_result{nullptr};
+      
+      AddrinfoWrapper() = default;
+      AddrinfoWrapper(const AddrinfoWrapper&) = delete;
+      AddrinfoWrapper(AddrinfoWrapper&&) = delete;
+      ~AddrinfoWrapper() {
+        if (m_result != nullptr) {
+          freeaddrinfo(m_result);
+        }
+      }
+      AddrinfoWrapper& operator=(const AddrinfoWrapper&) = delete;
+      AddrinfoWrapper& operator=(AddrinfoWrapper&&) = delete;
+    };
+
+    std::shared_ptr<AddrinfoWrapper> m_resultWrapper{std::make_shared<AddrinfoWrapper>()};
     struct addrinfo* m_currentResult;
     bool m_isHandleOpened;
+
+    std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
+    std::chrono::duration<v_int64, std::micro> m_timeout;
+
+  private:
+    struct AddrinfoResult {
+      bool timedout;
+      bool successful;
+    };
+
+    AddrinfoResult getaddrinfoHelper(const oatpp::String& portStr, const struct addrinfo& hints) {
+      std::packaged_task<bool()> task{[=]() {
+        return 0 == getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &m_resultWrapper->m_result);
+      }};
+      auto future = task.get_future();
+
+      if (m_timeout == std::chrono::microseconds::zero()) {
+        task();
+        return {false, future.get()};
+      }
+
+      std::thread{std::move(task)}.detach();
+      if (future.wait_for(m_timeout) == std::future_status::ready) {
+        return {false, future.get()};
+      }
+      return {true, false};
+    }
   public:
 
-    ConnectCoroutine(const network::Address& address)
+    ConnectCoroutine(const network::Address& address, const std::chrono::duration<v_int64, std::micro>& timeout)
       : m_address(address)
-      , m_result(nullptr)
       , m_currentResult(nullptr)
       , m_isHandleOpened(false)
+      , m_timeout(timeout)
     {}
 
-    ~ConnectCoroutine() {
-      if(m_result != nullptr) {
-        freeaddrinfo(m_result);
-      }
+    bool timedout() const noexcept {
+      return m_timeout != std::chrono::microseconds::zero() && m_timeout < (std::chrono::steady_clock::now() - m_startTime);
     }
 
     Action act() override {
@@ -183,15 +224,18 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       }
 
       // TODO make call to get addrinfo non-blocking !!!
-      auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &m_result);
-      if (res != 0) {
+      const AddrinfoResult result = getaddrinfoHelper(portStr, hints);
+      if (result.timedout) {
+        return _return(nullptr);
+      }
+      if (!result.successful) {
         return error<async::Error>(
           "[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() failed.");
       }
 
-      m_currentResult = m_result;
+      m_currentResult = m_resultWrapper->m_result;
 
-      if (m_result == nullptr) {
+      if (m_currentResult == nullptr) {
         return error<async::Error>(
           "[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]. Error. Call to getaddrinfo() returned no results.");
       }
@@ -223,14 +267,14 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 #if defined(WIN32) || defined(_WIN32)
         if (m_clientHandle == INVALID_SOCKET) {
           m_currentResult = m_currentResult->ai_next;
-          return repeat();
+          return timedout() ? _return(nullptr) : repeat();
         }
         u_long flags = 1;
         ioctlsocket(m_clientHandle, FIONBIO, &flags);
 #else
         if (m_clientHandle < 0) {
           m_currentResult = m_currentResult->ai_next;
-          return repeat();
+          return timedout() ? _return(nullptr) : repeat();
         }
         fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
 #endif
@@ -264,7 +308,9 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       if(res == 0 || error == WSAEISCONN) {
         return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
       }
-      if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
+      if (timedout()) {
+        return _return(nullptr);
+      } else if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       } else if(error == WSAEINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -275,7 +321,9 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       if(res == 0 || errno == EISCONN) {
         return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
       }
-      if(errno == EALREADY || errno == EINPROGRESS) {
+      if (timedout()) {
+        return _return(nullptr);
+      } else if(errno == EALREADY || errno == EINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       } else if(errno == EINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -290,7 +338,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
   };
 
-  return ConnectCoroutine::startForResult(m_address);
+  return ConnectCoroutine::startForResult(m_address, timeout);
 
 }
 
