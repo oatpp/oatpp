@@ -22,8 +22,6 @@
  *
  ***************************************************************************/
 
-#include <future>
-
 #include "ConnectionProvider.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
@@ -45,36 +43,21 @@ void ConnectionProvider::stop() {
 
 }
 
-static std::shared_ptr<data::stream::IOStream> getSocket(std::shared_ptr<virtual_::Interface> interface,
-                                                         v_io_size maxAvailableToRead,
-                                                         v_io_size maxAvailableToWrite) {
-  auto submission = interface->connect();
+std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
+  auto submission = m_interface->connect();
   if(submission->isValid()) {
     auto socket = submission->getSocket();
     if (socket) {
       socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
       socket->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
-      socket->setMaxAvailableToReadWrtie(maxAvailableToRead, maxAvailableToWrite);
+      socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
       return socket;
     }
   }
-  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + interface->getName()->std_str());
-}
-
-std::shared_ptr<data::stream::IOStream> ConnectionProvider::get(const std::chrono::duration<v_int64, std::micro>& timeout) {
-  std::packaged_task<std::shared_ptr<data::stream::IOStream>(std::shared_ptr<virtual_::Interface>, v_io_size, v_io_size)> task{getSocket};
-  auto future = task.get_future();
-
-  if (timeout == std::chrono::microseconds::zero()) {
-    task(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
-    return future.get();
-  }
-
-  std::thread{std::move(task), m_interface, m_maxAvailableToRead, m_maxAvailableToWrite}.detach();
-  return future.wait_for(timeout) == std::future_status::ready ? future.get() : nullptr;
+  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + m_interface->getName()->std_str());
 }
   
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync(const std::chrono::duration<v_int64, std::micro>& timeout) {
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
   
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
   private:
@@ -82,31 +65,22 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     v_io_size m_maxAvailableToRead;
     v_io_size m_maxAvailableToWrite;
     std::shared_ptr<virtual_::Interface::ConnectionSubmission> m_submission;
-
-    std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
-    std::chrono::duration<v_int64, std::micro> m_timeout;
   public:
     
     ConnectCoroutine(const std::shared_ptr<virtual_::Interface>& interface,
                      v_io_size maxAvailableToRead,
-                     v_io_size maxAvailableToWrite,
-                     const std::chrono::duration<v_int64, std::micro>& timeout)
+                     v_io_size maxAvailableToWrite)
       : m_interface(interface)
       , m_maxAvailableToRead(maxAvailableToRead)
       , m_maxAvailableToWrite(maxAvailableToWrite)
-      , m_timeout(timeout)
     {}
     
-    bool timedout() const noexcept {
-      return m_timeout != std::chrono::microseconds::zero() && m_timeout < (std::chrono::steady_clock::now() - m_startTime);
-    }
-
     Action act() override {
       m_submission = m_interface->connectNonBlocking();
       if(m_submission){
         return yieldTo(&ConnectCoroutine::obtainSocket);
       }
-      return timedout() ? _return(nullptr) : waitRepeat(std::chrono::milliseconds(100));
+      return waitRepeat(std::chrono::milliseconds(100));
     }
 
     Action obtainSocket() {
@@ -122,7 +96,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           return _return(socket);
         }
 
-        return timedout() ? _return(nullptr) : waitRepeat(std::chrono::milliseconds(100));
+        return waitRepeat(std::chrono::milliseconds(100));
       }
 
       return error<Error>("[oatpp::network::virtual_::client::ConnectionProvider::getConnectionAsync()]: Error. Can't connect.");
@@ -131,7 +105,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     
   };
   
-  return ConnectCoroutine::startForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite, timeout);
+  return ConnectCoroutine::startForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
   
 }
   

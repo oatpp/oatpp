@@ -142,32 +142,6 @@ private:
 
 private:
 
-  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>&_this, std::unique_lock<std::mutex>&& guard) {
-
-    if(!_this->m_running) {
-      return nullptr;
-    }
-
-    if (_this->m_bench.size() > 0) {
-      auto record = _this->m_bench.front();
-      _this->m_bench.pop_front();
-      return std::make_shared<AcquisitionProxyImpl>(record.resource, _this);
-    } else {
-      ++ _this->m_counter;
-    }
-
-    guard.unlock();
-
-    try {
-      return std::make_shared<AcquisitionProxyImpl>(_this->m_provider->get(), _this);
-    } catch (...) {
-      guard.lock();
-      --_this->m_counter;
-      return nullptr;
-    }
-
-  }
-
   static void cleanupTask(std::shared_ptr<PoolTemplate> pool) {
 
     while(pool->m_running) { // timer-based cleanup loop
@@ -216,25 +190,24 @@ private:
 
 private:
   std::shared_ptr<Provider<TResource>> m_provider;
-  v_int64 m_counter;
+  v_int64 m_counter{0};
   v_int64 m_maxResources;
   v_int64 m_maxResourceTTL;
-  std::atomic<bool> m_running;
-  bool m_finished;
+  std::atomic<bool> m_running{true};
+  bool m_finished{false};
 private:
   std::list<PoolRecord> m_bench;
   async::CoroutineWaitList m_waitList;
   std::condition_variable m_condition;
   std::mutex m_lock;
+  std::chrono::duration<v_int64, std::micro> m_timeout;
 protected:
 
-  PoolTemplate(const std::shared_ptr<Provider<TResource>>& provider, v_int64 maxResources, v_int64 maxResourceTTL)
+  PoolTemplate(const std::shared_ptr<Provider<TResource>>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout)
     : m_provider(provider)
-    , m_counter(0)
     , m_maxResources(maxResources)
     , m_maxResourceTTL(maxResourceTTL)
-    , m_running(true)
-    , m_finished(false)
+    , m_timeout(timeout)
   {}
 
   static void startCleanupTask(const std::shared_ptr<PoolTemplate>& _this) {
@@ -242,48 +215,55 @@ protected:
     poolCleanupTask.detach();
   }
 
-  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
-    
-    std::unique_lock<std::mutex> guard(_this->m_lock);
+  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
+    const auto waitUntil = _this->m_timeout == std::chrono::microseconds::zero()
+                             ? std::chrono::steady_clock::time_point::max()
+                             : std::chrono::steady_clock::now() + _this->m_timeout;
+    auto readyPredicate = [&_this]() { return !_this->m_running || !_this->m_bench.empty() || _this->m_counter < _this->m_maxResources; };
 
-    auto finishedPredicate = [&_this]() { return !_this->m_running || !_this->m_bench.empty() || _this->m_counter < _this->m_maxResources; };
-    if (!_this->m_condition.wait_for(guard, timeout, std::move(finishedPredicate))) {
+    std::unique_lock<std::mutex> guard{_this->m_lock};
+    if (!_this->m_condition.wait_until(guard, waitUntil, std::move(readyPredicate))) {
       return nullptr;
     }
 
-    return get(_this, std::move(guard));
-
-  }
-
-  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
-    
-    std::unique_lock<std::mutex> guard(_this->m_lock);
-
-    while (_this->m_running && _this->m_bench.empty() && _this->m_counter >= _this->m_maxResources ) {
-        _this->m_condition.wait(guard);
+    if(!_this->m_running) {
+      return nullptr;
     }
 
-    return get(_this, std::move(guard));
+    if (_this->m_bench.size() > 0) {
+      auto record = _this->m_bench.front();
+      _this->m_bench.pop_front();
+      return std::make_shared<AcquisitionProxyImpl>(record.resource, _this);
+    } else {
+      ++ _this->m_counter;
+    }
 
+    guard.unlock();
+
+    try {
+      return std::make_shared<AcquisitionProxyImpl>(_this->m_provider->get(), _this);
+    } catch (...) {
+      guard.lock();
+      --_this->m_counter;
+      return nullptr;
+    }
   }
 
-  static async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
+  static async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<TResource>&> {
     private:
       std::shared_ptr<PoolTemplate> m_pool;
 
       std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
-      std::chrono::duration<v_int64, std::micro> m_timeout;
     public:
 
-      GetCoroutine(const std::shared_ptr<PoolTemplate>& pool, const std::chrono::duration<v_int64, std::micro>& timeout)
+      GetCoroutine(const std::shared_ptr<PoolTemplate>& pool)
         : m_pool(pool)
-        , m_timeout(timeout)
       {}
 
       bool timedout() const noexcept {
-        return m_timeout != std::chrono::microseconds::zero() && m_timeout < (std::chrono::steady_clock::now() - m_startTime);
+        return m_pool->m_timeout != std::chrono::microseconds::zero() && m_pool->m_timeout < (std::chrono::steady_clock::now() - m_startTime);
       }
 
       async::Action act() override {
@@ -317,8 +297,7 @@ protected:
 
         }
 
-        const auto passedTime = std::chrono::duration_cast<std::chrono::duration<v_int64, std::micro>>(std::chrono::steady_clock::now() - m_startTime);
-        return m_pool->m_provider->getAsync(m_timeout - passedTime).callbackTo(&GetCoroutine::onGet);
+        return m_pool->m_provider->getAsync().callbackTo(&GetCoroutine::onGet);
 
       }
 
@@ -337,7 +316,7 @@ protected:
 
     };
 
-    return GetCoroutine::startForResult(_this, timeout);
+    return GetCoroutine::startForResult(_this);
 
   }
 
@@ -420,8 +399,8 @@ protected:
    * @param maxResources
    * @param maxResourceTTL
    */
-  Pool(const std::shared_ptr<TProvider>& provider, v_int64 maxResources, v_int64 maxResourceTTL)
-    : PoolTemplate<TResource, AcquisitionProxyImpl>(provider, maxResources, maxResourceTTL)
+  Pool(const std::shared_ptr<TProvider>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero())
+    : PoolTemplate<TResource, AcquisitionProxyImpl>(provider, maxResources, maxResourceTTL, timeout)
   {
     TProvider::m_properties = provider->getProperties();
   }
@@ -449,16 +428,16 @@ public:
    * Get resource.
    * @return
    */
-  std::shared_ptr<TResource> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
-    return timeout == std::chrono::microseconds::zero() ? TPool::get(this->shared_from_this()) : TPool::get(this->shared_from_this(), timeout);
+  std::shared_ptr<TResource> get() override {
+    return TPool::get(this->shared_from_this());
   }
 
   /**
    * Get resource asynchronously.
    * @return
    */
-  async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
-    return TPool::getAsync(this->shared_from_this(), timeout);
+  async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync() override {
+    return TPool::getAsync(this->shared_from_this());
   }
 
   /**

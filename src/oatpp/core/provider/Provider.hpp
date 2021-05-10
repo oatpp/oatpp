@@ -87,13 +87,13 @@ public:
    * Get resource.
    * @return - resource.
    */
-  virtual std::shared_ptr<T> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) = 0;
+  virtual std::shared_ptr<T> get() = 0;
 
   /**
    * Get resource in Async manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult; of `T`.
    */
-  virtual async::CoroutineStarterForResult<const std::shared_ptr<T>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) = 0;
+  virtual async::CoroutineStarterForResult<const std::shared_ptr<T>&> getAsync() = 0;
 
   /**
    * Invalidate resource that was previously created by this provider. <br>

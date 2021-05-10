@@ -62,11 +62,11 @@ private:
   std::atomic<v_int64> m_id;
 public:
 
-  std::shared_ptr<Resource> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
+  std::shared_ptr<Resource> get() override {
     return std::make_shared<MyResource>(++m_id);
   }
 
-  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override {
+  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync() override {
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<Resource>&> {
     private:

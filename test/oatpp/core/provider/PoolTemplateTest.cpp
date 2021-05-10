@@ -38,11 +38,11 @@ struct Resource {
 class Provider : public oatpp::provider::Provider<Resource> {
 public:
 
-  std::shared_ptr<Resource> get(const std::chrono::duration<v_int64, std::micro>&) override {
+  std::shared_ptr<Resource> get() override {
     return std::make_shared<Resource>();
   }
 
-  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync(const std::chrono::duration<v_int64, std::micro>&) override {
+  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync() override {
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<Resource>&> {
     private:
@@ -82,26 +82,23 @@ struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, Acq
 
 struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
 
-  Pool(const std::shared_ptr<Provider>& provider, v_int64 maxResources, v_int64 maxResourceTTL)
-    : oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>(provider, maxResources, maxResourceTTL)
+  Pool(const std::shared_ptr<Provider>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout)
+    : oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>(provider, maxResources, maxResourceTTL, timeout)
   {}
-
-  static std::shared_ptr<Resource> get(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
-    return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::get(_this, timeout);
-  }
 
   static std::shared_ptr<Resource> get(const std::shared_ptr<PoolTemplate>& _this) {
     return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::get(_this);
   }
 
-  static async::CoroutineStarterForResult<const std::shared_ptr<Resource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this, const std::chrono::duration<v_int64, std::micro>& timeout) {
-    return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::getAsync(_this, timeout);
+  static async::CoroutineStarterForResult<const std::shared_ptr<Resource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
+    return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::getAsync(_this);
   }
 
   static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider>& provider,
-      v_int64 maxResources,
-      const std::chrono::duration<v_int64, std::micro>& maxResourceTTL) {
-    auto ptr = std::shared_ptr<PoolTemplate>(new Pool(provider, maxResources, maxResourceTTL.count()));
+                                                    v_int64 maxResources,
+                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL,
+                                                    const std::chrono::duration<v_int64, std::micro>& timeout) {
+    auto ptr = std::make_shared<Pool>(provider, maxResources, maxResourceTTL.count(), timeout);
     startCleanupTask(ptr);
     return ptr;
   }
@@ -111,25 +108,36 @@ struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
 }
 
 void PoolTemplateTest::onRun() {
-  
   const auto provider = std::make_shared<Provider>();
   const v_int64 maxResources = 1;
-  auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(1));
 
-  std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
-  OATPP_ASSERT(resource != nullptr);
+  {
+    OATPP_LOGD(TAG, "With timeout");
+    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(1), std::chrono::milliseconds(500));
+    
+    std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+    OATPP_ASSERT(resource != nullptr);
+    OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
+    
+    poolTemplate->stop();
+    
+    OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
+  }
+  {
+      OATPP_LOGD(TAG, "Without timeout");
+      auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(1), std::chrono::milliseconds::zero());
 
-  OATPP_ASSERT(Pool::get(poolTemplate, std::chrono::milliseconds(500)) == nullptr);
-  std::future<std::shared_ptr<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
-    return Pool::get(poolTemplate);
-  });
-  OATPP_ASSERT(futureResource.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);
+      std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+      OATPP_ASSERT(resource != nullptr);
+      std::future<std::shared_ptr<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
+        return Pool::get(poolTemplate);
+      });
+      OATPP_ASSERT(futureResource.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);
 
-  poolTemplate->stop();
+      poolTemplate->stop();
 
-  OATPP_ASSERT(Pool::get(poolTemplate, std::chrono::milliseconds(500)) == nullptr);
-  OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
-
+      OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
+  }
 }
 
 }}}}

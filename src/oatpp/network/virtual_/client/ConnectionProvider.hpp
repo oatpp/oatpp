@@ -75,13 +75,13 @@ public:
    * Get connection.
    * @return - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<data::stream::IOStream> get(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override;
+  std::shared_ptr<data::stream::IOStream> get() override;
 
   /**
    * Get connection in asynchronous manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()) override;
+  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override;
 
   /**
    * Does nothing.
