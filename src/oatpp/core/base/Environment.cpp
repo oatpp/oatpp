@@ -34,18 +34,11 @@
 
 #if defined(WIN32) || defined(_WIN32)
 	#include <WinSock2.h>
-#endif
 
-#if (defined(WIN32) || defined(_WIN32)) && defined(_WIN64)
-struct tm* localtime_r(time_t *_clock, struct tm *_result) {
-    _localtime64_s(_result, _clock);
-    return _result;
-}
-#elif (defined(WIN32) || defined(_WIN32)) && not defined(_WIN64)
-struct tm* localtime_r(time_t *_clock, struct tm *_result) {
-    _localtime32_s(_result, _clock);
-    return _result;
-}
+  struct tm* localtime_r(time_t *_clock, struct tm *_result) {
+      localtime_s(_result, _clock);
+      return _result;
+  }
 #endif
 
 namespace oatpp { namespace base {
