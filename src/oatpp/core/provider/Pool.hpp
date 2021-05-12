@@ -216,15 +216,17 @@ protected:
   }
 
   static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
-    const auto waitUntil = _this->m_timeout == std::chrono::microseconds::zero()
-                             ? std::chrono::steady_clock::time_point::max()
-                             : std::chrono::steady_clock::now() + _this->m_timeout;
     auto readyPredicate = [&_this]() { return !_this->m_running || !_this->m_bench.empty() || _this->m_counter < _this->m_maxResources; };
 
     std::unique_lock<std::mutex> guard{_this->m_lock};
-    if (!_this->m_condition.wait_until(guard, waitUntil, std::move(readyPredicate))) {
+    if (_this->m_timeout == std::chrono::microseconds::zero())
+    {
+      while (!readyPredicate()) {
+        _this->m_condition.wait(guard);
+      }
+    } else if (!_this->m_condition.wait_for(guard, _this->m_timeout, std::move(readyPredicate))) {
       return nullptr;
-    }
+    }    
 
     if(!_this->m_running) {
       return nullptr;
