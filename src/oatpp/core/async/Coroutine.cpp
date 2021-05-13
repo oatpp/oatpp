@@ -176,16 +176,23 @@ CoroutineStarter::CoroutineStarter(CoroutineStarter&& other)
 }
 
 CoroutineStarter::~CoroutineStarter() {
-  freeCoroutines();
+  if(m_first != nullptr) {
+    auto curr = m_first;
+    while(curr != nullptr) {
+      AbstractCoroutine* next = nullptr;
+      if(curr->m_parentReturnAction.m_type == Action::TYPE_COROUTINE) {
+        next = curr->m_parentReturnAction.m_data.coroutine;
+      }
+      delete curr;
+      curr = next;
+    }
+  }
 }
 
 /*
  * Move assignment operator.
  */
 CoroutineStarter& CoroutineStarter::operator=(CoroutineStarter&& other) {
-  if (this == std::addressof(other)) return *this;
-
-  freeCoroutines();
   m_first = other.m_first;
   m_last = other.m_last;
   other.m_first = nullptr;
@@ -215,21 +222,6 @@ CoroutineStarter& CoroutineStarter::next(CoroutineStarter&& starter) {
   starter.m_first = nullptr;
   starter.m_last = nullptr;
   return *this;
-}
-
-void CoroutineStarter::freeCoroutines()
-{
-  if (m_first != nullptr) {
-    auto curr = m_first;
-    while (curr != nullptr) {
-      AbstractCoroutine* next = nullptr;
-      if (curr->m_parentReturnAction.m_type == Action::TYPE_COROUTINE) {
-        next = curr->m_parentReturnAction.m_data.coroutine;
-      }
-      delete curr;
-      curr = next;
-    }
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
