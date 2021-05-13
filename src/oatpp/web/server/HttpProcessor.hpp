@@ -190,7 +190,6 @@ public:
   private:
     std::shared_ptr<Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    std::atomic_long *m_counter;
   public:
 
     /**
@@ -199,38 +198,7 @@ public:
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
     Task(const std::shared_ptr<Components>& components,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         std::atomic_long *taskCounter);
-
-    /**
-     * Copy-Constructor to correctly count tasks.
-     */
-    Task(const Task &copy);
-
-    /**
-     * Copy-Assignment to correctly count tasks.
-     * @param t - Task to copy
-     * @return
-     */
-    Task &operator=(const Task &t);
-
-    /**
-     * Move-Constructor to correclty count tasks;
-     */
-     Task(Task &&move);
-
-     /**
-      * Move-Assignment to correctly count tasks.
-      * @param t
-      * @return
-      */
-    Task &operator=(Task &&t);
-
-    /**
-     * Destructor, needed for counting.
-     */
-    ~Task() override;
-
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
   public:
 
     /**
@@ -258,7 +226,6 @@ public:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
-    std::atomic_long *m_counter;
   public:
 
 
@@ -268,8 +235,7 @@ public:
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
     Coroutine(const std::shared_ptr<Components>& components,
-              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-              std::atomic_long *taskCounter);
+              const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
 
     Action act() override;
 
@@ -283,9 +249,7 @@ public:
     Action onRequestDone();
     
     Action handleError(Error* error) override;
-
-    ~Coroutine() override;
-    
+        
   };
   
 };
