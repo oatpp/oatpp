@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +63,13 @@ Action Action::createWaitRepeatAction(v_int64 timePointMicroseconds) {
 Action Action::createWaitListAction(CoroutineWaitList* waitList) {
   Action result(TYPE_WAIT_LIST);
   result.m_data.waitList = waitList;
+  return result;
+}
+
+Action Action::createWaitListActionWithTimeout(CoroutineWaitList* waitList, const std::chrono::steady_clock::time_point& timeout) {
+  Action result(TYPE_WAIT_LIST_WITH_TIMEOUT);
+  result.m_data.waitListWithTimeout.waitList = waitList;
+  result.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(timeout.time_since_epoch()).count();
   return result;
 }
 

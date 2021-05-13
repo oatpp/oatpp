@@ -27,6 +27,7 @@
 #include <future>
 
 #include "oatpp/core/provider/Pool.hpp"
+#include "oatpp/core/async/Executor.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace provider {
 
@@ -105,6 +106,28 @@ struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
 
 };
 
+class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
+private:
+  std::shared_ptr<oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>> m_pool;
+  std::promise<std::shared_ptr<Resource>>* m_promise;
+public:
+
+  ClientCoroutine(const std::shared_ptr<oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>>& pool, std::promise<std::shared_ptr<Resource>>* promise)
+    : m_pool(pool)
+    , m_promise(promise)
+  {}
+
+  Action act() override {
+    return Pool::getAsync(m_pool).callbackTo(&ClientCoroutine::onGet);
+  }
+
+  Action onGet(const std::shared_ptr<Resource>& resource) {
+    m_promise->set_value(resource);
+    return finish();
+  }
+
+};
+
 }
 
 void PoolTemplateTest::onRun() {
@@ -112,8 +135,8 @@ void PoolTemplateTest::onRun() {
   const v_int64 maxResources = 1;
 
   {
-    OATPP_LOGD(TAG, "With timeout");
-    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(1), std::chrono::milliseconds(500));
+    OATPP_LOGD(TAG, "Synchronously with timeout");
+    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
     
     std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr);
@@ -124,19 +147,60 @@ void PoolTemplateTest::onRun() {
     OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
   }
   {
-      OATPP_LOGD(TAG, "Without timeout");
-      auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(1), std::chrono::milliseconds::zero());
+    OATPP_LOGD(TAG, "Synchronously without timeout");
+    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
-      std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+    std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+    OATPP_ASSERT(resource != nullptr);
+    std::future<std::shared_ptr<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
+      return Pool::get(poolTemplate);
+    });
+    OATPP_ASSERT(futureResource.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);
+
+    poolTemplate->stop();
+
+    OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
+  }
+  {
+    OATPP_LOGD(TAG, "Asynchronously with timeout");
+    oatpp::async::Executor executor(1, 1, 1);
+    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
+
+    std::shared_ptr<Resource> resource;
+    {
+      std::promise<std::shared_ptr<Resource>> promise;
+      auto future = promise.get_future();
+      executor.execute<ClientCoroutine>(poolTemplate, &promise);
+      resource = future.get();
       OATPP_ASSERT(resource != nullptr);
-      std::future<std::shared_ptr<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
-        return Pool::get(poolTemplate);
-      });
-      OATPP_ASSERT(futureResource.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);
+    }
+    {
+      std::promise<std::shared_ptr<Resource>> promise;
+      auto future = promise.get_future();
+      executor.execute<ClientCoroutine>(poolTemplate, &promise);
+      OATPP_ASSERT(future.get() == nullptr);
+    }
 
-      poolTemplate->stop();
+    poolTemplate->stop();
+    executor.stop();
+    executor.join();
+  }
+  {
+    OATPP_LOGD(TAG, "Asynchronously without timeout");
+    oatpp::async::Executor executor(1, 1, 1);
+    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
-      OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
+    std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+    OATPP_ASSERT(resource != nullptr);
+
+    std::promise<std::shared_ptr<Resource>> promise;
+    auto future = promise.get_future();
+    executor.execute<ClientCoroutine>(poolTemplate, &promise);
+    OATPP_ASSERT(future.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);
+
+    poolTemplate->stop();
+    executor.stop();
+    executor.join();
   }
 }
 

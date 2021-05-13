@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +60,16 @@ private:
   oatpp::collection::FastQueue<CoroutineHandle> m_list;
   oatpp::concurrency::SpinLock m_lock;
   Listener* m_listener = nullptr;
+
+  std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
+  oatpp::concurrency::SpinLock m_timeoutsLock;
+
+  std::atomic_bool m_stop{false};
+  std::thread m_thread;
+private:
+  void startTimeoutCheckerThread();
+  void checkCoroutinesForTimeouts();
+
 protected:
   /*
    * Put coroutine on wait-list.
@@ -68,11 +79,27 @@ protected:
   void pushFront(CoroutineHandle* coroutine);
 
   /*
+   * Put coroutine on wait-list with timeout.
+   * This method should be called by Coroutine Processor only.
+   * @param coroutine
+   * @param timeoutTimeSinceEpochMS
+   */
+  void pushFront(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS);
+
+  /*
    * Put coroutine on wait-list.
    * This method should be called by Coroutine Processor only.
    * @param coroutine
    */
   void pushBack(CoroutineHandle* coroutine);
+  
+  /*
+   * Put coroutine on wait-list with timeout.
+   * This method should be called by Coroutine Processor only.
+   * @param coroutine
+   * @param timeoutTimeSinceEpochMS
+   */
+  void pushBack(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS);
 public:
 
   /**
@@ -119,9 +146,23 @@ public:
   void notifyAll();
 
   CoroutineWaitList& operator=(CoroutineWaitList&& other) {
+    if (this == std::addressof(other)) return *this;
+      
     notifyAll();
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
-    m_list = std::move(other.m_list);
+    
+    {
+      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_lock};
+      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_lock};
+      m_list = std::move(other.m_list);
+    }
+    {
+      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_timeoutsLock};
+      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_timeoutsLock};
+      m_coroutinesWithTimeout = std::move(other.m_coroutinesWithTimeout);
+      if (!m_coroutinesWithTimeout.empty() && !m_thread.joinable()) {
+        startTimeoutCheckerThread();
+      }
+    }
     return *this;
   }
 

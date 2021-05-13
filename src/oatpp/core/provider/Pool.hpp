@@ -269,18 +269,18 @@ protected:
       }
 
       async::Action act() override {
+        
+        if (timedout()) return _return(nullptr);
 
         {
           /* Careful!!! Using non-async lock */
-          std::unique_lock<std::mutex> guard(m_pool->m_lock, std::try_to_lock);
-
-          if (!guard.owns_lock()) {
-            return timedout() ? this->_return(nullptr) : this->waitRepeat(std::chrono::milliseconds(100));
-          }
+          std::unique_lock<std::mutex> guard(m_pool->m_lock);
 
           if (m_pool->m_running && m_pool->m_bench.size() == 0 && m_pool->m_counter >= m_pool->m_maxResources) {
             guard.unlock();
-            return async::Action::createWaitListAction(&m_pool->m_waitList);
+            return m_pool->m_timeout == std::chrono::microseconds::zero()
+              ? async::Action::createWaitListAction(&m_pool->m_waitList)
+              : async::Action::createWaitListActionWithTimeout(&m_pool->m_waitList, m_startTime + m_pool->m_timeout);
           }
 
           if(!m_pool->m_running) {

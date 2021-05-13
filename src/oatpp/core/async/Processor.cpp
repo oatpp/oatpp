@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,6 +96,11 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
       case Action::TYPE_WAIT_LIST:
         coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
         action.m_data.waitList->pushBack(coroutine);
+        break;
+
+      case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
+        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+        action.m_data.waitListWithTimeout.waitList->pushBack(coroutine, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
         break;
 
       default:
@@ -207,6 +213,12 @@ bool Processor::iterate(v_int32 numIterations) {
           CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
           m_queue.popFront();
           action.m_data.waitList->pushBack(CP);
+          break;
+
+        case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
+          CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+          m_queue.popFront();
+          action.m_data.waitListWithTimeout.waitList->pushBack(CP, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
           break;
 
         default:
