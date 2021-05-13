@@ -31,6 +31,8 @@
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include <mutex>
+#include <thread>
+#include <utility>
 
 namespace oatpp { namespace async {
 
