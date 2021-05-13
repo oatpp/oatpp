@@ -64,7 +64,7 @@ void CoroutineWaitList::checkCoroutinesForTimeouts() {
     {
       std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
       const auto currentTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-      const auto newEndIt = std::remove_if(std::begin(m_coroutinesWithTimeout), std::end(m_coroutinesWithTimeout), [&](const auto& entry) {
+      const auto newEndIt = std::remove_if(std::begin(m_coroutinesWithTimeout), std::end(m_coroutinesWithTimeout), [&](const std::pair<CoroutineHandle*, v_int64>& entry) {
         if (currentTimeSinceEpochMS > entry.second) {
           timedoutCoroutines.insert(entry.first);
           return true;
