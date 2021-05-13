@@ -95,7 +95,7 @@ void TypeResolverTest::onRun() {
   dto1->f_int64 = 64;
   dto1->f_uint64 = 6464;
 
-  dto1->f_float32 = 0.32f;
+  dto1->f_float32 = 0.32;
   dto1->f_float64 = 0.64;
 
   dto1->f_bool = true;

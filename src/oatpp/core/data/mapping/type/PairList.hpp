@@ -52,8 +52,6 @@ namespace __class {
     class PolymorphicDispatcher {
     public:
 
-      virtual ~PolymorphicDispatcher() = default;
-
       virtual type::Void createObject() const = 0;
 
       /**

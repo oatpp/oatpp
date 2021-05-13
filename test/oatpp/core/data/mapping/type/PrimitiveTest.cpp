@@ -42,15 +42,15 @@ void PrimitiveTest::onRun() {
 
   {
     checkHash(oatpp::Boolean(true));
-    checkHash(oatpp::Int8(0x7F));
+    checkHash(oatpp::Int8(0xFF));
     checkHash(oatpp::UInt8(0xFF));
-    checkHash(oatpp::Int16(0x7FFF));
+    checkHash(oatpp::Int16(0xFFFF));
     checkHash(oatpp::UInt16(0xFFFF));
-    checkHash(oatpp::Int32(0x7FFFFFFF));
+    checkHash(oatpp::Int32(0xFFFFFFFF));
     checkHash(oatpp::UInt32(0xFFFFFFFF));
-    checkHash(oatpp::Int64(0x7FFFFFFFFFFFFFFF));
+    checkHash(oatpp::Int64(0xFFFFFFFFFFFFFFFF));
     checkHash(oatpp::UInt64(0xFFFFFFFFFFFFFFFF));
-    checkHash(oatpp::Float32(0.2f));
+    checkHash(oatpp::Float32(0.2));
     checkHash(oatpp::Float64(0.2));
   }
 
