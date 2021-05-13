@@ -236,7 +236,7 @@ public:
      */
     Coroutine(const std::shared_ptr<Components>& components,
               const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
-
+    
     Action act() override;
 
     Action parseHeaders();
@@ -249,7 +249,7 @@ public:
     Action onRequestDone();
     
     Action handleError(Error* error) override;
-        
+    
   };
   
 };
