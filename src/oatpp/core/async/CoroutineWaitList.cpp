@@ -26,6 +26,7 @@
 #include "CoroutineWaitList.hpp"
 
 #include "./Processor.hpp"
+#include <algorithm>
 #include <set>
 
 namespace oatpp { namespace async {
