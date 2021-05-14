@@ -110,8 +110,8 @@ private:
 
 private:
 
-  std::atomic_bool m_running = true;
-  std::atomic<v_int32> m_tasksCounter = 0;
+  std::atomic_bool m_running{true};
+  std::atomic<v_int32> m_tasksCounter{0};
 
 private:
 
