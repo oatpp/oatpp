@@ -59,18 +59,18 @@ public:
     virtual void onNewItem(CoroutineWaitList& list) = 0;
   };
 private:
-  oatpp::collection::FastQueue<CoroutineHandle> m_list;
-  oatpp::concurrency::SpinLock m_lock;
-  Listener* m_listener = nullptr;
+  struct Data {
+    oatpp::collection::FastQueue<CoroutineHandle> m_list;
+    oatpp::concurrency::SpinLock m_lock;
+    Listener* m_listener = nullptr;
+    
+    std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
+    oatpp::concurrency::SpinLock m_timeoutsLock;
+  };
 
-  std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
-  oatpp::concurrency::SpinLock m_timeoutsLock;
-
-  std::atomic_bool m_stop{false};
-  std::thread m_thread;
+  std::shared_ptr<Data> m_data{std::make_shared<Data>()};
 private:
-  void startTimeoutCheckerThread();
-  void checkCoroutinesForTimeouts();
+  static void checkCoroutinesForTimeouts(const std::shared_ptr<Data>& data);
 
 protected:
   /*
@@ -153,17 +153,14 @@ public:
     notifyAll();
     
     {
-      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_lock};
-      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_lock};
-      m_list = std::move(other.m_list);
+      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_data->m_lock};
+      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_data->m_lock};
+      m_data->m_list = std::move(other.m_data->m_list);
     }
     {
-      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_timeoutsLock};
-      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_timeoutsLock};
-      m_coroutinesWithTimeout = std::move(other.m_coroutinesWithTimeout);
-      if (!m_coroutinesWithTimeout.empty() && !m_thread.joinable()) {
-        startTimeoutCheckerThread();
-      }
+      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_data->m_timeoutsLock};
+      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_data->m_timeoutsLock};
+      m_data->m_coroutinesWithTimeout = std::move(other.m_data->m_coroutinesWithTimeout);
     }
     return *this;
   }

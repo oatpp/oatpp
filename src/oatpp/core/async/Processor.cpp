@@ -29,6 +29,32 @@
 
 namespace oatpp { namespace async {
 
+void Processor::checkCoroutinesForTimeouts() {
+  while (m_running) {
+    {
+      std::unique_lock<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+      while (m_coroutineWaitListsWithTimeouts.empty()) {
+        m_coroutineWaitListsWithTimeoutsCV.wait(lock);
+        if (!m_running) return;
+      }
+      
+      auto curr = m_coroutineWaitListsWithTimeouts.rbegin();
+      const auto end = m_coroutineWaitListsWithTimeouts.rend();
+      for (; curr != end; ++curr) {
+        std::shared_ptr<CoroutineWaitList::Data> data = curr->lock();
+        if (!data) {
+          m_coroutineWaitListsWithTimeouts.erase(std::next(curr).base());
+          continue;
+        }
+      
+        CoroutineWaitList::checkCoroutinesForTimeouts(data);
+      }
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
+  }
+}
+
 void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
   switch(worker->getType()) {
@@ -101,6 +127,12 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
       case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
         coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
         action.m_data.waitListWithTimeout.waitList->pushBack(coroutine, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
+
+        {
+          std::lock_guard<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+          m_coroutineWaitListsWithTimeouts.emplace_back(action.m_data.waitListWithTimeout.waitList->m_data);
+        }
+        m_coroutineWaitListsWithTimeoutsCV.notify_one();
         break;
 
       default:
@@ -219,6 +251,12 @@ bool Processor::iterate(v_int32 numIterations) {
           CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
           m_queue.popFront();
           action.m_data.waitListWithTimeout.waitList->pushBack(CP, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
+
+          {
+            std::lock_guard<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+            m_coroutineWaitListsWithTimeouts.emplace_back(action.m_data.waitListWithTimeout.waitList->m_data);
+          }
+          m_coroutineWaitListsWithTimeoutsCV.notify_one();
           break;
 
         default:

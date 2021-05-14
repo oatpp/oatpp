@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +27,7 @@
 #define oatpp_async_Processor_hpp
 
 #include "./Coroutine.hpp"
+#include "./CoroutineWaitList.hpp"
 #include "oatpp/core/collection/FastQueue.hpp"
 
 #include <mutex>
@@ -45,7 +47,7 @@ private:
 
   class TaskSubmission {
   public:
-    virtual ~TaskSubmission() {};
+    virtual ~TaskSubmission() = default;
     virtual CoroutineHandle* createCoroutine(Processor* processor) = 0;
   };
 
@@ -108,8 +110,17 @@ private:
 
 private:
 
-  bool m_running = true;
-  std::atomic<v_int32> m_tasksCounter;
+  std::atomic_bool m_running = true;
+  std::atomic<v_int32> m_tasksCounter = 0;
+
+private:
+
+  std::mutex m_coroutineWaitListsWithTimeoutsMutex;
+  std::condition_variable m_coroutineWaitListsWithTimeoutsCV;
+  std::vector<std::weak_ptr<CoroutineWaitList::Data>> m_coroutineWaitListsWithTimeouts;
+  std::thread m_coroutineWaitListTimeoutChecker{&Processor::checkCoroutinesForTimeouts, this};
+
+  void checkCoroutinesForTimeouts();
 
 private:
 
@@ -123,10 +134,13 @@ private:
 
 public:
 
-  Processor()
-    : m_running(true)
-    , m_tasksCounter(0)
-  {}
+  Processor() = default;
+
+  ~Processor() {
+    m_running = false;
+    m_coroutineWaitListsWithTimeoutsCV.notify_one();
+    m_coroutineWaitListTimeoutChecker.join();
+  }
 
   /**
    * Add dedicated co-worker to processor.
