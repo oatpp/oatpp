@@ -30,6 +30,8 @@ AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<Htt
                                                        v_int32 threadCount)
   : m_executor(std::make_shared<oatpp::async::Executor>(threadCount))
   , m_components(components)
+  , m_spawns(0)
+  , m_continue(true)
 {
   m_executor->detach();
 }
@@ -38,6 +40,8 @@ AsyncHttpConnectionHandler::AsyncHttpConnectionHandler(const std::shared_ptr<Htt
                                                        const std::shared_ptr<oatpp::async::Executor>& executor)
   : m_executor(executor)
   , m_components(components)
+  , m_spawns(0)
+  , m_continue(true)
 {}
 
 std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router, v_int32 threadCount){
@@ -69,15 +73,23 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
 
   (void)params;
 
-  connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
-  connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+  if (m_continue.load()) {
 
-  m_executor->execute<HttpProcessor::Coroutine>(m_components, connection);
+    connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+
+    m_executor->execute<HttpProcessor::Coroutine>(m_components, connection, &m_spawns);
+
+  }
   
 }
 
 void AsyncHttpConnectionHandler::stop() {
-  // DO NOTHING
+  /* Wait until all connection-threads are done */
+  m_continue.store(false);
+  while(m_spawns.load() != 0) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
 }
   
 }}}
