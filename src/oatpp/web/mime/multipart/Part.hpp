@@ -61,7 +61,7 @@ public:
    */
   Part(const Headers& headers,
        const std::shared_ptr<data::stream::InputStream>& inputStream,
-       const oatpp::String inMemoryData,
+       const oatpp::String& inMemoryData,
        v_int64 knownSize);
 
   /**
@@ -82,7 +82,7 @@ public:
    * @param knownSize - known size of the data in the input stream. Pass `-1` value if size is unknown.
    */
   void setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream,
-                   const oatpp::String inMemoryData,
+                   const oatpp::String& inMemoryData,
                    v_int64 knownSize);
 
   /**

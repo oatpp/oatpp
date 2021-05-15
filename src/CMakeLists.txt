@@ -277,6 +277,9 @@ set_target_properties(oatpp PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp PRIVATE /permissive-)
+endif()
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
@@ -321,6 +324,9 @@ set_target_properties(oatpp-test PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp-test PRIVATE /permissive-)
+endif()
 
 target_link_libraries(oatpp-test PUBLIC oatpp)
 

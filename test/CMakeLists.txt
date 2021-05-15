@@ -118,6 +118,9 @@ set_target_properties(oatppAllTests PROPERTIES
     CXX_EXTENSIONS OFF
     CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatppAllTests PRIVATE /permissive-)
+endif()
 
 target_include_directories(oatppAllTests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

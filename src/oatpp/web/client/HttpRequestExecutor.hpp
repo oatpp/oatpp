@@ -107,7 +107,7 @@ public:
    * Invalidate connection.
    * @param connectionHandle
    */
-  virtual void invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) override;
+  void invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) override;
 
   /**
    * Execute http request.
