@@ -260,6 +260,7 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_connectionState(ConnectionState::ALIVE)
 {}
 
+
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
   return m_connection->initContextsAsync().next(yieldTo(&HttpProcessor::Coroutine::parseHeaders));
 }

@@ -77,7 +77,7 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
   if(concurrency > 1) {
     concurrency -= 1;
   }
-  
+
   /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
   oatpp::concurrency::setThreadAffinityToCpuRange(thread.native_handle(), 0, concurrency - 1 /* -1 because 0-based index */);
 
