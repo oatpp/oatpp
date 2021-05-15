@@ -31,6 +31,7 @@ namespace oatpp { namespace async {
 
 void Processor::checkCoroutinesForTimeouts() {
   while (m_running) {
+    std::set<CoroutineWaitList*> coroutineWaitListsWithTimeouts;
     {
       std::unique_lock<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
       while (m_coroutineWaitListsWithTimeouts.empty()) {
@@ -38,9 +39,10 @@ void Processor::checkCoroutinesForTimeouts() {
         if (!m_running) return;
       }
       
-      for (CoroutineWaitList* waitList : m_coroutineWaitListsWithTimeouts) {
-        waitList->checkCoroutinesForTimeouts();
-      }
+      coroutineWaitListsWithTimeouts = m_coroutineWaitListsWithTimeouts;
+    }
+    for (CoroutineWaitList* waitList : coroutineWaitListsWithTimeouts) {
+      waitList->checkCoroutinesForTimeouts();
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds{100});

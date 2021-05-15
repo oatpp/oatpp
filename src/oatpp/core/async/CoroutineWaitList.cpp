@@ -69,13 +69,19 @@ void CoroutineWaitList::checkCoroutinesForTimeouts() {
     m_coroutinesWithTimeout.erase(newEndIt, std::end(m_coroutinesWithTimeout));
   }
   if (!timedoutCoroutines.empty()) {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{ m_lock};
+    std::lock_guard<oatpp::concurrency::SpinLock> listLock{m_lock};
+    std::lock_guard<oatpp::concurrency::SpinLock> timeoutsLock{m_timeoutsLock};
     CoroutineHandle* prev = nullptr;
     CoroutineHandle* curr = m_list.first;
     while (curr) {
       if (timedoutCoroutines.count(curr)) {
-          m_list.cutEntry(curr, prev);
+        m_list.cutEntry(curr, prev);
         curr->_PP->pushOneTask(curr);
+        
+        if (--m_timeoutCheckingProcessors[curr->_PP] <= 0) {
+          curr->_PP->removeCoroutineWaitListWithTimeouts(this);
+          m_timeoutCheckingProcessors.erase(curr->_PP);
+        }
       }
       prev = curr;
       curr = curr->_ref;
