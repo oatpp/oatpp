@@ -219,48 +219,10 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
 // Task
 
 HttpProcessor::Task::Task(const std::shared_ptr<Components>& components,
-                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                          std::atomic_long *taskCounter)
+                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
   : m_components(components)
   , m_connection(connection)
-  , m_counter(taskCounter)
-{
-  (*m_counter)++;
-}
-
-HttpProcessor::Task::Task(const HttpProcessor::Task &copy)
-  : m_components(copy.m_components)
-  , m_connection(copy.m_connection)
-  , m_counter(copy.m_counter)
-{
-  (*m_counter)++;
-}
-
-HttpProcessor::Task::Task(HttpProcessor::Task &&move)
-  : m_components(std::move(move.m_components))
-  , m_connection(std::move(move.m_connection))
-  , m_counter(move.m_counter)
-{
-  move.m_counter = nullptr;
-}
-
-HttpProcessor::Task &HttpProcessor::Task::operator=(const HttpProcessor::Task &t) {
-  if (this != &t) {
-    m_components = t.m_components;
-    m_connection = t.m_connection;
-    m_counter = t.m_counter;
-    (*m_counter)++;
-  }
-  return *this;
-}
-
-HttpProcessor::Task &HttpProcessor::Task::operator=(HttpProcessor::Task &&t) {
-  m_components = std::move(t.m_components);
-  m_connection = std::move(t.m_connection);
-  m_counter = t.m_counter;
-  t.m_counter = nullptr;
-  return *this;
-}
+{}
 
 void HttpProcessor::Task::run(){
 
@@ -283,18 +245,12 @@ void HttpProcessor::Task::run(){
   }
 
 }
-HttpProcessor::Task::~Task() {
-  if (m_counter != nullptr) {
-    (*m_counter)--;
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HttpProcessor::Coroutine
 
 HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& components,
-                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                    std::atomic_long *taskCounter)
+                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
   : m_components(components)
   , m_connection(connection)
   , m_headersInBuffer(components->config->headersInBufferInitial)
@@ -302,14 +258,7 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
   , m_connectionState(ConnectionState::ALIVE)
-  , m_counter(taskCounter)
-{
-  (*m_counter)++;
-}
-
-HttpProcessor::Coroutine::~Coroutine() {
-  (*m_counter)--;
-}
+{}
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
   return m_connection->initContextsAsync().next(yieldTo(&HttpProcessor::Coroutine::parseHeaders));

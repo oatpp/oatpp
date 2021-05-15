@@ -54,12 +54,12 @@ void Executor::SubmissionProcessor::run() {
 
 void Executor::SubmissionProcessor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
   (void)tasks;
-  std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushTasks]: Error. This method does nothing.");
+  throw std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushTasks]: Error. This method does nothing.");
 }
 
 void Executor::SubmissionProcessor::pushOneTask(CoroutineHandle* task) {
   (void)task;
-  std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushOneTask]: Error. This method does nothing.");
+  throw std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushOneTask]: Error. This method does nothing.");
 }
 
 void Executor::SubmissionProcessor::stop() {
@@ -94,7 +94,7 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
   m_allWorkers.insert(m_allWorkers.end(), m_processorWorkers.begin(), m_processorWorkers.end());
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
-
+  ioWorkers.reserve(ioWorkersCount);
   switch(ioWorkerType) {
 
     case IO_WORKER_TYPE_NAIVE: {
@@ -119,6 +119,7 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
   linkWorkers(ioWorkers);
 
   std::vector<std::shared_ptr<worker::Worker>> timerWorkers;
+  timerWorkers.reserve(timerWorkersCount);
   for(v_int32 i = 0; i < timerWorkersCount; i++) {
     timerWorkers.push_back(std::make_shared<worker::TimerWorker>());
   }
@@ -233,10 +234,10 @@ void Executor::stop() {
 }
 
 v_int32 Executor::getTasksCount() {
-
+  
   v_int32 result = 0;
 
-  for(auto procWorker : m_processorWorkers) {
+  for(const auto& procWorker : m_processorWorkers) {
     result += procWorker->getProcessor().getTasksCount();
   }
 
