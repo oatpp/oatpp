@@ -30,6 +30,7 @@
 #include "oatpp/core/collection/FastQueue.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
+#include <map>
 #include <mutex>
 #include <thread>
 #include <utility>
@@ -59,18 +60,18 @@ public:
     virtual void onNewItem(CoroutineWaitList& list) = 0;
   };
 private:
-  struct Data {
-    oatpp::collection::FastQueue<CoroutineHandle> m_list;
-    oatpp::concurrency::SpinLock m_lock;
-    Listener* m_listener = nullptr;
-    
-    std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
-    oatpp::concurrency::SpinLock m_timeoutsLock;
-  };
+  oatpp::collection::FastQueue<CoroutineHandle> m_list;
+  oatpp::concurrency::SpinLock m_lock;
+  Listener* m_listener = nullptr;
+  
+  std::map<Processor*, v_int64> m_timeoutCheckingProcessors;
+  std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
+  oatpp::concurrency::SpinLock m_timeoutsLock;
 
-  std::shared_ptr<Data> m_data{std::make_shared<Data>()};
 private:
-  static void checkCoroutinesForTimeouts(const std::shared_ptr<Data>& data);
+  void checkCoroutinesForTimeouts();
+
+  void removeFirstCoroutine();
 
 protected:
   /*
@@ -147,23 +148,7 @@ public:
    */
   void notifyAll();
 
-  CoroutineWaitList& operator=(CoroutineWaitList&& other) {
-    if (this == std::addressof(other)) return *this;
-      
-    notifyAll();
-    
-    {
-      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_data->m_lock};
-      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_data->m_lock};
-      m_data->m_list = std::move(other.m_data->m_list);
-    }
-    {
-      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_data->m_timeoutsLock};
-      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_data->m_timeoutsLock};
-      m_data->m_coroutinesWithTimeout = std::move(other.m_data->m_coroutinesWithTimeout);
-    }
-    return *this;
-  }
+  CoroutineWaitList& operator=(CoroutineWaitList&& other);
 
 };
 

@@ -30,10 +30,11 @@
 #include "./CoroutineWaitList.hpp"
 #include "oatpp/core/collection/FastQueue.hpp"
 
-#include <mutex>
-#include <list>
-#include <vector>
 #include <condition_variable>
+#include <list>
+#include <mutex>
+#include <set>
+#include <vector>
 
 namespace oatpp { namespace async {
 
@@ -43,6 +44,7 @@ namespace oatpp { namespace async {
  * Do not use bare processor to run coroutines. Use &id:oatpp::async::Executor; instead;.
  */
 class Processor {
+    friend class CoroutineWaitList;
 private:
 
   class TaskSubmission {
@@ -117,10 +119,12 @@ private:
 
   std::mutex m_coroutineWaitListsWithTimeoutsMutex;
   std::condition_variable m_coroutineWaitListsWithTimeoutsCV;
-  std::vector<std::weak_ptr<CoroutineWaitList::Data>> m_coroutineWaitListsWithTimeouts;
+  std::set<CoroutineWaitList*> m_coroutineWaitListsWithTimeouts;
   std::thread m_coroutineWaitListTimeoutChecker{&Processor::checkCoroutinesForTimeouts, this};
 
   void checkCoroutinesForTimeouts();
+  void addCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList);
+  void removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList);
 
 private:
 
