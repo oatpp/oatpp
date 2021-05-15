@@ -361,6 +361,11 @@ class CoroutineStarter {
 private:
   AbstractCoroutine* m_first;
   AbstractCoroutine* m_last;
+
+private:
+
+  void freeCoroutines();
+
 public:
 
   /**
@@ -617,8 +622,8 @@ public:
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   template<typename ...ConstructorArgs>
-  static CoroutineStarter start(ConstructorArgs... args) {
-    return new T(args...);
+  static CoroutineStarter start(ConstructorArgs&&... args) {
+    return new T(std::forward<ConstructorArgs>(args)...);
   }
 
   /**
@@ -706,6 +711,9 @@ public:
      * Move assignment operator.
      */
     StarterForResult& operator=(StarterForResult&& other) {
+      if (this == std::addressof(other)) return *this;
+        
+      delete m_coroutine;
       m_coroutine = other.m_coroutine;
       other.m_coroutine = nullptr;
       return *this;
@@ -779,7 +787,7 @@ public:
    * @param ptr - pointer of the function to call.
    * @return - Action.
    */
-  virtual Action call(const AbstractCoroutine::FunctionPtr& ptr) override {
+  Action call(const AbstractCoroutine::FunctionPtr& ptr) override {
     Function f = static_cast<Function>(ptr);
     return (static_cast<T*>(this)->*f)();
   }
