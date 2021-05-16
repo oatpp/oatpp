@@ -117,8 +117,8 @@ private:
 
 private:
 
-  std::mutex m_coroutineWaitListsWithTimeoutsMutex;
-  std::condition_variable m_coroutineWaitListsWithTimeoutsCV;
+  std::recursive_mutex m_coroutineWaitListsWithTimeoutsMutex;
+  std::condition_variable_any m_coroutineWaitListsWithTimeoutsCV;
   std::set<CoroutineWaitList*> m_coroutineWaitListsWithTimeouts;
   std::thread m_coroutineWaitListTimeoutChecker{&Processor::checkCoroutinesForTimeouts, this};
 

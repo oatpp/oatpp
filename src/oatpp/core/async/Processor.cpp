@@ -31,18 +31,16 @@ namespace oatpp { namespace async {
 
 void Processor::checkCoroutinesForTimeouts() {
   while (m_running) {
-    std::set<CoroutineWaitList*> coroutineWaitListsWithTimeouts;
     {
-      std::unique_lock<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+      std::unique_lock<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
       while (m_coroutineWaitListsWithTimeouts.empty()) {
         m_coroutineWaitListsWithTimeoutsCV.wait(lock);
         if (!m_running) return;
       }
       
-      coroutineWaitListsWithTimeouts = m_coroutineWaitListsWithTimeouts;
-    }
-    for (CoroutineWaitList* waitList : coroutineWaitListsWithTimeouts) {
-      waitList->checkCoroutinesForTimeouts();
+      for (CoroutineWaitList* waitList : m_coroutineWaitListsWithTimeouts) {
+          waitList->checkCoroutinesForTimeouts();
+      }
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds{100});
@@ -51,14 +49,14 @@ void Processor::checkCoroutinesForTimeouts() {
 
 void Processor::addCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList) {
   {
-    std::lock_guard<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+    std::lock_guard<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
     m_coroutineWaitListsWithTimeouts.insert(waitList);
   }
   m_coroutineWaitListsWithTimeoutsCV.notify_one();
 }
 
 void Processor::removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList) {
-  std::lock_guard<std::mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+  std::lock_guard<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
   m_coroutineWaitListsWithTimeouts.erase(waitList);
 }
 
