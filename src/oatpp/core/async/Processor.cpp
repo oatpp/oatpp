@@ -38,7 +38,8 @@ void Processor::checkCoroutinesForTimeouts() {
         if (!m_running) return;
       }
       
-      for (CoroutineWaitList* waitList : m_coroutineWaitListsWithTimeouts) {
+      const auto coroutineWaitListsWithTimeouts = m_coroutineWaitListsWithTimeouts;    
+      for (CoroutineWaitList* waitList : coroutineWaitListsWithTimeouts) {
           waitList->checkCoroutinesForTimeouts();
       }
     }

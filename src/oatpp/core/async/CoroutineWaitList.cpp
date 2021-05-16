@@ -55,38 +55,32 @@ CoroutineWaitList::~CoroutineWaitList() {
 }
 
 void CoroutineWaitList::checkCoroutinesForTimeouts() {
-  std::set<CoroutineHandle*> timedoutCoroutines;
-  {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
-    const auto currentTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    const auto newEndIt = std::remove_if(std::begin(m_coroutinesWithTimeout), std::end(m_coroutinesWithTimeout), [&](const std::pair<CoroutineHandle*, v_int64>& entry) {
-      if (currentTimeSinceEpochMS > entry.second) {
-        timedoutCoroutines.insert(entry.first);
-        return true;
-      }
-      return false;
+  std::lock_guard<oatpp::concurrency::SpinLock> listLock{m_lock};
+  std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
+  const auto currentTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+  const auto newEndIt = std::remove_if(std::begin(m_coroutinesWithTimeout), std::end(m_coroutinesWithTimeout), [&](const std::pair<CoroutineHandle*, v_int64>& entry) {
+    return currentTimeSinceEpochMS > entry.second;
+  });
+  
+  for (CoroutineHandle* curr = m_list.first, *prev = nullptr; !m_list.empty() && m_list.last->_ref != curr; curr = curr->_ref) {
+    const bool removeFromWaitList = std::any_of(newEndIt, std::end(m_coroutinesWithTimeout), [=](const std::pair<CoroutineHandle*, v_int64>& entry) {
+      return entry.first == curr;
     });
-    m_coroutinesWithTimeout.erase(newEndIt, std::end(m_coroutinesWithTimeout));
-  }
-  if (!timedoutCoroutines.empty()) {
-    std::lock_guard<oatpp::concurrency::SpinLock> listLock{m_lock};
-    std::lock_guard<oatpp::concurrency::SpinLock> timeoutsLock{m_timeoutsLock};
-    CoroutineHandle* prev = nullptr;
-    CoroutineHandle* curr = m_list.first;
-    while (curr) {
-      if (timedoutCoroutines.count(curr)) {
-        m_list.cutEntry(curr, prev);
-        curr->_PP->pushOneTask(curr);
-        
-        if (--m_timeoutCheckingProcessors[curr->_PP] <= 0) {
-          curr->_PP->removeCoroutineWaitListWithTimeouts(this);
-          m_timeoutCheckingProcessors.erase(curr->_PP);
-        }
-      }
+    if (!removeFromWaitList) {
       prev = curr;
-      curr = curr->_ref;
+      continue;
     }
+    
+    m_list.cutEntry(curr, prev);   
+
+    if (--m_timeoutCheckingProcessors[curr->_PP] <= 0) {
+      curr->_PP->removeCoroutineWaitListWithTimeouts(this);
+      m_timeoutCheckingProcessors.erase(curr->_PP);
+    }
+    curr->_PP->pushOneTask(curr);
   }
+
+  m_coroutinesWithTimeout.erase(newEndIt, std::end(m_coroutinesWithTimeout));
 }
 
 void CoroutineWaitList::setListener(Listener* listener) {
@@ -151,13 +145,16 @@ void CoroutineWaitList::notifyAll() {
 
 void CoroutineWaitList::removeFirstCoroutine() {
   auto coroutine = m_list.popFront();
-  coroutine->_PP->pushOneTask(coroutine);
-    
-  std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
-  if (--m_timeoutCheckingProcessors[coroutine->_PP] <= 0) {
-    coroutine->_PP->removeCoroutineWaitListWithTimeouts(this);
-    m_timeoutCheckingProcessors.erase(coroutine->_PP);
+  
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
+    if (--m_timeoutCheckingProcessors[coroutine->_PP] <= 0) {
+      coroutine->_PP->removeCoroutineWaitListWithTimeouts(this);
+      m_timeoutCheckingProcessors.erase(coroutine->_PP);
+    }
   }
+
+  coroutine->_PP->pushOneTask(coroutine);
 }
 
 CoroutineWaitList& CoroutineWaitList::operator=(CoroutineWaitList&& other) {
