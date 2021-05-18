@@ -36,9 +36,9 @@
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
+#include <list>
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace server { namespace api {
@@ -104,7 +104,7 @@ public:
   /**
    * Convenience typedef for list of &id:oatpp::web::server::api::Endpoint;.
    */
-  typedef oatpp::collection::LinkedList<std::shared_ptr<Endpoint>> Endpoints;
+  typedef std::list<std::shared_ptr<Endpoint>> Endpoints;
 
   /**
    * Convenience typedef for &id:oatpp::web::server::HttpRequestHandler;.
@@ -369,7 +369,7 @@ protected:
   std::shared_ptr<RequestHandler> getEndpointHandler(const std::string& endpointName);
   
 protected:
-  std::shared_ptr<Endpoints> m_endpoints;
+  std::shared_ptr<Endpoints> m_endpoints{std::make_shared<Endpoints>()};
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   std::shared_ptr<handler::AuthorizationHandler> m_defaultAuthorizationHandler;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
@@ -378,9 +378,7 @@ protected:
   const oatpp::String m_routerPrefix;
 public:
   ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper, const oatpp::String &routerPrefix = nullptr)
-    : m_endpoints(Endpoints::createShared())
-    , m_errorHandler(nullptr)
-    , m_defaultObjectMapper(defaultObjectMapper)
+    : m_defaultObjectMapper(defaultObjectMapper)
     , m_routerPrefix(routerPrefix)
   {}
 public:
@@ -391,7 +389,7 @@ public:
                                                   const EndpointInfoBuilder& infoBuilder)
   {
     auto endpoint = Endpoint::createShared(handler, infoBuilder);
-    endpoints->pushBack(endpoint);
+    endpoints->push_back(endpoint);
     return endpoint;
   }
 

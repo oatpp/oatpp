@@ -51,7 +51,6 @@
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 #include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
-#include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/core/base/memory/PerfTest.hpp"
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
@@ -81,8 +80,6 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
-
-  OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
