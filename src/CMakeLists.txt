@@ -64,8 +64,6 @@ add_library(oatpp
         oatpp/core/base/memory/ObjectPool.cpp
         oatpp/core/base/memory/ObjectPool.hpp
         oatpp/core/collection/FastQueue.hpp
-        oatpp/core/collection/LinkedList.hpp
-        
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp

@@ -27,8 +27,7 @@
 
 #include "./Socket.hpp"
 
-#include "oatpp/core/collection/LinkedList.hpp"
-
+#include <list>
 #include <unordered_map>
 
 namespace oatpp { namespace network { namespace virtual_ {
@@ -116,7 +115,7 @@ private:
   std::mutex m_listenerMutex;
   std::mutex m_mutex;
   std::condition_variable m_condition;
-  oatpp::collection::LinkedList<std::shared_ptr<ConnectionSubmission>> m_submissions;
+  std::list<std::shared_ptr<ConnectionSubmission>> m_submissions;
 private:
 
   Interface(const oatpp::String& name);
