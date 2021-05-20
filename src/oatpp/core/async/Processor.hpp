@@ -140,12 +140,6 @@ public:
 
   Processor() = default;
 
-  ~Processor() {
-    m_running = false;
-    m_coroutineWaitListsWithTimeoutsCV.notify_one();
-    m_coroutineWaitListTimeoutChecker.join();
-  }
-
   /**
    * Add dedicated co-worker to processor.
    * @param worker - &id:oatpp::async::worker::Worker;.

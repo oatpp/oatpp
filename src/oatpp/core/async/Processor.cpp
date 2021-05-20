@@ -274,6 +274,9 @@ void Processor::stop() {
     m_running = false;
   }
   m_taskCondition.notify_one();
+
+  m_coroutineWaitListsWithTimeoutsCV.notify_one();
+  m_coroutineWaitListTimeoutChecker.join();
 }
 
 v_int32 Processor::getTasksCount() {
