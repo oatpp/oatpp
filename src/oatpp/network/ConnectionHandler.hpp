@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <bamkrs@github.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +63,51 @@ public:
    * Stop all threads here
    */
   virtual void stop() = 0;
+};
+
+
+/**
+ * Connection Error
+ */
+class ConnectionError : public std::runtime_error {
+ private:
+  oatpp::v_io_size m_ioStatus;
+  oatpp::String m_message;
+ public:
+
+  /**
+   * Constructor.
+   * @param ioStatus - I/O error. See &id:oatpp::v_io_size;.
+   * @param message - error message.
+   */
+  ConnectionError(oatpp::v_io_size ioStatus, const oatpp::String& message);
+
+  /**
+   * Get I/O error. See &id:oatpp::v_io_size;.
+   * @return &id:oatpp::v_io_size;.
+   */
+  oatpp::v_io_size getIOStatus();
+
+  /**
+   * Get error message.
+   * @return - error message.
+   */
+  oatpp::String& getMessage();
+
+};
+
+/**
+ * Communication Error
+ */
+class FatalConnectionError : public ConnectionError {
+ public:
+
+  /**
+   * Constructor.
+   * @param ioStatus - I/O error. See &id:oatpp::v_io_size;.
+   * @param message - error message.
+   */
+  FatalConnectionError(oatpp::v_io_size ioStatus, const oatpp::String& message);
 };
   
 }}

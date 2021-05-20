@@ -117,6 +117,9 @@ HttpProcessor::processNextRequest(ProcessingResources& resources,
   } catch (oatpp::web::protocol::http::HttpError& error) {
     response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
     connectionState = ConnectionState::CLOSING;
+  } catch (network::FatalConnectionError& error) {
+    response = nullptr;
+    connectionState = ConnectionState::DEAD;
   } catch (std::exception& error) {
     response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
     connectionState = ConnectionState::CLOSING;
@@ -157,7 +160,8 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
 
     // Silently close connection when endpoint returned a nullptr.
     if (!response) {
-      return ConnectionState::CLOSING;
+      connectionState = ConnectionState::DEAD;
+      return connectionState;
     }
 
     try {

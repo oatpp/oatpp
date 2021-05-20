@@ -156,6 +156,7 @@ add_library(oatpp
         oatpp/network/virtual_/server/ConnectionProvider.hpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
+        oatpp/network/ConnectionHandler.cpp
         oatpp/network/ConnectionHandler.hpp
         oatpp/network/ConnectionPool.cpp
         oatpp/network/ConnectionPool.hpp
