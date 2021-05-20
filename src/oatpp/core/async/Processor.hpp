@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +27,14 @@
 #define oatpp_async_Processor_hpp
 
 #include "./Coroutine.hpp"
+#include "./CoroutineWaitList.hpp"
 #include "oatpp/core/collection/FastQueue.hpp"
 
-#include <mutex>
-#include <list>
-#include <vector>
 #include <condition_variable>
+#include <list>
+#include <mutex>
+#include <set>
+#include <vector>
 
 namespace oatpp { namespace async {
 
@@ -41,11 +44,12 @@ namespace oatpp { namespace async {
  * Do not use bare processor to run coroutines. Use &id:oatpp::async::Executor; instead;.
  */
 class Processor {
+    friend class CoroutineWaitList;
 private:
 
   class TaskSubmission {
   public:
-    virtual ~TaskSubmission() {};
+    virtual ~TaskSubmission() = default;
     virtual CoroutineHandle* createCoroutine(Processor* processor) = 0;
   };
 
@@ -108,8 +112,19 @@ private:
 
 private:
 
-  bool m_running = true;
-  std::atomic<v_int32> m_tasksCounter;
+  std::atomic_bool m_running{true};
+  std::atomic<v_int32> m_tasksCounter{0};
+
+private:
+
+  std::recursive_mutex m_coroutineWaitListsWithTimeoutsMutex;
+  std::condition_variable_any m_coroutineWaitListsWithTimeoutsCV;
+  std::set<CoroutineWaitList*> m_coroutineWaitListsWithTimeouts;
+  std::thread m_coroutineWaitListTimeoutChecker{&Processor::checkCoroutinesForTimeouts, this};
+
+  void checkCoroutinesForTimeouts();
+  void addCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList);
+  void removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList);
 
 private:
 
@@ -123,10 +138,7 @@ private:
 
 public:
 
-  Processor()
-    : m_running(true)
-    , m_tasksCounter(0)
-  {}
+  Processor() = default;
 
   /**
    * Add dedicated co-worker to processor.

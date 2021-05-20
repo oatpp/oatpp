@@ -27,6 +27,7 @@
 
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
+#include "oatpp/core/provider/PoolTemplateTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -110,6 +111,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
+  OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
 
