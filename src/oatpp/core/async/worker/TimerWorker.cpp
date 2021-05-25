@@ -27,6 +27,7 @@
 #include "oatpp/core/async/Processor.hpp"
 
 #include <chrono>
+#include <set>
 
 namespace oatpp { namespace async { namespace worker {
 
@@ -38,10 +39,22 @@ TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granu
   m_thread = std::thread(&TimerWorker::run, this);
 }
 
-void TimerWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+TimerWorker::~TimerWorker() {
+  std::lock_guard<oatpp::concurrency::SpinLock> guard{m_backlogLock};
+  for (CoroutineHandle* coroutine : m_backlog) {
+    delete coroutine;
+  }
+  for (CoroutineHandle* coroutine : m_queue) {
+    delete coroutine;
+  }
+}
+
+void TimerWorker::pushTasks(std::vector<CoroutineHandle*>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
+    m_backlog.reserve(m_backlog.size() + tasks.size());
+    std::move(std::begin(tasks), std::end(tasks), std::back_inserter(m_backlog));
+    tasks.clear();
   }
   m_backlogCondition.notify_one();
 }
@@ -49,17 +62,19 @@ void TimerWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks
 void TimerWorker::consumeBacklog() {
 
   std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-  while (m_backlog.first == nullptr && m_queue.first == nullptr && m_running) {
+  while (m_backlog.empty() && m_queue.empty() && m_running) {
     m_backlogCondition.wait(lock);
   }
-  oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
+  m_queue.reserve(m_queue.size() + m_backlog.size());
+  std::move(std::begin(m_backlog), std::end(m_backlog), std::back_inserter(m_queue));
+  m_backlog.clear();
 
 }
 
 void TimerWorker::pushOneTask(CoroutineHandle* task) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    m_backlog.pushBack(task);
+    m_backlog.push_back(task);
   }
   m_backlogCondition.notify_one();
 }
@@ -69,17 +84,14 @@ void TimerWorker::run() {
   while(m_running) {
 
     consumeBacklog();
-    auto curr = m_queue.first;
-    CoroutineHandle* prev = nullptr;
 
     auto startTime = std::chrono::system_clock::now();
     std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(startTime.time_since_epoch());
     v_int64 tick = ms.count();
 
-    while(curr != nullptr) {
-
-      auto next = nextCoroutine(curr);
-
+    std::set<CoroutineHandle*> elementsToErase;
+    for (CoroutineHandle* curr : m_queue) {
+       
       const Action& schA = getCoroutineScheduledAction(curr);
 
       if(schA.getTimePointMicroseconds() < tick) {
@@ -97,19 +109,20 @@ void TimerWorker::run() {
             break;
 
           default:
-            m_queue.cutEntry(curr, prev);
+            elementsToErase.insert(curr);
             setCoroutineScheduledAction(curr, std::move(action));
             getCoroutineProcessor(curr)->pushOneTask(curr);
-            curr = prev;
             break;
 
         }
 
       }
-
-      prev = curr;
-      curr = next;
     }
+
+    m_queue.erase(std::remove_if(std::begin(m_queue), std::end(m_queue),
+      [&](CoroutineHandle* curr) {
+        return elementsToErase.count(curr) == 1;
+      }), std::end(m_queue));
 
     auto elapsed = std::chrono::system_clock::now() - startTime;
     if(elapsed < m_granularity) {

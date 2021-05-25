@@ -26,6 +26,7 @@
 #define oatpp_async_worker_Worker_hpp
 
 #include "oatpp/core/async/Coroutine.hpp"
+#include <vector>
 #include <thread>
 
 namespace oatpp { namespace async { namespace worker {
@@ -87,9 +88,9 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
+   * @param tasks - std::vector of &id:oatpp::async::CoroutineHandle;*.
    */
-  virtual void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) = 0;
+  virtual void pushTasks(std::vector<CoroutineHandle*>& tasks) = 0;
 
   /**
    * Push one task to worker.
