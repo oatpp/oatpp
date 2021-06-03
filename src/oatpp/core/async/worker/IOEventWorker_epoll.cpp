@@ -137,16 +137,10 @@ void IOEventWorker::consumeBacklog() {
 
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
 
-  auto curr = m_backlog.first;
-  while(curr != nullptr) {
+  for (CoroutineHandle* curr : m_backlog) {
     setCoroutineEvent(curr, EPOLL_CTL_ADD, nullptr);
-    curr = nextCoroutine(curr);
   }
-
-  m_backlog.first = nullptr;
-  m_backlog.last = nullptr;
-  m_backlog.count = 0;
-
+  m_backlog.clear();
 }
 
 void IOEventWorker::waitEvents() {
@@ -165,7 +159,7 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<CoroutineHandle> popQueue;
+  std::vector<CoroutineHandle*> tasks;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
@@ -221,7 +215,7 @@ void IOEventWorker::waitEvents() {
             }
 
             setCoroutineScheduledAction(coroutine, std::move(action));
-            popQueue.pushBack(coroutine);
+            tasks.push_back(coroutine);
 
             break;
 
@@ -238,7 +232,7 @@ void IOEventWorker::waitEvents() {
             }
 
             setCoroutineScheduledAction(coroutine, std::move(action));
-            popQueue.pushBack(coroutine);
+            tasks.push_back(coroutine);
 
             break;
 
@@ -264,8 +258,8 @@ void IOEventWorker::waitEvents() {
 
   }
 
-  if(popQueue.count > 0) {
-    m_foreman->pushTasks(popQueue);
+  if(!tasks.empty()) {
+    m_foreman->pushTasks(tasks);
   }
 
 }

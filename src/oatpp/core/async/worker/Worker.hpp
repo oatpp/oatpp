@@ -72,7 +72,6 @@ protected:
   static Action& getCoroutineScheduledAction(CoroutineHandle* coroutine);
   static Processor* getCoroutineProcessor(CoroutineHandle* coroutine);
   static void dismissAction(Action& action);
-  static CoroutineHandle* nextCoroutine(CoroutineHandle* coroutine);
 public:
 
   /**

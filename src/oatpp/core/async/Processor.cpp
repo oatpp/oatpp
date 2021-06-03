@@ -27,6 +27,8 @@
 #include "./CoroutineWaitList.hpp"
 #include "oatpp/core/async/worker/Worker.hpp"
 
+#include <iterator>
+
 namespace oatpp { namespace async {
 
 void Processor::checkCoroutinesForTimeouts() {

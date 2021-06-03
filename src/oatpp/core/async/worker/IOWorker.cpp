@@ -27,6 +27,7 @@
 #include "oatpp/core/async/Processor.hpp"
 
 #include <chrono>
+#include <iterator>
 
 namespace oatpp { namespace async { namespace worker {
 

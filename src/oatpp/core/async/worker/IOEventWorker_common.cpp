@@ -24,6 +24,7 @@
 
 #include "IOEventWorker.hpp"
 
+#include <iterator>
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #else
