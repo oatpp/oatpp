@@ -26,6 +26,7 @@
 
 #include "oatpp/core/async/Processor.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <iterator>
 #include <set>
