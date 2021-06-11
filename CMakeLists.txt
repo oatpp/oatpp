@@ -21,6 +21,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
 option(OATPP_LINK_ATOMIC "Link atomic library for other platform than MSVC|MINGW|APPLE|FreeBSD" ON)
+option(OATPP_MSVC_LINK_STATIC_RUNTIME "MSVC: Link with static runtime (/MT and /MTd)." OFF)
 
 ###################################################################################################
 ## COMPILATION CONFIG #############################################################################
@@ -112,6 +113,9 @@ message("oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
 
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+
+include(cmake/msvc-runtime.cmake)
+configure_msvc_runtime()
 
 add_subdirectory(src)
 
