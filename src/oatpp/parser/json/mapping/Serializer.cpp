@@ -75,8 +75,12 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
   }
 }
 
-void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, p_char8 data, v_buff_size size) {
-  auto encodedValue = Utils::escapeString(data, size, false);
+void Serializer::serializeString(data::stream::ConsistentOutputStream* stream,
+                                 p_char8 data,
+                                 v_buff_size size,
+                                 v_uint32 escapeFlags)
+{
+  auto encodedValue = Utils::escapeString(data, size, false, escapeFlags);
   stream->writeCharSimple('\"');
   stream->writeSimple(encodedValue);
   stream->writeCharSimple('\"');
@@ -87,8 +91,6 @@ void Serializer::serializeString(Serializer* serializer,
                                   const oatpp::Void& polymorph)
 {
 
-  (void) serializer;
-
   if(!polymorph) {
     stream->writeSimple("null", 4);
     return;
@@ -96,7 +98,7 @@ void Serializer::serializeString(Serializer* serializer,
 
   auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
 
-  serializeString(stream, str->getData(), str->getSize());
+  serializeString(stream, str->getData(), str->getSize(), serializer->m_config->escapeFlags);
 
 }
 
@@ -159,9 +161,9 @@ void Serializer::serializeObject(Serializer* serializer,
   for (auto const& field : fields) {
 
     auto value = field->get(object);
-    if(value || serializer->getConfig()->includeNullFields) {
+    if(value || serializer->m_config->includeNullFields) {
       (first) ? first = false : stream->writeSimple(",", 1);
-      serializeString(stream, (p_char8)field->name, std::strlen(field->name));
+      serializeString(stream, (p_char8)field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
       serializer->serialize(stream, value);
     }
