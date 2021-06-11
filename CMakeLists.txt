@@ -114,6 +114,9 @@ message("oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
 
+include(cmake/msvc-runtime.cmake)
+configure_msvc_runtime()
+
 add_subdirectory(src)
 
 if(OATPP_BUILD_TESTS)

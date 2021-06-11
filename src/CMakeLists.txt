@@ -278,11 +278,6 @@ set_target_properties(oatpp PROPERTIES
         CXX_STANDARD_REQUIRED ON
 )
 
-if(OATPP_MSVC_LINK_STATIC_RUNTIME)
-   include(MSVCStaticRuntime.cmake)
-   configure_msvc_static_runtime()
-endif()
-
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
 find_package(Threads REQUIRED)
