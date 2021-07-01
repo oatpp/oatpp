@@ -130,7 +130,7 @@ void Response::send(data::stream::OutputStream* stream,
 
     if(contentEncoderProvider == nullptr) {
 
-      if (bodySize >= 0) {
+      if (bodySize >= 0 && m_status != Status::CODE_206) {
 
         if (bodySize + headersWriteBuffer->getCurrentPosition() < headersWriteBuffer->getCapacity()) {
           headersWriteBuffer->writeSimple(m_body->getKnownData(), bodySize);
