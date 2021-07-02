@@ -130,16 +130,22 @@ void Response::send(data::stream::OutputStream* stream,
 
     if(contentEncoderProvider == nullptr) {
 
-      if (bodySize >= 0 && m_status != Status::CODE_206) {
+      if (bodySize >= 0) {
 
-        if (bodySize + headersWriteBuffer->getCurrentPosition() < headersWriteBuffer->getCapacity()) {
-          headersWriteBuffer->writeSimple(m_body->getKnownData(), bodySize);
+        if(m_body->getKnownData() == nullptr) {
           headersWriteBuffer->flushToStream(stream);
-        } else {
-          headersWriteBuffer->flushToStream(stream);
-          stream->writeExactSizeDataSimple(m_body->getKnownData(), bodySize);
+          /* Reuse headers buffer */
+          /* Transfer without chunked encoder */
+          data::stream::transfer(m_body, stream, 0, headersWriteBuffer->getData(), headersWriteBuffer->getCapacity());
+        } else { 
+          if (bodySize + headersWriteBuffer->getCurrentPosition() < headersWriteBuffer->getCapacity()) {
+            headersWriteBuffer->writeSimple(m_body->getKnownData(), bodySize);
+            headersWriteBuffer->flushToStream(stream);
+          } else {
+            headersWriteBuffer->flushToStream(stream);
+            stream->writeExactSizeDataSimple(m_body->getKnownData(), bodySize);
+          }
         }
-
       } else {
 
         headersWriteBuffer->flushToStream(stream);
