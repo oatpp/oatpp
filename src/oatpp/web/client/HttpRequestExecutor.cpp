@@ -141,13 +141,19 @@ HttpRequestExecutor::executeOnce(const String& method,
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Failed to read response.");
   }
+                                                                                
+  auto con_hdr = result.headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>("Connection");
+  if (con_hdr == "close")
+  {
+	  invalidateConnection(connectionHandle);
+  }
   
   auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
                                                                                 buffer,
                                                                                 result.bufferPosStart,
                                                                                 result.bufferPosEnd,
                                                                                 result.bufferPosStart != result.bufferPosEnd);
-  
+
   return Response::createShared(result.startingLine.statusCode,
                                 result.startingLine.description.toString(),
                                 result.headers, bodyStream, m_bodyDecoder);
