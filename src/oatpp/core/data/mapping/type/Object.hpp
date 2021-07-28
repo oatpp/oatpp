@@ -64,6 +64,7 @@ public:
        */
       std::string description = "";
       std::string pattern = "";
+      bool required = false;
     };
 
   private:
