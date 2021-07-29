@@ -70,7 +70,7 @@ public:
    * If body size is unknown then should return -1.
    * @return - &id:oatpp::v_io_size;.
    */
-  virtual v_buff_size getKnownSize() = 0;
+  virtual v_int64 getKnownSize() = 0;
   
 };
   
