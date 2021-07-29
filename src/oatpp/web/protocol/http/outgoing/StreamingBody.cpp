@@ -44,7 +44,7 @@ p_char8 StreamingBody::getKnownData() {
 }
 
 
-v_buff_size StreamingBody::getKnownSize() {
+v_int64 StreamingBody::getKnownSize() {
   return -1;
 }
 

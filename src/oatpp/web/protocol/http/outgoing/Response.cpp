@@ -89,7 +89,7 @@ void Response::send(data::stream::OutputStream* stream,
                     http::encoding::EncoderProvider* contentEncoderProvider)
 {
 
-  v_buff_size bodySize = -1;
+  v_int64 bodySize = -1;
 
   if(m_body){
 
