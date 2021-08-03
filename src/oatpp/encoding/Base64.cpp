@@ -110,7 +110,7 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
   auto result = oatpp::String(resultSize);
   
   p_char8 bdata = (p_char8) data;
-  p_char8 resultData = result->getData();
+  p_char8 resultData = (p_char8) result->data();
   
   v_buff_size pos = 0;
   while (pos + 2 < size) {
@@ -147,7 +147,7 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
 }
   
 oatpp::String Base64::encode(const oatpp::String& data, const char* alphabet) {
-  return encode(data->getData(), data->getSize(), alphabet);
+  return encode(data->data(), data->size(), alphabet);
 }
   
 oatpp::String Base64::decode(const char* data, v_buff_size size, const char* auxiliaryChars) {
@@ -159,7 +159,7 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
   }
   
   auto result = oatpp::String(resultSize);
-  p_char8 resultData = result->getData();
+  p_char8 resultData = (p_char8) result->data();
   v_buff_size pos = 0;
   while (pos + 3 < base64StrLength) {
     v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
@@ -193,7 +193,7 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
 }
   
 oatpp::String Base64::decode(const oatpp::String& data, const char* auxiliaryChars) {
-  return decode((const char*)data->getData(), data->getSize(), auxiliaryChars);
+  return decode((const char*)data->data(), data->size(), auxiliaryChars);
 }
   
 }}

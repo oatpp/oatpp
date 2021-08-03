@@ -75,20 +75,16 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
   }
 }
 
-void Serializer::serializeString(data::stream::ConsistentOutputStream* stream,
-                                 p_char8 data,
-                                 v_buff_size size,
-                                 v_uint32 escapeFlags)
-{
-  auto encodedValue = Utils::escapeString(data, size, false, escapeFlags);
+void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
+  auto encodedValue = Utils::escapeString(data, size, escapeFlags);
   stream->writeCharSimple('\"');
   stream->writeSimple(encodedValue);
   stream->writeCharSimple('\"');
 }
 
 void Serializer::serializeString(Serializer* serializer,
-                                  data::stream::ConsistentOutputStream* stream,
-                                  const oatpp::Void& polymorph)
+                                 data::stream::ConsistentOutputStream* stream,
+                                 const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
@@ -96,9 +92,9 @@ void Serializer::serializeString(Serializer* serializer,
     return;
   }
 
-  auto str = static_cast<oatpp::base::StrBuffer*>(polymorph.get());
+  auto str = static_cast<std::string*>(polymorph.get());
 
-  serializeString(stream, str->getData(), str->getSize(), serializer->m_config->escapeFlags);
+  serializeString(stream, str->data(), str->size(), serializer->m_config->escapeFlags);
 
 }
 
@@ -163,7 +159,7 @@ void Serializer::serializeObject(Serializer* serializer,
     auto value = field->get(object);
     if(value || serializer->m_config->includeNullFields) {
       (first) ? first = false : stream->writeSimple(",", 1);
-      serializeString(stream, (p_char8)field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
+      serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
       serializer->serialize(stream, value);
     }

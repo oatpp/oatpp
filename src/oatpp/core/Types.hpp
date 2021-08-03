@@ -52,7 +52,7 @@ namespace oatpp {
 
   /**
    * Mapping-Enabled String type. &id:oatpp::data::mapping::type::String; <br>
-   * For `oatpp::String` methods see &id:oatpp::base::StrBuffer;
+   * For `oatpp::String` methods see `std::string`
    */
   typedef oatpp::data::mapping::type::String String;
 

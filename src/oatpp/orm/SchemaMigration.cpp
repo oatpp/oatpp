@@ -72,7 +72,7 @@ void SchemaMigration::migrate() {
           break;
 
         case SOURCE_FILE:
-          script = base::StrBuffer::loadFromFile(source.param->c_str());
+          script = utils::String::loadFromFile(source.param->c_str());
           break;
 
         default:

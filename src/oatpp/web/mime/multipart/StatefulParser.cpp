@@ -40,7 +40,7 @@ void StatefulParser::ListenerCall::setOnHeadersCall() {
   size = 0;
 }
 
-void StatefulParser::ListenerCall::setOnDataCall(p_char8 pData, v_buff_size pSize) {
+void StatefulParser::ListenerCall::setOnDataCall(const char* pData, v_buff_size pSize) {
   callType = CALL_ON_DATA;
   data = pData;
   size = pSize;
@@ -134,18 +134,18 @@ void StatefulParser::parseHeaders(Headers& headers) {
 StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::InlineWriteData& inlineData) {
 
   ListenerCall result;
-  p_char8 data = (p_char8)inlineData.currBufferPtr;
+  auto data = inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
 
-  p_char8 sampleData = m_nextBoundarySample->getData();
-  v_io_size sampleSize = m_nextBoundarySample->getSize();
+  auto sampleData = m_nextBoundarySample->data();
+  v_io_size sampleSize = m_nextBoundarySample->size();
 
   if (m_currPartIndex == 0) {
-    sampleData = m_firstBoundarySample->getData();
-    sampleSize = m_firstBoundarySample->getSize();
+    sampleData = m_firstBoundarySample->data();
+    sampleSize = m_firstBoundarySample->size();
   } else {
-    sampleData = m_nextBoundarySample->getData();
-    sampleSize = m_nextBoundarySample->getSize();
+    sampleData = m_nextBoundarySample->data();
+    sampleSize = m_nextBoundarySample->size();
   }
 
   v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;
@@ -153,7 +153,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
     checkSize = size;
   }
 
-  parser::Caret caret(data, size);
+  parser::Caret caret((const char*)data, size);
 
   if(caret.isAtText(&sampleData[m_currBoundaryCharIndex], checkSize, true)) {
 
@@ -280,7 +280,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::buffer::Inline
 
   ListenerCall result;
 
-  p_char8 data = (p_char8) inlineData.currBufferPtr;
+  const char* data = (const char*) inlineData.currBufferPtr;
   auto size = inlineData.bytesLeft;
 
   parser::Caret caret(data, size);

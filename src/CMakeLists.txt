@@ -55,8 +55,6 @@ add_library(oatpp
         oatpp/core/base/Environment.cpp
         oatpp/core/base/Environment.hpp
         oatpp/core/base/ObjectHandle.hpp
-        oatpp/core/base/StrBuffer.cpp
-        oatpp/core/base/StrBuffer.hpp
         oatpp/core/base/memory/Allocator.cpp
         oatpp/core/base/memory/Allocator.hpp
         oatpp/core/base/memory/MemoryPool.cpp
@@ -130,6 +128,8 @@ add_library(oatpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/core/utils/Random.cpp
         oatpp/core/utils/Random.hpp
+        oatpp/core/utils/String.cpp
+        oatpp/core/utils/String.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp

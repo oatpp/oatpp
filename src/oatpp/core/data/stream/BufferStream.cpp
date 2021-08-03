@@ -117,14 +117,14 @@ void BufferOutputStream::setCurrentPosition(v_buff_size position) {
 }
 
 oatpp::String BufferOutputStream::toString() {
-  return oatpp::String((const char*)m_data, m_position, true);
+  return oatpp::String((const char*) m_data, m_position);
 }
 
 oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size count) {
   if(pos + count <= m_position) {
-    return oatpp::String((const char *) (m_data + pos), count, true);
+    return oatpp::String((const char *) (m_data + pos), count);
   } else {
-    return oatpp::String((const char *) (m_data + pos), m_position - pos, true);
+    return oatpp::String((const char *) (m_data + pos), m_position - pos);
   }
 }
 
@@ -167,19 +167,19 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
 
 data::stream::DefaultInitializedContext BufferInputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_FINITE);
 
-BufferInputStream::BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size)
+BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryHandle, const void* data, v_buff_size size)
   : m_memoryHandle(memoryHandle)
-  , m_data(data)
+  , m_data((p_char8) data)
   , m_size(size)
   , m_position(0)
   , m_ioMode(IOMode::ASYNCHRONOUS)
 {}
 
 BufferInputStream::BufferInputStream(const oatpp::String& data)
-  : BufferInputStream(data.getPtr(), data->getData(), data->getSize())
+  : BufferInputStream(data.getPtr(), (p_char8) data->data(), data->size())
 {}
 
-void BufferInputStream::reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size) {
+void BufferInputStream::reset(const std::shared_ptr<std::string>& memoryHandle, p_char8 data, v_buff_size size) {
   m_memoryHandle = memoryHandle;
   m_data = data;
   m_size = size;
@@ -218,7 +218,7 @@ Context& BufferInputStream::getInputStreamContext() {
   return DEFAULT_CONTEXT;
 }
 
-std::shared_ptr<base::StrBuffer> BufferInputStream::getDataMemoryHandle() {
+std::shared_ptr<std::string> BufferInputStream::getDataMemoryHandle() {
   return m_memoryHandle;
 }
 

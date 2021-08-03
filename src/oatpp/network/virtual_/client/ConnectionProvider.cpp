@@ -54,7 +54,7 @@ std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
       return socket;
     }
   }
-  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + m_interface->getName()->std_str());
+  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + *m_interface->getName());
 }
   
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {

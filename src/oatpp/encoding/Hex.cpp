@@ -48,7 +48,7 @@ void Hex::writeUInt32(v_uint32 value, p_char8 buffer){
   writeUInt16(v_uint16(value), buffer + 4);
 }
   
-v_int32 Hex::readUInt16(p_char8 buffer, v_uint16& value) {
+v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
   value = 0;
   for(v_int32 i = 0; i < 4; i++){
     v_char8 a = buffer[i];
@@ -65,7 +65,7 @@ v_int32 Hex::readUInt16(p_char8 buffer, v_uint16& value) {
   return 0;
 }
   
-v_int32 Hex::readUInt32(p_char8 buffer, v_uint32& value) {
+v_int32 Hex::readUInt32(const char* buffer, v_uint32& value) {
   value = 0;
   for(v_int32 i = 0; i < 8; i++){
     v_char8 a = buffer[i];

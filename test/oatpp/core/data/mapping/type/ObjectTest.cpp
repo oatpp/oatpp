@@ -55,6 +55,8 @@ class DtoA : public oatpp::DTO {
 
 public:
 
+  DtoA() = default;
+
   DtoA(const String& pId)
     : id(pId)
   {}

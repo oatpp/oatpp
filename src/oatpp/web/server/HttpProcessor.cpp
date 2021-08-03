@@ -78,7 +78,7 @@ HttpProcessor::ProcessingResources::ProcessingResources(const std::shared_ptr<Co
   , headersInBuffer(components->config->headersInBufferInitial)
   , headersOutBuffer(components->config->headersOutBufferInitial)
   , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
-  , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
+  , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0)))
 {}
 
 std::shared_ptr<protocol::http::outgoing::Response>
@@ -300,7 +300,7 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_headersInBuffer(components->config->headersInBufferInitial)
   , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
   , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
-  , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, base::StrBuffer::createShared(data::buffer::IOBuffer::BUFFER_SIZE)))
+  , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0)))
   , m_connectionState(ConnectionState::ALIVE)
   , m_counter(taskCounter)
 {

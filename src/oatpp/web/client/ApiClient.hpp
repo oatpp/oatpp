@@ -225,11 +225,11 @@ public:
       (void) parameter;
 
       OATPP_LOGE("[oatpp::web::client::ApiClient::TypeInterpretation::toString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", typeName->getData(), "oatpp::String");
+                 "Error. No conversion from '%s' to '%s' is defined.", typeName->c_str(), "oatpp::String");
 
       throw std::runtime_error(
         "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. "
-        "No conversion from '" + typeName->std_str() + "' to 'oatpp::String' is defined. "
+        "No conversion from '" + *typeName + "' to 'oatpp::String' is defined. "
         "Please define type conversion."
       );
 

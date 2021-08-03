@@ -65,11 +65,11 @@ public:
   typedef oatpp::String String;
   typedef oatpp::parser::Caret ParsingCaret;
 private:
-  static v_buff_size escapeUtf8Char(p_char8 sequence, p_char8 buffer);
-  static v_buff_size calcEscapedStringSize(p_char8 data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags);
-  static v_buff_size calcUnescapedStringSize(p_char8 data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
-  static void unescapeStringToBuffer(p_char8 data, v_buff_size size, p_char8 resultData);
-  static p_char8 preparseString(ParsingCaret& caret, v_buff_size& size);
+  static v_buff_size escapeUtf8Char(const char* sequence, p_char8 buffer);
+  static v_buff_size calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags);
+  static v_buff_size calcUnescapedStringSize(const char* data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
+  static void unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 resultData);
+  static const char* preparseString(ParsingCaret& caret, v_buff_size& size);
 public:
 
   /**
@@ -77,11 +77,10 @@ public:
    * *Note:* if(copyAsOwnData == false && escapedString == initialString) then result string will point to initial data.
    * @param data - pointer to string to escape.
    * @param size - data size.
-   * @param copyAsOwnData - see &id:oatpp::base::StrBuffer::StrBuffer;.
    * @param flags - escape flags.
    * @return - &id:oatpp::String;.
    */
-  static String escapeString(p_char8 data, v_buff_size size, bool copyAsOwnData = true, v_uint32 flags = FLAG_ESCAPE_ALL);
+  static String escapeString(const char* data, v_buff_size size, v_uint32 flags = FLAG_ESCAPE_ALL);
 
   /**
    * Unescape string as for json standard.
@@ -97,7 +96,7 @@ public:
    * @param errorPosition - out parameter. Error position in data.
    * @return - &id:oatpp::String;.
    */
-  static String unescapeString(p_char8 data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
+  static String unescapeString(const char* data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
 
   /**
    * Same as &l:Utils::unescapeString (); but return `std::string`.
@@ -113,7 +112,7 @@ public:
    * @param errorPosition - out parameter. Error position in data.
    * @return - &id:oatpp::String;.
    */
-  static std::string unescapeStringToStdString(p_char8 data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
+  static std::string unescapeStringToStdString(const char* data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
 
   /**
    * Parse string enclosed in `"<string>"`.

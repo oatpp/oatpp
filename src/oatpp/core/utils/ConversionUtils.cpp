@@ -35,8 +35,8 @@ namespace oatpp { namespace utils { namespace conversion {
   
   v_int32 strToInt32(const oatpp::String& str, bool& success){
     char* end;
-    v_int32 result = (v_int32) std::strtol((const char*)str->getData(), &end, 10);
-    success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
+    v_int32 result = (v_int32) std::strtol(str->data(), &end, 10);
+    success = (((v_buff_size)end - (v_buff_size)str->data()) == str->size());
     return result;
   }
 
@@ -47,8 +47,8 @@ namespace oatpp { namespace utils { namespace conversion {
 
   v_uint32 strToUInt32(const oatpp::String& str, bool& success){
     char* end;
-    v_uint32 result = (v_uint32) std::strtoul((const char*)str->getData(), &end, 10);
-    success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
+    v_uint32 result = (v_uint32) std::strtoul(str->data(), &end, 10);
+    success = (((v_buff_size)end - (v_buff_size)str->data()) == str->size());
     return result;
   }
   
@@ -59,8 +59,8 @@ namespace oatpp { namespace utils { namespace conversion {
   
   v_int64 strToInt64(const oatpp::String& str, bool& success){
     char* end;
-    v_int64 result = std::strtoll((const char*)str->getData(), &end, 10);
-    success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
+    v_int64 result = std::strtoll(str->data(), &end, 10);
+    success = (((v_buff_size)end - (v_buff_size)str->data()) == str->size());
     return result;
   }
 
@@ -71,8 +71,8 @@ namespace oatpp { namespace utils { namespace conversion {
 
   v_uint64 strToUInt64(const oatpp::String& str, bool& success){
     char* end;
-    v_uint64 result = std::strtoull((const char*)str->getData(), &end, 10);
-    success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
+    v_uint64 result = std::strtoull(str->data(), &end, 10);
+    success = (((v_buff_size)end - (v_buff_size)str->data()) == str->size());
     return result;
   }
 
@@ -96,7 +96,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [16]; // Max 10 digits with 1 sign. 16 is plenty enough.
     auto size = int32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size);
     }
     return nullptr;
   }
@@ -105,7 +105,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [16]; // Max 10 digits. 16 is plenty enough.
     auto size = uint32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size);
     }
     return nullptr;
   }
@@ -114,7 +114,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [32]; // Max 20 digits unsigned, 19 digits +1 sign signed.
     auto size = int64ToCharSequence(value, &buff[0], 32);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size);
     }
     return nullptr;
   }
@@ -123,7 +123,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [32]; // Max 20 digits.
     auto size = uint64ToCharSequence(value, &buff[0], 32);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size);
     }
     return nullptr;
   }
@@ -171,8 +171,8 @@ namespace oatpp { namespace utils { namespace conversion {
   
   v_float32 strToFloat32(const oatpp::String& str, bool& success) {
     char* end;
-    v_float32 result = std::strtof((const char*)str->getData(), &end);
-    success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
+    v_float32 result = std::strtof(str->data(), &end);
+    success = (((v_buff_size)end - (v_buff_size)str->data()) == str->size());
     return result;
   }
   
@@ -183,8 +183,8 @@ namespace oatpp { namespace utils { namespace conversion {
   
   v_float64 strToFloat64(const oatpp::String& str, bool& success) {
     char* end;
-    v_float64 result = std::strtod((const char*)str->getData(), &end);
-    success = (((v_buff_size)end - (v_buff_size)str->getData()) == str->getSize());
+    v_float64 result = std::strtod(str->data(), &end);
+    success = (((v_buff_size)end - (v_buff_size)str->data()) == str->size());
     return result;
   }
 
@@ -200,7 +200,7 @@ v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n, 
     v_char8 buff [100];
     auto size = float32ToCharSequence(value, &buff[0], 100, format);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size);
     }
     return nullptr;
   }
@@ -209,24 +209,24 @@ v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n, 
     v_char8 buff [100];
     auto size = float64ToCharSequence(value, &buff[0], 100, format);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size, true);
+      return oatpp::String((const char*)&buff[0], size);
     }
     return nullptr;
   }
   
   oatpp::String boolToStr(bool value) {
     if(value){
-      return oatpp::String("true", 4, false);
+      return oatpp::String("true", 4);
     } else {
-      return oatpp::String("false", 5, false);
+      return oatpp::String("false", 5);
     }
   }
   
   bool strToBool(const oatpp::String& str, bool& success) {
-    if(str->equals((p_char8)"true", 4)){
+    if(str == "true"){
       success = true;
       return true;
-    } else if(str->equals((p_char8)"false", 5)){
+    } else if(str == "false"){
       success = true;
       return false;
     }

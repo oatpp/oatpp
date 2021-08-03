@@ -36,7 +36,7 @@ Transaction::Transaction(const base::ObjectHandle<Executor>& executor, const std
   } else {
     m_open = false;
     throw std::runtime_error("[oatpp::orm::Transaction::Transaction()]: "
-                             "Error. Can't begin transaction - " + res->getErrorMessage()->std_str());
+                             "Error. Can't begin transaction - " + *res->getErrorMessage());
   }
 }
 

@@ -37,7 +37,6 @@ namespace {
   typedef oatpp::data::share::MemoryLabel MemoryLabel;
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
   typedef oatpp::data::share::StringKeyLabelCI StringKeyLabelCI;
-  typedef oatpp::data::share::StringKeyLabelCI_FAST StringKeyLabelCI_FAST;
 }
   
 void MemoryLabelTest::onRun() {
@@ -141,55 +140,6 @@ void MemoryLabelTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabelCI_FAST default constructor...");
-    StringKeyLabelCI_FAST s;
-    StringKeyLabelCI_FAST s0;
-    OATPP_ASSERT(!s);
-    OATPP_ASSERT(s == nullptr);
-    OATPP_ASSERT(s == s0);
-    OATPP_ASSERT(s != "teXt");
-    OATPP_ASSERT(s != oatpp::String("teXt"));
-    OATPP_LOGI(TAG, "OK");
-  }
-
-  {
-    OATPP_LOGI(TAG, "StringKeyLabelCI_FAST nullptr constructor...");
-    StringKeyLabelCI_FAST s(nullptr);
-    OATPP_ASSERT(!s);
-    OATPP_ASSERT(s == nullptr);
-    OATPP_ASSERT(s != "teXt");
-    OATPP_ASSERT(s != oatpp::String("teXt"));
-    OATPP_LOGI(TAG, "OK");
-  }
-
-  {
-    OATPP_LOGI(TAG, "StringKeyLabelCI_FAST const char* constructor...");
-    StringKeyLabelCI_FAST s("hello");
-    StringKeyLabelCI_FAST s0;
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != s0);
-    OATPP_ASSERT(s0 != s);
-    OATPP_ASSERT(s == "helLO");
-    OATPP_ASSERT(s == oatpp::String("helLO"));
-    OATPP_ASSERT(s != "text");
-    OATPP_ASSERT(s != oatpp::String("teXt"));
-    OATPP_LOGI(TAG, "OK");
-  }
-
-  {
-    OATPP_LOGI(TAG, "StringKeyLabelCI_FAST oatpp::String constructor...");
-    StringKeyLabelCI_FAST s(oatpp::String("hello"));
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s == "helLO");
-    OATPP_ASSERT(s == oatpp::String("helLO"));
-    OATPP_ASSERT(s != "text");
-    OATPP_ASSERT(s != oatpp::String("teXt"));
-    OATPP_LOGI(TAG, "OK");
-  }
-
-  {
     OATPP_LOGI(TAG, "general test...");
 
     oatpp::String sharedData = "big text goes here";
@@ -200,19 +150,18 @@ void MemoryLabelTest::onRun() {
 
     std::unordered_map<StringKeyLabel, MemoryLabel> stringMap;
     std::unordered_map<StringKeyLabelCI, MemoryLabel> stringMapCI;
-    std::unordered_map<StringKeyLabelCI_FAST, MemoryLabel> stringMapCI_FAST;
 
     // Case-Sensitive
 
-    stringMap[key1] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[0], 3);
-    stringMap[key2] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[4], 4);
-    stringMap[key3] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[9], 4);
-    stringMap[key4] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[14], 4);
+    stringMap[key1] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[0], 3);
+    stringMap[key2] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[4], 4);
+    stringMap[key3] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[9], 4);
+    stringMap[key4] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[14], 4);
 
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("big", stringMap["key1"].getData(), 3));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("text", stringMap["key2"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("goes", stringMap["key3"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("here", stringMap["key4"].getData(), 4));
+    OATPP_ASSERT(stringMap["key1"].equals("big"));
+    OATPP_ASSERT(stringMap["key2"].equals("text"));
+    OATPP_ASSERT(stringMap["key3"].equals("goes"));
+    OATPP_ASSERT(stringMap["key4"].equals("here"));
 
     OATPP_ASSERT(stringMap.find("Key1") == stringMap.end());
     OATPP_ASSERT(stringMap.find("Key2") == stringMap.end());
@@ -222,38 +171,20 @@ void MemoryLabelTest::onRun() {
 
     // CI
 
-    stringMapCI[key1] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[0], 3);
-    stringMapCI[key2] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[4], 4);
-    stringMapCI[key3] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[9], 4);
-    stringMapCI[key4] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[14], 4);
+    stringMapCI[key1] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[0], 3);
+    stringMapCI[key2] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[4], 4);
+    stringMapCI[key3] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[9], 4);
+    stringMapCI[key4] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[14], 4);
 
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("big", stringMapCI["key1"].getData(), 3));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("text", stringMapCI["key2"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("goes", stringMapCI["key3"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("here", stringMapCI["key4"].getData(), 4));
+    OATPP_ASSERT(stringMapCI["key1"].equals("big"));
+    OATPP_ASSERT(stringMapCI["key2"].equals("text"));
+    OATPP_ASSERT(stringMapCI["key3"].equals("goes"));
+    OATPP_ASSERT(stringMapCI["key4"].equals("here"));
 
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("big", stringMapCI["KEY1"].getData(), 3));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("text", stringMapCI["KEY2"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("goes", stringMapCI["KEY3"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("here", stringMapCI["KEY4"].getData(), 4));
-
-
-    // CI_FAST
-
-    stringMapCI_FAST[key1] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[0], 3);
-    stringMapCI_FAST[key2] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[4], 4);
-    stringMapCI_FAST[key3] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[9], 4);
-    stringMapCI_FAST[key4] = MemoryLabel(sharedData.getPtr(), &sharedData->getData()[14], 4);
-
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("big", stringMapCI_FAST["key1"].getData(), 3));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("text", stringMapCI_FAST["key2"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("goes", stringMapCI_FAST["key3"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("here", stringMapCI_FAST["key4"].getData(), 4));
-
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("big", stringMapCI_FAST["KEY1"].getData(), 3));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("text", stringMapCI_FAST["KEY2"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("goes", stringMapCI_FAST["KEY3"].getData(), 4));
-    OATPP_ASSERT(oatpp::base::StrBuffer::equals("here", stringMapCI_FAST["KEY4"].getData(), 4));
+    OATPP_ASSERT(stringMapCI["KEY1"].equals("big"));
+    OATPP_ASSERT(stringMapCI["KEY2"].equals("text"));
+    OATPP_ASSERT(stringMapCI["KEY3"].equals("goes"));
+    OATPP_ASSERT(stringMapCI["KEY4"].equals("here"));
 
     {
 

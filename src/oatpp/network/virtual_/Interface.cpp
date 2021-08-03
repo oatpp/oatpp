@@ -52,7 +52,7 @@ void Interface::registerInterface(const std::shared_ptr<Interface>& interface) {
   auto it = m_registry.find(interface->getName());
   if(it != m_registry.end()) {
     throw std::runtime_error
-    ("[oatpp::network::virtual_::Interface::registerInterface()]: Error. Interface with such name already exists - '" + interface->getName()->std_str() + "'.");
+    ("[oatpp::network::virtual_::Interface::registerInterface()]: Error. Interface with such name already exists - '" + *interface->getName() + "'.");
   }
 
   m_registry.insert({interface->getName(), interface});
@@ -66,7 +66,7 @@ void Interface::unregisterInterface(const oatpp::String& name) {
   auto it = m_registry.find(name);
   if(it == m_registry.end()) {
     throw std::runtime_error
-      ("[oatpp::network::virtual_::Interface::unregisterInterface()]: Error. Interface NOT FOUND - '" + name->std_str() + "'.");
+      ("[oatpp::network::virtual_::Interface::unregisterInterface()]: Error. Interface NOT FOUND - '" + *name + "'.");
   }
 
   m_registry.erase(it);
@@ -166,7 +166,7 @@ std::shared_ptr<Interface::ListenerLock> Interface::bind() {
     return std::shared_ptr<ListenerLock>(m_listenerLock.load());
   }
   throw std::runtime_error(
-    "[oatpp::network::virtual_::Interface::bind()]: Can't bind to interface '" + m_name->std_str() + "'. Listener lock is already acquired");
+    "[oatpp::network::virtual_::Interface::bind()]: Can't bind to interface '" + *m_name + "'. Listener lock is already acquired");
 }
 
 void Interface::unbindListener(ListenerLock* listenerLock) {

@@ -179,14 +179,14 @@ public:
     oatpp::String m_text;
     v_int32 m_counter;
     v_int32 m_iterations;
-    data::buffer::InlineReadData m_inlineData;
+    data::buffer::InlineWriteData m_inlineData;
   public:
 
     ReadCallback(const oatpp::String& text, v_int32 iterations)
       : m_text(text)
       , m_counter(0)
       , m_iterations(iterations)
-      , m_inlineData(text->getData(), text->getSize())
+      , m_inlineData(text->data(), text->size())
     {}
 
     v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
@@ -205,7 +205,7 @@ public:
           m_inlineData.inc(desiredToRead);
 
           if (m_inlineData.bytesLeft == 0) {
-            m_inlineData.set(m_text->getData(), m_text->getSize());
+            m_inlineData.set(m_text->data(), m_text->size());
             m_counter++;
           }
 

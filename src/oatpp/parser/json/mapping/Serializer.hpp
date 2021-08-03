@@ -164,7 +164,7 @@ private:
       if(value || serializer->m_config->includeNullFields) {
         (first) ? first = false : stream->writeSimple(",", 1);
         const auto& key = pair.first;
-        serializeString(stream, key->getData(), key->getSize(), serializer->m_config->escapeFlags);
+        serializeString(stream, key->data(), key->size(), serializer->m_config->escapeFlags);
         stream->writeSimple(":", 1);
         serializer->serialize(stream, value);
       }
@@ -173,9 +173,9 @@ private:
     stream->writeCharSimple('}');
 
   }
-
+  
   static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream,
-                              p_char8 data,
+                              const char* data,
                               v_buff_size size,
                               v_uint32 escapeFlags);
 

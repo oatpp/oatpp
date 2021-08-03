@@ -239,7 +239,7 @@ public:
    * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
   v_io_size writeSimple(const oatpp::String& str){
-    return writeSimple(str->getData(), str->getSize());
+    return writeSimple(str->data(), str->size());
   }
 
   /**

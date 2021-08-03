@@ -111,11 +111,11 @@ void BufferStreamTest::onRun() {
 
     auto wholeText = stream.toString();
 
-    OATPP_ASSERT(wholeText->getSize() == fragmentsCount * 10);
+    OATPP_ASSERT(wholeText->size() == fragmentsCount * 10);
 
     v_int32 substringSize = 10;
-    for(v_int32 i = 0; i < wholeText->getSize() - substringSize; i ++) {
-      OATPP_ASSERT(oatpp::String((const char*)&wholeText->getData()[i], substringSize, false) == stream.getSubstring(i, substringSize));
+    for(v_int32 i = 0; i < wholeText->size() - substringSize; i ++) {
+      OATPP_ASSERT(oatpp::String(&wholeText->data()[i], substringSize) == stream.getSubstring(i, substringSize));
     }
 
   }

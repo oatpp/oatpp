@@ -76,7 +76,7 @@ void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& cla
 
 void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_char8 charClose){
 
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   v_int32 scopeCounter = 0;
@@ -109,7 +109,7 @@ void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_ch
 }
 
 void Deserializer::skipString(oatpp::parser::Caret& caret){
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   v_int32 scopeCounter = 0;
@@ -129,7 +129,7 @@ void Deserializer::skipString(oatpp::parser::Caret& caret){
 }
 
 void Deserializer::skipToken(oatpp::parser::Caret& caret){
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   while(pos < size){

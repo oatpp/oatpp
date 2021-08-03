@@ -48,7 +48,7 @@ void InMemoryPartReader::onNewPart(const std::shared_ptr<Part>& part) {
 
 }
 
-void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
+void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {
@@ -75,8 +75,8 @@ void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 d
     auto fullData = buffer->toString();
     buffer->clear();
     part->clearTag();
-    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->getData(), fullData->getSize());
-    part->setDataInfo(stream, fullData, fullData->getSize());
+    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->data(), fullData->size());
+    part->setDataInfo(stream, fullData, fullData->size());
   }
 
 }
@@ -103,7 +103,7 @@ async::CoroutineStarter AsyncInMemoryPartReader::onNewPartAsync(const std::share
 
 }
 
-async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
+async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {
@@ -130,8 +130,8 @@ async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shar
     auto fullData = buffer->toString();
     buffer->clear();
     part->clearTag();
-    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->getData(), fullData->getSize());
-    part->setDataInfo(stream, fullData, fullData->getSize());
+    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->data(), fullData->size());
+    part->setDataInfo(stream, fullData, fullData->size());
   }
   return nullptr;
 }

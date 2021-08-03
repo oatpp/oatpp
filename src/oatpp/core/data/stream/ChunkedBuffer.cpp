@@ -165,8 +165,8 @@ Context& ChunkedBuffer::getOutputStreamContext() {
 }
 
 v_io_size ChunkedBuffer::readSubstring(void *buffer,
-                                             v_buff_size pos,
-                                             v_buff_size count)
+                                       v_buff_size pos,
+                                       v_buff_size count)
 {
 
   if(pos < 0 || pos >= m_size){
@@ -215,7 +215,7 @@ v_io_size ChunkedBuffer::readSubstring(void *buffer,
 
 oatpp::String ChunkedBuffer::getSubstring(v_buff_size pos, v_buff_size count){
   auto str = oatpp::String((v_int32) count);
-  readSubstring(str->getData(), pos, count);
+  readSubstring((p_char8)str->data(), pos, count);
   return str;
 }
 
