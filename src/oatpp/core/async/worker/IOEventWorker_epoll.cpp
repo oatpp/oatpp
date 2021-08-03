@@ -39,7 +39,11 @@ namespace oatpp { namespace async { namespace worker {
 
 void IOEventWorker::initEventQueue() {
 
+#if !defined __ANDROID_API__ || __ANDROID_API__ >= 21
   m_eventQueueHandle = ::epoll_create1(0);
+#else
+  m_eventQueueHandle = ::epoll_create(0);
+#endif
 
   if(m_eventQueueHandle == -1) {
     OATPP_LOGE("[oatpp::async::worker::IOEventWorker::initEventQueue()]", "Error. Call to ::epoll_create1() failed. errno=%d", errno);

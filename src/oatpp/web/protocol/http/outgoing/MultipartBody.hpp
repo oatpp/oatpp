@@ -166,7 +166,7 @@ public:
    * Always returns `-1` - as body size is unknown.
    * @return - `-1`. `v_buff_size`.
    */
-  v_buff_size getKnownSize() override;
+  v_int64 getKnownSize() override;
 
 };
 
