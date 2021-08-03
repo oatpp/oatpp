@@ -69,7 +69,7 @@ p_char8 BufferBody::getKnownData() {
   return (p_char8) m_buffer->data();
 }
 
-v_buff_size BufferBody::getKnownSize() {
+v_int64 BufferBody::getKnownSize() {
   return m_buffer->size();
 }
 

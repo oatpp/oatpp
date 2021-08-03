@@ -115,7 +115,7 @@ void Server::run(std::function<bool()> conditional) {
 
 void Server::run(bool startAsNewThread) {
   std::unique_lock<std::mutex> ul(m_mutex);
-  OATPP_LOGW("[oatpp::network::server::run(bool)]", "Using oatpp::network::server::run(bool) is deprecated and will be removed in the next release. Please implement your own threading.")
+  OATPP_LOGW("[oatpp::network::server::run(bool)]", "Using oatpp::network::server::run(bool) is deprecated and will be removed in the next release. Please implement your own threading (See https://github.com/oatpp/oatpp-threaded-starter).")
   switch (getStatus()) {
     case STATUS_STARTING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already starting");

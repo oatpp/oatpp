@@ -184,7 +184,7 @@ std::shared_ptr<Interface::ConnectionSubmission> Interface::connect() {
     auto submission = std::make_shared<ConnectionSubmission>(true);
     {
       std::lock_guard<std::mutex> lock(m_mutex);
-      m_submissions.pushBack(submission);
+      m_submissions.push_back(submission);
     }
     m_condition.notify_one();
     return submission;
@@ -199,7 +199,7 @@ std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking()
       std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
       if (lock.owns_lock()) {
         submission = std::make_shared<ConnectionSubmission>(true);
-        m_submissions.pushBack(submission);
+        m_submissions.push_back(submission);
       }
     }
     if (submission) {
@@ -212,19 +212,23 @@ std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking()
 
 std::shared_ptr<Socket> Interface::accept(const bool& waitingHandle) {
   std::unique_lock<std::mutex> lock(m_mutex);
-  while (waitingHandle && m_submissions.getFirstNode() == nullptr) {
+  while (waitingHandle && m_submissions.empty()) {
     m_condition.wait(lock);
   }
   if(!waitingHandle) {
     return nullptr;
   }
-  return acceptSubmission(m_submissions.popFront());
+  const auto submission = m_submissions.front();
+  m_submissions.pop_front();
+  return acceptSubmission(submission);
 }
 
 std::shared_ptr<Socket> Interface::acceptNonBlocking() {
   std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
-  if(lock.owns_lock() && m_submissions.getFirstNode() != nullptr) {
-    return acceptSubmission(m_submissions.popFront());
+  if(lock.owns_lock() && !m_submissions.empty()) {
+    const auto submission = m_submissions.front();
+    m_submissions.pop_front();
+    return acceptSubmission(submission);
   }
   return nullptr;
 }
@@ -233,14 +237,9 @@ void Interface::dropAllConnection() {
 
   std::unique_lock<std::mutex> lock(m_mutex);
 
-  auto curr = m_submissions.getFirstNode();
-
-  while(curr != nullptr) {
-    auto submission = curr->getData();
+  for (const auto& submission : m_submissions) {
     submission->invalidate();
-    curr = curr->getNext();
   }
-
   m_submissions.clear();
 
 }

@@ -27,6 +27,7 @@
 
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
+#include "oatpp/core/provider/PoolTemplateTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -51,7 +52,6 @@
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 #include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
-#include "oatpp/core/base/collection/LinkedListTest.hpp"
 #include "oatpp/core/base/memory/MemoryPoolTest.hpp"
 #include "oatpp/core/base/memory/PerfTest.hpp"
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
@@ -82,8 +82,6 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
   OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
 
-  OATPP_RUN_TEST(oatpp::test::collection::LinkedListTest);
-
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::StringTemplateTest);
@@ -113,6 +111,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
+  OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
 

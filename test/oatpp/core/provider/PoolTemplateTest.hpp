@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +23,22 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_collection_LinkedListTest_hpp
-#define oatpp_test_base_collection_LinkedListTest_hpp
+#ifndef oatpp_test_provider_PoolTemplateTest_hpp
+#define oatpp_test_provider_PoolTemplateTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace collection {
-  
-class LinkedListTest : public UnitTest{
-public:
-  
-  LinkedListTest():UnitTest("TEST[oatpp::collection::LinkedListTest]"){}
-  void onRun() override;
-  
-};
-  
-}}}
+namespace oatpp { namespace test { namespace core { namespace provider {
 
-#endif /* oatpp_test_base_collection_LinkedListTest_hpp */
+class PoolTemplateTest : public UnitTest{
+public:
+
+  PoolTemplateTest():UnitTest("TEST[provider::PoolTemplateTest]"){}
+  void onRun() override;
+
+};
+
+}}}}
+
+
+#endif //oatpp_test_provider_PoolTemplateTest_hpp

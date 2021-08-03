@@ -28,12 +28,9 @@
 namespace oatpp { namespace web { namespace server { namespace api {
   
 void ApiController::addEndpointsToRouter(const std::shared_ptr<Router>& router){
-  auto node = m_endpoints->getFirstNode();
-  while (node != nullptr) {
-    auto endpoint = node->getData();
+  for (const auto& endpoint : *m_endpoints) {
     router->route(endpoint->info()->method, endpoint->info()->path, endpoint->handler);
-    node = node->getNext();
-  }
+  };
 }
 
 std::shared_ptr<ApiController::Endpoints> ApiController::getEndpoints() {

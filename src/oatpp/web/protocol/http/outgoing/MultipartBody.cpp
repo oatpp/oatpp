@@ -191,7 +191,7 @@ p_char8 MultipartBody::getKnownData() {
   return nullptr;
 }
 
-v_buff_size MultipartBody::getKnownSize() {
+v_int64 MultipartBody::getKnownSize() {
  return -1;
 }
 

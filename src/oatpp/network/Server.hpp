@@ -127,6 +127,13 @@ public:
    * to &id:oatpp::network::ConnectionHandler;.
    * @param startAsNewThread - Start the server blocking (thread of callee) or non-blocking (own thread)
    * @deprecated Deprecated since 1.3.0, will be removed in the next release.
+   * The new repository https://github.com/oatpp/oatpp-threaded-starter shows many configurations how to run Oat++ in its own thread.
+   * From simple No-Stop to Stop-Simple and ending in Oat++ completely isolated in its own thread-scope.
+   * We recommend the Stop-Simple for most applications! You can find it here: https://github.com/oatpp/oatpp-threaded-starter/blob/master/src/App_StopSimple.cpp
+   * The other examples are non trivial and highly specialized on specific environments or requirements.
+   * Please read the comments carefully and think about the consequences twice.
+   * If someone wants to use them please get back to us in an issue in the new repository and we can assist you with them.
+   * Again: These examples introduce special conditions and requirements for your code!
    */
   void run(bool startAsNewThread);
 

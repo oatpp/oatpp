@@ -39,6 +39,12 @@ namespace oatpp { namespace parser { namespace json {
 class Utils {
 public:
 
+  static constexpr v_uint32 FLAG_ESCAPE_SOLIDUS = 1;
+
+  static constexpr v_uint32 FLAG_ESCAPE_ALL = FLAG_ESCAPE_SOLIDUS;
+
+public:
+
   /**
    * ERROR_CODE_INVALID_ESCAPED_CHAR
    */
@@ -60,7 +66,7 @@ public:
   typedef oatpp::parser::Caret ParsingCaret;
 private:
   static v_buff_size escapeUtf8Char(const char* sequence, p_char8 buffer);
-  static v_buff_size calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize);
+  static v_buff_size calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags);
   static v_buff_size calcUnescapedStringSize(const char* data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
   static void unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 resultData);
   static const char* preparseString(ParsingCaret& caret, v_buff_size& size);
@@ -71,9 +77,10 @@ public:
    * *Note:* if(copyAsOwnData == false && escapedString == initialString) then result string will point to initial data.
    * @param data - pointer to string to escape.
    * @param size - data size.
+   * @param flags - escape flags.
    * @return - &id:oatpp::String;.
    */
-  static String escapeString(const char* data, v_buff_size size);
+  static String escapeString(const char* data, v_buff_size size, v_uint32 flags = FLAG_ESCAPE_ALL);
 
   /**
    * Unescape string as for json standard.

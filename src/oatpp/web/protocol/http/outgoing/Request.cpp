@@ -158,14 +158,14 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersWriteBuffer;
   public:
     
-    SendAsyncCoroutine(const std::shared_ptr<Request>& request,
+    SendAsyncCoroutine(std::shared_ptr<Request> request,
                        const std::shared_ptr<data::stream::OutputStream>& stream)
-      : m_this(request)
+      : m_this(std::move(request))
       , m_stream(stream)
       , m_headersWriteBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>())
     {}
     
-    Action act() {
+    Action act() override {
 
       v_buff_size bodySize = -1;
 
@@ -231,7 +231,7 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
     
   };
   
-  return SendAsyncCoroutine::start(_this, stream);
+  return SendAsyncCoroutine::start(std::move(_this), stream);
   
 }
   

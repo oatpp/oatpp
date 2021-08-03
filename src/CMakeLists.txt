@@ -62,8 +62,6 @@ add_library(oatpp
         oatpp/core/base/memory/ObjectPool.cpp
         oatpp/core/base/memory/ObjectPool.hpp
         oatpp/core/collection/FastQueue.hpp
-        oatpp/core/collection/LinkedList.hpp
-        oatpp/core/collection/ListMap.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
@@ -277,6 +275,9 @@ set_target_properties(oatpp PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp PRIVATE /permissive-)
+endif()
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
@@ -321,6 +322,9 @@ set_target_properties(oatpp-test PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp-test PRIVATE /permissive-)
+endif()
 
 target_link_libraries(oatpp-test PUBLIC oatpp)
 

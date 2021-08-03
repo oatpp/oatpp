@@ -69,7 +69,7 @@ public:
    * Return known size of the body.
    * @return - `-1`.
    */
-  v_buff_size getKnownSize() override;
+  v_int64 getKnownSize() override;
 
 };
 

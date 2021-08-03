@@ -25,6 +25,7 @@
 #ifndef oatpp_parser_json_mapping_Serializer_hpp
 #define oatpp_parser_json_mapping_Serializer_hpp
 
+#include "oatpp/parser/json/Utils.hpp"
 #include "oatpp/parser/json/Beautifier.hpp"
 #include "oatpp/core/Types.hpp"
 #include <vector>
@@ -96,6 +97,11 @@ public:
      */
     std::vector<std::string> enabledInterpretations = {};
 
+    /**
+     * Escape flags.
+     */
+    v_uint32 escapeFlags = json::Utils::FLAG_ESCAPE_ALL;
+
   };
 public:
   typedef void (*SerializerMethod)(Serializer*,
@@ -155,10 +161,10 @@ private:
 
     for(auto& pair : *map) {
       const auto& value = pair.second;
-      if(value || serializer->getConfig()->includeNullFields) {
+      if(value || serializer->m_config->includeNullFields) {
         (first) ? first = false : stream->writeSimple(",", 1);
         const auto& key = pair.first;
-        serializeString(stream, key->data(), key->size());
+        serializeString(stream, key->data(), key->size(), serializer->m_config->escapeFlags);
         stream->writeSimple(":", 1);
         serializer->serialize(stream, value);
       }
@@ -167,8 +173,12 @@ private:
     stream->writeCharSimple('}');
 
   }
+  
+  static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream,
+                              const char* data,
+                              v_buff_size size,
+                              v_uint32 escapeFlags);
 
-  static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size);
   static void serializeString(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,
                               const oatpp::Void& polymorph);

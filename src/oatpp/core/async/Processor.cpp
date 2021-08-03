@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +28,38 @@
 #include "oatpp/core/async/worker/Worker.hpp"
 
 namespace oatpp { namespace async {
+
+void Processor::checkCoroutinesForTimeouts() {
+  while (m_running) {
+    {
+      std::unique_lock<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+      while (m_coroutineWaitListsWithTimeouts.empty()) {
+        m_coroutineWaitListsWithTimeoutsCV.wait(lock);
+        if (!m_running) return;
+      }
+      
+      const auto coroutineWaitListsWithTimeouts = m_coroutineWaitListsWithTimeouts;    
+      for (CoroutineWaitList* waitList : coroutineWaitListsWithTimeouts) {
+          waitList->checkCoroutinesForTimeouts();
+      }
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
+  }
+}
+
+void Processor::addCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList) {
+  {
+    std::lock_guard<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+    m_coroutineWaitListsWithTimeouts.insert(waitList);
+  }
+  m_coroutineWaitListsWithTimeoutsCV.notify_one();
+}
+
+void Processor::removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList) {
+  std::lock_guard<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
+  m_coroutineWaitListsWithTimeouts.erase(waitList);
+}
 
 void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
@@ -95,6 +128,11 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
       case Action::TYPE_WAIT_LIST:
         coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
         action.m_data.waitList->pushBack(coroutine);
+        break;
+
+      case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
+        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+        action.m_data.waitListWithTimeout.waitList->pushBack(coroutine, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
         break;
 
       default:
@@ -180,7 +218,7 @@ bool Processor::iterate(v_int32 numIterations) {
 
     auto CP = m_queue.first;
     if (CP == nullptr) {
-      goto end_loop;
+      break;
     }
     if (CP->finished()) {
       m_queue.popFrontNoData();
@@ -209,6 +247,12 @@ bool Processor::iterate(v_int32 numIterations) {
           action.m_data.waitList->pushBack(CP);
           break;
 
+        case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
+          CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+          m_queue.popFront();
+          action.m_data.waitListWithTimeout.waitList->pushBack(CP, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
+          break;
+
         default:
           m_queue.round();
       }
@@ -216,8 +260,6 @@ bool Processor::iterate(v_int32 numIterations) {
     }
 
   }
-
-  end_loop:
 
   popTasks();
 
@@ -232,6 +274,9 @@ void Processor::stop() {
     m_running = false;
   }
   m_taskCondition.notify_one();
+
+  m_coroutineWaitListsWithTimeoutsCV.notify_one();
+  m_coroutineWaitListTimeoutChecker.join();
 }
 
 v_int32 Processor::getTasksCount() {

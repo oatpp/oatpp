@@ -31,8 +31,6 @@
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
 
-#include "oatpp/core/collection/LinkedList.hpp"
-
 #include <tuple>
 #include <mutex>
 #include <condition_variable>
