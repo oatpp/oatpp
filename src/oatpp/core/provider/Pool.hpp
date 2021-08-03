@@ -395,13 +395,18 @@ private:
   typedef PoolTemplate<TResource, AcquisitionProxyImpl> TPool;
 protected:
 
-  /**
+  /*
    * Protected Constructor.
    * @param provider
    * @param maxResources
    * @param maxResourceTTL
+   * @param timeout
    */
-  Pool(const std::shared_ptr<TProvider>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero())
+  Pool(const std::shared_ptr<TProvider>& provider,
+       v_int64 maxResources,
+       v_int64 maxResourceTTL,
+       const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero()
+  )
     : PoolTemplate<TResource, AcquisitionProxyImpl>(provider, maxResources, maxResourceTTL, timeout)
   {
     TProvider::m_properties = provider->getProperties();
@@ -414,14 +419,16 @@ public:
    * @param provider - resource provider.
    * @param maxResources - max resource count in the pool.
    * @param maxResourceTTL - max time-to-live for unused resource in the pool.
+   * @param timeout - optional timeout on &l:Pool::get (); and &l:Pool::getAsync (); operations.
    * @return - `std::shared_ptr` of `Pool`.
    */
   static std::shared_ptr<Pool> createShared(const std::shared_ptr<TProvider>& provider,
                                             v_int64 maxResources,
-                                            const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
+                                            const std::chrono::duration<v_int64, std::micro>& maxResourceTTL,
+                                            const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::microseconds::zero())
   {
     /* "new" is called directly to keep constructor private */
-    auto ptr = std::shared_ptr<Pool>(new Pool(provider, maxResources, maxResourceTTL.count()));
+    auto ptr = std::shared_ptr<Pool>(new Pool(provider, maxResources, maxResourceTTL.count(), timeout));
     ptr->startCleanupTask(ptr);
     return ptr;
   }
