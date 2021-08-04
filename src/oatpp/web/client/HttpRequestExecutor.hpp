@@ -51,20 +51,44 @@ public:
    * For more details see &id:oatpp::web::client::RequestExecutor::ConnectionHandle;.
    */
   class HttpConnectionHandle : public ConnectionHandle {
+  private:
+    /* provider which created this connection */
+    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
+    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    bool m_valid;
+    bool m_invalidateOnDestroy;
   public:
 
     /**
      * Constructor.
+     * @param connectionProvider - connection provider which created this connection.
      * @param stream - &id:oatpp::data::stream::IOStream;.
      */
-    HttpConnectionHandle(const std::shared_ptr<oatpp::data::stream::IOStream>& stream)
-      : connection(stream)
-    {}
+    HttpConnectionHandle(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                         const std::shared_ptr<oatpp::data::stream::IOStream>& stream);
 
     /**
-     * Connection.
+     * Destructor.
      */
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
+    ~HttpConnectionHandle() override;
+
+    /**
+     * Get connection I/O stream.
+     * @return
+     */
+    std::shared_ptr<oatpp::data::stream::IOStream> getConnection();
+
+    /**
+     * Invalidate this connection.
+     */
+    void invalidate();
+
+    /**
+     * Set if connection should be invalidated on destroy of ConnectionHandle.
+     * @param invalidateOnDestroy
+     */
+    void setInvalidateOnDestroy(bool invalidateOnDestroy);
+
   };
 public:
 

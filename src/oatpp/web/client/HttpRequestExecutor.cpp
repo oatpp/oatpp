@@ -36,6 +36,42 @@
 
 namespace oatpp { namespace web { namespace client {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HttpRequestExecutor::HttpConnectionHandle
+
+HttpRequestExecutor::HttpConnectionHandle::HttpConnectionHandle(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                                                                const std::shared_ptr<oatpp::data::stream::IOStream>& stream)
+  : m_connectionProvider(connectionProvider)
+  , m_connection(stream)
+  , m_valid(true)
+  , m_invalidateOnDestroy(false)
+{}
+
+HttpRequestExecutor::HttpConnectionHandle::~HttpConnectionHandle() {
+  if(m_invalidateOnDestroy) {
+    invalidate();
+  }
+}
+
+
+std::shared_ptr<oatpp::data::stream::IOStream> HttpRequestExecutor::HttpConnectionHandle::getConnection() {
+  return m_connection;
+}
+
+void HttpRequestExecutor::HttpConnectionHandle::invalidate() {
+  if(m_valid) {
+    m_connectionProvider->invalidate(m_connection);
+    m_valid = false;
+  }
+}
+
+void HttpRequestExecutor::HttpConnectionHandle::setInvalidateOnDestroy(bool invalidateOnDestroy) {
+  m_invalidateOnDestroy = invalidateOnDestroy;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HttpRequestExecutor
+
 HttpRequestExecutor::HttpRequestExecutor(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
                                          const std::shared_ptr<RetryPolicy>& retryPolicy,
                                          const std::shared_ptr<const BodyDecoder>& bodyDecoder)
@@ -58,7 +94,7 @@ std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getC
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                 "[oatpp::web::client::HttpRequestExecutor::getConnection()]: ConnectionProvider failed to provide Connection");
   }
-  return std::make_shared<HttpConnectionHandle>(connection);
+  return std::make_shared<HttpConnectionHandle>(m_connectionProvider, connection);
 }
 
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<HttpRequestExecutor::ConnectionHandle>&>
@@ -78,7 +114,7 @@ HttpRequestExecutor::getConnectionAsync() {
     }
     
     Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
-      return _return(std::make_shared<HttpConnectionHandle>(connection));
+      return _return(std::make_shared<HttpConnectionHandle>(m_connectionProvider, connection));
     }
     
   };
@@ -90,8 +126,8 @@ HttpRequestExecutor::getConnectionAsync() {
 void HttpRequestExecutor::invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) {
 
   if(connectionHandle) {
-    auto connection = static_cast<HttpConnectionHandle*>(connectionHandle.get())->connection;
-    m_connectionProvider->invalidate(connection);
+    auto handle = static_cast<HttpConnectionHandle*>(connectionHandle.get());
+    handle->invalidate();
   }
 
 }
@@ -104,8 +140,9 @@ HttpRequestExecutor::executeOnce(const String& method,
                                  const std::shared_ptr<ConnectionHandle>& connectionHandle) {
   
   std::shared_ptr<oatpp::data::stream::IOStream> connection;
-  if(connectionHandle) {
-    connection = static_cast<HttpConnectionHandle*>(connectionHandle.get())->connection;
+  std::shared_ptr<HttpConnectionHandle> httpCH = std::static_pointer_cast<HttpConnectionHandle>(connectionHandle);
+  if(httpCH) {
+    connection = httpCH->getConnection();
   }
 
   if(!connection){
@@ -131,21 +168,20 @@ HttpRequestExecutor::executeOnce(const String& method,
   const auto& result = headerReader.readHeaders(connection, error);
   
   if(error.status.code != 0) {
-    invalidateConnection(connectionHandle);
+    httpCH->invalidate();
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Failed to parse response. Invalid response headers");
   }
   
   if(error.ioStatus < 0) {
-    invalidateConnection(connectionHandle);
+    httpCH->invalidate();
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_PARSE_STARTING_LINE,
                                 "[oatpp::web::client::HttpRequestExecutor::executeOnce()]: Failed to read response.");
   }
                                                                                 
-  auto con_hdr = result.headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>("Connection");
-  if (con_hdr == "close")
-  {
-	  invalidateConnection(connectionHandle);
+  auto connectionHeader = result.headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(Header::CONNECTION);
+  if (connectionHeader == "close") {
+    httpCH->setInvalidateOnDestroy(true);
   }
   
   auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(connection,
@@ -179,7 +215,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     Headers m_headers;
     std::shared_ptr<Body> m_body;
     std::shared_ptr<const BodyDecoder> m_bodyDecoder;
-    std::shared_ptr<ConnectionHandle> m_connectionHandle;
+    std::shared_ptr<HttpConnectionHandle> m_connectionHandle;
     oatpp::data::share::MemoryLabel m_buffer;
     ResponseHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::OutputStreamBufferedProxy> m_upstream;
@@ -193,7 +229,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
                       const Headers& headers,
                       const std::shared_ptr<Body>& body,
                       const std::shared_ptr<const BodyDecoder>& bodyDecoder,
-                      const std::shared_ptr<ConnectionHandle>& connectionHandle)
+                      const std::shared_ptr<HttpConnectionHandle>& connectionHandle)
       : m_this(_this)
       , m_method(method)
       , m_path(path)
@@ -208,7 +244,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     Action act() override {
 
       if(m_connectionHandle) {
-        m_connection = static_cast<HttpConnectionHandle*>(m_connectionHandle.get())->connection;
+        m_connection = m_connectionHandle->getConnection();
       }
 
       if(!m_connection) {
@@ -232,7 +268,12 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     }
     
     Action onHeadersParsed(const ResponseHeadersReader::Result& result) {
-      
+
+      auto connectionHeader = result.headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(Header::CONNECTION);
+      if (connectionHeader == "close") {
+        m_connectionHandle->setInvalidateOnDestroy(true);
+      }
+
       auto bodyStream = oatpp::data::stream::InputStreamBufferedProxy::createShared(m_connection,
                                                                                     m_buffer,
                                                                                     result.bufferPosStart,
@@ -248,7 +289,7 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     Action handleError(oatpp::async::Error* error) override {
 
       if(m_connectionHandle) {
-        m_this->invalidateConnection(m_connectionHandle);
+        m_connectionHandle->invalidate();
       }
 
       return error;
@@ -256,8 +297,9 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
     }
     
   };
-  
-  return ExecutorCoroutine::startForResult(this, method, path, headers, body, m_bodyDecoder, connectionHandle);
+
+  auto httpCH = std::static_pointer_cast<HttpConnectionHandle>(connectionHandle);
+  return ExecutorCoroutine::startForResult(this, method, path, headers, body, m_bodyDecoder, httpCH);
   
 }
   
