@@ -46,48 +46,52 @@ protected:
   std::shared_ptr<const BodyDecoder> m_bodyDecoder;
 public:
 
+  class ConnectionProxy : public data::stream::IOStream {
+  private:
+    /* provider which created this connection */
+    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
+    std::shared_ptr<data::stream::IOStream> m_connection;
+    bool m_valid;
+    bool m_invalidateOnDestroy;
+  public:
+
+    ConnectionProxy(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
+                    const std::shared_ptr<data::stream::IOStream>& connection);
+
+    ~ConnectionProxy() override;
+
+    v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
+    v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+
+    void setInputStreamIOMode(data::stream::IOMode ioMode) override;
+    data::stream::IOMode getInputStreamIOMode() override;
+    data::stream::Context& getInputStreamContext() override;
+
+    void setOutputStreamIOMode(data::stream::IOMode ioMode) override;
+    data::stream::IOMode getOutputStreamIOMode() override;
+    data::stream::Context& getOutputStreamContext() override;
+
+    void invalidate();
+    void setInvalidateOnDestroy(bool invalidateOnDestroy);
+
+  };
+
+public:
+
   /**
    * Connection handle for &l:HttpRequestExecutor; <br>
    * For more details see &id:oatpp::web::client::RequestExecutor::ConnectionHandle;.
    */
   class HttpConnectionHandle : public ConnectionHandle {
   private:
-    /* provider which created this connection */
-    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    bool m_valid;
-    bool m_invalidateOnDestroy;
+    std::shared_ptr<ConnectionProxy> m_connectionProxy;
   public:
 
-    /**
-     * Constructor.
-     * @param connectionProvider - connection provider which created this connection.
-     * @param stream - &id:oatpp::data::stream::IOStream;.
-     */
-    HttpConnectionHandle(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
-                         const std::shared_ptr<oatpp::data::stream::IOStream>& stream);
+    HttpConnectionHandle(const std::shared_ptr<ConnectionProxy>& connectionProxy);
 
-    /**
-     * Destructor.
-     */
-    ~HttpConnectionHandle() override;
+    std::shared_ptr<ConnectionProxy> getConnection();
 
-    /**
-     * Get connection I/O stream.
-     * @return
-     */
-    std::shared_ptr<oatpp::data::stream::IOStream> getConnection();
-
-    /**
-     * Invalidate this connection.
-     */
     void invalidate();
-
-    /**
-     * Set if connection should be invalidated on destroy of ConnectionHandle.
-     * @param invalidateOnDestroy
-     */
-    void setInvalidateOnDestroy(bool invalidateOnDestroy);
 
   };
 public:
