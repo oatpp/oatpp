@@ -6,6 +6,7 @@
 #include "oatpp/web/PipelineTest.hpp"
 #include "oatpp/web/PipelineAsyncTest.hpp"
 #include "oatpp/web/protocol/http/encoding/ChunkedTest.hpp"
+#include "oatpp/web/protocol/http2/hpack/HuffmanTest.hpp"
 #include "oatpp/web/protocol/http2/hpack/HpackDeflateTest.hpp"
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
@@ -77,6 +78,7 @@ void runTests() {
   OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
   OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
 
+  OATPP_RUN_TEST(oatpp::test::web::protocol::http2::hpack::HuffmanTest);
   OATPP_RUN_TEST(oatpp::test::web::protocol::http2::hpack::HpackDeflateTest);
 
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);

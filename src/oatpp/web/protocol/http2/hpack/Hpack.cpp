@@ -23,10 +23,9 @@
  ***************************************************************************/
 
 #include "Hpack.hpp"
+#include "Huffman.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 { namespace hpack {
-
-const v_io_size PrefixMaxNumber[9] = {0, 1, 3, 7, 15, 31, 63, 127, 255};
 
 const Table::TableEntry Table::s_staticTable[61] = {
     {Header::AUTHORITY, nullptr},
@@ -373,7 +372,7 @@ v_io_size Hpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
 }
 
 v_io_size Hpack::encodeInteger(Payload &to, v_uint32 length, v_uint32 prefix) {
-  OATPP_LOGD(TAG, "encodeInteger(length=%lu, prefix=%lu)", length, prefix);
+//  OATPP_LOGD(TAG, "encodeInteger(length=%lu, prefix=%lu)", length, prefix);
   v_io_size k = (v_io_size)((1 << prefix) - 1);
   p_uint8 begin = to.data() + to.size() - 1;
   p_uint8 buf = begin;
@@ -399,18 +398,31 @@ v_io_size Hpack::encodeInteger(Payload &to, v_uint32 length, v_uint32 prefix) {
 }
 
 v_io_size Hpack::encodeString(Payload &to, p_uint8 const str, v_uint32 len) {
-  OATPP_LOGD(TAG, "encodeString(str=\"%.*s\", len=%lu)", len, str, len);
+//  OATPP_LOGD(TAG, "encodeString(str=\"%.*s\", len=%lu)", len, str, len);
   size_t blocklen;
-  blocklen = calculateEncodedLength(len, 7);
+  bool huffman = false;
+  size_t hufflen = Huffman::calculateSize(str, len);
+
+  if (hufflen < len) {
+    huffman = true;
+  } else {
+    hufflen = len;
+  }
+
+  blocklen = calculateEncodedLength(hufflen, 7);
 
   if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
     return -1;
   }
 
-  to.emplace_back(0); // huffman ? 1 << 7 : 0
-  encodeInteger(to, len, 7);
+  to.emplace_back(huffman ? 1 << 7 : 0);
+  encodeInteger(to, hufflen, 7);
 
-  to.insert(to.end(), str, str + len);
+  if (huffman) {
+    Huffman::encode(to, str, len);
+  } else {
+    to.insert(to.end(), str, str + hufflen);
+  }
 
   return blocklen;
 }

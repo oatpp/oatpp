@@ -249,6 +249,8 @@ add_library(oatpp
         oatpp/web/protocol/http2/Http2.hpp
         oatpp/web/protocol/http2/hpack/Hpack.cpp
         oatpp/web/protocol/http2/hpack/Hpack.hpp
+        oatpp/web/protocol/http2/hpack/Huffman.cpp
+        oatpp/web/protocol/http2/hpack/Huffman.hpp
         oatpp/web/server/AsyncHttpConnectionHandler.cpp
         oatpp/web/server/AsyncHttpConnectionHandler.hpp
         oatpp/web/server/HttpConnectionHandler.cpp

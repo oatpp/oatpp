@@ -22,21 +22,32 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_protocol_http2_hpack_HpackDeflateTest_hpp
-#define oatpp_test_web_protocol_http2_hpack_HpackDeflateTest_hpp
+#include "HuffmanTest.hpp"
 
-#include "oatpp-test/UnitTest.hpp"
+#include "oatpp/web/protocol/http2/hpack/Huffman.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
-class HpackDeflateTest : public UnitTest {
-public:
+void HuffmanTest::onRun() {
 
-  HpackDeflateTest():UnitTest("TEST[web::protocol::http2::hpack::HpackDeflateTest]"){}
-  void onRun() override;
+  v_uint8 input[] = "oatpp.io";
+  static const uint8_t expected[] = {
+    0x38, 0xd3, 0x5d, 0x6b, 0x98, 0xff
+  };
 
-};
+  {
+    oatpp::web::protocol::http2::Payload p;
+    p.reserve(16);
+    oatpp::web::protocol::http2::hpack::Huffman huf;
+    auto ret = huf.encode(p, input, 8);
+    OATPP_ASSERT(ret == sizeof(expected));
+    OATPP_ASSERT(p.size() == sizeof(expected));
+    for (int i = 0; i < sizeof(expected); ++i) {
+      OATPP_ASSERT(p[i] == expected[i]);
+    }
+  }
+
+
+}
 
 }}}}}}
-
-#endif /* oatpp_test_web_protocol_http2_hpack_HpackDeflateTest_hpp */

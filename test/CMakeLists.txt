@@ -81,6 +81,8 @@ add_executable(oatppAllTests
         oatpp/parser/json/mapping/UnorderedSetTest.hpp
         oatpp/web/protocol/http/encoding/ChunkedTest.cpp
         oatpp/web/protocol/http/encoding/ChunkedTest.hpp
+        oatpp/web/protocol/http2/hpack/HuffmanTest.cpp
+        oatpp/web/protocol/http2/hpack/HuffmanTest.cpp
         oatpp/web/protocol/http2/hpack/HpackDeflateTest.cpp
         oatpp/web/protocol/http2/hpack/HpackDeflateTest.hpp
         oatpp/web/mime/multipart/StatefulParserTest.cpp

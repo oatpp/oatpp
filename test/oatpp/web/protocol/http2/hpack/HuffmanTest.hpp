@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_web_protocol_http2_hpack_HpackDeflateTest_hpp
-#define oatpp_test_web_protocol_http2_hpack_HpackDeflateTest_hpp
+#ifndef oatpp_test_web_protocol_http2_hpack_HuffmanTest_hpp
+#define oatpp_test_web_protocol_http2_hpack_HuffmanTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
-class HpackDeflateTest : public UnitTest {
+class HuffmanTest : public UnitTest {
 public:
 
-  HpackDeflateTest():UnitTest("TEST[web::protocol::http2::hpack::HpackDeflateTest]"){}
+  HuffmanTest():UnitTest("TEST[web::protocol::http2::hpack::HuffmanTest]"){}
   void onRun() override;
 
 };
 
 }}}}}}
 
-#endif /* oatpp_test_web_protocol_http2_hpack_HpackDeflateTest_hpp */
+#endif /* oatpp_test_web_protocol_http2_hpack_HuffmanTest_hpp */
