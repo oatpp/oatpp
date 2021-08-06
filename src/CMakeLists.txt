@@ -245,6 +245,10 @@ add_library(oatpp
         oatpp/web/protocol/http/encoding/EncoderProvider.hpp
         oatpp/web/protocol/http/utils/CommunicationUtils.cpp
         oatpp/web/protocol/http/utils/CommunicationUtils.hpp
+        oatpp/web/protocol/http2/Http2.cpp
+        oatpp/web/protocol/http2/Http2.hpp
+        oatpp/web/protocol/http2/hpack/Hpack.cpp
+        oatpp/web/protocol/http2/hpack/Hpack.hpp
         oatpp/web/server/AsyncHttpConnectionHandler.cpp
         oatpp/web/server/AsyncHttpConnectionHandler.hpp
         oatpp/web/server/HttpConnectionHandler.cpp
