@@ -27,6 +27,73 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
+v_io_size Huffman::decode(oatpp::String& to, Payload::const_iterator src, Payload::const_iterator max) {
+  static const auto initial = Huffman::DecodeTableEntry(false, true, 0, 0);
+  const auto start = src;
+  auto t = &initial;
+  v_uint8 c;
+  v_io_size count = 0;
+
+  to = oatpp::String((unsigned long)(max-src)*2); // worst case
+
+  /* We use the decoding algorithm described in
+     http://graphics.ics.uci.edu/pub/Prefix.pdf */
+  for (; src != max;) {
+    c = *src++;
+    t = &Huffman::decodeTable[t->id][c >> 4];
+    if (t->yield) {
+      to->at(count) = t->symbol;
+      ++count;
+    }
+
+    t = &Huffman::decodeTable[t->id][c & 0xf];
+    if (t->yield) {
+      to->at(count) = t->symbol;
+      ++count;
+    }
+  }
+
+  if (!(t->accepted)) {
+    return -1;
+  }
+  to->resize(count);
+  return (v_io_size)(src-start);
+}
+
+v_io_size Huffman::decode(p_uint8 to, v_io_size len, Payload::const_iterator src, Payload::const_iterator max) {
+  static const auto initial = Huffman::DecodeTableEntry(false, true, 0, 0);
+  const auto start = src;
+  auto t = &initial;
+  v_uint8 c;
+
+  /* We use the decoding algorithm described in
+     http://graphics.ics.uci.edu/pub/Prefix.pdf */
+  for (; src != max && len > 1;) {
+    c = *src++;
+    t = &Huffman::decodeTable[t->id][c >> 4];
+    if (t->yield) {
+      *to++ = t->symbol;
+      --len;
+    }
+
+    t = &Huffman::decodeTable[t->id][c & 0xf];
+    if (t->yield) {
+      *to++ = t->symbol;
+      --len;
+    }
+  }
+
+  if (!(t->accepted)) {
+    return -1;
+  }
+
+  return (v_io_size)(start-src);
+}
+
+v_io_size Huffman::encode(Payload &to, const String &src) {
+  return encode(to, (p_uint8)src->data(), src->length());
+}
+
 v_io_size Huffman::encode(Payload &to, p_uint8 src, v_io_size nstr) {
     const Symbol *sym;
     p_uint8 ptr = src;
@@ -36,7 +103,7 @@ v_io_size Huffman::encode(Payload &to, p_uint8 src, v_io_size nstr) {
     v_io_size actual = 0;
 
     for (; ptr != end;) {
-      sym = &symbol[*ptr++];
+      sym = &symbolTable[*ptr++];
       code |= (uint64_t)sym->code << (32 - nbits);
       nbits += sym->bits;
       if (nbits < 32) {
@@ -77,12 +144,12 @@ v_io_size Huffman::calculateSize(const p_uint8 src, v_io_size len) {
   size_t i;
   size_t nbits = 0;
   for (i = 0; i < len; ++i) {
-    nbits += symbol[src[i]].bits;
+    nbits += symbolTable[src[i]].bits;
   }
   return (nbits + 7) / 8;
 }
 
-const Huffman::Symbol Huffman::symbol[257] = {
+const Huffman::Symbol Huffman::symbolTable[257] = {
     {13, 0xffc00000u},
     {23, 0xffffb000u},
     {28, 0xfffffe20u},
@@ -342,7 +409,7 @@ const Huffman::Symbol Huffman::symbol[257] = {
     {30, 0xfffffffcu}
 };
 
-const Huffman::Decode Huffman::decode[257][16] = {
+const Huffman::DecodeTableEntry Huffman::decodeTable[257][16] = {
 /* 0 */
     {
         {false, false, 0x04, 0},

@@ -27,7 +27,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
-const Table::TableEntry Table::s_staticTable[61] = {
+const SimpleTable::TableEntry SimpleTable::s_staticTable[61] = {
     {Header::AUTHORITY, nullptr},
     {Header::METHOD, oatpp::data::share::StringKeyLabel("GET")},
     {Header::METHOD, oatpp::data::share::StringKeyLabel("POST")},
@@ -91,7 +91,7 @@ const Table::TableEntry Table::s_staticTable[61] = {
     {Header::WWW_AUTHENTICATE, nullptr}
 };
 
-v_io_size Table::findKeyValue(const  HeaderMap::iterator &it) {
+v_io_size SimpleTable::findKeyValue(const  HeaderMap::iterator &it) {
   for (int d = 0; d < m_dynamicTable.size(); ++d) {
     if (m_dynamicTable[d].key == it->first) {
       if (m_dynamicTable[d].value != nullptr) {
@@ -115,7 +115,7 @@ v_io_size Table::findKeyValue(const  HeaderMap::iterator &it) {
   return -1;
 }
 
-v_io_size Table::findKey(const HeaderMap::iterator &it) {
+v_io_size SimpleTable::findKey(const HeaderMap::iterator &it) {
   for (int i = 0; i < 61; ++i) {
     if (s_staticTable[i].key == it->first) {
       return i;
@@ -129,7 +129,7 @@ v_io_size Table::findKey(const HeaderMap::iterator &it) {
   return -1;
 }
 
-bool Table::keyHasValue(unsigned int idx) {
+bool SimpleTable::keyHasValue(unsigned int idx) {
   if (idx > 60) {
     idx -= 61;
     if (idx > m_dynamicTable.size()) {
@@ -140,7 +140,7 @@ bool Table::keyHasValue(unsigned int idx) {
   return s_staticTable[idx].value != nullptr;
 }
 
-const Table::TableEntry *Table::getEntry(unsigned int idx) {
+const SimpleTable::TableEntry *SimpleTable::getEntry(unsigned int idx) {
   if (idx > 60) {
     idx -= 61;
     if (idx > m_dynamicTable.size()) {
@@ -151,7 +151,7 @@ const Table::TableEntry *Table::getEntry(unsigned int idx) {
   return &s_staticTable[idx];
 }
 
-bool Table::updateEntry(unsigned int idx,
+bool SimpleTable::updateEntry(unsigned int idx,
                         const data::share::StringKeyLabelCI &key,
                         const data::share::StringKeyLabel &value) {
   if (idx > 60) {
@@ -168,38 +168,542 @@ bool Table::updateEntry(unsigned int idx,
   return true;
 }
 
-v_io_size Table::addEntry(const data::share::StringKeyLabelCI &key, const data::share::StringKeyLabel &value) {
+v_io_size SimpleTable::addEntry(const data::share::StringKeyLabelCI &key, const data::share::StringKeyLabel &value) {
   m_dynamicTable.emplace_back(key, value);
   return m_dynamicTable.size() + 61;
 }
 
-const char* Hpack::TAG = "oatpp::web::protocol::http2::hpack::Hpack";
+v_uint32 SimpleTable::changeTableSize(v_uint32 newSize) {
+  if (newSize < 61) {
+    m_dynamicTable.clear();
+    return 61;
+  }
 
-Hpack::IndexingMode Hpack::shouldIndex(const data::share::StringKeyLabelCI &key) {
-  // ToDo: Make me faster by hashing or other black magic
-  if (key == Header::AUTHORIZATION || key == Header::COOKIE) { // ToDo: firefox does not compress cookies with value < 20
-//    OATPP_LOGD(TAG, "shouldIndex(%s): Never", (p_uint8)key.getData());
-    return NeverIndex;
+  if (newSize - 61 > m_dynamicTable.size()) {
+    m_dynamicTable.reserve(newSize - 61);
+  } else {
+    m_dynamicTable = std::vector<TableEntry>(m_dynamicTable.begin(), m_dynamicTable.begin() + (newSize - 61));
   }
-  if (key == Header::PATH || key == Header::AGE ||
-      key == Header::CONTENT_LENGTH || key == Header::ETAG ||
-      key == Header::IF_MODIFIED_SINCE ||
-      key == Header::IF_NONE_MATCH || key == Header::LOCATION ||
-      key == Header::SET_COOKIE) {
-//    OATPP_LOGD(TAG, "shouldIndex(%s): No", (p_uint8)key.getData());
-    return NoIndexing;
-  }
-//  OATPP_LOGD(TAG, "shouldIndex(%s): Index", (p_uint8)key.getData());
-  return Indexing;
+
+  return getTableSize();
 }
 
-std::list<Payload> Hpack::deflate(const Headers &headers, v_io_size maxFrameSize) {
+v_uint32 SimpleTable::getTableSize() {
+  return m_dynamicTable.size() + 61;
+}
+
+SimpleTable::~SimpleTable() {
+
+}
+
+const char* SimpleHpack::TAG = "oatpp::web::protocol::http2::hpack::SimpleHpack";
+
+//SimpleHpack::InflateStateMachine::InflateStateMachine(std::shared_ptr<Table> table)
+//  : m_table(std::move(table))
+//  , m_state(INFLATE_START)
+//  , m_blockMode(NONE)
+//  , m_dontWantsIndex(false)
+//  , m_wantsIndex(false)
+//  , m_huffman(false)
+//  , m_idx(0)
+//  , m_left(0)
+//  , m_shift(0){}
+//
+//v_io_size SimpleHpack::InflateStateMachine::extractHeaders(Headers &hdr, const Payload &p) {
+//
+//  ssize_t rv = 0;
+//  v_uint32 rfin = 0;
+//  int busy = 0;
+//  data::share::StringKeyLabelCI key;
+//  data::share::StringKeyLabel value;
+//
+//  auto it = p.begin();
+//  for (; it != p.end() || busy;) {
+//    busy = 0;
+//    switch (m_state) {
+//      case State::EXPECT_TABLE_SIZE:
+//        if ((*it & 0xe0u) != 0x20u) {
+//          OATPP_LOGD(TAG, "inflatehd: header table size change was expected, but saw "
+//                 "0x%02x as first byte",
+//                 *it);
+//          return -1;
+//        }
+//        /* fall through */
+//      case State::INFLATE_START:
+//      case State::OPCODE:
+//        if ((*it & 0xe0u) == 0x20u) {
+//          OATPP_LOGD(TAG, "inflatehd: header table size change");
+//          if (m_state == State::OPCODE) {
+//            OATPP_LOGD(TAG, "inflatehd: header table size change must appear at the head "
+//                   "of header block");
+//            return -1;
+//          }
+//          m_blockMode = BlockType::INDEXED_KEYVALUE;
+//          m_state = State::READ_TABLE_SIZE;
+//        } else if (*it & 0x80u) {
+//          m_blockMode = BlockType::INDEXED_KEYVALUE;
+//          m_state = State::READ_INDEX;
+//        } else {
+//          if (*it == 0x40u || *it == 0 || *it == 0x10u) {
+//            OATPP_LOGD(TAG, "inflatehd: indexed repr");
+//            m_blockMode = BlockType::KEYVALUE;
+//            m_state = State::NEWNAME_CHECK_NAMELEN;
+//          } else {
+//            OATPP_LOGD(TAG, "inflatehd: literal header repr - indexed name");
+//            m_blockMode = BlockType::INDEXED_KEY;
+//            m_state = State::READ_INDEX;
+//          }
+//          m_wantsIndex = (*it & 0x40) != 0;
+//          m_dontWantsIndex = (*it & 0xf0u) == 0x10u;
+//          OATPP_LOGD(TAG, "inflatehd: indexing required=%d, no_index=%d\n",
+//                     m_wantsIndex, m_dontWantsIndex);
+//          if (m_blockMode == BlockType::KEYVALUE) {
+//            ++it;
+//          }
+//        }
+//        m_left = 0;
+//        m_shift = 0;
+//        break;
+//      case State::READ_TABLE_SIZE:
+//        rfin = 0;
+//        rv = readLength(&rfin, it, p.end(), 5, 4096); // ToDo: Config max table size
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//        it += rv;
+//        if (!rfin) {
+//          goto almost_ok;
+//        }
+//        OATPP_LOGD(TAG, "inflatehd: table_size=%zu\n", m_left);
+////        inflater->min_hd_table_bufsize_max = UINT32_MAX;
+////        inflater->ctx.hd_table_bufsize_max = m_left;
+////        hd_context_shrink_table_size(&inflater->ctx, NULL);
+//        throw std::runtime_error("Not Implemented"); // ToDo
+//        m_state = State::INFLATE_START;
+//        break;
+//      case State::READ_INDEX: {
+//        size_t prefixlen;
+//
+//        if (m_blockMode == BlockType::INDEXED_KEYVALUE) {
+//          prefixlen = 7;
+//        } else if (m_wantsIndex) {
+//          prefixlen = 6;
+//        } else {
+//          prefixlen = 4;
+//        }
+//
+//        rfin = 0;
+//        rv = readLength(&rfin, it, p.end(), prefixlen, m_table->getTableSize());
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//
+//        it += rv;
+//
+//        if (!rfin) {
+//          goto almost_ok;
+//        }
+//
+//        if (m_left == 0) {
+//          return -1;
+//        }
+//
+//        OATPP_LOGD(TAG, "inflatehd: index=%zu\n", m_left);
+//        if (m_blockMode == BlockType::INDEXED_KEYVALUE) {
+//          m_idx = m_left;
+//          --m_idx;
+//
+//          hd_inflate_commit_indexed(inflater, nv_out);
+//
+//          m_state = State::OPCODE;
+//          #error Here: Next Header
+//          break;
+//        } else {
+//          m_idx = m_left;
+//          --m_idx;
+//
+//          m_state = State::CHECK_VALUELEN;
+//        }
+//        break;
+//      }
+//      case State::NEWNAME_CHECK_NAMELEN:
+//        hd_inflate_set_huffman_encoded(inflater, in);
+//        m_state = State::NEWNAME_READ_NAMELEN;
+//        m_left = 0;
+//        m_shift = 0;
+//        OATPP_LOGD(TAG, "inflatehd: huffman encoded=%d\n", m_huffman != 0);
+//        /* Fall through */
+//      case State::NEWNAME_READ_NAMELEN:
+//        rfin = 0;
+//        rv = readLength(&rfin, it, p.end(), 7, 0xffff); // not in spec, chosen from other implementations
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//        it += rv;
+//        if (!rfin) {
+//          OATPP_LOGD(TAG, "inflatehd: integer not fully decoded. current=%zu\n",
+//                 m_left);
+//
+//          goto almost_ok;
+//        }
+//
+//        if (m_huffman) {
+//          nghttp2_hd_huff_decode_context_init(&inflater->huff_decode_ctx);
+//
+//          m_state = State::NEWNAME_READ_NAMEHUFF;
+//        } else {
+//          m_state = State::NEWNAME_READ_NAME;
+//        }
+//
+//        if (rv != 0) {
+//          goto fail;
+//        }
+//
+//        break;
+//      case State::NEWNAME_READ_NAMEHUFF:
+//        rv = hd_inflate_read_huff(inflater, &inflater->namebuf, in, last);
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//
+//        it += rv;
+//
+//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
+//
+//        if (m_left) {
+//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
+//
+//          goto almost_ok;
+//        }
+//        m_state = State::CHECK_VALUELEN;
+//        break;
+//
+//      case State::NEWNAME_READ_NAME:
+//        rv = decodeKeyString(&key, it, it + rfin, 0xffff);
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//
+//        it += rv;
+//
+//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
+//        if (m_left) {
+//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
+//
+//          goto almost_ok;
+//        }
+//
+//        m_state = State::CHECK_VALUELEN;
+//
+//        break;
+//      case State::CHECK_VALUELEN:
+//        hd_inflate_set_huffman_encoded(inflater, in);
+//        m_state = State::READ_VALUELEN;
+//        m_left = 0;
+//        m_shift = 0;
+//        OATPP_LOGD(TAG, "inflatehd: huffman encoded=%d\n", m_huffman != 0);
+//        /* Fall through */
+//      case State::READ_VALUELEN:
+//        rfin = 0;
+//        rv = readLength(&rfin, it, p.end(), 7, 0xffff); // not in spec, todo: make static const variable
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//
+//        it += rv;
+//
+//        if (!rfin) {
+//          goto almost_ok;
+//        }
+//
+//        OATPP_LOGD(TAG, "inflatehd: valuelen=%zu\n", m_left);
+//
+//        if (m_huffman) {
+//          nghttp2_hd_huff_decode_context_init(&inflater->huff_decode_ctx);
+//
+//          m_state = State::READ_VALUEHUFF;
+//
+//          rv = nghttp2_rcbuf_new(&inflater->valuercbuf, m_left * 2 + 1,
+//                                 mem);
+//        } else {
+//          m_state = State::READ_VALUE;
+//
+//          rv = nghttp2_rcbuf_new(&inflater->valuercbuf, m_left + 1, mem);
+//        }
+//
+//        if (rv != 0) {
+//          goto fail;
+//        }
+//
+//        nghttp2_buf_wrap_init(&inflater->valuebuf, inflater->valuercbuf->base,
+//                              inflater->valuercbuf->len);
+//
+//        busy = 1;
+//
+//        break;
+//      case State::READ_VALUEHUFF:
+//        rv = hd_inflate_read_huff(inflater, &inflater->valuebuf, in, last);
+//        if (rv < 0) {
+//          goto fail;
+//        }
+//
+//        it += rv;
+//
+//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
+//
+//        if (m_left) {
+//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
+//
+//          goto almost_ok;
+//        }
+//
+//        if (m_blockMode == BlockType::KEYVALUE) {
+//          rv = hd_inflate_commit_newname(inflater, nv_out);
+//        } else {
+//          rv = hd_inflate_commit_indname(inflater, nv_out);
+//        }
+//
+//        if (rv != 0) {
+//          goto fail;
+//        }
+//
+//        m_state = State::OPCODE;
+//        #error Here: Next Header
+//        break;
+//      case State::READ_VALUE:
+//        rv = decodeValueString(&value, it, it + rfin, 0xffff);
+//        if (rv < 0) {
+//          OATPP_LOGD(TAG, "inflatehd: value read failure %zd\n", rv);
+//          goto fail;
+//        }
+//
+//        it += rv;
+//
+//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
+//
+//        if (m_left) {
+//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
+//          goto almost_ok;
+//        }
+//
+//        if (m_blockMode == BlockType::KEYVALUE) {
+//          rv = hd_inflate_commit_newname(inflater, nv_out);
+//        } else {
+//          rv = hd_inflate_commit_indname(inflater, nv_out);
+//        }
+//
+//        if (rv != 0) {
+//          goto fail;
+//        }
+//
+//        m_state = State::OPCODE;
+//        #error Here: Next Header
+//        break;
+//    }
+//  }
+//
+//  OATPP_ASSERT(it == p.end());
+//
+//  OATPP_LOGD(TAG, "inflatehd: all input bytes were processed");
+//
+//  if (in_final) {
+//    OATPP_LOGD(TAG, "inflatehd: in_final set");
+//
+//    if (m_state != State::OPCODE &&
+//        m_state != State::INFLATE_START) {
+//      OATPP_LOGD(TAG, "inflatehd: unacceptable state=%d\n", m_state);
+//      rv = NGHTTP2_ERR_HEADER_COMP;
+//
+//      goto fail;
+//    }
+//    *inflate_flags |= NGHTTP2_HD_INFLATE_FINAL;
+//  }
+//  return (ssize_t)(it - p.begin());
+//
+//  almost_ok:
+//  if (in_final) {
+//    OATPP_LOGD(TAG, "inflatehd: input ended prematurely");
+//
+//    rv = NGHTTP2_ERR_HEADER_COMP;
+//
+//    goto fail;
+//  }
+//  return (ssize_t)(it - p.begin());
+//
+//  fail:
+//  OATPP_LOGD(TAG, "inflatehd: error return %zd\n", rv);
+//
+//  inflater->ctx.bad = 1;
+//  return rv;
+//
+//}
+
+SimpleHpack::SimpleHpack(std::shared_ptr<Table> table)
+  : m_table(std::move(table))
+  , m_initialTableSize(m_table->getTableSize()) {
+};
+
+v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
+                                           Payload::const_iterator it,
+                                           Payload::const_iterator last,
+                                           Headers &hdr) {
+  bool requireIndex = (*it & 0x40) != 0;
+  bool dontIndex = (*it & 0xf0u) == 0x10u;
+  v_uint32 consumed, step;
+  v_uint32 len;
+//  OATPP_LOGD(TAG, "inflatehd: indexing required=%d, no_index=%d\n",
+//             m_wantsIndex, m_dontWantsIndex);
+//  if (m_blockMode == BlockType::KEYVALUE) {
+//    ++it;
+//  }
+  switch (mode) {
+    case INDEXED_KEY_INDEXED_VALUE:
+      consumed = decodeInteger(&len, it, last, 7);
+      if (consumed > 0) {
+        auto kv = m_table->getEntry(len-1);
+        if (kv) {
+//          OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",kv->key.getData(), kv->value.getData());
+          hdr.put(kv->key, kv->value);
+        } else {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed keyvalue in table");
+        }
+      } else {
+        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
+      }
+      break;
+    case INDEXED_KEY_TEXT_VALUE:
+      if (requireIndex) {
+        step = decodeInteger(&len, it, last, 6);
+      } else {
+        step = decodeInteger(&len, it, last, 4);
+      }
+      if (step > 0) {
+        auto keyentry = m_table->getEntry(len-1);
+        if (!keyentry) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed key in table");
+        }
+        it += step;
+
+        oatpp::String value;
+        consumed = inflateString(value, it, last);
+        if (consumed < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+        }
+        if (requireIndex) {
+          m_table->addEntry(keyentry->key, value);
+        }
+        hdr.put(keyentry->key, value);
+//        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",keyentry->key.getData(), value->data());
+      }
+      else {
+        throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
+      }
+      consumed += step;
+      break;
+    case TEXT_KEY_TEXT_VALUE:
+      ++it;
+      {
+        oatpp::String key, value;
+        step = inflateString(key, it, last);
+        if (step < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+        }
+        it += step;
+        consumed = inflateString(value, it, last);
+        if (consumed < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+        }
+        if (requireIndex) {
+          m_table->addEntry(key, value);
+        }
+        consumed += step;
+        hdr.put(key, value);
+//        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'", key->data(), value->data());
+      }
+      break;
+  }
+  return consumed;
+}
+
+v_io_size SimpleHpack::inflateHandleNewTableSize(Payload::const_iterator it, Payload::const_iterator last) {
+  v_uint32 res;
+  v_uint32 consumed = decodeInteger(&res, it, last, 5);
+  if (consumed < 1) {
+    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
+  }
+  // ToDo: Handle table size update
+  return consumed;
+}
+
+v_io_size SimpleHpack::inflateKeyValuePairs(Headers &hdr, const Payload &payload) {
+  auto it = payload.begin();
+  v_io_size consumed = 0, step;
+  while ( it < payload.end()) {
+    if ((*it & 0xe0u) == 0x20u) {
+//      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
+      if (it == payload.begin()) {
+        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
+      }
+      step = inflateHandleNewTableSize(it, payload.end());
+      if (step < 1) {
+        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
+      }
+      it += step;
+    } else if (*it & 0x80u) {
+//      OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, indexed value");
+      step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE,
+                                it,
+                                payload.end(),
+                                hdr);
+      if (step < 1) {
+        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+      }
+      it += step;
+    } else {
+      if (*it == 0x40u || *it == 0 || *it == 0x10u) {
+//        OATPP_LOGD(TAG, "inflateKeyValuePairs: Text key, text value");
+        step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, it, payload.end(), hdr);
+        if (step < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+        }
+        it += step;
+      } else {
+//        OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, text value");
+        step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, it, payload.end(), hdr);
+        if (step < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+        }
+        it += step;
+      }
+    }
+    consumed += step;
+  }
+  return consumed;
+}
+
+Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
+  Headers headers;
+
+  for (const auto &payload : payloads) {
+    inflateKeyValuePairs(headers, payload);
+  }
+
+  return headers;
+}
+
+std::list<Payload> SimpleHpack::deflate(const Headers &headers, v_io_size maxFrameSize) {
   std::list<Payload> payloads;
   payloads.emplace_back();
   auto pit = payloads.begin();
   pit->reserve(maxFrameSize);
 
   auto all = headers.getAll();
+
+  if (m_initialTableSize != m_table->getTableSize()) {
+    deflateHandleNewTableSize(*pit, m_table->getTableSize());
+    m_initialTableSize = m_table->getTableSize();
+  }
 
   for (auto it = all.begin(); it != all.end(); ++it) {
 //    OATPP_LOGD(TAG, "Deflating '%s: %s'", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
@@ -215,23 +719,23 @@ std::list<Payload> Hpack::deflate(const Headers &headers, v_io_size maxFrameSize
   return payloads;
 }
 
-v_io_size Hpack::deflateKeyValuePair(Payload &to, const HeaderMap::iterator &it) {
+v_io_size SimpleHpack::deflateKeyValuePair(Payload &to, const HeaderMap::iterator &it) {
   v_io_size idx = -1;
   IndexingMode imode = shouldIndex(it->first);
 
-  if (imode == NeverIndex) {
-    idx = m_table.findKey(it);
+  if (imode == NEVER_INDEX) {
+    idx = m_table->findKey(it);
   } else {
-    idx = m_table.findKeyValue(it);
+    idx = m_table->findKeyValue(it);
   }
 
 //  OATPP_LOGD(TAG, "deflateKeyValuePair: Idx=%ld, IndexMode=%02x", idx, imode);
 
   if (idx > -1) {
-    if (m_table.keyHasValue(idx) && imode != NeverIndex) {
+    if (m_table->keyHasValue(idx) && imode != NEVER_INDEX) {
       // exact match
-//      OATPP_LOGD(TAG, "deflateKeyValuePair: Is exact match");
-      v_io_size rv = handleIndexedKeyValue(to, idx);
+//      OATPP_LOGD(TAG, "deflateKeyValuePair: key and value match");
+      v_io_size rv = deflateHandleIndexedKeyValue(to, idx);
       if (rv < 0) {
         return rv;
       }
@@ -239,37 +743,55 @@ v_io_size Hpack::deflateKeyValuePair(Payload &to, const HeaderMap::iterator &it)
       return to.size();
     }
 
-    if (imode == Indexing) {
+    if (imode == INDEXING) {
 //      OATPP_LOGD(TAG, "deflateKeyValuePair: Adding '%s: %s' to dynamic table", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
-      m_table.addEntry(it->first, it->second);
+      m_table->addEntry(it->first, it->second);
     }
 
 //    OATPP_LOGD(TAG, "deflateKeyValuePair: Handling key match '%s: %s'", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
-    return handleIndexedKey(to, idx, it->second, imode);
+    return deflateHandleIndexedKey(to, idx, it->second, imode);
 
   } else {
-    idx = m_table.findKey(it);
+    idx = m_table->findKey(it);
     if (idx > -1) {
-      if (imode == Indexing) {
+      if (imode == INDEXING) {
 //        OATPP_LOGD(TAG, "deflateKeyValuePair: Adding '%s: %s' to dynamic table", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
-        m_table.addEntry(it->first, it->second);
+        m_table->addEntry(it->first, it->second);
       }
 
 //      OATPP_LOGD(TAG, "deflateKeyValuePair: Handling key match '%s: %s'", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
-      return handleIndexedKey(to, idx, it->second, imode);
+      return deflateHandleIndexedKey(to, idx, it->second, imode);
     }
   }
 //  OATPP_LOGD(TAG, "deflateKeyValuePair: Handling new KeyValue '%s: %s'", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
-  return handleNewKeyValue(to, it->first, it->second, imode);
+  return deflateHandleNewKeyValue(to, it->first, it->second, imode);
 
 }
 
-v_io_size Hpack::handleIndexedKey(Payload &to, v_uint32 idx, data::share::StringKeyLabel &value, IndexingMode indexing) {
+SimpleHpack::IndexingMode SimpleHpack::shouldIndex(const data::share::StringKeyLabelCI &key) {
+  // ToDo: Make me faster by hashing or other black magic
+  if (key == Header::AUTHORIZATION || key == Header::COOKIE) { // ToDo: firefox does not compress cookies with value < 20
+//    OATPP_LOGD(TAG, "shouldIndex(%s): Never", (p_uint8)key.getData());
+    return NEVER_INDEX;
+  }
+  if (key == Header::PATH || key == Header::AGE ||
+      key == Header::CONTENT_LENGTH || key == Header::ETAG ||
+      key == Header::IF_MODIFIED_SINCE ||
+      key == Header::IF_NONE_MATCH || key == Header::LOCATION ||
+      key == Header::SET_COOKIE) {
+//    OATPP_LOGD(TAG, "shouldIndex(%s): No", (p_uint8)key.getData());
+    return NO_INDEXING;
+  }
+//  OATPP_LOGD(TAG, "shouldIndex(%s): Index", (p_uint8)key.getData());
+  return INDEXING;
+}
+
+v_io_size SimpleHpack::deflateHandleIndexedKey(Payload &to, v_uint32 idx, data::share::StringKeyLabel &value, IndexingMode indexing) {
   v_io_size blocklen;
   v_io_size prefixlen;
   v_io_size res;
 
-  if (indexing == Indexing) {
+  if (indexing == INDEXING) {
     prefixlen = 6;
   } else {
     prefixlen = 4;
@@ -288,7 +810,7 @@ v_io_size Hpack::handleIndexedKey(Payload &to, v_uint32 idx, data::share::String
     return res;
   }
 
-  res = encodeString(to, (p_uint8 const)value.getData(), value.getSize());
+  res = deflateString(to, (p_uint8 const) value.getData(), value.getSize());
   if (res < 0) {
     return res;
   }
@@ -296,10 +818,10 @@ v_io_size Hpack::handleIndexedKey(Payload &to, v_uint32 idx, data::share::String
   return blocklen;
 }
 
-v_io_size Hpack::handleNewKeyValue(Payload &to,
-                                   const data::share::StringKeyLabelCI &key,
-                                   data::share::StringKeyLabel &value,
-                                   IndexingMode indexing) {
+v_io_size SimpleHpack::deflateHandleNewKeyValue(Payload &to,
+                                                const data::share::StringKeyLabelCI &key,
+                                                data::share::StringKeyLabel &value,
+                                                IndexingMode indexing) {
 
   v_io_size ret;
 
@@ -309,11 +831,11 @@ v_io_size Hpack::handleNewKeyValue(Payload &to,
 
   to.emplace_back(indexing);
 
-  ret = encodeString(to, (p_uint8 const)key.getData(), key.getSize());
+  ret = deflateString(to, (p_uint8 const) key.getData(), key.getSize());
   if (ret < 0) {
     return ret;
   }
-  ret = encodeString(to, (p_uint8 const)value.getData(), value.getSize());
+  ret = deflateString(to, (p_uint8 const) value.getData(), value.getSize());
   if (ret < 0) {
     return ret;
   }
@@ -322,7 +844,7 @@ v_io_size Hpack::handleNewKeyValue(Payload &to,
 }
 
 
-v_io_size Hpack::handleIndexedKeyValue(Payload &to, v_uint32 idx) {
+v_io_size SimpleHpack::deflateHandleIndexedKeyValue(Payload &to, v_uint32 idx) {
   v_io_size blocklen;
 
   blocklen = calculateEncodedLength(idx + 1, 7);
@@ -337,7 +859,7 @@ v_io_size Hpack::handleIndexedKeyValue(Payload &to, v_uint32 idx) {
   return blocklen;
 }
 
-v_io_size Hpack::handleNewTableSize(Payload &to, v_uint32 size) {
+v_io_size SimpleHpack::deflateHandleNewTableSize(Payload &to, v_uint32 size) {
   v_io_size blocklen;
 
   blocklen = calculateEncodedLength(size, 5);
@@ -354,7 +876,7 @@ v_io_size Hpack::handleNewTableSize(Payload &to, v_uint32 size) {
   return blocklen;
 }
 
-v_io_size Hpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
+v_io_size SimpleHpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
   size_t k = (size_t)((1 << prefix) - 1);
   size_t len = 0;
 
@@ -371,7 +893,7 @@ v_io_size Hpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
   return len + 1;
 }
 
-v_io_size Hpack::encodeInteger(Payload &to, v_uint32 length, v_uint32 prefix) {
+v_io_size SimpleHpack::encodeInteger(Payload &to, v_uint32 length, v_uint32 prefix) {
 //  OATPP_LOGD(TAG, "encodeInteger(length=%lu, prefix=%lu)", length, prefix);
   v_io_size k = (v_io_size)((1 << prefix) - 1);
   p_uint8 begin = to.data() + to.size() - 1;
@@ -397,8 +919,26 @@ v_io_size Hpack::encodeInteger(Payload &to, v_uint32 length, v_uint32 prefix) {
   return (size_t)(buf - begin);
 }
 
-v_io_size Hpack::encodeString(Payload &to, p_uint8 const str, v_uint32 len) {
-//  OATPP_LOGD(TAG, "encodeString(str=\"%.*s\", len=%lu)", len, str, len);
+v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterator it, Payload::const_iterator last) {
+  v_uint32 len;
+  v_io_size consumed = decodeInteger(&len, it, last, 7), second;
+  bool huffman = (*it & (1 << 7)) != 0;
+  it += consumed;
+  if (huffman) {
+    // huffman
+    second = Huffman::decode(value, it, it + len);
+  } else {
+    // normal
+    second = decodeString(value, it, it + len);
+  }
+  if (second < 1) {
+    return second;
+  }
+  return second + consumed;
+}
+
+v_io_size SimpleHpack::deflateString(Payload &to, p_uint8 const str, v_uint32 len) {
+//  OATPP_LOGD(TAG, "deflateString(str=\"%.*s\", len=%lu)", len, str, len);
   size_t blocklen;
   bool huffman = false;
   size_t hufflen = Huffman::calculateSize(str, len);
@@ -427,92 +967,82 @@ v_io_size Hpack::encodeString(Payload &to, p_uint8 const str, v_uint32 len) {
   return blocklen;
 }
 
-//
-//HpackEncoder::HpackEncoder(const oatpp::web::protocol::http2::Headers &headers,
-//             oatpp::v_io_size maxFrameSize)
-//             : m_headers(headers.getAll())
-//             , m_framesize(maxFrameSize)
-//             , m_hit(m_headers.begin()){
-//}
-//
-//bool HpackEncoder::HasContinuation() {
-//  return m_hit != m_headers.end();
-//}
-//
-//void HpackEncoder::EncodeInteger(p_uint8 to, v_uint32 prefix, v_uint32 value) {
-//  if (prefix < 0 | prefix > 8) {
-//    throw std::runtime_error("[oatpp:: web::protocol::http2::hpack::HpackEncoder::EncodeInteger] Error: Prefix bits must be between 1 and 8");
-//  }
-//  v_uint32 max = PrefixMaxNumber[prefix];
-//  if (value < max) {
-//    *to |= value;
-//  }
-//}
-//
-//std::vector<v_uint8> HpackEncoder::GetCompressedHeaders() {
-//  std::vector<v_uint8> payload(m_framesize);
-//  p_uint8 data = payload.data();
-//  p_uint8 end = payload.data() + m_framesize;
-//  for (;m_hit != m_headers.end(); ++m_hit) {
-//    int idx = Table::findKey(m_hit);
-//    if (idx < 61) {
-//      // found in static table
-//      if (Table::keyHasValue(idx)) {
-//        if (data + 1 > end) {
-//          payload.resize(payload.data() - data);
-//          return payload;
-//        }
-//        *data++ = 0x80 | (idx & 0x7f);
-//      } else {
-//        if (data + 2 + (m_hit->second.getSize() & 0x7F)  > end) {
-//          payload.resize(payload.data() - data);
-//          return payload;
-//        }
-//        *data++ = (idx & 0x0f) | 0x10;
-//        *data++ = m_hit->second.getSize() & 0x7F;
-//        memcpy(data, m_hit->second.getData(), m_hit->second.getSize() & 0x7F);
-//        *data += m_hit->second.getSize() & 0x7F;
-//      }
-//    } else {
-//      if (data + 3 + (m_hit->first.getSize() & 0x7F) + (m_hit->second.getSize() & 0x7F)  > end) {
-//        payload.resize(payload.data() - data);
-//        return payload;
-//      }
-//      *data++ = 0x10;
-//      *data++ = m_hit->first.getSize() & 0x7F;
-//      memcpy(data, m_hit->first.getData(), m_hit->first.getSize() & 0x7F);
-//      *data += m_hit->first.getSize() & 0x7F;
-//      *data++ = m_hit->second.getSize() & 0x7F;
-//      memcpy(data, m_hit->second.getData(), m_hit->second.getSize() & 0x7F);
-//      *data += m_hit->second.getSize() & 0x7F;
-//    }
-//  }
-//  payload.resize(payload.data() - data);
-//  return payload;
-//}
-//
-//Headers HpackDecoder::DecompressHeaders(const std::vector<v_uint8> &compressedData) {
-//  oatpp::web::protocol::http2::Headers hdrs;
-//  auto it = compressedData.begin();
-//  while (it != compressedData.end()) {
-//    if (((*it) & 0x0f) == 0) {
-//      v_uint8 ksize = *it;
-//      ++it;
-//      auto kptr = &(*it);
-//      it += ksize;
-//      v_uint8 vsize = *it;
-//      ++it;
-//      auto vptr = &(*it);
-//      hdrs.put({nullptr, (const char*)kptr, ksize}, {nullptr, (const char*)vptr, vsize});
-//      it += vsize;
-//    } else if ((*it) & 0x80) {
-//      auto entry = Table::getEntry((*it) & 0x7f);
-//      hdrs.put(entry->key, entry->value);
-//      ++it;
-//    } else if ((*it) & 0x) {
-//
-//    }
-//  }
-//}
+v_io_size SimpleHpack::encodeTableSize(Payload &to, v_uint32 size) {
+
+  size_t blocklen = calculateEncodedLength(size, 5);
+
+  if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
+    return -1;
+  }
+
+  to.emplace_back(0x20u);
+
+  encodeInteger(to, size, 5);
+
+  return blocklen;
+}
+
+v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
+                                     Payload::const_iterator in,
+                                     Payload::const_iterator last,
+                                     size_t prefix) {
+  v_uint32 k = (uint8_t)((1 << prefix) - 1);
+  v_uint32 n = 0;
+  v_uint32 shift = 0;
+  auto start = in;
+
+  if ((*in & k) != k) {
+    *res = (*in) & k;
+    return 1;
+  }
+  n = k;
+  if (++in == last) {
+    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    return -1;
+  }
+
+  for (; in != last; ++in, shift += 7) {
+    uint32_t add = *in & 0x7f;
+
+    if (shift >= 32) {
+      OATPP_LOGD(TAG, "decodeInteger: shift exponent overflow\n");
+      return -1;
+    }
+
+    if ((UINT32_MAX >> shift) < add) {
+      OATPP_LOGD(TAG, "decodeInteger: integer overflow on shift\n");
+      return -1;
+    }
+
+    add <<= shift;
+
+    if (UINT32_MAX - add < n) {
+      OATPP_LOGD(TAG, "decodeInteger: integer overflow on addition\n");
+      return -1;
+    }
+
+    n += add;
+
+    if ((*in & (1 << 7)) == 0) {
+      break;
+    }
+  }
+
+
+  if (in == last) {
+    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    return -1;
+  }
+
+  *res = n;
+  return (ssize_t)(in + 1 - start);
+}
+
+v_io_size SimpleHpack::decodeString(String &key, Payload::const_iterator in, Payload::const_iterator end) {
+  v_buff_size len = (v_uint32)(end - in);
+  auto *ptr = (const char*)&(*in); // ???
+  key = oatpp::String(ptr, len);
+  return len;
+}
 
 }}}}}

@@ -36,14 +36,7 @@ void HpackDeflateTest::onRun() {
       0x17, 0x18, 0x60, 0xE3, 0x4D, 0x75, 0xAE, 0x63, 0xFF, 0x76, 0x05, 0x6F, 0x61, 0x74, 0x2B, 0x2B
   };
   oatpp::web::protocol::http2::Headers hdr;
-  /*
-   * MAKE_NV(":scheme", "https"),
-     MAKE_NV(":authority", "example.org"),
-     MAKE_NV(":path", "/stylesheet/style.css"),
-     MAKE_NV("user-agent", "libnghttp2"),
-     MAKE_NV("accept-encoding", "gzip, deflate"),
-     MAKE_NV("referer", "https://example.org")
-   */
+
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::SCHEME, "https");
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::AUTHORITY, "oatpp.io");
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::PATH, "/stylesheet/style.css");
@@ -51,15 +44,27 @@ void HpackDeflateTest::onRun() {
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::ACCEPT_ENCODING, "gzip, deflate");
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::REFERER, "https://oatpp.io");
 
-  oatpp::web::protocol::http2::hpack::Hpack hpack;
+  auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+  auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+  oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
 
-  auto deflated = hpack.deflate(hdr, 16 * 1024 - 1);
+  auto deflated = deflater.deflate(hdr, 16 * 1024 - 1);
   OATPP_ASSERT(deflated.size() == 1);
   OATPP_ASSERT(deflated.front().size() == sizeof(expected));
   for (int i = 0; i < sizeof(expected); ++i) {
     OATPP_ASSERT(deflated.front()[i] == expected[i]);
   }
 
+  auto inflated = inflater.inflate(deflated);
+  OATPP_ASSERT(inflated.getSize() == hdr.getSize());
+  auto originalmap = hdr.getAll();
+  auto inflatedmap = inflated.getAll();
+
+  for (auto it = originalmap.begin(); it != originalmap.end(); ++it) {
+    auto found = inflatedmap.find(it->first);
+    OATPP_ASSERT(found != inflatedmap.end());
+    OATPP_ASSERT(found->second = it->second);
+  }
 }
 
 }}}}}}

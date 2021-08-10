@@ -39,13 +39,13 @@ namespace oatpp { namespace web { namespace protocol { namespace http2 { namespa
  */
 class Huffman {
  private:
-  class Decode {
+  class DecodeTableEntry {
    public:
     bool accepted;
     bool yield;
-    uint32_t id;
-    uint32_t symbol;
-    Decode(bool pAccepted, bool pYield, uint32_t pId, uint32_t pSymbol)
+    v_uint16 id;
+    v_uint8 symbol;
+    DecodeTableEntry(bool pAccepted, bool pYield, v_uint16 pId, v_uint8 pSymbol)
       : accepted(pAccepted)
       , yield(pYield)
       , id(pId)
@@ -59,11 +59,14 @@ class Huffman {
   };
 
  private:
-  static const Symbol symbol[257];
-  static const Decode decode[257][16];
+  static const Symbol symbolTable[257];
+  static const DecodeTableEntry decodeTable[257][16];
 
  public:
+  static v_io_size decode(p_uint8 to, v_io_size len, Payload::const_iterator src, Payload::const_iterator max);
   static v_io_size encode(Payload &to, p_uint8 src, v_io_size len);
+  static v_io_size decode(oatpp::String& to, Payload::const_iterator src, Payload::const_iterator max);
+  static v_io_size encode(Payload &to, const oatpp::String &src);
   static v_io_size calculateSize(p_uint8 src, v_io_size len);
 
 };
