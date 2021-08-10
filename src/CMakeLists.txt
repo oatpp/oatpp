@@ -267,8 +267,16 @@ add_library(oatpp
         oatpp/web/server/handler/AuthorizationHandler.hpp
         oatpp/web/server/handler/ErrorHandler.cpp
         oatpp/web/server/handler/ErrorHandler.hpp
+        oatpp/web/server/http2/ConnectionHandler.cpp
+        oatpp/web/server/http2/ConnectionHandler.hpp
+        oatpp/web/server/http2/Http2Processor.cpp
+        oatpp/web/server/http2/Http2Processor.hpp
+        oatpp/web/server/http2/Http2StreamHandler.cpp
+        oatpp/web/server/http2/Http2StreamHandler.hpp
         oatpp/web/server/interceptor/AllowCorsGlobal.cpp
         oatpp/web/server/interceptor/AllowCorsGlobal.hpp
+        oatpp/web/server/interceptor/Http2.cpp
+        oatpp/web/server/interceptor/Http2.hpp
         oatpp/web/server/interceptor/RequestInterceptor.hpp
         oatpp/web/server/interceptor/ResponseInterceptor.hpp
         oatpp/web/url/mapping/Pattern.cpp
