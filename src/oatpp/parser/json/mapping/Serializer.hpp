@@ -112,7 +112,9 @@ private:
     if(polymorph){
       stream->writeAsString(* static_cast<typename T::ObjectType*>(polymorph.get()));
     } else {
-      stream->writeSimple("null", 4);
+      if(serializer->getConfig()->includeNullFields) {
+        stream->writeSimple("null", 4);
+      }
     }
   }
 
@@ -120,7 +122,9 @@ private:
   static void serializeList(Serializer* serializer, data::stream::ConsistentOutputStream* stream, const oatpp::Void& polymorph) {
 
     if(!polymorph) {
-      stream->writeSimple("null", 4);
+      if(serializer->getConfig()->includeNullFields) {
+        stream->writeSimple("null", 4);
+      }
       return;
     }
 
@@ -144,7 +148,9 @@ private:
   static void serializeKeyValue(Serializer* serializer, data::stream::ConsistentOutputStream* stream, const oatpp::Void& polymorph) {
 
     if(!polymorph) {
-      stream->writeSimple("null", 4);
+      if(serializer->getConfig()->includeNullFields) {
+        stream->writeSimple("null", 4);
+      }
       return;
     }
 
