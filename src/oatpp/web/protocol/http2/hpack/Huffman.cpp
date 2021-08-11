@@ -90,6 +90,38 @@ v_io_size Huffman::decode(p_uint8 to, v_io_size len, Payload::const_iterator src
   return (v_io_size)(start-src);
 }
 
+v_io_size Huffman::decode(oatpp::String &to,
+                          v_io_size stringSize,
+                          const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream) {
+  static const auto initial = Huffman::DecodeTableEntry(false, true, 0, 0);
+  v_io_size count = 0;
+  auto t = &initial;
+  to = oatpp::String(stringSize * 2); // worst case
+  std::vector<v_uint8> octets(stringSize);
+  stream->readExactSizeDataSimple(octets.data(), stringSize);
+
+  /* We use the decoding algorithm described in
+     http://graphics.ics.uci.edu/pub/Prefix.pdf */
+  for (auto it = octets.begin(); it != octets.end(); ++it) {
+    v_uint8 c = *it;
+    t = &Huffman::decodeTable[t->id][c >> 4];
+    if (t->yield) {
+      to->at(count++) = t->symbol;
+    }
+
+    t = &Huffman::decodeTable[t->id][c & 0xf];
+    if (t->yield) {
+      to->at(count++) = t->symbol;
+    }
+  }
+
+  if (!(t->accepted)) {
+    return -1;
+  }
+  to->resize(count);
+  return stringSize;
+}
+
 v_io_size Huffman::encode(Payload &to, const String &src) {
   return encode(to, (p_uint8)src->data(), src->length());
 }

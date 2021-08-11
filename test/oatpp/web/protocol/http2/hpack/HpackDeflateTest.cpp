@@ -25,6 +25,7 @@
 #include "HpackDeflateTest.hpp"
 
 #include "oatpp/web/protocol/http2/hpack/Hpack.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
@@ -44,26 +45,56 @@ void HpackDeflateTest::onRun() {
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::ACCEPT_ENCODING, "gzip, deflate");
   hdr.putIfNotExists(oatpp::web::protocol::http2::Header::REFERER, "https://oatpp.io");
 
-  auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
-  auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
-  oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
+  {
+    auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+    auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
 
-  auto deflated = deflater.deflate(hdr, 16 * 1024 - 1);
-  OATPP_ASSERT(deflated.size() == 1);
-  OATPP_ASSERT(deflated.front().size() == sizeof(expected));
-  for (int i = 0; i < sizeof(expected); ++i) {
-    OATPP_ASSERT(deflated.front()[i] == expected[i]);
+    auto deflated = deflater.deflate(hdr, 16 * 1024 - 1);
+    OATPP_ASSERT(deflated.size() == 1);
+    OATPP_ASSERT(deflated.front().size() == sizeof(expected));
+    for (int i = 0; i < sizeof(expected); ++i) {
+      OATPP_ASSERT(deflated.front()[i] == expected[i]);
+    }
+
+    auto inflated = inflater.inflate(deflated);
+    OATPP_ASSERT(inflated.getSize() == hdr.getSize());
+    auto originalmap = hdr.getAll();
+    auto inflatedmap = inflated.getAll();
+
+    for (auto it = originalmap.begin(); it != originalmap.end(); ++it) {
+      auto found = inflatedmap.find(it->first);
+      OATPP_ASSERT(found != inflatedmap.end());
+      OATPP_ASSERT(found->second = it->second);
+    }
   }
 
-  auto inflated = inflater.inflate(deflated);
-  OATPP_ASSERT(inflated.getSize() == hdr.getSize());
-  auto originalmap = hdr.getAll();
-  auto inflatedmap = inflated.getAll();
+  {
+    auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+    auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
 
-  for (auto it = originalmap.begin(); it != originalmap.end(); ++it) {
-    auto found = inflatedmap.find(it->first);
-    OATPP_ASSERT(found != inflatedmap.end());
-    OATPP_ASSERT(found->second = it->second);
+    auto deflated = deflater.deflate(hdr, 16 * 1024 - 1);
+    OATPP_ASSERT(deflated.size() == 1);
+    OATPP_ASSERT(deflated.front().size() == sizeof(expected));
+    for (int i = 0; i < sizeof(expected); ++i) {
+      OATPP_ASSERT(deflated.front()[i] == expected[i]);
+    }
+
+    oatpp::String deflatedstr((const char*)deflated.front().data(), (v_buff_size)deflated.front().size());
+    auto buf = std::make_shared<data::stream::BufferInputStream>(deflatedstr);
+    auto proxy = data::stream::InputStreamBufferedProxy::createShared(buf, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0));
+
+    auto inflated = inflater.inflate(proxy, deflated.front().size());
+    OATPP_ASSERT(inflated.getSize() == hdr.getSize());
+    auto originalmap = hdr.getAll();
+    auto inflatedmap = inflated.getAll();
+
+    for (auto it = originalmap.begin(); it != originalmap.end(); ++it) {
+      auto found = inflatedmap.find(it->first);
+      OATPP_ASSERT(found != inflatedmap.end());
+      OATPP_ASSERT(found->second = it->second);
+    }
   }
 }
 

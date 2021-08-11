@@ -25,6 +25,8 @@
 #include "Hpack.hpp"
 #include "Huffman.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
+
 namespace oatpp { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
 const SimpleTable::TableEntry SimpleTable::s_staticTable[61] = {
@@ -626,9 +628,100 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
   return consumed;
 }
 
+v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
+                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                           v_io_size streamPayloadLength,
+                                           Headers &hdr,
+                                           async::Action &action) {
+  v_uint8 it;
+  stream->peek(&it, 1, action);
+  bool requireIndex = (it & 0x40) != 0;
+  bool dontIndex = (it & 0xf0u) == 0x10u;
+  v_uint32 consumed, step;
+  v_uint32 len;
+
+  switch (mode) {
+    case INDEXED_KEY_INDEXED_VALUE:
+      consumed = decodeInteger(&len, stream, streamPayloadLength, 7);
+      if (consumed > 0) {
+        auto kv = m_table->getEntry(len-1);
+        if (kv) {
+//          OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",kv->key.getData(), kv->value.getData());
+          hdr.put(kv->key, kv->value);
+        } else {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed keyvalue in table");
+        }
+      } else {
+        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
+      }
+      break;
+    case INDEXED_KEY_TEXT_VALUE:
+      if (requireIndex) {
+        step = decodeInteger(&len, stream, streamPayloadLength, 6);
+      } else {
+        step = decodeInteger(&len, stream, streamPayloadLength, 4);
+      }
+      if (step > 0) {
+        auto keyentry = m_table->getEntry(len-1);
+        if (!keyentry) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed key in table");
+        }
+
+        oatpp::String value;
+        consumed = inflateString(value, stream, streamPayloadLength, async::Action());
+        if (consumed < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+        }
+        if (requireIndex) {
+          m_table->addEntry(keyentry->key, value);
+        }
+        hdr.put(keyentry->key, value);
+//        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",keyentry->key.getData(), value->data());
+      }
+      else {
+        throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
+      }
+      consumed += step;
+      break;
+    case TEXT_KEY_TEXT_VALUE:
+      stream->commitReadOffset(1);
+      {
+        oatpp::String key, value;
+        step = inflateString(key, stream, streamPayloadLength, async::Action());
+        if (step < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+        }
+        consumed = inflateString(value, stream, streamPayloadLength, async::Action());
+        if (consumed < 1) {
+          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+        }
+        if (requireIndex) {
+          m_table->addEntry(key, value);
+        }
+        consumed += step;
+        hdr.put(key, value);
+//        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'", key->data(), value->data());
+      }
+      break;
+  }
+  return consumed;
+}
+
 v_io_size SimpleHpack::inflateHandleNewTableSize(Payload::const_iterator it, Payload::const_iterator last) {
   v_uint32 res;
   v_uint32 consumed = decodeInteger(&res, it, last, 5);
+  if (consumed < 1) {
+    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
+  }
+  // ToDo: Handle table size update
+  return consumed;
+}
+
+v_io_size SimpleHpack::inflateHandleNewTableSize(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                 v_io_size streamPayloadLength) {
+  v_uint32 res;
+  v_uint32 consumed = decodeInteger(&res, stream, streamPayloadLength, 5);
   if (consumed < 1) {
     throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
   }
@@ -690,6 +783,56 @@ Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
   }
 
   return headers;
+}
+
+Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                             v_io_size streamPayloadLength) {
+  Headers headers;
+  async::Action action;
+  v_io_size consumed = 0;
+  v_io_size step;
+
+  while (consumed < streamPayloadLength) {
+    v_uint8 it;
+    stream->peek(&it, 1, action);
+    if ((it & 0xe0u) == 0x20u) {
+//      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
+      if (consumed != 0) {
+        throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
+      }
+      consumed = inflateHandleNewTableSize(stream, streamPayloadLength);
+      if (consumed < 1) {
+        throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
+      }
+    } else if (it & 0x80u) {
+//      OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, indexed value");
+      step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE, stream, streamPayloadLength - consumed, headers, action);
+      if (step < 1) {
+        throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+      }
+      consumed += step;
+    } else {
+      if (it == 0x40u || it == 0 || it == 0x10u) {
+//        OATPP_LOGD(TAG, "inflateKeyValuePairs: Text key, text value");
+        step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, stream, streamPayloadLength - consumed, headers, action);
+        if (step < 1) {
+          throw std::runtime_error(
+              "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+        }
+      } else {
+//        OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, text value");
+        step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, stream, streamPayloadLength - consumed, headers, action);
+        if (step < 1) {
+          throw std::runtime_error(
+              "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+        }
+      }
+      consumed += step;
+    }
+  }
 }
 
 std::list<Payload> SimpleHpack::deflate(const Headers &headers, v_io_size maxFrameSize) {
@@ -937,6 +1080,28 @@ v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterat
   return second + consumed;
 }
 
+v_io_size SimpleHpack::inflateString(String &value,
+                                     const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                     v_io_size stringSize,
+                                     async::Action action) {
+  v_uint32 len;
+  v_uint8 it;
+  stream->peek(&it, 1, action);
+  v_io_size consumed = decodeInteger(&len, stream, stringSize, 7), second;
+  bool huffman = (it & (1 << 7)) != 0;
+  if (huffman) {
+    // huffman
+    second = Huffman::decode(value, len, stream);
+  } else {
+    // normal
+    second = decodeString(value, len, stream);
+  }
+  if (second < 1) {
+    return second;
+  }
+  return second + consumed;
+}
+
 v_io_size SimpleHpack::deflateString(Payload &to, p_uint8 const str, v_uint32 len) {
 //  OATPP_LOGD(TAG, "deflateString(str=\"%.*s\", len=%lu)", len, str, len);
   size_t blocklen;
@@ -986,6 +1151,7 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
                                      Payload::const_iterator in,
                                      Payload::const_iterator last,
                                      size_t prefix) {
+  //   auto buffer = std::make_shared<data::stream::BufferInputStream>(oatpp::String((const char*)in.base(), (v_buff_size)(last-in)));
   v_uint32 k = (uint8_t)((1 << prefix) - 1);
   v_uint32 n = 0;
   v_uint32 shift = 0;
@@ -1038,11 +1204,79 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
   return (ssize_t)(in + 1 - start);
 }
 
+v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
+                                     const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                     v_io_size streamPayloadLength,
+                                     v_uint32 prefix) {
+  v_uint32 k = (uint8_t)((1 << prefix) - 1);
+  v_uint32 n = 0;
+  v_uint32 shift = 0;
+  v_uint8 in;
+  v_io_size consumed = 1;
+  stream->readExactSizeDataSimple(&in, 1);
+
+  if ((in & k) != k) {
+    *res = (in) & k;
+    return consumed;
+  }
+  n = k;
+  if (streamPayloadLength == 1) {
+    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    return -1;
+  }
+
+  for (; consumed < streamPayloadLength; shift += 7) {
+    stream->readExactSizeDataSimple(&in, 1);
+    ++consumed;
+    uint32_t add = in & 0x7f;
+
+    if (shift >= 32) {
+      OATPP_LOGD(TAG, "decodeInteger: shift exponent overflow\n");
+      return -1;
+    }
+
+    if ((UINT32_MAX >> shift) < add) {
+      OATPP_LOGD(TAG, "decodeInteger: integer overflow on shift\n");
+      return -1;
+    }
+
+    add <<= shift;
+
+    if (UINT32_MAX - add < n) {
+      OATPP_LOGD(TAG, "decodeInteger: integer overflow on addition\n");
+      return -1;
+    }
+
+    n += add;
+
+    if ((in & (1 << 7)) == 0) {
+      break;
+    }
+  }
+
+
+  if (consumed < streamPayloadLength) {
+    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    return -1;
+  }
+
+  *res = n;
+  return consumed;
+}
+
 v_io_size SimpleHpack::decodeString(String &key, Payload::const_iterator in, Payload::const_iterator end) {
   v_buff_size len = (v_uint32)(end - in);
   auto *ptr = (const char*)&(*in); // ???
   key = oatpp::String(ptr, len);
   return len;
+}
+
+v_io_size SimpleHpack::decodeString(String &key,
+                                    v_io_size stringSize,
+                                    const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream) {
+  key = oatpp::String(stringSize);
+  stream->readExactSizeDataSimple((void*)key->data(), stringSize);
+  return stringSize;
 }
 
 }}}}}
