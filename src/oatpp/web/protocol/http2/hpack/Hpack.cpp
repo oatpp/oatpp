@@ -778,6 +778,22 @@ v_io_size SimpleHpack::inflateKeyValuePairs(Headers &hdr, const Payload &payload
 Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
   Headers headers;
 
+  /*
+   * Proxying to stream inflate is roughly 5x slower then keeping the own implementation for a Payload.
+   * Until I decide how important it is to inflate a list of Payloads instead of the input stream, I keep it for reference
+
+  for (const auto &payload : payloads) {
+    oatpp::String memoryHandle((const char*)payload.data(), payload.size());
+    auto bufStream = std::make_shared<oatpp::data::stream::BufferInputStream>(memoryHandle);
+    auto proxy = data::stream::InputStreamBufferedProxy::createShared(bufStream, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0));
+    Headers subheaders = inflate(proxy, payload.size());
+    auto all = subheaders.getAll();
+    for (auto &hdr : all) {
+      headers.put(hdr.first, hdr.second);
+    }
+  }
+   */
+
   for (const auto &payload : payloads) {
     inflateKeyValuePairs(headers, payload);
   }
