@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,9 @@
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/async/Processor.hpp"
 
+#include "oatpp/web/server/http2/Http2StreamHandler.hpp"
+#include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 /**
@@ -49,112 +52,8 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
  */
 class Http2Processor {
 public:
-  typedef std::list<std::shared_ptr<web::server::interceptor::RequestInterceptor>> RequestInterceptors;
-  typedef std::list<std::shared_ptr<web::server::interceptor::ResponseInterceptor>> ResponseInterceptors;
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
-public:
-
-  /**
-   * Resource config per connection.
-   */
-  struct Config {
-
-    /**
-     * Buffer used to read headers in request. Initial size of the buffer.
-     */
-    v_buff_size headersInBufferInitial = 2048;
-
-    /**
-     * Buffer used to write headers in response. Initial size of the buffer.
-     */
-    v_buff_size headersOutBufferInitial = 2048;
-
-    /**
-     * Size of the chunk used for iterative-read of headers.
-     */
-    v_buff_size headersReaderChunkSize = 2048;
-
-    /**
-     * Maximum allowed size of requests headers. The overall size of all headers in the request.
-     */
-    v_buff_size headersReaderMaxSize = 4096;
-
-  };
-
-public:
-
-  /**
-   * Collection of components needed to serve http-connection.
-   */
-  struct Components {
-
-    /**
-     * Constructor.
-     * @param pRouter
-     * @param pContentEncodingProviders
-     * @param pBodyDecoder
-     * @param pErrorHandler
-     * @param pRequestInterceptors
-     * @param pConfig
-     */
-    Components(const std::shared_ptr<HttpRouter>& pRouter,
-               const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
-               const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
-               const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
-               const RequestInterceptors& pRequestInterceptors,
-               const ResponseInterceptors& pResponseInterceptors,
-               const std::shared_ptr<Config>& pConfig);
-
-    /**
-     * Constructor.
-     * @param pRouter
-     */
-    Components(const std::shared_ptr<HttpRouter>& pRouter);
-
-    /**
-     * Constructor.
-     * @param pRouter
-     * @param pConfig
-     */
-    Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig);
-
-    /**
-     * Router to route incoming requests. &id:oatpp::web::server::HttpRouter;.
-     */
-    std::shared_ptr<HttpRouter> router;
-
-    /**
-     * Content-encoding providers. &id:oatpp::web::protocol::encoding::ProviderCollection;.
-     */
-    std::shared_ptr<protocol::http::encoding::ProviderCollection> contentEncodingProviders;
-
-    /**
-     * Body decoder. &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
-     */
-    std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder> bodyDecoder;
-
-    /**
-     * Error handler. &id:oatpp::web::server::handler::ErrorHandler;.
-     */
-    std::shared_ptr<handler::ErrorHandler> errorHandler;
-
-    /**
-     * Collection of request interceptors. &id:oatpp::web::server::interceptor::RequestInterceptor;.
-     */
-    RequestInterceptors requestInterceptors;
-
-    /**
-     * Collection of request interceptors. &id:oatpp::web::server::interceptor::ResponseInterceptor;.
-     */
-    ResponseInterceptors responseInterceptors;
-
-    /**
-     * Resource allocation config. &l:HttpProcessor::Config;.
-     */
-    std::shared_ptr<Config> config;
-
-  };
 
 private:
 
@@ -173,16 +72,24 @@ private:
 
   struct ProcessingResources {
 
-    ProcessingResources(const std::shared_ptr<Components>& pComponents,
+    ProcessingResources(const std::shared_ptr<processing::Components>& pComponents,
                         const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection);
 
-    std::shared_ptr<Components> components;
+    std::shared_ptr<processing::Components> components;
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
     oatpp::data::stream::BufferOutputStream headersInBuffer;
     oatpp::data::stream::BufferOutputStream headersOutBuffer;
-    RequestHeadersReader headersReader;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
 
+    /**
+     * Collection of all streams in an ordered map
+     */
+    std::map<v_uint32, std::shared_ptr<Http2StreamHandler>> h2streams;
+
+    /**
+     * For now here, should be provided with a kind of factory via components
+     */
+    std::shared_ptr<web::protocol::http2::hpack::Hpack> hpack;
   };
 
   static
@@ -191,6 +98,7 @@ private:
                      const std::shared_ptr<protocol::http::incoming::Request>& request,
                      ConnectionState& connectionState);
   static ConnectionState processNextRequest(ProcessingResources& resources);
+  static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
 
 public:
 
@@ -201,7 +109,7 @@ public:
    */
   class Task : public base::Countable {
   private:
-    std::shared_ptr<Components> m_components;
+    std::shared_ptr<processing::Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::atomic_long *m_counter;
   public:
@@ -211,7 +119,7 @@ public:
      * @param components - &l:HttpProcessor::Components;.
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
-    Task(const std::shared_ptr<Components>& components,
+    Task(const std::shared_ptr<processing::Components>& components,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
          std::atomic_long *taskCounter);
 
@@ -252,55 +160,7 @@ public:
     void run();
 
   };
-  
-public:
 
-  /**
-   * Connection serving coroutiner - &id:oatpp::async::Coroutine;.
-   */
-  class Coroutine : public oatpp::async::Coroutine<Http2Processor::Coroutine> {
-  private:
-    std::shared_ptr<Components> m_components;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    oatpp::data::stream::BufferOutputStream m_headersInBuffer;
-    RequestHeadersReader m_headersReader;
-    std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
-    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> m_inStream;
-    ConnectionState m_connectionState;
-  private:
-    oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
-    std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
-    std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
-    std::atomic_long *m_counter;
-  public:
-
-
-    /**
-     * Constructor.
-     * @param components - &l:HttpProcessor::Components;.
-     * @param connection - &id:oatpp::data::stream::IOStream;.
-     */
-    Coroutine(const std::shared_ptr<Components>& components,
-              const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-              std::atomic_long *taskCounter);
-
-    Action act() override;
-
-    Action parseHeaders();
-    
-    Action onHeadersParsed(const RequestHeadersReader::Result& headersReadResult);
-    
-    Action onRequestFormed();
-    Action onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response);
-    Action onResponseFormed();
-    Action onRequestDone();
-    
-    Action handleError(Error* error) override;
-
-    ~Coroutine() override;
-    
-  };
-  
 };
   
 }}}}

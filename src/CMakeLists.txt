@@ -269,6 +269,8 @@ add_library(oatpp
         oatpp/web/server/handler/ErrorHandler.hpp
         oatpp/web/server/http2/ConnectionHandler.cpp
         oatpp/web/server/http2/ConnectionHandler.hpp
+        oatpp/web/server/http2/Http2ProcessingComponents.cpp
+        oatpp/web/server/http2/Http2ProcessingComponents.hpp
         oatpp/web/server/http2/Http2Processor.cpp
         oatpp/web/server/http2/Http2Processor.hpp
         oatpp/web/server/http2/Http2StreamHandler.cpp

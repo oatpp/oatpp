@@ -779,7 +779,7 @@ Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
   Headers headers;
 
   /*
-   * Proxying to stream inflate is roughly 5x slower then keeping the own implementation for a Payload.
+   * Proxying to stream-inflate is roughly 5x slower than keeping the own implementation for a Payload.
    * Until I decide how important it is to inflate a list of Payloads instead of the input stream, I keep it for reference
 
   for (const auto &payload : payloads) {

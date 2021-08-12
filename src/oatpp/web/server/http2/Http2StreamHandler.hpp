@@ -25,29 +25,59 @@
 #ifndef oatpp_web_server_http2_Http2StreamHandler_hpp
 #define oatpp_web_server_http2_Http2StreamHandler_hpp
 
+#include <utility>
+
 #include "oatpp/core/base/Countable.hpp"
 #include "oatpp/web/protocol/http2/Http2.hpp"
+#include "oatpp/web/protocol/http2/hpack/Hpack.hpp"
+
+#include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
+
+
+#include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 class Http2StreamHandler : public oatpp::base::Countable {
+ public:
+
+  typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
+
+  enum H2StreamState {
+    INIT,
+    HEADERS,
+    PAYLOAD,
+    PROCESSING,
+    RESPONSE,
+    GOAWAY
+  };
+
  private:
+  H2StreamState m_state;
   v_uint32 m_streamId;
+  std::shared_ptr<protocol::http2::hpack::Hpack> m_hpack;
+  std::shared_ptr<http2::processing::Components> m_components;
 
  public:
-  Http2StreamHandler(v_uint32 id)
-    : m_streamId(id) {}
+  Http2StreamHandler(v_uint32 id, std::shared_ptr<protocol::http2::hpack::Hpack> hpack, std::shared_ptr<http2::processing::Components> components)
+    : m_state(INIT)
+    , m_streamId(id)
+    , m_hpack(std::move(hpack))
+    , m_components(std::move(components)) {}
 
-  void handleData(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handleHeaders(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handlePriority(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handleResetStream(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handleSettings(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handlePushPromise(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handlePing(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handleGoAway(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handleWindowUpdate(v_uint8 flags, const protocol::http2::Payload &payload);
-  void handleContinuation(v_uint8 flags, const protocol::http2::Payload &payload);
+  ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handlePriority(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handleResetStream(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handleSettings(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handlePushPromise(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handleGoAway(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handleWindowUpdate(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  ConnectionState handleContinuation(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+
+  H2StreamState getState() {
+    return m_state;
+  }
 };
 
 }}}}

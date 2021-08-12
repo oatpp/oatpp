@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,84 +27,49 @@
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
+#include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Components
-
-Http2Processor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter,
-                                      const std::shared_ptr<protocol::http::encoding::ProviderCollection>& pContentEncodingProviders,
-                                      const std::shared_ptr<const oatpp::web::protocol::http::incoming::BodyDecoder>& pBodyDecoder,
-                                      const std::shared_ptr<handler::ErrorHandler>& pErrorHandler,
-                                      const RequestInterceptors& pRequestInterceptors,
-                                      const ResponseInterceptors& pResponseInterceptors,
-                                      const std::shared_ptr<Config>& pConfig)
-  : router(pRouter)
-  , contentEncodingProviders(pContentEncodingProviders)
-  , bodyDecoder(pBodyDecoder)
-  , errorHandler(pErrorHandler)
-  , requestInterceptors(pRequestInterceptors)
-  , responseInterceptors(pResponseInterceptors)
-  , config(pConfig)
-{}
-
-Http2Processor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter)
-  : Components(pRouter,
-               nullptr,
-               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-               handler::DefaultErrorHandler::createShared(),
-               {},
-               {},
-               std::make_shared<Config>())
-{}
-
-Http2Processor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter, const std::shared_ptr<Config>& pConfig)
-  : Components(pRouter,
-               nullptr,
-               std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-               handler::DefaultErrorHandler::createShared(),
-               {},
-               {},
-               pConfig)
-{}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
 
-Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<Components>& pComponents,
-                                                        const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection)
-  : components(pComponents)
-  , connection(pConnection)
-  , headersInBuffer(components->config->headersInBufferInitial)
-  , headersOutBuffer(components->config->headersOutBufferInitial)
-  , headersReader(&headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
-  , inStream(data::stream::InputStreamBufferedProxy::createShared(connection, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0)))
-{}
+Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<http2::processing::Components> &pComponents,
+                                                         const std::shared_ptr<oatpp::data::stream::IOStream> &pConnection)
+    : components(pComponents),
+      connection(pConnection),
+      headersInBuffer(components->config->headersInBufferInitial),
+      headersOutBuffer(components->config->headersOutBufferInitial),
+      inStream(data::stream::InputStreamBufferedProxy::createShared(connection,
+                                                                    std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE,
+                                                                                                  0))),
+      hpack(std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(
+          1024))) {}
 
 std::shared_ptr<protocol::http::outgoing::Response>
-Http2Processor::processNextRequest(ProcessingResources& resources,
-                                  const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                  ConnectionState& connectionState)
-{
+Http2Processor::processNextRequest(ProcessingResources &resources,
+                                   const std::shared_ptr<protocol::http::incoming::Request> &request,
+                                   ConnectionState &connectionState) {
 
   std::shared_ptr<protocol::http::outgoing::Response> response;
 
-  try{
+  try {
 
-    for(auto& interceptor : resources.components->requestInterceptors) {
+    for (auto &interceptor : resources.components->requestInterceptors) {
       response = interceptor->intercept(request);
-      if(response) {
+      if (response) {
         return response;
       }
     }
 
-    auto route = resources.components->router->getRoute(request->getStartingLine().method, request->getStartingLine().path);
+    auto route =
+        resources.components->router->getRoute(request->getStartingLine().method, request->getStartingLine().path);
 
-    if(!route) {
+    if (!route) {
 
       data::stream::BufferOutputStream ss;
       ss << "No mapping for HTTP-method: '" << request->getStartingLine().method.toString()
-      << "', URL: '" << request->getStartingLine().path.toString() << "'";
+         << "', URL: '" << request->getStartingLine().path.toString() << "'";
 
       connectionState = ConnectionState::CLOSING;
       return resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, ss.toString());
@@ -114,10 +79,11 @@ Http2Processor::processNextRequest(ProcessingResources& resources,
     request->setPathVariables(route.getMatchMap());
     return route.getEndpoint()->handle(request);
 
-  } catch (oatpp::web::protocol::http::HttpError& error) {
-    response = resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+  } catch (oatpp::web::protocol::http::HttpError &error) {
+    response =
+        resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
     connectionState = ConnectionState::CLOSING;
-  } catch (std::exception& error) {
+  } catch (std::exception &error) {
     response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
     connectionState = ConnectionState::CLOSING;
   } catch (...) {
@@ -129,22 +95,127 @@ Http2Processor::processNextRequest(ProcessingResources& resources,
 
 }
 
-Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingResources& resources) {
+v_io_size Http2Processor::consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                        v_io_size streamPayloadLength) {
+  v_io_size consumed = 0;
+  while (consumed < streamPayloadLength) {
+    /*
+     * ToDo: Discussion: We should consume the frame when its erroneous
+     * But what is the best way to do that?
+     */
+    v_io_size chunk = std::min((v_io_size) 1024, streamPayloadLength - consumed);
+    oatpp::String memory(chunk);
+    data::buffer::InlineReadData inlinereader((void *) memory->data(), chunk);
+    consumed += stream->readExactSizeDataSimple(inlinereader);
+  }
+  return consumed;
+}
+
+Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingResources &resources) {
 
   async::Action action;
-  resources.headersInBuffer.reserveBytesUpfront(9);
-  auto bufferData = resources.headersInBuffer.getData() + resources.headersInBuffer.getCurrentPosition();
-  do {
-    auto res = resources.inStream->peek(bufferData, 9 - resources.headersInBuffer.getCurrentPosition(), action);
-    resources.inStream->commitReadOffset(res);
-  } while(resources.headersInBuffer.getCurrentPosition() < 9);
-  p_uint8 dataptr = resources.headersInBuffer.getData();
-  v_uint32 payloadlen = (*dataptr) | ((*dataptr+1) << 8) | ((*dataptr+2) << 16);
-  dataptr += 3;
-  FrameType type = (FrameType)*dataptr++;
-  v_uint8 flags = *dataptr++;
-  v_uint32 streamident = ((*dataptr) & 0x7f) | ((*dataptr+1) << 8) | ((*dataptr+2) << 16) | ((*dataptr+3) << 24);
 
+  std::vector<v_uint8> data(9);
+  data::buffer::InlineReadData inlineData(data.data(), 9);
+
+  resources.inStream->readExactSizeDataSimple(inlineData);
+  p_uint8 dataptr = data.data();
+  v_uint32 payloadlen = (*dataptr) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16);
+  dataptr += 3;
+  FrameType type = (FrameType) *dataptr++;
+  v_uint8 flags = *dataptr++;
+  v_uint32 streamident = ((*dataptr) & 0x7f) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16) | ((*dataptr + 3) << 24);
+
+  if (type == PING) {
+    if (streamident != 0) {
+      // connection error!
+      // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
+    }
+    if (payloadlen != 8) {
+      // connection error!
+      // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
+    }
+    if (flags == 0x00) {
+      // ToDo Priorized output lock
+      data.resize(9+8);
+      inlineData = data::buffer::InlineReadData(data.data()+9, 8);
+      resources.inStream->readExactSizeDataSimple(inlineData);
+      resources.connection->writeSimple(data.data(), data.size());
+      return ConnectionState::ALIVE;
+    }
+  }
+
+  std::shared_ptr<Http2StreamHandler> handler;
+  auto handlerentry = resources.h2streams.find(streamident);
+  if (handlerentry == resources.h2streams.end()) {
+    handler = std::make_shared<Http2StreamHandler>(streamident, resources.hpack, resources.components);
+    resources.h2streams.insert({streamident, handler});
+  } else {
+    handler = handlerentry->second;
+  }
+
+  ConnectionState state;
+
+  switch (type) {
+    case DATA:
+      // Check if the stream is in a state where it would accept data
+      // ToDo: Discussion: Should these checks be inside their respective functions?
+      if (handler->getState() <= Http2StreamHandler::H2StreamState::INIT) {
+        consumeStream(resources.inStream, payloadlen);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that has not received any headers");
+      }
+      if (handler->getState() >= Http2StreamHandler::H2StreamState::GOAWAY) {
+        consumeStream(resources.inStream, payloadlen);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that is already at goaway");
+      }
+      state = handler->handleData(flags, resources.inStream, payloadlen);
+      break;
+    case HEADERS:
+      // Check if the stream is in its initial state, i.E. the only state when headers should be acceptable
+      // ToDo: Discussion: Should these checks be inside their respective functions?
+      if (handler->getState() != Http2StreamHandler::H2StreamState::INIT) {
+        consumeStream(resources.inStream, payloadlen);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received headers for stream that is not in its init state");
+      }
+      state = handler->handleHeaders(flags, resources.inStream, payloadlen);
+      break;
+    case PRIORITY:
+      state = handler->handlePriority(flags, resources.inStream, payloadlen);
+      break;
+    case RST_STREAM:
+      state = handler->handleResetStream(flags, resources.inStream, payloadlen);
+      break;
+    case SETTINGS:
+      state = handler->handleSettings(flags, resources.inStream, payloadlen);
+      break;
+    case PUSH_PROMISE:
+      state = handler->handlePushPromise(flags, resources.inStream, payloadlen);
+      break;
+    case GOAWAY:
+      state = handler->handleGoAway(flags, resources.inStream, payloadlen);
+      break;
+    case WINDOW_UPDATE:
+      state = handler->handleWindowUpdate(flags, resources.inStream, payloadlen);
+      break;
+    case CONTINUATION:
+      // Check if the stream is in its "headers received" state, i.E. the only state when continued headers should be acceptable
+      if (handler->getState() != Http2StreamHandler::H2StreamState::HEADERS) {
+        consumeStream(resources.inStream, payloadlen);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received continued headers for stream that is not in its header state");
+      }
+      state = handler->handleContinuation(flags, resources.inStream, payloadlen);
+      break;
+  }
+
+  if (state != ConnectionState::ALIVE) {
+    resources.h2streams.erase(streamident);
+  }
+
+  return ConnectionState::ALIVE;
 
 
 //  oatpp::web::protocol::http::HttpError::Info error;
@@ -234,29 +305,22 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Task
 
-Http2Processor::Task::Task(const std::shared_ptr<Components>& components,
-                          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                          std::atomic_long *taskCounter)
-  : m_components(components)
-  , m_connection(connection)
-  , m_counter(taskCounter)
-{
+Http2Processor::Task::Task(const std::shared_ptr<Components> &components,
+                           const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
+                           std::atomic_long *taskCounter)
+    : m_components(components), m_connection(connection), m_counter(taskCounter) {
   (*m_counter)++;
 }
 
 Http2Processor::Task::Task(const Http2Processor::Task &copy)
-  : m_components(copy.m_components)
-  , m_connection(copy.m_connection)
-  , m_counter(copy.m_counter)
-{
+    : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter) {
   (*m_counter)++;
 }
 
 Http2Processor::Task::Task(Http2Processor::Task &&move)
-  : m_components(std::move(move.m_components))
-  , m_connection(std::move(move.m_connection))
-  , m_counter(move.m_counter)
-{
+    : m_components(std::move(move.m_components)),
+      m_connection(std::move(move.m_connection)),
+      m_counter(move.m_counter) {
   move.m_counter = nullptr;
 }
 
@@ -278,7 +342,7 @@ Http2Processor::Task &Http2Processor::Task::operator=(Http2Processor::Task &&t) 
   return *this;
 }
 
-void Http2Processor::Task::run(){
+void Http2Processor::Task::run() {
 
   m_connection->initContexts();
 
@@ -305,159 +369,4 @@ Http2Processor::Task::~Task() {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Http2Processor::Coroutine
-
-Http2Processor::Coroutine::Coroutine(const std::shared_ptr<Components>& components,
-                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-                                    std::atomic_long *taskCounter)
-  : m_components(components)
-  , m_connection(connection)
-  , m_headersInBuffer(components->config->headersInBufferInitial)
-  , m_headersReader(&m_headersInBuffer, components->config->headersReaderChunkSize, components->config->headersReaderMaxSize)
-  , m_headersOutBuffer(std::make_shared<oatpp::data::stream::BufferOutputStream>(components->config->headersOutBufferInitial))
-  , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0)))
-  , m_connectionState(ConnectionState::ALIVE)
-  , m_counter(taskCounter)
-{
-  (*m_counter)++;
-}
-
-Http2Processor::Coroutine::~Coroutine() {
-  (*m_counter)--;
-}
-
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::act() {
-  return m_connection->initContextsAsync().next(yieldTo(&Http2Processor::Coroutine::parseHeaders));
-}
-
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::parseHeaders() {
-  return m_headersReader.readHeadersAsync(m_inStream).callbackTo(&Http2Processor::Coroutine::onHeadersParsed);
-}
-
-oatpp::async::Action Http2Processor::Coroutine::onHeadersParsed(const RequestHeadersReader::Result& headersReadResult) {
-
-  m_currentRequest = protocol::http::incoming::Request::createShared(m_connection,
-                                                                     headersReadResult.startingLine,
-                                                                     headersReadResult.headers,
-                                                                     m_inStream,
-                                                                     m_components->bodyDecoder);
-
-  for(auto& interceptor : m_components->requestInterceptors) {
-    m_currentResponse = interceptor->intercept(m_currentRequest);
-    if(m_currentResponse) {
-      return yieldTo(&Http2Processor::Coroutine::onResponseFormed);
-    }
-  }
-
-  m_currentRoute = m_components->router->getRoute(headersReadResult.startingLine.method.toString(), headersReadResult.startingLine.path.toString());
-
-  if(!m_currentRoute) {
-
-    data::stream::BufferOutputStream ss;
-    ss << "No mapping for HTTP-method: '" << headersReadResult.startingLine.method.toString()
-       << "', URL: '" << headersReadResult.startingLine.path.toString() << "'";
-    m_currentResponse = m_components->errorHandler->handleError(protocol::http::Status::CODE_404, ss.toString());
-    m_connectionState = ConnectionState::CLOSING;
-    return yieldTo(&Http2Processor::Coroutine::onResponseFormed);
-  }
-
-  m_currentRequest->setPathVariables(m_currentRoute.getMatchMap());
-
-  return yieldTo(&Http2Processor::Coroutine::onRequestFormed);
-
-}
-
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::onRequestFormed() {
-  return m_currentRoute.getEndpoint()->handleAsync(m_currentRequest).callbackTo(&Http2Processor::Coroutine::onResponse);
-}
-
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
-  m_currentResponse = response;
-  return yieldTo(&Http2Processor::Coroutine::onResponseFormed);
-}
-  
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::onResponseFormed() {
-
-  for(auto& interceptor : m_components->responseInterceptors) {
-    m_currentResponse = interceptor->intercept(m_currentRequest, m_currentResponse);
-    if(!m_currentResponse) {
-      m_currentResponse = m_components->errorHandler->handleError(
-        protocol::http::Status::CODE_500,
-        "Response Interceptor returned an Invalid Response - 'null'"
-      );
-    }
-  }
-
-  m_currentResponse->putHeaderIfNotExists(protocol::http::Header::SERVER, protocol::http::Header::Value::SERVER);
-  oatpp::web::protocol::http::utils::CommunicationUtils::considerConnectionState(m_currentRequest, m_currentResponse, m_connectionState);
-
-  switch(m_connectionState) {
-
-    case ConnectionState::ALIVE :
-      m_currentResponse->putHeaderIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
-      break;
-
-    case ConnectionState::CLOSING:
-    case ConnectionState::DEAD:
-      m_currentResponse->putHeaderIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
-      break;
-
-    case ConnectionState::DELEGATED: {
-      auto handler = m_currentResponse->getConnectionUpgradeHandler();
-      if(handler) {
-        handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
-        m_connectionState = ConnectionState::DELEGATED;
-      } else {
-        OATPP_LOGW("[oatpp::web::server::Http2Processor::Coroutine::onResponseFormed()]", "Warning. ConnectionUpgradeHandler not set!");
-        m_connectionState = ConnectionState::CLOSING;
-      }
-      break;
-    }
-
-  }
-
-  auto contentEncoderProvider =
-    protocol::http::utils::CommunicationUtils::selectEncoder(m_currentRequest, m_components->contentEncodingProviders);
-
-  return protocol::http::outgoing::Response::sendAsync(m_currentResponse, m_connection, m_headersOutBuffer, contentEncoderProvider)
-         .next(yieldTo(&Http2Processor::Coroutine::onRequestDone));
-
-}
-  
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::onRequestDone() {
-  
-  if(m_connectionState == ConnectionState::ALIVE) {
-    return yieldTo(&Http2Processor::Coroutine::parseHeaders);
-  }
-  
-  return finish();
-
-}
-  
-Http2Processor::Coroutine::Action Http2Processor::Coroutine::handleError(Error* error) {
-
-  if(error) {
-
-    if(error->is<oatpp::AsyncIOError>()) {
-      auto aioe = static_cast<oatpp::AsyncIOError*>(error);
-      if(aioe->getCode() == oatpp::IOError::BROKEN_PIPE) {
-        return aioe; // do not report BROKEN_PIPE error
-      }
-    }
-
-    if(m_currentResponse) {
-      //OATPP_LOGE("[oatpp::web::server::Http2Processor::Coroutine::handleError()]", "Unhandled error. '%s'. Dropping connection", error->what());
-      return error;
-    }
-
-    m_currentResponse = m_components->errorHandler->handleError(protocol::http::Status::CODE_500, error->what());
-    return yieldTo(&Http2Processor::Coroutine::onResponseFormed);
-
-  }
-
-  return error;
-
-}
-  
 }}}}

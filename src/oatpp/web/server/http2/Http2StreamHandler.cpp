@@ -26,4 +26,58 @@
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags,
+                                                                   const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                   v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 flags,
+                                                                      const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                      v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handlePriority(v_uint8 flags,
+                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                       v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleResetStream(v_uint8 flags,
+                                                                          const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                          v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleSettings(v_uint8 flags,
+                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                       v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handlePushPromise(v_uint8 flags,
+                                                                          const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                          v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleGoAway(v_uint8 flags,
+                                                                     const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                     v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uint8 flags,
+                                                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                           v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
+Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uint8 flags,
+                                                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                           v_io_size streamPayloadLength) {
+  return Http2StreamHandler::ConnectionState::CLOSING;
+}
+
 }}}}
