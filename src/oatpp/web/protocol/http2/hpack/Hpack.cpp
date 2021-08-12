@@ -833,6 +833,7 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::InputStreamBuff
       consumed += step;
     }
   }
+  return headers;
 }
 
 std::list<Payload> SimpleHpack::deflate(const Headers &headers, v_io_size maxFrameSize) {
