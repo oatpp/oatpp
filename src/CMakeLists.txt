@@ -275,6 +275,8 @@ add_library(oatpp
         oatpp/web/server/http2/Http2Processor.hpp
         oatpp/web/server/http2/Http2StreamHandler.cpp
         oatpp/web/server/http2/Http2StreamHandler.hpp
+        oatpp/web/server/http2/PriorityStreamScheduler.cpp
+        oatpp/web/server/http2/PriorityStreamScheduler.hpp
         oatpp/web/server/interceptor/AllowCorsGlobal.cpp
         oatpp/web/server/interceptor/AllowCorsGlobal.hpp
         oatpp/web/server/interceptor/Http2.cpp
