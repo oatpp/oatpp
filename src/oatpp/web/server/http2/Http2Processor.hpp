@@ -44,6 +44,7 @@
 
 #include "oatpp/web/server/http2/Http2StreamHandler.hpp"
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
+#include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
@@ -77,9 +78,8 @@ private:
 
     std::shared_ptr<processing::Components> components;
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
-    oatpp::data::stream::BufferOutputStream headersInBuffer;
-    oatpp::data::stream::BufferOutputStream headersOutBuffer;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
+    std::shared_ptr<http2::PriorityStreamScheduler> outStream;
 
     /**
      * Collection of all streams in an ordered map
@@ -92,11 +92,6 @@ private:
     std::shared_ptr<web::protocol::http2::hpack::Hpack> hpack;
   };
 
-  static
-  std::shared_ptr<protocol::http::outgoing::Response>
-  processNextRequest(ProcessingResources& resources,
-                     const std::shared_ptr<protocol::http::incoming::Request>& request,
-                     ConnectionState& connectionState);
   static ConnectionState processNextRequest(ProcessingResources& resources);
   static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
 

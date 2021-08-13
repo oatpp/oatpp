@@ -38,62 +38,60 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<h
                                                          const std::shared_ptr<oatpp::data::stream::IOStream> &pConnection)
     : components(pComponents),
       connection(pConnection),
-      headersInBuffer(components->config->headersInBufferInitial),
-      headersOutBuffer(components->config->headersOutBufferInitial),
       inStream(data::stream::InputStreamBufferedProxy::createShared(connection,
-                                                                    std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE,
-                                                                                                  0))),
+                                                                    std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE,0))),
       hpack(std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(
-          1024))) {}
-
-std::shared_ptr<protocol::http::outgoing::Response>
-Http2Processor::processNextRequest(ProcessingResources &resources,
-                                   const std::shared_ptr<protocol::http::incoming::Request> &request,
-                                   ConnectionState &connectionState) {
-
-  std::shared_ptr<protocol::http::outgoing::Response> response;
-
-  try {
-
-    for (auto &interceptor : resources.components->requestInterceptors) {
-      response = interceptor->intercept(request);
-      if (response) {
-        return response;
-      }
-    }
-
-    auto route =
-        resources.components->router->getRoute(request->getStartingLine().method, request->getStartingLine().path);
-
-    if (!route) {
-
-      data::stream::BufferOutputStream ss;
-      ss << "No mapping for HTTP-method: '" << request->getStartingLine().method.toString()
-         << "', URL: '" << request->getStartingLine().path.toString() << "'";
-
-      connectionState = ConnectionState::CLOSING;
-      return resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, ss.toString());
-
-    }
-
-    request->setPathVariables(route.getMatchMap());
-    return route.getEndpoint()->handle(request);
-
-  } catch (oatpp::web::protocol::http::HttpError &error) {
-    response =
-        resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
-    connectionState = ConnectionState::CLOSING;
-  } catch (std::exception &error) {
-    response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-    connectionState = ConnectionState::CLOSING;
-  } catch (...) {
-    response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unhandled Error");
-    connectionState = ConnectionState::CLOSING;
-  }
-
-  return response;
-
-}
+          1024))),
+          outStream(std::make_shared<http2::PriorityStreamScheduler>(connection)){}
+//
+//std::shared_ptr<protocol::http::outgoing::Response>
+//Http2Processor::processNextRequest(ProcessingResources &resources,
+//                                   const std::shared_ptr<protocol::http::incoming::Request> &request,
+//                                   ConnectionState &connectionState) {
+//
+//  std::shared_ptr<protocol::http::outgoing::Response> response;
+//
+//  try {
+//
+//    for (auto &interceptor : resources.components->requestInterceptors) {
+//      response = interceptor->intercept(request);
+//      if (response) {
+//        return response;
+//      }
+//    }
+//
+//    auto route =
+//        resources.components->router->getRoute(request->getStartingLine().method, request->getStartingLine().path);
+//
+//    if (!route) {
+//
+//      data::stream::BufferOutputStream ss;
+//      ss << "No mapping for HTTP-method: '" << request->getStartingLine().method.toString()
+//         << "', URL: '" << request->getStartingLine().path.toString() << "'";
+//
+//      connectionState = ConnectionState::CLOSING;
+//      return resources.components->errorHandler->handleError(protocol::http::Status::CODE_404, ss.toString());
+//
+//    }
+//
+//    request->setPathVariables(route.getMatchMap());
+//    return route.getEndpoint()->handle(request);
+//
+//  } catch (oatpp::web::protocol::http::HttpError &error) {
+//    response =
+//        resources.components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
+//    connectionState = ConnectionState::CLOSING;
+//  } catch (std::exception &error) {
+//    response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
+//    connectionState = ConnectionState::CLOSING;
+//  } catch (...) {
+//    response = resources.components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unhandled Error");
+//    connectionState = ConnectionState::CLOSING;
+//  }
+//
+//  return response;
+//
+//}
 
 v_io_size Http2Processor::consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                         v_io_size streamPayloadLength) {
@@ -122,7 +120,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
   p_uint8 dataptr = data.data();
   v_uint32 payloadlen = (*dataptr) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16);
   dataptr += 3;
-  FrameType type = (FrameType) *dataptr++;
+  auto type = (FrameType) *dataptr++;
   v_uint8 flags = *dataptr++;
   v_uint32 streamident = ((*dataptr) & 0x7f) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16) | ((*dataptr + 3) << 24);
 
@@ -135,20 +133,30 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
       // connection error!
       // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
     }
+    // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
     if (flags == 0x00) {
-      // ToDo Priorized output lock
       data.resize(9+8);
       inlineData = data::buffer::InlineReadData(data.data()+9, 8);
       resources.inStream->readExactSizeDataSimple(inlineData);
-      resources.connection->writeSimple(data.data(), data.size());
+      resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
+      resources.outStream->writeExactSizeDataSimple(data.data(), data.size());
+      resources.outStream->unlock();
       return ConnectionState::ALIVE;
+    }
+  }
+
+  if (type == DATA || type == HEADERS || type == CONTINUATION || type == GOAWAY || type == PRIORITY || type == RST_STREAM) {
+    if (streamident == 0) {
+      // connection error (Section 5.4.1) of type
+      //   PROTOCOL_ERROR.
+      // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
     }
   }
 
   std::shared_ptr<Http2StreamHandler> handler;
   auto handlerentry = resources.h2streams.find(streamident);
   if (handlerentry == resources.h2streams.end()) {
-    handler = std::make_shared<Http2StreamHandler>(streamident, resources.hpack, resources.components);
+    handler = std::make_shared<Http2StreamHandler>(streamident, resources.outStream, resources.hpack, resources.components);
     resources.h2streams.insert({streamident, handler});
   } else {
     handler = handlerentry->second;
@@ -186,6 +194,12 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
       state = handler->handlePriority(flags, resources.inStream, payloadlen);
       break;
     case RST_STREAM:
+      if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
+        // ToDo: RST_STREAM frames MUST NOT be sent for a stream in the "idle" state.
+        //   If a RST_STREAM frame identifying an idle stream is received, the
+        //   recipient MUST treat this as a connection error (Section 5.4.1) of
+        //   type PROTOCOL_ERROR.
+      }
       state = handler->handleResetStream(flags, resources.inStream, payloadlen);
       break;
     case SETTINGS:
@@ -208,6 +222,9 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
             "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received continued headers for stream that is not in its header state");
       }
       state = handler->handleContinuation(flags, resources.inStream, payloadlen);
+      break;
+    default:
+      // connection error
       break;
   }
 
@@ -305,7 +322,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Task
 
-Http2Processor::Task::Task(const std::shared_ptr<Components> &components,
+Http2Processor::Task::Task(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
                            std::atomic_long *taskCounter)
     : m_components(components), m_connection(connection), m_counter(taskCounter) {

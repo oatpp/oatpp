@@ -32,9 +32,10 @@
 #include "oatpp/web/protocol/http2/hpack/Hpack.hpp"
 
 #include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
-
+#include "oatpp/web/protocol/http2/Http2.hpp"
 
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
+#include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
@@ -46,22 +47,40 @@ class Http2StreamHandler : public oatpp::base::Countable {
   enum H2StreamState {
     INIT,
     HEADERS,
+    CONTINUATION,
     PAYLOAD,
     PROCESSING,
     RESPONSE,
     GOAWAY
   };
 
+  enum H2StreamHeaderFlags {
+    HEADER_END_STREAM = 0x01,
+    HEADER_END_HEADERS = 0x04,
+    HEADER_PADDED = 0x08,
+    HEADER_PRIORITY = 0x20
+  };
+
+  enum H2StreamDataFlags {
+    DATA_END_STREAM = 0x01,
+    DATA_PADDED = 0x08,
+  };
+
  private:
   H2StreamState m_state;
   v_uint32 m_streamId;
+  v_uint32 m_dependency;
+  v_uint8 m_weight;
   std::shared_ptr<protocol::http2::hpack::Hpack> m_hpack;
   std::shared_ptr<http2::processing::Components> m_components;
+  std::shared_ptr<http2::PriorityStreamScheduler> m_output;
+  oatpp::web::protocol::http2::Headers m_headers;
 
  public:
-  Http2StreamHandler(v_uint32 id, std::shared_ptr<protocol::http2::hpack::Hpack> hpack, std::shared_ptr<http2::processing::Components> components)
+  Http2StreamHandler(v_uint32 id, std::shared_ptr<http2::PriorityStreamScheduler> outputStream, std::shared_ptr<protocol::http2::hpack::Hpack> hpack, std::shared_ptr<http2::processing::Components> components)
     : m_state(INIT)
     , m_streamId(id)
+    , m_output(std::move(outputStream))
     , m_hpack(std::move(hpack))
     , m_components(std::move(components)) {}
 
