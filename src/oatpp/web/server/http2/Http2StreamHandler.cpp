@@ -24,6 +24,8 @@
 
 #include "Http2StreamHandler.hpp"
 
+#include <arpa/inet.h>
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags,
@@ -48,15 +50,15 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                       v_io_size streamPayloadLength) {
   m_state = H2StreamState::HEADERS;
-
+  m_headerFlags = flags;
   v_uint8 pad = 0;
 
-  if (flags & H2StreamHeaderFlags::HEADER_PADDED) {
+  if (m_headerFlags & H2StreamHeaderFlags::HEADER_PADDED) {
     stream->readExactSizeDataSimple(&pad, 1);
     streamPayloadLength -= pad + 1;
   }
 
-  if (flags & H2StreamHeaderFlags::HEADER_PRIORITY) {
+  if (m_headerFlags & H2StreamHeaderFlags::HEADER_PRIORITY) {
     stream->readExactSizeDataSimple(&m_dependency, 4);
     stream->readExactSizeDataSimple(&m_weight, 1);
     streamPayloadLength -= 5;
@@ -69,11 +71,11 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
     stream->readExactSizeDataSimple((void*)paddata->data(), paddata->size());
   }
 
-  if (flags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) { // end stream, go to processing
+  if (m_headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) { // end stream, go to processing
     m_state = H2StreamState::PROCESSING;
-  } else if (flags & H2StreamHeaderFlags::HEADER_END_STREAM) { // continuation
+  } else if (m_headerFlags & H2StreamHeaderFlags::HEADER_END_STREAM) { // continuation
     m_state = H2StreamState::CONTINUATION;
-  } else if (flags & H2StreamHeaderFlags::HEADER_END_HEADERS) { // continuation
+  } else if (m_headerFlags & H2StreamHeaderFlags::HEADER_END_HEADERS) { // continuation
     m_state = H2StreamState::PAYLOAD;
   }
 
@@ -102,11 +104,6 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleResetStream(v_uint
   return Http2StreamHandler::ConnectionState::DEAD;
 }
 
-Http2StreamHandler::ConnectionState Http2StreamHandler::handleSettings(v_uint8 flags,
-                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
-                                                                       v_io_size streamPayloadLength) {
-  return Http2StreamHandler::ConnectionState::CLOSING;
-}
 
 Http2StreamHandler::ConnectionState Http2StreamHandler::handlePushPromise(v_uint8 flags,
                                                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
@@ -124,13 +121,33 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleGoAway(v_uint8 fla
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uint8 flags,
                                                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                            v_io_size streamPayloadLength) {
-  return Http2StreamHandler::ConnectionState::CLOSING;
+  if (streamPayloadLength != 4) {
+    // ToDo: A WINDOW_UPDATE frame with a length other than 4 octets MUST be
+    //   treated as a connection error (Section 5.4.1) of type
+    //   FRAME_SIZE_ERROR.
+  }
+  // https://datatracker.ietf.org/doc/html/rfc7540#section-6.9
+  // 1 to 2^31-1 (2,147,483,647)
+  v_uint32 increment;
+  stream->readExactSizeDataSimple(&increment, 4);
+  m_data->resize(m_data->size() + ntohl(increment));
+
+  return Http2StreamHandler::ConnectionState::ALIVE;
 }
 
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uint8 flags,
                                                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                            v_io_size streamPayloadLength) {
-  // ToDo: Flags
+
+  m_headerFlags |= flags;
+
+  if ((m_headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
+      == H2StreamHeaderFlags::HEADER_END_HEADERS) {
+    m_state = H2StreamState::PAYLOAD;
+  } else if ((m_headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
+      == (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) {
+    m_state = H2StreamState::PROCESSING;
+  }
   auto cont = m_hpack->inflate(stream, streamPayloadLength);
   auto all = cont.getAll();
   for (auto &hdr : all) {

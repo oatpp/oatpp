@@ -29,20 +29,25 @@
 
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 
+#include <arpa/inet.h>
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
+
+const char* TAG = "oatpp::web::server::http2::Http2Processor";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
 
 Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<http2::processing::Components> &pComponents,
                                                          const std::shared_ptr<oatpp::data::stream::IOStream> &pConnection)
-    : components(pComponents),
-      connection(pConnection),
-      inStream(data::stream::InputStreamBufferedProxy::createShared(connection,
-                                                                    std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE,0))),
-      hpack(std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(
-          1024))),
-          outStream(std::make_shared<http2::PriorityStreamScheduler>(connection)){}
+    : components(pComponents)
+    , connection(pConnection)
+    , outStream(std::make_shared<http2::PriorityStreamScheduler>(connection))
+    , settings() {
+  flow = settings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
+  hpack = std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(settings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
+  inStream = data::stream::InputStreamBufferedProxy::createShared(connection,std::make_shared<std::string>(flow,0));
+}
 //
 //std::shared_ptr<protocol::http::outgoing::Response>
 //Http2Processor::processNextRequest(ProcessingResources &resources,
@@ -109,6 +114,19 @@ v_io_size Http2Processor::consumeStream(const std::shared_ptr<data::stream::Inpu
   return consumed;
 }
 
+std::shared_ptr<Http2StreamHandler> Http2Processor::findOrCreateStream(v_uint32 ident,
+                                                                       ProcessingResources &resources) {
+  std::shared_ptr<Http2StreamHandler> handler;
+  auto handlerentry = resources.h2streams.find(ident);
+  if (handlerentry == resources.h2streams.end()) {
+    handler = std::make_shared<Http2StreamHandler>(ident, resources.outStream, resources.hpack, resources.components);
+    resources.h2streams.insert({ident, handler});
+  } else {
+    handler = handlerentry->second;
+  }
+  return handler;
+}
+
 Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingResources &resources) {
 
   async::Action action;
@@ -124,113 +142,85 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
   v_uint8 flags = *dataptr++;
   v_uint32 streamident = ((*dataptr) & 0x7f) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16) | ((*dataptr + 3) << 24);
 
-  if (type == PING) {
-    if (streamident != 0) {
-      // connection error!
-      // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
-    }
-    if (payloadlen != 8) {
-      // connection error!
-      // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
-    }
-    // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
-    if (flags == 0x00) {
-      data.resize(9+8);
-      inlineData = data::buffer::InlineReadData(data.data()+9, 8);
-      resources.inStream->readExactSizeDataSimple(inlineData);
-      resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
-      resources.outStream->writeExactSizeDataSimple(data.data(), data.size());
-      resources.outStream->unlock();
-      return ConnectionState::ALIVE;
-    }
-  }
-
-  if (type == DATA || type == HEADERS || type == CONTINUATION || type == GOAWAY || type == PRIORITY || type == RST_STREAM) {
-    if (streamident == 0) {
-      // connection error (Section 5.4.1) of type
-      //   PROTOCOL_ERROR.
-      // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
-    }
-  }
-
-  std::shared_ptr<Http2StreamHandler> handler;
-  auto handlerentry = resources.h2streams.find(streamident);
-  if (handlerentry == resources.h2streams.end()) {
-    handler = std::make_shared<Http2StreamHandler>(streamident, resources.outStream, resources.hpack, resources.components);
-    resources.h2streams.insert({streamident, handler});
-  } else {
-    handler = handlerentry->second;
-  }
-
-  ConnectionState state;
-
   switch (type) {
-    case DATA:
-      // Check if the stream is in a state where it would accept data
-      // ToDo: Discussion: Should these checks be inside their respective functions?
-      if (handler->getState() <= Http2StreamHandler::H2StreamState::INIT) {
-        consumeStream(resources.inStream, payloadlen);
-        throw std::runtime_error(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that has not received any headers");
+
+    case PING:
+      if (streamident != 0) {
+        // connection error!
+        // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
       }
-      if (handler->getState() >= Http2StreamHandler::H2StreamState::GOAWAY) {
-        consumeStream(resources.inStream, payloadlen);
-        throw std::runtime_error(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that is already at goaway");
+      if (payloadlen != 8) {
+        // connection error!
+        // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
       }
-      state = handler->handleData(flags, resources.inStream, payloadlen);
-      break;
-    case HEADERS:
-      // Check if the stream is in its initial state, i.E. the only state when headers should be acceptable
-      // ToDo: Discussion: Should these checks be inside their respective functions?
-      if (handler->getState() != Http2StreamHandler::H2StreamState::INIT) {
-        consumeStream(resources.inStream, payloadlen);
-        throw std::runtime_error(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received headers for stream that is not in its init state");
+      // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
+      if (flags == 0x00) {
+        data.resize(9+8);
+        inlineData = data::buffer::InlineReadData(data.data()+9, 8);
+        resources.inStream->readExactSizeDataSimple(inlineData);
+        resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
+        resources.outStream->writeExactSizeDataSimple(data.data(), data.size());
+        resources.outStream->unlock();
+        return ConnectionState::ALIVE;
       }
-      state = handler->handleHeaders(flags, resources.inStream, payloadlen);
       break;
-    case PRIORITY:
-      state = handler->handlePriority(flags, resources.inStream, payloadlen);
-      break;
-    case RST_STREAM:
-      if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
-        // ToDo: RST_STREAM frames MUST NOT be sent for a stream in the "idle" state.
-        //   If a RST_STREAM frame identifying an idle stream is received, the
-        //   recipient MUST treat this as a connection error (Section 5.4.1) of
-        //   type PROTOCOL_ERROR.
-      }
-      state = handler->handleResetStream(flags, resources.inStream, payloadlen);
-      break;
+
     case SETTINGS:
-      state = handler->handleSettings(flags, resources.inStream, payloadlen);
-      break;
-    case PUSH_PROMISE:
-      state = handler->handlePushPromise(flags, resources.inStream, payloadlen);
-      break;
-    case GOAWAY:
-      state = handler->handleGoAway(flags, resources.inStream, payloadlen);
-      break;
-    case WINDOW_UPDATE:
-      state = handler->handleWindowUpdate(flags, resources.inStream, payloadlen);
-      break;
-    case CONTINUATION:
-      // Check if the stream is in its "headers received" state, i.E. the only state when continued headers should be acceptable
-      if (handler->getState() != Http2StreamHandler::H2StreamState::HEADERS) {
-        consumeStream(resources.inStream, payloadlen);
-        throw std::runtime_error(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received continued headers for stream that is not in its header state");
+      if (streamident != 0) {
+        // ToDo: If an endpoint receives a SETTINGS frame whose stream identifier
+        //  field is anything other than 0x0, the endpoint MUST respond with a
+        //  connection error (Section 5.4.1) of type PROTOCOL_ERROR.
+        //  https://datatracker.ietf.org/doc/html/rfc7540#section-6.5
       }
-      state = handler->handleContinuation(flags, resources.inStream, payloadlen);
+      for (v_uint32 consumed = 0; consumed < payloadlen; consumed += 6) {
+        v_uint16 ident;
+        v_uint32 parameter;
+        resources.inStream->readExactSizeDataSimple(&ident, 2);
+        resources.inStream->readExactSizeDataSimple(&parameter, 4);
+        try {
+          resources.settings->setSetting((Http2Settings::Identifier) ntohs(ident), ntohl(parameter));
+        } catch (std::runtime_error &e) {
+          OATPP_LOGW(TAG, e.what());
+        }
+      }
       break;
+
+
+    case WINDOW_UPDATE:
+      if (streamident == 0) {
+
+      } else {
+        ConnectionState state = processNextRequest(findOrCreateStream(streamident, resources), resources, type, flags, resources.inStream, payloadlen);
+        if (state != ConnectionState::ALIVE) {
+          resources.h2streams.erase(streamident);
+        }
+      }
+      break;
+
+    case DATA:
+    case HEADERS:
+    case PRIORITY:
+    case RST_STREAM:
+    case PUSH_PROMISE:
+    case GOAWAY:
+    case CONTINUATION:
+      if (streamident == 0) {
+        // connection error (Section 5.4.1) of type
+        //   PROTOCOL_ERROR.
+        // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
+      } else {
+        ConnectionState state = processNextRequest(findOrCreateStream(streamident, resources), resources, type, flags, resources.inStream, payloadlen);
+        if (state != ConnectionState::ALIVE) {
+          resources.h2streams.erase(streamident);
+        }
+      }
+      break;
+
     default:
-      // connection error
+      // ToDo: Unknown frame
       break;
   }
 
-  if (state != ConnectionState::ALIVE) {
-    resources.h2streams.erase(streamident);
-  }
 
   return ConnectionState::ALIVE;
 
@@ -317,6 +307,78 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 //
 //  return connectionState;
 
+}
+
+Http2Processor::ConnectionState Http2Processor::processNextRequest(const std::shared_ptr<Http2StreamHandler> &handler,
+                                                                   Http2Processor::ProcessingResources &resources,
+                                                                   FrameType type,
+                                                                   v_uint8 flags,
+                                                                   const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                                   v_io_size streamPayloadLength) {
+  ConnectionState state = ConnectionState::CLOSING;
+
+  switch (type) {
+    case DATA:
+      // Check if the stream is in a state where it would accept data
+      // ToDo: Discussion: Should these checks be inside their respective functions?
+      if (handler->getState() <= Http2StreamHandler::H2StreamState::INIT) {
+        consumeStream(resources.inStream, streamPayloadLength);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that has not received any headers");
+      }
+      if (handler->getState() >= Http2StreamHandler::H2StreamState::GOAWAY) {
+        consumeStream(resources.inStream, streamPayloadLength);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that is already at goaway");
+      }
+      state = handler->handleData(flags, resources.inStream, streamPayloadLength);
+      break;
+    case HEADERS:
+      // Check if the stream is in its initial state, i.E. the only state when headers should be acceptable
+      // ToDo: Discussion: Should these checks be inside their respective functions?
+      if (handler->getState() != Http2StreamHandler::H2StreamState::INIT) {
+        consumeStream(resources.inStream, streamPayloadLength);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received headers for stream that is not in its init state");
+      }
+      state = handler->handleHeaders(flags, resources.inStream, streamPayloadLength);
+      break;
+    case PRIORITY:
+      state = handler->handlePriority(flags, resources.inStream, streamPayloadLength);
+      break;
+    case RST_STREAM:
+      if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
+        // ToDo: RST_STREAM frames MUST NOT be sent for a stream in the "idle" state.
+        //   If a RST_STREAM frame identifying an idle stream is received, the
+        //   recipient MUST treat this as a connection error (Section 5.4.1) of
+        //   type PROTOCOL_ERROR.
+      }
+      state = handler->handleResetStream(flags, resources.inStream, streamPayloadLength);
+      break;
+    case PUSH_PROMISE:
+      state = handler->handlePushPromise(flags, resources.inStream, streamPayloadLength);
+      break;
+    case GOAWAY:
+      state = handler->handleGoAway(flags, resources.inStream, streamPayloadLength);
+      break;
+    case WINDOW_UPDATE:
+      state = handler->handleWindowUpdate(flags, resources.inStream, streamPayloadLength);
+      break;
+    case CONTINUATION:
+      // Check if the stream is in its "headers received" state, i.E. the only state when continued headers should be acceptable
+      if (handler->getState() != Http2StreamHandler::H2StreamState::HEADERS) {
+        consumeStream(resources.inStream, streamPayloadLength);
+        throw std::runtime_error(
+            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received continued headers for stream that is not in its header state");
+      }
+      state = handler->handleContinuation(flags, resources.inStream, streamPayloadLength);
+      break;
+    default:
+      state = ConnectionState::CLOSING;
+      break;
+  }
+
+  return state;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

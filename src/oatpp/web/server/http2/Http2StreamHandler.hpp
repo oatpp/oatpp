@@ -71,10 +71,13 @@ class Http2StreamHandler : public oatpp::base::Countable {
   v_uint32 m_streamId;
   v_uint32 m_dependency;
   v_uint8 m_weight;
+  v_uint8 m_headerFlags;
+  v_uint32 m_flow;
   std::shared_ptr<protocol::http2::hpack::Hpack> m_hpack;
   std::shared_ptr<http2::processing::Components> m_components;
   std::shared_ptr<http2::PriorityStreamScheduler> m_output;
   oatpp::web::protocol::http2::Headers m_headers;
+  std::shared_ptr<std::string> m_data;
 
  public:
   Http2StreamHandler(v_uint32 id, std::shared_ptr<http2::PriorityStreamScheduler> outputStream, std::shared_ptr<protocol::http2::hpack::Hpack> hpack, std::shared_ptr<http2::processing::Components> components)
@@ -82,13 +85,16 @@ class Http2StreamHandler : public oatpp::base::Countable {
     , m_streamId(id)
     , m_output(std::move(outputStream))
     , m_hpack(std::move(hpack))
-    , m_components(std::move(components)) {}
+    , m_components(std::move(components))
+    , m_dependency(0)
+    , m_weight(0)
+    , m_flow (65535)
+    , m_data(std::make_shared<std::string>(65535, (char)0)){}
 
   ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handlePriority(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleResetStream(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handleSettings(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handlePushPromise(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleGoAway(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleWindowUpdate(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);

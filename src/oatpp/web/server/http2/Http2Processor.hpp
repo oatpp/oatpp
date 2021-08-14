@@ -45,6 +45,7 @@
 #include "oatpp/web/server/http2/Http2StreamHandler.hpp"
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 #include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
+#include "oatpp/web/server/http2/Http2Settings.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
@@ -57,6 +58,7 @@ public:
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
 
 private:
+  static const char* TAG;
 
   enum FrameType : v_uint8 {
     DATA = 0x00,
@@ -90,9 +92,22 @@ private:
      * For now here, should be provided with a kind of factory via components
      */
     std::shared_ptr<web::protocol::http2::hpack::Hpack> hpack;
+
+
+    std::shared_ptr<http2::Http2Settings> settings;
+
+    v_uint32 flow;
   };
 
   static ConnectionState processNextRequest(ProcessingResources& resources);
+  static Http2Processor::ConnectionState processNextRequest(const std::shared_ptr<Http2StreamHandler> &handler,
+                                                            Http2Processor::ProcessingResources &resources,
+                                                            FrameType type,
+                                                            v_uint8 flags,
+                                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                                            v_io_size streamPayloadLength);
+  static std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident,
+                                                                ProcessingResources &resources);
   static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
 
 public:
