@@ -273,6 +273,8 @@ add_library(oatpp
         oatpp/web/server/http2/Http2ProcessingComponents.hpp
         oatpp/web/server/http2/Http2Processor.cpp
         oatpp/web/server/http2/Http2Processor.hpp
+        oatpp/web/server/http2/Http2Settings.cpp
+        oatpp/web/server/http2/Http2Settings.hpp
         oatpp/web/server/http2/Http2StreamHandler.cpp
         oatpp/web/server/http2/Http2StreamHandler.hpp
         oatpp/web/server/http2/PriorityStreamScheduler.cpp
