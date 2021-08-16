@@ -46,7 +46,7 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<h
     , inSettings(http2::Http2Settings::createShared())
     , outSettings(http2::Http2Settings::createShared()){
   flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-  hpack = std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
+  hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
   inStream = data::stream::InputStreamBufferedProxy::createShared(connection,std::make_shared<std::string>(flow,0));
 }
 
@@ -62,7 +62,7 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<p
     , inSettings(pInSettings)
     , outSettings(pOutSettings) {
   flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-  hpack = std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
+  hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
 }
 //
 //std::shared_ptr<protocol::http::outgoing::Response>

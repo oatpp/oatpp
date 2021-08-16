@@ -37,7 +37,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http2 { namespa
 
 typedef std::multimap<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel> HeaderMap;
 
-class Table {
+class Table : public oatpp::base::Countable {
  public:
   class TableEntry {
    public:
@@ -62,12 +62,10 @@ class Table {
   virtual ~Table() = default;
 };
 
-class SimpleTable : public Table, public oatpp::base::Countable {
+class SimpleTable : public Table {
  private:
   static const TableEntry s_staticTable[61];
   std::vector<TableEntry> m_dynamicTable;
-  v_io_size m_maxEntries;
-  v_io_size m_nextInDynamic;
 
  public:
   v_io_size findKey(const HeaderMap::iterator &it) override;
@@ -82,14 +80,16 @@ class SimpleTable : public Table, public oatpp::base::Countable {
   v_uint32 changeTableSize(v_uint32 newSize) override;
   v_uint32 getTableSize() override;
 
-  SimpleTable(v_io_size maxEntries)
-      : m_maxEntries(maxEntries), m_nextInDynamic(0) {
+  explicit SimpleTable(v_io_size maxEntries) {
     m_dynamicTable.reserve(maxEntries);
   };
+  static std::shared_ptr<SimpleTable> createShared(v_io_size maxEntries) {
+    return std::make_shared<SimpleTable>(maxEntries);
+  }
   ~SimpleTable() override;
 };
 
-class Hpack {
+class Hpack : public oatpp::base::Countable {
  public:
   virtual std::list<Payload> deflate(const Headers &headers, v_io_size maxFrameSize) = 0;
   virtual Headers inflate(const std::list<Payload> &payloads) = 0;
@@ -97,7 +97,7 @@ class Hpack {
   virtual ~Hpack() = default;
 };
 
-class SimpleHpack : public Hpack, public oatpp::base::Countable {
+class SimpleHpack : public Hpack {
  private:
   enum IndexingMode {
     NO_INDEXING = 0u,
@@ -117,7 +117,10 @@ class SimpleHpack : public Hpack, public oatpp::base::Countable {
   static const char *TAG;
 
  public:
-  SimpleHpack(std::shared_ptr<Table> table);
+  explicit SimpleHpack(std::shared_ptr<Table> table);
+  static std::shared_ptr<SimpleHpack> createShared(std::shared_ptr<Table> table) {
+    return std::make_shared<SimpleHpack>(table);
+  }
 
   std::list<Payload> deflate(const Headers &headers, v_io_size maxFrameSize) override;
   Headers inflate(const std::list<Payload> &payloads) override;

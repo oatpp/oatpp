@@ -35,28 +35,20 @@ namespace oatpp { namespace web { namespace protocol { namespace http2 {
 const char* Frame::Header::TAG = "oatpp::web::protocol::http2::Frame::Header";
 
 const char *Frame::Header::frameTypeStringRepresentation(Frame::Header::FrameType t) {
+#define ENUM2STR(x) case x: return #x
   switch (t) {
-    case DATA:
-      return "DATA";
-    case HEADERS:
-      return "HEADERS";
-    case PRIORITY:
-      return "PRIORITY";
-    case RST_STREAM:
-      return "RST_STREAM";
-    case SETTINGS:
-      return "SETTINGS";
-    case PUSH_PROMISE:
-      return "PUSH_PROMISE";
-    case PING:
-      return "PING";
-    case GOAWAY:
-      return "GOAWAY";
-    case WINDOW_UPDATE:
-      return "WINDOW_UPDATE";
-    case CONTINUATION:
-      return "CONTINUATION";
+    ENUM2STR(DATA);
+    ENUM2STR(HEADERS);
+    ENUM2STR(PRIORITY);
+    ENUM2STR(RST_STREAM);
+    ENUM2STR(SETTINGS);
+    ENUM2STR(PUSH_PROMISE);
+    ENUM2STR(PING);
+    ENUM2STR(GOAWAY);
+    ENUM2STR(WINDOW_UPDATE);
+    ENUM2STR(CONTINUATION);
   }
+#undef ENUM2STR
   return nullptr;
 }
 
