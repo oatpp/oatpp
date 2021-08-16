@@ -40,6 +40,9 @@
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 class Http2StreamHandler : public oatpp::base::Countable {
+ private:
+  static const char* TAG;
+
  public:
 
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
@@ -54,17 +57,8 @@ class Http2StreamHandler : public oatpp::base::Countable {
     GOAWAY
   };
 
-  enum H2StreamHeaderFlags {
-    HEADER_END_STREAM = 0x01,
-    HEADER_END_HEADERS = 0x04,
-    HEADER_PADDED = 0x08,
-    HEADER_PRIORITY = 0x20
-  };
-
-  enum H2StreamDataFlags {
-    DATA_END_STREAM = 0x01,
-    DATA_PADDED = 0x08,
-  };
+  typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
+  typedef protocol::http2::Frame::Header::Flags::Data H2StreamDataFlags;
 
  private:
   H2StreamState m_state;
@@ -77,7 +71,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
   std::shared_ptr<http2::processing::Components> m_components;
   std::shared_ptr<http2::PriorityStreamScheduler> m_output;
   oatpp::web::protocol::http2::Headers m_headers;
-  std::shared_ptr<std::string> m_data;
+  data::stream::BufferOutputStream m_data;
 
  public:
   Http2StreamHandler(v_uint32 id, std::shared_ptr<http2::PriorityStreamScheduler> outputStream, std::shared_ptr<protocol::http2::hpack::Hpack> hpack, std::shared_ptr<http2::processing::Components> components)
@@ -89,7 +83,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
     , m_dependency(0)
     , m_weight(0)
     , m_flow (65535)
-    , m_data(std::make_shared<std::string>(65535, (char)0)){}
+    , m_data(m_flow) {}
 
   ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
@@ -103,6 +97,9 @@ class Http2StreamHandler : public oatpp::base::Countable {
   H2StreamState getState() {
     return m_state;
   }
+
+ private:
+  void process();
 };
 
 }}}}

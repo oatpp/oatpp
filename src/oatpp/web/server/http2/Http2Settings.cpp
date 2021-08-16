@@ -35,7 +35,7 @@ const v_uint32 Http2Settings::PARAMETER_MINMAX[6][2] = {
     {0, UINT32_MAX}
 };
 
-v_uint32 Http2Settings::getSetting(Http2Settings::Identifier ident) {
+v_uint32 Http2Settings::getSetting(Http2Settings::Identifier ident) const {
   switch (ident) {
     case SETTINGS_HEADER_TABLE_SIZE:
     case SETTINGS_ENABLE_PUSH:
@@ -61,6 +61,7 @@ void Http2Settings::setSetting(Http2Settings::Identifier ident, v_uint32 value) 
         throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::getSetting] Error: Tried to set an out-of-range value for parameter");
       }
       m_parameters[ident-1] = value;
+      break;
     default:
       throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::getSetting] Error: Unknown identifier requested");
   }

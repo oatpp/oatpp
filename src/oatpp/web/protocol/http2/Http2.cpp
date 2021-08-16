@@ -22,34 +22,103 @@
  *
  ***************************************************************************/
 
+#include <arpa/inet.h>
+
+#include "oatpp/core/data/stream/BufferStream.hpp"
+
 #include "Http2.hpp"
 #include "hpack/Hpack.hpp"
 
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 {
 
-Frame::FrameHeader::FrameHeader(v_int32 length, v_uint8 flags, v_uint8 type, v_uint32 streamId) {
-  m_data[2] = length & 0xFF;
-  m_data[1] = (length >> 8) & 0xFF;
-  m_data[0] = (length >> 16) & 0xFF;
-  m_data[3] = type;
-  m_data[4] = flags;
-  m_data[8] = streamId & 0xFF;
-  m_data[7] = (streamId >> 8) & 0xFF;
-  m_data[6] = (streamId >> 16) & 0xFF;
-  m_data[5] = (streamId >> 24) & 0x7F;
+const char* Frame::Header::TAG = "oatpp::web::protocol::http2::Frame::Header";
+
+const char *Frame::Header::frameTypeStringRepresentation(Frame::Header::FrameType t) {
+  switch (t) {
+    case DATA:
+      return "DATA";
+    case HEADERS:
+      return "HEADERS";
+    case PRIORITY:
+      return "PRIORITY";
+    case RST_STREAM:
+      return "RST_STREAM";
+    case SETTINGS:
+      return "SETTINGS";
+    case PUSH_PROMISE:
+      return "PUSH_PROMISE";
+    case PING:
+      return "PING";
+    case GOAWAY:
+      return "GOAWAY";
+    case WINDOW_UPDATE:
+      return "WINDOW_UPDATE";
+    case CONTINUATION:
+      return "CONTINUATION";
+  }
+  return nullptr;
 }
 
-std::list<Frame> Frame::createHeaderFrames(v_uint32 streamId, const Headers &hdr, v_io_size maxFrameSize) {
-//  std::list<Frame> frames;
-//  hpack::Hpack hp(hdr, maxFrameSize);
-//  auto first = hp.GetCompressedHeaders();
-//  // v_int32 length, v_uint8 flags, v_uint8 type, v_uint32 streamId, std::vector<v_uint8> payload
-//  frames.emplace_back(first.size(), 0, Frame::FrameHeader::Types::HEADERS, streamId, first);
-//  while (hp.HasContinuation()) {
-//    frames.emplace_back(first.size(), 0, Frame::FrameHeader::Types::CONTINUATION, streamId, first);
-//  }
-//  return frames;
+Frame::Header::Header(v_uint32 length, v_uint8 flags, FrameType type, v_uint32 streamId)
+  : m_length(length)
+  , m_flags(flags)
+  , m_type(type)
+  , m_streamId(streamId) {
+}
+
+std::shared_ptr<Frame::Header> Frame::Header::createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> stream) {
+  v_uint8 data[9] = {0};
+  data::buffer::InlineReadData inlineData((void*)data, 9);
+  if (stream->readExactSizeDataSimple(inlineData) != 9) {
+    OATPP_LOGE(TAG, "Error: Could not read http2 frame header from stream.");
+    throw std::runtime_error("[oatpp::web::protocol::http2::Frame::Header] Error: Could not read http2 frame header from stream.");
+  }
+  p_uint8 dataptr = (p_uint8) data;
+  v_uint32 payloadLength = ((*dataptr) << 16) | (*(dataptr + 1) << 8) | (*(dataptr + 2));
+  dataptr += 3;
+  auto type = (FrameType) *dataptr++;
+  v_uint8 flags = *dataptr++;
+  v_uint32 streamIdent = ((*(dataptr) & 0x7f) << 24) | (*(dataptr + 1) << 16) | (*(dataptr + 2) << 8) | (*(dataptr + 3));
+  return std::make_shared<Header>(payloadLength, flags, type, streamIdent);
+}
+
+v_io_size Frame::Header::writeToStream(data::stream::OutputStream *stream) {
+  v_uint8 b = ((m_length >> 16) & 0xff);
+  stream->writeSimple(&b, 1);
+  b = ((m_length >> 8) & 0xff);
+  stream->writeSimple(&b, 1);
+  b = ((m_length) & 0xff);
+  stream->writeSimple(&b, 1);
+
+  stream->writeSimple(&m_type, 1);
+  stream->writeSimple(&m_flags, 1);
+
+  v_uint32 streamIdent = htonl(m_streamId);
+  stream->writeSimple(&streamIdent, 4);
+  return HeaderSize;
+}
+
+oatpp::String Frame::Header::toString() {
+  data::stream::BufferOutputStream bos(HeaderSize);
+  writeToStream(&bos);
+  return bos.toString();
+}
+
+v_uint32 Frame::Header::getLength() const {
+  return m_length;
+}
+
+v_uint8 Frame::Header::getFlags() const {
+  return m_flags;
+}
+
+Frame::Header::FrameType Frame::Header::getType() const {
+  return m_type;
+}
+
+v_uint32 Frame::Header::getStreamId() const {
+  return m_streamId;
 }
 
 }}}}

@@ -42,6 +42,7 @@
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/async/Processor.hpp"
 
+#include "oatpp/web/protocol/http2/Http2.hpp"
 #include "oatpp/web/server/http2/Http2StreamHandler.hpp"
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 #include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
@@ -56,27 +57,22 @@ class Http2Processor {
 public:
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
+  typedef protocol::http2::Frame::Header::FrameType FrameType;
+  typedef protocol::http2::Frame::Header FrameHeader;
 
 private:
   static const char* TAG;
-
-  enum FrameType : v_uint8 {
-    DATA = 0x00,
-    HEADERS = 0x01,
-    PRIORITY = 0x02,
-    RST_STREAM = 0x03,
-    SETTINGS = 0x04,
-    PUSH_PROMISE = 0x05,
-    PING = 0x06,
-    GOAWAY = 0x07,
-    WINDOW_UPDATE = 0x08,
-    CONTINUATION = 0x09
-  };
 
   struct ProcessingResources {
 
     ProcessingResources(const std::shared_ptr<processing::Components>& pComponents,
                         const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection);
+
+    ProcessingResources(const std::shared_ptr<processing::Components>& pComponents,
+                        const std::shared_ptr<http2::Http2Settings>& pInSettings,
+                        const std::shared_ptr<http2::Http2Settings>& pOutSettings,
+                        const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
+                        const std::shared_ptr<http2::PriorityStreamScheduler>& pOutStream);
 
     std::shared_ptr<processing::Components> components;
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
@@ -94,21 +90,29 @@ private:
     std::shared_ptr<web::protocol::http2::hpack::Hpack> hpack;
 
 
-    std::shared_ptr<http2::Http2Settings> settings;
+    std::shared_ptr<http2::Http2Settings> inSettings;
+    std::shared_ptr<http2::Http2Settings> outSettings;
 
     v_uint32 flow;
   };
 
+  static ConnectionState processFrame(Http2Processor::ProcessingResources &resources,
+                                                      v_uint32 streamIdent,
+                                                      FrameType type,
+                                                      v_uint8 flags,
+                                                      v_uint32 payloadLength);
   static ConnectionState processNextRequest(ProcessingResources& resources);
-  static Http2Processor::ConnectionState processNextRequest(const std::shared_ptr<Http2StreamHandler> &handler,
-                                                            Http2Processor::ProcessingResources &resources,
-                                                            FrameType type,
-                                                            v_uint8 flags,
-                                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
-                                                            v_io_size streamPayloadLength);
+  static ConnectionState delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
+                                          const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                          Http2Processor::ProcessingResources &resources,
+                                          protocol::http2::Frame::Header &header);
   static std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident,
                                                                 ProcessingResources &resources);
   static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+
+  static v_io_size sendSettingsFrame(Http2Processor::ProcessingResources &resources);
+  static v_io_size ackSettingsFrame(Http2Processor::ProcessingResources &resources);
+  static v_io_size answerPingFrame(Http2Processor::ProcessingResources &resources);
 
 public:
 
@@ -122,16 +126,30 @@ public:
     std::shared_ptr<processing::Components> m_components;
     std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
     std::atomic_long *m_counter;
+    const std::shared_ptr<const network::ConnectionHandler::ParameterMap> m_delegationParameters;
   public:
 
     /**
      * Constructor.
      * @param components - &l:HttpProcessor::Components;.
      * @param connection - &id:oatpp::data::stream::IOStream;.
+     * @param taskCounter - Counter to increment for every creates task
      */
     Task(const std::shared_ptr<processing::Components>& components,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
          std::atomic_long *taskCounter);
+
+    /**
+     * Constructor.
+     * @param components - &l:HttpProcessor::Components;.
+     * @param connection - &id:oatpp::data::stream::IOStream;.
+     * @param taskCounter - Counter to increment for every creates task
+     * @param delegationParameters - Parameter-Map from delegation (if any)
+     */
+    Task(const std::shared_ptr<processing::Components>& components,
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+         std::atomic_long *taskCounter,
+         const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters);
 
     /**
      * Copy-Constructor to correctly count tasks.

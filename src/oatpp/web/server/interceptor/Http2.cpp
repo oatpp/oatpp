@@ -37,17 +37,22 @@ std::shared_ptr<protocol::http::outgoing::Response> Http2::intercept(const std::
     response->putHeader(oatpp::web::protocol::http::Header::CONNECTION,
                         oatpp::web::protocol::http::Header::Value::CONNECTION_UPGRADE);
     response->setConnectionUpgradeHandler(m_handler);
+    // read "SM\r\n\r\n" from the buffer
     std::string trailing(6, (char)0);
     request->getBodyStream()->readSimple((void*)trailing.data(), trailing.size());
-    oatpp::String first(8);
-    request->getBodyStream()->readSimple((void*)first->data(), first->size());
-    p_uint8 dataptr = (p_uint8)first->data();
-    v_uint32 payloadlen = (*dataptr) | (*(dataptr + 1) << 8) | (*(dataptr + 2) << 16);
-    oatpp::String payload(payloadlen);
-    request->getBodyStream()->readSimple((void*)payload->data(), payloadlen);
+
+    // now store the first frames header
+    std::shared_ptr<std::string> firstFrame = std::make_shared<std::string>(8, (char)0);
+    request->getBodyStream()->readSimple((void*)firstFrame->data(), firstFrame->size());
+
+    // we just need to read 1 frame worth of data. This should be an settings frame.
+    p_uint8 dataptr = (p_uint8)firstFrame->data();
+    v_uint32 payloadlen = ((*dataptr) << 16) | (*(dataptr + 1) << 8) | (*(dataptr + 2));
+
+    firstFrame->resize(8 + payloadlen, 0);
+    request->getBodyStream()->readExactSizeDataSimple((void*)(firstFrame->data()+8), payloadlen);
     auto map = std::make_shared<server::http2::Http2DelegatedConnectionHandler::ParameterMap>();
-    map->emplace("h2frameheader", first);
-    map->emplace("h2payload", payload);
+    map->emplace("h2frame", firstFrame);
     response->setConnectionUpgradeParameters(map);
     return response;
   }

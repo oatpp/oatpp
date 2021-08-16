@@ -35,6 +35,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 {
 
@@ -106,34 +107,49 @@ namespace Header {
 class Frame : public oatpp::base::Countable {
 public:
 
- class FrameHeader : public oatpp::base::Countable {
+ class Header : public oatpp::base::Countable {
+  private:
+   static const char* TAG;
   public:
 
-   class Types {
-    public:
-     static const v_uint8 TYPE_DATA = 0;
-     static const v_uint8 HEADERS = 1;
-     static const v_uint8 PRIORITY = 2;
-     static const v_uint8 RST_STREAM = 3;
-     static const v_uint8 SETTINGS = 4;
-     static const v_uint8 PUSH_PROMISE = 5;
-     static const v_uint8 PING = 6;
-     static const v_uint8 GOAWAY = 7;
-     static const v_uint8 WINDOW_UPDATE = 8;
-     static const v_uint8 CONTINUATION = 9;
+   enum FrameType : v_uint8 {
+     DATA = 0x00,
+     HEADERS = 0x01,
+     PRIORITY = 0x02,
+     RST_STREAM = 0x03,
+     SETTINGS = 0x04,
+     PUSH_PROMISE = 0x05,
+     PING = 0x06,
+     GOAWAY = 0x07,
+     WINDOW_UPDATE = 0x08,
+     CONTINUATION = 0x09
    };
 
    class Flags {
     public:
-     static const v_uint8 SETTINGS_ACK = 1;
-     static const v_uint8 PING_ACK = 1;
-     static const v_uint8 HEADERS_END_HEADERS = 4;
-     static const v_uint8 END_STREAM = 1;
-     static const v_uint8 PADDED = 8;
-     static const v_uint8 PRIORITY = 32;
+     enum Header {
+       HEADER_END_STREAM = 0x01,
+       HEADER_END_HEADERS = 0x04,
+       HEADER_PADDED = 0x08,
+       HEADER_PRIORITY = 0x20
+     };
+
+     enum Data {
+       DATA_END_STREAM = 0x01,
+       DATA_PADDED = 0x08,
+     };
+
+     enum Ping {
+       PING_ACK = 0x01,
+     };
+
+     enum Settings {
+       SETTINGS_ACK = 0x01,
+     };
    };
 
    class ErrorType {
+    public:
      static const v_uint8 ERR_NONE = 0;
      static const v_uint8 ERR_PROTOCOL = 1;
      static const v_uint8 ERR_INTERNAL = 2;
@@ -151,23 +167,40 @@ public:
 
 
   private:
-   static constexpr unsigned HeaderSize = 9;
-   uint8_t m_data[HeaderSize];
+   v_uint32 m_length;
+   v_uint8 m_flags;
+   FrameType m_type;
+   v_uint32 m_streamId;
 
   public:
-   FrameHeader(v_int32 length, v_uint8 flags, v_uint8 type, v_uint32 streamId);
+   static constexpr unsigned HeaderSize = 9;
+
+   Header(v_uint32 length, v_uint8 flags, FrameType type, v_uint32 streamId);
+   static std::shared_ptr<Header> createShared(v_uint32 length, v_uint8 flags, FrameType type, v_uint32 streamId) {
+     return std::make_shared<Header>(length, flags, type, streamId);
+   }
+   static std::shared_ptr<Header> createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> stream);
+
+   v_io_size writeToStream(data::stream::OutputStream *stream);
+   oatpp::String toString();
+
+   v_uint32 getLength() const;
+   v_uint8 getFlags() const;
+   FrameType getType() const;
+   v_uint32 getStreamId() const;
+
+   static const char* frameTypeStringRepresentation(FrameType t);
  };
 
 protected:
- FrameHeader m_header;
+ Header m_header;
  std::vector<v_uint8> m_payload;
 
 public:
- Frame(v_int32 length, v_uint8 flags, v_uint8 type, v_uint32 streamId, std::vector<v_uint8> payload)
+ Frame(v_int32 length, v_uint8 flags, Header::FrameType type, v_uint32 streamId, std::vector<v_uint8> payload)
    : m_header(length, flags, type, streamId)
    , m_payload(std::move(payload)) {}
 
-   static std::list<Frame> createHeaderFrames(v_uint32 streamId, const Headers &hdr, v_io_size maxFrameSize = (16*1024)-1);
 };
 
 

@@ -29,7 +29,9 @@
 void oatpp::web::server::http2::Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection,
                                                                     const std::shared_ptr<const ParameterMap> &params) {
 
-  Http2Processor::Task task(m_components, connection, &m_spawns);
+  OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection.");
+  connection->setInputStreamIOMode(data::stream::IOMode::BLOCKING);
+  Http2Processor::Task task(m_components, connection, &m_spawns, params);
   task.run();
 
 }

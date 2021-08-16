@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_http2_ConnectionHandler_hpp
-#define oatpp_web_server_http2_ConnectionHandler_hpp
+#ifndef oatpp_web_server_http2_Http2DelegatedConnectionHandler_hpp
+#define oatpp_web_server_http2_Http2DelegatedConnectionHandler_hpp
 
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/server/http2/Http2Processor.hpp"
@@ -36,7 +36,8 @@ class Http2DelegatedConnectionHandler : public base::Countable, public network::
   std::atomic_long m_spawns;
 
  public:
-   Http2DelegatedConnectionHandler() = default;
+  Http2DelegatedConnectionHandler(std::shared_ptr<HttpRouter>& router) : Http2DelegatedConnectionHandler(std::make_shared<http2::processing::Components>(router)) {}
+  Http2DelegatedConnectionHandler(std::shared_ptr<http2::processing::Components> components) : m_components(std::move(components)) {};
 
   /**
    * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.
@@ -50,4 +51,4 @@ class Http2DelegatedConnectionHandler : public base::Countable, public network::
 
 }}}}
 
-#endif //oatpp_web_server_http2_ConnectionHandler_hpp
+#endif //oatpp_web_server_http2_Http2DelegatedConnectionHandler_hpp
