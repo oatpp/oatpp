@@ -58,7 +58,7 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
 
  public:
   static const v_uint32 PRIORITY_MAX = UINT32_MAX;
-  PriorityStreamScheduler(std::shared_ptr<data::stream::OutputStream> stream);
+  PriorityStreamScheduler(const std::shared_ptr<data::stream::OutputStream> &stream);
 
   void lock(v_uint32 priority);
   void unlock();

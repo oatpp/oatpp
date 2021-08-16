@@ -37,7 +37,7 @@ class Http2DelegatedConnectionHandler : public base::Countable, public network::
 
  public:
   Http2DelegatedConnectionHandler(std::shared_ptr<HttpRouter>& router) : Http2DelegatedConnectionHandler(std::make_shared<http2::processing::Components>(router)) {}
-  Http2DelegatedConnectionHandler(std::shared_ptr<http2::processing::Components> components) : m_components(std::move(components)) {};
+  Http2DelegatedConnectionHandler(const std::shared_ptr<http2::processing::Components> &components) : m_components(components) {};
 
   /**
    * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.

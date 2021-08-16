@@ -117,8 +117,8 @@ class SimpleHpack : public Hpack {
   static const char *TAG;
 
  public:
-  explicit SimpleHpack(std::shared_ptr<Table> table);
-  static std::shared_ptr<SimpleHpack> createShared(std::shared_ptr<Table> table) {
+  explicit SimpleHpack(const std::shared_ptr<Table>& table);
+  static std::shared_ptr<SimpleHpack> createShared(const std::shared_ptr<Table> &table) {
     return std::make_shared<SimpleHpack>(table);
   }
 

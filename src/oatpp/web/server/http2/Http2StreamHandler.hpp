@@ -75,12 +75,12 @@ class Http2StreamHandler : public oatpp::base::Countable {
   data::stream::BufferOutputStream m_data;
 
  public:
-  Http2StreamHandler(v_uint32 id, std::shared_ptr<http2::PriorityStreamScheduler> outputStream, std::shared_ptr<protocol::http2::hpack::Hpack> hpack, std::shared_ptr<http2::processing::Components> components)
+  Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components)
     : m_state(INIT)
     , m_streamId(id)
-    , m_output(std::move(outputStream))
-    , m_hpack(std::move(hpack))
-    , m_components(std::move(components))
+    , m_output(outputStream)
+    , m_hpack(hpack)
+    , m_components(components)
     , m_dependency(0)
     , m_weight(0)
     , m_flow (65535)

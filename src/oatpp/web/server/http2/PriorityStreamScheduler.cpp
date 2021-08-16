@@ -24,8 +24,8 @@
 
 #include "PriorityStreamScheduler.hpp"
 
-oatpp::web::server::http2::PriorityStreamScheduler::PriorityStreamScheduler(std::shared_ptr<data::stream::OutputStream> stream)
-  : m_stream(std::move(stream)) {
+oatpp::web::server::http2::PriorityStreamScheduler::PriorityStreamScheduler(const std::shared_ptr<data::stream::OutputStream> &stream)
+  : m_stream(stream) {
 
 }
 

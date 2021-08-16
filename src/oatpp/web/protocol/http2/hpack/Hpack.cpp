@@ -540,8 +540,8 @@ const char* SimpleHpack::TAG = "oatpp::web::protocol::http2::hpack::SimpleHpack"
 //
 //}
 
-SimpleHpack::SimpleHpack(std::shared_ptr<Table> table)
-  : m_table(std::move(table))
+SimpleHpack::SimpleHpack(const std::shared_ptr<Table> &table)
+  : m_table(table)
   , m_initialTableSize(m_table->getTableSize()) {
 };
 
