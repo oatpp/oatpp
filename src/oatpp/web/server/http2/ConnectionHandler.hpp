@@ -27,12 +27,21 @@
 #define oatpp_web_server_http2_ConnectionHandler_hpp
 
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/http2/Http2Processor.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
  class ConnectionHandler : public base::Countable, public network::ConnectionHandler {
 
+ private:
+   std::shared_ptr<http2::processing::Components> m_components;
+   std::atomic_long m_spawns;
+   std::atomic_bool m_continue;
+
  public:
+   ConnectionHandler()
+     : m_continue(true) {}
+
   /**
    * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.
    * @param connection - &id:oatpp::data::stream::IOStream;.

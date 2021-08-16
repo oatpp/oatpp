@@ -46,8 +46,8 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
      v_uint32 m_prio;
     public:
      PrioritizedLockedSpinLock(v_uint32 prio) : LockedSpinLock(), m_prio(prio) {};
-     bool operator<(const PrioritizedLockedSpinLock& lhs, const PrioritizedLockedSpinLock& rhs) {
-       return lhs.m_prio < rhs.m_prio;
+     bool operator<(const PrioritizedLockedSpinLock& rhs) const {
+       return m_prio < rhs.m_prio;
      }
    };
 
