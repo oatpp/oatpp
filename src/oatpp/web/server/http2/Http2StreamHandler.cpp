@@ -32,12 +32,10 @@
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
-const char* Http2StreamHandler::TAG = "oatpp::web::server::http2::Http2StreamHandler";
-
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags,
                                                                    const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                    v_io_size streamPayloadLength) {
-  m_state = H2StreamState::PAYLOAD;
+  setState(H2StreamState::PAYLOAD);
   v_uint8 pad = 0;
   if (flags & H2StreamDataFlags::DATA_PADDED) {
     stream->readExactSizeDataSimple(&pad, 1);
@@ -51,7 +49,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
   }
 
   if (flags & H2StreamDataFlags::DATA_END_STREAM) {
-    m_state = H2StreamState::PROCESSING;
+    setState(H2StreamState::PROCESSING);
     std::thread processingThread(&Http2StreamHandler::process, this);
     processingThread.detach();
   }
@@ -62,7 +60,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 flags,
                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                       v_io_size streamPayloadLength) {
-  m_state = H2StreamState::HEADERS;
+  setState(H2StreamState::HEADERS);
   m_headerFlags = flags;
   v_uint8 pad = 0;
 
@@ -86,14 +84,14 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
 
   if (m_headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) { // end stream, go to processing
     OATPP_LOGD(TAG, "Stream and headers finished, start processing.");
-    m_state = H2StreamState::PROCESSING;
+    setState(H2StreamState::PROCESSING);
     std::thread processingThread(&Http2StreamHandler::process, this);
     processingThread.detach();
   } else if (m_headerFlags & H2StreamHeaderFlags::HEADER_END_STREAM) { // continuation
     OATPP_LOGD(TAG, "Stream finished, headers not, awaiting continuation.");
-    m_state = H2StreamState::CONTINUATION;
+    setState(H2StreamState::CONTINUATION);
   } else if (m_headerFlags & H2StreamHeaderFlags::HEADER_END_HEADERS) { // continuation
-    m_state = H2StreamState::PAYLOAD;
+    setState(H2StreamState::PAYLOAD);
     OATPP_LOGD(TAG, "Headers finished, stream not, awaiting data.");
   }
 
@@ -119,6 +117,10 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleResetStream(v_uint
     // ToDo: A RST_STREAM frame with a length other than 4 octets MUST be treated
     //   as a connection error (Section 5.4.1) of type FRAME_SIZE_ERROR.
   }
+  v_uint32 code;
+  stream->readExactSizeDataSimple(&code, 4);
+  OATPP_LOGD(TAG, "Resetting stream, code %u", ntohl(code))
+  setState(RESET);
   return Http2StreamHandler::ConnectionState::DEAD;
 }
 
@@ -132,7 +134,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handlePushPromise(v_uint
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleGoAway(v_uint8 flags,
                                                                      const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                      v_io_size streamPayloadLength) {
-  m_state = H2StreamState::GOAWAY;
+  setState(H2StreamState::GOAWAY);
   return Http2StreamHandler::ConnectionState::CLOSING;
 }
 
@@ -148,6 +150,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uin
   // 1 to 2^31-1 (2,147,483,647)
   v_uint32 increment;
   stream->readExactSizeDataSimple(&increment, 4);
+  OATPP_LOGD(TAG, "Incrementing window by %u", ntohl(increment));
   m_data.reserveBytesUpfront(ntohl(increment));
 
   return Http2StreamHandler::ConnectionState::ALIVE;
@@ -161,10 +164,10 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uin
 
   if ((m_headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
       == H2StreamHeaderFlags::HEADER_END_HEADERS) {
-    m_state = H2StreamState::PAYLOAD;
+    setState(H2StreamState::PAYLOAD);
   } else if ((m_headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
       == (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) {
-    m_state = H2StreamState::PROCESSING;
+    setState(H2StreamState::PROCESSING);
   }
   auto cont = m_hpack->inflate(stream, streamPayloadLength);
   auto all = cont.getAll();
@@ -172,6 +175,27 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uin
     m_headers.put(hdr.first, hdr.second);
   }
   return Http2StreamHandler::ConnectionState::ALIVE;
+}
+
+const char *Http2StreamHandler::stateStringRepresentation(Http2StreamHandler::H2StreamState state) {
+#define ENUM2STR(x) case x: return #x
+  switch (state) {
+    ENUM2STR(INIT);
+    ENUM2STR(HEADERS);
+    ENUM2STR(CONTINUATION);
+    ENUM2STR(PAYLOAD);
+    ENUM2STR(PROCESSING);
+    ENUM2STR(RESPONSE);
+    ENUM2STR(GOAWAY);
+    ENUM2STR(RESET);
+  }
+#undef ENUM2STR
+  return nullptr;
+}
+
+void Http2StreamHandler::setState(Http2StreamHandler::H2StreamState next) {
+//  OATPP_LOGD(TAG, "State: %s -> %s", stateStringRepresentation(m_state.load()), stateStringRepresentation(next))
+  m_state.store(next);
 }
 
 void Http2StreamHandler::process() {
@@ -187,7 +211,9 @@ void Http2StreamHandler::process() {
   ConnectionState connectionState;
   std::shared_ptr<protocol::http::outgoing::Response> response;
 
-  try{
+  setState(H2StreamState::PROCESSING);
+
+  try {
 
     // ToDo: Interceptors
 
@@ -201,10 +227,10 @@ void Http2StreamHandler::process() {
 
       connectionState = ConnectionState::CLOSING;
       response = m_components->errorHandler->handleError(protocol::http::Status::CODE_404, ss.toString());
+    } else {
+      request->setPathVariables(route.getMatchMap());
+      response = route.getEndpoint()->handle(request);
     }
-
-    request->setPathVariables(route.getMatchMap());
-    response = route.getEndpoint()->handle(request);
 
   } catch (oatpp::web::protocol::http::HttpError& error) {
     response = m_components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
@@ -217,6 +243,11 @@ void Http2StreamHandler::process() {
     connectionState = ConnectionState::CLOSING;
   }
 
+  if (m_state.load() == H2StreamState::RESET) {
+//    setState(H2StreamState::INIT);
+    return;
+  }
+
   auto headers = response->getHeaders();
   headers.putIfNotExists(protocol::http2::Header::STATUS, utils::conversion::uint32ToStr(response->getStatus().code));
   auto headerBlocks = m_hpack->deflate(headers, m_flow); // ToDo: Framesize != FlowSize
@@ -225,7 +256,14 @@ void Http2StreamHandler::process() {
     auto &block = headerBlocks.front();
     protocol::http2::Frame::Header hdr(block.size(), protocol::http2::Frame::Header::Flags::Header::HEADER_END_HEADERS | (response->getBody()->getKnownSize() == 0 ? protocol::http2::Frame::Header::Flags::Header::HEADER_END_STREAM : 0), protocol::http2::Frame::Header::HEADERS, m_streamId);
     m_output->lock(m_weight);
+    OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
+    if (m_state.load() == H2StreamState::RESET) {
+      m_output->unlock();
+//      setState(H2StreamState::INIT);
+      return;
+    }
     hdr.writeToStream(m_output.get());
+    m_output->writeSimple(block.data(), block.size());
     m_output->unlock();
   } else {
     auto it = headerBlocks.begin();
@@ -233,33 +271,60 @@ void Http2StreamHandler::process() {
     {
       protocol::http2::Frame::Header hdr(it->size(), 0, protocol::http2::Frame::Header::HEADERS, m_streamId);
       m_output->lock(m_weight);
+      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
+      if (m_state.load() == H2StreamState::RESET) {
+        m_output->unlock();
+//        setState(H2StreamState::INIT);
+        return;
+      }
       hdr.writeToStream(m_output.get());
+      m_output->writeSimple(it->data(), it->size());
       m_output->unlock();
     }
     while(it != last) {
       protocol::http2::Frame::Header hdr(it->size(), 0, protocol::http2::Frame::Header::CONTINUATION, m_streamId);
       m_output->lock(m_weight);
+      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
+      if (m_state.load() == H2StreamState::RESET) {
+        m_output->unlock();
+//        setState(H2StreamState::INIT);
+        return;
+      }
       hdr.writeToStream(m_output.get());
+      m_output->writeSimple(it->data(), it->size());
       m_output->unlock();
       ++it;
     }
     {
       protocol::http2::Frame::Header hdr(it->size(), protocol::http2::Frame::Header::Flags::Header::HEADER_END_HEADERS | (response->getBody()->getKnownSize() == 0 ? protocol::http2::Frame::Header::Flags::Header::HEADER_END_STREAM : 0), protocol::http2::Frame::Header::CONTINUATION, m_streamId);
       m_output->lock(m_weight);
+      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
+      if (m_state.load() == H2StreamState::RESET) {
+        m_output->unlock();
+//        setState(H2StreamState::INIT);
+        return;
+      }
       hdr.writeToStream(m_output.get());
+      m_output->writeSimple(it->data(), it->size());
       m_output->unlock();
     }
   }
 
   // ToDo: Segmentation/Framing
   if (response->getBody()->getKnownSize() > 0 && response->getBody()->getKnownData() != nullptr) {
-    protocol::http2::Frame::Header hdr(response->getBody()->getKnownSize(), 0, protocol::http2::Frame::Header::DATA, m_streamId);
+    protocol::http2::Frame::Header hdr(response->getBody()->getKnownSize(), protocol::http2::Frame::Header::Flags::Data::DATA_END_STREAM, protocol::http2::Frame::Header::DATA, m_streamId);
     m_output->lock(m_weight);
+    OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
+    if (m_state.load() == H2StreamState::RESET) {
+      m_output->unlock();
+//      setState(H2StreamState::INIT);
+      return;
+    }
     hdr.writeToStream(m_output.get());
     m_output->writeSimple(response->getBody()->getKnownData(), response->getBody()->getKnownSize());
     m_output->unlock();
   }
-  m_state = H2StreamState::INIT;
+  setState(H2StreamState::RESPONSE);
 }
 
 }}}}

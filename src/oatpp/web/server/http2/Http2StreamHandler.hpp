@@ -41,7 +41,7 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
 
 class Http2StreamHandler : public oatpp::base::Countable {
  private:
-  static const char* TAG;
+  char TAG[64];
 
  public:
 
@@ -54,14 +54,15 @@ class Http2StreamHandler : public oatpp::base::Countable {
     PAYLOAD,
     PROCESSING,
     RESPONSE,
-    GOAWAY
+    GOAWAY,
+    RESET
   };
 
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
   typedef protocol::http2::Frame::Header::Flags::Data H2StreamDataFlags;
 
  private:
-  H2StreamState m_state;
+  std::atomic<H2StreamState> m_state;
   v_uint32 m_streamId;
   v_uint32 m_dependency;
   v_uint8 m_weight;
@@ -83,7 +84,9 @@ class Http2StreamHandler : public oatpp::base::Countable {
     , m_dependency(0)
     , m_weight(0)
     , m_flow (65535)
-    , m_data(m_flow) {}
+    , m_data(m_flow) {
+    sprintf(TAG, "oatpp::web::server::http2::Http2StreamHandler(%u)", m_streamId);
+  }
 
   ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
@@ -98,8 +101,11 @@ class Http2StreamHandler : public oatpp::base::Countable {
     return m_state;
   }
 
+  static const char* stateStringRepresentation(H2StreamState state);
+
  private:
   void process();
+  void setState(H2StreamState next);
 };
 
 }}}}
