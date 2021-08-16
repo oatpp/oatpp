@@ -6,8 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
- *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
+ * Copyright 2018-present, Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,16 +30,13 @@
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
- class ConnectionHandler : public base::Countable, public network::ConnectionHandler {
-
+class Http2DelegatedConnectionHandler : public base::Countable, public network::ConnectionHandler {
  private:
-   std::shared_ptr<http2::processing::Components> m_components;
-   std::atomic_long m_spawns;
-   std::atomic_bool m_continue;
+  std::shared_ptr<http2::processing::Components> m_components;
+  std::atomic_long m_spawns;
 
  public:
-   ConnectionHandler()
-     : m_continue(true) {}
+   Http2DelegatedConnectionHandler() = default;
 
   /**
    * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.
@@ -48,8 +44,9 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
    */
   void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
 
+  void stop() override;
 
-};
+ };
 
 }}}}
 

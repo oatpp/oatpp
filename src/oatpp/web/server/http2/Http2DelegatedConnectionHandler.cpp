@@ -22,25 +22,17 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_interceptor_Http2_hpp
-#define oatpp_web_server_interceptor_Http2_hpp
+#include "Http2DelegatedConnectionHandler.hpp"
+#include "oatpp/core/concurrency/Thread.hpp"
+#include "oatpp/web/server/http2/Http2Processor.hpp"
 
-#include "oatpp/web/server/interceptor/RequestInterceptor.hpp"
-#include "oatpp/web/server/http2/Http2DelegatedConnectionHandler.hpp"
+void oatpp::web::server::http2::Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection,
+                                                                    const std::shared_ptr<const ParameterMap> &params) {
 
-namespace oatpp { namespace web { namespace server { namespace interceptor {
+  Http2Processor::Task task(m_components, connection, &m_spawns);
+  task.run();
 
-class Http2 : public RequestInterceptor {
-  std::shared_ptr<http2::Http2DelegatedConnectionHandler> m_handler;
-public:
-  Http2(std::shared_ptr<http2::Http2DelegatedConnectionHandler> handler) : m_handler(std::move(handler)) {};
-  static std::shared_ptr<RequestInterceptor> createShared(const std::shared_ptr<http2::Http2DelegatedConnectionHandler> &handler) {
-    return std::make_shared<interceptor::Http2>(handler);
-  }
+}
 
-  std::shared_ptr<OutgoingResponse> intercept(const std::shared_ptr<IncomingRequest>& request) override;
-};
-
-}}}}
-
-#endif // oatpp_web_server_interceptor_AllowCorsGlobal_hpp
+void oatpp::web::server::http2::Http2DelegatedConnectionHandler::stop() {
+}

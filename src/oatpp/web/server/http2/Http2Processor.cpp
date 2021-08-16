@@ -33,7 +33,7 @@
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
-const char* TAG = "oatpp::web::server::http2::Http2Processor";
+const char* Http2Processor::TAG = "oatpp::web::server::http2::Http2Processor";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
@@ -43,7 +43,7 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<h
     : components(pComponents)
     , connection(pConnection)
     , outStream(std::make_shared<http2::PriorityStreamScheduler>(connection))
-    , settings() {
+    , settings(http2::Http2Settings::createShared()) {
   flow = settings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
   hpack = std::make_shared<protocol::http2::hpack::SimpleHpack>(std::make_shared<protocol::http2::hpack::SimpleTable>(settings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
   inStream = data::stream::InputStreamBufferedProxy::createShared(connection,std::make_shared<std::string>(flow,0));
@@ -131,16 +131,19 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
   async::Action action;
 
-  std::vector<v_uint8> data(9);
-  data::buffer::InlineReadData inlineData(data.data(), 9);
+  std::string data(9, (char)0);
+  data::buffer::InlineReadData inlineData((void*)data.data(), 9);
 
-  resources.inStream->readExactSizeDataSimple(inlineData);
-  p_uint8 dataptr = data.data();
-  v_uint32 payloadlen = (*dataptr) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16);
+  if (resources.inStream->readExactSizeDataSimple(inlineData) != 9) {
+    OATPP_LOGW(TAG, "Error: Could not read http2 frame header, dropping connection.");
+    return ConnectionState::DEAD;
+  }
+  p_uint8 dataptr = (p_uint8) data.data();
+  v_uint32 payloadlen = (*dataptr) | (*(dataptr + 1) << 8) | (*(dataptr + 2) << 16);
   dataptr += 3;
   auto type = (FrameType) *dataptr++;
   v_uint8 flags = *dataptr++;
-  v_uint32 streamident = ((*dataptr) & 0x7f) | ((*dataptr + 1) << 8) | ((*dataptr + 2) << 16) | ((*dataptr + 3) << 24);
+  v_uint32 streamident = (*(dataptr) & 0x7f) | (*(dataptr + 1) << 8) | (*(dataptr + 2) << 16) | (*(dataptr + 3) << 24);
 
   switch (type) {
 

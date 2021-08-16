@@ -67,8 +67,8 @@ class Http2Settings {
     return std::make_shared<Http2Settings>(tableSize, enablePush, maxConcurrentStreams, initialWindowSize, maxFrameSize, maxHeaderListSize);
   }
 
-      v_uint32 getSetting(Identifier ident);
-      void setSetting(Identifier ident, v_uint32 value);
+  v_uint32 getSetting(Identifier ident);
+  void setSetting(Identifier ident, v_uint32 value);
 };
 
 
