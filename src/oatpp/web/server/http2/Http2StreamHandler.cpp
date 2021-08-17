@@ -95,6 +95,11 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
   }
 
   v_io_size read = streamPayloadLength - pad;
+  if (streamPayloadLength + m_task->header->availableToRead() > m_task->inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)) {
+    m_task->setState(ABORTED);
+    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
+  }
+
   async::Action action;
   do {
     v_io_size res = m_task->header->readFromStreamAndWrite(stream.get(), read, action);
@@ -134,7 +139,8 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handlePriority(v_uint8 f
                                                                        const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                        v_io_size streamPayloadLength) {
   if (streamPayloadLength != 5) {
-    // ToDo: stream error (Section 5.4.2) of type FRAME_SIZE_ERROR.
+    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Frame size other than 5.");
+
   }
   stream->readExactSizeDataSimple(&m_task->dependency, 4);
   stream->readExactSizeDataSimple(&m_task->weight, 1);
@@ -146,8 +152,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleResetStream(v_uint
                                                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                           v_io_size streamPayloadLength) {
   if (streamPayloadLength != 4) {
-    // ToDo: A RST_STREAM frame with a length other than 4 octets MUST be treated
-    //   as a connection error (Section 5.4.1) of type FRAME_SIZE_ERROR.
+    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleResetStream] Error: Frame size other than 4.");
   }
   v_uint32 code;
   stream->readExactSizeDataSimple(&code, 4);
@@ -156,7 +161,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleResetStream(v_uint
     m_task->setState(RESET);
     return Http2StreamHandler::ConnectionState::CLOSING;
   }
-  m_task->setState(RESET);
+  m_task->setState(ABORTED);
   return Http2StreamHandler::ConnectionState::DEAD;
 }
 
@@ -171,9 +176,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uin
                                                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                            v_io_size streamPayloadLength) {
   if (streamPayloadLength != 4) {
-    // ToDo: A WINDOW_UPDATE frame with a length other than 4 octets MUST be
-    //   treated as a connection error (Section 5.4.1) of type
-    //   FRAME_SIZE_ERROR.
+    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
   }
   // https://datatracker.ietf.org/doc/html/rfc7540#section-6.9
   // 1 to 2^31-1 (2,147,483,647)
@@ -242,7 +245,28 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
   char TAG[68];
   snprintf(TAG, 64, "oatpp::web::server::http2::Http2StreamHandler(%d)::process", task->streamId);
 
-  auto requestHeaders = task->hpack->inflate(task->header, task->header->availableToRead());
+  protocol::http2::Headers requestHeaders;
+  try {
+    requestHeaders = task->hpack->inflate(task->header, task->header->availableToRead());
+  } catch (std::runtime_error &e) {
+    task->error = std::make_exception_ptr(protocol::http2::error::Http2CompressionError(e.what()));
+    task->setState(ERROR);
+
+    // ToDo HAXX
+    //   This is the only reason we want to close an connection from an stream handler
+    //   I need to find a better way to handle that instead of sending a GOAWAY frame and hoping for the other peer
+    //   to disconnect.
+    protocol::http2::Frame::Header header(8, 0, protocol::http2::Frame::Header::FrameType::GOAWAY, 0);
+    OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+    v_uint32 lastStream = htonl(task->streamId);
+    v_uint32 errorCode = htonl(protocol::http2::error::ErrorCode::COMPRESSION_ERROR);
+    task->output->lock(PriorityStreamScheduler::PRIORITY_MAX);
+    header.writeToStream(task->output.get());
+    task->output->writeExactSizeDataSimple(&lastStream, 4);
+    task->output->writeExactSizeDataSimple(&errorCode, 4);
+    task->output->unlock();
+    return;
+  }
 
   protocol::http::RequestStartingLine startingLine;
   startingLine.protocol = "HTTP/2.0";
@@ -373,8 +397,6 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
 void Http2StreamHandler::abort() {
   if (m_task->state.load() == PROCESSING) {
     m_task->setState(RESET);
-  } else {
-    m_task->setState(ABORTED);
   }
 }
 

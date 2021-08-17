@@ -98,6 +98,7 @@ private:
   };
 
   static void stop(ProcessingResources& resources);
+  static ConnectionState invalidateConnection(ProcessingResources& resources);
   static ConnectionState processNextRequest(ProcessingResources& resources);
   static ConnectionState delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,

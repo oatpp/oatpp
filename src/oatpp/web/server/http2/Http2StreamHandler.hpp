@@ -60,7 +60,8 @@ class Http2StreamHandler : public oatpp::base::Countable {
     RESPONSE,
     GOAWAY,
     RESET,
-    ABORTED
+    ABORTED,
+    ERROR
   };
 
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
@@ -77,6 +78,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
     std::shared_ptr<http2::Http2Settings> outSettings;
     std::shared_ptr<data::stream::FIFOInputStream> data;
     std::shared_ptr<data::stream::FIFOInputStream> header;
+    std::exception_ptr error;
     v_uint32 streamId;
     v_uint32 dependency;
     v_uint8 weight;
@@ -92,7 +94,8 @@ class Http2StreamHandler : public oatpp::base::Countable {
         , dependency(0)
         , weight(0)
         , headerFlags(0)
-        , flow (inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE))
+        , error(nullptr)
+        , flow(inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE))
         , inSettings(inSettings)
         , outSettings(outSettings)
         , header(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)))
