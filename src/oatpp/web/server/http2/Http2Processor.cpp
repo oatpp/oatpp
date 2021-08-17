@@ -283,8 +283,14 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
         // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
       }
       // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
-      if (header->getFlags() == 0x00) {
+      if ((header->getFlags() & 0x01) == 0x00) {
         answerPingFrame(resources);
+      } else if ((header->getFlags() & 0x01) == 0x01) {
+        // all good, just consume
+        consumeStream(resources.inStream, header->getLength());
+      } else {
+        // unknown flags! for now, just consume
+        consumeStream(resources.inStream, header->getLength());
       }
       break;
 
@@ -379,6 +385,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
     default:
       // ToDo: Unknown frame
+      consumeStream(resources.inStream, header->getLength());
       break;
   }
 
@@ -422,13 +429,6 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
       state = handler->handleData(header.getFlags(), resources.inStream, header.getLength());
       break;
     case FrameType::HEADERS:
-      // Check if the stream is in its initial state, i.E. the only state when headers should be acceptable
-      // ToDo: Discussion: Should these checks be inside their respective functions?
-      if (handler->getState() != Http2StreamHandler::H2StreamState::INIT) {
-        consumeStream(resources.inStream, header.getLength());
-        throw std::runtime_error(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received headers for stream that is not in its init state");
-      }
       state = handler->handleHeaders(header.getFlags(), resources.inStream, header.getLength());
       break;
     case FrameType::PRIORITY:

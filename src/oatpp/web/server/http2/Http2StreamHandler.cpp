@@ -74,12 +74,12 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                       v_io_size streamPayloadLength) {
   m_task->setState(H2StreamState::HEADERS);
-  m_task->headerFlags = flags;
+  m_task->headerFlags |= flags;
   v_uint8 pad = 0;
 
   if (m_task->headerFlags & H2StreamHeaderFlags::HEADER_PADDED) {
     stream->readExactSizeDataSimple(&pad, 1);
-    streamPayloadLength -= pad + 1;
+    streamPayloadLength -= 1;
   }
 
   if (m_task->headerFlags & H2StreamHeaderFlags::HEADER_PRIORITY) {
@@ -205,6 +205,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uin
   } else if ((m_task->headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
       == (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) {
     m_task->setState(H2StreamState::PROCESSING);
+    m_processor = std::thread(Http2StreamHandler::process, m_task);
   }
 
   return Http2StreamHandler::ConnectionState::ALIVE;
