@@ -161,7 +161,7 @@ class SimpleHpack : public Hpack {
 
   static v_io_size inflateString(String &value,
                                  const std::shared_ptr<data::stream::BufferedInputStream> &stream,
-                                 v_io_size stringSize,
+                                 v_io_size streamSize,
                                  async::Action action);
 
   static v_io_size calculateEncodedLength(v_uint32 size, v_uint32 prefix);

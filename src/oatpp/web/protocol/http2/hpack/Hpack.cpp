@@ -693,18 +693,18 @@ v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
       stream->commitReadOffset(1);
       {
         oatpp::String key, value;
-        step = inflateString(key, stream, streamPayloadLength, async::Action());
+        step = inflateString(key, stream, streamPayloadLength-1, async::Action());
         if (step < 1) {
           throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
-        consumed = inflateString(value, stream, streamPayloadLength, async::Action());
+        consumed = inflateString(value, stream, streamPayloadLength-1, async::Action());
         if (consumed < 1) {
           throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         if (requireIndex) {
           m_table->addEntry(key, value);
         }
-        consumed += step;
+        consumed += step + 1;
         hdr.put(key, value);
 //        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'", key->data(), value->data());
       }
@@ -818,15 +818,16 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
     stream->peek(&it, 1, action);
     if ((it & 0xe0u) == 0x20u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
-      if (consumed != 0) {
-        throw std::runtime_error(
-            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
-      }
-      consumed = inflateHandleNewTableSize(stream, streamPayloadLength);
-      if (consumed < 1) {
+//      if (consumed != 0) {
+//        throw std::runtime_error(
+//            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
+//      }
+      step = inflateHandleNewTableSize(stream, streamPayloadLength);
+      if (step < 1) {
         throw std::runtime_error(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
       }
+      consumed += step;
     } else if (it & 0x80u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, indexed value");
       step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE, stream, streamPayloadLength - consumed, headers, action);
@@ -1104,12 +1105,15 @@ v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterat
 
 v_io_size SimpleHpack::inflateString(String &value,
                                      const std::shared_ptr<data::stream::BufferedInputStream> &stream,
-                                     v_io_size stringSize,
+                                     v_io_size streamSize,
                                      async::Action action) {
   v_uint32 len;
   v_uint8 it;
   stream->peek(&it, 1, action);
-  v_io_size consumed = decodeInteger(&len, stream, stringSize, 7), second;
+  v_io_size consumed = decodeInteger(&len, stream, streamSize, 7), second;
+  if (streamSize < len) {
+    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack] Error: Extracted stream-length longer than stream");
+  }
   bool huffman = (it & (1 << 7)) != 0;
   if (huffman) {
     // huffman
@@ -1274,12 +1278,6 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
     if ((in & (1 << 7)) == 0) {
       break;
     }
-  }
-
-
-  if (consumed < streamPayloadLength) {
-    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
-    return -1;
   }
 
   *res = n;
