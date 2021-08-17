@@ -146,7 +146,7 @@ public:
 /**
  * BufferInputStream
  */
-class BufferInputStream : public InputStream {
+class BufferInputStream : public BufferedInputStream {
 public:
   static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
@@ -245,6 +245,26 @@ public:
    */
   void setCurrentPosition(v_buff_size position);
 
+  /**
+   * Peek up to count of bytes int he buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  v_io_size peek(void *data, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Amount of bytes currently available to read from buffer.
+   * @return &id:oatpp::v_io_size;.
+   */
+  v_io_size availableToRead() const override;
+
+  /**
+   * Commit read offset
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  v_io_size commitReadOffset(v_buff_size count) override;
 
 };
 

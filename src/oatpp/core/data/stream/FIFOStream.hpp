@@ -34,7 +34,7 @@ namespace oatpp { namespace data { namespace stream {
 /**
  * FIFOInputStream
  */
-class FIFOInputStream : public InputStream, public WriteCallback {
+class FIFOInputStream : public BufferedInputStream, public WriteCallback {
  public:
   static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
  private:
@@ -104,6 +104,27 @@ class FIFOInputStream : public InputStream, public WriteCallback {
    */
   v_io_size write(const void *data, v_buff_size count, async::Action &action) override;
 
+  /**
+   * Peek up to count of bytes int he buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  v_io_size peek(void *data, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Amount of bytes currently available to read from buffer.
+   * @return &id:oatpp::v_io_size;.
+   */
+  v_io_size availableToRead() const override;
+
+  /**
+   * Commit read offset
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  v_io_size commitReadOffset(v_buff_size count) override;
+
   void reserveBytesUpfront(v_buff_size count);
 
   /**
@@ -137,6 +158,12 @@ class FIFOInputStream : public InputStream, public WriteCallback {
    * @return - &id:async::CoroutineStarter;.
    */
   async::CoroutineStarter flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+
+  /**
+   * Amount of buffer space currently available for data writes.
+   * @return &id:oatpp::v_io_size;.
+   */
+  v_io_size availableToWrite();
 };
 
 }}}
