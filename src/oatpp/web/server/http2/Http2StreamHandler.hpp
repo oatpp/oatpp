@@ -38,6 +38,8 @@
 
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 #include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
+#include "oatpp/web/server/http2/Http2Settings.hpp"
+
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
@@ -68,18 +70,20 @@ class Http2StreamHandler : public oatpp::base::Countable {
   class Task {
    public:
     std::atomic<H2StreamState> state;
+    std::shared_ptr<protocol::http2::hpack::Hpack> hpack;
+    std::shared_ptr<http2::processing::Components> components;
+    std::shared_ptr<http2::PriorityStreamScheduler> output;
+    std::shared_ptr<http2::Http2Settings> inSettings;
+    std::shared_ptr<http2::Http2Settings> outSettings;
+    std::shared_ptr<data::stream::FIFOInputStream> data;
+    std::shared_ptr<data::stream::FIFOInputStream> header;
     v_uint32 streamId;
     v_uint32 dependency;
     v_uint8 weight;
     v_uint8 headerFlags;
     v_uint32 flow;
-    std::shared_ptr<protocol::http2::hpack::Hpack> hpack;
-    std::shared_ptr<http2::processing::Components> components;
-    std::shared_ptr<http2::PriorityStreamScheduler> output;
-    std::shared_ptr<data::stream::FIFOInputStream> data;
-    std::shared_ptr<data::stream::FIFOInputStream> header;
 
-    Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components)
+    Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
         : state(INIT)
         , streamId(id)
         , output(outputStream)
@@ -88,9 +92,11 @@ class Http2StreamHandler : public oatpp::base::Countable {
         , dependency(0)
         , weight(0)
         , headerFlags(0)
-        , flow (65535)
-        , header(data::stream::FIFOInputStream::createShared(flow))
-        , data(data::stream::FIFOInputStream::createShared(flow)) {}
+        , flow (inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE))
+        , inSettings(inSettings)
+        , outSettings(outSettings)
+        , header(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)))
+        , data(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE))){}
 
     void setState(H2StreamState next);
   };
@@ -99,15 +105,13 @@ class Http2StreamHandler : public oatpp::base::Countable {
   std::shared_ptr<Task> m_task;
 
  public:
-  Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components)
-    : m_task(std::make_shared<Task>(id, outputStream, hpack, components)) {
+  Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
+    : m_task(std::make_shared<Task>(id, outputStream, hpack, components, inSettings, outSettings)) {
     sprintf(TAG, "oatpp::web::server::http2::Http2StreamHandler(%u)", id);
-//    OATPP_LOGD(TAG, "Constructing %p", this);
   }
   ~Http2StreamHandler() override {
     abort();
     waitForFinished();
-//    OATPP_LOGD(TAG, "Destructing %p", this);
   }
 
   ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);

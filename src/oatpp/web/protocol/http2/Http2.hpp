@@ -49,6 +49,43 @@ typedef oatpp::data::share::LazyStringMultimap<HeaderKey> Headers;
 
 typedef std::vector<v_uint8> Payload;
 
+namespace error {
+  enum ErrorCode : v_uint8 {
+    PROTOCOL_ERROR = 0x01,
+    INTERNAL_ERROR = 0x02,
+    FLOW_CONTROL_ERROR = 0x03,
+    SETTINGS_TIMEOUT = 0x04,
+    STREAM_CLOSED = 0x05,
+    FRAME_SIZE_ERROR = 0x06,
+    REFUSED_STREAM = 0x07,
+    CANCEL = 0x09,
+    CONNECT_ERROR = 0x0a,
+    ENHANCE_YOUR_CALM = 0x0b,
+    INADEQUATE_SECURITY = 0x0c,
+    HTTP_1_1_REQUIRED = 0x0d
+  };
+  class Http2Error : public std::runtime_error {
+   public:
+    explicit Http2Error(const std::string &str) : std::runtime_error(str) {};
+    explicit Http2Error(const char *str) : std::runtime_error(str) {};
+    virtual ~Http2Error() = default;
+    virtual ErrorCode getH2ErrorCode() = 0;
+  };
+
+  #define HTTP2ERRORTYPE(x, c) \
+    class Http2##x : public Http2Error { \
+     public:                 \
+      explicit Http2##x(const std::string& str) : Http2Error(str) {}; \
+      explicit Http2##x(const char*str) : Http2Error(str) {}; \
+      ErrorCode getH2ErrorCode() {return protocol::http2::error::ErrorCode::c;}       \
+    };
+
+  HTTP2ERRORTYPE(ProtocolError, PROTOCOL_ERROR)
+  HTTP2ERRORTYPE(FrameSizeError, FRAME_SIZE_ERROR)
+
+  #undef HTTP2ERRORTYPE
+}
+
 namespace Header {
   static const HeaderKey AUTHORITY(":authority");
   static const HeaderKey METHOD(":method");

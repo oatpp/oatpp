@@ -250,7 +250,7 @@ std::shared_ptr<Http2StreamHandler> Http2Processor::findOrCreateStream(v_uint32 
   std::shared_ptr<Http2StreamHandler> handler;
   auto handlerentry = resources.h2streams.find(ident);
   if (handlerentry == resources.h2streams.end()) {
-    handler = std::make_shared<Http2StreamHandler>(ident, resources.outStream, resources.hpack, resources.components);
+    handler = std::make_shared<Http2StreamHandler>(ident, resources.outStream, resources.hpack, resources.components, resources.inSettings, resources.outSettings);
     resources.h2streams.insert({ident, handler});
   } else {
     handler = handlerentry->second;
@@ -271,54 +271,49 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
   OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
 
-  switch (header->getType()) {
+  try {
+    switch (header->getType()) {
 
-    case FrameType::PING:
-      if (header->getStreamId() != 0) {
-        // connection error!
-        // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
-      }
-      if (header->getLength() != 8) {
-        // connection error!
-        // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
-      }
-      // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
-      if ((header->getFlags() & 0x01) == 0x00) {
-        answerPingFrame(resources);
-      } else if ((header->getFlags() & 0x01) == 0x01) {
-        // all good, just consume
-        consumeStream(resources.inStream, header->getLength());
-      } else {
-        // unknown flags! for now, just consume
-        consumeStream(resources.inStream, header->getLength());
-      }
-      break;
-
-    case FrameType::SETTINGS:
-      if (header->getStreamId() != 0) {
-        // ToDo: If an endpoint receives a SETTINGS frame whose stream identifier
-        //  field is anything other than 0x0, the endpoint MUST respond with a
-        //  connection error (Section 5.4.1) of type PROTOCOL_ERROR.
-        //  https://datatracker.ietf.org/doc/html/rfc7540#section-6.5
-      }
-      if (header->getFlags() == 0) {
-        for (v_uint32 consumed = 0; consumed < header->getLength(); consumed += 6) {
-          v_uint16 ident;
-          v_uint32 parameter;
-          resources.inStream->readExactSizeDataSimple(&ident, 2);
-          resources.inStream->readExactSizeDataSimple(&parameter, 4);
-          try {
-            resources.outSettings->setSetting((Http2Settings::Identifier) ntohs(ident), ntohl(parameter));
-          } catch (std::runtime_error &e) {
-            OATPP_LOGW(TAG, e.what());
-          }
+      case FrameType::PING:
+        if (header->getStreamId() != 0) {
+          throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received PING frame on stream");
         }
-        ackSettingsFrame(resources);
-      }
-      break;
+        if (header->getLength() != 8) {
+          throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received PING with invalid frame size");
+        }
+        // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
+        if ((header->getFlags() & 0x01) == 0x00) {
+          answerPingFrame(resources);
+        } else if ((header->getFlags() & 0x01) == 0x01) {
+          // all good, just consume
+          consumeStream(resources.inStream, header->getLength());
+        } else {
+          // unknown flags! for now, just consume
+          consumeStream(resources.inStream, header->getLength());
+        }
+        break;
 
-    case FrameType::GOAWAY:
-      {
+      case FrameType::SETTINGS:
+        if (header->getStreamId() != 0) {
+          throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS frame on stream");
+        }
+        if (header->getFlags() == 0) {
+          for (v_uint32 consumed = 0; consumed < header->getLength(); consumed += 6) {
+            v_uint16 ident;
+            v_uint32 parameter;
+            resources.inStream->readExactSizeDataSimple(&ident, 2);
+            resources.inStream->readExactSizeDataSimple(&parameter, 4);
+            try {
+              resources.outSettings->setSetting((Http2Settings::Identifier) ntohs(ident), ntohl(parameter));
+            } catch (std::runtime_error &e) {
+              OATPP_LOGW(TAG, e.what());
+            }
+          }
+          ackSettingsFrame(resources);
+        }
+        break;
+
+      case FrameType::GOAWAY: {
         v_uint32 errorCode, lastId, highest = 0;
         resources.inStream->readExactSizeDataSimple(&lastId, 4);
         resources.inStream->readExactSizeDataSimple(&errorCode, 4);
@@ -341,52 +336,55 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 //        }
 //        sendGoawayFrame(resources, highest, 0);
       }
-      resources.inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
-      while (processNextRequest(resources) != ConnectionState::DEAD) {}
-      return ConnectionState::CLOSING;
+        resources.inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
+        while (processNextRequest(resources) != ConnectionState::DEAD) {}
+        return ConnectionState::CLOSING;
 
-    case FrameType::WINDOW_UPDATE:
-      if (header->getStreamId() == 0) {
-        if (header->getLength() != 4) {
-          // ToDO: A WINDOW_UPDATE frame with a length other than 4 octets MUST be
-          //   treated as a connection error (Section 5.4.1) of type
-          //   FRAME_SIZE_ERROR.
+      case FrameType::WINDOW_UPDATE:
+        if (header->getStreamId() == 0) {
+          if (header->getLength() != 4) {
+            throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
+          }
+          v_uint32 increment;
+          resources.inStream->readExactSizeDataSimple(&increment, 4);
+          OATPP_LOGD(TAG, "Incrementing out-window by %u", ntohl(increment));
+          resources.outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, ntohl(increment));
+        } else {
+          ConnectionState state = delegateToHandler(findOrCreateStream(header->getStreamId(), resources),
+                                                    resources.inStream,
+                                                    resources,
+                                                    *header);
+          if (state != ConnectionState::ALIVE) {
+            resources.h2streams.erase(header->getStreamId());
+          }
         }
-        v_uint32 increment;
-        resources.inStream->readExactSizeDataSimple(&increment, 4);
-        OATPP_LOGD(TAG, "Incrementing out-window by %u", ntohl(increment));
-        resources.outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, ntohl(increment));
-      } else {
-        ConnectionState state = delegateToHandler(findOrCreateStream(header->getStreamId(), resources), resources.inStream, resources, *header);
-        if (state != ConnectionState::ALIVE) {
-          resources.h2streams.erase(header->getStreamId());
-        }
-      }
-      break;
+        break;
 
-    case FrameType::DATA:
-    case FrameType::HEADERS:
-    case FrameType::PRIORITY:
-    case FrameType::RST_STREAM:
-    case FrameType::PUSH_PROMISE:
-    case FrameType::CONTINUATION:
-      if (header->getStreamId() == 0) {
-        // connection error (Section 5.4.1) of type
-        //   PROTOCOL_ERROR.
-        // https://datatracker.ietf.org/doc/html/rfc7540#section-5.4.1
-      } else {
-        auto handler = findOrCreateStream(header->getStreamId(), resources);
-        ConnectionState state = delegateToHandler(handler, resources.inStream, resources, *header);
-        if (state != ConnectionState::ALIVE) {
-          resources.h2streams.erase(header->getStreamId());
+      case FrameType::DATA:
+      case FrameType::HEADERS:
+      case FrameType::PRIORITY:
+      case FrameType::RST_STREAM:
+      case FrameType::PUSH_PROMISE:
+      case FrameType::CONTINUATION:
+        if (header->getStreamId() == 0) {
+          throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received stream related frame on stream(0)");
+        } else {
+          auto handler = findOrCreateStream(header->getStreamId(), resources);
+          ConnectionState state = delegateToHandler(handler, resources.inStream, resources, *header);
+          if (state != ConnectionState::ALIVE) {
+            resources.h2streams.erase(header->getStreamId());
+          }
         }
-      }
-      break;
+        break;
 
-    default:
-      // ToDo: Unknown frame
-      consumeStream(resources.inStream, header->getLength());
-      break;
+      default:
+        // ToDo: Unknown frame
+        consumeStream(resources.inStream, header->getLength());
+        break;
+    }
+  } catch (protocol::http2::error::Http2Error &h2e) {
+    sendGoawayFrame(resources, header->getStreamId(), h2e.getH2ErrorCode());
+    return ConnectionState::DEAD;
   }
 
   return ConnectionState::ALIVE;

@@ -43,6 +43,12 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
   }
 
   v_io_size read = streamPayloadLength - pad;
+
+  if (streamPayloadLength + m_task->data->availableToRead() > m_task->inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)) {
+    m_task->setState(ABORTED);
+    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
+  }
+
   async::Action action;
   do {
     v_io_size res = m_task->data->readFromStreamAndWrite(stream.get(), read, action);
