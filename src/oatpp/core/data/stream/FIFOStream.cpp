@@ -32,7 +32,8 @@ data::stream::DefaultInitializedContext FIFOInputStream::DEFAULT_CONTEXT(data::s
 
 FIFOInputStream::FIFOInputStream(v_buff_size initialSize)
   : m_memoryHandle(std::make_shared<std::string>(initialSize, (char)0))
-  , m_fifo(std::make_shared<data::buffer::FIFOBuffer>((void*)m_memoryHandle->data(), m_memoryHandle->size(), 0, 0, false)) {
+  , m_fifo(std::make_shared<data::buffer::FIFOBuffer>((void*)m_memoryHandle->data(), m_memoryHandle->size(), 0, 0, false))
+  , m_maxCapacity(-1) {
 
 }
 
@@ -75,8 +76,8 @@ void FIFOInputStream::reserveBytesUpfront(v_buff_size count) {
 
     v_buff_size newCapacity = utils::Binary::nextP2(capacityNeeded);
 
-    if(newCapacity < 0 || (m_fifo->getBufferSize() > 0 && newCapacity > m_fifo->getBufferSize())) {
-      newCapacity = m_fifo->getBufferSize();
+    if(newCapacity < 0 || (m_maxCapacity > 0 && newCapacity > m_maxCapacity)) {
+      newCapacity = m_maxCapacity;
     }
 
     if(newCapacity < capacityNeeded) {
@@ -87,7 +88,7 @@ void FIFOInputStream::reserveBytesUpfront(v_buff_size count) {
     auto newHandle = std::make_shared<std::string>(newCapacity, (char)0);
     v_io_size oldSize = m_fifo->availableToRead();
     m_fifo->read((void*)newHandle->data(), oldSize);
-    auto newFifo = std::make_shared<data::buffer::FIFOBuffer>((void*)newHandle->data(), newHandle->size(), 0, oldSize, true);
+    auto newFifo = std::make_shared<data::buffer::FIFOBuffer>((void*)newHandle->data(), newHandle->size(), 0, oldSize, oldSize > 0);
     m_memoryHandle = newHandle;
     m_fifo = newFifo;
   }

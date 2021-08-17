@@ -40,6 +40,7 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
  private:
   std::shared_ptr<std::string> m_memoryHandle;
   std::shared_ptr<data::buffer::FIFOBuffer> m_fifo;
+  v_buff_size m_maxCapacity;
   IOMode m_ioMode;
  public:
 
