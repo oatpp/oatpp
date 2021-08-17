@@ -93,7 +93,7 @@ class Hpack : public oatpp::base::Countable {
  public:
   virtual std::list<Payload> deflate(const Headers &headers, v_io_size maxFrameSize) = 0;
   virtual Headers inflate(const std::list<Payload> &payloads) = 0;
-  virtual Headers inflate(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) = 0;
+  virtual Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream, v_io_size streamPayloadLength) = 0;
   virtual ~Hpack() = default;
 };
 
@@ -121,10 +121,11 @@ class SimpleHpack : public Hpack {
   static std::shared_ptr<SimpleHpack> createShared(const std::shared_ptr<Table> &table) {
     return std::make_shared<SimpleHpack>(table);
   }
+  ~SimpleHpack();
 
   std::list<Payload> deflate(const Headers &headers, v_io_size maxFrameSize) override;
   Headers inflate(const std::list<Payload> &payloads) override;
-  Headers inflate(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+  Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                   v_io_size streamPayloadLength) override;
 
  private:
@@ -133,7 +134,7 @@ class SimpleHpack : public Hpack {
                                 Payload::const_iterator last,
                                 Headers &hdr);
   v_io_size inflateKeyValuePair(SimpleHpack::InflateMode mode,
-                                const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                 v_io_size streamPayloadLength,
                                 Headers &hdr,
                                 async::Action &action);
@@ -141,7 +142,7 @@ class SimpleHpack : public Hpack {
   v_io_size deflateKeyValuePair(Payload &to, const HeaderMap::iterator &it);
 
   v_io_size inflateHandleNewTableSize(Payload::const_iterator it, Payload::const_iterator last);
-  v_io_size inflateHandleNewTableSize(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+  v_io_size inflateHandleNewTableSize(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                       v_io_size streamPayloadLength);
 
   static v_io_size deflateHandleNewTableSize(Payload &to, v_uint32 size);
@@ -159,7 +160,7 @@ class SimpleHpack : public Hpack {
   static v_io_size inflateString(oatpp::String &value, Payload::const_iterator it, Payload::const_iterator last);
 
   static v_io_size inflateString(String &value,
-                                 const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                 const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                  v_io_size stringSize,
                                  async::Action action);
 
@@ -171,13 +172,13 @@ class SimpleHpack : public Hpack {
                                  Payload::const_iterator last,
                                  size_t prefix);
   static v_io_size decodeInteger(v_uint32 *res,
-                                 const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                 const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                  v_io_size streamPayloadLength,
                                  v_uint32 prefix);
   static v_io_size decodeString(String &key, Payload::const_iterator in, Payload::const_iterator end);
   static v_io_size decodeString(String &key,
                                 v_io_size stringSize,
-                                const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream);
+                                const std::shared_ptr<data::stream::BufferedInputStream> &stream);
   static IndexingMode shouldIndex(const oatpp::data::share::StringKeyLabelCI &key);
 };
 

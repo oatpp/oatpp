@@ -543,7 +543,12 @@ const char* SimpleHpack::TAG = "oatpp::web::protocol::http2::hpack::SimpleHpack"
 SimpleHpack::SimpleHpack(const std::shared_ptr<Table> &table)
   : m_table(table)
   , m_initialTableSize(m_table->getTableSize()) {
-};
+//  OATPP_LOGD(TAG, "Constructing Hpack(%p) with initialTableSize=%lu", this, m_table->getTableSize());
+}
+
+SimpleHpack::~SimpleHpack() {
+//  OATPP_LOGD(TAG, "Destructing Hpack(%p)", this);
+}
 
 v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
                                            Payload::const_iterator it,
@@ -629,7 +634,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
 }
 
 v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
-                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                           const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                            v_io_size streamPayloadLength,
                                            Headers &hdr,
                                            async::Action &action) {
@@ -718,7 +723,7 @@ v_io_size SimpleHpack::inflateHandleNewTableSize(Payload::const_iterator it, Pay
   return consumed;
 }
 
-v_io_size SimpleHpack::inflateHandleNewTableSize(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+v_io_size SimpleHpack::inflateHandleNewTableSize(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                                  v_io_size streamPayloadLength) {
   v_uint32 res;
   v_uint32 consumed = decodeInteger(&res, stream, streamPayloadLength, 5);
@@ -801,7 +806,7 @@ Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
   return headers;
 }
 
-Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                              v_io_size streamPayloadLength) {
   Headers headers;
   async::Action action;
@@ -1098,7 +1103,7 @@ v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterat
 }
 
 v_io_size SimpleHpack::inflateString(String &value,
-                                     const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                     const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                      v_io_size stringSize,
                                      async::Action action) {
   v_uint32 len;
@@ -1222,7 +1227,7 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
 }
 
 v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
-                                     const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                     const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                                      v_io_size streamPayloadLength,
                                      v_uint32 prefix) {
   v_uint32 k = (uint8_t)((1 << prefix) - 1);
@@ -1290,7 +1295,7 @@ v_io_size SimpleHpack::decodeString(String &key, Payload::const_iterator in, Pay
 
 v_io_size SimpleHpack::decodeString(String &key,
                                     v_io_size stringSize,
-                                    const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream) {
+                                    const std::shared_ptr<data::stream::BufferedInputStream> &stream) {
   key = oatpp::String(stringSize);
   stream->readExactSizeDataSimple((void*)key->data(), stringSize);
   return stringSize;

@@ -92,7 +92,7 @@ v_io_size Huffman::decode(p_uint8 to, v_io_size len, Payload::const_iterator src
 
 v_io_size Huffman::decode(oatpp::String &to,
                           v_io_size stringSize,
-                          const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream) {
+                          const std::shared_ptr<data::stream::BufferedInputStream> &stream) {
   static const auto initial = Huffman::DecodeTableEntry(false, true, 0, 0);
   v_io_size count = 0;
   auto t = &initial;
