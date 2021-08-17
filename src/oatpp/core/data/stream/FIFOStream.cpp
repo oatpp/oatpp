@@ -69,7 +69,7 @@ v_io_size FIFOInputStream::write(const void *data, v_buff_size count, async::Act
 
 void FIFOInputStream::reserveBytesUpfront(v_buff_size count) {
 
-  v_buff_size capacityNeeded = m_fifo->availableToRead() + count;
+  v_buff_size capacityNeeded = availableToRead() + count;
 
   if(capacityNeeded > m_fifo->getBufferSize()) {
 
@@ -113,6 +113,23 @@ v_io_size FIFOInputStream::flushToStream(data::stream::OutputStream *stream) {
 
 async::CoroutineStarter FIFOInputStream::flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream> &stream) {
   return m_fifo->flushToStreamAsync(stream);
+}
+
+v_io_size FIFOInputStream::availableToWrite() {
+  return m_fifo->availableToWrite();
+}
+
+v_io_size FIFOInputStream::peek(void *data, v_buff_size count, async::Action &action) {
+  (void) action;
+  return m_fifo->peek(data, count);
+}
+
+v_io_size FIFOInputStream::availableToRead() const {
+  return m_fifo->availableToRead();
+}
+
+v_io_size FIFOInputStream::commitReadOffset(v_buff_size count) {
+  return m_fifo->commitReadOffset(count);
 }
 
 }}}
