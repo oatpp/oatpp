@@ -48,6 +48,10 @@ protocol::http::Headers& Response::getHeaders() {
   return m_headers;
 }
 
+std::shared_ptr<Body> Response::getBody() const {
+  return m_body;
+}
+
 void Response::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
