@@ -29,11 +29,11 @@
 void oatpp::web::server::http2::Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection,
                                                                     const std::shared_ptr<const ParameterMap> &params) {
 
-  OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection.");
+  OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection (%p).", connection.get());
   connection->setInputStreamIOMode(data::stream::IOMode::BLOCKING);
   Http2Processor::Task task(m_components, connection, &m_spawns, params);
   task.run();
-
+  OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Done (%p).", connection.get());
 }
 
 void oatpp::web::server::http2::Http2DelegatedConnectionHandler::stop() {

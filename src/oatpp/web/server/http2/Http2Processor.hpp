@@ -73,6 +73,7 @@ private:
                         const std::shared_ptr<http2::Http2Settings>& pOutSettings,
                         const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
                         const std::shared_ptr<http2::PriorityStreamScheduler>& pOutStream);
+    virtual ~ProcessingResources();
 
     std::shared_ptr<processing::Components> components;
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
@@ -96,11 +97,7 @@ private:
     v_uint32 flow;
   };
 
-  static ConnectionState processFrame(Http2Processor::ProcessingResources &resources,
-                                                      v_uint32 streamIdent,
-                                                      FrameType type,
-                                                      v_uint8 flags,
-                                                      v_uint32 payloadLength);
+  static void stop(ProcessingResources& resources);
   static ConnectionState processNextRequest(ProcessingResources& resources);
   static ConnectionState delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
@@ -113,6 +110,9 @@ private:
   static v_io_size sendSettingsFrame(Http2Processor::ProcessingResources &resources);
   static v_io_size ackSettingsFrame(Http2Processor::ProcessingResources &resources);
   static v_io_size answerPingFrame(Http2Processor::ProcessingResources &resources);
+  static v_io_size sendGoawayFrame(Http2Processor::ProcessingResources &resources,
+                                   v_uint32 lastStream,
+                                   v_uint32 errorCode);
 
 public:
 

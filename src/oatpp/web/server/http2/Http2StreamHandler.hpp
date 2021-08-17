@@ -28,6 +28,8 @@
 #include <utility>
 
 #include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/data/stream/FIFOStream.hpp"
+
 #include "oatpp/web/protocol/http2/Http2.hpp"
 #include "oatpp/web/protocol/http2/hpack/Hpack.hpp"
 
@@ -55,37 +57,57 @@ class Http2StreamHandler : public oatpp::base::Countable {
     PROCESSING,
     RESPONSE,
     GOAWAY,
-    RESET
+    RESET,
+    ABORTED
   };
 
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
   typedef protocol::http2::Frame::Header::Flags::Data H2StreamDataFlags;
 
  private:
-  std::atomic<H2StreamState> m_state;
-  v_uint32 m_streamId;
-  v_uint32 m_dependency;
-  v_uint8 m_weight;
-  v_uint8 m_headerFlags;
-  v_uint32 m_flow;
-  std::shared_ptr<protocol::http2::hpack::Hpack> m_hpack;
-  std::shared_ptr<http2::processing::Components> m_components;
-  std::shared_ptr<http2::PriorityStreamScheduler> m_output;
-  oatpp::web::protocol::http2::Headers m_headers;
-  data::stream::BufferOutputStream m_data;
+  class Task {
+   public:
+    std::atomic<H2StreamState> state;
+    v_uint32 streamId;
+    v_uint32 dependency;
+    v_uint8 weight;
+    v_uint8 headerFlags;
+    v_uint32 flow;
+    std::shared_ptr<protocol::http2::hpack::Hpack> hpack;
+    std::shared_ptr<http2::processing::Components> components;
+    std::shared_ptr<http2::PriorityStreamScheduler> output;
+    std::shared_ptr<data::stream::FIFOInputStream> data;
+    std::shared_ptr<data::stream::FIFOInputStream> header;
+
+    Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components)
+        : state(INIT)
+        , streamId(id)
+        , output(outputStream)
+        , hpack(hpack)
+        , components(components)
+        , dependency(0)
+        , weight(0)
+        , headerFlags(0)
+        , flow (65535)
+        , header(data::stream::FIFOInputStream::createShared(flow))
+        , data(data::stream::FIFOInputStream::createShared(flow)) {}
+
+    void setState(H2StreamState next);
+  };
+
+  std::thread m_processor;
+  std::shared_ptr<Task> m_task;
 
  public:
   Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components)
-    : m_state(INIT)
-    , m_streamId(id)
-    , m_output(outputStream)
-    , m_hpack(hpack)
-    , m_components(components)
-    , m_dependency(0)
-    , m_weight(0)
-    , m_flow (65535)
-    , m_data(m_flow) {
-    sprintf(TAG, "oatpp::web::server::http2::Http2StreamHandler(%u)", m_streamId);
+    : m_task(std::make_shared<Task>(id, outputStream, hpack, components)) {
+    sprintf(TAG, "oatpp::web::server::http2::Http2StreamHandler(%u)", id);
+//    OATPP_LOGD(TAG, "Constructing %p", this);
+  }
+  ~Http2StreamHandler() override {
+    abort();
+    waitForFinished();
+//    OATPP_LOGD(TAG, "Destructing %p", this);
   }
 
   ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
@@ -93,19 +115,20 @@ class Http2StreamHandler : public oatpp::base::Countable {
   ConnectionState handlePriority(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleResetStream(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handlePushPromise(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handleGoAway(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleWindowUpdate(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
   ConnectionState handleContinuation(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
 
   H2StreamState getState() {
-    return m_state;
+    return m_task->state;
   }
+
+  void abort();
+  void waitForFinished();
 
   static const char* stateStringRepresentation(H2StreamState state);
 
  private:
-  void process();
-  void setState(H2StreamState next);
+  static void process(std::shared_ptr<Task> task);
 };
 
 }}}}
