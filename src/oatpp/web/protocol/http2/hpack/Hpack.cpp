@@ -200,346 +200,6 @@ SimpleTable::~SimpleTable() {
 
 const char* SimpleHpack::TAG = "oatpp::web::protocol::http2::hpack::SimpleHpack";
 
-//SimpleHpack::InflateStateMachine::InflateStateMachine(std::shared_ptr<Table> table)
-//  : m_table(std::move(table))
-//  , m_state(INFLATE_START)
-//  , m_blockMode(NONE)
-//  , m_dontWantsIndex(false)
-//  , m_wantsIndex(false)
-//  , m_huffman(false)
-//  , m_idx(0)
-//  , m_left(0)
-//  , m_shift(0){}
-//
-//v_io_size SimpleHpack::InflateStateMachine::extractHeaders(Headers &hdr, const Payload &p) {
-//
-//  ssize_t rv = 0;
-//  v_uint32 rfin = 0;
-//  int busy = 0;
-//  data::share::StringKeyLabelCI key;
-//  data::share::StringKeyLabel value;
-//
-//  auto it = p.begin();
-//  for (; it != p.end() || busy;) {
-//    busy = 0;
-//    switch (m_state) {
-//      case State::EXPECT_TABLE_SIZE:
-//        if ((*it & 0xe0u) != 0x20u) {
-//          OATPP_LOGD(TAG, "inflatehd: header table size change was expected, but saw "
-//                 "0x%02x as first byte",
-//                 *it);
-//          return -1;
-//        }
-//        /* fall through */
-//      case State::INFLATE_START:
-//      case State::OPCODE:
-//        if ((*it & 0xe0u) == 0x20u) {
-//          OATPP_LOGD(TAG, "inflatehd: header table size change");
-//          if (m_state == State::OPCODE) {
-//            OATPP_LOGD(TAG, "inflatehd: header table size change must appear at the head "
-//                   "of header block");
-//            return -1;
-//          }
-//          m_blockMode = BlockType::INDEXED_KEYVALUE;
-//          m_state = State::READ_TABLE_SIZE;
-//        } else if (*it & 0x80u) {
-//          m_blockMode = BlockType::INDEXED_KEYVALUE;
-//          m_state = State::READ_INDEX;
-//        } else {
-//          if (*it == 0x40u || *it == 0 || *it == 0x10u) {
-//            OATPP_LOGD(TAG, "inflatehd: indexed repr");
-//            m_blockMode = BlockType::KEYVALUE;
-//            m_state = State::NEWNAME_CHECK_NAMELEN;
-//          } else {
-//            OATPP_LOGD(TAG, "inflatehd: literal header repr - indexed name");
-//            m_blockMode = BlockType::INDEXED_KEY;
-//            m_state = State::READ_INDEX;
-//          }
-//          m_wantsIndex = (*it & 0x40) != 0;
-//          m_dontWantsIndex = (*it & 0xf0u) == 0x10u;
-//          OATPP_LOGD(TAG, "inflatehd: indexing required=%d, no_index=%d\n",
-//                     m_wantsIndex, m_dontWantsIndex);
-//          if (m_blockMode == BlockType::KEYVALUE) {
-//            ++it;
-//          }
-//        }
-//        m_left = 0;
-//        m_shift = 0;
-//        break;
-//      case State::READ_TABLE_SIZE:
-//        rfin = 0;
-//        rv = readLength(&rfin, it, p.end(), 5, 4096); // ToDo: Config max table size
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//        it += rv;
-//        if (!rfin) {
-//          goto almost_ok;
-//        }
-//        OATPP_LOGD(TAG, "inflatehd: table_size=%zu\n", m_left);
-////        inflater->min_hd_table_bufsize_max = UINT32_MAX;
-////        inflater->ctx.hd_table_bufsize_max = m_left;
-////        hd_context_shrink_table_size(&inflater->ctx, NULL);
-//        throw std::runtime_error("Not Implemented"); // ToDo
-//        m_state = State::INFLATE_START;
-//        break;
-//      case State::READ_INDEX: {
-//        size_t prefixlen;
-//
-//        if (m_blockMode == BlockType::INDEXED_KEYVALUE) {
-//          prefixlen = 7;
-//        } else if (m_wantsIndex) {
-//          prefixlen = 6;
-//        } else {
-//          prefixlen = 4;
-//        }
-//
-//        rfin = 0;
-//        rv = readLength(&rfin, it, p.end(), prefixlen, m_table->getTableSize());
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//
-//        it += rv;
-//
-//        if (!rfin) {
-//          goto almost_ok;
-//        }
-//
-//        if (m_left == 0) {
-//          return -1;
-//        }
-//
-//        OATPP_LOGD(TAG, "inflatehd: index=%zu\n", m_left);
-//        if (m_blockMode == BlockType::INDEXED_KEYVALUE) {
-//          m_idx = m_left;
-//          --m_idx;
-//
-//          hd_inflate_commit_indexed(inflater, nv_out);
-//
-//          m_state = State::OPCODE;
-//          #error Here: Next Header
-//          break;
-//        } else {
-//          m_idx = m_left;
-//          --m_idx;
-//
-//          m_state = State::CHECK_VALUELEN;
-//        }
-//        break;
-//      }
-//      case State::NEWNAME_CHECK_NAMELEN:
-//        hd_inflate_set_huffman_encoded(inflater, in);
-//        m_state = State::NEWNAME_READ_NAMELEN;
-//        m_left = 0;
-//        m_shift = 0;
-//        OATPP_LOGD(TAG, "inflatehd: huffman encoded=%d\n", m_huffman != 0);
-//        /* Fall through */
-//      case State::NEWNAME_READ_NAMELEN:
-//        rfin = 0;
-//        rv = readLength(&rfin, it, p.end(), 7, 0xffff); // not in spec, chosen from other implementations
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//        it += rv;
-//        if (!rfin) {
-//          OATPP_LOGD(TAG, "inflatehd: integer not fully decoded. current=%zu\n",
-//                 m_left);
-//
-//          goto almost_ok;
-//        }
-//
-//        if (m_huffman) {
-//          nghttp2_hd_huff_decode_context_init(&inflater->huff_decode_ctx);
-//
-//          m_state = State::NEWNAME_READ_NAMEHUFF;
-//        } else {
-//          m_state = State::NEWNAME_READ_NAME;
-//        }
-//
-//        if (rv != 0) {
-//          goto fail;
-//        }
-//
-//        break;
-//      case State::NEWNAME_READ_NAMEHUFF:
-//        rv = hd_inflate_read_huff(inflater, &inflater->namebuf, in, last);
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//
-//        it += rv;
-//
-//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
-//
-//        if (m_left) {
-//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
-//
-//          goto almost_ok;
-//        }
-//        m_state = State::CHECK_VALUELEN;
-//        break;
-//
-//      case State::NEWNAME_READ_NAME:
-//        rv = decodeKeyString(&key, it, it + rfin, 0xffff);
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//
-//        it += rv;
-//
-//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
-//        if (m_left) {
-//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
-//
-//          goto almost_ok;
-//        }
-//
-//        m_state = State::CHECK_VALUELEN;
-//
-//        break;
-//      case State::CHECK_VALUELEN:
-//        hd_inflate_set_huffman_encoded(inflater, in);
-//        m_state = State::READ_VALUELEN;
-//        m_left = 0;
-//        m_shift = 0;
-//        OATPP_LOGD(TAG, "inflatehd: huffman encoded=%d\n", m_huffman != 0);
-//        /* Fall through */
-//      case State::READ_VALUELEN:
-//        rfin = 0;
-//        rv = readLength(&rfin, it, p.end(), 7, 0xffff); // not in spec, todo: make static const variable
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//
-//        it += rv;
-//
-//        if (!rfin) {
-//          goto almost_ok;
-//        }
-//
-//        OATPP_LOGD(TAG, "inflatehd: valuelen=%zu\n", m_left);
-//
-//        if (m_huffman) {
-//          nghttp2_hd_huff_decode_context_init(&inflater->huff_decode_ctx);
-//
-//          m_state = State::READ_VALUEHUFF;
-//
-//          rv = nghttp2_rcbuf_new(&inflater->valuercbuf, m_left * 2 + 1,
-//                                 mem);
-//        } else {
-//          m_state = State::READ_VALUE;
-//
-//          rv = nghttp2_rcbuf_new(&inflater->valuercbuf, m_left + 1, mem);
-//        }
-//
-//        if (rv != 0) {
-//          goto fail;
-//        }
-//
-//        nghttp2_buf_wrap_init(&inflater->valuebuf, inflater->valuercbuf->base,
-//                              inflater->valuercbuf->len);
-//
-//        busy = 1;
-//
-//        break;
-//      case State::READ_VALUEHUFF:
-//        rv = hd_inflate_read_huff(inflater, &inflater->valuebuf, in, last);
-//        if (rv < 0) {
-//          goto fail;
-//        }
-//
-//        it += rv;
-//
-//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
-//
-//        if (m_left) {
-//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
-//
-//          goto almost_ok;
-//        }
-//
-//        if (m_blockMode == BlockType::KEYVALUE) {
-//          rv = hd_inflate_commit_newname(inflater, nv_out);
-//        } else {
-//          rv = hd_inflate_commit_indname(inflater, nv_out);
-//        }
-//
-//        if (rv != 0) {
-//          goto fail;
-//        }
-//
-//        m_state = State::OPCODE;
-//        #error Here: Next Header
-//        break;
-//      case State::READ_VALUE:
-//        rv = decodeValueString(&value, it, it + rfin, 0xffff);
-//        if (rv < 0) {
-//          OATPP_LOGD(TAG, "inflatehd: value read failure %zd\n", rv);
-//          goto fail;
-//        }
-//
-//        it += rv;
-//
-//        OATPP_LOGD(TAG, "inflatehd: %zd bytes read\n", rv);
-//
-//        if (m_left) {
-//          OATPP_LOGD(TAG, "inflatehd: still %zu bytes to go\n", m_left);
-//          goto almost_ok;
-//        }
-//
-//        if (m_blockMode == BlockType::KEYVALUE) {
-//          rv = hd_inflate_commit_newname(inflater, nv_out);
-//        } else {
-//          rv = hd_inflate_commit_indname(inflater, nv_out);
-//        }
-//
-//        if (rv != 0) {
-//          goto fail;
-//        }
-//
-//        m_state = State::OPCODE;
-//        #error Here: Next Header
-//        break;
-//    }
-//  }
-//
-//  OATPP_ASSERT(it == p.end());
-//
-//  OATPP_LOGD(TAG, "inflatehd: all input bytes were processed");
-//
-//  if (in_final) {
-//    OATPP_LOGD(TAG, "inflatehd: in_final set");
-//
-//    if (m_state != State::OPCODE &&
-//        m_state != State::INFLATE_START) {
-//      OATPP_LOGD(TAG, "inflatehd: unacceptable state=%d\n", m_state);
-//      rv = NGHTTP2_ERR_HEADER_COMP;
-//
-//      goto fail;
-//    }
-//    *inflate_flags |= NGHTTP2_HD_INFLATE_FINAL;
-//  }
-//  return (ssize_t)(it - p.begin());
-//
-//  almost_ok:
-//  if (in_final) {
-//    OATPP_LOGD(TAG, "inflatehd: input ended prematurely");
-//
-//    rv = NGHTTP2_ERR_HEADER_COMP;
-//
-//    goto fail;
-//  }
-//  return (ssize_t)(it - p.begin());
-//
-//  fail:
-//  OATPP_LOGD(TAG, "inflatehd: error return %zd\n", rv);
-//
-//  inflater->ctx.bad = 1;
-//  return rv;
-//
-//}
-
 SimpleHpack::SimpleHpack(const std::shared_ptr<Table> &table)
   : m_table(table)
   , m_initialTableSize(m_table->getTableSize()) {
@@ -642,7 +302,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
   stream->peek(&it, 1, action);
   bool requireIndex = (it & 0x40) != 0;
   bool dontIndex = (it & 0xf0u) == 0x10u;
-  v_uint32 consumed, step;
+  v_io_size consumed, step;
   v_uint32 len;
 
   switch (mode) {
@@ -1109,10 +769,15 @@ v_io_size SimpleHpack::inflateString(String &value,
                                      async::Action action) {
   v_uint32 len;
   v_uint8 it;
+  if (streamSize < 1) {
+    OATPP_LOGE(TAG, "inflateString: data ended before decoding done");
+    return -1;
+  }
   stream->peek(&it, 1, action);
   v_io_size consumed = decodeInteger(&len, stream, streamSize, 7), second;
   if (streamSize < len) {
-    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack] Error: Extracted stream-length longer than stream");
+    OATPP_LOGE(TAG, "inflateString: Extracted stream-length longer than stream");
+    return -1;
   }
   bool huffman = (it & (1 << 7)) != 0;
   if (huffman) {
@@ -1189,7 +854,7 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
   }
   n = k;
   if (++in == last) {
-    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    OATPP_LOGE(TAG, "decodeInteger: data ended before decoding done");
     return -1;
   }
 
@@ -1197,19 +862,19 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
     uint32_t add = *in & 0x7f;
 
     if (shift >= 32) {
-      OATPP_LOGD(TAG, "decodeInteger: shift exponent overflow\n");
+      OATPP_LOGE(TAG, "decodeInteger: shift exponent overflow");
       return -1;
     }
 
     if ((UINT32_MAX >> shift) < add) {
-      OATPP_LOGD(TAG, "decodeInteger: integer overflow on shift\n");
+      OATPP_LOGE(TAG, "decodeInteger: integer overflow on shift");
       return -1;
     }
 
     add <<= shift;
 
     if (UINT32_MAX - add < n) {
-      OATPP_LOGD(TAG, "decodeInteger: integer overflow on addition\n");
+      OATPP_LOGE(TAG, "decodeInteger: integer overflow on addition");
       return -1;
     }
 
@@ -1222,7 +887,7 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
 
 
   if (in == last) {
-    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    OATPP_LOGE(TAG, "decodeInteger: data ended before decoding done");
     return -1;
   }
 
@@ -1239,6 +904,10 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
   v_uint32 shift = 0;
   v_uint8 in;
   v_io_size consumed = 1;
+  if (streamPayloadLength < 1) {
+    OATPP_LOGE(TAG, "decodeInteger: data ended before decoding done");
+    return -1;
+  }
   stream->readExactSizeDataSimple(&in, 1);
 
   if ((in & k) != k) {
@@ -1247,7 +916,7 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
   }
   n = k;
   if (streamPayloadLength == 1) {
-    OATPP_LOGD(TAG, "decodeInteger: data ended before decoding done\n");
+    OATPP_LOGE(TAG, "decodeInteger: data ended before decoding done");
     return -1;
   }
 
@@ -1257,19 +926,19 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
     uint32_t add = in & 0x7f;
 
     if (shift >= 32) {
-      OATPP_LOGD(TAG, "decodeInteger: shift exponent overflow\n");
+      OATPP_LOGE(TAG, "decodeInteger: shift exponent overflow");
       return -1;
     }
 
     if ((UINT32_MAX >> shift) < add) {
-      OATPP_LOGD(TAG, "decodeInteger: integer overflow on shift\n");
+      OATPP_LOGE(TAG, "decodeInteger: integer overflow on shift");
       return -1;
     }
 
     add <<= shift;
 
     if (UINT32_MAX - add < n) {
-      OATPP_LOGD(TAG, "decodeInteger: integer overflow on addition\n");
+      OATPP_LOGE(TAG, "decodeInteger: integer overflow on addition");
       return -1;
     }
 
