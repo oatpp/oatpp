@@ -271,9 +271,11 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
   OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
 
-  // streamId's have to be even numbers
-  if (header->getStreamId() & 0x01) {
+  // streamId's have to be uneven numbers
+  if ((header->getStreamId() != 0) && (header->getStreamId() & 0x01) == 0) {
+    OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received even streamId (PROTOCOL_ERROR)");
     sendGoawayFrame(resources, resources.lastStream ? resources.lastStream->getStreamId() : 0, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+    return ConnectionState::DEAD;
   }
 
   if (resources.lastStream && (header->getStreamId() != resources.lastStream->getStreamId())) {
