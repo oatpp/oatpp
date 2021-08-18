@@ -82,7 +82,7 @@ private:
      */
     std::map<v_uint32, std::shared_ptr<Http2StreamHandler>> h2streams;
     std::shared_ptr<Http2StreamHandler> lastStream;
-    v_uint32 highestStreamId;
+    v_uint32 highestNonIdleStreamId;
 
     /**
      * For now here, should be provided with a kind of factory via components

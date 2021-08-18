@@ -50,7 +50,7 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<p
     , outSettings(pOutSettings)
     , h2streams()
     , lastStream(nullptr)
-    , highestStreamId(0) {
+    , highestNonIdleStreamId(0) {
   flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
   hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
 //  OATPP_LOGD("oatpp::web::server::http2::Http2Processor::ProcessingResources", "Constructing %p", this);
@@ -169,7 +169,7 @@ v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources 
   bos.writeSimple(&b, 1);
   bos.setCurrentPosition(payload + FrameHeader::HeaderSize);
 
-  OATPP_LOGD(TAG, "Sending SETTINGS (length:%lu, flags:0x%02x, StreamId:%lu)", bos.getCurrentPosition()-FrameHeader::HeaderSize, 0, 0);
+  OATPP_LOGD(TAG, "Sending SETTINGS (length:%lu, flags:0x%02x, streamId:%lu)", bos.getCurrentPosition()-FrameHeader::HeaderSize, 0, 0);
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
   bos.flushToStream(resources.outStream.get());
   resources.outStream->unlock();
@@ -178,7 +178,7 @@ v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources 
 
 v_io_size Http2Processor::ackSettingsFrame(Http2Processor::ProcessingResources &resources) {
   FrameHeader header(0, FrameHeader::Flags::Settings::SETTINGS_ACK, FrameType::SETTINGS, 0);
-  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
   header.writeToStream(resources.outStream.get());
   resources.outStream->unlock();
@@ -194,7 +194,7 @@ v_io_size Http2Processor::answerPingFrame(Http2Processor::ProcessingResources &r
   resources.inStream->readExactSizeDataSimple(bos.getData()+FrameHeader::HeaderSize, 8);
   bos.setCurrentPosition(FrameHeader::HeaderSize + 8);
 
-  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
   bos.flushToStream(resources.outStream.get());
   resources.outStream->unlock();
@@ -206,7 +206,7 @@ v_io_size Http2Processor::sendGoawayFrame(Http2Processor::ProcessingResources &r
                                           v_uint32 lastStream,
                                           v_uint32 errorCode) {
   FrameHeader header(8, 0, FrameType::GOAWAY, 0);
-  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu, ErrorCode:%u)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId(), errorCode);
   lastStream = htonl(lastStream);
   errorCode = htonl(errorCode);
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
@@ -221,8 +221,8 @@ v_io_size Http2Processor::sendGoawayFrame(Http2Processor::ProcessingResources &r
 v_io_size Http2Processor::sendResetStreamFrame(Http2Processor::ProcessingResources &resources,
                                           v_uint32 stream,
                                           v_uint32 errorCode) {
-  FrameHeader header(8, 0, FrameType::RST_STREAM, stream);
-  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+  FrameHeader header(4, 0, FrameType::RST_STREAM, stream);
+  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu, errorCode:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId(), errorCode);
   errorCode = htonl(errorCode);
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
   header.writeToStream(resources.outStream.get());
@@ -253,10 +253,9 @@ std::shared_ptr<Http2StreamHandler> Http2Processor::findOrCreateStream(v_uint32 
   std::shared_ptr<Http2StreamHandler> handler;
   auto handlerentry = resources.h2streams.find(ident);
   if (handlerentry == resources.h2streams.end()) {
-    if (ident < resources.highestStreamId) {
+    if (ident < resources.highestNonIdleStreamId) {
       throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
     }
-    resources.highestStreamId = ident;
     handler = std::make_shared<Http2StreamHandler>(ident, resources.outStream, resources.hpack, resources.components, resources.inSettings, resources.outSettings);
     resources.h2streams.insert({ident, handler});
   } else {
@@ -276,7 +275,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
     return ConnectionState::DEAD;
   }
 
-  OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
+  OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
 
   // streamId's have to be uneven numbers
   if ((header->getStreamId() != 0) && (header->getStreamId() & 0x01) == 0) {
@@ -288,7 +287,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
   if (resources.lastStream && (header->getStreamId() != resources.lastStream->getStreamId())) {
     // Headers have to be sent as continous frames of HEADERS, PUSH_PROMISE and CONTINUATION.
     // Only if the last opened stream transitioned beyond its HEADERS stage, other frames are allowed
-    if (resources.lastStream->getState() < Http2StreamHandler::H2StreamState::PAYLOAD) {
+    if (resources.lastStream->getState() < Http2StreamHandler::H2StreamState::PAYLOAD && resources.lastStream->getState() > Http2StreamHandler::H2StreamState::INIT) {
       OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Last opened stream is still in its HEADER state but frame for different stream received (PROTOCOL_ERROR)");
       sendGoawayFrame(resources, resources.lastStream->getStreamId(), protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
       return ConnectionState::DEAD;
@@ -300,6 +299,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
       case FrameType::PING:
         if (header->getStreamId() != 0) {
+          consumeStream(resources.inStream, header->getLength());
           throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received PING frame on stream");
         }
         if (header->getLength() != 8) {
@@ -396,7 +396,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
           resources.lastStream = findOrCreateStream(header->getStreamId(), resources);
           ConnectionState state = delegateToHandler(resources.lastStream, resources.inStream, resources, *header);
           if (state != ConnectionState::ALIVE) {
-            resources.h2streams.erase(header->getStreamId());
+            resources.lastStream->clean();
           }
         }
         break;
@@ -457,6 +457,9 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
       if (handler->getState() >= Http2StreamHandler::H2StreamState::PROCESSING) {
         throw protocol::http2::error::Http2StreamClosed(
             "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received headers for stream that is already (half-)closed");
+      }
+      if (handler->getStreamId() > resources.highestNonIdleStreamId) {
+        resources.highestNonIdleStreamId = handler->getStreamId();
       }
       state = handler->handleHeaders(header.getFlags(), resources.inStream, header.getLength());
       break;

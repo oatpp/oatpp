@@ -40,6 +40,10 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
   if (flags & H2StreamDataFlags::DATA_PADDED) {
     stream->readExactSizeDataSimple(&pad, 1);
     streamPayloadLength--;
+    if (pad > streamPayloadLength) {
+      m_task->setState(ABORTED);
+      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Padding length longer than remaining data.");
+    }
   }
 
   v_io_size read = streamPayloadLength - pad;
@@ -86,6 +90,10 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
   if (m_task->headerFlags & H2StreamHeaderFlags::HEADER_PADDED) {
     stream->readExactSizeDataSimple(&pad, 1);
     streamPayloadLength -= 1;
+    if (pad > streamPayloadLength) {
+      m_task->setState(ABORTED);
+      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Padding length longer than remaining header-data.");
+    }
   }
 
   if (m_task->headerFlags & H2StreamHeaderFlags::HEADER_PRIORITY) {
@@ -147,6 +155,10 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handlePriority(v_uint8 f
 
   }
   stream->readExactSizeDataSimple(&m_task->dependency, 4);
+  m_task->dependency = ntohl(m_task->dependency);
+  if (m_task->dependency == m_task->streamId) {
+    throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Received PRIORITY frame with dependency on itself.");
+  }
   stream->readExactSizeDataSimple(&m_task->weight, 1);
   streamPayloadLength -= 5;
   return Http2StreamHandler::ConnectionState::ALIVE;
@@ -233,16 +245,28 @@ const char *Http2StreamHandler::stateStringRepresentation(Http2StreamHandler::H2
     ENUM2STR(PAYLOAD);
     ENUM2STR(PROCESSING);
     ENUM2STR(RESPONSE);
-    ENUM2STR(GOAWAY);
     ENUM2STR(RESET);
+    ENUM2STR(ABORTED);
+    ENUM2STR(ERROR);
   }
 #undef ENUM2STR
   return nullptr;
 }
 
 void Http2StreamHandler::Task::setState(Http2StreamHandler::H2StreamState next) {
-//  OATPP_LOGD(TAG, "State: %s -> %s", stateStringRepresentation(m_task->state.load()), stateStringRepresentation(next))
+  OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::setState", "(%d) State: %s(%d) -> %s(%d)", streamId, stateStringRepresentation(state.load()), state.load(), stateStringRepresentation(next), next);
   state.store(next);
+}
+
+void Http2StreamHandler::Task::clean() {
+  hpack = nullptr;
+  components = nullptr;
+  output = nullptr;
+  inSettings = nullptr;
+  outSettings = nullptr;
+  data = nullptr;
+  header = nullptr;
+  headerFlags = 0;
 }
 
 void Http2StreamHandler::process(std::shared_ptr<Task> task) {
@@ -269,6 +293,9 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     task->output->writeExactSizeDataSimple(&lastStream, 4);
     task->output->writeExactSizeDataSimple(&errorCode, 4);
     task->output->unlock();
+
+    finalizeProcessAbortion(task);
+    task->setState(ERROR);
     return;
   }
 
@@ -315,7 +342,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
   }
 
   if (task->state.load() == H2StreamState::RESET) {
-    task->setState(H2StreamState::ABORTED);
+    finalizeProcessAbortion(task);
     return;
   }
 
@@ -330,7 +357,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
     if (task->state.load() == H2StreamState::RESET) {
       task->output->unlock();
-      task->setState(H2StreamState::ABORTED);
+      finalizeProcessAbortion(task);
       return;
     }
     hdr.writeToStream(task->output.get());
@@ -345,7 +372,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
       OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       if (task->state.load() == H2StreamState::RESET) {
         task->output->unlock();
-        task->setState(H2StreamState::ABORTED);
+        finalizeProcessAbortion(task);
         return;
       }
       hdr.writeToStream(task->output.get());
@@ -358,7 +385,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
       OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       if (task->state.load() == H2StreamState::RESET) {
         task->output->unlock();
-        task->setState(H2StreamState::ABORTED);
+        finalizeProcessAbortion(task);
         return;
       }
       hdr.writeToStream(task->output.get());
@@ -372,7 +399,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
       OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       if (task->state.load() == H2StreamState::RESET) {
         task->output->unlock();
-        task->setState(H2StreamState::ABORTED);
+        finalizeProcessAbortion(task);
         return;
       }
       hdr.writeToStream(task->output.get());
@@ -388,7 +415,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
     if (task->state.load() == H2StreamState::RESET) {
       task->output->unlock();
-      task->setState(H2StreamState::ABORTED);
+      finalizeProcessAbortion(task);
       return;
     }
     hdr.writeToStream(task->output.get());
@@ -396,6 +423,12 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     task->output->unlock();
   }
   task->setState(H2StreamState::RESPONSE);
+  task->clean();
+}
+
+void Http2StreamHandler::finalizeProcessAbortion(const std::shared_ptr<Task> &task) {
+  task->setState(H2StreamState::ABORTED);
+  task->clean();
 }
 
 void Http2StreamHandler::abort() {
@@ -407,6 +440,12 @@ void Http2StreamHandler::abort() {
 void Http2StreamHandler::waitForFinished() {
   if (m_processor.joinable()) {
     m_processor.join();
+  }
+}
+
+void Http2StreamHandler::clean() {
+  if (m_task->state.load() < PROCESSING || m_task->state.load() > RESET) {
+    m_task->clean();
   }
 }
 

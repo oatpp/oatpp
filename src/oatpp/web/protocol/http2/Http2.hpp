@@ -80,7 +80,7 @@ namespace error {
       explicit Http2##x(const std::string& str) : Http2Error(str) {}; \
       explicit Http2##x(const char*str) : Http2Error(str) {}; \
       const ErrorCode getH2ErrorCode() override {return protocol::http2::error::ErrorCode::c;} \
-      const char* getH2ErrorCodeString() override {return #x;}                           \
+      const char* getH2ErrorCodeString() override {return #c;}                           \
     };
 
   HTTP2ERRORTYPE(ProtocolError, PROTOCOL_ERROR)

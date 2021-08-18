@@ -58,10 +58,9 @@ class Http2StreamHandler : public oatpp::base::Countable {
     PAYLOAD = 3,
     PROCESSING = 4,
     RESPONSE = 5,
-    GOAWAY = 6,
-    RESET = 7,
-    ABORTED = 8,
-    ERROR = 9
+    RESET = 6,
+    ABORTED = 7,
+    ERROR = 8
   };
 
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
@@ -102,6 +101,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
         , data(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE))){}
 
     void setState(H2StreamState next);
+    void clean();
   };
 
   std::thread m_processor;
@@ -135,11 +135,13 @@ class Http2StreamHandler : public oatpp::base::Countable {
 
   void abort();
   void waitForFinished();
+  void clean();
 
   static const char* stateStringRepresentation(H2StreamState state);
 
  private:
   static void process(std::shared_ptr<Task> task);
+  static void finalizeProcessAbortion(const std::shared_ptr<Task> &task);
 };
 
 }}}}
