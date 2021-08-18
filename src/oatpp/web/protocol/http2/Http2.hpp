@@ -70,7 +70,8 @@ namespace error {
     explicit Http2Error(const std::string &str) : std::runtime_error(str) {};
     explicit Http2Error(const char *str) : std::runtime_error(str) {};
     virtual ~Http2Error() = default;
-    virtual ErrorCode getH2ErrorCode() = 0;
+    virtual const ErrorCode getH2ErrorCode() = 0;
+    virtual const char* getH2ErrorCodeString() = 0;
   };
 
   #define HTTP2ERRORTYPE(x, c) \
@@ -78,7 +79,8 @@ namespace error {
      public:                 \
       explicit Http2##x(const std::string& str) : Http2Error(str) {}; \
       explicit Http2##x(const char*str) : Http2Error(str) {}; \
-      ErrorCode getH2ErrorCode() {return protocol::http2::error::ErrorCode::c;}       \
+      const ErrorCode getH2ErrorCode() override {return protocol::http2::error::ErrorCode::c;} \
+      const char* getH2ErrorCodeString() override {return #x;}                           \
     };
 
   HTTP2ERRORTYPE(ProtocolError, PROTOCOL_ERROR)

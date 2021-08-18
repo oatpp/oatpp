@@ -84,6 +84,7 @@ private:
      * Collection of all streams in an ordered map
      */
     std::map<v_uint32, std::shared_ptr<Http2StreamHandler>> h2streams;
+    std::shared_ptr<Http2StreamHandler> lastStream;
 
     /**
      * For now here, should be provided with a kind of factory via components

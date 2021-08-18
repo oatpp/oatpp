@@ -269,11 +269,22 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
     return ConnectionState::DEAD;
   }
 
+  OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
+
+  // streamId's have to be even numbers
   if (header->getStreamId() & 0x01) {
-    sendGoawayFrame(resources, header->getStreamId(), protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+    sendGoawayFrame(resources, resources.lastStream ? resources.lastStream->getStreamId() : 0, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
   }
 
-  OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
+  if (resources.lastStream && (header->getStreamId() != resources.lastStream->getStreamId())) {
+    // Headers have to be sent as continous frames of HEADERS, PUSH_PROMISE and CONTINUATION.
+    // Only if the last opened stream transitioned beyond its HEADERS stage, other frames are allowed
+    if (resources.lastStream->getState() < Http2StreamHandler::H2StreamState::PAYLOAD) {
+      OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Last opened stream is still in its HEADER state but frame for different stream received (PROTOCOL_ERROR)");
+      sendGoawayFrame(resources, resources.lastStream->getStreamId(), protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+      return ConnectionState::DEAD;
+    }
+  }
 
   try {
     switch (header->getType()) {
@@ -373,8 +384,8 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
         if (header->getStreamId() == 0) {
           throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received stream related frame on stream(0)");
         } else {
-          auto handler = findOrCreateStream(header->getStreamId(), resources);
-          ConnectionState state = delegateToHandler(handler, resources.inStream, resources, *header);
+          resources.lastStream = findOrCreateStream(header->getStreamId(), resources);
+          ConnectionState state = delegateToHandler(resources.lastStream, resources.inStream, resources, *header);
           if (state != ConnectionState::ALIVE) {
             resources.h2streams.erase(header->getStreamId());
           }
@@ -387,6 +398,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
         break;
     }
   } catch (protocol::http2::error::Http2Error &h2e) {
+    OATPP_LOGE(TAG, "%s (%s)", h2e.what(), h2e.getH2ErrorCodeString());
     sendGoawayFrame(resources, header->getStreamId(), h2e.getH2ErrorCode());
     return ConnectionState::DEAD;
   }

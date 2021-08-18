@@ -52,16 +52,16 @@ class Http2StreamHandler : public oatpp::base::Countable {
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
 
   enum H2StreamState {
-    INIT,
-    HEADERS,
-    CONTINUATION,
-    PAYLOAD,
-    PROCESSING,
-    RESPONSE,
-    GOAWAY,
-    RESET,
-    ABORTED,
-    ERROR
+    INIT = 0,
+    HEADERS = 1,
+    CONTINUATION = 2,
+    PAYLOAD = 3,
+    PROCESSING = 4,
+    RESPONSE = 5,
+    GOAWAY = 6,
+    RESET = 7,
+    ABORTED = 8,
+    ERROR = 9
   };
 
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
@@ -127,6 +127,10 @@ class Http2StreamHandler : public oatpp::base::Countable {
 
   H2StreamState getState() {
     return m_task->state;
+  }
+
+  v_uint32 getStreamId() {
+    return m_task->streamId;
   }
 
   void abort();
