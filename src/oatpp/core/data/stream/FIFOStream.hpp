@@ -55,7 +55,7 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
   }
 
   /**
-   * Same as `reset(nullptr, nullptr, 0);.`
+   * Discards all data in the buffer and resets it to an empty state
    */
   void reset();
 
@@ -126,15 +126,18 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
    */
   v_io_size commitReadOffset(v_buff_size count) override;
 
+  /**
+   * Reserve bytes for future writes. Check &id:oatpp::data::stream::FIFOStream::availableToWrite for the capacity.
+   */
   void reserveBytesUpfront(v_buff_size count);
 
   /**
- * call read and then write bytes read to output stream
- * @param stream
- * @param count
- * @param action
- * @return [1..count], IOErrors.
- */
+   * call read and then write bytes read to output stream
+   * @param stream
+   * @param count
+   * @param action
+   * @return [1..count], IOErrors.
+   */
   v_io_size readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action);
 
   /**
