@@ -73,6 +73,8 @@ class Http2Settings {
   v_uint32 getSetting(Identifier ident) const;
   void setSetting(Identifier ident, v_uint32 value);
   static const char* settingStringRepresentation(Identifier ident);
+  static v_uint32 getSettingMin(Identifier ident);
+  static v_uint32 getSettingMax(Identifier ident);
 };
 
 

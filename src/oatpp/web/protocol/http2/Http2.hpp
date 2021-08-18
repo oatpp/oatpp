@@ -66,29 +66,65 @@ namespace error {
     INADEQUATE_SECURITY = 0x0c,
     HTTP_1_1_REQUIRED = 0x0d
   };
-  class Http2Error : public std::runtime_error {
-   public:
-    explicit Http2Error(const std::string &str) : std::runtime_error(str) {}
-    explicit Http2Error(const char *str) : std::runtime_error(str) {}
-    virtual ~Http2Error() = default;
-    virtual const ErrorCode getH2ErrorCode() {return UNKNOWN_ERROR;}
-    virtual const char* getH2ErrorCodeString() {return "UNKNOWN_ERROR";}
+  enum ErrorScope : v_uint8 {
+    CONNECTION = 0,
+    STREAM = 1
   };
 
-  #define HTTP2ERRORTYPE(x, c) \
-    class Http2##x : public Http2Error { \
+  const char* stringRepresentation(ErrorCode code);
+
+  class Error : public std::runtime_error {
+   public:
+    explicit Error(const std::string &str) : std::runtime_error(str) {}
+    explicit Error(const char *str) : std::runtime_error(str) {}
+    virtual ~Error() = default;
+    virtual ErrorCode getH2ErrorCode() const = 0;
+    virtual const char* getH2ErrorCodeString() const = 0;
+    virtual ErrorScope getH2ErrorScope() const = 0;
+  };
+
+  #define HTTP2ERRORTYPE(ns, x, c) \
+    class x : public http2::error::ns::Error { \
      public:                 \
-      explicit Http2##x(const std::string& str) : Http2Error(str) {} \
-      explicit Http2##x(const char*str) : Http2Error(str) {} \
-      const ErrorCode getH2ErrorCode() override {return protocol::http2::error::ErrorCode::c;} \
-      const char* getH2ErrorCodeString() override {return #c;}                           \
+      explicit x(const std::string& str) : Error(str) {} \
+      explicit x(const char*str) : Error(str) {} \
+      ErrorCode getH2ErrorCode() const override {return protocol::http2::error::ErrorCode::c;} \
+      const char* getH2ErrorCodeString() const override {return #c;}                           \
     };
 
-  HTTP2ERRORTYPE(ProtocolError, PROTOCOL_ERROR)
-  HTTP2ERRORTYPE(FlowControlError, FLOW_CONTROL_ERROR)
-  HTTP2ERRORTYPE(StreamClosed, STREAM_CLOSED)
-  HTTP2ERRORTYPE(FrameSizeError, FRAME_SIZE_ERROR)
-  HTTP2ERRORTYPE(CompressionError, COMPRESSION_ERROR)
+  namespace connection {
+    class Error : public http2::error::Error {
+     public:
+      explicit Error(const std::string &str) : http2::error::Error(str) {}
+      explicit Error(const char *str) : http2::error::Error(str) {}
+      virtual ~Error() = default;
+      virtual ErrorCode getH2ErrorCode() const = 0;
+      virtual const char *getH2ErrorCodeString() const = 0;
+      ErrorScope getH2ErrorScope() const override {return CONNECTION;}
+    };
+
+    HTTP2ERRORTYPE(connection, ProtocolError, PROTOCOL_ERROR)
+    HTTP2ERRORTYPE(connection, FlowControlError, FLOW_CONTROL_ERROR)
+    HTTP2ERRORTYPE(connection, StreamClosed, STREAM_CLOSED)
+    HTTP2ERRORTYPE(connection, FrameSizeError, FRAME_SIZE_ERROR)
+    HTTP2ERRORTYPE(connection, CompressionError, COMPRESSION_ERROR)
+
+  }
+
+  namespace stream {
+   class Error : public http2::error::Error {
+    public:
+     explicit Error(const std::string &str) : http2::error::Error(str) {}
+     explicit Error(const char *str) : http2::error::Error(str) {}
+     virtual ~Error() = default;
+     virtual ErrorCode getH2ErrorCode()const = 0;
+     virtual const char *getH2ErrorCodeString() const = 0;
+     ErrorScope getH2ErrorScope() const override {return STREAM;}
+   };
+
+    HTTP2ERRORTYPE(stream, FlowControlError, FLOW_CONTROL_ERROR)
+
+  }
 
   #undef HTTP2ERRORTYPE
 }

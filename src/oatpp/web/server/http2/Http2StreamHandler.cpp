@@ -42,7 +42,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
     streamPayloadLength--;
     if (pad > streamPayloadLength) {
       m_task->setState(ABORTED);
-      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Padding length longer than remaining data.");
+      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Padding length longer than remaining data.");
     }
   }
 
@@ -50,7 +50,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
 
   if (streamPayloadLength + m_task->data->availableToRead() > m_task->inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)) {
     m_task->setState(ABORTED);
-    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
+    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
   }
 
   async::Action action;
@@ -92,7 +92,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
     streamPayloadLength -= 1;
     if (pad > streamPayloadLength) {
       m_task->setState(ABORTED);
-      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Padding length longer than remaining header-data.");
+      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Padding length longer than remaining header-data.");
     }
   }
 
@@ -100,7 +100,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
     stream->readExactSizeDataSimple(&m_task->dependency, 4);
     m_task->dependency = ntohl(m_task->dependency);
     if (m_task->dependency == m_task->streamId) {
-      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received header for stream that depends on itself.");
+      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received header for stream that depends on itself.");
     }
     stream->readExactSizeDataSimple(&m_task->weight, 1);
     streamPayloadLength -= 5;
@@ -109,7 +109,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
   v_io_size read = streamPayloadLength - pad;
   if (streamPayloadLength + m_task->header->availableToRead() > m_task->inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)) {
     m_task->setState(ABORTED);
-    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
+    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
   }
 
   async::Action action;
@@ -151,13 +151,13 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handlePriority(v_uint8 f
                                                                        const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                        v_io_size streamPayloadLength) {
   if (streamPayloadLength != 5) {
-    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Frame size other than 5.");
+    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Frame size other than 5.");
 
   }
   stream->readExactSizeDataSimple(&m_task->dependency, 4);
   m_task->dependency = ntohl(m_task->dependency);
   if (m_task->dependency == m_task->streamId) {
-    throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Received PRIORITY frame with dependency on itself.");
+    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Received PRIORITY frame with dependency on itself.");
   }
   stream->readExactSizeDataSimple(&m_task->weight, 1);
   streamPayloadLength -= 5;
@@ -168,7 +168,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleResetStream(v_uint
                                                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                           v_io_size streamPayloadLength) {
   if (streamPayloadLength != 4) {
-    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleResetStream] Error: Frame size other than 4.");
+    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleResetStream] Error: Frame size other than 4.");
   }
   v_uint32 code;
   stream->readExactSizeDataSimple(&code, 4);
@@ -192,7 +192,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uin
                                                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                            v_io_size streamPayloadLength) {
   if (streamPayloadLength != 4) {
-    throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
+    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
   }
   // https://datatracker.ietf.org/doc/html/rfc7540#section-6.9
   // 1 to 2^31-1 (2,147,483,647)
@@ -200,10 +200,13 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uin
   stream->readExactSizeDataSimple(&increment, 4);
   increment = ntohl(increment);
   if (increment == 0) {
-    throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment of 0");
+    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment of 0");
   }
   OATPP_LOGD(TAG, "Incrementing window by %u", increment);
-  m_task->windowIncrement = increment;
+  m_task->windowIncrement += increment;
+  if (m_task->windowIncrement > Http2Settings::getSettingMax(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)) {
+    throw protocol::http2::error::stream::FlowControlError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment above 2^31-1");
+  }
 
   return Http2StreamHandler::ConnectionState::ALIVE;
 }
@@ -290,7 +293,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
   try {
     requestHeaders = task->hpack->inflate(task->header, task->header->availableToRead());
   } catch (std::runtime_error &e) {
-    task->error = std::make_exception_ptr(protocol::http2::error::Http2CompressionError(e.what()));
+    task->error = std::make_exception_ptr(protocol::http2::error::connection::CompressionError(e.what()));
     task->setState(ERROR);
 
     // ToDo HAXX
@@ -446,19 +449,19 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     const v_buff_size toSend = response->getBody()->getKnownSize();
     auto body = response->getBody();
     for (v_buff_size send = 0; send < toSend;) {
-      v_buff_size chunk = std::min((v_buff_size)task->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE) + task->windowIncrement, toSend - send);
-      protocol::http2::Frame::Header hdr(chunk, (toSend - send - chunk == 0) ? protocol::http2::Frame::Header::Flags::Data::DATA_END_STREAM : 0, protocol::http2::Frame::Header::DATA, task->streamId);
       task->output->lock(task->weight);
-      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       if (task->state.load() == H2StreamState::RESET) {
         task->output->unlock();
         finalizeProcessAbortion(task);
         return;
       }
+      v_buff_size chunk = std::min((v_buff_size)task->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE) + task->windowIncrement, toSend - send);
+      protocol::http2::Frame::Header hdr(chunk, (toSend - send - chunk == 0) ? protocol::http2::Frame::Header::Flags::Data::DATA_END_STREAM : 0, protocol::http2::Frame::Header::DATA, task->streamId);
+      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       hdr.writeToStream(task->output.get());
       task->output->writeSimple(body->getKnownData() + send, chunk);
-      send += chunk;
       task->output->unlock();
+      send += chunk;
     }
   }
   task->setState(H2StreamState::DONE);

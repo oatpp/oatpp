@@ -112,10 +112,10 @@ private:
   static v_io_size answerPingFrame(Http2Processor::ProcessingResources &resources);
   static v_io_size sendGoawayFrame(Http2Processor::ProcessingResources &resources,
                                    v_uint32 lastStream,
-                                   v_uint32 errorCode);
+                                   protocol::http2::error::ErrorCode errorCode);
   static v_io_size sendResetStreamFrame(Http2Processor::ProcessingResources &resources,
-                                   v_uint32 stream,
-                                   v_uint32 errorCode);
+                                        v_uint32 stream,
+                                        protocol::http2::error::ErrorCode errorCode);
 public:
 
   /**

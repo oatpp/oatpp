@@ -32,6 +32,28 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 {
 
+const char* error::stringRepresentation(ErrorCode code) {
+#define ENUM2STR(x) case x: return #x
+  switch (code) {
+    ENUM2STR(UNKNOWN_ERROR);
+    ENUM2STR(PROTOCOL_ERROR);
+    ENUM2STR(INTERNAL_ERROR);
+    ENUM2STR(FLOW_CONTROL_ERROR);
+    ENUM2STR(SETTINGS_TIMEOUT);
+    ENUM2STR(STREAM_CLOSED);
+    ENUM2STR(FRAME_SIZE_ERROR);
+    ENUM2STR(REFUSED_STREAM);
+    ENUM2STR(CANCEL);
+    ENUM2STR(COMPRESSION_ERROR);
+    ENUM2STR(CONNECT_ERROR);
+    ENUM2STR(ENHANCE_YOUR_CALM);
+    ENUM2STR(INADEQUATE_SECURITY);
+    ENUM2STR(HTTP_1_1_REQUIRED);
+  }
+#undef ENUM2STR
+  return nullptr;
+}
+
 const char* Frame::Header::TAG = "oatpp::web::protocol::http2::Frame::Header";
 
 const char *Frame::Header::frameTypeStringRepresentation(Frame::Header::FrameType t) {

@@ -65,12 +65,40 @@ v_uint32 Http2Settings::getSetting(Http2Settings::Identifier ident) const {
   }
 }
 
+v_uint32 Http2Settings::getSettingMin(Http2Settings::Identifier ident) {
+  switch (ident) {
+    case SETTINGS_HEADER_TABLE_SIZE:
+    case SETTINGS_ENABLE_PUSH:
+    case SETTINGS_MAX_CONCURRENT_STREAMS:
+    case SETTINGS_INITIAL_WINDOW_SIZE:
+    case SETTINGS_MAX_FRAME_SIZE:
+    case SETTINGS_MAX_HEADER_LIST_SIZE:
+      return PARAMETER_MINMAX[ident-1][0];
+    default:
+      throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::getSetting] Error: Unknown identifier requested");
+  }
+}
+
+v_uint32 Http2Settings::getSettingMax(Http2Settings::Identifier ident) {
+  switch (ident) {
+    case SETTINGS_HEADER_TABLE_SIZE:
+    case SETTINGS_ENABLE_PUSH:
+    case SETTINGS_MAX_CONCURRENT_STREAMS:
+    case SETTINGS_INITIAL_WINDOW_SIZE:
+    case SETTINGS_MAX_FRAME_SIZE:
+    case SETTINGS_MAX_HEADER_LIST_SIZE:
+      return PARAMETER_MINMAX[ident-1][1];
+    default:
+      throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::getSetting] Error: Unknown identifier requested");
+  }
+}
+
 void Http2Settings::setSetting(Http2Settings::Identifier ident, v_uint32 value) {
   switch (ident) {
     case SETTINGS_INITIAL_WINDOW_SIZE:
       if (value < PARAMETER_MINMAX[ident-1][0] || value > PARAMETER_MINMAX[ident-1][1]) {
         OATPP_LOGE(TAG, "Error: Tried to set an out-of-range value (%u) for SETTINGS_INITIAL_WINDOW_SIZE", value);
-        throw protocol::http2::error::Http2FlowControlError("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Tried to set an out-of-range value for SETTINGS_INITIAL_WINDOW_SIZE");
+        throw protocol::http2::error::connection::FlowControlError("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Tried to set an out-of-range value for SETTINGS_INITIAL_WINDOW_SIZE");
       }
       OATPP_LOGD(TAG, "Setting parameter SETTINGS_INITIAL_WINDOW_SIZE (%02x) from %d to %d", ident, m_parameters[ident-1], value);
       m_parameters[ident-1] = value;
@@ -83,7 +111,7 @@ void Http2Settings::setSetting(Http2Settings::Identifier ident, v_uint32 value) 
     case SETTINGS_MAX_HEADER_LIST_SIZE:
       if (value < PARAMETER_MINMAX[ident-1][0] || value > PARAMETER_MINMAX[ident-1][1]) {
         OATPP_LOGE(TAG, "Error: Tried to set an out-of-range value (%u) for %s", value, settingStringRepresentation(ident));
-        throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Tried to set an out-of-range value for parameter");
+        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Tried to set an out-of-range value for parameter");
       }
       OATPP_LOGD(TAG, "Setting parameter %s (%02x) from %d to %d",
                  settingStringRepresentation(ident), ident, m_parameters[ident-1], value);
