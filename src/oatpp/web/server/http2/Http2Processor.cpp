@@ -341,32 +341,35 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
         }
         break;
 
-      case FrameType::GOAWAY: {
-        v_uint32 errorCode, lastId, highest = 0;
-        resources.inStream->readExactSizeDataSimple(&lastId, 4);
-        resources.inStream->readExactSizeDataSimple(&errorCode, 4);
-        errorCode = ntohl(errorCode);
-        lastId = ntohl(lastId);
-        // Consume remaining debug data.
-        if (header->getLength() > 8) {
-          v_uint32 remaining = header->getLength() - 8;
-          while (remaining > 0) {
-            v_uint32 chunk = std::min((v_uint32) 2048, remaining);
-            v_char8 buf[chunk];
-            resources.inStream->readExactSizeDataSimple(buf, chunk);
-            remaining -= chunk;
+      case FrameType::GOAWAY:
+        if (header->getStreamId() == 0){
+          v_uint32 errorCode, lastId, highest = 0;
+          resources.inStream->readExactSizeDataSimple(&lastId, 4);
+          resources.inStream->readExactSizeDataSimple(&errorCode, 4);
+          errorCode = ntohl(errorCode);
+          lastId = ntohl(lastId);
+          // Consume remaining debug data.
+          if (header->getLength() > 8) {
+            v_uint32 remaining = header->getLength() - 8;
+            while (remaining > 0) {
+              v_uint32 chunk = std::min((v_uint32) 2048, remaining);
+              v_char8 buf[chunk];
+              resources.inStream->readExactSizeDataSimple(buf, chunk);
+              remaining -= chunk;
+            }
           }
+  //        for (auto &handler : resources.h2streams) {
+  //          if (handler.first > highest) {
+  //            highest = handler.first;
+  //          }
+  //        }
+  //        sendGoawayFrame(resources, highest, 0);
+          resources.inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
+          while (processNextRequest(resources) != ConnectionState::DEAD) {}
+          return ConnectionState::CLOSING;
+        } else {
+          throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received GOAWAY on stream.");
         }
-//        for (auto &handler : resources.h2streams) {
-//          if (handler.first > highest) {
-//            highest = handler.first;
-//          }
-//        }
-//        sendGoawayFrame(resources, highest, 0);
-      }
-        resources.inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
-        while (processNextRequest(resources) != ConnectionState::DEAD) {}
-        return ConnectionState::CLOSING;
 
       case FrameType::WINDOW_UPDATE:
         if (header->getStreamId() == 0) {
