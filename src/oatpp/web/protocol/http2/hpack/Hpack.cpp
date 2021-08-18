@@ -294,7 +294,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
 }
 
 v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
-                                           const std::shared_ptr<data::stream::BufferedInputStream> &stream,
+                                           data::stream::BufferedInputStream *stream,
                                            v_io_size streamPayloadLength,
                                            Headers &hdr,
                                            async::Action &action) {
@@ -383,7 +383,7 @@ v_io_size SimpleHpack::inflateHandleNewTableSize(Payload::const_iterator it, Pay
   return consumed;
 }
 
-v_io_size SimpleHpack::inflateHandleNewTableSize(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
+v_io_size SimpleHpack::inflateHandleNewTableSize(data::stream::BufferedInputStream *stream,
                                                  v_io_size streamPayloadLength) {
   v_uint32 res;
   v_uint32 consumed = decodeInteger(&res, stream, streamPayloadLength, 5);
@@ -482,7 +482,7 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
 //        throw std::runtime_error(
 //            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
 //      }
-      step = inflateHandleNewTableSize(stream, streamPayloadLength);
+      step = inflateHandleNewTableSize(stream.get(), streamPayloadLength);
       if (step < 1) {
         throw std::runtime_error(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
@@ -490,7 +490,7 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
       consumed += step;
     } else if (it & 0x80u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, indexed value");
-      step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE, stream, streamPayloadLength - consumed, headers, action);
+      step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
       if (step < 1) {
         throw std::runtime_error(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
@@ -499,14 +499,14 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
     } else {
       if (it == 0x40u || it == 0 || it == 0x10u) {
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Text key, text value");
-        step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, stream, streamPayloadLength - consumed, headers, action);
+        step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
         if (step < 1) {
           throw std::runtime_error(
               "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
         }
       } else {
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, text value");
-        step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, stream, streamPayloadLength - consumed, headers, action);
+        step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
         if (step < 1) {
           throw std::runtime_error(
               "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
@@ -518,34 +518,29 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
   return headers;
 }
 
-std::list<Payload> SimpleHpack::deflate(const Headers &headers, v_io_size maxFrameSize) {
-  std::list<Payload> payloads;
-  payloads.emplace_back();
-  auto pit = payloads.begin();
-  pit->reserve(maxFrameSize);
+std::shared_ptr<data::stream::BufferedInputStream> SimpleHpack::deflate(const Headers &headers) {
+  std::shared_ptr<data::stream::FIFOInputStream> payload;
 
   auto all = headers.getAll();
 
   if (m_initialTableSize != m_table->getTableSize()) {
-    deflateHandleNewTableSize(*pit, m_table->getTableSize());
+    deflateHandleNewTableSize(payload.get(), m_table->getTableSize());
     m_initialTableSize = m_table->getTableSize();
   }
 
   for (auto it = all.begin(); it != all.end(); ++it) {
 //    OATPP_LOGD(TAG, "Deflating '%s: %s'", (p_uint8)it->first.getData(), (p_uint8)it->second.getData());
-    v_io_size sz = deflateKeyValuePair(*pit, it);
+    v_io_size sz = deflateKeyValuePair(payload.get(), it);
     if (sz < 0) {
 //      OATPP_LOGD(TAG, "Exceeded framesize creating new frame payload.");
-      payloads.emplace_back();
-      ++pit;
-      deflateKeyValuePair(*pit, it);
+      deflateKeyValuePair(payload.get(), it);
     }
   }
 
-  return payloads;
+  return payload;
 }
 
-v_io_size SimpleHpack::deflateKeyValuePair(Payload &to, const HeaderMap::iterator &it) {
+v_io_size SimpleHpack::deflateKeyValuePair(data::stream::WriteCallback *to, const HeaderMap::iterator &it) {
   v_io_size idx = -1;
   IndexingMode imode = shouldIndex(it->first);
 
@@ -561,12 +556,7 @@ v_io_size SimpleHpack::deflateKeyValuePair(Payload &to, const HeaderMap::iterato
     if (m_table->keyHasValue(idx) && imode != NEVER_INDEX) {
       // exact match
 //      OATPP_LOGD(TAG, "deflateKeyValuePair: key and value match");
-      v_io_size rv = deflateHandleIndexedKeyValue(to, idx);
-      if (rv < 0) {
-        return rv;
-      }
-
-      return to.size();
+      return deflateHandleIndexedKeyValue(to, idx);
     }
 
     if (imode == INDEXING) {
@@ -612,7 +602,7 @@ SimpleHpack::IndexingMode SimpleHpack::shouldIndex(const data::share::StringKeyL
   return INDEXING;
 }
 
-v_io_size SimpleHpack::deflateHandleIndexedKey(Payload &to, v_uint32 idx, data::share::StringKeyLabel &value, IndexingMode indexing) {
+v_io_size SimpleHpack::deflateHandleIndexedKey(data::stream::WriteCallback *to, v_uint32 idx, data::share::StringKeyLabel &value, IndexingMode indexing) {
   v_io_size blocklen;
   v_io_size prefixlen;
   v_io_size res;
@@ -625,13 +615,11 @@ v_io_size SimpleHpack::deflateHandleIndexedKey(Payload &to, v_uint32 idx, data::
 
   blocklen = calculateEncodedLength(idx + 1, prefixlen);
 
-  if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
+  if (16 < blocklen) {
     return -1;
   }
 
-  to.emplace_back(indexing);
-
-  res = encodeInteger(to, idx + 1, prefixlen);
+  res = encodeInteger(to, indexing, idx + 1, prefixlen);
   if (res < 0) {
     return res;
   }
@@ -644,18 +632,14 @@ v_io_size SimpleHpack::deflateHandleIndexedKey(Payload &to, v_uint32 idx, data::
   return blocklen;
 }
 
-v_io_size SimpleHpack::deflateHandleNewKeyValue(Payload &to,
+v_io_size SimpleHpack::deflateHandleNewKeyValue(data::stream::WriteCallback *to,
                                                 const data::share::StringKeyLabelCI &key,
                                                 data::share::StringKeyLabel &value,
                                                 IndexingMode indexing) {
 
   v_io_size ret;
 
-  if (key.getSize() + value.getSize() + 1 + to.size() > to.capacity()) {
-    return -1;
-  }
-
-  to.emplace_back(indexing);
+  to->writeSimple(&indexing,1);
 
   ret = deflateString(to, (p_uint8 const) key.getData(), key.getSize());
   if (ret < 0) {
@@ -670,34 +654,31 @@ v_io_size SimpleHpack::deflateHandleNewKeyValue(Payload &to,
 }
 
 
-v_io_size SimpleHpack::deflateHandleIndexedKeyValue(Payload &to, v_uint32 idx) {
+v_io_size SimpleHpack::deflateHandleIndexedKeyValue(data::stream::WriteCallback *to, v_uint32 idx) {
   v_io_size blocklen;
 
   blocklen = calculateEncodedLength(idx + 1, 7);
 
-  if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
+  if (16 < blocklen) {
     return -1;
   }
 
-  to.emplace_back(0x80u);
-  encodeInteger(to, idx + 1, 7);
+  encodeInteger(to, 0x80, idx + 1, 7);
 
   return blocklen;
 }
 
-v_io_size SimpleHpack::deflateHandleNewTableSize(Payload &to, v_uint32 size) {
+v_io_size SimpleHpack::deflateHandleNewTableSize(data::stream::WriteCallback *to, v_uint32 size) {
   v_io_size blocklen;
 
   blocklen = calculateEncodedLength(size, 5);
 
-  if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
+  if (16 < blocklen) {
     // ToDo: Error-Codes
     return -1;
   }
 
-  to.emplace_back(0x20u);
-
-  encodeInteger(to, size, 5);
+  encodeInteger(to, 0x20, size, 5);
 
   return blocklen;
 }
@@ -719,30 +700,35 @@ v_io_size SimpleHpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
   return len + 1;
 }
 
-v_io_size SimpleHpack::encodeInteger(Payload &to, v_uint32 length, v_uint32 prefix) {
+v_io_size SimpleHpack::encodeInteger(data::stream::WriteCallback *to,
+                                     v_uint8 flags,
+                                     v_uint32 length,
+                                     v_uint32 prefix) {
 //  OATPP_LOGD(TAG, "encodeInteger(length=%lu, prefix=%lu)", length, prefix);
   v_io_size k = (v_io_size)((1 << prefix) - 1);
-  p_uint8 begin = to.data() + to.size() - 1;
-  p_uint8 buf = begin;
-
-  *buf = (uint8_t)(*buf & ~k);
+  v_io_size written = 1;
+  flags = (uint8_t)(flags & ~k);
 
   if (length < k) {
-    *buf = (uint8_t)(*buf | length);
-    return 1;
+    flags = (uint8_t)(flags | length);
+    to->writeSimple(&flags, 1);
+    return written;
   }
 
-  *buf = (uint8_t)(*buf | k);
+  flags = (uint8_t)(flags | k);
+  to->writeSimple(&flags, 1);
 
   length -= k;
 
   for (; length >= 128; length >>= 7) {
-    to.emplace_back((uint8_t)((1 << 7) | (length & 0x7f)));
+    to->writeCharSimple((uint8_t)((1 << 7) | (length & 0x7f)));
+    ++written;
   }
 
-  to.emplace_back((uint8_t)length);
+  to->writeCharSimple((uint8_t)length);
+  ++written;
 
-  return (size_t)(buf - begin);
+  return written;
 }
 
 v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterator it, Payload::const_iterator last) {
@@ -764,7 +750,7 @@ v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterat
 }
 
 v_io_size SimpleHpack::inflateString(String &value,
-                                     const std::shared_ptr<data::stream::BufferedInputStream> &stream,
+                                     data::stream::BufferedInputStream *stream,
                                      v_io_size streamSize,
                                      async::Action action) {
   v_uint32 len;
@@ -793,7 +779,7 @@ v_io_size SimpleHpack::inflateString(String &value,
   return second + consumed;
 }
 
-v_io_size SimpleHpack::deflateString(Payload &to, p_uint8 const str, v_uint32 len) {
+v_io_size SimpleHpack::deflateString(data::stream::WriteCallback *to, p_uint8 const str, v_uint32 len) {
 //  OATPP_LOGD(TAG, "deflateString(str=\"%.*s\", len=%lu)", len, str, len);
   size_t blocklen;
   bool huffman = false;
@@ -807,33 +793,30 @@ v_io_size SimpleHpack::deflateString(Payload &to, p_uint8 const str, v_uint32 le
 
   blocklen = calculateEncodedLength(hufflen, 7);
 
-  if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
+  if (16 < blocklen) {
     return -1;
   }
 
-  to.emplace_back(huffman ? 1 << 7 : 0);
-  encodeInteger(to, hufflen, 7);
+  encodeInteger(to, huffman ? 1 << 7 : 0, hufflen, 7);
 
   if (huffman) {
     Huffman::encode(to, str, len);
   } else {
-    to.insert(to.end(), str, str + hufflen);
+    to->writeSimple(str, hufflen);
   }
 
   return blocklen;
 }
 
-v_io_size SimpleHpack::encodeTableSize(Payload &to, v_uint32 size) {
+v_io_size SimpleHpack::encodeTableSize(data::stream::WriteCallback *to, v_uint32 size) {
 
   size_t blocklen = calculateEncodedLength(size, 5);
 
-  if (16 < blocklen || (to.size() + blocklen > to.capacity())) {
+  if (16 < blocklen) {
     return -1;
   }
 
-  to.emplace_back(0x20u);
-
-  encodeInteger(to, size, 5);
+  encodeInteger(to, 0x20, size, 5);
 
   return blocklen;
 }
@@ -896,7 +879,7 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
 }
 
 v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
-                                     const std::shared_ptr<data::stream::BufferedInputStream> &stream,
+                                     data::stream::BufferedInputStream *stream,
                                      v_io_size streamPayloadLength,
                                      v_uint32 prefix) {
   v_uint32 k = (uint8_t)((1 << prefix) - 1);
@@ -962,7 +945,7 @@ v_io_size SimpleHpack::decodeString(String &key, Payload::const_iterator in, Pay
 
 v_io_size SimpleHpack::decodeString(String &key,
                                     v_io_size stringSize,
-                                    const std::shared_ptr<data::stream::BufferedInputStream> &stream) {
+                                    data::stream::BufferedInputStream *stream) {
   key = oatpp::String(stringSize);
   stream->readExactSizeDataSimple((void*)key->data(), stringSize);
   return stringSize;

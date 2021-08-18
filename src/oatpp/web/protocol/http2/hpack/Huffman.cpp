@@ -92,7 +92,7 @@ v_io_size Huffman::decode(p_uint8 to, v_io_size len, Payload::const_iterator src
 
 v_io_size Huffman::decode(oatpp::String &to,
                           v_io_size stringSize,
-                          const std::shared_ptr<data::stream::BufferedInputStream> &stream) {
+                          data::stream::BufferedInputStream *stream) {
   static const auto initial = Huffman::DecodeTableEntry(false, true, 0, 0);
   v_io_size count = 0;
   auto t = &initial;
@@ -122,11 +122,11 @@ v_io_size Huffman::decode(oatpp::String &to,
   return stringSize;
 }
 
-v_io_size Huffman::encode(Payload &to, const String &src) {
+v_io_size Huffman::encode(data::stream::WriteCallback *to, const String &src) {
   return encode(to, (p_uint8)src->data(), src->length());
 }
 
-v_io_size Huffman::encode(Payload &to, p_uint8 src, v_io_size nstr) {
+v_io_size Huffman::encode(data::stream::WriteCallback *to, p_uint8 src, v_io_size nstr) {
     const Symbol *sym;
     p_uint8 ptr = src;
     const v_uint8 *end = src + nstr;
@@ -144,13 +144,13 @@ v_io_size Huffman::encode(Payload &to, p_uint8 src, v_io_size nstr) {
 
       v_uint32 net = htonl((uint32_t)(code >> 32));
       auto xptr = (p_uint8)&net;
-      to.insert(to.end(), xptr, xptr + 4);
+      to->writeSimple(xptr, 4);
       code <<= 32;
       nbits -= 32;
       actual += 4;
 
       for (; nbits >= 8;) {
-        to.emplace_back((v_uint8)(code >> 56));
+        to->writeCharSimple((v_uint8)(code >> 56));
         code <<= 8;
         nbits -= 8;
         ++actual;
@@ -158,14 +158,14 @@ v_io_size Huffman::encode(Payload &to, p_uint8 src, v_io_size nstr) {
     }
 
     for (; nbits >= 8;) {
-      to.emplace_back((v_uint8)(code >> 56));
+      to->writeCharSimple((v_uint8)(code >> 56));
       code <<= 8;
       nbits -= 8;
       ++actual;
     }
 
     if (nbits) {
-      to.emplace_back((uint8_t)((uint8_t)(code >> 56) | ((1 << (8 - nbits)) - 1)));
+      to->writeCharSimple((uint8_t)((uint8_t)(code >> 56) | ((1 << (8 - nbits)) - 1)));
       ++actual;
     }
 

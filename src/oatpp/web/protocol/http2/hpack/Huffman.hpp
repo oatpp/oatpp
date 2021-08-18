@@ -68,10 +68,10 @@ class Huffman {
   static v_io_size decode(p_uint8 to, v_io_size len, Payload::const_iterator src, Payload::const_iterator max);
   static v_io_size decode(oatpp::String& to,
                           v_io_size stringSize,
-                          const std::shared_ptr<data::stream::BufferedInputStream> &stream);
-  static v_io_size encode(Payload &to, p_uint8 src, v_io_size len);
+                          data::stream::BufferedInputStream *stream);
+  static v_io_size encode(data::stream::WriteCallback *to, p_uint8 src, v_io_size len);
   static v_io_size decode(oatpp::String& to, Payload::const_iterator src, Payload::const_iterator max);
-  static v_io_size encode(Payload &to, const oatpp::String &src);
+  static v_io_size encode(data::stream::WriteCallback *to, const oatpp::String &src);
   static v_io_size calculateSize(p_uint8 src, v_io_size len);
 
 };
