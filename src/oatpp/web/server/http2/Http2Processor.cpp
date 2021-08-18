@@ -322,6 +322,9 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
           throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS frame on stream");
         }
         if (header->getFlags() == 0) {
+          if (header->getLength() % 6) {
+            throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS with invalid frame size");
+          }
           for (v_uint32 consumed = 0; consumed < header->getLength(); consumed += 6) {
             v_uint16 ident;
             v_uint32 parameter;
@@ -334,6 +337,8 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
             }
           }
           ackSettingsFrame(resources);
+        } else if (header->getFlags() == 0x01 && header->getLength() > 0) {
+          throw protocol::http2::error::Http2FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS ack with payload");
         }
         break;
 
