@@ -332,6 +332,8 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
             resources.inStream->readExactSizeDataSimple(&parameter, 4);
             try {
               resources.outSettings->setSetting((Http2Settings::Identifier) ntohs(ident), ntohl(parameter));
+            } catch (protocol::http2::error::Http2ProtocolError &h2pe) {
+              throw h2pe;
             } catch (std::runtime_error &e) {
               OATPP_LOGW(TAG, e.what());
             }

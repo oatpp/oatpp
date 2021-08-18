@@ -58,12 +58,12 @@ void Http2Settings::setSetting(Http2Settings::Identifier ident, v_uint32 value) 
     case SETTINGS_MAX_FRAME_SIZE:
     case SETTINGS_MAX_HEADER_LIST_SIZE:
       if (value < PARAMETER_MINMAX[ident-1][0] || value > PARAMETER_MINMAX[ident-1][1]) {
-        throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::getSetting] Error: Tried to set an out-of-range value for parameter");
+        throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Tried to set an out-of-range value for parameter");
       }
       m_parameters[ident-1] = value;
       break;
     default:
-      throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::getSetting] Error: Unknown identifier requested");
+      throw std::runtime_error("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Unknown identifier requested");
   }
 }
 
