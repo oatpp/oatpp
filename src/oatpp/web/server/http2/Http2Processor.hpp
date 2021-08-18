@@ -66,9 +66,6 @@ private:
   struct ProcessingResources {
 
     ProcessingResources(const std::shared_ptr<processing::Components>& pComponents,
-                        const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection);
-
-    ProcessingResources(const std::shared_ptr<processing::Components>& pComponents,
                         const std::shared_ptr<http2::Http2Settings>& pInSettings,
                         const std::shared_ptr<http2::Http2Settings>& pOutSettings,
                         const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
@@ -85,6 +82,7 @@ private:
      */
     std::map<v_uint32, std::shared_ptr<Http2StreamHandler>> h2streams;
     std::shared_ptr<Http2StreamHandler> lastStream;
+    v_uint32 highestStreamId;
 
     /**
      * For now here, should be provided with a kind of factory via components
@@ -115,7 +113,9 @@ private:
   static v_io_size sendGoawayFrame(Http2Processor::ProcessingResources &resources,
                                    v_uint32 lastStream,
                                    v_uint32 errorCode);
-
+  static v_io_size sendResetStreamFrame(Http2Processor::ProcessingResources &resources,
+                                   v_uint32 stream,
+                                   v_uint32 errorCode);
 public:
 
   /**

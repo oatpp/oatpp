@@ -37,19 +37,6 @@ const char* Http2Processor::TAG = "oatpp::web::server::http2::Http2Processor";
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
 
-Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<http2::processing::Components> &pComponents,
-                                                         const std::shared_ptr<oatpp::data::stream::IOStream> &pConnection)
-    : components(pComponents)
-    , connection(pConnection)
-    , outStream(std::make_shared<http2::PriorityStreamScheduler>(connection))
-    , inSettings(http2::Http2Settings::createShared())
-    , outSettings(http2::Http2Settings::createShared())
-    , h2streams() {
-  flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-  hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
-  inStream = data::stream::InputStreamBufferedProxy::createShared(connection,std::make_shared<std::string>(flow,0));
-}
-
 Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<processing::Components> &pComponents,
                                                          const std::shared_ptr<http2::Http2Settings> &pInSettings,
                                                          const std::shared_ptr<http2::Http2Settings> &pOutSettings,
@@ -61,7 +48,9 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<p
     , inStream(pInStream)
     , inSettings(pInSettings)
     , outSettings(pOutSettings)
-    , h2streams() {
+    , h2streams()
+    , lastStream(nullptr)
+    , highestStreamId(0) {
   flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
   hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
 //  OATPP_LOGD("oatpp::web::server::http2::Http2Processor::ProcessingResources", "Constructing %p", this);
@@ -250,6 +239,10 @@ std::shared_ptr<Http2StreamHandler> Http2Processor::findOrCreateStream(v_uint32 
   std::shared_ptr<Http2StreamHandler> handler;
   auto handlerentry = resources.h2streams.find(ident);
   if (handlerentry == resources.h2streams.end()) {
+    if (ident < resources.highestStreamId) {
+      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
+    }
+    resources.highestStreamId = ident;
     handler = std::make_shared<Http2StreamHandler>(ident, resources.outStream, resources.hpack, resources.components, resources.inSettings, resources.outSettings);
     resources.h2streams.insert({ident, handler});
   } else {
