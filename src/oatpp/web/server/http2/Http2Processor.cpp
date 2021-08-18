@@ -218,6 +218,20 @@ v_io_size Http2Processor::sendGoawayFrame(Http2Processor::ProcessingResources &r
   return FrameHeader::HeaderSize;
 }
 
+v_io_size Http2Processor::sendResetStreamFrame(Http2Processor::ProcessingResources &resources,
+                                          v_uint32 stream,
+                                          v_uint32 errorCode) {
+  FrameHeader header(8, 0, FrameType::RST_STREAM, stream);
+  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+  errorCode = htonl(errorCode);
+  resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
+  header.writeToStream(resources.outStream.get());
+  resources.outStream->writeExactSizeDataSimple(&errorCode, 4);
+  resources.outStream->unlock();
+
+  return FrameHeader::HeaderSize;
+}
+
 v_io_size Http2Processor::consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                         v_io_size streamPayloadLength) {
   v_io_size consumed = 0;
@@ -457,6 +471,7 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
         throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received RST_STREAM on an idle stream.");
       }
       state = handler->handleResetStream(header.getFlags(), resources.inStream, header.getLength());
+      sendResetStreamFrame(resources, handler->getStreamId(), protocol::http2::error::ErrorCode::CANCEL);
       break;
     case FrameType::PUSH_PROMISE:
       state = handler->handlePushPromise(header.getFlags(), resources.inStream, header.getLength());
