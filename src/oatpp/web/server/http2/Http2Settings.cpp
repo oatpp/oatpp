@@ -51,10 +51,16 @@ v_uint32 Http2Settings::getSetting(Http2Settings::Identifier ident) const {
 
 void Http2Settings::setSetting(Http2Settings::Identifier ident, v_uint32 value) {
   switch (ident) {
+    case SETTINGS_INITIAL_WINDOW_SIZE:
+      if (value < PARAMETER_MINMAX[ident-1][0] || value > PARAMETER_MINMAX[ident-1][1]) {
+        throw protocol::http2::error::Http2FlowControlError("[oatpp::web::server::http2::Http2Settings::setSetting] Error: Tried to set an out-of-range value for SETTINGS_INITIAL_WINDOW_SIZE");
+      }
+      m_parameters[ident-1] = value;
+      break;
+
     case SETTINGS_HEADER_TABLE_SIZE:
     case SETTINGS_ENABLE_PUSH:
     case SETTINGS_MAX_CONCURRENT_STREAMS:
-    case SETTINGS_INITIAL_WINDOW_SIZE:
     case SETTINGS_MAX_FRAME_SIZE:
     case SETTINGS_MAX_HEADER_LIST_SIZE:
       if (value < PARAMETER_MINMAX[ident-1][0] || value > PARAMETER_MINMAX[ident-1][1]) {

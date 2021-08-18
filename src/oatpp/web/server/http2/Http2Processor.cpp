@@ -334,6 +334,8 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
               resources.outSettings->setSetting((Http2Settings::Identifier) ntohs(ident), ntohl(parameter));
             } catch (protocol::http2::error::Http2ProtocolError &h2pe) {
               throw h2pe;
+            } catch (protocol::http2::error::Http2FlowControlError &h2fce) {
+              throw h2fce;
             } catch (std::runtime_error &e) {
               OATPP_LOGW(TAG, e.what());
             }

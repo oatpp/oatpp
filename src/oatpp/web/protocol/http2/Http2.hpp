@@ -51,6 +51,7 @@ typedef std::vector<v_uint8> Payload;
 
 namespace error {
   enum ErrorCode : v_uint8 {
+    UNKNOWN_ERROR = 0x00,
     PROTOCOL_ERROR = 0x01,
     INTERNAL_ERROR = 0x02,
     FLOW_CONTROL_ERROR = 0x03,
@@ -67,23 +68,24 @@ namespace error {
   };
   class Http2Error : public std::runtime_error {
    public:
-    explicit Http2Error(const std::string &str) : std::runtime_error(str) {};
-    explicit Http2Error(const char *str) : std::runtime_error(str) {};
+    explicit Http2Error(const std::string &str) : std::runtime_error(str) {}
+    explicit Http2Error(const char *str) : std::runtime_error(str) {}
     virtual ~Http2Error() = default;
-    virtual const ErrorCode getH2ErrorCode() = 0;
-    virtual const char* getH2ErrorCodeString() = 0;
+    virtual const ErrorCode getH2ErrorCode() {return UNKNOWN_ERROR;}
+    virtual const char* getH2ErrorCodeString() {return "UNKNOWN_ERROR";}
   };
 
   #define HTTP2ERRORTYPE(x, c) \
     class Http2##x : public Http2Error { \
      public:                 \
-      explicit Http2##x(const std::string& str) : Http2Error(str) {}; \
-      explicit Http2##x(const char*str) : Http2Error(str) {}; \
+      explicit Http2##x(const std::string& str) : Http2Error(str) {} \
+      explicit Http2##x(const char*str) : Http2Error(str) {} \
       const ErrorCode getH2ErrorCode() override {return protocol::http2::error::ErrorCode::c;} \
       const char* getH2ErrorCodeString() override {return #c;}                           \
     };
 
   HTTP2ERRORTYPE(ProtocolError, PROTOCOL_ERROR)
+  HTTP2ERRORTYPE(FlowControlError, FLOW_CONTROL_ERROR)
   HTTP2ERRORTYPE(StreamClosed, STREAM_CLOSED)
   HTTP2ERRORTYPE(FrameSizeError, FRAME_SIZE_ERROR)
   HTTP2ERRORTYPE(CompressionError, COMPRESSION_ERROR)
