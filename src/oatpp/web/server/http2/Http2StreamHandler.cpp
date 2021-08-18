@@ -90,6 +90,10 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
 
   if (m_task->headerFlags & H2StreamHeaderFlags::HEADER_PRIORITY) {
     stream->readExactSizeDataSimple(&m_task->dependency, 4);
+    m_task->dependency = ntohl(m_task->dependency);
+    if (m_task->dependency == m_task->streamId) {
+      throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received header for stream that depends on itself.");
+    }
     stream->readExactSizeDataSimple(&m_task->weight, 1);
     streamPayloadLength -= 5;
   }
