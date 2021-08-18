@@ -198,8 +198,12 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uin
   // 1 to 2^31-1 (2,147,483,647)
   v_uint32 increment;
   stream->readExactSizeDataSimple(&increment, 4);
-  OATPP_LOGD(TAG, "Incrementing window by %u", ntohl(increment));
-  m_task->windowIncrement = ntohl(increment);
+  increment = ntohl(increment);
+  if (increment == 0) {
+    throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment of 0");
+  }
+  OATPP_LOGD(TAG, "Incrementing window by %u", increment);
+  m_task->windowIncrement = increment;
 
   return Http2StreamHandler::ConnectionState::ALIVE;
 }
@@ -408,7 +412,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
       task->output->writeSimple(it->data(), it->size());
       task->output->unlock();
     }
-    while(it != last) {
+    while (it != last) {
       protocol::http2::Frame::Header hdr(it->size(), 0, protocol::http2::Frame::Header::CONTINUATION, task->streamId);
       task->output->lock(task->weight);
       OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());

@@ -378,8 +378,12 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
           }
           v_uint32 increment;
           resources.inStream->readExactSizeDataSimple(&increment, 4);
-          OATPP_LOGD(TAG, "Incrementing out-window by %u", ntohl(increment));
-          resources.outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, ntohl(increment));
+          increment = ntohl(increment);
+          if (increment == 0) {
+            throw protocol::http2::error::Http2ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Increment of 0");
+          }
+          OATPP_LOGD(TAG, "Incrementing out-window by %u", increment);
+          resources.outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, increment);
         } else {
           ConnectionState state = delegateToHandler(findOrCreateStream(header->getStreamId(), resources),
                                                     resources.inStream,
