@@ -33,6 +33,9 @@
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 class Http2Settings {
+ private:
+  static const char* TAG;
+
  public:
   enum Identifier : v_uint16 {
     SETTINGS_HEADER_TABLE_SIZE = 0x01,
@@ -69,6 +72,7 @@ class Http2Settings {
 
   v_uint32 getSetting(Identifier ident) const;
   void setSetting(Identifier ident, v_uint32 value);
+  static const char* settingStringRepresentation(Identifier ident);
 };
 
 

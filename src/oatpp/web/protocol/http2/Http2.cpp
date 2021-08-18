@@ -76,12 +76,9 @@ std::shared_ptr<Frame::Header> Frame::Header::createShared(const std::shared_ptr
 }
 
 v_io_size Frame::Header::writeToStream(data::stream::OutputStream *stream) {
-  v_uint8 b = ((m_length >> 16) & 0xff);
-  stream->writeSimple(&b, 1);
-  b = ((m_length >> 8) & 0xff);
-  stream->writeSimple(&b, 1);
-  b = ((m_length) & 0xff);
-  stream->writeSimple(&b, 1);
+  stream->writeCharSimple((m_length >> 16) & 0xff);
+  stream->writeCharSimple((m_length >> 8) & 0xff);
+  stream->writeCharSimple(m_length & 0xff);
 
   stream->writeSimple(&m_type, 1);
   stream->writeSimple(&m_flags, 1);

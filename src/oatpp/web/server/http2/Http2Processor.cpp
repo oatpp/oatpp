@@ -114,10 +114,8 @@ v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources 
   static const Http2Settings defaultSettings;
   data::stream::BufferOutputStream bos(FrameHeader::HeaderSize+(6*6));
   bos.setCurrentPosition(3);
-  FrameType type = FrameType::SETTINGS;
-  bos.writeSimple(&type, 1);
-  v_uint8 flags = 0;
-  bos.writeSimple(&flags, 1);
+  bos.writeCharSimple(FrameType::SETTINGS);
+  bos.writeCharSimple(0);
   v_uint32 streamIdent = 0;
   bos.writeSimple(&streamIdent, 4);
 
@@ -161,12 +159,9 @@ v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources 
   }
   v_uint32 payload = bos.getCurrentPosition() - 9;
   bos.setCurrentPosition(0);
-  v_uint8 b =  ((payload >> 16) & 0xff);
-  bos.writeSimple(&b, 1);
-  b =  ((payload >> 8) & 0xff);
-  bos.writeSimple(&b, 1);
-  b =  ((payload) & 0xff);
-  bos.writeSimple(&b, 1);
+  bos.writeCharSimple(((payload >> 16) & 0xff));
+  bos.writeCharSimple(((payload >> 8) & 0xff));
+  bos.writeCharSimple(((payload) & 0xff));
   bos.setCurrentPosition(payload + FrameHeader::HeaderSize);
 
   OATPP_LOGD(TAG, "Sending SETTINGS (length:%lu, flags:0x%02x, streamId:%lu)", bos.getCurrentPosition()-FrameHeader::HeaderSize, 0, 0);
