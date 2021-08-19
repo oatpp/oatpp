@@ -95,6 +95,12 @@ void FIFOInputStream::reserveBytesUpfront(v_buff_size count) {
 
 }
 
+v_io_size FIFOInputStream::readStreamToBuffer(data::stream::ReadCallback *stream,
+                                              v_buff_size count,
+                                              async::Action &action) {
+  return m_fifo->readFromStreamAndWrite(stream, count, action);
+}
+
 v_io_size FIFOInputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
   async::Action action;
   v_io_size size = m_fifo->readAndWriteToStream(writeCallback, count, action);

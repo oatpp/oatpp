@@ -675,7 +675,7 @@ class BufferedOutputStream : public ConsistentOutputStream, public BufferedStrea
    * @param readOffset - amount of bytes to skip when reading from the internal buffer.
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  virtual v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) = 0;
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) override = 0;
 
   /**
    * Writes up to count buffered data to &l:WriteCallback; in an async context.
@@ -684,7 +684,7 @@ class BufferedOutputStream : public ConsistentOutputStream, public BufferedStrea
    * @param readOffset - amount of bytes to skip when reading from the internal buffer.
    * @return - &id:async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count, v_buff_size readOffset) = 0;
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count, v_buff_size readOffset) override = 0;
 };
 
 /**

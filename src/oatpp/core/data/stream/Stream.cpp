@@ -316,7 +316,7 @@ v_io_size BufferedInputStream::writeBufferToStream(stream::WriteCallback *writeC
     return 0;
   }
   commitReadOffset(readOffset);
-  count = std::min(count, availableToRead());
+  count = std::min(count, (v_buff_size)availableToRead());
   transfer(this, writeCallback, count, ioBuffer->getData(), ioBuffer->getSize());
   return count;
 }
