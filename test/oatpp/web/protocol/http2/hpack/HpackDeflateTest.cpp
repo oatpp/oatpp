@@ -48,7 +48,7 @@ void HpackDeflateTest::onRun() {
   {
     auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
     auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
-    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
+    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable, 1024), inflater(inflateTable, 1024);
 
     v_int64 ticks = base::Environment::getMicroTickCount();
     auto deflated = deflater.deflate(hdr);
@@ -65,7 +65,7 @@ void HpackDeflateTest::onRun() {
   {
     auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
     auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
-    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
+    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable, 1024), inflater(inflateTable, 1024);
 
     v_int64 ticks = base::Environment::getMicroTickCount();
     auto deflated = deflater.deflate(hdr);

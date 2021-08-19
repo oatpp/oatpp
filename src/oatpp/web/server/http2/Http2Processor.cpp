@@ -52,7 +52,7 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<p
     , lastStream(nullptr)
     , highestNonIdleStreamId(0) {
   flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-  hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)));
+  hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)), inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE));
 //  OATPP_LOGD("oatpp::web::server::http2::Http2Processor::ProcessingResources", "Constructing %p", this);
 }
 
@@ -321,6 +321,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
             throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS with invalid frame size");
           }
           v_uint32 initialWindowSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
+          v_uint32 tableSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE);
           for (v_uint32 consumed = 0; consumed < header->getLength(); consumed += 6) {
             v_uint16 ident;
             v_uint32 parameter;
@@ -338,6 +339,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
             }
           }
           v_uint32 newInitialWindowSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
+          v_uint32 newTableSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
           if (initialWindowSize != newInitialWindowSize) {
             v_int32 change = 0;
             if(initialWindowSize > newInitialWindowSize) {
@@ -348,6 +350,9 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
             for (auto &h2s : resources.h2streams) {
               h2s.second->resizeWindow(change);
             }
+          }
+          if (tableSize != newTableSize) {
+            resources.hpack->setMaxTableSize(newTableSize);
           }
           ackSettingsFrame(resources);
         } else if (header->getFlags() == 0x01 && header->getLength() > 0) {

@@ -81,10 +81,10 @@ class SimpleTable : public Table {
   v_uint32 changeTableSize(v_uint32 newSize) override;
   v_uint32 getTableSize() override;
 
-  explicit SimpleTable(v_io_size maxEntries) {
+  explicit SimpleTable(v_buff_size maxEntries) {
     m_dynamicTable.reserve(maxEntries);
   };
-  static std::shared_ptr<SimpleTable> createShared(v_io_size maxEntries) {
+  static std::shared_ptr<SimpleTable> createShared(v_buff_size maxEntries) {
     return std::make_shared<SimpleTable>(maxEntries);
   }
   ~SimpleTable() override;
@@ -94,7 +94,8 @@ class Hpack : public oatpp::base::Countable {
  public:
   virtual std::shared_ptr<data::stream::BufferedInputStream> deflate(const Headers &headers) = 0;
   virtual Headers inflate(const std::list<Payload> &payloads) = 0;
-  virtual Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream, v_io_size streamPayloadLength) = 0;
+  virtual Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream, v_buff_size streamPayloadLength) = 0;
+  virtual void setMaxTableSize(v_uint32 size) = 0;
   virtual ~Hpack() = default;
 };
 
@@ -115,19 +116,22 @@ class SimpleHpack : public Hpack {
  private:
   std::shared_ptr<Table> m_table;
   v_uint32 m_initialTableSize;
+  v_uint32 m_maxTableSize;
   static const char *TAG;
 
  public:
-  explicit SimpleHpack(const std::shared_ptr<Table>& table);
-  static std::shared_ptr<SimpleHpack> createShared(const std::shared_ptr<Table> &table) {
-    return std::make_shared<SimpleHpack>(table);
+  explicit SimpleHpack(const std::shared_ptr<Table>& table, v_uint32 maxTableSize);
+  static std::shared_ptr<SimpleHpack> createShared(const std::shared_ptr<Table> &table, v_uint32 maxTableSize) {
+    return std::make_shared<SimpleHpack>(table, maxTableSize);
   }
   ~SimpleHpack();
 
   std::shared_ptr<data::stream::BufferedInputStream> deflate(const Headers &headers) override;
   Headers inflate(const std::list<Payload> &payloads) override;
   Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
-                  v_io_size streamPayloadLength) override;
+                  v_buff_size streamPayloadLength) override;
+
+  void setMaxTableSize(v_uint32 size) override;
 
  private:
   v_io_size inflateKeyValuePair(InflateMode mode,
@@ -136,7 +140,7 @@ class SimpleHpack : public Hpack {
                                 Headers &hdr);
   v_io_size inflateKeyValuePair(SimpleHpack::InflateMode mode,
                                 data::stream::BufferedInputStream *stream,
-                                v_io_size streamPayloadLength,
+                                v_buff_size streamPayloadLength,
                                 Headers &hdr,
                                 async::Action &action);
   v_io_size inflateKeyValuePairs(Headers &hdr, const Payload &payload);
@@ -144,7 +148,7 @@ class SimpleHpack : public Hpack {
 
   v_io_size inflateHandleNewTableSize(Payload::const_iterator it, Payload::const_iterator last);
   v_io_size inflateHandleNewTableSize(data::stream::BufferedInputStream *stream,
-                                      v_io_size streamPayloadLength);
+                                      v_buff_size streamPayloadLength);
 
   static v_io_size deflateHandleNewTableSize(data::stream::WriteCallback *to, v_uint32 size);
   static v_io_size deflateHandleIndexedKeyValue(data::stream::WriteCallback *to, v_uint32 idx);
@@ -162,26 +166,26 @@ class SimpleHpack : public Hpack {
 
   static v_io_size inflateString(String &value,
                                  data::stream::BufferedInputStream *stream,
-                                 v_io_size streamSize,
+                                 v_buff_size streamSize,
                                  async::Action action);
 
-  static v_io_size calculateEncodedLength(v_uint32 size, v_uint32 prefix);
+  static v_io_size calculateEncodedLength(v_uint32 size, v_uint8 prefix);
   static v_io_size encodeInteger(data::stream::WriteCallback *to,
                                  v_uint8 flags,
                                  v_uint32 length,
-                                 v_uint32 prefix);
+                                 v_uint8 prefix);
   static v_io_size encodeTableSize(data::stream::WriteCallback *to, v_uint32 size);
   static v_io_size decodeInteger(v_uint32 *res,
                                  Payload::const_iterator in,
                                  Payload::const_iterator last,
-                                 size_t prefix);
+                                 v_uint8 prefix);
   static v_io_size decodeInteger(v_uint32 *res,
                                  data::stream::BufferedInputStream *stream,
-                                 v_io_size streamPayloadLength,
-                                 v_uint32 prefix);
+                                 v_buff_size streamPayloadLength,
+                                 v_uint8 prefix);
   static v_io_size decodeString(String &key, Payload::const_iterator in, Payload::const_iterator end);
   static v_io_size decodeString(String &key,
-                                v_io_size stringSize,
+                                v_uint32 stringSize,
                                 data::stream::BufferedInputStream *stream);
   static IndexingMode shouldIndex(const oatpp::data::share::StringKeyLabelCI &key);
 };

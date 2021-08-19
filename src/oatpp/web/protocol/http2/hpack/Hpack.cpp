@@ -200,9 +200,10 @@ SimpleTable::~SimpleTable() {
 
 const char* SimpleHpack::TAG = "oatpp::web::protocol::http2::hpack::SimpleHpack";
 
-SimpleHpack::SimpleHpack(const std::shared_ptr<Table> &table)
+SimpleHpack::SimpleHpack(const std::shared_ptr<Table> &table, v_uint32 maxTableSize)
   : m_table(table)
-  , m_initialTableSize(m_table->getTableSize()) {
+  , m_initialTableSize(m_table->getTableSize())
+  , m_maxTableSize(maxTableSize) {
 //  OATPP_LOGD(TAG, "Constructing Hpack(%p) with initialTableSize=%lu", this, m_table->getTableSize());
 }
 
@@ -295,7 +296,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
 
 v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
                                            data::stream::BufferedInputStream *stream,
-                                           v_io_size streamPayloadLength,
+                                           v_buff_size streamPayloadLength,
                                            Headers &hdr,
                                            async::Action &action) {
   v_uint8 it;
@@ -379,18 +380,26 @@ v_io_size SimpleHpack::inflateHandleNewTableSize(Payload::const_iterator it, Pay
   if (consumed < 1) {
     throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
   }
+  if (res > m_maxTableSize) {
+    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: New table size exceeds max table size");
+  }
   // ToDo: Handle table size update
+  OATPP_LOGW(TAG, "ToDo: Handle table size update");
   return consumed;
 }
 
 v_io_size SimpleHpack::inflateHandleNewTableSize(data::stream::BufferedInputStream *stream,
-                                                 v_io_size streamPayloadLength) {
+                                                 v_buff_size streamPayloadLength) {
   v_uint32 res;
   v_uint32 consumed = decodeInteger(&res, stream, streamPayloadLength, 5);
   if (consumed < 1) {
     throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
   }
+  if (res > m_maxTableSize) {
+    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: New table size exceeds max table size");
+  }
   // ToDo: Handle table size update
+  OATPP_LOGW(TAG, "ToDo: Handle table size update");
   return consumed;
 }
 
@@ -467,7 +476,7 @@ Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
 }
 
 Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
-                             v_io_size streamPayloadLength) {
+                             v_buff_size streamPayloadLength) {
   Headers headers;
   async::Action action;
   v_io_size consumed = 0;
@@ -478,10 +487,10 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
     stream->peek(&it, 1, action);
     if ((it & 0xe0u) == 0x20u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
-//      if (consumed != 0) {
-//        throw std::runtime_error(
-//            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
-//      }
+      if (consumed != 0) {
+        throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
+      }
       step = inflateHandleNewTableSize(stream.get(), streamPayloadLength);
       if (step < 1) {
         throw std::runtime_error(
@@ -683,7 +692,7 @@ v_io_size SimpleHpack::deflateHandleNewTableSize(data::stream::WriteCallback *to
   return blocklen;
 }
 
-v_io_size SimpleHpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
+v_io_size SimpleHpack::calculateEncodedLength(v_uint32 size, v_uint8 prefix) {
   size_t k = (size_t)((1 << prefix) - 1);
   size_t len = 0;
 
@@ -703,7 +712,7 @@ v_io_size SimpleHpack::calculateEncodedLength(v_uint32 size, v_uint32 prefix) {
 v_io_size SimpleHpack::encodeInteger(data::stream::WriteCallback *to,
                                      v_uint8 flags,
                                      v_uint32 length,
-                                     v_uint32 prefix) {
+                                     v_uint8 prefix) {
 //  OATPP_LOGD(TAG, "encodeInteger(length=%lu, prefix=%lu)", length, prefix);
   v_io_size k = (v_io_size)((1 << prefix) - 1);
   v_io_size written = 1;
@@ -751,7 +760,7 @@ v_io_size SimpleHpack::inflateString(oatpp::String &value, Payload::const_iterat
 
 v_io_size SimpleHpack::inflateString(String &value,
                                      data::stream::BufferedInputStream *stream,
-                                     v_io_size streamSize,
+                                     v_buff_size streamSize,
                                      async::Action action) {
   v_uint32 len;
   v_uint8 it;
@@ -824,7 +833,7 @@ v_io_size SimpleHpack::encodeTableSize(data::stream::WriteCallback *to, v_uint32
 v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
                                      Payload::const_iterator in,
                                      Payload::const_iterator last,
-                                     size_t prefix) {
+                                     v_uint8 prefix) {
   //   auto buffer = std::make_shared<data::stream::BufferInputStream>(oatpp::String((const char*)in.base(), (v_buff_size)(last-in)));
   v_uint32 k = (uint8_t)((1 << prefix) - 1);
   v_uint32 n = 0;
@@ -880,8 +889,8 @@ v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
 
 v_io_size SimpleHpack::decodeInteger(v_uint32 *res,
                                      data::stream::BufferedInputStream *stream,
-                                     v_io_size streamPayloadLength,
-                                     v_uint32 prefix) {
+                                     v_buff_size streamPayloadLength,
+                                     v_uint8 prefix) {
   v_uint32 k = (uint8_t)((1 << prefix) - 1);
   v_uint32 n = 0;
   v_uint32 shift = 0;
@@ -944,11 +953,15 @@ v_io_size SimpleHpack::decodeString(String &key, Payload::const_iterator in, Pay
 }
 
 v_io_size SimpleHpack::decodeString(String &key,
-                                    v_io_size stringSize,
+                                    v_uint32 stringSize,
                                     data::stream::BufferedInputStream *stream) {
   key = oatpp::String(stringSize);
   stream->readExactSizeDataSimple((void*)key->data(), stringSize);
   return stringSize;
+}
+
+void SimpleHpack::setMaxTableSize(v_uint32 size) {
+  m_maxTableSize;
 }
 
 }}}}}
