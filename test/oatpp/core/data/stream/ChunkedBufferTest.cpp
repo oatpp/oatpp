@@ -123,7 +123,37 @@ void ChunkedBufferTest::onRun() {
 
   }
 
+  {
 
+    ChunkedBuffer streamA;
+    ChunkedBuffer streamB;
+
+    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+      streamA.writeSimple("0123456789", 10);
+    }
+
+    auto wholeText = streamA.toString();
+    streamA.flushBufferToStream(&streamB);
+
+    OATPP_ASSERT(streamA.toString() == streamB.toString());
+
+  }
+
+  {
+
+    ChunkedBuffer streamA;
+    ChunkedBuffer streamB;
+
+    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+      streamA.writeSimple("0123456789", 10);
+    }
+
+    auto wholeText = streamA.toString();
+    streamA.writeBufferToStream(&streamB, 20);
+
+    OATPP_ASSERT(oatpp::String("01234567890123456789") == streamB.toString());
+
+  }
 }
 
 }}}}}

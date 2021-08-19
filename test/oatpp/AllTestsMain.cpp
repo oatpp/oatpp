@@ -47,6 +47,7 @@
 
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
+#include "oatpp/core/data/stream/FIFOStreamTest.hpp"
 #include "oatpp/core/data/share/LazyStringMapTest.hpp"
 #include "oatpp/core/data/share/StringTemplateTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
@@ -90,6 +91,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
+  OATPP_RUN_TEST(oatpp::test::core::data::stream::FIFOStreamTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);

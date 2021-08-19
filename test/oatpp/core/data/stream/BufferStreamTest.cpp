@@ -144,6 +144,55 @@ void BufferStreamTest::onRun() {
 
   }
 
+  {
+
+    BufferOutputStream streamA(0);
+    BufferOutputStream streamB(0);
+
+    oatpp::String sample = "0123456789";
+    oatpp::String text = "";
+
+    for(v_int32 i = 0; i < 1024; i++ ) {
+      text = text + sample;
+    }
+
+    for(v_int32 i = 0; i < 1024; i++ ) {
+      streamA << sample;
+    }
+
+    streamA.flushBufferToStream(&streamB);
+
+    OATPP_ASSERT(text == streamB.toString());
+
+  }
+
+  {
+
+    BufferOutputStream streamA(0);
+    BufferOutputStream streamB(0);
+
+    oatpp::String sample = "0123456789";
+    oatpp::String text = "";
+
+    for(v_int32 i = 0; i < 1024; i++ ) {
+      text = text + sample;
+    }
+
+    for(v_int32 i = 0; i < 1024; i++ ) {
+      streamA << sample;
+    }
+
+    streamA.writeBufferToStream(&streamB, 25);
+
+    OATPP_ASSERT(oatpp::String(text->substr(0, 25)) == streamB.toString());
+
+
+    // consistent stream does not advance after reading. Use FIFOStream for this!
+    streamA.writeBufferToStream(&streamB, 7);
+
+    OATPP_ASSERT(oatpp::String(text->substr(0, 7)) == streamB.toString());
+  }
+
 }
 
 }}}}}

@@ -51,6 +51,8 @@ add_executable(oatppAllTests
         oatpp/core/data/stream/BufferStreamTest.hpp
         oatpp/core/data/stream/ChunkedBufferTest.cpp
         oatpp/core/data/stream/ChunkedBufferTest.hpp
+        oatpp/core/data/stream/FIFOStreamTest.cpp
+        oatpp/core/data/stream/FIFOStreamTest.hpp
         oatpp/core/parser/CaretTest.cpp
         oatpp/core/parser/CaretTest.hpp
         oatpp/core/provider/PoolTest.cpp
