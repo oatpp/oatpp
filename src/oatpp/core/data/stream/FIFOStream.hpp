@@ -132,6 +132,15 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
   void reserveBytesUpfront(v_buff_size count);
 
   /**
+   * call stream.read() and then write bytes read to buffer
+   * @param stream
+   * @param count
+   * @param action
+   * @return
+   */
+  v_io_size readStreamToBuffer(data::stream::ReadCallback* stream, v_buff_size count, async::Action& action);
+
+  /**
    * Writes up to count of buffered data to &l:WriteCallback;.
    * @param writeCallback - write-enabled object to write to
    * @param count - maximum amount of bytes to written.
