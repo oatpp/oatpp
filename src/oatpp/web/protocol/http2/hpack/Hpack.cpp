@@ -970,7 +970,7 @@ v_io_size SimpleHpack::decodeString(String &key,
 }
 
 void SimpleHpack::setMaxTableSize(v_uint32 size) {
-  m_maxTableSize;
+  m_maxTableSize = size;
 }
 
 }}}}}
