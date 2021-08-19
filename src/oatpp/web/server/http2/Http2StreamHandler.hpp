@@ -148,6 +148,8 @@ class Http2StreamHandler : public oatpp::base::Countable {
  private:
   static void process(std::shared_ptr<Task> task);
   static void finalizeProcessAbortion(const std::shared_ptr<Task> &task);
+
+  static void processError(std::shared_ptr<Task> task, protocol::http2::error::ErrorCode code);
 };
 
 }}}}

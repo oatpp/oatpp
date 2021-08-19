@@ -293,6 +293,30 @@ void Http2StreamHandler::Task::clean() {
   headerFlags = 0;
 }
 
+
+void Http2StreamHandler::processError(std::shared_ptr<Task> task, protocol::http2::error::ErrorCode code) {
+  // ToDo Signal abortion of process to Htt2Processor and close connection
+  char TAG[80];
+  snprintf(TAG, 64, "oatpp::web::server::http2::Http2StreamHandler(%d)::processError", task->streamId);
+  protocol::http2::Frame::Header header(8, 0, protocol::http2::Frame::Header::FrameType::GOAWAY, 0);
+  OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
+  v_uint32 lastStream = htonl(task->streamId);
+  v_uint32 errorCode = htonl(code);
+  task->output->lock(PriorityStreamScheduler::PRIORITY_MAX);
+  if (task->state.load() == H2StreamState::RESET) {
+    task->output->unlock();
+    finalizeProcessAbortion(task);
+    return;
+  }
+  header.writeToStream(task->output.get());
+  task->output->writeExactSizeDataSimple(&lastStream, 4);
+  task->output->writeExactSizeDataSimple(&errorCode, 4);
+  task->output->unlock();
+
+  finalizeProcessAbortion(task);
+  task->setState(ERROR);
+}
+
 void Http2StreamHandler::process(std::shared_ptr<Task> task) {
   char TAG[68];
   snprintf(TAG, 64, "oatpp::web::server::http2::Http2StreamHandler(%d)::process", task->streamId);
@@ -304,27 +328,7 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     task->error = std::make_exception_ptr(protocol::http2::error::connection::CompressionError(e.what()));
     task->setState(ERROR);
 
-    // ToDo HAXX
-    //   This is the only reason we want to close an connection from an stream handler
-    //   I need to find a better way to handle that instead of sending a GOAWAY frame and hoping for the other peer
-    //   to disconnect.
-    protocol::http2::Frame::Header header(8, 0, protocol::http2::Frame::Header::FrameType::GOAWAY, 0);
-    OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
-    v_uint32 lastStream = htonl(task->streamId);
-    v_uint32 errorCode = htonl(protocol::http2::error::ErrorCode::COMPRESSION_ERROR);
-    task->output->lock(PriorityStreamScheduler::PRIORITY_MAX);
-    if (task->state.load() == H2StreamState::RESET) {
-      task->output->unlock();
-      finalizeProcessAbortion(task);
-      return;
-    }
-    header.writeToStream(task->output.get());
-    task->output->writeExactSizeDataSimple(&lastStream, 4);
-    task->output->writeExactSizeDataSimple(&errorCode, 4);
-    task->output->unlock();
-
-    finalizeProcessAbortion(task);
-    task->setState(ERROR);
+    processError(task, protocol::http2::error::ErrorCode::COMPRESSION_ERROR);
     return;
   }
 
@@ -333,10 +337,40 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
     return;
   }
 
+  // ToDo:
+  //  1 - check that all header-keys are lower-case
+  //  2 - check that there are no unknown pseudo-header fields (keys that start with ":")
+  //  3 - check that no response-related pseudo-header fields contained in request
+  //  4 - check that no pseudo-header fields are send after regular header fields
+
   protocol::http::RequestStartingLine startingLine;
+  auto path = requestHeaders.get(protocol::http2::Header::PATH);
+  if (path == nullptr) {
+    processError(task, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+    return;
+  }
+  auto method = requestHeaders.get(protocol::http2::Header::METHOD);
+  if (method == nullptr) {
+    processError(task, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+    return;
+  }
+  auto scheme = requestHeaders.get(protocol::http2::Header::SCHEME);
+  if (scheme == nullptr) {
+    processError(task, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+    return;
+  }
+  auto contentLength = requestHeaders.get(protocol::http2::Header::CONTENT_LENGTH);
+  if (contentLength) {
+    bool success;
+    v_uint32 contentLengthValue = oatpp::utils::conversion::strToUInt32(contentLength, success);
+    if (contentLengthValue != task->data->availableToRead()) {
+      processError(task, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
+      return;
+    }
+  }
   startingLine.protocol = "HTTP/2.0";
-  startingLine.path = requestHeaders.get(protocol::http2::Header::PATH);
-  startingLine.method = requestHeaders.get(protocol::http2::Header::METHOD);
+  startingLine.path = path;
+  startingLine.method = method;
 
   auto request = protocol::http::incoming::Request::createShared(nullptr, startingLine, requestHeaders, task->data, task->components->bodyDecoder);
 
