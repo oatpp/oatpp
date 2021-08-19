@@ -48,10 +48,10 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
    * Constructor.
    * @param data - buffer.
    */
-  FIFOInputStream(v_buff_size initialSize = 2048);
+  FIFOInputStream(v_buff_size initialSize = 4096);
 
-  static std::shared_ptr<FIFOInputStream> createShared(v_buff_size initialSize = 2048) {
-    return std::make_shared<FIFOInputStream>(2048);
+  static std::shared_ptr<FIFOInputStream> createShared(v_buff_size initialSize = 4096) {
+    return std::make_shared<FIFOInputStream>(initialSize);
   }
 
   /**
