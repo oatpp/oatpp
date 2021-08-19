@@ -53,8 +53,9 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
   }
 
-  do {
-    v_io_size res = stream->writeBufferToStream(m_task->data.get(), read);
+  while (read > 0) {
+    async::Action action;
+    v_io_size res = m_task->data->readStreamToBuffer(stream.get(), read, action);
     if (res > 0) {
       read -= res;
     } else if (res == IOError::BROKEN_PIPE) {
@@ -63,7 +64,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
     } else {
       std::this_thread::yield();
     }
-  } while (read > 0);
+  }
 
 
   if (pad > 0) {
@@ -116,8 +117,9 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
   }
 
-  do {
-    v_io_size res = stream->writeBufferToStream(m_task->header.get(), read);
+  while (read > 0) {
+    async::Action action;
+    v_io_size res = m_task->header->readStreamToBuffer(stream.get(), read, action);
     if (res > 0) {
       read -= res;
     } else if (res == IOError::BROKEN_PIPE) {
@@ -126,7 +128,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
     } else {
       std::this_thread::yield();
     }
-  } while (read > 0);
+  }
 
   if ((m_task->headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) == (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) { // end stream, go to processing
     OATPP_LOGD(TAG, "Stream and headers finished, start processing.");
@@ -223,11 +225,12 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uin
 
   v_io_size read = streamPayloadLength;
   while (read > 0) {
-    v_io_size res = stream->writeBufferToStream(m_task->header.get(), read);
+    async::Action action;
+    v_io_size res = m_task->header->readStreamToBuffer(stream.get(), read, action);
     if (res > 0) {
       read -= res;
     } else if (res == IOError::BROKEN_PIPE) {
-      OATPP_LOGD(TAG, "Could not read header: Broken Pipe");
+      OATPP_LOGD(TAG, "Could not read header continuation: Broken Pipe");
       return Http2StreamHandler::ConnectionState::DEAD;
     } else {
       std::this_thread::yield();
