@@ -246,7 +246,7 @@ v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   
 }
 
-v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action) {
+v_io_size FIFOBuffer::readAndWriteToStream(data::stream::WriteCallback* stream, v_buff_size count, async::Action& action) {
 
   if(!m_canRead) {
     return IOError::RETRY_READ;
@@ -299,7 +299,7 @@ v_io_size FIFOBuffer::readAndWriteToStream(data::stream::OutputStream* stream, v
 
 }
 
-v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count, async::Action& action) {
+v_io_size FIFOBuffer::readFromStreamAndWrite(data::stream::ReadCallback* stream, v_buff_size count, async::Action& action) {
 
   if(m_canRead && m_writePosition == m_readPosition) {
     return IOError::RETRY_WRITE;
