@@ -598,7 +598,7 @@ class BufferedOutputStream : public ConsistentOutputStream, public BufferedStrea
    * Returns the amount of written bytes to the buffer
    * @return - actual number of bytes in buffer. &id:oatpp::v_io_size;. <br>
    */
-  virtual v_io_size getSize() = 0;
+  virtual v_buff_size getSize() = 0;
 
   /**
    * Writes all available buffered data to &l:WriteCallback;.

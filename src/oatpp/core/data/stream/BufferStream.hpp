@@ -99,6 +99,11 @@ public:
    * @return
    */
   v_buff_size getCapacity();
+
+  /**
+   * Returns the amount of written bytes to the buffer
+   * @return - actual number of bytes in buffer. &id:oatpp::v_io_size;. <br>
+   */
   v_buff_size getSize() override;
 
   /**
