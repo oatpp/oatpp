@@ -155,6 +155,8 @@ add_library(oatpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
         oatpp/network/ConnectionHandler.hpp
+        oatpp/network/ConnectionMonitor.cpp
+        oatpp/network/ConnectionMonitor.hpp
         oatpp/network/ConnectionPool.cpp
         oatpp/network/ConnectionPool.hpp
         oatpp/network/ConnectionProvider.cpp
