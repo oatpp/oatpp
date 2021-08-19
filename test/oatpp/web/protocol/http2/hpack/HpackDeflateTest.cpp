@@ -51,16 +51,29 @@ void HpackDeflateTest::onRun() {
     oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
 
     v_int64 ticks = base::Environment::getMicroTickCount();
-    auto deflated = deflater.deflate(hdr, 16 * 1024 - 1);
+    auto deflated = deflater.deflate(hdr);
     v_int64 deflateTicks = base::Environment::getMicroTickCount() - ticks;
-    OATPP_ASSERT(deflated.size() == 1);
-    OATPP_ASSERT(deflated.front().size() == sizeof(expected));
+    OATPP_ASSERT(deflated->availableToRead() == sizeof(expected));
+    v_uint8 extracted[sizeof(expected)];
+    deflated->readSimple((void *) extracted, sizeof(extracted));
     for (int i = 0; i < sizeof(expected); ++i) {
-      OATPP_ASSERT(deflated.front()[i] == expected[i]);
+      OATPP_ASSERT(extracted[i] == expected[i]);
     }
 
+  }
+
+  {
+    auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+    auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
+    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
+
+    v_int64 ticks = base::Environment::getMicroTickCount();
+    auto deflated = deflater.deflate(hdr);
+    v_int64 deflateTicks = base::Environment::getMicroTickCount() - ticks;
+    OATPP_ASSERT(deflated->availableToRead() == sizeof(expected));
+
     ticks = base::Environment::getMicroTickCount();
-    auto inflated = inflater.inflate(deflated);
+    auto inflated = inflater.inflate(deflated, deflated->availableToRead());
     v_int64 inflateTicks = base::Environment::getMicroTickCount() - ticks;
     OATPP_ASSERT(inflated.getSize() == hdr.getSize());
     auto originalmap = hdr.getAll();
@@ -72,39 +85,6 @@ void HpackDeflateTest::onRun() {
       OATPP_ASSERT(found->second = it->second);
     }
     OATPP_LOGI(TAG, "Payload: Deflating \033[33m%d(micro)\033[0m, Inflating \033[33m%d(micro)\033[0m", deflateTicks, inflateTicks);
-  }
-
-  {
-    auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
-    auto inflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);
-    oatpp::web::protocol::http2::hpack::SimpleHpack deflater(deflateTable), inflater(inflateTable);
-
-    v_int64 ticks = base::Environment::getMicroTickCount();
-    auto deflated = deflater.deflate(hdr, 16 * 1024 - 1);
-    v_int64 deflateTicks = base::Environment::getMicroTickCount() - ticks;
-    OATPP_ASSERT(deflated.size() == 1);
-    OATPP_ASSERT(deflated.front().size() == sizeof(expected));
-    for (int i = 0; i < sizeof(expected); ++i) {
-      OATPP_ASSERT(deflated.front()[i] == expected[i]);
-    }
-
-    oatpp::String deflatedstr((const char*)deflated.front().data(), (v_buff_size)deflated.front().size());
-    auto buf = std::make_shared<data::stream::BufferInputStream>(deflatedstr);
-    auto proxy = data::stream::InputStreamBufferedProxy::createShared(buf, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0));
-
-    ticks = base::Environment::getMicroTickCount();
-    auto inflated = inflater.inflate(proxy, deflated.front().size());
-    v_int64 inflateTicks = base::Environment::getMicroTickCount() - ticks;
-    OATPP_ASSERT(inflated.getSize() == hdr.getSize());
-    auto originalmap = hdr.getAll();
-    auto inflatedmap = inflated.getAll();
-
-    for (auto it = originalmap.begin(); it != originalmap.end(); ++it) {
-      auto found = inflatedmap.find(it->first);
-      OATPP_ASSERT(found != inflatedmap.end());
-      OATPP_ASSERT(found->second = it->second);
-    }
-    OATPP_LOGI(TAG, "Stream: Deflating \033[33m%d(micro)\033[0m, Inflating \033[33m%d(micro)\033[0m", deflateTicks, inflateTicks);
   }
 }
 

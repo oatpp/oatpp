@@ -24,6 +24,7 @@
 
 #include "HuffmanTest.hpp"
 
+#include "oatpp/core/data/stream/FIFOStream.hpp"
 #include "oatpp/web/protocol/http2/hpack/Huffman.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace protocol { namespace http2 { namespace hpack {
@@ -36,14 +37,16 @@ void HuffmanTest::onRun() {
   };
 
   {
-    oatpp::web::protocol::http2::Payload p;
-    p.reserve(16);
+    oatpp::data::stream::FIFOInputStream ffip;
     oatpp::web::protocol::http2::hpack::Huffman huf;
-    auto ret = huf.encode(p, input, 8);
+    auto ret = huf.encode(&ffip, input, 8);
     OATPP_ASSERT(ret == sizeof(expected));
-    OATPP_ASSERT(p.size() == sizeof(expected));
+    OATPP_ASSERT(ffip.availableToRead() == sizeof(expected));
+
+    v_uint8 extracted[sizeof(expected)];
+    ffip.readExactSizeDataSimple((void*)extracted, sizeof(expected));
     for (int i = 0; i < sizeof(expected); ++i) {
-      OATPP_ASSERT(p[i] == expected[i]);
+      OATPP_ASSERT(extracted[i] == expected[i]);
     }
   }
 

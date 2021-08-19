@@ -166,7 +166,7 @@ v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources 
 
   OATPP_LOGD(TAG, "Sending SETTINGS (length:%lu, flags:0x%02x, streamId:%lu)", bos.getCurrentPosition()-FrameHeader::HeaderSize, 0, 0);
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
-  bos.flushToStream(resources.outStream.get());
+  bos.flushBufferToStream(resources.outStream.get());
   resources.outStream->unlock();
   return 9 + payload;
 }
@@ -191,7 +191,7 @@ v_io_size Http2Processor::answerPingFrame(Http2Processor::ProcessingResources &r
 
   OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
-  bos.flushToStream(resources.outStream.get());
+  bos.flushBufferToStream(resources.outStream.get());
   resources.outStream->unlock();
 
   return FrameHeader::HeaderSize+8;
@@ -320,19 +320,33 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
           if (header->getLength() % 6) {
             throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS with invalid frame size");
           }
+          v_uint32 initialWindowSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
           for (v_uint32 consumed = 0; consumed < header->getLength(); consumed += 6) {
             v_uint16 ident;
             v_uint32 parameter;
             resources.inStream->readExactSizeDataSimple(&ident, 2);
             resources.inStream->readExactSizeDataSimple(&parameter, 4);
+            ident = ntohs(ident);
             try {
-              resources.outSettings->setSetting((Http2Settings::Identifier) ntohs(ident), ntohl(parameter));
+              resources.outSettings->setSetting((Http2Settings::Identifier) ident, ntohl(parameter));
             } catch (protocol::http2::error::connection::ProtocolError &h2pe) {
               throw h2pe;
             } catch (protocol::http2::error::connection::FlowControlError &h2fce) {
               throw h2fce;
             } catch (std::runtime_error &e) {
               OATPP_LOGW(TAG, e.what());
+            }
+          }
+          v_uint32 newInitialWindowSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
+          if (initialWindowSize != newInitialWindowSize) {
+            v_int32 change = 0;
+            if(initialWindowSize > newInitialWindowSize) {
+              change -= (initialWindowSize - newInitialWindowSize);
+            } else {
+              change = newInitialWindowSize - initialWindowSize;
+            }
+            for (auto &h2s : resources.h2streams) {
+              h2s.second->resizeWindow(change);
             }
           }
           ackSettingsFrame(resources);

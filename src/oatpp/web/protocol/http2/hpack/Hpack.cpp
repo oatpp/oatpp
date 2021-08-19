@@ -519,7 +519,7 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
 }
 
 std::shared_ptr<data::stream::BufferedInputStream> SimpleHpack::deflate(const Headers &headers) {
-  std::shared_ptr<data::stream::FIFOInputStream> payload;
+  auto payload = data::stream::FIFOInputStream::createShared();
 
   auto all = headers.getAll();
 

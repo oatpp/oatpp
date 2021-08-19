@@ -53,9 +53,8 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
   }
 
-  async::Action action;
   do {
-    v_io_size res = m_task->data->readFromStreamAndWrite(stream.get(), read, action);
+    v_io_size res = stream->writeBufferToStream(m_task->data.get(), read);
     if (res > 0) {
       read -= res;
     } else if (res == IOError::BROKEN_PIPE) {
@@ -112,9 +111,8 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 fl
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE");
   }
 
-  async::Action action;
   do {
-    v_io_size res = m_task->header->readFromStreamAndWrite(stream.get(), read, action);
+    v_io_size res = stream->writeBufferToStream(m_task->header.get(), read);
     if (res > 0) {
       read -= res;
     } else if (res == IOError::BROKEN_PIPE) {
@@ -202,11 +200,12 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleWindowUpdate(v_uin
   if (increment == 0) {
     throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment of 0");
   }
-  OATPP_LOGD(TAG, "Incrementing window by %u", increment);
-  m_task->windowIncrement += increment;
-  if (m_task->windowIncrement > Http2Settings::getSettingMax(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)) {
+  v_uint32 unsignedWindow = m_task->window;
+  if (unsignedWindow + increment > Http2Settings::getSettingMax(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)) {
     throw protocol::http2::error::stream::FlowControlError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment above 2^31-1");
   }
+  OATPP_LOGD(TAG, "Incrementing window by %u", increment);
+  m_task->window += increment;
 
   return Http2StreamHandler::ConnectionState::ALIVE;
 }
@@ -218,9 +217,8 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uin
   m_task->headerFlags |= flags;
 
   v_io_size read = streamPayloadLength;
-  async::Action action;
-  do {
-    v_io_size res = m_task->header->readFromStreamAndWrite(stream.get(), read, action);
+  while (read > 0) {
+    v_io_size res = stream->writeBufferToStream(m_task->header.get(), read);
     if (res > 0) {
       read -= res;
     } else if (res == IOError::BROKEN_PIPE) {
@@ -229,7 +227,7 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleContinuation(v_uin
     } else {
       std::this_thread::yield();
     }
-  } while (read > 0);
+  }
 
   if ((m_task->headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
       == H2StreamHeaderFlags::HEADER_END_HEADERS) {
@@ -272,6 +270,11 @@ bool Http2StreamHandler::Task::setStateWithExpection(Http2StreamHandler::H2Strea
 void Http2StreamHandler::Task::setState(Http2StreamHandler::H2StreamState next) {
   OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::setState", "(%d) State: %s(%d) -> %s(%d)", streamId, stateStringRepresentation(state.load()), state.load(), stateStringRepresentation(next), next);
   state.store(next);
+}
+
+void Http2StreamHandler::Task::resizeWindow(v_int32 change) {
+  window += change;
+  OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::resizeWindow", "Resized window by %d to %d", change, window);
 }
 
 void Http2StreamHandler::Task::clean() {
@@ -373,95 +376,62 @@ void Http2StreamHandler::process(std::shared_ptr<Task> task) {
   auto responseHeaders = response->getHeaders();
   responseHeaders.putIfNotExists(protocol::http2::Header::STATUS, utils::conversion::uint32ToStr(response->getStatus().code));
 
-  while (task->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE) + task->windowIncrement == 0) {
-    std::this_thread::yield();
-  }
-
-  auto headerBlocks = task->hpack->deflate(responseHeaders, task->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE) + task->windowIncrement);
-
+  auto headerStream = task->hpack->deflate(responseHeaders);
 
   if (!task->setStateWithExpection(H2StreamState::PROCESSING, H2StreamState::RESPONDING)) {
     finalizeProcessAbortion(task);
     return;
   }
 
-
-  if (headerBlocks.size() == 1) {
-    auto &block = headerBlocks.front();
-    protocol::http2::Frame::Header hdr(block.size(), protocol::http2::Frame::Header::Flags::Header::HEADER_END_HEADERS | (response->getBody()->getKnownSize() == 0 ? protocol::http2::Frame::Header::Flags::Header::HEADER_END_STREAM : 0), protocol::http2::Frame::Header::HEADERS, task->streamId);
+  while(headerStream->availableToRead() > 0) {
     task->output->lock(task->weight);
-    OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
     if (task->state.load() == H2StreamState::RESET) {
       task->output->unlock();
       finalizeProcessAbortion(task);
       return;
     }
-    hdr.writeToStream(task->output.get());
-    task->output->writeSimple(block.data(), block.size());
-    task->output->unlock();
-  } else {
-    auto it = headerBlocks.begin();
-    auto last = --headerBlocks.end();
-    {
-      protocol::http2::Frame::Header hdr(it->size(), 0, protocol::http2::Frame::Header::HEADERS, task->streamId);
-      task->output->lock(task->weight);
-      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
-      if (task->state.load() == H2StreamState::RESET) {
-        task->output->unlock();
-        finalizeProcessAbortion(task);
-        return;
-      }
-      hdr.writeToStream(task->output.get());
-      task->output->writeSimple(it->data(), it->size());
-      task->output->unlock();
-    }
-    while (it != last) {
-      protocol::http2::Frame::Header hdr(it->size(), 0, protocol::http2::Frame::Header::CONTINUATION, task->streamId);
-      task->output->lock(task->weight);
-      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
-      if (task->state.load() == H2StreamState::RESET) {
-        task->output->unlock();
-        finalizeProcessAbortion(task);
-        return;
-      }
-      hdr.writeToStream(task->output.get());
-      task->output->writeSimple(it->data(), it->size());
-      task->output->unlock();
-      ++it;
-    }
-    {
-      protocol::http2::Frame::Header hdr(it->size(), protocol::http2::Frame::Header::Flags::Header::HEADER_END_HEADERS | (response->getBody()->getKnownSize() == 0 ? protocol::http2::Frame::Header::Flags::Header::HEADER_END_STREAM : 0), protocol::http2::Frame::Header::CONTINUATION, task->streamId);
-      task->output->lock(task->weight);
-      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
-      if (task->state.load() == H2StreamState::RESET) {
-        task->output->unlock();
-        finalizeProcessAbortion(task);
-        return;
-      }
-      hdr.writeToStream(task->output.get());
-      task->output->writeSimple(it->data(), it->size());
-      task->output->unlock();
-    }
-  }
+    v_buff_size chunk = std::min(task->outSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE), (v_uint32)headerStream->availableToRead());
+    v_uint8 flags = (headerStream->availableToRead() - chunk == 0) ? protocol::http2::Frame::Header::Flags::HEADER_END_HEADERS : 0;
+    flags |= (response->getBody()->getKnownSize() == 0 || response->getBody()->getKnownData() == nullptr) ? protocol::http2::Frame::Header::Flags::HEADER_END_HEADERS : 0;
 
+    protocol::http2::Frame::Header hdr(chunk, flags, protocol::http2::Frame::Header::HEADERS, task->streamId);
+    OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
+    hdr.writeToStream(task->output.get());
+    headerStream->writeBufferToStream(task->output.get(), chunk);
+//    v_uint8 transferBuffer[chunk];
+//    data::stream::transfer(headerStream, task->output, chunk, transferBuffer, chunk);
+//    task->output->writeSimple(body->getKnownData() + send, chunk);
+    task->output->unlock();
+  }
 
   if (response->getBody()->getKnownSize() > 0 && response->getBody()->getKnownData() != nullptr) {
     const v_buff_size toSend = response->getBody()->getKnownSize();
     auto body = response->getBody();
     for (v_buff_size send = 0; send < toSend;) {
+      while (task->window <= 0) {
+        std::this_thread::yield();
+        if (task->state.load() == H2StreamState::RESET) {
+          finalizeProcessAbortion(task);
+          return;
+        }
+      }
       task->output->lock(task->weight);
       if (task->state.load() == H2StreamState::RESET) {
         task->output->unlock();
         finalizeProcessAbortion(task);
         return;
       }
-      v_buff_size chunk = std::min((v_buff_size)task->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE) + task->windowIncrement, toSend - send);
+      v_buff_size chunk = std::min(task->outSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE), (v_uint32)(toSend - send));
+      if (chunk > task->window) {
+        chunk = task->window;
+      }
       protocol::http2::Frame::Header hdr(chunk, (toSend - send - chunk == 0) ? protocol::http2::Frame::Header::Flags::Data::DATA_END_STREAM : 0, protocol::http2::Frame::Header::DATA, task->streamId);
       OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       hdr.writeToStream(task->output.get());
       task->output->writeSimple(body->getKnownData() + send, chunk);
       task->output->unlock();
       send += chunk;
+      task->window -= chunk;
     }
   }
   task->setState(H2StreamState::DONE);
@@ -474,7 +444,7 @@ void Http2StreamHandler::finalizeProcessAbortion(const std::shared_ptr<Task> &ta
 }
 
 void Http2StreamHandler::abort() {
-  if (m_task->state.load() == PROCESSING) {
+  if (m_task->state.load() == PROCESSING || m_task->state.load() == RESPONDING) {
     m_task->setState(RESET);
   }
 }
@@ -489,6 +459,10 @@ void Http2StreamHandler::clean() {
   if (m_task->state.load() < PROCESSING || m_task->state.load() > RESET) {
     m_task->clean();
   }
+}
+
+void Http2StreamHandler::resizeWindow(v_int32 change) {
+  m_task->resizeWindow(change);
 }
 
 }}}}

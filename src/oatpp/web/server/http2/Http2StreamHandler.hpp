@@ -83,6 +83,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
     v_uint32 dependency;
     v_uint8 weight;
     v_uint8 headerFlags;
+    v_int32 window;
     v_uint32 windowIncrement;
 
     Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
@@ -98,12 +99,14 @@ class Http2StreamHandler : public oatpp::base::Countable {
         , windowIncrement(0)
         , inSettings(inSettings)
         , outSettings(outSettings)
+        , window(static_cast<v_int32>(outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)))
         , header(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)))
         , data(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE))){}
 
     bool setStateWithExpection(H2StreamState expected, H2StreamState next);
     void setState(H2StreamState next);
     void clean();
+    void resizeWindow(v_int32 change);
   };
 
   std::thread m_processor;
@@ -138,6 +141,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
   void abort();
   void waitForFinished();
   void clean();
+  void resizeWindow(v_int32 change);
 
   static const char* stateStringRepresentation(H2StreamState state);
 
