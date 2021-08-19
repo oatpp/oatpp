@@ -132,36 +132,12 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
   void reserveBytesUpfront(v_buff_size count);
 
   /**
-   * call read and then write bytes read to output stream
-   * @param stream
-   * @param count
-   * @param action
-   * @return [1..count], IOErrors.
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action);
-
-  /**
-   * call stream.read() and then write bytes read to buffer
-   * @param stream
-   * @param count
-   * @param action
-   * @return
-   */
-  v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count, async::Action& action);
-
-  /**
-   * flush all availableToRead bytes to stream
-   * @param stream
-   * @return
-   */
-  v_io_size flushToStream(data::stream::OutputStream* stream);
-
-  /**
-   * flush all availableToRead bytes to stream in asynchronous manner
-   * @param stream - &id:data::stream::OutputStream;.
-   * @return - &id:async::CoroutineStarter;.
-   */
-  async::CoroutineStarter flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& stream);
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
 
   /**
    * Amount of buffer space currently available for data writes.

@@ -123,7 +123,85 @@ void ChunkedBufferTest::onRun() {
 
   }
 
+  {
 
+    ChunkedBuffer streamA;
+    ChunkedBuffer streamB;
+
+    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+      streamA.writeSimple("0123456789", 10);
+    }
+
+    auto wholeText = streamA.toString();
+    streamA.flushBufferToStream(&streamB);
+
+    OATPP_ASSERT(streamA.toString() == streamB.toString());
+
+  }
+
+  {
+
+    ChunkedBuffer streamA;
+    ChunkedBuffer streamB;
+
+    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+      streamA.writeSimple("0123456789", 10);
+    }
+
+    auto wholeText = streamA.toString();
+    streamA.writeBufferToStream(&streamB, 20);
+
+    OATPP_ASSERT(oatpp::String("01234567890123456789") == streamB.toString());
+
+  }
+
+  {
+
+    ChunkedBuffer streamA;
+    ChunkedBuffer streamB;
+
+    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+      streamA.writeSimple("0123456789", 10);
+    }
+
+    auto wholeText = streamA.toString();
+    streamA.writeBufferToStream(&streamB, 20, 3);
+
+    OATPP_ASSERT(oatpp::String("34567890123456789012") == streamB.toString());
+
+  }
+
+  {
+
+    ChunkedBuffer streamA;
+    ChunkedBuffer streamB;
+
+    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+      streamA.writeSimple("0123456789", 10);
+    }
+
+    auto wholeText = streamA.toString();
+    streamA.writeBufferToStream(&streamB, 2048, 3);
+    auto sub = streamA.getSubstring(3, 2048);
+
+    OATPP_LOGD("", "%s", streamB.toString()->data());
+    OATPP_ASSERT(sub == streamB.toString());
+
+  }
+
+//  {
+//    // ToDo: Check Async implementation
+//    ChunkedBuffer streamA;
+//    auto streamB = ChunkedBuffer::createShared();
+//
+//    for(v_int32 i = 0; i < ChunkedBuffer::CHUNK_ENTRY_SIZE * 10; i++) {
+//      streamA.writeSimple("0123456789", 10);
+//    }
+//
+//    async::Action action;
+//    auto wholeText = streamA.toString();
+//    auto starter = streamA.writeBufferToStreamAsync(streamB, 2048, 3);
+//  }
 }
 
 }}}}}
