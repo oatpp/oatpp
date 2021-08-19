@@ -219,18 +219,22 @@ oatpp::String ChunkedBuffer::getSubstring(v_buff_size pos, v_buff_size count){
   return str;
 }
 
-bool ChunkedBuffer::flushToStream(OutputStream* stream){
-  v_io_size pos = m_size;
+v_io_size ChunkedBuffer::flushBufferToStream(stream::WriteCallback *writeCallback) {
+  return writeBufferToStream(writeCallback, m_size);
+}
+
+v_io_size ChunkedBuffer::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
+  v_io_size pos = count;
   auto curr = m_firstEntry;
   while (pos > 0) {
     if(pos > CHUNK_ENTRY_SIZE) {
-      auto res = stream->writeExactSizeDataSimple(curr->chunk, CHUNK_ENTRY_SIZE);
+      auto res = writeCallback->writeExactSizeDataSimple(curr->chunk, CHUNK_ENTRY_SIZE);
       if(res != CHUNK_ENTRY_SIZE) {
         return false;
       }
       pos -= res;
     } else {
-      auto res = stream->writeExactSizeDataSimple(curr->chunk, pos);
+      auto res = writeCallback->writeExactSizeDataSimple(curr->chunk, pos);
       if(res != pos) {
         return false;
       }
@@ -241,27 +245,34 @@ bool ChunkedBuffer::flushToStream(OutputStream* stream){
   return true;
 }
 
-oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shared_ptr<OutputStream>& stream) {
+async::CoroutineStarter ChunkedBuffer::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream) {
+  return writeBufferToStreamAsync(stream, m_size);
+}
 
+async::CoroutineStarter ChunkedBuffer::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream,
+                                                                v_buff_size count) {
   class FlushCoroutine : public oatpp::async::Coroutine<FlushCoroutine> {
-  private:
+   private:
     std::shared_ptr<ChunkedBuffer> m_chunkedBuffer;
-    std::shared_ptr<OutputStream> m_stream;
+    std::shared_ptr<WriteCallback> m_stream;
     ChunkEntry* m_currEntry;
     v_io_size m_bytesLeft;
     Action m_nextAction;
     data::buffer::InlineWriteData m_currData;
     bool m_needInit;
-  public:
+    v_buff_size m_count;
+   public:
 
     FlushCoroutine(const std::shared_ptr<ChunkedBuffer>& chunkedBuffer,
-                   const std::shared_ptr<OutputStream>& stream)
-      : m_chunkedBuffer(chunkedBuffer)
-      , m_stream(stream)
-      , m_currEntry(nullptr)
-      , m_bytesLeft(0)
-      , m_nextAction(Action::createActionByType(Action::TYPE_FINISH))
-      , m_needInit(true)
+                   const std::shared_ptr<WriteCallback>& stream,
+                   v_buff_size count)
+        : m_chunkedBuffer(chunkedBuffer)
+        , m_stream(stream)
+        , m_currEntry(nullptr)
+        , m_bytesLeft(0)
+        , m_nextAction(Action::createActionByType(Action::TYPE_FINISH))
+        , m_needInit(true)
+        , m_count(count)
     {}
 
     Action act() override {
@@ -269,7 +280,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
       if (m_needInit) {
         m_needInit = false;
         m_currEntry = m_chunkedBuffer->m_firstEntry;
-        m_bytesLeft = m_chunkedBuffer->m_size;
+        m_bytesLeft = std::min(m_count, m_chunkedBuffer->m_size);
       }
 
       if(m_currEntry == nullptr) {
@@ -298,8 +309,7 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
 
   };
 
-  return FlushCoroutine::start(shared_from_this(), stream);
-
+  return FlushCoroutine::start(shared_from_this(), stream, count);
 }
 
 std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {

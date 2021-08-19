@@ -123,15 +123,15 @@ void Request::send(data::stream::OutputStream* stream){
 
       if(bodySize + buffer.getCurrentPosition() < buffer.getCapacity()) {
         buffer.writeSimple(m_body->getKnownData(), bodySize);
-        buffer.flushToStream(stream);
+        buffer.flushBufferToStream(stream);
       } else {
-        buffer.flushToStream(stream);
+        buffer.flushBufferToStream(stream);
         stream->writeExactSizeDataSimple(m_body->getKnownData(), bodySize);
       }
 
     } else {
 
-      buffer.flushToStream(stream);
+      buffer.flushBufferToStream(stream);
 
       http::encoding::EncoderChunked chunkedEncoder;
 
@@ -142,7 +142,7 @@ void Request::send(data::stream::OutputStream* stream){
     }
 
   } else {
-    buffer.flushToStream(stream);
+    buffer.flushBufferToStream(stream);
   }
   
 }
@@ -203,11 +203,11 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
           if(bodySize + m_headersWriteBuffer->getCurrentPosition() < m_headersWriteBuffer->getCapacity()) {
 
             m_headersWriteBuffer->writeSimple(m_this->m_body->getKnownData(), bodySize);
-            return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+            return oatpp::data::stream::BufferOutputStream::flushBufferToStreamAsync(m_headersWriteBuffer, m_stream)
               .next(finish());
           } else {
 
-            return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+            return oatpp::data::stream::BufferOutputStream::flushBufferToStreamAsync(m_headersWriteBuffer, m_stream)
               .next(m_stream->writeExactSizeDataAsync(m_this->m_body->getKnownData(), bodySize))
               .next(finish());
           }
@@ -215,7 +215,7 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
         } else {
 
           auto chunkedEncoder = std::make_shared<http::encoding::EncoderChunked>();
-          return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+          return oatpp::data::stream::BufferOutputStream::flushBufferToStreamAsync(m_headersWriteBuffer, m_stream)
                  .next(data::stream::transferAsync(m_this->m_body, m_stream, 0, data::buffer::IOBuffer::createShared(), chunkedEncoder))
                  .next(finish());
 
@@ -223,7 +223,7 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
 
       } else {
 
-        return oatpp::data::stream::BufferOutputStream::flushToStreamAsync(m_headersWriteBuffer, m_stream)
+        return oatpp::data::stream::BufferOutputStream::flushBufferToStreamAsync(m_headersWriteBuffer, m_stream)
           .next(finish());
       }
       

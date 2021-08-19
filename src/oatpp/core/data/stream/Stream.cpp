@@ -285,6 +285,40 @@ StreamType DefaultInitializedContext::getStreamType() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BufferedInputStream
+
+v_io_size BufferedInputStream::flushBufferToStream(stream::WriteCallback *writeCallback) {
+  return writeBufferToStream(writeCallback, availableToRead());
+}
+
+async::CoroutineStarter BufferedInputStream::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream) {
+  return writeBufferToStreamAsync(stream, availableToRead());
+}
+
+v_io_size BufferedInputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
+  auto ioBuffer = buffer::IOBuffer::createShared();
+  count = std::min(count, availableToRead());
+  transfer(this, writeCallback, count, ioBuffer->getData(), ioBuffer->getSize());
+  return count;
+}
+
+async::CoroutineStarter BufferedInputStream::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) {
+  auto ioBuffer = buffer::IOBuffer::createShared();
+  return transferAsync(this, stream, count, ioBuffer);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BufferedOutputStream
+
+v_io_size BufferedOutputStream::flushBufferToStream(stream::WriteCallback *writeCallback) {
+  return writeBufferToStream(writeCallback, getSize());
+}
+
+async::CoroutineStarter BufferedOutputStream::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream) {
+  return writeBufferToStreamAsync(stream, getSize());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IOStream
 
 void IOStream::initContexts() {
@@ -805,5 +839,6 @@ async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& re
   return TransferCoroutine::start(readCallback, writeCallback, transferSize, buffer, processor);
 
 }
-  
+
+
 }}}

@@ -128,37 +128,56 @@ oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size coun
   }
 }
 
-oatpp::v_io_size BufferOutputStream::flushToStream(OutputStream* stream) {
+v_io_size BufferOutputStream::flushBufferToStream(stream::WriteCallback* stream) {
   return stream->writeExactSizeDataSimple(m_data, m_position);
 }
 
-oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<OutputStream>& stream) {
+oatpp::async::CoroutineStarter BufferOutputStream::flushBufferToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<WriteCallback>& stream) {
+  return writeBufferToStreamAsync(_this, stream, _this->m_position);
+}
 
+oatpp::async::CoroutineStarter BufferOutputStream::writeBufferToStreamAsync(const std::shared_ptr<BufferOutputStream> &_this,
+                                                                            const std::shared_ptr<WriteCallback> &stream,
+                                                                            v_buff_size count) {
   class WriteDataCoroutine : public oatpp::async::Coroutine<WriteDataCoroutine> {
-  private:
+   private:
     std::shared_ptr<BufferOutputStream> m_this;
-    std::shared_ptr<oatpp::data::stream::OutputStream> m_stream;
+    std::shared_ptr<oatpp::data::stream::WriteCallback> m_stream;
     data::buffer::InlineWriteData m_inlineData;
-  public:
+    v_buff_size m_count;
+   public:
 
     WriteDataCoroutine(const std::shared_ptr<BufferOutputStream>& _this,
-                       const std::shared_ptr<oatpp::data::stream::OutputStream>& stream)
-      : m_this(_this)
-      , m_stream(stream)
+                       const std::shared_ptr<oatpp::data::stream::WriteCallback>& stream,
+                       v_buff_size count)
+        : m_this(_this)
+        , m_stream(stream)
+        , m_count(count)
     {}
 
     Action act() override {
       if(m_inlineData.currBufferPtr == nullptr) {
         m_inlineData.currBufferPtr = m_this->m_data;
-        m_inlineData.bytesLeft = m_this->m_position;
+        m_inlineData.bytesLeft = std::min(m_this->m_position, m_count);
       }
       return m_stream.get()->writeExactSizeDataAsyncInline(m_inlineData, finish());
     }
 
   };
+  return WriteDataCoroutine::start(_this, stream, count);
+}
 
-  return WriteDataCoroutine::start(_this, stream);
+v_io_size BufferOutputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
+  return writeCallback->writeSimple(m_data, std::min(m_position, count));
+}
 
+async::CoroutineStarter BufferOutputStream::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream,
+                                                                     v_buff_size count) {
+  return BufferOutputStream::writeBufferToStreamAsync(shared_from_this(), stream, count);
+}
+
+v_buff_size BufferOutputStream::getSize() {
+  return m_position;
 }
 
 

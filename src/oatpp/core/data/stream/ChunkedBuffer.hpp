@@ -36,7 +36,7 @@ namespace oatpp { namespace data{ namespace stream {
 /**
  * Buffer wich can grow by chunks and implements &id:oatpp::data::stream::ConsistentOutputStream; interface.
  */
-class ChunkedBuffer : public oatpp::base::Countable, public ConsistentOutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
+class ChunkedBuffer : public oatpp::base::Countable, public BufferedOutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
 public:
   static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 public:
@@ -214,20 +214,36 @@ public:
   }
 
   /**
-   * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream;.
-   * ChunkedBuffer will not be cleared during this call!
-   * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
-   * @return - `true` if no errors occured. **will be refactored to return actual amount of bytes flushed**.
+   * Writes all available buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  bool flushToStream(OutputStream* stream);
+  v_io_size flushBufferToStream(stream::WriteCallback *writeCallback) override;
 
   /**
-   * Write all data from ChunkedBuffer to &id:oatpp::data::stream::OutputStream; in asynchronous manner.
-   * @param stream - &id:oatpp::data::stream::OutputStream; stream to write all data to.
-   * @return - &id:oatpp::async::CoroutineStarter;.
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  oatpp::async::CoroutineStarter flushToStreamAsync(const std::shared_ptr<OutputStream>& stream);
-  
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
+
+  /**
+   * Writes all available buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream) override;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) override;
+
   std::shared_ptr<Chunks> getChunks();
 
   /**

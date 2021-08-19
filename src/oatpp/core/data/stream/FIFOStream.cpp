@@ -95,25 +95,14 @@ void FIFOInputStream::reserveBytesUpfront(v_buff_size count) {
 
 }
 
-v_io_size FIFOInputStream::readAndWriteToStream(data::stream::OutputStream *stream,
-                                                v_buff_size count,
-                                                async::Action &action) {
-  return m_fifo->readAndWriteToStream(stream, count, action);
-}
-
-v_io_size FIFOInputStream::readFromStreamAndWrite(data::stream::InputStream *stream,
-                                                  v_buff_size count,
-                                                  async::Action &action) {
-  reserveBytesUpfront(count);
-  return m_fifo->readFromStreamAndWrite(stream, count, action);
-}
-
-v_io_size FIFOInputStream::flushToStream(data::stream::OutputStream *stream) {
-  return m_fifo->flushToStream(stream);
-}
-
-async::CoroutineStarter FIFOInputStream::flushToStreamAsync(const std::shared_ptr<data::stream::OutputStream> &stream) {
-  return m_fifo->flushToStreamAsync(stream);
+v_io_size FIFOInputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
+  async::Action action;
+  v_io_size size = m_fifo->readAndWriteToStream(writeCallback, count, action);
+  if(!action.isNone()) {
+    OATPP_LOGE("[oatpp::data::stream::FIFOInputStream::writeBufferToStream()]", "Error. writeSimple is called on a stream in Async mode.");
+    throw std::runtime_error("[oatpp::data::stream::FIFOInputStream::writeBufferToStream()]: Error. writeSimple is called on a stream in Async mode.");
+  }
+  return size;
 }
 
 v_io_size FIFOInputStream::availableToWrite() {
