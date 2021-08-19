@@ -82,6 +82,11 @@ Http2StreamHandler::ConnectionState Http2StreamHandler::handleData(v_uint8 flags
 Http2StreamHandler::ConnectionState Http2StreamHandler::handleHeaders(v_uint8 flags,
                                                                       const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                                                       v_io_size streamPayloadLength) {
+
+  if (m_task->state == H2StreamState::PAYLOAD && (flags & H2StreamHeaderFlags::HEADER_END_STREAM) == 0) {
+    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received HEADERS frame without the HEADER_END_STREAM flag set after DATA frames");
+  }
+
   m_task->setState(H2StreamState::HEADERS);
   m_task->headerFlags |= flags;
   v_uint8 pad = 0;
