@@ -481,28 +481,31 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
   async::Action action;
   v_io_size consumed = 0;
   v_io_size step;
+  bool lastEntryWasTableSizeChange = false;
 
   while (consumed < streamPayloadLength) {
     v_uint8 it;
+    lastEntryWasTableSizeChange = false;
     stream->peek(&it, 1, action);
     if ((it & 0xe0u) == 0x20u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
-      if (consumed != 0) {
-        throw std::runtime_error(
-            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
-      }
+//      if (consumed != 0) {
+//        throw std::runtime_error(
+//            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: header table size change must appear at the beginning of the header block");
+//      }
       step = inflateHandleNewTableSize(stream.get(), streamPayloadLength);
       if (step < 1) {
         throw std::runtime_error(
-            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateHandleNewTableSize signaled an error");
       }
       consumed += step;
+      lastEntryWasTableSizeChange = true;
     } else if (it & 0x80u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, indexed value");
       step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
       if (step < 1) {
         throw std::runtime_error(
-            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateKeyValuePair signaled an error");
       }
       consumed += step;
     } else {
@@ -511,19 +514,25 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
         step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
         if (step < 1) {
           throw std::runtime_error(
-              "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+              "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateKeyValuePair signaled an error");
         }
       } else {
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, text value");
         step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
         if (step < 1) {
           throw std::runtime_error(
-              "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+              "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateKeyValuePair signaled an error");
         }
       }
       consumed += step;
     }
   }
+
+  if (lastEntryWasTableSizeChange) {
+    throw std::runtime_error(
+            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: header table size change cannot appear at the end of the header block");
+  }
+
   return headers;
 }
 
