@@ -250,7 +250,7 @@ public:
    * Get number of bytes written to ChunkedBuffer.
    * @return - number of bytes written to ChunkedBuffer.
    */
-  v_buff_size getSize();
+  v_buff_size getSize() override;
 
   /**
    * Clear data in ChunkedBuffer.

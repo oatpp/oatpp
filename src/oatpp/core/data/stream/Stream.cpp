@@ -297,7 +297,7 @@ async::CoroutineStarter BufferedInputStream::flushBufferToStreamAsync(const std:
 
 v_io_size BufferedInputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
   auto ioBuffer = buffer::IOBuffer::createShared();
-  count = std::min(count, availableToRead());
+  count = std::min(count, (v_buff_size)availableToRead());
   transfer(this, writeCallback, count, ioBuffer->getData(), ioBuffer->getSize());
   return count;
 }
