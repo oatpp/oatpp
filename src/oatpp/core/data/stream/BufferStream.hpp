@@ -140,6 +140,14 @@ public:
   v_io_size flushBufferToStream(stream::WriteCallback* stream) override;
 
   /**
+   * Writes all available buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &writeCallback) override;
+
+  /**
    * Writes up to count of buffered data to &l:WriteCallback;.
    * @param writeCallback - write-enabled object to write to
    * @param count - maximum amount of bytes to written.
@@ -154,6 +162,24 @@ public:
    * @return - &id:async::CoroutineStarter;.
    */
   async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) override;
+
+  /**
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) override;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback, v_buff_size count, v_buff_size readOffset) override;
 
   /**
    * Write all bytes from buffer to stream in async manner.
@@ -171,6 +197,15 @@ public:
    */
   static oatpp::async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<WriteCallback>& stream,
                                                                  v_buff_size count);
+
+  /**
+   * Write all bytes from buffer to stream in async manner.
+   * @param _this - pointer to `this` buffer.
+   * @param stream - stream to flush all data to.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  static oatpp::async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<BufferOutputStream>& _this, const std::shared_ptr<WriteCallback>& stream,
+                                                                 v_buff_size count, v_buff_size readOffset);
 };
 
 /**

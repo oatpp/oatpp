@@ -291,8 +291,8 @@ v_io_size BufferedInputStream::flushBufferToStream(stream::WriteCallback *writeC
   return writeBufferToStream(writeCallback, availableToRead());
 }
 
-async::CoroutineStarter BufferedInputStream::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream) {
-  return writeBufferToStreamAsync(stream, availableToRead());
+async::CoroutineStarter BufferedInputStream::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &writeCallback) {
+  return writeBufferToStreamAsync(writeCallback, availableToRead());
 }
 
 v_io_size BufferedInputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
@@ -302,8 +302,41 @@ v_io_size BufferedInputStream::writeBufferToStream(stream::WriteCallback *writeC
   return count;
 }
 
-async::CoroutineStarter BufferedInputStream::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) {
+async::CoroutineStarter BufferedInputStream::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback, v_buff_size count) {
   auto ioBuffer = buffer::IOBuffer::createShared();
+  return transferAsync(this, writeCallback, count, ioBuffer);
+}
+
+v_io_size BufferedInputStream::writeBufferToStream(stream::WriteCallback *writeCallback,
+                                                   v_buff_size count,
+                                                   v_buff_size readOffset) {
+  auto ioBuffer = buffer::IOBuffer::createShared();
+  if (readOffset > availableToRead()) {
+    commitReadOffset(availableToRead());
+    return 0;
+  }
+  commitReadOffset(readOffset);
+  count = std::min(count, availableToRead());
+  transfer(this, writeCallback, count, ioBuffer->getData(), ioBuffer->getSize());
+  return count;
+}
+
+async::CoroutineStarter BufferedInputStream::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream,
+                                                                      v_buff_size count,
+                                                                      v_buff_size readOffset) {
+  auto ioBuffer = buffer::IOBuffer::createShared();
+  if (readOffset > availableToRead()) {
+    class NothingToDo : public async::Coroutine<NothingToDo> {
+     public:
+      NothingToDo() = default;
+      Action act() override {
+        return finish();
+      }
+    };
+    commitReadOffset(availableToRead());
+    return NothingToDo::start();
+  }
+  commitReadOffset(readOffset);
   return transferAsync(this, stream, count, ioBuffer);
 }
 
@@ -314,8 +347,17 @@ v_io_size BufferedOutputStream::flushBufferToStream(stream::WriteCallback *write
   return writeBufferToStream(writeCallback, getSize());
 }
 
-async::CoroutineStarter BufferedOutputStream::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &stream) {
-  return writeBufferToStreamAsync(stream, getSize());
+async::CoroutineStarter BufferedOutputStream::flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &writeCallback) {
+  return writeBufferToStreamAsync(writeCallback, getSize());
+}
+
+v_io_size BufferedOutputStream::writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) {
+  return writeBufferToStream(writeCallback, count, 0);
+}
+
+async::CoroutineStarter BufferedOutputStream::writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback> &writeCallback,
+                                                                       v_buff_size count) {
+  return writeBufferToStreamAsync(writeCallback, count, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

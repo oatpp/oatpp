@@ -45,9 +45,9 @@ public:
   OBJECT_POOL(ChunkedBuffer_Pool, ChunkedBuffer, 32)
   SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Pool, ChunkedBuffer, 32)
 public:
-  
+
   static const char* const CHUNK_POOL_NAME;
-  
+
   static const v_buff_size CHUNK_ENTRY_SIZE_INDEX_SHIFT;
   static const v_buff_size CHUNK_ENTRY_SIZE;
   static const v_buff_size CHUNK_CHUNK_SIZE;
@@ -56,49 +56,49 @@ public:
     static auto pool = new oatpp::base::memory::ThreadDistributedMemoryPool(CHUNK_POOL_NAME, CHUNK_ENTRY_SIZE, CHUNK_CHUNK_SIZE);
     return *pool;
   }
-  
+
 private:
-  
+
   class ChunkEntry {
   public:
     OBJECT_POOL(ChunkedBuffer_ChunkEntry_Pool, ChunkEntry, 32)
   public:
-  
+
     ChunkEntry(void* pChunk, ChunkEntry* pNext)
       : chunk(pChunk)
       , next(pNext)
     {}
-    
+
     ~ChunkEntry(){
     }
-    
+
     void* chunk;
     ChunkEntry* next;
-    
+
   };
-  
+
 public:
-  
+
   class Chunk : public oatpp::base::Countable {
   public:
     OBJECT_POOL(ChunkedBuffer_Chunk_Pool, Chunk, 32)
     SHARED_OBJECT_POOL(Shared_ChunkedBuffer_Chunk_Pool, Chunk, 32)
   public:
-    
+
     Chunk(void* pData, v_buff_size pSize)
       : data(pData)
       , size(pSize)
     {}
-    
+
     static std::shared_ptr<Chunk> createShared(void* data, v_buff_size size){
       return Shared_ChunkedBuffer_Chunk_Pool::allocateShared(data, size);
     }
-    
+
     const void* data;
     const v_buff_size size;
-    
+
   };
-  
+
 public:
   typedef std::list<std::shared_ptr<Chunk>> Chunks;
 private:
@@ -108,27 +108,27 @@ private:
   ChunkEntry* m_firstEntry;
   ChunkEntry* m_lastEntry;
   IOMode m_ioMode;
-  
+
 private:
-  
+
   ChunkEntry* obtainNewEntry();
   void freeEntry(ChunkEntry* entry);
-  
+
   v_io_size writeToEntry(ChunkEntry* entry,
                                const void *data,
                                v_buff_size count,
                                v_buff_size& outChunkPos);
-  
+
   v_io_size writeToEntryFrom(ChunkEntry* entry,
                                    v_buff_size inChunkPos,
                                    const void *data,
                                    v_buff_size count,
                                    v_buff_size& outChunkPos);
-  
+
   ChunkEntry* getChunkForPosition(ChunkEntry* fromChunk,
                                   v_buff_size pos,
                                   v_buff_size& outChunkPos);
-  
+
 public:
 
   /**
@@ -149,7 +149,7 @@ public:
   ChunkedBuffer(const ChunkedBuffer&) = delete;
 
   ChunkedBuffer& operator=(const ChunkedBuffer&) = delete;
-  
+
 public:
 
   /**
@@ -221,14 +221,6 @@ public:
   v_io_size flushBufferToStream(stream::WriteCallback *writeCallback) override;
 
   /**
-   * Writes up to count of buffered data to &l:WriteCallback;.
-   * @param writeCallback - write-enabled object to write to
-   * @param count - maximum amount of bytes to written.
-   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
-   */
-  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
-
-  /**
    * Writes all available buffered data to &l:WriteCallback; in an async context.
    * @param writeCallback - write-enabled object to write to
    * @param count - maximum amount of bytes to written.
@@ -237,12 +229,38 @@ public:
   async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream) override;
 
   /**
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
+
+  /**
    * Writes up to count buffered data to &l:WriteCallback; in an async context.
    * @param writeCallback - write-enabled object to write to
    * @param count - maximum amount of bytes to written.
    * @return - &id:async::CoroutineStarter;.
    */
   async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) override;
+
+  /**
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) override;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback, v_buff_size count, v_buff_size readOffset) override;
 
   std::shared_ptr<Chunks> getChunks();
 
@@ -256,6 +274,8 @@ public:
    * Clear data in ChunkedBuffer.
    */
   void clear();
+
+
 
 };
   

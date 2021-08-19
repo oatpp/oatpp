@@ -381,12 +381,30 @@ class BufferedStream {
   virtual v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) = 0;
 
   /**
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  virtual v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) = 0;
+
+  /**
    * Writes up to count buffered data to &l:WriteCallback; in an async context.
    * @param writeCallback - write-enabled object to write to
    * @param count - maximum amount of bytes to written.
    * @return - &id:async::CoroutineStarter;.
    */
   virtual async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) = 0;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count, v_buff_size readOffset) = 0;
 };
 
 /**
@@ -425,7 +443,7 @@ class BufferedInputStream : public InputStream, public BufferedStream {
    * @param writeCallback - write-enabled object to write to
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  virtual v_io_size flushBufferToStream(stream::WriteCallback *writeCallback) override;
+  v_io_size flushBufferToStream(stream::WriteCallback *writeCallback) override;
 
   /**
    * Writes all available buffered data to &l:WriteCallback; in an async context.
@@ -433,15 +451,24 @@ class BufferedInputStream : public InputStream, public BufferedStream {
    * @param count - maximum amount of bytes to written.
    * @return - &id:async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream) override;
+  async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) override;
+
+  /**
+ * Writes up to count of buffered data to &l:WriteCallback;.
+ * @param writeCallback - write-enabled object to write to
+ * @param count - maximum amount of bytes to written.
+ * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+ */
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
 
   /**
    * Writes up to count of buffered data to &l:WriteCallback;.
    * @param writeCallback - write-enabled object to write to
    * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  virtual v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) override;
 
   /**
    * Writes up to count buffered data to &l:WriteCallback; in an async context.
@@ -449,7 +476,17 @@ class BufferedInputStream : public InputStream, public BufferedStream {
    * @param count - maximum amount of bytes to written.
    * @return - &id:async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count) override;
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback, v_buff_size count) override;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback, v_buff_size count, v_buff_size readOffset) override;
+
 };
 
 /**
@@ -605,7 +642,7 @@ class BufferedOutputStream : public ConsistentOutputStream, public BufferedStrea
    * @param writeCallback - write-enabled object to write to
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  virtual v_io_size flushBufferToStream(stream::WriteCallback *writeCallback) override;
+  v_io_size flushBufferToStream(stream::WriteCallback *writeCallback) override;
 
   /**
    * Writes all available buffered data to &l:WriteCallback; in an async context.
@@ -613,7 +650,41 @@ class BufferedOutputStream : public ConsistentOutputStream, public BufferedStrea
    * @param count - maximum amount of bytes to written.
    * @return - &id:async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream) override;
+  async::CoroutineStarter flushBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) override;
+
+  /**
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count) override;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback, v_buff_size count) override;
+
+  /**
+   * Writes up to count of buffered data to &l:WriteCallback;.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
+   */
+  virtual v_io_size writeBufferToStream(stream::WriteCallback *writeCallback, v_buff_size count, v_buff_size readOffset) = 0;
+
+  /**
+   * Writes up to count buffered data to &l:WriteCallback; in an async context.
+   * @param writeCallback - write-enabled object to write to
+   * @param count - maximum amount of bytes to written.
+   * @param readOffset - amount of bytes to skip when reading from the internal buffer.
+   * @return - &id:async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter writeBufferToStreamAsync(const std::shared_ptr<data::stream::WriteCallback>& stream, v_buff_size count, v_buff_size readOffset) = 0;
 };
 
 /**
