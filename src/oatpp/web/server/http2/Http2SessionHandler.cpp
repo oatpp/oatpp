@@ -28,6 +28,8 @@
 
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 
+#include "oatpp/core/async/worker/IOWorker.hpp"
+
 #include <arpa/inet.h>
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
@@ -51,7 +53,6 @@ Http2SessionHandler::ProcessingResources::ProcessingResources(const std::shared_
     , h2streams()
     , lastStream(nullptr)
     , highestNonIdleStreamId(0) {
-  flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
   hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)), inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE));
 //  OATPP_LOGD("oatpp::web::server::http2::Http2SessionHandler::ProcessingResources", "Constructing %p", this);
 }
@@ -259,16 +260,11 @@ std::shared_ptr<Http2StreamHandler> Http2SessionHandler::findOrCreateStream(v_ui
   return handler;
 }
 
+async::Action Http2SessionHandler::nextRequest() {
+  return FrameHeader::readFrameHeaderAsync(m_connection).callbackTo(&Http2SessionHandler::handleFrame);
+}
 
-
-Http2SessionHandler::ConnectionState Http2SessionHandler::processNextRequest(ProcessingResources &resources) {
-
-  std::shared_ptr<FrameHeader> header;
-  try {
-    header = FrameHeader::createShared(resources.inStream);
-  } catch (std::runtime_error &e) {
-    return ConnectionState::DEAD;
-  }
+async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader> &header) {
 
   OATPP_LOGD(TAG, "Received %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(header->getType()), header->getLength(), header->getFlags(), header->getStreamId());
 
@@ -538,55 +534,19 @@ Http2SessionHandler::ConnectionState Http2SessionHandler::delegateToHandler(cons
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Task
+// Setup
 
-Http2SessionHandler::Task::Task(const std::shared_ptr<processing::Components> &components,
+Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
                            std::atomic_long *taskCounter)
-    : m_components(components), m_connection(connection), m_counter(taskCounter), m_delegationParameters(nullptr) {
-  (*m_counter)++;
-}
+    : Http2SessionHandler(components, connection, taskCounter, nullptr) {}
 
-Http2SessionHandler::Task::Task(const std::shared_ptr<processing::Components> &components,
+Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
-                           std::atomic_long *taskCounter,
+                           std::atomic_long *sessionCounter,
                            const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters)
-    : m_components(components), m_connection(connection), m_counter(taskCounter), m_delegationParameters(delegationParameters) {
+    : m_components(components), m_connection(connection), m_counter(sessionCounter) {
   (*m_counter)++;
-}
-
-Http2SessionHandler::Task::Task(const Http2SessionHandler::Task &copy)
-    : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter) {
-  (*m_counter)++;
-}
-
-Http2SessionHandler::Task::Task(Http2SessionHandler::Task &&move)
-    : m_components(std::move(move.m_components)),
-      m_connection(std::move(move.m_connection)),
-      m_counter(move.m_counter) {
-  move.m_counter = nullptr;
-}
-
-Http2SessionHandler::Task &Http2SessionHandler::Task::operator=(const Http2SessionHandler::Task &t) {
-  if (this != &t) {
-    m_components = t.m_components;
-    m_connection = t.m_connection;
-    m_counter = t.m_counter;
-    (*m_counter)++;
-  }
-  return *this;
-}
-
-Http2SessionHandler::Task &Http2SessionHandler::Task::operator=(Http2SessionHandler::Task &&t) {
-  m_components = std::move(t.m_components);
-  m_connection = std::move(t.m_connection);
-  m_counter = t.m_counter;
-  t.m_counter = nullptr;
-  return *this;
-}
-
-void Http2SessionHandler::Task::run() {
-
   m_connection->initContexts();
 
   auto inSettings = http2::Http2Settings::createShared();
@@ -595,9 +555,9 @@ void Http2SessionHandler::Task::run() {
   auto memlabel = std::make_shared<std::string>(inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE), 0);
   v_io_size writePosition = 0;
 
-  if (m_delegationParameters != nullptr) {
-    auto it = m_delegationParameters->find("h2frame");
-    if (it != m_delegationParameters->end()) {
+  if (delegationParameters != nullptr) {
+    auto it = delegationParameters->find("h2frame");
+    if (it != delegationParameters->end()) {
       std::memcpy((void*)memlabel->data(), it->second->data(), it->second->size());
       writePosition = it->second->size() + 1;
     }
@@ -605,29 +565,52 @@ void Http2SessionHandler::Task::run() {
 
   auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, memlabel, 0, writePosition, true);
 
-  ProcessingResources resources(m_components, inSettings, outSettings, inStream, outStream);
-
-  ConnectionState connectionState;
-
-  try {
-
-    Http2SessionHandler::sendSettingsFrame(resources);
-
-    do {
-
-      connectionState = Http2SessionHandler::processNextRequest(resources);
-
-    } while (connectionState == ConnectionState::ALIVE || connectionState == ConnectionState::CLOSING);
-
-    Http2SessionHandler::stop(resources);
-    Http2SessionHandler::invalidateConnection(resources);
-
-  } catch (...) {
-    // DO NOTHING
-  }
-
+  m_resources = ProcessingResources::createShared(m_components, inSettings, outSettings, inStream, outStream);
 }
-Http2SessionHandler::Task::~Task() {
+
+Http2SessionHandler::Http2SessionHandler(const Http2SessionHandler &copy)
+    : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter), m_resources(copy.m_resources) {
+  (*m_counter)++;
+}
+
+Http2SessionHandler::Http2SessionHandler(Http2SessionHandler &&move)
+    : m_components(std::move(move.m_components)),
+      m_connection(std::move(move.m_connection)),
+      m_counter(move.m_counter),
+      m_resources(std::move(move.m_resources)) {
+  move.m_counter = nullptr;
+}
+
+Http2SessionHandler &Http2SessionHandler::operator=(const Http2SessionHandler &t) {
+  if (this != &t) {
+    m_components = t.m_components;
+    m_connection = t.m_connection;
+    m_counter = t.m_counter;
+    m_resources = t.m_resources;
+    (*m_counter)++;
+  }
+  return *this;
+}
+
+Http2SessionHandler &Http2SessionHandler::operator=(Http2SessionHandler &&t) {
+  m_components = std::move(t.m_components);
+  m_connection = std::move(t.m_connection);
+  m_resources = std::move(t.m_resources);
+  m_counter = t.m_counter;
+  t.m_counter = nullptr;
+  return *this;
+}
+
+async::Action Http2SessionHandler::act() {
+  try {
+    Http2SessionHandler::sendSettingsFrame(*m_resources);
+  } catch (...) {
+    return finish();
+  }
+  return yieldTo(&Http2SessionHandler::nextRequest);
+}
+
+Http2SessionHandler::~Http2SessionHandler() noexcept {
   if (m_counter != nullptr) {
     (*m_counter)--;
   }

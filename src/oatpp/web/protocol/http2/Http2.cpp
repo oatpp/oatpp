@@ -83,12 +83,17 @@ Frame::Header::Header(v_uint32 length, v_uint8 flags, FrameType type, v_uint32 s
 
 std::shared_ptr<Frame::Header> Frame::Header::createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream) {
   v_uint8 data[9] = {0};
+  data::share::MemoryLabel label(nullptr, data, 9);
   data::buffer::InlineReadData inlineData((void*)data, 9);
   if (stream->readExactSizeDataSimple(inlineData) != 9) {
     OATPP_LOGE(TAG, "Error: Could not read http2 frame header from stream.");
     throw std::runtime_error("[oatpp::web::protocol::http2::Frame::Header] Error: Could not read http2 frame header from stream.");
   }
-  p_uint8 dataptr = (p_uint8) data;
+  return createShared(label);
+}
+
+std::shared_ptr<Frame::Header> Frame::Header::createShared(const data::share::MemoryLabel &label) {
+  p_uint8 dataptr = (p_uint8) label.getData();
   v_uint32 payloadLength = ((*dataptr) << 16) | (*(dataptr + 1) << 8) | (*(dataptr + 2));
   dataptr += 3;
   auto type = (FrameType) *dataptr++;
@@ -130,6 +135,58 @@ Frame::Header::FrameType Frame::Header::getType() const {
 
 v_uint32 Frame::Header::getStreamId() const {
   return m_streamId;
+}
+
+
+oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Frame::Header>&>
+Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+{
+
+  class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const std::shared_ptr<Frame::Header>&> {
+   private:
+    v_uint8 m_buffer[9];
+    v_uint32 m_pos;
+    data::share::MemoryLabel m_label;
+    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+
+   public:
+
+    ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+        : m_connection(connection)
+        , m_buffer{}
+        , m_label(nullptr, m_buffer, 9)
+    {}
+
+    Action act() override {
+
+      async::Action action;
+      auto bufferData = (p_char8) m_buffer;
+      auto res = m_connection->read(bufferData, 9 - m_pos, action);
+
+      if(!action.isNone()) {
+        return action;
+      }
+
+      if(m_pos == 9) {
+        return _return(Frame::Header::createShared(m_label));
+      } else {
+        if (res > 0) {
+          m_pos += res;
+          return repeat();
+        } else if (res == IOError::RETRY_READ || res == IOError::RETRY_WRITE) {
+          return repeat();
+        }
+
+      }
+
+      return error<Error>("[oatpp::web::protocol::http2::Frame::Header::readFrameHeaderAsync()]: Error. Error reading connection stream.");
+
+    }
+
+  };
+
+  return ReaderCoroutine::startForResult(connection);
+
 }
 
 }}}}

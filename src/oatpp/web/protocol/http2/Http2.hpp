@@ -260,6 +260,7 @@ public:
      return std::make_shared<Header>(length, flags, type, streamId);
    }
    static std::shared_ptr<Header> createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream);
+   static std::shared_ptr<Header> createShared(const data::share::MemoryLabel &label);
 
    v_io_size writeToStream(data::stream::OutputStream *stream);
    oatpp::String toString();
@@ -270,6 +271,13 @@ public:
    v_uint32 getStreamId() const;
 
    static const char* frameTypeStringRepresentation(FrameType t);
+
+   /**
+   * Read and parse http headers from stream in asynchronous manner.
+   * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
+   * @return - &id:oatpp::async::CoroutineStarterForResult;.
+   */
+   static oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Header> &> readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
  };
 
 protected:

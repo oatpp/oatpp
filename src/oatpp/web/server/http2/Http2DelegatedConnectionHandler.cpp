@@ -25,15 +25,23 @@
 #include "Http2DelegatedConnectionHandler.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
 
-void oatpp::web::server::http2::Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection,
-                                                                    const std::shared_ptr<const ParameterMap> &params) {
+namespace oatpp { namespace web { namespace server { namespace http2 {
+
+Http2DelegatedConnectionHandler::Http2DelegatedConnectionHandler(std::shared_ptr<HttpRouter>& router)
+  : Http2DelegatedConnectionHandler(std::make_shared<http2::processing::Components>(router)) {}
+
+Http2DelegatedConnectionHandler::Http2DelegatedConnectionHandler(const std::shared_ptr<http2::processing::Components> &components)
+  : m_components(components)
+  , m_exec() {
+}
+
+void Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection, const std::shared_ptr<const ParameterMap> &params) {
 
   OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection (%p).", connection.get());
-  connection->setInputStreamIOMode(data::stream::IOMode::BLOCKING);
-  Http2SessionHandler::Task task(m_components, connection, &m_spawns, params);
-  task.run();
-  OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Done (%p).", connection.get());
+  m_exec.execute<Http2SessionHandler::Task>(m_components, connection, &m_spawns, params);
 }
 
-void oatpp::web::server::http2::Http2DelegatedConnectionHandler::stop() {
+void Http2DelegatedConnectionHandler::stop() {
 }
+
+}}}}

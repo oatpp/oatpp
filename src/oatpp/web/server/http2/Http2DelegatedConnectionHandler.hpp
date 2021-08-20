@@ -28,16 +28,19 @@
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/server/http2/Http2SessionHandler.hpp"
 
+#include "oatpp/core/async/Executor.hpp"
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 class Http2DelegatedConnectionHandler : public base::Countable, public network::ConnectionHandler {
  private:
   std::shared_ptr<http2::processing::Components> m_components;
   std::atomic_long m_spawns;
+  oatpp::async::Executor m_exec;
 
  public:
-  Http2DelegatedConnectionHandler(std::shared_ptr<HttpRouter>& router) : Http2DelegatedConnectionHandler(std::make_shared<http2::processing::Components>(router)) {}
-  Http2DelegatedConnectionHandler(const std::shared_ptr<http2::processing::Components> &components) : m_components(components) {};
+  Http2DelegatedConnectionHandler(std::shared_ptr<HttpRouter>& router);
+  Http2DelegatedConnectionHandler(const std::shared_ptr<http2::processing::Components> &components);
 
   /**
    * Implementation of &id:oatpp::network::ConnectionHandler::handleConnection;.

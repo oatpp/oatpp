@@ -48,19 +48,21 @@
 #include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
 #include "oatpp/web/server/http2/Http2Settings.hpp"
 
+#include "oatpp/core/async/Coroutine.hpp"
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 /**
  * HttpProcessor. Helper class to handle HTTP processing.
  */
-class Http2SessionHandler {
-public:
+class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> {
+ public:
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
   typedef protocol::http2::Frame::Header::FrameType FrameType;
   typedef protocol::http2::Frame::Header FrameHeader;
 
-private:
+ private:
   static const char* TAG;
 
   struct ProcessingResources {
@@ -70,7 +72,14 @@ private:
                         const std::shared_ptr<http2::Http2Settings>& pOutSettings,
                         const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
                         const std::shared_ptr<http2::PriorityStreamScheduler>& pOutStream);
-    virtual ~ProcessingResources();
+    static std::shared_ptr<ProcessingResources> createShared(const std::shared_ptr<processing::Components>& pComponents,
+                                                             const std::shared_ptr<http2::Http2Settings>& pInSettings,
+                                                             const std::shared_ptr<http2::Http2Settings>& pOutSettings,
+                                                             const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
+                                                             const std::shared_ptr<http2::PriorityStreamScheduler>& pOutStream) {
+      return std::make_shared<ProcessingResources>(pComponents, pInSettings, pOutSettings, pInStream, pOutStream);
+    }
+    ~ProcessingResources();
 
     std::shared_ptr<processing::Components> components;
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
@@ -92,17 +101,81 @@ private:
 
     std::shared_ptr<http2::Http2Settings> inSettings;
     std::shared_ptr<http2::Http2Settings> outSettings;
-
-    v_uint32 flow;
   };
+
+  std::shared_ptr<ProcessingResources> m_resources;
+  std::shared_ptr<processing::Components> m_components;
+  std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+  std::atomic_long *m_counter;
+
+
+ public:
+
+    /**
+     * Constructor.
+     * @param components - &l:HttpProcessor::Components;.
+     * @param connection - &id:oatpp::data::stream::IOStream;.
+     * @param taskCounter - Counter to increment for every creates task
+     */
+    Http2SessionHandler(const std::shared_ptr<processing::Components>& components,
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+         std::atomic_long *taskCounter);
+
+    /**
+     * Constructor.
+     * @param components - &l:HttpProcessor::Components;.
+     * @param connection - &id:oatpp::data::stream::IOStream;.
+     * @param taskCounter - Counter to increment for every creates task
+     * @param delegationParameters - Parameter-Map from delegation (if any)
+     */
+    Http2SessionHandler(const std::shared_ptr<processing::Components>& components,
+         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+         std::atomic_long *taskCounter,
+         const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters);
+
+    /**
+     * Copy-Constructor to correctly count sessions.
+     */
+    Http2SessionHandler(const Http2SessionHandler &copy);
+
+    /**
+     * Copy-Assignment to correctly count sessions.
+     * @param t - Task to copy
+     * @return
+     */
+    Http2SessionHandler &operator=(const Http2SessionHandler &t);
+
+    /**
+     * Move-Constructor to correclty count sessions;
+     */
+    Http2SessionHandler(Http2SessionHandler &&move);
+
+     /**
+      * Move-Assignment to correctly count tasks.
+      * @param t
+      * @return
+      */
+     Http2SessionHandler &operator=(Http2SessionHandler &&t);
+
+    /**
+     * Destructor, needed for counting.
+     */
+    ~Http2SessionHandler() override;
+
+ public:
+  Action act() override;
+
+ private:
+  Action nextRequest();
+  Action handleFrame(const std::shared_ptr<FrameHeader> &header);
+
 
   static void stop(ProcessingResources& resources);
   static ConnectionState invalidateConnection(ProcessingResources& resources);
-  static ConnectionState processNextRequest(ProcessingResources& resources);
   static ConnectionState delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
-                                          const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                            Http2SessionHandler::ProcessingResources &resources,
-                                          protocol::http2::Frame::Header &header);
+                                           protocol::http2::Frame::Header &header);
   static std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident,
                                                                 ProcessingResources &resources);
   static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
@@ -116,83 +189,9 @@ private:
   static v_io_size sendResetStreamFrame(Http2SessionHandler::ProcessingResources &resources,
                                         v_uint32 stream,
                                         protocol::http2::error::ErrorCode errorCode);
-public:
-
-  /**
-   * Connection serving task. <br>
-   * Usege example: <br>
-   * `std::thread thread(&HttpProcessor::Task::run, HttpProcessor::Task(components, connection));`
-   */
-  class Task : public base::Countable {
-  private:
-    std::shared_ptr<processing::Components> m_components;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
-    std::atomic_long *m_counter;
-    const std::shared_ptr<const network::ConnectionHandler::ParameterMap> m_delegationParameters;
-  public:
-
-    /**
-     * Constructor.
-     * @param components - &l:HttpProcessor::Components;.
-     * @param connection - &id:oatpp::data::stream::IOStream;.
-     * @param taskCounter - Counter to increment for every creates task
-     */
-    Task(const std::shared_ptr<processing::Components>& components,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         std::atomic_long *taskCounter);
-
-    /**
-     * Constructor.
-     * @param components - &l:HttpProcessor::Components;.
-     * @param connection - &id:oatpp::data::stream::IOStream;.
-     * @param taskCounter - Counter to increment for every creates task
-     * @param delegationParameters - Parameter-Map from delegation (if any)
-     */
-    Task(const std::shared_ptr<processing::Components>& components,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         std::atomic_long *taskCounter,
-         const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters);
-
-    /**
-     * Copy-Constructor to correctly count tasks.
-     */
-    Task(const Task &copy);
-
-    /**
-     * Copy-Assignment to correctly count tasks.
-     * @param t - Task to copy
-     * @return
-     */
-    Task &operator=(const Task &t);
-
-    /**
-     * Move-Constructor to correclty count tasks;
-     */
-     Task(Task &&move);
-
-     /**
-      * Move-Assignment to correctly count tasks.
-      * @param t
-      * @return
-      */
-    Task &operator=(Task &&t);
-
-    /**
-     * Destructor, needed for counting.
-     */
-    ~Task() override;
-
-  public:
-
-    /**
-     * Run loop.
-     */
-    void run();
 
   };
 
-};
-  
 }}}}
 
 #endif /* oatpp_web_server_http2_Http2SessionHandler_hpp */
