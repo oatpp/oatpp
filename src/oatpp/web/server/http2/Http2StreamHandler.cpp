@@ -300,7 +300,7 @@ void Http2StreamHandler::Task::clean() {
 void Http2StreamHandler::processError(std::shared_ptr<Task> task, protocol::http2::error::ErrorCode code) {
   // ToDo Signal abortion of process to Htt2Processor and close connection
   char TAG[80];
-  snprintf(TAG, 64, "oatpp::web::server::http2::Http2StreamHandler(%d)::processError", task->streamId);
+  snprintf(TAG, 80, "oatpp::web::server::http2::Http2StreamHandler(%d)::processError", task->streamId);
   protocol::http2::Frame::Header header(8, 0, protocol::http2::Frame::Header::FrameType::GOAWAY, 0);
   OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
   v_uint32 lastStream = htonl(task->streamId);
@@ -322,7 +322,7 @@ void Http2StreamHandler::processError(std::shared_ptr<Task> task, protocol::http
 
 void Http2StreamHandler::process(std::shared_ptr<Task> task) {
   char TAG[68];
-  snprintf(TAG, 64, "oatpp::web::server::http2::Http2StreamHandler(%d)::process", task->streamId);
+  snprintf(TAG, 68, "oatpp::web::server::http2::Http2StreamHandler(%d)::process", task->streamId);
 
   protocol::http2::Headers requestHeaders;
   try {

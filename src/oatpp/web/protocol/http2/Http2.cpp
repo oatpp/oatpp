@@ -81,7 +81,7 @@ Frame::Header::Header(v_uint32 length, v_uint8 flags, FrameType type, v_uint32 s
   , m_streamId(streamId) {
 }
 
-std::shared_ptr<Frame::Header> Frame::Header::createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> stream) {
+std::shared_ptr<Frame::Header> Frame::Header::createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream) {
   v_uint8 data[9] = {0};
   data::buffer::InlineReadData inlineData((void*)data, 9);
   if (stream->readExactSizeDataSimple(inlineData) != 9) {

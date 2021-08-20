@@ -273,8 +273,8 @@ add_library(oatpp
         oatpp/web/server/http2/Http2DelegatedConnectionHandler.hpp
         oatpp/web/server/http2/Http2ProcessingComponents.cpp
         oatpp/web/server/http2/Http2ProcessingComponents.hpp
-        oatpp/web/server/http2/Http2Processor.cpp
-        oatpp/web/server/http2/Http2Processor.hpp
+        oatpp/web/server/http2/Http2SessionHandler.cpp
+        oatpp/web/server/http2/Http2SessionHandler.hpp
         oatpp/web/server/http2/Http2Settings.cpp
         oatpp/web/server/http2/Http2Settings.hpp
         oatpp/web/server/http2/Http2StreamHandler.cpp

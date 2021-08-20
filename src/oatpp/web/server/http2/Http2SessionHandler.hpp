@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_http2_HttpProcessor_hpp
-#define oatpp_web_server_http2_HttpProcessor_hpp
+#ifndef oatpp_web_server_http2_Http2SessionHandler_hpp
+#define oatpp_web_server_http2_Http2SessionHandler_hpp
 
 #include "oatpp/web/server/HttpRouter.hpp"
 
@@ -53,7 +53,7 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
 /**
  * HttpProcessor. Helper class to handle HTTP processing.
  */
-class Http2Processor {
+class Http2SessionHandler {
 public:
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
@@ -101,19 +101,19 @@ private:
   static ConnectionState processNextRequest(ProcessingResources& resources);
   static ConnectionState delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
-                                          Http2Processor::ProcessingResources &resources,
+                                           Http2SessionHandler::ProcessingResources &resources,
                                           protocol::http2::Frame::Header &header);
   static std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident,
                                                                 ProcessingResources &resources);
   static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
 
-  static v_io_size sendSettingsFrame(Http2Processor::ProcessingResources &resources);
-  static v_io_size ackSettingsFrame(Http2Processor::ProcessingResources &resources);
-  static v_io_size answerPingFrame(Http2Processor::ProcessingResources &resources);
-  static v_io_size sendGoawayFrame(Http2Processor::ProcessingResources &resources,
+  static v_io_size sendSettingsFrame(Http2SessionHandler::ProcessingResources &resources);
+  static v_io_size ackSettingsFrame(Http2SessionHandler::ProcessingResources &resources);
+  static v_io_size answerPingFrame(Http2SessionHandler::ProcessingResources &resources);
+  static v_io_size sendGoawayFrame(Http2SessionHandler::ProcessingResources &resources,
                                    v_uint32 lastStream,
                                    protocol::http2::error::ErrorCode errorCode);
-  static v_io_size sendResetStreamFrame(Http2Processor::ProcessingResources &resources,
+  static v_io_size sendResetStreamFrame(Http2SessionHandler::ProcessingResources &resources,
                                         v_uint32 stream,
                                         protocol::http2::error::ErrorCode errorCode);
 public:
@@ -195,4 +195,4 @@ public:
   
 }}}}
 
-#endif /* oatpp_web_server_http2_HttpProcessor_hpp */
+#endif /* oatpp_web_server_http2_Http2SessionHandler_hpp */

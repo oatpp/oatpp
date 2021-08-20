@@ -259,7 +259,7 @@ public:
    static std::shared_ptr<Header> createShared(v_uint32 length, v_uint8 flags, FrameType type, v_uint32 streamId) {
      return std::make_shared<Header>(length, flags, type, streamId);
    }
-   static std::shared_ptr<Header> createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> stream);
+   static std::shared_ptr<Header> createShared(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream);
 
    v_io_size writeToStream(data::stream::OutputStream *stream);
    oatpp::String toString();

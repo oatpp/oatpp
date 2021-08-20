@@ -26,7 +26,7 @@
 #define oatpp_web_server_http2_Http2DelegatedConnectionHandler_hpp
 
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
-#include "oatpp/web/server/http2/Http2Processor.hpp"
+#include "oatpp/web/server/http2/Http2SessionHandler.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 

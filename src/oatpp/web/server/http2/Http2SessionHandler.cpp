@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include "Http2Processor.hpp"
+#include "Http2SessionHandler.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
@@ -32,12 +32,12 @@
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
-const char* Http2Processor::TAG = "oatpp::web::server::http2::Http2Processor";
+const char* Http2SessionHandler::TAG = "oatpp::web::server::http2::Http2SessionHandler";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
 
-Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<processing::Components> &pComponents,
+Http2SessionHandler::ProcessingResources::ProcessingResources(const std::shared_ptr<processing::Components> &pComponents,
                                                          const std::shared_ptr<http2::Http2Settings> &pInSettings,
                                                          const std::shared_ptr<http2::Http2Settings> &pOutSettings,
                                                          const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> &pInStream,
@@ -53,16 +53,16 @@ Http2Processor::ProcessingResources::ProcessingResources(const std::shared_ptr<p
     , highestNonIdleStreamId(0) {
   flow = inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
   hpack = protocol::http2::hpack::SimpleHpack::createShared(protocol::http2::hpack::SimpleTable::createShared(inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)), inSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE));
-//  OATPP_LOGD("oatpp::web::server::http2::Http2Processor::ProcessingResources", "Constructing %p", this);
+//  OATPP_LOGD("oatpp::web::server::http2::Http2SessionHandler::ProcessingResources", "Constructing %p", this);
 }
 
-Http2Processor::ProcessingResources::~ProcessingResources() {
-//  OATPP_LOGD("oatpp::web::server::http2::Http2Processor::ProcessingResources", "Destructing %p", this);
+Http2SessionHandler::ProcessingResources::~ProcessingResources() {
+//  OATPP_LOGD("oatpp::web::server::http2::Http2SessionHandler::ProcessingResources", "Destructing %p", this);
 }
 
 //
 //std::shared_ptr<protocol::http::outgoing::Response>
-//Http2Processor::processNextRequest(ProcessingResources &resources,
+//Http2SessionHandler::processNextRequest(ProcessingResources &resources,
 //                                   const std::shared_ptr<protocol::http::incoming::Request> &request,
 //                                   ConnectionState &connectionState) {
 //
@@ -110,7 +110,7 @@ Http2Processor::ProcessingResources::~ProcessingResources() {
 //
 //}
 
-v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources &resources) {
+v_io_size Http2SessionHandler::sendSettingsFrame(Http2SessionHandler::ProcessingResources &resources) {
   static const Http2Settings defaultSettings;
   data::stream::BufferOutputStream bos(FrameHeader::HeaderSize+(6*6));
   bos.setCurrentPosition(3);
@@ -171,7 +171,7 @@ v_io_size Http2Processor::sendSettingsFrame(Http2Processor::ProcessingResources 
   return 9 + payload;
 }
 
-v_io_size Http2Processor::ackSettingsFrame(Http2Processor::ProcessingResources &resources) {
+v_io_size Http2SessionHandler::ackSettingsFrame(Http2SessionHandler::ProcessingResources &resources) {
   FrameHeader header(0, FrameHeader::Flags::Settings::SETTINGS_ACK, FrameType::SETTINGS, 0);
   OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(header.getType()), header.getLength(), header.getFlags(), header.getStreamId());
   resources.outStream->lock(PriorityStreamScheduler::PRIORITY_MAX);
@@ -181,7 +181,7 @@ v_io_size Http2Processor::ackSettingsFrame(Http2Processor::ProcessingResources &
   return FrameHeader::HeaderSize;
 }
 
-v_io_size Http2Processor::answerPingFrame(Http2Processor::ProcessingResources &resources) {
+v_io_size Http2SessionHandler::answerPingFrame(Http2SessionHandler::ProcessingResources &resources) {
 
   data::stream::BufferOutputStream bos(FrameHeader::HeaderSize+8);
   FrameHeader header(8, FrameHeader::Flags::Ping::PING_ACK, FrameType::PING, 0);
@@ -197,7 +197,7 @@ v_io_size Http2Processor::answerPingFrame(Http2Processor::ProcessingResources &r
   return FrameHeader::HeaderSize+8;
 }
 
-v_io_size Http2Processor::sendGoawayFrame(Http2Processor::ProcessingResources &resources,
+v_io_size Http2SessionHandler::sendGoawayFrame(Http2SessionHandler::ProcessingResources &resources,
                                           v_uint32 lastStream,
                                           protocol::http2::error::ErrorCode errorCode) {
   FrameHeader header(8, 0, FrameType::GOAWAY, 0);
@@ -213,7 +213,7 @@ v_io_size Http2Processor::sendGoawayFrame(Http2Processor::ProcessingResources &r
   return FrameHeader::HeaderSize;
 }
 
-v_io_size Http2Processor::sendResetStreamFrame(Http2Processor::ProcessingResources &resources,
+v_io_size Http2SessionHandler::sendResetStreamFrame(Http2SessionHandler::ProcessingResources &resources,
                                                v_uint32 stream,
                                                protocol::http2::error::ErrorCode errorCode) {
   FrameHeader header(4, 0, FrameType::RST_STREAM, stream);
@@ -227,7 +227,7 @@ v_io_size Http2Processor::sendResetStreamFrame(Http2Processor::ProcessingResourc
   return FrameHeader::HeaderSize;
 }
 
-v_io_size Http2Processor::consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
+v_io_size Http2SessionHandler::consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                         v_io_size streamPayloadLength) {
   v_io_size consumed = 0;
   while (consumed < streamPayloadLength) {
@@ -243,13 +243,13 @@ v_io_size Http2Processor::consumeStream(const std::shared_ptr<data::stream::Inpu
   return consumed;
 }
 
-std::shared_ptr<Http2StreamHandler> Http2Processor::findOrCreateStream(v_uint32 ident,
+std::shared_ptr<Http2StreamHandler> Http2SessionHandler::findOrCreateStream(v_uint32 ident,
                                                                        ProcessingResources &resources) {
   std::shared_ptr<Http2StreamHandler> handler;
   auto handlerentry = resources.h2streams.find(ident);
   if (handlerentry == resources.h2streams.end()) {
     if (ident < resources.highestNonIdleStreamId) {
-      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
+      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
     }
     handler = std::make_shared<Http2StreamHandler>(ident, resources.outStream, resources.hpack, resources.components, resources.inSettings, resources.outSettings);
     resources.h2streams.insert({ident, handler});
@@ -261,7 +261,7 @@ std::shared_ptr<Http2StreamHandler> Http2Processor::findOrCreateStream(v_uint32 
 
 
 
-Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingResources &resources) {
+Http2SessionHandler::ConnectionState Http2SessionHandler::processNextRequest(ProcessingResources &resources) {
 
   std::shared_ptr<FrameHeader> header;
   try {
@@ -274,7 +274,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
   // streamId's have to be uneven numbers
   if ((header->getStreamId() != 0) && (header->getStreamId() & 0x01) == 0) {
-    OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received even streamId (PROTOCOL_ERROR)");
+    OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received even streamId (PROTOCOL_ERROR)");
     sendGoawayFrame(resources, resources.lastStream ? resources.lastStream->getStreamId() : 0, protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
     return ConnectionState::DEAD;
   }
@@ -283,7 +283,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
     // Headers have to be sent as continous frames of HEADERS, PUSH_PROMISE and CONTINUATION.
     // Only if the last opened stream transitioned beyond its HEADERS stage, other frames are allowed
     if (resources.lastStream->getState() < Http2StreamHandler::H2StreamState::PAYLOAD && resources.lastStream->getState() > Http2StreamHandler::H2StreamState::INIT) {
-      OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Last opened stream is still in its HEADER state but frame for different stream received (PROTOCOL_ERROR)");
+      OATPP_LOGE(TAG, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Last opened stream is still in its HEADER state but frame for different stream received (PROTOCOL_ERROR)");
       sendGoawayFrame(resources, resources.lastStream->getStreamId(), protocol::http2::error::ErrorCode::PROTOCOL_ERROR);
       return ConnectionState::DEAD;
     }
@@ -295,10 +295,10 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
       case FrameType::PING:
         if (header->getStreamId() != 0) {
           consumeStream(resources.inStream, header->getLength());
-          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received PING frame on stream");
+          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING frame on stream");
         }
         if (header->getLength() != 8) {
-          throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received PING with invalid frame size");
+          throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING with invalid frame size");
         }
         // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
         if ((header->getFlags() & 0x01) == 0x00) {
@@ -314,11 +314,11 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
 
       case FrameType::SETTINGS:
         if (header->getStreamId() != 0) {
-          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS frame on stream");
+          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS frame on stream");
         }
         if (header->getFlags() == 0) {
           if (header->getLength() % 6) {
-            throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS with invalid frame size");
+            throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS with invalid frame size");
           }
           v_uint32 initialWindowSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
           v_uint32 tableSize = resources.outSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE);
@@ -356,7 +356,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
           }
           ackSettingsFrame(resources);
         } else if (header->getFlags() == 0x01 && header->getLength() > 0) {
-          throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received SETTINGS ack with payload");
+          throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS ack with payload");
         }
         break;
 
@@ -387,19 +387,19 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
           while (processNextRequest(resources) != ConnectionState::DEAD) {}
           return ConnectionState::CLOSING;
         } else {
-          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received GOAWAY on stream.");
+          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received GOAWAY on stream.");
         }
 
       case FrameType::WINDOW_UPDATE:
         if (header->getStreamId() == 0) {
           if (header->getLength() != 4) {
-            throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
+            throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
           }
           v_uint32 increment;
           resources.inStream->readExactSizeDataSimple(&increment, 4);
           increment = ntohl(increment);
           if (increment == 0) {
-            throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Increment of 0");
+            throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Increment of 0");
           }
           OATPP_LOGD(TAG, "Incrementing out-window by %u", increment);
           resources.outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, resources.outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)+increment);
@@ -421,7 +421,7 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
       case FrameType::PUSH_PROMISE:
       case FrameType::CONTINUATION:
         if (header->getStreamId() == 0) {
-          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received stream related frame on stream(0)");
+          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received stream related frame on stream(0)");
         } else {
           resources.lastStream = findOrCreateStream(header->getStreamId(), resources);
           ConnectionState state = delegateToHandler(resources.lastStream, resources.inStream, resources, *header);
@@ -450,11 +450,11 @@ Http2Processor::ConnectionState Http2Processor::processNextRequest(ProcessingRes
   return ConnectionState::ALIVE;
 }
 
-Http2Processor::ConnectionState Http2Processor::invalidateConnection(Http2Processor::ProcessingResources &resources) {
+Http2SessionHandler::ConnectionState Http2SessionHandler::invalidateConnection(Http2SessionHandler::ProcessingResources &resources) {
   return ConnectionState::DEAD;
 }
 
-void Http2Processor::stop(Http2Processor::ProcessingResources &resources) {
+void Http2SessionHandler::stop(Http2SessionHandler::ProcessingResources &resources) {
   for(auto & h2stream : resources.h2streams) {
     if (h2stream.second != nullptr) {
       h2stream.second->abort();
@@ -467,9 +467,9 @@ void Http2Processor::stop(Http2Processor::ProcessingResources &resources) {
   }
 }
 
-Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
+Http2SessionHandler::ConnectionState Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
                                                                   const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
-                                                                  Http2Processor::ProcessingResources &resources,
+                                                                  Http2SessionHandler::ProcessingResources &resources,
                                                                   FrameHeader &header) {
   ConnectionState state = ConnectionState::CLOSING;
 
@@ -481,17 +481,17 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
       if (handler->getState() != Http2StreamHandler::H2StreamState::PAYLOAD) {
         if (handler->getState() >= Http2StreamHandler::H2StreamState::PROCESSING) {
           throw protocol::http2::error::connection::StreamClosed(
-              "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that is already (half-)closed");
+              "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is already (half-)closed");
         }
         throw protocol::http2::error::connection::ProtocolError(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received data for stream that is not in payload state");
+            "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is not in payload state");
       }
       state = handler->handleData(header.getFlags(), resources.inStream, header.getLength());
       break;
     case FrameType::HEADERS:
       if (handler->getState() >= Http2StreamHandler::H2StreamState::PROCESSING) {
         throw protocol::http2::error::connection::StreamClosed(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received headers for stream that is already (half-)closed");
+            "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received headers for stream that is already (half-)closed");
       }
       if (handler->getStreamId() > resources.highestNonIdleStreamId) {
         resources.highestNonIdleStreamId = handler->getStreamId();
@@ -500,13 +500,13 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
       break;
     case FrameType::PRIORITY:
       if (handler->getState() == Http2StreamHandler::H2StreamState::HEADERS || handler->getState() == Http2StreamHandler::H2StreamState::CONTINUATION) {
-        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received PRIORITY frame while still in header state.");
+        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PRIORITY frame while still in header state.");
       }
       state = handler->handlePriority(header.getFlags(), resources.inStream, header.getLength());
       break;
     case FrameType::RST_STREAM:
       if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
-        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received RST_STREAM on an idle stream.");
+        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received RST_STREAM on an idle stream.");
       }
       state = handler->handleResetStream(header.getFlags(), resources.inStream, header.getLength());
       sendResetStreamFrame(resources, handler->getStreamId(), protocol::http2::error::ErrorCode::CANCEL);
@@ -516,7 +516,7 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
       break;
     case FrameType::WINDOW_UPDATE:
       if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
-        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received WINDOW_UPDATE on an idle stream.");
+        throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE on an idle stream.");
       }
       state = handler->handleWindowUpdate(header.getFlags(), resources.inStream, header.getLength());
       break;
@@ -525,7 +525,7 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
       if (handler->getState() != Http2StreamHandler::H2StreamState::HEADERS && handler->getState() != Http2StreamHandler::H2StreamState::CONTINUATION) {
         consumeStream(resources.inStream, header.getLength());
         throw protocol::http2::error::connection::ProtocolError(
-            "[oatpp::web::server::http2::Http2Processor::processNextRequest] Error: Received continued headers for stream that is not in its header state");
+            "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received continued headers for stream that is not in its header state");
       }
       state = handler->handleContinuation(header.getFlags(), resources.inStream, header.getLength());
       break;
@@ -540,14 +540,14 @@ Http2Processor::ConnectionState Http2Processor::delegateToHandler(const std::sha
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Task
 
-Http2Processor::Task::Task(const std::shared_ptr<processing::Components> &components,
+Http2SessionHandler::Task::Task(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
                            std::atomic_long *taskCounter)
     : m_components(components), m_connection(connection), m_counter(taskCounter), m_delegationParameters(nullptr) {
   (*m_counter)++;
 }
 
-Http2Processor::Task::Task(const std::shared_ptr<processing::Components> &components,
+Http2SessionHandler::Task::Task(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
                            std::atomic_long *taskCounter,
                            const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters)
@@ -555,19 +555,19 @@ Http2Processor::Task::Task(const std::shared_ptr<processing::Components> &compon
   (*m_counter)++;
 }
 
-Http2Processor::Task::Task(const Http2Processor::Task &copy)
+Http2SessionHandler::Task::Task(const Http2SessionHandler::Task &copy)
     : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter) {
   (*m_counter)++;
 }
 
-Http2Processor::Task::Task(Http2Processor::Task &&move)
+Http2SessionHandler::Task::Task(Http2SessionHandler::Task &&move)
     : m_components(std::move(move.m_components)),
       m_connection(std::move(move.m_connection)),
       m_counter(move.m_counter) {
   move.m_counter = nullptr;
 }
 
-Http2Processor::Task &Http2Processor::Task::operator=(const Http2Processor::Task &t) {
+Http2SessionHandler::Task &Http2SessionHandler::Task::operator=(const Http2SessionHandler::Task &t) {
   if (this != &t) {
     m_components = t.m_components;
     m_connection = t.m_connection;
@@ -577,7 +577,7 @@ Http2Processor::Task &Http2Processor::Task::operator=(const Http2Processor::Task
   return *this;
 }
 
-Http2Processor::Task &Http2Processor::Task::operator=(Http2Processor::Task &&t) {
+Http2SessionHandler::Task &Http2SessionHandler::Task::operator=(Http2SessionHandler::Task &&t) {
   m_components = std::move(t.m_components);
   m_connection = std::move(t.m_connection);
   m_counter = t.m_counter;
@@ -585,7 +585,7 @@ Http2Processor::Task &Http2Processor::Task::operator=(Http2Processor::Task &&t) 
   return *this;
 }
 
-void Http2Processor::Task::run() {
+void Http2SessionHandler::Task::run() {
 
   m_connection->initContexts();
 
@@ -611,23 +611,23 @@ void Http2Processor::Task::run() {
 
   try {
 
-    Http2Processor::sendSettingsFrame(resources);
+    Http2SessionHandler::sendSettingsFrame(resources);
 
     do {
 
-      connectionState = Http2Processor::processNextRequest(resources);
+      connectionState = Http2SessionHandler::processNextRequest(resources);
 
     } while (connectionState == ConnectionState::ALIVE || connectionState == ConnectionState::CLOSING);
 
-    Http2Processor::stop(resources);
-    Http2Processor::invalidateConnection(resources);
+    Http2SessionHandler::stop(resources);
+    Http2SessionHandler::invalidateConnection(resources);
 
   } catch (...) {
     // DO NOTHING
   }
 
 }
-Http2Processor::Task::~Task() {
+Http2SessionHandler::Task::~Task() {
   if (m_counter != nullptr) {
     (*m_counter)--;
   }

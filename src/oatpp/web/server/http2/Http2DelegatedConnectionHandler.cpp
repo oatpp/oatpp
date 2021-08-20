@@ -24,14 +24,13 @@
 
 #include "Http2DelegatedConnectionHandler.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
-#include "oatpp/web/server/http2/Http2Processor.hpp"
 
 void oatpp::web::server::http2::Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection,
                                                                     const std::shared_ptr<const ParameterMap> &params) {
 
   OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection (%p).", connection.get());
   connection->setInputStreamIOMode(data::stream::IOMode::BLOCKING);
-  Http2Processor::Task task(m_components, connection, &m_spawns, params);
+  Http2SessionHandler::Task task(m_components, connection, &m_spawns, params);
   task.run();
   OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Done (%p).", connection.get());
 }
