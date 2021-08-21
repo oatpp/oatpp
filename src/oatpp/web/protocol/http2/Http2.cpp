@@ -102,16 +102,25 @@ std::shared_ptr<Frame::Header> Frame::Header::createShared(const data::share::Me
   return std::make_shared<Header>(payloadLength, flags, type, streamIdent);
 }
 
+v_io_size Frame::Header::writeToBuffer(p_uint8 buffer) {
+  *buffer++ = (m_length >> 16) & 0xff;
+  *buffer++ = (m_length >> 8) & 0xff;
+  *buffer++ = (m_length & 0xff);
+
+  *buffer++ = m_type;
+  *buffer++ = m_flags;
+
+  *buffer++ = (m_streamId >> 24) & 0xff;
+  *buffer++ = (m_streamId >> 16) & 0xff;
+  *buffer++ = (m_streamId >> 8) & 0xff;
+  *buffer = (m_streamId & 0xff);
+  return HeaderSize;
+}
+
 v_io_size Frame::Header::writeToStream(data::stream::OutputStream *stream) {
-  stream->writeCharSimple((m_length >> 16) & 0xff);
-  stream->writeCharSimple((m_length >> 8) & 0xff);
-  stream->writeCharSimple(m_length & 0xff);
-
-  stream->writeSimple(&m_type, 1);
-  stream->writeSimple(&m_flags, 1);
-
-  v_uint32 streamIdent = htonl(m_streamId);
-  stream->writeSimple(&streamIdent, 4);
+  v_uint8 buf[9];
+  writeToBuffer(buf);
+  stream->writeExactSizeDataSimple(buf, 9);
   return HeaderSize;
 }
 

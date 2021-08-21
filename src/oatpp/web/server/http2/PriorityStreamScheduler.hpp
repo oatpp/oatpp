@@ -31,9 +31,11 @@
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
+#include "oatpp/core/async/Lock.hpp"
+
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
- class PriorityStreamScheduler : public oatpp::base::Countable, public data::stream::OutputStream {
+class PriorityStreamScheduler : public oatpp::base::Countable, public data::stream::OutputStream {
 
  private:
   class LockedSpinLock : public concurrency::SpinLock {
@@ -41,15 +43,15 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
     LockedSpinLock() : SpinLock() {lock();};
   };
 
-   class PrioritizedLockedSpinLock : public LockedSpinLock {
-    private:
-     v_uint32 m_prio;
-    public:
-     PrioritizedLockedSpinLock(v_uint32 prio) : LockedSpinLock(), m_prio(prio) {};
-     bool operator<(const PrioritizedLockedSpinLock& rhs) const {
-       return m_prio < rhs.m_prio;
-     }
-   };
+  class PrioritizedLockedSpinLock : public LockedSpinLock {
+   private:
+    v_uint32 m_prio;
+   public:
+    PrioritizedLockedSpinLock(v_uint32 prio) : LockedSpinLock(), m_prio(prio) {};
+    bool operator<(const PrioritizedLockedSpinLock& rhs) const {
+      return m_prio < rhs.m_prio;
+    }
+  };
 
   std::mutex m_queuemutex;
   std::shared_ptr<PrioritizedLockedSpinLock> m_current;
@@ -68,7 +70,61 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
   void setOutputStreamIOMode(data::stream::IOMode ioMode) override;
   data::stream::IOMode getOutputStreamIOMode() override;
   data::stream::Context &getOutputStreamContext() override;
- };
+};
+
+class PriorityStreamSchedulerAsync : public oatpp::base::Countable, public data::stream::OutputStream {
+ private:
+  class LockedAsyncLock : public async::Lock {
+   public:
+    LockedAsyncLock() : async::Lock() { lock(); }
+  };
+  class PrioritizedLockedAsyncLock : public LockedAsyncLock {
+   private:
+    v_uint32 m_prio;
+   public:
+    PrioritizedLockedAsyncLock(v_uint32 prio) : LockedAsyncLock(), m_prio(prio) {};
+    bool operator<(const PrioritizedLockedAsyncLock& rhs) const {
+      return m_prio < rhs.m_prio;
+    }
+  };
+
+  class LockCoroutine : public async::Coroutine<LockCoroutine> {
+   private:
+    std::shared_ptr<PrioritizedLockedAsyncLock> m_lock;
+   public:
+    LockCoroutine(const std::shared_ptr<PrioritizedLockedAsyncLock> &lock)
+      : m_lock(lock) {}
+
+      Action act() override {
+        auto locked = m_lock->try_lock();
+        if (locked) {
+          return finish();
+        }
+        return m_lock->waitAsync();
+      }
+  };
+
+ private:
+
+  std::mutex m_queuemutex;
+  bool m_isLocked;
+  std::priority_queue<std::shared_ptr<PrioritizedLockedAsyncLock>> m_queue;
+  std::shared_ptr<data::stream::OutputStream> m_stream;
+
+ public:
+  static const v_uint32 PRIORITY_MAX = UINT32_MAX;
+  static const v_uint32 PRIORITY_MIN = 0;
+  PriorityStreamSchedulerAsync(const std::shared_ptr<data::stream::OutputStream> &m_stream);
+
+  async::Action lock(v_uint32 priority, async::Action &&action);
+  void unlock();
+
+
+  v_io_size write(const void *data, v_buff_size count, async::Action &action) override;
+  void setOutputStreamIOMode(data::stream::IOMode ioMode) override;
+  data::stream::IOMode getOutputStreamIOMode() override;
+  data::stream::Context &getOutputStreamContext() override;
+};
 
 }}}}
 

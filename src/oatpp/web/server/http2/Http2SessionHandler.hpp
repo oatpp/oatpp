@@ -61,6 +61,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
   typedef protocol::http2::Frame::Header::FrameType FrameType;
   typedef protocol::http2::Frame::Header FrameHeader;
+  typedef protocol::http2::error::ErrorCode H2ErrorCode;
 
  private:
   static const char* TAG;
@@ -71,12 +72,12 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
                         const std::shared_ptr<http2::Http2Settings>& pInSettings,
                         const std::shared_ptr<http2::Http2Settings>& pOutSettings,
                         const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
-                        const std::shared_ptr<http2::PriorityStreamScheduler>& pOutStream);
+                        const std::shared_ptr<http2::PriorityStreamSchedulerAsync>& pOutStream);
     static std::shared_ptr<ProcessingResources> createShared(const std::shared_ptr<processing::Components>& pComponents,
                                                              const std::shared_ptr<http2::Http2Settings>& pInSettings,
                                                              const std::shared_ptr<http2::Http2Settings>& pOutSettings,
                                                              const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
-                                                             const std::shared_ptr<http2::PriorityStreamScheduler>& pOutStream) {
+                                                             const std::shared_ptr<http2::PriorityStreamSchedulerAsync>& pOutStream) {
       return std::make_shared<ProcessingResources>(pComponents, pInSettings, pOutSettings, pInStream, pOutStream);
     }
     ~ProcessingResources();
@@ -84,7 +85,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
     std::shared_ptr<processing::Components> components;
     std::shared_ptr<oatpp::data::stream::IOStream> connection;
     std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
-    std::shared_ptr<http2::PriorityStreamScheduler> outStream;
+    std::shared_ptr<http2::PriorityStreamSchedulerAsync> outStream;
 
     /**
      * Collection of all streams in an ordered map
@@ -101,6 +102,51 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
     std::shared_ptr<http2::Http2Settings> inSettings;
     std::shared_ptr<http2::Http2Settings> outSettings;
+
+    protocol::http2::error::ErrorCode error;
+  };
+
+  template<class F>
+  class SendFrameCoroutine : public async::Coroutine<F> {
+   public:
+    virtual ~SendFrameCoroutine() = default;
+    virtual v_uint32 framePriority() const {return PriorityStreamSchedulerAsync::PRIORITY_MAX;}
+    virtual const data::share::MemoryLabel* frameData() const {return nullptr;};
+    virtual PriorityStreamSchedulerAsync *scheduler() const const = 0;
+    virtual v_uint8 frameFlags() const {return 0;}
+    virtual FrameType frameType() const = 0;
+    virtual v_uint32 frameStreamId() const {return 0;}
+   private:
+    FrameHeader m_header;
+
+   public:
+    SendFrameCoroutine() : m_header(frameData() ? frameData()->getSize() : 0, frameFlags(), frameType(), frameStreamId()) {}
+
+    Action act() override {
+      return scheduler()->lock(framePriority(), async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameHeader));
+    }
+
+    Action sendFrameHeader() {
+      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(m_header.getType()), m_header.getLength(), m_header.getFlags(), m_header.getStreamId());
+      v_uint8 buf[9];
+      m_header.writeToBuffer(buf);
+      data::buffer::InlineWriteData data(buf, 9);
+      if (frameData() && frameData()->getSize() > 0) {
+        return scheduler()->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameData));
+      }
+      return scheduler()->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
+    }
+
+    Action sendFrameData() {
+      data::buffer::InlineWriteData data(frameData()->getData(), frameData()->getSize());
+      return scheduler()->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
+    }
+
+    Action finalize() {
+      scheduler()->unlock();
+      return async::Coroutine<F>::finish();
+    }
+
   };
 
   std::shared_ptr<ProcessingResources> m_resources;
@@ -168,27 +214,26 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
  private:
   Action nextRequest();
   Action handleFrame(const std::shared_ptr<FrameHeader> &header);
+  Action connectionError(H2ErrorCode errorCode);
+  Action connectionError(H2ErrorCode errorCode, const std::string &message);
 
+  Action teardown();
 
   static void stop(ProcessingResources& resources);
-  static ConnectionState invalidateConnection(ProcessingResources& resources);
-  static ConnectionState delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
+
+  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                            Http2SessionHandler::ProcessingResources &resources,
                                            protocol::http2::Frame::Header &header);
   static std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident,
                                                                 ProcessingResources &resources);
-  static v_io_size consumeStream(const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  async::Action consumeStream(v_io_size streamPayloadLength, async::Action &&next);
 
-  static v_io_size sendSettingsFrame(Http2SessionHandler::ProcessingResources &resources);
-  static v_io_size ackSettingsFrame(Http2SessionHandler::ProcessingResources &resources);
-  static v_io_size answerPingFrame(Http2SessionHandler::ProcessingResources &resources);
-  static v_io_size sendGoawayFrame(Http2SessionHandler::ProcessingResources &resources,
-                                   v_uint32 lastStream,
-                                   protocol::http2::error::ErrorCode errorCode);
-  static v_io_size sendResetStreamFrame(Http2SessionHandler::ProcessingResources &resources,
-                                        v_uint32 stream,
-                                        protocol::http2::error::ErrorCode errorCode);
+  Action sendSettingsFrame();
+  Action ackSettingsFrame();
+  Action answerPingFrame();
+  Action sendGoawayFrame(v_uint32 lastStream, H2ErrorCode errorCode);
+  Action sendResetStreamFrame(v_uint32 stream, H2ErrorCode errorCode);
 
   };
 

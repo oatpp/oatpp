@@ -24,6 +24,9 @@
 
 #include "PriorityStreamScheduler.hpp"
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// PriorityStreamScheduler
 oatpp::web::server::http2::PriorityStreamScheduler::PriorityStreamScheduler(const std::shared_ptr<data::stream::OutputStream> &stream)
   : m_stream(stream) {
 
@@ -68,5 +71,56 @@ oatpp::data::stream::IOMode oatpp::web::server::http2::PriorityStreamScheduler::
 }
 
 oatpp::data::stream::Context &oatpp::web::server::http2::PriorityStreamScheduler::getOutputStreamContext() {
+  return m_stream->getOutputStreamContext();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// PriorityStreamSchedulerAsync
+oatpp::web::server::http2::PriorityStreamSchedulerAsync::PriorityStreamSchedulerAsync(const std::shared_ptr<data::stream::OutputStream> &stream)
+    : m_stream(stream)
+    , m_isLocked(false){}
+
+oatpp::async::Action oatpp::web::server::http2::PriorityStreamSchedulerAsync::lock(v_uint32 priority, async::Action &&action) {
+  m_queuemutex.lock();
+  if (m_isLocked) {
+    auto plsl = std::make_shared<PrioritizedLockedAsyncLock>(priority);
+    m_queue.push(plsl);
+    m_queuemutex.unlock();
+    return LockCoroutine::start(plsl).next(std::move(action));
+  } else {
+    // we dont need to create any actual lock, just set we have a task currently and forward the action
+    m_isLocked = true;
+    m_queuemutex.unlock();
+    return std::forward<async::Action>(action);
+  }
+}
+
+void oatpp::web::server::http2::PriorityStreamSchedulerAsync::unlock() {
+  std::lock_guard<std::mutex> lg(m_queuemutex);
+  if (m_queue.empty()) {
+    m_isLocked = false;
+  } else {
+    auto next = m_queue.top();
+    m_queue.pop();
+    next->unlock();
+  }
+}
+
+oatpp::v_io_size oatpp::web::server::http2::PriorityStreamSchedulerAsync::write(const void *data,
+                                                                                v_buff_size count,
+                                                                                oatpp::async::Action &action) {
+  return m_stream->write(data, count, action);
+}
+
+void oatpp::web::server::http2::PriorityStreamSchedulerAsync::setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) {
+  m_stream->setOutputStreamIOMode(ioMode);
+}
+
+oatpp::data::stream::IOMode oatpp::web::server::http2::PriorityStreamSchedulerAsync::getOutputStreamIOMode() {
+  return m_stream->getOutputStreamIOMode();
+}
+
+oatpp::data::stream::Context &oatpp::web::server::http2::PriorityStreamSchedulerAsync::getOutputStreamContext() {
   return m_stream->getOutputStreamContext();
 }

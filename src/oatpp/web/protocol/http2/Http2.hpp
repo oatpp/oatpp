@@ -263,6 +263,7 @@ public:
    static std::shared_ptr<Header> createShared(const data::share::MemoryLabel &label);
 
    v_io_size writeToStream(data::stream::OutputStream *stream);
+   v_io_size writeToBuffer(p_uint8 buffer);
    oatpp::String toString();
 
    v_uint32 getLength() const;
