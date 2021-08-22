@@ -73,7 +73,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
     std::atomic<H2StreamState> state;
     std::shared_ptr<protocol::http2::hpack::Hpack> hpack;
     std::shared_ptr<http2::processing::Components> components;
-    std::shared_ptr<http2::PriorityStreamScheduler> output;
+    std::shared_ptr<http2::PriorityStreamSchedulerAsync> output;
     std::shared_ptr<http2::Http2Settings> inSettings;
     std::shared_ptr<http2::Http2Settings> outSettings;
     std::shared_ptr<data::stream::FIFOInputStream> data;
@@ -86,7 +86,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
     v_int32 window;
     v_uint32 windowIncrement;
 
-    Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
+    Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamSchedulerAsync> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
         : state(INIT)
         , streamId(id)
         , output(outputStream)
@@ -113,7 +113,7 @@ class Http2StreamHandler : public oatpp::base::Countable {
   std::shared_ptr<Task> m_task;
 
  public:
-  Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamScheduler> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
+  Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamSchedulerAsync> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
     : m_task(std::make_shared<Task>(id, outputStream, hpack, components, inSettings, outSettings)) {
     sprintf(TAG, "oatpp::web::server::http2::Http2StreamHandler(%u)", id);
   }

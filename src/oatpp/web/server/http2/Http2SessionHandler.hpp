@@ -65,6 +65,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
  private:
   static const char* TAG;
+  static const Http2Settings DEFAULT_SETTINGS;
 
   struct ProcessingResources {
 
@@ -108,22 +109,23 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
   template<class F>
   class SendFrameCoroutine : public async::Coroutine<F> {
-   public:
-    virtual ~SendFrameCoroutine() = default;
-    virtual v_uint32 framePriority() const {return PriorityStreamSchedulerAsync::PRIORITY_MAX;}
-    virtual const data::share::MemoryLabel* frameData() const {return nullptr;};
-    virtual PriorityStreamSchedulerAsync *scheduler() const const = 0;
-    virtual v_uint8 frameFlags() const {return 0;}
-    virtual FrameType frameType() const = 0;
-    virtual v_uint32 frameStreamId() const {return 0;}
-   private:
+   protected:
+    std::shared_ptr<PriorityStreamSchedulerAsync> m_output;
+    v_uint32 m_priority = 0;
     FrameHeader m_header;
 
    public:
-    SendFrameCoroutine() : m_header(frameData() ? frameData()->getSize() : 0, frameFlags(), frameType(), frameStreamId()) {}
+    virtual ~SendFrameCoroutine() = default;
+    virtual const data::share::MemoryLabel* frameData() const {return nullptr;};
+
+   public:
+    SendFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, FrameType type, v_uint32 streamId = 0, v_uint8 flags = 0, v_uint32 priority = 0)
+      : m_header(frameData() ? frameData()->getSize() : 0, flags, type, streamId)
+      , m_output(output)
+      , m_priority(priority) {}
 
     Action act() override {
-      return scheduler()->lock(framePriority(), async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameHeader));
+      return m_output->lock(m_priority, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameHeader));
     }
 
     Action sendFrameHeader() {
@@ -132,18 +134,18 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
       m_header.writeToBuffer(buf);
       data::buffer::InlineWriteData data(buf, 9);
       if (frameData() && frameData()->getSize() > 0) {
-        return scheduler()->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameData));
+        return m_output->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameData));
       }
-      return scheduler()->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
+      return m_output->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
     }
 
     Action sendFrameData() {
       data::buffer::InlineWriteData data(frameData()->getData(), frameData()->getSize());
-      return scheduler()->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
+      return m_output->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
     }
 
     Action finalize() {
-      scheduler()->unlock();
+      m_output->unlock();
       return async::Coroutine<F>::finish();
     }
 
@@ -225,11 +227,10 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
                                            const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
                                            Http2SessionHandler::ProcessingResources &resources,
                                            protocol::http2::Frame::Header &header);
-  static std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident,
-                                                                ProcessingResources &resources);
+  std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident);
   async::Action consumeStream(v_io_size streamPayloadLength, async::Action &&next);
 
-  Action sendSettingsFrame();
+  async::Action sendSettingsFrame(async::Action &&next);
   Action ackSettingsFrame();
   Action answerPingFrame();
   Action sendGoawayFrame(v_uint32 lastStream, H2ErrorCode errorCode);
