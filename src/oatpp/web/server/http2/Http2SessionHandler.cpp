@@ -449,11 +449,8 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
   return repeat();
 }
 
-Http2SessionHandler::ConnectionState Http2SessionHandler::invalidateConnection(Http2SessionHandler::ProcessingResources &m_resources) {
-  return ConnectionState::DEAD;
-}
 
-void Http2SessionHandler::stop(Http2SessionHandler::ProcessingResources &m_resources) {
+async::Action Http2SessionHandler::stop() {
   for(auto & h2stream : m_resources->h2streams) {
     if (h2stream.second != nullptr) {
       h2stream.second->abort();
@@ -466,10 +463,8 @@ void Http2SessionHandler::stop(Http2SessionHandler::ProcessingResources &m_resou
   }
 }
 
-Http2SessionHandler::ConnectionState Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
-                                                                  const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
-                                                                  Http2SessionHandler::ProcessingResources &m_resources,
-                                                                  FrameHeader &header) {
+async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
+                                                     FrameHeader &header) {
   ConnectionState state = ConnectionState::CLOSING;
 
   switch (header.getType()) {
@@ -479,10 +474,10 @@ Http2SessionHandler::ConnectionState Http2SessionHandler::delegateToHandler(cons
       // ToDo: Discussion: Should these checks be inside their respective functions?
       if (handler->getState() != Http2StreamHandler::H2StreamState::PAYLOAD) {
         if (handler->getState() >= Http2StreamHandler::H2StreamState::PROCESSING) {
-          throw protocol::http2::error::connection::StreamClosed(
+          return connectionError(protocol::http2::error::STREAM_CLOSED,
               "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is already (half-)closed");
         }
-        throw protocol::http2::error::connection::ProtocolError(
+        return connectionError(protocol::http2::error::PROTOCOL_ERROR,
             "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is not in payload state");
       }
       state = handler->handleData(header.getFlags(), m_resources->inStream, header.getLength());

@@ -104,6 +104,7 @@ namespace error {
     };
 
     HTTP2ERRORTYPE(connection, ProtocolError, PROTOCOL_ERROR)
+    HTTP2ERRORTYPE(connection, InternalError, INTERNAL_ERROR)
     HTTP2ERRORTYPE(connection, FlowControlError, FLOW_CONTROL_ERROR)
     HTTP2ERRORTYPE(connection, StreamClosed, STREAM_CLOSED)
     HTTP2ERRORTYPE(connection, FrameSizeError, FRAME_SIZE_ERROR)

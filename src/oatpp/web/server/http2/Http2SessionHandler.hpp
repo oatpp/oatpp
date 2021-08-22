@@ -221,13 +221,9 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
   Action teardown();
 
-  static void stop(ProcessingResources& resources);
+  Action stop();
 
-  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
-                                           const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream,
-                                           Http2SessionHandler::ProcessingResources &resources,
-                                           protocol::http2::Frame::Header &header);
-  std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident);
+  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler, protocol::http2::Frame::Header &header);
   async::Action consumeStream(v_io_size streamPayloadLength, async::Action &&next);
 
   async::Action sendSettingsFrame(async::Action &&next);
@@ -236,7 +232,10 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   Action sendGoawayFrame(v_uint32 lastStream, H2ErrorCode errorCode);
   Action sendResetStreamFrame(v_uint32 stream, H2ErrorCode errorCode);
 
-  };
+  std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident);
+
+
+};
 
 }}}}
 

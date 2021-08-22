@@ -109,6 +109,39 @@ class Http2StreamHandler : public oatpp::base::Countable {
     void resizeWindow(v_int32 change);
   };
 
+  class WorkerResources {
+   public:
+    std::shared_ptr<protocol::http::incoming::Request> request;
+    std::shared_ptr<http2::processing::Components> components;
+    std::shared_ptr<protocol::http::outgoing::Response> response;
+
+   public:
+    WorkerResources(const std::shared_ptr<protocol::http::incoming::Request> &req, const std::shared_ptr<http2::processing::Components> &comp)
+      : request(req)
+      , components(comp) {}
+  };
+
+  class TaskWorker : public oatpp::async::CoroutineWaitList::Listener {
+   public:
+    /* oatpp::async::CoroutineWaitList::Listener::onNewItem */
+    void onNewItem(oatpp::async::CoroutineWaitList& list) override;
+
+   private:
+    std::shared_ptr<WorkerResources> m_resources;
+    oatpp::async::CoroutineWaitList m_waitList;
+    bool m_done = false;
+    std::mutex m_mutex;
+
+   public:
+    TaskWorker(const std::shared_ptr<WorkerResources> &resources);
+
+    void run();
+    void start();
+    oatpp::async::CoroutineWaitList* getWaitList();
+    bool isDone();
+
+  };
+
   std::thread m_processor;
   std::shared_ptr<Task> m_task;
 
@@ -122,13 +155,18 @@ class Http2StreamHandler : public oatpp::base::Countable {
     waitForFinished();
   }
 
-  ConnectionState handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handlePriority(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handleResetStream(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handlePushPromise(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handleWindowUpdate(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  ConnectionState handleContinuation(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  async::Action prepareWorker();
+  async::Action processWorkerResult(const std::shared_ptr<protocol::http::outgoing::Response> &response);
+
+  ///////
+
+  async::Action handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
+  async::Action handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
+  async::Action handlePriority(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
+  async::Action handleResetStream(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
+  async::Action handlePushPromise(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
+  async::Action handleWindowUpdate(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
+  async::Action handleContinuation(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
 
   H2StreamState getState() {
     return m_task->state;
