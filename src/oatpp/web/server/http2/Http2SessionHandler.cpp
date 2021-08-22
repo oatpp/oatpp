@@ -384,15 +384,10 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
               remaining -= chunk;
             }
           }
-  //        for (auto &handler : m_resources->h2streams) {
-  //          if (handler.first > highest) {
-  //            highest = handler.first;
-  //          }
-  //        }
-  //        sendGoawayFrame(m_resources, highest, 0);
-          m_resources->inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
-          while (processNextRequest(m_resources) != ConnectionState::DEAD) {}
-          return ConnectionState::CLOSING;
+          // ToDo: Handle additional frames, then stop
+          // m_resources->inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
+          // while (processNextRequest(m_resources) != ConnectionState::DEAD) {}
+          return yieldTo(&Http2SessionHandler::teardown);
         } else {
           return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received GOAWAY on stream.");
         }
