@@ -161,21 +161,20 @@ oatpp::async::CoroutineStarter BufferOutputStream::writeBufferToStreamAsync(cons
         , m_stream(stream)
         , m_count(count)
         , m_readOffset(readOffset)
-    {}
+    {
+      m_inlineData.set(m_this->m_data + m_readOffset, std::min(m_this->m_position - m_readOffset, m_count));
+    }
 
     Action act() override {
-      if(m_inlineData.currBufferPtr == nullptr) {
-        if (m_readOffset > m_this->m_position) {
-          return finish();
-        }
-        m_inlineData.currBufferPtr = m_this->m_data + m_readOffset;
-        m_inlineData.bytesLeft = std::min(m_this->m_position - m_readOffset, m_count);
-      }
-      return m_stream.get()->writeExactSizeDataAsyncInline(m_inlineData, finish());
+      return m_stream->writeExactSizeDataAsyncInline(m_inlineData, finish());
     }
 
   };
-  return WriteDataCoroutine::start(_this, stream, count, readOffset);
+
+  if(readOffset < _this->m_position) {
+    return WriteDataCoroutine::start(_this, stream, count, readOffset);
+  }
+  return nullptr;
 }
 
 v_io_size BufferOutputStream::writeBufferToStream(stream::WriteCallback *writeCallback,
