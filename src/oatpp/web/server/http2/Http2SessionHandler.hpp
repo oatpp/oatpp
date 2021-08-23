@@ -91,8 +91,8 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
     /**
      * Collection of all streams in an ordered map
      */
-    std::map<v_uint32, std::shared_ptr<Http2StreamHandler>> h2streams;
-    std::shared_ptr<Http2StreamHandler> lastStream;
+    std::map<v_uint32, std::shared_ptr<Http2StreamHandler::Task>> h2streams;
+    std::shared_ptr<Http2StreamHandler::Task> lastStream;
     v_uint32 highestNonIdleStreamId;
 
     /**
@@ -223,7 +223,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
   Action stop();
 
-  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler, protocol::http2::Frame::Header &header);
+  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handler, protocol::http2::Frame::Header &header);
   async::Action consumeStream(v_io_size streamPayloadLength, async::Action &&next);
 
   async::Action sendSettingsFrame(async::Action &&next);
@@ -232,7 +232,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   Action sendGoawayFrame(v_uint32 lastStream, H2ErrorCode errorCode);
   Action sendResetStreamFrame(v_uint32 stream, H2ErrorCode errorCode);
 
-  std::shared_ptr<Http2StreamHandler> findOrCreateStream(v_uint32 ident);
+  std::shared_ptr<Http2StreamHandler::Task> findOrCreateStream(v_uint32 ident);
 
 
 };

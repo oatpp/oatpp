@@ -64,7 +64,6 @@ class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
   typedef protocol::http2::Frame::Header::Flags::Data H2StreamDataFlags;
 
- private:
   class Task {
    public:
     std::atomic<H2StreamState> state;
@@ -102,6 +101,7 @@ class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
     void resizeWindow(v_int32 change);
   };
 
+ private:
   class TaskWorker : public oatpp::async::CoroutineWaitList::Listener {
    public:
     class Resources {

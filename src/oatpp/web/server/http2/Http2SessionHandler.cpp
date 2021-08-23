@@ -261,14 +261,14 @@ async::Action Http2SessionHandler::consumeStream(v_io_size streamPayloadLength, 
   return StreamConsumerCoroutine::start(m_resources->inStream, streamPayloadLength).next(std::forward<async::Action>(action));
 }
 
-std::shared_ptr<Http2StreamHandler> Http2SessionHandler::findOrCreateStream(v_uint32 ident) {
-  std::shared_ptr<Http2StreamHandler> handler;
+std::shared_ptr<Http2StreamHandler::Task> Http2SessionHandler::findOrCreateStream(v_uint32 ident) {
+  std::shared_ptr<Http2StreamHandler::Task> handler;
   auto handlerentry = m_resources->h2streams.find(ident);
   if (handlerentry == m_resources->h2streams.end()) {
     if (ident < m_resources->highestNonIdleStreamId) {
       throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
     }
-    handler = std::make_shared<Http2StreamHandler>(ident, m_resources->outStream, m_resources->hpack, m_resources->components, m_resources->inSettings, m_resources->outSettings);
+    handler = std::make_shared<Http2StreamHandler::Task>(ident, m_resources->outStream, m_resources->hpack, m_resources->components, m_resources->inSettings, m_resources->outSettings);
     m_resources->h2streams.insert({ident, handler});
   } else {
     handler = handlerentry->second;
@@ -289,10 +289,10 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
     return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received even streamId (PROTOCOL_ERROR)");
   }
 
-  if (m_resources->lastStream && (header->getStreamId() != m_resources->lastStream->getStreamId())) {
+  if (m_resources->lastStream && (header->getStreamId() != m_resources->lastStream->streamId)) {
     // Headers have to be sent as continous frames of HEADERS, PUSH_PROMISE and CONTINUATION.
     // Only if the last opened stream transitioned beyond its HEADERS stage, other frames are allowed
-    if (m_resources->lastStream->getState() < Http2StreamHandler::H2StreamState::PAYLOAD && m_resources->lastStream->getState() > Http2StreamHandler::H2StreamState::INIT) {
+    if (m_resources->lastStream->state < Http2StreamHandler::H2StreamState::PAYLOAD && m_resources->lastStream->state > Http2StreamHandler::H2StreamState::INIT) {
       return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Last opened stream is still in its HEADER state but frame for different stream received (PROTOCOL_ERROR)");
     }
   }
@@ -406,13 +406,7 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
           OATPP_LOGD(TAG, "Incrementing out-window by %u", increment);
           m_resources->outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)+increment);
         } else {
-          ConnectionState state = delegateToHandler(findOrCreateStream(header->getStreamId(), m_resources),
-                                                    m_resources->inStream,
-                                                    m_resources,
-                                                    *header);
-          if (state != ConnectionState::ALIVE) {
-            m_resources->h2streams.erase(header->getStreamId());
-          }
+          return delegateToHandler(findOrCreateStream(header->getStreamId()), *header);
         }
         break;
 
@@ -425,11 +419,8 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
         if (header->getStreamId() == 0) {
           throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received stream related frame on stream(0)");
         } else {
-          m_resources->lastStream = findOrCreateStream(header->getStreamId(), m_resources);
-          ConnectionState state = delegateToHandler(m_resources->lastStream, m_resources->inStream, m_resources, *header);
-          if (state != ConnectionState::ALIVE) {
-            m_resources->lastStream->clean();
-          }
+          m_resources->lastStream = findOrCreateStream(header->getStreamId());
+          return delegateToHandler(m_resources->lastStream, *header);
         }
         break;
 
@@ -440,7 +431,7 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
   } catch (protocol::http2::error::Error &h2e) {
     OATPP_LOGE(TAG, "%s (%s)", h2e.what(), h2e.getH2ErrorCodeString());
     if (h2e.getH2ErrorScope() == protocol::http2::error::CONNECTION) {
-      return sendGoawayFrame(m_resources->lastStream ? m_resources->lastStream->getStreamId() : 0, h2e.getH2ErrorCode());
+      return sendGoawayFrame(m_resources->lastStream ? m_resources->lastStream->streamId : 0, h2e.getH2ErrorCode());
     } else {
       return sendResetStreamFrame(header->getStreamId(), h2e.getH2ErrorCode());
     }
@@ -451,19 +442,10 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
 
 
 async::Action Http2SessionHandler::stop() {
-  for(auto & h2stream : m_resources->h2streams) {
-    if (h2stream.second != nullptr) {
-      h2stream.second->abort();
-    }
-  }
-  for(auto it = m_resources->h2streams.begin(); it != m_resources->h2streams.end(); ++it) {
-    if (it->second != nullptr) {
-      it->second->waitForFinished();
-    }
-  }
+
 }
 
-async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler> &handler,
+async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handler,
                                                      FrameHeader &header) {
   ConnectionState state = ConnectionState::CLOSING;
 
@@ -472,8 +454,8 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
 
       // Check if the stream is in a state where it would accept data
       // ToDo: Discussion: Should these checks be inside their respective functions?
-      if (handler->getState() != Http2StreamHandler::H2StreamState::PAYLOAD) {
-        if (handler->getState() >= Http2StreamHandler::H2StreamState::PROCESSING) {
+      if (handler->state != Http2StreamHandler::H2StreamState::PAYLOAD) {
+        if (handler->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
           return connectionError(protocol::http2::error::STREAM_CLOSED,
               "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is already (half-)closed");
         }
@@ -483,23 +465,23 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
       state = handler->handleData(header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::HEADERS:
-      if (handler->getState() >= Http2StreamHandler::H2StreamState::PROCESSING) {
+      if (handler->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
         throw protocol::http2::error::connection::StreamClosed(
             "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received headers for stream that is already (half-)closed");
       }
-      if (handler->getStreamId() > m_resources->highestNonIdleStreamId) {
+      if (handler->state > m_resources->highestNonIdleStreamId) {
         m_resources->highestNonIdleStreamId = handler->getStreamId();
       }
       state = handler->handleHeaders(header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::PRIORITY:
-      if (handler->getState() == Http2StreamHandler::H2StreamState::HEADERS || handler->getState() == Http2StreamHandler::H2StreamState::CONTINUATION) {
+      if (handler->state == Http2StreamHandler::H2StreamState::HEADERS || handler->state == Http2StreamHandler::H2StreamState::CONTINUATION) {
         throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PRIORITY frame while still in header state.");
       }
       state = handler->handlePriority(header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::RST_STREAM:
-      if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
+      if (handler->state == Http2StreamHandler::H2StreamState::INIT) {
         throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received RST_STREAM on an idle stream.");
       }
       state = handler->handleResetStream(header.getFlags(), m_resources->inStream, header.getLength());
@@ -509,14 +491,14 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
       state = handler->handlePushPromise(header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::WINDOW_UPDATE:
-      if (handler->getState() == Http2StreamHandler::H2StreamState::INIT) {
+      if (handler->state == Http2StreamHandler::H2StreamState::INIT) {
         throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE on an idle stream.");
       }
       state = handler->handleWindowUpdate(header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::CONTINUATION:
       // Check if the stream is in its "headers received" state, i.E. the only state when continued headers should be acceptable
-      if (handler->getState() != Http2StreamHandler::H2StreamState::HEADERS && handler->getState() != Http2StreamHandler::H2StreamState::CONTINUATION) {
+      if (handler->state != Http2StreamHandler::H2StreamState::HEADERS && handler->state != Http2StreamHandler::H2StreamState::CONTINUATION) {
         consumeStream(m_resources->inStream, <#initializer#>);
         throw protocol::http2::error::connection::ProtocolError(
             "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received continued headers for stream that is not in its header state");
@@ -532,7 +514,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
 }
 
 async::Action Http2SessionHandler::connectionError(Http2SessionHandler::H2ErrorCode errorCode) {
-  return sendGoawayFrame(m_resources->lastStream ? m_resources->lastStream->getStreamId() : 0, errorCode);
+  return sendGoawayFrame(m_resources->lastStream ? m_resources->lastStream->streamId : 0, errorCode);
 }
 
 async::Action Http2SessionHandler::connectionError(Http2SessionHandler::H2ErrorCode errorCode,
@@ -559,7 +541,7 @@ Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Compo
 
   auto inSettings = http2::Http2Settings::createShared();
   auto outSettings = http2::Http2Settings::createShared();
-  auto outStream = std::make_shared<http2::PriorityStreamScheduler>(m_connection);
+  auto outStream = std::make_shared<http2::PriorityStreamSchedulerAsync>(m_connection);
   auto memlabel = std::make_shared<std::string>(inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE), 0);
   v_io_size writePosition = 0;
 
@@ -611,7 +593,7 @@ Http2SessionHandler &Http2SessionHandler::operator=(Http2SessionHandler &&t) {
 
 async::Action Http2SessionHandler::act() {
   try {
-    return Http2SessionHandler::sendSettingsFrame(<#initializer#>);
+    return Http2SessionHandler::sendSettingsFrame(yieldTo(&Http2SessionHandler::nextRequest));
   } catch (...) {
     return finish();
   }
