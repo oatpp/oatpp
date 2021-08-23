@@ -38,7 +38,7 @@ Http2DelegatedConnectionHandler::Http2DelegatedConnectionHandler(const std::shar
 void Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection, const std::shared_ptr<const ParameterMap> &params) {
 
   OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection (%p).", connection.get());
-  m_exec.execute<Http2SessionHandler::Task>(m_components, connection, &m_spawns, params);
+  m_exec.execute<Http2SessionHandler>(m_components, connection, &m_spawns, &m_exec, params);
 }
 
 void Http2DelegatedConnectionHandler::stop() {

@@ -477,7 +477,7 @@ async::Action Http2StreamHandler::processWorkerResult() {
       OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::processWorkerResult::WriteHeadersCoroutine", "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       hdr.writeToBuffer(m_frameHeaderBuffer);
       data::buffer::InlineWriteData iwd(m_frameHeaderBuffer, protocol::http2::Frame::Header::HeaderSize);
-      m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteHeadersCoroutine::sendFrameBody));
+      return m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteHeadersCoroutine::sendFrameBody));
     }
 
     Action sendFrameBody() {
@@ -548,12 +548,12 @@ async::Action Http2StreamHandler::writeData() {
       protocol::http2::Frame::Header hdr(m_chunk, (m_toSend - m_pos - m_chunk == 0) ? protocol::http2::Frame::Header::Flags::Data::DATA_END_STREAM : 0, protocol::http2::Frame::Header::DATA, m_task->streamId);
       hdr.writeToBuffer(m_frameHeaderBuffer);
       data::buffer::InlineWriteData iwd(m_frameHeaderBuffer, protocol::http2::Frame::Header::HeaderSize);
-      m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteDataCoroutine::sendFrameBody));
+      return m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteDataCoroutine::sendFrameBody));
     };
 
     Action sendFrameBody() {
       data::buffer::InlineWriteData iwd(m_body->getKnownData() + m_pos, m_chunk);
-      m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteDataCoroutine::finalizeFrame));
+      return m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteDataCoroutine::finalizeFrame));
     };
 
     Action finalizeFrame() {
@@ -573,6 +573,9 @@ async::Action Http2StreamHandler::writeData() {
   return WriteDataCoroutine::start(m_task, m_resources->response->getBody()).next(yieldTo(&Http2StreamHandler::finalize));
 }
 
+async::Action Http2StreamHandler::finalize() {
+  return finish();
+}
 
 void Http2StreamHandler::TaskWorker::start() {
   // ToDo: Pool threads. Either with `Bench` or a similar approach as in `Executor`

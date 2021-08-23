@@ -35,6 +35,7 @@
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 const char* Http2SessionHandler::TAG = "oatpp::web::server::http2::Http2SessionHandler";
+const Http2Settings Http2SessionHandler::DEFAULT_SETTINGS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other
@@ -442,75 +443,73 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
 
 
 async::Action Http2SessionHandler::stop() {
-
+  return finish();
 }
 
-async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handler,
+async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handlerTask,
                                                      FrameHeader &header) {
-  ConnectionState state = ConnectionState::CLOSING;
+  Http2StreamHandler::H2StreamState state = Http2StreamHandler::H2StreamState::INIT;
 
   switch (header.getType()) {
     case FrameType::DATA:
 
       // Check if the stream is in a state where it would accept data
       // ToDo: Discussion: Should these checks be inside their respective functions?
-      if (handler->state != Http2StreamHandler::H2StreamState::PAYLOAD) {
-        if (handler->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
+      if (handlerTask->state != Http2StreamHandler::H2StreamState::PAYLOAD) {
+        if (handlerTask->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
           return connectionError(protocol::http2::error::STREAM_CLOSED,
               "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is already (half-)closed");
         }
         return connectionError(protocol::http2::error::PROTOCOL_ERROR,
             "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received data for stream that is not in payload state");
       }
-      state = handler->handleData(header.getFlags(), m_resources->inStream, header.getLength());
+      state = Http2StreamHandler::handleData(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::HEADERS:
-      if (handler->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
+      if (handlerTask->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
         throw protocol::http2::error::connection::StreamClosed(
             "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received headers for stream that is already (half-)closed");
       }
-      if (handler->state > m_resources->highestNonIdleStreamId) {
-        m_resources->highestNonIdleStreamId = handler->getStreamId();
+      if (handlerTask->state > m_resources->highestNonIdleStreamId) {
+        m_resources->highestNonIdleStreamId = handlerTask->streamId;
       }
-      state = handler->handleHeaders(header.getFlags(), m_resources->inStream, header.getLength());
+      state = Http2StreamHandler::handleHeaders(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::PRIORITY:
-      if (handler->state == Http2StreamHandler::H2StreamState::HEADERS || handler->state == Http2StreamHandler::H2StreamState::CONTINUATION) {
+      if (handlerTask->state == Http2StreamHandler::H2StreamState::HEADERS || handlerTask->state == Http2StreamHandler::H2StreamState::CONTINUATION) {
         throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PRIORITY frame while still in header state.");
       }
-      state = handler->handlePriority(header.getFlags(), m_resources->inStream, header.getLength());
+      state = Http2StreamHandler::handlePriority(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::RST_STREAM:
-      if (handler->state == Http2StreamHandler::H2StreamState::INIT) {
+      if (handlerTask->state == Http2StreamHandler::H2StreamState::INIT) {
         throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received RST_STREAM on an idle stream.");
       }
-      state = handler->handleResetStream(header.getFlags(), m_resources->inStream, header.getLength());
-      sendResetStreamFrame(m_resources, handler->getStreamId(), protocol::http2::error::ErrorCode::CANCEL);
+      state = Http2StreamHandler::handleResetStream(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
+      return sendResetStreamFrame(handlerTask->streamId, protocol::http2::error::ErrorCode::CANCEL);
       break;
     case FrameType::PUSH_PROMISE:
-      state = handler->handlePushPromise(header.getFlags(), m_resources->inStream, header.getLength());
+      state = Http2StreamHandler::handlePushPromise(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::WINDOW_UPDATE:
-      if (handler->state == Http2StreamHandler::H2StreamState::INIT) {
+      if (handlerTask->state == Http2StreamHandler::H2StreamState::INIT) {
         throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE on an idle stream.");
       }
-      state = handler->handleWindowUpdate(header.getFlags(), m_resources->inStream, header.getLength());
+      state = Http2StreamHandler::handleWindowUpdate(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
       break;
     case FrameType::CONTINUATION:
       // Check if the stream is in its "headers received" state, i.E. the only state when continued headers should be acceptable
-      if (handler->state != Http2StreamHandler::H2StreamState::HEADERS && handler->state != Http2StreamHandler::H2StreamState::CONTINUATION) {
-        consumeStream(m_resources->inStream, <#initializer#>);
-        throw protocol::http2::error::connection::ProtocolError(
-            "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received continued headers for stream that is not in its header state");
+      if (handlerTask->state != Http2StreamHandler::H2StreamState::HEADERS && handlerTask->state != Http2StreamHandler::H2StreamState::CONTINUATION) {
+        return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received continued headers for stream that is not in its header state");
       }
-      state = handler->handleContinuation(header.getFlags(), m_resources->inStream, header.getLength());
-      break;
-    default:
-      state = ConnectionState::CLOSING;
+      state = Http2StreamHandler::handleContinuation(handlerTask, header.getFlags(), m_resources->inStream, header.getLength());
       break;
   }
 
-  return state;
+  if (state == Http2StreamHandler::H2StreamState::READY) {
+    m_executor->execute<Http2StreamHandler>(handlerTask);
+  }
+  return yieldTo(&Http2SessionHandler::nextRequest);
 }
 
 async::Action Http2SessionHandler::connectionError(Http2SessionHandler::H2ErrorCode errorCode) {
@@ -528,14 +527,16 @@ async::Action Http2SessionHandler::connectionError(Http2SessionHandler::H2ErrorC
 
 Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
-                           std::atomic_long *taskCounter)
-    : Http2SessionHandler(components, connection, taskCounter, nullptr) {}
+                           std::atomic_long *taskCounter,
+                           oatpp::async::Executor *executor)
+    : Http2SessionHandler(components, connection, taskCounter, executor, nullptr) {}
 
 Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Components> &components,
                            const std::shared_ptr<oatpp::data::stream::IOStream> &connection,
                            std::atomic_long *sessionCounter,
+                           oatpp::async::Executor *executor,
                            const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters)
-    : m_components(components), m_connection(connection), m_counter(sessionCounter) {
+    : m_components(components), m_connection(connection), m_counter(sessionCounter), m_executor(executor) {
   (*m_counter)++;
   m_connection->initContexts();
 
@@ -559,16 +560,18 @@ Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Compo
 }
 
 Http2SessionHandler::Http2SessionHandler(const Http2SessionHandler &copy)
-    : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter), m_resources(copy.m_resources) {
+    : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter), m_resources(copy.m_resources), m_executor(copy.m_executor) {
   (*m_counter)++;
 }
 
 Http2SessionHandler::Http2SessionHandler(Http2SessionHandler &&move)
-    : m_components(std::move(move.m_components)),
-      m_connection(std::move(move.m_connection)),
-      m_counter(move.m_counter),
-      m_resources(std::move(move.m_resources)) {
+    : m_components(std::move(move.m_components))
+    , m_connection(std::move(move.m_connection))
+    , m_counter(move.m_counter)
+    , m_resources(std::move(move.m_resources))
+    , m_executor(std::move(move.m_executor)){
   move.m_counter = nullptr;
+  move.m_executor = nullptr;
 }
 
 Http2SessionHandler &Http2SessionHandler::operator=(const Http2SessionHandler &t) {
@@ -577,6 +580,7 @@ Http2SessionHandler &Http2SessionHandler::operator=(const Http2SessionHandler &t
     m_connection = t.m_connection;
     m_counter = t.m_counter;
     m_resources = t.m_resources;
+    m_executor = t.m_executor;
     (*m_counter)++;
   }
   return *this;
@@ -586,6 +590,8 @@ Http2SessionHandler &Http2SessionHandler::operator=(Http2SessionHandler &&t) {
   m_components = std::move(t.m_components);
   m_connection = std::move(t.m_connection);
   m_resources = std::move(t.m_resources);
+  m_executor = t.m_executor;
+  t.m_executor = nullptr;
   m_counter = t.m_counter;
   t.m_counter = nullptr;
   return *this;

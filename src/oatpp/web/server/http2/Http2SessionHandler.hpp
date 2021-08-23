@@ -49,6 +49,7 @@
 #include "oatpp/web/server/http2/Http2Settings.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/async/Executor.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
@@ -154,6 +155,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   std::shared_ptr<ProcessingResources> m_resources;
   std::shared_ptr<processing::Components> m_components;
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+  async::Executor *m_executor;
   std::atomic_long *m_counter;
 
 
@@ -164,21 +166,25 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
      * @param components - &l:HttpProcessor::Components;.
      * @param connection - &id:oatpp::data::stream::IOStream;.
      * @param taskCounter - Counter to increment for every creates task
+     * @param executor - &id:oatpp::async::Executor; for Http2Streams.
      */
     Http2SessionHandler(const std::shared_ptr<processing::Components>& components,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
-         std::atomic_long *taskCounter);
+         std::atomic_long *taskCounter,
+         oatpp::async::Executor *executor);
 
     /**
      * Constructor.
      * @param components - &l:HttpProcessor::Components;.
      * @param connection - &id:oatpp::data::stream::IOStream;.
      * @param taskCounter - Counter to increment for every creates task
+     * @param executor - &id:oatpp::async::Executor; for Http2Streams.
      * @param delegationParameters - Parameter-Map from delegation (if any)
      */
     Http2SessionHandler(const std::shared_ptr<processing::Components>& components,
          const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
          std::atomic_long *taskCounter,
+         oatpp::async::Executor *executor,
          const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters);
 
     /**
@@ -223,7 +229,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
   Action stop();
 
-  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handler, protocol::http2::Frame::Header &header);
+  Action delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handlerTask, protocol::http2::Frame::Header &header);
   async::Action consumeStream(v_io_size streamPayloadLength, async::Action &&next);
 
   async::Action sendSettingsFrame(async::Action &&next);
