@@ -43,25 +43,22 @@
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
-class Http2StreamHandler : public oatpp::base::Countable {
+class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
  private:
-  char TAG[64];
-
+  static const char* TAG;
  public:
-
-  typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
-
   enum H2StreamState {
     INIT = 0,
     HEADERS = 1,
     CONTINUATION = 2,
     PAYLOAD = 3,
-    PROCESSING = 4,
-    RESPONDING = 5,
-    DONE = 6,
-    RESET = 7,
-    ABORTED = 8,
-    ERROR = 9
+    READY = 4,
+    PROCESSING = 5,
+    RESPONDING = 6,
+    DONE = 7,
+    RESET = 8,
+    ABORTED = 9,
+    ERROR = 10
   };
 
   typedef protocol::http2::Frame::Header::Flags::Header H2StreamHeaderFlags;
@@ -78,13 +75,11 @@ class Http2StreamHandler : public oatpp::base::Countable {
     std::shared_ptr<http2::Http2Settings> outSettings;
     std::shared_ptr<data::stream::FIFOInputStream> data;
     std::shared_ptr<data::stream::FIFOInputStream> header;
-    std::exception_ptr error;
     v_uint32 streamId;
     v_uint32 dependency;
     v_uint8 weight;
     v_uint8 headerFlags;
-    v_int32 window;
-    v_uint32 windowIncrement;
+    std::atomic_int32_t window;
 
     Task(v_uint32 id, const std::shared_ptr<http2::PriorityStreamSchedulerAsync> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
         : state(INIT)
@@ -92,13 +87,11 @@ class Http2StreamHandler : public oatpp::base::Countable {
         , output(outputStream)
         , hpack(hpack)
         , components(components)
+        , inSettings(inSettings)
+        , outSettings(outSettings)
         , dependency(0)
         , weight(0)
         , headerFlags(0)
-        , error(nullptr)
-        , windowIncrement(0)
-        , inSettings(inSettings)
-        , outSettings(outSettings)
         , window(static_cast<v_int32>(outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)))
         , header(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)))
         , data(data::stream::FIFOInputStream::createShared(inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE))){}
@@ -109,85 +102,69 @@ class Http2StreamHandler : public oatpp::base::Countable {
     void resizeWindow(v_int32 change);
   };
 
-  class WorkerResources {
-   public:
-    std::shared_ptr<protocol::http::incoming::Request> request;
-    std::shared_ptr<http2::processing::Components> components;
-    std::shared_ptr<protocol::http::outgoing::Response> response;
-
-   public:
-    WorkerResources(const std::shared_ptr<protocol::http::incoming::Request> &req, const std::shared_ptr<http2::processing::Components> &comp)
-      : request(req)
-      , components(comp) {}
-  };
-
   class TaskWorker : public oatpp::async::CoroutineWaitList::Listener {
    public:
+    class Resources {
+     public:
+      std::shared_ptr<protocol::http::incoming::Request> request;
+      std::shared_ptr<http2::processing::Components> components;
+      std::shared_ptr<protocol::http::outgoing::Response> response;
+
+     public:
+      Resources() = delete;
+      Resources(const std::shared_ptr<protocol::http::incoming::Request> &req, const std::shared_ptr<http2::processing::Components> &comp)
+          : request(req)
+          , components(comp) {}
+    };
+
     /* oatpp::async::CoroutineWaitList::Listener::onNewItem */
     void onNewItem(oatpp::async::CoroutineWaitList& list) override;
 
    private:
-    std::shared_ptr<WorkerResources> m_resources;
+    Resources *m_resources;
     oatpp::async::CoroutineWaitList m_waitList;
     bool m_done = false;
     std::mutex m_mutex;
 
    public:
-    TaskWorker(const std::shared_ptr<WorkerResources> &resources);
+    TaskWorker(Resources *resources);
 
-    void run();
     void start();
     oatpp::async::CoroutineWaitList* getWaitList();
     bool isDone();
 
+   private:
+    void run();
   };
 
-  std::thread m_processor;
+  Http2StreamHandler() = delete;
   std::shared_ptr<Task> m_task;
+  std::shared_ptr<TaskWorker> m_worker;
+  std::shared_ptr<TaskWorker::Resources> m_resources;
 
  public:
-  Http2StreamHandler(v_uint32 id, const std::shared_ptr<http2::PriorityStreamSchedulerAsync> &outputStream, const std::shared_ptr<protocol::http2::hpack::Hpack> &hpack, const std::shared_ptr<http2::processing::Components> &components, const std::shared_ptr<http2::Http2Settings> &inSettings, const std::shared_ptr<http2::Http2Settings> &outSettings)
-    : m_task(std::make_shared<Task>(id, outputStream, hpack, components, inSettings, outSettings)) {
-    sprintf(TAG, "oatpp::web::server::http2::Http2StreamHandler(%u)", id);
-  }
-  ~Http2StreamHandler() override {
-    abort();
-    waitForFinished();
-  }
+  Http2StreamHandler(const std::shared_ptr<Task> &task);
 
-  async::Action prepareWorker();
-  async::Action processWorkerResult(const std::shared_ptr<protocol::http::outgoing::Response> &response);
+  async::Action act() override;
+  async::Action startWorker();
+  async::Action processWorkerResult();
+
+  async::Action writeHeaders();
+  async::Action writeData();
+
+  async::Action finalize();
 
   ///////
 
-  async::Action handleData(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-  async::Action handleHeaders(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-  async::Action handlePriority(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-  async::Action handleResetStream(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-  async::Action handlePushPromise(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-  async::Action handleWindowUpdate(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-  async::Action handleContinuation(v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength, async::Action &&nextAction);
-
-  H2StreamState getState() {
-    return m_task->state;
-  }
-
-  v_uint32 getStreamId() {
-    return m_task->streamId;
-  }
-
-  void abort();
-  void waitForFinished();
-  void clean();
-  void resizeWindow(v_int32 change);
+  static H2StreamState handleData(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleHeaders(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handlePriority(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleResetStream(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handlePushPromise(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleWindowUpdate(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleContinuation(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
 
   static const char* stateStringRepresentation(H2StreamState state);
-
- private:
-  static void process(std::shared_ptr<Task> task);
-  static void finalizeProcessAbortion(const std::shared_ptr<Task> &task);
-
-  static void processError(std::shared_ptr<Task> task, protocol::http2::error::ErrorCode code);
 };
 
 }}}}
