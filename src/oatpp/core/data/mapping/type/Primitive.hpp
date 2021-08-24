@@ -30,10 +30,14 @@
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
 
+#include <algorithm>
+#include <cctype>
+#include <iterator>
+
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 namespace __class {
-  
+
   class String; // FWD
 
   class Int8; // FWD
@@ -52,7 +56,7 @@ namespace __class {
   class Float64; // FWD
 
   class Boolean; // FWD
-  
+
 }
 
 /**
@@ -62,13 +66,13 @@ class String : public type::ObjectWrapper<std::string, __class::String> {
 public:
   String(const std::shared_ptr<std::string>& ptr, const type::Type* const valueType);
 public:
-  
+
   String() {}
 
   explicit String(v_buff_size size)
     : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(size, 0))
   {}
-  
+
   String(const char* data, v_buff_size size)
     : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(data, size))
   {}
@@ -102,24 +106,31 @@ public:
         std::make_shared<std::string>(std::forward<std::string>(str))
       )
   {}
-  
+
   String(const std::shared_ptr<std::string>& ptr)
     : type::ObjectWrapper<std::string, __class::String>(ptr)
   {}
-  
+
   String(std::shared_ptr<std::string>&& ptr)
     : type::ObjectWrapper<std::string, __class::String>(std::forward<std::shared_ptr<std::string>>(ptr))
   {}
-  
+
   String(const String& other)
     : type::ObjectWrapper<std::string, __class::String>(other)
   {}
-  
+
   String(String&& other)
     : type::ObjectWrapper<std::string, __class::String>(std::forward<String>(other))
   {}
 
   const std::string& operator*() const {
+    if (this->m_ptr == nullptr) throw std::runtime_error("[oatpp::data::mapping::type::String] Error: m_ptr points to null.");
+    return this->m_ptr.operator*();
+  }
+
+  operator std::string() const
+  {
+    if (this->m_ptr == nullptr) throw std::runtime_error("[oatpp::data::mapping::type::String] Error: m_ptr points to null.");
     return this->m_ptr.operator*();
   }
 
@@ -163,6 +174,42 @@ public:
   inline String& operator = (String&& other) noexcept {
     m_ptr = std::move(other.m_ptr);
     return *this;
+  }
+
+
+  inline bool equalsCI(const std::string &sb) {
+    if (this->m_ptr == nullptr ) return false;
+    const std::string& sa = this->m_ptr.operator*();
+    return (sa.size() == sb.size()) && std::equal(sa.begin(), sa.end(), sb.begin(),
+                      [] (char a, char b) -> bool {
+                          return std::tolower(a) == std::tolower(b);
+                      });
+  }
+
+  inline bool equalsCI(const String &b) {
+    if (this->m_ptr == nullptr && b.m_ptr == nullptr) return true;
+    if (this->m_ptr == nullptr && b.m_ptr != nullptr) return false;
+    if (this->m_ptr != nullptr && b.m_ptr == nullptr) return false;
+    const std::string& sb = *b;
+    return this->equalsCI(sb);
+  }
+
+  inline bool equalsCI(const char *b) {
+    if (this->m_ptr == nullptr && b == nullptr) return true;
+    if (this->m_ptr == nullptr && b != nullptr) return false;
+    if (this->m_ptr != nullptr && b == nullptr) return false;
+
+    size_t lb = strlen(b);
+    const std::string& sa = this->m_ptr.operator*();
+
+    if (sa.size() != lb) return false;
+    const char *ba = b;
+
+    for ( const auto &ca: sa ) {
+      if ( std::tolower(ca) != std::tolower(*ba)) return false;
+      ba++;
+    }
+    return true;
   }
 
   template<typename T,
@@ -219,9 +266,9 @@ public:
   inline bool operator != (const String &other) const {
     return !operator == (other);
   }
-  
+
 };
-  
+
 String operator + (const char* a, const String& b);
 String operator + (const String& a, const char* b);
 String operator + (const String& a, const String& b);
@@ -301,7 +348,7 @@ public:
   inline operator TValueType() const {
     return *this->m_ptr;
   }
-  
+
 };
 
 /**
@@ -471,29 +518,29 @@ template<>
 struct ObjectWrapperByUnderlyingType <bool> {
   typedef Boolean ObjectWrapper;
 };
-  
+
 namespace __class {
-  
+
   class String {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
   class Int8 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt8 {
@@ -510,12 +557,12 @@ namespace __class {
   class Int16 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt16 {
@@ -528,16 +575,16 @@ namespace __class {
     }
 
   };
-  
+
   class Int32 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt32 {
@@ -550,16 +597,16 @@ namespace __class {
     }
 
   };
-  
+
   class Int64 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt64 {
@@ -576,53 +623,53 @@ namespace __class {
   class Float32 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
   class Float64 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
   class Boolean {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
 }
-  
+
 }}}}
 
 namespace std {
-  
+
   template<>
   struct hash<oatpp::data::mapping::type::String> {
-    
+
     typedef oatpp::data::mapping::type::String argument_type;
     typedef v_uint64 result_type;
-    
+
     result_type operator()(argument_type const& s) const noexcept {
       if(s.get() == nullptr) return 0;
       return hash<std::string> {} (*s);
     }
-    
+
   };
 
   template<>
