@@ -24,27 +24,7 @@
 
 #include "String.hpp"
 
-#include <fstream>
-
 namespace oatpp { namespace utils {
-
-data::mapping::type::String String::loadFromFile(const char* filename) {
-  std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
-  if (file.is_open()) {
-    auto result = data::mapping::type::String(file.tellg());
-    file.seekg(0, std::ios::beg);
-    file.read((char*) result->data(), result->size());
-    file.close();
-    return result;
-  }
-  return nullptr;
-}
-
-void String::saveToFile(const data::mapping::type::String& data, const char* filename) {
-  std::ofstream fs(filename, std::ios::out | std::ios::binary);
-  fs.write(data->data(), data->size());
-  fs.close();
-}
 
 v_buff_size String::compare(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
 

@@ -25,6 +25,8 @@
 #ifndef oatpp_data_share_MemoryLabel_hpp
 #define oatpp_data_share_MemoryLabel_hpp
 
+#include <memory>
+
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/utils/String.hpp"
 
@@ -64,9 +66,15 @@ public:
 
   /**
    * Constructor.
-   * @param str
+   * @param ptr
    */
-  MemoryLabel(const std::shared_ptr<std::string>& str) : MemoryLabel(str, str->data(), (v_buff_size) str->size()) {}
+  MemoryLabel(const std::shared_ptr<std::string>& ptr) :
+    MemoryLabel(
+      ptr,
+      ptr ? ptr->data() : nullptr,
+      ptr ? (v_buff_size) ptr->size() :  0
+    )
+  {}
 
   /**
    * Constructor.
@@ -105,7 +113,7 @@ public:
    */
   void captureToOwnMemory() const {
     if(!m_memoryHandle || m_memoryHandle->data() != (const char*)m_data || m_memoryHandle->size() != m_size) {
-      m_memoryHandle.reset(new std::string((const char*) m_data, m_size));
+      m_memoryHandle = std::make_shared<std::string>((const char*) m_data, m_size);
       m_data = (p_char8) m_memoryHandle->data();
     }
   }
@@ -117,7 +125,8 @@ public:
    * @return - `true` if equals.
    */
   bool equals(const char* data) const {
-    return utils::String::compare(m_data, m_size, data, std::strlen(data)) == 0;
+    auto len = data != nullptr ? std::strlen(data) : 0;
+    return utils::String::compare(m_data, m_size, data, len) == 0;
   }
 
   /**
@@ -170,7 +179,13 @@ public:
   StringKeyLabel() : MemoryLabel() {};
 
   StringKeyLabel(std::nullptr_t) : MemoryLabel() {}
-  
+
+  /**
+   * Constructor.
+   * @param ptr
+   */
+  StringKeyLabel(const std::shared_ptr<std::string>& ptr) : MemoryLabel(ptr) {}
+
   StringKeyLabel(const std::shared_ptr<std::string>& memoryHandle, const char* data, v_buff_size size);
   StringKeyLabel(const char* constText);
   StringKeyLabel(const String& str);
@@ -229,6 +244,8 @@ public:
 
   StringKeyLabelCI(std::nullptr_t) : MemoryLabel() {}
 
+  StringKeyLabelCI(const std::shared_ptr<std::string>& ptr) : MemoryLabel(ptr) {}
+
   StringKeyLabelCI(const std::shared_ptr<std::string>& memoryHandle, const char* data, v_buff_size size);
   StringKeyLabelCI(const char* constText);
   StringKeyLabelCI(const String& str);
@@ -242,7 +259,8 @@ public:
   }
 
   inline bool operator==(const char* str) const {
-    return utils::String::compareCI(m_data, m_size, str, std::strlen(str)) == 0;
+    auto len = str != nullptr ? std::strlen(str) : 0;
+    return utils::String::compareCI(m_data, m_size, str, len) == 0;
   }
 
   inline bool operator!=(const char* str) const {
@@ -289,7 +307,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
 
-      p_char8 data = (p_char8) s.getData();
+      auto data = (p_char8) s.getData();
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i];
@@ -309,7 +327,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
 
-      p_char8 data = (p_char8) s.getData();
+      auto data = (p_char8) s.getData();
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i] | 32;

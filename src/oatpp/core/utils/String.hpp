@@ -25,7 +25,6 @@
 #ifndef oatpp_utils_String_hpp
 #define oatpp_utils_String_hpp
 
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace utils {
@@ -35,19 +34,6 @@ namespace oatpp { namespace utils {
  */
 class String {
 public:
-
-  /**
-   * Load data from file and store in &id:oatpp::String;.
-   * @param filename - name of the file.
-   * @return - &id:oatpp::String;.
-   */
-  static data::mapping::type::String loadFromFile(const char* filename);
-
-  /**
-   * Save content of the buffer to file.
-   * @param filename - name of the file.
-   */
-  static void saveToFile(const data::mapping::type::String& data, const char* filename);
 
   /**
    * Compare data1, data2 using `std::memcmp`.

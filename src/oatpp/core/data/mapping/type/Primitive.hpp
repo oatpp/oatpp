@@ -123,14 +123,26 @@ public:
     : type::ObjectWrapper<std::string, __class::String>(std::forward<String>(other))
   {}
 
-  const std::string& operator*() const {
-    if (this->m_ptr == nullptr) throw std::runtime_error("[oatpp::data::mapping::type::String] Error: m_ptr points to null.");
-    return this->m_ptr.operator*();
-  }
+  /**
+   * Load data from file and store in &id:oatpp::String;.
+   * @param filename - name of the file.
+   * @return - &id:oatpp::String;.
+   */
+  static String loadFromFile(const char* filename);
 
-  operator std::string() const
-  {
-    if (this->m_ptr == nullptr) throw std::runtime_error("[oatpp::data::mapping::type::String] Error: m_ptr points to null.");
+  /**
+   * Save content of the buffer to file.
+   * @param filename - name of the file.
+   */
+  void saveToFile(const char* filename) const;
+
+  const std::string& operator*() const;
+
+  operator std::string() const {
+    if (this->m_ptr == nullptr) {
+      throw std::runtime_error("[oatpp::data::mapping::type::String::operator std::string() const]: "
+                               "Error. Null pointer.");
+    }
     return this->m_ptr.operator*();
   }
 
@@ -176,41 +188,26 @@ public:
     return *this;
   }
 
+  /**
+   * Case insensitive compare.
+   * @param other
+   * @return
+   */
+  bool equalsCI(const std::string& other);
 
-  inline bool equalsCI(const std::string &sb) {
-    if (this->m_ptr == nullptr ) return false;
-    const std::string& sa = this->m_ptr.operator*();
-    return (sa.size() == sb.size()) && std::equal(sa.begin(), sa.end(), sb.begin(),
-                      [] (char a, char b) -> bool {
-                          return std::tolower(a) == std::tolower(b);
-                      });
-  }
+  /**
+   * Case insensitive compare.
+   * @param other
+   * @return
+   */
+  bool equalsCI(const String& other);
 
-  inline bool equalsCI(const String &b) {
-    if (this->m_ptr == nullptr && b.m_ptr == nullptr) return true;
-    if (this->m_ptr == nullptr && b.m_ptr != nullptr) return false;
-    if (this->m_ptr != nullptr && b.m_ptr == nullptr) return false;
-    const std::string& sb = *b;
-    return this->equalsCI(sb);
-  }
-
-  inline bool equalsCI(const char *b) {
-    if (this->m_ptr == nullptr && b == nullptr) return true;
-    if (this->m_ptr == nullptr && b != nullptr) return false;
-    if (this->m_ptr != nullptr && b == nullptr) return false;
-
-    size_t lb = strlen(b);
-    const std::string& sa = this->m_ptr.operator*();
-
-    if (sa.size() != lb) return false;
-    const char *ba = b;
-
-    for ( const auto &ca: sa ) {
-      if ( std::tolower(ca) != std::tolower(*ba)) return false;
-      ba++;
-    }
-    return true;
-  }
+  /**
+   * Case insensitive compare.
+   * @param other
+   * @return
+   */
+  bool equalsCI(const char* str);
 
   template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
