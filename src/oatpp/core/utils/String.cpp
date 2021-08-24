@@ -23,28 +23,9 @@
  ***************************************************************************/
 
 #include "String.hpp"
-
-#include <fstream>
+#include <cstring>
 
 namespace oatpp { namespace utils {
-
-data::mapping::type::String String::loadFromFile(const char* filename) {
-  std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
-  if (file.is_open()) {
-    auto result = data::mapping::type::String(file.tellg());
-    file.seekg(0, std::ios::beg);
-    file.read((char*) result->data(), result->size());
-    file.close();
-    return result;
-  }
-  return nullptr;
-}
-
-void String::saveToFile(const data::mapping::type::String& data, const char* filename) {
-  std::ofstream fs(filename, std::ios::out | std::ios::binary);
-  fs.write(data->data(), data->size());
-  fs.close();
-}
 
 v_buff_size String::compare(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
 
@@ -68,7 +49,7 @@ v_buff_size String::compare(const void* data1, v_buff_size size1, const void* da
 
 }
 
-v_buff_size String::compareCI(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
+v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
 
   if(data1 == data2) return 0;
   if(data1 == nullptr) return -1;
@@ -101,14 +82,14 @@ v_buff_size String::compareCI(const void* data1, v_buff_size size1, const void* 
 
 }
 
-void String::lowerCaseASCII(void* data, v_buff_size size) {
+void String::lowerCase_ASCII(void* data, v_buff_size size) {
   for(v_buff_size i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data)[i];
     if(a >= 'A' && a <= 'Z') ((p_char8) data)[i] = a | 32;
   }
 }
 
-void String::upperCaseASCII(void* data, v_buff_size size) {
+void String::upperCase_ASCII(void* data, v_buff_size size) {
   for(v_buff_size i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data)[i];
     if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;
