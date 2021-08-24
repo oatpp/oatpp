@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <iterator>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
@@ -128,7 +129,8 @@ public:
 
   operator std::string() const
   {
-      return this->m_ptr.operator*();
+    if (this->m_ptr == nullptr) throw std::runtime_error("m_ptr points to null.");
+    return this->m_ptr.operator*();
   }
 
   template<typename T,
@@ -175,6 +177,7 @@ public:
 
 
   inline bool equalsCI(const std::string &sb) {
+    if (this->m_ptr == nullptr ) return false;
     const std::string& sa = this->m_ptr.operator*();
     return (sa.size() == sb.size()) && std::equal(sa.begin(), sa.end(), sb.begin(),
                       [] (char a, char b) -> bool {
@@ -183,13 +186,29 @@ public:
   }
 
   inline bool equalsCI(const String &b) {
+    if (this->m_ptr == nullptr && b.m_ptr == nullptr) return true;
+    if (this->m_ptr == nullptr && b.m_ptr != nullptr) return false;
+    if (this->m_ptr != nullptr && b.m_ptr == nullptr) return false;
     const std::string& sb = *b;
     return this->equalsCI(sb);
   }
 
   inline bool equalsCI(const char *b) {
-    const std::string sb(b);
-    return this->equalsCI(sb);
+    if (this->m_ptr == nullptr && b == nullptr) return true;
+    if (this->m_ptr == nullptr && b != nullptr) return false;
+    if (this->m_ptr != nullptr && b == nullptr) return false;
+
+    size_t lb = strlen(b);
+    const std::string& sa = this->m_ptr.operator*();
+
+    if (sa.size() != lb) return false;
+    const char *ba = b;
+
+    for ( const auto &ca: sa ) {
+      if ( std::tolower(ca) != std::tolower(*ba)) return false;
+      ba++;
+    }
+    return true;
   }
 
   template<typename T,
