@@ -189,25 +189,25 @@ public:
   }
 
   /**
-   * Case insensitive compare.
+   * Case insensitive compare (ASCII only).
    * @param other
    * @return
    */
-  bool equalsCI(const std::string& other);
+  bool equalsCI_ASCII(const std::string& other);
 
   /**
-   * Case insensitive compare.
+   * Case insensitive compare (ASCII only).
    * @param other
    * @return
    */
-  bool equalsCI(const String& other);
+  bool equalsCI_ASCII(const String& other);
 
   /**
-   * Case insensitive compare.
+   * Case insensitive compare (ASCII only).
    * @param other
    * @return
    */
-  bool equalsCI(const char* str);
+  bool equalsCI_ASCII(const char* str);
 
   template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type

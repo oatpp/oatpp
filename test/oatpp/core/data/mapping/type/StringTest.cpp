@@ -222,54 +222,54 @@ void StringTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "test compareCI methods 1");
+    OATPP_LOGI(TAG, "test compareCI_ASCII methods 1");
 
     oatpp::String s1 = "hello";
 
     {
       oatpp::String s2;
-      OATPP_ASSERT(!s1.equalsCI(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
     }
 
     {
       const char* s2 = nullptr;
-      OATPP_ASSERT(!s1.equalsCI(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
     }
 
   }
 
   {
-    OATPP_LOGI(TAG, "test compareCI methods 2");
+    OATPP_LOGI(TAG, "test compareCI_ASCII methods 2");
 
     oatpp::String s1;
 
     {
       oatpp::String s2 = "hello";
-      OATPP_ASSERT(!s1.equalsCI(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
     }
 
     {
       std::string s2 = "hello";
-      OATPP_ASSERT(!s1.equalsCI(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
     }
 
     {
       const char* s2 = "hello";
-      OATPP_ASSERT(!s1.equalsCI(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
     }
 
     {
       oatpp::String s2;
-      OATPP_ASSERT(s1.equalsCI(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
     }
 
     {
       const char* s2 = nullptr;
-      OATPP_ASSERT(s1.equalsCI(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
     }
 
     {
-      OATPP_ASSERT(s1.equalsCI(nullptr));
+      OATPP_ASSERT(s1.equalsCI_ASCII(nullptr));
     }
 
     {
@@ -289,27 +289,27 @@ void StringTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "test compareCI methods 3");
+    OATPP_LOGI(TAG, "test compareCI_ASCII methods 3");
 
     oatpp::String s1 = "hello";
 
     {
       oatpp::String s2 = "HELLO";
-      OATPP_ASSERT(s1.equalsCI(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
     }
 
     {
       std::string s2 = "HELLO";
-      OATPP_ASSERT(s1.equalsCI(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
     }
 
     {
       const char* s2 = "HELLO";
-      OATPP_ASSERT(s1.equalsCI(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
     }
 
     {
-      OATPP_ASSERT(s1.equalsCI("HELLO"));
+      OATPP_ASSERT(s1.equalsCI_ASCII("HELLO"));
     }
 
   }

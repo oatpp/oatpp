@@ -260,7 +260,7 @@ public:
 
   inline bool operator==(const char* str) const {
     auto len = str != nullptr ? std::strlen(str) : 0;
-    return utils::String::compareCI(m_data, m_size, str, len) == 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, str, len) == 0;
   }
 
   inline bool operator!=(const char* str) const {
@@ -270,7 +270,7 @@ public:
   inline bool operator==(const String& str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    return utils::String::compareCI(m_data, m_size, str->data(), str->size()) == 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, str->data(), str->size()) == 0;
   }
 
   inline bool operator!=(const String& str) const {
@@ -278,7 +278,7 @@ public:
   }
 
   inline bool operator==(const StringKeyLabelCI &other) const {
-    return utils::String::compareCI(m_data, m_size, other.m_data, other.m_size) == 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, other.m_data, other.m_size) == 0;
   }
 
   inline bool operator!=(const StringKeyLabelCI &other) const {
@@ -286,11 +286,11 @@ public:
   }
 
   inline bool operator < (const StringKeyLabelCI &other) const {
-    return utils::String::compareCI(m_data, m_size, other.m_data, other.m_size) < 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, other.m_data, other.m_size) < 0;
   }
 
   inline bool operator > (const StringKeyLabelCI &other) const {
-    return utils::String::compareCI(m_data, m_size, other.m_data, other.m_size) > 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, other.m_data, other.m_size) > 0;
   }
 
 };

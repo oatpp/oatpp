@@ -49,7 +49,7 @@ v_buff_size String::compare(const void* data1, v_buff_size size1, const void* da
 
 }
 
-v_buff_size String::compareCI(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
+v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
 
   if(data1 == data2) return 0;
   if(data1 == nullptr) return -1;
@@ -82,14 +82,14 @@ v_buff_size String::compareCI(const void* data1, v_buff_size size1, const void* 
 
 }
 
-void String::lowerCaseASCII(void* data, v_buff_size size) {
+void String::lowerCase_ASCII(void* data, v_buff_size size) {
   for(v_buff_size i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data)[i];
     if(a >= 'A' && a <= 'Z') ((p_char8) data)[i] = a | 32;
   }
 }
 
-void String::upperCaseASCII(void* data, v_buff_size size) {
+void String::upperCase_ASCII(void* data, v_buff_size size) {
   for(v_buff_size i = 0; i < size; i++) {
     v_char8 a = ((p_char8) data)[i];
     if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;

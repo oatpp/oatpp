@@ -55,7 +55,7 @@ void CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol:
     /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
     auto& protocol = request->getStartingLine().protocol;
-    if(protocol && oatpp::utils::String::compareCI(protocol.getData(), protocol.getSize(), "HTTP/1.1", 8) == 0) {
+    if(protocol && oatpp::utils::String::compareCI_ASCII(protocol.getData(), protocol.getSize(), "HTTP/1.1", 8) == 0) {
       if(outState && outState != Header::Value::CONNECTION_KEEP_ALIVE) {
         connectionState = ConnectionState::CLOSING;
       }

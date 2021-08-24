@@ -49,7 +49,7 @@ public:
   static v_buff_size compare(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
 
   /**
-   * Compare data1, data2 - case insensitive.
+   * Compare data1, data2 - case insensitive (ASCII only).
    * *It's safe to pass nullptr for data1/data2*
    * @param data1 - pointer to data1.
    * @param size1 - size of data1.
@@ -59,21 +59,21 @@ public:
    * 0 if all count bytes of data1 and data2 are equal.<br>
    * Positive value if the first differing byte in data1 is greater than the corresponding byte in data2.
    */
-  static v_buff_size compareCI(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
+  static v_buff_size compareCI_ASCII(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2);
 
   /**
    * Change characters in data to lowercase (ASCII only).
    * @param data - pointer to data.
    * @param size - size of the data.
    */
-  static void lowerCaseASCII(void* data, v_buff_size size);
+  static void lowerCase_ASCII(void* data, v_buff_size size);
 
   /**
    * Change characters in data to uppercase (ASCII only).
    * @param data - pointer to data.
    * @param size - size of the data.
    */
-  static void upperCaseASCII(void* data, v_buff_size size);
+  static void upperCase_ASCII(void* data, v_buff_size size);
 
 };
 

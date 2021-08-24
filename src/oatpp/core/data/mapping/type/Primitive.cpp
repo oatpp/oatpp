@@ -64,17 +64,17 @@ const std::string& String::operator*() const {
   return this->m_ptr.operator*();
 }
 
-bool String::equalsCI(const std::string& other) {
+bool String::equalsCI_ASCII(const std::string& other) {
   auto ciLabel = share::StringKeyLabelCI(m_ptr);
   return ciLabel == other;
 }
 
-bool String::equalsCI(const String& other) {
+bool String::equalsCI_ASCII(const String& other) {
   auto ciLabel = share::StringKeyLabelCI(m_ptr);
   return ciLabel == other;
 }
 
-bool String::equalsCI(const char* other) {
+bool String::equalsCI_ASCII(const char* other) {
   auto ciLabel = share::StringKeyLabelCI(m_ptr);
   return ciLabel == other;
 }
