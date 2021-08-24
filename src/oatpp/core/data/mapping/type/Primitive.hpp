@@ -124,12 +124,13 @@ public:
   {}
 
   const std::string& operator*() const {
+    if (this->m_ptr == nullptr) throw std::runtime_error("[oatpp::data::mapping::type::String] Error: m_ptr points to null.");
     return this->m_ptr.operator*();
   }
 
   operator std::string() const
   {
-    if (this->m_ptr == nullptr) throw std::runtime_error("m_ptr points to null.");
+    if (this->m_ptr == nullptr) throw std::runtime_error("[oatpp::data::mapping::type::String] Error: m_ptr points to null.");
     return this->m_ptr.operator*();
   }
 
