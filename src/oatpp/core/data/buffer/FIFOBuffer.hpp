@@ -123,7 +123,7 @@ public:
    * @param action
    * @return [1..count], IOErrors.
    */
-  v_io_size readAndWriteToStream(data::stream::OutputStream* stream, v_buff_size count, async::Action& action);
+  v_io_size readAndWriteToStream(data::stream::WriteCallback* stream, v_buff_size count, async::Action& action);
 
   /**
    * call stream.read() and then write bytes read to buffer
@@ -132,7 +132,7 @@ public:
    * @param action
    * @return
    */
-  v_io_size readFromStreamAndWrite(data::stream::InputStream* stream, v_buff_size count, async::Action& action);
+  v_io_size readFromStreamAndWrite(data::stream::ReadCallback* stream, v_buff_size count, async::Action& action);
 
   /**
    * flush all availableToRead bytes to stream

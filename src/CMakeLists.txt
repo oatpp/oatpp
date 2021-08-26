@@ -107,6 +107,8 @@ add_library(oatpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
+        oatpp/core/data/stream/FIFOStream.cpp
+        oatpp/core/data/stream/FIFOStream.hpp
         oatpp/core/data/stream/FileStream.cpp
         oatpp/core/data/stream/FileStream.hpp
         oatpp/core/data/stream/Stream.cpp

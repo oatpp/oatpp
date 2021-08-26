@@ -90,6 +90,12 @@ public:
   Headers& getHeaders();
 
   /**
+   * Get body
+   * @return - &id:oatpp::web::protocol::http::outgoing::Body;
+   */
+  std::shared_ptr<Body> getBody() const;
+
+  /**
    * Add http header.
    * @param key - &id:oatpp::String;.
    * @param value - &id:oatpp::String;.
