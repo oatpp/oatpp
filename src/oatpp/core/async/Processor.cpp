@@ -314,7 +314,7 @@ bool Processor::abortCoroutine(v_uint64 coroutineId) {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     for (auto it = m_taskList.begin(); it != m_taskList.end(); ++it) {
       if ((*(*it)).getId() == coroutineId) {
-        it = m_taskList.erase(it);
+        m_taskList.erase(it);
         m_taskCondition.notify_one();
         return true;
       }
@@ -323,9 +323,9 @@ bool Processor::abortCoroutine(v_uint64 coroutineId) {
     // now check the current pushList if we find any coroutines
     for (auto it = m_pushList.begin(); it != m_pushList.end(); ++it) {
       if ((*it)->getId() == coroutineId) {
-        m_pushList.erase(it);
         (*it)->abort();
         delete (*it);
+        m_pushList.erase(it);
         m_taskCondition.notify_one();
         return true;
       }
@@ -342,9 +342,9 @@ bool Processor::abortCoroutine(v_uint64 coroutineId) {
     // now search the queue for a matching coroutine
     for (auto it = m_queue.begin(); it != m_queue.end(); ++it) {
       if ((*it)->getId() == coroutineId) {
-        m_queue.erase(it);
         (*it)->abort();
         delete (*it);
+        m_queue.erase(it);
         found = true;
         break;
       }
