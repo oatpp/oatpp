@@ -433,7 +433,7 @@ private:
   AbstractCoroutine* _CP;
   FunctionPtr _FP;
   oatpp::async::Action _SCH_A;
-  CoroutineHandle* _ref;
+  CoroutineHandle* _next;
 public:
 
   CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);

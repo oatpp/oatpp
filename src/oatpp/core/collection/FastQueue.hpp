@@ -33,7 +33,54 @@ namespace oatpp { namespace collection {
 template<typename T>
 class FastQueue {
 public:
-  
+
+  class iterator {
+   friend class FastQueue<T>;
+
+   private:
+    T* i;
+    T* prev;
+    iterator(T* pRef, T* pLast = nullptr) : i(pRef), prev(pLast) {}
+
+   public:
+    iterator(const iterator& other) {
+      i = other.i;
+      prev = other.prev;
+    }
+    ~iterator() {
+
+    }
+    iterator& operator=(const iterator& other) {
+      if (this != &other) {
+        i = other.i;
+        prev = other.prev;
+      }
+      return *this;
+    }
+    bool operator==(const iterator& other) {
+      return i == other.i;
+    }
+    bool operator!=(const iterator& other) {
+      return i != other.i;
+    }
+    iterator& operator++() {
+      prev = i;
+      i = i->_next;
+      return *this;
+    }
+    T* operator*() const {
+      return i;
+    }
+    friend void swap(iterator& lhs, iterator& rhs) {
+      T* tmp = lhs.i;
+      lhs.i = rhs.i;
+      rhs.i = tmp;
+      tmp = lhs.prev;
+      lhs.prev = rhs.prev;
+      rhs.prev = tmp;
+    }
+  };
+
   FastQueue()
     : first(nullptr)
     , last(nullptr)
@@ -80,7 +127,7 @@ public:
   }
   
   void pushFront(T* entry) {
-    entry->_ref = first;
+    entry->_next = first;
     first = entry;
     if(last == nullptr) {
       last = first;
@@ -89,12 +136,12 @@ public:
   }
   
   void pushBack(T* entry) {
-    entry->_ref = nullptr;
+    entry->_next = nullptr;
     if(last == nullptr) {
       first = entry;
       last = entry;
     } else {
-      last->_ref = entry;
+      last->_next = entry;
       last = entry;
     }
     ++ count;
@@ -102,16 +149,16 @@ public:
   
   void round(){
     if(count > 1) {
-      last->_ref = first;
+      last->_next = first;
       last = first;
-      first = first->_ref;
-      last->_ref = nullptr;
+      first = first->_next;
+      last->_next = nullptr;
     }
   }
   
   T* popFront() {
     T* result = first;
-    first = first->_ref;
+    first = first->_next;
     if(first == nullptr) {
       last = nullptr;
     }
@@ -121,7 +168,7 @@ public:
   
   void popFrontNoData() {
     T* result = first;
-    first = first->_ref;
+    first = first->_next;
     if(first == nullptr) {
       last = nullptr;
     }
@@ -137,7 +184,7 @@ public:
         toQueue.first = fromQueue.first;
         toQueue.last = fromQueue.last;
       } else {
-        toQueue.last->_ref = fromQueue.first;
+        toQueue.last->_next = fromQueue.first;
         toQueue.last = fromQueue.last;
       }
 
@@ -156,9 +203,9 @@ public:
     if(prevEntry == nullptr) {
       popFront();
     } else {
-      prevEntry->_ref = entry->_ref;
+      prevEntry->_next = entry->_next;
       -- count;
-      if(prevEntry->_ref == nullptr) {
+      if(prevEntry->_next == nullptr) {
         last = prevEntry;
       }
     }
@@ -168,13 +215,34 @@ public:
   void clear() {
     T* curr = first;
     while (curr != nullptr) {
-      T* next = curr->_ref;
+      T* next = curr->_next;
       delete curr;
       curr = next;
     }
     first = nullptr;
     last = nullptr;
     count = 0;
+  }
+
+  iterator begin() const {
+    return iterator(first, nullptr);
+  }
+
+  iterator end() const {
+    return iterator(nullptr, last);
+  }
+
+  void erase(iterator& i) {
+    if(i.prev == nullptr) {
+      popFront();
+      i.i = first;
+    } else {
+      i.prev->_next = i.i->_next;
+      -- count;
+      if(i.prev->_next == nullptr) {
+        last = i.prev;
+      }
+    }
   }
   
 };
