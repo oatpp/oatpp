@@ -8,6 +8,7 @@
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
+ *                         Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +29,7 @@
 #include "oatpp/core/async/Processor.hpp"
 
 #include <chrono>
+#include <iterator>
 
 namespace oatpp { namespace async { namespace worker {
 
@@ -39,10 +41,22 @@ IOWorker::IOWorker()
   m_thread = std::thread(&IOWorker::run, this);
 }
 
-void IOWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+IOWorker::~IOWorker() {
+  std::lock_guard<oatpp::concurrency::SpinLock> gurad{m_backlogLock};
+  for (CoroutineHandle* coroutine : m_backlog) {
+    delete coroutine;
+  }
+  for (CoroutineHandle* coroutine : m_queue) {
+    delete coroutine;
+  }
+}
+
+void IOWorker::pushTasks(std::vector<CoroutineHandle*>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
+    m_backlog.reserve(m_backlog.size() * tasks.size());
+    std::move(std::begin(tasks), std::end(tasks), std::back_inserter(m_backlog));
+    tasks.clear();
   }
   m_backlogCondition.notify_one();
 }
@@ -50,7 +64,7 @@ void IOWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
 void IOWorker::pushOneTask(CoroutineHandle* task) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    m_backlog.pushBack(task);
+    m_backlog.push_back(task);
   }
   m_backlogCondition.notify_one();
 }
@@ -60,15 +74,19 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
   if(blockToConsume) {
 
     std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-    while (m_backlog.first == nullptr && m_running) {
+    while (m_backlog.empty() && m_running) {
       m_backlogCondition.wait(lock);
     }
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
+    m_queue.reserve(m_queue.size() + m_backlog.size());
+    std::move(std::begin(m_backlog), std::end(m_backlog), std::back_inserter(m_queue));
+    m_backlog.clear();
   } else {
 
     std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock, std::try_to_lock);
     if (lock.owns_lock()) {
-      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
+      m_queue.reserve(m_queue.size() + m_backlog.size());
+      std::move(std::begin(m_backlog), std::end(m_backlog), std::back_inserter(m_queue));
+      m_backlog.clear();
     }
 
   }
@@ -85,72 +103,68 @@ void IOWorker::run() {
 
   while(m_running) {
 
-    auto CP = m_queue.first;
-    if(CP != nullptr) {
-
-      Action action = CP->iterate();
-      auto& schA = getCoroutineScheduledAction(CP);
-
-      switch(action.getType()) {
-
-        case Action::TYPE_IO_REPEAT:
-
-          dismissAction(schA);
-
-          ++ roundIteration;
-          if(roundIteration == 10) {
-            roundIteration = 0;
-            m_queue.round();
-          }
-          break;
-
-          //        case Action::TYPE_IO_WAIT:
-//          roundIteration = 0;
-//          m_queue.round();
-//          break;
-
-          //        case Action::TYPE_IO_WAIT: // schedule for timer
-//          roundIteration = 0;
-//          m_queue.popFront();
-//          setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
-//          getCoroutineProcessor(CP)->pushOneTask(CP);
-//          break;
-
-        case Action::TYPE_IO_WAIT:
-          roundIteration = 0;
-          if(schA.getType() == Action::TYPE_WAIT_REPEAT) {
-            if(schA.getTimePointMicroseconds() < tick) {
-              m_queue.popFront();
-              setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
-              getCoroutineProcessor(CP)->pushOneTask(CP);
-            } else {
-              m_queue.round();
-            }
-          } else {
-            setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(tick + 1000000));
-            m_queue.round();
-          }
-          break;
-
-        default:
-          roundIteration = 0;
-          m_queue.popFront();
-          setCoroutineScheduledAction(CP, std::move(action));
-          getCoroutineProcessor(CP)->pushOneTask(CP);
-          break;
-
-      }
-
-      ++ consumeIteration;
-      if(consumeIteration == 100) {
-        consumeIteration = 0;
-        consumeBacklog(false);
-        std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-        tick = ms.count();
-      }
-
-    } else {
+    if(m_queue.empty()) {
       consumeBacklog(true);
+      std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+      tick = ms.count();
+      continue;
+    }
+
+    std::swap(m_queue.front(), m_queue.back());
+    auto CP = m_queue.back();
+    Action action = CP->iterate();
+    auto& schA = getCoroutineScheduledAction(CP);
+
+    switch(action.getType()) {
+
+      case Action::TYPE_IO_REPEAT:
+
+        dismissAction(schA);
+
+        ++ roundIteration;
+        if(roundIteration == 10) {
+          roundIteration = 0;
+        }
+        break;
+
+        //        case Action::TYPE_IO_WAIT:
+//        roundIteration = 0;
+//        m_queue.round();
+//        break;
+
+        //        case Action::TYPE_IO_WAIT: // schedule for timer
+//        roundIteration = 0;
+//        m_queue.popFront();
+//        setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
+//        getCoroutineProcessor(CP)->pushOneTask(CP);
+//        break;
+
+      case Action::TYPE_IO_WAIT:
+        roundIteration = 0;
+        if(schA.getType() == Action::TYPE_WAIT_REPEAT) {
+          if(schA.getTimePointMicroseconds() < tick) {
+            m_queue.pop_back();
+            setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(0));
+            getCoroutineProcessor(CP)->pushOneTask(CP);
+          }
+        } else {
+          setCoroutineScheduledAction(CP, oatpp::async::Action::createWaitRepeatAction(tick + 1000000));
+        }
+        break;
+
+      default:
+        roundIteration = 0;
+        m_queue.pop_back();
+        setCoroutineScheduledAction(CP, std::move(action));
+        getCoroutineProcessor(CP)->pushOneTask(CP);
+        break;
+
+    }
+
+    ++ consumeIteration;
+    if(consumeIteration == 100) {
+      consumeIteration = 0;
+      consumeBacklog(false);
       std::chrono::microseconds ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
       tick = ms.count();
     }

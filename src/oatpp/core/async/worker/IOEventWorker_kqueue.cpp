@@ -31,6 +31,7 @@
 
 #include "oatpp/core/async/Processor.hpp"
 
+#include <iterator>
 #include <sys/event.h>
 
 namespace oatpp { namespace async { namespace worker {
@@ -122,7 +123,7 @@ void IOEventWorker::consumeBacklog() {
 
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
 
-  m_inEventsCount = m_backlog.count + 1;
+  m_inEventsCount = m_backlog.size() + 1;
 
   if(m_inEventsCapacity < m_inEventsCount) {
 
@@ -139,17 +140,13 @@ void IOEventWorker::consumeBacklog() {
 
   setTriggerEvent(&m_inEvents[0]);
 
-  auto curr = m_backlog.first;
   v_int32 i = 1;
-  while(curr != nullptr) {
+  for (CoroutineHandle* curr : m_backlog) {
     setCoroutineEvent(curr, 0, &m_inEvents[i * sizeof(struct kevent)]);
-    curr = nextCoroutine(curr);
     ++i;
   }
 
-  m_backlog.first = nullptr;
-  m_backlog.last = nullptr;
-  m_backlog.count = 0;
+  m_backlog.clear();
 
 }
 
@@ -168,8 +165,8 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<CoroutineHandle> repeatQueue;
-  oatpp::collection::FastQueue<CoroutineHandle> popQueue;
+  std::vector<CoroutineHandle*> repeatQueue;
+  std::vector<CoroutineHandle*> popQueue;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
@@ -189,32 +186,32 @@ void IOEventWorker::waitEvents() {
 
         case Action::CODE_IO_WAIT_READ:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          repeatQueue.pushBack(coroutine);
+          repeatQueue.push_back(coroutine);
           break;
 
         case Action::CODE_IO_WAIT_WRITE:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          repeatQueue.pushBack(coroutine);
+          repeatQueue.push_back(coroutine);
           break;
 
         case Action::CODE_IO_REPEAT_READ:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          repeatQueue.pushBack(coroutine);
+          repeatQueue.push_back(coroutine);
           break;
 
         case Action::CODE_IO_REPEAT_WRITE:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          repeatQueue.pushBack(coroutine);
+          repeatQueue.push_back(coroutine);
           break;
 
         case Action::CODE_IO_WAIT_RESCHEDULE:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          popQueue.pushBack(coroutine);
+          popQueue.push_back(coroutine);
           break;
 
         case Action::CODE_IO_REPEAT_RESCHEDULE:
           setCoroutineScheduledAction(coroutine, std::move(action));
-          popQueue.pushBack(coroutine);
+          popQueue.push_back(coroutine);
           break;
 
         default:
@@ -227,14 +224,13 @@ void IOEventWorker::waitEvents() {
 
   }
 
-  if(repeatQueue.count > 0) {
-    {
-      std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(repeatQueue, m_backlog);
-    }
+  if(!repeatQueue.empty()) {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
+    std::move(std::begin(repeatQueue), std::end(repeatQueue), std::back_inserter(m_backlog));
+    repeatQueue.clear();
   }
 
-  if(popQueue.count > 0) {
+  if(!popQueue.empty()) {
     m_foreman->pushTasks(popQueue);
   }
 

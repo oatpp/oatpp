@@ -8,6 +8,7 @@
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
  *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
+ *                         Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +43,8 @@ namespace oatpp { namespace async { namespace worker {
 class TimerWorker : public Worker {
 private:
   std::atomic_bool m_running;
-  oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
-  oatpp::collection::FastQueue<CoroutineHandle> m_queue;
+  std::vector<CoroutineHandle*> m_backlog;
+  std::vector<CoroutineHandle*> m_queue;
   oatpp::concurrency::SpinLock m_backlogLock;
   std::condition_variable_any m_backlogCondition;
 private:
@@ -63,10 +64,15 @@ public:
   TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity = std::chrono::milliseconds(100));
 
   /**
+  * Virtual destructor.
+  */
+  ~TimerWorker();
+
+  /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
+   * @param tasks - std::vector of &id:oatpp::async::CoroutineHandle;*.
    */
-  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
+  void pushTasks(std::vector<CoroutineHandle*>& tasks) override;
 
   /**
    * Push one task to worker.

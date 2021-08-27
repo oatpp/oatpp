@@ -53,7 +53,7 @@ void Executor::SubmissionProcessor::run() {
   
 }
 
-void Executor::SubmissionProcessor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+void Executor::SubmissionProcessor::pushTasks(std::vector<CoroutineHandle*>& tasks) {
   (void)tasks;
   throw std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushTasks]: Error. This method does nothing.");
 }

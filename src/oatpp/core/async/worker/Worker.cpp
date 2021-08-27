@@ -46,10 +46,6 @@ void Worker::dismissAction(Action& action) {
   action.m_type = Action::TYPE_NONE;
 }
 
-CoroutineHandle* Worker::nextCoroutine(CoroutineHandle* coroutine) {
-  return coroutine->_next;
-}
-
 Worker::Type Worker::getType() {
   return m_type;
 }

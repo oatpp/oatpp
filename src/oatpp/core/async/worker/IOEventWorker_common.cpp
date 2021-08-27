@@ -25,6 +25,7 @@
 
 #include "IOEventWorker.hpp"
 
+#include <iterator>
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #else
@@ -61,23 +62,29 @@ IOEventWorker::~IOEventWorker() {
     ::close(m_wakeupTrigger);
   }
 #endif
+  std::lock_guard<oatpp::concurrency::SpinLock> guard{m_backlogLock};
+  for (CoroutineHandle* coroutine : m_backlog) {
+    delete coroutine;
+  }
 }
 
 
-void IOEventWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle> &tasks) {
-  if (tasks.first != nullptr) {
-    {
-      std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
-    }
-    triggerWakeup();
+void IOEventWorker::pushTasks(std::vector<CoroutineHandle*> &tasks) {
+  if (tasks.empty()) return;
+  
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> guard{m_backlogLock};
+    m_backlog.reserve(m_backlog.size() + tasks.size());
+    std::move(std::begin(tasks), std::end(tasks), std::back_inserter(m_backlog));
+    tasks.clear();
   }
+  triggerWakeup();
 }
 
 void IOEventWorker::pushOneTask(CoroutineHandle *task) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    m_backlog.pushBack(task);
+    m_backlog.push_back(task);
   }
   triggerWakeup();
 }
@@ -120,24 +127,23 @@ IOEventWorkerForeman::IOEventWorkerForeman()
 IOEventWorkerForeman::~IOEventWorkerForeman() {
 }
 
-void IOEventWorkerForeman::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+void IOEventWorkerForeman::pushTasks(std::vector<CoroutineHandle*>& tasks) {
 
-  oatpp::collection::FastQueue<CoroutineHandle> readerTasks;
-  oatpp::collection::FastQueue<CoroutineHandle> writerTasks;
+  std::vector<CoroutineHandle*> readerTasks;
+  std::vector<CoroutineHandle*> writerTasks;
 
-  while(tasks.first != nullptr) {
+  for (CoroutineHandle* coroutine : tasks) {
 
-    CoroutineHandle* coroutine = tasks.popFront();
     auto& action = getCoroutineScheduledAction(coroutine);
 
     switch(action.getIOEventType()) {
 
       case Action::IOEventType::IO_EVENT_READ:
-        readerTasks.pushBack(coroutine);
+        readerTasks.push_back(coroutine);
         break;
 
       case Action::IOEventType::IO_EVENT_WRITE:
-        writerTasks.pushBack(coroutine);
+        writerTasks.push_back(coroutine);
         break;
 
       default:
@@ -146,12 +152,13 @@ void IOEventWorkerForeman::pushTasks(oatpp::collection::FastQueue<CoroutineHandl
     }
 
   }
+  tasks.clear();
 
-  if(readerTasks.first != nullptr) {
+  if(!readerTasks.empty()) {
     m_reader.pushTasks(readerTasks);
   }
 
-  if(writerTasks.first != nullptr) {
+  if(!writerTasks.empty()) {
     m_writer.pushTasks(writerTasks);
   }
 

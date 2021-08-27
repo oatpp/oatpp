@@ -28,6 +28,8 @@
 #include "./CoroutineWaitList.hpp"
 #include "oatpp/core/async/worker/Worker.hpp"
 
+#include <iterator>
+
 namespace oatpp { namespace async {
 
 void Processor::checkCoroutinesForTimeouts() {
@@ -62,6 +64,26 @@ void Processor::removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList)
   m_coroutineWaitListsWithTimeouts.erase(waitList);
 }
 
+Processor::~Processor() {
+  std::lock_guard<oatpp::concurrency::SpinLock> guard{m_taskLock};
+  for (const auto& queue : m_ioPopQueues) {
+    for (CoroutineHandle* coroutine : queue) {
+      delete coroutine;
+    }
+  }
+  for (const auto& queue : m_timerPopQueues) {
+    for (CoroutineHandle* coroutine : queue) {
+      delete coroutine;
+    }
+  }
+  for (CoroutineHandle* coroutine : m_pushList) {
+    delete coroutine;
+  }
+  for (CoroutineHandle* coroutine : m_queue) {
+    delete coroutine;
+  }
+}
+
 void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
   switch(worker->getType()) {
@@ -86,7 +108,7 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 void Processor::popIOTask(CoroutineHandle* coroutine) {
   if(m_ioPopQueues.size() > 0) {
     auto &queue = m_ioPopQueues[(++m_ioBalancer) % m_ioPopQueues.size()];
-    queue.pushBack(coroutine);
+    queue.push_back(coroutine);
     //m_ioWorkers[(++m_ioBalancer) % m_ioWorkers.size()]->pushOneTask(coroutine);
   } else {
     throw std::runtime_error("[oatpp::async::Processor::popIOTasks()]: Error. Processor has no I/O workers.");
@@ -96,7 +118,7 @@ void Processor::popIOTask(CoroutineHandle* coroutine) {
 void Processor::popTimerTask(CoroutineHandle* coroutine) {
   if(m_timerPopQueues.size() > 0) {
     auto &queue = m_timerPopQueues[(++m_timerBalancer) % m_timerPopQueues.size()];
-    queue.pushBack(coroutine);
+    queue.push_back(coroutine);
     //m_timerWorkers[(++m_timerBalancer) % m_timerWorkers.size()]->pushOneTask(coroutine);
   } else {
     throw std::runtime_error("[oatpp::async::Processor::popTimerTask()]: Error. Processor has no Timer workers.");
@@ -137,7 +159,7 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
         break;
 
       default:
-        m_queue.pushBack(coroutine);
+        m_queue.push_back(coroutine);
 
     }
 
@@ -150,15 +172,17 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
 void Processor::pushOneTask(CoroutineHandle* coroutine) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-    m_pushList.pushBack(coroutine);
+    m_pushList.push_back(coroutine);
   }
   m_taskCondition.notify_one();
 }
 
-void Processor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+void Processor::pushTasks(std::vector<CoroutineHandle*>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-    collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_pushList);
+    m_pushList.reserve(m_pushList.size() + tasks.size());
+    std::move(std::begin(tasks), std::end(tasks), std::back_inserter(m_pushList));
+    tasks.clear();
   }
   m_taskCondition.notify_one();
 }
@@ -166,7 +190,7 @@ void Processor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) 
 void Processor::waitForTasks() {
 
   std::unique_lock<oatpp::concurrency::SpinLock> lock(m_taskLock);
-  while (m_pushList.first == nullptr && m_taskList.empty() && m_running) {
+  while (m_pushList.empty() && m_taskList.empty() && m_running) {
     m_taskCondition.wait(lock);
   }
 
@@ -190,23 +214,23 @@ void Processor::popTasks() {
 
 void Processor::consumeAllTasks() {
   for(auto& submission : m_taskList) {
-    m_queue.pushBack(submission->createCoroutine(this));
+    m_queue.push_back(submission->createCoroutine(this));
   }
   m_taskList.clear();
 }
 
 void Processor::pushQueues() {
 
-  oatpp::collection::FastQueue<CoroutineHandle> tmpList;
+  std::vector<CoroutineHandle*> tmpList;
 
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     consumeAllTasks();
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
+    tmpList = std::move(m_pushList);
   }
 
-  while(tmpList.first != nullptr) {
-    addCoroutine(tmpList.popFront());
+  for (CoroutineHandle* coroutine : tmpList) {
+    addCoroutine(coroutine);
   }
 
 }
@@ -217,12 +241,15 @@ bool Processor::iterate(v_int32 numIterations) {
 
   for(v_int32 i = 0; i < numIterations && m_running; i++) {
 
-    auto CP = m_queue.first;
-    if (CP == nullptr) {
+    if (m_queue.empty()) {
       break;
     }
+
+    std::swap(m_queue.front(), m_queue.back());
+    auto CP = m_queue.back();
     if (CP->finished()) {
-      m_queue.popFrontNoData();
+      m_queue.pop_back();
+      delete CP;
       -- m_tasksCounter;
     } else {
 
@@ -232,30 +259,27 @@ bool Processor::iterate(v_int32 numIterations) {
 
         case Action::TYPE_IO_WAIT:
           CP->_SCH_A = Action::clone(action);
-          m_queue.popFront();
+          m_queue.pop_back();
           popIOTask(CP);
           break;
 
         case Action::TYPE_WAIT_REPEAT:
           CP->_SCH_A = Action::clone(action);
-          m_queue.popFront();
+          m_queue.pop_back();
           popTimerTask(CP);
           break;
 
         case Action::TYPE_WAIT_LIST:
           CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-          m_queue.popFront();
+          m_queue.pop_back();
           action.m_data.waitList->pushBack(CP);
           break;
 
         case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
           CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-          m_queue.popFront();
+          m_queue.pop_back();
           action.m_data.waitListWithTimeout.waitList->pushBack(CP, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
           break;
-
-        default:
-          m_queue.round();
       }
 
     }
@@ -265,7 +289,7 @@ bool Processor::iterate(v_int32 numIterations) {
   popTasks();
 
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-  return m_queue.first != nullptr || m_pushList.first != nullptr || !m_taskList.empty();
+  return !m_queue.empty() || !m_pushList.empty() || !m_taskList.empty();
   
 }
 
