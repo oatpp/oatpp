@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,8 +58,8 @@ private:
   public:
 
     template<typename CoroutineType, typename ... Args>
-    void execute(Args... params) {
-      m_processor.execute<CoroutineType, Args...>(params...);
+    void execute(v_uint64 coroutineId, Args... params) {
+      m_processor.execute<CoroutineType, Args...>(coroutineId, params...);
     }
 
     oatpp::async::Processor& getProcessor();
@@ -74,7 +75,9 @@ private:
     void join() override;
 
     void detach() override;
-    
+
+    bool abortCoroutine(v_uint64 coroutineId) override;
+
   };
 
 public:
@@ -95,6 +98,7 @@ public:
   static constexpr const v_int32 IO_WORKER_TYPE_EVENT = 1;
 private:
   std::atomic<v_uint32> m_balancer;
+  v_atomicCounter m_coroutineId;
 private:
   std::vector<std::shared_ptr<SubmissionProcessor>> m_processorWorkers;
   std::vector<std::shared_ptr<worker::Worker>> m_allWorkers;
@@ -144,11 +148,14 @@ public:
    * @tparam CoroutineType - type of coroutine to execute.
    * @tparam Args - types of arguments to be passed to Coroutine constructor.
    * @param params - actual arguments to be passed to Coroutine constructor.
+   * @return - Id of the Coroutine inside this executor.
    */
   template<typename CoroutineType, typename ... Args>
-  void execute(Args... params) {
+  v_uint64 execute(Args... params) {
     auto& processor = m_processorWorkers[(++ m_balancer) % m_processorWorkers.size()];
-    processor->execute<CoroutineType, Args...>(params...);
+    v_uint64 coroutineId = m_coroutineId++;
+    processor->execute<CoroutineType, Args...>(coroutineId, params...);
+    return coroutineId;
   }
 
   /**
@@ -162,6 +169,13 @@ public:
    * @param timeout
    */
   void waitTasksFinished(const std::chrono::duration<v_int64, std::micro>& timeout = std::chrono::minutes(1));
+
+  /**
+   * Early abort the given Coroutine.
+   * @param coroutineId - id of the coroutine to abort.
+   * @return - true if abort was successful, false if no Coroutine was found or Coroutine already done.
+   */
+  bool abortCoroutine(v_uint64 coroutineId);
   
 };
   

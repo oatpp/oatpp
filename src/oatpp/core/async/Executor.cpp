@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,11 +76,16 @@ void Executor::SubmissionProcessor::detach() {
   m_thread.detach();
 }
 
+bool Executor::SubmissionProcessor::abortCoroutine(v_uint64 coroutineId) {
+  return m_processor.abortCoroutine(coroutineId);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Executor
 
 Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int32 timerWorkersCount, v_int32 ioWorkerType)
   : m_balancer(0)
+  , m_coroutineId(1)
 {
 
   processorWorkersCount = chooseProcessorWorkersCount(processorWorkersCount);
@@ -259,5 +265,17 @@ void Executor::waitTasksFinished(const std::chrono::duration<v_int64, std::micro
   }
 
 }
-  
+
+bool Executor::abortCoroutine(v_uint64 coroutineId) {
+  bool aborted = false;
+
+  for (auto& worker : m_allWorkers) {
+    if (worker->abortCoroutine(coroutineId)) {
+      aborted = true;
+    }
+  }
+
+  return aborted;
+}
+
 }}

@@ -6,7 +6,7 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2021-present, Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,36 +22,21 @@
  *
  ***************************************************************************/
 
-#include "Worker.hpp"
+#ifndef oatpp_test_async_AbortTest_hpp
+#define oatpp_test_async_AbortTest_hpp
 
-namespace oatpp { namespace async { namespace worker {
+#include "oatpp-test/UnitTest.hpp"
 
-Worker::Worker(Type type)
-  : m_type(type)
-{}
+namespace oatpp { namespace test { namespace async {
 
-void Worker::setCoroutineScheduledAction(CoroutineHandle* coroutine, Action &&action) {
-  coroutine->_SCH_A = std::forward<Action>(action);
-}
+class AbortTest : public UnitTest{
+public:
 
-Action& Worker::getCoroutineScheduledAction(CoroutineHandle* coroutine) {
-  return coroutine->_SCH_A;
-}
+  AbortTest():UnitTest("TEST[async::AbortTest]"){}
+  void onRun() override;
 
-Processor* Worker::getCoroutineProcessor(CoroutineHandle* coroutine) {
-  return coroutine->_PP;
-}
-
-void Worker::dismissAction(Action& action) {
-  action.m_type = Action::TYPE_NONE;
-}
-
-CoroutineHandle* Worker::nextCoroutine(CoroutineHandle* coroutine) {
-  return coroutine->_next;
-}
-
-Worker::Type Worker::getType() {
-  return m_type;
-}
+};
 
 }}}
+
+#endif // oatpp_test_async_AbortTest_hpp

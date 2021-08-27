@@ -6,8 +6,9 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
- * Matthias Haselmaier <mhaselmaier@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Matthias Haselmaier <mhaselmaier@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -429,6 +430,7 @@ public:
   typedef oatpp::async::Error Error;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 private:
+  v_uint64 _ID;
   Processor* _PP;
   AbstractCoroutine* _CP;
   FunctionPtr _FP;
@@ -436,12 +438,15 @@ private:
   CoroutineHandle* _next;
 public:
 
-  CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);
+  CoroutineHandle(v_uint64 coroutineId, Processor* processor, AbstractCoroutine* rootCoroutine);
   ~CoroutineHandle();
 
   Action takeAction(Action&& action);
   Action iterate();
   Action iterateAndTakeAction();
+
+  v_uint64 getId() const;
+  void abort();
 
   bool finished() const;
 

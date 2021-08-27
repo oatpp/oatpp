@@ -62,7 +62,7 @@ void CoroutineWaitList::checkCoroutinesForTimeouts() {
     return currentTimeSinceEpochMS > entry.second;
   });
   
-  for (CoroutineHandle* curr = m_list.first, *prev = nullptr; !m_list.empty() && m_list.last->_ref != curr; curr = curr->_ref) {
+  for (CoroutineHandle* curr = m_list.first, *prev = nullptr; !m_list.empty() && m_list.last->_next != curr; curr = curr->_next) {
     const bool removeFromWaitList = std::any_of(newEndIt, std::end(m_coroutinesWithTimeout), [=](const std::pair<CoroutineHandle*, v_int64>& entry) {
       return entry.first == curr;
     });

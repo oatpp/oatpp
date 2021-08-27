@@ -6,8 +6,9 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
- * Matthias Haselmaier <mhaselmaier@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Matthias Haselmaier <mhaselmaier@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +52,7 @@ private:
   public:
     virtual ~TaskSubmission() = default;
     virtual CoroutineHandle* createCoroutine(Processor* processor) = 0;
+    virtual v_uint64 getId() = 0;
   };
 
   /*
@@ -70,11 +72,13 @@ private:
   template<typename CoroutineType, typename ... Args>
   class SubmissionTemplate : public TaskSubmission {
   private:
+    v_uint64 m_coroutineId;
     std::tuple<Args...> m_params;
   public:
 
-    SubmissionTemplate(Args... params)
+    SubmissionTemplate(v_uint64 coroutineId, Args... params)
       : m_params(std::make_tuple(params...))
+      , m_coroutineId(coroutineId)
     {}
 
     virtual CoroutineHandle* createCoroutine(Processor* processor) {
@@ -83,7 +87,11 @@ private:
 
     template<int ...S>
     CoroutineHandle* creator(Processor* processor, IndexSequence<S...>) {
-      return new CoroutineHandle(processor, new CoroutineType(std::get<S>(m_params) ...));
+      return new CoroutineHandle(m_coroutineId, processor, new CoroutineType(std::get<S>(m_params) ...));
+    }
+
+    v_uint64 getId() override {
+      return m_coroutineId;
     }
 
   };
@@ -114,6 +122,7 @@ private:
 
   std::atomic_bool m_running{true};
   std::atomic<v_int32> m_tasksCounter{0};
+  oatpp::concurrency::SpinLock m_threadLock;
 
 private:
 
@@ -162,11 +171,12 @@ public:
    * Execute Coroutine.
    * @tparam CoroutineType - type of coroutine to execute.
    * @tparam Args - types of arguments to be passed to Coroutine constructor.
+   * @param coroutineId - id of the coroutine inside its executor.
    * @param params - actual arguments to be passed to Coroutine constructor.
    */
   template<typename CoroutineType, typename ... Args>
-  void execute(Args... params) {
-    auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(params...);
+  void execute(v_uint64 coroutineId, Args... params) {
+    auto submission = std::make_shared<SubmissionTemplate<CoroutineType, Args...>>(coroutineId, params...);
     ++ m_tasksCounter;
     {
       std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
@@ -197,6 +207,13 @@ public:
    * @return - number of not-finished tasks.
    */
   v_int32 getTasksCount();
+
+  /**
+   * Remove a coroutine from this processor
+   * @param coroutineId - Id of the Coroutine to remove.
+   * @return - `true` if Coroutine was removed, `false` if not found
+   */
+  bool abortCoroutine(v_uint64 coroutineId);
 
   
 };

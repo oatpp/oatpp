@@ -113,6 +113,13 @@ public:
   virtual void detach() = 0;
 
   /**
+   * Abort a Coroutine by its id
+   * @param coroutineId - Coroutine to abort
+   * @return - `true` if a coroutine to abort was found, `false` if not.
+   */
+  virtual bool abortCoroutine(v_uint64 coroutineId) = 0;
+
+  /**
    * Get worker type.
    * @return - one of &l:Worker::Type; values.
    */

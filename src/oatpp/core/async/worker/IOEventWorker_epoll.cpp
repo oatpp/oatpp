@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -272,6 +273,33 @@ void IOEventWorker::waitEvents() {
     m_foreman->pushTasks(popQueue);
   }
 
+}
+
+bool IOEventWorker::abortCoroutine(v_uint64 coroutineId) {
+  bool found = false;
+  struct epoll_event* outEvents = (struct epoll_event*)m_outEvents.get();
+
+  for (int i = 0; i < m_inEventsCount; ++i) {
+    if (outEvents[i].data.ptr) {
+      auto coroutine = (CoroutineHandle*) outEvents[i].data.ptr;
+      if (coroutine->getId() == coroutineId) {
+        // first set the data.ptr to null to prevent further processing
+        outEvents[i].data.ptr = nullptr;
+        found = true;
+        auto res = epoll_ctl(m_eventQueueHandle, EPOLL_CTL_DEL, outEvents[i].data.fd, &outEvents[i]);
+        if(res == -1) {
+          OATPP_LOGE("[oatpp::async::worker::IOEventWorker::abortCoroutine()]", "Error. Call to epoll_ctl failed. operation=%d, errno=%d", EPOLL_CTL_DEL, errno);
+          throw std::runtime_error("[oatpp::async::worker::IOEventWorker::abortCoroutine()]: Error. Call to epoll_ctl failed.");
+        }
+      }
+    }
+  }
+
+  if (found) {
+    triggerWakeup();
+  }
+
+  return found;
 }
 
 }}}

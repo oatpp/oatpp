@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,6 +135,52 @@ void TimerWorker::join() {
 
 void TimerWorker::detach() {
   m_thread.detach();
+}
+
+bool TimerWorker::abortCoroutine(v_uint64 coroutineId) {
+  bool foundCoroutine = false;
+  // now check the current backlog if we find any coroutines
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lg(m_backlogLock);
+    for (auto it = m_backlog.begin(); it != m_backlog.end(); ++it) {
+      if ((*it)->getId() == coroutineId) {
+        (*it)->abort();
+        delete (*it);
+        m_backlog.erase(it);
+        return true;
+      }
+    }
+  }
+
+
+  // finally, check the actual processing queue
+  // first stop the working thread and wait for it to join
+  stop();
+  if (!m_detached) {
+    join();
+  }
+  {
+    // since the thread could be detached, we need another locking mechanism
+    std::lock_guard<oatpp::concurrency::SpinLock> lg(m_threadLock);
+    // now search the queue for a matching coroutine
+    for (auto it = m_queue.begin(); it != m_queue.end() && foundCoroutine == false; ++it) {
+      if ((*it)->getId() == coroutineId) {
+        (*it)->abort();
+        delete (*it);
+        m_queue.erase(it);
+        foundCoroutine = true;
+      }
+    }
+  }
+  // now restart the thread again
+  m_running = true;
+  m_thread = std::thread(&TimerWorker::run, this);
+  // in case we were running in detached mode, detach again.
+  if (m_detached) {
+    detach();
+  }
+
+  return foundCoroutine;
 }
 
 }}}

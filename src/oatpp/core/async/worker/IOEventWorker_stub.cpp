@@ -61,6 +61,10 @@ void IOEventWorker::waitEvents() {
   throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
+bool IOEventWorker::abortCoroutine(v_uint64 coroutineId) {
+  throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
+}
+
 }}}
 
 #endif // #ifdef OATPP_IO_EVENT_INTERFACE_STUB

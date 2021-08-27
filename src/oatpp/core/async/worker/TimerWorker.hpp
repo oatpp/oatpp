@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +48,10 @@ private:
   std::condition_variable_any m_backlogCondition;
 private:
   std::chrono::duration<v_int64, std::micro> m_granularity;
-private:
+ private:
+  bool m_detached;
   std::thread m_thread;
+  oatpp::concurrency::SpinLock m_threadLock;
 private:
   void consumeBacklog();
 public:
@@ -90,6 +93,13 @@ public:
    * Detach all worker-threads.
    */
   void detach() override;
+
+  /**
+   * Abort a Coroutine by its id
+   * @param coroutineId - Coroutine to abort
+   * @return - `true` if a coroutine to abort was found, `false` if not.
+   */
+  bool abortCoroutine(v_uint64 coroutineId) override;
 
 };
 

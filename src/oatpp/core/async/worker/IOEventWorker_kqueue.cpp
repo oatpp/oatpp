@@ -240,6 +240,11 @@ void IOEventWorker::waitEvents() {
 
 }
 
+bool IOEventWorker::abortCoroutine(v_uint64 coroutineId) {
+#warning "[oatpp::async::worker::IOEventWorker::abortCoroutine()] Warning: abortCoroutine() not implemented"
+  throw std::runtime_error("[oatpp::async::worker::IOEventWorker::abortCoroutine()]: Error. Not implemented.");
+}
+
 }}}
 
 #endif // #ifdef OATPP_IO_EVENT_INTERFACE_KQUEUE

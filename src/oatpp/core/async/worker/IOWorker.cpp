@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +34,7 @@ namespace oatpp { namespace async { namespace worker {
 IOWorker::IOWorker()
   : Worker(Type::IO)
   , m_running(true)
+  , m_detached(false)
 {
   m_thread = std::thread(&IOWorker::run, this);
 }
@@ -75,10 +77,11 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
 
 void IOWorker::run() {
 
+  std::lock_guard<std::mutex> lg(m_threadLock);
+
   v_int32 consumeIteration = 0;
   v_int32 roundIteration = 0;
-
-  v_int64 tick =std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  v_int64 tick = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
   while(m_running) {
 
@@ -170,6 +173,52 @@ void IOWorker::join() {
 
 void IOWorker::detach() {
   m_thread.detach();
+  m_detached = true;
+}
+
+bool IOWorker::abortCoroutine(v_uint64 coroutineId) {
+  {
+    // now check the current backlog if we find any coroutines
+    std::lock_guard<concurrency::SpinLock> lg(m_backlogLock);
+    for (auto it = m_backlog.begin(); it != m_backlog.end(); ++it) {
+      if ((*it)->getId() == coroutineId) {
+        (*it)->abort();
+        delete (*it);
+        m_backlog.erase(it);
+        return true;
+      }
+    }
+  }
+
+  // finally, check the actual processing queue
+  // first stop the working thread and wait for it to join
+  bool foundCoroutine = false;
+  stop();
+  if (!m_detached) {
+    join();
+  }
+  {
+    // since the thread could be detached, we need another locking mechanism
+    std::lock_guard<std::mutex> lg(m_threadLock);
+    // now search the queue for a matching coroutine
+    for (auto it = m_queue.begin(); it != m_queue.end() && foundCoroutine == false; ++it) {
+      if ((*it)->getId() == coroutineId) {
+        (*it)->abort();
+        delete (*it);
+        m_queue.erase(it);
+        foundCoroutine = true;
+      }
+    }
+  }
+  // now restart the thread again
+  m_running = true;
+  m_thread = std::thread(&IOWorker::run, this);
+  // in case we were running in detached mode, detach again.
+  if (m_detached) {
+    detach();
+  }
+
+  return foundCoroutine;
 }
 
 }}}

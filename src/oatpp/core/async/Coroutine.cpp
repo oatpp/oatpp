@@ -6,8 +6,9 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
- * Matthias Haselmaier <mhaselmaier@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Matthias Haselmaier <mhaselmaier@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -235,12 +236,13 @@ void CoroutineStarter::freeCoroutines()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CoroutineHandle
 
-CoroutineHandle::CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine)
+CoroutineHandle::CoroutineHandle(v_uint64 coroutineId, Processor* processor, AbstractCoroutine* rootCoroutine)
   : _PP(processor)
   , _CP(rootCoroutine)
   , _FP(&AbstractCoroutine::act)
   , _SCH_A(Action::TYPE_NONE)
-  , _ref(nullptr)
+  , _next(nullptr)
+  , _ID(coroutineId)
 {}
 
 CoroutineHandle::~CoroutineHandle() {
@@ -343,6 +345,19 @@ Action CoroutineHandle::iterateAndTakeAction() {
 
 bool CoroutineHandle::finished() const {
   return _CP == nullptr;
+}
+
+v_uint64 CoroutineHandle::getId() const {
+  return _ID;
+}
+
+void CoroutineHandle::abort() {
+  AbstractCoroutine* savedCP;
+  do {
+    savedCP = _CP->m_parent;
+    delete _CP;
+    _CP = savedCP;
+  } while (_CP);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

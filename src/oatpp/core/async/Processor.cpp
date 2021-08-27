@@ -6,8 +6,9 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
- * Matthias Haselmaier <mhaselmaier@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Matthias Haselmaier <mhaselmaier@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,12 +68,12 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
     case worker::Worker::Type::IO:
       m_ioWorkers.push_back(worker);
-      m_ioPopQueues.push_back(collection::FastQueue<CoroutineHandle>());
+      m_ioPopQueues.emplace_back();
     break;
 
     case worker::Worker::Type::TIMER:
       m_timerWorkers.push_back(worker);
-      m_timerPopQueues.push_back(collection::FastQueue<CoroutineHandle>());
+      m_timerPopQueues.emplace_back();
     break;
 
     default:
@@ -211,10 +212,10 @@ void Processor::pushQueues() {
 }
 
 bool Processor::iterate(v_int32 numIterations) {
-
+  std::lock_guard<oatpp::concurrency::SpinLock> lg(m_threadLock);
   pushQueues();
 
-  for(v_int32 i = 0; i < numIterations; i++) {
+  for(v_int32 i = 0; i < numIterations && m_running; i++) {
 
     auto CP = m_queue.first;
     if (CP == nullptr) {
@@ -281,6 +282,60 @@ void Processor::stop() {
 
 v_int32 Processor::getTasksCount() {
   return m_tasksCounter.load();
+}
+
+bool Processor::abortCoroutine(v_uint64 coroutineId) {
+  // first, check the submission pipeline if there are any coroutines that match but are not picked up yet:
+  {
+    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
+    for (auto it = m_taskList.begin(); it != m_taskList.end(); ++it) {
+      if ((*(*it)).getId() == coroutineId) {
+        it = m_taskList.erase(it);
+        m_taskCondition.notify_one();
+        return true;
+      }
+    }
+
+    // now check the current pushList if we find any coroutines
+    for (auto it = m_pushList.begin(); it != m_pushList.end(); ++it) {
+      if ((*it)->getId() == coroutineId) {
+        m_pushList.erase(it);
+        (*it)->abort();
+        delete (*it);
+        m_taskCondition.notify_one();
+        return true;
+      }
+    }
+  }
+
+  // finally, check the actual processing queue
+  // this does not stop the actual thread but prevents the iteration process
+  bool found = false;
+  stop();
+  {
+    // now lock it to prevent the SubmissionProcessor thread to run havoc
+    std::lock_guard<oatpp::concurrency::SpinLock> lg(m_threadLock);
+    // now search the queue for a matching coroutine
+    for (auto it = m_queue.begin(); it != m_queue.end(); ++it) {
+      if ((*it)->getId() == coroutineId) {
+        m_queue.erase(it);
+        (*it)->abort();
+        delete (*it);
+        found = true;
+        break;
+      }
+    }
+  }
+
+  if (found) {
+    -- m_tasksCounter;
+  }
+
+  // now restart the thread again
+  m_running = true;
+  m_coroutineWaitListTimeoutChecker = std::thread(&Processor::checkCoroutinesForTimeouts, this);
+
+  return found;
 }
 
 }}

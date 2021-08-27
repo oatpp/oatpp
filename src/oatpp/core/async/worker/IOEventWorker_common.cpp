@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <github@bamkrs.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +51,6 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
   m_thread = std::thread(&IOEventWorker::run, this);
 }
 
-
 IOEventWorker::~IOEventWorker() {
 #if !defined(WIN32) && !defined(_WIN32)
   if(m_eventQueueHandle >=0) {
@@ -83,7 +83,6 @@ void IOEventWorker::pushOneTask(CoroutineHandle *task) {
 }
 
 void IOEventWorker::run() {
-
   initEventQueue();
 
   while (m_running) {
@@ -192,6 +191,17 @@ void IOEventWorkerForeman::join() {
 void IOEventWorkerForeman::detach() {
   m_reader.detach();
   m_writer.detach();
+}
+
+bool IOEventWorkerForeman::abortCoroutine(v_uint64 coroutineId) {
+  bool found = false;
+  if (m_reader.abortCoroutine(coroutineId)) {
+    found = true;
+  }
+  if (m_reader.abortCoroutine(coroutineId)) {
+    found = true;
+  }
+  return found;
 }
 
 }}}
