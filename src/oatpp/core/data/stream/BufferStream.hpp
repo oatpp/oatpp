@@ -32,7 +32,7 @@ namespace oatpp { namespace data{ namespace stream {
 /**
  * BufferOutputStream
  */
-class BufferOutputStream : public BufferedOutputStream, public std::enable_shared_from_this<BufferOutputStream> {
+class BufferOutputStream : public BufferedOutputStream, public ConsistentOutputStream, public std::enable_shared_from_this<BufferOutputStream> {
 public:
   static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:

@@ -36,7 +36,7 @@ namespace oatpp { namespace data{ namespace stream {
 /**
  * Buffer wich can grow by chunks and implements &id:oatpp::data::stream::ConsistentOutputStream; interface.
  */
-class ChunkedBuffer : public oatpp::base::Countable, public BufferedOutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
+class ChunkedBuffer : public oatpp::base::Countable, public BufferedOutputStream, public ConsistentOutputStream, public std::enable_shared_from_this<ChunkedBuffer> {
 public:
   static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 public:

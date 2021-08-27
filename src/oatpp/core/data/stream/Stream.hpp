@@ -624,7 +624,7 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, T value) {
 //ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
 //ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
 
-class BufferedOutputStream : public ConsistentOutputStream, public BufferedStream {
+class BufferedOutputStream : public BufferedStream {
  public:
   /**
    * Default virtual destructor.
