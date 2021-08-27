@@ -198,7 +198,7 @@ bool IOEventWorkerForeman::abortCoroutine(v_uint64 coroutineId) {
   if (m_reader.abortCoroutine(coroutineId)) {
     found = true;
   }
-  if (m_reader.abortCoroutine(coroutineId)) {
+  if (m_writer.abortCoroutine(coroutineId)) {
     found = true;
   }
   return found;
