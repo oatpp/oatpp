@@ -279,7 +279,7 @@ public:
    * @param connection - `std::shared_ptr` to &id:oatpp::data::stream::IOStream;.
    * @return - &id:oatpp::async::CoroutineStarterForResult;.
    */
-   static oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Header> &> readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+   static oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Header> &> readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& connection);
  };
 
 protected:

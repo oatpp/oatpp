@@ -148,7 +148,7 @@ v_uint32 Frame::Header::getStreamId() const {
 
 
 oatpp::async::CoroutineStarterForResult<const std::shared_ptr<Frame::Header>&>
-Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::InputStream>& connection)
 {
 
   class ReaderCoroutine : public oatpp::async::CoroutineWithResult<ReaderCoroutine, const std::shared_ptr<Frame::Header>&> {
@@ -156,11 +156,11 @@ Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::I
     v_uint8 m_buffer[9];
     v_uint32 m_pos;
     data::share::MemoryLabel m_label;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    std::shared_ptr<oatpp::data::stream::InputStream> m_connection;
 
    public:
 
-    ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::IOStream>& connection)
+    ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::InputStream>& connection)
         : m_connection(connection)
         , m_buffer{}
         , m_label(nullptr, m_buffer, 9)
