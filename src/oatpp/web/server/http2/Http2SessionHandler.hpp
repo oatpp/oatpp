@@ -114,6 +114,8 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
     std::shared_ptr<PriorityStreamSchedulerAsync> m_output;
     v_uint32 m_priority = 0;
     FrameHeader m_header;
+    v_uint8 m_buf[9];
+    data::buffer::InlineWriteData m_inlineData;
 
    public:
     virtual ~SendFrameCoroutine() = default;
@@ -123,29 +125,28 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
     SendFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, FrameType type, v_uint32 streamId = 0, v_uint8 flags = 0, v_uint32 priority = 0)
       : m_header(frameData() ? frameData()->getSize() : 0, flags, type, streamId)
       , m_output(output)
-      , m_priority(priority) {}
+      , m_priority(priority)
+      , m_inlineData(m_buf, 9) {
+      m_header.writeToBuffer(m_buf);
+    }
 
     Action act() override {
       return m_output->lock(m_priority, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameHeader));
     }
 
     Action sendFrameHeader() {
-      OATPP_LOGD(TAG, "Sending %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(m_header.getType()), m_header.getLength(), m_header.getFlags(), m_header.getStreamId());
-      v_uint8 buf[9];
-      m_header.writeToBuffer(buf);
-      data::buffer::InlineWriteData data(buf, 9);
       if (frameData() && frameData()->getSize() > 0) {
-        return m_output->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameData));
+        return m_output->writeExactSizeDataAsyncInline(m_inlineData, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameData));
       }
-      return m_output->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
+      return m_output->writeExactSizeDataAsyncInline(m_inlineData, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
     }
 
     Action sendFrameData() {
-      data::buffer::InlineWriteData data(frameData()->getData(), frameData()->getSize());
-      return m_output->writeExactSizeDataAsyncInline(data, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
+      return m_output->writeExactSizeDataAsync(frameData()->getData(), frameData()->getSize()).next(async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::finalize));
     }
 
     Action finalize() {
+      OATPP_LOGD(TAG, "Send %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(m_header.getType()), m_header.getLength(), m_header.getFlags(), m_header.getStreamId());
       m_output->unlock();
       return async::Coroutine<F>::finish();
     }
@@ -218,6 +219,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
  public:
   Action act() override;
+  Action handleError(Error *error) override;
 
  private:
   Action nextRequest();

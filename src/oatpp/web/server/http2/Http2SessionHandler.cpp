@@ -136,7 +136,7 @@ async::Action Http2SessionHandler::sendSettingsFrame(async::Action &&next) {
       p_uint8 dataptr = m_data;
       v_buff_size count = 0;
 
-      for (int i = 0; i < sizeof(idents); ++i) {
+      for (int i = 0; i < 6; ++i) {
         if (settings->getSetting(idents[i]) != DEFAULT_SETTINGS.getSetting(idents[i])) {
           auto setting = settings->getSetting(idents[i]);
           *dataptr++ = (idents[i] >> 8) & 0xff;
@@ -278,7 +278,7 @@ std::shared_ptr<Http2StreamHandler::Task> Http2SessionHandler::findOrCreateStrea
 }
 
 async::Action Http2SessionHandler::nextRequest() {
-  return FrameHeader::readFrameHeaderAsync(m_connection).callbackTo(&Http2SessionHandler::handleFrame);
+  return FrameHeader::readFrameHeaderAsync(m_resources->inStream).callbackTo(&Http2SessionHandler::handleFrame);
 }
 
 async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader> &header) {
@@ -613,6 +613,10 @@ Http2SessionHandler::~Http2SessionHandler() noexcept {
   if (m_counter != nullptr) {
     (*m_counter)--;
   }
+}
+async::Action Http2SessionHandler::handleError(async::Error *error) {
+  OATPP_LOGE(TAG, error->what());
+  return AbstractCoroutine::handleError(error);
 }
 
 }}}}
