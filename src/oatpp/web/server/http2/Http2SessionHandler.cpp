@@ -164,27 +164,51 @@ async::Action Http2SessionHandler::ackSettingsFrame() {
   return SendAckSettingsFrameCoroutine::start(m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
 }
 
-async::Action Http2SessionHandler::answerPingFrame() {
-  std::shared_ptr<std::string> handle = std::make_shared<std::string>(8, (char)0);
+async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHeader> &header) {
 
   class SendPingFrameCoroutine : public SendFrameCoroutine<SendPingFrameCoroutine> {
    private:
+    const std::shared_ptr<data::stream::InputStream> m_input;
     data::share::MemoryLabel m_label;
+    v_uint8 m_data[8];
+    data::buffer::InlineReadData m_reader;
    public:
     const data::share::MemoryLabel *frameData() const override {
       return &m_label;
     }
 
-    SendPingFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, const data::share::MemoryLabel &label)
+    // ToDo: Race condition? m_label is created after SendFrameCoroutine?
+    SendPingFrameCoroutine(const std::shared_ptr<data::stream::InputStream> &input, const std::shared_ptr<PriorityStreamSchedulerAsync> &output)
       : SendFrameCoroutine<SendPingFrameCoroutine>(output, FrameType::PING, 0, FrameHeader::Flags::Ping::PING_ACK, PriorityStreamSchedulerAsync::PRIORITY_MAX)
-      , m_label(label) {}
+      , m_input(input)
+      , m_label(nullptr, m_data, 8)
+      , m_reader(m_data, 8){}
+
+    async::Action act() override {
+      if (m_reader.bytesLeft == 0) {
+        return m_output->lock(m_priority, yieldTo(&SendPingFrameCoroutine::sendFrameHeader));
+      }
+      return m_input->readExactSizeDataAsyncInline(m_reader, repeat());
+    }
   };
 
-  data::buffer::InlineReadData readData((void*)handle->data(), handle->size());
-  return m_resources->inStream->readSomeDataAsyncInline(
-      readData,
-      SendPingFrameCoroutine::start(m_resources->outStream, handle).next(yieldTo(&Http2SessionHandler::nextRequest))
-      );
+  if (header->getStreamId() != 0) {
+    return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING frame on stream.");
+  }
+  if (header->getLength() != 8) {
+    return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING with invalid frame size.");
+  }
+  // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
+  if ((header->getFlags() & 0x01) == 0x00) {
+    return SendPingFrameCoroutine::start(m_resources->inStream, m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
+  } else if ((header->getFlags() & 0x01) == 0x01) {
+    // all good, just consume
+    return consumeStream(8, yieldTo(&Http2SessionHandler::nextRequest));
+  }
+
+  // unknown flags! for now, just consume
+  return consumeStream(8, yieldTo(&Http2SessionHandler::nextRequest));
+
 }
 
 async::Action Http2SessionHandler::sendGoawayFrame(v_uint32 lastStream, protocol::http2::error::ErrorCode errorCode) {
@@ -306,7 +330,15 @@ async::Action Http2SessionHandler::handleWindowUpdateFrame(const std::shared_ptr
       return finish();
     }
   };
-  return ReadWindowUpdateFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::nextRequest));
+
+  if (header->getStreamId() == 0) {
+    if (header->getLength() != 4) {
+      return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
+    }
+    return ReadWindowUpdateFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::nextRequest));
+  }
+
+  return delegateToHandler(findOrCreateStream(header->getStreamId()), *header);
 }
 
 async::Action Http2SessionHandler::handleSettingsSetFrame(const std::shared_ptr<FrameHeader> &header) {
@@ -369,7 +401,20 @@ async::Action Http2SessionHandler::handleSettingsSetFrame(const std::shared_ptr<
      }
   };
 
-  return ReadSettingsFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::ackSettingsFrame));
+  if (header->getStreamId() != 0) {
+    return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS frame on stream.");
+  }
+  if (header->getFlags() == 0) {
+    if (header->getLength() % 6) {
+      return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS with invalid frame size.");
+    }
+    return ReadSettingsFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::ackSettingsFrame));
+  } else if (header->getFlags() == 0x01 && header->getLength() > 0) {
+    return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS ack with payload.");
+  }
+
+  // just ack, for now, do nothing
+  return yieldTo(&Http2SessionHandler::nextRequest);
 }
 
 async::Action Http2SessionHandler::nextRequest() {
@@ -397,37 +442,10 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
     switch (header->getType()) {
 
       case FrameType::PING:
-        if (header->getStreamId() != 0) {
-          return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING frame on stream.");
-        }
-        if (header->getLength() != 8) {
-          return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING with invalid frame size.");
-        }
-        // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
-        if ((header->getFlags() & 0x01) == 0x00) {
-          return answerPingFrame();
-        } else if ((header->getFlags() & 0x01) == 0x01) {
-          // all good, just consume
-          consumeStream(8, yieldTo(&Http2SessionHandler::nextRequest));
-        } else {
-          // unknown flags! for now, just consume
-          consumeStream(8, yieldTo(&Http2SessionHandler::nextRequest));
-        }
-        break;
+        return handlePingFrame(header);
 
       case FrameType::SETTINGS:
-        if (header->getStreamId() != 0) {
-          return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS frame on stream.");
-        }
-        if (header->getFlags() == 0) {
-          if (header->getLength() % 6) {
-            return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS with invalid frame size.");
-          }
-          return handleSettingsSetFrame(header);
-        } else if (header->getFlags() == 0x01 && header->getLength() > 0) {
-          return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS ack with payload.");
-        }
-        break;
+        return handleSettingsSetFrame(header);
 
       case FrameType::GOAWAY:
         if (header->getStreamId() == 0){
@@ -455,15 +473,7 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
         }
 
       case FrameType::WINDOW_UPDATE:
-        if (header->getStreamId() == 0) {
-          if (header->getLength() != 4) {
-            return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
-          }
-          return handleWindowUpdateFrame(header);
-        } else {
-          return delegateToHandler(findOrCreateStream(header->getStreamId()), *header);
-        }
-        break;
+        return handleWindowUpdateFrame(header);
 
       case FrameType::DATA:
       case FrameType::HEADERS:

@@ -153,6 +153,8 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   async::Executor *m_executor;
   std::atomic_long *m_counter;
+  // Discussion: We only buffer 24 bytes. I can assume the memory-footprint of an empty std::unique_ptr is equal so
+  // using an unique_ptr we can delete if not needed anymore wont save much memory
   std::unique_ptr<v_uint8[]> m_priMessage;
   data::buffer::InlineReadData m_priReader;
 
@@ -225,6 +227,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   Action handleFrame(const std::shared_ptr<FrameHeader> &header);
   Action handleWindowUpdateFrame(const std::shared_ptr<FrameHeader> &header);
   Action handleSettingsSetFrame(const std::shared_ptr<FrameHeader> &header);
+  Action handlePingFrame(const std::shared_ptr<FrameHeader> &header);
 
   Action connectionError(H2ErrorCode errorCode);
   Action connectionError(H2ErrorCode errorCode, const std::string &message);
@@ -238,7 +241,6 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
   async::Action sendSettingsFrame(async::Action &&next);
   Action ackSettingsFrame();
-  Action answerPingFrame();
   Action sendGoawayFrame(v_uint32 lastStream, H2ErrorCode errorCode);
   Action sendResetStreamFrame(v_uint32 stream, H2ErrorCode errorCode);
 
