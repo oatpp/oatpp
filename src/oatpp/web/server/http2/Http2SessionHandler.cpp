@@ -276,6 +276,102 @@ std::shared_ptr<Http2StreamHandler::Task> Http2SessionHandler::findOrCreateStrea
   return handler;
 }
 
+async::Action Http2SessionHandler::handleWindowUpdateFrame(const std::shared_ptr<FrameHeader> &header) {
+  class ReadWindowUpdateFrameCoroutine : public async::Coroutine<ReadWindowUpdateFrameCoroutine> {
+   private:
+    const std::shared_ptr<FrameHeader> m_header;
+    const std::shared_ptr<ProcessingResources> m_resources;
+    v_uint8 m_data[4];
+    data::buffer::InlineReadData m_reader;
+    v_uint32 m_initialWindowSize;
+
+   public:
+    ReadWindowUpdateFrameCoroutine(const std::shared_ptr<ProcessingResources> &resources, const std::shared_ptr<FrameHeader> &header)
+     : m_header(header)
+     , m_resources(resources)
+     , m_reader(m_data, 4)
+     , m_initialWindowSize(resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)) {}
+
+    async::Action act() override {
+      return m_resources->inStream->readExactSizeDataAsyncInline(m_reader, yieldTo(&ReadWindowUpdateFrameCoroutine::parse));
+    }
+
+    async::Action parse() {
+      v_uint32 increment = ntohl(*((p_uint32)m_data));
+      if (increment == 0) {
+        return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Increment of 0");
+      }
+      OATPP_LOGD(TAG, "Incrementing out-window by %u", increment);
+      m_resources->outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)+increment);
+      return finish();
+    }
+  };
+  return ReadWindowUpdateFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::nextRequest));
+}
+
+async::Action Http2SessionHandler::handleSettingsSetFrame(const std::shared_ptr<FrameHeader> &header) {
+  class ReadSettingsFrameCoroutine : public async::Coroutine<ReadSettingsFrameCoroutine> {
+   private:
+    const std::shared_ptr<FrameHeader> m_header;
+    const std::shared_ptr<ProcessingResources> m_resources;
+    std::unique_ptr<v_uint8[]> m_data;
+    data::buffer::InlineReadData m_reader;
+    v_uint32 m_initialWindowSize;
+    v_uint32 m_initialTableSize;
+
+   public:
+    ReadSettingsFrameCoroutine(const std::shared_ptr<ProcessingResources> &resources, const std::shared_ptr<FrameHeader> &header)
+     : m_header(header)
+     , m_resources(resources)
+     , m_data(new v_uint8[header->getLength()])
+     , m_reader(m_data.get(), header->getLength())
+     , m_initialWindowSize(resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE))
+     , m_initialTableSize(resources->outSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE)) {}
+
+     async::Action act() override {
+       return m_resources->inStream->readExactSizeDataAsyncInline(m_reader, yieldTo(&ReadSettingsFrameCoroutine::parse));
+     }
+
+     async::Action parse() {
+      p_uint8 data = m_data.get();
+      for (v_uint32 consumed = 0; consumed < m_header->getLength(); consumed += 6) {
+        v_uint16 ident = ((*data) << 8) | *(data+1);
+        data += 2;
+        v_uint32 parameter = ((*data) << 24) | (*(data+1) << 16) | (*(data+2) << 8) | *(data+3);
+        data += 4;
+        try {
+          m_resources->outSettings->setSetting((Http2Settings::Identifier) ident, parameter);
+        } catch (protocol::http2::error::connection::ProtocolError &h2pe) {
+          return error<protocol::http2::error::connection::ProtocolError>(h2pe.what());
+        } catch (protocol::http2::error::connection::FlowControlError &h2fce) {
+          return error<protocol::http2::error::connection::FlowControlError>(h2fce.what());
+        } catch (std::runtime_error &e) {
+          OATPP_LOGW(TAG, e.what());
+        }
+      }
+      v_uint32 newInitialWindowSize = m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
+      v_uint32 newTableSize = m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
+      if (m_initialWindowSize != newInitialWindowSize) {
+        v_int32 change = 0;
+        if (m_initialWindowSize > newInitialWindowSize) {
+          change -= (m_initialWindowSize - newInitialWindowSize);
+        } else {
+          change = newInitialWindowSize - m_initialWindowSize;
+        }
+        for (auto &h2s : m_resources->h2streams) {
+          h2s.second->resizeWindow(change);
+        }
+      }
+      if (m_initialTableSize != newTableSize) {
+        m_resources->hpack->setMaxTableSize(newTableSize);
+      }
+       return finish();
+     }
+  };
+
+  return ReadSettingsFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::ackSettingsFrame));
+}
+
 async::Action Http2SessionHandler::nextRequest() {
   return FrameHeader::readFrameHeaderAsync(m_resources->inStream).callbackTo(&Http2SessionHandler::handleFrame);
 }
@@ -327,41 +423,7 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
           if (header->getLength() % 6) {
             return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS with invalid frame size.");
           }
-          v_uint32 initialWindowSize = m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-          v_uint32 tableSize = m_resources->outSettings->getSetting(Http2Settings::SETTINGS_HEADER_TABLE_SIZE);
-          for (v_uint32 consumed = 0; consumed < header->getLength(); consumed += 6) {
-            v_uint16 ident;
-            v_uint32 parameter;
-            m_resources->inStream->readExactSizeDataSimple(&ident, 2);
-            m_resources->inStream->readExactSizeDataSimple(&parameter, 4);
-            ident = ntohs(ident);
-            try {
-              m_resources->outSettings->setSetting((Http2Settings::Identifier) ident, ntohl(parameter));
-            } catch (protocol::http2::error::connection::ProtocolError &h2pe) {
-              return connectionError(H2ErrorCode::PROTOCOL_ERROR, h2pe.what());
-            } catch (protocol::http2::error::connection::FlowControlError &h2fce) {
-              return connectionError(H2ErrorCode::FLOW_CONTROL_ERROR, h2fce.what());
-            } catch (std::runtime_error &e) {
-              OATPP_LOGW(TAG, e.what());
-            }
-          }
-          v_uint32 newInitialWindowSize = m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-          v_uint32 newTableSize = m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE);
-          if (initialWindowSize != newInitialWindowSize) {
-            v_int32 change = 0;
-            if(initialWindowSize > newInitialWindowSize) {
-              change -= (initialWindowSize - newInitialWindowSize);
-            } else {
-              change = newInitialWindowSize - initialWindowSize;
-            }
-            for (auto &h2s : m_resources->h2streams) {
-              h2s.second->resizeWindow(change);
-            }
-          }
-          if (tableSize != newTableSize) {
-            m_resources->hpack->setMaxTableSize(newTableSize);
-          }
-          return ackSettingsFrame();
+          return handleSettingsSetFrame(header);
         } else if (header->getFlags() == 0x01 && header->getLength() > 0) {
           return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received SETTINGS ack with payload.");
         }
@@ -369,21 +431,21 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
 
       case FrameType::GOAWAY:
         if (header->getStreamId() == 0){
-          v_uint32 errorCode, lastId, highest = 0;
-          m_resources->inStream->readExactSizeDataSimple(&lastId, 4);
-          m_resources->inStream->readExactSizeDataSimple(&errorCode, 4);
-          errorCode = ntohl(errorCode);
-          lastId = ntohl(lastId);
-          // Consume remaining debug data.
-          if (header->getLength() > 8) {
-            v_uint32 remaining = header->getLength() - 8;
-            while (remaining > 0) {
-              v_uint32 chunk = std::min((v_uint32) 2048, remaining);
-              v_char8 buf[chunk];
-              m_resources->inStream->readExactSizeDataSimple(buf, chunk);
-              remaining -= chunk;
-            }
-          }
+          // v_uint32 errorCode, lastId, highest = 0;
+          // m_resources->inStream->readExactSizeDataSimple(&lastId, 4);
+          // m_resources->inStream->readExactSizeDataSimple(&errorCode, 4);
+          // errorCode = ntohl(errorCode);
+          // lastId = ntohl(lastId);
+          // // Consume remaining debug data.
+          // if (header->getLength() > 8) {
+          //   v_uint32 remaining = header->getLength() - 8;
+          //   while (remaining > 0) {
+          //     v_uint32 chunk = std::min((v_uint32) 2048, remaining);
+          //     v_char8 buf[chunk];
+          //     m_resources->inStream->readExactSizeDataSimple(buf, chunk);
+          //     remaining -= chunk;
+          //   }
+          // }
           // ToDo: Handle additional frames, then stop
           // m_resources->inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
           // while (processNextRequest(m_resources) != ConnectionState::DEAD) {}
@@ -397,14 +459,7 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
           if (header->getLength() != 4) {
             return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
           }
-          v_uint32 increment;
-          m_resources->inStream->readExactSizeDataSimple(&increment, 4);
-          increment = ntohl(increment);
-          if (increment == 0) {
-            return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Increment of 0");
-          }
-          OATPP_LOGD(TAG, "Incrementing out-window by %u", increment);
-          m_resources->outSettings->setSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE, m_resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)+increment);
+          return handleWindowUpdateFrame(header);
         } else {
           return delegateToHandler(findOrCreateStream(header->getStreamId()), *header);
         }
@@ -417,7 +472,7 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
       case FrameType::PUSH_PROMISE:
       case FrameType::CONTINUATION:
         if (header->getStreamId() == 0) {
-          throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received stream related frame on stream(0)");
+          return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received stream related frame on stream(0)");
         } else {
           m_resources->lastStream = findOrCreateStream(header->getStreamId());
           return delegateToHandler(m_resources->lastStream, *header);

@@ -223,6 +223,9 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   Action nextRequest();
 
   Action handleFrame(const std::shared_ptr<FrameHeader> &header);
+  Action handleWindowUpdateFrame(const std::shared_ptr<FrameHeader> &header);
+  Action handleSettingsSetFrame(const std::shared_ptr<FrameHeader> &header);
+
   Action connectionError(H2ErrorCode errorCode);
   Action connectionError(H2ErrorCode errorCode, const std::string &message);
 
