@@ -162,6 +162,7 @@ Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::I
 
     ReaderCoroutine(const std::shared_ptr<oatpp::data::stream::InputStream>& connection)
         : m_connection(connection)
+        , m_pos(0)
         , m_buffer{}
         , m_label(nullptr, m_buffer, 9)
     {}
