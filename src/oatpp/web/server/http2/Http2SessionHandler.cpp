@@ -43,10 +43,9 @@ const Http2Settings Http2SessionHandler::DEFAULT_SETTINGS;
 Http2SessionHandler::ProcessingResources::ProcessingResources(const std::shared_ptr<processing::Components> &pComponents,
                                                          const std::shared_ptr<http2::Http2Settings> &pInSettings,
                                                          const std::shared_ptr<http2::Http2Settings> &pOutSettings,
-                                                         const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> &pInStream,
+                                                         const std::shared_ptr<oatpp::data::stream::InputStream> &pInStream,
                                                          const std::shared_ptr<http2::PriorityStreamSchedulerAsync> &pOutStream)
     : components(pComponents)
-    , connection(nullptr)
     , outStream(pOutStream)
     , inStream(pInStream)
     , inSettings(pInSettings)
@@ -536,37 +535,25 @@ Http2SessionHandler::Http2SessionHandler(const std::shared_ptr<processing::Compo
                            std::atomic_long *sessionCounter,
                            oatpp::async::Executor *executor,
                            const std::shared_ptr<const network::ConnectionHandler::ParameterMap> &delegationParameters)
-    : m_components(components), m_connection(connection), m_counter(sessionCounter), m_executor(executor) {
+    : m_connection(connection), m_counter(sessionCounter), m_executor(executor)
+    , m_priMessage(new v_uint8[web::protocol::http2::HTTP2_PRI_MESSAGE_SIZE])
+    , m_priReader(m_priMessage.get(), web::protocol::http2::HTTP2_PRI_MESSAGE_SIZE) {
   (*m_counter)++;
   m_connection->initContexts();
 
   auto inSettings = http2::Http2Settings::createShared();
   auto outSettings = http2::Http2Settings::createShared();
   auto outStream = std::make_shared<http2::PriorityStreamSchedulerAsync>(m_connection);
-  auto memlabel = std::make_shared<std::string>(inSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE), 0);
-  v_io_size writePosition = 0;
-
-  if (delegationParameters != nullptr) {
-    auto it = delegationParameters->find("h2frame");
-    if (it != delegationParameters->end()) {
-      std::memcpy((void*)memlabel->data(), it->second->data(), it->second->size());
-      writePosition = it->second->size() + 1;
-    }
-  }
-
-  auto inStream = data::stream::InputStreamBufferedProxy::createShared(m_connection, memlabel, 0, writePosition, true);
-
-  m_resources = ProcessingResources::createShared(m_components, inSettings, outSettings, inStream, outStream);
+  m_resources = ProcessingResources::createShared(components, inSettings, outSettings, m_connection, outStream);
 }
 
 Http2SessionHandler::Http2SessionHandler(const Http2SessionHandler &copy)
-    : m_components(copy.m_components), m_connection(copy.m_connection), m_counter(copy.m_counter), m_resources(copy.m_resources), m_executor(copy.m_executor) {
+    : m_connection(copy.m_connection), m_counter(copy.m_counter), m_resources(copy.m_resources), m_executor(copy.m_executor) {
   (*m_counter)++;
 }
 
 Http2SessionHandler::Http2SessionHandler(Http2SessionHandler &&move)
-    : m_components(std::move(move.m_components))
-    , m_connection(std::move(move.m_connection))
+    : m_connection(std::move(move.m_connection))
     , m_counter(move.m_counter)
     , m_resources(std::move(move.m_resources))
     , m_executor(std::move(move.m_executor)){
@@ -576,7 +563,6 @@ Http2SessionHandler::Http2SessionHandler(Http2SessionHandler &&move)
 
 Http2SessionHandler &Http2SessionHandler::operator=(const Http2SessionHandler &t) {
   if (this != &t) {
-    m_components = t.m_components;
     m_connection = t.m_connection;
     m_counter = t.m_counter;
     m_resources = t.m_resources;
@@ -587,7 +573,6 @@ Http2SessionHandler &Http2SessionHandler::operator=(const Http2SessionHandler &t
 }
 
 Http2SessionHandler &Http2SessionHandler::operator=(Http2SessionHandler &&t) {
-  m_components = std::move(t.m_components);
   m_connection = std::move(t.m_connection);
   m_resources = std::move(t.m_resources);
   m_executor = t.m_executor;
@@ -598,11 +583,28 @@ Http2SessionHandler &Http2SessionHandler::operator=(Http2SessionHandler &&t) {
 }
 
 async::Action Http2SessionHandler::act() {
-  try {
-    return Http2SessionHandler::sendSettingsFrame(yieldTo(&Http2SessionHandler::nextRequest));
-  } catch (...) {
-    return finish();
+  return m_resources->inStream->readExactSizeDataAsyncInline(m_priReader, yieldTo(&Http2SessionHandler::handlePriMessage));
+}
+
+async::Action Http2SessionHandler::handlePriMessage() {
+
+  // Now compare the 12 bytes with the HTTP2 preflight message.
+  p_uint32 pre = (p_uint32)web::protocol::http2::HTTP2_PRI_MESSAGE;
+  p_uint32 inbuf = (p_uint32)m_priMessage.get();
+  if ((*pre++ == *inbuf++) && (*pre++ == *inbuf++) && (*pre++ == *inbuf++) &&
+      (*pre++ == *inbuf++) && (*pre++ == *inbuf++) && (*pre == *inbuf)) {
+
+    try {
+      return Http2SessionHandler::sendSettingsFrame(yieldTo(&Http2SessionHandler::nextRequest));
+    } catch (std::exception &e) {
+      OATPP_LOGE(TAG, e.what());
+    }
+
+  } else {
+    OATPP_LOGE(TAG, "Error: Invalid 'PRI * HTTP/2.0' message.");
   }
+
+  return finish();
 }
 
 async::Action Http2SessionHandler::teardown() {

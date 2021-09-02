@@ -168,24 +168,23 @@ Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::I
 
     Action act() override {
 
-      async::Action action;
-      auto bufferData = (p_char8) m_buffer;
-      auto res = m_connection->read(bufferData, 9 - m_pos, action);
+      if (m_pos < 9) {
+        async::Action action;
+        auto res = m_connection->read(m_buffer + m_pos, 9 - m_pos, action);
+        if(!action.isNone()) {
+          return action;
+        }
 
-      if(!action.isNone()) {
-        return action;
-      }
-
-      if(m_pos == 9) {
-        return _return(Frame::Header::createShared(m_label));
-      } else {
         if (res > 0) {
           m_pos += res;
           return repeat();
         } else if (res == IOError::RETRY_READ || res == IOError::RETRY_WRITE) {
           return repeat();
         }
+      }
 
+      if(m_pos == 9) {
+        return _return(Frame::Header::createShared(m_label));
       }
 
       return error<Error>("[oatpp::web::protocol::http2::Frame::Header::readFrameHeaderAsync()]: Error. Error reading connection stream.");

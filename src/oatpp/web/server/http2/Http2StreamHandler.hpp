@@ -156,13 +156,13 @@ class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
 
   ///////
 
-  static H2StreamState handleData(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  static H2StreamState handleHeaders(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  static H2StreamState handlePriority(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  static H2StreamState handleResetStream(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  static H2StreamState handlePushPromise(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  static H2StreamState handleWindowUpdate(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
-  static H2StreamState handleContinuation(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleData(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleHeaders(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handlePriority(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleResetStream(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handlePushPromise(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleWindowUpdate(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
+  static H2StreamState handleContinuation(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength);
 
   static const char* stateStringRepresentation(H2StreamState state);
 };

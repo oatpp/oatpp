@@ -49,6 +49,16 @@ typedef oatpp::data::share::LazyStringMultimap<HeaderKey> Headers;
 
 typedef std::vector<v_uint8> Payload;
 
+const v_buff_size HTTP2_PRI_MESSAGE_SIZE = 24;
+const v_uint8 HTTP2_PRI_MESSAGE[HTTP2_PRI_MESSAGE_SIZE] = {
+    0x50, 0x52, 0x49, 0x20,
+    0x2a, 0x20, 0x48, 0x54,
+    0x54, 0x50, 0x2f, 0x32,
+    0x2e, 0x30, 0x0d, 0x0a,
+    0x0d, 0x0a, 0x53, 0x4d,
+    0x0d, 0x0a, 0x0d, 0x0a
+};
+
 namespace error {
   enum ErrorCode : v_uint8 {
     UNKNOWN_ERROR = 0x00,
@@ -73,11 +83,11 @@ namespace error {
 
   const char* stringRepresentation(ErrorCode code);
 
-  class Error : public std::runtime_error {
+  class Error : public async::Error {
    public:
-    explicit Error(const std::string &str) : std::runtime_error(str) {}
-    explicit Error(const char *str) : std::runtime_error(str) {}
-    virtual ~Error() = default;
+    explicit Error(const std::string &str) : async::Error(str) {}
+    explicit Error(const char *str) : async::Error(str) {}
+    ~Error() override = default;
     virtual ErrorCode getH2ErrorCode() const = 0;
     virtual const char* getH2ErrorCodeString() const = 0;
     virtual ErrorScope getH2ErrorScope() const = 0;
@@ -97,9 +107,9 @@ namespace error {
      public:
       explicit Error(const std::string &str) : http2::error::Error(str) {}
       explicit Error(const char *str) : http2::error::Error(str) {}
-      virtual ~Error() = default;
-      virtual ErrorCode getH2ErrorCode() const = 0;
-      virtual const char *getH2ErrorCodeString() const = 0;
+      ~Error() override = default;
+      ErrorCode getH2ErrorCode() const override = 0;
+      const char *getH2ErrorCodeString() const override = 0;
       ErrorScope getH2ErrorScope() const override {return CONNECTION;}
     };
 
@@ -117,9 +127,9 @@ namespace error {
     public:
      explicit Error(const std::string &str) : http2::error::Error(str) {}
      explicit Error(const char *str) : http2::error::Error(str) {}
-     virtual ~Error() = default;
-     virtual ErrorCode getH2ErrorCode()const = 0;
-     virtual const char *getH2ErrorCodeString() const = 0;
+     ~Error() override = default;
+     ErrorCode getH2ErrorCode() const override = 0;
+     const char *getH2ErrorCodeString() const override = 0;
      ErrorScope getH2ErrorScope() const override {return STREAM;}
    };
 

@@ -36,7 +36,7 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
 
 const char* Http2StreamHandler::TAG = "oatpp::web::server::http2::Http2StreamHandler";
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleData(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handleData(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
   task->setState(H2StreamState::PAYLOAD);
   v_uint8 pad = 0;
   if (flags & H2StreamDataFlags::DATA_PADDED) {
@@ -81,7 +81,7 @@ Http2StreamHandler::H2StreamState Http2StreamHandler::handleData(const std::shar
   return task->state;
 }
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleHeaders(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handleHeaders(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
 
   if (task->state == H2StreamState::PAYLOAD && (flags & H2StreamHeaderFlags::HEADER_END_STREAM) == 0) {
     throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received HEADERS frame without the HEADER_END_STREAM flag set after DATA frames");
@@ -151,7 +151,7 @@ Http2StreamHandler::H2StreamState Http2StreamHandler::handleHeaders(const std::s
   return task->state;
 }
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handlePriority(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handlePriority(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
   if (streamPayloadLength != 5) {
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Frame size other than 5.");
 
@@ -166,7 +166,7 @@ Http2StreamHandler::H2StreamState Http2StreamHandler::handlePriority(const std::
   return task->state;
 }
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleResetStream(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handleResetStream(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
   if (streamPayloadLength != 4) {
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleResetStream] Error: Frame size other than 4.");
   }
@@ -182,11 +182,11 @@ Http2StreamHandler::H2StreamState Http2StreamHandler::handleResetStream(const st
 }
 
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handlePushPromise(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handlePushPromise(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
   return task->state;
 }
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleWindowUpdate(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handleWindowUpdate(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
   if (streamPayloadLength != 4) {
     throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
   }
@@ -208,7 +208,7 @@ Http2StreamHandler::H2StreamState Http2StreamHandler::handleWindowUpdate(const s
   return task->state;
 }
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleContinuation(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStreamBufferedProxy> &stream, v_io_size streamPayloadLength) {
+Http2StreamHandler::H2StreamState Http2StreamHandler::handleContinuation(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
 
   task->headerFlags |= flags;
 

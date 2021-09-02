@@ -59,7 +59,6 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
 class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> {
  public:
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
-  typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
   typedef protocol::http2::Frame::Header::FrameType FrameType;
   typedef protocol::http2::Frame::Header FrameHeader;
   typedef protocol::http2::error::ErrorCode H2ErrorCode;
@@ -73,20 +72,19 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
     ProcessingResources(const std::shared_ptr<processing::Components>& pComponents,
                         const std::shared_ptr<http2::Http2Settings>& pInSettings,
                         const std::shared_ptr<http2::Http2Settings>& pOutSettings,
-                        const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
+                        const std::shared_ptr<oatpp::data::stream::InputStream>& pInStream,
                         const std::shared_ptr<http2::PriorityStreamSchedulerAsync>& pOutStream);
     static std::shared_ptr<ProcessingResources> createShared(const std::shared_ptr<processing::Components>& pComponents,
                                                              const std::shared_ptr<http2::Http2Settings>& pInSettings,
                                                              const std::shared_ptr<http2::Http2Settings>& pOutSettings,
-                                                             const std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy>& pInStream,
+                                                             const std::shared_ptr<oatpp::data::stream::InputStream>& pInStream,
                                                              const std::shared_ptr<http2::PriorityStreamSchedulerAsync>& pOutStream) {
       return std::make_shared<ProcessingResources>(pComponents, pInSettings, pOutSettings, pInStream, pOutStream);
     }
     ~ProcessingResources();
 
     std::shared_ptr<processing::Components> components;
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
-    std::shared_ptr<oatpp::data::stream::InputStreamBufferedProxy> inStream;
+    std::shared_ptr<oatpp::data::stream::InputStream> inStream;
     std::shared_ptr<http2::PriorityStreamSchedulerAsync> outStream;
 
     /**
@@ -104,8 +102,6 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
     std::shared_ptr<http2::Http2Settings> inSettings;
     std::shared_ptr<http2::Http2Settings> outSettings;
-
-    protocol::http2::error::ErrorCode error;
   };
 
   template<class F>
@@ -154,10 +150,11 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   };
 
   std::shared_ptr<ProcessingResources> m_resources;
-  std::shared_ptr<processing::Components> m_components;
   std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
   async::Executor *m_executor;
   std::atomic_long *m_counter;
+  std::unique_ptr<v_uint8[]> m_priMessage;
+  data::buffer::InlineReadData m_priReader;
 
 
  public:
@@ -222,7 +219,9 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   Action handleError(Error *error) override;
 
  private:
+  Action handlePriMessage();
   Action nextRequest();
+
   Action handleFrame(const std::shared_ptr<FrameHeader> &header);
   Action connectionError(H2ErrorCode errorCode);
   Action connectionError(H2ErrorCode errorCode, const std::string &message);

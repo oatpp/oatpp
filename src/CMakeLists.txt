@@ -261,6 +261,8 @@ add_library(oatpp
         oatpp/web/server/HttpProcessor.hpp
         oatpp/web/server/HttpRequestHandler.hpp
         oatpp/web/server/HttpRouter.hpp
+        oatpp/web/server/HttpVersionSwitch.cpp
+        oatpp/web/server/HttpVersionSwitch.hpp
         oatpp/web/server/api/ApiController.cpp
         oatpp/web/server/api/ApiController.hpp
         oatpp/web/server/api/Endpoint.cpp
@@ -269,8 +271,8 @@ add_library(oatpp
         oatpp/web/server/handler/AuthorizationHandler.hpp
         oatpp/web/server/handler/ErrorHandler.cpp
         oatpp/web/server/handler/ErrorHandler.hpp
-        oatpp/web/server/http2/Http2DelegatedConnectionHandler.cpp
-        oatpp/web/server/http2/Http2DelegatedConnectionHandler.hpp
+        oatpp/web/server/http2/Http2ConnectionHandler.cpp
+        oatpp/web/server/http2/Http2ConnectionHandler.hpp
         oatpp/web/server/http2/Http2ProcessingComponents.cpp
         oatpp/web/server/http2/Http2ProcessingComponents.hpp
         oatpp/web/server/http2/Http2SessionHandler.cpp
@@ -283,8 +285,6 @@ add_library(oatpp
         oatpp/web/server/http2/PriorityStreamScheduler.hpp
         oatpp/web/server/interceptor/AllowCorsGlobal.cpp
         oatpp/web/server/interceptor/AllowCorsGlobal.hpp
-        oatpp/web/server/interceptor/Http2.cpp
-        oatpp/web/server/interceptor/Http2.hpp
         oatpp/web/server/interceptor/RequestInterceptor.hpp
         oatpp/web/server/interceptor/ResponseInterceptor.hpp
         oatpp/web/url/mapping/Pattern.cpp

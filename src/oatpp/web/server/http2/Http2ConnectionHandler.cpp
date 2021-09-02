@@ -22,27 +22,33 @@
  *
  ***************************************************************************/
 
-#include "Http2DelegatedConnectionHandler.hpp"
+#include "Http2ConnectionHandler.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
-Http2DelegatedConnectionHandler::Http2DelegatedConnectionHandler(std::shared_ptr<HttpRouter>& router)
-  : Http2DelegatedConnectionHandler(std::make_shared<http2::processing::Components>(router)) {}
+Http2ConnectionHandler::Http2ConnectionHandler(std::shared_ptr<HttpRouter>& router)
+  : Http2ConnectionHandler(std::make_shared<http2::processing::Components>(router)) {}
 
-Http2DelegatedConnectionHandler::Http2DelegatedConnectionHandler(const std::shared_ptr<http2::processing::Components> &components)
+Http2ConnectionHandler::Http2ConnectionHandler(const std::shared_ptr<http2::processing::Components> &components)
   : m_components(components)
   , m_exec() {
 }
 
-void Http2DelegatedConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection, const std::shared_ptr<const ParameterMap> &params) {
+void Http2ConnectionHandler::handleConnection(const std::shared_ptr<IOStream> &connection, const std::shared_ptr<const ParameterMap> &params) {
   OATPP_LOGD("oatpp::web::server::http2::Http2DelegatedConnectionHandler", "handleConnection: Delegating new connection (%p).", connection.get());
-  connection->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
-  connection->setOutputStreamIOMode(data::stream::ASYNCHRONOUS);
+  if (connection->getInputStreamIOMode() != data::stream::ASYNCHRONOUS) {
+    connection->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
+  }
+  if (connection->getOutputStreamIOMode() != data::stream::ASYNCHRONOUS) {
+    connection->setOutputStreamIOMode(data::stream::ASYNCHRONOUS);
+  }
   m_exec.execute<Http2SessionHandler>(m_components, connection, &m_spawns, &m_exec, params);
 }
 
-void Http2DelegatedConnectionHandler::stop() {
+void Http2ConnectionHandler::stop() {
+  m_exec.stop();
+  m_exec.join();
 }
 
 }}}}
