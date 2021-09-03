@@ -169,9 +169,9 @@ async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHe
   class SendPingFrameCoroutine : public SendFrameCoroutine<SendPingFrameCoroutine> {
    private:
     const std::shared_ptr<data::stream::InputStream> m_input;
-    data::share::MemoryLabel m_label;
     v_uint8 m_data[8];
-    data::buffer::InlineReadData m_reader;
+    data::share::MemoryLabel m_label = data::share::MemoryLabel(nullptr, m_data, 8);
+    data::buffer::InlineReadData m_reader = data::buffer::InlineReadData(m_data, 8);
    public:
     const data::share::MemoryLabel *frameData() const override {
       return &m_label;
@@ -180,13 +180,11 @@ async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHe
     // ToDo: Race condition? m_label is created after SendFrameCoroutine?
     SendPingFrameCoroutine(const std::shared_ptr<data::stream::InputStream> &input, const std::shared_ptr<PriorityStreamSchedulerAsync> &output)
       : SendFrameCoroutine<SendPingFrameCoroutine>(output, FrameType::PING, 0, FrameHeader::Flags::Ping::PING_ACK, PriorityStreamSchedulerAsync::PRIORITY_MAX)
-      , m_input(input)
-      , m_label(nullptr, m_data, 8)
-      , m_reader(m_data, 8){}
+      , m_input(input) {}
 
     async::Action act() override {
       if (m_reader.bytesLeft == 0) {
-        return m_output->lock(m_priority, yieldTo(&SendPingFrameCoroutine::sendFrameHeader));
+        return defaultAct();
       }
       return m_input->readExactSizeDataAsyncInline(m_reader, repeat());
     }

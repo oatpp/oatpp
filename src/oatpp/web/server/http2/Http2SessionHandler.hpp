@@ -108,8 +108,10 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   class SendFrameCoroutine : public async::Coroutine<F> {
    protected:
     std::shared_ptr<PriorityStreamSchedulerAsync> m_output;
+    FrameType m_type;
+    v_uint32 m_streamId;
+    v_uint8 m_flags;
     v_uint32 m_priority = 0;
-    FrameHeader m_header;
     v_uint8 m_buf[9];
     data::buffer::InlineWriteData m_inlineData;
 
@@ -119,15 +121,22 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
 
    public:
     SendFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, FrameType type, v_uint32 streamId = 0, v_uint8 flags = 0, v_uint32 priority = 0)
-      : m_header(frameData() ? frameData()->getSize() : 0, flags, type, streamId)
-      , m_output(output)
+      : m_output(output)
+      , m_type(type)
+      , m_streamId(streamId)
+      , m_flags(flags)
       , m_priority(priority)
       , m_inlineData(m_buf, 9) {
-      m_header.writeToBuffer(m_buf);
+    }
+
+    Action defaultAct() {
+      FrameHeader hdr(frameData() ? frameData()->getSize() : 0, m_flags, m_type, m_streamId);
+      hdr.writeToBuffer(m_buf);
+      return m_output->lock(m_priority, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameHeader));
     }
 
     Action act() override {
-      return m_output->lock(m_priority, async::Coroutine<F>::yieldTo(&SendFrameCoroutine<F>::sendFrameHeader));
+      return defaultAct();
     }
 
     Action sendFrameHeader() {
@@ -142,7 +151,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
     }
 
     Action finalize() {
-      OATPP_LOGD(TAG, "Send %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(m_header.getType()), m_header.getLength(), m_header.getFlags(), m_header.getStreamId());
+      OATPP_LOGD(TAG, "Send %s (length:%lu, flags:0x%02x, streamId:%lu)", FrameHeader::frameTypeStringRepresentation(m_type), frameData() ? frameData()->getSize() : 0, m_flags, m_streamId);
       m_output->unlock();
       return async::Coroutine<F>::finish();
     }
