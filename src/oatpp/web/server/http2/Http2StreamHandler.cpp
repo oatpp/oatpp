@@ -321,6 +321,8 @@ async::Action Http2StreamHandler::writeData() {
     const v_buff_size m_toSend;
     v_buff_size m_chunk;
     v_buff_size m_pos;
+    data::buffer::InlineWriteData m_headerWriter;
+    data::buffer::InlineWriteData m_bodyWriter;
     v_uint8 m_frameHeaderBuffer[protocol::http2::Frame::Header::HeaderSize];
 
    public:
@@ -334,7 +336,7 @@ async::Action Http2StreamHandler::writeData() {
       if (m_task->window < 1) {
         return yieldTo(&WriteDataCoroutine::waitForWindow);
       }
-      return m_task->output->lock(m_task->weight, yieldTo(&WriteDataCoroutine::sendFrameHeader));
+      return m_task->output->lock(m_task->weight, yieldTo(&WriteDataCoroutine::sendFrameHeaderPrepare));
     }
 
     Action waitForWindow() {
@@ -344,7 +346,7 @@ async::Action Http2StreamHandler::writeData() {
       return yieldTo(&WriteDataCoroutine::act);
     };
 
-    Action sendFrameHeader() {
+    Action sendFrameHeaderPrepare() {
       if (m_task->state.load() == H2StreamState::RESET) {
         m_task->output->unlock();
         return finish();
@@ -355,13 +357,17 @@ async::Action Http2StreamHandler::writeData() {
       }
       protocol::http2::Frame::Header hdr(m_chunk, (m_toSend - m_pos - m_chunk == 0) ? protocol::http2::Frame::Header::Flags::Data::DATA_END_STREAM : 0, protocol::http2::Frame::Header::DATA, m_task->streamId);
       hdr.writeToBuffer(m_frameHeaderBuffer);
-      data::buffer::InlineWriteData iwd(m_frameHeaderBuffer, protocol::http2::Frame::Header::HeaderSize);
-      return m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteDataCoroutine::sendFrameBody));
+      m_headerWriter.set(m_frameHeaderBuffer, protocol::http2::Frame::Header::HeaderSize);
+      m_bodyWriter.set(m_body->getKnownData() + m_pos, m_chunk);
+      return yieldTo(&WriteDataCoroutine::sendFrameHeader);
+    }
+
+    Action sendFrameHeader() {
+      return m_task->output->writeExactSizeDataAsyncInline(m_headerWriter, yieldTo(&WriteDataCoroutine::sendFrameBody));
     };
 
     Action sendFrameBody() {
-      data::buffer::InlineWriteData iwd(m_body->getKnownData() + m_pos, m_chunk);
-      return m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteDataCoroutine::finalizeFrame));
+      return m_task->output->writeExactSizeDataAsyncInline(m_bodyWriter, yieldTo(&WriteDataCoroutine::finalizeFrame));
     };
 
     Action finalizeFrame() {
