@@ -124,7 +124,7 @@ void HttpVersionSwitch::handleConnection(const std::shared_ptr<IOStream> &connec
     }
     // Its no HTTP2 preflight message, delegate to http1 handler
     m_http1->handleConnection(pio, params);
-
+    return;
   } else if (m_http1 != nullptr) {
     m_http1->handleConnection(connection, params);
     return;
