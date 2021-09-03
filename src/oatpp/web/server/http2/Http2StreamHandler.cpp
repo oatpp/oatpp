@@ -28,6 +28,8 @@
 #include "Http2StreamHandler.hpp"
 
 #include "oatpp/web/protocol/http2/Http2.hpp"
+#include "oatpp/web/server/http2/Http2SendFrameCoroutines.hpp"
+
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
 
@@ -390,8 +392,16 @@ async::Action Http2StreamHandler::writeData() {
 async::Action Http2StreamHandler::finalize() {
   return finish();
 }
+
 async::Action Http2StreamHandler::handleError(async::Error *error) {
   OATPP_LOGE(TAG, error->what());
+  if (error->is<protocol::http2::error::connection::ProtocolError>()) {
+    return framecoroutines::SendGoaway::start(m_task->output, m_task->streamId, protocol::http2::error::PROTOCOL_ERROR).next(finish());
+  } else if (error->is<protocol::http2::error::connection::CompressionError>()) {
+    return framecoroutines::SendGoaway::start(m_task->output, m_task->streamId, protocol::http2::error::COMPRESSION_ERROR).next(finish());
+  } else if (error->is<protocol::http2::error::connection::FrameSizeError>()) {
+    return framecoroutines::SendGoaway::start(m_task->output, m_task->streamId, protocol::http2::error::FRAME_SIZE_ERROR).next(finish());
+  }
   return AbstractCoroutine::handleError(error);
 }
 

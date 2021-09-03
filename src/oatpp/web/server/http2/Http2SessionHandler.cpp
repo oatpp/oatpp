@@ -28,6 +28,8 @@
 
 #include "oatpp/web/server/http2/Http2ProcessingComponents.hpp"
 
+#include "oatpp/web/server/http2/Http2SendFrameCoroutines.hpp"
+
 #include "oatpp/core/async/worker/IOWorker.hpp"
 
 #include <arpa/inet.h>
@@ -35,10 +37,9 @@
 namespace oatpp { namespace web { namespace server { namespace http2 {
 
 const char* Http2SessionHandler::TAG = "oatpp::web::server::http2::Http2SessionHandler";
-const Http2Settings Http2SessionHandler::DEFAULT_SETTINGS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Other
+// ProcessingResources
 
 Http2SessionHandler::ProcessingResources::ProcessingResources(const std::shared_ptr<processing::Components> &pComponents,
                                                          const std::shared_ptr<http2::Http2Settings> &pInSettings,
@@ -61,134 +62,18 @@ Http2SessionHandler::ProcessingResources::~ProcessingResources() {
 //  OATPP_LOGD("oatpp::web::server::http2::Http2SessionHandler::ProcessingResources", "Destructing %p", this);
 }
 
-//
-//std::shared_ptr<protocol::http::outgoing::Response>
-//Http2SessionHandler::processNextRequest(ProcessingResources &m_resources,
-//                                   const std::shared_ptr<protocol::http::incoming::Request> &request,
-//                                   ConnectionState &connectionState) {
-//
-//  std::shared_ptr<protocol::http::outgoing::Response> response;
-//
-//  try {
-//
-//    for (auto &interceptor : m_resources->components->requestInterceptors) {
-//      response = interceptor->intercept(request);
-//      if (response) {
-//        return response;
-//      }
-//    }
-//
-//    auto route =
-//        m_resources->components->router->getRoute(request->getStartingLine().method, request->getStartingLine().path);
-//
-//    if (!route) {
-//
-//      data::stream::BufferOutputStream ss;
-//      ss << "No mapping for HTTP-method: '" << request->getStartingLine().method.toString()
-//         << "', URL: '" << request->getStartingLine().path.toString() << "'";
-//
-//      connectionState = ConnectionState::CLOSING;
-//      return m_resources->components->errorHandler->handleError(protocol::http::Status::CODE_404, ss.toString());
-//
-//    }
-//
-//    request->setPathVariables(route.getMatchMap());
-//    return route.getEndpoint()->handle(request);
-//
-//  } catch (oatpp::web::protocol::http::HttpError &error) {
-//    response =
-//        m_resources->components->errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
-//    connectionState = ConnectionState::CLOSING;
-//  } catch (std::exception &error) {
-//    response = m_resources->components->errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-//    connectionState = ConnectionState::CLOSING;
-//  } catch (...) {
-//    response = m_resources->components->errorHandler->handleError(protocol::http::Status::CODE_500, "Unhandled Error");
-//    connectionState = ConnectionState::CLOSING;
-//  }
-//
-//  return response;
-//
-//}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Http2SessionHandler
 
 async::Action Http2SessionHandler::sendSettingsFrame(async::Action &&next) {
-
-  class SendSettingsFrameCoroutine : public SendFrameCoroutine<SendSettingsFrameCoroutine> {
-   private:
-    const std::shared_ptr<Http2Settings> m_settings;
-    v_uint8 m_data[6*6];
-    data::share::MemoryLabel m_label;
-
-   public:
-    SendSettingsFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, const std::shared_ptr<Http2Settings> &settings)
-      : SendFrameCoroutine<SendSettingsFrameCoroutine>(output, FrameType::SETTINGS, 0, 0, PriorityStreamSchedulerAsync::PRIORITY_MAX)
-      , m_settings(settings)
-      , m_label(nullptr, m_data, 6*6) {
-      static const Http2Settings::Identifier idents[] = {
-          Http2Settings::SETTINGS_HEADER_TABLE_SIZE,
-          Http2Settings::SETTINGS_ENABLE_PUSH,
-          Http2Settings::SETTINGS_MAX_CONCURRENT_STREAMS,
-          Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE,
-          Http2Settings::SETTINGS_MAX_FRAME_SIZE,
-          Http2Settings::SETTINGS_MAX_HEADER_LIST_SIZE
-      };
-      p_uint8 dataptr = m_data;
-      v_buff_size count = 0;
-
-      for (int i = 0; i < 6; ++i) {
-        if (settings->getSetting(idents[i]) != DEFAULT_SETTINGS.getSetting(idents[i])) {
-          auto setting = settings->getSetting(idents[i]);
-          *dataptr++ = (idents[i] >> 8) & 0xff;
-          *dataptr++ = idents[i] & 0xff;
-          *dataptr++ = (setting >> 24) & 0xff;
-          *dataptr++ = (setting >> 16) & 0xff;
-          *dataptr++ = (setting >> 8) & 0xff;
-          *dataptr++ = setting & 0xff;
-          count += 6;
-        }
-      }
-      m_label = data::share::MemoryLabel(nullptr, m_data, count);
-    }
-  };
-
-  return SendSettingsFrameCoroutine::start(m_resources->outStream, m_resources->inSettings).next(std::forward<async::Action>(next));
+  return framecoroutines::SendSettings::start(m_resources->outStream, m_resources->inSettings).next(std::forward<async::Action>(next));
 }
 
 async::Action Http2SessionHandler::ackSettingsFrame() {
-  class SendAckSettingsFrameCoroutine : public SendFrameCoroutine<SendAckSettingsFrameCoroutine> {
-   public:
-    SendAckSettingsFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output)
-      : SendFrameCoroutine<SendAckSettingsFrameCoroutine>(output, FrameType::SETTINGS, 0, FrameHeader::Flags::Settings::SETTINGS_ACK, PriorityStreamSchedulerAsync::PRIORITY_MAX)
-      {}
-  };
-  return SendAckSettingsFrameCoroutine::start(m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
+  return framecoroutines::SendAckSettings::start(m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
 }
 
 async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHeader> &header) {
-
-  class SendPingFrameCoroutine : public SendFrameCoroutine<SendPingFrameCoroutine> {
-   private:
-    const std::shared_ptr<data::stream::InputStream> m_input;
-    v_uint8 m_data[8];
-    data::share::MemoryLabel m_label = data::share::MemoryLabel(nullptr, m_data, 8);
-    data::buffer::InlineReadData m_reader = data::buffer::InlineReadData(m_data, 8);
-   public:
-    const data::share::MemoryLabel *frameData() const override {
-      return &m_label;
-    }
-
-    // ToDo: Race condition? m_label is created after SendFrameCoroutine?
-    SendPingFrameCoroutine(const std::shared_ptr<data::stream::InputStream> &input, const std::shared_ptr<PriorityStreamSchedulerAsync> &output)
-      : SendFrameCoroutine<SendPingFrameCoroutine>(output, FrameType::PING, 0, FrameHeader::Flags::Ping::PING_ACK, PriorityStreamSchedulerAsync::PRIORITY_MAX)
-      , m_input(input) {}
-
-    async::Action act() override {
-      if (m_reader.bytesLeft == 0) {
-        return defaultAct();
-      }
-      return m_input->readExactSizeDataAsyncInline(m_reader, repeat());
-    }
-  };
 
   if (header->getStreamId() != 0) {
     return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received PING frame on stream.");
@@ -198,7 +83,7 @@ async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHe
   }
   // if bit(1) (ack) is not set, reply the same payload but with flag-bit(1) set
   if ((header->getFlags() & 0x01) == 0x00) {
-    return SendPingFrameCoroutine::start(m_resources->inStream, m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
+    return framecoroutines::SendPing::start(m_resources->inStream, m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
   } else if ((header->getFlags() & 0x01) == 0x01) {
     // all good, just consume
     return consumeFrame(8, yieldTo(&Http2SessionHandler::nextRequest));
@@ -210,52 +95,11 @@ async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHe
 }
 
 async::Action Http2SessionHandler::sendGoawayFrame(v_uint32 lastStream, protocol::http2::error::ErrorCode errorCode) {
- class SendGoawayFrameCoroutine : public SendFrameCoroutine<SendGoawayFrameCoroutine> {
-  private:
-   data::share::MemoryLabel m_label;
-   v_uint8 buf[8];
-
-  public:
-   SendGoawayFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, v_uint32 lastStream, H2ErrorCode errorCode)
-     : SendFrameCoroutine<SendGoawayFrameCoroutine>(output, FrameType::GOAWAY, 0, 0, PriorityStreamSchedulerAsync::PRIORITY_MAX){
-     p_uint8 data = buf;
-     *data++ = (lastStream >> 24) & 0xff;
-     *data++ = (lastStream >> 16) & 0xff;
-     *data++ = (lastStream >> 8) & 0xff;
-     *data++ = lastStream & 0xff;
-     *data++ = (errorCode >> 24) & 0xff;
-     *data++ = (errorCode >> 16) & 0xff;
-     *data++ = (errorCode >> 8) & 0xff;
-     *data++ = errorCode & 0xff;
-   }
-
-   const data::share::MemoryLabel *frameData() const override {
-     return &m_label;
-   }
- };
-
-  return SendGoawayFrameCoroutine::start(m_resources->outStream, lastStream, errorCode).next(yieldTo(&Http2SessionHandler::teardown));
+  return framecoroutines::SendGoaway::start(m_resources->outStream, lastStream, errorCode).next(yieldTo(&Http2SessionHandler::teardown));
 }
 
 async::Action Http2SessionHandler::sendResetStreamFrame(v_uint32 stream, protocol::http2::error::ErrorCode errorCode) {
-  class SendResetStreamFrameCoroutine : public SendFrameCoroutine<SendResetStreamFrameCoroutine> {
-   private:
-    std::shared_ptr<ProcessingResources> m_resources;
-    data::share::MemoryLabel m_label;
-    v_uint32 m_errorCode;
-
-   public:
-    SendResetStreamFrameCoroutine(const std::shared_ptr<PriorityStreamSchedulerAsync> &output, v_uint32 stream, H2ErrorCode errorCode)
-        : SendFrameCoroutine<SendResetStreamFrameCoroutine>(output, FrameType::RST_STREAM, stream, 0, PriorityStreamSchedulerAsync::PRIORITY_MAX)
-        , m_errorCode(htonl(errorCode))
-        , m_label(nullptr, &m_errorCode, 4) {}
-
-    const data::share::MemoryLabel *frameData() const override {
-      return &m_label;
-    }
-  };
-
-  return SendResetStreamFrameCoroutine::start(m_resources->outStream, stream, errorCode).next(yieldTo(&Http2SessionHandler::nextRequest));
+  return framecoroutines::SendResetStream::start(m_resources->outStream, stream, errorCode).next(yieldTo(&Http2SessionHandler::nextRequest));
 }
 
 async::Action Http2SessionHandler::consumeFrame(v_io_size streamPayloadLength, async::Action &&action) {
@@ -309,16 +153,14 @@ std::shared_ptr<Http2StreamHandler::Task> Http2SessionHandler::findOrCreateStrea
 async::Action Http2SessionHandler::handleWindowUpdateFrame(const std::shared_ptr<FrameHeader> &header) {
   class ReadWindowUpdateFrameCoroutine : public async::Coroutine<ReadWindowUpdateFrameCoroutine> {
    private:
-    const std::shared_ptr<FrameHeader> m_header;
     const std::shared_ptr<ProcessingResources> m_resources;
     v_uint8 m_data[4];
     data::buffer::InlineReadData m_reader;
     v_uint32 m_initialWindowSize;
 
    public:
-    ReadWindowUpdateFrameCoroutine(const std::shared_ptr<ProcessingResources> &resources, const std::shared_ptr<FrameHeader> &header)
-     : m_header(header)
-     , m_resources(resources)
+    ReadWindowUpdateFrameCoroutine(const std::shared_ptr<ProcessingResources> &resources)
+     : m_resources(resources)
      , m_reader(m_data, 4)
      , m_initialWindowSize(resources->outSettings->getSetting(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)) {}
 
@@ -341,7 +183,7 @@ async::Action Http2SessionHandler::handleWindowUpdateFrame(const std::shared_ptr
     if (header->getLength() != 4) {
       return connectionError(H2ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE with invalid frame size");
     }
-    return ReadWindowUpdateFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::nextRequest));
+    return ReadWindowUpdateFrameCoroutine::start(m_resources).next(yieldTo(&Http2SessionHandler::nextRequest));
   }
 
   auto handler = findOrCreateStream(header->getStreamId());
