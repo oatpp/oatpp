@@ -395,7 +395,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
         return connectionError(protocol::http2::error::PROTOCOL_ERROR,"[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Received PRIORITY frame while still in header state.");
       }
       if (header.getLength() != 5) {
-        return error<protocol::http2::error::connection::FrameSizeError>("[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Frame size other than 4.");
+        return connectionError(protocol::http2::error::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Frame size other than 5.");
       }
       return Http2StreamHandler::HandlePriorityCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
 
@@ -404,7 +404,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
         return connectionError(protocol::http2::error::PROTOCOL_ERROR,"[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Received RST_STREAM on an idle stream.");
       }
       if (header.getLength() != 4) {
-        return error<protocol::http2::error::connection::FrameSizeError>("[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Frame size other than 4.");
+        return connectionError(protocol::http2::error::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Frame size other than 4.");
       }
       return Http2StreamHandler::HandleResetStreamCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
 
@@ -416,7 +416,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
         return connectionError(protocol::http2::error::PROTOCOL_ERROR,"[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE on an idle stream.");
       }
       if (header.getLength() != 4) {
-        return error<protocol::http2::error::connection::FrameSizeError>("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
+        return connectionError(protocol::http2::error::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
       }
       return Http2StreamHandler::HandleWindowUpdateCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
 
@@ -572,7 +572,8 @@ Http2SessionHandler::~Http2SessionHandler() noexcept {
 }
 async::Action Http2SessionHandler::handleError(async::Error *error) {
   OATPP_LOGE(TAG, error->what());
-  return AbstractCoroutine::handleError(error);
+//  return connectionError(protocol::http2::error::INTERNAL_ERROR, error->what());
+  return async::AbstractCoroutine::handleError(error);
 }
 
 }}}}
