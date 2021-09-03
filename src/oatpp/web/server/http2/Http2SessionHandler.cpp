@@ -279,14 +279,18 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
 
   // streamId's have to be uneven numbers
   if ((header->getStreamId() != 0) && (header->getStreamId() & 0x01) == 0) {
-    return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received even streamId (PROTOCOL_ERROR)");
+    return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest()] Error: Received even streamId.");
+  }
+
+  if (header->getLength() > m_resources->inSettings->getSetting(Http2Settings::Identifier::SETTINGS_MAX_FRAME_SIZE)) {
+    return connectionError(protocol::http2::error::ErrorCode::FRAME_SIZE_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest()] Error: Received frame which payload exceeds SETTINGS_MAX_FRAME_SIZE.");
   }
 
   if (m_resources->lastStream && (header->getStreamId() != m_resources->lastStream->streamId)) {
     // Headers have to be sent as continous frames of HEADERS, PUSH_PROMISE and CONTINUATION.
     // Only if the last opened stream transitioned beyond its HEADERS stage, other frames are allowed
     if (m_resources->lastStream->state < Http2StreamHandler::H2StreamState::PAYLOAD && m_resources->lastStream->state > Http2StreamHandler::H2StreamState::INIT) {
-      return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Last opened stream is still in its HEADER state but frame for different stream received (PROTOCOL_ERROR)");
+      return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest()] Error: Last opened stream is still in its HEADER state but frame for different stream received ");
     }
   }
 
@@ -364,7 +368,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
       // ToDo: Discussion: Should these checks be inside their respective functions?
       //  Checking it here reduces the overhead from creating the coroutine in the first place
       if (handlerTask->state != Http2StreamHandler::H2StreamState::PAYLOAD) {
-        if (handlerTask->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
+        if (handlerTask->state >= Http2StreamHandler::H2StreamState::READY) {
           return connectionError(protocol::http2::error::STREAM_CLOSED,
                                  "[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Received data for stream that is already (half-)closed");
         }
@@ -374,14 +378,14 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
       return Http2StreamHandler::HandleDataCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
 
     case FrameType::HEADERS:
-      if (handlerTask->state >= Http2StreamHandler::H2StreamState::PROCESSING) {
+      if (handlerTask->state >= Http2StreamHandler::H2StreamState::READY) {
         return connectionError(protocol::http2::error::STREAM_CLOSED,
             "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received headers for stream that is already (half-)closed");
       }
       if (handlerTask->state == Http2StreamHandler::H2StreamState::PAYLOAD && (header.getFlags() & Http2StreamHandler::H2StreamHeaderFlags::HEADER_END_STREAM) == 0) {
         return connectionError(protocol::http2::error::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2StreamHandler::delegateToHandler()] Error: Received HEADERS frame without the HEADER_END_STREAM flag set after DATA frames");
       }
-      if (handlerTask->state > m_resources->highestNonIdleStreamId) {
+      if (handlerTask->streamId > m_resources->highestNonIdleStreamId) {
         m_resources->highestNonIdleStreamId = handlerTask->streamId;
       }
       return Http2StreamHandler::HandleHeadersCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
