@@ -36,207 +36,6 @@ namespace oatpp { namespace web { namespace server { namespace http2 {
 
 const char* Http2StreamHandler::TAG = "oatpp::web::server::http2::Http2StreamHandler";
 
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleData(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-  task->setState(H2StreamState::PAYLOAD);
-  v_uint8 pad = 0;
-  if (flags & H2StreamDataFlags::DATA_PADDED) {
-    stream->readExactSizeDataSimple(&pad, 1);
-    streamPayloadLength--;
-    if (pad > streamPayloadLength) {
-      task->setState(ABORTED);
-      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Padding length longer than remaining data.");
-    }
-  }
-
-  v_io_size read = streamPayloadLength - pad;
-
-  if (streamPayloadLength + task->data->availableToRead() > task->inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)) {
-    task->setState(ABORTED);
-    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE.");
-  }
-
-  // ToDo: Async
-  while (read > 0) {
-    async::Action action;
-    v_io_size res = task->data->readStreamToBuffer(stream.get(), read, action);
-    if (res > 0) {
-      read -= res;
-    } else if (res == IOError::BROKEN_PIPE) {
-      throw protocol::http2::error::connection::InternalError("[oatpp::web::server::http2::Http2StreamHandler::handleData] Error: Could not read data (Broken Pipe).");
-    } else {
-      std::this_thread::yield();
-    }
-  }
-
-
-  if (pad > 0) {
-    v_uint8 paddata[pad];
-    stream->readExactSizeDataSimple((void*)paddata, pad);
-  }
-
-  if (flags & H2StreamDataFlags::DATA_END_STREAM) {
-    task->setState(H2StreamState::READY);
-  }
-
-  return task->state;
-}
-
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleHeaders(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-
-  if (task->state == H2StreamState::PAYLOAD && (flags & H2StreamHeaderFlags::HEADER_END_STREAM) == 0) {
-    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received HEADERS frame without the HEADER_END_STREAM flag set after DATA frames");
-  }
-
-  task->setState(H2StreamState::HEADERS);
-  task->headerFlags |= flags;
-  v_uint8 pad = 0;
-
-  if (task->headerFlags & H2StreamHeaderFlags::HEADER_PADDED) {
-    stream->readExactSizeDataSimple(&pad, 1);
-    streamPayloadLength -= 1;
-    if (pad > streamPayloadLength) {
-      task->setState(ABORTED);
-      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Padding length longer than remaining header-data.");
-    }
-  }
-
-  if (task->headerFlags & H2StreamHeaderFlags::HEADER_PRIORITY) {
-    stream->readExactSizeDataSimple(&task->dependency, 4);
-    task->dependency = ntohl(task->dependency);
-    if (task->dependency == task->streamId) {
-      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Received header for stream that depends on itself.");
-    }
-    stream->readExactSizeDataSimple(&task->weight, 1);
-    streamPayloadLength -= 5;
-  }
-
-  v_io_size read = streamPayloadLength - pad;
-  if (streamPayloadLength + task->header->availableToRead() > task->inSettings->getSetting(Http2Settings::SETTINGS_MAX_FRAME_SIZE)) {
-    task->setState(ABORTED);
-    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Frame exceeds SETTINGS_MAX_FRAME_SIZE.");
-  }
-
-  // ToDo: Async
-  while (read > 0) {
-    async::Action action;
-    v_io_size res = task->header->readStreamToBuffer(stream.get(), read, action);
-    if (res > 0) {
-      read -= res;
-    } else if (res == IOError::BROKEN_PIPE) {
-      OATPP_LOGD(TAG, "Could not read header: Broken Pipe");
-      throw protocol::http2::error::connection::InternalError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Could not read header (Broken Pipe)");
-    } else {
-      std::this_thread::yield();
-    }
-  }
-
-  if ((task->headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) == (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) { // end stream, go to processing
-    OATPP_LOGD(TAG, "Stream and headers finished, start processing.");
-    task->setState(H2StreamState::READY);
-  } else if (task->headerFlags & H2StreamHeaderFlags::HEADER_END_STREAM) { // continuation
-    OATPP_LOGD(TAG, "Stream finished, headers not, awaiting continuation.");
-    task->setState(H2StreamState::CONTINUATION);
-  } else if (task->headerFlags & H2StreamHeaderFlags::HEADER_END_HEADERS) { // payload
-    task->setState(H2StreamState::PAYLOAD);
-    OATPP_LOGD(TAG, "Headers finished, stream not, awaiting data.");
-  } else {
-    OATPP_LOGE(TAG, "Something is wrong");
-  }
-
-  if (pad > 0) {
-    oatpp::String paddata((v_buff_size)pad);
-    stream->readExactSizeDataSimple((void*)paddata->data(), paddata->size());
-  }
-
-  return task->state;
-}
-
-Http2StreamHandler::H2StreamState Http2StreamHandler::handlePriority(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-  if (streamPayloadLength != 5) {
-    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Frame size other than 5.");
-
-  }
-  stream->readExactSizeDataSimple(&task->dependency, 4);
-  task->dependency = ntohl(task->dependency);
-  if (task->dependency == task->streamId) {
-    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handlePriority] Error: Received PRIORITY frame with dependency on itself.");
-  }
-  stream->readExactSizeDataSimple(&task->weight, 1);
-  streamPayloadLength -= 5;
-  return task->state;
-}
-
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleResetStream(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-  if (streamPayloadLength != 4) {
-    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleResetStream] Error: Frame size other than 4.");
-  }
-  v_uint32 code;
-  stream->readExactSizeDataSimple(&code, 4);
-  OATPP_LOGD(TAG, "Resetting stream, code %u", ntohl(code))
-  if (task->state == PROCESSING) {
-    task->setState(RESET);
-    return task->state;
-  }
-  task->setState(ABORTED);
-  return task->state;
-}
-
-
-Http2StreamHandler::H2StreamState Http2StreamHandler::handlePushPromise(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-  return task->state;
-}
-
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleWindowUpdate(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-  if (streamPayloadLength != 4) {
-    throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
-  }
-  // https://datatracker.ietf.org/doc/html/rfc7540#section-6.9
-  // 1 to 2^31-1 (2,147,483,647)
-  v_uint32 increment;
-  stream->readExactSizeDataSimple(&increment, 4);
-  increment = ntohl(increment);
-  if (increment == 0) {
-    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment of 0");
-  }
-  v_uint32 unsignedWindow = task->window;
-  if (unsignedWindow + increment > Http2Settings::getSettingMax(Http2Settings::SETTINGS_INITIAL_WINDOW_SIZE)) {
-    throw protocol::http2::error::stream::FlowControlError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Increment above 2^31-1");
-  }
-  OATPP_LOGD(TAG, "Incrementing window by %u", increment);
-  task->window += increment;
-
-  return task->state;
-}
-
-Http2StreamHandler::H2StreamState Http2StreamHandler::handleContinuation(const std::shared_ptr<Task> &task, v_uint8 flags, const std::shared_ptr<data::stream::InputStream> &stream, v_io_size streamPayloadLength) {
-
-  task->headerFlags |= flags;
-
-  // ToDo: Async
-  v_io_size read = streamPayloadLength;
-  while (read > 0) {
-    async::Action action;
-    v_io_size res = task->header->readStreamToBuffer(stream.get(), read, action);
-    if (res > 0) {
-      read -= res;
-    } else if (res == IOError::BROKEN_PIPE) {
-      throw protocol::http2::error::connection::InternalError("[oatpp::web::server::http2::Http2StreamHandler::handleHeaders] Error: Could not read header continuation (Broken Pipe)");
-    } else {
-      std::this_thread::yield();
-    }
-  }
-
-  if ((task->headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
-      == H2StreamHeaderFlags::HEADER_END_HEADERS) {
-    task->setState(H2StreamState::PAYLOAD);
-  } else if ((task->headerFlags & (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM))
-      == (H2StreamHeaderFlags::HEADER_END_HEADERS | H2StreamHeaderFlags::HEADER_END_STREAM)) {
-    task->setState(H2StreamState::READY);
-  }
-
-  return task->state;
-}
-
 const char *Http2StreamHandler::stateStringRepresentation(Http2StreamHandler::H2StreamState state) {
 #define ENUM2STR(x) case x: return #x
   switch (state) {
@@ -245,6 +44,7 @@ const char *Http2StreamHandler::stateStringRepresentation(Http2StreamHandler::H2
     ENUM2STR(CONTINUATION);
     ENUM2STR(PAYLOAD);
     ENUM2STR(READY);
+    ENUM2STR(PIPED);
     ENUM2STR(PROCESSING);
     ENUM2STR(RESPONDING);
     ENUM2STR(DONE);
@@ -261,14 +61,14 @@ const char *Http2StreamHandler::stateStringRepresentation(Http2StreamHandler::H2
 
 bool Http2StreamHandler::Task::setStateWithExpection(Http2StreamHandler::H2StreamState expected, Http2StreamHandler::H2StreamState next) {
   if (state.compare_exchange_strong(expected, next)) {
-    OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::setStateWithExpection", "(%d) State: %s(%d) -> %s(%d)", streamId, stateStringRepresentation(expected), expected, stateStringRepresentation(next), next);
+    OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::setStateWithExpection", "Stream %d, State: %s(%d) -> %s(%d)", streamId, stateStringRepresentation(expected), expected, stateStringRepresentation(next), next);
     return true;
   }
   return false;
 }
 
 void Http2StreamHandler::Task::setState(Http2StreamHandler::H2StreamState next) {
-  OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::setState", "(%d) State: %s(%d) -> %s(%d)", streamId, stateStringRepresentation(state.load()), state.load(), stateStringRepresentation(next), next);
+  OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::Task::setState", "Stream %d, State: %s(%d) -> %s(%d)", streamId, stateStringRepresentation(state.load()), state.load(), stateStringRepresentation(next), next);
   state.store(next);
 }
 
@@ -317,7 +117,8 @@ void Http2StreamHandler::Task::clean() {
 // TaskWorker
 
 Http2StreamHandler::TaskWorker::TaskWorker(TaskWorker::Resources *resources)
-  : m_resources(resources) {
+  : m_resources(resources)
+  , m_done(false) {
   m_waitList.setListener(this);
 }
 
@@ -367,6 +168,7 @@ void Http2StreamHandler::TaskWorker::run()  {
   m_mutex.lock();
   m_done = true;
   m_mutex.unlock();
+  m_waitList.notifyAll();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,7 +184,7 @@ async::Action Http2StreamHandler::act() {
   try {
     requestHeaders = m_task->hpack->inflate(m_task->header, m_task->header->availableToRead());
   } catch (std::runtime_error &e) {
-    throw protocol::http2::error::connection::CompressionError(e.what());
+    return error<protocol::http2::error::connection::CompressionError>(e.what());
   }
 
   // ToDo:
@@ -394,22 +196,22 @@ async::Action Http2StreamHandler::act() {
   protocol::http::RequestStartingLine startingLine;
   auto path = requestHeaders.get(protocol::http2::Header::PATH);
   if (path == nullptr) {
-    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':path'.");
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':path'.");
   }
   auto method = requestHeaders.get(protocol::http2::Header::METHOD);
   if (method == nullptr) {
-    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':method'.");
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':method'.");
   }
   auto scheme = requestHeaders.get(protocol::http2::Header::SCHEME);
   if (scheme == nullptr) {
-    throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':scheme'.");
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':scheme'.");
   }
   auto contentLength = requestHeaders.get(protocol::http2::Header::CONTENT_LENGTH);
   if (contentLength) {
     bool success;
     v_uint32 contentLengthValue = oatpp::utils::conversion::strToUInt32(contentLength, success);
     if (contentLengthValue != m_task->data->availableToRead()) {
-      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Data length and content-length do not match.");
+      return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Data length and content-length do not match.");
     }
   }
   startingLine.protocol = "HTTP/2.0";
@@ -427,6 +229,7 @@ async::Action Http2StreamHandler::startWorker() {
   if (!m_worker->isDone()) {
     return async::Action::createWaitListAction(m_worker->getWaitList());
   }
+
   return yieldTo(&Http2StreamHandler::processWorkerResult);
 }
 
@@ -447,6 +250,7 @@ async::Action Http2StreamHandler::processWorkerResult() {
     std::shared_ptr<Task> m_task;
     v_buff_size m_chunk;
     v_uint8 m_frameHeaderBuffer[protocol::http2::Frame::Header::HeaderSize];
+    data::buffer::InlineWriteData m_writer;
     protocol::http2::Frame::Header::FrameType m_frameType;
     bool m_endsStream;
 
@@ -459,12 +263,12 @@ async::Action Http2StreamHandler::processWorkerResult() {
 
      Action act() override {
        if(m_headerStream->availableToRead() > 0) {
-         m_task->output->lock(m_task->weight, yieldTo(&WriteHeadersCoroutine::sendFrameHeader));
+         return m_task->output->lock(m_task->weight, yieldTo(&WriteHeadersCoroutine::sendFrameHeaderPrepare));
        }
        return finish();
     }
 
-    Action sendFrameHeader() {
+    Action sendFrameHeaderPrepare() {
       if (m_task->state.load() == H2StreamState::RESET) {
         m_task->output->unlock();
         return finish();
@@ -476,8 +280,12 @@ async::Action Http2StreamHandler::processWorkerResult() {
       protocol::http2::Frame::Header hdr(m_chunk, flags, m_frameType, m_task->streamId);
       OATPP_LOGD("oatpp::web::server::http2::Http2StreamHandler::processWorkerResult::WriteHeadersCoroutine", "Sending %s (length:%lu, flags:0x%02x, StreamId:%lu)", protocol::http2::Frame::Header::frameTypeStringRepresentation(hdr.getType()), hdr.getLength(), hdr.getFlags(), hdr.getStreamId());
       hdr.writeToBuffer(m_frameHeaderBuffer);
-      data::buffer::InlineWriteData iwd(m_frameHeaderBuffer, protocol::http2::Frame::Header::HeaderSize);
-      return m_task->output->writeExactSizeDataAsyncInline(iwd, yieldTo(&WriteHeadersCoroutine::sendFrameBody));
+      m_writer.set(m_frameHeaderBuffer, protocol::http2::Frame::Header::HeaderSize);
+      return yieldTo(&WriteHeadersCoroutine::sendFrameHeader);
+    }
+
+    Action sendFrameHeader() {
+      return m_task->output->writeExactSizeDataAsyncInline(m_writer, yieldTo(&WriteHeadersCoroutine::sendFrameBody));
     }
 
     Action sendFrameBody() {
@@ -576,13 +384,17 @@ async::Action Http2StreamHandler::writeData() {
 async::Action Http2StreamHandler::finalize() {
   return finish();
 }
+async::Action Http2StreamHandler::handleError(async::Error *error) {
+  OATPP_LOGE(TAG, error->what());
+  return AbstractCoroutine::handleError(error);
+}
 
 void Http2StreamHandler::TaskWorker::start() {
   // ToDo: Pool threads. Either with `Bench` or a similar approach as in `Executor`
   std::thread t([this]{
     run();
   });
-  
+
   /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
   v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
   if (concurrency > 1) {
