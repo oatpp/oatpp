@@ -201,11 +201,11 @@ async::Action Http2SessionHandler::handlePingFrame(const std::shared_ptr<FrameHe
     return SendPingFrameCoroutine::start(m_resources->inStream, m_resources->outStream).next(yieldTo(&Http2SessionHandler::nextRequest));
   } else if ((header->getFlags() & 0x01) == 0x01) {
     // all good, just consume
-    return consumeStream(8, yieldTo(&Http2SessionHandler::nextRequest));
+    return consumeFrame(8, yieldTo(&Http2SessionHandler::nextRequest));
   }
 
   // unknown flags! for now, just consume
-  return consumeStream(8, yieldTo(&Http2SessionHandler::nextRequest));
+  return consumeFrame(8, yieldTo(&Http2SessionHandler::nextRequest));
 
 }
 
@@ -258,29 +258,37 @@ async::Action Http2SessionHandler::sendResetStreamFrame(v_uint32 stream, protoco
   return SendResetStreamFrameCoroutine::start(m_resources->outStream, stream, errorCode).next(yieldTo(&Http2SessionHandler::nextRequest));
 }
 
-async::Action Http2SessionHandler::consumeStream(v_io_size streamPayloadLength, async::Action &&action) {
-  class StreamConsumerCoroutine : public async::Coroutine<StreamConsumerCoroutine> {
+async::Action Http2SessionHandler::consumeFrame(v_io_size streamPayloadLength, async::Action &&action) {
+  class FrameConsumerCoroutine : public async::Coroutine<FrameConsumerCoroutine> {
    private:
     std::shared_ptr<data::stream::InputStream> m_stream;
     v_buff_size m_consume;
     data::buffer::IOBuffer m_buffer;
+    data::buffer::InlineReadData m_reader;
 
    public:
-    StreamConsumerCoroutine(const std::shared_ptr<data::stream::InputStream> &stream, v_buff_size consume)
+    FrameConsumerCoroutine(const std::shared_ptr<data::stream::InputStream> &stream, v_buff_size consume)
       : m_stream(stream)
-      , m_consume(consume) {}
+      , m_consume(consume) {
+      v_io_size chunk = std::min((v_io_size) m_buffer.getSize(), m_consume);
+      m_consume -= chunk;
+      m_reader.set((void *) m_buffer.getData(), chunk);
+    }
 
     Action act() override {
+      if (m_reader.bytesLeft > 0) {
+        return m_stream->readExactSizeDataAsyncInline(m_reader, yieldTo(&FrameConsumerCoroutine::act));
+      }
       if (m_consume > 0) {
         v_io_size chunk = std::min((v_io_size) m_buffer.getSize(), m_consume);
-        data::buffer::InlineReadData inlinereader((void *) m_buffer.getData(), chunk);
         m_consume -= chunk;
-        return m_stream->readSomeDataAsyncInline(inlinereader, yieldTo(&StreamConsumerCoroutine::act));
+        m_reader.set((void *) m_buffer.getData(), chunk);
+        return m_stream->readExactSizeDataAsyncInline(m_reader, yieldTo(&FrameConsumerCoroutine::act));
       }
       return finish();
     }
   };
-  return StreamConsumerCoroutine::start(m_resources->inStream, streamPayloadLength).next(std::forward<async::Action>(action));
+  return FrameConsumerCoroutine::start(m_resources->inStream, streamPayloadLength).next(std::forward<async::Action>(action));
 }
 
 std::shared_ptr<Http2StreamHandler::Task> Http2SessionHandler::findOrCreateStream(v_uint32 ident) {
@@ -288,7 +296,7 @@ std::shared_ptr<Http2StreamHandler::Task> Http2SessionHandler::findOrCreateStrea
   auto handlerentry = m_resources->h2streams.find(ident);
   if (handlerentry == m_resources->h2streams.end()) {
     if (ident < m_resources->highestNonIdleStreamId) {
-      throw protocol::http2::error::connection::ProtocolError("[oatpp::web::server::http2::Http2SessionHandler::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
+      return nullptr;
     }
     handler = std::make_shared<Http2StreamHandler::Task>(ident, m_resources->outStream, m_resources->hpack, m_resources->components, m_resources->inSettings, m_resources->outSettings);
     m_resources->h2streams.insert({ident, handler});
@@ -336,7 +344,11 @@ async::Action Http2SessionHandler::handleWindowUpdateFrame(const std::shared_ptr
     return ReadWindowUpdateFrameCoroutine::start(m_resources, header).next(yieldTo(&Http2SessionHandler::nextRequest));
   }
 
-  return delegateToHandler(findOrCreateStream(header->getStreamId()), *header);
+  auto handler = findOrCreateStream(header->getStreamId());
+  if (!handler) {
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2SessionHandler::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
+  }
+  return delegateToHandler(handler, *header);
 }
 
 async::Action Http2SessionHandler::handleSettingsSetFrame(const std::shared_ptr<FrameHeader> &header) {
@@ -436,67 +448,60 @@ async::Action Http2SessionHandler::handleFrame(const std::shared_ptr<FrameHeader
     }
   }
 
-  try {
-    switch (header->getType()) {
+  switch (header->getType()) {
 
-      case FrameType::PING:
-        return handlePingFrame(header);
+    case FrameType::PING:
+      return handlePingFrame(header);
 
-      case FrameType::SETTINGS:
-        return handleSettingsSetFrame(header);
+    case FrameType::SETTINGS:
+      return handleSettingsSetFrame(header);
 
-      case FrameType::GOAWAY:
-        if (header->getStreamId() == 0){
-          // v_uint32 errorCode, lastId, highest = 0;
-          // m_resources->inStream->readExactSizeDataSimple(&lastId, 4);
-          // m_resources->inStream->readExactSizeDataSimple(&errorCode, 4);
-          // errorCode = ntohl(errorCode);
-          // lastId = ntohl(lastId);
-          // // Consume remaining debug data.
-          // if (header->getLength() > 8) {
-          //   v_uint32 remaining = header->getLength() - 8;
-          //   while (remaining > 0) {
-          //     v_uint32 chunk = std::min((v_uint32) 2048, remaining);
-          //     v_char8 buf[chunk];
-          //     m_resources->inStream->readExactSizeDataSimple(buf, chunk);
-          //     remaining -= chunk;
-          //   }
-          // }
-          // ToDo: Handle additional frames, then stop
-          // m_resources->inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
-          // while (processNextRequest(m_resources) != ConnectionState::DEAD) {}
-          return yieldTo(&Http2SessionHandler::teardown);
-        } else {
-          return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received GOAWAY on stream.");
-        }
+    case FrameType::GOAWAY:
+      if (header->getStreamId() == 0){
+        // v_uint32 errorCode, lastId, highest = 0;
+        // m_resources->inStream->readExactSizeDataSimple(&lastId, 4);
+        // m_resources->inStream->readExactSizeDataSimple(&errorCode, 4);
+        // errorCode = ntohl(errorCode);
+        // lastId = ntohl(lastId);
+        // // Consume remaining debug data.
+        // if (header->getLength() > 8) {
+        //   v_uint32 remaining = header->getLength() - 8;
+        //   while (remaining > 0) {
+        //     v_uint32 chunk = std::min((v_uint32) 2048, remaining);
+        //     v_char8 buf[chunk];
+        //     m_resources->inStream->readExactSizeDataSimple(buf, chunk);
+        //     remaining -= chunk;
+        //   }
+        // }
+        // ToDo: Handle additional frames, then stop
+        // m_resources->inStream->setInputStreamIOMode(data::stream::ASYNCHRONOUS);
+        // while (processNextRequest(m_resources) != ConnectionState::DEAD) {}
+        return yieldTo(&Http2SessionHandler::teardown);
+      } else {
+        return connectionError(H2ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received GOAWAY on stream.");
+      }
 
-      case FrameType::WINDOW_UPDATE:
-        return handleWindowUpdateFrame(header);
+    case FrameType::WINDOW_UPDATE:
+      return handleWindowUpdateFrame(header);
 
-      case FrameType::DATA:
-      case FrameType::HEADERS:
-      case FrameType::PRIORITY:
-      case FrameType::RST_STREAM:
-      case FrameType::PUSH_PROMISE:
-      case FrameType::CONTINUATION:
-        if (header->getStreamId() == 0) {
-          return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received stream related frame on stream(0)");
-        }
-        m_resources->lastStream = findOrCreateStream(header->getStreamId());
-        return delegateToHandler(m_resources->lastStream, *header);
+    case FrameType::DATA:
+    case FrameType::HEADERS:
+    case FrameType::PRIORITY:
+    case FrameType::RST_STREAM:
+    case FrameType::PUSH_PROMISE:
+    case FrameType::CONTINUATION:
+      if (header->getStreamId() == 0) {
+        return connectionError(protocol::http2::error::ErrorCode::PROTOCOL_ERROR, "[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received stream related frame on stream(0)");
+      }
+      m_resources->lastStream = findOrCreateStream(header->getStreamId());
+      if (!m_resources->lastStream) {
+        return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2SessionHandler::findOrCreateStream] Error: Tried to create a new stream with a streamId smaller than the currently highest known streamId");
+      }
+      return delegateToHandler(m_resources->lastStream, *header);
 
-
-      default:
-        // ToDo: Unknown frame
-        return consumeStream(header->getLength(), yieldTo(&Http2SessionHandler::nextRequest));
-    }
-  } catch (protocol::http2::error::Error &h2e) {
-    OATPP_LOGE(TAG, "%s (%s)", h2e.what(), h2e.getH2ErrorCodeString());
-    if (h2e.getH2ErrorScope() == protocol::http2::error::CONNECTION) {
-      return sendGoawayFrame(m_resources->lastStream ? m_resources->lastStream->streamId : 0, h2e.getH2ErrorCode());
-    } else {
-      return sendResetStreamFrame(header->getStreamId(), h2e.getH2ErrorCode());
-    }
+    default:
+      // ToDo: Unknown frame
+      return consumeFrame(header->getLength(), yieldTo(&Http2SessionHandler::nextRequest));
   }
 
   return repeat();
@@ -553,7 +558,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
         return connectionError(protocol::http2::error::PROTOCOL_ERROR,"[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Received RST_STREAM on an idle stream.");
       }
       if (header.getLength() != 4) {
-        throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Frame size other than 4.");
+        return error<protocol::http2::error::connection::FrameSizeError>("[oatpp::web::server::http2::Http2SessionHandler::delegateToHandler()] Error: Frame size other than 4.");
       }
       return Http2StreamHandler::HandleResetStreamCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
 
@@ -565,7 +570,7 @@ async::Action Http2SessionHandler::delegateToHandler(const std::shared_ptr<Http2
         return connectionError(protocol::http2::error::PROTOCOL_ERROR,"[oatpp::web::server::http2::Http2SessionHandler::processNextRequest] Error: Received WINDOW_UPDATE on an idle stream.");
       }
       if (header.getLength() != 4) {
-        throw protocol::http2::error::connection::FrameSizeError("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
+        return error<protocol::http2::error::connection::FrameSizeError>("[oatpp::web::server::http2::Http2StreamHandler::handleWindowUpdate] Error: Frame size other than 4.");
       }
       return Http2StreamHandler::HandleWindowUpdateCoroutine::startForResult(handlerTask, header.getFlags(), m_resources->inStream, header.getLength()).callbackTo(&Http2SessionHandler::handleHandlerResult);
 
@@ -683,11 +688,7 @@ async::Action Http2SessionHandler::handlePriMessage() {
   if ((*pre++ == *inbuf++) && (*pre++ == *inbuf++) && (*pre++ == *inbuf++) &&
       (*pre++ == *inbuf++) && (*pre++ == *inbuf++) && (*pre == *inbuf)) {
 
-    try {
-      return Http2SessionHandler::sendSettingsFrame(yieldTo(&Http2SessionHandler::nextRequest));
-    } catch (std::exception &e) {
-      OATPP_LOGE(TAG, e.what());
-    }
+    return Http2SessionHandler::sendSettingsFrame(yieldTo(&Http2SessionHandler::nextRequest));
 
   } else {
     OATPP_LOGE(TAG, "Error: Invalid 'PRI * HTTP/2.0' message.");
@@ -697,7 +698,25 @@ async::Action Http2SessionHandler::handlePriMessage() {
 }
 
 async::Action Http2SessionHandler::teardown() {
-  return finish();
+  class StreamConsumerCoroutine : public async::Coroutine<StreamConsumerCoroutine> {
+   private:
+    std::shared_ptr<data::stream::InputStream> m_stream;
+    data::buffer::IOBuffer m_buffer;
+
+   public:
+    StreamConsumerCoroutine(const std::shared_ptr<data::stream::InputStream> &stream)
+    : m_stream(stream) {}
+
+    Action act() override {
+      async::Action action;
+      auto res = m_stream->read(m_buffer.getData(), m_buffer.getSize(), action);
+      if (res < 1) {
+        return finish();
+      }
+      return repeat();
+    }
+  };
+  return StreamConsumerCoroutine::start(m_resources->inStream).next(finish());
 }
 
 Http2SessionHandler::~Http2SessionHandler() noexcept {

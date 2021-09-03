@@ -248,7 +248,7 @@ class Http2SessionHandler : public oatpp::async::Coroutine<Http2SessionHandler> 
   Action delegateToHandler(const std::shared_ptr<Http2StreamHandler::Task> &handlerTask, protocol::http2::Frame::Header &header);
   Action handleHandlerResult(const std::shared_ptr<Http2StreamHandler::Task> &task);
 
-  async::Action consumeStream(v_io_size streamPayloadLength, async::Action &&next);
+  async::Action consumeFrame(v_io_size streamPayloadLength, async::Action &&action);
   async::Action sendSettingsFrame(async::Action &&next);
   Action ackSettingsFrame();
   Action sendGoawayFrame(v_uint32 lastStream, H2ErrorCode errorCode);
