@@ -32,22 +32,47 @@ namespace oatpp { namespace network {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionMonitor::ConnectionProxy
 
-ConnectionMonitor::ConnectionProxy::ConnectionProxy(const std::shared_ptr<ConnectionProvider>& connectionProvider,
+ConnectionMonitor::ConnectionProxy::ConnectionProxy(const std::shared_ptr<Monitor>& monitor,
+                                                    const std::shared_ptr<ConnectionProvider>& connectionProvider,
                                                     const std::shared_ptr<data::stream::IOStream>& connection)
-  : m_connectionProvider(connectionProvider)
+  : m_monitor(monitor)
+  , m_connectionProvider(connectionProvider)
   , m_connection(connection)
-{}
+{
+  m_stats.timestampCreated = base::Environment::getMicroTickCount();
+}
 
 ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
+
+  std::lock_guard<std::mutex> lock(m_statsMutex);
+
+  m_monitor->freeConnectionStats(m_stats);
+
+  if(m_stats.metricData.size() > 0) {
+
+    for(auto& pair : m_stats.metricData) {
+      OATPP_LOGE("[oatpp::network::ConnectionMonitor::ConnectionProxy::~ConnectionProxy()]",
+                 "Error. Memory leak. Metric data was not deleted: Metric name - '%s'", pair.first->c_str());
+    }
+
+  }
+
+  m_monitor->removeConnection((v_uint64) this);
 
 }
 
 v_io_size ConnectionMonitor::ConnectionProxy::read(void *buffer, v_buff_size count, async::Action& action) {
-  return m_connection->read(buffer, count, action);
+  auto res = m_connection->read(buffer, count, action);
+  std::lock_guard<std::mutex> lock(m_statsMutex);
+  m_monitor->onConnectionRead(m_stats, res);
+  return res;
 }
 
 v_io_size ConnectionMonitor::ConnectionProxy::write(const void *data, v_buff_size count, async::Action& action) {
-  return m_connection->write(data, count, action);
+  auto res = m_connection->write(data, count, action);
+  std::lock_guard<std::mutex> lock(m_statsMutex);
+  m_monitor->onConnectionWrite(m_stats, res);
+  return res;
 }
 
 void ConnectionMonitor::ConnectionProxy::setInputStreamIOMode(data::stream::IOMode ioMode) {
@@ -72,16 +97,155 @@ data::stream::Context& ConnectionMonitor::ConnectionProxy::getOutputStreamContex
   return m_connection->getOutputStreamContext();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ConnectionMonitor
+void ConnectionMonitor::ConnectionProxy::invalidate()  {
+  m_connectionProvider->invalidate(m_connection);
+}
 
-void ConnectionMonitor::monitorTask(std::shared_ptr<ConnectionMonitor> monitor) {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Monitor
+
+void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
   while(monitor->m_running) {
+
+    {
+      std::lock_guard<std::mutex> lock(monitor->m_connectionsMutex);
+
+      for(auto& pair : monitor->m_connections) {
+
+        auto connection = pair.second.lock();
+        std::lock_guard<std::mutex> dataLock(connection->m_statsMutex);
+        //  TODO - check data
+
+      }
+
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 
+}
+
+void* ConnectionMonitor::Monitor::createOrGetMetricData(ConnectionStats& stats, const std::shared_ptr<StatCollector>& collector) {
+  void* data;
+  auto it = stats.metricData.find(collector->metricName());
+  if(it == stats.metricData.end()) {
+    data = collector->createMetricData();
+    stats.metricData.insert({collector->metricName(), data});
+  } else {
+    data = it->second;
+  }
+  return data;
+}
+
+std::shared_ptr<ConnectionMonitor::Monitor> ConnectionMonitor::Monitor::createShared() {
+  auto monitor = std::make_shared<Monitor>();
+  std::thread t([monitor](){
+    ConnectionMonitor::Monitor::monitorTask(monitor);
+  });
+  return monitor;
+}
+
+void ConnectionMonitor::Monitor::addConnection(v_uint64 id, const std::weak_ptr<ConnectionProxy>& connection) {
+  std::lock_guard<std::mutex> lock(m_connectionsMutex);
+  m_connections.insert({id, connection});
+}
+
+void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
+
+  std::lock_guard<std::mutex> lock(m_statCollectorsMutex);
+
+  for(auto& metric : stats.metricData) {
+    auto it = m_statCollectors.find(metric.first);
+    if(it != m_statCollectors.end()) {
+      it->second->deleteMetricData(metric.second);
+    } else {
+      OATPP_LOGE("[oatpp::network::ConnectionMonitor::Monitor::freeConnectionStats]",
+                 "Error. Can't free Metric data. Unknown Metric: name - '%s'", it->first->c_str());
+    }
+  }
+
+}
+
+void ConnectionMonitor::Monitor::removeConnection(v_uint64 id) {
+  std::lock_guard<std::mutex> lock(m_connectionsMutex);
+  m_connections.erase(id);
+}
+
+void ConnectionMonitor::Monitor::addStatCollector(const std::shared_ptr<StatCollector>& collector) {
+  std::lock_guard<std::mutex> lock(m_statCollectorsMutex);
+  m_statCollectors.insert({collector->metricName(), collector});
+}
+
+void ConnectionMonitor::Monitor::removeStatCollector(const oatpp::String& metricName) {
+  std::lock_guard<std::mutex> lock(m_statCollectorsMutex);
+  m_statCollectors.erase(metricName);
+}
+
+void ConnectionMonitor::Monitor::onConnectionRead(ConnectionStats& stats, v_io_size readResult) {
+
+  v_int64 currTimestamp = base::Environment::getMicroTickCount();
+
+  if(readResult > 0) {
+    stats.totalRead += readResult;
+    stats.lastReadSize = readResult;
+    stats.timestampLastRead = currTimestamp;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(m_statCollectorsMutex);
+    for(auto& pair : m_statCollectors) {
+      pair.second->onRead(createOrGetMetricData(stats, pair.second), readResult, currTimestamp);
+    }
+  }
+
+}
+
+void ConnectionMonitor::Monitor::onConnectionWrite(ConnectionStats& stats, v_io_size writeResult) {
+
+  v_int64 currTimestamp = base::Environment::getMicroTickCount();
+
+  if(writeResult > 0) {
+    stats.totalWrite += writeResult;
+    stats.lastWriteSize = writeResult;
+    stats.timestampLastWrite = currTimestamp;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(m_statCollectorsMutex);
+    for(auto& pair : m_statCollectors) {
+      pair.second->onWrite(createOrGetMetricData(stats, pair.second), writeResult, currTimestamp);
+    }
+  }
+
+}
+
+void ConnectionMonitor::Monitor::stop() {
+  m_running = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ConnectionMonitor
+
+ConnectionMonitor::ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& connectionProvider)
+  : m_monitor(Monitor::createShared())
+  , m_connectionProvider(connectionProvider)
+{
+}
+
+std::shared_ptr<data::stream::IOStream> ConnectionMonitor::get() {
+  auto connection = m_connectionProvider->get();
+  auto proxy = std::make_shared<ConnectionProxy>(m_monitor, m_connectionProvider, connection);
+  m_monitor->addConnection((v_uint64) proxy.get(), proxy);
+  return proxy;
+}
+
+void ConnectionMonitor::addStatCollector(const std::shared_ptr<StatCollector>& collector) {
+  m_monitor->addStatCollector(collector);
+}
+
+void ConnectionMonitor::stop() {
+  m_monitor->stop();
 }
 
 }}

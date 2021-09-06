@@ -28,19 +28,58 @@
 #include "./ConnectionProvider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
+#include "unordered_map"
+
 namespace oatpp { namespace network {
 
 class ConnectionMonitor {
+public:
+
+  struct ConnectionStats {
+
+    v_int64 timestampCreated = 0;
+
+    v_io_size totalRead = 0;
+    v_io_size totalWrite = 0;
+
+    v_int64 timestampLastRead = 0;
+    v_int64 timestampLastWrite = 0;
+
+    v_io_size lastReadSize = 0;
+    v_io_size lastWriteSize = 0;
+
+    std::unordered_map<oatpp::String, void*> metricData;
+
+  };
+
+public:
+
+  class StatCollector {
+  public:
+    virtual oatpp::String metricName() = 0;
+    virtual void* createMetricData() = 0;
+    virtual void deleteMetricData(void* metricData) = 0;
+    virtual void onRead(void* metricData, v_io_size readResult, v_int64 timestamp) = 0;
+    virtual void onWrite(void* metricData, v_io_size writeResult, v_int64 timestamp) = 0;
+  };
+
 private:
 
+  class Monitor; // FWD
+
   class ConnectionProxy : public data::stream::IOStream {
+    friend Monitor;
   private:
+    std::shared_ptr<Monitor> m_monitor;
     /* provider which created this connection */
     std::shared_ptr<ConnectionProvider> m_connectionProvider;
     std::shared_ptr<data::stream::IOStream> m_connection;
+    std::mutex m_statsMutex;
+    ConnectionStats m_stats;
   public:
 
-    ConnectionProxy(const std::shared_ptr<ConnectionProvider>& connectionProvider,
+    ConnectionProxy(const std::shared_ptr<Monitor>& monitor,
+                    const std::shared_ptr<ConnectionProvider>& connectionProvider,
                     const std::shared_ptr<data::stream::IOStream>& connection);
 
     ~ConnectionProxy() override;
@@ -56,17 +95,57 @@ private:
     data::stream::IOMode getOutputStreamIOMode() override;
     data::stream::Context& getOutputStreamContext() override;
 
+    void invalidate();
+
   };
 
 private:
 
-  static void monitorTask(std::shared_ptr<ConnectionMonitor> monitor);
+  class Monitor {
+  private:
+
+    std::atomic<bool> m_running {true};
+
+    std::mutex m_connectionsMutex;
+    std::unordered_map<v_uint64, std::weak_ptr<ConnectionProxy>> m_connections;
+
+    std::mutex m_statCollectorsMutex;
+    std::unordered_map<oatpp::String, std::shared_ptr<StatCollector>> m_statCollectors;
+
+  private:
+    static void monitorTask(std::shared_ptr<Monitor> monitor);
+  private:
+    void* createOrGetMetricData(ConnectionStats& stats, const std::shared_ptr<StatCollector>& collector);
+  public:
+
+    static std::shared_ptr<Monitor> createShared();
+
+    void addConnection(v_uint64 id, const std::weak_ptr<ConnectionProxy>& connection);
+    void freeConnectionStats(ConnectionStats& stats);
+    void removeConnection(v_uint64 id);
+
+    void addStatCollector(const std::shared_ptr<StatCollector>& collector);
+    void removeStatCollector(const oatpp::String& metricName);
+
+    void onConnectionRead(ConnectionStats& stats, v_io_size readResult);
+    void onConnectionWrite(ConnectionStats& stats, v_io_size writeResult);
+
+    void stop();
+
+  };
 
 private:
-  std::atomic<bool> m_running {true};
-public:
+  std::shared_ptr<Monitor> m_monitor;
+  std::shared_ptr<ConnectionProvider> m_connectionProvider;
+protected:
 
+  ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& connectionProvider);
 
+  std::shared_ptr<data::stream::IOStream> get();
+
+  void addStatCollector(const std::shared_ptr<StatCollector>& collector);
+
+  void stop();
 
 };
 
