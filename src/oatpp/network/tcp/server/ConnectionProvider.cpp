@@ -388,7 +388,6 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
     if (res >= 0) {
       break;
     }
-
   }
 
   if(m_useExtendedConnections) {

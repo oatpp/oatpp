@@ -40,6 +40,8 @@
 #include "oatpp/web/server/http2/PriorityStreamScheduler.hpp"
 #include "oatpp/web/server/http2/Http2Settings.hpp"
 
+#include "oatpp/core/concurrency/ThreadPool.hpp"
+
 #include <arpa/inet.h>
 
 
@@ -106,6 +108,7 @@ class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
 
  private:
   class TaskWorker : public oatpp::async::CoroutineWaitList::Listener {
+    friend concurrency::ThreadPool<TaskWorker>;
    public:
     class Resources {
      public:
@@ -132,7 +135,6 @@ class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
    public:
     TaskWorker(Resources *resources);
 
-    void start();
     oatpp::async::CoroutineWaitList* getWaitList();
     bool isDone();
 
@@ -141,6 +143,7 @@ class Http2StreamHandler : public async::Coroutine<Http2StreamHandler> {
   };
 
   Http2StreamHandler() = delete;
+  static concurrency::ThreadPool<TaskWorker> s_pool;
   std::shared_ptr<Task> m_task;
   std::shared_ptr<TaskWorker> m_worker;
   std::shared_ptr<TaskWorker::Resources> m_resources;

@@ -66,6 +66,8 @@ add_library(oatpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
         oatpp/core/concurrency/Thread.hpp
+        oatpp/core/concurrency/ThreadPool.cpp
+        oatpp/core/concurrency/ThreadPool.hpp
         oatpp/core/IODefinitions.cpp
         oatpp/core/IODefinitions.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp
@@ -188,6 +190,7 @@ add_library(oatpp
         oatpp/parser/json/mapping/Serializer.hpp
         oatpp/web/client/ApiClient.cpp
         oatpp/web/client/ApiClient.hpp
+        oatpp/web/client/HttpRequestExecutor.cpp
         oatpp/web/client/HttpRequestExecutor.cpp
         oatpp/web/client/HttpRequestExecutor.hpp
         oatpp/web/client/RequestExecutor.cpp

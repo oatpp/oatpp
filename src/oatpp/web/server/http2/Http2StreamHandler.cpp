@@ -176,6 +176,8 @@ void Http2StreamHandler::TaskWorker::run()  {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Http2StreamHandler Coroutine
 
+concurrency::ThreadPool<Http2StreamHandler::TaskWorker> Http2StreamHandler::s_pool;
+
 Http2StreamHandler::Http2StreamHandler(const std::shared_ptr<Task> &task)
  : m_task(task) {}
 
@@ -223,7 +225,8 @@ async::Action Http2StreamHandler::act() {
   m_resources = std::make_shared<TaskWorker::Resources>(protocol::http::incoming::Request::createShared(nullptr, startingLine, requestHeaders, m_task->data, m_task->components->bodyDecoder), m_task->components);
   m_worker = std::make_shared<TaskWorker>(m_resources.get());
 
-  m_worker->start();
+
+  s_pool.enqueue(m_worker);
   return yieldTo(&Http2StreamHandler::startWorker);
 }
 
@@ -405,24 +408,24 @@ async::Action Http2StreamHandler::handleError(async::Error *error) {
   return AbstractCoroutine::handleError(error);
 }
 
-void Http2StreamHandler::TaskWorker::start() {
-  // ToDo: Pool threads. Either with `Bench` or a similar approach as in `Executor`
-  std::thread t([this]{
-    run();
-  });
-
-  /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
-  v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
-  if (concurrency > 1) {
-    concurrency -= 1;
-  }
-
-  /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
-  oatpp::concurrency::setThreadAffinityToCpuRange(t.native_handle(),
-                                                  0,
-                                                  concurrency - 1 /* -1 because 0-based index */);
-
-  t.detach();
-}
+//void Http2StreamHandler::TaskWorker::start() {
+//  // ToDo: Pool threads. Either with `Bench` or a similar approach as in `Executor`
+//  std::thread t([this]{
+//    run();
+//  });
+//
+//  /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
+//  v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
+//  if (concurrency > 1) {
+//    concurrency -= 1;
+//  }
+//
+//  /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
+//  oatpp::concurrency::setThreadAffinityToCpuRange(t.native_handle(),
+//                                                  0,
+//                                                  concurrency - 1 /* -1 because 0-based index */);
+//
+//  t.detach();
+//}
 
 }}}}
