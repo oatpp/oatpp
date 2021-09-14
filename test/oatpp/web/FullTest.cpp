@@ -483,6 +483,12 @@ void FullTest::onRun() {
         OATPP_ASSERT(value == "Hello World!!!");
       }
 
+      { // test header replacement
+        auto response = client->getInterceptors(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getHeader("to-be-replaced") == "replaced_value");
+      }
+
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();

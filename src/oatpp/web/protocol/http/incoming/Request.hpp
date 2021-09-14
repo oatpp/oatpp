@@ -155,6 +155,22 @@ public:
   bool putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value);
 
   /**
+   * Replaces or adds header.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
+   * @return - `true` if header was replaces, `false` if header was added.
+   */
+  bool putOrReplaceHeader(const oatpp::String& key, const oatpp::String& value);
+
+  /**
+   * Replaces or adds header.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
+   * @return - `true` if header was replaces, `false` if header was added.
+   */
+  bool putOrReplaceHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
    * Add http header.
    * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
