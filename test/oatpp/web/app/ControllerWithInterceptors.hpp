@@ -83,6 +83,11 @@ public:
     response->putHeader("header-out-inter3", "inter3");
     return response;
   }
+  ENDPOINT_INTERCEPTOR(interceptor, replacer) {
+    auto response = (this->*intercepted)(request);
+    response->putOrReplaceHeader("to-be-replaced", "replaced_value");
+    return response;
+  }
   ENDPOINT_INTERCEPTOR(interceptor, asserter) {
     auto response = (this->*intercepted)(request);
 
@@ -100,8 +105,9 @@ public:
     OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2");
     OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
 
-    return createResponse(Status::CODE_200, "Hello World!!!");
-
+    auto response = createResponse(Status::CODE_200, "Hello World!!!");
+    response->putHeader("to-be-replaced", "original_value");
+    return response;
   }
 
 
