@@ -181,6 +181,46 @@ public:
   }
 
   /**
+   * Erases all occurrences of key and replaces them with a new entry
+   * @param key
+   * @param value
+   * @return - true if an entry was replaced, false if entry was only inserted.
+   */
+  bool putOrReplace(const Key& key, const StringKeyLabel& value) {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
+
+    bool needsErase = m_map.find(key) != m_map.end();
+    if (needsErase) {
+      m_map.erase(key);
+    }
+    m_map.insert({key, value});
+    m_fullyInitialized = false;
+
+    return needsErase;
+
+  }
+
+  /**
+   * Erases all occurrences of key and replaces them with a new entry. Not thread-safe.
+   * @param key
+   * @param value
+   * @return - `true` if an entry was replaced, `false` if entry was only inserted.
+   */
+  bool putOrReplace_LockFree(const Key& key, const StringKeyLabel& value) {
+
+    bool needsErase = m_map.find(key) != m_map.end();
+    if (needsErase) {
+      m_map.erase(key);
+    }
+    m_map.insert({key, value});
+    m_fullyInitialized = false;
+
+    return needsErase;
+
+  }
+
+  /**
    * Get value as &id:oatpp::String;.
    * @param key
    * @return
