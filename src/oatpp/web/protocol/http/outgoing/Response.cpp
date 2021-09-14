@@ -56,13 +56,13 @@ bool Response::putHeaderIfNotExists(const oatpp::String& key, const oatpp::Strin
   return m_headers.putIfNotExists(key, value);
 }
 
-bool Response::replaceOrPutHeader(const String &key, const String &value) {
-  return m_headers.replaceOrPut(key, value);
+bool Response::putOrReplaceHeader(const String &key, const String &value) {
+  return m_headers.putOrReplace(key, value);
 }
 
-bool Response::replaceOrPutHeader_Unsafe(const data::share::StringKeyLabelCI_FAST &key,
+bool Response::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI_FAST &key,
                                          const data::share::StringKeyLabel &value) {
-  return m_headers.replaceOrPut(key, value);
+  return m_headers.putOrReplace(key, value);
 }
 
 void Response::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {

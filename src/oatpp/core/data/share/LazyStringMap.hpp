@@ -186,7 +186,7 @@ public:
    * @param value
    * @return - true if an entry was replaced, false if entry was only inserted.
    */
-  bool replaceOrPut(const Key& key, const StringKeyLabel& value) {
+  bool putOrReplace(const Key& key, const StringKeyLabel& value) {
 
     std::lock_guard<concurrency::SpinLock> lock(m_lock);
 
@@ -202,12 +202,12 @@ public:
   }
 
   /**
- * Erases all occurrences of key and replaces them with a new entry. Not thread-safe.
- * @param key
- * @param value
- * @return - `true` if an entry was replaced, `false` if entry was only inserted.
- */
-  bool replaceOrPut_LockFree(const Key& key, const StringKeyLabel& value) {
+   * Erases all occurrences of key and replaces them with a new entry. Not thread-safe.
+   * @param key
+   * @param value
+   * @return - `true` if an entry was replaced, `false` if entry was only inserted.
+   */
+  bool putOrReplace_LockFree(const Key& key, const StringKeyLabel& value) {
 
     bool needsErase = m_map.find(key) != m_map.end();
     if (needsErase) {

@@ -85,7 +85,7 @@ public:
   }
   ENDPOINT_INTERCEPTOR(interceptor, replacer) {
     auto response = (this->*intercepted)(request);
-    response->replaceOrPutHeader("to-be-replaced", "replaced_value");
+    response->putOrReplaceHeader("to-be-replaced", "replaced_value");
     return response;
   }
   ENDPOINT_INTERCEPTOR(interceptor, asserter) {
