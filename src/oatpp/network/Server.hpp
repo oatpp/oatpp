@@ -58,6 +58,7 @@ private:
   std::function<bool()> m_condition;
   std::thread m_thread;
   std::mutex m_mutex;
+  oatpp::concurrency::SpinLock m_spinlock;
 
   std::shared_ptr<ServerConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
