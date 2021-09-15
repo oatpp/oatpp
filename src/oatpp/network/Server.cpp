@@ -163,6 +163,14 @@ v_int32 Server::getStatus() {
   return m_status.load();
 }
 
+void Server::setConnectionProvider(const std::shared_ptr<ServerConnectionProvider> &connectionProvider) {
+  m_connectionProvider = connectionProvider;
+}
+
+void Server::setConnectionHandler(const std::shared_ptr<ConnectionHandler> &connectionHandler) {
+  m_connectionHandler = connectionHandler;
+}
+
 Server::~Server() {
   stop();
 }

@@ -154,6 +154,18 @@ public:
    * </ul>
    */
   v_int32 getStatus();
+
+  /**
+   * Replaces the internal connection-provider
+   * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
+   */
+  void setConnectionProvider(const std::shared_ptr<ServerConnectionProvider>& connectionProvider);
+
+  /**
+ * Replaces the internal connection-handler
+ * @param connectionHandler - &id:oatpp::network::ConnectionHandler;.
+ */
+  void setConnectionHandler(const std::shared_ptr<ConnectionHandler>& connectionHandler);
   
 };
 
