@@ -50,11 +50,15 @@ void Server::conditionalMainLoop() {
 
   while (getStatus() == STATUS_RUNNING) {
     if (m_condition()) {
-      auto connection = m_connectionProvider->get();
-
+      std::shared_ptr<data::stream::IOStream> connection;
+      {
+        std::lock_guard<oatpp::concurrency::SpinLock> lg(m_spinlock);
+        connection = m_connectionProvider->get();
+      }
       if (connection) {
         if (getStatus() == STATUS_RUNNING) {
           if (m_condition()) {
+            std::lock_guard<oatpp::concurrency::SpinLock> lg(m_spinlock);
             m_connectionHandler->handleConnection(connection, params /* null params */);
           } else {
             setStatus(STATUS_STOPPING);
@@ -75,10 +79,15 @@ void Server::mainLoop(Server *instance) {
   std::shared_ptr<const std::unordered_map<oatpp::String, oatpp::String>> params;
 
  while (instance->getStatus() == STATUS_RUNNING) {
-    auto connection = instance->m_connectionProvider->get();
+    std::shared_ptr<data::stream::IOStream> connection;
+    {
+      std::lock_guard<oatpp::concurrency::SpinLock> lg(instance->m_spinlock);
+      connection = instance->m_connectionProvider->get();
+    }
 
     if (connection) {
       if (instance->getStatus() == STATUS_RUNNING) {
+        std::lock_guard<oatpp::concurrency::SpinLock> lg(instance->m_spinlock);
         instance->m_connectionHandler->handleConnection(connection, params /* null params */);
       } else {
         OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
@@ -161,6 +170,16 @@ void Server::setStatus(v_int32 status) {
 
 v_int32 Server::getStatus() {
   return m_status.load();
+}
+
+void Server::setConnectionProvider(const std::shared_ptr<ServerConnectionProvider> &connectionProvider) {
+  std::lock_guard<oatpp::concurrency::SpinLock> lg(m_spinlock);
+  m_connectionProvider = connectionProvider;
+}
+
+void Server::setConnectionHandler(const std::shared_ptr<ConnectionHandler> &connectionHandler) {
+  std::lock_guard<oatpp::concurrency::SpinLock> lg(m_spinlock);
+  m_connectionHandler = connectionHandler;
 }
 
 Server::~Server() {
