@@ -50,9 +50,11 @@ void Server::conditionalMainLoop() {
 
   while (getStatus() == STATUS_RUNNING) {
     if (m_condition()) {
-      m_spinlock.lock();
-      auto connection = m_connectionProvider->get();
-      m_spinlock.unlock();
+      std::shared_ptr<data::stream::IOStream> connection;
+      {
+        std::lock_guard<oatpp::concurrency::SpinLock> lg(m_spinlock);
+        connection = m_connectionProvider->get();
+      }
       if (connection) {
         if (getStatus() == STATUS_RUNNING) {
           if (m_condition()) {
@@ -77,9 +79,11 @@ void Server::mainLoop(Server *instance) {
   std::shared_ptr<const std::unordered_map<oatpp::String, oatpp::String>> params;
 
  while (instance->getStatus() == STATUS_RUNNING) {
-    instance->m_spinlock.lock();
-    auto connection = instance->m_connectionProvider->get();
-    instance->m_spinlock.unlock();
+    std::shared_ptr<data::stream::IOStream> connection;
+    {
+      std::lock_guard<oatpp::concurrency::SpinLock> lg(instance->m_spinlock);
+      connection = instance->m_connectionProvider->get();
+    }
 
     if (connection) {
       if (instance->getStatus() == STATUS_RUNNING) {
