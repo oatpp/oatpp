@@ -56,11 +56,26 @@ public:
 
   class StatCollector {
   public:
+    virtual ~StatCollector() = default;
+
     virtual oatpp::String metricName() = 0;
     virtual void* createMetricData() = 0;
     virtual void deleteMetricData(void* metricData) = 0;
     virtual void onRead(void* metricData, v_io_size readResult, v_int64 timestamp) = 0;
     virtual void onWrite(void* metricData, v_io_size writeResult, v_int64 timestamp) = 0;
+  };
+
+public:
+
+  class MetricAnalyser {
+  public:
+    virtual ~MetricAnalyser() = default;
+
+    virtual std::vector<oatpp::String> getMetricsList() = 0;
+    virtual std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) = 0;
+
+    virtual bool analyse(const ConnectionStats& stats, v_int64 currMicroTime) = 0;
+
   };
 
 private:
@@ -109,13 +124,14 @@ private:
     std::mutex m_connectionsMutex;
     std::unordered_map<v_uint64, std::weak_ptr<ConnectionProxy>> m_connections;
 
-    std::mutex m_statCollectorsMutex;
+    std::mutex m_analysersMutex;
+    std::vector<std::shared_ptr<MetricAnalyser>> m_analysers;
     std::unordered_map<oatpp::String, std::shared_ptr<StatCollector>> m_statCollectors;
 
   private:
     static void monitorTask(std::shared_ptr<Monitor> monitor);
   private:
-    void* createOrGetMetricData(ConnectionStats& stats, const std::shared_ptr<StatCollector>& collector);
+    static void* createOrGetMetricData(ConnectionStats& stats, const std::shared_ptr<StatCollector>& collector);
   public:
 
     static std::shared_ptr<Monitor> createShared();
@@ -126,6 +142,8 @@ private:
 
     void addStatCollector(const std::shared_ptr<StatCollector>& collector);
     void removeStatCollector(const oatpp::String& metricName);
+
+    void addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser);
 
     void onConnectionRead(ConnectionStats& stats, v_io_size readResult);
     void onConnectionWrite(ConnectionStats& stats, v_io_size writeResult);
