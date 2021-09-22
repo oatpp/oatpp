@@ -36,7 +36,7 @@ const v_int32 Server::STATUS_RUNNING = 2;
 const v_int32 Server::STATUS_STOPPING = 3;
 const v_int32 Server::STATUS_DONE = 4;
 
-Server::Server(const std::shared_ptr<ServerConnectionProvider> &connectionProvider,
+Server::Server(const std::shared_ptr<ConnectionProvider> &connectionProvider,
                const std::shared_ptr<ConnectionHandler> &connectionHandler)
     : m_status(STATUS_CREATED)
     , m_connectionProvider(connectionProvider)
@@ -94,7 +94,6 @@ void Server::mainLoop(Server *instance) {
       }
     }
   }
-
 
   instance->setStatus(STATUS_DONE);
 

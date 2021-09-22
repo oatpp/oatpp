@@ -60,7 +60,7 @@ private:
   std::mutex m_mutex;
   oatpp::concurrency::SpinLock m_spinlock;
 
-  std::shared_ptr<ServerConnectionProvider> m_connectionProvider;
+  std::shared_ptr<ConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
 
   bool m_threaded;
@@ -72,7 +72,7 @@ public:
    * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
    * @param connectionHandler - &id:oatpp::network::ConnectionHandler;.
    */
-  Server(const std::shared_ptr<ServerConnectionProvider>& connectionProvider,
+  Server(const std::shared_ptr<ConnectionProvider>& connectionProvider,
          const std::shared_ptr<ConnectionHandler>& connectionHandler);
 
   virtual ~Server();

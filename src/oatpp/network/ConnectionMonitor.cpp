@@ -271,9 +271,46 @@ ConnectionMonitor::ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& 
 
 std::shared_ptr<data::stream::IOStream> ConnectionMonitor::get() {
   auto connection = m_connectionProvider->get();
+  if(!connection) {
+    return nullptr;
+  }
   auto proxy = std::make_shared<ConnectionProxy>(m_monitor, m_connectionProvider, connection);
   m_monitor->addConnection((v_uint64) proxy.get(), proxy);
   return proxy;
+}
+
+async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&>
+ConnectionMonitor::getAsync() {
+
+  class GetConnectionCoroutine : public async::CoroutineWithResult<GetConnectionCoroutine, const std::shared_ptr<data::stream::IOStream>&> {
+  private:
+    std::shared_ptr<Monitor> m_monitor;
+    std::shared_ptr<ConnectionProvider> m_connectionProvider;
+  public:
+
+    GetConnectionCoroutine(const std::shared_ptr<Monitor>& monitor,
+                           const std::shared_ptr<ConnectionProvider>& connectionProvider)
+      : m_monitor(monitor)
+      , m_connectionProvider(connectionProvider)
+    {}
+
+    Action act() override {
+      return m_connectionProvider->getAsync().callbackTo(&GetConnectionCoroutine::onConnection);
+    }
+
+    Action onConnection(const std::shared_ptr<data::stream::IOStream>& connection) {
+      if(!connection) {
+        return _return(nullptr);
+      }
+      auto proxy = std::make_shared<ConnectionProxy>(m_monitor, m_connectionProvider, connection);
+      m_monitor->addConnection((v_uint64) proxy.get(), proxy);
+      return _return(proxy);
+    }
+
+  };
+
+  return GetConnectionCoroutine::startForResult(m_monitor, m_connectionProvider);
+
 }
 
 void ConnectionMonitor::addStatCollector(const std::shared_ptr<StatCollector>& collector) {
@@ -282,6 +319,11 @@ void ConnectionMonitor::addStatCollector(const std::shared_ptr<StatCollector>& c
 
 void ConnectionMonitor::addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser) {
   m_monitor->addAnalyser(analyser);
+}
+
+void ConnectionMonitor::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
+  auto proxy = std::static_pointer_cast<ConnectionProxy>(connection);
+  proxy->invalidate();
 }
 
 void ConnectionMonitor::stop() {

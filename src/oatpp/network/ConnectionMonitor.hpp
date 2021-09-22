@@ -33,7 +33,7 @@
 
 namespace oatpp { namespace network {
 
-class ConnectionMonitor {
+class ConnectionMonitor : public ConnectionProvider {
 public:
 
   struct ConnectionStats {
@@ -163,13 +163,34 @@ public:
 
   ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& connectionProvider);
 
-  std::shared_ptr<data::stream::IOStream> get();
+  std::shared_ptr<data::stream::IOStream> get() override;
+
+  async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override;
 
   void addStatCollector(const std::shared_ptr<StatCollector>& collector);
 
   void addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser);
 
-  void stop();
+  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
+
+  void stop() override;
+
+};
+
+class ConnectionMaxAgeAnalyser : public ConnectionMonitor::MetricAnalyser {
+public:
+
+  std::vector<oatpp::String> getMetricsList() {
+    return {};
+  }
+
+  std::shared_ptr<ConnectionMonitor::StatCollector> createStatCollector(const oatpp::String& metricName) {
+    return nullptr;
+  }
+
+  bool analyse(const ConnectionMonitor::ConnectionStats& stats, v_int64 currMicroTime) {
+    return currMicroTime - stats.timestampCreated < 1000 * 1000 * 20;
+  }
 
 };
 
