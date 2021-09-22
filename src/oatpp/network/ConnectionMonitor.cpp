@@ -136,6 +136,13 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
   }
 
+  {
+    std::lock_guard<std::mutex>(monitor->m_runMutex);
+    monitor->m_stopped = true;
+  }
+
+  monitor->m_runCondition.notify_all();
+
 }
 
 void* ConnectionMonitor::Monitor::createOrGetMetricData(ConnectionStats& stats, const std::shared_ptr<StatCollector>& collector) {
@@ -155,6 +162,7 @@ std::shared_ptr<ConnectionMonitor::Monitor> ConnectionMonitor::Monitor::createSh
   std::thread t([monitor](){
     ConnectionMonitor::Monitor::monitorTask(monitor);
   });
+  t.detach();
   return monitor;
 }
 
@@ -246,6 +254,10 @@ void ConnectionMonitor::Monitor::onConnectionWrite(ConnectionStats& stats, v_io_
 
 void ConnectionMonitor::Monitor::stop() {
   m_running = false;
+  std::unique_lock<std::mutex> runLock(m_runMutex);
+  while(!m_stopped) {
+    m_runCondition.wait(runLock);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +278,10 @@ std::shared_ptr<data::stream::IOStream> ConnectionMonitor::get() {
 
 void ConnectionMonitor::addStatCollector(const std::shared_ptr<StatCollector>& collector) {
   m_monitor->addStatCollector(collector);
+}
+
+void ConnectionMonitor::addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser) {
+  m_monitor->addAnalyser(analyser);
 }
 
 void ConnectionMonitor::stop() {

@@ -28,7 +28,8 @@
 #include "./ConnectionProvider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
-#include "unordered_map"
+#include <unordered_map>
+#include <condition_variable>
 
 namespace oatpp { namespace network {
 
@@ -54,7 +55,7 @@ public:
 
 public:
 
-  class StatCollector {
+  class StatCollector : public oatpp::base::Countable {
   public:
     virtual ~StatCollector() = default;
 
@@ -67,7 +68,7 @@ public:
 
 public:
 
-  class MetricAnalyser {
+  class MetricAnalyser : public oatpp::base::Countable  {
   public:
     virtual ~MetricAnalyser() = default;
 
@@ -116,10 +117,13 @@ private:
 
 private:
 
-  class Monitor {
+  class Monitor : public oatpp::base::Countable {
   private:
 
+    std::mutex m_runMutex;
+    std::condition_variable m_runCondition;
     std::atomic<bool> m_running {true};
+    bool m_stopped {false};
 
     std::mutex m_connectionsMutex;
     std::unordered_map<v_uint64, std::weak_ptr<ConnectionProxy>> m_connections;
@@ -155,13 +159,15 @@ private:
 private:
   std::shared_ptr<Monitor> m_monitor;
   std::shared_ptr<ConnectionProvider> m_connectionProvider;
-protected:
+public:
 
   ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& connectionProvider);
 
   std::shared_ptr<data::stream::IOStream> get();
 
   void addStatCollector(const std::shared_ptr<StatCollector>& collector);
+
+  void addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser);
 
   void stop();
 

@@ -61,6 +61,8 @@ add_executable(oatppAllTests
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
+        oatpp/network/ConnectionMonitorTest.cpp
+        oatpp/network/ConnectionMonitorTest.hpp
         oatpp/network/ConnectionPoolTest.cpp
         oatpp/network/ConnectionPoolTest.hpp
         oatpp/network/UrlTest.cpp
