@@ -15,7 +15,7 @@
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
 #include "oatpp/network/UrlTest.hpp"
 #include "oatpp/network/ConnectionPoolTest.hpp"
-#include "oatpp/network/ConnectionMonitorTest.hpp"
+#include "oatpp/network/monitor/ConnectionMonitorTest.hpp"
 
 #include "oatpp/parser/json/mapping/DeserializerTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
@@ -128,7 +128,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
   OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
 */
-  OATPP_RUN_TEST(oatpp::test::network::ConnectionMonitorTest);
+  OATPP_RUN_TEST(oatpp::test::network::monitor::ConnectionMonitorTest);
 /*
   OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
   OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);

@@ -138,6 +138,12 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.cpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.hpp
+        oatpp/network/monitor/ConnectionMonitor.cpp
+        oatpp/network/monitor/ConnectionMonitor.hpp
+        oatpp/network/monitor/MetricsChecker.hpp
+        oatpp/network/monitor/StatCollector.hpp
         oatpp/network/tcp/client/ConnectionProvider.cpp
         oatpp/network/tcp/client/ConnectionProvider.hpp
         oatpp/network/tcp/server/ConnectionProvider.cpp
@@ -157,8 +163,6 @@ add_library(oatpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
         oatpp/network/ConnectionHandler.hpp
-        oatpp/network/ConnectionMonitor.cpp
-        oatpp/network/ConnectionMonitor.hpp
         oatpp/network/ConnectionPool.cpp
         oatpp/network/ConnectionPool.hpp
         oatpp/network/ConnectionProvider.cpp

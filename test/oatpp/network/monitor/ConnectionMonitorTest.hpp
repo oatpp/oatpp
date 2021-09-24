@@ -22,22 +22,22 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_network_ConnectionMonitorTest_hpp
-#define oatpp_test_network_ConnectionMonitorTest_hpp
+#ifndef oatpp_test_network_monitor_ConnectionMonitorTest_hpp
+#define oatpp_test_network_monitor_ConnectionMonitorTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace network {
+namespace oatpp { namespace test { namespace network { namespace monitor {
 
 class ConnectionMonitorTest : public UnitTest {
 public:
 
-  ConnectionMonitorTest():UnitTest("TEST[network::ConnectionMonitorTest]"){}
+  ConnectionMonitorTest():UnitTest("TEST[network::monitor::ConnectionMonitorTest]"){}
   void onRun() override;
 
 };
 
-}}}
+}}}}
 
 
-#endif // oatpp_test_network_ConnectionMonitorTest_hpp
+#endif // oatpp_test_network_monitor_ConnectionMonitorTest_hpp

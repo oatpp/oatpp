@@ -27,7 +27,7 @@
 #include <chrono>
 #include <thread>
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace network { namespace monitor {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionMonitor::ConnectionProxy
@@ -48,9 +48,9 @@ ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
 
   m_monitor->freeConnectionStats(m_stats);
 
-  if(m_stats.metricData.size() > 0) {
+  if(m_stats.metricsData.size() > 0) {
 
-    for(auto& pair : m_stats.metricData) {
+    for(auto& pair : m_stats.metricsData) {
       OATPP_LOGE("[oatpp::network::ConnectionMonitor::ConnectionProxy::~ConnectionProxy()]",
                  "Error. Memory leak. Metric data was not deleted: Metric name - '%s'", pair.first->c_str());
     }
@@ -118,10 +118,10 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
         auto connection = pair.second.lock();
         std::lock_guard<std::mutex> dataLock(connection->m_statsMutex);
-        std::lock_guard<std::mutex> analysersLock(monitor->m_analysersMutex);
+        std::lock_guard<std::mutex> analysersLock(monitor->m_checkMutex);
 
-        for(auto& a : monitor->m_analysers) {
-          bool res = a->analyse(connection->m_stats, currMicroTime);
+        for(auto& a : monitor->m_metricsCheckers) {
+          bool res = a->check(connection->m_stats, currMicroTime);
           if(!res) {
             connection->invalidate();
             break;
@@ -147,10 +147,10 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
 void* ConnectionMonitor::Monitor::createOrGetMetricData(ConnectionStats& stats, const std::shared_ptr<StatCollector>& collector) {
   void* data;
-  auto it = stats.metricData.find(collector->metricName());
-  if(it == stats.metricData.end()) {
+  auto it = stats.metricsData.find(collector->metricName());
+  if(it == stats.metricsData.end()) {
     data = collector->createMetricData();
-    stats.metricData.insert({collector->metricName(), data});
+    stats.metricsData.insert({collector->metricName(), data});
   } else {
     data = it->second;
   }
@@ -173,9 +173,9 @@ void ConnectionMonitor::Monitor::addConnection(v_uint64 id, const std::weak_ptr<
 
 void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
 
-  std::lock_guard<std::mutex> lock(m_analysersMutex);
+  std::lock_guard<std::mutex> lock(m_checkMutex);
 
-  for(auto& metric : stats.metricData) {
+  for(auto& metric : stats.metricsData) {
     auto it = m_statCollectors.find(metric.first);
     if(it != m_statCollectors.end()) {
       it->second->deleteMetricData(metric.second);
@@ -193,23 +193,23 @@ void ConnectionMonitor::Monitor::removeConnection(v_uint64 id) {
 }
 
 void ConnectionMonitor::Monitor::addStatCollector(const std::shared_ptr<StatCollector>& collector) {
-  std::lock_guard<std::mutex> lock(m_analysersMutex);
+  std::lock_guard<std::mutex> lock(m_checkMutex);
   m_statCollectors.insert({collector->metricName(), collector});
 }
 
 void ConnectionMonitor::Monitor::removeStatCollector(const oatpp::String& metricName) {
-  std::lock_guard<std::mutex> lock(m_analysersMutex);
+  std::lock_guard<std::mutex> lock(m_checkMutex);
   m_statCollectors.erase(metricName);
 }
 
-void ConnectionMonitor::Monitor::addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser) {
-  std::lock_guard<std::mutex> lock(m_analysersMutex);
-  m_analysers.push_back(analyser);
-  auto metrics = analyser->getMetricsList();
+void ConnectionMonitor::Monitor::addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker) {
+  std::lock_guard<std::mutex> lock(m_checkMutex);
+  m_metricsCheckers.push_back(checker);
+  auto metrics = checker->getMetricsList();
   for(auto& m : metrics) {
     auto it = m_statCollectors.find(m);
     if(it == m_statCollectors.end()) {
-      m_statCollectors.insert({m, analyser->createStatCollector(m)});
+      m_statCollectors.insert({m, checker->createStatCollector(m)});
     }
   }
 }
@@ -225,7 +225,7 @@ void ConnectionMonitor::Monitor::onConnectionRead(ConnectionStats& stats, v_io_s
   }
 
   {
-    std::lock_guard<std::mutex> lock(m_analysersMutex);
+    std::lock_guard<std::mutex> lock(m_checkMutex);
     for(auto& pair : m_statCollectors) {
       pair.second->onRead(createOrGetMetricData(stats, pair.second), readResult, currTimestamp);
     }
@@ -244,7 +244,7 @@ void ConnectionMonitor::Monitor::onConnectionWrite(ConnectionStats& stats, v_io_
   }
 
   {
-    std::lock_guard<std::mutex> lock(m_analysersMutex);
+    std::lock_guard<std::mutex> lock(m_checkMutex);
     for(auto& pair : m_statCollectors) {
       pair.second->onWrite(createOrGetMetricData(stats, pair.second), writeResult, currTimestamp);
     }
@@ -317,8 +317,8 @@ void ConnectionMonitor::addStatCollector(const std::shared_ptr<StatCollector>& c
   m_monitor->addStatCollector(collector);
 }
 
-void ConnectionMonitor::addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser) {
-  m_monitor->addAnalyser(analyser);
+void ConnectionMonitor::addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker) {
+  m_monitor->addMetricsChecker(checker);
 }
 
 void ConnectionMonitor::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
@@ -330,4 +330,4 @@ void ConnectionMonitor::stop() {
   m_monitor->stop();
 }
 
-}}
+}}}

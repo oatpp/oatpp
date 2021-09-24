@@ -27,14 +27,16 @@
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 
-#include "oatpp/network/ConnectionMonitor.hpp"
+#include "oatpp/network/monitor/ConnectionMonitor.hpp"
+#include "oatpp/network/monitor/ConnectionMaxAgeChecker.hpp"
+
 #include "oatpp/network/Server.hpp"
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
 
 #include <thread>
 
-namespace oatpp { namespace test { namespace network {
+namespace oatpp { namespace test { namespace network { namespace monitor {
 
 namespace {
 
@@ -62,7 +64,7 @@ public:
 
 };
 
-std::shared_ptr<oatpp::network::Server> runServer(const std::shared_ptr<oatpp::network::ConnectionMonitor>& monitor) {
+std::shared_ptr<oatpp::network::Server> runServer(const std::shared_ptr<oatpp::network::monitor::ConnectionMonitor>& monitor) {
 
   auto router = oatpp::web::server::HttpRouter::createShared();
   router->route("GET", "/stream", std::make_shared<StreamingHandler>());
@@ -85,9 +87,13 @@ std::shared_ptr<oatpp::network::Server> runServer(const std::shared_ptr<oatpp::n
 void ConnectionMonitorTest::onRun() {
 
   auto connectionProvider = oatpp::network::tcp::server::ConnectionProvider::createShared({"0.0.0.0", 8000, oatpp::network::Address::IP_4});
-  auto monitor = std::make_shared<oatpp::network::ConnectionMonitor>(connectionProvider);
+  auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
 
-  monitor->addAnalyser(std::make_shared<oatpp::network::ConnectionMaxAgeAnalyser>());
+  monitor->addMetricsChecker(
+    std::make_shared<oatpp::network::monitor::ConnectionMaxAgeChecker>(
+        std::chrono::seconds(10)
+      )
+  );
 
   auto server = runServer(monitor);
 
@@ -97,4 +103,4 @@ void ConnectionMonitorTest::onRun() {
 
 }
 
-}}}
+}}}}

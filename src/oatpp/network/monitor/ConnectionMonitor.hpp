@@ -22,63 +22,20 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_network_ConnectionMonitor_hpp
-#define oatpp_network_ConnectionMonitor_hpp
+#ifndef oatpp_network_monitor_ConnectionMonitor_hpp
+#define oatpp_network_monitor_ConnectionMonitor_hpp
 
-#include "./ConnectionProvider.hpp"
+#include "MetricsChecker.hpp"
+
+#include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
 #include <unordered_map>
 #include <condition_variable>
 
-namespace oatpp { namespace network {
+namespace oatpp { namespace network { namespace monitor {
 
 class ConnectionMonitor : public ConnectionProvider {
-public:
-
-  struct ConnectionStats {
-
-    v_int64 timestampCreated = 0;
-
-    v_io_size totalRead = 0;
-    v_io_size totalWrite = 0;
-
-    v_int64 timestampLastRead = 0;
-    v_int64 timestampLastWrite = 0;
-
-    v_io_size lastReadSize = 0;
-    v_io_size lastWriteSize = 0;
-
-    std::unordered_map<oatpp::String, void*> metricData;
-
-  };
-
-public:
-
-  class StatCollector : public oatpp::base::Countable {
-  public:
-    virtual ~StatCollector() = default;
-
-    virtual oatpp::String metricName() = 0;
-    virtual void* createMetricData() = 0;
-    virtual void deleteMetricData(void* metricData) = 0;
-    virtual void onRead(void* metricData, v_io_size readResult, v_int64 timestamp) = 0;
-    virtual void onWrite(void* metricData, v_io_size writeResult, v_int64 timestamp) = 0;
-  };
-
-public:
-
-  class MetricAnalyser : public oatpp::base::Countable  {
-  public:
-    virtual ~MetricAnalyser() = default;
-
-    virtual std::vector<oatpp::String> getMetricsList() = 0;
-    virtual std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) = 0;
-
-    virtual bool analyse(const ConnectionStats& stats, v_int64 currMicroTime) = 0;
-
-  };
-
 private:
 
   class Monitor; // FWD
@@ -128,8 +85,8 @@ private:
     std::mutex m_connectionsMutex;
     std::unordered_map<v_uint64, std::weak_ptr<ConnectionProxy>> m_connections;
 
-    std::mutex m_analysersMutex;
-    std::vector<std::shared_ptr<MetricAnalyser>> m_analysers;
+    std::mutex m_checkMutex;
+    std::vector<std::shared_ptr<MetricsChecker>> m_metricsCheckers;
     std::unordered_map<oatpp::String, std::shared_ptr<StatCollector>> m_statCollectors;
 
   private:
@@ -147,7 +104,7 @@ private:
     void addStatCollector(const std::shared_ptr<StatCollector>& collector);
     void removeStatCollector(const oatpp::String& metricName);
 
-    void addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser);
+    void addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker);
 
     void onConnectionRead(ConnectionStats& stats, v_io_size readResult);
     void onConnectionWrite(ConnectionStats& stats, v_io_size writeResult);
@@ -169,7 +126,7 @@ public:
 
   void addStatCollector(const std::shared_ptr<StatCollector>& collector);
 
-  void addAnalyser(const std::shared_ptr<MetricAnalyser>& analyser);
+  void addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker);
 
   void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
@@ -177,23 +134,6 @@ public:
 
 };
 
-class ConnectionMaxAgeAnalyser : public ConnectionMonitor::MetricAnalyser {
-public:
+}}}
 
-  std::vector<oatpp::String> getMetricsList() {
-    return {};
-  }
-
-  std::shared_ptr<ConnectionMonitor::StatCollector> createStatCollector(const oatpp::String& metricName) {
-    return nullptr;
-  }
-
-  bool analyse(const ConnectionMonitor::ConnectionStats& stats, v_int64 currMicroTime) {
-    return currMicroTime - stats.timestampCreated < 1000 * 1000 * 20;
-  }
-
-};
-
-}}
-
-#endif //oatpp_network_ConnectionMonitor_hpp
+#endif //oatpp_network_monitor_ConnectionMonitor_hpp
