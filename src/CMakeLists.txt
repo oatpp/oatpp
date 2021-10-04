@@ -138,6 +138,8 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
+        oatpp/network/monitor/ConnectionInactivityChecker.cpp
+        oatpp/network/monitor/ConnectionInactivityChecker.hpp
         oatpp/network/monitor/ConnectionMaxAgeChecker.cpp
         oatpp/network/monitor/ConnectionMaxAgeChecker.hpp
         oatpp/network/monitor/ConnectionMonitor.cpp
