@@ -140,7 +140,7 @@ std::shared_ptr<oatpp::network::Server> runAsyncServer(const std::shared_ptr<oat
 void runClient() {
 
   auto connectionProvider = oatpp::network::tcp::client::ConnectionProvider::createShared(
-    {"0.0.0.0", 8000, oatpp::network::Address::IP_4});
+    {"localhost", 8000});
   oatpp::web::client::HttpRequestExecutor executor(connectionProvider);
 
   auto response = executor.execute("GET", "/stream", oatpp::web::protocol::http::Headers({}), nullptr, nullptr);
@@ -164,7 +164,7 @@ void runAsyncClient() {
 
     ClientCoroutine() {
       auto connectionProvider = oatpp::network::tcp::client::ConnectionProvider::createShared(
-        {"0.0.0.0", 8000, oatpp::network::Address::IP_4});
+        {"localhost", 8000});
 
       m_monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
 
@@ -214,7 +214,8 @@ void runAsyncClient() {
 
 void ConnectionMonitorTest::onRun() {
 
-  auto connectionProvider = oatpp::network::tcp::server::ConnectionProvider::createShared({"0.0.0.0", 8000, oatpp::network::Address::IP_4});
+  auto connectionProvider = oatpp::network::tcp::server::ConnectionProvider::createShared(
+    {"localhost", 8000});
   auto monitor = std::make_shared<oatpp::network::monitor::ConnectionMonitor>(connectionProvider);
 
   monitor->addMetricsChecker(
