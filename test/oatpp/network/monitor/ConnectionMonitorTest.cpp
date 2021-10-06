@@ -46,7 +46,7 @@ class ReadCallback : public oatpp::data::stream::ReadCallback {
 public:
 
   v_io_size read(void *buffer, v_buff_size count, async::Action &action) override {
-    OATPP_LOGE("TEST", "read(...)")
+    OATPP_LOGI("TEST", "read(...)")
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     char* data = (char*) buffer;
     data[0] = 'A';
