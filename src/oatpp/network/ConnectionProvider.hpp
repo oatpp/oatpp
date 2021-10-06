@@ -57,13 +57,13 @@ public:
 /**
  * No properties here. It is just a logical division
  */
-class ServerConnectionProvider : public ConnectionProvider {
+class ServerConnectionProvider : virtual public ConnectionProvider {
 };
 
 /**
  * No properties here. It is just a logical division
  */
-class ClientConnectionProvider : public ConnectionProvider {
+class ClientConnectionProvider : virtual public ConnectionProvider {
 };
   
 }}

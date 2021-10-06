@@ -35,7 +35,7 @@ namespace oatpp { namespace provider {
  * @tparam T - resource class.
  */
 template <class T>
-class Provider {
+class Provider : public oatpp::base::Countable {
 protected:
 
   void setProperty(const oatpp::String& key, const oatpp::String& value) {

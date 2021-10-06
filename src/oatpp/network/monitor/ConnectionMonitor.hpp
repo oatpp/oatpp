@@ -35,7 +35,7 @@
 
 namespace oatpp { namespace network { namespace monitor {
 
-class ConnectionMonitor : public ConnectionProvider {
+class ConnectionMonitor : public ClientConnectionProvider, public ServerConnectionProvider {
 private:
 
   class Monitor; // FWD
