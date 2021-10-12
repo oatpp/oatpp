@@ -35,7 +35,7 @@ namespace oatpp { namespace network { namespace tcp { namespace client {
 /**
  * Simple provider of clinet TCP connections.
  */
-class ConnectionProvider : public base::Countable, public ClientConnectionProvider {
+class ConnectionProvider : public ClientConnectionProvider {
 protected:
   network::Address m_address;
 public:

@@ -61,14 +61,16 @@ add_executable(oatppAllTests
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
-        oatpp/network/ConnectionPoolTest.cpp
-        oatpp/network/ConnectionPoolTest.hpp
-        oatpp/network/UrlTest.cpp
-        oatpp/network/UrlTest.hpp
+        oatpp/network/monitor/ConnectionMonitorTest.cpp
+        oatpp/network/monitor/ConnectionMonitorTest.hpp
         oatpp/network/virtual_/InterfaceTest.cpp
         oatpp/network/virtual_/InterfaceTest.hpp
         oatpp/network/virtual_/PipeTest.cpp
         oatpp/network/virtual_/PipeTest.hpp
+        oatpp/network/ConnectionPoolTest.cpp
+        oatpp/network/ConnectionPoolTest.hpp
+        oatpp/network/UrlTest.cpp
+        oatpp/network/UrlTest.hpp
         oatpp/parser/json/mapping/DTOMapperPerfTest.cpp
         oatpp/parser/json/mapping/DTOMapperPerfTest.hpp
         oatpp/parser/json/mapping/DTOMapperTest.cpp
