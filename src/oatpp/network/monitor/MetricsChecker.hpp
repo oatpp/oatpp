@@ -29,13 +29,39 @@
 
 namespace oatpp { namespace network { namespace monitor {
 
+/**
+ * MetricsChecker checks &id:oatpp::network::monitor::ConnectionStats; if those are satisfy the rule.
+ */
 class MetricsChecker : public oatpp::base::Countable  {
 public:
+
+  /**
+   * Default virtual destructor.
+   */
   virtual ~MetricsChecker() = default;
 
+  /**
+   * Get list of metrics names that are checked by this MetricsChecker.
+   * @return
+   */
   virtual std::vector<oatpp::String> getMetricsList() = 0;
+
+  /**
+   * Create &id:oatpp::network::monitor::StatCollector; for given `metricName`.
+   * This method will be called by &id:oatpp::network::monitor::ConnectionMonitor; only if there is
+   * no such `StatCollector` registered in the `ConnectionMonitor` yet.
+   * @param metricName - name of the metric.
+   * @return - &id:oatpp::network::monitor::StatCollector;.
+   */
   virtual std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) = 0;
 
+  /**
+   * Called by &id:oatpp::network::monitor::ConnectionMonitor; on each
+   * time interval to check if connection satisfies the rule.
+   * @param stats - &id:oatpp::network::monitor::ConnectionStats;.
+   * @param currMicroTime - current time microseconds.
+   * @return - `true` if connection satisfies the rule. `false` if connection should be closed.
+   */
   virtual bool check(const ConnectionStats& stats, v_int64 currMicroTime) = 0;
 
 };

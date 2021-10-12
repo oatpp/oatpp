@@ -35,6 +35,10 @@
 
 namespace oatpp { namespace network { namespace monitor {
 
+/**
+ * ConnectionMonitor is a middleman who's able to manage provided connections
+ * and close those ones that are not satisfy selected rules.
+ */
 class ConnectionMonitor : public ClientConnectionProvider, public ServerConnectionProvider {
 private:
 
@@ -118,6 +122,10 @@ private:
   std::shared_ptr<ConnectionProvider> m_connectionProvider;
 public:
 
+  /**
+   * Constructor.
+   * @param connectionProvider - underlying connection provider.
+   */
   ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& connectionProvider);
 
   std::shared_ptr<data::stream::IOStream> get() override;
@@ -126,6 +134,10 @@ public:
 
   void addStatCollector(const std::shared_ptr<StatCollector>& collector);
 
+  /**
+   * Add metrics checker.
+   * @param checker - &id:oatpp::network::monitor::MetricsChecker;.
+   */
   void addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker);
 
   void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;

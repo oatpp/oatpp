@@ -29,12 +29,21 @@
 
 namespace oatpp { namespace network { namespace monitor {
 
+/**
+ * ConnectionInactivityChecker - checks if a connection is inactive (has no read/writes) and whether it should be closed.
+ * Extends - &id:oatpp::network::monitor::MetricsChecker;.
+ */
 class ConnectionInactivityChecker : public MetricsChecker {
 private:
   std::chrono::duration<v_int64, std::micro> m_lastReadTimeout;
   std::chrono::duration<v_int64, std::micro> m_lastWriteTimeout;
 public:
 
+  /**
+   * Constructor.
+   * @param lastReadTimeout - how long can live connection without reads.
+   * @param lastWriteTimeout - how long can live connection without writes.
+   */
   ConnectionInactivityChecker(const std::chrono::duration<v_int64, std::micro>& lastReadTimeout,
                               const std::chrono::duration<v_int64, std::micro>& lastWriteTimeout);
 

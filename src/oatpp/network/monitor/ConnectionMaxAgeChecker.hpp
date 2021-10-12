@@ -29,11 +29,19 @@
 
 namespace oatpp { namespace network { namespace monitor {
 
+/**
+ * ConnectionMaxAgeChecker - checks if connection is too old and should be closed.
+ * Extends - &id:oatpp::network::monitor::MetricsChecker;.
+ */
 class ConnectionMaxAgeChecker : public MetricsChecker {
 private:
   std::chrono::duration<v_int64, std::micro> m_maxAge;
 public:
 
+  /**
+   * Constructor.
+   * @param maxAge - how long should connection live.
+   */
   ConnectionMaxAgeChecker(const std::chrono::duration<v_int64, std::micro>& maxAge);
 
   std::vector<oatpp::String> getMetricsList();
