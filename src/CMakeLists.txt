@@ -62,8 +62,6 @@ add_library(oatpp
         oatpp/core/base/memory/ObjectPool.cpp
         oatpp/core/base/memory/ObjectPool.hpp
         oatpp/core/collection/FastQueue.hpp
-        oatpp/core/collection/LinkedList.hpp
-        oatpp/core/collection/ListMap.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
@@ -109,6 +107,8 @@ add_library(oatpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
+        oatpp/core/data/stream/FIFOStream.cpp
+        oatpp/core/data/stream/FIFOStream.hpp
         oatpp/core/data/stream/FileStream.cpp
         oatpp/core/data/stream/FileStream.hpp
         oatpp/core/data/stream/Stream.cpp
@@ -138,6 +138,14 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
+        oatpp/network/monitor/ConnectionInactivityChecker.cpp
+        oatpp/network/monitor/ConnectionInactivityChecker.hpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.cpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.hpp
+        oatpp/network/monitor/ConnectionMonitor.cpp
+        oatpp/network/monitor/ConnectionMonitor.hpp
+        oatpp/network/monitor/MetricsChecker.hpp
+        oatpp/network/monitor/StatCollector.hpp
         oatpp/network/tcp/client/ConnectionProvider.cpp
         oatpp/network/tcp/client/ConnectionProvider.hpp
         oatpp/network/tcp/server/ConnectionProvider.cpp
@@ -277,6 +285,9 @@ set_target_properties(oatpp PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp PRIVATE /permissive-)
+endif()
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
@@ -321,6 +332,9 @@ set_target_properties(oatpp-test PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp-test PRIVATE /permissive-)
+endif()
 
 target_link_libraries(oatpp-test PUBLIC oatpp)
 

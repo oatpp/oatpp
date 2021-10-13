@@ -147,7 +147,7 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
       , m_stream(stream)
     {}
 
-    Action act() {
+    Action act() override {
       if(m_inlineData.currBufferPtr == nullptr) {
         m_inlineData.currBufferPtr = m_this->m_data;
         m_inlineData.bytesLeft = m_this->m_position;
@@ -236,6 +236,29 @@ v_buff_size BufferInputStream::getCurrentPosition() {
 
 void BufferInputStream::setCurrentPosition(v_buff_size position) {
   m_position = position;
+}
+
+v_io_size BufferInputStream::peek(void *data, v_buff_size count, async::Action &action) {
+  (void) action;
+
+  v_buff_size desiredAmount = count;
+  if(desiredAmount > m_size - m_position) {
+    desiredAmount = m_size - m_position;
+  }
+  std::memcpy(data, &m_data[m_position], desiredAmount);
+  return desiredAmount;
+}
+
+v_io_size BufferInputStream::availableToRead() const {
+  return m_size - m_position;
+}
+
+v_io_size BufferInputStream::commitReadOffset(v_buff_size count) {
+  if(count > m_size - m_position) {
+    count = m_size - m_position;
+  }
+  m_position += count;
+  return count;
 }
 
 }}}

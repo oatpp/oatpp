@@ -101,5 +101,9 @@ oatpp::data::stream::IOMode InputStreamBufferedProxy::getInputStreamIOMode() {
 Context& InputStreamBufferedProxy::getInputStreamContext() {
   return m_inputStream->getInputStreamContext();
 }
-  
+
+v_io_size InputStreamBufferedProxy::availableToRead() const {
+  return m_buffer.availableToRead();
+}
+
 }}}

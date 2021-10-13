@@ -36,7 +36,7 @@ namespace oatpp { namespace network { namespace tcp { namespace server {
 /**
  * Simple provider of TCP connections.
  */
-class ConnectionProvider : public base::Countable, public ServerConnectionProvider {
+class ConnectionProvider : public ServerConnectionProvider {
 public:
 
   /**

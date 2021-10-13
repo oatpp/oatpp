@@ -28,7 +28,6 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
@@ -70,7 +69,7 @@ public:
    * If body size is unknown then should return -1.
    * @return - &id:oatpp::v_io_size;.
    */
-  virtual v_buff_size getKnownSize() = 0;
+  virtual v_int64 getKnownSize() = 0;
   
 };
   

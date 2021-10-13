@@ -48,12 +48,25 @@ protocol::http::Headers& Response::getHeaders() {
   return m_headers;
 }
 
+std::shared_ptr<Body> Response::getBody() const {
+  return m_body;
+}
+
 void Response::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
 
 bool Response::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value) {
   return m_headers.putIfNotExists(key, value);
+}
+
+bool Response::putOrReplaceHeader(const String &key, const String &value) {
+  return m_headers.putOrReplace(key, value);
+}
+
+bool Response::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI& key,
+                                         const data::share::StringKeyLabel &value) {
+  return m_headers.putOrReplace(key, value);
 }
 
 void Response::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
@@ -89,7 +102,7 @@ void Response::send(data::stream::OutputStream* stream,
                     http::encoding::EncoderProvider* contentEncoderProvider)
 {
 
-  v_buff_size bodySize = -1;
+  v_int64 bodySize = -1;
 
   if(m_body){
 
@@ -132,14 +145,20 @@ void Response::send(data::stream::OutputStream* stream,
 
       if (bodySize >= 0) {
 
-        if (bodySize + headersWriteBuffer->getCurrentPosition() < headersWriteBuffer->getCapacity()) {
-          headersWriteBuffer->writeSimple(m_body->getKnownData(), bodySize);
+        if(m_body->getKnownData() == nullptr) {
           headersWriteBuffer->flushToStream(stream);
-        } else {
-          headersWriteBuffer->flushToStream(stream);
-          stream->writeExactSizeDataSimple(m_body->getKnownData(), bodySize);
+          /* Reuse headers buffer */
+          /* Transfer without chunked encoder */
+          data::stream::transfer(m_body, stream, 0, headersWriteBuffer->getData(), headersWriteBuffer->getCapacity());
+        } else { 
+          if (bodySize + headersWriteBuffer->getCurrentPosition() < headersWriteBuffer->getCapacity()) {
+            headersWriteBuffer->writeSimple(m_body->getKnownData(), bodySize);
+            headersWriteBuffer->flushToStream(stream);
+          } else {
+            headersWriteBuffer->flushToStream(stream);
+            stream->writeExactSizeDataSimple(m_body->getKnownData(), bodySize);
+          }
         }
-
       } else {
 
         headersWriteBuffer->flushToStream(stream);

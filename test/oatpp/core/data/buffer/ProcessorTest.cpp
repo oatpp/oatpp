@@ -93,7 +93,7 @@ public:
   ProcessorToUpper(v_int32 bufferSize) : BaseProcessor(bufferSize) {}
 
   void process(p_char8 data, v_buff_size size) override {
-    utils::String::upperCaseASCII(data, size);
+    utils::String::upperCase_ASCII(data, size);
   }
 
 };
@@ -104,7 +104,7 @@ public:
   ProcessorToLower(v_int32 bufferSize) : BaseProcessor(bufferSize) {}
 
   void process(p_char8 data, v_buff_size size) override {
-    utils::String::lowerCaseASCII(data, size);
+    utils::String::lowerCase_ASCII(data, size);
   }
 
 };

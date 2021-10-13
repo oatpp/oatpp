@@ -25,9 +25,10 @@
 #ifndef oatpp_data_stream_ChunkedBuffer_hpp
 #define oatpp_data_stream_ChunkedBuffer_hpp
 
+#include <list>
+
 #include "Stream.hpp"
 
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
@@ -99,7 +100,7 @@ public:
   };
   
 public:
-  typedef oatpp::collection::LinkedList<std::shared_ptr<Chunk>> Chunks;
+  typedef std::list<std::shared_ptr<Chunk>> Chunks;
 private:
 
   v_buff_size m_size;

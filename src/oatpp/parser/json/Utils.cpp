@@ -29,7 +29,7 @@
 
 namespace oatpp { namespace parser { namespace json{
 
-v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize) {
+v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags) {
   v_buff_size result = 0;
   v_buff_size i = 0;
   safeSize = size;
@@ -37,18 +37,39 @@ v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_b
     v_char8 a = data[i];
     if(a < 32) {
       i ++;
-      if(a == '\b' || a == '\f' || a == '\n' || a == '\r' || a == '\t'){
-        result += 2; // '\n'
-      } else {
-        result += 6; // '\uFFFF' - 6 chars
+
+      switch (a) {
+
+        case '\b':
+        case '\f':
+        case '\n':
+        case '\r':
+        case '\t': result += 2; break; // '\n'
+
+        default:
+          result += 6; // '\uFFFF' - 6 chars
+          break;
+
       }
+
     } else if(a < 128){
       i ++;
-      if(a == '\"' || a == '\\' || a == '/'){
-        result += 2; // '\/'
-      } else {
-        result ++;
+
+      switch (a) {
+        case '\"':
+        case '\\': result += 2; break; // '\/'
+
+        case '/':
+          result ++;
+          if((flags & FLAG_ESCAPE_SOLIDUS) > 0) result ++;
+          break;
+
+        default:
+          result ++;
+          break;
+
       }
+
     } else {
       v_buff_size charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
       if(charSize != 0) {
@@ -195,10 +216,10 @@ v_buff_size Utils::escapeUtf8Char(const char* sequence, p_char8 buffer){
     return 11;
   }
 }
-  
-oatpp::String Utils::escapeString(const char* data, v_buff_size size) {
+
+oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 flags) {
   v_buff_size safeSize;
-  v_buff_size escapedSize = calcEscapedStringSize(data, size, safeSize);
+  v_buff_size escapedSize = calcEscapedStringSize(data, size, safeSize, flags);
   if(escapedSize == size) {
     return String((const char*)data, size);
   }
@@ -211,43 +232,51 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size) {
     while (i < safeSize) {
       v_char8 a = data[i];
       if (a < 32) {
-        if (a == '\b') {
-          resultData[pos] = '\\'; resultData[pos + 1] = 'b'; pos += 2;
+
+        switch (a) {
+
+          case '\b': resultData[pos] = '\\'; resultData[pos + 1] = 'b'; pos += 2; break;
+          case '\f': resultData[pos] = '\\'; resultData[pos + 1] = 'f'; pos += 2; break;
+          case '\n': resultData[pos] = '\\'; resultData[pos + 1] = 'n'; pos += 2; break;
+          case '\r': resultData[pos] = '\\'; resultData[pos + 1] = 'r'; pos += 2; break;
+          case '\t': resultData[pos] = '\\'; resultData[pos + 1] = 't'; pos += 2; break;
+
+          default:
+            resultData[pos] = '\\';
+            resultData[pos + 1] = 'u';
+            oatpp::encoding::Hex::writeUInt16(a, &resultData[pos + 2]);
+            pos += 6;
+            break;
+
         }
-        else if (a == '\f') {
-          resultData[pos] = '\\'; resultData[pos + 1] = 'f'; pos += 2;
-        }
-        else if (a == '\n') {
-          resultData[pos] = '\\'; resultData[pos + 1] = 'n'; pos += 2;
-        }
-        else if (a == '\r') {
-          resultData[pos] = '\\'; resultData[pos + 1] = 'r'; pos += 2;
-        }
-        else if (a == '\t') {
-          resultData[pos] = '\\'; resultData[pos + 1] = 't'; pos += 2;
-        }
-        else {
-          resultData[pos] = '\\';
-          resultData[pos + 1] = 'u';
-          oatpp::encoding::Hex::writeUInt16(a, &resultData[pos + 2]);
-          pos += 6;
-        }
+
         i++;
+
       }
       else if (a < 128) {
-        if (a == '\"') {
-          resultData[pos] = '\\'; resultData[pos + 1] = '"'; pos += 2;
+
+        switch (a) {
+          case '\"': resultData[pos] = '\\'; resultData[pos + 1] = '"'; pos += 2; break;
+          case '\\': resultData[pos] = '\\'; resultData[pos + 1] = '\\'; pos += 2; break;
+
+          case '/':
+            if((flags & FLAG_ESCAPE_SOLIDUS) > 0) {
+              resultData[pos] = '\\';
+              resultData[pos + 1] = '/';
+              pos += 2;
+            } else {
+              resultData[pos] = data[i];
+              pos++;
+            }
+            break;
+
+          default:
+            resultData[pos] = data[i];
+            pos++;
+            break;
+
         }
-        else if (a == '\\') {
-          resultData[pos] = '\\'; resultData[pos + 1] = '\\'; pos += 2;
-        }
-        else if (a == '/') {
-          resultData[pos] = '\\'; resultData[pos + 1] = '/'; pos += 2;
-        }
-        else {
-          resultData[pos] = data[i];
-          pos++;
-        }
+
         i++;
       }
       else {

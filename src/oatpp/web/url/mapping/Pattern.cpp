@@ -51,7 +51,7 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
       
       if(i - lastPos > 0){
         auto part = Part::createShared(Part::FUNCTION_CONST, oatpp::String((const char*)&data[lastPos], i - lastPos));
-        result->m_parts->pushBack(part);
+        result->m_parts->push_back(part);
       }
       
       lastPos = i + 1;
@@ -60,10 +60,10 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
       lastPos = i + 1;
       if(size > lastPos){
         auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((const char*)&data[lastPos], size - lastPos));
-        result->m_parts->pushBack(part);
+        result->m_parts->push_back(part);
       }else{
         auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((v_buff_size)0));
-        result->m_parts->pushBack(part);
+        result->m_parts->push_back(part);
       }
       return result;
     
@@ -76,10 +76,10 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
       
       if(i > lastPos){
         auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((const char*)&data[lastPos], i - lastPos));
-        result->m_parts->pushBack(part);
+        result->m_parts->push_back(part);
       }else{
         auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((v_buff_size)0));
-        result->m_parts->pushBack(part);
+        result->m_parts->push_back(part);
       }
       
       lastPos = i + 1;
@@ -92,7 +92,7 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
   
   if(i - lastPos > 0){
     auto part = Part::createShared(Part::FUNCTION_CONST, oatpp::String((const char*)&data[lastPos], i - lastPos));
-    result->m_parts->pushBack(part);
+    result->m_parts->push_back(part);
   }
   
   return result;
@@ -123,21 +123,15 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
   oatpp::parser::Caret caret((const char*) url.getData(), url.getSize());
   
-  if(m_parts->count() == 0){
-    
-    if(caret.skipChar('/')){
-      return false;
-    }
-    
-    return true;
-    
+  if (m_parts->empty()) {
+    return !caret.skipChar('/');    
   }
   
-  auto curr = m_parts->getFirstNode();
-  
-  while(curr != nullptr){
-    const std::shared_ptr<Part>& part = curr->getData();
-    curr = curr->getNext();
+  auto curr = std::begin(*m_parts);
+  const auto end = std::end(*m_parts);
+  while(curr != end){
+    const std::shared_ptr<Part>& part = *curr;
+    ++curr;
     caret.skipChar('/');
     
     if(part->function == Part::FUNCTION_CONST){
@@ -147,7 +141,7 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
       }
       
       if(caret.canContinue() && !caret.isAtChar('/')){
-        if(caret.isAtChar('?') && (curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END)) {
+        if(caret.isAtChar('?') && (curr == end || (*curr)->function == Part::FUNCTION_ANY_END)) {
           matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
           return true;
         }
@@ -168,7 +162,7 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
       auto label = caret.putLabel();
       v_char8 a = findSysChar(caret);
       if(a == '?') {
-        if(curr == nullptr || curr->getData()->function == Part::FUNCTION_ANY_END) {
+        if(curr == end || (*curr)->function == Part::FUNCTION_ANY_END) {
           matchMap.m_variables[part->text] = StringKeyLabel(url.getMemoryHandle(), label.getData(), label.getSize());
           matchMap.m_tail = StringKeyLabel(url.getMemoryHandle(), caret.getCurrData(), caret.getDataSize() - caret.getPosition());
           return true;
@@ -183,20 +177,13 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   }
   
   caret.skipChar('/');
-  if(caret.canContinue()){
-    return false;
-  }
-  
-  return true;
+  return !caret.canContinue();
   
 }
 
 oatpp::String Pattern::toString() {
   auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
-  auto curr = m_parts->getFirstNode();
-  while (curr != nullptr) {
-    const std::shared_ptr<Part>& part = curr->getData();
-    curr = curr->getNext();
+  for (const std::shared_ptr<Part>& part : *m_parts) {
     if(part->function == Part::FUNCTION_CONST) {
       stream->writeSimple("/", 1);
       stream->writeSimple(part->text);

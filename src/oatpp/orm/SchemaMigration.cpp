@@ -72,7 +72,7 @@ void SchemaMigration::migrate() {
           break;
 
         case SOURCE_FILE:
-          script = utils::String::loadFromFile(source.param->c_str());
+          script = oatpp::String::loadFromFile(source.param->c_str());
           break;
 
         default:

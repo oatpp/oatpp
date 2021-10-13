@@ -310,6 +310,9 @@ public:
    */
   class AbstractInterpretation {
   public:
+
+    virtual ~AbstractInterpretation() = default;
+
     /**
      * Convert the object to its interpretation.
      * @param originalValue

@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +63,13 @@ Action Action::createWaitRepeatAction(v_int64 timePointMicroseconds) {
 Action Action::createWaitListAction(CoroutineWaitList* waitList) {
   Action result(TYPE_WAIT_LIST);
   result.m_data.waitList = waitList;
+  return result;
+}
+
+Action Action::createWaitListActionWithTimeout(CoroutineWaitList* waitList, const std::chrono::steady_clock::time_point& timeout) {
+  Action result(TYPE_WAIT_LIST_WITH_TIMEOUT);
+  result.m_data.waitListWithTimeout.waitList = waitList;
+  result.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(timeout.time_since_epoch()).count();
   return result;
 }
 
@@ -168,23 +176,16 @@ CoroutineStarter::CoroutineStarter(CoroutineStarter&& other)
 }
 
 CoroutineStarter::~CoroutineStarter() {
-  if(m_first != nullptr) {
-    auto curr = m_first;
-    while(curr != nullptr) {
-      AbstractCoroutine* next = nullptr;
-      if(curr->m_parentReturnAction.m_type == Action::TYPE_COROUTINE) {
-        next = curr->m_parentReturnAction.m_data.coroutine;
-      }
-      delete curr;
-      curr = next;
-    }
-  }
+  freeCoroutines();
 }
 
 /*
  * Move assignment operator.
  */
 CoroutineStarter& CoroutineStarter::operator=(CoroutineStarter&& other) {
+  if (this == std::addressof(other)) return *this;
+
+  freeCoroutines();
   m_first = other.m_first;
   m_last = other.m_last;
   other.m_first = nullptr;
@@ -214,6 +215,21 @@ CoroutineStarter& CoroutineStarter::next(CoroutineStarter&& starter) {
   starter.m_first = nullptr;
   starter.m_last = nullptr;
   return *this;
+}
+
+void CoroutineStarter::freeCoroutines()
+{
+  if (m_first != nullptr) {
+    auto curr = m_first;
+    while (curr != nullptr) {
+      AbstractCoroutine* next = nullptr;
+      if (curr->m_parentReturnAction.m_type == Action::TYPE_COROUTINE) {
+        next = curr->m_parentReturnAction.m_data.coroutine;
+      }
+      delete curr;
+      curr = next;
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -41,6 +41,10 @@ public:
    */
   typedef web::protocol::http::Headers Headers;
 public:
+  /**
+   * Virtual destructor since the class is ment to be derived from.
+   * */
+  virtual ~ErrorHandler() = default;
 
   /**
    * Implement this method!

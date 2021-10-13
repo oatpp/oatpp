@@ -64,6 +64,7 @@ public:
        */
       std::string description = "";
       std::string pattern = "";
+      bool required = false;
     };
 
   private:
@@ -176,6 +177,8 @@ namespace __class {
 
     class PolymorphicDispatcher {
     public:
+      
+      virtual ~PolymorphicDispatcher() = default;
 
       virtual type::Void createObject() const = 0;
 
