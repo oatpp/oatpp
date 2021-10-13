@@ -44,9 +44,9 @@ public:
                                "Error. Data not found for key '" + *key + "'.");
     }
 
-    if(it->second.valueType != WrapperType::Class::getType()) {
+    if(it->second.getValueType() != WrapperType::Class::getType()) {
       throw std::runtime_error("[oatpp::data::Bundle::get()]: Error. Type mismatch. Stored '" +
-                               std::string(it->second.valueType->classId.name) +
+                               std::string(it->second.getValueType()->classId.name) +
                                "' vs requested '" + std::string(WrapperType::Class::getType()->classId.name) + "'.");
     }
     return it->second.template staticCast<WrapperType>();
