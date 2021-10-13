@@ -86,6 +86,14 @@ class DtoC : public DtoA {
 
 };
 
+class DtoD : public DtoA {
+
+  DTO_INIT(DtoD, DtoA)
+
+  DTO_FIELD(Int32, a) = Int64(64);
+
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 void runDtoInitializations() {
@@ -167,7 +175,7 @@ void ObjectTest::onRun() {
     Object<DtoA> a;
     OATPP_ASSERT(!a);
     OATPP_ASSERT(a == nullptr);
-    OATPP_ASSERT(a.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
+    OATPP_ASSERT(a.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -300,6 +308,13 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(set[d] == true);
     OATPP_ASSERT(set[e] == true);
     OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    auto dto = DtoD::createShared();
+    OATPP_ASSERT(dto->a.getValueType() == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(dto->a);
+    OATPP_ASSERT(dto->a == 64);
   }
 
 }
