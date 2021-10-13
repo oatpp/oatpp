@@ -115,6 +115,8 @@ add_library(oatpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
         oatpp/core/data/stream/StreamBufferedProxy.hpp
+        oatpp/core/data/Bundle.cpp
+        oatpp/core/data/Bundle.hpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp
