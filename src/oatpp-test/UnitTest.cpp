@@ -36,6 +36,8 @@ void UnitTest::run(v_int32 times) {
   
   v_counter objectsCount = base::Environment::getObjectsCount();
   v_counter objectsCreated = base::Environment::getObjectsCreated();
+
+  before();
   
   v_int64 ticks = base::Environment::getMicroTickCount();
   
@@ -44,6 +46,8 @@ void UnitTest::run(v_int32 times) {
   }
   
   v_int64 millis = base::Environment::getMicroTickCount() - ticks;
+
+  after();
   
   v_counter leakingObjects = base::Environment::getObjectsCount() - objectsCount;
   v_counter objectsCreatedPerTest = base::Environment::getObjectsCreated() - objectsCreated;
