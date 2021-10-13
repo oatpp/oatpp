@@ -90,15 +90,17 @@ public:
   
 };
 
-/**
- * Convenience macro to run test. <br>
- * Usage Example:<br>
- * `OATPP_RUN_TEST(oatpp::test::web::FullTest);`
- */
 #define OATPP_RUN_TEST_0(TEST) \
 oatpp::test::UnitTest::runTest<TEST>(1)
 #define OATPP_RUN_TEST_1(TEST, N) \
 oatpp::test::UnitTest::runTest<TEST>(N)
+/**
+ * Convenience macro to run test. <br>
+ * Usage Example:<br>
+ * `OATPP_RUN_TEST(oatpp::test::web::FullTest);`
+ * Running the test 10 times:
+ * `OATPP_RUN_TEST(oatpp::test::web::FullTest, 10);`
+ */
 #define OATPP_RUN_TEST(...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_RUN_TEST_, (__VA_ARGS__)) (__VA_ARGS__))
 
