@@ -34,7 +34,7 @@
 #include <string>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 class Type; // FWD
 
 /**
@@ -90,6 +90,8 @@ namespace __class {
 
 }
 
+class Void; // FWD
+
 /**
  * ObjectWrapper holds std::shared_ptr to object, object static type, plus object dynamic type information.
  * @tparam T - Object Type.
@@ -97,6 +99,7 @@ namespace __class {
  */
 template <class T, class Clazz = __class::Void>
 class ObjectWrapper {
+  friend Void;
 protected:
   std::shared_ptr<T> m_ptr;
   const Type* m_valueType;

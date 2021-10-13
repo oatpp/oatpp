@@ -79,23 +79,23 @@ void ObjectWrapperTest::onRun() {
     OATPP_LOGI(TAG, "OK");
   }
 
-//  {
-//    OATPP_LOGI(TAG, "Check valueType is NOT assigned from copy-assign operator...");
-//    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
-//    ObjectWrapper<std::string> pw2;
-//    pw2 = pw1;
-//    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
-//    OATPP_LOGI(TAG, "OK");
-//  }
+  {
+    OATPP_LOGI(TAG, "Check valueType is NOT assigned from copy-assign operator...");
+    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw2;
+    pw2 = pw1;
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_LOGI(TAG, "OK");
+  }
 
-//  {
-//    OATPP_LOGI(TAG, "Check valueType is NOT assigned from move-assign operator...");
-//    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
-//    ObjectWrapper<std::string> pw2;
-//    pw2 = std::move(pw1);
-//    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
-//    OATPP_LOGI(TAG, "OK");
-//  }
+  {
+    OATPP_LOGI(TAG, "Check valueType is NOT assigned from move-assign operator...");
+    ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
+    ObjectWrapper<std::string> pw2;
+    pw2 = std::move(pw1);
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_LOGI(TAG, "OK");
+  }
 
   {
     OATPP_LOGI(TAG, "Check copy-assign operator. Check == operator...");
@@ -162,6 +162,25 @@ void ObjectWrapperTest::onRun() {
     OATPP_ASSERT(pw1 != pw2);
     OATPP_ASSERT(pw1.get() != pw2.get());
     OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Check oatpp::Void type reassigned");
+
+    oatpp::Void v;
+    v = oatpp::String("test");
+
+    OATPP_ASSERT(v.getValueType() == oatpp::String::Class::getType());
+
+    v = oatpp::Int32(32);
+
+    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
+
+    oatpp::Int32 i = v.staticCast<oatpp::Int32>();
+
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(i == 32);
+
   }
 
 }
