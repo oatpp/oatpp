@@ -252,7 +252,7 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Car
     const Type* const fieldType = guessType(caret);
     if(fieldType != nullptr) {
       auto fieldValue = deserializer->deserialize(caret, fieldType);
-      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
+      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.getValueType());
       return oatpp::Void(anyHandle, Any::Class::getType());
     }
   }

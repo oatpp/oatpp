@@ -38,9 +38,9 @@ void VectorTest::onRun() {
     OATPP_ASSERT(vector == nullptr);
 
     OATPP_ASSERT(vector.get() == nullptr);
-    OATPP_ASSERT(vector.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractVector::CLASS_ID.id);
-    OATPP_ASSERT(vector.valueType->params.size() == 1);
-    OATPP_ASSERT(vector.valueType->params.front() == oatpp::String::Class::getType());
+    OATPP_ASSERT(vector.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractVector::CLASS_ID.id);
+    OATPP_ASSERT(vector.getValueType()->params.size() == 1);
+    OATPP_ASSERT(vector.getValueType()->params.front() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -53,9 +53,9 @@ void VectorTest::onRun() {
     OATPP_ASSERT(vector->size() == 0);
 
     OATPP_ASSERT(vector.get() != nullptr);
-    OATPP_ASSERT(vector.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractVector::CLASS_ID.id);
-    OATPP_ASSERT(vector.valueType->params.size() == 1);
-    OATPP_ASSERT(vector.valueType->params.front() == oatpp::String::Class::getType());
+    OATPP_ASSERT(vector.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractVector::CLASS_ID.id);
+    OATPP_ASSERT(vector.getValueType()->params.size() == 1);
+    OATPP_ASSERT(vector.getValueType()->params.front() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -68,7 +68,7 @@ void VectorTest::onRun() {
     OATPP_ASSERT(vector->size() == 0);
 
     OATPP_ASSERT(vector.get() != nullptr);
-    OATPP_ASSERT(vector.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractVector::CLASS_ID.id);
+    OATPP_ASSERT(vector.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractVector::CLASS_ID.id);
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -141,7 +141,7 @@ void VectorTest::onRun() {
     oatpp::Vector<oatpp::String> vector = {"a", "b", "c"};
 
     auto polymorphicDispatcher = static_cast<const typename oatpp::Vector<oatpp::String>::Class::PolymorphicDispatcher*>(
-      vector.valueType->polymorphicDispatcher
+      vector.getValueType()->polymorphicDispatcher
     );
 
     polymorphicDispatcher->addPolymorphicItem(vector, oatpp::String("d"));

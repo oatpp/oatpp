@@ -105,7 +105,7 @@ public:
    */
   template<class T, class C>
   Any(const ObjectWrapper<T, C>& polymorph)
-    : ObjectWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType), __class::Any::getType())
+    : ObjectWrapper(std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.getValueType()), __class::Any::getType())
   {}
 
   /**
@@ -116,7 +116,7 @@ public:
    */
   template<class T, class C>
   void store(const ObjectWrapper<T, C>& polymorph) {
-    m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
+    m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.getValueType());
   }
 
   /**
@@ -155,7 +155,7 @@ public:
 
   template<class T, class C>
   Any& operator=(const ObjectWrapper<T, C>& polymorph) {
-    m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.valueType);
+    m_ptr = std::make_shared<AnyHandle>(polymorph.getPtr(), polymorph.getValueType());
     return *this;
   }
 

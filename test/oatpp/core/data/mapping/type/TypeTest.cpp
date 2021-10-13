@@ -68,53 +68,53 @@ void TypeTest::onRun() {
   
   auto obj = TestDto::createShared();
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_string.valueType->classId.name);
-  OATPP_ASSERT(obj->field_string.valueType->classId.id == oatpp::data::mapping::type::__class::String::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_string.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_string.getValueType()->classId.id == oatpp::data::mapping::type::__class::String::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_int8.valueType->classId.name);
-  OATPP_ASSERT(obj->field_int8.valueType->classId.id == oatpp::data::mapping::type::__class::Int8::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_int8.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_int8.getValueType()->classId.id == oatpp::data::mapping::type::__class::Int8::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_int16.valueType->classId.name);
-  OATPP_ASSERT(obj->field_int16.valueType->classId.id == oatpp::data::mapping::type::__class::Int16::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_int16.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_int16.getValueType()->classId.id == oatpp::data::mapping::type::__class::Int16::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_int32.valueType->classId.name);
-  OATPP_ASSERT(obj->field_int32.valueType->classId.id == oatpp::data::mapping::type::__class::Int32::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_int32.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_int32.getValueType()->classId.id == oatpp::data::mapping::type::__class::Int32::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_int64.valueType->classId.name);
-  OATPP_ASSERT(obj->field_int64.valueType->classId.id == oatpp::data::mapping::type::__class::Int64::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_int64.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_int64.getValueType()->classId.id == oatpp::data::mapping::type::__class::Int64::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_float32.valueType->classId.name);
-  OATPP_ASSERT(obj->field_float32.valueType->classId.id == oatpp::data::mapping::type::__class::Float32::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_float32.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_float32.getValueType()->classId.id == oatpp::data::mapping::type::__class::Float32::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_float64.valueType->classId.name);
-  OATPP_ASSERT(obj->field_float64.valueType->classId.id == oatpp::data::mapping::type::__class::Float64::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_float64.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_float64.getValueType()->classId.id == oatpp::data::mapping::type::__class::Float64::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_boolean.valueType->classId.name);
-  OATPP_ASSERT(obj->field_boolean.valueType->classId.id == oatpp::data::mapping::type::__class::Boolean::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_boolean.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_boolean.getValueType()->classId.id == oatpp::data::mapping::type::__class::Boolean::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_string.valueType->classId.name);
-  OATPP_ASSERT(obj->field_list_string.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_string.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_list_string.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_int32.valueType->classId.name);
-  OATPP_ASSERT(obj->field_list_int32.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_int32.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_list_int32.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_int64.valueType->classId.name);
-  OATPP_ASSERT(obj->field_list_int64.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_int64.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_list_int64.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_float32.valueType->classId.name);
-  OATPP_ASSERT(obj->field_list_float32.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_float32.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_list_float32.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_float64.valueType->classId.name);
-  OATPP_ASSERT(obj->field_list_float64.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_float64.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_list_float64.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_boolean.valueType->classId.name);
-  OATPP_ASSERT(obj->field_list_boolean.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_list_boolean.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_list_boolean.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->field_map_string_string.valueType->classId.name);
-  OATPP_ASSERT(obj->field_map_string_string.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->field_map_string_string.getValueType()->classId.name);
+  OATPP_ASSERT(obj->field_map_string_string.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
   
-  OATPP_LOGV(TAG, "type: '%s'", obj->obj1.valueType->classId.name);
-  OATPP_ASSERT(obj->obj1.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
+  OATPP_LOGV(TAG, "type: '%s'", obj->obj1.getValueType()->classId.name);
+  OATPP_ASSERT(obj->obj1.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
 
 }
   
