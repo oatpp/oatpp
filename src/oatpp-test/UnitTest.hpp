@@ -27,6 +27,7 @@
 
 #include <functional>
 #include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/macro/basic.hpp"
 
 namespace oatpp { namespace test {
 
@@ -92,8 +93,10 @@ public:
 
 #define OATPP_RUN_TEST_0(TEST) \
 oatpp::test::UnitTest::runTest<TEST>(1)
+
 #define OATPP_RUN_TEST_1(TEST, N) \
 oatpp::test::UnitTest::runTest<TEST>(N)
+
 /**
  * Convenience macro to run test. <br>
  * Usage Example:<br>
