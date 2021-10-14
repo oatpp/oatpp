@@ -385,6 +385,21 @@ public:
     }
     return createResponse(Status::CODE_400, "");
   }
+
+  ENDPOINT_INTERCEPTOR(getBundle, middleware) {
+    request->putBundleData("str_param", oatpp::String("str-param"));
+    request->putBundleData("int_param", oatpp::Int32(32000));
+    return (this->*intercepted)(request);
+  }
+  ENDPOINT("GET", "bundle", getBundle,
+           BUNDLE(String, str_param),
+           BUNDLE(Int32, a, "int_param"))
+  {
+    auto dto = TestDto::createShared();
+    dto->testValue = str_param;
+    dto->testValueInt = a;
+    return createDtoResponse(Status::CODE_200, dto);
+  }
   
 };
 

@@ -495,7 +495,19 @@ void FullTest::onRun() {
         OATPP_LOGV("i", "%d, tick=%d", i + 1, ticks);
       }
 
+      { // test bundle
+        auto response = client->getBundle(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto dto = response->readBodyToDto<oatpp::Object<app::TestDto>>(objectMapper.get());
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "str-param");
+        OATPP_ASSERT(dto->testValueInt == 32000);
+      }
+
     }
+
+
+    std::this_thread::sleep_for(std::chrono::minutes(10));
 
   }, std::chrono::minutes(10));
 

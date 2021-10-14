@@ -11,6 +11,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
+        oatpp/codegen/api_controller/bundle_define.hpp
+        oatpp/codegen/api_controller/bundle_undef.hpp
         oatpp/codegen/api_controller/cors_define.hpp
         oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
