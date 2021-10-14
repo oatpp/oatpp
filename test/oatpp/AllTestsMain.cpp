@@ -164,7 +164,7 @@ void runTests() {
 
   {
 
-    oatpp::test::web::FullTest test_virtual(0, 1000);
+    oatpp::test::web::FullTest test_virtual(0, 100);
     test_virtual.run();
 
     oatpp::test::web::FullTest test_port(8000, 5);
