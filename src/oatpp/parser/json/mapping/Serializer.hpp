@@ -65,8 +65,14 @@ public:
 
     /**
      * Include fields with value == nullptr into serialized json.
+     * Field will still be included when field-info `required` is set to true and &id:honorRequired is set to true.
      */
     bool includeNullFields = true;
+
+    /**
+     * Honor required fields in DTO_FIELD_INFO and include required fields even if they are `value == nullptr`
+     */
+    bool honorRequired = false;
 
     /**
      * If `true` - insert string `"<unknown-type>"` in json field value in case unknown field found.
