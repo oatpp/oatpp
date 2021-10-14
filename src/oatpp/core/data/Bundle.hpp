@@ -29,13 +29,37 @@
 
 namespace oatpp { namespace data {
 
+/**
+ * Bundle of auxiliary data.
+ */
 class Bundle {
 private:
   std::unordered_map<oatpp::String, oatpp::Void> m_data;
 public:
 
+  /**
+   * Default constructor.
+   */
+  Bundle() = default;
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~Bundle() = default;
+
+  /**
+   * Put data by key.
+   * @param key
+   * @param polymorph
+   */
   void put(const oatpp::String& key, const oatpp::Void& polymorph);
 
+  /**
+   * Get data by key.
+   * @tparam WrapperType
+   * @param key
+   * @return
+   */
   template<typename WrapperType>
   WrapperType get(const oatpp::String& key) const {
     auto it = m_data.find(key);
@@ -53,6 +77,10 @@ public:
     return it->second.template staticCast<WrapperType>();
   }
 
+  /**
+   * Get map of data stored in the bundle.
+   * @return
+   */
   const std::unordered_map<oatpp::String, oatpp::Void>& getAll() const;
 
 };
