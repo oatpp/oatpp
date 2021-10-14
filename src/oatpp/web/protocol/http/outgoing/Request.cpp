@@ -89,6 +89,14 @@ oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI& hea
   return m_headers.get(headerName);
 }
 
+void Request::putBundleData(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_bundle.put(key, polymorph);
+}
+
+const data::Bundle& Request::getBundle() const {
+  return m_bundle;
+}
+
 std::shared_ptr<Body> Request::getBody() {
   return m_body;
 }

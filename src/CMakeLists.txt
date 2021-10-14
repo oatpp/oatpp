@@ -11,6 +11,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
+        oatpp/codegen/api_controller/bundle_define.hpp
+        oatpp/codegen/api_controller/bundle_undef.hpp
         oatpp/codegen/api_controller/cors_define.hpp
         oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
@@ -115,6 +117,8 @@ add_library(oatpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
         oatpp/core/data/stream/StreamBufferedProxy.hpp
+        oatpp/core/data/Bundle.cpp
+        oatpp/core/data/Bundle.hpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp

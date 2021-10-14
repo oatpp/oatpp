@@ -130,6 +130,14 @@ oatpp::String Request::getPathTail() const {
   return m_pathVariables.getTail();
 }
 
+void Request::putBundleData(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_bundle.put(key, polymorph);
+}
+
+const data::Bundle& Request::getBundle() const {
+  return m_bundle;
+}
+
 void Request::transferBody(data::stream::WriteCallback* writeCallback) const {
   m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback);
 }

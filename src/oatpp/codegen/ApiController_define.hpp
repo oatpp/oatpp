@@ -47,4 +47,5 @@
 
 #include "./api_controller/base_define.hpp"
 #include "./api_controller/auth_define.hpp"
+#include "./api_controller/bundle_define.hpp"
 #include "./api_controller/cors_define.hpp"

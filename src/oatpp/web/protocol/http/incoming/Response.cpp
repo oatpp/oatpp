@@ -87,6 +87,14 @@ oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI& he
   return m_headers.get(headerName);
 }
 
+void Response::putBundleData(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_bundle.put(key, polymorph);
+}
+
+const data::Bundle& Response::getBundle() const {
+  return m_bundle;
+}
+
 std::shared_ptr<oatpp::data::stream::InputStream> Response::getBodyStream() const {
   return m_bodyStream;
 }

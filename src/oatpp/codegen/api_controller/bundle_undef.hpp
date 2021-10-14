@@ -7,6 +7,7 @@
  *
  *
  * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ *                         Benedikt-Alexander Mokroß <bam@icognize.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,27 +23,10 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "undefs" for ApiController code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(ApiController)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(ApiController)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
- *   <li>&id:oatpp::web::server::api::ApiController;</li>
- * </ul>
- */
+#undef BUNDLE
 
-#include "./api_controller/base_undef.hpp"
-#include "./api_controller/auth_undef.hpp"
-#include "./api_controller/bundle_undef.hpp"
-#include "./api_controller/cors_undef.hpp"
+#undef OATPP_MACRO_API_CONTROLLER_BUNDLE_1
+#undef OATPP_MACRO_API_CONTROLLER_BUNDLE_2
+#undef OATPP_MACRO_API_CONTROLLER_BUNDLE
+
+#undef OATPP_MACRO_API_CONTROLLER_BUNDLE_INFO

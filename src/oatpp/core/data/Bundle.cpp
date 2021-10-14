@@ -22,27 +22,16 @@
  *
  ***************************************************************************/
 
-/**[info]
- * This file contains "undefs" for ApiController code generating macro. <br>
- * Usage:<br>
- *
- * ```cpp
- * #include OATPP_CODEGEN_BEGIN(ApiController)
- * ...
- * // Generated Endpoints.
- * ...
- * #include OATPP_CODEGEN_END(ApiController)
- * ```
- *
- *
- * *For details see:*
- * <ul>
- *   <li>[ApiController component](https://oatpp.io/docs/components/api-controller/)</li>
- *   <li>&id:oatpp::web::server::api::ApiController;</li>
- * </ul>
- */
+#include "Bundle.hpp"
 
-#include "./api_controller/base_undef.hpp"
-#include "./api_controller/auth_undef.hpp"
-#include "./api_controller/bundle_undef.hpp"
-#include "./api_controller/cors_undef.hpp"
+namespace oatpp { namespace data {
+
+void Bundle::put(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_data.insert({key, polymorph});
+}
+
+const std::unordered_map<oatpp::String, oatpp::Void>& Bundle::getAll() const {
+  return m_data;
+}
+
+}}
