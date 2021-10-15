@@ -155,11 +155,12 @@ void Serializer::serializeObject(Serializer* serializer,
   );
   auto fields = dispatcher->getProperties()->getList();
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
+  auto config = serializer->m_config;
 
   for (auto const& field : fields) {
 
     auto value = field->get(object);
-    if(value || serializer->m_config->includeNullFields) {
+    if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
