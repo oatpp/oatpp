@@ -160,7 +160,7 @@ void Serializer::serializeObject(Serializer* serializer,
   for (auto const& field : fields) {
 
     auto value = field->get(object);
-    if (value || config->includeNullFields || (field->info.required && config->honorRequired)) {
+    if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, (p_char8)field->name, std::strlen(field->name));
       stream->writeSimple(":", 1);
