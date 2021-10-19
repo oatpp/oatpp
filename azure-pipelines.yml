@@ -4,11 +4,11 @@
 # https://aka.ms/yaml
 
 jobs:
-- job: ubuntu_16_04_mem_pool_on
-  displayName: 'Build - Ubuntu 16.04 - With Memory Pool'
+- job: ubuntu_20_04_mem_pool_on
+  displayName: 'Build - Ubuntu 20.04 - With Memory Pool'
   continueOnError: false
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'ubuntu-20.04'
   workspace:
     clean: all
   steps:
@@ -25,11 +25,11 @@ jobs:
       displayName: 'Test'
       workingDirectory: build
 
-- job: ubuntu_16_04_mem_pool_off
-  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
+- job: ubuntu_20_04_mem_pool_off
+  displayName: 'Build - Ubuntu 20.04 - No Memory Pool'
   continueOnError: false
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'ubuntu-20.04'
   workspace:
     clean: all
   steps:
