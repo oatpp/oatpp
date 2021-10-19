@@ -46,6 +46,7 @@ std::shared_ptr<ConnectionProvider> ConnectionProviderSwitch::getCurrentProvider
   }
 
   if(!provider) {
+    const char* const TAG = "[oatpp::network::ConnectionProviderSwitch::getCurrentProvider()]";
     const char* const msg = "Error. Can't provide connection. There is no provider set.";
     OATPP_LOGE(TAG, msg)
     throw std::runtime_error(std::string(TAG) + ": " + msg);

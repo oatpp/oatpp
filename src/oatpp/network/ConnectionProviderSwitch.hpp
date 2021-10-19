@@ -36,8 +36,6 @@ namespace oatpp { namespace network {
  */
 class ConnectionProviderSwitch : public ServerConnectionProvider, public ClientConnectionProvider {
 private:
-  static constexpr const char* TAG = "[oatpp::network::ConnectionProviderSwitch::getCurrentProvider()]";
-private:
   std::shared_ptr<ConnectionProvider> getCurrentProvider();
 private:
   std::shared_ptr<ConnectionProvider> m_provider;
