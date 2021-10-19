@@ -282,7 +282,10 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       auto error = WSAGetLastError();
 
       if(res == 0 || error == WSAEISCONN) {
-        return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
+        return _return(provider::ResourceHandle<data::stream::IOStream>(
+                std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
+                m_connectionInvalidator
+            ));
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
