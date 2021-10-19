@@ -5,7 +5,7 @@
 
 jobs:
 - job: ubuntu_20_04_mem_pool_on
-  displayName: 'Build - Ubuntu 16.04 - With Memory Pool'
+  displayName: 'Build - Ubuntu 20.04 - With Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'ubuntu-20.04'
@@ -26,7 +26,7 @@ jobs:
       workingDirectory: build
 
 - job: ubuntu_20_04_mem_pool_off
-  displayName: 'Build - Ubuntu 16.04 - No Memory Pool'
+  displayName: 'Build - Ubuntu 20.04 - No Memory Pool'
   continueOnError: false
   pool:
     vmImage: 'ubuntu-20.04'
