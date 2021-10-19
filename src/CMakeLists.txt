@@ -174,6 +174,8 @@ add_library(oatpp
         oatpp/network/ConnectionPool.hpp
         oatpp/network/ConnectionProvider.cpp
         oatpp/network/ConnectionProvider.hpp
+        oatpp/network/ConnectionProviderSwitch.cpp
+        oatpp/network/ConnectionProviderSwitch.hpp
         oatpp/network/Server.cpp
         oatpp/network/Server.hpp
         oatpp/network/Url.cpp
