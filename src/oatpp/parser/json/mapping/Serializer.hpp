@@ -77,7 +77,7 @@ public:
     /**
      * Always include array or map elements, even if their value is `nullptr`.
      */
-    bool alwaysIncludeEmptyCollectionElements = false;
+    bool alwaysIncludeNullCollectionElements = false;
 
     /**
      * If `true` - insert string `"<unknown-type>"` in json field value in case unknown field found.
@@ -141,7 +141,7 @@ private:
     bool first = true;
 
     for(auto& value : *list) {
-      if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeEmptyCollectionElements) {
+      if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeNullCollectionElements) {
         (first) ? first = false : stream->writeSimple(",", 1);
         serializer->serialize(stream, value);
       }
@@ -166,7 +166,7 @@ private:
 
     for(auto& pair : *map) {
       const auto& value = pair.second;
-      if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeEmptyCollectionElements) {
+      if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeNullCollectionElements) {
         (first) ? first = false : stream->writeSimple(",", 1);
         const auto& key = pair.first;
         serializeString(stream, key->getData(), key->getSize());
