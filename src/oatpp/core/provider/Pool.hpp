@@ -56,12 +56,12 @@ private:
     m_valid = false;
   }
 
-  std::shared_ptr<TResource> __pool__getUnderlyingResource() {
-    return _obj;
+  provider::ResourceHandle<TResource> __pool__getUnderlyingResource() {
+    return _handle;
   }
 
 protected:
-  std::shared_ptr<TResource> _obj;
+  provider::ResourceHandle<TResource> _handle;
 private:
   std::shared_ptr<PoolInstance> m_pool;
   bool m_valid;
@@ -72,8 +72,8 @@ public:
    * @param resource - base resource.
    * @param pool - &l:AcquisitionProxy::PoolInstance;.
    */
-  AcquisitionProxy(const std::shared_ptr<TResource>& resource, const std::shared_ptr<PoolInstance>& pool)
-    : _obj(resource)
+  AcquisitionProxy(const provider::ResourceHandle<TResource>& resource, const std::shared_ptr<PoolInstance>& pool)
+    : _handle(resource)
     , m_pool(pool)
     , m_valid(true)
   {}
@@ -82,7 +82,7 @@ public:
    * Virtual destructor.
    */
   virtual ~AcquisitionProxy() {
-    m_pool->release(std::move(_obj), m_valid);
+    m_pool->release(std::move(_handle), m_valid);
   }
 
 };
@@ -93,8 +93,22 @@ class PoolTemplate : public oatpp::base::Countable, public async::CoroutineWaitL
 private:
 
   struct PoolRecord {
-    std::shared_ptr<TResource> resource;
+    provider::ResourceHandle<TResource> resource;
     v_int64 timestamp;
+  };
+
+private:
+
+  class ResourceInvalidator : public provider::Invalidator<TResource> {
+  public:
+
+    void invalidate(const std::shared_ptr<TResource>& resource) override {
+      auto proxy = std::static_pointer_cast<AcquisitionProxyImpl>(resource);
+      proxy->__pool__invalidate();
+      const auto& handle = proxy->__pool__getUnderlyingResource();
+      handle.invalidator->invalidate(handle.object);
+    }
+
   };
 
 private:
@@ -116,7 +130,7 @@ private:
 
   }
 
-  void release(std::shared_ptr<TResource>&& resource, bool canReuse) {
+  void release(provider::ResourceHandle<TResource>&& resource, bool canReuse) {
 
     {
 
@@ -155,7 +169,7 @@ private:
 
           auto elapsed = ticks - i->timestamp;
           if(elapsed > pool->m_maxResourceTTL) {
-            pool->m_provider->invalidate(i->resource);
+            i->resource.invalidator->invalidate(i->resource.object);
             i = pool->m_bench.erase(i);
             pool->m_counter --;
           } else {
@@ -175,7 +189,7 @@ private:
       std::lock_guard<std::mutex> guard(pool->m_lock);
       auto i = pool->m_bench.begin();
       while (i != pool->m_bench.end()) {
-        pool->m_provider->invalidate(i->resource);
+        i->resource.invalidator->invalidate(i->resource.object);
         i = pool->m_bench.erase(i);
         pool->m_counter --;
       }
@@ -189,6 +203,7 @@ private:
   }
 
 private:
+  std::shared_ptr<ResourceInvalidator> m_invalidator;
   std::shared_ptr<Provider<TResource>> m_provider;
   v_int64 m_counter{0};
   v_int64 m_maxResources;
@@ -204,7 +219,8 @@ private:
 protected:
 
   PoolTemplate(const std::shared_ptr<Provider<TResource>>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout)
-    : m_provider(provider)
+    : m_invalidator(std::make_shared<ResourceInvalidator>())
+    , m_provider(provider)
     , m_maxResources(maxResources)
     , m_maxResourceTTL(maxResourceTTL)
     , m_timeout(timeout)
@@ -215,7 +231,7 @@ protected:
     poolCleanupTask.detach();
   }
 
-  static std::shared_ptr<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
+  static provider::ResourceHandle<TResource> get(const std::shared_ptr<PoolTemplate>& _this) {
     auto readyPredicate = [&_this]() { return !_this->m_running || !_this->m_bench.empty() || _this->m_counter < _this->m_maxResources; };
 
     std::unique_lock<std::mutex> guard{_this->m_lock};
@@ -235,7 +251,10 @@ protected:
     if (_this->m_bench.size() > 0) {
       auto record = _this->m_bench.front();
       _this->m_bench.pop_front();
-      return std::make_shared<AcquisitionProxyImpl>(record.resource, _this);
+      return provider::ResourceHandle<TResource>(
+        std::make_shared<AcquisitionProxyImpl>(record.resource, _this),
+        _this->m_invalidator
+      );
     } else {
       ++ _this->m_counter;
     }
@@ -243,7 +262,10 @@ protected:
     guard.unlock();
 
     try {
-      return std::make_shared<AcquisitionProxyImpl>(_this->m_provider->get(), _this);
+      return provider::ResourceHandle<TResource>(
+        std::make_shared<AcquisitionProxyImpl>(_this->m_provider->get(), _this),
+        _this->m_invalidator
+      );
     } catch (...) {
       guard.lock();
       --_this->m_counter;
@@ -251,12 +273,11 @@ protected:
     }
   }
 
-  static async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
+  static async::CoroutineStarterForResult<const provider::ResourceHandle<TResource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
 
-    class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<TResource>&> {
+    class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const provider::ResourceHandle<TResource>&> {
     private:
       std::shared_ptr<PoolTemplate> m_pool;
-
       std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
     public:
 
@@ -292,7 +313,10 @@ protected:
             auto record = m_pool->m_bench.front();
             m_pool->m_bench.pop_front();
             guard.unlock();
-            return this->_return(std::make_shared<AcquisitionProxyImpl>(record.resource, m_pool));
+            return this->_return(provider::ResourceHandle<TResource>(
+              std::make_shared<AcquisitionProxyImpl>(record.resource, m_pool),
+              m_pool->m_invalidator
+            ));
           } else {
             ++ m_pool->m_counter;
           }
@@ -303,8 +327,11 @@ protected:
 
       }
 
-      async::Action onGet(const std::shared_ptr<TResource>& resource) {
-        return this->_return(std::make_shared<AcquisitionProxyImpl>(resource, m_pool));
+      async::Action onGet(const provider::ResourceHandle<TResource>& resource) {
+        return this->_return(provider::ResourceHandle<TResource>(
+          std::make_shared<AcquisitionProxyImpl>(resource, m_pool),
+          m_pool->m_invalidator
+        ));
       }
 
       async::Action handleError(oatpp::async::Error* error) override {
@@ -336,12 +363,6 @@ public:
 
   virtual ~PoolTemplate() {
     stop();
-  }
-
-  void invalidate(const std::shared_ptr<TResource>& resource) {
-    auto proxy = std::static_pointer_cast<AcquisitionProxyImpl>(resource);
-    proxy->__pool__invalidate();
-    m_provider->invalidate(proxy->__pool__getUnderlyingResource());
   }
 
   void stop() {
@@ -437,7 +458,7 @@ public:
    * Get resource.
    * @return
    */
-  std::shared_ptr<TResource> get() override {
+  provider::ResourceHandle<TResource> get() override {
     return TPool::get(this->shared_from_this());
   }
 
@@ -445,16 +466,8 @@ public:
    * Get resource asynchronously.
    * @return
    */
-  async::CoroutineStarterForResult<const std::shared_ptr<TResource>&> getAsync() override {
+  async::CoroutineStarterForResult<const provider::ResourceHandle<TResource>&> getAsync() override {
     return TPool::getAsync(this->shared_from_this());
-  }
-
-  /**
-   * Invalidate resource.
-   * @param resource
-   */
-  void invalidate(const std::shared_ptr<TResource>& resource) override {
-    TPool::invalidate(resource);
   }
 
   /**

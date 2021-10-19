@@ -75,6 +75,18 @@ public:
 };
 
 class StubStreamProvider : public oatpp::network::ConnectionProvider {
+private:
+
+  class Invalidator : public oatpp::provider::Invalidator<oatpp::data::stream::IOStream> {
+  public:
+    void invalidate(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override {
+      (void)connection;
+      // DO Nothing.
+    }
+  };
+
+private:
+  std::shared_ptr<Invalidator> m_invalidator = std::make_shared<Invalidator>();
 public:
 
   StubStreamProvider()
@@ -83,24 +95,36 @@ public:
 
   std::atomic<v_int64> counter;
 
-  std::shared_ptr<oatpp::data::stream::IOStream> get() override {
+  oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream> get() override {
     ++ counter;
-    return std::make_shared<StubStream>();
+    return oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream>(
+      std::make_shared<StubStream>(),
+      m_invalidator
+    );
   }
 
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> getAsync() override {
+  oatpp::async::CoroutineStarterForResult<const oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream>&> getAsync() override {
 
-    class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
+    class ConnectionCoroutine : public oatpp::async::CoroutineWithResult<ConnectionCoroutine, const oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream>&> {
+    private:
+      std::shared_ptr<Invalidator> m_invalidator;
     public:
 
+      ConnectionCoroutine(const std::shared_ptr<Invalidator>& invalidator)
+        : m_invalidator(invalidator)
+      {}
+
       Action act() override {
-        return _return(std::make_shared<StubStream>());
+        return _return(oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream>(
+          std::make_shared<StubStream>(),
+          m_invalidator
+        ));
       }
 
     };
 
     ++ counter;
-    return ConnectionCoroutine::startForResult();
+    return ConnectionCoroutine::startForResult(m_invalidator);
 
   }
 
@@ -108,17 +132,12 @@ public:
     // DO NOTHING
   }
 
-  void invalidate(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) override {
-    (void)connection;
-    // DO Nothing.
-  }
-
 };
 
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
 private:
   std::shared_ptr<ConnectionPool> m_pool;
-  std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+  oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream> m_connection;
   v_int32 m_repeats;
   bool m_invalidate;
 public:
@@ -133,7 +152,7 @@ public:
     return m_pool->getAsync().callbackTo(&ClientCoroutine::onConnection);
   }
 
-  Action onConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
+  Action onConnection(const oatpp::provider::ResourceHandle<oatpp::data::stream::IOStream>& connection) {
     m_connection = connection;
     return yieldTo(&ClientCoroutine::useConnection);
   }
@@ -144,7 +163,7 @@ public:
       return waitFor(std::chrono::milliseconds(100)).next(yieldTo(&ClientCoroutine::useConnection));
     }
     if(m_invalidate) {
-      m_pool->invalidate(m_connection);
+      m_connection.invalidator->invalidate(m_connection.object);
     }
     return finish();
   }
@@ -155,7 +174,7 @@ void clientMethod(std::shared_ptr<ConnectionPool> pool, bool invalidate) {
   auto connection = pool->get();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   if(invalidate) {
-    pool->invalidate(connection);
+    connection.invalidator->invalidate(connection.object);
   }
 }
 

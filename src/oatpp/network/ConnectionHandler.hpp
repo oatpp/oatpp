@@ -25,6 +25,7 @@
 #ifndef oatpp_network_ConnectionHandler_hpp
 #define oatpp_network_ConnectionHandler_hpp
 
+#include "oatpp/core/provider/Provider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 #include <unordered_map>
 
@@ -53,10 +54,11 @@ public:
 
   /**
    * Handle provided connection.
-   * @param connection - see &id:oatpp::data::stream::IOStream;.
+   * @param connectionData - see &id:oatpp::data::stream::IOStream;.
    * @param params - accompanying parameters.
    */
-  virtual void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) = 0;
+  virtual void handleConnection(const provider::ResourceHandle<IOStream>& connectionData,
+                                const std::shared_ptr<const ParameterMap>& params) = 0;
 
   /**
    * Stop all threads here

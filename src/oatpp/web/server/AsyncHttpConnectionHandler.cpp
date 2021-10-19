@@ -67,7 +67,7 @@ void AsyncHttpConnectionHandler::addResponseInterceptor(const std::shared_ptr<in
   m_components->responseInterceptors.push_back(interceptor);
 }
 
-void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream>& connection,
+void AsyncHttpConnectionHandler::handleConnection(const provider::ResourceHandle<IOStream>& connection,
                                                   const std::shared_ptr<const ParameterMap>& params)
 {
 
@@ -75,8 +75,8 @@ void AsyncHttpConnectionHandler::handleConnection(const std::shared_ptr<IOStream
 
   if (m_continue.load()) {
 
-    connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
-    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+    connection.object->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
+    connection.object->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
 
     m_executor->execute<HttpProcessor::Coroutine>(m_components, connection, &m_spawns);
 

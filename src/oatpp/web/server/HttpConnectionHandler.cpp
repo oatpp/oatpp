@@ -62,7 +62,7 @@ void HttpConnectionHandler::addResponseInterceptor(const std::shared_ptr<interce
   m_components->responseInterceptors.push_back(interceptor);
 }
   
-void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
+void HttpConnectionHandler::handleConnection(const provider::ResourceHandle<data::stream::IOStream>& connection,
                                              const std::shared_ptr<const ParameterMap>& params)
 {
 
@@ -70,8 +70,8 @@ void HttpConnectionHandler::handleConnection(const std::shared_ptr<oatpp::data::
 
   if (m_continue.load()) {
 
-    connection->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
-    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+    connection.object->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+    connection.object->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     /* Create working thread */
     std::thread thread(&HttpProcessor::Task::run, std::move(HttpProcessor::Task(m_components, connection, &m_spawns)));

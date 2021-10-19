@@ -37,15 +37,28 @@ struct Resource {
 };
 
 class Provider : public oatpp::provider::Provider<Resource> {
+private:
+
+  class ResourceInvalidator : public oatpp::provider::Invalidator<Resource> {
+  public:
+
+    void invalidate(const std::shared_ptr<Resource>& resource) override {
+      (void) resource;
+    }
+
+  };
+
+private:
+  std::shared_ptr<ResourceInvalidator> m_invalidator;
 public:
 
-  std::shared_ptr<Resource> get() override {
-    return std::make_shared<Resource>();
+  oatpp::provider::ResourceHandle<Resource> get() override {
+    return oatpp::provider::ResourceHandle<Resource>(std::make_shared<Resource>(), m_invalidator);
   }
 
-  async::CoroutineStarterForResult<const std::shared_ptr<Resource> &> getAsync() override {
+  async::CoroutineStarterForResult<const oatpp::provider::ResourceHandle<Resource> &> getAsync() override {
 
-    class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const std::shared_ptr<Resource>&> {
+    class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const oatpp::provider::ResourceHandle<Resource>&> {
     private:
       Provider* m_provider;
     public:
@@ -55,16 +68,12 @@ public:
       {}
 
       Action act() override {
-        return _return(std::make_shared<Resource>());
+        return _return(oatpp::provider::ResourceHandle<Resource>(std::make_shared<Resource>(), m_provider->m_invalidator));
       }
 
     };
 
     return GetCoroutine::startForResult(this);
-  }
-
-  void invalidate(const std::shared_ptr<Resource>& resource) override {
-    (void) resource;
   }
 
   void stop() override {
@@ -75,7 +84,7 @@ public:
 
 struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, AcquisitionProxy> {
 
-  AcquisitionProxy(const std::shared_ptr<Resource>& resource, const std::shared_ptr<PoolInstance>& pool)
+  AcquisitionProxy(const oatpp::provider::ResourceHandle<Resource>& resource, const std::shared_ptr<PoolInstance>& pool)
     : oatpp::provider::AcquisitionProxy<Resource, AcquisitionProxy>(resource, pool)
   {}
 
@@ -87,11 +96,11 @@ struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
     : oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>(provider, maxResources, maxResourceTTL, timeout)
   {}
 
-  static std::shared_ptr<Resource> get(const std::shared_ptr<PoolTemplate>& _this) {
+  static oatpp::provider::ResourceHandle<Resource> get(const std::shared_ptr<PoolTemplate>& _this) {
     return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::get(_this);
   }
 
-  static async::CoroutineStarterForResult<const std::shared_ptr<Resource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
+  static async::CoroutineStarterForResult<const oatpp::provider::ResourceHandle<Resource>&> getAsync(const std::shared_ptr<PoolTemplate>& _this) {
     return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::getAsync(_this);
   }
 
@@ -109,10 +118,10 @@ struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
 private:
   std::shared_ptr<oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>> m_pool;
-  std::promise<std::shared_ptr<Resource>>* m_promise;
+  std::promise<oatpp::provider::ResourceHandle<Resource>>* m_promise;
 public:
 
-  ClientCoroutine(const std::shared_ptr<oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>>& pool, std::promise<std::shared_ptr<Resource>>* promise)
+  ClientCoroutine(const std::shared_ptr<oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>>& pool, std::promise<oatpp::provider::ResourceHandle<Resource>>* promise)
     : m_pool(pool)
     , m_promise(promise)
   {}
@@ -121,7 +130,7 @@ public:
     return Pool::getAsync(m_pool).callbackTo(&ClientCoroutine::onGet);
   }
 
-  Action onGet(const std::shared_ptr<Resource>& resource) {
+  Action onGet(const oatpp::provider::ResourceHandle<Resource>& resource) {
     m_promise->set_value(resource);
     return finish();
   }
@@ -137,8 +146,8 @@ void PoolTemplateTest::onRun() {
   {
     OATPP_LOGD(TAG, "Synchronously with timeout");
     auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
-    
-    std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+
+    oatpp::provider::ResourceHandle<Resource> resource = Pool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr);
     OATPP_ASSERT(Pool::get(poolTemplate) == nullptr);
     
@@ -150,9 +159,9 @@ void PoolTemplateTest::onRun() {
     OATPP_LOGD(TAG, "Synchronously without timeout");
     auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
-    std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+    oatpp::provider::ResourceHandle<Resource> resource = Pool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr);
-    std::future<std::shared_ptr<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
+    std::future<oatpp::provider::ResourceHandle<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
       return Pool::get(poolTemplate);
     });
     OATPP_ASSERT(futureResource.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);
@@ -166,19 +175,24 @@ void PoolTemplateTest::onRun() {
     oatpp::async::Executor executor(1, 1, 1);
     auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
 
-    std::shared_ptr<Resource> resource;
+    oatpp::provider::ResourceHandle<Resource> resourceHandle;
     {
-      std::promise<std::shared_ptr<Resource>> promise;
+      std::promise<oatpp::provider::ResourceHandle<Resource>> promise;
       auto future = promise.get_future();
       executor.execute<ClientCoroutine>(poolTemplate, &promise);
-      resource = future.get();
-      OATPP_ASSERT(resource != nullptr);
+      resourceHandle = future.get();
+      OATPP_ASSERT(resourceHandle != nullptr);
+      OATPP_ASSERT(resourceHandle.object != nullptr)
+      OATPP_ASSERT(resourceHandle.invalidator != nullptr)
     }
     {
-      std::promise<std::shared_ptr<Resource>> promise;
+      std::promise<oatpp::provider::ResourceHandle<Resource>> promise;
       auto future = promise.get_future();
       executor.execute<ClientCoroutine>(poolTemplate, &promise);
-      OATPP_ASSERT(future.get() == nullptr);
+      resourceHandle = future.get();
+      OATPP_ASSERT(resourceHandle == nullptr);
+      OATPP_ASSERT(resourceHandle.object == nullptr)
+      OATPP_ASSERT(resourceHandle.invalidator == nullptr)
     }
 
     poolTemplate->stop();
@@ -190,10 +204,10 @@ void PoolTemplateTest::onRun() {
     oatpp::async::Executor executor(1, 1, 1);
     auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
-    std::shared_ptr<Resource> resource = Pool::get(poolTemplate);
+    oatpp::provider::ResourceHandle<Resource> resource = Pool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr);
 
-    std::promise<std::shared_ptr<Resource>> promise;
+    std::promise<oatpp::provider::ResourceHandle<Resource>> promise;
     auto future = promise.get_future();
     executor.execute<ClientCoroutine>(poolTemplate, &promise);
     OATPP_ASSERT(future.wait_for(std::chrono::seconds(1)) == std::future_status::timeout);

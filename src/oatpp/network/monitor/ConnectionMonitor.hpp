@@ -42,22 +42,28 @@ namespace oatpp { namespace network { namespace monitor {
 class ConnectionMonitor : public ClientConnectionProvider, public ServerConnectionProvider {
 private:
 
+  class ConnectionInvalidator : public provider::Invalidator<data::stream::IOStream> {
+  public:
+
+    void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
+
+  };
+
+private:
+
   class Monitor; // FWD
 
   class ConnectionProxy : public data::stream::IOStream {
     friend Monitor;
   private:
     std::shared_ptr<Monitor> m_monitor;
-    /* provider which created this connection */
-    std::shared_ptr<ConnectionProvider> m_connectionProvider;
-    std::shared_ptr<data::stream::IOStream> m_connection;
+    provider::ResourceHandle<data::stream::IOStream> m_connectionHandle;
     std::mutex m_statsMutex;
     ConnectionStats m_stats;
   public:
 
     ConnectionProxy(const std::shared_ptr<Monitor>& monitor,
-                    const std::shared_ptr<ConnectionProvider>& connectionProvider,
-                    const std::shared_ptr<data::stream::IOStream>& connection);
+                    const provider::ResourceHandle<data::stream::IOStream>& connectionHandle);
 
     ~ConnectionProxy() override;
 
@@ -118,6 +124,7 @@ private:
   };
 
 private:
+  std::shared_ptr<ConnectionInvalidator> m_invalidator;
   std::shared_ptr<Monitor> m_monitor;
   std::shared_ptr<ConnectionProvider> m_connectionProvider;
 public:
@@ -128,9 +135,9 @@ public:
    */
   ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& connectionProvider);
 
-  std::shared_ptr<data::stream::IOStream> get() override;
+  provider::ResourceHandle<data::stream::IOStream> get() override;
 
-  async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override;
+  async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> getAsync() override;
 
   void addStatCollector(const std::shared_ptr<StatCollector>& collector);
 
@@ -139,8 +146,6 @@ public:
    * @param checker - &id:oatpp::network::monitor::MetricsChecker;.
    */
   void addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker);
-
-  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   void stop() override;
 

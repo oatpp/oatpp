@@ -126,6 +126,7 @@ add_library(oatpp
         oatpp/core/parser/Caret.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
+        oatpp/core/provider/Invalidator.hpp
         oatpp/core/provider/Pool.hpp
         oatpp/core/provider/Provider.hpp
         oatpp/core/utils/Binary.cpp

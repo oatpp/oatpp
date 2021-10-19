@@ -40,10 +40,8 @@ namespace oatpp { namespace web { namespace client {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HttpRequestExecutor::ConnectionProxy
 
-HttpRequestExecutor::ConnectionProxy::ConnectionProxy(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
-                                                      const std::shared_ptr<data::stream::IOStream>& connection)
-  : m_connectionProvider(connectionProvider)
-  , m_connection(connection)
+HttpRequestExecutor::ConnectionProxy::ConnectionProxy(const provider::ResourceHandle<data::stream::IOStream>& connectionHandle)
+  : m_connectionHandle(connectionHandle)
   , m_valid(true)
   , m_invalidateOnDestroy(false)
 {}
@@ -55,40 +53,40 @@ HttpRequestExecutor::ConnectionProxy::~ConnectionProxy() {
 }
 
 v_io_size HttpRequestExecutor::ConnectionProxy::read(void *buffer, v_buff_size count, async::Action& action) {
-  return m_connection->read(buffer, count, action);
+  return m_connectionHandle.object->read(buffer, count, action);
 }
 
 v_io_size HttpRequestExecutor::ConnectionProxy::write(const void *data, v_buff_size count, async::Action& action) {
-  return m_connection->write(data,count, action);
+  return m_connectionHandle.object->write(data,count, action);
 }
 
 void HttpRequestExecutor::ConnectionProxy::setInputStreamIOMode(data::stream::IOMode ioMode) {
-  m_connection->setInputStreamIOMode(ioMode);
+  m_connectionHandle.object->setInputStreamIOMode(ioMode);
 }
 
 data::stream::IOMode HttpRequestExecutor::ConnectionProxy::getInputStreamIOMode() {
-  return m_connection->getInputStreamIOMode();
+  return m_connectionHandle.object->getInputStreamIOMode();
 }
 
 data::stream::Context& HttpRequestExecutor::ConnectionProxy::getInputStreamContext() {
-  return m_connection->getInputStreamContext();
+  return m_connectionHandle.object->getInputStreamContext();
 }
 
 void HttpRequestExecutor::ConnectionProxy::setOutputStreamIOMode(data::stream::IOMode ioMode) {
-  return m_connection->setOutputStreamIOMode(ioMode);
+  return m_connectionHandle.object->setOutputStreamIOMode(ioMode);
 }
 
 data::stream::IOMode HttpRequestExecutor::ConnectionProxy::getOutputStreamIOMode() {
-  return m_connection->getOutputStreamIOMode();
+  return m_connectionHandle.object->getOutputStreamIOMode();
 }
 
 data::stream::Context& HttpRequestExecutor::ConnectionProxy::getOutputStreamContext() {
-  return m_connection->getOutputStreamContext();
+  return m_connectionHandle.object->getOutputStreamContext();
 }
 
 void HttpRequestExecutor::ConnectionProxy::invalidate() {
   if(m_valid) {
-    m_connectionProvider->invalidate(m_connection);
+    m_connectionHandle.invalidator->invalidate(m_connectionHandle.object);
     m_valid = false;
   }
 }
@@ -138,7 +136,7 @@ std::shared_ptr<HttpRequestExecutor::ConnectionHandle> HttpRequestExecutor::getC
     throw RequestExecutionError(RequestExecutionError::ERROR_CODE_CANT_CONNECT,
                                 "[oatpp::web::client::HttpRequestExecutor::getConnection()]: ConnectionProvider failed to provide Connection");
   }
-  auto connectionProxy = std::make_shared<ConnectionProxy>(m_connectionProvider, connection);
+  auto connectionProxy = std::make_shared<ConnectionProxy>(connection);
   return std::make_shared<HttpConnectionHandle>(connectionProxy);
 }
 
@@ -158,8 +156,8 @@ HttpRequestExecutor::getConnectionAsync() {
       return m_connectionProvider->getAsync().callbackTo(&GetConnectionCoroutine::onConnectionReady);
     }
     
-    Action onConnectionReady(const std::shared_ptr<oatpp::data::stream::IOStream>& connection) {
-      auto connectionProxy = std::make_shared<ConnectionProxy>(m_connectionProvider, connection);
+    Action onConnectionReady(const provider::ResourceHandle<oatpp::data::stream::IOStream>& connection) {
+      auto connectionProxy = std::make_shared<ConnectionProxy>(connection);
       return _return(std::make_shared<HttpConnectionHandle>(connectionProxy));
     }
     

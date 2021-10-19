@@ -26,8 +26,13 @@
 
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
+void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
+  (void) connection;
+}
+
 ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
-  : m_interface(interface)
+  : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_interface(interface)
   , m_listenerLock(interface->bind())
   , m_open(true)
   , m_maxAvailableToRead(-1)
@@ -52,12 +57,12 @@ void ConnectionProvider::stop() {
   m_interface->notifyAcceptors();
 }
 
-std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
+provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   auto socket = m_interface->accept(m_open);
   if(socket) {
     socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
   }
-  return socket;
+  return provider::ResourceHandle<data::stream::IOStream>(socket, m_invalidator);
 }
 
 }}}}

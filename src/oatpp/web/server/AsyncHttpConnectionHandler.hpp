@@ -123,7 +123,8 @@ public:
   void addResponseInterceptor(const std::shared_ptr<interceptor::ResponseInterceptor>& interceptor);
 
   
-  void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
+  void handleConnection(const provider::ResourceHandle<IOStream>& connection,
+                        const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
    * Will call m_executor.stop()
