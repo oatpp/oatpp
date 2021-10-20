@@ -48,15 +48,12 @@ public:
 
   class ConnectionProxy : public data::stream::IOStream {
   private:
-    /* provider which created this connection */
-    std::shared_ptr<ClientConnectionProvider> m_connectionProvider;
-    std::shared_ptr<data::stream::IOStream> m_connection;
+  provider::ResourceHandle<data::stream::IOStream> m_connectionHandle;
     bool m_valid;
     bool m_invalidateOnDestroy;
   public:
 
-    ConnectionProxy(const std::shared_ptr<ClientConnectionProvider>& connectionProvider,
-                    const std::shared_ptr<data::stream::IOStream>& connection);
+    ConnectionProxy(const provider::ResourceHandle<data::stream::IOStream>& connectionHandle);
 
     ~ConnectionProxy() override;
 

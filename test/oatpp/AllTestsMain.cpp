@@ -9,6 +9,7 @@
 #include "oatpp/web/server/api/ApiControllerTest.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandlerTest.hpp"
 #include "oatpp/web/server/HttpRouterTest.hpp"
+#include "oatpp/web/server/ServerStopTest.hpp"
 #include "oatpp/web/mime/multipart/StatefulParserTest.hpp"
 
 #include "oatpp/network/virtual_/PipeTest.hpp"
@@ -141,6 +142,16 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::server::HttpRouterTest);
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
   OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
+
+  {
+
+    oatpp::test::web::server::ServerStopTest test_virtual(0);
+    test_virtual.run();
+
+    oatpp::test::web::server::ServerStopTest test_port(8000);
+    test_port.run();
+
+  }
 
   {
 

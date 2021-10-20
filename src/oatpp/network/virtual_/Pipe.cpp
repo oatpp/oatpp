@@ -124,11 +124,13 @@ v_io_size Pipe::Writer::write(const void *data, v_buff_size count, async::Action
 
     std::lock_guard<std::mutex> lock(pipe.m_mutex);
 
-    if (pipe.m_fifo.availableToWrite() > 0) {
-      result = pipe.m_fifo.write(data, count);
-    } else if (pipe.m_open) {
-      action = async::Action::createWaitListAction(&m_waitList);
-      result = IOError::RETRY_WRITE;
+    if(pipe.m_open) {
+      if (pipe.m_fifo.availableToWrite() > 0) {
+        result = pipe.m_fifo.write(data, count);
+      } else {
+        action = async::Action::createWaitListAction(&m_waitList);
+        result = IOError::RETRY_WRITE;
+      }
     } else {
       result = IOError::BROKEN_PIPE;
     }

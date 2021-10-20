@@ -58,7 +58,6 @@ private:
   std::function<bool()> m_condition;
   std::thread m_thread;
   std::mutex m_mutex;
-  oatpp::concurrency::SpinLock m_spinlock;
 
   std::shared_ptr<ConnectionProvider> m_connectionProvider;
   std::shared_ptr<ConnectionHandler> m_connectionHandler;
@@ -156,21 +155,8 @@ public:
    */
   v_int32 getStatus();
 
-  /**
-   * Replaces the internal connection-provider
-   * @param connectionProvider - &id:oatpp::network::ConnectionProvider;.
-   */
-  void setConnectionProvider(const std::shared_ptr<ServerConnectionProvider>& connectionProvider);
-
-  /**
- * Replaces the internal connection-handler
- * @param connectionHandler - &id:oatpp::network::ConnectionHandler;.
- */
-  void setConnectionHandler(const std::shared_ptr<ConnectionHandler>& connectionHandler);
-  
 };
 
-  
 }}
 
 #endif /* oatpp_network_Server_hpp */
