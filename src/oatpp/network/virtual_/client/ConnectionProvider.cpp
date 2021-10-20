@@ -27,7 +27,8 @@
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
 
 void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
-  (void) connection;
+  auto socket = std::static_pointer_cast<Socket>(connection);
+  socket->close();
 }
 
 ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)

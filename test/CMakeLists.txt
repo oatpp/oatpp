@@ -91,6 +91,8 @@ add_executable(oatppAllTests
         oatpp/web/server/handler/AuthorizationHandlerTest.hpp
         oatpp/web/server/HttpRouterTest.cpp
         oatpp/web/server/HttpRouterTest.hpp
+        oatpp/web/server/ServerStopTest.cpp
+        oatpp/web/server/ServerStopTest.hpp
         oatpp/web/ClientRetryTest.cpp
         oatpp/web/ClientRetryTest.hpp
         oatpp/web/PipelineTest.cpp

@@ -28,18 +28,30 @@
 #include "oatpp/web/server/HttpProcessor.hpp"
 #include "oatpp/network/ConnectionHandler.hpp"
 #include "oatpp/core/async/Executor.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace server {
 
 /**
  * Asynchronous &id:oatpp::network::ConnectionHandler; for handling http communication.
  */
-class AsyncHttpConnectionHandler : public base::Countable, public network::ConnectionHandler {
+class AsyncHttpConnectionHandler : public base::Countable, public network::ConnectionHandler, public HttpProcessor::TaskProcessingListener {
+protected:
+
+  void onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) override;
+  void onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) override;
+
+  void invalidateAllConnections();
+  v_uint64 getConnectionsCount();
+
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
   std::shared_ptr<HttpProcessor::Components> m_components;
-  std::atomic_long m_spawns;
   std::atomic_bool m_continue;
+  std::unordered_map<v_uint64, provider::ResourceHandle<data::stream::IOStream>> m_connections;
+  oatpp::concurrency::SpinLock m_connectionsLock;
 public:
 
   /**

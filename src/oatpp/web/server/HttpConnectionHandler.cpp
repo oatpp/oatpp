@@ -37,9 +37,37 @@
 
 namespace oatpp { namespace web { namespace server {
 
+void HttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) {
+
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
+  m_connections.insert({(v_uint64) connection.object.get(), connection});
+
+  if(!m_continue.load()) {
+    connection.invalidator->invalidate(connection.object);
+  }
+
+}
+
+void HttpConnectionHandler::onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) {
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
+  m_connections.erase((v_uint64) connection.object.get());
+}
+
+void HttpConnectionHandler::invalidateAllConnections() {
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
+  for(auto& c : m_connections) {
+    const auto& handle = c.second;
+    handle.invalidator->invalidate(handle.object);
+  }
+}
+
+v_uint64 HttpConnectionHandler::getConnectionsCount() {
+  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
+  return m_connections.size();
+}
+
 HttpConnectionHandler::HttpConnectionHandler(const std::shared_ptr<HttpProcessor::Components>& components)
   : m_components(components)
-  , m_spawns(0)
   , m_continue(true)
 {}
 
@@ -74,7 +102,7 @@ void HttpConnectionHandler::handleConnection(const provider::ResourceHandle<data
     connection.object->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     /* Create working thread */
-    std::thread thread(&HttpProcessor::Task::run, std::move(HttpProcessor::Task(m_components, connection, &m_spawns)));
+    std::thread thread(&HttpProcessor::Task::run, std::move(HttpProcessor::Task(m_components, connection, this)));
 
     /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
     v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
@@ -95,8 +123,11 @@ void HttpConnectionHandler::handleConnection(const provider::ResourceHandle<data
 void HttpConnectionHandler::stop() {
   m_continue.store(false);
 
+  /* invalidate all connections */
+  invalidateAllConnections();
+
   /* Wait until all connection-threads are done */
-  while(m_spawns.load() != 0) {
+  while(getConnectionsCount() > 0) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }

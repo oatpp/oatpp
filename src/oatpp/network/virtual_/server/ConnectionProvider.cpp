@@ -24,10 +24,13 @@
 
 #include "ConnectionProvider.hpp"
 
+#include <chrono>
+
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
 void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
-  (void) connection;
+  auto socket = std::static_pointer_cast<Socket>(connection);
+  socket->close();
 }
 
 ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
@@ -58,7 +61,7 @@ void ConnectionProvider::stop() {
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
-  auto socket = m_interface->accept(m_open);
+  auto socket = m_interface->accept(m_open, std::chrono::milliseconds(500));
   if(socket) {
     socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
   }

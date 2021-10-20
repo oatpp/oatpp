@@ -210,12 +210,15 @@ std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking()
   return std::make_shared<ConnectionSubmission>(false);
 }
 
-std::shared_ptr<Socket> Interface::accept(const bool& waitingHandle) {
+std::shared_ptr<Socket> Interface::accept(const bool& waitingHandle,
+                                          const std::chrono::duration<v_int64, std::micro>& timeout) {
+
+  auto startTime = std::chrono::system_clock::now();
   std::unique_lock<std::mutex> lock(m_mutex);
-  while (waitingHandle && m_submissions.empty()) {
-    m_condition.wait(lock);
+  while (waitingHandle && m_submissions.empty() && std::chrono::system_clock::now() - startTime < timeout) {
+    m_condition.wait_for(lock, std::chrono::milliseconds (100));
   }
-  if(!waitingHandle) {
+  if(!waitingHandle || m_submissions.empty()) {
     return nullptr;
   }
   const auto submission = m_submissions.front();
