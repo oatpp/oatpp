@@ -106,6 +106,8 @@ const char* const Header::Value::USER_AGENT = "oatpp/" OATPP_VERSION;
 const char* const Header::Value::TRANSFER_ENCODING_CHUNKED = "chunked";
   
 const char* const Header::Value::CONTENT_TYPE_APPLICATION_JSON = "application/json";
+
+const char* const Header::Value::EXPECT_100_CONTINUE = "100-continue";
   
 const char* const Header::ACCEPT = "Accept";
 const char* const Header::AUTHORIZATION = "Authorization";
@@ -129,6 +131,8 @@ const char* const Header::CORS_HEADERS = "Access-Control-Allow-Headers";
 const char* const Header::CORS_MAX_AGE = "Access-Control-Max-Age";
 
 const char* const Header::ACCEPT_ENCODING = "Accept-Encoding";
+
+const char* const Header::EXPECT = "Expect";
 
 const char* const Range::UNIT_BYTES = "bytes";
 const char* const ContentRange::UNIT_BYTES = "bytes";

@@ -262,7 +262,7 @@ public:
    */
   template<class Wrapper>
   Wrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
-    return objectMapper->readFromString<Wrapper>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get()));
+    return objectMapper->readFromString<Wrapper>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get(), m_connection.get()));
   }
   
   // Async
@@ -297,7 +297,7 @@ public:
   template<class Wrapper>
   oatpp::async::CoroutineStarterForResult<const Wrapper&>
   readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
-    return m_bodyDecoder->decodeToDtoAsync<Wrapper>(m_headers, m_bodyStream, objectMapper);
+    return m_bodyDecoder->decodeToDtoAsync<Wrapper>(m_headers, m_bodyStream, m_connection, objectMapper);
   }
   
 };

@@ -480,6 +480,8 @@ public:
     
     static const char* const TRANSFER_ENCODING_CHUNKED;
     static const char* const CONTENT_TYPE_APPLICATION_JSON;
+
+    static const char* const EXPECT_100_CONTINUE;
   };
 public:
   static const char* const ACCEPT;              // "Accept"
@@ -501,6 +503,7 @@ public:
   static const char* const CORS_HEADERS;        // Access-Control-Allow-Headers
   static const char* const CORS_MAX_AGE;        // Access-Control-Max-Age
   static const char* const ACCEPT_ENCODING;     // Accept-Encoding
+  static const char* const EXPECT;              // Expect
 };
   
 class Range {
