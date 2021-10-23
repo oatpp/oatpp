@@ -27,7 +27,7 @@
 namespace oatpp { namespace parser {
 
 ParsingError::ParsingError(const oatpp::String &message, v_int64 code, v_buff_size position)
-  :std::runtime_error(message->std_str())
+  :std::runtime_error(*message)
   , m_message(message)
   , m_code(code)
   , m_position(position)

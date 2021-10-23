@@ -35,15 +35,15 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   if(size > 0) {
     std::unique_ptr<v_char8[]> buff(new v_char8[size]);
     std::memcpy(buff.get(), &caret.getData()[pos0], size);
-    oatpp::base::StrBuffer::lowerCase(buff.get(), size);
-    return oatpp::String((const char*)buff.get(), size, true);
+    utils::String::lowerCase_ASCII(buff.get(), size);
+    return oatpp::String((const char*)buff.get(), size);
   }
   return nullptr;
 }
 
 Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size pos0 = caret.getPosition();
   v_buff_size pos = pos0;
   
@@ -75,11 +75,11 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   Url::Authority result;
   
   if(atPos > -1) {
-    result.userInfo = oatpp::String((const char*)&data[pos0], atPos - pos0, true);
+    result.userInfo = oatpp::String((const char*)&data[pos0], atPos - pos0);
   }
   
   if(portPos > hostPos) {
-    result.host = oatpp::String((const char*)&data[hostPos], portPos - 1 - hostPos, true);
+    result.host = oatpp::String((const char*)&data[hostPos], portPos - 1 - hostPos);
     char* end;
     result.port = std::strtol((const char*)&data[portPos], &end, 10);
     bool success = (((v_buff_size)end - (v_buff_size)&data[portPos]) == pos - portPos);
@@ -87,7 +87,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
       caret.setError("Invalid port string");
     }
   } else {
-    result.host = oatpp::String((const char*)&data[hostPos], pos - pos0, true);
+    result.host = oatpp::String((const char*)&data[hostPos], pos - pos0);
   }
   
   return result;
@@ -96,9 +96,9 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
 
 oatpp::String Url::Parser::parsePath(oatpp::parser::Caret& caret) {
   auto label = caret.putLabel();
-  caret.findCharFromSet((p_char8)"?#", 2);
+  caret.findCharFromSet("?#", 2);
   if(label.getSize() > 0) {
-    return label.toString(true);
+    return label.toString();
   }
   return nullptr;
 }
@@ -156,7 +156,7 @@ Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
     caret.setPosition(0);
   }
 
-  caret.isAtText((p_char8)"//", 2, true);
+  caret.isAtText("//", 2, true);
 
   if(!caret.isAtChar('/')) {
     result.authority = parseAuthority(caret);

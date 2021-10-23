@@ -138,7 +138,7 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 
     } else {
 
-      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONNECTION);
 
       if(connectionStr && connectionStr == "close") {
 
@@ -192,7 +192,7 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
 
     } else {
 
-      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONNECTION);
 
       if(connectionStr && connectionStr == "close") {
 

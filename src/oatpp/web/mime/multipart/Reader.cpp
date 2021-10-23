@@ -57,7 +57,7 @@ void PartsParser::onPartHeaders(const Headers& partHeaders) {
 
 }
 
-void PartsParser::onPartData(p_char8 data, v_buff_size size) {
+void PartsParser::onPartData(const char* data, v_buff_size size) {
   if(size > 0) {
     if(m_currReader) {
       m_currReader->onPartData(m_currPart, data, size);
@@ -147,7 +147,7 @@ async::CoroutineStarter AsyncPartsParser::onPartDone(const std::shared_ptr<Part>
 
 }
 
-async::CoroutineStarter AsyncPartsParser::onPartDataAsync(p_char8 data, v_buff_size size) {
+async::CoroutineStarter AsyncPartsParser::onPartDataAsync(const char* data, v_buff_size size) {
   if(size > 0) {
     if(m_currReader) {
       return m_currReader->onPartDataAsync(m_currPart, data, size);

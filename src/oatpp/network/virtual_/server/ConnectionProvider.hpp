@@ -37,6 +37,16 @@ namespace oatpp { namespace network { namespace virtual_ { namespace server {
  */
 class ConnectionProvider : public oatpp::network::ServerConnectionProvider {
 private:
+
+  class ConnectionInvalidator : public provider::Invalidator<data::stream::IOStream> {
+  public:
+
+    void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
+
+  };
+
+private:
+  std::shared_ptr<ConnectionInvalidator> m_invalidator;
   std::shared_ptr<virtual_::Interface> m_interface;
   std::shared_ptr<virtual_::Interface::ListenerLock> m_listenerLock;
   bool m_open;
@@ -74,7 +84,7 @@ public:
    * Get incoming connection.
    * @return &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<data::stream::IOStream> get() override;
+  provider::ResourceHandle<data::stream::IOStream> get() override;
 
   /**
    * **NOT IMPLEMENTED!**<br>
@@ -85,7 +95,7 @@ public:
    * <br>
    * *It may be implemented later.*
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override {
+  oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> getAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
@@ -95,15 +105,6 @@ public:
      *  It may be implemented later
      */
     throw std::runtime_error("[oatpp::network::virtual_::server::ConnectionProvider::getConnectionAsync()]: Error. Not implemented.");
-  }
-
-  /**
-   * Does nothing.
-   * @param connection
-   */
-  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override {
-    (void)connection;
-    // DO Nothing.
   }
   
 };

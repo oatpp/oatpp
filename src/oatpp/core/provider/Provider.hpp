@@ -25,17 +25,128 @@
 #ifndef oatpp_provider_Provider_hpp
 #define oatpp_provider_Provider_hpp
 
+#include "Invalidator.hpp"
+
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 
 namespace oatpp { namespace provider {
 
 /**
+ * Resource handle template.
+ * @tparam T
+ */
+template<class T, class PTR>
+struct ResourceHandleTemplate {
+
+  /**
+   * Default constructor.
+   */
+  ResourceHandleTemplate() = default;
+
+  /**
+   * Nullptr constructor.
+   */
+  ResourceHandleTemplate(std::nullptr_t) {}
+
+  /**
+   * Constructor.
+   * @param resourceObject
+   * @param resourceInvalidator
+   */
+  ResourceHandleTemplate(const PTR& resourceObject,
+                         const std::shared_ptr<Invalidator<T>> &resourceInvalidator)
+    : object(resourceObject), invalidator(resourceInvalidator)
+  {}
+
+  /**
+   * Pointer to the resource.
+   */
+  PTR object;
+
+  /**
+   * Invalidator that can be used to invalidate the resource.
+   */
+  std::shared_ptr<Invalidator<T>> invalidator;
+
+  inline bool operator == (std::nullptr_t) const {
+    return object.get() == nullptr;
+  }
+
+  inline bool operator != (std::nullptr_t) const {
+    return object.get() != nullptr;
+  }
+
+  explicit inline operator bool() const {
+    return object.operator bool();
+  }
+
+};
+
+/**
+ * Resource handle.
+ * @tparam T
+ */
+template<class T>
+struct ResourceHandle : public ResourceHandleTemplate<T, std::shared_ptr<T>> {
+
+  /**
+   * Default constructor.
+   */
+  ResourceHandle() = default;
+
+  /**
+   * Nullptr constructor.
+   */
+  ResourceHandle(std::nullptr_t) {}
+
+  /**
+   * Constructor.
+   * @param resourceObject
+   * @param resourceInvalidator
+   */
+  ResourceHandle(const std::shared_ptr<T>& resourceObject,
+                 const std::shared_ptr<Invalidator<T>>& resourceInvalidator)
+    : ResourceHandleTemplate<T, std::shared_ptr<T>>(resourceObject, resourceInvalidator)
+  {}
+
+};
+
+/**
+ * Weak Resource handle.
+ * @tparam T
+ */
+template<class T>
+struct WeakResourceHandle : public ResourceHandleTemplate<T, std::weak_ptr<T>> {
+
+  /**
+   * Default constructor.
+   */
+  WeakResourceHandle() = default;
+
+  /**
+   * Nullptr constructor.
+   */
+  WeakResourceHandle(std::nullptr_t) {}
+
+  /**
+   * Constructor.
+   * @param resourceObject
+   * @param resourceInvalidator
+   */
+  WeakResourceHandle(const std::weak_ptr<T>& resourceObject,
+                     const std::shared_ptr<Invalidator<T>>& resourceInvalidator)
+    : ResourceHandleTemplate<T, std::weak_ptr<T>>(resourceObject, resourceInvalidator)
+  {}
+
+};
+
+/**
  * Abstract resource provider.
  * @tparam T - resource class.
  */
 template <class T>
-class Provider {
+class Provider : public oatpp::base::Countable {
 protected:
 
   void setProperty(const oatpp::String& key, const oatpp::String& value) {
@@ -68,7 +179,7 @@ public:
    * Some optional properties that user might want to know. <br>
    * Note: All properties are optional and user should not rely on this.
    */
-  const std::unordered_map<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel>& getProperties() const {
+  const std::unordered_map<data::share::StringKeyLabelCI, data::share::StringKeyLabel>& getProperties() const {
     return m_properties;
   }
 
@@ -87,20 +198,13 @@ public:
    * Get resource.
    * @return - resource.
    */
-  virtual std::shared_ptr<T> get() = 0;
+  virtual ResourceHandle<T> get() = 0;
 
   /**
    * Get resource in Async manner.
    * @return - &id:oatpp::async::CoroutineStarterForResult; of `T`.
    */
-  virtual async::CoroutineStarterForResult<const std::shared_ptr<T>&> getAsync() = 0;
-
-  /**
-   * Invalidate resource that was previously created by this provider. <br>
-   * Use-case: if provider is pool based - you can signal that this resource should not be reused anymore.
-   * @param resource
-   */
-  virtual void invalidate(const std::shared_ptr<T>& resource) = 0;
+  virtual async::CoroutineStarterForResult<const ResourceHandle<T>&> getAsync() = 0;
 
   /**
    * Stop provider and free associated resources.

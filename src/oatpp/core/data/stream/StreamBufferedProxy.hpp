@@ -45,7 +45,7 @@ public:
                             const oatpp::data::share::MemoryLabel& memoryLabel)
     : m_outputStream(outputStream)
     , m_memoryLabel(memoryLabel)
-    , m_buffer(memoryLabel.getData(), memoryLabel.getSize())
+    , m_buffer((void *) memoryLabel.getData(), memoryLabel.getSize())
   {}
 public:
   
@@ -82,7 +82,7 @@ public:
   
 };
   
-class InputStreamBufferedProxy : public oatpp::base::Countable, public InputStream {
+class InputStreamBufferedProxy : public oatpp::base::Countable, public BufferedInputStream {
 public:
   OBJECT_POOL(InputStreamBufferedProxy_Pool, InputStreamBufferedProxy, 32)
   SHARED_OBJECT_POOL(Shared_InputStreamBufferedProxy_Pool, InputStreamBufferedProxy, 32)
@@ -98,7 +98,7 @@ public:
                            bool bufferCanRead)
     : m_inputStream(inputStream)
     , m_memoryLabel(memoryLabel)
-    , m_buffer(memoryLabel.getData(), memoryLabel.getSize(), bufferReadPosition, bufferWritePosition, bufferCanRead)
+    , m_buffer((void*) memoryLabel.getData(), memoryLabel.getSize(), bufferReadPosition, bufferWritePosition, bufferCanRead)
   {}
 public:
   
@@ -119,9 +119,11 @@ public:
   
   v_io_size read(void *data, v_buff_size count, async::Action& action) override;
 
-  v_io_size peek(void *data, v_buff_size count, async::Action& action);
+  v_io_size peek(void *data, v_buff_size count, async::Action& action) override;
 
-  v_io_size commitReadOffset(v_buff_size count);
+  v_io_size commitReadOffset(v_buff_size count) override;
+
+  v_io_size availableToRead() const override;
 
   /**
    * Set InputStream I/O mode.

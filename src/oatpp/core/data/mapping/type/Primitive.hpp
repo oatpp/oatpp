@@ -29,12 +29,15 @@
 
 #include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/StrBuffer.hpp"
+
+#include <algorithm>
+#include <cctype>
+#include <iterator>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
-  
+
 namespace __class {
-  
+
   class String; // FWD
 
   class Int8; // FWD
@@ -53,60 +56,125 @@ namespace __class {
   class Float64; // FWD
 
   class Boolean; // FWD
-  
+
 }
 
 /**
- * Mapping-enables String is &id:type::ObjectWrapper; over &id:oatpp::base::StrBuffer;
+ * Mapping-enables String is &id:type::ObjectWrapper; over `std::string`;
  */
-class String : public type::ObjectWrapper<base::StrBuffer, __class::String> {
+class String : public type::ObjectWrapper<std::string, __class::String> {
 public:
-  String(const std::shared_ptr<base::StrBuffer>& ptr, const type::Type* const valueType);
+  String(const std::shared_ptr<std::string>& ptr, const type::Type* const valueType);
 public:
-  
+
   String() {}
 
-  String(std::nullptr_t) {}
-
   explicit String(v_buff_size size)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(size))
-  {}
-  
-  String(const char* data, v_buff_size size, bool copyAsOwnData = true)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createShared(data, size, copyAsOwnData))
-  {}
-  
-  String(const char* data1, v_buff_size size1, const char* data2, v_buff_size size2)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createSharedConcatenated(data1, size1, data2, size2))
-  {}
-  
-  String(const char* data, bool copyAsOwnData = true)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(base::StrBuffer::createFromCString(data, copyAsOwnData))
-  {}
-  
-  String(const std::shared_ptr<base::StrBuffer>& ptr)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(ptr)
-  {}
-  
-  String(std::shared_ptr<base::StrBuffer>&& ptr)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<std::shared_ptr<base::StrBuffer>>(ptr))
-  {}
-  
-  String(const String& other)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(other)
-  {}
-  
-  String(String&& other)
-    : type::ObjectWrapper<base::StrBuffer, __class::String>(std::forward<String>(other))
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(size, 0))
   {}
 
+  String(const char* data, v_buff_size size)
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(data, size))
+  {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  String(T) {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  String(const T* data)
+    : type::ObjectWrapper<std::string, __class::String>(
+        data == nullptr ? nullptr : std::make_shared<std::string>(data)
+      )
+  {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  String(const T& str)
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(str))
+  {}
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  String(T&& str)
+    : type::ObjectWrapper<std::string, __class::String>(
+        std::make_shared<std::string>(std::forward<std::string>(str))
+      )
+  {}
+
+  String(const std::shared_ptr<std::string>& ptr)
+    : type::ObjectWrapper<std::string, __class::String>(ptr)
+  {}
+
+  String(std::shared_ptr<std::string>&& ptr)
+    : type::ObjectWrapper<std::string, __class::String>(std::forward<std::shared_ptr<std::string>>(ptr))
+  {}
+
+  String(const String& other)
+    : type::ObjectWrapper<std::string, __class::String>(other)
+  {}
+
+  String(String&& other)
+    : type::ObjectWrapper<std::string, __class::String>(std::forward<String>(other))
+  {}
+
+  /**
+   * Load data from file and store in &id:oatpp::String;.
+   * @param filename - name of the file.
+   * @return - &id:oatpp::String;.
+   */
+  static String loadFromFile(const char* filename);
+
+  /**
+   * Save content of the buffer to file.
+   * @param filename - name of the file.
+   */
+  void saveToFile(const char* filename) const;
+
+  const std::string& operator*() const;
+
+  operator std::string() const {
+    if (this->m_ptr == nullptr) {
+      throw std::runtime_error("[oatpp::data::mapping::type::String::operator std::string() const]: "
+                               "Error. Null pointer.");
+    }
+    return this->m_ptr.operator*();
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
   inline String& operator = (std::nullptr_t) {
     m_ptr.reset();
     return *this;
   }
 
-  inline String& operator = (const char* str) {
-    m_ptr = base::StrBuffer::createFromCString(str);
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  inline String& operator = (const T* str) {
+    m_ptr = std::make_shared<std::string>(str);
+    return *this;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline String& operator = (const T& str) {
+    m_ptr = std::make_shared<std::string>(str);
+    return *this;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline String& operator = (T&& str) {
+    m_ptr = std::make_shared<std::string>(std::forward<std::string>(str));
     return *this;
   }
 
@@ -115,46 +183,91 @@ public:
     return *this;
   }
 
-  inline String& operator = (String&& other){
-    m_ptr = std::forward<std::shared_ptr<base::StrBuffer>>(other.m_ptr);
+  inline String& operator = (String&& other) noexcept {
+    m_ptr = std::move(other.m_ptr);
     return *this;
   }
 
-  inline bool operator == (std::nullptr_t) const {
+  /**
+   * Case insensitive compare (ASCII only).
+   * @param other
+   * @return
+   */
+  bool equalsCI_ASCII(const std::string& other);
+
+  /**
+   * Case insensitive compare (ASCII only).
+   * @param other
+   * @return
+   */
+  bool equalsCI_ASCII(const String& other);
+
+  /**
+   * Case insensitive compare (ASCII only).
+   * @param other
+   * @return
+   */
+  bool equalsCI_ASCII(const char* str);
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator == (T) const {
     return m_ptr.get() == nullptr;
   }
 
-  inline bool operator != (std::nullptr_t) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
+  >
+  inline bool operator != (T) const {
     return m_ptr.get() != nullptr;
   }
 
-  inline bool operator == (const char* str) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  inline bool operator == (const T* str) const {
     if(!m_ptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_ptr->getSize() != v_buff_size(std::strlen(str))) return false;
-    return base::StrBuffer::equals(m_ptr->getData(), str, m_ptr->getSize());
+    return *m_ptr == str;
   }
 
-  inline bool operator != (const char* str) const {
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
+  >
+  inline bool operator != (const T* str) const {
+    return !operator == (str);
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline bool operator == (const T& str) const {
+    if(!m_ptr) return false;
+    return *m_ptr == str;
+  }
+
+  template<typename T,
+    typename enabled = typename std::enable_if<std::is_same<T, std::string>::value, void>::type
+  >
+  inline bool operator != (const T& str) const {
     return !operator == (str);
   }
 
   inline bool operator == (const String &other) const {
-    return base::StrBuffer::equals(m_ptr.get(), other.m_ptr.get());
+    if(!m_ptr) return !other.m_ptr;
+    if(!other.m_ptr) return false;
+    return *m_ptr == *other.m_ptr;
   }
 
   inline bool operator != (const String &other) const {
     return !operator == (other);
   }
 
-  inline explicit operator bool() const {
-    return m_ptr.operator bool();
-  }
-  
 };
-  
+
 String operator + (const char* a, const String& b);
-String operator + (const String& b, const char* a);
+String operator + (const String& a, const char* b);
 String operator + (const String& a, const String& b);
 
 /**
@@ -232,7 +345,7 @@ public:
   inline operator TValueType() const {
     return *this->m_ptr;
   }
-  
+
 };
 
 /**
@@ -402,29 +515,29 @@ template<>
 struct ObjectWrapperByUnderlyingType <bool> {
   typedef Boolean ObjectWrapper;
 };
-  
+
 namespace __class {
-  
+
   class String {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
   class Int8 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt8 {
@@ -441,12 +554,12 @@ namespace __class {
   class Int16 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt16 {
@@ -459,16 +572,16 @@ namespace __class {
     }
 
   };
-  
+
   class Int32 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt32 {
@@ -481,16 +594,16 @@ namespace __class {
     }
 
   };
-  
+
   class Int64 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
 
   class UInt64 {
@@ -507,62 +620,53 @@ namespace __class {
   class Float32 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
   class Float64 {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
   class Boolean {
   public:
     static const ClassId CLASS_ID;
-    
+
     static Type* getType(){
       static Type type(CLASS_ID, nullptr);
       return &type;
     }
-    
+
   };
-  
+
 }
-  
+
 }}}}
 
 namespace std {
-  
+
   template<>
   struct hash<oatpp::data::mapping::type::String> {
-    
+
     typedef oatpp::data::mapping::type::String argument_type;
     typedef v_uint64 result_type;
-    
+
     result_type operator()(argument_type const& s) const noexcept {
       if(s.get() == nullptr) return 0;
-
-      p_char8 data = s->getData();
-      result_type result = 0;
-      for(v_buff_size i = 0; i < s->getSize(); i++) {
-        v_char8 c = data[i] | 32;
-        result = (31 * result) + c;
-      }
-
-      return result;
-
+      return hash<std::string> {} (*s);
     }
-    
+
   };
 
   template<>

@@ -403,7 +403,7 @@ void FullTest::onRun() {
         // should also add the WWW-Authenticate header when Authorization is missing or wrong
         auto header = response->getHeader(oatpp::web::protocol::http::Header::WWW_AUTHENTICATE);
         OATPP_ASSERT(header);
-        OATPP_ASSERT(header->startsWith("Basic realm=\"custom-test-realm\""));
+        OATPP_ASSERT(header == "Basic realm=\"custom-test-realm\"");
       }
 
       { // test custom authorization handler with custom authorization method
@@ -434,7 +434,7 @@ void FullTest::onRun() {
         v_int32 numIterations = 10;
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < numIterations; i++) {
-          stream.writeSimple(sample->getData(), sample->getSize());
+          stream.writeSimple(sample->data(), sample->size());
         }
         auto data = stream.toString();
         auto response = client->getChunked(sample, numIterations, connection);
@@ -493,6 +493,15 @@ void FullTest::onRun() {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();
         OATPP_LOGV("i", "%d, tick=%d", i + 1, ticks);
+      }
+
+      { // test bundle
+        auto response = client->getBundle(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto dto = response->readBodyToDto<oatpp::Object<app::TestDto>>(objectMapper.get());
+        OATPP_ASSERT(dto);
+        OATPP_ASSERT(dto->testValue == "str-param");
+        OATPP_ASSERT(dto->testValueInt == 32000);
       }
 
     }

@@ -161,10 +161,10 @@ private:
   struct ProcessingResources {
 
     ProcessingResources(const std::shared_ptr<Components>& pComponents,
-                        const std::shared_ptr<oatpp::data::stream::IOStream>& pConnection);
+                        const provider::ResourceHandle<oatpp::data::stream::IOStream>& pConnection);
 
     std::shared_ptr<Components> components;
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
+    provider::ResourceHandle<oatpp::data::stream::IOStream> connection;
     oatpp::data::stream::BufferOutputStream headersInBuffer;
     oatpp::data::stream::BufferOutputStream headersOutBuffer;
     RequestHeadersReader headersReader;
@@ -182,6 +182,17 @@ private:
 public:
 
   /**
+   * Listener of the connection processing task.
+   */
+  class TaskProcessingListener {
+  public:
+    virtual void onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) = 0;
+    virtual void onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) = 0;
+  };
+
+public:
+
+  /**
    * Connection serving task. <br>
    * Usege example: <br>
    * `std::thread thread(&HttpProcessor::Task::run, HttpProcessor::Task(components, connection));`
@@ -189,7 +200,8 @@ public:
   class Task : public base::Countable {
   private:
     std::shared_ptr<Components> m_components;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    provider::ResourceHandle<oatpp::data::stream::IOStream> m_connection;
+    TaskProcessingListener* m_taskListener;
   public:
 
     /**
@@ -198,7 +210,29 @@ public:
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
     Task(const std::shared_ptr<Components>& components,
-         const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
+         const provider::ResourceHandle<oatpp::data::stream::IOStream>& connection,
+         TaskProcessingListener* taskListener);
+
+    Task(const Task&) = delete;
+    Task &operator=(const Task&) = delete;
+
+    /**
+     * Move-Constructor to correclty count tasks;
+     */
+     Task(Task &&other);
+
+     /**
+      * Move-Assignment to correctly count tasks.
+      * @param t
+      * @return
+      */
+    Task &operator=(Task &&other);
+
+    /**
+     * Destructor, needed for counting.
+     */
+    ~Task() override;
+
   public:
 
     /**
@@ -216,7 +250,7 @@ public:
   class Coroutine : public oatpp::async::Coroutine<HttpProcessor::Coroutine> {
   private:
     std::shared_ptr<Components> m_components;
-    std::shared_ptr<oatpp::data::stream::IOStream> m_connection;
+    provider::ResourceHandle<oatpp::data::stream::IOStream> m_connection;
     oatpp::data::stream::BufferOutputStream m_headersInBuffer;
     RequestHeadersReader m_headersReader;
     std::shared_ptr<oatpp::data::stream::BufferOutputStream> m_headersOutBuffer;
@@ -226,8 +260,8 @@ public:
     oatpp::web::server::HttpRouter::BranchRouter::Route m_currentRoute;
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
+    TaskProcessingListener* m_taskListener;
   public:
-
 
     /**
      * Constructor.
@@ -235,8 +269,11 @@ public:
      * @param connection - &id:oatpp::data::stream::IOStream;.
      */
     Coroutine(const std::shared_ptr<Components>& components,
-              const std::shared_ptr<oatpp::data::stream::IOStream>& connection);
-    
+              const provider::ResourceHandle<oatpp::data::stream::IOStream>& connection,
+              TaskProcessingListener* taskListener);
+
+    ~Coroutine() override;
+
     Action act() override;
 
     Action parseHeaders();

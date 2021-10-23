@@ -36,7 +36,16 @@ namespace oatpp { namespace network { namespace tcp { namespace server {
 /**
  * Simple provider of TCP connections.
  */
-class ConnectionProvider : public base::Countable, public ServerConnectionProvider {
+class ConnectionProvider : public ServerConnectionProvider {
+private:
+
+  class ConnectionInvalidator : public provider::Invalidator<data::stream::IOStream> {
+  public:
+
+    void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
+
+  };
+
 public:
 
   /**
@@ -75,6 +84,7 @@ public:
   };
 
 private:
+  std::shared_ptr<ConnectionInvalidator> m_invalidator;
   network::Address m_address;
   std::atomic<bool> m_closed;
   oatpp::v_io_handle m_serverHandle;
@@ -83,8 +93,8 @@ private:
   oatpp::v_io_handle instantiateServer();
 private:
   bool prepareConnectionHandle(oatpp::v_io_handle handle);
-  std::shared_ptr<data::stream::IOStream> getDefaultConnection();
-  std::shared_ptr<data::stream::IOStream> getExtendedConnection();
+  provider::ResourceHandle<data::stream::IOStream> getDefaultConnection();
+  provider::ResourceHandle<data::stream::IOStream> getExtendedConnection();
 public:
 
   /**
@@ -122,7 +132,7 @@ public:
    * Get incoming connection.
    * @return &id:oatpp::data::stream::IOStream;.
    */
-  std::shared_ptr<data::stream::IOStream> get() override;
+  provider::ResourceHandle<data::stream::IOStream> get() override;
 
   /**
    * No need to implement this.<br>
@@ -132,7 +142,7 @@ public:
    * <br>
    * *It may be implemented later*
    */
-  oatpp::async::CoroutineStarterForResult<const std::shared_ptr<data::stream::IOStream>&> getAsync() override {
+  oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> getAsync() override {
     /*
      *  No need to implement this.
      *  For Asynchronous IO in oatpp it is considered to be a good practice
@@ -143,13 +153,6 @@ public:
      */
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::getAsync()]: Error. Not implemented.");
   }
-
-  /**
-   * Call shutdown read and write on an underlying file descriptor.
-   * `connection` **MUST** be an object previously obtained from **THIS** connection provider.
-   * @param connection
-   */
-  void invalidate(const std::shared_ptr<data::stream::IOStream>& connection) override;
 
   /**
    * Get address - &id:oatpp::network::Address;.

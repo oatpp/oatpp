@@ -37,7 +37,7 @@ namespace oatpp { namespace data { namespace share {
  * Lazy String Map keeps keys, and values as memory label.
  * Once value is requested by user, the new memory block is allocated and value is copied to be stored permanently.
  * @tparam Key - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
- * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+ * &id:oatpp::data::share::StringKeyLabelCI;.
  */
 template<typename Key, typename MapType>
 class LazyStringMapTemplate {
@@ -242,8 +242,7 @@ public:
 
   /**
    * Get value as a memory label.
-   * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
-   * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;.
    * @param key
    * @return
    */
@@ -257,7 +256,7 @@ public:
     if(it != m_map.end()) {
       it->second.captureToOwnMemory();
       const auto& label = it->second;
-      return T(label.getMemoryHandle(), label.getData(), label.getSize());
+      return T(label.getMemoryHandle(), (const char*) label.getData(), label.getSize());
     }
 
     return T(nullptr, nullptr, 0);
@@ -267,7 +266,7 @@ public:
   /**
    * Get value as a memory label without allocating memory for value.
    * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
-   * * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * * &id:oatpp::data::share::StringKeyLabelCI;.
    * @param key
    * @return
    */
@@ -280,7 +279,7 @@ public:
 
     if(it != m_map.end()) {
       const auto& label = it->second;
-      return T(label.getMemoryHandle(), label.getData(), label.getSize());
+      return T(label.getMemoryHandle(), (const char*)label.getData(), label.getSize());
     }
 
     return T(nullptr, nullptr, 0);

@@ -129,15 +129,15 @@ const type::Type* TypeResolver::resolveType(const type::Type* type, Cache& cache
 
 type::Void TypeResolver::resolveValue(const type::Void& value, Cache& cache) const {
 
-  if(value.valueType == nullptr) {
+  if(value.getValueType() == nullptr) {
     return nullptr;
   }
 
-  if(isKnownClass(value.valueType->classId)) {
+  if(isKnownClass(value.getValueType()->classId)) {
     return value;
   }
 
-  auto  typeIt = cache.values.find(value.valueType);
+  auto  typeIt = cache.values.find(value.getValueType());
   if(typeIt != cache.values.end()) {
     auto valueIt = typeIt->second.find(value);
     if(valueIt != typeIt->second.end()) {
@@ -145,10 +145,10 @@ type::Void TypeResolver::resolveValue(const type::Void& value, Cache& cache) con
     }
   }
 
-  auto interpretation = value.valueType->findInterpretation(m_enabledInterpretations);
+  auto interpretation = value.getValueType()->findInterpretation(m_enabledInterpretations);
   if(interpretation) {
     auto resolution = resolveValue(interpretation->toInterpretation(value), cache);
-    cache.values[value.valueType].insert({value, resolution});
+    cache.values[value.getValueType()].insert({value, resolution});
     return resolution;
   }
 
@@ -197,7 +197,7 @@ type::Void TypeResolver::findPropertyValue(const type::Void& baseObject,
                                            Cache& cache) const
 {
 
-  auto baseType = baseObject.valueType;
+  auto baseType = baseObject.getValueType();
 
   if(isKnownType(baseType)) {
     if(pathPosition == path.size()) {
@@ -221,7 +221,7 @@ type::Void TypeResolver::findPropertyValue(const type::Void& baseObject,
   }
 
   const auto& resolution = resolveValue(baseObject, cache);
-  if(resolution.valueType->classId.id != type::Void::Class::CLASS_ID.id) {
+  if(resolution.getValueType()->classId.id != type::Void::Class::CLASS_ID.id) {
     return findPropertyValue(resolution, path, pathPosition, cache);
   }
 

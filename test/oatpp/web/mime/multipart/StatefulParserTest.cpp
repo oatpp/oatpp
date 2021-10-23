@@ -64,7 +64,7 @@ namespace {
 
     oatpp::web::mime::multipart::StatefulParser parser(boundary, listener, nullptr);
 
-    oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->getData(), text->getSize());
+    oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->data(), text->size());
     std::unique_ptr<v_char8[]> buffer(new v_char8[step]);
     v_io_size size;
     while((size = stream.readSimple(buffer.get(), step)) != 0) {
@@ -101,7 +101,7 @@ void StatefulParserTest::onRun() {
 
   oatpp::String text = TEST_DATA_1;
 
-  for(v_int32 i = 1; i < text->getSize(); i++) {
+  for(v_int32 i = 1; i < text->size(); i++) {
 
     oatpp::web::mime::multipart::PartList multipart("12345");
 

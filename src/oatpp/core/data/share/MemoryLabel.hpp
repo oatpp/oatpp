@@ -25,8 +25,10 @@
 #ifndef oatpp_data_share_MemoryLabel_hpp
 #define oatpp_data_share_MemoryLabel_hpp
 
-#include "oatpp/core/base/StrBuffer.hpp"
+#include <memory>
+
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/utils/String.hpp"
 
 namespace oatpp { namespace data { namespace share {
   
@@ -39,8 +41,8 @@ class MemoryLabel {
 public:
   typedef oatpp::data::mapping::type::String String;
 protected:
-  mutable std::shared_ptr<base::StrBuffer> m_memoryHandle;
-  mutable p_char8 m_data;
+  mutable std::shared_ptr<std::string> m_memoryHandle;
+  mutable const void* m_data;
   v_buff_size m_size;
 public:
 
@@ -64,9 +66,15 @@ public:
 
   /**
    * Constructor.
-   * @param str
+   * @param ptr
    */
-  MemoryLabel(const std::shared_ptr<base::StrBuffer>& str) : MemoryLabel(str, str->getData(), str->getSize()) {}
+  MemoryLabel(const std::shared_ptr<std::string>& ptr) :
+    MemoryLabel(
+      ptr,
+      ptr ? ptr->data() : nullptr,
+      ptr ? (v_buff_size) ptr->size() :  0
+    )
+  {}
 
   /**
    * Constructor.
@@ -74,13 +82,13 @@ public:
    * @param data - pointer to data.
    * @param size - size of the data in bytes.
    */
-  MemoryLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
+  MemoryLabel(const std::shared_ptr<std::string>& memHandle, const void* data, v_buff_size size);
 
   /**
    * Get pointer to labeled data.
    * @return - pointer to data.
    */
-  p_char8 getData() const {
+  const void* getData() const {
     return m_data;
   }
 
@@ -94,9 +102,9 @@ public:
 
   /**
    * Get memory handle which this memory label holds.
-   * @return - `std::shared_ptr` to &id:oatpp::base::StrBuffer;.
+   * @return - `std::shared_ptr` to `std::string`.
    */
-  std::shared_ptr<base::StrBuffer> getMemoryHandle() const {
+  std::shared_ptr<std::string> getMemoryHandle() const {
     return m_memoryHandle;
   }
 
@@ -104,32 +112,32 @@ public:
    * Capture data referenced by memory label to its own memory.
    */
   void captureToOwnMemory() const {
-    if(!m_memoryHandle || m_memoryHandle->getData() != m_data || m_memoryHandle->getSize() != m_size) {
-      m_memoryHandle.reset(new base::StrBuffer(m_data, m_size, true));
-      m_data = m_memoryHandle->getData();
+    if(!m_memoryHandle || m_memoryHandle->data() != (const char*)m_data || m_memoryHandle->size() != m_size) {
+      m_memoryHandle = std::make_shared<std::string>((const char*) m_data, m_size);
+      m_data = (p_char8) m_memoryHandle->data();
     }
   }
 
   /**
    * Check if labeled data equals to data specified.
-   * Data is compared using &id:oatpp::base::StrBuffer::equals;.
+   * Data is compared using &id:oatpp::urils::String::compare;.
    * @param data - data to compare with labeled data.
    * @return - `true` if equals.
    */
   bool equals(const char* data) const {
-    v_buff_size size = std::strlen(data);
-    return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
+    auto len = data != nullptr ? std::strlen(data) : 0;
+    return utils::String::compare(m_data, m_size, data, len) == 0;
   }
 
   /**
    * Check if labeled data equals to data specified.
-   * Data is compared using &id:oatpp::base::StrBuffer::equals;.
+   * Data is compared using &id:oatpp::urils::String::compare;.
    * @param data - data to compare with labeled data.
    * @param size - data size.
    * @return - `true` if equals.
    */
   bool equals(const void* data, v_buff_size size) const {
-    return m_size == size && base::StrBuffer::equals(m_data, data, m_size);
+    return utils::String::compare(m_data, m_size, data, size) == 0;
   }
 
   /**
@@ -137,7 +145,7 @@ public:
    * @return oatpp::String(data, size)
    */
   String toString() const {
-    return String((const char*) m_data, m_size, true);
+    return String((const char*) m_data, m_size);
   }
 
   /**
@@ -171,8 +179,14 @@ public:
   StringKeyLabel() : MemoryLabel() {};
 
   StringKeyLabel(std::nullptr_t) : MemoryLabel() {}
-  
-  StringKeyLabel(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
+
+  /**
+   * Constructor.
+   * @param ptr
+   */
+  StringKeyLabel(const std::shared_ptr<std::string>& ptr) : MemoryLabel(ptr) {}
+
+  StringKeyLabel(const std::shared_ptr<std::string>& memoryHandle, const char* data, v_buff_size size);
   StringKeyLabel(const char* constText);
   StringKeyLabel(const String& str);
 
@@ -185,10 +199,7 @@ public:
   }
 
   inline bool operator==(const char* str) const {
-    if(m_data == nullptr) return str == nullptr;
-    if(str == nullptr) return false;
-    if(m_size != v_buff_size(std::strlen(str))) return false;
-    return base::StrBuffer::equals(m_data, str, m_size);
+    return equals(str);
   }
 
   inline bool operator!=(const char* str) const {
@@ -198,8 +209,7 @@ public:
   inline bool operator==(const String& str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_size != str->getSize()) return false;
-    return base::StrBuffer::equals(m_data, str->getData(), m_size);
+    return equals(str->data(), str->size());
   }
 
   inline bool operator!=(const String& str) const {
@@ -207,19 +217,19 @@ public:
   }
 
   inline bool operator==(const StringKeyLabel &other) const {
-    return m_size == other.m_size && base::StrBuffer::equals(m_data, other.m_data, m_size);
+    return utils::String::compare(m_data, m_size, other.m_data, other.m_size) == 0;
   }
 
   inline bool operator!=(const StringKeyLabel &other) const {
-    return !(m_size == other.m_size && base::StrBuffer::equals(m_data, other.m_data, m_size));
+    return !operator==(other);
   }
 
   inline bool operator < (const StringKeyLabel &other) const {
-    return base::StrBuffer::compare(m_data, m_size, other.m_data, other.m_size) < 0;
+    return utils::String::compare(m_data, m_size, other.m_data, other.m_size) < 0;
   }
 
   inline bool operator > (const StringKeyLabel &other) const {
-    return base::StrBuffer::compare(m_data, m_size, other.m_data, other.m_size) > 0;
+    return utils::String::compare(m_data, m_size, other.m_data, other.m_size) > 0;
   }
 
 };
@@ -234,7 +244,9 @@ public:
 
   StringKeyLabelCI(std::nullptr_t) : MemoryLabel() {}
 
-  StringKeyLabelCI(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
+  StringKeyLabelCI(const std::shared_ptr<std::string>& ptr) : MemoryLabel(ptr) {}
+
+  StringKeyLabelCI(const std::shared_ptr<std::string>& memoryHandle, const char* data, v_buff_size size);
   StringKeyLabelCI(const char* constText);
   StringKeyLabelCI(const String& str);
 
@@ -247,10 +259,8 @@ public:
   }
 
   inline bool operator==(const char* str) const {
-    if(m_data == nullptr) return str == nullptr;
-    if(str == nullptr) return false;
-    if(m_size != v_buff_size(std::strlen(str))) return false;
-    return base::StrBuffer::equalsCI(m_data, str, m_size);
+    auto len = str != nullptr ? std::strlen(str) : 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, str, len) == 0;
   }
 
   inline bool operator!=(const char* str) const {
@@ -260,8 +270,7 @@ public:
   inline bool operator==(const String& str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    if(m_size != str->getSize()) return false;
-    return base::StrBuffer::equalsCI(m_data, str->getData(), m_size);
+    return utils::String::compareCI_ASCII(m_data, m_size, str->data(), str->size()) == 0;
   }
 
   inline bool operator!=(const String& str) const {
@@ -269,85 +278,21 @@ public:
   }
 
   inline bool operator==(const StringKeyLabelCI &other) const {
-    return m_size == other.m_size && base::StrBuffer::equalsCI(m_data, other.m_data, m_size);
+    return utils::String::compareCI_ASCII(m_data, m_size, other.m_data, other.m_size) == 0;
   }
 
   inline bool operator!=(const StringKeyLabelCI &other) const {
-    return !(m_size == other.m_size && base::StrBuffer::equalsCI(m_data, other.m_data, m_size));
+    return !operator==(other);
   }
 
   inline bool operator < (const StringKeyLabelCI &other) const {
-    return base::StrBuffer::compareCI(m_data, m_size, other.m_data, other.m_size) < 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, other.m_data, other.m_size) < 0;
   }
 
   inline bool operator > (const StringKeyLabelCI &other) const {
-    return base::StrBuffer::compareCI(m_data, m_size, other.m_data, other.m_size) > 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, other.m_data, other.m_size) > 0;
   }
 
-};
-
-/**
- * MemoryLabel which can be used as a case-insensitive-fast key in unordered_map.
- * CI_FAST - is appropriate for strings consisting of [a..z] + [A..Z] only.
- * for other symbols undefined collisions may occur.
- */
-class StringKeyLabelCI_FAST : public MemoryLabel {
-public:
-
-  StringKeyLabelCI_FAST() : MemoryLabel() {};
-
-  StringKeyLabelCI_FAST(std::nullptr_t) : MemoryLabel() {}
-
-  StringKeyLabelCI_FAST(const std::shared_ptr<base::StrBuffer>& memHandle, p_char8 data, v_buff_size size);
-  StringKeyLabelCI_FAST(const char* constText);
-  StringKeyLabelCI_FAST(const String& str);
-
-  inline bool operator==(std::nullptr_t) const {
-    return m_data == nullptr;
-  }
-
-  inline bool operator!=(std::nullptr_t) const {
-    return m_data != nullptr;
-  }
-
-  inline bool operator==(const char* str) const {
-    if(m_data == nullptr) return str == nullptr;
-    if(str == nullptr) return false;
-    if(m_size != v_buff_size(std::strlen(str))) return false;
-    return base::StrBuffer::equalsCI_FAST(m_data, str, m_size);
-  }
-
-  inline bool operator!=(const char* str) const {
-    return !operator==(str);
-  }
-
-  inline bool operator==(const String& str) const {
-    if(m_data == nullptr) return str == nullptr;
-    if(str == nullptr) return false;
-    if(m_size != str->getSize()) return false;
-    return base::StrBuffer::equalsCI_FAST(m_data, str->getData(), m_size);
-  }
-
-  inline bool operator!=(const String& str) const {
-    return !operator==(str);
-  }
-
-  inline bool operator==(const StringKeyLabelCI_FAST &other) const {
-    return m_size == other.m_size && base::StrBuffer::equalsCI_FAST(m_data, other.m_data, m_size);
-  }
-
-  inline bool operator!=(const StringKeyLabelCI_FAST &other) const {
-    return !(m_size == other.m_size && base::StrBuffer::equalsCI_FAST(m_data, other.m_data, m_size));
-  }
-
-  inline bool operator < (const StringKeyLabelCI_FAST &other) const {
-    return base::StrBuffer::compareCI_FAST(m_data, m_size, other.m_data, other.m_size) < 0;
-  }
-
-  inline bool operator > (const StringKeyLabelCI_FAST &other) const {
-    return base::StrBuffer::compareCI_FAST(m_data, m_size, other.m_data, other.m_size) > 0;
-  }
-  
 };
   
 }}}
@@ -362,7 +307,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
 
-      p_char8 data = s.getData();
+      auto data = (p_char8) s.getData();
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i];
@@ -382,27 +327,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
 
-      p_char8 data = s.getData();
-      result_type result = 0;
-      for(v_buff_size i = 0; i < s.getSize(); i++) {
-        v_char8 c = data[i] | 32;
-        result = (31 * result) + c;
-      }
-
-      return result;
-
-    }
-  };
-  
-  template<>
-  struct hash<oatpp::data::share::StringKeyLabelCI_FAST> {
-    
-    typedef oatpp::data::share::StringKeyLabelCI_FAST argument_type;
-    typedef v_uint64 result_type;
-
-    result_type operator()(oatpp::data::share::StringKeyLabelCI_FAST const& s) const noexcept {
-
-      p_char8 data = s.getData();
+      auto data = (p_char8) s.getData();
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i] | 32;

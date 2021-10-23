@@ -11,6 +11,8 @@ add_library(oatpp
         oatpp/codegen/api_controller/base_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
+        oatpp/codegen/api_controller/bundle_define.hpp
+        oatpp/codegen/api_controller/bundle_undef.hpp
         oatpp/codegen/api_controller/cors_define.hpp
         oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
@@ -55,8 +57,6 @@ add_library(oatpp
         oatpp/core/base/Environment.cpp
         oatpp/core/base/Environment.hpp
         oatpp/core/base/ObjectHandle.hpp
-        oatpp/core/base/StrBuffer.cpp
-        oatpp/core/base/StrBuffer.hpp
         oatpp/core/base/memory/Allocator.cpp
         oatpp/core/base/memory/Allocator.hpp
         oatpp/core/base/memory/MemoryPool.cpp
@@ -64,8 +64,6 @@ add_library(oatpp
         oatpp/core/base/memory/ObjectPool.cpp
         oatpp/core/base/memory/ObjectPool.hpp
         oatpp/core/collection/FastQueue.hpp
-        oatpp/core/collection/LinkedList.hpp
-        oatpp/core/collection/ListMap.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
@@ -111,12 +109,16 @@ add_library(oatpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
         oatpp/core/data/stream/ChunkedBuffer.hpp
+        oatpp/core/data/stream/FIFOStream.cpp
+        oatpp/core/data/stream/FIFOStream.hpp
         oatpp/core/data/stream/FileStream.cpp
         oatpp/core/data/stream/FileStream.hpp
         oatpp/core/data/stream/Stream.cpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
         oatpp/core/data/stream/StreamBufferedProxy.hpp
+        oatpp/core/data/Bundle.cpp
+        oatpp/core/data/Bundle.hpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp
@@ -124,6 +126,7 @@ add_library(oatpp
         oatpp/core/parser/Caret.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
+        oatpp/core/provider/Invalidator.hpp
         oatpp/core/provider/Pool.hpp
         oatpp/core/provider/Provider.hpp
         oatpp/core/utils/Binary.cpp
@@ -132,12 +135,22 @@ add_library(oatpp
         oatpp/core/utils/ConversionUtils.hpp
         oatpp/core/utils/Random.cpp
         oatpp/core/utils/Random.hpp
+        oatpp/core/utils/String.cpp
+        oatpp/core/utils/String.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
+        oatpp/network/monitor/ConnectionInactivityChecker.cpp
+        oatpp/network/monitor/ConnectionInactivityChecker.hpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.cpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.hpp
+        oatpp/network/monitor/ConnectionMonitor.cpp
+        oatpp/network/monitor/ConnectionMonitor.hpp
+        oatpp/network/monitor/MetricsChecker.hpp
+        oatpp/network/monitor/StatCollector.hpp
         oatpp/network/tcp/client/ConnectionProvider.cpp
         oatpp/network/tcp/client/ConnectionProvider.hpp
         oatpp/network/tcp/server/ConnectionProvider.cpp
@@ -161,6 +174,8 @@ add_library(oatpp
         oatpp/network/ConnectionPool.hpp
         oatpp/network/ConnectionProvider.cpp
         oatpp/network/ConnectionProvider.hpp
+        oatpp/network/ConnectionProviderSwitch.cpp
+        oatpp/network/ConnectionProviderSwitch.hpp
         oatpp/network/Server.cpp
         oatpp/network/Server.hpp
         oatpp/network/Url.cpp
@@ -277,6 +292,9 @@ set_target_properties(oatpp PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp PRIVATE /permissive-)
+endif()
 
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 
@@ -321,6 +339,9 @@ set_target_properties(oatpp-test PROPERTIES
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )
+if (MSVC)
+    target_compile_options(oatpp-test PRIVATE /permissive-)
+endif()
 
 target_link_libraries(oatpp-test PUBLIC oatpp)
 

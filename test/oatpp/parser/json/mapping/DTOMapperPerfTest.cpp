@@ -78,7 +78,7 @@ void DTOMapperPerfTest::onRun() {
   
   auto test1 = Test1::createTestInstance();
   auto test1_Text = mapper->writeToString(test1);
-  OATPP_LOGV(TAG, "json='%s'", (const char*) test1_Text->getData());
+  OATPP_LOGV(TAG, "json='%s'", test1_Text->c_str());
 
   {
     PerformanceChecker checker("Serializer");

@@ -24,28 +24,77 @@
 
 #include "./Primitive.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+
+#include <fstream>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
-String::String(const std::shared_ptr<oatpp::base::StrBuffer>& ptr, const type::Type* const valueType)
-  : oatpp::data::mapping::type::ObjectWrapper<oatpp::base::StrBuffer, __class::String>(ptr)
+String::String(const std::shared_ptr<std::string>& ptr, const type::Type* const valueType)
+  : oatpp::data::mapping::type::ObjectWrapper<std::string, __class::String>(ptr)
 {
   if(type::__class::String::getType() != valueType) {
     throw std::runtime_error("Value type does not match");
   }
 }
-  
-String operator + (const char* a, const String& b) {
-  return oatpp::base::StrBuffer::createSharedConcatenated(a, (v_int32) std::strlen(a), b->getData(), b->getSize());
+
+String String::loadFromFile(const char* filename) {
+  std::ifstream file (filename, std::ios::in|std::ios::binary|std::ios::ate);
+  if (file.is_open()) {
+    auto result = data::mapping::type::String(file.tellg());
+    file.seekg(0, std::ios::beg);
+    file.read((char*) result->data(), result->size());
+    file.close();
+    return result;
+  }
+  return nullptr;
 }
 
-String operator + (const String& b, const char* a) {
-  return oatpp::base::StrBuffer::createSharedConcatenated(b->getData(), b->getSize(), a, (v_int32) std::strlen(a));
+void String::saveToFile(const char* filename) const {
+  std::ofstream fs(filename, std::ios::out | std::ios::binary);
+  if(m_ptr != nullptr) {
+    fs.write(m_ptr->data(), m_ptr->size());
+  }
+  fs.close();
+}
+
+const std::string& String::operator*() const {
+  return this->m_ptr.operator*();
+}
+
+bool String::equalsCI_ASCII(const std::string& other) {
+  auto ciLabel = share::StringKeyLabelCI(m_ptr);
+  return ciLabel == other;
+}
+
+bool String::equalsCI_ASCII(const String& other) {
+  auto ciLabel = share::StringKeyLabelCI(m_ptr);
+  return ciLabel == other;
+}
+
+bool String::equalsCI_ASCII(const char* other) {
+  auto ciLabel = share::StringKeyLabelCI(m_ptr);
+  return ciLabel == other;
+}
+
+String operator + (const char* a, const String& b) {
+  data::stream::BufferOutputStream stream;
+  stream << a << b;
+  return stream.toString();
+}
+
+String operator + (const String& a, const char* b) {
+  data::stream::BufferOutputStream stream;
+  stream << a << b;
+  return stream.toString();
 }
 
 String operator + (const String& a, const String& b) {
-  return oatpp::base::StrBuffer::createSharedConcatenated(a->getData(), a->getSize(), b->getData(), b->getSize());
+  data::stream::BufferOutputStream stream;
+  stream << a << b;
+  return stream.toString();
 }
   
 namespace __class {

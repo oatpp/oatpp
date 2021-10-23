@@ -86,6 +86,8 @@ public:
   }
   API_CALL("GET", "default_headers/{param}", getDefaultHeaders2, PATH(String, param))
 
+  API_CALL("GET", "bundle", getBundle)
+
   API_CALL_ASYNC("GET", "/", getRootAsync)
   API_CALL_ASYNC("GET", "/", getRootAsyncWithCKA, HEADER(String, connection, "Connection"))
   API_CALL_ASYNC("GET", "params/{param}", getWithParamsAsync, PATH(String, param))

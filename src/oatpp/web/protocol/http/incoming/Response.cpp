@@ -69,21 +69,30 @@ bool Response::putHeaderIfNotExists(const oatpp::String& key, const oatpp::Strin
 bool Response::putOrReplaceHeader(const String &key, const String &value) {
   return m_headers.putOrReplace(key, value);
 }
-bool Response::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI_FAST &key,
+
+bool Response::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI& key,
                                          const data::share::StringKeyLabel &value) {
   return m_headers.putOrReplace(key, value);
 }
 
-void Response::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+void Response::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   m_headers.put(key, value);
 }
 
-bool Response::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Response::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
 }
 
-oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const{
+oatpp::String Response::getHeader(const oatpp::data::share::StringKeyLabelCI& headerName) const{
   return m_headers.get(headerName);
+}
+
+void Response::putBundleData(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_bundle.put(key, polymorph);
+}
+
+const data::Bundle& Response::getBundle() const {
+  return m_bundle;
 }
 
 std::shared_ptr<oatpp::data::stream::InputStream> Response::getBodyStream() const {

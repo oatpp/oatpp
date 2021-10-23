@@ -105,20 +105,20 @@ bool Request::putOrReplaceHeader(const String &key, const String &value) {
   return m_headers.putOrReplace(key, value);
 }
 
-bool Request::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI_FAST &key,
+bool Request::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI& key,
                                         const data::share::StringKeyLabel &value) {
   return m_headers.putOrReplace(key, value);
 }
 
-void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   m_headers.put(key, value);
 }
 
-bool Request::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Request::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
 }
 
-oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const{
+oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI& headerName) const{
   return m_headers.get(headerName);
 }
 
@@ -128,6 +128,14 @@ oatpp::String Request::getPathVariable(const oatpp::data::share::StringKeyLabel&
 
 oatpp::String Request::getPathTail() const {
   return m_pathVariables.getTail();
+}
+
+void Request::putBundleData(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_bundle.put(key, polymorph);
+}
+
+const data::Bundle& Request::getBundle() const {
+  return m_bundle;
 }
 
 void Request::transferBody(data::stream::WriteCallback* writeCallback) const {

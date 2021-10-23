@@ -94,13 +94,13 @@ void DeserializerTest::onRun(){
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(obj1->strF);
-  OATPP_ASSERT(obj1->strF->equals("value1"));
+  OATPP_ASSERT(obj1->strF == "value1");
   
   obj1 = mapper->readFromString<oatpp::Object<Test1>>("{\n\r\t\f\"strF\"\n\r\t\f:\n\r\t\f\"value1\"\n\r\t\f}");
   
   OATPP_ASSERT(obj1);
   OATPP_ASSERT(obj1->strF);
-  OATPP_ASSERT(obj1->strF->equals("value1"));
+  OATPP_ASSERT(obj1->strF == "value1");
   
   auto obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\": null}");
   

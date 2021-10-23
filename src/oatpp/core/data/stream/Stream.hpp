@@ -239,7 +239,7 @@ public:
    * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
   v_io_size writeSimple(const oatpp::String& str){
-    return writeSimple(str->getData(), str->getSize());
+    return writeSimple(str->data(), str->size());
   }
 
   /**
@@ -348,6 +348,38 @@ public:
    */
   virtual Context& getInputStreamContext() = 0;
 
+};
+
+/**
+ * Buffered Input Stream
+ */
+class BufferedInputStream : public InputStream {
+ public:
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~BufferedInputStream() = default;
+
+  /**
+   * Peek up to count of bytes int he buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  virtual v_io_size peek(void *data, v_buff_size count, async::Action& action) = 0;
+
+  /**
+   * Amount of bytes currently available to read from buffer.
+   * @return &id:oatpp::v_io_size;.
+   */
+  virtual v_io_size availableToRead() const = 0;
+
+  /**
+   * Commit read offset
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  virtual v_io_size commitReadOffset(v_buff_size count) = 0;
 };
 
 /**

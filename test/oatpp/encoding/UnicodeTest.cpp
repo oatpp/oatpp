@@ -68,7 +68,7 @@ void UnicodeTest::onRun(){
   for(v_int32 c = 128; c < 2048; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 2);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
     OATPP_ASSERT(cnt == 2);
     OATPP_ASSERT(code == c);
   }
@@ -78,7 +78,7 @@ void UnicodeTest::onRun(){
   for(v_int32 c = 2048; c < 65536; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 3);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
     OATPP_ASSERT(cnt == 3);
     OATPP_ASSERT(code == c);
   }
@@ -88,7 +88,7 @@ void UnicodeTest::onRun(){
   for(v_int32 c = 65536; c < 2097152; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 4);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
     OATPP_ASSERT(cnt == 4);
     OATPP_ASSERT(code == c);
   }
@@ -98,7 +98,7 @@ void UnicodeTest::onRun(){
   for(v_int32 c = 2097152; c < 67108864; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
     OATPP_ASSERT(size == 5);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
     OATPP_ASSERT(cnt == 5);
     OATPP_ASSERT(code == c);
   }
@@ -108,14 +108,14 @@ void UnicodeTest::onRun(){
   for (v_int64 c = 67108864; c < 2147483647; c = c + 100) {
     auto size = oatpp::encoding::Unicode::decodeUtf8Char((v_int32) c, buff);
     OATPP_ASSERT(size == 6);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char(buff, cnt);
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
     OATPP_ASSERT(cnt == 6);
     OATPP_ASSERT(code == c);
   }
 
   // */
   
-  p_char8 sequence = (p_char8)"𐐷";
+  const char* sequence = "𐐷";
   auto code = oatpp::encoding::Unicode::encodeUtf8Char(sequence, cnt);
   
   v_int16 high;

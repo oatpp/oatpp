@@ -216,7 +216,7 @@ void FullAsyncTest::onRun() {
         v_int32 numIterations = 10;
         oatpp::data::stream::ChunkedBuffer stream;
         for(v_int32 i = 0; i < numIterations; i++) {
-          stream.writeSimple(sample->getData(), sample->getSize());
+          stream.writeSimple(sample->data(), sample->size());
         }
         auto data = stream.toString();
         auto response = client->getChunked(sample, numIterations, connection);

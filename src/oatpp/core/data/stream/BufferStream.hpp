@@ -146,11 +146,11 @@ public:
 /**
  * BufferInputStream
  */
-class BufferInputStream : public InputStream {
+class BufferInputStream : public BufferedInputStream {
 public:
   static data::stream::DefaultInitializedContext DEFAULT_CONTEXT;
 private:
-  std::shared_ptr<base::StrBuffer> m_memoryHandle;
+  std::shared_ptr<std::string> m_memoryHandle;
   p_char8 m_data;
   v_buff_size m_size;
   v_buff_size m_position;
@@ -163,7 +163,7 @@ public:
    * @param data - pointer to buffer data.
    * @param size - size of the buffer.
    */
-  BufferInputStream(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size);
+  BufferInputStream(const std::shared_ptr<std::string>& memoryHandle, const void* data, v_buff_size size);
 
   /**
    * Constructor.
@@ -177,7 +177,7 @@ public:
    * @param data - pointer to buffer data.
    * @param size - size of the buffer.
    */
-  void reset(const std::shared_ptr<base::StrBuffer>& memoryHandle, p_char8 data, v_buff_size size);
+  void reset(const std::shared_ptr<std::string>& memoryHandle, p_char8 data, v_buff_size size);
 
 
   /**
@@ -219,7 +219,7 @@ public:
    * Get data memory handle.
    * @return - data memory handle.
    */
-  std::shared_ptr<base::StrBuffer> getDataMemoryHandle();
+  std::shared_ptr<std::string> getDataMemoryHandle();
 
   /**
    * Get pointer to data.
@@ -245,6 +245,26 @@ public:
    */
   void setCurrentPosition(v_buff_size position);
 
+  /**
+   * Peek up to count of bytes int he buffer
+   * @param data
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  v_io_size peek(void *data, v_buff_size count, async::Action& action) override;
+
+  /**
+   * Amount of bytes currently available to read from buffer.
+   * @return &id:oatpp::v_io_size;.
+   */
+  v_io_size availableToRead() const override;
+
+  /**
+   * Commit read offset
+   * @param count
+   * @return [1..count], IOErrors.
+   */
+  v_io_size commitReadOffset(v_buff_size count) override;
 
 };
 

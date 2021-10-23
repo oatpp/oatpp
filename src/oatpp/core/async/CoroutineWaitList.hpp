@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,10 @@
 #include "oatpp/core/collection/FastQueue.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
+#include <map>
 #include <mutex>
+#include <thread>
+#include <utility>
 
 namespace oatpp { namespace async {
 
@@ -59,6 +63,16 @@ private:
   oatpp::collection::FastQueue<CoroutineHandle> m_list;
   oatpp::concurrency::SpinLock m_lock;
   Listener* m_listener = nullptr;
+  
+  std::map<Processor*, v_int64> m_timeoutCheckingProcessors;
+  std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
+  oatpp::concurrency::SpinLock m_timeoutsLock;
+
+private:
+  void checkCoroutinesForTimeouts();
+
+  void removeFirstCoroutine();
+
 protected:
   /*
    * Put coroutine on wait-list.
@@ -68,11 +82,27 @@ protected:
   void pushFront(CoroutineHandle* coroutine);
 
   /*
+   * Put coroutine on wait-list with timeout.
+   * This method should be called by Coroutine Processor only.
+   * @param coroutine
+   * @param timeoutTimeSinceEpochMS
+   */
+  void pushFront(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS);
+
+  /*
    * Put coroutine on wait-list.
    * This method should be called by Coroutine Processor only.
    * @param coroutine
    */
   void pushBack(CoroutineHandle* coroutine);
+  
+  /*
+   * Put coroutine on wait-list with timeout.
+   * This method should be called by Coroutine Processor only.
+   * @param coroutine
+   * @param timeoutTimeSinceEpochMS
+   */
+  void pushBack(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS);
 public:
 
   /**
@@ -118,12 +148,7 @@ public:
    */
   void notifyAll();
 
-  CoroutineWaitList& operator=(CoroutineWaitList&& other) {
-    notifyAll();
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
-    m_list = std::move(other.m_list);
-    return *this;
-  }
+  CoroutineWaitList& operator=(CoroutineWaitList&& other);
 
 };
 

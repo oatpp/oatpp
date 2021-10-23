@@ -44,8 +44,6 @@ public:
     DEAD = 3 // Drop immediately
   };
 
-private:
-  static bool headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value);
 public:
 
   /**

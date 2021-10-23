@@ -26,11 +26,6 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
   
-bool CommunicationUtils::headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value) {
-  v_int32 size = (v_int32) std::strlen(value);
-  return size == headerValue.getSize() && oatpp::base::StrBuffer::equalsCI_FAST(headerValue.getData(), value, size);
-}
-  
 void CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                                  const std::shared_ptr<protocol::http::outgoing::Response>& response,
                                                  ConnectionState& connectionState)
@@ -40,7 +35,7 @@ void CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol:
     return;
   }
 
-  auto outState = response->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+  auto outState = response->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(Header::CONNECTION);
   if(outState && outState == Header::Value::CONNECTION_UPGRADE) {
     connectionState = ConnectionState::DELEGATED;
     return;
@@ -48,7 +43,7 @@ void CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol:
   
   if(request) {
     /* If the connection header is present in the request and its value isn't keep-alive, then close */
-    auto connection = request->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+    auto connection = request->getHeaders().getAsMemoryLabel<oatpp::data::share::StringKeyLabelCI>(Header::CONNECTION);
     if(connection) {
       if(connection != Header::Value::CONNECTION_KEEP_ALIVE) {
         connectionState = ConnectionState::CLOSING;
@@ -60,7 +55,7 @@ void CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol:
     /* Set HTTP/1.1 default Connection header value (Keep-Alive), if no Connection header present in response. */
     /* Set keep-alive to value specified in response otherwise */
     auto& protocol = request->getStartingLine().protocol;
-    if(protocol && headerEqualsCI_FAST(protocol, "HTTP/1.1")) {
+    if(protocol && oatpp::utils::String::compareCI_ASCII(protocol.getData(), protocol.getSize(), "HTTP/1.1", 8) == 0) {
       if(outState && outState != Header::Value::CONNECTION_KEEP_ALIVE) {
         connectionState = ConnectionState::CLOSING;
       }
