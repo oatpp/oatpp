@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_rest_Endpoint_hpp
-#define oatpp_web_server_rest_Endpoint_hpp
+#ifndef oatpp_web_server_api_Endpoint_hpp
+#define oatpp_web_server_api_Endpoint_hpp
 
 #include "oatpp/web/server/HttpRequestHandler.hpp"
 
@@ -286,7 +286,20 @@ private:
   std::function<std::shared_ptr<Endpoint::Info>()> m_infoBuilder;
   
 };
+
+/**
+ * Collection of endpoints.
+ */
+struct Endpoints {
+
+  std::list<std::shared_ptr<Endpoint>> list;
+
+  void append(const std::list<std::shared_ptr<Endpoint>>& endpoints);
+  void append(const Endpoints& endpoints);
+  void append(const std::shared_ptr<Endpoint>& endpoint);
+
+};
   
 }}}}
 
-#endif /* oatpp_web_server_rest_Endpoint_hpp */
+#endif /* oatpp_web_server_api_Endpoint_hpp */

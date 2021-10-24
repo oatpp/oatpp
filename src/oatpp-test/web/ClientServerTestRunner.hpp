@@ -65,7 +65,7 @@ public:
    * @param controller
    */
   void addController(const std::shared_ptr<ApiController>& controller) {
-    controller->addEndpointsToRouter(m_router);
+    m_router->route(controller->getEndpoints());
     m_controllers.push_back(controller);
   }
 
