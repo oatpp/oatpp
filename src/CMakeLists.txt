@@ -105,6 +105,8 @@ add_library(oatpp
         oatpp/core/data/share/MemoryLabel.hpp
         oatpp/core/data/share/StringTemplate.cpp
         oatpp/core/data/share/StringTemplate.hpp
+        oatpp/core/data/share/TemporaryFile.cpp
+        oatpp/core/data/share/TemporaryFile.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
