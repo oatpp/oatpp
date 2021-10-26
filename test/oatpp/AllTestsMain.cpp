@@ -62,15 +62,10 @@
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
 #include <iostream>
 #include <mutex>
-
-#include "oatpp/core/data/TmpFileGuard.hpp"
-
-#include <thread>
 
 namespace {
 
@@ -82,18 +77,6 @@ void runTests() {
   OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
   OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
 
-  oatpp::data::TmpFileGuard fg("/Users/leonid/Documents");
-  auto filename = fg.getFullFileName();
-
-  OATPP_LOGD("AAA", "cat %s", filename->c_str());
-
-  {
-    auto os = fg.openOutputStream();
-    os.writeExactSizeDataSimple("Hello World!", 12);
-  }
-  std::this_thread::sleep_for(std::chrono::seconds(30));
-
-/*
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
 
@@ -228,27 +211,27 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
 }
 
 }
 
 int main() {
-  
+
   oatpp::base::Environment::init();
-  
+
   runTests();
-  
+
   /* Print how much objects were created during app running, and what have left-probably leaked */
   /* Disable object counting for release builds using '-D OATPP_DISABLE_ENV_OBJECT_COUNTERS' flag for better performance */
   std::cout << "\nEnvironment:\n";
   std::cout << "objectsCount = " << oatpp::base::Environment::getObjectsCount() << "\n";
   std::cout << "objectsCreated = " << oatpp::base::Environment::getObjectsCreated() << "\n\n";
-  
+
   OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0);
-  
+
   oatpp::base::Environment::destroy();
-  
+
   return 0;
 }
 
