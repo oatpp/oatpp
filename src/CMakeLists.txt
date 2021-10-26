@@ -105,6 +105,8 @@ add_library(oatpp
         oatpp/core/data/share/MemoryLabel.hpp
         oatpp/core/data/share/StringTemplate.cpp
         oatpp/core/data/share/StringTemplate.hpp
+        oatpp/core/data/share/TemporaryFile.cpp
+        oatpp/core/data/share/TemporaryFile.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
@@ -119,8 +121,6 @@ add_library(oatpp
         oatpp/core/data/stream/StreamBufferedProxy.hpp
         oatpp/core/data/Bundle.cpp
         oatpp/core/data/Bundle.hpp
-        oatpp/core/data/TmpFileGuard.cpp
-        oatpp/core/data/TmpFileGuard.hpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp
