@@ -17,7 +17,7 @@ class Test1 : public oatpp::DTO {
 };
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  oatpp::String input(reinterpret_cast<const char*>(data), size, true);
+  oatpp::String input(reinterpret_cast<const char*>(data), size);
   oatpp::parser::json::mapping::ObjectMapper mapper;
   try {
     mapper.readFromString<oatpp::Object<Test1>>(input);

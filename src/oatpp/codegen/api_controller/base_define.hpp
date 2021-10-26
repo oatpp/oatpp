@@ -275,15 +275,15 @@ OATPP_MACRO_API_CONTROLLER_PARAM_INFO X
 
 #define ENDPOINT_INFO(NAME) \
 \
-std::shared_ptr<Endpoint::Info> Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME() { \
+std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME() { \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   Z__ENDPOINT_ADD_INFO_##NAME(info); \
   return info; \
 } \
 \
-const std::shared_ptr<Endpoint::Info> Z__ENDPOINT_ADDITIONAL_INFO_##NAME = Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME(); \
+const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__ENDPOINT_ADDITIONAL_INFO_##NAME = Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME(); \
 \
-void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<Endpoint::Info>& info)
+void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info>& info)
 
 // ENDPOINT MACRO // ------------------------------------------------------
 
@@ -299,10 +299,10 @@ static typename std::shared_ptr<Handler<T>> Z__ENDPOINT_HANDLER_GET_INSTANCE_##N
   return handler; \
 } \
 \
-std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
-  std::shared_ptr<Endpoint::Info> info = getEndpointInfo(#NAME); \
+std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
+  std::shared_ptr<oatpp::web::server::api::Endpoint::Info> info = getEndpointInfo(#NAME); \
   if(!info){ \
-    info = Endpoint::Info::createShared(); \
+    info = oatpp::web::server::api::Endpoint::Info::createShared(); \
     setEndpointInfo(#NAME, info); \
   } \
   return info; \
@@ -321,7 +321,7 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME);
 
@@ -351,7 +351,7 @@ auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME);
 
@@ -453,10 +453,10 @@ static typename std::shared_ptr<Handler<T>> Z__ENDPOINT_HANDLER_GET_INSTANCE_##N
   return handler; \
 } \
 \
-std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
-  std::shared_ptr<Endpoint::Info> info = getEndpointInfo(#NAME); \
+std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
+  std::shared_ptr<oatpp::web::server::api::Endpoint::Info> info = getEndpointInfo(#NAME); \
   if(!info){ \
-    info = Endpoint::Info::createShared(); \
+    info = oatpp::web::server::api::Endpoint::Info::createShared(); \
     setEndpointInfo(#NAME, info); \
   } \
   return info; \
@@ -476,7 +476,7 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                                     Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                                     Z__CREATE_ENDPOINT_INFO_##NAME);
 

@@ -22,16 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_server_rest_Controller_hpp
-#define oatpp_web_server_rest_Controller_hpp
+#ifndef oatpp_web_server_api_Controller_hpp
+#define oatpp_web_server_api_Controller_hpp
 
 #include "./Endpoint.hpp"
 
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
-#include "oatpp/web/server/HttpConnectionHandler.hpp"
-#include "oatpp/web/url/mapping/Router.hpp"
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
@@ -51,10 +49,6 @@ class ApiController : public oatpp::base::Countable {
 protected:
   typedef ApiController __ControllerType;
 public:
-  /**
-   * Convenience typedef for &id:oatpp::web::server::HttpRouter;.
-   */
-  typedef oatpp::web::server::HttpRouter Router;
 
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::outgoing::ResponseFactory;.
@@ -95,16 +89,6 @@ public:
    * Convenience typedef for &id:oatpp::web::protocol::http::QueryParams;.
    */
   typedef oatpp::web::protocol::http::QueryParams QueryParams;
-
-  /**
-   * Convenience typedef for &id:oatpp::web::server::api::Endpoint;.
-   */
-  typedef oatpp::web::server::api::Endpoint Endpoint;
-
-  /**
-   * Convenience typedef for list of &id:oatpp::web::server::api::Endpoint;.
-   */
-  typedef std::list<std::shared_ptr<Endpoint>> Endpoints;
 
   /**
    * Convenience typedef for &id:oatpp::web::server::HttpRequestHandler;.
@@ -369,7 +353,7 @@ protected:
   std::shared_ptr<RequestHandler> getEndpointHandler(const std::string& endpointName);
   
 protected:
-  std::shared_ptr<Endpoints> m_endpoints{std::make_shared<Endpoints>()};
+  Endpoints m_endpoints;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   std::shared_ptr<handler::AuthorizationHandler> m_defaultAuthorizationHandler;
   std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
@@ -384,24 +368,19 @@ public:
 public:
   
   template<class T>
-  static std::shared_ptr<Endpoint> createEndpoint(const std::shared_ptr<Endpoints>& endpoints,
+  static std::shared_ptr<Endpoint> createEndpoint(Endpoints& endpoints,
                                                   const std::shared_ptr<Handler<T>>& handler,
                                                   const EndpointInfoBuilder& infoBuilder)
   {
     auto endpoint = Endpoint::createShared(handler, infoBuilder);
-    endpoints->push_back(endpoint);
+    endpoints.append(endpoint);
     return endpoint;
   }
-
-  /**
-   * Subscribes all created endpoint-handlers to corresponding URLs in Router
-   */
-  void addEndpointsToRouter(const std::shared_ptr<Router>& router);
   
   /**
    * Get list of Endpoints created via ENDPOINT macro
    */
-  std::shared_ptr<Endpoints> getEndpoints();
+  const Endpoints& getEndpoints();
 
   /**
    * [under discussion]
@@ -594,4 +573,4 @@ struct ApiController::TypeInterpretation <data::mapping::type::EnumObjectWrapper
 
 }}}}
 
-#endif /* oatpp_web_server_rest_Controller_hpp */
+#endif /* oatpp_web_server_api_Controller_hpp */

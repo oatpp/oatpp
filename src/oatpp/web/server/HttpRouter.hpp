@@ -26,6 +26,9 @@
 #define oatpp_web_server_HttpRouter_hpp
 
 #include "./HttpRequestHandler.hpp"
+
+#include "oatpp/web/server/api/ApiController.hpp"
+#include "oatpp/web/server/api/Endpoint.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
 
 namespace oatpp { namespace web { namespace server {
@@ -117,7 +120,29 @@ public:
 /**
  * Default HttpRouter.
  */
-typedef HttpRouterTemplate<std::shared_ptr<HttpRequestHandler>> HttpRouter;
+class HttpRouter : public HttpRouterTemplate<std::shared_ptr<HttpRequestHandler>> {
+private:
+  std::list<std::shared_ptr<server::api::ApiController>> m_controllers;
+public:
+
+  /**
+   * Create shared HttpRouter.
+   * @return
+   */
+  static std::shared_ptr<HttpRouter> createShared();
+
+  using HttpRouterTemplate::route;
+  void route(const std::shared_ptr<server::api::Endpoint>& endpoint);
+  void route(const server::api::Endpoints& endpoints);
+
+  /**
+   * Add controller and route its' endpoints.
+   * @param controller
+   * @return - `std::shared_ptr` to the controller added.
+   */
+  std::shared_ptr<server::api::ApiController> addController(const std::shared_ptr<server::api::ApiController>& controller);
+
+};
   
 }}}
 

@@ -109,6 +109,7 @@ std::shared_ptr<oatpp::network::Server>
 runServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& connectionProvider) {
 
   auto router = oatpp::web::server::HttpRouter::createShared();
+
   router->route("GET", "/stream", std::make_shared<StreamingHandler>());
 
   auto connectionHandler = oatpp::web::server::HttpConnectionHandler::createShared(router);

@@ -27,6 +27,7 @@
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 #include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/HttpRouter.hpp"
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 
 #include "oatpp/network/monitor/ConnectionMonitor.hpp"

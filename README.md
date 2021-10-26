@@ -19,7 +19,10 @@
 
 **News**  
 
-- Hey, the new oatpp version `1.3.0` will soon be merged to master! Follow the [changelog](https://github.com/oatpp/oatpp/blob/v1.3.0/changelog/1.3.0.md) for details, and prepare for migration. *[Follow PR](https://github.com/oatpp/oatpp/pull/453)*.
+- Hey, the new oatpp version `1.3.0` is now in the master branch :tada: and soon will receive its release tag.  
+   Follow [changelog](https://github.com/oatpp/oatpp/blob/master/changelog/1.3.0.md) for details, and prepare for migration.   
+   See [project build status](https://oatpp.io/status/build/) for update progress.
+
 
 ---
 
