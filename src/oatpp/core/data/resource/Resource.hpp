@@ -32,7 +32,7 @@ namespace oatpp { namespace data { namespace resource {
 /**
  * Abstract data resource
  */
-class Resource {
+class Resource : public oatpp::base::Countable {
 public:
 
   /**
