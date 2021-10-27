@@ -33,15 +33,17 @@ namespace oatpp { namespace data{ namespace stream {
 
 data::stream::DefaultInitializedContext BufferOutputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
-BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity)
+BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, const std::shared_ptr<void>& captureData)
   : m_data(new v_char8[initialCapacity])
   , m_capacity(initialCapacity)
   , m_position(0)
   , m_maxCapacity(-1)
   , m_ioMode(IOMode::ASYNCHRONOUS)
+  , m_capturedData(captureData)
 {}
 
 BufferOutputStream::~BufferOutputStream() {
+  m_capturedData.reset(); // reset capture data before deleting data.
   delete [] m_data;
 }
 
@@ -167,23 +169,32 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
 
 data::stream::DefaultInitializedContext BufferInputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_FINITE);
 
-BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryHandle, const void* data, v_buff_size size)
+BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryHandle,
+                                     const void* data,
+                                     v_buff_size size,
+                                     const std::shared_ptr<void>& captureData)
   : m_memoryHandle(memoryHandle)
   , m_data((p_char8) data)
   , m_size(size)
   , m_position(0)
   , m_ioMode(IOMode::ASYNCHRONOUS)
+  , m_capturedData(captureData)
 {}
 
-BufferInputStream::BufferInputStream(const oatpp::String& data)
-  : BufferInputStream(data.getPtr(), (p_char8) data->data(), data->size())
+BufferInputStream::BufferInputStream(const oatpp::String& data, const std::shared_ptr<void>& captureData)
+  : BufferInputStream(data.getPtr(), (p_char8) data->data(), data->size(), captureData)
 {}
 
-void BufferInputStream::reset(const std::shared_ptr<std::string>& memoryHandle, p_char8 data, v_buff_size size) {
+void BufferInputStream::reset(const std::shared_ptr<std::string>& memoryHandle,
+                              p_char8 data,
+                              v_buff_size size,
+                              const std::shared_ptr<void>& captureData)
+{
   m_memoryHandle = memoryHandle;
   m_data = data;
   m_size = size;
   m_position = 0;
+  m_capturedData = captureData;
 }
 
 void BufferInputStream::reset() {
@@ -191,6 +202,7 @@ void BufferInputStream::reset() {
   m_data = nullptr;
   m_size = 0;
   m_position = 0;
+  m_capturedData.reset();
 }
 
 v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& action) {

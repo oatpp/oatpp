@@ -505,17 +505,6 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, T value) {
   s.writeAsString(value);
   return s;
 }
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int8 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint8 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int16 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint16 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int32 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint32 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_int64 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_uint64 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
-//ConsistentOutputStream& operator << (ConsistentOutputStream& s, bool value);
 
 /**
  * Error of Asynchronous stream transfer.
@@ -552,11 +541,11 @@ public:
  * @return - the actual amout of bytes read from the `readCallback`.
  */
 v_io_size transfer(const base::ObjectHandle<ReadCallback>& readCallback,
-                         const base::ObjectHandle<WriteCallback>& writeCallback,
-                         v_io_size transferSize,
-                         void* buffer,
-                         v_buff_size bufferSize,
-                         const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
+                   const base::ObjectHandle<WriteCallback>& writeCallback,
+                   v_io_size transferSize,
+                   void* buffer,
+                   v_buff_size bufferSize,
+                   const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
 
 /**
  * Transfer data from `readCallback` to `writeCallback` in Async manner.

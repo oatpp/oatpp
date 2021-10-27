@@ -41,13 +41,16 @@ private:
   v_buff_size m_position;
   v_buff_size m_maxCapacity;
   IOMode m_ioMode;
+private:
+  std::shared_ptr<void> m_capturedData;
 public:
 
   /**
    * Constructor.
    * @param growBytes
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  BufferOutputStream(v_buff_size initialCapacity = 2048);
+  BufferOutputStream(v_buff_size initialCapacity = 2048, const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Virtual destructor.
@@ -155,6 +158,8 @@ private:
   v_buff_size m_size;
   v_buff_size m_position;
   IOMode m_ioMode;
+private:
+  std::shared_ptr<void> m_capturedData;
 public:
 
   /**
@@ -162,22 +167,31 @@ public:
    * @param memoryHandle - buffer memory handle. May be nullptr.
    * @param data - pointer to buffer data.
    * @param size - size of the buffer.
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  BufferInputStream(const std::shared_ptr<std::string>& memoryHandle, const void* data, v_buff_size size);
+  BufferInputStream(const std::shared_ptr<std::string>& memoryHandle,
+                    const void* data,
+                    v_buff_size size,
+                    const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Constructor.
    * @param data - buffer.
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  BufferInputStream(const oatpp::String& data);
+  BufferInputStream(const oatpp::String& data, const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Reset stream data and set position to `0`.
    * @param memoryHandle - buffer memory handle. May be nullptr.
    * @param data - pointer to buffer data.
    * @param size - size of the buffer.
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  void reset(const std::shared_ptr<std::string>& memoryHandle, p_char8 data, v_buff_size size);
+  void reset(const std::shared_ptr<std::string>& memoryHandle,
+             p_char8 data,
+             v_buff_size size,
+             const std::shared_ptr<void>& captureData = nullptr);
 
 
   /**

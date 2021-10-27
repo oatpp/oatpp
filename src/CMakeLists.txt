@@ -100,13 +100,18 @@ add_library(oatpp
         oatpp/core/data/mapping/type/UnorderedSet.hpp
         oatpp/core/data/mapping/type/Vector.cpp
         oatpp/core/data/mapping/type/Vector.hpp
+        oatpp/core/data/resource/File.cpp
+        oatpp/core/data/resource/File.hpp
+        oatpp/core/data/resource/InMemoryData.cpp
+        oatpp/core/data/resource/InMemoryData.hpp
+        oatpp/core/data/resource/Resource.hpp
+        oatpp/core/data/resource/TemporaryFile.cpp
+        oatpp/core/data/resource/TemporaryFile.hpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
         oatpp/core/data/share/StringTemplate.cpp
         oatpp/core/data/share/StringTemplate.hpp
-        oatpp/core/data/share/TemporaryFile.cpp
-        oatpp/core/data/share/TemporaryFile.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
