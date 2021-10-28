@@ -79,6 +79,13 @@ bool String::equalsCI_ASCII(const char* other) {
   return ciLabel == other;
 }
 
+std::string String::getValue(const std::string& defaultValue) {
+  if(m_ptr) {
+    return *m_ptr;
+  }
+  return defaultValue;
+}
+
 String operator + (const char* a, const String& b) {
   data::stream::BufferOutputStream stream;
   stream << a << b;

@@ -209,6 +209,13 @@ public:
    */
   bool equalsCI_ASCII(const char* str);
 
+  /**
+   * Get underlying value.
+   * @param defaultValue - value to return in case stored value is `nullptr`.
+   * @return - value or `defaultValue` if stored value is `nullptr`.
+   */
+  std::string getValue(const std::string& defaultValue);
+
   template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
   >
@@ -344,6 +351,13 @@ public:
 
   inline operator TValueType() const {
     return *this->m_ptr;
+  }
+
+  TValueType getValue(const TValueType& defaultValue) {
+    if(this->m_ptr) {
+      return *this->m_ptr;
+    }
+    return defaultValue;
   }
 
 };

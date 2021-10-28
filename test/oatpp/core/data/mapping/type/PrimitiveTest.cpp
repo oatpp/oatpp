@@ -244,6 +244,14 @@ void PrimitiveTest::onRun() {
     OATPP_LOGI(TAG, "OK");
   }
 
+  {
+    OATPP_LOGI(TAG, "check default value");
+    oatpp::UInt8 s0;
+    oatpp::UInt8 s1 = 255;
+    OATPP_ASSERT(s0.getValue(128) == 128)
+    OATPP_ASSERT(s1.getValue(128) == 255)
+  }
+
 }
 
 }}}}}}

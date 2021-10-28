@@ -314,6 +314,14 @@ void StringTest::onRun() {
 
   }
 
+  {
+    OATPP_LOGI(TAG, "check default value");
+    oatpp::String s0;
+    oatpp::String s1 = "hello";
+    OATPP_ASSERT(s0.getValue("def") == "def")
+    OATPP_ASSERT(s1.getValue("def") == "hello")
+  }
+
 }
 
 }}}}}}
