@@ -26,8 +26,14 @@
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
 
+void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
+  auto socket = std::static_pointer_cast<Socket>(connection);
+  socket->close();
+}
+
 ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
-  : m_interface(interface)
+  : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_interface(interface)
   , m_maxAvailableToRead(-1)
   , m_maxAvailableToWrite(-1)
 {
@@ -43,7 +49,7 @@ void ConnectionProvider::stop() {
 
 }
 
-std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
+provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   auto submission = m_interface->connect();
   if(submission->isValid()) {
     auto socket = submission->getSocket();
@@ -51,26 +57,30 @@ std::shared_ptr<data::stream::IOStream> ConnectionProvider::get() {
       socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
       socket->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
       socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
-      return socket;
+      return provider::ResourceHandle<data::stream::IOStream>(socket, m_invalidator);
     }
   }
-  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + m_interface->getName()->std_str());
+  throw std::runtime_error("[oatpp::network::virtual_::client::getConnection()]: Error. Can't connect. " + *m_interface->getName());
 }
   
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
+oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&>
+ConnectionProvider::getAsync() {
   
-  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
+  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const provider::ResourceHandle<oatpp::data::stream::IOStream>&> {
   private:
+    std::shared_ptr<ConnectionInvalidator> m_invalidator;
     std::shared_ptr<virtual_::Interface> m_interface;
     v_io_size m_maxAvailableToRead;
     v_io_size m_maxAvailableToWrite;
     std::shared_ptr<virtual_::Interface::ConnectionSubmission> m_submission;
   public:
     
-    ConnectCoroutine(const std::shared_ptr<virtual_::Interface>& interface,
+    ConnectCoroutine(const std::shared_ptr<ConnectionInvalidator>& invalidator,
+                     const std::shared_ptr<virtual_::Interface>& interface,
                      v_io_size maxAvailableToRead,
                      v_io_size maxAvailableToWrite)
-      : m_interface(interface)
+      : m_invalidator(invalidator)
+      , m_interface(interface)
       , m_maxAvailableToRead(maxAvailableToRead)
       , m_maxAvailableToWrite(maxAvailableToWrite)
     {}
@@ -93,7 +103,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
           socket->setOutputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
           socket->setInputStreamIOMode(oatpp::data::stream::IOMode::ASYNCHRONOUS);
           socket->setMaxAvailableToReadWrtie(m_maxAvailableToRead, m_maxAvailableToWrite);
-          return _return(socket);
+          return _return(provider::ResourceHandle<data::stream::IOStream>(socket, m_invalidator));
         }
 
         return waitRepeat(std::chrono::milliseconds(100));
@@ -105,7 +115,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     
   };
   
-  return ConnectCoroutine::startForResult(m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
+  return ConnectCoroutine::startForResult(m_invalidator, m_interface, m_maxAvailableToRead, m_maxAvailableToWrite);
   
 }
   

@@ -109,16 +109,16 @@ void ChunkedBufferTest::onRun() {
 
     auto wholeText = stream.toString();
 
-    OATPP_ASSERT(wholeText->getSize() == ChunkedBuffer::CHUNK_ENTRY_SIZE * 10 * 10);
+    OATPP_ASSERT(wholeText->size() == ChunkedBuffer::CHUNK_ENTRY_SIZE * 10 * 10);
 
     v_int32 substringSize = 10;
-    for(v_int32 i = 0; i < wholeText->getSize() - substringSize; i ++) {
-      OATPP_ASSERT(oatpp::String((const char*)&wholeText->getData()[i], substringSize, false) == stream.getSubstring(i, substringSize));
+    for(v_int32 i = 0; i < wholeText->size() - substringSize; i ++) {
+      OATPP_ASSERT(oatpp::String(&wholeText->data()[i], substringSize) == stream.getSubstring(i, substringSize));
     }
 
     substringSize = (v_int32) ChunkedBuffer::CHUNK_ENTRY_SIZE * 2;
-    for(v_int32 i = 0; i < wholeText->getSize() - substringSize; i ++) {
-      OATPP_ASSERT(oatpp::String((const char*)&wholeText->getData()[i], substringSize, false) == stream.getSubstring(i, substringSize));
+    for(v_int32 i = 0; i < wholeText->size() - substringSize; i ++) {
+      OATPP_ASSERT(oatpp::String(&wholeText->data()[i], substringSize) == stream.getSubstring(i, substringSize));
     }
 
   }

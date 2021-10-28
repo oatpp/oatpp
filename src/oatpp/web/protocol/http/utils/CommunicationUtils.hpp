@@ -36,39 +36,26 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
  */
 class CommunicationUtils {
 public:
-  /**
-   * Connection state - close.
-   */
-  static constexpr v_int32 CONNECTION_STATE_CLOSE = 0;
 
-  /**
-   * Connection state - keep alive.
-   */
-  static constexpr v_int32 CONNECTION_STATE_KEEP_ALIVE = 1;
+  enum class ConnectionState : int {
+    ALIVE = 0, // Continue processing connection.
+    DELEGATED = 1, // Stop current connection processing as connection was delegated to other processor.
+    CLOSING = 2, // Move connection to "closing" pool.
+    DEAD = 3 // Drop immediately
+  };
 
-  /**
-   * Connection state - upgrade.
-   */
-  static constexpr v_int32 CONNECTION_STATE_UPGRADE = 2;
-private:
-  static bool headerEqualsCI_FAST(const oatpp::data::share::MemoryLabel& headerValue, const char* value);
 public:
 
   /**
    * Consider keep connection alive taking into account request headers, response headers and protocol version.<br>
    * Corresponding header will be set to response if not existed before. <br>
-   * return one of (CONNECTION_STATE_CLOSE, CONNECTION_STATE_KEEP_ALIVE, CONNECTION_STATE_UPGRADE).
    * @param request - `std::shared_ptr` to &id:oatpp::web::protocol::http::incoming::Request;
    * @param response - `std::shared_ptr` to &id:oatpp::web::protocol::http::outgoing::Response;
-   * @return - one of values:
-   * <ul>
-   *   <li>&l:CommunicationUtils::CONNECTION_STATE_CLOSE;</li>
-   *   <li>&l:CommunicationUtils::CONNECTION_STATE_KEEP_ALIVE;</li>
-   *   <li>&l:CommunicationUtils::CONNECTION_STATE_UPGRADE;</li>
-   * </ul>
+   * @param connectionState
    */
-  static v_int32 considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
-                                         const std::shared_ptr<protocol::http::outgoing::Response>& response);
+  static void considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
+                                      const std::shared_ptr<protocol::http::outgoing::Response>& response,
+                                      ConnectionState& connectionState);
 
   static std::shared_ptr<encoding::EncoderProvider> selectEncoder(const std::shared_ptr<http::incoming::Request>& request,
                                                                   const std::shared_ptr<http::encoding::ProviderCollection>& providers);

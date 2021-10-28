@@ -43,6 +43,31 @@
   #endif
 #endif
 
+
+// Workaround for MinGW from: https://www.mail-archive.com/users@ipv6.org/msg02107.html
+#if defined(__MINGW32__) && _WIN32_WINNT < 0x0600
+  const char * inet_ntop (int af, const void *src, char *dst, socklen_t cnt) {
+    if (af == AF_INET) {
+      struct sockaddr_in in;
+
+      memset (&in, 0, sizeof(in));
+      in.sin_family = AF_INET;
+      memcpy (&in.sin_addr, src, sizeof(struct in_addr));
+      getnameinfo ((struct sockaddr *)&in, sizeof (struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
+      return dst;
+    } else if (af == AF_INET6) {
+      struct sockaddr_in6 in;
+      memset (&in, 0, sizeof(in));
+      in.sin6_family = AF_INET6;
+      memcpy (&in.sin6_addr, src, sizeof(struct in_addr6));
+      getnameinfo ((struct sockaddr *)&in, sizeof (struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
+      return dst;
+    }
+
+    return NULL;
+  }
+#endif
+
 namespace oatpp { namespace network { namespace tcp { namespace server {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,10 +91,40 @@ oatpp::data::stream::Context& ConnectionProvider::ExtendedConnection::getInputSt
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ConnectionProvider::ConnectionInvalidator
+
+void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
+
+  /************************************************
+   * WARNING!!!
+   *
+   * shutdown(handle, SHUT_RDWR)    <--- DO!
+   * close(handle);                 <--- DO NOT!
+   *
+   * DO NOT CLOSE file handle here -
+   * USE shutdown instead.
+   * Using close prevent FDs popping out of epoll,
+   * and they'll be stuck there forever.
+   ************************************************/
+
+  auto c = std::static_pointer_cast<network::tcp::Connection>(connection);
+  v_io_handle handle = c->getHandle();
+
+#if defined(WIN32) || defined(_WIN32)
+  shutdown(handle, SD_BOTH);
+#else
+  shutdown(handle, SHUT_RDWR);
+#endif
+
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionProvider
 
 ConnectionProvider::ConnectionProvider(const network::Address& address, bool useExtendedConnections)
-        : m_address(address)
+        : m_invalidator(std::make_shared<ConnectionInvalidator>())
+        , m_address(address)
         , m_closed(false)
         , m_useExtendedConnections(useExtendedConnections)
 {
@@ -97,8 +152,6 @@ void ConnectionProvider::stop() {
 
 oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
-  int iResult;
-
   SOCKET serverHandle = INVALID_SOCKET;
 
   struct addrinfo *result = nullptr;
@@ -118,7 +171,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
-  iResult = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
+  const int iResult = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (iResult != 0) {
     OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d", iResult);
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
@@ -158,6 +211,13 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   if(NO_ERROR != ioctlsocket(serverHandle, FIONBIO, &flags)) {
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to ioctlsocket failed.");
   }
+
+  // Update port after binding (typicaly in case of port = 0)
+  struct ::sockaddr_in s_in;
+  ::memset(&s_in, 0, sizeof(s_in));
+  ::socklen_t s_in_len = sizeof(s_in);
+  ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
 
@@ -232,6 +292,13 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
   fcntl(serverHandle, F_SETFL, O_NONBLOCK);
 
+  // Update port after binding (typicaly in case of port = 0)
+  struct ::sockaddr_in s_in;
+  ::memset(&s_in, 0, sizeof(s_in));
+  ::socklen_t s_in_len = sizeof(s_in);
+  ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
+  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
+
   return serverHandle;
 
 }
@@ -264,7 +331,7 @@ bool ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
 
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::getDefaultConnection() {
+provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getDefaultConnection() {
 
   oatpp::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
 
@@ -273,14 +340,17 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::getDefaultCon
   }
 
   if(prepareConnectionHandle(handle)) {
-    return std::make_shared<Connection>(handle);
+    return provider::ResourceHandle<data::stream::IOStream>(
+      std::make_shared<Connection>(handle),
+        m_invalidator
+    );
   }
 
   return nullptr;
 
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::getExtendedConnection() {
+provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtendedConnection() {
 
   struct sockaddr_storage clientAddress;
   socklen_t clientAddressSize = sizeof(clientAddress);
@@ -327,14 +397,17 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::getExtendedCo
   }
 
   if(prepareConnectionHandle(handle)) {
-    return std::make_shared<ExtendedConnection>(handle, std::move(properties));
+    return provider::ResourceHandle<data::stream::IOStream>(
+      std::make_shared<ExtendedConnection>(handle, std::move(properties)),
+      m_invalidator
+    );
   }
 
   return nullptr;
 
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
+provider::ResourceHandle<oatpp::data::stream::IOStream> ConnectionProvider::get() {
 
   fd_set set;
   struct timeval timeout;
@@ -359,31 +432,6 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   }
 
   return getDefaultConnection();
-
-}
-
-void ConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
-
-  /************************************************
-   * WARNING!!!
-   *
-   * shutdown(handle, SHUT_RDWR)    <--- DO!
-   * close(handle);                 <--- DO NOT!
-   *
-   * DO NOT CLOSE file handle here -
-   * USE shutdown instead.
-   * Using close prevent FDs popping out of epoll,
-   * and they'll be stuck there forever.
-   ************************************************/
-
-  auto c = std::static_pointer_cast<network::tcp::Connection>(connection);
-  v_io_handle handle = c->getHandle();
-
-#if defined(WIN32) || defined(_WIN32)
-  shutdown(handle, SD_BOTH);
-#else
-  shutdown(handle, SHUT_RDWR);
-#endif
 
 }
 

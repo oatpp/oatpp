@@ -56,7 +56,7 @@ public:
    * @param data - pointer to buffer containing chunk data.
    * @param size - size of the buffer.
    */
-  virtual void onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) = 0;
+  virtual void onPartData(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) = 0;
 
 };
 
@@ -86,7 +86,7 @@ public:
    * @param size - size of the buffer.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  virtual async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) = 0;
+  virtual async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) = 0;
 
 };
 
@@ -121,7 +121,7 @@ public:
 
   void onPartHeaders(const Headers& partHeaders) override;
 
-  void onPartData(p_char8 data, v_buff_size size) override;
+  void onPartData(const char* data, v_buff_size size) override;
 
   void setPartReader(const oatpp::String& partName, const std::shared_ptr<PartReader>& reader);
 
@@ -162,7 +162,7 @@ public:
 
   async::CoroutineStarter onPartHeadersAsync(const Headers& partHeaders) override;
 
-  async::CoroutineStarter onPartDataAsync(p_char8 data, v_buff_size size) override;
+  async::CoroutineStarter onPartDataAsync(const char* data, v_buff_size size) override;
 
   void setPartReader(const oatpp::String& partName, const std::shared_ptr<AsyncPartReader>& reader);
 

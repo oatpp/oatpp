@@ -22,21 +22,25 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_collection_LinkedListTest_hpp
-#define oatpp_test_base_collection_LinkedListTest_hpp
+#include "ConnectionMaxAgeChecker.hpp"
 
-#include "oatpp-test/UnitTest.hpp"
+namespace oatpp { namespace network { namespace monitor {
 
-namespace oatpp { namespace test { namespace collection {
-  
-class LinkedListTest : public UnitTest{
-public:
-  
-  LinkedListTest():UnitTest("TEST[oatpp::collection::LinkedListTest]"){}
-  void onRun() override;
-  
-};
-  
+ConnectionMaxAgeChecker::ConnectionMaxAgeChecker(const std::chrono::duration<v_int64, std::micro>& maxAge)
+  : m_maxAge(maxAge)
+{}
+
+std::vector<oatpp::String> ConnectionMaxAgeChecker::getMetricsList() {
+  return {};
+}
+
+std::shared_ptr<StatCollector> ConnectionMaxAgeChecker::createStatCollector(const oatpp::String& metricName) {
+  throw std::runtime_error("[oatpp::network::monitor::ConnectionMaxAgeChecker::createStatCollector()]: "
+                           "Error. ConnectionMaxAgeChecker doesn't use any stat collectors.");
+}
+
+bool ConnectionMaxAgeChecker::check(const ConnectionStats& stats, v_int64 currMicroTime) {
+  return currMicroTime - stats.timestampCreated < m_maxAge.count();
+}
+
 }}}
-
-#endif /* oatpp_test_base_collection_LinkedListTest_hpp */

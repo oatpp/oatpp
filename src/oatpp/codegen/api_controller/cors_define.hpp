@@ -46,9 +46,10 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME 
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME = createEndpoint(m_endpoints, \
-                                                        Z__ENDPOINT_HANDLER_GET_INSTANCE_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME(this), \
-                                                        Z__CREATE_ENDPOINT_INFO_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME);\
+const std::shared_ptr<oatpp::web::server::api::Endpoint>               \
+  Z__ENDPOINT_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME = createEndpoint(m_endpoints, \
+  Z__ENDPOINT_HANDLER_GET_INSTANCE_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME(this), \
+  Z__CREATE_ENDPOINT_INFO_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME);\
 \
 std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> \
 Z__PROXY_METHOD_Z__CORS_OPTIONS_DECL_##ENDPOINTNAME(const std::shared_ptr<oatpp::web::protocol::http::incoming::Request>& __request) \
@@ -151,6 +152,7 @@ OATPP_MACRO_API_CONTROLLER_ADD_CORS_OPTIONS_DECL(ENDPOINTNAME) { \
 ENDPOINT_INTERCEPTOR(ENDPOINTNAME, CORS) { \
   auto resp = (this->*intercepted)(request); \
   OATPP_MACRO_API_CONTROLLER_ADD_CORS_BODY(ORIGIN, METHODS, HEADERS, MAX_AGE) \
+  return resp; \
 } \
 OATPP_MACRO_API_CONTROLLER_ADD_CORS_OPTIONS_DECL(ENDPOINTNAME) { \
   auto resp = createResponse(Status::CODE_204, ""); \

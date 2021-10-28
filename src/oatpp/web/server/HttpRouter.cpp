@@ -26,39 +26,24 @@
 
 namespace oatpp { namespace web { namespace server {
 
-HttpRouter::HttpRouter()
-{}
-
-const std::shared_ptr<HttpRouter::BranchRouter>& HttpRouter::getBranch(const StringKeyLabel& name){
-  auto it = m_branchMap.find(name);
-  if(it == m_branchMap.end()){
-    m_branchMap[name] = BranchRouter::createShared();
-  }
-  return m_branchMap[name];
-}
-
 std::shared_ptr<HttpRouter> HttpRouter::createShared() {
   return std::make_shared<HttpRouter>();
 }
 
-void HttpRouter::route(const oatpp::String& method,
-                               const oatpp::String& pathPattern,
-                               const std::shared_ptr<HttpRequestHandler>& handler) {
-  getBranch(method)->route(pathPattern, handler);
+void HttpRouter::route(const std::shared_ptr<server::api::Endpoint>& endpoint) {
+  route(endpoint->info()->method, endpoint->info()->path, endpoint->handler);
 }
 
-HttpRouter::BranchRouter::Route HttpRouter::getRoute(const StringKeyLabel& method, const StringKeyLabel& path){
-  auto it = m_branchMap.find(method);
-  if(it != m_branchMap.end()) {
-    return m_branchMap[method]->getRoute(path);
+void HttpRouter::route(const server::api::Endpoints& endpoints) {
+  for(auto& e : endpoints.list) {
+    route(e);
   }
-  return BranchRouter::Route();
 }
 
-void HttpRouter::logRouterMappings() {
-  for(auto it : m_branchMap) {
-    it.second->logRouterMappings(it.first);
-  }
+std::shared_ptr<server::api::ApiController> HttpRouter::addController(const std::shared_ptr<server::api::ApiController>& controller) {
+  m_controllers.push_back(controller);
+  route(controller->getEndpoints());
+  return controller;
 }
 
 }}}

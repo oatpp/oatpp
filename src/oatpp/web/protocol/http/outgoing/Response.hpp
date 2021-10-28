@@ -34,6 +34,8 @@
 #include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
+#include "oatpp/core/data/Bundle.hpp"
+
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 /**
@@ -60,6 +62,7 @@ private:
   std::shared_ptr<Body> m_body;
   std::shared_ptr<ConnectionHandler> m_connectionUpgradeHandler;
   std::shared_ptr<const ConnectionHandler::ParameterMap> m_connectionUpgradeParameters;
+  data::Bundle m_bundle;
 public:
   /**
    * Constructor.
@@ -90,6 +93,12 @@ public:
   Headers& getHeaders();
 
   /**
+   * Get body
+   * @return - &id:oatpp::web::protocol::http::outgoing::Body;
+   */
+  std::shared_ptr<Body> getBody() const;
+
+  /**
    * Add http header.
    * @param key - &id:oatpp::String;.
    * @param value - &id:oatpp::String;.
@@ -105,26 +114,66 @@ public:
   bool putHeaderIfNotExists(const oatpp::String& key, const oatpp::String& value);
 
   /**
+   * Replaces or adds header.
+   * @param key - &id:oatpp::String;.
+   * @param value - &id:oatpp::String;.
+   * @return - `true` if header was replaces, `false` if header was added.
+   */
+  bool putOrReplaceHeader(const oatpp::String& key, const oatpp::String& value);
+
+  /**
+   * Replaces or adds header.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI;.
+   * @param value - &id:oatpp::data::share::StringKeyLabel;.
+   * @return - `true` if header was replaces, `false` if header was added.
+   */
+  bool putOrReplaceHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value);
+
+  /**
    * Add http header.
-   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI;.
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
    */
-  void putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  void putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Add http header if not already exists.
-   * @param key - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param key - &id:oatpp::data::share::StringKeyLabelCI;.
    * @param value - &id:oatpp::data::share::StringKeyLabel;.
    * @return - `true` if header was added.
    */
-  bool putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  bool putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Get header value
-   * @param headerName - &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @param headerName - &id:oatpp::data::share::StringKeyLabelCI;.
    * @return - &id:oatpp::String;.
    */
-  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const;
+  oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI& headerName) const;
+
+  /**
+   * Put data to bundle.
+   * @param key
+   * @param polymorph
+   */
+  void putBundleData(const oatpp::String& key, const oatpp::Void& polymorph);
+
+  /**
+   * Get data from bundle by key.
+   * @tparam WrapperType
+   * @param key
+   * @return
+   */
+  template<typename WrapperType>
+  WrapperType getBundleData(const oatpp::String& key) const {
+    return m_bundle.template get<WrapperType>(key);
+  }
+
+  /**
+   * Get bundle object.
+   * @return
+   */
+  const data::Bundle& getBundle() const;
 
   /**
    * Set connection upgreade header. <br>

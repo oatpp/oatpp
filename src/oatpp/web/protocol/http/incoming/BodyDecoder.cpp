@@ -30,27 +30,34 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 // BodyDecoder
 
 oatpp::async::CoroutineStarterForResult<const oatpp::String&>
-BodyDecoder::decodeToStringAsync(const Headers& headers, const std::shared_ptr<data::stream::InputStream>& bodyStream) const {
+BodyDecoder::decodeToStringAsync(const Headers& headers,
+                                 const std::shared_ptr<data::stream::InputStream>& bodyStream,
+                                 const std::shared_ptr<data::stream::IOStream>& connection) const
+{
 
   class ToStringDecoder : public oatpp::async::CoroutineWithResult<ToStringDecoder, const oatpp::String&> {
   private:
     const BodyDecoder* m_decoder;
     Headers m_headers;
-    std::shared_ptr<oatpp::data::stream::InputStream> m_bodyStream;
-    std::shared_ptr<oatpp::data::stream::ChunkedBuffer> m_outputStream;
+    std::shared_ptr<data::stream::InputStream> m_bodyStream;
+    std::shared_ptr<data::stream::IOStream> m_connection;
+    std::shared_ptr<data::stream::ChunkedBuffer> m_outputStream;
   public:
 
     ToStringDecoder(const BodyDecoder* decoder,
                     const Headers& headers,
-                    const std::shared_ptr<data::stream::InputStream>& bodyStream)
+                    const std::shared_ptr<data::stream::InputStream>& bodyStream,
+                    const std::shared_ptr<data::stream::IOStream>& connection)
       : m_decoder(decoder)
       , m_headers(headers)
       , m_bodyStream(bodyStream)
+      , m_connection(connection)
       , m_outputStream(std::make_shared<data::stream::ChunkedBuffer>())
     {}
 
     Action act() override {
-      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_outputStream).next(yieldTo(&ToStringDecoder::onDecoded));
+      return m_decoder->decodeAsync(m_headers, m_bodyStream, m_outputStream, m_connection)
+        .next(yieldTo(&ToStringDecoder::onDecoded));
     }
 
     Action onDecoded() {
@@ -59,7 +66,7 @@ BodyDecoder::decodeToStringAsync(const Headers& headers, const std::shared_ptr<d
 
   };
 
-  return ToStringDecoder::startForResult(this, headers, bodyStream);
+  return ToStringDecoder::startForResult(this, headers, bodyStream, connection);
 
 }
 

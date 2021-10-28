@@ -72,7 +72,7 @@ public:
    * Get database connection.
    * @return
    */
-  virtual std::shared_ptr<Connection> getConnection() = 0;
+  virtual provider::ResourceHandle<Connection> getConnection() = 0;
 
   /**
    * Parse query template.
@@ -98,7 +98,7 @@ public:
   virtual std::shared_ptr<QueryResult> execute(const StringTemplate& queryTemplate,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
                                                const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver = nullptr,
-                                               const std::shared_ptr<Connection>& connection = nullptr) = 0;
+                                               const provider::ResourceHandle<Connection>& connection = nullptr) = 0;
 
   /**
    * Execute an arbitrary database query. <br>
@@ -113,28 +113,28 @@ public:
   virtual std::shared_ptr<QueryResult> execute(const oatpp::String& query,
                                                const std::unordered_map<oatpp::String, oatpp::Void>& params,
                                                const std::shared_ptr<const data::mapping::TypeResolver>& typeResolver = nullptr,
-                                               const std::shared_ptr<Connection>& connection = nullptr);
+                                               const provider::ResourceHandle<Connection>& connection = nullptr);
 
   /**
    * Begin database transaction. Should NOT be used directly. Use &id:oatpp::orm::Transaction; instead.
    * @param connection - database connection.
    * @return - &id:oatpp::orm::QueryResult;.
    */
-  virtual std::shared_ptr<QueryResult> begin(const std::shared_ptr<Connection>& connection = nullptr) = 0;
+  virtual std::shared_ptr<QueryResult> begin(const provider::ResourceHandle<Connection>& connection = nullptr) = 0;
 
   /**
    * Commit database transaction. Should NOT be used directly. Use &id:oatpp::orm::Transaction; instead.
    * @param connection
    * @return - &id:oatpp::orm::QueryResult;.
    */
-  virtual std::shared_ptr<QueryResult> commit(const std::shared_ptr<Connection>& connection) = 0;
+  virtual std::shared_ptr<QueryResult> commit(const provider::ResourceHandle<Connection>& connection) = 0;
 
   /**
    * Rollback database transaction. Should NOT be used directly. Use &id:oatpp::orm::Transaction; instead.
    * @param connection
    * @return - &id:oatpp::orm::QueryResult;.
    */
-  virtual std::shared_ptr<QueryResult> rollback(const std::shared_ptr<Connection>& connection) = 0;
+  virtual std::shared_ptr<QueryResult> rollback(const provider::ResourceHandle<Connection>& connection) = 0;
 
   /**
    * Get current database schema version.
@@ -143,7 +143,7 @@ public:
    * @return - schema version.
    */
   virtual v_int64 getSchemaVersion(const oatpp::String& suffix = nullptr,
-                                   const std::shared_ptr<Connection>& connection = nullptr) = 0;
+                                   const provider::ResourceHandle<Connection>& connection = nullptr) = 0;
 
   /**
    * Run schema migration script. Should NOT be used directly. Use &id:oatpp::orm::SchemaMigration; instead.
@@ -155,7 +155,7 @@ public:
   virtual void migrateSchema(const oatpp::String& script,
                              v_int64 newVersion,
                              const oatpp::String& suffix = nullptr,
-                             const std::shared_ptr<Connection>& connection = nullptr) = 0;
+                             const provider::ResourceHandle<Connection>& connection = nullptr) = 0;
 
 };
 

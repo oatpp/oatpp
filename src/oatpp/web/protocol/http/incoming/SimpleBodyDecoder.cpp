@@ -31,6 +31,8 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
+const std::string SimpleBodyDecoder::RESPONSE_100_CONTINUE = "HTTP/1.1 100 Continue\r\n";
+
 SimpleBodyDecoder::SimpleBodyDecoder(const std::shared_ptr<encoding::ProviderCollection>& contentDecoders)
   : m_contentDecoders(contentDecoders)
 {}
@@ -77,10 +79,36 @@ SimpleBodyDecoder::getStreamProcessor (const data::share::StringKeyLabelCI& tran
 
 }
 
+void SimpleBodyDecoder::handleExpectHeader(const Headers& headers, data::stream::IOStream* connection) const {
+
+  auto expect = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::EXPECT);
+  if(expect == Header::Value::EXPECT_100_CONTINUE) {
+    auto res = connection->writeExactSizeDataSimple(RESPONSE_100_CONTINUE.data(), RESPONSE_100_CONTINUE.size());
+    if(res != RESPONSE_100_CONTINUE.size()) {
+      throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::handleExpectHeader()]: "
+                               "Error. Unable to send 100-continue response.");
+    }
+  }
+
+}
+
+oatpp::async::CoroutineStarter SimpleBodyDecoder::handleExpectHeaderAsync(const Headers& headers,
+                                                                          const std::shared_ptr<data::stream::IOStream>& connection) const
+{
+  auto expect = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::EXPECT);
+  if(expect == Header::Value::EXPECT_100_CONTINUE) {
+    return connection->writeExactSizeDataAsync(RESPONSE_100_CONTINUE.data(), RESPONSE_100_CONTINUE.size());
+  }
+  return nullptr;
+}
+
 void SimpleBodyDecoder::decode(const Headers& headers,
                                data::stream::InputStream* bodyStream,
-                               data::stream::WriteCallback* writeCallback) const {
+                               data::stream::WriteCallback* writeCallback,
+                               data::stream::IOStream* connection) const
+{
 
+  handleExpectHeader(headers, connection);
   auto transferEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::TRANSFER_ENCODING);
 
   if(transferEncoding) {
@@ -110,7 +138,7 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 
     } else {
 
-      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONNECTION);
 
       if(connectionStr && connectionStr == "close") {
 
@@ -131,8 +159,11 @@ void SimpleBodyDecoder::decode(const Headers& headers,
 
 async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
                                                        const std::shared_ptr<data::stream::InputStream>& bodyStream,
-                                                       const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const {
+                                                       const std::shared_ptr<data::stream::WriteCallback>& writeCallback,
+                                                       const std::shared_ptr<data::stream::IOStream>& connection) const
+{
 
+  auto pipeline = handleExpectHeaderAsync(headers, connection);
   auto transferEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::TRANSFER_ENCODING);
 
   if(transferEncoding) {
@@ -140,7 +171,7 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
     auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
     auto processor = getStreamProcessor(transferEncoding, contentEncoding);
     auto buffer = data::buffer::IOBuffer::createShared();
-    return data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, buffer, processor);
+    return std::move(pipeline.next(data::stream::transferAsync(bodyStream, writeCallback, 0 /* read until error */, buffer, processor)));
 
   } else {
 
@@ -155,20 +186,20 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
         auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
         auto processor = getStreamProcessor(nullptr, contentEncoding);
         auto buffer = data::buffer::IOBuffer::createShared();
-        return data::stream::transferAsync(bodyStream, writeCallback, contentLength, buffer, processor);
+        return std::move(pipeline.next(data::stream::transferAsync(bodyStream, writeCallback, contentLength, buffer, processor)));
 
       }
 
     } else {
 
-      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI_FAST>(Header::CONNECTION);
+      auto connectionStr = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONNECTION);
 
       if(connectionStr && connectionStr == "close") {
 
         auto contentEncoding = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::CONTENT_ENCODING);
         auto processor = getStreamProcessor(nullptr, contentEncoding);
         auto buffer = data::buffer::IOBuffer::createShared();
-        return data::stream::transferAsync(bodyStream, writeCallback,  0 /* read until error */, buffer, processor);
+        return std::move(pipeline.next(data::stream::transferAsync(bodyStream, writeCallback,  0 /* read until error */, buffer, processor)));
 
       }
 

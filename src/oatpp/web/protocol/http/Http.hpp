@@ -31,7 +31,6 @@
 
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/collection/ListMap.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <unordered_map>
@@ -43,7 +42,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http {
  * Typedef for headers map. Headers map key is case-insensitive.
  * For more info see &id:oatpp::data::share::LazyStringMap;.
  */
-typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabelCI_FAST> Headers;
+typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI> Headers;
 
 /**
  * Typedef for query parameters map.
@@ -481,6 +480,8 @@ public:
     
     static const char* const TRANSFER_ENCODING_CHUNKED;
     static const char* const CONTENT_TYPE_APPLICATION_JSON;
+
+    static const char* const EXPECT_100_CONTINUE;
   };
 public:
   static const char* const ACCEPT;              // "Accept"
@@ -502,6 +503,7 @@ public:
   static const char* const CORS_HEADERS;        // Access-Control-Allow-Headers
   static const char* const CORS_MAX_AGE;        // Access-Control-Max-Age
   static const char* const ACCEPT_ENCODING;     // Accept-Encoding
+  static const char* const EXPECT;              // Expect
 };
   
 class Range {
@@ -645,33 +647,33 @@ struct HeaderValueData {
  */
 class Parser {
 private:
-  static oatpp::data::share::StringKeyLabelCI_FAST parseHeaderNameLabel(const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
-                                                                        oatpp::parser::Caret& caret);
+  static oatpp::data::share::StringKeyLabelCI parseHeaderNameLabel(const std::shared_ptr<std::string>& headersText,
+                                                                   oatpp::parser::Caret& caret);
 public:
 
   /**
    * Parse &l:RequestStartingLine;.
    * @param line - &l:RequestStartingLine;. Values will be set to line's fields.
-   * @param headersText - `std::shared_ptr` to &id:oatpp::base::StrBuffer; needed as a "memory handle" for
+   * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:RequestStartingLine; fields. See &id:oatpp::data::share::MemoryLabel;.
    * @param caret - &id:oatpp::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseRequestStartingLine(RequestStartingLine& line,
-                                       const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                       const std::shared_ptr<std::string>& headersText,
                                        oatpp::parser::Caret& caret,
                                        Status& error);
 
   /**
    * Parse &l:ResponseStartingLine;.
    * @param line - &l:ResponseStartingLine;. Values will be set to line's fields.
-   * @param headersText - `std::shared_ptr` to &id:oatpp::base::StrBuffer; needed as a "memory handle" for
+   * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:ResponseStartingLine; fields. See &id:oatpp::data::share::MemoryLabel;.
    * @param caret - &id:oatpp::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseResponseStartingLine(ResponseStartingLine& line,
-                                        const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                                        const std::shared_ptr<std::string>& headersText,
                                         oatpp::parser::Caret& caret,
                                         Status& error);
 
@@ -679,26 +681,26 @@ public:
    * Parse one header line. Example of the header line:
    * `"Content-Type: application/json\r\n"`.
    * @param headers - &l:Headers; map to put parsed header to.
-   * @param headersText - `std::shared_ptr` to &id:oatpp::base::StrBuffer; needed as a "memory handle" for
+   * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:Headers; values. See &id:oatpp::data::share::MemoryLabel;.
    * @param caret - &id:oatpp::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseOneHeader(Headers& headers,
-                             const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                             const std::shared_ptr<std::string>& headersText,
                              oatpp::parser::Caret& caret,
                              Status& error);
 
   /**
    * Parse HTTP headers to &l:Headers; map.
    * @param headers - &l:Headers; map to put parsed headers to.
-   * @param headersText - `std::shared_ptr` to &id:oatpp::base::StrBuffer; needed as a "memory handle" for
+   * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:Headers; values. See &id:oatpp::data::share::MemoryLabel;.
    * @param caret - &id:oatpp::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseHeaders(Headers& headers,
-                           const std::shared_ptr<oatpp::base::StrBuffer>& headersText,
+                           const std::shared_ptr<std::string>& headersText,
                            oatpp::parser::Caret& caret,
                            Status& error);
 
@@ -708,7 +710,7 @@ public:
    * @param headerValue - header value string.
    * @param separator - subvalues separator.
    */
-  static void parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, v_char8 separator);
+  static void parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, char separator);
 
 };
 

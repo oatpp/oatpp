@@ -76,7 +76,7 @@ void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& cla
 
 void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_char8 charClose){
 
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   v_int32 scopeCounter = 0;
@@ -109,7 +109,7 @@ void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_ch
 }
 
 void Deserializer::skipString(oatpp::parser::Caret& caret){
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   v_int32 scopeCounter = 0;
@@ -129,7 +129,7 @@ void Deserializer::skipString(oatpp::parser::Caret& caret){
 }
 
 void Deserializer::skipToken(oatpp::parser::Caret& caret){
-  p_char8 data = caret.getData();
+  const char* data = caret.getData();
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   while(pos < size){
@@ -252,7 +252,7 @@ oatpp::Void Deserializer::deserializeAny(Deserializer* deserializer, parser::Car
     const Type* const fieldType = guessType(caret);
     if(fieldType != nullptr) {
       auto fieldValue = deserializer->deserialize(caret, fieldType);
-      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.valueType);
+      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.getValueType());
       return oatpp::Void(anyHandle, Any::Class::getType());
     }
   }

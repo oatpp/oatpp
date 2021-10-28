@@ -53,7 +53,7 @@ void StreamPartReader::onNewPart(const std::shared_ptr<Part>& part) {
 
 }
 
-void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
+void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {
@@ -142,7 +142,7 @@ async::CoroutineStarter AsyncStreamPartReader::onNewPartAsync(const std::shared_
 
 }
 
-async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, p_char8 data, oatpp::v_io_size size) {
+async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) {
 
   auto tag = part->getTagObject();
   if(!tag) {

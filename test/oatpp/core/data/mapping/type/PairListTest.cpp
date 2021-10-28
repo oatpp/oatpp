@@ -38,9 +38,9 @@ void PairListTest::onRun() {
     OATPP_ASSERT(map == nullptr);
 
     OATPP_ASSERT(map.get() == nullptr);
-    OATPP_ASSERT(map.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
-    OATPP_ASSERT(map.valueType->params.size() == 2);
-    auto it = map.valueType->params.begin();
+    OATPP_ASSERT(map.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
+    OATPP_ASSERT(map.getValueType()->params.size() == 2);
+    auto it = map.getValueType()->params.begin();
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType());
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
@@ -55,9 +55,9 @@ void PairListTest::onRun() {
     OATPP_ASSERT(map->size() == 0);
 
     OATPP_ASSERT(map.get() != nullptr);
-    OATPP_ASSERT(map.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
-    OATPP_ASSERT(map.valueType->params.size() == 2);
-    auto it = map.valueType->params.begin();
+    OATPP_ASSERT(map.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
+    OATPP_ASSERT(map.getValueType()->params.size() == 2);
+    auto it = map.getValueType()->params.begin();
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType());
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
@@ -72,7 +72,7 @@ void PairListTest::onRun() {
     OATPP_ASSERT(map->size() == 0);
 
     OATPP_ASSERT(map.get() != nullptr);
-    OATPP_ASSERT(map.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
+    OATPP_ASSERT(map.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractPairList::CLASS_ID.id);
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -149,7 +149,7 @@ void PairListTest::onRun() {
     oatpp::Fields<String> map = {{"key1", "a"}, {"key2", "b"}, {"key3", "c"}};
 
     auto polymorphicDispatcher = static_cast<const typename oatpp::Fields<String>::Class::PolymorphicDispatcher*>(
-      map.valueType->polymorphicDispatcher
+      map.getValueType()->polymorphicDispatcher
     );
 
     polymorphicDispatcher->addPolymorphicItem(map, oatpp::String("key1"), oatpp::String("d"));

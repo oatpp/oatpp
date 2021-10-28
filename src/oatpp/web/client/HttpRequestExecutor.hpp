@@ -46,25 +46,50 @@ protected:
   std::shared_ptr<const BodyDecoder> m_bodyDecoder;
 public:
 
+  class ConnectionProxy : public data::stream::IOStream {
+  private:
+  provider::ResourceHandle<data::stream::IOStream> m_connectionHandle;
+    bool m_valid;
+    bool m_invalidateOnDestroy;
+  public:
+
+    ConnectionProxy(const provider::ResourceHandle<data::stream::IOStream>& connectionHandle);
+
+    ~ConnectionProxy() override;
+
+    v_io_size read(void *buffer, v_buff_size count, async::Action& action) override;
+    v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+
+    void setInputStreamIOMode(data::stream::IOMode ioMode) override;
+    data::stream::IOMode getInputStreamIOMode() override;
+    data::stream::Context& getInputStreamContext() override;
+
+    void setOutputStreamIOMode(data::stream::IOMode ioMode) override;
+    data::stream::IOMode getOutputStreamIOMode() override;
+    data::stream::Context& getOutputStreamContext() override;
+
+    void invalidate();
+    void setInvalidateOnDestroy(bool invalidateOnDestroy);
+
+  };
+
+public:
+
   /**
    * Connection handle for &l:HttpRequestExecutor; <br>
    * For more details see &id:oatpp::web::client::RequestExecutor::ConnectionHandle;.
    */
   class HttpConnectionHandle : public ConnectionHandle {
+  private:
+    std::shared_ptr<ConnectionProxy> m_connectionProxy;
   public:
 
-    /**
-     * Constructor.
-     * @param stream - &id:oatpp::data::stream::IOStream;.
-     */
-    HttpConnectionHandle(const std::shared_ptr<oatpp::data::stream::IOStream>& stream)
-      : connection(stream)
-    {}
+    HttpConnectionHandle(const std::shared_ptr<ConnectionProxy>& connectionProxy);
 
-    /**
-     * Connection.
-     */
-    std::shared_ptr<oatpp::data::stream::IOStream> connection;
+    std::shared_ptr<ConnectionProxy> getConnection();
+
+    void invalidate();
+
   };
 public:
 
@@ -107,7 +132,7 @@ public:
    * Invalidate connection.
    * @param connectionHandle
    */
-  virtual void invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) override;
+  void invalidateConnection(const std::shared_ptr<ConnectionHandle>& connectionHandle) override;
 
   /**
    * Execute http request.

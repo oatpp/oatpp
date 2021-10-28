@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_ConnectionsProvider_hpp
-#define oatpp_netword_ConnectionsProvider_hpp
+#ifndef oatpp_network_ConnectionProvider_hpp
+#define oatpp_network_ConnectionProvider_hpp
 
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
@@ -57,15 +57,15 @@ public:
 /**
  * No properties here. It is just a logical division
  */
-class ServerConnectionProvider : public ConnectionProvider {
+class ServerConnectionProvider : virtual public ConnectionProvider {
 };
 
 /**
  * No properties here. It is just a logical division
  */
-class ClientConnectionProvider : public ConnectionProvider {
+class ClientConnectionProvider : virtual public ConnectionProvider {
 };
   
 }}
 
-#endif /* oatpp_netword_ConnectionsProvider_hpp */
+#endif /* oatpp_network_ConnectionProvider_hpp */

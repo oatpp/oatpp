@@ -25,7 +25,6 @@
 #include "./ConnectionProvider.hpp"
 
 #include "oatpp/network/tcp/Connection.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
@@ -43,14 +42,40 @@
 
 namespace oatpp { namespace network { namespace tcp { namespace client {
 
+void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
+
+  /************************************************
+   * WARNING!!!
+   *
+   * shutdown(handle, SHUT_RDWR)    <--- DO!
+   * close(handle);                 <--- DO NOT!
+   *
+   * DO NOT CLOSE file handle here -
+   * USE shutdown instead.
+   * Using close prevent FDs popping out of epoll,
+   * and they'll be stuck there forever.
+   ************************************************/
+
+  auto c = std::static_pointer_cast<network::tcp::Connection>(connection);
+  v_io_handle handle = c->getHandle();
+
+#if defined(WIN32) || defined(_WIN32)
+  shutdown(handle, SD_BOTH);
+#else
+  shutdown(handle, SHUT_RDWR);
+#endif
+
+}
+
 ConnectionProvider::ConnectionProvider(const network::Address& address)
-  : m_address(address)
+  : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_address(address)
 {
   setProperty(PROPERTY_HOST, address.host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
 
-std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
+provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
@@ -72,8 +97,13 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
+#if defined(WIN32) || defined(_WIN32)
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. "
+                             "Error. Call to getaddrinfo() failed with code " + std::to_string(res));
+#else
     std::string errorString = "[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() failed: ";
-	throw std::runtime_error(errorString.append(gai_strerror(res)));
+	  throw std::runtime_error(errorString.append(gai_strerror(res)));
+#endif
   }
 
   if (result == nullptr) {
@@ -119,14 +149,18 @@ std::shared_ptr<oatpp::data::stream::IOStream> ConnectionProvider::get() {
   }
 #endif
 
-  return std::make_shared<oatpp::network::tcp::Connection>(clientHandle);
+  return provider::ResourceHandle<data::stream::IOStream>(
+      std::make_shared<oatpp::network::tcp::Connection>(clientHandle),
+      m_invalidator
+  );
 
 }
 
-oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::stream::IOStream>&> ConnectionProvider::getAsync() {
+oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> ConnectionProvider::getAsync() {
 
-  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const std::shared_ptr<oatpp::data::stream::IOStream>&> {
+  class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const provider::ResourceHandle<oatpp::data::stream::IOStream>&> {
   private:
+    std::shared_ptr<ConnectionInvalidator> m_connectionInvalidator;
     network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
   private:
@@ -135,8 +169,10 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
     bool m_isHandleOpened;
   public:
 
-    ConnectCoroutine(const network::Address& address)
-      : m_address(address)
+    ConnectCoroutine(const std::shared_ptr<ConnectionInvalidator>& connectionInvalidator,
+                     const network::Address& address)
+      : m_connectionInvalidator(connectionInvalidator)
+      , m_address(address)
       , m_result(nullptr)
       , m_currentResult(nullptr)
       , m_isHandleOpened(false)
@@ -246,7 +282,10 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
       auto error = WSAGetLastError();
 
       if(res == 0 || error == WSAEISCONN) {
-        return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
+        return _return(provider::ResourceHandle<data::stream::IOStream>(
+                std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
+                m_connectionInvalidator
+            ));
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -257,7 +296,10 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 #else
 
       if(res == 0 || errno == EISCONN) {
-        return _return(std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle));
+        return _return(provider::ResourceHandle<data::stream::IOStream>(
+                std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
+                m_connectionInvalidator
+            ));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
@@ -274,32 +316,7 @@ oatpp::async::CoroutineStarterForResult<const std::shared_ptr<oatpp::data::strea
 
   };
 
-  return ConnectCoroutine::startForResult(m_address);
-
-}
-
-void ConnectionProvider::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
-
-  /************************************************
-   * WARNING!!!
-   *
-   * shutdown(handle, SHUT_RDWR)    <--- DO!
-   * close(handle);                 <--- DO NOT!
-   *
-   * DO NOT CLOSE file handle here -
-   * USE shutdown instead.
-   * Using close prevent FDs popping out of epoll,
-   * and they'll be stuck there forever.
-   ************************************************/
-
-  auto c = std::static_pointer_cast<network::tcp::Connection>(connection);
-  v_io_handle handle = c->getHandle();
-
-#if defined(WIN32) || defined(_WIN32)
-  shutdown(handle, SD_BOTH);
-#else
-  shutdown(handle, SHUT_RDWR);
-#endif
+  return ConnectCoroutine::startForResult(m_invalidator, m_address);
 
 }
 

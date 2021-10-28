@@ -93,7 +93,7 @@ public:
   ProcessorToUpper(v_int32 bufferSize) : BaseProcessor(bufferSize) {}
 
   void process(p_char8 data, v_buff_size size) override {
-    oatpp::base::StrBuffer::upperCase(data, size);
+    utils::String::upperCase_ASCII(data, size);
   }
 
 };
@@ -104,7 +104,7 @@ public:
   ProcessorToLower(v_int32 bufferSize) : BaseProcessor(bufferSize) {}
 
   void process(p_char8 data, v_buff_size size) override {
-    oatpp::base::StrBuffer::lowerCase(data, size);
+    utils::String::lowerCase_ASCII(data, size);
   }
 
 };
@@ -213,7 +213,7 @@ void ProcessorTest::onRun() {
           auto result = runTestCase(data, p1N, p2N, p3N, buffSize);
 
           if (result != etalon) {
-            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->getData());
+            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->data());
           }
           OATPP_ASSERT(result == etalon);
 

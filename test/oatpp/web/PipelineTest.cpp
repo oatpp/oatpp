@@ -134,7 +134,7 @@ void PipelineTest::onRun() {
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 
     auto connection = clientConnectionProvider->get();
-    connection->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
+    connection.object->setInputStreamIOMode(oatpp::data::stream::IOMode::BLOCKING);
 
     std::thread pipeInThread([this, connection] {
 
@@ -145,13 +145,13 @@ void PipelineTest::onRun() {
       }
 
       auto dataToSend = pipelineStream.toString();
-      OATPP_LOGD(TAG, "Sending %d bytes", dataToSend->getSize());
+      OATPP_LOGD(TAG, "Sending %d bytes", dataToSend->size());
 
       oatpp::data::stream::BufferInputStream inputStream(dataToSend);
 
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      auto res = oatpp::data::stream::transfer(&inputStream, connection.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
+      auto res = oatpp::data::stream::transfer(&inputStream, connection.object.get(), 0, ioBuffer.getData(), ioBuffer.getSize());
 
     });
 
@@ -161,14 +161,14 @@ void PipelineTest::onRun() {
       oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      v_io_size transferSize = sample->getSize() * m_pipelineSize;
+      v_io_size transferSize = sample->size() * m_pipelineSize;
 
       OATPP_LOGD(TAG, "want to Receive %d bytes", transferSize);
-      auto res = oatpp::data::stream::transfer(connection.get(), &receiveStream, transferSize, ioBuffer.getData(), ioBuffer.getSize());
+      auto res = oatpp::data::stream::transfer(connection.object.get(), &receiveStream, transferSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
 
-      OATPP_ASSERT(result->getSize() == sample->getSize() * m_pipelineSize);
+      OATPP_ASSERT(result->size() == sample->size() * m_pipelineSize);
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
 
     });

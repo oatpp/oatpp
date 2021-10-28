@@ -41,20 +41,33 @@ private:
   std::FILE* m_file;
   bool m_ownsFile;
   IOMode m_ioMode;
+private:
+  std::shared_ptr<void> m_capturedData;
 public:
+
+  FileInputStream(const FileInputStream&) = delete;
+  FileInputStream &operator=(const FileInputStream&) = delete;
+
+  /**
+   * Move constructor.
+   * @param other
+   */
+  FileInputStream(FileInputStream&& other);
 
   /**
    * Constructor.
    * @param file - file.
    * @param ownsFile - if `true` then call close on `FileInputStream` destruction.
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  FileInputStream(std::FILE* file, bool ownsFile);
+  FileInputStream(std::FILE* file, bool ownsFile, const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Constructor.
    * @param filename - name of the file.
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  FileInputStream(const char* filename);
+  FileInputStream(const char* filename, const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Virtual destructor.
@@ -96,6 +109,13 @@ public:
    */
   Context& getInputStreamContext() override;
 
+  /**
+   * Close file.
+   */
+  void close();
+
+  FileInputStream& operator=(FileInputStream&& other);
+
 };
 
 /**
@@ -108,21 +128,34 @@ private:
   std::FILE* m_file;
   bool m_ownsFile;
   IOMode m_ioMode;
+private:
+  std::shared_ptr<void> m_capturedData;
 public:
+
+  FileOutputStream(const FileOutputStream&) = delete;
+  FileOutputStream &operator=(const FileOutputStream&) = delete;
+
+  /**
+   * Move constructor.
+   * @param other
+   */
+  FileOutputStream(FileOutputStream&& other);
 
   /**
    * Constructor.
    * @param file - file.
    * @param ownsFile - if `true` then call close on `FileInputStream` destruction.
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  FileOutputStream(std::FILE* file, bool ownsFile);
+  FileOutputStream(std::FILE* file, bool ownsFile, const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Constructor.
    * @param filename - name of the file.
    * @param mode - ("wb" - create new/override, "ab" - create new/append).
+   * @param captureData - capture auxiliary data to not get deleted until it's done with the stream.
    */
-  FileOutputStream(const char* filename, const char* mode = "wb");
+  FileOutputStream(const char* filename, const char* mode = "wb", const std::shared_ptr<void>& captureData = nullptr);
 
   /**
    * Virtual destructor.
@@ -163,6 +196,13 @@ public:
    * @return
    */
   Context& getOutputStreamContext() override;
+
+  /**
+   * Close file.
+   */
+  void close();
+
+  FileOutputStream& operator=(FileOutputStream&& other);
 
 };
 

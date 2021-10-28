@@ -165,8 +165,8 @@ Context& ChunkedBuffer::getOutputStreamContext() {
 }
 
 v_io_size ChunkedBuffer::readSubstring(void *buffer,
-                                             v_buff_size pos,
-                                             v_buff_size count)
+                                       v_buff_size pos,
+                                       v_buff_size count)
 {
 
   if(pos < 0 || pos >= m_size){
@@ -215,7 +215,7 @@ v_io_size ChunkedBuffer::readSubstring(void *buffer,
 
 oatpp::String ChunkedBuffer::getSubstring(v_buff_size pos, v_buff_size count){
   auto str = oatpp::String((v_int32) count);
-  readSubstring(str->getData(), pos, count);
+  readSubstring((p_char8)str->data(), pos, count);
   return str;
 }
 
@@ -303,15 +303,13 @@ oatpp::async::CoroutineStarter ChunkedBuffer::flushToStreamAsync(const std::shar
 }
 
 std::shared_ptr<ChunkedBuffer::Chunks> ChunkedBuffer::getChunks() {
-  auto chunks = Chunks::createShared();
+  auto chunks = std::make_shared<Chunks>();
   auto curr = m_firstEntry;
   v_int32 count = 0;
   while (curr != nullptr) {
-    if(curr->next != nullptr){
-      chunks->pushBack(Chunk::createShared(curr->chunk, CHUNK_ENTRY_SIZE));
-    } else {
-      chunks->pushBack(Chunk::createShared(curr->chunk, m_size - CHUNK_ENTRY_SIZE * count));
-    }
+    chunks->push_back(Chunk::createShared(curr->chunk, curr->next
+                                            ? CHUNK_ENTRY_SIZE
+                                            : m_size - CHUNK_ENTRY_SIZE * count));
     ++count;
     curr = curr->next;
   }

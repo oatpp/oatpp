@@ -55,8 +55,8 @@ namespace {
       auto submission = m_interface->connect();
       auto socket = submission->getSocket();
       
-      auto res = socket->writeExactSizeDataSimple(m_dataSample->getData(), m_dataSample->getSize());
-      OATPP_ASSERT(res == m_dataSample->getSize());
+      auto res = socket->writeExactSizeDataSimple(m_dataSample->data(), m_dataSample->size());
+      OATPP_ASSERT(res == m_dataSample->size());
       
       v_char8 buffer[100];
       oatpp::data::stream::ChunkedBuffer stream;
@@ -87,9 +87,9 @@ namespace {
     void run() {
       v_char8 buffer[100];
       oatpp::data::stream::ChunkedBuffer stream;
-      auto res = oatpp::data::stream::transfer(m_socket.get(), &stream, m_dataSample->getSize(), buffer, 100);
+      auto res = oatpp::data::stream::transfer(m_socket.get(), &stream, m_dataSample->size(), buffer, 100);
       
-      OATPP_ASSERT(res == m_dataSample->getSize());
+      OATPP_ASSERT(res == m_dataSample->size());
       OATPP_ASSERT(stream.getSize() == res);
       OATPP_ASSERT(stream.toString() == m_dataSample);
       

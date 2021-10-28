@@ -25,7 +25,9 @@
 #ifndef oatpp_test_UnitTest_hpp
 #define oatpp_test_UnitTest_hpp
 
+#include <functional>
 #include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/macro/basic.hpp"
 
 namespace oatpp { namespace test {
 
@@ -67,6 +69,14 @@ public:
    * Override this method. It should contain test logic.
    */
   virtual void onRun() = 0;
+  /**
+   * Optionally override this method. It should contain logic run before all test iterations.
+   */
+  virtual void before(){};
+  /**
+   * Optionally override this method. It should contain logic run after all test iterations.
+   */
+  virtual void after(){};
 
   /**
    * Run this test repeatedly for specified number of times.
@@ -81,14 +91,22 @@ public:
   
 };
 
+#define OATPP_RUN_TEST_0(TEST) \
+oatpp::test::UnitTest::runTest<TEST>(1)
+
+#define OATPP_RUN_TEST_1(TEST, N) \
+oatpp::test::UnitTest::runTest<TEST>(N)
+
 /**
  * Convenience macro to run test. <br>
  * Usage Example:<br>
  * `OATPP_RUN_TEST(oatpp::test::web::FullTest);`
+ * Running the test 10 times:
+ * `OATPP_RUN_TEST(oatpp::test::web::FullTest, 10);`
  */
-#define OATPP_RUN_TEST(TEST) \
-oatpp::test::UnitTest::runTest<TEST>(1)
-  
+#define OATPP_RUN_TEST(...) \
+OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_RUN_TEST_, (__VA_ARGS__)) (__VA_ARGS__))
+
 }}
 
 #endif /* oatpp_test_UnitTest_hpp */

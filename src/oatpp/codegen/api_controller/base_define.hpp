@@ -186,6 +186,17 @@ if(!__param_validation_check_##NAME){ \
                                     "'. Expected type is '" #TYPE "'"); \
 }
 
+#define OATPP_MACRO_API_CONTROLLER_QUERY_3(TYPE, NAME, QUALIFIER, DEFAULT) \
+const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER, DEFAULT); \
+bool __param_validation_check_##NAME; \
+const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+if(!__param_validation_check_##NAME){ \
+  return ApiController::handleError(Status::CODE_400, \
+                                    oatpp::String("Invalid QUERY parameter '") + \
+                                    QUALIFIER + \
+                                    "'. Expected type is '" #TYPE "'"); \
+}
+
 #define OATPP_MACRO_API_CONTROLLER_QUERY(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_QUERY_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
 
@@ -195,6 +206,9 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_QUERY_, TYP
 info->queryParams.add(#NAME, TYPE::Class::getType());
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_2(TYPE, NAME, QUALIFIER) \
+info->queryParams.add(QUALIFIER, TYPE::Class::getType());
+
+#define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_3(TYPE, NAME, QUALIFIER, DEFAULT) \
 info->queryParams.add(QUALIFIER, TYPE::Class::getType());
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_INFO(TYPE, PARAM_LIST) \
@@ -209,11 +223,18 @@ const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToString();
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_STRING_INFO(TYPE, PARAM_LIST) \
 info->body.name = OATPP_MACRO_FIRSTARG_STR PARAM_LIST; \
-info->body.type = oatpp::data::mapping::type::__class::String::getType();
+info->body.required = true; \
+info->body.type = oatpp::data::mapping::type::__class::String::getType(); \
+if(getDefaultObjectMapper()) { \
+  info->bodyContentType = getDefaultObjectMapper()->getInfo().http_content_type; \
+}
 
 // BODY_DTO MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, PARAM_LIST) \
+if(!getDefaultObjectMapper()) { \
+  return ApiController::handleError(Status::CODE_500, "ObjectMapper was NOT set. Can't deserialize the request body."); \
+} \
 const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = \
 __request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
 if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
@@ -224,7 +245,11 @@ if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO(TYPE, PARAM_LIST) \
 info->body.name = OATPP_MACRO_FIRSTARG_STR PARAM_LIST; \
-info->body.type = TYPE::Class::getType();
+info->body.required = true; \
+info->body.type = TYPE::Class::getType(); \
+if(getDefaultObjectMapper()) { \
+  info->bodyContentType = getDefaultObjectMapper()->getInfo().http_content_type; \
+}
 
 // FOR EACH // ------------------------------------------------------
 
@@ -250,15 +275,15 @@ OATPP_MACRO_API_CONTROLLER_PARAM_INFO X
 
 #define ENDPOINT_INFO(NAME) \
 \
-std::shared_ptr<Endpoint::Info> Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME() { \
+std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME() { \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   Z__ENDPOINT_ADD_INFO_##NAME(info); \
   return info; \
 } \
 \
-const std::shared_ptr<Endpoint::Info> Z__ENDPOINT_ADDITIONAL_INFO_##NAME = Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME(); \
+const std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__ENDPOINT_ADDITIONAL_INFO_##NAME = Z__ENDPOINT_CREATE_ADDITIONAL_INFO_##NAME(); \
 \
-void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<Endpoint::Info>& info)
+void Z__ENDPOINT_ADD_INFO_##NAME(const std::shared_ptr<oatpp::web::server::api::Endpoint::Info>& info)
 
 // ENDPOINT MACRO // ------------------------------------------------------
 
@@ -274,10 +299,10 @@ static typename std::shared_ptr<Handler<T>> Z__ENDPOINT_HANDLER_GET_INSTANCE_##N
   return handler; \
 } \
 \
-std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
-  std::shared_ptr<Endpoint::Info> info = getEndpointInfo(#NAME); \
+std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
+  std::shared_ptr<oatpp::web::server::api::Endpoint::Info> info = getEndpointInfo(#NAME); \
   if(!info){ \
-    info = Endpoint::Info::createShared(); \
+    info = oatpp::web::server::api::Endpoint::Info::createShared(); \
     setEndpointInfo(#NAME, info); \
   } \
   return info; \
@@ -296,7 +321,7 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME);
 
@@ -326,7 +351,7 @@ auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                         Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                         Z__CREATE_ENDPOINT_INFO_##NAME);
 
@@ -428,10 +453,10 @@ static typename std::shared_ptr<Handler<T>> Z__ENDPOINT_HANDLER_GET_INSTANCE_##N
   return handler; \
 } \
 \
-std::shared_ptr<Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
-  std::shared_ptr<Endpoint::Info> info = getEndpointInfo(#NAME); \
+std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__EDNPOINT_INFO_GET_INSTANCE_##NAME() { \
+  std::shared_ptr<oatpp::web::server::api::Endpoint::Info> info = getEndpointInfo(#NAME); \
   if(!info){ \
-    info = Endpoint::Info::createShared(); \
+    info = oatpp::web::server::api::Endpoint::Info::createShared(); \
     setEndpointInfo(#NAME, info); \
   } \
   return info; \
@@ -451,7 +476,7 @@ EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   return info; \
 }; \
 \
-const std::shared_ptr<Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
+const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = createEndpoint(m_endpoints, \
                                                                     Z__ENDPOINT_HANDLER_GET_INSTANCE_##NAME(this), \
                                                                     Z__CREATE_ENDPOINT_INFO_##NAME);
 

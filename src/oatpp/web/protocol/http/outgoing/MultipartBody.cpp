@@ -135,7 +135,7 @@ v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& multipar
       boundary = "\r\n--" + multipart->getBoundary() + "\r\n";
     }
 
-    readStream.reset(boundary.getPtr(), boundary->getData(), boundary->getSize());
+    readStream.reset(boundary.getPtr(), (p_char8) boundary->data(), boundary->size());
 
   }
 
@@ -162,7 +162,7 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
     http::Utils::writeHeaders(part->getHeaders(), &stream);
     stream.writeSimple("\r\n", 2);
     auto str = stream.toString();
-    readStream.reset(str.getPtr(), str->getData(), str->getSize());
+    readStream.reset(str.getPtr(), (p_char8) str->data(), str->size());
 
   }
 
@@ -191,7 +191,7 @@ p_char8 MultipartBody::getKnownData() {
   return nullptr;
 }
 
-v_buff_size MultipartBody::getKnownSize() {
+v_int64 MultipartBody::getKnownSize() {
  return -1;
 }
 

@@ -22,21 +22,12 @@
  *
  ***************************************************************************/
 
-#include "./ApiController.hpp"
-#include <oatpp/web/server/handler/ErrorHandler.hpp>
+#include "ApiController.hpp"
+#include "oatpp/web/server/handler/ErrorHandler.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace api {
-  
-void ApiController::addEndpointsToRouter(const std::shared_ptr<Router>& router){
-  auto node = m_endpoints->getFirstNode();
-  while (node != nullptr) {
-    auto endpoint = node->getData();
-    router->route(endpoint->info()->method, endpoint->info()->path, endpoint->handler);
-    node = node->getNext();
-  }
-}
 
-std::shared_ptr<ApiController::Endpoints> ApiController::getEndpoints() {
+const Endpoints& ApiController::getEndpoints() {
   return m_endpoints;
 }
 
@@ -44,7 +35,7 @@ void ApiController::setEndpointInfo(const std::string& endpointName, const std::
   m_endpointInfo[endpointName] = info;
 }
 
-std::shared_ptr<ApiController::Endpoint::Info> ApiController::getEndpointInfo(const std::string& endpointName) {
+std::shared_ptr<Endpoint::Info> ApiController::getEndpointInfo(const std::string& endpointName) {
   return m_endpointInfo[endpointName];
 }
 

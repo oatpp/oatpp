@@ -26,23 +26,32 @@
 #define oatpp_web_server_AsyncHttpConnectionHandler_hpp
 
 #include "oatpp/web/server/HttpProcessor.hpp"
-#include "oatpp/web/server/HttpRouter.hpp"
-#include "oatpp/web/server/handler/ErrorHandler.hpp"
-#include "oatpp/web/server/handler/Interceptor.hpp"
-
 #include "oatpp/network/ConnectionHandler.hpp"
 #include "oatpp/core/async/Executor.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace server {
 
 /**
  * Asynchronous &id:oatpp::network::ConnectionHandler; for handling http communication.
  */
-class AsyncHttpConnectionHandler : public base::Countable, public network::ConnectionHandler {
+class AsyncHttpConnectionHandler : public base::Countable, public network::ConnectionHandler, public HttpProcessor::TaskProcessingListener {
+protected:
+
+  void onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) override;
+  void onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) override;
+
+  void invalidateAllConnections();
+  v_uint64 getConnectionsCount();
+
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
-private:
   std::shared_ptr<HttpProcessor::Components> m_components;
+  std::atomic_bool m_continue;
+  std::unordered_map<v_uint64, provider::ResourceHandle<data::stream::IOStream>> m_connections;
+  oatpp::concurrency::SpinLock m_connectionsLock;
 public:
 
   /**
@@ -110,10 +119,24 @@ public:
                                                                   const std::shared_ptr<oatpp::async::Executor>& executor);
   
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
+
+  /**
+   * Add request interceptor. Request interceptors are called before routing happens.
+   * If multiple interceptors set then the order of interception is the same as the order of calls to `addRequestInterceptor`.
+   * @param interceptor - &id:oatpp::web::server::interceptor::RequestInterceptor;.
+   */
+  void addRequestInterceptor(const std::shared_ptr<interceptor::RequestInterceptor>& interceptor);
+
+  /**
+   * Add response interceptor.
+   * If multiple interceptors set then the order of interception is the same as the order of calls to `addResponseInterceptor`.
+   * @param interceptor - &id:oatpp::web::server::interceptor::RequestInterceptor;.
+   */
+  void addResponseInterceptor(const std::shared_ptr<interceptor::ResponseInterceptor>& interceptor);
+
   
-  void addRequestInterceptor(const std::shared_ptr<handler::RequestInterceptor>& interceptor);
-  
-  void handleConnection(const std::shared_ptr<IOStream>& connection, const std::shared_ptr<const ParameterMap>& params) override;
+  void handleConnection(const provider::ResourceHandle<IOStream>& connection,
+                        const std::shared_ptr<const ParameterMap>& params) override;
 
   /**
    * Will call m_executor.stop()

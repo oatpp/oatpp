@@ -24,7 +24,6 @@
 
 #include "PerfTest.hpp"
 
-#include "oatpp/core/collection/LinkedList.hpp"
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
 

@@ -28,13 +28,11 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 
 Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                  const http::RequestStartingLine& startingLine,
-                 const url::mapping::Pattern::MatchMap& pathVariables,
                  const http::Headers& headers,
                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                  const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
   : m_connection(connection)
   , m_startingLine(startingLine)
-  , m_pathVariables(pathVariables)
   , m_headers(headers)
   , m_bodyStream(bodyStream)
   , m_bodyDecoder(bodyDecoder)
@@ -43,11 +41,11 @@ Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connectio
 
 std::shared_ptr<Request> Request::createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                                                const http::RequestStartingLine& startingLine,
-                                               const url::mapping::Pattern::MatchMap& pathVariables,
                                                const http::Headers& headers,
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                               const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
-  return Shared_Incoming_Request_Pool::allocateShared(connection, startingLine, pathVariables, headers, bodyStream, bodyDecoder);
+                                               const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
+{
+  return Shared_Incoming_Request_Pool::allocateShared(connection, startingLine, headers, bodyStream, bodyDecoder);
 }
 
 std::shared_ptr<oatpp::data::stream::IOStream> Request::getConnection() {
@@ -56,6 +54,10 @@ std::shared_ptr<oatpp::data::stream::IOStream> Request::getConnection() {
 
 const http::RequestStartingLine& Request::getStartingLine() const {
   return m_startingLine;
+}
+
+void Request::setPathVariables(const url::mapping::Pattern::MatchMap& pathVariables) {
+  m_pathVariables = pathVariables;
 }
 
 const url::mapping::Pattern::MatchMap& Request::getPathVariables() const {
@@ -99,15 +101,24 @@ bool Request::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String
   return m_headers.putIfNotExists(key, value);
 }
 
-void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Request::putOrReplaceHeader(const String &key, const String &value) {
+  return m_headers.putOrReplace(key, value);
+}
+
+bool Request::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI& key,
+                                        const data::share::StringKeyLabel &value) {
+  return m_headers.putOrReplace(key, value);
+}
+
+void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   m_headers.put(key, value);
 }
 
-bool Request::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value) {
+bool Request::putHeaderIfNotExists_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
 }
 
-oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI_FAST& headerName) const{
+oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI& headerName) const{
   return m_headers.get(headerName);
 }
 
@@ -119,28 +130,36 @@ oatpp::String Request::getPathTail() const {
   return m_pathVariables.getTail();
 }
 
+void Request::putBundleData(const oatpp::String& key, const oatpp::Void& polymorph) {
+  m_bundle.put(key, polymorph);
+}
+
+const data::Bundle& Request::getBundle() const {
+  return m_bundle;
+}
+
 void Request::transferBody(data::stream::WriteCallback* writeCallback) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback);
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback, m_connection.get());
 }
 
 void Request::transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream);
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream, m_connection.get());
 }
 
 oatpp::String Request::readBodyToString() const {
-  return m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get());
+  return m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get(), m_connection.get());
 }
 
 async::CoroutineStarter Request::transferBodyAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const {
-  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, writeCallback);
+  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, writeCallback, m_connection);
 }
 
 async::CoroutineStarter Request::transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
-  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream);
+  return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream, m_connection);
 }
 
 async::CoroutineStarterForResult<const oatpp::String&> Request::readBodyToStringAsync() const {
-  return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream);
+  return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream, m_connection);
 }
 
 }}}}}

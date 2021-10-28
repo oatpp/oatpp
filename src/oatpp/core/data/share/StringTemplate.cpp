@@ -76,7 +76,7 @@ StringTemplate::StringTemplate(const oatpp::String& text, std::vector<Variable>&
       throw std::runtime_error("[oatpp::data::share::StringTemplate::StringTemplate()]: Error. The template variable can't have a negative size.");
     }
 
-    if(var.posEnd >= m_text->getSize()) {
+    if(var.posEnd >= m_text->size()) {
       throw std::runtime_error("[oatpp::data::share::StringTemplate::StringTemplate()]: Error. The template variable can't out-bound the template text.");
     }
   }
@@ -92,21 +92,21 @@ void StringTemplate::format(stream::ConsistentOutputStream* stream, ValueProvide
 
     if(!value) {
       throw std::runtime_error("[oatpp::data::share::StringTemplate::format()]: "
-                               "Error. No value provided for the parameter name=" + var.name->std_str());
+                               "Error. No value provided for the parameter name=" + *var.name);
     }
 
     if(prevPos < var.posStart) {
-      stream->writeSimple(m_text->getData() + prevPos, var.posStart - prevPos);
+      stream->writeSimple(m_text->data() + prevPos, var.posStart - prevPos);
     }
 
-    stream->writeSimple(value->getData(), value->getSize());
+    stream->writeSimple(value->data(), value->size());
 
     prevPos = var.posEnd + 1;
 
   }
 
-  if(prevPos < m_text->getSize()) {
-    stream->writeSimple(m_text->getData() + prevPos, m_text->getSize() - prevPos);
+  if(prevPos < m_text->size()) {
+    stream->writeSimple(m_text->data() + prevPos, m_text->size() - prevPos);
   }
 
 }

@@ -37,7 +37,7 @@ private:
   base::ObjectHandle<Executor> m_executor;
   bool m_open;
 private:
-  std::shared_ptr<Connection> m_connection;
+  provider::ResourceHandle<Connection> m_connection;
 public:
 
   /**
@@ -45,7 +45,7 @@ public:
    * @param executor - &id:oatpp::orm::Executor;.
    * @param connection - database connection.
    */
-  Transaction(const base::ObjectHandle<Executor>& executor, const std::shared_ptr<Connection>& connection = nullptr);
+  Transaction(const base::ObjectHandle<Executor>& executor, const provider::ResourceHandle<Connection>& connection = nullptr);
 
   /**
    * Copy constructor.
@@ -73,7 +73,7 @@ public:
    * **Note:** all database queries within the transaction MUST be called on this connection.
    * @return
    */
-  std::shared_ptr<Connection> getConnection() const;
+  provider::ResourceHandle<Connection> getConnection() const;
 
   /**
    * Commit transaction.

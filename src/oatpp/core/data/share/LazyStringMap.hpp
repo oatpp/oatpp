@@ -27,6 +27,8 @@
 
 #include "./MemoryLabel.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
+
+#include <map>
 #include <unordered_map>
 
 namespace oatpp { namespace data { namespace share {
@@ -35,22 +37,22 @@ namespace oatpp { namespace data { namespace share {
  * Lazy String Map keeps keys, and values as memory label.
  * Once value is requested by user, the new memory block is allocated and value is copied to be stored permanently.
  * @tparam Key - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
- * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+ * &id:oatpp::data::share::StringKeyLabelCI;.
  */
-template<class Key>
-class LazyStringMap {
+template<typename Key, typename MapType>
+class LazyStringMapTemplate {
 public:
   typedef oatpp::data::mapping::type::String String;
 private:
   mutable concurrency::SpinLock m_lock;
   mutable bool m_fullyInitialized;
-  std::unordered_map<Key, StringKeyLabel> m_map;
+  MapType m_map;
 public:
 
   /**
    * Constructor.
    */
-  LazyStringMap()
+  LazyStringMapTemplate()
     : m_fullyInitialized(true)
   {}
 
@@ -58,12 +60,12 @@ public:
    * Copy-constructor.
    * @param other
    */
-  LazyStringMap(const LazyStringMap& other) {
+  LazyStringMapTemplate(const LazyStringMapTemplate& other) {
 
     std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
 
     m_fullyInitialized = other.m_fullyInitialized;
-    m_map = std::unordered_map<Key, StringKeyLabel>(other.m_map);
+    m_map = MapType(other.m_map);
 
   }
 
@@ -71,7 +73,7 @@ public:
    * Move constructor.
    * @param other
    */
-  LazyStringMap(LazyStringMap&& other) {
+  LazyStringMapTemplate(LazyStringMapTemplate&& other) {
 
     std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
 
@@ -80,7 +82,7 @@ public:
 
   }
 
-  LazyStringMap& operator = (const LazyStringMap& other) {
+  LazyStringMapTemplate& operator = (const LazyStringMapTemplate& other) {
 
     if(this != &other) {
 
@@ -88,7 +90,7 @@ public:
       std::lock_guard<concurrency::SpinLock> otherLock(other.m_lock);
 
       m_fullyInitialized = other.m_fullyInitialized;
-      m_map = std::unordered_map<Key, StringKeyLabel>(other.m_map);
+      m_map = MapType(other.m_map);
 
     }
 
@@ -96,7 +98,7 @@ public:
 
   }
 
-  LazyStringMap& operator = (LazyStringMap&& other) {
+  LazyStringMapTemplate& operator = (LazyStringMapTemplate&& other) {
 
     if(this != &other) {
 
@@ -179,6 +181,46 @@ public:
   }
 
   /**
+   * Erases all occurrences of key and replaces them with a new entry
+   * @param key
+   * @param value
+   * @return - true if an entry was replaced, false if entry was only inserted.
+   */
+  bool putOrReplace(const Key& key, const StringKeyLabel& value) {
+
+    std::lock_guard<concurrency::SpinLock> lock(m_lock);
+
+    bool needsErase = m_map.find(key) != m_map.end();
+    if (needsErase) {
+      m_map.erase(key);
+    }
+    m_map.insert({key, value});
+    m_fullyInitialized = false;
+
+    return needsErase;
+
+  }
+
+  /**
+   * Erases all occurrences of key and replaces them with a new entry. Not thread-safe.
+   * @param key
+   * @param value
+   * @return - `true` if an entry was replaced, `false` if entry was only inserted.
+   */
+  bool putOrReplace_LockFree(const Key& key, const StringKeyLabel& value) {
+
+    bool needsErase = m_map.find(key) != m_map.end();
+    if (needsErase) {
+      m_map.erase(key);
+    }
+    m_map.insert({key, value});
+    m_fullyInitialized = false;
+
+    return needsErase;
+
+  }
+
+  /**
    * Get value as &id:oatpp::String;.
    * @param key
    * @return
@@ -200,8 +242,7 @@ public:
 
   /**
    * Get value as a memory label.
-   * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
-   * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;.
    * @param key
    * @return
    */
@@ -215,7 +256,7 @@ public:
     if(it != m_map.end()) {
       it->second.captureToOwnMemory();
       const auto& label = it->second;
-      return T(label.getMemoryHandle(), label.getData(), label.getSize());
+      return T(label.getMemoryHandle(), (const char*) label.getData(), label.getSize());
     }
 
     return T(nullptr, nullptr, 0);
@@ -225,7 +266,7 @@ public:
   /**
    * Get value as a memory label without allocating memory for value.
    * @tparam T - one of: &id:oatpp::data::share::MemoryLabel;, &id:oatpp::data::share::StringKeyLabel;, &id:oatpp::data::share::StringKeyLabelCI;,
-   * * &id:oatpp::data::share::StringKeyLabelCI_FAST;.
+   * * &id:oatpp::data::share::StringKeyLabelCI;.
    * @param key
    * @return
    */
@@ -238,7 +279,7 @@ public:
 
     if(it != m_map.end()) {
       const auto& label = it->second;
-      return T(label.getMemoryHandle(), label.getData(), label.getSize());
+      return T(label.getMemoryHandle(), (const char*)label.getData(), label.getSize());
     }
 
     return T(nullptr, nullptr, 0);
@@ -249,7 +290,7 @@ public:
    * Get map of all values.
    * @return
    */
-  const std::unordered_map<Key, StringKeyLabel>& getAll() const {
+  const MapType& getAll() const {
 
     std::lock_guard<concurrency::SpinLock> lock(m_lock);
 
@@ -271,7 +312,7 @@ public:
    * Get map of all values without allocating memory for those keys/values.
    * @return
    */
-  const std::unordered_map<Key, StringKeyLabel>& getAll_Unsafe() const {
+  const MapType& getAll_Unsafe() const {
     return m_map;
   }
 
@@ -285,6 +326,18 @@ public:
   }
 
 };
+
+/**
+ * Convenience template for &l:LazyStringMapTemplate;. Based on `std::unordered_map`.
+ */
+template<typename Key, typename Value = StringKeyLabel>
+using LazyStringMap = LazyStringMapTemplate<Key, std::unordered_map<Key, Value>>;
+
+/**
+ * Convenience template for &l:LazyStringMapTemplate;. Based on `std::unordered_map`.
+ */
+template<typename Key, typename Value = StringKeyLabel>
+using LazyStringMultimap = LazyStringMapTemplate<Key, std::multimap<Key, Value>>;
 
 }}}
 

@@ -26,6 +26,9 @@
 #define oatpp_web_server_HttpRouter_hpp
 
 #include "./HttpRequestHandler.hpp"
+
+#include "oatpp/web/server/api/ApiController.hpp"
+#include "oatpp/web/server/api/Endpoint.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
 
 namespace oatpp { namespace web { namespace server {
@@ -33,18 +36,19 @@ namespace oatpp { namespace web { namespace server {
 /**
  * HttpRouter is responsible for routing http requests by method and path-pattern.
  */
-class HttpRouter : public oatpp::base::Countable {
+template<typename RouterEndpoint>
+class HttpRouterTemplate : public oatpp::base::Countable {
 private:
   /**
    * Convenience typedef for &id:oatpp::data::share::StringKeyLabel;.
    */
-  typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
+  typedef data::share::StringKeyLabel StringKeyLabel;
 public:
 
   /**
-   * &id:oatpp::web::url::mapping::Router; of &id:oatpp::web::server::HttpRequestHandler;.
+   * &id:oatpp::web::url::mapping::Router;
    */
-  typedef oatpp::web::url::mapping::Router<HttpRequestHandler> BranchRouter;
+  typedef web::url::mapping::Router<RouterEndpoint> BranchRouter;
 
   /**
    * Http method to &l:HttpRouter::BranchRouter; map.
@@ -54,29 +58,39 @@ public:
 protected:
   BranchMap m_branchMap;
 protected:
-  
-  const std::shared_ptr<BranchRouter>& getBranch(const StringKeyLabel& name);
-  
+
+  const std::shared_ptr<BranchRouter>& getBranch(const StringKeyLabel& name){
+    auto it = m_branchMap.find(name);
+    if(it == m_branchMap.end()){
+      m_branchMap[name] = BranchRouter::createShared();
+    }
+    return m_branchMap[name];
+  }
+
 public:
 
   /**
-   * Constructor.
+   * Default Constructor.
    */
-  HttpRouter();
+  HttpRouterTemplate() = default;
 
   /**
    * Create shared HttpRouter.
    * @return - `std::shared_ptr` to HttpRouter.
    */
-  static std::shared_ptr<HttpRouter> createShared();
+  static std::shared_ptr<HttpRouterTemplate> createShared() {
+    return std::make_shared<HttpRouterTemplate>();
+  }
 
   /**
-   * Route URL to Handler by method, and pathPattern.
+   * Route URL to Endpoint by method, and pathPattern.
    * @param method - http method like ["GET", "POST", etc.].
    * @param pathPattern - url path pattern. ex.: `"/path/to/resource/with/{param1}/{param2}"`.
-   * @param handler - &id:oatpp::web::server::HttpRequestHandler;.
+   * @param endpoint - router endpoint.
    */
-  void route(const oatpp::String& method, const oatpp::String& pathPattern, const std::shared_ptr<HttpRequestHandler>& handler);
+  void route(const oatpp::String& method, const oatpp::String& pathPattern, const RouterEndpoint& endpoint) {
+    getBranch(method)->route(pathPattern, endpoint);
+  }
 
   /**
    * Resolve http method and path to &id:oatpp::web::url::mapping::Router::Route;
@@ -84,13 +98,50 @@ public:
    * @param url - url path. "Path" part of url only.
    * @return - &id:oatpp::web::url::mapping::Router::Route;.
    */
-  BranchRouter::Route getRoute(const StringKeyLabel& method, const StringKeyLabel& path);
+  typename BranchRouter::Route getRoute(const StringKeyLabel& method, const StringKeyLabel& path){
+    auto it = m_branchMap.find(method);
+    if(it != m_branchMap.end()) {
+      return m_branchMap[method]->getRoute(path);
+    }
+    return typename BranchRouter::Route();
+  }
 
   /**
    * Print out all router mapping.
    */
-  void logRouterMappings();
+  void logRouterMappings() {
+    for(auto it : m_branchMap) {
+      it.second->logRouterMappings(it.first);
+    }
+  }
   
+};
+
+/**
+ * Default HttpRouter.
+ */
+class HttpRouter : public HttpRouterTemplate<std::shared_ptr<HttpRequestHandler>> {
+private:
+  std::list<std::shared_ptr<server::api::ApiController>> m_controllers;
+public:
+
+  /**
+   * Create shared HttpRouter.
+   * @return
+   */
+  static std::shared_ptr<HttpRouter> createShared();
+
+  using HttpRouterTemplate::route;
+  void route(const std::shared_ptr<server::api::Endpoint>& endpoint);
+  void route(const server::api::Endpoints& endpoints);
+
+  /**
+   * Add controller and route its' endpoints.
+   * @param controller
+   * @return - `std::shared_ptr` to the controller added.
+   */
+  std::shared_ptr<server::api::ApiController> addController(const std::shared_ptr<server::api::ApiController>& controller);
+
 };
   
 }}}

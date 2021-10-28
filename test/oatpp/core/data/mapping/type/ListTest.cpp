@@ -38,9 +38,9 @@ void ListTest::onRun() {
     OATPP_ASSERT(list == nullptr);
 
     OATPP_ASSERT(list.get() == nullptr);
-    OATPP_ASSERT(list.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
-    OATPP_ASSERT(list.valueType->params.size() == 1);
-    OATPP_ASSERT(list.valueType->params.front() == oatpp::String::Class::getType());
+    OATPP_ASSERT(list.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+    OATPP_ASSERT(list.getValueType()->params.size() == 1);
+    OATPP_ASSERT(list.getValueType()->params.front() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -53,9 +53,9 @@ void ListTest::onRun() {
     OATPP_ASSERT(list->size() == 0);
 
     OATPP_ASSERT(list.get() != nullptr);
-    OATPP_ASSERT(list.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
-    OATPP_ASSERT(list.valueType->params.size() == 1);
-    OATPP_ASSERT(list.valueType->params.front() == oatpp::String::Class::getType());
+    OATPP_ASSERT(list.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+    OATPP_ASSERT(list.getValueType()->params.size() == 1);
+    OATPP_ASSERT(list.getValueType()->params.front() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -68,7 +68,7 @@ void ListTest::onRun() {
     OATPP_ASSERT(list->size() == 0);
 
     OATPP_ASSERT(list.get() != nullptr);
-    OATPP_ASSERT(list.valueType->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
+    OATPP_ASSERT(list.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractList::CLASS_ID.id);
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -141,7 +141,7 @@ void ListTest::onRun() {
     oatpp::List<oatpp::String> list = {"a", "b", "c"};
 
     auto polymorphicDispatcher = static_cast<const typename oatpp::List<oatpp::String>::Class::PolymorphicDispatcher*>(
-      list.valueType->polymorphicDispatcher
+      list.getValueType()->polymorphicDispatcher
     );
 
     polymorphicDispatcher->addPolymorphicItem(list, oatpp::String("d"));

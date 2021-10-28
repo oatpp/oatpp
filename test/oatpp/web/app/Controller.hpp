@@ -117,6 +117,13 @@ public:
     return createDtoResponse(Status::CODE_200, dto);
   }
 
+  ENDPOINT("GET", "queries/optional", getWithOptQueries,
+           QUERY(String, name, "name", "Default"), QUERY(Int32, age, "age", "101")) {
+    auto dto = TestDto::createShared();
+    dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(*age);
+    return createDtoResponse(Status::CODE_200, dto);
+  }
+
   ENDPOINT("GET", "queries/map", getWithQueriesMap,
            QUERIES(QueryParams, queries)) {
     auto dto = TestDto::createShared();
@@ -172,14 +179,14 @@ public:
     oatpp::String m_text;
     v_int32 m_counter;
     v_int32 m_iterations;
-    data::buffer::InlineReadData m_inlineData;
+    data::buffer::InlineWriteData m_inlineData;
   public:
 
     ReadCallback(const oatpp::String& text, v_int32 iterations)
       : m_text(text)
       , m_counter(0)
       , m_iterations(iterations)
-      , m_inlineData(text->getData(), text->getSize())
+      , m_inlineData(text->data(), text->size())
     {}
 
     v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
@@ -198,7 +205,7 @@ public:
           m_inlineData.inc(desiredToRead);
 
           if (m_inlineData.bytesLeft == 0) {
-            m_inlineData.set(m_text->getData(), m_text->getSize());
+            m_inlineData.set(m_text->data(), m_text->size());
             m_counter++;
           }
 
@@ -377,6 +384,21 @@ public:
       return createResponse(Status::CODE_200, "");
     }
     return createResponse(Status::CODE_400, "");
+  }
+
+  ENDPOINT_INTERCEPTOR(getBundle, middleware) {
+    request->putBundleData("str_param", oatpp::String("str-param"));
+    request->putBundleData("int_param", oatpp::Int32(32000));
+    return (this->*intercepted)(request);
+  }
+  ENDPOINT("GET", "bundle", getBundle,
+           BUNDLE(String, str_param),
+           BUNDLE(Int32, a, "int_param"))
+  {
+    auto dto = TestDto::createShared();
+    dto->testValue = str_param;
+    dto->testValueInt = a;
+    return createDtoResponse(Status::CODE_200, dto);
   }
   
 };

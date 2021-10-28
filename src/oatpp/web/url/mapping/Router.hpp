@@ -38,14 +38,14 @@ namespace oatpp { namespace web { namespace url { namespace mapping {
  * Class responsible to map "Path" to "Route" by "Path-Pattern".
  * @tparam Endpoint - endpoint of the route.
  */
-template<class Endpoint>
+template<typename Endpoint>
 class Router : public base::Countable {
 private:
 
   /**
    * Pair &id:oatpp::web::url::mapping::Pattern; to Endpoint.
    */
-  typedef std::pair<std::shared_ptr<Pattern>, std::shared_ptr<Endpoint>> Pair;
+  typedef std::pair<std::shared_ptr<Pattern>, Endpoint> Pair;
 
   /**
    * Convenience typedef &id:oatpp::data::share::StringKeyLabel;.
@@ -58,14 +58,16 @@ public:
    */
   class Route {
   private:
-    Endpoint* m_endpoint;
+    bool m_valid;
+    Endpoint m_endpoint;
+    Pattern::MatchMap m_matchMap;
   public:
 
     /**
      * Default constructor.
      */
     Route()
-      : m_endpoint(nullptr)
+      : m_valid(false)
     {}
 
     /**
@@ -73,25 +75,36 @@ public:
      * @param pEndpoint - route endpoint.
      * @param pMatchMap - Match map of resolved path containing resolved path variables.
      */
-    Route(Endpoint* endpoint, const Pattern::MatchMap& pMatchMap)
-      : m_endpoint(endpoint)
-      , matchMap(pMatchMap)
+    Route(const Endpoint& endpoint, Pattern::MatchMap&& matchMap)
+      : m_valid(true)
+      , m_endpoint(endpoint)
+      , m_matchMap(matchMap)
     {}
 
     /**
-     * Get endpoint of the route.
+     * Get Endpoint.
      */
-    Endpoint* getEndpoint() {
+    const Endpoint& getEndpoint() {
       return m_endpoint;
     }
 
     /**
      * Match map of resolved path containing resolved path variables.
      */
-    Pattern::MatchMap matchMap;
+    const Pattern::MatchMap& getMatchMap() {
+      return m_matchMap;
+    }
+
+    /**
+     * Check if route is valid.
+     * @return
+     */
+    bool isValid() {
+      return m_valid;
+    }
     
     explicit operator bool() const {
-      return m_endpoint != nullptr;
+      return m_valid;
     }
     
   };
@@ -109,7 +122,7 @@ public:
    * @param pathPattern - path pattern for endpoint.
    * @param endpoint - route endpoint.
    */
-  void route(const oatpp::String& pathPattern, const std::shared_ptr<Endpoint>& endpoint) {
+  void route(const oatpp::String& pathPattern, const Endpoint& endpoint) {
     auto pattern = Pattern::parse(pathPattern);
     m_endpointsByPattern.push_back({pattern, endpoint});
   }
@@ -124,7 +137,7 @@ public:
     for(auto& pair : m_endpointsByPattern) {
       Pattern::MatchMap matchMap;
       if(pair.first->match(path, matchMap)) {
-        return Route(pair.second.get(), matchMap);
+        return Route(pair.second, std::move(matchMap));
       }
     }
 
@@ -135,7 +148,7 @@ public:
 
     for(auto& pair : m_endpointsByPattern) {
       auto mapping = pair.first->toString();
-      OATPP_LOGD("Router", "url '%s %s' -> mapped", (const char*)branch.getData(), (const char*) mapping->getData());
+      OATPP_LOGD("Router", "url '%s %s' -> mapped", (const char*)branch.getData(), mapping->c_str());
     }
 
   }
