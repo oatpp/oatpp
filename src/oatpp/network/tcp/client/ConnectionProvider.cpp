@@ -159,10 +159,17 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> ConnectionProvider::getAsync() {
 
   class ConnectCoroutine : public oatpp::async::CoroutineWithResult<ConnectCoroutine, const provider::ResourceHandle<oatpp::data::stream::IOStream>&> {
+  enum Status {
+      DISCONNECTED = 0,
+      IN_PROGRESS = 1,
+      INTERRUPTED = 2,
+      CONNECTED = 3,
+  };
   private:
     std::shared_ptr<ConnectionInvalidator> m_connectionInvalidator;
     network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
+    Status m_status;
   private:
     struct addrinfo* m_result;
     struct addrinfo* m_currentResult;
@@ -173,6 +180,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
                      const network::Address& address)
       : m_connectionInvalidator(connectionInvalidator)
       , m_address(address)
+      , m_status(Status::DISCONNECTED)
       , m_result(nullptr)
       , m_currentResult(nullptr)
       , m_isHandleOpened(false)
@@ -275,35 +283,44 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
     Action doConnect() {
       errno = 0;
 
-      auto res = connect(m_clientHandle, m_currentResult->ai_addr, (int)m_currentResult->ai_addrlen);
+      int res = 0;
+      if (m_status == Status::DISCONNECTED) {
+          res = connect(m_clientHandle, m_currentResult->ai_addr, (int)m_currentResult->ai_addrlen);
+      }
 
 #if defined(WIN32) || defined(_WIN32)
 
       auto error = WSAGetLastError();
 
       if(res == 0 || error == WSAEISCONN) {
+        m_status = Status::CONNECTED;
         return _return(provider::ResourceHandle<data::stream::IOStream>(
                 std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
                 m_connectionInvalidator
             ));
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
+        m_status = Status::IN_PROGRESS;
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       } else if(error == WSAEINTR) {
+        m_status = Status::INTERRUPTED;
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
 #else
 
       if(res == 0 || errno == EISCONN) {
+        m_status = Status::CONNECTED;
         return _return(provider::ResourceHandle<data::stream::IOStream>(
                 std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
                 m_connectionInvalidator
             ));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
+        m_status = Status::IN_PROGRESS;
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       } else if(errno == EINTR) {
+        m_status = Status::INTERRUPTED;
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
