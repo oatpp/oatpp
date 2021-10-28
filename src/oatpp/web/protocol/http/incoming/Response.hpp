@@ -185,7 +185,7 @@ public:
    * Get raw body stream.
    * @return - raw body stream as &id:oatpp::data::stream::InputStream;.
    */
-  std::shared_ptr<oatpp::data::stream::InputStream> getBodyStream() const;
+  std::shared_ptr<data::stream::InputStream> getBodyStream() const;
 
   /**
    * Get body decoder configured for this response.
@@ -198,14 +198,14 @@ public:
    * Read body chunk by chunk and pass chunks to the `writeCallback`.
    * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
    */
-  void transferBody(data::stream::WriteCallback* writeCallback) const;
+  void transferBody(const base::ObjectHandle<data::stream::WriteCallback>& writeCallback) const;
 
   /**
    * Decode and transfer body to toStream.
    * Use case example - stream huge body directly to file using relatively small buffer.
    * @param toStream - pointer to &id:oatpp::data::stream::OutputStream;.
    */
-  void transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const;
+  void transferBodyToStream(const base::ObjectHandle<data::stream::OutputStream>& toStream) const;
 
   /**
    * Decode and read body to &id:oatpp::String;.
@@ -220,8 +220,8 @@ public:
    * @return - deserialized DTO object.
    */
   template<class Wrapper>
-  Wrapper readBodyToDto(oatpp::data::mapping::ObjectMapper* objectMapper) const {
-    return m_bodyDecoder->decodeToDto<Wrapper>(m_headers, m_bodyStream.get(), m_connection.get(), objectMapper);
+  Wrapper readBodyToDto(const base::ObjectHandle<data::mapping::ObjectMapper>& objectMapper) const {
+    return m_bodyDecoder->decodeToDto<Wrapper>(m_headers, m_bodyStream.get(), m_connection.get(), objectMapper.get());
   }
   
   // Async
@@ -240,7 +240,7 @@ public:
    * @param toStream - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
-  oatpp::async::CoroutineStarter transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const;
+  oatpp::async::CoroutineStarter transferBodyToStreamAsync(const std::shared_ptr<data::stream::OutputStream>& toStream) const;
 
   /**
    * Same as &l:Response::readBodyToString (); but Async.
@@ -258,7 +258,7 @@ public:
    */
   template<class Wrapper>
   oatpp::async::CoroutineStarterForResult<const Wrapper&>
-  readBodyToDtoAsync(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const {
+  readBodyToDtoAsync(const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) const {
     return m_bodyDecoder->decodeToDtoAsync<Wrapper>(m_headers, m_bodyStream, m_connection, objectMapper);
   }
   

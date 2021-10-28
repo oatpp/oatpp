@@ -103,12 +103,12 @@ std::shared_ptr<const http::incoming::BodyDecoder> Response::getBodyDecoder() co
   return m_bodyDecoder;
 }
 
-void Response::transferBody(data::stream::WriteCallback* writeCallback) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback, m_connection.get());
+void Response::transferBody(const base::ObjectHandle<data::stream::WriteCallback>& writeCallback) const {
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback.get(), m_connection.get());
 }
 
-void Response::transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream, m_connection.get());
+void Response::transferBodyToStream(const base::ObjectHandle<oatpp::data::stream::OutputStream>& toStream) const {
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream.get(), m_connection.get());
 }
 
 oatpp::String Response::readBodyToString() const {

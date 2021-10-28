@@ -240,13 +240,13 @@ public:
    * Read body chunk by chunk and pass chunks to the `writeCallback`.
    * @param writeCallback - &id:oatpp::data::stream::WriteCallback;.
    */
-  void transferBody(data::stream::WriteCallback* writeCallback) const;
+  void transferBody(const base::ObjectHandle<data::stream::WriteCallback>& writeCallback) const;
 
   /**
    * Stream content of the body-stream to toStream
    * @param toStream
    */
-  void transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const;
+  void transferBodyToStream(const base::ObjectHandle<data::stream::OutputStream>& toStream) const;
 
   /**
    * Transfer body stream to string
@@ -261,7 +261,7 @@ public:
    * @return DTO
    */
   template<class Wrapper>
-  Wrapper readBodyToDto(data::mapping::ObjectMapper* objectMapper) const {
+  Wrapper readBodyToDto(const base::ObjectHandle<data::mapping::ObjectMapper>& objectMapper) const {
     return objectMapper->readFromString<Wrapper>(m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get(), m_connection.get()));
   }
   

@@ -138,12 +138,12 @@ const data::Bundle& Request::getBundle() const {
   return m_bundle;
 }
 
-void Request::transferBody(data::stream::WriteCallback* writeCallback) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback, m_connection.get());
+void Request::transferBody(const base::ObjectHandle<data::stream::WriteCallback>& writeCallback) const {
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback.get(), m_connection.get());
 }
 
-void Request::transferBodyToStream(oatpp::data::stream::OutputStream* toStream) const {
-  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream, m_connection.get());
+void Request::transferBodyToStream(const base::ObjectHandle<oatpp::data::stream::OutputStream>& toStream) const {
+  m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream.get(), m_connection.get());
 }
 
 oatpp::String Request::readBodyToString() const {
