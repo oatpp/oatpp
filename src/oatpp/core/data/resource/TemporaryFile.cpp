@@ -24,27 +24,19 @@
 
 #include "TemporaryFile.hpp"
 
+#include "./File.hpp"
+
+#include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/encoding/Hex.hpp"
 #include "oatpp/core/utils/Random.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp { namespace data { namespace resource {
 
 TemporaryFile::FileHandle::~FileHandle() {
   if(fileName) {
     std::remove(fileName->c_str());
   }
-}
-
-oatpp::String TemporaryFile::concatDirAndName(const oatpp::String& dir, const oatpp::String& filename) {
-  if(dir && dir->size() > 0) {
-    auto lastChar = dir->data()[dir->size() - 1];
-    if(lastChar != '/' && lastChar != '\\') {
-      return dir + "/" + filename;
-    }
-    return dir + filename;
-  }
-  return filename;
 }
 
 oatpp::String TemporaryFile::constructRandomFilename(const oatpp::String& dir, v_int32 randomWordSizeBytes) {
@@ -55,7 +47,7 @@ oatpp::String TemporaryFile::constructRandomFilename(const oatpp::String& dir, v
   encoding::Hex::encode(&s, buff.get(), randomWordSizeBytes, encoding::Hex::ALPHABET_LOWER);
   s << ".tmp";
 
-  return concatDirAndName(dir, s.toString());
+  return File::concatDirAndName(dir, s.toString());
 
 }
 
@@ -64,42 +56,36 @@ TemporaryFile::TemporaryFile(const oatpp::String& tmpDirectory, v_int32 randomWo
 {}
 
 TemporaryFile::TemporaryFile(const oatpp::String& tmpDirectory, const oatpp::String& tmpFileName)
-  : m_handle(std::make_shared<FileHandle>(concatDirAndName(tmpDirectory, tmpFileName)))
+  : m_handle(std::make_shared<FileHandle>(File::concatDirAndName(tmpDirectory, tmpFileName)))
 {}
 
-oatpp::String TemporaryFile::getFullFileName() {
+std::shared_ptr<data::stream::OutputStream> TemporaryFile::openOutputStream() {
+  if(m_handle) {
+    return std::make_shared<data::stream::FileOutputStream>(m_handle->fileName->c_str(), "wb", m_handle);
+  }
+  throw std::runtime_error("[oatpp::data::resource::TemporaryFile::openOutputStream()]: Error. FileHandle is NOT initialized.");
+}
+
+std::shared_ptr<data::stream::InputStream> TemporaryFile::openInputStream() {
+  if(m_handle) {
+    return std::make_shared<data::stream::FileInputStream>(m_handle->fileName->c_str(), m_handle);
+  }
+  throw std::runtime_error("[oatpp::data::resource::TemporaryFile::openInputStream()]: Error. FileHandle is NOT initialized.");
+}
+
+oatpp::String TemporaryFile::getInMemoryData() {
+  return nullptr;
+}
+
+v_int64 TemporaryFile::getKnownSize() {
+  return -1;
+}
+
+oatpp::String TemporaryFile::getLocation() {
   if(m_handle) {
     return m_handle->fileName;
   }
   return nullptr;
-}
-
-data::stream::FileOutputStream TemporaryFile::openOutputStream() {
-  if(m_handle) {
-    return data::stream::FileOutputStream(m_handle->fileName->c_str(), "wb", m_handle);
-  }
-  throw std::runtime_error("[oatpp::data::share::TemporaryFile::openOutputStream()]: Error. FileHandle is NOT initialized.");
-}
-
-data::stream::FileInputStream TemporaryFile::openInputStream() {
-  if(m_handle) {
-    return data::stream::FileInputStream(m_handle->fileName->c_str(), m_handle);
-  }
-  throw std::runtime_error("[oatpp::data::share::TemporaryFile::openInputStream()]: Error. FileHandle is NOT initialized.");
-}
-
-std::shared_ptr<data::stream::FileOutputStream> TemporaryFile::openOutputStreamShared() {
-  if(m_handle) {
-    return std::make_shared<data::stream::FileOutputStream>(m_handle->fileName->c_str(), "wb", m_handle);
-  }
-  throw std::runtime_error("[oatpp::data::share::TemporaryFile::openOutputStreamShared()]: Error. FileHandle is NOT initialized.");
-}
-
-std::shared_ptr<data::stream::FileInputStream> TemporaryFile::openInputStreamShared() {
-  if(m_handle) {
-    return std::make_shared<data::stream::FileInputStream>(m_handle->fileName->c_str(), m_handle);
-  }
-  throw std::runtime_error("[oatpp::data::share::TemporaryFile::openInputStreamShared()]: Error. FileHandle is NOT initialized.");
 }
 
 bool TemporaryFile::moveFile(const oatpp::String& fullFileName) {

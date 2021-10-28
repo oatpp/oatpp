@@ -100,13 +100,18 @@ add_library(oatpp
         oatpp/core/data/mapping/type/UnorderedSet.hpp
         oatpp/core/data/mapping/type/Vector.cpp
         oatpp/core/data/mapping/type/Vector.hpp
+        oatpp/core/data/resource/File.cpp
+        oatpp/core/data/resource/File.hpp
+        oatpp/core/data/resource/InMemoryData.cpp
+        oatpp/core/data/resource/InMemoryData.hpp
+        oatpp/core/data/resource/Resource.hpp
+        oatpp/core/data/resource/TemporaryFile.cpp
+        oatpp/core/data/resource/TemporaryFile.hpp
         oatpp/core/data/share/LazyStringMap.hpp
         oatpp/core/data/share/MemoryLabel.cpp
         oatpp/core/data/share/MemoryLabel.hpp
         oatpp/core/data/share/StringTemplate.cpp
         oatpp/core/data/share/StringTemplate.hpp
-        oatpp/core/data/share/TemporaryFile.cpp
-        oatpp/core/data/share/TemporaryFile.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
         oatpp/core/data/stream/ChunkedBuffer.cpp
@@ -211,22 +216,24 @@ add_library(oatpp
         oatpp/web/client/RequestExecutor.hpp
         oatpp/web/client/RetryPolicy.cpp
         oatpp/web/client/RetryPolicy.hpp
-        oatpp/web/mime/multipart/FileStreamProvider.cpp
-        oatpp/web/mime/multipart/FileStreamProvider.hpp
-        oatpp/web/mime/multipart/InMemoryPartReader.cpp
-        oatpp/web/mime/multipart/InMemoryPartReader.hpp
+        oatpp/web/mime/multipart/FileProvider.cpp
+        oatpp/web/mime/multipart/FileProvider.hpp
+        oatpp/web/mime/multipart/InMemoryDataProvider.cpp
+        oatpp/web/mime/multipart/InMemoryDataProvider.hpp
         oatpp/web/mime/multipart/Multipart.cpp
         oatpp/web/mime/multipart/Multipart.hpp
         oatpp/web/mime/multipart/Part.cpp
         oatpp/web/mime/multipart/Part.hpp
         oatpp/web/mime/multipart/PartList.cpp
         oatpp/web/mime/multipart/PartList.hpp
+        oatpp/web/mime/multipart/PartReader.cpp
+        oatpp/web/mime/multipart/PartReader.hpp
         oatpp/web/mime/multipart/Reader.cpp
         oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
         oatpp/web/mime/multipart/StatefulParser.hpp
-        oatpp/web/mime/multipart/StreamPartReader.cpp
-        oatpp/web/mime/multipart/StreamPartReader.hpp
+        oatpp/web/mime/multipart/TemporaryFileProvider.cpp
+        oatpp/web/mime/multipart/TemporaryFileProvider.hpp
         oatpp/web/protocol/CommunicationError.cpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp

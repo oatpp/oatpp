@@ -27,8 +27,8 @@
 
 #include "./DTOs.hpp"
 
-#include "oatpp/web/mime/multipart/FileStreamProvider.hpp"
-#include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
+#include "oatpp/web/mime/multipart/FileProvider.hpp"
+#include "oatpp/web/mime/multipart/InMemoryDataProvider.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 #include "oatpp/web/mime/multipart/PartList.hpp"
 
@@ -38,6 +38,7 @@
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
+#include "oatpp/core/data/resource/File.hpp"
 #include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
@@ -239,7 +240,7 @@ public:
     auto multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(request->getHeaders());
 
     oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
-    multipartReader.setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+    multipartReader.setDefaultPartReader(oatpp::web::mime::multipart::createInMemoryPartReader(10));
 
     request->transferBody(&multipartReader);
 
@@ -279,14 +280,14 @@ public:
 
     OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty");
 
-    OATPP_LOGD("Multipart", "part1='%s'", part1->getInMemoryData()->c_str());
+    OATPP_LOGD("Multipart", "part1='%s'", part1->getPayload()->getInMemoryData()->c_str());
 
     /* Get part by name "part2"*/
     auto filePart = multipart->getNamedPart("part2");
 
     OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty");
 
-    auto inputStream = filePart->getInputStream();
+    auto inputStream = filePart->getPayload()->openInputStream();
 
     // TODO - process file stream.
 
@@ -326,9 +327,9 @@ public:
 //      part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(frameData));
 
       if(counter % 2 == 0) {
-        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame1.jpg"));
+        part->setPayload(std::make_shared<data::resource::File>("/Users/leonid/Documents/test/frame1.jpg"));
       } else {
-        part->setDataInfo(std::make_shared<oatpp::data::stream::FileInputStream>("/Users/leonid/Documents/test/frame2.jpg"));
+        part->setPayload(std::make_shared<data::resource::File>("/Users/leonid/Documents/test/frame2.jpg"));
       }
 
       ++ counter;

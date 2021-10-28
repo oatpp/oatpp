@@ -41,6 +41,8 @@ add_executable(oatppAllTests
         oatpp/core/data/mapping/type/VectorTest.hpp
         oatpp/core/data/mapping/TypeResolverTest.cpp
         oatpp/core/data/mapping/TypeResolverTest.hpp
+        oatpp/core/data/resource/InMemoryDataTest.cpp
+        oatpp/core/data/resource/InMemoryDataTest.hpp
         oatpp/core/data/share/LazyStringMapTest.cpp
         oatpp/core/data/share/LazyStringMapTest.hpp
         oatpp/core/data/share/MemoryLabelTest.cpp

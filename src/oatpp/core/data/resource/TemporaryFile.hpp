@@ -22,13 +22,13 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_share_TemporaryFile_hpp
-#define oatpp_data_share_TemporaryFile_hpp
+#ifndef oatpp_data_resource_TemporaryFile_hpp
+#define oatpp_data_resource_TemporaryFile_hpp
 
-#include "oatpp/core/data/stream/FileStream.hpp"
+#include "./Resource.hpp"
 #include "oatpp/core/Types.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp { namespace data { namespace resource {
 
 /**
  * Temporary file - the file which gets deleted when the destructor is called
@@ -36,9 +36,10 @@ namespace oatpp { namespace data { namespace share {
  * The `TemporaryFile` object internally stores a `shared_ptr` to a file handle.
  * When file handle deleted it also deletes the underlying file. <br>
  * Thus it's safe to copy `TemporaryFile` object and you may treat `TemporaryFile` object
- * as a shared_ptr to a temporary file.
+ * as a shared_ptr to a temporary file. <br>
+ * @extends - &id:oatpp::data::Resource;.
  */
-class TemporaryFile {
+class TemporaryFile : public Resource {
 private:
 
   /*
@@ -57,7 +58,6 @@ private:
   };
 
 private:
-  static oatpp::String concatDirAndName(const oatpp::String& dir, const oatpp::String& filename);
   static oatpp::String constructRandomFilename(const oatpp::String& dir, v_int32 randomWordSizeBytes);
 private:
   std::shared_ptr<FileHandle> m_handle;
@@ -87,38 +87,36 @@ public:
   TemporaryFile(const oatpp::String& tmpDirectory, const oatpp::String& tmpFileName);
 
   /**
-   * Get full name of a temporary file.
-   * @return
-   */
-  oatpp::String getFullFileName();
-
-  /**
    * Open output stream to a temporary file. <br>
    * *Note: stream also captures file-handle. The temporary file won't be deleted until the stream is deleted.*
-   * @return - &id:oatpp::data::stream::FileOutputStream;.
+   * @return - `std::shared_ptr` to &id:oatpp::data::stream::OutputStream;.
    */
-  data::stream::FileOutputStream openOutputStream();
+  std::shared_ptr<data::stream::OutputStream> openOutputStream() override;
 
   /**
-   * Open input stream to a temporary file.
+   * Open input stream to a temporary file. <br>
    * *Note: stream also captures file-handle. The temporary file won't be deleted until the stream is deleted.*
-   * @return - &id:oatpp::data::stream::FileInputStream;.
+   * @return - `std::shared_ptr` &id:oatpp::data::stream::InputStream;.
    */
-  data::stream::FileInputStream openInputStream();
+  std::shared_ptr<data::stream::InputStream> openInputStream() override;
 
   /**
-   * Open output stream to a temporary file. <br>
-   * *Note: stream also captures file-handle. The temporary file won't be deleted until the stream is deleted.*
-   * @return - `std::shared_ptr` to &id:oatpp::data::stream::FileOutputStream;.
+   * Not applicable.
+   * @return - always returns `nullptr`.
    */
-  std::shared_ptr<data::stream::FileOutputStream> openOutputStreamShared();
+  oatpp::String getInMemoryData() override;
 
   /**
-   * Open input stream to a temporary file.
-   * *Note: stream also captures file-handle. The temporary file won't be deleted until the stream is deleted.*
-   * @return - `std::shared_ptr` &id:oatpp::data::stream::FileInputStream;.
+   * Not applicable.
+   * @return - always returns `-1`.
    */
-  std::shared_ptr<data::stream::FileInputStream> openInputStreamShared();
+  v_int64 getKnownSize() override;
+
+  /**
+   * Get location where temporary data is stored.
+   * @return - `&id:oatpp::String;`.
+   */
+  oatpp::String getLocation() override;
 
   /**
    * Move payload to a different file. <br>
@@ -131,4 +129,4 @@ public:
 
 }}}
 
-#endif //oatpp_data_share_TemporaryFile_hpp
+#endif //oatpp_data_resource_TemporaryFile_hpp

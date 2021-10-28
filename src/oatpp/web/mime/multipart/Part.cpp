@@ -31,14 +31,9 @@
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
-Part::Part(const Headers &headers,
-           const std::shared_ptr<data::stream::InputStream> &inputStream,
-           const oatpp::String& inMemoryData,
-           v_int64 knownSize)
+Part::Part(const Headers &headers, const std::shared_ptr<data::resource::Resource>& payload)
   : m_headers(headers)
-  , m_inputStream(inputStream)
-  , m_inMemoryData(inMemoryData)
-  , m_knownSize(knownSize)
+  , m_payload(payload)
 {
 
   auto contentDisposition = m_headers.getAsMemoryLabel<oatpp::data::share::StringKeyLabel>("Content-Disposition");
@@ -54,24 +49,12 @@ Part::Part(const Headers &headers,
 
 }
 
-
-Part::Part(const Headers& headers) : Part(headers, nullptr, nullptr, -1) {}
-
-Part::Part() : Part(Headers(), nullptr, nullptr, -1) {}
-
-void Part::setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream,
-                       const oatpp::String& inMemoryData,
-                       v_int64 knownSize)
-{
-  m_inputStream = inputStream;
-  m_inMemoryData = inMemoryData;
-  m_knownSize = knownSize;
+void Part::setPayload(const std::shared_ptr<data::resource::Resource>& payload) {
+  m_payload = payload;
 }
 
-void Part::setDataInfo(const std::shared_ptr<data::stream::InputStream>& inputStream) {
-  m_inputStream = inputStream;
-  m_inMemoryData = nullptr;
-  m_knownSize = -1;
+std::shared_ptr<data::resource::Resource> Part::getPayload() {
+  return m_payload;
 }
 
 oatpp::String Part::getName() const {
@@ -98,18 +81,6 @@ void Part::putHeader(const oatpp::data::share::StringKeyLabelCI& key, const oatp
 
 bool Part::putHeaderIfNotExists(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   return m_headers.putIfNotExists(key, value);
-}
-
-std::shared_ptr<data::stream::InputStream> Part::getInputStream() const {
-  return m_inputStream;
-}
-
-oatpp::String Part::getInMemoryData() const {
-  return m_inMemoryData;
-}
-
-v_int64 Part::getKnownSize() const {
-  return m_knownSize;
 }
 
 void Part::setTag(const char* tagName, const std::shared_ptr<oatpp::base::Countable>& tagObject) {

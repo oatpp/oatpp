@@ -43,6 +43,7 @@
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
 
+#include "oatpp/core/data/resource/InMemoryData.hpp"
 #include "oatpp/core/macro/component.hpp"
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
@@ -127,7 +128,7 @@ std::shared_ptr<PartList> createMultipart(const std::unordered_map<oatpp::String
     auto part = std::make_shared<oatpp::web::mime::multipart::Part>(partHeaders);
     multipart->writeNextPartSimple(part);
     part->putHeader("Content-Disposition", "form-data; name=\"" + pair.first + "\"");
-    part->setDataInfo(std::make_shared<oatpp::data::stream::BufferInputStream>(pair.second));
+    part->setPayload(std::make_shared<oatpp::data::resource::InMemoryData>(pair.second));
 
   }
 
@@ -241,8 +242,8 @@ void FullAsyncTest::onRun() {
         multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(response->getHeaders());
 
         oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
-        multipartReader.setPartReader("value1", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
-        multipartReader.setPartReader("value2", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+        multipartReader.setPartReader("value1", oatpp::web::mime::multipart::createInMemoryPartReader(10));
+        multipartReader.setPartReader("value2", oatpp::web::mime::multipart::createInMemoryPartReader(10));
 
         response->transferBody(&multipartReader);
 
@@ -251,10 +252,13 @@ void FullAsyncTest::onRun() {
         auto part2 = multipart->getNamedPart("value2");
 
         OATPP_ASSERT(part1);
-        OATPP_ASSERT(part2);
+        OATPP_ASSERT(part1->getPayload());
 
-        OATPP_ASSERT(part1->getInMemoryData() == "Hello");
-        OATPP_ASSERT(part2->getInMemoryData() == "World");
+        OATPP_ASSERT(part2);
+        OATPP_ASSERT(part2->getPayload());
+
+        OATPP_ASSERT(part1->getPayload()->getInMemoryData() == "Hello");
+        OATPP_ASSERT(part2->getPayload()->getInMemoryData() == "World");
 
       }
 

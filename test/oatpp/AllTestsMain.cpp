@@ -47,6 +47,8 @@
 #include "oatpp/core/data/mapping/type/InterpretationTest.hpp"
 #include "oatpp/core/data/mapping/TypeResolverTest.hpp"
 
+#include "oatpp/core/data/resource/InMemoryDataTest.hpp"
+
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
 #include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/LazyStringMapTest.hpp"
@@ -110,6 +112,8 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::TypeResolverTest);
+
+  OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
 
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);

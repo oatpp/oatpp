@@ -176,7 +176,7 @@ void PoolTest::onRun() {
   oatpp::async::Executor executor(10, 1, 1);
 
   auto provider = std::make_shared<Provider>();
-  auto pool = Pool::createShared(provider, 10, std::chrono::seconds(1));
+  auto pool = Pool::createShared(provider, 10, std::chrono::seconds(2));
 
 
   std::list<std::thread> threads;
@@ -187,9 +187,12 @@ void PoolTest::onRun() {
     executor.execute<ClientCoroutine>(pool, false);
   }
 
+  std::this_thread::sleep_for(std::chrono::milliseconds (200));
+
+  OATPP_LOGD(TAG, "1) pool->getCounter() == %d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 10);
   OATPP_LOGD(TAG, "Waiting...");
-  std::this_thread::sleep_for(std::chrono::seconds(6));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
   OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 0);
 
@@ -199,9 +202,12 @@ void PoolTest::onRun() {
     executor.execute<ClientCoroutine>(pool, false);
   }
 
+  std::this_thread::sleep_for(std::chrono::milliseconds (200));
+
+  OATPP_LOGD(TAG, "2) pool->getCounter() == %d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 10);
   OATPP_LOGD(TAG, "Waiting...");
-  std::this_thread::sleep_for(std::chrono::seconds(6));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
   OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
   OATPP_ASSERT(pool->getCounter() == 0);
 
