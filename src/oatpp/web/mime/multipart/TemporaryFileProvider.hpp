@@ -53,7 +53,7 @@ public:
  * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::PartReader;.
  */
 std::shared_ptr<PartReader> createTemporaryFilePartReader(const oatpp::String& tmpDirectory,
-                                                          v_int32 randomWordSizeBytes,
+                                                          v_int32 randomWordSizeBytes = 8,
                                                           v_io_size maxDataSize = -1);
 
 /**
@@ -64,7 +64,7 @@ std::shared_ptr<PartReader> createTemporaryFilePartReader(const oatpp::String& t
  * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::AsyncPartReader;.
  */
 std::shared_ptr<AsyncPartReader> createAsyncTemporaryFilePartReader(const oatpp::String& tmpDirectory,
-                                                                    v_int32 randomWordSizeBytes,
+                                                                    v_int32 randomWordSizeBytes = 8,
                                                                     v_io_size maxDataSize = -1);
 
 }}}}
