@@ -32,82 +32,45 @@
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
 /**
- * Stream provider for `StreamPartReader`.
+ * Resource provider for `StreamPartReader`.
  */
-class PartReaderStreamProvider {
-public:
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::OutputStream;.
-   */
-  typedef oatpp::data::stream::OutputStream OutputStream;
-
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::InputStream;.
-   */
-  typedef oatpp::data::stream::InputStream InputStream;
+class PartReaderResourceProvider {
 public:
 
   /**
    * Default virtual destructor.
    */
-  virtual ~PartReaderStreamProvider() = default;
+  virtual ~PartReaderResourceProvider() = default;
 
   /**
-   * Get stream to write (save) part data in.
+   * Get data resource to write (save) part data in.
    * @param part
    * @return
    */
-  virtual std::shared_ptr<OutputStream> getOutputStream(const std::shared_ptr<Part>& part) = 0;
-
-  /**
-   * Get stream to read part data from. <br>
-   * This method is called after all data has been streamed to OutputStream.
-   * @param part
-   * @return
-   */
-  virtual std::shared_ptr<InputStream> getInputStream(const std::shared_ptr<Part>& part) = 0;
+  virtual std::shared_ptr<data::resource::Resource> getResource(const std::shared_ptr<Part>& part) = 0;
 
 };
 
 /**
- * Async stream provider for `AsyncStreamPartReader`.
+ * Async resource provider for `AsyncStreamPartReader`.
  */
-class AsyncPartReaderStreamProvider {
-public:
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::OutputStream;.
-   */
-  typedef oatpp::data::stream::OutputStream OutputStream;
-
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::InputStream;.
-   */
-  typedef oatpp::data::stream::InputStream InputStream;
+class AsyncPartReaderResourceProvider {
 public:
 
   /**
    * Default virtual destructor.
    */
-  virtual ~AsyncPartReaderStreamProvider() = default;
+  virtual ~AsyncPartReaderResourceProvider() = default;
 
   /**
-   * Get stream to write (save) part data to.
+   * Get data resource to write (save) part data in.
    * @param part
-   * @param stream - put here pointer to obtained stream.
+   * @param resource - put here pointer to obtained resource.
    * @return
    */
-  virtual async::CoroutineStarter getOutputStreamAsync(const std::shared_ptr<Part>& part,
-                                                       std::shared_ptr<data::stream::OutputStream>& stream) = 0;
+  virtual async::CoroutineStarter getResourceAsync(const std::shared_ptr<Part>& part,
+                                                   std::shared_ptr<data::resource::Resource>& resource) = 0;
 
-  /**
-   * Get stream to read part data from. <br>
-   * This method is called after all data has been streamed to OutputStream.
-   * @param part
-   * @param stream - put here pointer to obtained stream.
-   * @return
-   */
-  virtual async::CoroutineStarter getInputStreamAsync(const std::shared_ptr<Part>& part,
-                                                      std::shared_ptr<data::stream::InputStream>& stream) = 0;
 
 };
 
@@ -122,21 +85,21 @@ private:
   class TagObject : public oatpp::base::Countable {
   public:
     v_io_size size = 0;
-    std::shared_ptr<oatpp::data::stream::OutputStream> outputStream;
+    std::shared_ptr<data::resource::Resource> resource;
+    std::shared_ptr<data::stream::OutputStream> outputStream;
   };
 
 private:
-  std::shared_ptr<PartReaderStreamProvider> m_streamProvider;
+  std::shared_ptr<PartReaderResourceProvider> m_resourceProvider;
   v_io_size m_maxDataSize;
 public:
 
   /**
    * Constructor.
-   * @param streamProvider
+   * @param resourceProvider
    * @param maxDataSize - use `-1` for no limit.
    */
-  StreamPartReader(const std::shared_ptr<PartReaderStreamProvider>& streamProvider,
-                   v_io_size maxDataSize = -1);
+  StreamPartReader(const std::shared_ptr<PartReaderResourceProvider>& resourceProvider, v_io_size maxDataSize = -1);
 
   /**
    * Called when new part headers are parsed and part object is created.
@@ -166,23 +129,21 @@ private:
   class TagObject : public oatpp::base::Countable {
   public:
     v_io_size size = 0;
-    std::shared_ptr<oatpp::data::stream::OutputStream> outputStream;
+    std::shared_ptr<data::resource::Resource> resource;
+    std::shared_ptr<data::stream::OutputStream> outputStream;
   };
 
 private:
-  async::CoroutineStarter onPartDone(const std::shared_ptr<Part>& part);
-private:
-  std::shared_ptr<AsyncPartReaderStreamProvider> m_streamProvider;
+  std::shared_ptr<AsyncPartReaderResourceProvider> m_resourceProvider;
   v_io_size m_maxDataSize;
 public:
 
   /**
    * Constructor.
-   * @param streamProvider
+   * @param resourceProvider
    * @param maxDataSize - use `-1` for no limit.
    */
-  AsyncStreamPartReader(const std::shared_ptr<AsyncPartReaderStreamProvider>& streamProvider,
-                        v_io_size maxDataSize = -1);
+  AsyncStreamPartReader(const std::shared_ptr<AsyncPartReaderResourceProvider>& resourceProvider, v_io_size maxDataSize = -1);
 
   /**
    * Called when new part headers are parsed and part object is created.

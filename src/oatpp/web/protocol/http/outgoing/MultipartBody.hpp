@@ -66,6 +66,7 @@ private:
   private:
     std::shared_ptr<Multipart> m_multipart;
     std::shared_ptr<Part> m_part;
+    std::shared_ptr<data::stream::InputStream> m_partInputStream;
     bool m_isFirst;
     bool m_initialized;
   public:
@@ -73,6 +74,7 @@ private:
     PartIterator(const std::shared_ptr<Multipart>& multipart)
       : m_multipart(multipart)
       , m_part(nullptr)
+      , m_partInputStream(nullptr)
       , m_isFirst(true)
       , m_initialized(false)
     {}
@@ -80,12 +82,26 @@ private:
     void init(async::Action& action) {
       if(!m_initialized) {
         m_part = m_multipart->readNextPart(action);
+        m_partInputStream = nullptr;
+        if(m_part) {
+          auto payload = m_part->getPayload();
+          if (payload) {
+            m_partInputStream = payload->openInputStream();
+          }
+        }
         m_initialized = true;
       }
     }
 
     void inc(async::Action& action) {
       m_part = m_multipart->readNextPart(action);
+      m_partInputStream = nullptr;
+      if(m_part) {
+        auto payload = m_part->getPayload();
+        if (payload) {
+          m_partInputStream = payload->openInputStream();
+        }
+      }
       m_isFirst = false;
     }
 
@@ -99,6 +115,10 @@ private:
 
     std::shared_ptr<Part> get() {
       return m_part;
+    }
+
+    std::shared_ptr<data::stream::InputStream> getPartInputStream() {
+      return m_partInputStream;
     }
 
   };

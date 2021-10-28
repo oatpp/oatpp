@@ -216,8 +216,8 @@ add_library(oatpp
         oatpp/web/client/RequestExecutor.hpp
         oatpp/web/client/RetryPolicy.cpp
         oatpp/web/client/RetryPolicy.hpp
-        oatpp/web/mime/multipart/FileStreamProvider.cpp
-        oatpp/web/mime/multipart/FileStreamProvider.hpp
+        oatpp/web/mime/multipart/FileResourceProvider.cpp
+        oatpp/web/mime/multipart/FileResourceProvider.hpp
         oatpp/web/mime/multipart/InMemoryPartReader.cpp
         oatpp/web/mime/multipart/InMemoryPartReader.hpp
         oatpp/web/mime/multipart/Multipart.cpp

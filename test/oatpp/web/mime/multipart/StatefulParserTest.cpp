@@ -80,18 +80,20 @@ namespace {
 
   void assertPartData(const std::shared_ptr<Part>& part, const oatpp::String& value) {
 
-    OATPP_ASSERT(part->getInMemoryData());
-    OATPP_ASSERT(part->getInMemoryData() == value);
+    auto payload = part->getPayload();
+    OATPP_ASSERT(payload)
+    OATPP_ASSERT(payload->getInMemoryData());
+    OATPP_ASSERT(payload->getInMemoryData() == value);
 
     v_int64 bufferSize = 16;
     std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
 
     oatpp::data::stream::ChunkedBuffer stream;
-    oatpp::data::stream::transfer(part->getInputStream().get(), &stream, 0, buffer.get(), bufferSize);
+    oatpp::data::stream::transfer(payload->openInputStream(), &stream, 0, buffer.get(), bufferSize);
 
     oatpp::String readData = stream.toString();
 
-    OATPP_ASSERT(readData == part->getInMemoryData());
+    OATPP_ASSERT(readData == payload->getInMemoryData());
 
   }
 

@@ -28,10 +28,9 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action& action) {
-  const auto& part = m_iterator.get();
-  const auto& stream = part->getInputStream();
+  const auto& stream = m_iterator.getPartInputStream();
   if(!stream) {
-    OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream", m_state);
+    OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream.");
     return 0;
   }
   return stream->read(buffer, count, action);

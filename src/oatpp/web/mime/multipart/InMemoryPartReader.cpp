@@ -24,6 +24,7 @@
 
 #include "InMemoryPartReader.hpp"
 
+#include "oatpp/core/data/resource/InMemoryData.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
@@ -75,8 +76,7 @@ void InMemoryPartReader::onPartData(const std::shared_ptr<Part>& part, const cha
     auto fullData = buffer->toString();
     buffer->clear();
     part->clearTag();
-    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->data(), fullData->size());
-    part->setDataInfo(stream, fullData, fullData->size());
+    part->setPayload(std::make_shared<data::resource::InMemoryData>(fullData));
   }
 
 }
@@ -130,8 +130,7 @@ async::CoroutineStarter AsyncInMemoryPartReader::onPartDataAsync(const std::shar
     auto fullData = buffer->toString();
     buffer->clear();
     part->clearTag();
-    auto stream = std::make_shared<data::stream::BufferInputStream>(fullData.getPtr(), fullData->data(), fullData->size());
-    part->setDataInfo(stream, fullData, fullData->size());
+    part->setPayload(std::make_shared<data::resource::InMemoryData>(fullData));
   }
   return nullptr;
 }

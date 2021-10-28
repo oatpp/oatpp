@@ -33,17 +33,7 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
 /**
  * Stream provider for `StreamPartReader`.
  */
-class FileStreamProvider : public PartReaderStreamProvider {
-public:
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::OutputStream;.
-   */
-  typedef oatpp::data::stream::OutputStream OutputStream;
-
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::InputStream;.
-   */
-  typedef oatpp::data::stream::InputStream InputStream;
+class FileResourceProvider : public PartReaderResourceProvider {
 private:
   oatpp::String m_filename;
 public:
@@ -52,41 +42,21 @@ public:
    * Constructor.
    * @param filename
    */
-  FileStreamProvider(const oatpp::String& filename);
+  FileResourceProvider(const oatpp::String& filename);
 
   /**
-   * Get stream to write (save) part data in.
+   * Get resource to write (save) part data in.
    * @param part
    * @return
    */
-  std::shared_ptr<OutputStream> getOutputStream(const std::shared_ptr<Part>& part) override;
-
-  /**
-   * Get stream to read part data from. <br>
-   * This method is called after all data has been streamed to OutputStream.
-   * @param part
-   * @return
-   */
-  std::shared_ptr<InputStream> getInputStream(const std::shared_ptr<Part>& part) override;
+  std::shared_ptr<data::resource::Resource> getResource(const std::shared_ptr<Part>& part) override;
 
 };
 
 /**
  * Async stream provider for `AsyncStreamPartReader`.
  */
-class AsyncFileStreamProvider : public AsyncPartReaderStreamProvider {
-public:
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::OutputStream;.
-   */
-  typedef oatpp::data::stream::OutputStream OutputStream;
-
-  /**
-   * Convenience typedef for &id:oatpp::data::stream::InputStream;.
-   */
-  typedef oatpp::data::stream::InputStream InputStream;
-public:
-
+class AsyncFileResourceProvider : public AsyncPartReaderResourceProvider {
 private:
   oatpp::String m_filename;
 public:
@@ -95,26 +65,16 @@ public:
    * Constructor.
    * @param filename
    */
-  AsyncFileStreamProvider(const oatpp::String& filename);
+  AsyncFileResourceProvider(const oatpp::String& filename);
 
   /**
    * Get stream to write (save) part data to.
    * @param part
-   * @param stream - put here pointer to obtained stream.
+   * @param resource - put here pointer to obtained resource.
    * @return
    */
-  async::CoroutineStarter getOutputStreamAsync(const std::shared_ptr<Part>& part,
-                                               std::shared_ptr<data::stream::OutputStream>& stream) override;
-
-  /**
-   * Get stream to read part data from. <br>
-   * This method is called after all data has been streamed to OutputStream.
-   * @param part
-   * @param stream - put here pointer to obtained stream.
-   * @return
-   */
-  async::CoroutineStarter getInputStreamAsync(const std::shared_ptr<Part>& part,
-                                              std::shared_ptr<data::stream::InputStream>& stream) override;
+  async::CoroutineStarter getResourceAsync(const std::shared_ptr<Part>& part,
+                                           std::shared_ptr<data::resource::Resource>& resource) override;
 
 };
 
