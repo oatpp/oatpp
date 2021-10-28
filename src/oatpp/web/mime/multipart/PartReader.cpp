@@ -22,7 +22,7 @@
  *
  ***************************************************************************/
 
-#include "StreamPartReader.hpp"
+#include "PartReader.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -92,7 +92,7 @@ void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, const char*
 
 const char* const AsyncStreamPartReader::TAG_NAME = "[oatpp::web::mime::multipart::AsyncStreamPartReader::TAG]";
 
-AsyncStreamPartReader::AsyncStreamPartReader(const std::shared_ptr<AsyncPartReaderResourceProvider>& resourceProvider,
+AsyncStreamPartReader::AsyncStreamPartReader(const std::shared_ptr<PartReaderResourceProvider>& resourceProvider,
                                              v_io_size maxDataSize)
   : m_resourceProvider(resourceProvider)
   , m_maxDataSize(maxDataSize)
@@ -103,12 +103,12 @@ async::CoroutineStarter AsyncStreamPartReader::onNewPartAsync(const std::shared_
   class OnNewPartCoroutine : public async::Coroutine<OnNewPartCoroutine> {
   private:
     std::shared_ptr<Part> m_part;
-    std::shared_ptr<AsyncPartReaderResourceProvider> m_resourceProvider;
+    std::shared_ptr<PartReaderResourceProvider> m_resourceProvider;
     std::shared_ptr<data::resource::Resource> m_obtainedResource;
   public:
 
     OnNewPartCoroutine(const std::shared_ptr<Part>& part,
-                       const std::shared_ptr<AsyncPartReaderResourceProvider>& resourceProvider)
+                       const std::shared_ptr<PartReaderResourceProvider>& resourceProvider)
       : m_part(part)
       , m_resourceProvider(resourceProvider)
     {}
@@ -169,6 +169,7 @@ async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared
     return tagObject->outputStream->writeExactSizeDataAsync(data, size);
   } else {
     part->setPayload(tagObject->resource);
+    part->clearTag();
     return nullptr;
   }
 

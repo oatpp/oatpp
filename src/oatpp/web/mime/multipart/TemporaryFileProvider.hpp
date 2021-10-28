@@ -22,80 +22,51 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mime_multipart_FileStreamProvider_hpp
-#define oatpp_web_mime_multipart_FileStreamProvider_hpp
+#ifndef oatpp_web_mime_multipart_TemporaryFileProvider_hpp
+#define oatpp_web_mime_multipart_TemporaryFileProvider_hpp
 
-#include "StreamPartReader.hpp"
+#include "PartReader.hpp"
 #include "Reader.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
-/**
- * Stream provider for `StreamPartReader`.
- */
-class FileResourceProvider : public PartReaderResourceProvider {
+class TemporaryFileProvider : public PartReaderResourceProvider {
 private:
-  oatpp::String m_filename;
+  oatpp::String m_tmpDirectory;
+  v_int32 m_randomWordSizeBytes;
 public:
 
-  /**
-   * Constructor.
-   * @param filename
-   */
-  FileResourceProvider(const oatpp::String& filename);
+  TemporaryFileProvider(const oatpp::String& tmpDirectory, v_int32 randomWordSizeBytes = 8);
 
-  /**
-   * Get resource to write (save) part data in.
-   * @param part
-   * @return
-   */
   std::shared_ptr<data::resource::Resource> getResource(const std::shared_ptr<Part>& part) override;
 
-};
-
-/**
- * Async stream provider for `AsyncStreamPartReader`.
- */
-class AsyncFileResourceProvider : public AsyncPartReaderResourceProvider {
-private:
-  oatpp::String m_filename;
-public:
-
-  /**
-   * Constructor.
-   * @param filename
-   */
-  AsyncFileResourceProvider(const oatpp::String& filename);
-
-  /**
-   * Get stream to write (save) part data to.
-   * @param part
-   * @param resource - put here pointer to obtained resource.
-   * @return
-   */
   async::CoroutineStarter getResourceAsync(const std::shared_ptr<Part>& part,
                                            std::shared_ptr<data::resource::Resource>& resource) override;
 
 };
 
 /**
- * Create file part reader. <br>
- * Reader will save part to a specified file.
- * @param filename - name of the file.
+ * Create part reader to a temporary file.
+ * @param tmpDirectory - directory for temporary files.
+ * @param randomWordSizeBytes - number of random bytes to generate file name.
  * @param maxDataSize - max size of the received data. put `-1` for no-limit.
  * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::PartReader;.
  */
-std::shared_ptr<PartReader> createFilePartReader(const oatpp::String& filename, v_io_size maxDataSize = -1);
+std::shared_ptr<PartReader> createTemporaryFilePartReader(const oatpp::String& tmpDirectory,
+                                                          v_int32 randomWordSizeBytes,
+                                                          v_io_size maxDataSize = -1);
 
 /**
- * Create async file part reader. <br>
- * Reader will save part to a specified file.
- * @param filename - name of the file.
+ * Create async part reader to a temporary file.
+ * @param tmpDirectory - directory for temporary files.
+ * @param randomWordSizeBytes - number of random bytes to generate file name.
  * @param maxDataSize - max size of the received data. put `-1` for no-limit.
  * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::AsyncPartReader;.
  */
-std::shared_ptr<AsyncPartReader> createAsyncFilePartReader(const oatpp::String& filename, v_io_size maxDataSize = -1);
+std::shared_ptr<AsyncPartReader> createAsyncTemporaryFilePartReader(const oatpp::String& tmpDirectory,
+                                                                    v_int32 randomWordSizeBytes,
+                                                                    v_io_size maxDataSize = -1);
 
 }}}}
 
-#endif // oatpp_web_mime_multipart_FileStreamProvider_hpp
+#endif //oatpp_web_mime_multipart_TemporaryFileProvider_hpp

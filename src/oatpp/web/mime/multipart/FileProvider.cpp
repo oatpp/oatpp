@@ -22,27 +22,23 @@
  *
  ***************************************************************************/
 
-#include "FileResourceProvider.hpp"
+#include "FileProvider.hpp"
 
 #include "oatpp/core/data/resource/File.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
-FileResourceProvider::FileResourceProvider(const oatpp::String& filename)
+FileProvider::FileProvider(const oatpp::String& filename)
   : m_filename(filename)
 {}
 
-std::shared_ptr<data::resource::Resource> FileResourceProvider::getResource(const std::shared_ptr<Part>& part) {
+std::shared_ptr<data::resource::Resource> FileProvider::getResource(const std::shared_ptr<Part>& part) {
   (void)part;
   return std::make_shared<data::resource::File>(m_filename->c_str());
 }
 
-AsyncFileResourceProvider::AsyncFileResourceProvider(const oatpp::String& filename)
-  : m_filename(filename)
-{}
-
-async::CoroutineStarter AsyncFileResourceProvider::getResourceAsync(const std::shared_ptr<Part>& part,
-                                                                    std::shared_ptr<data::resource::Resource>& stream)
+async::CoroutineStarter FileProvider::getResourceAsync(const std::shared_ptr<Part>& part,
+                                                       std::shared_ptr<data::resource::Resource>& stream)
 {
   (void)part;
   stream = std::make_shared<data::resource::File>(m_filename->c_str());
@@ -53,13 +49,13 @@ async::CoroutineStarter AsyncFileResourceProvider::getResourceAsync(const std::s
 // Other functions
 
 std::shared_ptr<PartReader> createFilePartReader(const oatpp::String& filename, v_io_size maxDataSize) {
-  auto provider = std::make_shared<FileResourceProvider>(filename);
+  auto provider = std::make_shared<FileProvider>(filename);
   auto reader = std::make_shared<StreamPartReader>(provider, maxDataSize);
   return reader;
 }
 
 std::shared_ptr<AsyncPartReader> createAsyncFilePartReader(const oatpp::String& filename, v_io_size maxDataSize) {
-  auto provider = std::make_shared<AsyncFileResourceProvider>(filename);
+  auto provider = std::make_shared<FileProvider>(filename);
   auto reader = std::make_shared<AsyncStreamPartReader>(provider, maxDataSize);
   return reader;
 }

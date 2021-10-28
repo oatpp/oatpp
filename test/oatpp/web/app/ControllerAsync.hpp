@@ -27,8 +27,8 @@
 
 #include "./DTOs.hpp"
 
-#include "oatpp/web/mime/multipart/FileResourceProvider.hpp"
-#include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
+#include "oatpp/web/mime/multipart/FileProvider.hpp"
+#include "oatpp/web/mime/multipart/InMemoryDataProvider.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 #include "oatpp/web/mime/multipart/PartList.hpp"
 
@@ -214,7 +214,7 @@ public:
       m_multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(request->getHeaders());
       auto multipartReader = std::make_shared<oatpp::web::mime::multipart::AsyncReader>(m_multipart);
 
-      multipartReader->setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::AsyncInMemoryPartReader>(10));
+      multipartReader->setDefaultPartReader(oatpp::web::mime::multipart::createAsyncInMemoryPartReader(10));
 
       return request->transferBodyAsync(multipartReader).next(yieldTo(&MultipartTest::respond));
 

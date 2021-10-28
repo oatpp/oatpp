@@ -25,7 +25,7 @@
 #include "StatefulParserTest.hpp"
 
 #include "oatpp/web/mime/multipart/PartList.hpp"
-#include "oatpp/web/mime/multipart/InMemoryPartReader.hpp"
+#include "oatpp/web/mime/multipart/InMemoryDataProvider.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
@@ -108,7 +108,7 @@ void StatefulParserTest::onRun() {
     oatpp::web::mime::multipart::PartList multipart("12345");
 
     auto listener = std::make_shared<oatpp::web::mime::multipart::PartsParser>(&multipart);
-    listener->setDefaultPartReader(std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(128));
+    listener->setDefaultPartReader(oatpp::web::mime::multipart::createInMemoryPartReader(128));
 
     parseStepByStep(text, "12345", listener, i);
 

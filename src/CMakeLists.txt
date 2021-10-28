@@ -216,22 +216,24 @@ add_library(oatpp
         oatpp/web/client/RequestExecutor.hpp
         oatpp/web/client/RetryPolicy.cpp
         oatpp/web/client/RetryPolicy.hpp
-        oatpp/web/mime/multipart/FileResourceProvider.cpp
-        oatpp/web/mime/multipart/FileResourceProvider.hpp
-        oatpp/web/mime/multipart/InMemoryPartReader.cpp
-        oatpp/web/mime/multipart/InMemoryPartReader.hpp
+        oatpp/web/mime/multipart/FileProvider.cpp
+        oatpp/web/mime/multipart/FileProvider.hpp
+        oatpp/web/mime/multipart/InMemoryDataProvider.cpp
+        oatpp/web/mime/multipart/InMemoryDataProvider.hpp
         oatpp/web/mime/multipart/Multipart.cpp
         oatpp/web/mime/multipart/Multipart.hpp
         oatpp/web/mime/multipart/Part.cpp
         oatpp/web/mime/multipart/Part.hpp
         oatpp/web/mime/multipart/PartList.cpp
         oatpp/web/mime/multipart/PartList.hpp
+        oatpp/web/mime/multipart/PartReader.cpp
+        oatpp/web/mime/multipart/PartReader.hpp
         oatpp/web/mime/multipart/Reader.cpp
         oatpp/web/mime/multipart/Reader.hpp
         oatpp/web/mime/multipart/StatefulParser.cpp
         oatpp/web/mime/multipart/StatefulParser.hpp
-        oatpp/web/mime/multipart/StreamPartReader.cpp
-        oatpp/web/mime/multipart/StreamPartReader.hpp
+        oatpp/web/mime/multipart/TemporaryFileProvider.cpp
+        oatpp/web/mime/multipart/TemporaryFileProvider.hpp
         oatpp/web/protocol/CommunicationError.cpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp

@@ -242,8 +242,8 @@ void FullAsyncTest::onRun() {
         multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(response->getHeaders());
 
         oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
-        multipartReader.setPartReader("value1", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
-        multipartReader.setPartReader("value2", std::make_shared<oatpp::web::mime::multipart::InMemoryPartReader>(10));
+        multipartReader.setPartReader("value1", oatpp::web::mime::multipart::createInMemoryPartReader(10));
+        multipartReader.setPartReader("value2", oatpp::web::mime::multipart::createInMemoryPartReader(10));
 
         response->transferBody(&multipartReader);
 

@@ -22,14 +22,71 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_web_mime_multipart_StreamPartReader_hpp
-#define oatpp_web_mime_multipart_StreamPartReader_hpp
+#ifndef oatpp_web_mime_multipart_PartReader_hpp
+#define oatpp_web_mime_multipart_PartReader_hpp
 
-#include "Reader.hpp"
-
+#include "./Multipart.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
+
+/**
+ * Abstract read handler of multipart parts.
+ */
+class PartReader {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~PartReader() = default;
+
+  /**
+   * Called when new part headers are parsed and part object is created.
+   * @param part
+   */
+  virtual void onNewPart(const std::shared_ptr<Part>& part) = 0;
+
+  /**
+   * Called on each new chunk of data is parsed for the multipart-part. <br>
+   * When all data is read, called again with `data == nullptr && size == 0` to indicate end of the part.
+   * @param part
+   * @param data - pointer to buffer containing chunk data.
+   * @param size - size of the buffer.
+   */
+  virtual void onPartData(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) = 0;
+
+};
+
+/**
+ * Abstract Async read handler of multipart parts.
+ */
+class AsyncPartReader {
+public:
+
+  /**
+   * Default virtual destructor.
+   */
+  virtual ~AsyncPartReader() = default;
+
+  /**
+   * Called when new part headers are parsed and part object is created.
+   * @param part
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter onNewPartAsync(const std::shared_ptr<Part>& part) = 0;
+
+  /**
+   * Called on each new chunk of data is parsed for the multipart-part. <br>
+   * When all data is read, called again with `data == nullptr && size == 0` to indicate end of the part.
+   * @param part
+   * @param data - pointer to buffer containing chunk data.
+   * @param size - size of the buffer.
+   * @return - &id:oatpp::async::CoroutineStarter;.
+   */
+  virtual async::CoroutineStarter onPartDataAsync(const std::shared_ptr<Part>& part, const char* data, oatpp::v_io_size size) = 0;
+
+};
 
 /**
  * Resource provider for `StreamPartReader`.
@@ -49,19 +106,6 @@ public:
    */
   virtual std::shared_ptr<data::resource::Resource> getResource(const std::shared_ptr<Part>& part) = 0;
 
-};
-
-/**
- * Async resource provider for `AsyncStreamPartReader`.
- */
-class AsyncPartReaderResourceProvider {
-public:
-
-  /**
-   * Default virtual destructor.
-   */
-  virtual ~AsyncPartReaderResourceProvider() = default;
-
   /**
    * Get data resource to write (save) part data in.
    * @param part
@@ -70,7 +114,6 @@ public:
    */
   virtual async::CoroutineStarter getResourceAsync(const std::shared_ptr<Part>& part,
                                                    std::shared_ptr<data::resource::Resource>& resource) = 0;
-
 
 };
 
@@ -134,7 +177,7 @@ private:
   };
 
 private:
-  std::shared_ptr<AsyncPartReaderResourceProvider> m_resourceProvider;
+  std::shared_ptr<PartReaderResourceProvider> m_resourceProvider;
   v_io_size m_maxDataSize;
 public:
 
@@ -143,7 +186,7 @@ public:
    * @param resourceProvider
    * @param maxDataSize - use `-1` for no limit.
    */
-  AsyncStreamPartReader(const std::shared_ptr<AsyncPartReaderResourceProvider>& resourceProvider, v_io_size maxDataSize = -1);
+  AsyncStreamPartReader(const std::shared_ptr<PartReaderResourceProvider>& resourceProvider, v_io_size maxDataSize = -1);
 
   /**
    * Called when new part headers are parsed and part object is created.
@@ -166,5 +209,4 @@ public:
 
 }}}}
 
-
-#endif // oatpp_web_mime_multipart_StreamPartReader_hpp
+#endif //oatpp_web_mime_multipart_PartReader_hpp

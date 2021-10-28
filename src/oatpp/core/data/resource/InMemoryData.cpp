@@ -27,11 +27,7 @@
 namespace oatpp { namespace data { namespace resource {
 
 InMemoryData::OutputDataHandle::~OutputDataHandle() {
-  if(data != nullptr) {
-    dataHandle->data = data + stream->toString();
-  } else {
-    dataHandle->data = stream->toString();
-  }
+  dataHandle->data = data + stream->toString();
 }
 
 InMemoryData::InMemoryData(const oatpp::String& data)
@@ -41,7 +37,10 @@ InMemoryData::InMemoryData(const oatpp::String& data)
 std::shared_ptr<data::stream::OutputStream> InMemoryData::openOutputStream() {
   auto outputDataHandle = std::make_shared<OutputDataHandle>();
   if(!m_handle) {
-    m_handle = std::make_shared<DataHandle>(nullptr);
+    m_handle = std::make_shared<DataHandle>("");
+  }
+  if(!m_handle->data){
+    m_handle->data = "";
   }
   outputDataHandle->dataHandle = m_handle;
   outputDataHandle->data = m_handle->data;
@@ -52,6 +51,12 @@ std::shared_ptr<data::stream::OutputStream> InMemoryData::openOutputStream() {
 }
 
 std::shared_ptr<data::stream::InputStream> InMemoryData::openInputStream() {
+  if(!m_handle) {
+    m_handle = std::make_shared<DataHandle>("");
+  }
+  if(!m_handle->data){
+    m_handle->data = "";
+  }
   return std::make_shared<data::stream::BufferInputStream>(m_handle->data, m_handle);
 }
 
