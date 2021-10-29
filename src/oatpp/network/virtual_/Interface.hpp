@@ -42,7 +42,7 @@ private:
   static std::recursive_mutex m_registryMutex;
   static std::unordered_map<oatpp::String, std::weak_ptr<Interface>> m_registry;
 private:
-  static void registerInterface(const std::shared_ptr<Interface>& interface);
+  static void registerInterface(const std::shared_ptr<Interface>& _interface);
   static void unregisterInterface(const oatpp::String& name);
 public:
 
@@ -54,7 +54,7 @@ public:
   private:
     Interface* m_interface;
   private:
-    ListenerLock(Interface* interface);
+    ListenerLock(Interface* _interface);
   public:
     ~ListenerLock();
   };

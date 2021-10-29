@@ -33,10 +33,10 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
   socket->close();
 }
 
-ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
+ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& _interface)
   : m_invalidator(std::make_shared<ConnectionInvalidator>())
-  , m_interface(interface)
-  , m_listenerLock(interface->bind())
+  , m_interface(_interface)
+  , m_listenerLock(_interface->bind())
   , m_open(true)
   , m_maxAvailableToRead(-1)
   , m_maxAvailableToWrite(-1)
@@ -45,8 +45,8 @@ ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface
   setProperty(PROPERTY_PORT, "0");
 }
 
-std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::shared_ptr<virtual_::Interface>& interface) {
-  return std::make_shared<ConnectionProvider>(interface);
+std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::shared_ptr<virtual_::Interface>& _interface) {
+  return std::make_shared<ConnectionProvider>(_interface);
 }
 
 void ConnectionProvider::setSocketMaxAvailableToReadWrtie(v_io_size maxToRead, v_io_size maxToWrite) {

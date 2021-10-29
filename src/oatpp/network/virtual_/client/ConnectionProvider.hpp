@@ -57,14 +57,14 @@ public:
    * Constructor.
    * @param interface - &id:oatpp::network::virtual_::Interface;.
    */
-  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface);
+  ConnectionProvider(const std::shared_ptr<virtual_::Interface>& _interface);
 
   /**
    * Create shared ConnectionProvider.
    * @param interface - &id:oatpp::network::virtual_::Interface;.
    * @return - `std::shared_ptr` to ConnectionProvider.
    */
-  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& interface);
+  static std::shared_ptr<ConnectionProvider> createShared(const std::shared_ptr<virtual_::Interface>& _interface);
 
   /**
    * Limit the available amount of bytes to read from socket and limit the available amount of bytes to write to socket. <br>

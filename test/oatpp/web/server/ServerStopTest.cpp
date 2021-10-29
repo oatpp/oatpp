@@ -178,9 +178,9 @@ void ServerStopTest::onRun() {
   std::shared_ptr<oatpp::network::ClientConnectionProvider> clientConnectionProvider;
 
   if(m_port == 0) {
-    auto interface = oatpp::network::virtual_::Interface::obtainShared("virtualhost");
-    serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(interface);
-    clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(interface);
+    auto _interface = oatpp::network::virtual_::Interface::obtainShared("virtualhost");
+    serverConnectionProvider = oatpp::network::virtual_::server::ConnectionProvider::createShared(_interface);
+    clientConnectionProvider = oatpp::network::virtual_::client::ConnectionProvider::createShared(_interface);
   } else {
     serverConnectionProvider = oatpp::network::tcp::server::ConnectionProvider::createShared({"localhost", 8000});
     clientConnectionProvider = oatpp::network::tcp::client::ConnectionProvider::createShared({"localhost", 8000});

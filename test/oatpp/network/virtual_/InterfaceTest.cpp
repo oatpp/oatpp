@@ -45,9 +45,9 @@ namespace {
     oatpp::String m_dataSample;
   public:
     
-    ClientTask(const std::shared_ptr<Interface>& interface,
+    ClientTask(const std::shared_ptr<Interface>& _interface,
                const oatpp::String& dataSample)
-      : m_interface(interface)
+      : m_interface(_interface)
       , m_dataSample(dataSample)
     {}
     
@@ -107,10 +107,10 @@ namespace {
     v_int32 m_numTasks;
   public:
     
-    Server(const std::shared_ptr<Interface>& interface,
+    Server(const std::shared_ptr<Interface>& _interface,
            const oatpp::String& dataSample,
            v_int32 numTasks)
-      : m_interface(interface)
+      : m_interface(_interface)
       , m_dataSample(dataSample)
       , m_numTasks(numTasks)
     {}
@@ -134,17 +134,17 @@ void InterfaceTest::onRun() {
   
   oatpp::String dataSample = "1234567890-=][poiuytrewqasdfghjkl;'/.,mnbvcxzzxcvbnm,./';lkjhgfdsaqwertyuiop][=-0987654321";
   
-  auto interface = Interface::obtainShared("virtualhost");
-  auto bindLock = interface->bind();
+  auto _interface = Interface::obtainShared("virtualhost");
+  auto bindLock = _interface->bind();
 
   v_int32 numTasks = 100;
   
   ThreadList threadList;
   
-  std::thread server(&Server::run, Server(interface, dataSample, numTasks));
+  std::thread server(&Server::run, Server(_interface, dataSample, numTasks));
   
   for(v_int32 i = 0; i < numTasks; i++) {
-    threadList.push_back(std::thread(&ClientTask::run, ClientTask(interface, dataSample)));
+    threadList.push_back(std::thread(&ClientTask::run, ClientTask(_interface, dataSample)));
   }
 
   for(auto& thread : threadList) {

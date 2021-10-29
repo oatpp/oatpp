@@ -31,9 +31,9 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
   socket->close();
 }
 
-ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& interface)
+ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface>& _interface)
   : m_invalidator(std::make_shared<ConnectionInvalidator>())
-  , m_interface(interface)
+  , m_interface(_interface)
   , m_maxAvailableToRead(-1)
   , m_maxAvailableToWrite(-1)
 {
@@ -41,8 +41,8 @@ ConnectionProvider::ConnectionProvider(const std::shared_ptr<virtual_::Interface
   setProperty(PROPERTY_PORT, "0");
 }
 
-std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::shared_ptr<virtual_::Interface>& interface) {
-  return std::make_shared<ConnectionProvider>(interface);
+std::shared_ptr<ConnectionProvider> ConnectionProvider::createShared(const std::shared_ptr<virtual_::Interface>& _interface) {
+  return std::make_shared<ConnectionProvider>(_interface);
 }
 
 void ConnectionProvider::stop() {
@@ -76,11 +76,11 @@ ConnectionProvider::getAsync() {
   public:
     
     ConnectCoroutine(const std::shared_ptr<ConnectionInvalidator>& invalidator,
-                     const std::shared_ptr<virtual_::Interface>& interface,
+                     const std::shared_ptr<virtual_::Interface>& _interface,
                      v_io_size maxAvailableToRead,
                      v_io_size maxAvailableToWrite)
       : m_invalidator(invalidator)
-      , m_interface(interface)
+      , m_interface(_interface)
       , m_maxAvailableToRead(maxAvailableToRead)
       , m_maxAvailableToWrite(maxAvailableToWrite)
     {}

@@ -29,8 +29,8 @@ namespace oatpp { namespace network { namespace virtual_ {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ListenerLock
 
-Interface::ListenerLock::ListenerLock(Interface* interface)
-  : m_interface(interface)
+Interface::ListenerLock::ListenerLock(Interface* _interface)
+  : m_interface(_interface)
 {}
 
 Interface::ListenerLock::~ListenerLock() {
@@ -45,17 +45,17 @@ Interface::ListenerLock::~ListenerLock() {
 std::recursive_mutex Interface::m_registryMutex;
 std::unordered_map<oatpp::String, std::weak_ptr<Interface>> Interface::m_registry;
 
-void Interface::registerInterface(const std::shared_ptr<Interface>& interface) {
+void Interface::registerInterface(const std::shared_ptr<Interface>& _interface) {
 
   std::lock_guard<std::recursive_mutex> lock(m_registryMutex);
 
-  auto it = m_registry.find(interface->getName());
+  auto it = m_registry.find(_interface->getName());
   if(it != m_registry.end()) {
     throw std::runtime_error
-    ("[oatpp::network::virtual_::Interface::registerInterface()]: Error. Interface with such name already exists - '" + *interface->getName() + "'.");
+    ("[oatpp::network::virtual_::Interface::registerInterface()]: Error. Interface with such name already exists - '" + *_interface->getName() + "'.");
   }
 
-  m_registry.insert({interface->getName(), interface});
+  m_registry.insert({_interface->getName(), _interface});
 
 }
 
@@ -104,9 +104,9 @@ std::shared_ptr<Interface> Interface::obtainShared(const oatpp::String& name) {
     return it->second.lock();
   }
 
-  std::shared_ptr<Interface> interface(new Interface(name));
-  registerInterface(interface);
-  return interface;
+  std::shared_ptr<Interface> _interface(new Interface(name));
+  registerInterface(_interface);
+  return _interface;
 
 }
 
