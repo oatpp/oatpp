@@ -309,7 +309,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
 #endif
 
-      m_currentResult = m_currentResult->ai_next;
+      // m_currentResult = m_currentResult->ai_next;
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
 
     }
