@@ -30,7 +30,7 @@
 #include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
 
-#include <unordered_map>
+#include <unordered_set>
 #include <condition_variable>
 
 namespace oatpp { namespace network { namespace monitor {
@@ -93,7 +93,7 @@ private:
     bool m_stopped {false};
 
     std::mutex m_connectionsMutex;
-    std::unordered_map<v_uint64, std::weak_ptr<ConnectionProxy>> m_connections;
+    std::unordered_set<v_uint64> m_connections;
 
     std::mutex m_checkMutex;
     std::vector<std::shared_ptr<MetricsChecker>> m_metricsCheckers;
@@ -107,7 +107,7 @@ private:
 
     static std::shared_ptr<Monitor> createShared();
 
-    void addConnection(v_uint64 id, const std::weak_ptr<ConnectionProxy>& connection);
+    void addConnection(ConnectionProxy* connection);
     void freeConnectionStats(ConnectionStats& stats);
     void removeConnection(v_uint64 id);
 

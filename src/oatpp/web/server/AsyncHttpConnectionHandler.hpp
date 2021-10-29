@@ -44,7 +44,6 @@ protected:
   void onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) override;
 
   void invalidateAllConnections();
-  v_uint64 getConnectionsCount();
 
 private:
   std::shared_ptr<oatpp::async::Executor> m_executor;
@@ -142,6 +141,12 @@ public:
    * Will call m_executor.stop()
    */
   void stop() override;
+
+  /**
+   * Get connections count.
+   * @return
+   */
+  v_uint64 getConnectionsCount();
   
 };
   

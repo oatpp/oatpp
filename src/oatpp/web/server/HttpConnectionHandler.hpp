@@ -44,7 +44,6 @@ protected:
   void onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) override;
 
   void invalidateAllConnections();
-  v_uint64 getConnectionsCount();
 
 private:
   std::shared_ptr<HttpProcessor::Components> m_components;
@@ -118,6 +117,12 @@ public:
    * Tell all worker threads to exit when done.
    */
   void stop() override;
+
+  /**
+   * Get connections count.
+   * @return
+   */
+  v_uint64 getConnectionsCount();
   
 };
   

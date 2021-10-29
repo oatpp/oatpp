@@ -50,6 +50,8 @@ ConnectionMonitor::ConnectionProxy::ConnectionProxy(const std::shared_ptr<Monito
 
 ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
 
+  m_monitor->removeConnection((v_uint64) this);
+
   std::lock_guard<std::mutex> lock(m_statsMutex);
 
   m_monitor->freeConnectionStats(m_stats);
@@ -62,8 +64,6 @@ ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
     }
 
   }
-
-  m_monitor->removeConnection((v_uint64) this);
 
 }
 
@@ -120,9 +120,9 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
       auto currMicroTime = oatpp::base::Environment::getMicroTickCount();
 
-      for(auto& pair : monitor->m_connections) {
+      for(auto& caddr : monitor->m_connections) {
 
-        auto connection = pair.second.lock();
+        auto connection = (ConnectionProxy*) caddr;
         std::lock_guard<std::mutex> dataLock(connection->m_statsMutex);
         std::lock_guard<std::mutex> analysersLock(monitor->m_checkMutex);
 
@@ -172,9 +172,9 @@ std::shared_ptr<ConnectionMonitor::Monitor> ConnectionMonitor::Monitor::createSh
   return monitor;
 }
 
-void ConnectionMonitor::Monitor::addConnection(v_uint64 id, const std::weak_ptr<ConnectionProxy>& connection) {
+void ConnectionMonitor::Monitor::addConnection(ConnectionProxy* connection) {
   std::lock_guard<std::mutex> lock(m_connectionsMutex);
-  m_connections.insert({id, connection});
+  m_connections.insert((v_uint64) connection);
 }
 
 void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
@@ -282,7 +282,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionMonitor::get() {
     return nullptr;
   }
   auto proxy = std::make_shared<ConnectionProxy>(m_monitor, connection);
-  m_monitor->addConnection((v_uint64) proxy.get(), proxy);
+  m_monitor->addConnection(proxy.get());
   return provider::ResourceHandle<data::stream::IOStream>(proxy, m_invalidator);
 }
 
@@ -313,7 +313,7 @@ ConnectionMonitor::getAsync() {
         return _return(nullptr);
       }
       auto proxy = std::make_shared<ConnectionProxy>(m_monitor, connection);
-      m_monitor->addConnection((v_uint64) proxy.get(), proxy);
+      m_monitor->addConnection(proxy.get());
       return _return(provider::ResourceHandle<data::stream::IOStream>(proxy, m_invalidator));
     }
 
