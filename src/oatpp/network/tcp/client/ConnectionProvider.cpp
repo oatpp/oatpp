@@ -289,7 +289,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       }
       if(error == WSAEWOULDBLOCK || error == WSAEINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-      } else if(error == WSAEINTR) {
+      } else if(error == WSAEINTR || error == WSAEALREADY) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
@@ -303,7 +303,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-      } else if(errno == EINTR) {
+      } else if(errno == EINTR || errno == EALREADY) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
