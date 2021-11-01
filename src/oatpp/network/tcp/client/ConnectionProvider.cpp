@@ -242,14 +242,18 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
 #if defined(WIN32) || defined(_WIN32)
         if (m_clientHandle == INVALID_SOCKET) {
-          m_currentResult = m_currentResult->ai_next;
+          if(m_currentResult->ai_next != nullptr) {
+            m_currentResult = m_currentResult->ai_next;
+          }
           return repeat();
         }
         u_long flags = 1;
         ioctlsocket(m_clientHandle, FIONBIO, &flags);
 #else
         if (m_clientHandle < 0) {
-          m_currentResult = m_currentResult->ai_next;
+            if(m_currentResult->ai_next != nullptr) {
+                m_currentResult = m_currentResult->ai_next;
+            }
           return repeat();
         }
         fcntl(m_clientHandle, F_SETFL, O_NONBLOCK);
@@ -309,7 +313,9 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
 #endif
 
-      // m_currentResult = m_currentResult->ai_next;
+      if(m_currentResult->ai_next != nullptr) {
+          m_currentResult = m_currentResult->ai_next;
+      }
       return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
 
     }
