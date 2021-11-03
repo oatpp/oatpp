@@ -229,6 +229,13 @@ namespace __class {
       return properties;
     }
 
+    static Type* createType() {
+      Type::Info info;
+      info.nameQualifier = T::Z__CLASS_TYPE_NAME();
+      info.polymorphicDispatcher = new PolymorphicDispatcher();
+      return new Type(CLASS_ID, info);
+    }
+
   public:
 
     /**
@@ -236,7 +243,7 @@ namespace __class {
      * @return - &id:oatpp::data::mapping::type::Type;
      */
     static Type* getType() {
-      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), new PolymorphicDispatcher());
+      static Type* type = createType();
       return type;
     }
     

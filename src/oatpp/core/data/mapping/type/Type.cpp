@@ -31,7 +31,7 @@ namespace __class {
   const ClassId Void::CLASS_ID("Void");
   
   Type* Void::getType(){
-    static Type type(CLASS_ID, nullptr);
+    static Type type(CLASS_ID);
     return &type;
   }
   
@@ -40,28 +40,46 @@ namespace __class {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ClassId
 
-std::atomic_int ClassId::ID_COUNTER(0);
+std::mutex& ClassId::getClassMutex() {
+  static std::mutex classMutex;
+  return classMutex;
+}
+
+std::vector<const char*>& ClassId::getClassNames() {
+  static std::vector<const char*> classNames;
+  return classNames;
+}
+
+v_int32 ClassId::registerClassName(const char* name) {
+  std::lock_guard<std::mutex> lock(getClassMutex());
+  getClassNames().push_back(name);
+  return getClassNames().size() - 1;
+}
 
 ClassId::ClassId(const char* pName)
   : name(pName)
-  , id(ID_COUNTER ++)
+  , id(registerClassName(pName))
 {}
 
 int ClassId::getClassCount() {
-  return ID_COUNTER;
+  std::lock_guard<std::mutex> lock(getClassMutex());
+  return getClassNames().size();
+}
+
+std::vector<const char*> ClassId::getRegisteredClassNames() {
+  std::lock_guard<std::mutex> lock(getClassMutex());
+  return std::vector<const char*>(getClassNames());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type
 
-Type::Type(const ClassId& pClassId,
-           const char* pNameQualifier,
-           void* pPolymorphicDispatcher,
-           InterpretationMap&& pInterpretationMap)
+Type::Type(const ClassId& pClassId, const Info& typeInfo)
   : classId(pClassId)
-  , nameQualifier(pNameQualifier)
-  , polymorphicDispatcher(pPolymorphicDispatcher)
-  , interpretationMap(pInterpretationMap)
+  , nameQualifier(typeInfo.nameQualifier)
+  , params(typeInfo.params)
+  , polymorphicDispatcher(typeInfo.polymorphicDispatcher)
+  , interpretationMap(typeInfo.interpretationMap)
 {}
 
 const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<std::string>& names) const {

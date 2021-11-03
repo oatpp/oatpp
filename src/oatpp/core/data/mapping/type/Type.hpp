@@ -42,13 +42,21 @@ class Type; // FWD
  */
 class ClassId {
 private:
-  static std::atomic_int ID_COUNTER;
+  static std::mutex& getClassMutex();
+  static std::vector<const char*>& getClassNames();
+  static v_int32 registerClassName(const char* name);
 public:
   /**
    * Get count of all type classes created.
    * @return
    */
   static int getClassCount();
+
+  /**
+   * Get registered class names.
+   * @return
+   */
+  static std::vector<const char*> getRegisteredClassNames();
 public:
 
   /**
@@ -67,6 +75,17 @@ public:
    * *Note: class type IDs are integer values incremented continuously from [0 to `getClassCount()`]*
    */
   const v_int32 id;
+
+public:
+
+  inline bool operator == (const ClassId& other) const {
+    return id == other.id;
+  }
+
+  inline bool operator != (const ClassId& other) const {
+    return id != other.id;
+  }
+
 };
 
 
@@ -365,16 +384,44 @@ public:
 public:
 
   /**
+   * Type info.
+   */
+  struct Info {
+
+    /**
+     * Default constructor.
+     */
+    Info() {}
+
+    /**
+     * Type name qualifier.
+     */
+    const char* nameQualifier = nullptr;
+
+    /**
+     * List of type parameters - for templated types.
+     */
+    std::vector<const Type*> params;
+
+    /**
+     * PolymorphicDispatcher is responsible for forwarding polymorphic calls to a correct object of type `Type`.
+     */
+    void* polymorphicDispatcher = nullptr;
+
+    /**
+     * Map of type Interpretations.
+     */
+    InterpretationMap interpretationMap;
+  };
+
+public:
+
+  /**
    * Constructor.
    * @param pClassId - type class id.
-   * @param pNameQualifier - type name qualifier.
-   * @param pPolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
-   * @param pInterpretationMap - Map of type Interpretations.
+   * @param typeInfo - type creation info. &l:Type::Info;.
    */
-  Type(const ClassId& pClassId,
-       const char* pNameQualifier,
-       void* pPolymorphicDispatcher = nullptr,
-       InterpretationMap&& pInterpretationMap = InterpretationMap{});
+  Type(const ClassId& pClassId, const Info& typeInfo = Info());
 
   /**
    * type class id.
@@ -389,7 +436,7 @@ public:
   /**
    * List of type parameters - for templated types.
    */
-  std::list<const Type*> params;
+  const std::vector<const Type*> params;
 
   /**
    * PolymorphicDispatcher - is an object to forward polymorphic calls to a correct object of type `Type`.
@@ -459,6 +506,18 @@ public: \
 }}}}
 
 namespace std {
+
+template<>
+struct hash<oatpp::data::mapping::type::ClassId> {
+
+  typedef oatpp::data::mapping::type::ClassId argument_type;
+  typedef v_uint64 result_type;
+
+  result_type operator()(argument_type const& v) const noexcept {
+    return v.id;
+  }
+
+};
 
 template<>
 struct hash<oatpp::data::mapping::type::Void> {

@@ -141,10 +141,11 @@ namespace __class {
   private:
 
     static Type createType() {
-      Type type(__class::AbstractUnorderedMap::CLASS_ID, nullptr, new PolymorphicDispatcher());
-      type.params.push_back(Key::Class::getType());
-      type.params.push_back(Value::Class::getType());
-      return type;
+      Type::Info info;
+      info.params.push_back(Key::Class::getType());
+      info.params.push_back(Value::Class::getType());
+      info.polymorphicDispatcher = new PolymorphicDispatcher();
+      return Type(__class::AbstractUnorderedMap::CLASS_ID, info);
     }
 
   public:

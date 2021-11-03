@@ -293,12 +293,14 @@ private:
   static thread_local v_counter m_threadLocalObjectsCount;
   static thread_local v_counter m_threadLocalObjectsCreated;
 #endif
+private:
+
+  static std::mutex& getComponentsMutex();
+  static std::unordered_map<std::string, std::unordered_map<std::string, void*>>& getComponents();
 
 private:
   static std::shared_ptr<Logger> m_logger;
   static void checkTypes();
-private:
-  static std::unordered_map<std::string, std::unordered_map<std::string, void*>> m_components;
 public:
 
   /**

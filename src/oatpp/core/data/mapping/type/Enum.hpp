@@ -622,8 +622,10 @@ namespace __class {
   private:
 
     static Type createType() {
-      Type type(__class::AbstractEnum::CLASS_ID, type::EnumMeta<T>::getInfo()->nameQualifier, new PolymorphicDispatcher());
-      return type;
+      Type::Info info;
+      info.nameQualifier = type::EnumMeta<T>::getInfo()->nameQualifier;
+      info.polymorphicDispatcher = new PolymorphicDispatcher();
+      return Type(__class::AbstractEnum::CLASS_ID, info);
     }
 
   public:

@@ -43,9 +43,6 @@
 
 namespace oatpp { namespace base {
 
-std::shared_ptr<Logger> Environment::m_logger;
-std::unordered_map<std::string, std::unordered_map<std::string, void*>> Environment::m_components;
-
 v_atomicCounter Environment::m_objectsCount(0);
 v_atomicCounter Environment::m_objectsCreated(0);
 
@@ -53,6 +50,18 @@ v_atomicCounter Environment::m_objectsCreated(0);
 thread_local v_counter Environment::m_threadLocalObjectsCount = 0;
 thread_local v_counter Environment::m_threadLocalObjectsCreated = 0;
 #endif
+
+std::mutex& Environment::getComponentsMutex() {
+  static std::mutex componentsMutex;
+  return componentsMutex;
+}
+
+std::unordered_map<std::string, std::unordered_map<std::string, void*>>& Environment::getComponents() {
+  static std::unordered_map<std::string, std::unordered_map<std::string, void*>> components;
+  return components;
+}
+
+std::shared_ptr<Logger> Environment::m_logger;
 
 DefaultLogger::DefaultLogger(const Config& config)
   : m_config(config)
@@ -196,15 +205,21 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
   m_threadLocalObjectsCreated = 0;
 #endif
 
-  if(m_components.size() > 0) {
-    throw std::runtime_error("[oatpp::base::Environment::init()]: Error. Invalid state. Components were created before call to Environment::init()");
+  {
+    std::lock_guard<std::mutex> lock(getComponentsMutex());
+    if (getComponents().size() > 0) {
+      throw std::runtime_error("[oatpp::base::Environment::init()]: Error. "
+                               "Invalid state. Components were created before call to Environment::init()");
+    }
   }
 
 }
 
 void Environment::destroy(){
-  if(m_components.size() > 0) {
-    throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. Invalid state. Leaking components");
+  if(getComponents().size() > 0) {
+    std::lock_guard<std::mutex> lock(getComponentsMutex());
+    throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. "
+                             "Invalid state. Leaking components");
   }
   m_logger.reset();
 
@@ -364,7 +379,8 @@ void Environment::vlogFormatted(v_uint32 priority, const std::string& tag, const
 }
 
 void Environment::registerComponent(const std::string& typeName, const std::string& componentName, void* component) {
-  auto& bucket = m_components[typeName];
+  std::lock_guard<std::mutex> lock(getComponentsMutex());
+  auto& bucket = getComponents()[typeName];
   auto it = bucket.find(componentName);
   if(it != bucket.end()){
     throw std::runtime_error("[oatpp::base::Environment::registerComponent()]: Error. Component with given name already exists: name='" + componentName + "'");
@@ -373,8 +389,10 @@ void Environment::registerComponent(const std::string& typeName, const std::stri
 }
 
 void Environment::unregisterComponent(const std::string& typeName, const std::string& componentName) {
-  auto bucketIt = m_components.find(typeName);
-  if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
+  std::lock_guard<std::mutex> lock(getComponentsMutex());
+  auto& components = getComponents();
+  auto bucketIt = getComponents().find(typeName);
+  if(bucketIt == components.end() || bucketIt->second.size() == 0) {
     throw std::runtime_error("[oatpp::base::Environment::unregisterComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto& bucket = bucketIt->second;
@@ -384,13 +402,15 @@ void Environment::unregisterComponent(const std::string& typeName, const std::st
   }
   bucket.erase(componentIt);
   if(bucket.size() == 0) {
-    m_components.erase(bucketIt);
+    components.erase(bucketIt);
   }
 }
 
 void* Environment::getComponent(const std::string& typeName) {
-  auto bucketIt = m_components.find(typeName);
-  if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
+  std::lock_guard<std::mutex> lock(getComponentsMutex());
+  auto& components = getComponents();
+  auto bucketIt = components.find(typeName);
+  if(bucketIt == components.end() || bucketIt->second.size() == 0) {
     throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
@@ -401,8 +421,10 @@ void* Environment::getComponent(const std::string& typeName) {
 }
 
 void* Environment::getComponent(const std::string& typeName, const std::string& componentName) {
-  auto bucketIt = m_components.find(typeName);
-  if(bucketIt == m_components.end() || bucketIt->second.size() == 0) {
+  std::lock_guard<std::mutex> lock(getComponentsMutex());
+  auto& components = getComponents();
+  auto bucketIt = components.find(typeName);
+  if(bucketIt == components.end() || bucketIt->second.size() == 0) {
     throw std::runtime_error("[oatpp::base::Environment::getComponent()]: Error. Component of given type doesn't exist: type='" + typeName + "'");
   }
   auto bucket = bucketIt->second;
