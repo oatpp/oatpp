@@ -233,6 +233,7 @@ namespace __class {
       Type::Info info;
       info.nameQualifier = T::Z__CLASS_TYPE_NAME();
       info.polymorphicDispatcher = new PolymorphicDispatcher();
+      info.parent = T::getParentType();
       return new Type(CLASS_ID, info);
     }
 
@@ -307,6 +308,9 @@ public:
 class DTO : public BaseObject {
   template<class T>
   friend class __class::Object;
+private:
+  typedef DTO Z__CLASS;
+  typedef DTO Z__CLASS_EXTENDED;
 public:
   typedef oatpp::data::mapping::type::Void Void;
   typedef oatpp::data::mapping::type::Any Any;
@@ -345,10 +349,10 @@ public:
   using UnorderedFields = oatpp::data::mapping::type::UnorderedMap<String, Value>;
 
 private:
-  
-  static BaseObject::Properties* Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties);
+  static const mapping::type::Type* getParentType();
+  static const char* Z__CLASS_TYPE_NAME();
   static data::mapping::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP();
-  
+  static BaseObject::Properties* Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties);
 public:
 
   virtual v_uint64 defaultHashCode() const {

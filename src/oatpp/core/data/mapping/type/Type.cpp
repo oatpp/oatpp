@@ -80,6 +80,7 @@ Type::Type(const ClassId& pClassId, const Info& typeInfo)
   , params(typeInfo.params)
   , polymorphicDispatcher(typeInfo.polymorphicDispatcher)
   , interpretationMap(typeInfo.interpretationMap)
+  , parent(typeInfo.parent)
 {}
 
 const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<std::string>& names) const {
@@ -90,6 +91,17 @@ const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<s
     }
   }
   return nullptr;
+}
+
+bool Type::extends(const Type* other) const {
+  const Type* curr = this;
+  while(curr != nullptr) {
+    if(curr == other) {
+      return true;
+    }
+    curr = curr->parent;
+  }
+  return false;
 }
 
 }}}}

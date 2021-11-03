@@ -97,14 +97,22 @@ namespace __class {
 
 }
 
-BaseObject::Properties* DTO::Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties) {
-  properties->pushFrontAll(extensionProperties);
-  return properties;
+const mapping::type::Type* DTO::getParentType() {
+  return nullptr;
+}
+
+const char* DTO::Z__CLASS_TYPE_NAME() {
+  return "DTO";
 }
 
 oatpp::data::mapping::type::BaseObject::Properties* DTO::Z__CLASS_GET_FIELDS_MAP() {
   static data::mapping::type::BaseObject::Properties map;
   return &map;
+}
+
+BaseObject::Properties* DTO::Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties) {
+  properties->pushFrontAll(extensionProperties);
+  return properties;
 }
   
 }}}}

@@ -412,6 +412,14 @@ public:
      * Map of type Interpretations.
      */
     InterpretationMap interpretationMap;
+
+    /**
+     * Parent type. <br>
+     * Ex.: DTO super-class type. <br>
+     * **Note:** setting `parent` type also means that child object can be
+     * statically casted to parent type without any violations.
+     */
+    const Type* parent = nullptr;
   };
 
 public:
@@ -448,6 +456,14 @@ public:
    */
   const InterpretationMap interpretationMap;
 
+  /**
+   * Parent type. <br>
+   * Ex.: DTO super-class type. <br>
+   * **Note:** setting `parent` type also means that child object can be
+   * statically casted to parent type without any violations.
+   */
+  const Type* const parent;
+
 public:
 
   /**
@@ -457,6 +473,13 @@ public:
    * interpretations found.
    */
   const AbstractInterpretation* findInterpretation(const std::vector<std::string>& names) const;
+
+  /**
+   * Check if type extends other type.
+   * @param other
+   * @return
+   */
+  bool extends(const Type* other) const;
   
 };
 

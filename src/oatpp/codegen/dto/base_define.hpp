@@ -38,6 +38,11 @@ public: \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
   typedef oatpp::data::mapping::type::DTOWrapper<Z__CLASS> Wrapper; \
 private: \
+\
+  static const oatpp::Type* getParentType() { \
+    return oatpp::Object<Z__CLASS_EXTENDED>::Class::getType(); \
+  } \
+\
   static const char* Z__CLASS_TYPE_NAME() { \
     return #TYPE_NAME; \
   } \
@@ -46,6 +51,7 @@ private: \
     static oatpp::data::mapping::type::BaseObject::Properties map = oatpp::data::mapping::type::BaseObject::Properties(); \
     return &map; \
   } \
+\
 public: \
 \
   template<typename ... Args> \
