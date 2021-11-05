@@ -291,6 +291,9 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       } else if(error == WSAEINTR || error == WSAEALREADY) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+      } else if(error == WSAEINVAL) {
+         return AbstractCoroutine::error(new async::Error(
+                  "[oatpp::network::tcp::client::ConnectionProvider::doConnect()]: Error. The parameter m_clientHandle is a listening socket."));
       }
 
 #else
