@@ -46,7 +46,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type *getType() {
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -136,7 +136,7 @@ public:
 
     if(m_ptr) {
 
-      if(m_ptr->type != WrapperType::Class::getType()) {
+      if(!m_ptr->type->extends(WrapperType::Class::getType())) {
         throw std::runtime_error("[oatpp::data::mapping::type::Any::retrieve()]: Error. The value type doesn't match.");
       }
 

@@ -143,9 +143,10 @@ public:
 private:
 
   static Type createType() {
-    Type type(__class::AbstractUnorderedSet::CLASS_ID, nullptr, new PolymorphicDispatcher());
-    type.params.push_back(T::Class::getType());
-    return type;
+    Type::Info info;
+    info.params.push_back(T::Class::getType());
+    info.polymorphicDispatcher = new PolymorphicDispatcher();
+    return Type(__class::AbstractUnorderedSet::CLASS_ID, info);
   }
 
 public:

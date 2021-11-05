@@ -537,7 +537,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -548,7 +548,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -559,7 +559,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -570,7 +570,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -581,7 +581,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -592,7 +592,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -603,7 +603,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -614,7 +614,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -625,7 +625,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -636,7 +636,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -647,7 +647,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 
@@ -658,7 +658,7 @@ namespace __class {
     static const ClassId CLASS_ID;
 
     static Type* getType(){
-      static Type type(CLASS_ID, nullptr);
+      static Type type(CLASS_ID);
       return &type;
     }
 

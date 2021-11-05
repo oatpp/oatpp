@@ -311,10 +311,24 @@ void ObjectTest::onRun() {
   }
 
   {
+    OATPP_LOGI(TAG, "Test 9...");
     auto dto = DtoD::createShared();
     OATPP_ASSERT(dto->a.getValueType() == oatpp::Int32::Class::getType());
     OATPP_ASSERT(dto->a);
     OATPP_ASSERT(dto->a == 64);
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test 10...");
+    OATPP_ASSERT(oatpp::Object<DtoA>::Class::getType()->extends(oatpp::Object<oatpp::DTO>::Class::getType()))
+    OATPP_ASSERT(oatpp::Object<DtoA>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
+    OATPP_ASSERT(oatpp::Object<DtoB>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
+    OATPP_ASSERT(oatpp::Object<DtoB>::Class::getType()->extends(oatpp::Object<oatpp::DTO>::Class::getType()))
+    OATPP_ASSERT(oatpp::Object<DtoC>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
+    OATPP_ASSERT(oatpp::Object<DtoD>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
+    OATPP_ASSERT(!oatpp::Object<DtoC>::Class::getType()->extends(oatpp::Object<DtoB>::Class::getType()))
+    OATPP_LOGI(TAG, "OK");
   }
 
 }

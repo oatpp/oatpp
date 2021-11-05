@@ -68,11 +68,10 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
   const v_uint32 id = classId.id;
-  if(id < m_methods.size()) {
-    m_methods[id] = method;
-  } else {
-    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::setSerializerMethod()]: Error. Unknown classId");
+  if(id >= m_methods.size()) {
+    m_methods.resize(id + 1, nullptr);
   }
+  m_methods[id] = method;
 }
 
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {

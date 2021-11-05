@@ -219,14 +219,35 @@ namespace __class {
   private:
 
     static type::BaseObject::Properties* initProperties() {
-      T obj; // initializer;
+
+      /* initializer */
+      T obj;
+
+      /* init parent properties */
+      auto parentType = Object<typename T::Z__CLASS_EXTENDED>::getType();
+      if(parentType->parent != nullptr) {
+        auto dispatcher = static_cast<const AbstractObject::PolymorphicDispatcher*>(parentType->polymorphicDispatcher);
+        dispatcher->getProperties();
+      }
+
+      /* extend parent properties */
       T::Z__CLASS_EXTEND(T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), T::Z__CLASS_EXTENDED::Z__CLASS_GET_FIELDS_MAP());
+
       return T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP();
+
     }
 
     static const BaseObject::Properties* propertiesGetter() {
       static type::BaseObject::Properties* properties = initProperties();
       return properties;
+    }
+
+    static Type* createType() {
+      Type::Info info;
+      info.nameQualifier = T::Z__CLASS_TYPE_NAME();
+      info.polymorphicDispatcher = new PolymorphicDispatcher();
+      info.parent = T::getParentType();
+      return new Type(CLASS_ID, info);
     }
 
   public:
@@ -236,7 +257,7 @@ namespace __class {
      * @return - &id:oatpp::data::mapping::type::Type;
      */
     static Type* getType() {
-      static Type* type = new Type(CLASS_ID, T::Z__CLASS_TYPE_NAME(), new PolymorphicDispatcher());
+      static Type* type = createType();
       return type;
     }
     
@@ -300,6 +321,9 @@ public:
 class DTO : public BaseObject {
   template<class T>
   friend class __class::Object;
+private:
+  typedef DTO Z__CLASS;
+  typedef DTO Z__CLASS_EXTENDED;
 public:
   typedef oatpp::data::mapping::type::Void Void;
   typedef oatpp::data::mapping::type::Any Any;
@@ -338,10 +362,10 @@ public:
   using UnorderedFields = oatpp::data::mapping::type::UnorderedMap<String, Value>;
 
 private:
-  
-  static BaseObject::Properties* Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties);
+  static const mapping::type::Type* getParentType();
+  static const char* Z__CLASS_TYPE_NAME();
   static data::mapping::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP();
-  
+  static BaseObject::Properties* Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties);
 public:
 
   virtual v_uint64 defaultHashCode() const {
