@@ -76,23 +76,23 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 
   switch (priority) {
     case PRIORITY_V:
-      std::cout << "\033[0;0m V \033[0m|";
+      std::cout << "\033[0m V \033[0m|";
       break;
 
     case PRIORITY_D:
-      std::cout << "\033[34;0m D \033[0m|";
+      std::cout << "\033[34m D \033[0m|";
       break;
 
     case PRIORITY_I:
-      std::cout << "\033[32;0m I \033[0m|";
+      std::cout << "\033[32m I \033[0m|";
       break;
 
     case PRIORITY_W:
-      std::cout << "\033[45;0m W \033[0m|";
+      std::cout << "\033[45m W \033[0m|";
       break;
 
     case PRIORITY_E:
-      std::cout << "\033[41;0m E \033[0m|";
+      std::cout << "\033[41m E \033[0m|";
       break;
 
     default:
