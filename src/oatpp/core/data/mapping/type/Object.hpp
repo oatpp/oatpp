@@ -219,9 +219,22 @@ namespace __class {
   private:
 
     static type::BaseObject::Properties* initProperties() {
-      T obj; // initializer;
+
+      /* initializer */
+      T obj;
+
+      /* init parent properties */
+      auto parentType = Object<typename T::Z__CLASS_EXTENDED>::getType();
+      if(parentType->parent != nullptr) {
+        auto dispatcher = static_cast<const AbstractObject::PolymorphicDispatcher*>(parentType->polymorphicDispatcher);
+        dispatcher->getProperties();
+      }
+
+      /* extend parent properties */
       T::Z__CLASS_EXTEND(T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP(), T::Z__CLASS_EXTENDED::Z__CLASS_GET_FIELDS_MAP());
+
       return T::Z__CLASS::Z__CLASS_GET_FIELDS_MAP();
+
     }
 
     static const BaseObject::Properties* propertiesGetter() {
