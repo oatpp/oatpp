@@ -280,7 +280,7 @@ public:
    */
   template<class OtherInter>
   EnumObjectWrapper(const EnumObjectWrapper<T, OtherInter>& other)
-    : type::ObjectWrapper<T, EnumObjectClass>(other.getPtr())
+    : type::ObjectWrapper<T, EnumObjectClass>(other.m_ptr)
   {}
 
   /**
@@ -290,7 +290,7 @@ public:
    */
   template<class OtherInter>
   EnumObjectWrapper(EnumObjectWrapper<T, OtherInter>&& other)
-    : type::ObjectWrapper<T, EnumObjectClass>(std::move(other.getPtr()))
+    : type::ObjectWrapper<T, EnumObjectClass>(std::move(other.m_ptr))
   {}
 
   inline EnumObjectWrapper& operator = (std::nullptr_t) {
@@ -306,7 +306,7 @@ public:
 
   template<class OtherInter>
   inline EnumObjectWrapper& operator = (EnumObjectWrapper<T, OtherInter>&& other) {
-    this->m_ptr = std::forward<std::shared_ptr<T>>(other.m_ptr);
+    this->m_ptr = std::move(other.m_ptr);
     return *this;
   }
 

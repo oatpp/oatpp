@@ -84,7 +84,8 @@ static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */)
 } \
 \
 static TYPE Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
-  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
+  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */,           \
+                                                    1 /* init type selector if found */); \
   (void)initialized; \
   return TYPE(); \
 } \
@@ -114,7 +115,8 @@ static bool Z__PROPERTY_INIT_##NAME(... /* default initializer for all cases */)
 } \
 \
 static TYPE Z__PROPERTY_INITIALIZER_PROXY_##NAME() { \
-  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */); \
+  static bool initialized = Z__PROPERTY_INIT_##NAME(1 /* init info if found */,           \
+                                                    1 /* init type selector if found */); \
   (void)initialized; \
   return TYPE(); \
 } \
@@ -134,13 +136,31 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_DTO_FIELD_, (__VA_ARGS
 
 #define DTO_FIELD_INFO(NAME) \
 \
-static bool Z__PROPERTY_INIT_##NAME(int) { \
+static bool Z__PROPERTY_INIT_##NAME(int, ...) { \
   Z__PROPERTY_INIT_##NAME(); /* call first initialization */ \
   Z__PROPERTY_ADD_INFO_##NAME(&Z__PROPERTY_SINGLETON_##NAME()->info); \
   return true; \
 } \
 \
 static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::BaseObject::Property::Info* info)
+
+
+#define DTO_FIELD_TYPE_SELECTOR(NAME) \
+\
+class Z__PROPERTY_TYPE_SELECTOR_##NAME : public oatpp::BaseObject::Property::TypeSelector { \
+public: \
+  const oatpp::Type* selectType(oatpp::BaseObject *self) override { \
+    return Z__PROPERTY_TYPE_SELECTOR_METHOD_##NAME(static_cast<Z__CLASS*>(self)); \
+  } \
+}; \
+\
+static bool Z__PROPERTY_INIT_##NAME(int, int) { \
+  Z__PROPERTY_INIT_##NAME(1); /* call property info initialization */ \
+  Z__PROPERTY_SINGLETON_##NAME()->info.typeSelector = new Z__PROPERTY_TYPE_SELECTOR_##NAME(); \
+  return true; \
+} \
+\
+static oatpp::Type* Z__PROPERTY_TYPE_SELECTOR_METHOD_##NAME(Z__CLASS* self)
 
 // FOR EACH
 

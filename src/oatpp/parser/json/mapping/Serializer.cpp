@@ -158,7 +158,13 @@ void Serializer::serializeObject(Serializer* serializer,
 
   for (auto const& field : fields) {
 
-    auto value = field->get(object);
+    oatpp::Void value;
+    if(field->info.typeSelector) {
+      value = oatpp::Void(field->get(object).getPtr(), field->info.typeSelector->selectType(object));
+    } else {
+      value = field->get(object);
+    }
+
     if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);

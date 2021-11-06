@@ -56,15 +56,47 @@ public:
   public:
 
     /**
+     * Property Type Selector.
+     */
+    class TypeSelector {
+    public:
+
+      /**
+       * Select property type.
+       * @param self - pointer to `this` object.
+       * @return - &id:oatpp::Type;.
+       */
+      virtual const type::Type* selectType(BaseObject* self) = 0;
+    };
+
+  public:
+
+    /**
      * Editional Info about Property.
      */
     struct Info {
+
       /**
        * Description.
        */
       std::string description = "";
+
+      /**
+       * Pattern.
+       */
       std::string pattern = "";
+
+      /**
+       * Required.
+       */
       bool required = false;
+
+      /**
+       * Type selector.
+       * &l:Property::TypeSelector;.
+       */
+      TypeSelector* typeSelector = nullptr;
+
     };
 
   private:
@@ -271,6 +303,8 @@ namespace __class {
  */
 template<class ObjT>
 class DTOWrapper : public ObjectWrapper<ObjT, __class::Object<ObjT>> {
+  template<class Type>
+  friend class DTOWrapper;
 public:
   typedef ObjT TemplateObjectType;
   typedef __class::Object<ObjT> TemplateObjectClass;
@@ -278,8 +312,30 @@ public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)
 
+  template<class OtherT>
+  DTOWrapper(const OtherT& other)
+    : type::ObjectWrapper<ObjT, __class::Object<ObjT>>(other.m_ptr)
+  {}
+
+  template<class OtherT>
+  DTOWrapper(OtherT&& other)
+    : type::ObjectWrapper<ObjT, __class::Object<ObjT>>(std::move(other.m_ptr))
+  {}
+
   static DTOWrapper createShared() {
     return std::make_shared<TemplateObjectType>();
+  }
+
+  template<class T>
+  DTOWrapper& operator = (const DTOWrapper<T>& other) {
+    this->m_ptr = other.m_ptr;
+    return *this;
+  }
+
+  template<class T>
+  DTOWrapper& operator = (DTOWrapper<T>&& other) {
+    this->m_ptr = std::move(other.m_ptr);
+    return *this;
   }
 
   template<typename T,
@@ -310,6 +366,31 @@ public:
   >
   inline bool operator != (const T &other) const {
     return !operator == (other);
+  }
+
+  static const std::unordered_map<std::string, BaseObject::Property*>& getPropertiesMap() {
+    auto dispatcher = static_cast<const __class::AbstractObject::PolymorphicDispatcher*>(
+      __class::Object<ObjT>::getType()->polymorphicDispatcher
+    );
+    return dispatcher->getProperties()->getMap();
+  }
+
+  static const std::list<BaseObject::Property*>& getPropertiesList() {
+    auto dispatcher = static_cast<const __class::AbstractObject::PolymorphicDispatcher*>(
+      __class::Object<ObjT>::getType()->polymorphicDispatcher
+    );
+    return dispatcher->getProperties()->getList();
+  }
+
+  static v_int64 getPropertiesCount() {
+    auto dispatcher = static_cast<const __class::AbstractObject::PolymorphicDispatcher*>(
+      __class::Object<ObjT>::getType()->polymorphicDispatcher
+    );
+    return dispatcher->getProperties()->getList().size();
+  }
+
+  ObjectWrapper<void>& operator[](const std::string& propertyName) {
+    return getPropertiesMap().at(propertyName)->getAsRef(this->m_ptr.get());
   }
 
 };

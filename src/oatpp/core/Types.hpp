@@ -40,6 +40,12 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::ClassId ClassId;
 
   /**
+   * ObjectWrapper.
+   */
+  template <class T, class Clazz = oatpp::data::mapping::type::__class::Void>
+  using ObjectWrapper = oatpp::data::mapping::type::ObjectWrapper<T, Clazz>;
+
+  /**
    * ObjectWrapper over the `void*`.
    */
   typedef oatpp::data::mapping::type::Void Void;

@@ -36,6 +36,10 @@
 
 #undef DTO_FIELD_INFO
 
+// Type Selector
+
+#undef DTO_FIELD_TYPE_SELECTOR
+
 // Hashcode & Equals
 
 #undef OATPP_MACRO_DTO_HC_EQ_PARAM_HC

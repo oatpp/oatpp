@@ -119,6 +119,10 @@ class Void; // FWD
 template <class T, class Clazz = __class::Void>
 class ObjectWrapper {
   friend Void;
+  template <class Q, class W>
+  friend class ObjectWrapper;
+protected:
+  static void checkType(const Type* _this, const Type* other);
 protected:
   std::shared_ptr<T> m_ptr;
   const Type* m_valueType;
@@ -174,12 +178,40 @@ public:
     , m_valueType(other.m_valueType)
   {}
 
+  template <class Q, class W>
+  ObjectWrapper(const ObjectWrapper<Q, W>& other)
+    : m_ptr(other.m_ptr)
+    , m_valueType(other.m_valueType)
+  {}
+
+  template <class Q, class W>
+  ObjectWrapper(ObjectWrapper<Q, W>&& other)
+    : m_ptr(std::move(other.m_ptr))
+    , m_valueType(other.m_valueType)
+  {}
+
   inline ObjectWrapper& operator=(const ObjectWrapper& other){
+    checkType(m_valueType, other.m_valueType);
     m_ptr = other.m_ptr;
     return *this;
   }
 
   inline ObjectWrapper& operator=(ObjectWrapper&& other){
+    checkType(m_valueType, other.m_valueType);
+    m_ptr = std::move(other.m_ptr);
+    return *this;
+  }
+
+  template <class Q, class W>
+  inline ObjectWrapper& operator=(const ObjectWrapper<Q, W>& other){
+    checkType(m_valueType, other.m_valueType);
+    m_ptr = other.m_ptr;
+    return *this;
+  }
+
+  template <class Q, class W>
+  inline ObjectWrapper& operator=(ObjectWrapper<Q, W>&& other){
+    checkType(m_valueType, other.m_valueType);
     m_ptr = std::move(other.m_ptr);
     return *this;
   }
@@ -197,7 +229,7 @@ public:
     return m_ptr.get();
   }
   
-  void setPtr(const std::shared_ptr<T>& ptr) {
+  void resetPtr(const std::shared_ptr<T>& ptr = nullptr) {
     m_ptr = ptr;
   }
   
@@ -261,6 +293,14 @@ public:
     : type::ObjectWrapper<void, __class::Void>(std::forward<std::shared_ptr<void>>(ptr))
   {}
 
+  Void(const Void& other)
+    : type::ObjectWrapper<void, __class::Void>(other.getPtr(), other.getValueType())
+  {}
+
+  Void(Void&& other)
+    : type::ObjectWrapper<void, __class::Void>(std::move(other.getPtr()), other.getValueType())
+  {}
+
   template<typename T, typename C>
   Void(const ObjectWrapper<T, C>& other)
     : type::ObjectWrapper<void, __class::Void>(other.getPtr(), other.getValueType())
@@ -276,6 +316,18 @@ public:
   >
   inline Void& operator = (std::nullptr_t) {
     m_ptr.reset();
+    return *this;
+  }
+
+  inline Void& operator = (const Void& other){
+    m_ptr = other.m_ptr;
+    m_valueType = other.getValueType();
+    return *this;
+  }
+
+  inline Void& operator = (Void&& other){
+    m_ptr = std::move(other.m_ptr);
+    m_valueType = other.getValueType();
     return *this;
   }
 
@@ -483,6 +535,15 @@ public:
   
 };
 
+template <class T, class Clazz>
+void ObjectWrapper<T, Clazz>::checkType(const Type* _this, const Type* other) {
+  if(!_this->extends(other)) {
+    throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper::checkType()]: Error. "
+                             "Type mismatch: stored '" + std::string(_this->classId.name) + "' vs "
+                             "assigned '" + std::string(other->classId.name) + "'.");
+  }
+}
+
 #define OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(WRAPPER_NAME, OBJECT_TYPE, OBJECT_CLASS) \
 public: \
   WRAPPER_NAME(const std::shared_ptr<OBJECT_TYPE>& ptr, const type::Type* const valueType) \
@@ -521,7 +582,7 @@ public: \
   } \
 \
   inline WRAPPER_NAME& operator = (WRAPPER_NAME&& other) { \
-    this->m_ptr = std::forward<std::shared_ptr<OBJECT_TYPE>>(other.m_ptr); \
+    this->m_ptr = std::move(other.m_ptr); \
     return *this; \
   } \
 

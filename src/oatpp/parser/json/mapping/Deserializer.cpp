@@ -301,6 +301,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
     caret.skipBlankChars();
 
+    std::vector<std::pair<oatpp::BaseObject::Property*, oatpp::String>> polymorphs;
     while (!caret.isAtChar('}') && caret.canContinue()) {
 
       caret.skipBlankChars();
@@ -321,7 +322,14 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         caret.skipBlankChars();
 
         auto field = fieldIterator->second;
-        field->set(static_cast<oatpp::BaseObject*>(object.get()), deserializer->deserialize(caret, field->type));
+
+        if(field->info.typeSelector) {
+          auto label = caret.putLabel();
+          skipValue(caret);
+          polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
+        } else {
+          field->set(static_cast<oatpp::BaseObject *>(object.get()), deserializer->deserialize(caret, field->type));
+        }
 
       } else if (deserializer->getConfig()->allowUnknownFields) {
         caret.skipBlankChars();
@@ -346,6 +354,13 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
       }
       return nullptr;
+    }
+
+    for(auto& p : polymorphs) {
+      parser::Caret polyCaret(p.second);
+      auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
+      auto value = deserializer->deserialize(polyCaret, selectedType);
+      p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(value.getPtr(), p.first->type));
     }
 
     return object;
