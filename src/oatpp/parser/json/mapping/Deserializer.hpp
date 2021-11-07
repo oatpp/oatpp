@@ -164,53 +164,6 @@ private:
   }
 
   template<class Collection>
-  static oatpp::Void deserializeList(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
-
-    if(caret.isAtText("null", true)){
-      return oatpp::Void(type);
-    }
-
-    if(caret.canContinueAtChar('[', 1)) {
-
-      auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
-      auto listWrapper = polymorphicDispatcher->createObject();
-      const auto& list = listWrapper.template staticCast<Collection>();
-
-      auto itemType = *type->params.begin();
-
-      caret.skipBlankChars();
-
-      while(!caret.isAtChar(']') && caret.canContinue()){
-
-        caret.skipBlankChars();
-        auto item = deserializer->deserialize(caret, itemType);
-        if(caret.hasError()){
-          return nullptr;
-        }
-
-        polymorphicDispatcher->addPolymorphicItem(listWrapper, item);
-        caret.skipBlankChars();
-
-        caret.canContinueAtChar(',', 1);
-
-      }
-
-      if(!caret.canContinueAtChar(']', 1)){
-        if(!caret.hasError()){
-          caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeList()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
-        }
-        return nullptr;
-      };
-
-      return oatpp::Void(list.getPtr(), list.getValueType());
-    } else {
-      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeList()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
-      return nullptr;
-    }
-
-  }
-
-  template<class Collection>
   static oatpp::Void deserializeKeyValue(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
     if(caret.isAtText("null", true)){
@@ -221,7 +174,7 @@ private:
 
       auto polymorphicDispatcher = static_cast<const typename Collection::Class::PolymorphicDispatcher*>(type->polymorphicDispatcher);
       auto mapWrapper = polymorphicDispatcher->createObject();
-      const auto& map = mapWrapper.template staticCast<Collection>();
+      const auto& map = mapWrapper.template cast<Collection>();
 
       auto it = type->params.begin();
       auto keyType = *it ++;
@@ -282,6 +235,10 @@ private:
   static oatpp::Void deserializeString(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeAny(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
   static oatpp::Void deserializeEnum(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+
+  static oatpp::Void deserializeCollection(Deserializer* deserializer, parser::Caret& caret, const Type* type);
+  static oatpp::Void deserializeMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
+
   static oatpp::Void deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type);
 
 private:

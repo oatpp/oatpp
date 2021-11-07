@@ -472,7 +472,7 @@ Void EnumInterpreterAsString<T, notnull>::toInterpretation(const Void& enumValue
     return Void(nullptr, String::Class::getType());
   }
 
-  const auto& ow = enumValue.staticCast<EnumOW>();
+  const auto& ow = enumValue.template cast<EnumOW>();
   const auto& entry = EnumOW::getEntryByValue(*ow);
   return entry.name.toString();
 }
@@ -495,7 +495,7 @@ Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interVa
   }
 
   try {
-    const auto &entry = EnumOW::getEntryByName(interValue.staticCast<String>());
+    const auto &entry = EnumOW::getEntryByName(interValue.template cast<String>());
     return EnumOW(entry.value);
   } catch (const std::runtime_error&) { // TODO - add a specific error for this.
     error = EnumInterpreterError::ENTRY_NOT_FOUND;
@@ -528,7 +528,7 @@ Void EnumInterpreterAsNumber<T, notnull>::toInterpretation(const Void& enumValue
     return Void(nullptr, UTOW::Class::getType());
   }
 
-  const auto& ow = enumValue.staticCast<EnumOW>();
+  const auto& ow = enumValue.template cast<EnumOW>();
   return UTOW(static_cast<EnumUT>(*ow));
 
 }
@@ -555,7 +555,7 @@ Void EnumInterpreterAsNumber<T, notnull>::fromInterpretation(const Void& interVa
 
   try{
     const auto& entry = EnumOW::getEntryByUnderlyingValue(
-      interValue.staticCast<OW>()
+      interValue.template cast<OW>()
     );
     return EnumOW(entry.value);
   } catch (const std::runtime_error&) { // TODO - add a specific error for this.

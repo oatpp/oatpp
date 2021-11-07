@@ -187,7 +187,7 @@ namespace oatpp {
   /**
    * Abstract Fields
    */
-  typedef data::mapping::type::PairListObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractPairList> AbstractFields;
+  typedef Fields<oatpp::Void> AbstractFields;
 
   /**
    * Mapping-Enabled UnorderedMap<Key, Value>. &id:oatpp::data::mapping::type::UnorderedMap;.
@@ -204,7 +204,7 @@ namespace oatpp {
   /**
    * Abstract UnorderedFields
    */
-  typedef data::mapping::type::UnorderedMapObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractUnorderedMap> AbstractUnorderedFields;
+  typedef UnorderedFields<oatpp::Void> AbstractUnorderedFields;
   
 }
 

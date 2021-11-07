@@ -120,15 +120,15 @@ void UnorderedSetTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::UnorderedSet<oatpp::String> set = {"a", "b", "c"};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedSet<oatpp::String>::Class::PolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const typename oatpp::data::mapping::type::__class::Collection::PolymorphicDispatcher*>(
       set.getValueType()->polymorphicDispatcher
     );
 
-    polymorphicDispatcher->addPolymorphicItem(set, oatpp::String("a"));
-    polymorphicDispatcher->addPolymorphicItem(set, oatpp::String("b"));
-    polymorphicDispatcher->addPolymorphicItem(set, oatpp::String("c"));
+    polymorphicDispatcher->addItem(set, oatpp::String("a"));
+    polymorphicDispatcher->addItem(set, oatpp::String("b"));
+    polymorphicDispatcher->addItem(set, oatpp::String("c"));
 
-    polymorphicDispatcher->addPolymorphicItem(set, oatpp::String("d"));
+    polymorphicDispatcher->addItem(set, oatpp::String("d"));
 
     OATPP_ASSERT(set->size() == 4);
 

@@ -140,11 +140,11 @@ void ListTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::List<oatpp::String> list = {"a", "b", "c"};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::List<oatpp::String>::Class::PolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const oatpp::data::mapping::type::__class::Collection::PolymorphicDispatcher*>(
       list.getValueType()->polymorphicDispatcher
     );
 
-    polymorphicDispatcher->addPolymorphicItem(list, oatpp::String("d"));
+    polymorphicDispatcher->addItem(list, oatpp::String("d"));
 
     OATPP_ASSERT(list->size() == 4);
 

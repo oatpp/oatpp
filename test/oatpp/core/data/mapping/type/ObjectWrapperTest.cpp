@@ -83,8 +83,14 @@ void ObjectWrapperTest::onRun() {
     OATPP_LOGI(TAG, "Check valueType is NOT assigned from copy-assign operator...");
     ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
     ObjectWrapper<std::string> pw2;
-    pw2 = pw1;
+    bool throws = false;
+    try {
+      pw2 = pw1;
+    } catch (std::runtime_error& e) {
+      throws = true;
+    }
     OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(throws)
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -92,8 +98,14 @@ void ObjectWrapperTest::onRun() {
     OATPP_LOGI(TAG, "Check valueType is NOT assigned from move-assign operator...");
     ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
     ObjectWrapper<std::string> pw2;
-    pw2 = std::move(pw1);
+    bool throws = false;
+    try {
+      pw2 = std::move(pw1);
+    } catch (std::runtime_error& e) {
+      throws = true;
+    }
     OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(throws)
     OATPP_LOGI(TAG, "OK");
   }
 
@@ -176,7 +188,7 @@ void ObjectWrapperTest::onRun() {
 
     OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
 
-    oatpp::Int32 i = v.staticCast<oatpp::Int32>();
+    oatpp::Int32 i = v.cast<oatpp::Int32>();
 
     OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
     OATPP_ASSERT(i == 32);

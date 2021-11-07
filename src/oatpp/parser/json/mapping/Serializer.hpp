@@ -132,58 +132,6 @@ private:
       stream->writeSimple("null", 4);
     }
   }
-
-  template<class Collection>
-  static void serializeList(Serializer* serializer, data::stream::ConsistentOutputStream* stream, const oatpp::Void& polymorph) {
-
-    if(!polymorph) {
-      stream->writeSimple("null", 4);
-      return;
-    }
-
-    const auto& list = polymorph.staticCast<Collection>();
-
-    stream->writeCharSimple('[');
-    bool first = true;
-
-    for(auto& value : *list) {
-      if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeNullCollectionElements) {
-        (first) ? first = false : stream->writeSimple(",", 1);
-        serializer->serialize(stream, value);
-      }
-    }
-
-    stream->writeCharSimple(']');
-
-  }
-
-  template<class Collection>
-  static void serializeKeyValue(Serializer* serializer, data::stream::ConsistentOutputStream* stream, const oatpp::Void& polymorph) {
-
-    if(!polymorph) {
-      stream->writeSimple("null", 4);
-      return;
-    }
-
-    const auto& map = polymorph.staticCast<Collection>();
-
-    stream->writeCharSimple('{');
-    bool first = true;
-
-    for(auto& pair : *map) {
-      const auto& value = pair.second;
-      if(value || serializer->m_config->includeNullFields || serializer->m_config->alwaysIncludeNullCollectionElements) {
-        (first) ? first = false : stream->writeSimple(",", 1);
-        const auto& key = pair.first;
-        serializeString(stream, key->data(), key->size(), serializer->m_config->escapeFlags);
-        stream->writeSimple(":", 1);
-        serializer->serialize(stream, value);
-      }
-    }
-
-    stream->writeCharSimple('}');
-
-  }
   
   static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream,
                               const char* data,
@@ -201,6 +149,14 @@ private:
   static void serializeEnum(Serializer* serializer,
                             data::stream::ConsistentOutputStream* stream,
                             const oatpp::Void& polymorph);
+
+  static void serializeCollection(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const oatpp::Void& polymorph);
+
+  static void serializeMap(Serializer* serializer,
+                           data::stream::ConsistentOutputStream* stream,
+                           const oatpp::Void& polymorph);
 
   static void serializeObject(Serializer* serializer,
                               data::stream::ConsistentOutputStream* stream,

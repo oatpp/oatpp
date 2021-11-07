@@ -81,6 +81,8 @@ Type::Type(const ClassId& pClassId, const Info& typeInfo)
   , polymorphicDispatcher(typeInfo.polymorphicDispatcher)
   , interpretationMap(typeInfo.interpretationMap)
   , parent(typeInfo.parent)
+  , isCollection(typeInfo.isCollection)
+  , isMap(typeInfo.isMap)
 {}
 
 const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<std::string>& names) const {

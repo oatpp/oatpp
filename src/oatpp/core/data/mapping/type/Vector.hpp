@@ -25,6 +25,7 @@
 #ifndef oatpp_data_mapping_type_Vector_hpp
 #define oatpp_data_mapping_type_Vector_hpp
 
+#include "./Collection.hpp"
 #include "./Type.hpp"
 
 #include <vector>
@@ -43,26 +44,6 @@ namespace __class {
      * Class Id.
      */
     static const ClassId CLASS_ID;
-  public:
-
-    /**
-     * Polymorphic Dispatcher.
-     */
-    class PolymorphicDispatcher {
-    public:
-
-      virtual ~PolymorphicDispatcher() = default;
-
-      virtual type::Void createObject() const = 0;
-
-      /**
-       * Add Item.
-       * @param object - Vector.
-       * @param item - Item to add.
-       */
-      virtual void addPolymorphicItem(const type::Void& object, const type::Void& item) const = 0;
-    };
-
   };
 
   template<class T>
@@ -113,35 +94,19 @@ public:
 template<class T>
 using Vector = VectorObjectWrapper<T, __class::Vector<T>>;
 
-typedef VectorObjectWrapper<type::Void, __class::AbstractVector> AbstractVector;
+typedef Vector<Void> AbstractVector;
 
 namespace __class {
 
   template<class T>
   class Vector : public AbstractVector {
-  public:
-
-    class PolymorphicDispatcher : public AbstractVector::PolymorphicDispatcher {
-    public:
-
-      type::Void createObject() const override {
-        return type::Void(std::make_shared<std::vector<T>>(), getType());
-      }
-
-      void addPolymorphicItem(const type::Void& object, const type::Void& item) const override {
-        const auto& vector = object.staticCast<type::Vector<T>>();
-        const auto& vectorItem = item.staticCast<T>();
-        vector->push_back(vectorItem);
-      }
-
-    };
-
   private:
 
     static Type createType() {
       Type::Info info;
       info.params.push_back(T::Class::getType());
-      info.polymorphicDispatcher = new PolymorphicDispatcher();
+      info.polymorphicDispatcher = new typename StandardCollection<std::vector<T>, T, Vector>::PolymorphicDispatcher();
+      info.isCollection = true;
       return Type(__class::AbstractVector::CLASS_ID, info);
     }
 

@@ -217,9 +217,7 @@ public:
   }
 
   template<class Wrapper>
-  Wrapper staticCast() const {
-    return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), m_valueType);
-  }
+  Wrapper cast() const;
 
   inline T* operator->() const {
     return m_ptr.operator->();
@@ -413,11 +411,11 @@ public:
   public:
 
     Void toInterpretation(const Void& originalValue) const override {
-      return interpret(originalValue.staticCast<OriginalWrapper>());
+      return interpret(originalValue.template cast<OriginalWrapper>());
     }
 
     Void fromInterpretation(const Void& interValue) const override {
-      return reproduce(interValue.staticCast<InterWrapper>());
+      return reproduce(interValue.template cast<InterWrapper>());
     }
 
     const Type* getInterpretationType() const override {
@@ -472,6 +470,16 @@ public:
      * statically casted to parent type without any violations.
      */
     const Type* parent = nullptr;
+
+    /**
+     * polymorphicDispatcher extends &id:oatpp::data::mapping::type::__class::Collection::PolymorphicDispatcher;.
+     */
+     bool isCollection = false;
+
+    /**
+     * polymorphicDispatcher extends &id:oatpp::data::mapping::type::__class::Map::PolymorphicDispatcher;.
+     */
+     bool isMap = false;
   };
 
 public:
@@ -516,6 +524,16 @@ public:
    */
   const Type* const parent;
 
+  /**
+   * polymorphicDispatcher extends &id:oatpp::data::mapping::type::__class::Collection::PolymorphicDispatcher;.
+   */
+  const bool isCollection;
+
+  /**
+   * polymorphicDispatcher extends &id:oatpp::data::mapping::type::__class::Map::PolymorphicDispatcher;.
+   */
+  const bool isMap;
+
 public:
 
   /**
@@ -534,6 +552,19 @@ public:
   bool extends(const Type* other) const;
   
 };
+
+template <class T, class Clazz>
+template<class Wrapper>
+Wrapper ObjectWrapper<T, Clazz>::cast() const {
+  if(!Wrapper::Class::getType()->extends(m_valueType)) {
+    if(Wrapper::Class::getType() != __class::Void::getType() && m_valueType != __class::Void::getType()) {
+      throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper::cast()]: Error. Invalid cast "
+                               "from '" + std::string(m_valueType->classId.name) + "' to '" +
+                               std::string(Wrapper::Class::getType()->classId.name) + "'.");
+    }
+  }
+  return Wrapper(std::static_pointer_cast<typename Wrapper::ObjectType>(m_ptr), Wrapper::Class::getType());
+}
 
 template <class T, class Clazz>
 void ObjectWrapper<T, Clazz>::checkType(const Type* _this, const Type* other) {

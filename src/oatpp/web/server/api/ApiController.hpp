@@ -562,7 +562,7 @@ struct ApiController::TypeInterpretation <data::mapping::type::EnumObjectWrapper
       data::mapping::type::EnumInterpreterError error = data::mapping::type::EnumInterpreterError::OK;
       const auto& result = I::fromInterpretation(parsedValue, error);
       if(error == data::mapping::type::EnumInterpreterError::OK) {
-        return result.template staticCast<EnumOW>();
+        return result.template cast<EnumOW>();
       }
       success = false;
     }

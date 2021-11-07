@@ -25,6 +25,7 @@
 #ifndef oatpp_data_mapping_type_PairList_hpp
 #define oatpp_data_mapping_type_PairList_hpp
 
+#include "./Map.hpp"
 #include "./Type.hpp"
 
 #include <list>
@@ -44,27 +45,6 @@ namespace __class {
      * Class id.
      */
     static const ClassId CLASS_ID;
-  public:
-
-    /**
-     * Polymorphic Dispatcher.
-     */
-    class PolymorphicDispatcher {
-    public:
-
-      virtual ~PolymorphicDispatcher() = default;
-
-      virtual type::Void createObject() const = 0;
-
-      /**
-       * Add key-value pair to pair-list.
-       * @param object - pair list.
-       * @param key - key.
-       * @param value - value.
-       */
-      virtual void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const = 0;
-    };
-
   };
 
   template<class Key, class Value>
@@ -147,31 +127,15 @@ namespace __class {
 
 template<class Key, class Value>
 class PairList : public AbstractPairList {
-public:
-
-  class PolymorphicDispatcher : public AbstractPairList::PolymorphicDispatcher {
-  public:
-
-    type::Void createObject() const override {
-      return type::Void(std::make_shared<std::list<std::pair<Key, Value>>>(), getType());
-    }
-
-    void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
-      const auto& map = object.staticCast<type::PairList<Key, Value>>();
-      const auto& k = key.staticCast<Key>();
-      const auto& v = value.staticCast<Value>();
-      map->push_back({k, v});
-    }
-
-  };
-
 private:
 
   static Type createType() {
     Type::Info info;
     info.params.push_back(Key::Class::getType());
     info.params.push_back(Value::Class::getType());
-    info.polymorphicDispatcher = new PolymorphicDispatcher();
+    info.polymorphicDispatcher = info.polymorphicDispatcher =
+      new typename __class::StandardMap<std::list<std::pair<Key, Value>>, Key, Value, PairList>::PolymorphicDispatcher();
+    info.isMap = true;
     return Type(__class::AbstractPairList::CLASS_ID, info);
   }
 

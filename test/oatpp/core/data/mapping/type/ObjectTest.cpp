@@ -146,6 +146,21 @@ class PolymorphicDto2 : public oatpp::DTO {
 
 };
 
+class PolymorphicDto3 : public oatpp::DTO {
+
+  DTO_INIT(PolymorphicDto3, DTO)
+
+  DTO_FIELD(String, type);
+  DTO_FIELD(Void, polymorph);
+
+  DTO_FIELD_TYPE_SELECTOR(polymorph) {
+    if(self->type == "str") return String::Class::getType();
+    if(self->type == "int") return Int32::Class::getType();
+    return Void::Class::getType();
+  }
+
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 void runDtoInitializations() {
@@ -484,9 +499,41 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(dtoClone->polymorph)
     OATPP_ASSERT(dtoClone->polymorph.getValueType() == oatpp::Object<oatpp::DTO>::Class::getType())
 
-    auto polymorphClone = dtoClone->polymorph.staticCast<oatpp::Object<DtoTypeA>>();
+    auto polymorphClone = dtoClone->polymorph.cast<oatpp::Object<DtoTypeA>>();
 
     OATPP_ASSERT(polymorphClone->fieldA == "type-A")
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test 17...");
+
+    oatpp::parser::json::mapping::ObjectMapper mapper;
+
+    auto dto = PolymorphicDto3::createShared();
+
+    dto->type = "str";
+    dto->polymorph = oatpp::String("Hello World!");
+
+    OATPP_ASSERT(dto->polymorph.getValueType() == oatpp::String::Class::getType())
+
+    auto json = mapper.writeToString(dto);
+    OATPP_LOGD(TAG, "json0='%s'", json->c_str())
+
+    auto dtoClone = mapper.readFromString<oatpp::Object<PolymorphicDto3>>(json);
+
+    auto jsonClone = mapper.writeToString(dtoClone);
+    OATPP_LOGD(TAG, "json1='%s'", jsonClone->c_str())
+
+    OATPP_ASSERT(json == jsonClone)
+
+    OATPP_ASSERT(dtoClone->polymorph)
+    OATPP_ASSERT(dtoClone->polymorph.getValueType() == oatpp::Void::Class::getType())
+
+    auto polymorphClone = dtoClone->polymorph.cast<oatpp::String>();
+
+    OATPP_ASSERT(polymorphClone == "Hello World!")
 
     OATPP_LOGI(TAG, "OK");
   }

@@ -144,11 +144,11 @@ void UnorderedMapTest::onRun() {
     OATPP_LOGI(TAG, "test polymorphicDispatcher...");
     oatpp::UnorderedFields<String> map = {{"key1", "a"}, {"key2", "b"}, {"key3", "c"}};
 
-    auto polymorphicDispatcher = static_cast<const typename oatpp::UnorderedFields<String>::Class::PolymorphicDispatcher*>(
+    auto polymorphicDispatcher = static_cast<const typename oatpp::data::mapping::type::__class::Map::PolymorphicDispatcher*>(
       map.getValueType()->polymorphicDispatcher
     );
 
-    polymorphicDispatcher->addPolymorphicItem(map, oatpp::String("key1"), oatpp::String("d"));
+    polymorphicDispatcher->addItem(map, oatpp::String("key1"), oatpp::String("d"));
 
     OATPP_ASSERT(map->size() == 3);
 
