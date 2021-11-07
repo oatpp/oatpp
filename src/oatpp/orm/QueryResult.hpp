@@ -94,7 +94,7 @@ public:
    */
   template<class Wrapper>
   Wrapper fetch(v_int64 count = -1) {
-    return fetch(Wrapper::Class::getType(), count).template staticCast<Wrapper>();
+    return fetch(Wrapper::Class::getType(), count).template cast<Wrapper>();
   }
 
 };

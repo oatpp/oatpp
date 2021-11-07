@@ -214,7 +214,7 @@ void InterpretationTest::onRun() {
     auto v = tr.resolveObjectPropertyValue(l, {"p1", "x"}, cache);
     OATPP_ASSERT(v);
     OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 1);
+    OATPP_ASSERT(v.cast<oatpp::Int32>() == 1);
   }
 
   {
@@ -226,7 +226,7 @@ void InterpretationTest::onRun() {
     auto v = tr.resolveObjectPropertyValue(l, {"p1", "y"}, cache);
     OATPP_ASSERT(v);
     OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 2);
+    OATPP_ASSERT(v.cast<oatpp::Int32>() == 2);
   }
 
   {
@@ -238,7 +238,7 @@ void InterpretationTest::onRun() {
     auto v = tr.resolveObjectPropertyValue(l, {"p1", "z"}, cache);
     OATPP_ASSERT(v);
     OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(v.staticCast<oatpp::Int32>() == 3);
+    OATPP_ASSERT(v.cast<oatpp::Int32>() == 3);
   }
 
 }

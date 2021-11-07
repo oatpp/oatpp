@@ -65,11 +65,10 @@ TypeResolver::TypeResolver() {
 
 void TypeResolver::setKnownClass(const type::ClassId& classId, bool isKnown) {
   const v_uint32 id = classId.id;
-  if(id < m_knownClasses.size()) {
-    m_knownClasses[id] = isKnown;
-  } else {
-    throw std::runtime_error("[oatpp::data::mapping::TypeResolver::setKnownClass()]: Error. Unknown classId");
+  if(id >= m_knownClasses.size()) {
+    m_knownClasses.resize(id + 1, false);
   }
+  m_knownClasses[id] = isKnown;
 }
 
 void TypeResolver::addKnownClasses(const std::vector<type::ClassId>& knownClasses) {

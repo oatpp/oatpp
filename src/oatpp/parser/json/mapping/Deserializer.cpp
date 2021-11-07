@@ -56,12 +56,12 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   setDeserializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Deserializer::deserializeObject);
   setDeserializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Deserializer::deserializeEnum);
 
-  setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractVector>);
-  setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractList>);
-  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Deserializer::deserializeList<oatpp::AbstractUnorderedSet>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Deserializer::deserializeCollection);
+  setDeserializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Deserializer::deserializeCollection);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Deserializer::deserializeCollection);
 
-  setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractFields>);
-  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Deserializer::deserializeKeyValue<oatpp::AbstractUnorderedFields>);
+  setDeserializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Deserializer::deserializeMap);
+  setDeserializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Deserializer::deserializeMap);
 
 }
 
@@ -287,6 +287,115 @@ oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Ca
 
 }
 
+oatpp::Void Deserializer::deserializeCollection(Deserializer* deserializer, parser::Caret& caret, const Type* type) {
+
+  if(caret.isAtText("null", true)){
+    return oatpp::Void(type);
+  }
+
+  if(caret.canContinueAtChar('[', 1)) {
+
+    auto dispatcher = static_cast<const data::mapping::type::__class::Collection::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto collection = dispatcher->createObject();
+
+    auto itemType = dispatcher->getItemType();
+
+    caret.skipBlankChars();
+
+    while(!caret.isAtChar(']') && caret.canContinue()){
+
+      caret.skipBlankChars();
+      auto item = deserializer->deserialize(caret, itemType);
+      if(caret.hasError()){
+        return nullptr;
+      }
+
+      dispatcher->addItem(collection, item);
+      caret.skipBlankChars();
+
+      caret.canContinueAtChar(',', 1);
+
+    }
+
+    if(!caret.canContinueAtChar(']', 1)){
+      if(!caret.hasError()){
+        caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeCollection()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
+      }
+      return nullptr;
+    };
+
+    return collection;
+
+  } else {
+    caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeCollection()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
+    return nullptr;
+  }
+
+}
+
+oatpp::Void Deserializer::deserializeMap(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
+
+  if(caret.isAtText("null", true)){
+    return oatpp::Void(type);
+  }
+
+  if(caret.canContinueAtChar('{', 1)) {
+
+    auto dispatcher = static_cast<const data::mapping::type::__class::Map::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+    auto map = dispatcher->createObject();
+
+    auto keyType = dispatcher->getKeyType();
+    if(keyType->classId != oatpp::String::Class::CLASS_ID){
+      throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Invalid json map key. Key should be String");
+    }
+    auto valueType = dispatcher->getValueType();
+
+    caret.skipBlankChars();
+
+    while (!caret.isAtChar('}') && caret.canContinue()) {
+
+      caret.skipBlankChars();
+      auto key = Utils::parseString(caret);
+      if(caret.hasError()){
+        return nullptr;
+      }
+
+      caret.skipBlankChars();
+      if(!caret.canContinueAtChar(':', 1)){
+        caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+        return nullptr;
+      }
+
+      caret.skipBlankChars();
+
+      auto item = deserializer->deserialize(caret, valueType);
+      if(caret.hasError()){
+        return nullptr;
+      }
+      dispatcher->addItem(map, key, item);
+
+      caret.skipBlankChars();
+      caret.canContinueAtChar(',', 1);
+
+    }
+
+    if(!caret.canContinueAtChar('}', 1)){
+      if(!caret.hasError()){
+        caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
+      }
+      return nullptr;
+    }
+
+    return map;
+
+  } else {
+    caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+  }
+
+  return nullptr;
+
+}
+
 oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
 
   if(caret.isAtText("null", true)){
@@ -301,6 +410,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
     caret.skipBlankChars();
 
+    std::vector<std::pair<oatpp::BaseObject::Property*, oatpp::String>> polymorphs;
     while (!caret.isAtChar('}') && caret.canContinue()) {
 
       caret.skipBlankChars();
@@ -321,7 +431,14 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         caret.skipBlankChars();
 
         auto field = fieldIterator->second;
-        field->set(static_cast<oatpp::BaseObject*>(object.get()), deserializer->deserialize(caret, field->type));
+
+        if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
+          auto label = caret.putLabel();
+          skipValue(caret);
+          polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
+        } else {
+          field->set(static_cast<oatpp::BaseObject *>(object.get()), deserializer->deserialize(caret, field->type));
+        }
 
       } else if (deserializer->getConfig()->allowUnknownFields) {
         caret.skipBlankChars();
@@ -346,6 +463,14 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
       }
       return nullptr;
+    }
+
+    for(auto& p : polymorphs) {
+      parser::Caret polyCaret(p.second);
+      auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
+      auto value = deserializer->deserialize(polyCaret, selectedType);
+      oatpp::Any any(value);
+      p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(any.getPtr(), p.first->type));
     }
 
     return object;

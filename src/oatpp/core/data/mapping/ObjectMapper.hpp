@@ -110,7 +110,7 @@ public:
   template<class Wrapper>
   Wrapper readFromCaret(oatpp::parser::Caret& caret) const {
     auto type = Wrapper::Class::getType();
-    return read(caret, type).template staticCast<Wrapper>();
+    return read(caret, type).template cast<Wrapper>();
   }
 
   /**
@@ -125,7 +125,7 @@ public:
   Wrapper readFromString(const oatpp::String& str) const {
     auto type = Wrapper::Class::getType();
     oatpp::parser::Caret caret(str);
-    auto result = read(caret, type).template staticCast<Wrapper>();
+    auto result = read(caret, type).template cast<Wrapper>();
     if(!result) {
       throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
     }

@@ -82,10 +82,12 @@ add_library(oatpp
         oatpp/core/data/mapping/TypeResolver.hpp
         oatpp/core/data/mapping/type/Any.cpp
         oatpp/core/data/mapping/type/Any.hpp
+        oatpp/core/data/mapping/type/Collection.hpp
         oatpp/core/data/mapping/type/Enum.cpp
         oatpp/core/data/mapping/type/Enum.hpp
         oatpp/core/data/mapping/type/List.cpp
         oatpp/core/data/mapping/type/List.hpp
+        oatpp/core/data/mapping/type/Map.hpp
         oatpp/core/data/mapping/type/PairList.cpp
         oatpp/core/data/mapping/type/PairList.hpp
         oatpp/core/data/mapping/type/Object.cpp

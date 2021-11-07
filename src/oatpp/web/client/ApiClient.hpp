@@ -391,7 +391,7 @@ struct ApiClient::TypeInterpretation<data::mapping::type::EnumObjectWrapper<T, I
         );
     }
 
-    return ApiClient::TypeInterpretation<UTOW>::toString(typeName, value.template staticCast<UTOW>());
+    return ApiClient::TypeInterpretation<UTOW>::toString(typeName, value.template cast<UTOW>());
 
   }
 

@@ -40,6 +40,12 @@ namespace oatpp {
   typedef oatpp::data::mapping::type::ClassId ClassId;
 
   /**
+   * ObjectWrapper.
+   */
+  template <class T, class Clazz = oatpp::data::mapping::type::__class::Void>
+  using ObjectWrapper = oatpp::data::mapping::type::ObjectWrapper<T, Clazz>;
+
+  /**
    * ObjectWrapper over the `void*`.
    */
   typedef oatpp::data::mapping::type::Void Void;
@@ -181,7 +187,7 @@ namespace oatpp {
   /**
    * Abstract Fields
    */
-  typedef data::mapping::type::PairListObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractPairList> AbstractFields;
+  typedef Fields<oatpp::Void> AbstractFields;
 
   /**
    * Mapping-Enabled UnorderedMap<Key, Value>. &id:oatpp::data::mapping::type::UnorderedMap;.
@@ -198,7 +204,7 @@ namespace oatpp {
   /**
    * Abstract UnorderedFields
    */
-  typedef data::mapping::type::UnorderedMapObjectWrapper<oatpp::String, oatpp::Void, data::mapping::type::__class::AbstractUnorderedMap> AbstractUnorderedFields;
+  typedef UnorderedFields<oatpp::Void> AbstractUnorderedFields;
   
 }
 

@@ -126,6 +126,14 @@ public:
   const Type* getStoredType() const;
 
   /**
+   * Retrieve stored object of type `type`.
+   * @param type - &id:oatpp::Type;
+   * @return - &id:oatpp::Void;.
+   * @throws - `std::runtime_error` - if stored type and type requested do not match.
+   */
+  Void retrieve(const Type* type) const;
+
+  /**
    * Retrieve stored object.
    * @tparam WrapperType - type of the object to retrieve.
    * @return - ObjectWrapper of type - `WrapperType`.
@@ -133,19 +141,8 @@ public:
    */
   template<class WrapperType>
   WrapperType retrieve() const {
-
-    if(m_ptr) {
-
-      if(!m_ptr->type->extends(WrapperType::Class::getType())) {
-        throw std::runtime_error("[oatpp::data::mapping::type::Any::retrieve()]: Error. The value type doesn't match.");
-      }
-
-      return WrapperType(std::static_pointer_cast<typename WrapperType::ObjectType>(m_ptr->ptr), m_ptr->type);
-
-    }
-
-    return nullptr;
-
+    const auto& v = retrieve(WrapperType::Class::getType());
+    return WrapperType(std::static_pointer_cast<typename WrapperType::ObjectType>(v.getPtr()), WrapperType::Class::getType());
   }
 
   Any& operator=(std::nullptr_t);

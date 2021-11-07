@@ -25,6 +25,7 @@
 #ifndef oatpp_data_mapping_type_UnorderedMap_hpp
 #define oatpp_data_mapping_type_UnorderedMap_hpp
 
+#include "./Map.hpp"
 #include "./Type.hpp"
 
 #include <unordered_map>
@@ -44,27 +45,6 @@ namespace __class {
      * Class Id.
      */
     static const ClassId CLASS_ID;
-  public:
-
-    /**
-     * Polymorphic Dispatcher.
-     */
-    class PolymorphicDispatcher {
-    public:
-      
-      virtual ~PolymorphicDispatcher() = default;
-
-      virtual type::Void createObject() const = 0;
-
-      /**
-       * Add item.
-       * @param object - Unordered Map.
-       * @param key - Key.
-       * @param value - Value.
-       */
-      virtual void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const = 0;
-    };
-
   };
 
   template<class Key, class Value>
@@ -120,31 +100,15 @@ namespace __class {
 
   template<class Key, class Value>
   class UnorderedMap : public AbstractUnorderedMap {
-  public:
-
-    class PolymorphicDispatcher : public AbstractUnorderedMap::PolymorphicDispatcher {
-    public:
-
-      type::Void createObject() const override {
-        return type::Void(std::make_shared<std::unordered_map<Key, Value>>(), getType());
-      }
-
-      void addPolymorphicItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
-        const auto& map = object.staticCast<type::UnorderedMap<Key, Value>>();
-        const auto& k = key.staticCast<Key>();
-        const auto& v = value.staticCast<Value>();
-        map[k] = v;
-      }
-
-    };
-
   private:
 
     static Type createType() {
       Type::Info info;
       info.params.push_back(Key::Class::getType());
       info.params.push_back(Value::Class::getType());
-      info.polymorphicDispatcher = new PolymorphicDispatcher();
+      info.polymorphicDispatcher =
+        new typename __class::StandardMap<std::unordered_map<Key, Value>, Key, Value, UnorderedMap>::PolymorphicDispatcher();
+      info.isMap = true;
       return Type(__class::AbstractUnorderedMap::CLASS_ID, info);
     }
 
