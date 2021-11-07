@@ -147,10 +147,10 @@ static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::BaseObject::
 
 #define DTO_FIELD_TYPE_SELECTOR(NAME) \
 \
-class Z__PROPERTY_TYPE_SELECTOR_##NAME : public oatpp::BaseObject::Property::TypeSelector { \
+class Z__PROPERTY_TYPE_SELECTOR_##NAME : public oatpp::BaseObject::Property::FieldTypeSelector<Z__CLASS> { \
 public: \
-  const oatpp::Type* selectType(oatpp::BaseObject *self) override { \
-    return Z__PROPERTY_TYPE_SELECTOR_METHOD_##NAME(static_cast<Z__CLASS*>(self)); \
+  const oatpp::Type* selectFieldType(Z__CLASS* self) override { \
+    return self->Z__PROPERTY_TYPE_SELECTOR_METHOD_##NAME(); \
   } \
 }; \
 \
@@ -160,7 +160,7 @@ static bool Z__PROPERTY_INIT_##NAME(int, int) { \
   return true; \
 } \
 \
-static oatpp::Type* Z__PROPERTY_TYPE_SELECTOR_METHOD_##NAME(Z__CLASS* self)
+const oatpp::Type* Z__PROPERTY_TYPE_SELECTOR_METHOD_##NAME()
 
 // FOR EACH
 

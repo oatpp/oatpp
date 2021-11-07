@@ -120,8 +120,8 @@ class PolymorphicDto1 : public oatpp::DTO {
   DTO_FIELD(Any, polymorph);
 
   DTO_FIELD_TYPE_SELECTOR(polymorph) {
-    if(self->type == "A") return Object<DtoTypeA>::Class::getType();
-    if(self->type == "B") return Object<DtoTypeB>::Class::getType();
+    if(type == "A") return Object<DtoTypeA>::Class::getType();
+    if(type == "B") return Object<DtoTypeB>::Class::getType();
     return Object<DTO>::Class::getType();
   }
 
@@ -139,8 +139,8 @@ class PolymorphicDto2 : public oatpp::DTO {
   DTO_FIELD(Any, polymorph);
 
   DTO_FIELD_TYPE_SELECTOR(polymorph) {
-    if(self->type == "A") return Object<DtoTypeA>::Class::getType();
-    if(self->type == "B") return Object<DtoTypeB>::Class::getType();
+    if(type == "A") return Object<DtoTypeA>::Class::getType();
+    if(type == "B") return Object<DtoTypeB>::Class::getType();
     return Object<DTO>::Class::getType();
   }
 
@@ -154,8 +154,8 @@ class PolymorphicDto3 : public oatpp::DTO {
   DTO_FIELD(Any, polymorph);
 
   DTO_FIELD_TYPE_SELECTOR(polymorph) {
-    if(self->type == "str") return String::Class::getType();
-    if(self->type == "int") return Int32::Class::getType();
+    if(type == "str") return String::Class::getType();
+    if(type == "int") return Int32::Class::getType();
     return Void::Class::getType();
   }
 

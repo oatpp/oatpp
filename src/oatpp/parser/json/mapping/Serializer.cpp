@@ -253,7 +253,7 @@ void Serializer::serializeObject(Serializer* serializer,
 }
 
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
-                            const oatpp::Void& polymorph)
+                           const oatpp::Void& polymorph)
 {
   auto id = polymorph.getValueType()->classId.id;
   auto& method = m_methods[id];

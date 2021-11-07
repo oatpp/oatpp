@@ -62,11 +62,28 @@ public:
     public:
 
       /**
+       * Default destructor.
+       */
+      virtual ~TypeSelector() = default;
+
+      /**
        * Select property type.
        * @param self - pointer to `this` object.
        * @return - &id:oatpp::Type;.
        */
       virtual const type::Type* selectType(BaseObject* self) = 0;
+    };
+
+    template<class DTOType>
+    class FieldTypeSelector : public TypeSelector {
+    public:
+
+      const type::Type* selectType(BaseObject* self) override {
+        return selectFieldType(static_cast<DTOType*>(self));
+      }
+
+      virtual const type::Type* selectFieldType(DTOType* self) = 0;
+
     };
 
   public:
