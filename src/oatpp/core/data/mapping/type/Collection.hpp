@@ -178,7 +178,7 @@ public:
 template<class ItemType>
 struct Collection::Inserter<std::unordered_set<ItemType>, ItemType> {
   static void insert(std::unordered_set<ItemType>* c, const ItemType& i) {
-    c->template emplace(i);
+    c->emplace(i);
   }
 };
 
