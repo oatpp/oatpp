@@ -81,6 +81,13 @@ struct ResourceHandleTemplate {
     return object.operator bool();
   }
 
+  /**
+   * Invalidates the resource so it can be disposed and cannot be reused anymore.
+   */
+  virtual void invalidate() {
+    invalidator->invalidate(object);
+  }
+
 };
 
 /**
