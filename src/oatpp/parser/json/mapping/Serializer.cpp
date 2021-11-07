@@ -232,8 +232,9 @@ void Serializer::serializeObject(Serializer* serializer,
   for (auto const& field : fields) {
 
     oatpp::Void value;
-    if(field->info.typeSelector) {
-      value = oatpp::Void(field->get(object).getPtr(), field->info.typeSelector->selectType(object));
+    if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
+      const auto& any = field->get(object).cast<oatpp::Any>();
+      value = any.retrieve(field->info.typeSelector->selectType(object));
     } else {
       value = field->get(object);
     }

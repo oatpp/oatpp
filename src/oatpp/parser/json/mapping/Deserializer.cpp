@@ -432,7 +432,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
         auto field = fieldIterator->second;
 
-        if(field->info.typeSelector) {
+        if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
           auto label = caret.putLabel();
           skipValue(caret);
           polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
@@ -469,7 +469,8 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
       parser::Caret polyCaret(p.second);
       auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
       auto value = deserializer->deserialize(polyCaret, selectedType);
-      p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(value.getPtr(), p.first->type));
+      oatpp::Any any(value);
+      p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(any.getPtr(), p.first->type));
     }
 
     return object;

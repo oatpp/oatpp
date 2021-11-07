@@ -63,6 +63,16 @@ const Type* Any::getStoredType() const {
   return nullptr;
 }
 
+Void Any::retrieve(const Type* type) const {
+  if(m_ptr) {
+    if(!m_ptr->type->extends(type)) {
+      throw std::runtime_error("[oatpp::data::mapping::type::Any::retrieve()]: Error. The value type doesn't match.");
+    }
+    return Void(m_ptr->ptr, type);
+  }
+  return nullptr;
+}
+
 Any& Any::operator=(std::nullptr_t) {
   m_ptr.reset();
   return *this;
