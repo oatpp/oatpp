@@ -87,7 +87,9 @@ void Serializer::serializeString(Serializer* serializer,
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    if(serializer->getConfig()->includeNullFields) {
+      stream->writeSimple("null", 4);
+    }
     return;
   }
 
@@ -103,7 +105,9 @@ void Serializer::serializeAny(Serializer* serializer,
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    if(serializer->getConfig()->includeNullFields) {
+      stream->writeSimple("null", 4);
+    }
     return;
   }
 
@@ -142,7 +146,9 @@ void Serializer::serializeObject(Serializer* serializer,
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    if(serializer->getConfig()->includeNullFields) {
+      stream->writeSimple("null", 4);
+    }
     return;
   }
 
