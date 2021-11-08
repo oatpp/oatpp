@@ -158,7 +158,11 @@ public:
     typename enabled = typename std::enable_if<std::is_same<T, char>::value, void>::type
   >
   inline String& operator = (const T* str) {
-    m_ptr = std::make_shared<std::string>(str);
+    if (str) {
+      m_ptr = std::make_shared<std::string>(str);
+    } else {
+      m_ptr.reset();
+    }
     return *this;
   }
 
