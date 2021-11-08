@@ -94,6 +94,13 @@ public:
     virtual const type::Type* getItemType() const = 0;
 
     /**
+     * Get collection size.
+     * @param object - collection.
+     * @return - size of the collection (elements count).
+     */
+    virtual v_int64 getCollectionSize(const type::Void& object) const = 0;
+
+    /**
      * Add item.
      * @param object - Collection.
      * @param item - Item to add.
@@ -155,6 +162,11 @@ public:
     const type::Type* getItemType() const override {
       const type::Type* collectionType = Clazz::getType();
       return collectionType->params[0];
+    }
+
+    v_int64 getCollectionSize(const type::Void& object) const override {
+      ContainerType* collection = static_cast<ContainerType*>(object.get());
+      return collection->size();
     }
 
     void addItem(const type::Void& object, const type::Void& item) const override {

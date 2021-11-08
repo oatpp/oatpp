@@ -106,6 +106,13 @@ public:
     virtual const type::Type* getValueType() const = 0;
 
     /**
+     * Get map size.
+     * @param object - map object.
+     * @return - size of the map.
+     */
+    virtual v_int64 getMapSize(const type::Void& object) const = 0;
+
+    /**
      * Add item.
      * @param object - Map.
      * @param key
@@ -177,6 +184,11 @@ public:
     const type::Type* getValueType() const override {
       const type::Type* mapType = Clazz::getType();
       return mapType->params[1];
+    }
+
+    v_int64 getMapSize(const type::Void& object) const override {
+      ContainerType* map = static_cast<ContainerType*>(object.get());
+      return map->size();
     }
 
     void addItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {
