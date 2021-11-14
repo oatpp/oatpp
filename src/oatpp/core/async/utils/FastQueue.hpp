@@ -22,13 +22,13 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_collection_FastQueue_hpp
-#define oatpp_collection_FastQueue_hpp
+#ifndef oatpp_async_utils_FastQueue_hpp
+#define oatpp_async_utils_FastQueue_hpp
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
-namespace oatpp { namespace collection {
+namespace oatpp { namespace async { namespace utils {
   
 template<typename T>
 class FastQueue {
@@ -179,6 +179,6 @@ public:
   
 };
   
-}}
+}}}
 
-#endif /* FastQueue_hpp */
+#endif /* oatpp_async_utils_FastQueue_hpp */

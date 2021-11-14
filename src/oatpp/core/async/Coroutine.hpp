@@ -28,9 +28,9 @@
 
 #include "./Error.hpp"
 
-#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/async/utils/FastQueue.hpp"
 
-#include "oatpp/core/collection/FastQueue.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 #include "oatpp/core/base/memory/MemoryPool.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
@@ -420,7 +420,7 @@ public:
  * This class manages coroutines processing state and a chain of coroutine calls.
  */
 class CoroutineHandle : public oatpp::base::Countable {
-  friend oatpp::collection::FastQueue<CoroutineHandle>;
+  friend utils::FastQueue<CoroutineHandle>;
   friend Processor;
   friend worker::Worker;
   friend CoroutineWaitList;

@@ -67,12 +67,12 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
     case worker::Worker::Type::IO:
       m_ioWorkers.push_back(worker);
-      m_ioPopQueues.push_back(collection::FastQueue<CoroutineHandle>());
+      m_ioPopQueues.push_back(utils::FastQueue<CoroutineHandle>());
     break;
 
     case worker::Worker::Type::TIMER:
       m_timerWorkers.push_back(worker);
-      m_timerPopQueues.push_back(collection::FastQueue<CoroutineHandle>());
+      m_timerPopQueues.push_back(utils::FastQueue<CoroutineHandle>());
     break;
 
     default:
@@ -154,10 +154,10 @@ void Processor::pushOneTask(CoroutineHandle* coroutine) {
   m_taskCondition.notify_one();
 }
 
-void Processor::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+void Processor::pushTasks(utils::FastQueue<CoroutineHandle>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
-    collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_pushList);
+    utils::FastQueue<CoroutineHandle>::moveAll(tasks, m_pushList);
   }
   m_taskCondition.notify_one();
 }
@@ -196,12 +196,12 @@ void Processor::consumeAllTasks() {
 
 void Processor::pushQueues() {
 
-  oatpp::collection::FastQueue<CoroutineHandle> tmpList;
+  utils::FastQueue<CoroutineHandle> tmpList;
 
   {
     std::lock_guard<oatpp::concurrency::SpinLock> lock(m_taskLock);
     consumeAllTasks();
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
+    utils::FastQueue<CoroutineHandle>::moveAll(m_pushList, tmpList);
   }
 
   while(tmpList.first != nullptr) {

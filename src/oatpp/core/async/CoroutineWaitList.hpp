@@ -27,7 +27,7 @@
 #define oatpp_async_CoroutineWaitList_hpp
 
 #include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/collection/FastQueue.hpp"
+#include "oatpp/core/async/utils/FastQueue.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include <map>
@@ -60,7 +60,7 @@ public:
     virtual void onNewItem(CoroutineWaitList& list) = 0;
   };
 private:
-  oatpp::collection::FastQueue<CoroutineHandle> m_list;
+  utils::FastQueue<CoroutineHandle> m_list;
   oatpp::concurrency::SpinLock m_lock;
   Listener* m_listener = nullptr;
   

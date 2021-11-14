@@ -75,7 +75,7 @@ private:
   IOEventWorkerForeman* m_foreman;
   Action::IOEventType m_specialization;
   std::atomic<bool> m_running;
-  oatpp::collection::FastQueue<CoroutineHandle> m_backlog;
+  utils::FastQueue<CoroutineHandle> m_backlog;
   oatpp::concurrency::SpinLock m_backlogLock;
 private:
   oatpp::v_io_handle m_eventQueueHandle;
@@ -108,9 +108,9 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
+   * @param tasks - &id:oatpp::async::utils::FastQueue; of &id:oatpp::async::CoroutineHandle;.
    */
-  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
+  void pushTasks(utils::FastQueue<CoroutineHandle>& tasks) override;
 
   /**
    * Push one task to worker.
@@ -162,9 +162,9 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
+   * @param tasks - &id:oatpp::async::utils::FastQueue; of &id:oatpp::async::CoroutineHandle;.
    */
-  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) override;
+  void pushTasks(utils::FastQueue<CoroutineHandle>& tasks) override;
 
   /**
    * Push one task to worker.

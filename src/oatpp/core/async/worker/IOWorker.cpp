@@ -37,10 +37,10 @@ IOWorker::IOWorker()
   m_thread = std::thread(&IOWorker::run, this);
 }
 
-void IOWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+void IOWorker::pushTasks(utils::FastQueue<CoroutineHandle>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
+    utils::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
   }
   m_backlogCondition.notify_one();
 }
@@ -61,12 +61,12 @@ void IOWorker::consumeBacklog(bool blockToConsume) {
     while (m_backlog.first == nullptr && m_running) {
       m_backlogCondition.wait(lock);
     }
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
+    utils::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
   } else {
 
     std::unique_lock<oatpp::concurrency::SpinLock> lock(m_backlogLock, std::try_to_lock);
     if (lock.owns_lock()) {
-      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
+      utils::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
     }
 
   }

@@ -38,10 +38,10 @@ TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granu
   m_thread = std::thread(&TimerWorker::run, this);
 }
 
-void TimerWorker::pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) {
+void TimerWorker::pushTasks(utils::FastQueue<CoroutineHandle>& tasks) {
   {
     std::lock_guard<oatpp::concurrency::SpinLock> guard(m_backlogLock);
-    oatpp::collection::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
+    utils::FastQueue<CoroutineHandle>::moveAll(tasks, m_backlog);
   }
   m_backlogCondition.notify_one();
 }
@@ -52,7 +52,7 @@ void TimerWorker::consumeBacklog() {
   while (m_backlog.first == nullptr && m_queue.first == nullptr && m_running) {
     m_backlogCondition.wait(lock);
   }
-  oatpp::collection::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
+  utils::FastQueue<CoroutineHandle>::moveAll(m_backlog, m_queue);
 
 }
 

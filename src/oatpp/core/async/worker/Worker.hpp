@@ -87,9 +87,9 @@ public:
 
   /**
    * Push list of tasks to worker.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle;.
+   * @param tasks - &id:oatpp::async::utils::FastQueue; of &id:oatpp::async::CoroutineHandle;.
    */
-  virtual void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks) = 0;
+  virtual void pushTasks(utils::FastQueue<CoroutineHandle>& tasks) = 0;
 
   /**
    * Push one task to worker.

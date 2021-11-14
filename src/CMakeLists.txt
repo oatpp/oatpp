@@ -26,6 +26,7 @@ add_library(oatpp
         oatpp/codegen/DTO_define.hpp
         oatpp/codegen/DTO_undef.hpp
         oatpp/core/Types.hpp
+        oatpp/core/async/utils/FastQueue.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
         oatpp/core/async/CoroutineWaitList.cpp
@@ -63,7 +64,6 @@ add_library(oatpp
         oatpp/core/base/memory/MemoryPool.hpp
         oatpp/core/base/memory/ObjectPool.cpp
         oatpp/core/base/memory/ObjectPool.hpp
-        oatpp/core/collection/FastQueue.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
