@@ -28,7 +28,7 @@
 
 #include "./Coroutine.hpp"
 #include "./CoroutineWaitList.hpp"
-#include "oatpp/core/collection/FastQueue.hpp"
+#include "oatpp/core/async/utils/FastQueue.hpp"
 
 #include <condition_variable>
 #include <list>
@@ -93,8 +93,8 @@ private:
   std::vector<std::shared_ptr<worker::Worker>> m_ioWorkers;
   std::vector<std::shared_ptr<worker::Worker>> m_timerWorkers;
 
-  std::vector<oatpp::collection::FastQueue<CoroutineHandle>> m_ioPopQueues;
-  std::vector<oatpp::collection::FastQueue<CoroutineHandle>> m_timerPopQueues;
+  std::vector<utils::FastQueue<CoroutineHandle>> m_ioPopQueues;
+  std::vector<utils::FastQueue<CoroutineHandle>> m_timerPopQueues;
 
   v_uint32 m_ioBalancer = 0;
   v_uint32 m_timerBalancer = 0;
@@ -104,11 +104,11 @@ private:
   oatpp::concurrency::SpinLock m_taskLock;
   std::condition_variable_any m_taskCondition;
   std::list<std::shared_ptr<TaskSubmission>> m_taskList;
-  oatpp::collection::FastQueue<CoroutineHandle> m_pushList;
+  utils::FastQueue<CoroutineHandle> m_pushList;
 
 private:
 
-  oatpp::collection::FastQueue<CoroutineHandle> m_queue;
+  utils::FastQueue<CoroutineHandle> m_queue;
 
 private:
 
@@ -154,9 +154,9 @@ public:
 
   /**
    * Push list of Coroutines back to processor.
-   * @param tasks - &id:oatpp::collection::FastQueue; of &id:oatpp::async::CoroutineHandle; previously popped-out(rescheduled to coworker) from this processor.
+   * @param tasks - &id:oatpp::async::utils::FastQueue; of &id:oatpp::async::CoroutineHandle; previously popped-out(rescheduled to coworker) from this processor.
    */
-  void pushTasks(oatpp::collection::FastQueue<CoroutineHandle>& tasks);
+  void pushTasks(utils::FastQueue<CoroutineHandle>& tasks);
 
   /**
    * Execute Coroutine.

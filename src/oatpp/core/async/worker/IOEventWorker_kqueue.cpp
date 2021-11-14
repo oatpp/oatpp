@@ -168,8 +168,8 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<CoroutineHandle> repeatQueue;
-  oatpp::collection::FastQueue<CoroutineHandle> popQueue;
+  utils::FastQueue<CoroutineHandle> repeatQueue;
+  utils::FastQueue<CoroutineHandle> popQueue;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
@@ -230,7 +230,7 @@ void IOEventWorker::waitEvents() {
   if(repeatQueue.count > 0) {
     {
       std::lock_guard<oatpp::concurrency::SpinLock> lock(m_backlogLock);
-      oatpp::collection::FastQueue<CoroutineHandle>::moveAll(repeatQueue, m_backlog);
+      utils::FastQueue<CoroutineHandle>::moveAll(repeatQueue, m_backlog);
     }
   }
 

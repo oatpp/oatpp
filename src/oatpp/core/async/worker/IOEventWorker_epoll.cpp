@@ -169,7 +169,7 @@ void IOEventWorker::waitEvents() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
-  oatpp::collection::FastQueue<CoroutineHandle> popQueue;
+  utils::FastQueue<CoroutineHandle> popQueue;
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
