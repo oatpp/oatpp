@@ -138,7 +138,7 @@ void PipelineTest::onRun() {
 
     std::thread pipeInThread([this, connection] {
 
-      oatpp::data::stream::ChunkedBuffer pipelineStream;
+      oatpp::data::stream::BufferOutputStream pipelineStream;
 
       for (v_int32 i = 0; i < m_pipelineSize; i++) {
         pipelineStream << SAMPLE_IN;

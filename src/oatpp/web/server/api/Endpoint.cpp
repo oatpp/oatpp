@@ -24,8 +24,6 @@
 
 #include "Endpoint.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
 namespace oatpp { namespace web { namespace server { namespace api {
 
 Endpoint::Info::Param::Param()
@@ -63,7 +61,7 @@ std::shared_ptr<Endpoint::Info> Endpoint::Info::createShared(){
 }
 
 oatpp::String Endpoint::Info::toString() {
-  oatpp::data::stream::ChunkedBuffer stream;
+  oatpp::data::stream::BufferOutputStream stream;
   
   stream << "\nEndpoint\n";
   

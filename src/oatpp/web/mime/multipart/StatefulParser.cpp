@@ -122,7 +122,7 @@ void StatefulParser::parseHeaders(Headers& headers) {
   m_currPartIndex ++;
 
   auto headersText = m_headersBuffer.toString();
-  m_headersBuffer.clear();
+  m_headersBuffer.setCurrentPosition(0);
 
   protocol::http::Status status;
   parser::Caret caret(headersText);
@@ -246,7 +246,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::buffer::Inl
 
     if(m_headerSectionEndAccumulator == HEADERS_SECTION_END) {
 
-      if(m_headersBuffer.getSize() + i > m_maxPartHeadersSize) {
+      if(m_headersBuffer.getCurrentPosition() + i > m_maxPartHeadersSize) {
         throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Too large heades.");
       }
 
@@ -264,8 +264,8 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::buffer::Inl
 
   }
 
-  if(m_headersBuffer.getSize() + size > m_maxPartHeadersSize) {
-    throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Too large heades.");
+  if(m_headersBuffer.getCurrentPosition() + size > m_maxPartHeadersSize) {
+    throw std::runtime_error("[oatpp::web::mime::multipart::StatefulParser::parseNext_Headers()]: Error. Headers section is too large.");
   }
 
   m_headersBuffer.writeSimple(data, size);

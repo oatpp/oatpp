@@ -24,7 +24,7 @@
 
 #include "Pattern.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
 
@@ -182,20 +182,20 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
 }
 
 oatpp::String Pattern::toString() {
-  auto stream = oatpp::data::stream::ChunkedBuffer::createShared();
+  oatpp::data::stream::BufferOutputStream stream;
   for (const std::shared_ptr<Part>& part : *m_parts) {
     if(part->function == Part::FUNCTION_CONST) {
-      stream->writeSimple("/", 1);
-      stream->writeSimple(part->text);
+      stream.writeSimple("/", 1);
+      stream.writeSimple(part->text);
     } else if(part->function == Part::FUNCTION_VAR) {
-      stream->writeSimple("/{", 2);
-      stream->writeSimple(part->text);
-      stream->writeSimple("}", 1);
+      stream.writeSimple("/{", 2);
+      stream.writeSimple(part->text);
+      stream.writeSimple("}", 1);
     } else if(part->function == Part::FUNCTION_ANY_END) {
-      stream->writeSimple("/*", 2);
+      stream.writeSimple("/*", 2);
     }
   }
-  return stream->toString();
+  return stream.toString();
 }
   
 }}}}

@@ -27,7 +27,6 @@
 
 #include "./Type.hpp"
 
-#include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {

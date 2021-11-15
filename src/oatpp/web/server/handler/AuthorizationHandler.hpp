@@ -30,8 +30,6 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 
@@ -54,9 +52,9 @@ public:
   typedef oatpp::web::server::handler::AuthorizationObject AuthorizationObject;
 
   /**
-   * Convenience typedef for &id:oatpp::data::stream::ChunkedBuffer;.
+   * Convenience typedef for &id:oatpp::data::stream::BufferOutputStream;.
    */
-  typedef oatpp::data::stream::ChunkedBuffer ChunkedBuffer;
+  typedef oatpp::data::stream::BufferOutputStream BufferOutputStream;
 
   /**
    * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
@@ -89,9 +87,9 @@ public:
   /**
    * Render WWW-Authenicate header value. <br>
    * Custom Authorization handlers may override this method in order to provide additional information.
-   * @param stream - &id:oatpp::data::stream::ChunkedBuffer;.
+   * @param stream - &id:oatpp::data::stream::BufferOutputStream;.
    */
-  virtual void renderAuthenticateHeaderValue(ChunkedBuffer& stream);
+  virtual void renderAuthenticateHeaderValue(BufferOutputStream& stream);
 
   /**
    * Add authorization error headers to the headers map. <br>

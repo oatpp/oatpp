@@ -53,9 +53,6 @@ public:
    * Convenience typedef for &id:oatpp::network::ConnectionHandler;.
    */
   typedef oatpp::network::ConnectionHandler ConnectionHandler;
-public:
-  OBJECT_POOL(Outgoing_Response_Pool, Response, 32)
-  SHARED_OBJECT_POOL(Shared_Outgoing_Response_Pool, Response, 32)
 private:
   Status m_status;
   Headers m_headers;

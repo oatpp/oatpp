@@ -45,7 +45,7 @@ std::shared_ptr<Request> Request::createShared(const std::shared_ptr<oatpp::data
                                                const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
                                                const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
 {
-  return Shared_Incoming_Request_Pool::allocateShared(connection, startingLine, headers, bodyStream, bodyDecoder);
+  return std::make_shared<Request>(connection, startingLine, headers, bodyStream, bodyDecoder);
 }
 
 std::shared_ptr<oatpp::data::stream::IOStream> Request::getConnection() {

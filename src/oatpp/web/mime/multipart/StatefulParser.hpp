@@ -25,7 +25,7 @@
 #ifndef oatpp_web_mime_multipart_StatefulParser_hpp
 #define oatpp_web_mime_multipart_StatefulParser_hpp
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/share/LazyStringMap.hpp"
 #include "oatpp/core/Types.hpp"
 
@@ -174,7 +174,7 @@ private:
   /*
    * Headers of the part are stored in the buffer and are parsed as one chunk.
    */
-  oatpp::data::stream::ChunkedBuffer m_headersBuffer;
+  data::stream::BufferOutputStream m_headersBuffer;
 
   /*
    * Max length of all headers per one part.

@@ -42,8 +42,9 @@ std::shared_ptr<Response> Response::createShared(v_int32 statusCode,
                                                  const oatpp::String& statusDescription,
                                                  const http::Headers& headers,
                                                  const std::shared_ptr<oatpp::data::stream::InputStream>& bodyStream,
-                                                 const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder) {
-  return Shared_Incoming_Response_Pool::allocateShared(statusCode, statusDescription, headers, bodyStream, bodyDecoder);
+                                                 const std::shared_ptr<const http::incoming::BodyDecoder>& bodyDecoder)
+{
+  return std::make_shared<Response>(statusCode, statusDescription, headers, bodyStream, bodyDecoder);
 }
 
 v_int32 Response::getStatusCode() const {

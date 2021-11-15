@@ -25,7 +25,6 @@
 #ifndef oatpp_data_buffer_IOBuffer_hpp
 #define oatpp_data_buffer_IOBuffer_hpp
 
-#include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
@@ -36,20 +35,12 @@ namespace oatpp { namespace data{ namespace buffer {
  */
 class IOBuffer : public oatpp::base::Countable {
 public:
-  OBJECT_POOL(IOBuffer_Pool, IOBuffer, 32)
-  SHARED_OBJECT_POOL(Shared_IOBuffer_Pool, IOBuffer, 32)
-public:
   /**
    * Buffer size constant.
    */
   static const v_buff_size BUFFER_SIZE;
 private:
-  static oatpp::base::memory::ThreadDistributedMemoryPool& getBufferPool() {
-    static auto pool = new oatpp::base::memory::ThreadDistributedMemoryPool("IOBuffer_Buffer_Pool", BUFFER_SIZE, 16);
-    return *pool;
-  }
-private:
-  void* m_entry;
+  p_char8 m_entry;
 public:
   /**
    * Constructor.

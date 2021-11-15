@@ -24,8 +24,6 @@
 
 #include "UnitTest.hpp"
 
-#include "oatpp/core/base/memory/MemoryPool.hpp"
-
 #include <chrono>
 
 namespace oatpp { namespace test {
@@ -58,16 +56,6 @@ void UnitTest::run(v_int32 times) {
   }else{
 
     OATPP_LOGE(TAG, "\033[1mFINISHED\033[0m - \033[1;31mfailed\033[0m, leakingObjects = %d", leakingObjects);
-    
-    auto POOLS = oatpp::base::memory::MemoryPool::POOLS;
-    auto it = POOLS.begin();
-    while (it != POOLS.end()) {
-      auto pool = it->second;
-      if(pool->getObjectsCount() != 0) {
-        OATPP_LOGV("Pool", "name: '%s' [%d(objs)]", pool->getName().c_str(), pool->getObjectsCount());
-      }
-      it ++;
-    }
 
     exit(EXIT_FAILURE);
 

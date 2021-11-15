@@ -50,14 +50,11 @@
 #include "oatpp/core/data/resource/InMemoryDataTest.hpp"
 
 #include "oatpp/core/data/stream/BufferStreamTest.hpp"
-#include "oatpp/core/data/stream/ChunkedBufferTest.hpp"
 #include "oatpp/core/data/share/LazyStringMapTest.hpp"
 #include "oatpp/core/data/share/StringTemplateTest.hpp"
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 #include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
-#include "oatpp/core/base/memory/MemoryPoolTest.hpp"
-#include "oatpp/core/base/memory/PerfTest.hpp"
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
 #include "oatpp/core/base/LoggerTest.hpp"
 
@@ -86,12 +83,8 @@ void runTests() {
     i ++;
   }
 
-
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
   OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
-
-  OATPP_RUN_TEST(oatpp::test::memory::MemoryPoolTest);
-  OATPP_RUN_TEST(oatpp::test::memory::PerfTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
@@ -99,7 +92,6 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::stream::ChunkedBufferTest);
   OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);

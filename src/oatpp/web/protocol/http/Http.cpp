@@ -24,7 +24,7 @@
 
 #include "./Http.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
@@ -138,7 +138,7 @@ const char* const Range::UNIT_BYTES = "bytes";
 const char* const ContentRange::UNIT_BYTES = "bytes";
   
 oatpp::String Range::toString() const {
-  oatpp::data::stream::ChunkedBuffer stream;
+  data::stream::BufferOutputStream stream(256);
   stream.writeSimple(units->data(), units->size());
   stream.writeSimple("=", 1);
   stream.writeAsString(start);
@@ -183,7 +183,7 @@ Range Range::parse(const oatpp::String& str) {
 }
 
 oatpp::String ContentRange::toString() const {
-  oatpp::data::stream::ChunkedBuffer stream;
+  data::stream::BufferOutputStream stream(256);
   stream.writeSimple(units->data(), units->size());
   stream.writeSimple(" ", 1);
   stream.writeAsString(start);

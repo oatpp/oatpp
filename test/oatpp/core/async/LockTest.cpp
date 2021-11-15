@@ -24,7 +24,7 @@
 
 #include "LockTest.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include "oatpp/core/async/Executor.hpp"
 #include "oatpp/core/async/Lock.hpp"
@@ -40,11 +40,11 @@ static constexpr v_int32 NUM_SYMBOLS = 20;
 
 class Buff {
 private:
-  oatpp::data::stream::ChunkedBuffer *m_buffer;
+  oatpp::data::stream::BufferOutputStream *m_buffer;
   std::mutex m_mutex;
 public:
 
-  Buff(oatpp::data::stream::ChunkedBuffer *buffer)
+  Buff(oatpp::data::stream::BufferOutputStream *buffer)
     : m_buffer(buffer) {}
 
   void writeChar(char c) {
@@ -168,7 +168,7 @@ bool checkSymbol(char symbol, const oatpp::String& str) {
 void LockTest::onRun() {
 
   oatpp::async::Lock lock;
-  oatpp::data::stream::ChunkedBuffer buffer;
+  oatpp::data::stream::BufferOutputStream buffer;
   Buff buff(&buffer);
 
   oatpp::async::Executor executor(10, 1, 1);
