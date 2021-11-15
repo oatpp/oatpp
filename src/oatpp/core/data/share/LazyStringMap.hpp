@@ -28,7 +28,6 @@
 #include "./MemoryLabel.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
-#include <map>
 #include <unordered_map>
 
 namespace oatpp { namespace data { namespace share {
@@ -337,7 +336,7 @@ using LazyStringMap = LazyStringMapTemplate<Key, std::unordered_map<Key, Value>>
  * Convenience template for &l:LazyStringMapTemplate;. Based on `std::unordered_map`.
  */
 template<typename Key, typename Value = StringKeyLabel>
-using LazyStringMultimap = LazyStringMapTemplate<Key, std::multimap<Key, Value>>;
+using LazyStringMultimap = LazyStringMapTemplate<Key, std::unordered_multimap<Key, Value>>;
 
 }}}
 

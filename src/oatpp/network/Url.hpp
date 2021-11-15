@@ -43,9 +43,9 @@ public:
   typedef oatpp::data::share::StringKeyLabel StringKeyLabel;
 public:
   /**
-   * Parameters - map string to string.
+   * Parameters - map string to string. &id:oatpp::data::share::LazyStringMultimap;.
    */
-  typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> Parameters;
+  typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabel> Parameters;
 
 public:
 

@@ -27,7 +27,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 BufferBody::BufferBody(const oatpp::String &buffer, const data::share::StringKeyLabel &contentType)
-  : m_buffer(buffer)
+  : m_buffer(buffer ? buffer : "")
   , m_contentType(contentType)
   , m_inlineData((void*) m_buffer->data(), m_buffer->size())
 {}

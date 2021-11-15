@@ -218,7 +218,7 @@ public:
    * @param defaultValue - value to return in case stored value is `nullptr`.
    * @return - value or `defaultValue` if stored value is `nullptr`.
    */
-  std::string getValue(const std::string& defaultValue);
+  std::string getValue(const std::string& defaultValue) const;
 
   template<typename T,
     typename enabled = typename std::enable_if<std::is_same<T, std::nullptr_t>::value, void>::type
@@ -357,7 +357,7 @@ public:
     return *this->m_ptr;
   }
 
-  TValueType getValue(const TValueType& defaultValue) {
+  TValueType getValue(const TValueType& defaultValue) const {
     if(this->m_ptr) {
       return *this->m_ptr;
     }
@@ -434,6 +434,13 @@ public:
       return *(this->m_ptr);
     }
     return false;
+  }
+
+  bool getValue(bool defaultValue) const {
+    if(this->m_ptr) {
+      return *this->m_ptr;
+    }
+    return defaultValue;
   }
 
 };
