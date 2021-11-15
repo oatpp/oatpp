@@ -119,7 +119,7 @@ public:
   }
 
   ENDPOINT("GET", "queries/optional", getWithOptQueries,
-           QUERY(String, name, "name", "Default"), QUERY(Int32, age, "age", "101")) {
+           QUERY(String, name, "name", "Default"), QUERY(Int32, age, "age", 101)) {
     auto dto = TestDto::createShared();
     dto->testValue = "name=" + name + "&age=" + oatpp::utils::conversion::int32ToStr(*age);
     return createDtoResponse(Status::CODE_200, dto);

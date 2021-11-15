@@ -79,7 +79,7 @@ bool String::equalsCI_ASCII(const char* other) {
   return ciLabel == other;
 }
 
-std::string String::getValue(const std::string& defaultValue) {
+std::string String::getValue(const std::string& defaultValue) const {
   if(m_ptr) {
     return *m_ptr;
   }

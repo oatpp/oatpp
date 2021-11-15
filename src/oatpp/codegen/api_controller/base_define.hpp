@@ -187,14 +187,17 @@ if(!__param_validation_check_##NAME){ \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_3(TYPE, NAME, QUALIFIER, DEFAULT) \
-const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER, DEFAULT); \
-bool __param_validation_check_##NAME; \
-const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
-if(!__param_validation_check_##NAME){ \
-  return ApiController::handleError(Status::CODE_400, \
-                                    oatpp::String("Invalid QUERY parameter '") + \
-                                    QUALIFIER + \
-                                    "'. Expected type is '" #TYPE "'"); \
+TYPE NAME = DEFAULT; \
+const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER); \
+if(__param_str_val_##NAME) { \
+  bool __param_validation_check_##NAME; \
+  NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
+  if(!__param_validation_check_##NAME){ \
+    return ApiController::handleError(Status::CODE_400, \
+                                      oatpp::String("Invalid QUERY parameter '") + \
+                                      QUALIFIER + \
+                                      "'. Expected type is '" #TYPE "'"); \
+  } \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY(TYPE, PARAM_LIST) \

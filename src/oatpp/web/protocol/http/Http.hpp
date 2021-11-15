@@ -40,15 +40,15 @@ namespace oatpp { namespace web { namespace protocol { namespace http {
 
 /**
  * Typedef for headers map. Headers map key is case-insensitive.
- * For more info see &id:oatpp::data::share::LazyStringMap;.
+ * For more info see &id:oatpp::data::share::LazyStringMultimap;.
  */
 typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabelCI> Headers;
 
 /**
  * Typedef for query parameters map.
- * For more info see &id:oatpp::data::share::LazyStringMap;.
+ * For more info see &id:oatpp::data::share::LazyStringMultimap;.
  */
-typedef oatpp::data::share::LazyStringMap<oatpp::data::share::StringKeyLabel> QueryParams;
+typedef oatpp::data::share::LazyStringMultimap<oatpp::data::share::StringKeyLabel> QueryParams;
 
 /**
  * Http status.
