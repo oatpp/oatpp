@@ -428,9 +428,7 @@ public:
    * Print debug information of compilation config.<br>
    * Print values for: <br>
    * - `OATPP_DISABLE_ENV_OBJECT_COUNTERS`<br>
-   * - `OATPP_DISABLE_POOL_ALLOCATIONS`<br>
    * - `OATPP_THREAD_HARDWARE_CONCURRENCY`<br>
-   * - `OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT`
    */
   static void printCompilationConfig();
 
