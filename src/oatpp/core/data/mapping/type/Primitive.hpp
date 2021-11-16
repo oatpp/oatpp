@@ -69,7 +69,7 @@ public:
   String() {}
 
   explicit String(v_buff_size size)
-    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(size, 0))
+    : type::ObjectWrapper<std::string, __class::String>(std::make_shared<std::string>(size, '\0'))
   {}
 
   String(const char* data, v_buff_size size)
