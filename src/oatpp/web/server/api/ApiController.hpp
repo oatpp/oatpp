@@ -198,7 +198,7 @@ protected:
       , request(pRequest)
     {}
     
-    const ControllerT* controller;
+    ControllerT* const controller;
     std::shared_ptr<IncomingRequest> request;
     
   };
