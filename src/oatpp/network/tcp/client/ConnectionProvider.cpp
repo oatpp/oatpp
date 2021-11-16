@@ -306,7 +306,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
         return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
-      } else if(errno == EINTR || errno == EALREADY) {
+      } else if(errno == EINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
 
