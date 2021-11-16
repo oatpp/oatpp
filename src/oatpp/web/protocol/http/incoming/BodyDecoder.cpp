@@ -41,7 +41,7 @@ BodyDecoder::decodeToStringAsync(const Headers& headers,
     Headers m_headers;
     std::shared_ptr<data::stream::InputStream> m_bodyStream;
     std::shared_ptr<data::stream::IOStream> m_connection;
-    std::shared_ptr<data::stream::ChunkedBuffer> m_outputStream;
+    std::shared_ptr<data::stream::BufferOutputStream> m_outputStream;
   public:
 
     ToStringDecoder(const BodyDecoder* decoder,
@@ -52,7 +52,7 @@ BodyDecoder::decodeToStringAsync(const Headers& headers,
       , m_headers(headers)
       , m_bodyStream(bodyStream)
       , m_connection(connection)
-      , m_outputStream(std::make_shared<data::stream::ChunkedBuffer>())
+      , m_outputStream(std::make_shared<data::stream::BufferOutputStream>())
     {}
 
     Action act() override {

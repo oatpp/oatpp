@@ -24,8 +24,6 @@
 
 #include "RequestHeadersReader.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
-
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
 v_io_size RequestHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,

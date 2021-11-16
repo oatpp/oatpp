@@ -34,7 +34,7 @@ BufferBody::BufferBody(const oatpp::String &buffer, const data::share::StringKey
 
 std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String &buffer,
                                                      const data::share::StringKeyLabel &contentType) {
-  return Shared_Http_Outgoing_BufferBody_Pool::allocateShared(buffer, contentType);
+  return std::make_shared<BufferBody>(buffer, contentType);
 }
 
 v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action &action) {

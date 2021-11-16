@@ -45,7 +45,7 @@ std::shared_ptr<Request> Request::createShared(const oatpp::data::share::StringK
                                                const oatpp::data::share::StringKeyLabel& path,
                                                const Headers& headers,
                                                const std::shared_ptr<Body>& body) {
-  return Shared_Outgoing_Request_Pool::allocateShared(method, path, headers, body);
+  return std::make_shared<Request>(method, path, headers, body);
 }
 
 const oatpp::data::share::StringKeyLabel& Request::getMethod() const {

@@ -29,15 +29,15 @@ namespace oatpp { namespace data { namespace buffer {
 const v_buff_size IOBuffer::BUFFER_SIZE = 4096;
 
 IOBuffer::IOBuffer()
-  : m_entry(getBufferPool().obtain())
+  : m_entry(new v_char8[BUFFER_SIZE])
 {}
 
 std::shared_ptr<IOBuffer> IOBuffer::createShared(){
-  return Shared_IOBuffer_Pool::allocateShared();
+  return std::make_shared<IOBuffer>();
 }
 
 IOBuffer::~IOBuffer() {
-  oatpp::base::memory::MemoryPool::free(m_entry);
+  delete [] m_entry;
 }
 
 void* IOBuffer::getData(){

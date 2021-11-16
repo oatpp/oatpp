@@ -25,10 +25,11 @@
 #ifndef oatpp_data_share_MemoryLabel_hpp
 #define oatpp_data_share_MemoryLabel_hpp
 
-#include <memory>
-
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/utils/String.hpp"
+
+#include <cstring>
+#include <memory>
 
 namespace oatpp { namespace data { namespace share {
   

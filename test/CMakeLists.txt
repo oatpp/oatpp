@@ -7,10 +7,6 @@ add_executable(oatppAllTests
         oatpp/core/base/CommandLineArgumentsTest.hpp
         oatpp/core/base/LoggerTest.cpp
         oatpp/core/base/LoggerTest.hpp
-        oatpp/core/base/memory/MemoryPoolTest.cpp
-        oatpp/core/base/memory/MemoryPoolTest.hpp
-        oatpp/core/base/memory/PerfTest.cpp
-        oatpp/core/base/memory/PerfTest.hpp
         oatpp/core/data/buffer/ProcessorTest.cpp
         oatpp/core/data/buffer/ProcessorTest.hpp
         oatpp/core/data/mapping/type/AnyTest.cpp
@@ -51,8 +47,6 @@ add_executable(oatppAllTests
         oatpp/core/data/share/StringTemplateTest.hpp
         oatpp/core/data/stream/BufferStreamTest.cpp
         oatpp/core/data/stream/BufferStreamTest.hpp
-        oatpp/core/data/stream/ChunkedBufferTest.cpp
-        oatpp/core/data/stream/ChunkedBufferTest.hpp
         oatpp/core/parser/CaretTest.cpp
         oatpp/core/parser/CaretTest.hpp
         oatpp/core/provider/PoolTest.cpp

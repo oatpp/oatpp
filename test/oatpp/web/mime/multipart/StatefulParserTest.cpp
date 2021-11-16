@@ -88,7 +88,7 @@ namespace {
     v_int64 bufferSize = 16;
     std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
 
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     oatpp::data::stream::transfer(payload->openInputStream(), &stream, 0, buffer.get(), bufferSize);
 
     oatpp::String readData = stream.toString();

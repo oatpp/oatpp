@@ -25,7 +25,6 @@
 #include "ApiControllerTest.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server { namespace api {
@@ -108,7 +107,7 @@ void ApiControllerTest::onRun() {
     auto response = controller.root();
     OATPP_ASSERT(response->getStatus().code == 200);
 
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
@@ -135,7 +134,7 @@ void ApiControllerTest::onRun() {
     auto response = controller.pathParams("p1", "p2");
     OATPP_ASSERT(response->getStatus().code == 200);
 
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
@@ -156,7 +155,7 @@ void ApiControllerTest::onRun() {
     auto response = controller.queryParams("p1", "p2");
     OATPP_ASSERT(response->getStatus().code == 200);
 
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
     OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());

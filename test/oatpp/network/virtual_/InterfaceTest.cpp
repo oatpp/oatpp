@@ -26,7 +26,7 @@
 
 #include "oatpp/network/virtual_/Interface.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include <thread>
 #include <list>
@@ -59,11 +59,11 @@ namespace {
       OATPP_ASSERT(res == m_dataSample->size());
       
       v_char8 buffer[100];
-      oatpp::data::stream::ChunkedBuffer stream;
+      oatpp::data::stream::BufferOutputStream stream;
       res = oatpp::data::stream::transfer(socket.get(), &stream, 2, buffer, 100);
       
       OATPP_ASSERT(res == 2);
-      OATPP_ASSERT(stream.getSize() == res);
+      OATPP_ASSERT(stream.getCurrentPosition() == res);
       OATPP_ASSERT(stream.toString() == "OK");
       
       //OATPP_LOGV("client", "finished - OK");
@@ -86,11 +86,11 @@ namespace {
     
     void run() {
       v_char8 buffer[100];
-      oatpp::data::stream::ChunkedBuffer stream;
+      oatpp::data::stream::BufferOutputStream stream;
       auto res = oatpp::data::stream::transfer(m_socket.get(), &stream, m_dataSample->size(), buffer, 100);
       
       OATPP_ASSERT(res == m_dataSample->size());
-      OATPP_ASSERT(stream.getSize() == res);
+      OATPP_ASSERT(stream.getCurrentPosition() == res);
       OATPP_ASSERT(stream.toString() == m_dataSample);
       
       res = m_socket->writeExactSizeDataSimple("OK", 2);

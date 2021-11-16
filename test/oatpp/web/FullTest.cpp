@@ -327,7 +327,7 @@ void FullTest::onRun() {
       }
 
       { // test Big Echo with body
-        oatpp::data::stream::ChunkedBuffer stream;
+        oatpp::data::stream::BufferOutputStream stream;
         for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
           stream.writeSimple("0123456789", 10);
         }
@@ -433,7 +433,7 @@ void FullTest::onRun() {
       { // test Chunked body
         oatpp::String sample = "__abcdefghijklmnopqrstuvwxyz-0123456789";
         v_int32 numIterations = 10;
-        oatpp::data::stream::ChunkedBuffer stream;
+        oatpp::data::stream::BufferOutputStream stream;
         for(v_int32 i = 0; i < numIterations; i++) {
           stream.writeSimple(sample->data(), sample->size());
         }

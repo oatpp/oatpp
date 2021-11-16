@@ -24,7 +24,7 @@
 
 #include "ObjectMapper.hpp"
 
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -37,7 +37,7 @@ const ObjectMapper::Info& ObjectMapper::getInfo() const {
 }
 
 oatpp::String ObjectMapper::writeToString(const type::Void& variant) const {
-  stream::ChunkedBuffer stream;
+  stream::BufferOutputStream stream;
   write(&stream, variant);
   return stream.toString();
 }

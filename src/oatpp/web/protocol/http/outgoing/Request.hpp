@@ -40,9 +40,6 @@ public:
    * Convenience typedef for &id:oatpp::web::protocol::http::Headers;.
    */
   typedef protocol::http::Headers Headers;
-public:
-  OBJECT_POOL(Outgoing_Request_Pool, Request, 32)
-  SHARED_OBJECT_POOL(Shared_Outgoing_Request_Pool, Request, 32)
 private:
   oatpp::data::share::StringKeyLabel m_method;
   oatpp::data::share::StringKeyLabel m_path;

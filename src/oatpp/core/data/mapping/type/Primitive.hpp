@@ -27,7 +27,6 @@
 
 #include "./Type.hpp"
 
-#include "oatpp/core/base/memory/ObjectPool.hpp"
 #include "oatpp/core/base/Countable.hpp"
 
 #include <algorithm>

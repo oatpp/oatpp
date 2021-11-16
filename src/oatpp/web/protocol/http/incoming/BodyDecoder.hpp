@@ -27,7 +27,7 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/stream/ChunkedBuffer.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
@@ -49,7 +49,7 @@ private:
     std::shared_ptr<data::stream::InputStream> m_bodyStream;
     std::shared_ptr<data::stream::IOStream> m_connection;
     std::shared_ptr<data::mapping::ObjectMapper> m_objectMapper;
-    std::shared_ptr<data::stream::ChunkedBuffer> m_outputStream;
+    std::shared_ptr<data::stream::BufferOutputStream> m_outputStream;
   public:
     
     ToDtoDecoder(const BodyDecoder* decoder,
@@ -62,7 +62,7 @@ private:
       , m_bodyStream(bodyStream)
       , m_connection(connection)
       , m_objectMapper(objectMapper)
-      , m_outputStream(std::make_shared<data::stream::ChunkedBuffer>())
+      , m_outputStream(std::make_shared<data::stream::BufferOutputStream>())
     {}
     
     oatpp::async::Action act() override {
@@ -125,7 +125,7 @@ public:
                                data::stream::InputStream* bodyStream,
                                data::stream::IOStream* connection) const
   {
-    oatpp::data::stream::ChunkedBuffer stream;
+    oatpp::data::stream::BufferOutputStream stream;
     decode(headers, bodyStream, &stream, connection);
     return stream.toString();
   }

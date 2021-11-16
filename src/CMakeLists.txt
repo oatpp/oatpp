@@ -58,12 +58,6 @@ add_library(oatpp
         oatpp/core/base/Environment.cpp
         oatpp/core/base/Environment.hpp
         oatpp/core/base/ObjectHandle.hpp
-        oatpp/core/base/memory/Allocator.cpp
-        oatpp/core/base/memory/Allocator.hpp
-        oatpp/core/base/memory/MemoryPool.cpp
-        oatpp/core/base/memory/MemoryPool.hpp
-        oatpp/core/base/memory/ObjectPool.cpp
-        oatpp/core/base/memory/ObjectPool.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
@@ -116,8 +110,6 @@ add_library(oatpp
         oatpp/core/data/share/StringTemplate.hpp
         oatpp/core/data/stream/BufferStream.cpp
         oatpp/core/data/stream/BufferStream.hpp
-        oatpp/core/data/stream/ChunkedBuffer.cpp
-        oatpp/core/data/stream/ChunkedBuffer.hpp
         oatpp/core/data/stream/FIFOStream.cpp
         oatpp/core/data/stream/FIFOStream.hpp
         oatpp/core/data/stream/FileStream.cpp

@@ -35,12 +35,12 @@ AuthorizationHandler::AuthorizationHandler(const oatpp::String& scheme, const oa
   , m_realm(realm)
 {}
 
-void AuthorizationHandler::renderAuthenticateHeaderValue(ChunkedBuffer& stream) {
+void AuthorizationHandler::renderAuthenticateHeaderValue(BufferOutputStream& stream) {
   stream << m_scheme << " " << "realm=\"" << m_realm << "\"";
 }
 
 void AuthorizationHandler::addErrorResponseHeaders(Headers& headers) {
-  ChunkedBuffer stream;
+  BufferOutputStream stream;
   renderAuthenticateHeaderValue(stream);
   headers.put_LockFree(protocol::http::Header::WWW_AUTHENTICATE, stream.toString());
 }

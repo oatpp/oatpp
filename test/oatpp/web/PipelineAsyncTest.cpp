@@ -143,7 +143,7 @@ void PipelineAsyncTest::onRun() {
 
     std::thread pipeInThread([this, connection] {
 
-      oatpp::data::stream::ChunkedBuffer pipelineStream;
+      oatpp::data::stream::BufferOutputStream pipelineStream;
 
       for (v_int32 i = 0; i < m_pipelineSize; i++) {
         pipelineStream << SAMPLE_IN;
@@ -160,7 +160,7 @@ void PipelineAsyncTest::onRun() {
     std::thread pipeOutThread([this, connection] {
 
       oatpp::String sample = SAMPLE_OUT;
-      oatpp::data::stream::ChunkedBuffer receiveStream;
+      oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
       auto res = oatpp::data::stream::transfer(connection.object.get(), &receiveStream, sample->size() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());

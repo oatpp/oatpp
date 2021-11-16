@@ -31,7 +31,6 @@ option(OATPP_DISABLE_ENV_OBJECT_COUNTERS "Disable object counting for Release bu
 option(OATPP_DISABLE_POOL_ALLOCATIONS "This will make oatpp::base::memory::MemoryPool, method obtain and free call new and delete directly" OFF)
 
 set(OATPP_THREAD_HARDWARE_CONCURRENCY "AUTO" CACHE STRING "Predefined value for function oatpp::concurrency::Thread::getHardwareConcurrency()")
-set(OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT "10" CACHE STRING "Number of shards of ThreadDistributedMemoryPool")
 
 option(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL "Disable 'thread_local' feature" OFF)
 option(OATPP_COMPAT_BUILD_NO_SET_AFFINITY "No 'pthread_setaffinity_np' method" OFF)
@@ -48,10 +47,7 @@ message("\n#####################################################################
 message("## oatpp module compilation config:\n")
 
 message("OATPP_DISABLE_ENV_OBJECT_COUNTERS=${OATPP_DISABLE_ENV_OBJECT_COUNTERS}")
-message("OATPP_DISABLE_POOL_ALLOCATIONS=${OATPP_DISABLE_POOL_ALLOCATIONS}")
 message("OATPP_THREAD_HARDWARE_CONCURRENCY=${OATPP_THREAD_HARDWARE_CONCURRENCY}")
-message("OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=${OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT}")
-
 message("OATPP_COMPAT_BUILD_NO_THREAD_LOCAL=${OATPP_COMPAT_BUILD_NO_THREAD_LOCAL}")
 
 ## Set definitions ###############################################################################
@@ -62,6 +58,7 @@ endif()
 
 if(OATPP_DISABLE_POOL_ALLOCATIONS)
     add_definitions (-DOATPP_DISABLE_POOL_ALLOCATIONS)
+    message("WARNING: OATPP_DISABLE_POOL_ALLOCATIONS option is deprecated and has no effect.")
 endif()
 
 set(AUTO_VALUE AUTO)
@@ -69,9 +66,10 @@ if(NOT OATPP_THREAD_HARDWARE_CONCURRENCY STREQUAL AUTO_VALUE)
     add_definitions (-DOATPP_THREAD_HARDWARE_CONCURRENCY=${OATPP_THREAD_HARDWARE_CONCURRENCY})
 endif()
 
-add_definitions (
-    -DOATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=${OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT}
-)
+if(OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT)
+    add_definitions (-DOATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=${OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT})
+    message("WARNING: OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT option is deprecated and has no effect.")
+endif()
 
 if(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
     add_definitions(-DOATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
