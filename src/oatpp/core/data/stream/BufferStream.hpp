@@ -116,6 +116,12 @@ public:
   void setCurrentPosition(v_buff_size position);
 
   /**
+   * Reset stream buffer and its capacity. Also reset write position.
+   * @param initialCapacity
+   */
+  void reset(v_buff_size initialCapacity = 2048);
+
+  /**
    * Copy data to &id:oatpp::String;.
    * @return
    */

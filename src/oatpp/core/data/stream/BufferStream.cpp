@@ -118,6 +118,13 @@ void BufferOutputStream::setCurrentPosition(v_buff_size position) {
   m_position = position;
 }
 
+void BufferOutputStream::reset(v_buff_size initialCapacity) {
+  delete [] m_data;
+  m_data = new v_char8[initialCapacity];
+  m_capacity = initialCapacity;
+  m_position = 0;
+}
+
 oatpp::String BufferOutputStream::toString() {
   return oatpp::String((const char*) m_data, m_position);
 }
