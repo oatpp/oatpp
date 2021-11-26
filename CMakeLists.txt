@@ -121,3 +121,9 @@ if(OATPP_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+
+include(cpack.cmake)
+
+# This must always be last!
+include( CPack )
