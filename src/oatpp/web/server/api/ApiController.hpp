@@ -423,6 +423,8 @@ public:
   std::shared_ptr<OutgoingResponse> createResponse(const Status& status,
                                                    const oatpp::String& str) const;
   
+  std::shared_ptr<OutgoingResponse> createResponse(const Status& status) const;
+
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
                                                       const oatpp::Void& dto,
                                                       const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& objectMapper) const;

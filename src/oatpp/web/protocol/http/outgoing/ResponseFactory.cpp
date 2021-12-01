@@ -27,7 +27,12 @@
 #include "./BufferBody.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
-  
+
+std::shared_ptr<Response>
+ResponseFactory::createResponse(const Status& status) {
+  return Response::createShared(status, nullptr);
+}
+
 std::shared_ptr<Response>
 ResponseFactory::createResponse(const Status& status, const oatpp::String& text) {
   return Response::createShared(status, BufferBody::createShared(text));

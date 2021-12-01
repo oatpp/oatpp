@@ -253,6 +253,17 @@ public:
     }
 
     /**
+     * Add response info with no message-body to endpoint
+     * @param status
+     * @param responseDescription
+     */
+    ContentHints& addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& responseDescription = oatpp::String()) {
+      auto& hint = responses[status];
+      hint.description = responseDescription.get() == nullptr ? status.description : responseDescription;
+      return hint;
+    }
+
+    /**
      * Add security requirement.
      * @param requirement
      * @param scopes

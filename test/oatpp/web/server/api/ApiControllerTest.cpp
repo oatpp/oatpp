@@ -73,6 +73,13 @@ public:
     return createResponse(Status::CODE_200, "test3");
   }
 
+  ENDPOINT_INFO(noContent) {
+      info->addResponse(Status::CODE_204, "No Content");
+    }
+  ENDPOINT("GET", "noContent", noContent) {
+    return createResponse(Status::CODE_204);
+  }
+
 #include OATPP_CODEGEN_END(ApiController)
 
 };
@@ -154,6 +161,27 @@ void ApiControllerTest::onRun() {
 
     auto response = controller.queryParams("p1", "p2");
     OATPP_ASSERT(response->getStatus().code == 200);
+
+    oatpp::data::stream::BufferOutputStream stream;
+    response->send(&stream, &headersOutBuffer, nullptr);
+
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
+
+  }
+
+  {
+    auto endpoint = controller.Z__ENDPOINT_noContent;
+    OATPP_ASSERT(endpoint);
+    OATPP_ASSERT(!endpoint->info()->summary);
+
+    auto r204 = endpoint->info()->responses[Status::CODE_204];
+    OATPP_ASSERT(!r204.contentType);
+    OATPP_ASSERT(!r204.schema);
+    OATPP_ASSERT(r204.description == "No Content");
+
+    auto response = controller.noContent();
+    OATPP_ASSERT(response->getStatus().code == 204);
+    OATPP_ASSERT(!response->getBody());
 
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
