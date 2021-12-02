@@ -269,6 +269,15 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(value == "Hello World Async!!!");
       }
 
+      { // test host header
+        auto response = client->getHostHeader(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        auto host = clientConnectionProvider->getProperty("host");
+        OATPP_ASSERT(host);
+        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port));
+      }
+
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();

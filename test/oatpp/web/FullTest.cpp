@@ -508,6 +508,15 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testValueInt == 32000);
       }
 
+      { // test host header
+        auto response = client->getHostHeader(connection);
+        OATPP_ASSERT(response->getStatusCode() == 200);
+        auto value = response->readBodyToString();
+        auto host = clientConnectionProvider->getProperty("host");
+        OATPP_ASSERT(host);
+        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port));
+      }
+
     }
 
   }, std::chrono::minutes(10));

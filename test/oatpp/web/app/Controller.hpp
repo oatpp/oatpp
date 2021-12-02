@@ -401,7 +401,16 @@ public:
     dto->testValueInt = a;
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
+  ENDPOINT("GET", "host_header", getHostHeader,
+           REQUEST(std::shared_ptr<IncomingRequest>, request)) {
+    auto hostHeader = request->getHeader("Host");
+    if(hostHeader) {
+      return createResponse(Status::CODE_200, hostHeader);
+    }
+    return createResponse(Status::CODE_400, "");
+  }
+
 };
 
 #include OATPP_CODEGEN_END(ApiController)
