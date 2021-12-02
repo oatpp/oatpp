@@ -39,24 +39,31 @@ TemporaryFile::FileHandle::~FileHandle() {
   }
 }
 
-oatpp::String TemporaryFile::constructRandomFilename(const oatpp::String& dir, v_int32 randomWordSizeBytes) {
+oatpp::String TemporaryFile::constructRandomFilename(const oatpp::String &dir, v_int32 randomWordSizeBytes, const oatpp::String &extension) {
 
   std::unique_ptr<v_char8[]> buff(new v_char8[randomWordSizeBytes]);
   utils::random::Random::randomBytes(buff.get(), randomWordSizeBytes);
   data::stream::BufferOutputStream s(randomWordSizeBytes * 2 + 4);
   encoding::Hex::encode(&s, buff.get(), randomWordSizeBytes, encoding::Hex::ALPHABET_LOWER);
-  s << ".tmp";
+  if (extension->at(0) != '.') {
+    s << ".";
+  }
+  s << extension;
 
   return File::concatDirAndName(dir, s.toString());
 
 }
 
 TemporaryFile::TemporaryFile(const oatpp::String& tmpDirectory, v_int32 randomWordSizeBytes)
-  : m_handle(std::make_shared<FileHandle>(constructRandomFilename(tmpDirectory, randomWordSizeBytes)))
+  : m_handle(std::make_shared<FileHandle>(constructRandomFilename(tmpDirectory, randomWordSizeBytes, "tmp")))
 {}
 
 TemporaryFile::TemporaryFile(const oatpp::String& tmpDirectory, const oatpp::String& tmpFileName)
   : m_handle(std::make_shared<FileHandle>(File::concatDirAndName(tmpDirectory, tmpFileName)))
+{}
+
+TemporaryFile::TemporaryFile(const oatpp::String& tmpDirectory, v_int32 randomWordSizeBytes, const oatpp::String& extension)
+  : m_handle(std::make_shared<FileHandle>(constructRandomFilename(tmpDirectory, randomWordSizeBytes, extension)))
 {}
 
 std::shared_ptr<data::stream::OutputStream> TemporaryFile::openOutputStream() {

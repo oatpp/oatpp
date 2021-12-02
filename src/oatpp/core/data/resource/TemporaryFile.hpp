@@ -58,7 +58,7 @@ private:
   };
 
 private:
-  static oatpp::String constructRandomFilename(const oatpp::String& dir, v_int32 randomWordSizeBytes);
+  static oatpp::String constructRandomFilename(const oatpp::String &dir, v_int32 randomWordSizeBytes, const oatpp::String &extension);
 private:
   std::shared_ptr<FileHandle> m_handle;
 public:
@@ -85,6 +85,17 @@ public:
    * @param tmpFileName - predefined name for the temporary file.
    */
   TemporaryFile(const oatpp::String& tmpDirectory, const oatpp::String& tmpFileName);
+
+  /**
+   * Constructor. <br>
+   * Create temporary file with a random name and specified extension in the `tmpDirectory`. <br>
+   * The actual file will be created only after first write to that file. <br>
+   * Example of the generated random file name: `f7c6ecd44024ff31.txt`.
+   * @param tmpDirectory - directory where to create a temporary file.
+   * @param randomWordSizeBytes - number of random bytes to generate file name.
+   * @param extension - extension of the temporary file, e.g. txt or .txt
+   */
+  TemporaryFile(const oatpp::String& tmpDirectory, v_int32 randomWordSizeBytes, const oatpp::String& extension);
 
   /**
    * Open output stream to a temporary file. <br>
