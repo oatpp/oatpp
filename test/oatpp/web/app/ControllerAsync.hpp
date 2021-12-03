@@ -361,6 +361,20 @@ public:
 
   };
 
+  ENDPOINT_ASYNC("GET", "host_header", HostHeader) {
+
+    ENDPOINT_ASYNC_INIT(HostHeader)
+
+    Action act() {
+      auto hostHeader = request->getHeader("Host");
+      if(hostHeader) {
+        return _return(controller->createResponse(Status::CODE_200, hostHeader));
+      }
+      return _return(controller->createResponse(Status::CODE_400, ""));
+    }
+
+  };
+
 #include OATPP_CODEGEN_END(ApiController)
   
 };

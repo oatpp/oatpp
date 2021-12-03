@@ -88,6 +88,8 @@ public:
 
   API_CALL("GET", "bundle", getBundle)
 
+  API_CALL("GET", "host_header", getHostHeader)
+
   API_CALL_ASYNC("GET", "/", getRootAsync)
   API_CALL_ASYNC("GET", "/", getRootAsyncWithCKA, HEADER(String, connection, "Connection"))
   API_CALL_ASYNC("GET", "params/{param}", getWithParamsAsync, PATH(String, param))

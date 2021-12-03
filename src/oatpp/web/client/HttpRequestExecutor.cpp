@@ -29,6 +29,7 @@
 
 #include "oatpp/network/tcp/Connection.hpp"
 
+#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
@@ -198,7 +199,13 @@ HttpRequestExecutor::executeOnce(const String& method,
   connection->setOutputStreamIOMode(data::stream::IOMode::BLOCKING);
   
   auto request = oatpp::web::protocol::http::outgoing::Request::createShared(method, path, headers, body);
-  request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::HOST, m_connectionProvider->getProperty("host"));
+  oatpp::data::stream::BufferOutputStream hostValue;
+  hostValue << m_connectionProvider->getProperty("host").toString();
+  auto port = m_connectionProvider->getProperty("port");
+  if(port) {
+    hostValue << ":" << port.toString();
+  }
+  request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::HOST, hostValue.toString());
   request->putHeaderIfNotExists_Unsafe(oatpp::web::protocol::http::Header::CONNECTION, oatpp::web::protocol::http::Header::Value::CONNECTION_KEEP_ALIVE);
 
   oatpp::data::share::MemoryLabel buffer(std::make_shared<std::string>(oatpp::data::buffer::IOBuffer::BUFFER_SIZE, 0));
@@ -300,7 +307,13 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
       m_connection->setOutputStreamIOMode(data::stream::IOMode::ASYNCHRONOUS);
 
       auto request = OutgoingRequest::createShared(m_method, m_path, m_headers, m_body);
-      request->putHeaderIfNotExists_Unsafe(Header::HOST, m_this->m_connectionProvider->getProperty("host"));
+      oatpp::data::stream::BufferOutputStream hostValue;
+      hostValue << m_this->m_connectionProvider->getProperty("host").toString();
+      auto port = m_this->m_connectionProvider->getProperty("port");
+      if(port) {
+        hostValue << ":" << port.toString();
+      }
+      request->putHeaderIfNotExists_Unsafe(Header::HOST, hostValue.toString());
       request->putHeaderIfNotExists_Unsafe(Header::CONNECTION, Header::Value::CONNECTION_KEEP_ALIVE);
       m_upstream = oatpp::data::stream::OutputStreamBufferedProxy::createShared(m_connection, m_buffer);
       return OutgoingRequest::sendAsync(request, m_upstream).next(m_upstream->flushAsync()).next(yieldTo(&ExecutorCoroutine::readResponse));
