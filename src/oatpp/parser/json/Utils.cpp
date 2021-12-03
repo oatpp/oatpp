@@ -24,6 +24,8 @@
 
 #include "Utils.hpp"
 
+#include <clocale>
+
 #include "oatpp/encoding/Unicode.hpp"
 #include "oatpp/encoding/Hex.hpp"
 
@@ -477,6 +479,32 @@ std::string Utils::parseStringToStdString(ParsingCaret& caret){
   
 }
 
+v_buff_size Utils::float32ToJson(v_float32 value, p_char8 data, v_buff_size n) {
+  const v_buff_size ret = snprintf((char*)data, n, OATPP_FLOAT_STRING_FORMAT, value);
+  convertFirstDecimalSeparatorFromLocaleToJson(data, data + n);
+  return ret;
+}
+
+v_buff_size Utils::float64ToJson(v_float64 value, p_char8 data, v_buff_size n) {
+  const v_buff_size ret = snprintf((char*)data, n, OATPP_FLOAT_STRING_FORMAT, value);
+  convertFirstDecimalSeparatorFromLocaleToJson(data, data + n);
+  return ret;
+}
+
+void Utils::convertFirstDecimalSeparatorFromLocaleToJson(p_char8 data, p_char8 end) {
+  const char locale_decimal_point = localeconv()->decimal_point[0];
+  if (locale_decimal_point != JSON_DECIMAL_SEPARATOR) {
+    convertFirstDecimalSeparatorInCurrentNumber(data, end, locale_decimal_point, JSON_DECIMAL_SEPARATOR);
+  }
+}
+
+void Utils::convertFirstDecimalSeparatorFromJsonToLocale(p_char8 data, p_char8 end) {
+  const char locale_decimal_point = localeconv()->decimal_point[0];
+  if (locale_decimal_point != JSON_DECIMAL_SEPARATOR) {
+    convertFirstDecimalSeparatorInCurrentNumber(data, end, JSON_DECIMAL_SEPARATOR, locale_decimal_point);
+  }
+}
+
 bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
   parser::Caret::StateSaveGuard stateGuard(caret);
 
@@ -492,5 +520,19 @@ bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
   }
   return false;
 }
-  
+
+void Utils::convertFirstDecimalSeparatorInCurrentNumber(p_char8 data, p_char8 end, char old_char, char new_char) {
+  // search until a decimal separator is found or no more digits/sign are found or no more data available
+  while(data != end) {
+    if (*data == old_char) {
+      *data = new_char;
+      return;
+    }
+    if (!std::isdigit(*data) && *data != '-') {
+      return;
+    }
+    ++data;
+  }
+}
+
 }}}

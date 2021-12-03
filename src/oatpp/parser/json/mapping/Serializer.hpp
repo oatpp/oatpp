@@ -132,6 +132,14 @@ private:
       stream->writeSimple("null", 4);
     }
   }
+
+  static void serializeFloat32(Serializer* serializer,
+                               data::stream::ConsistentOutputStream* stream,
+                               const oatpp::Void& polymorph);
+
+  static void serializeFloat64(Serializer* serializer,
+                               data::stream::ConsistentOutputStream* stream,
+                               const oatpp::Void& polymorph);
   
   static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream,
                               const char* data,
