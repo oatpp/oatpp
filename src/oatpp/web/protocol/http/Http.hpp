@@ -247,6 +247,11 @@ public:
   static const Status CODE_417;// Expectation Failed
 
   /**
+   * I'm a Teapot (rfc7168 2.3.3)
+   */
+  static const Status CODE_418;// I'm a teapot
+
+  /**
    * Unprocessable Entity.
    */
   static const Status CODE_422;// Unprocessable Entity

@@ -27,6 +27,7 @@
 #include "oatpp/web/app/Client.hpp"
 
 #include "oatpp/web/app/ControllerWithInterceptors.hpp"
+#include "oatpp/web/app/ControllerWithErrorHandler.hpp"
 #include "oatpp/web/app/Controller.hpp"
 #include "oatpp/web/app/BasicAuthorizationController.hpp"
 #include "oatpp/web/app/BearerAuthorizationController.hpp"
@@ -143,6 +144,7 @@ void FullTest::onRun() {
 
   runner.addController(app::Controller::createShared());
   runner.addController(app::ControllerWithInterceptors::createShared());
+  runner.addController(app::ControllerWithErrorHandler::createShared());
   runner.addController(app::DefaultBasicAuthorizationController::createShared());
   runner.addController(app::BasicAuthorizationController::createShared());
   runner.addController(app::BearerAuthorizationController::createShared());
@@ -485,6 +487,13 @@ void FullTest::onRun() {
         OATPP_ASSERT(response->getStatusCode() == 200);
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World!!!");
+      }
+
+      { // test controller's error handler catches
+        auto response = client->getCaughtError(connection);
+        OATPP_ASSERT(response->getStatusCode() == 418);
+        auto value = response->readBodyToString();
+        OATPP_ASSERT(value == "Controller With Errors!");
       }
 
       { // test header replacement

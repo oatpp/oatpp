@@ -42,9 +42,16 @@ public:
   typedef web::protocol::http::Headers Headers;
 public:
   /**
-   * Virtual destructor since the class is ment to be derived from.
+   * Virtual destructor since the class is meant to be derived from.
    * */
   virtual ~ErrorHandler() = default;
+
+   /**
+   * Implement this method!
+   * @param error - &std::exception;.
+   * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
+   */
+  virtual std::shared_ptr<protocol::http::outgoing::Response> handleError(const std::exception_ptr& exceptionPtr) = 0;
 
   /**
    * Implement this method!
@@ -53,6 +60,7 @@ public:
    * @param Headers - &id:oatpp::web::protocol::http::Headers;
    * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
+  [[deprecated]]
   virtual
   std::shared_ptr<protocol::http::outgoing::Response>
   handleError(const protocol::http::Status& status, const oatpp::String& message, const Headers& headers) = 0;
@@ -63,6 +71,7 @@ public:
    * @param message - &id:oatpp::String;.
    * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
+  [[deprecated]]
   std::shared_ptr<protocol::http::outgoing::Response> handleError(const protocol::http::Status& status, const oatpp::String& message);
   
 };
@@ -75,8 +84,7 @@ public:
   /**
    * Constructor.
    */
-  DefaultErrorHandler()
-  {}
+  DefaultErrorHandler() = default;
 public:
 
   /**
@@ -86,6 +94,8 @@ public:
   static std::shared_ptr<DefaultErrorHandler> createShared() {
     return std::make_shared<DefaultErrorHandler>();
   }
+
+  std::shared_ptr<protocol::http::outgoing::Response> handleError(const std::exception_ptr& error) override;
 
   /**
    * Implementation of &l:ErrorHandler::handleError ();

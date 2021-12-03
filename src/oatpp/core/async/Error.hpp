@@ -33,27 +33,14 @@ namespace oatpp { namespace async {
 /**
  * Class to hold and communicate errors between Coroutines
  */
-class Error : public oatpp::base::Countable {
-private:
-  std::string m_what;
+class Error : public std::runtime_error, public oatpp::base::Countable {
 public:
 
   /**
    * Constructor.
    * @param what - error explanation.
    */
-  Error(const std::string& what);
-
-  /**
-   * Virtual destructor.
-   */
-  virtual ~Error() = default;
-
-  /**
-   * Error explanation.
-   * @return
-   */
-  const char* what() const;
+  explicit Error(const std::string& what);
 
   /**
    * Check if error belongs to specified class.

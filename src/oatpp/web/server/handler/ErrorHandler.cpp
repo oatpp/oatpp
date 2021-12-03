@@ -28,9 +28,36 @@
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 
+std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(const std::exception_ptr& exceptionPtr) {
+
+  std::shared_ptr<protocol::http::outgoing::Response> response;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  /* Default impl for backwards compatibility until the deprecated methods are removed */
+  try {
+    if(exceptionPtr) {
+      std::rethrow_exception(exceptionPtr);
+    }
+  } catch (protocol::http::HttpError& httpError) {
+    response = handleError(httpError.getInfo().status, httpError.getMessage(), httpError.getHeaders());
+  } catch (std::exception& error) {
+    response = handleError(protocol::http::Status::CODE_500, error.what());
+  } catch (...) {
+    response = handleError(protocol::http::Status::CODE_500, "An unknown error has occurred");
+  }
+#pragma GCC diagnostic pop
+
+  return response;
+
+}
+
 std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(const protocol::http::Status& status, const oatpp::String& message) {
   Headers headers;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   return handleError(status, message, headers);
+#pragma GCC diagnostic pop
 }
 
 std::shared_ptr<protocol::http::outgoing::Response>
@@ -53,6 +80,11 @@ DefaultErrorHandler::handleError(const oatpp::web::protocol::http::Status &statu
 
   return response;
 
+}
+
+std::shared_ptr<protocol::http::outgoing::Response>
+DefaultErrorHandler::handleError(const std::exception_ptr& error) {
+  return ErrorHandler::handleError(error);
 }
 
 }}}}
