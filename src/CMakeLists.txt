@@ -35,6 +35,7 @@ add_library(oatpp
         oatpp/core/async/Error.hpp
         oatpp/core/async/Executor.cpp
         oatpp/core/async/Executor.hpp
+        oatpp/core/async/Future.hpp
         oatpp/core/async/Lock.cpp
         oatpp/core/async/Lock.hpp
         oatpp/core/async/Processor.cpp
