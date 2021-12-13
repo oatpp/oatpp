@@ -476,6 +476,21 @@ std::string Utils::parseStringToStdString(ParsingCaret& caret){
   return "";
   
 }
-    
+
+bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
+  parser::Caret::StateSaveGuard stateGuard(caret);
+
+  // search until a decimal separator is found or no more digits are found or no more data available
+  while(caret.canContinue()) {
+    if (caret.isAtChar(JSON_DECIMAL_SEPARATOR)) {
+      return true;
+    }
+    if (!caret.isAtDigitChar()) {
+      return false;
+    }
+    caret.inc();
+  }
+  return false;
+}
   
 }}}
