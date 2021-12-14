@@ -76,7 +76,15 @@ class Test4 : public oatpp::DTO {
   DTO_FIELD(Fields<Object<EmptyDto>>, map);
 
 };
-  
+
+class AnyDto : public oatpp::DTO {
+
+  DTO_INIT(AnyDto, DTO)
+
+  DTO_FIELD(Any, any);
+
+};
+
 #include OATPP_CODEGEN_END(DTO)
   
 }
@@ -174,6 +182,42 @@ void DeserializerTest::onRun(){
   OATPP_ASSERT(obj4->list);
   OATPP_ASSERT(obj4->list->size() == 0);
   OATPP_ASSERT(obj4->map->size() == 0);
+
+  OATPP_LOGD(TAG, "Any: String")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":"my_string"})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == String::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<String>() == "my_string");
+  }
+  OATPP_LOGD(TAG, "Any: Boolean")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":false})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == Boolean::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<Boolean>() == false);
+  }
+  OATPP_LOGD(TAG, "Any: Float")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":1.23456789,"another":1.1})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<Float64>() == 1.23456789);
+  }
+  OATPP_LOGD(TAG, "Any: Unsigned Integer")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":12345678901234567890,"another":1.1})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == UInt64::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<UInt64>() == 12345678901234567890u);
+  }
+  OATPP_LOGD(TAG, "Any: Signed Integer")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":-1234567890,"another":1.1})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == Int64::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<Int64>() == -1234567890);
+  }
 
 }
   

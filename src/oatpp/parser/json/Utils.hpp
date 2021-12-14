@@ -61,6 +61,11 @@ public:
    */
   static constexpr v_int64 ERROR_CODE_PARSER_QUOTE_EXPECTED = 3;
 
+  /**
+   * Character that is used as decimal separator in floating point string representations.
+   */
+  static constexpr v_char8 JSON_DECIMAL_SEPARATOR = '.';
+
 public:
   typedef oatpp::String String;
   typedef oatpp::parser::Caret ParsingCaret;
@@ -127,6 +132,13 @@ public:
    * @return - `std::string`.
    */
   static std::string parseStringToStdString(ParsingCaret& caret);
+
+  /**
+   * Search for a decimal separator in the to analyze number string.
+   * @param caret - buffer to search for the decimal separator.
+   * @return - if the analyzed word has been identified as floating point number.
+   */
+  static bool findDecimalSeparatorInCurrentNumber(ParsingCaret& caret);
   
 };
   
