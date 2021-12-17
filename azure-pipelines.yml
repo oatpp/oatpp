@@ -50,7 +50,7 @@ jobs:
   displayName: 'Build - macOS'
   continueOnError: false
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-latest'
   workspace:
     clean: all
   steps:
