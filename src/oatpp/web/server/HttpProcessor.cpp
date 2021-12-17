@@ -190,17 +190,8 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
         response->putHeaderIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
         break;
 
-      case ConnectionState::DELEGATED: {
-        auto handler = response->getConnectionUpgradeHandler();
-        if(handler) {
-          handler->handleConnection(resources.connection, response->getConnectionUpgradeParameters());
-          connectionState = ConnectionState::DELEGATED;
-        } else {
-          OATPP_LOGW("[oatpp::web::server::HttpProcessor::processNextRequest()]", "Warning. ConnectionUpgradeHandler not set!");
-          connectionState = ConnectionState::CLOSING;
-        }
+      default:
         break;
-      }
 
     }
 
@@ -210,6 +201,18 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
     protocol::http::utils::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
 
   response->send(resources.connection.object.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
+
+  /* Delegate connection handling to another handler only after the response is sent to the client */
+  if(connectionState == ConnectionState::DELEGATED) {
+    auto handler = response->getConnectionUpgradeHandler();
+    if(handler) {
+      handler->handleConnection(resources.connection, response->getConnectionUpgradeParameters());
+      connectionState = ConnectionState::DELEGATED;
+    } else {
+      OATPP_LOGW("[oatpp::web::server::HttpProcessor::processNextRequest()]", "Warning. ConnectionUpgradeHandler not set!");
+      connectionState = ConnectionState::CLOSING;
+    }
+  }
 
   return connectionState;
 
@@ -370,17 +373,8 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
       m_currentResponse->putHeaderIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
       break;
 
-    case ConnectionState::DELEGATED: {
-      auto handler = m_currentResponse->getConnectionUpgradeHandler();
-      if(handler) {
-        handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
-        m_connectionState = ConnectionState::DELEGATED;
-      } else {
-        OATPP_LOGW("[oatpp::web::server::HttpProcessor::Coroutine::onResponseFormed()]", "Warning. ConnectionUpgradeHandler not set!");
-        m_connectionState = ConnectionState::CLOSING;
-      }
+    default:
       break;
-    }
 
   }
 
@@ -393,9 +387,27 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 }
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
-  
-  if(m_connectionState == ConnectionState::ALIVE) {
-    return yieldTo(&HttpProcessor::Coroutine::parseHeaders);
+
+  switch (m_connectionState) {
+    case ConnectionState::ALIVE:
+      return yieldTo(&HttpProcessor::Coroutine::parseHeaders);
+
+    /* Delegate connection handling to another handler only after the response is sent to the client */
+    case ConnectionState::DELEGATED: {
+      auto handler = m_currentResponse->getConnectionUpgradeHandler();
+      if(handler) {
+        handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
+        m_connectionState = ConnectionState::DELEGATED;
+      } else {
+        OATPP_LOGW("[oatpp::web::server::HttpProcessor::Coroutine::onResponseFormed()]", "Warning. ConnectionUpgradeHandler not set!");
+        m_connectionState = ConnectionState::CLOSING;
+      }
+      break;
+    }
+
+    default:
+      break;
+
   }
   
   return finish();
