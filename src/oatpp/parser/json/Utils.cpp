@@ -480,12 +480,12 @@ std::string Utils::parseStringToStdString(ParsingCaret& caret){
 bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
   parser::Caret::StateSaveGuard stateGuard(caret);
 
-  // search until a decimal separator is found or no more digits are found or no more data available
+  // search until a decimal separator is found or no more digits/sign are found or no more data available
   while(caret.canContinue()) {
     if (caret.isAtChar(JSON_DECIMAL_SEPARATOR)) {
       return true;
     }
-    if (!caret.isAtDigitChar()) {
+    if (!caret.isAtDigitChar() && !caret.isAtChar('-')) {
       return false;
     }
     caret.inc();

@@ -197,12 +197,33 @@ void DeserializerTest::onRun(){
     OATPP_ASSERT(dto->any.getStoredType() == Boolean::Class::getType());
     OATPP_ASSERT(dto->any.retrieve<Boolean>() == false);
   }
-  OATPP_LOGD(TAG, "Any: Float")
+  OATPP_LOGD(TAG, "Any: Negative Float")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":-1.23456789,"another":1.1})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<Float64>() == -1.23456789);
+  }
+  OATPP_LOGD(TAG, "Any: Positive Float")
   {
     auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":1.23456789,"another":1.1})");
     OATPP_ASSERT(dto);
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType());
     OATPP_ASSERT(dto->any.retrieve<Float64>() == 1.23456789);
+  }
+  OATPP_LOGD(TAG, "Any: Negative exponential Float")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":-1.2345e30,"another":1.1})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<Float64>() == -1.2345e30);
+  }
+  OATPP_LOGD(TAG, "Any: Positive exponential Float")
+  {
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":1.2345e30,"another":1.1})");
+    OATPP_ASSERT(dto);
+    OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType());
+    OATPP_ASSERT(dto->any.retrieve<Float64>() == 1.2345e30);
   }
   OATPP_LOGD(TAG, "Any: Unsigned Integer")
   {
