@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +53,14 @@ namespace {
     "Content-Disposition: form-data; name=part3 filename=\"filename.jpg\"\r\n"
     "\r\n"
     "part3-file-binary-data\r\n"
+    "--12345\r\n"
+    "Content-Disposition: form-data; name=\"part4\"\r\n"
+    "\r\n"
+    "part4-first-value\r\n"
+    "--12345\r\n"
+    "Content-Disposition: form-data; name=\"part4\"\r\n"
+    "\r\n"
+    "part4-second-value\r\n"
     "--12345--\r\n"
     ;
 
@@ -112,19 +121,25 @@ void StatefulParserTest::onRun() {
 
     parseStepByStep(text, "12345", listener, i);
 
-    if(multipart.count() != 3) {
+    if(multipart.count() != 5) {
       OATPP_LOGD(TAG, "TEST_DATA_1 itearation %d", i);
     }
 
-    OATPP_ASSERT(multipart.count() == 3);
+    OATPP_ASSERT(multipart.count() == 5);
 
     auto part1 = multipart.getNamedPart("part1");
     auto part2 = multipart.getNamedPart("part2");
     auto part3 = multipart.getNamedPart("part3");
 
+    auto part4 = multipart.getNamedPart("part4");
+    auto part4List = multipart.getNamedParts("part4");
+
     OATPP_ASSERT(part1);
     OATPP_ASSERT(part2);
     OATPP_ASSERT(part3);
+    OATPP_ASSERT(part4);
+    OATPP_ASSERT(part4List.size() == 2);
+    OATPP_ASSERT(part4List.front().get() == part4.get());
 
     OATPP_ASSERT(part1->getFilename().get() == nullptr);
     OATPP_ASSERT(part2->getFilename() == "filename.txt");
@@ -133,6 +148,8 @@ void StatefulParserTest::onRun() {
     assertPartData(part1, "part1-value");
     assertPartData(part2, "--part2-file-content-line1\r\n--1234part2-file-content-line2");
     assertPartData(part3, "part3-file-binary-data");
+    assertPartData(part4List.front(), "part4-first-value");
+    assertPartData(part4List.back(), "part4-second-value");
 
   }
 

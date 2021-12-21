@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,11 +60,7 @@ std::shared_ptr<Part> PartList::readNextPart(async::Action& action) {
 void PartList::writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) {
 
   if(part->getName()) {
-    auto it = m_namedParts.find(part->getName());
-    if(it != m_namedParts.end()) {
-      throw std::runtime_error("[oatpp::web::mime::multipart::Multipart::addPart()]: Error. Part with such name already exists.");
-    }
-    m_namedParts.insert({part->getName(), part});
+    m_namedParts[part->getName()].push_back(part);
   }
 
   m_parts.push_back(part);
@@ -74,10 +71,21 @@ std::shared_ptr<Part> PartList::getNamedPart(const oatpp::String& name) {
 
   auto it = m_namedParts.find(name);
   if(it != m_namedParts.end()) {
-    return it->second;
+    return it->second.front();
   }
 
   return nullptr;
+
+}
+
+std::list<std::shared_ptr<Part>> PartList::getNamedParts(const oatpp::String& name) {
+
+  auto it = m_namedParts.find(name);
+  if(it != m_namedParts.end()) {
+    return it->second;
+  }
+
+  return std::list<std::shared_ptr<Part>>{};
 
 }
 
