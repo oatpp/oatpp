@@ -6,7 +6,8 @@
  *                (_____)(__)(__)(__)  |_|    |_|
  *
  *
- * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>
+ * Copyright 2018-present, Leonid Stryzhevskyi <lganzzzo@gmail.com>,
+ * Matthias Haselmaier <mhaselmaier@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ namespace oatpp { namespace web { namespace mime { namespace multipart {
  */
 class PartList : public Multipart {
 private:
-  std::unordered_map<oatpp::String, std::shared_ptr<Part>> m_namedParts;
+  std::unordered_map<oatpp::String, std::list<std::shared_ptr<Part>>> m_namedParts;
   bool m_readIteratorInitialized;
   std::list<std::shared_ptr<Part>> m_parts;
   std::list<std::shared_ptr<Part>>::const_iterator m_iterator;
@@ -74,11 +75,20 @@ public:
 
   /**
    * Get part by name <br>
+   * Returns the first part if multiple parts with same name exist.
    * Applicable to named parts only.
    * @param name - &id:oatpp::String;.
-   * @return - &id:oatpp::web::mime::multipart::Part;.
+   * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::Part;.
    */
   std::shared_ptr<Part> getNamedPart(const oatpp::String& name);
+
+  /**
+   * Get all parts by name <br>
+   * Applicable to named parts only.
+   * @param name - &id:oatpp::String;.
+   * @return - `std::list` of `std::shared_ptr` to &id:oatpp::web::mime::multipart::Part;.
+   */
+  std::list<std::shared_ptr<Part>> getNamedParts(const oatpp::String& name);
 
   /**
    * Get list of all parts.
