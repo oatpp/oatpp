@@ -78,7 +78,7 @@ public:
    * Returns the first part if multiple parts with same name exist.
    * Applicable to named parts only.
    * @param name - &id:oatpp::String;.
-   * @return - &id:oatpp::web::mime::multipart::Part;.
+   * @return - `std::shared_ptr` to &id:oatpp::web::mime::multipart::Part;.
    */
   std::shared_ptr<Part> getNamedPart(const oatpp::String& name);
 
@@ -86,7 +86,7 @@ public:
    * Get all parts by name <br>
    * Applicable to named parts only.
    * @param name - &id:oatpp::String;.
-   * @return - std::list<std::shared_ptr<&id:oatpp::web::mime::multipart::Part;>>.
+   * @return - `std::list` of `std::shared_ptr` to &id:oatpp::web::mime::multipart::Part;.
    */
   std::list<std::shared_ptr<Part>> getNamedParts(const oatpp::String& name);
 
