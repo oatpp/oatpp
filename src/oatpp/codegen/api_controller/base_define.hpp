@@ -392,7 +392,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_API_CONTROLLER_ENDPOINT_0(NAME, METHOD, PATH))
 OATPP_MACRO_EXPAND(OATPP_MACRO_API_CONTROLLER_ENDPOINT_1(NAME, METHOD, PATH, __VA_ARGS__))
 
 /**
- * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
+ * Codegen macro to be used in `oatpp::web::server::api::ApiController` to generate Endpoint.
  * @param METHOD - Http method ("GET", "POST", "PUT", etc.).
  * @param PATH - Path to endpoint (without host).
  * @param NAME - Name of the generated method.
@@ -484,7 +484,7 @@ const std::shared_ptr<oatpp::web::server::api::Endpoint> Z__ENDPOINT_##NAME = cr
                                                                     Z__CREATE_ENDPOINT_INFO_##NAME);
 
 /**
- * Codegen macoro to be used in `oatpp::web::server::api::ApiController` to generate Asynchronous Endpoint.
+ * Codegen macro to be used in `oatpp::web::server::api::ApiController` to generate Asynchronous Endpoint.
  * @param METHOD - Http method ("GET", "POST", "PUT", etc.).
  * @param PATH - Path to endpoint (without host).
  * @param NAME - Name of the generated method.
