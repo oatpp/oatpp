@@ -26,7 +26,7 @@
 // Defaults
 
 /**
- * Codegen macoro to be used in classes extending &id:oatpp::data::mapping::type::Object; to generate required fields/methods/constructors for DTO object.
+ * Codegen macro to be used in classes extending &id:oatpp::data::mapping::type::Object; to generate required fields/methods/constructors for DTO object.
  * @param TYPE_NAME - name of the DTO class.
  * @param TYPE_EXTEND - name of the parent DTO class. If DTO extends &id:oatpp::data::mapping::type::Object; TYPE_EXETENDS should be `Object`.
  */

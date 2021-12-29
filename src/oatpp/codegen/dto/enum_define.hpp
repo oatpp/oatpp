@@ -159,7 +159,7 @@ OATPP_ENUM_0(NAME, ORDINAL_TYPE)
 OATPP_ENUM_1(NAME, ORDINAL_TYPE, __VA_ARGS__)
 
 /**
- * Codegen macoro to generate oatpp mapping-enabled enum.
+ * Codegen macro to generate oatpp mapping-enabled enum.
  * @param NAME - name of the enum. **required**.
  * @param UNDERLYING_TYPE - underlying ordinal type. **required**.
  * @param ... - enum values defined with &l:VALUE (...);. macro.

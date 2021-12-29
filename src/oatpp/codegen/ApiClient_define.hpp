@@ -71,7 +71,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (TYPE, __VA_
 // INIT
 
 /**
- * Codegen macoro to be used in classes extending &id:oatpp::web::client::ApiClient; to generate required fields/methods/constructors for ApiClient.
+ * Codegen macro to be used in classes extending &id:oatpp::web::client::ApiClient; to generate required fields/methods/constructors for ApiClient.
  * @param NAME - name of the ApiClient class.
  */
 #define API_CLIENT_INIT(NAME) \
@@ -220,7 +220,7 @@ OATPP_API_CALL_0(NAME, METHOD, PATH)
 OATPP_API_CALL_1(NAME, METHOD, PATH, __VA_ARGS__)
 
 /**
- * Codegen macoro to be used in `oatpp::web::client::ApiClient` to generate REST API-Calls.
+ * Codegen macro to be used in `oatpp::web::client::ApiClient` to generate REST API-Calls.
  * @param METHOD - Http method ("GET", "POST", "PUT", etc.)
  * @param PATH - Path to endpoint (without host)
  * @param NAME - Name of the generated method
