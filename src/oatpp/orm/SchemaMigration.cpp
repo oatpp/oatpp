@@ -88,4 +88,8 @@ void SchemaMigration::migrate() {
 
 }
 
+v_int64 SchemaMigration::getSchemaVersion() {
+  return m_executor->getSchemaVersion(m_suffix);
+}
+
 }}
