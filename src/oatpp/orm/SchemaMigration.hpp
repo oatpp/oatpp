@@ -81,6 +81,12 @@ public:
    */
   void migrate();
 
+  /**
+   * Get current database schema version.
+   * @return - schema version.
+   */
+  v_int64 getSchemaVersion();
+
 };
 
 }}
