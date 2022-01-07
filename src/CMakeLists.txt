@@ -330,7 +330,7 @@ target_include_directories(oatpp PUBLIC
 #######################################################################################################
 ## oatpp-test
 
-if(OATPP_BUILD_TESTS)
+if(OATPP_LINK_TEST_LIBRARY)
 
 	add_library(oatpp-test
 			oatpp-test/Checker.cpp
