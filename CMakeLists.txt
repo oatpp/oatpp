@@ -9,9 +9,6 @@ string(REGEX REPLACE "#define OATPP_VERSION \"([0-9]+.[0-9]+.[0-9]+)\"$" "\\1" o
 
 set(OATPP_THIS_MODULE_NAME oatpp) ## name of the module (also name of folders in installation dirs)
 set(OATPP_THIS_MODULE_VERSION ${oatpp_VERSION}) ## version of the module (also sufix of folders in installation dirs)
-set(OATPP_THIS_MODULE_LIBRARIES oatpp oatpp-test) ## list of libraries to find when find_package is called
-set(OATPP_THIS_MODULE_TARGETS oatpp oatpp-test) ## list of targets to install
-set(OATPP_THIS_MODULE_DIRECTORIES oatpp oatpp-test) ## list of directories to install
 
 ###################################################################################################
 
@@ -20,12 +17,23 @@ project(oatpp VERSION ${OATPP_THIS_MODULE_VERSION} LANGUAGES CXX)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(OATPP_INSTALL "Create installation target for oat++" ON)
 option(OATPP_BUILD_TESTS "Create test target for oat++" ON)
+option(OATPP_LINK_TEST_LIBRARY "Link oat++ test library" ON)
 option(OATPP_LINK_ATOMIC "Link atomic library for other platform than MSVC|MINGW|APPLE|FreeBSD" ON)
 option(OATPP_MSVC_LINK_STATIC_RUNTIME "MSVC: Link with static runtime (/MT and /MTd)." OFF)
 
 ###################################################################################################
 ## COMPILATION CONFIG #############################################################################
 ###################################################################################################
+
+if(OATPP_LINK_TEST_LIBRARY)
+	set(OATPP_THIS_MODULE_LIBRARIES oatpp oatpp-test) ## list of libraries to find when find_package is called
+	set(OATPP_THIS_MODULE_TARGETS oatpp oatpp-test) ## list of targets to install
+	set(OATPP_THIS_MODULE_DIRECTORIES oatpp oatpp-test) ## list of directories to install
+else()
+	set(OATPP_THIS_MODULE_LIBRARIES oatpp) ## list of libraries to find when find_package is called
+	set(OATPP_THIS_MODULE_TARGETS oatpp) ## list of targets to install
+	set(OATPP_THIS_MODULE_DIRECTORIES oatpp) ## list of directories to install
+endif()
 
 option(OATPP_DISABLE_ENV_OBJECT_COUNTERS "Disable object counting for Release builds for better performance" OFF)
 option(OATPP_DISABLE_POOL_ALLOCATIONS "This will make oatpp::base::memory::MemoryPool, method obtain and free call new and delete directly" OFF)
