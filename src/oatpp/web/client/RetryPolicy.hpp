@@ -28,7 +28,7 @@
 #include "oatpp/core/base/Environment.hpp"
 
 #include <unordered_set>
-#include <type_traits>
+#include <ext/aligned_buffer.h>
 #include <functional>
 
 #include <chrono>
