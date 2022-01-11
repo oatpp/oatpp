@@ -26,11 +26,10 @@
 #define oatpp_async_worker_TimerWorker_hpp
 
 #include "./Worker.hpp"
-#include "oatpp/core/async/utils/FastQueue.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
 #include <thread>
+#include <mutex>
 #include <condition_variable>
 
 namespace oatpp { namespace async { namespace worker {

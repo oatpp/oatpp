@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include "./Connection.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -33,7 +32,8 @@
   #include <sys/socket.h>
 #endif
 
-#include <stdexcept>
+#include <thread>
+#include <chrono>
 #include <fcntl.h>
 
 namespace oatpp { namespace network { namespace tcp {

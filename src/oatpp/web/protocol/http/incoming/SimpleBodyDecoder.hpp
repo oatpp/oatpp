@@ -27,8 +27,6 @@
 
 #include "BodyDecoder.hpp"
 #include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

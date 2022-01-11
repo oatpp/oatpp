@@ -23,20 +23,11 @@
  ***************************************************************************/
 
 #include "IOEventWorker.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/async/utils/FastQueue.hpp"
-#include "Worker.hpp"
-#include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/IODefinitions.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #else
 #include <unistd.h>
-
-#include <mutex>
-#include <thread>
 #endif
 
 namespace oatpp { namespace async { namespace worker {
@@ -59,6 +50,7 @@ IOEventWorker::IOEventWorker(IOEventWorkerForeman* foreman, Action::IOEventType 
   m_thread = std::thread(&IOEventWorker::run, this);
 }
 
+
 IOEventWorker::~IOEventWorker() {
 #if !defined(WIN32) && !defined(_WIN32)
   if(m_eventQueueHandle >=0) {
@@ -70,6 +62,7 @@ IOEventWorker::~IOEventWorker() {
   }
 #endif
 }
+
 
 void IOEventWorker::pushTasks(utils::FastQueue<CoroutineHandle> &tasks) {
   if (tasks.first != nullptr) {

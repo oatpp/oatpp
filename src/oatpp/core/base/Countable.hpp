@@ -25,6 +25,9 @@
 #ifndef oatpp_base_Countable
 #define oatpp_base_Countable
 
+#include <memory>
+#include "./Environment.hpp"
+
 namespace oatpp { namespace base{
 
 /**
@@ -49,6 +52,7 @@ public:
   virtual ~Countable();
 
   Countable& operator = (Countable&) = default;
+
 
 };
   

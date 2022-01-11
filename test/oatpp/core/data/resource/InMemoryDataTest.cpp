@@ -25,19 +25,6 @@
 #include "InMemoryDataTest.hpp"
 
 #include "oatpp/core/data/resource/InMemoryData.hpp"
-#include <stdlib.h>
-#include <memory>
-
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include <string>
-#include "oatpp/core/base/ObjectHandle.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/buffer/Processor.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace resource {
 

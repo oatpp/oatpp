@@ -23,13 +23,6 @@
  ***************************************************************************/
 
 #include "BodyDecoder.hpp"
-#include <tuple>
-
-#include <memory>
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/data/share/LazyStringMap.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

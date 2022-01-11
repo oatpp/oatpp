@@ -26,10 +26,12 @@
 #define oatpp_test_web_app_ControllerWithInterceptors_hpp
 
 #include "oatpp/web/server/api/ApiController.hpp"
-#include "oatpp/web/server/api/Endpoint.hpp"
-#include "oatpp/web/server/handler/ErrorHandler.hpp"
+#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
+
+#include <sstream>
 
 namespace oatpp { namespace test { namespace web { namespace app {
 
@@ -107,6 +109,7 @@ public:
     response->putHeader("to-be-replaced", "original_value");
     return response;
   }
+
 
 #include OATPP_CODEGEN_END(ApiController)
 

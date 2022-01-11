@@ -27,6 +27,12 @@
 
 #include "./Type.hpp"
 
+#include "oatpp/core/base/Countable.hpp"
+
+#include <algorithm>
+#include <cctype>
+#include <iterator>
+
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
@@ -487,6 +493,7 @@ typedef Primitive<v_float32, __class::Float32> Float32;
  * Float64 is an ObjectWrapper over `v_float64` and __class::Float64.
  */
 typedef Primitive<v_float64, __class::Float64> Float64;
+
 
 template<>
 struct ObjectWrapperByUnderlyingType <v_int8> {

@@ -29,6 +29,7 @@
 #include "oatpp/core/Types.hpp"
 
 #include <unordered_map>
+#include <vector>
 
 namespace oatpp { namespace data { namespace share {
 

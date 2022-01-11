@@ -24,14 +24,9 @@
 
 #include "TypeTest.hpp"
 
+#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/data/mapping/type/Collection.hpp"
-#include <list>
-#include "oatpp/core/data/mapping/type/Map.hpp"
-
-#include <unordered_map>
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
   

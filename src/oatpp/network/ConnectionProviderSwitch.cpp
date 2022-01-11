@@ -23,17 +23,6 @@
  ***************************************************************************/
 
 #include "ConnectionProviderSwitch.hpp"
-#include "ConnectionProvider.hpp"
-
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/provider/Provider.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include <memory>
-#include "oatpp/core/base/Environment.hpp"
-#include <mutex>
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include <unordered_map>
 
 namespace oatpp { namespace network {
 
@@ -71,9 +60,11 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProviderSwitch::get()
   return getCurrentProvider()->get();
 }
 
+
 oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> ConnectionProviderSwitch::getAsync() {
   return getCurrentProvider()->getAsync();
 }
+
 
 void ConnectionProviderSwitch::stop() {
   return getCurrentProvider()->stop();

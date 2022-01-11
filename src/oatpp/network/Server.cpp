@@ -23,21 +23,9 @@
  ***************************************************************************/
 
 #include "Server.hpp"
-#include "oatpp/core/base/Countable.hpp"
-
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "ConnectionProvider.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/provider/Provider.hpp"
-#include "ConnectionHandler.hpp"
 
 #include <thread>
-#include <atomic>
-#include <functional>
-#include <mutex>
-#include <string>
-#include <unordered_map>
+#include <chrono>
 
 namespace oatpp { namespace network {
 

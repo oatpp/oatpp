@@ -26,10 +26,6 @@
 #define oatpp_network_tcp_Connection_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include "oatpp/core/IODefinitions.hpp"
-#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace network { namespace tcp {
 

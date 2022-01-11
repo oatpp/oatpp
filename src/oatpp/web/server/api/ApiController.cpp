@@ -23,11 +23,7 @@
  ***************************************************************************/
 
 #include "ApiController.hpp"
-#include "Endpoint.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
-
-#include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace api {
 

@@ -26,7 +26,12 @@
 #define oatpp_data_mapping_type_Enum_hpp
 
 #include "./Any.hpp"
+#include "./Primitive.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
+
+#include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

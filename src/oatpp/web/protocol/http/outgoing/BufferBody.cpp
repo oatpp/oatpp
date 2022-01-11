@@ -23,21 +23,6 @@
  ***************************************************************************/
 
 #include "BufferBody.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include <memory>
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/buffer/Processor.hpp"
-#include "Body.hpp"
-#include <cstring>
-#include <string>
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

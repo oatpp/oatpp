@@ -23,14 +23,8 @@
  ***************************************************************************/
 
 #include "ResponseHeadersReader.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/web/protocol/CommunicationError.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

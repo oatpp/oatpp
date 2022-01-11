@@ -27,8 +27,9 @@
 
 #include "oatpp/web/server/HttpProcessor.hpp"
 #include "oatpp/network/ConnectionHandler.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/provider/Provider.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace server {
 

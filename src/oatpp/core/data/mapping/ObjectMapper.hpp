@@ -25,6 +25,9 @@
 #ifndef oatpp_data_mapping_ObjectMapper_hpp
 #define oatpp_data_mapping_ObjectMapper_hpp
 
+#include "type/Object.hpp"
+#include "type/Type.hpp"
+
 #include "oatpp/core/data/stream/Stream.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"

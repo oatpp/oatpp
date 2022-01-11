@@ -24,8 +24,6 @@
 
 #include "Checker.hpp"
 
-#include <string>
-
 namespace oatpp { namespace test {
 
 PerformanceChecker::PerformanceChecker(const char* tag)
@@ -41,6 +39,7 @@ PerformanceChecker::~PerformanceChecker(){
 v_int64 PerformanceChecker::getElapsedTicks(){
   return oatpp::base::Environment::getMicroTickCount() - m_ticks;
 }
+
 
 ThreadLocalObjectsChecker::ThreadLocalObjectsChecker(const char* tag)
   : m_tag(tag)

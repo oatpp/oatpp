@@ -25,7 +25,6 @@
 #include "Chunked.hpp"
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 

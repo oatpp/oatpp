@@ -35,10 +35,14 @@
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
-#include "oatpp/web/server/api/Endpoint.hpp"
-#include "oatpp/web/server/handler/ErrorHandler.hpp"
+
+#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
 #include "oatpp/core/data/resource/File.hpp"
+#include "oatpp/core/data/stream/FileStream.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
@@ -225,6 +229,7 @@ public:
 
   };
 
+
   ENDPOINT_ASYNC("POST", "test/multipart-all", MultipartUpload) {
 
     ENDPOINT_ASYNC_INIT(MultipartUpload)
@@ -280,6 +285,7 @@ public:
     }
 
   };
+
 
   class MPStream : public oatpp::web::mime::multipart::Multipart {
   public:

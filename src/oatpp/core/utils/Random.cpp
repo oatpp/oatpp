@@ -23,10 +23,6 @@
  ***************************************************************************/
 
 #include "Random.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include <stddef.h>
-#include <random>
 
 namespace oatpp { namespace utils { namespace random {
 

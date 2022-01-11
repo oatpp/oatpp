@@ -27,8 +27,6 @@
 
 #include "./Resource.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include <string>
 
 namespace oatpp { namespace data { namespace resource {
 

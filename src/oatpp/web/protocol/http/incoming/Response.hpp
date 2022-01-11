@@ -28,11 +28,6 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/core/data/Bundle.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-
-#include "oatpp/core/base/ObjectHandle.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -235,6 +230,7 @@ public:
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const;
+
 
   /**
    * Same as &l:Response::readBodyToDto (); but Async.

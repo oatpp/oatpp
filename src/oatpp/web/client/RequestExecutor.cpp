@@ -23,17 +23,9 @@
  ***************************************************************************/
 
 #include "RequestExecutor.hpp"
-#include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-
-#include "oatpp/core/async/Coroutine.hpp"
-#include "RetryPolicy.hpp"
-#include "oatpp/web/protocol/http/incoming/Response.hpp"
 
 #include <thread>
-#include <stdexcept>
-#include <unordered_set>
+#include <chrono>
 
 namespace oatpp { namespace web { namespace client {
 

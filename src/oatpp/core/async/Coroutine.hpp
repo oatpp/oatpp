@@ -26,9 +26,17 @@
 #ifndef oatpp_async_Coroutine_hpp
 #define oatpp_async_Coroutine_hpp
 
+#include "./Error.hpp"
+
 #include "oatpp/core/async/utils/FastQueue.hpp"
 
 #include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include "oatpp/core/Types.hpp"
+
+#include <chrono>
+#include <exception>
 
 namespace oatpp { namespace async {
 

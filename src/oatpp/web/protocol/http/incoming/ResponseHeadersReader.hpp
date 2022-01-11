@@ -27,8 +27,6 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

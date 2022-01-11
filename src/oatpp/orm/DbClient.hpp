@@ -28,9 +28,8 @@
 #include "Executor.hpp"
 #include "Transaction.hpp"
 
-#include "oatpp/core/data/mapping/TypeResolver.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/provider/Provider.hpp"
 
 namespace oatpp { namespace orm {
 

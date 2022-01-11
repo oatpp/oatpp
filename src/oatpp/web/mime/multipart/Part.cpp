@@ -25,8 +25,9 @@
 #include "Part.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
-#include <unordered_map>
+#include <cstring>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -60,9 +61,11 @@ oatpp::String Part::getName() const {
   return m_name;
 }
 
+
 oatpp::String Part::getFilename() const {
   return m_filename;
 }
+
 
 const Part::Headers& Part::getHeaders() const {
   return m_headers;

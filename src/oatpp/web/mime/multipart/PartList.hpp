@@ -27,14 +27,6 @@
 #define oatpp_web_mime_multipart_PartList_hpp
 
 #include "Multipart.hpp"
-#include <memory>
-
-#include "oatpp/core/base/Environment.hpp"
-#include <list>
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/Types.hpp"
-#include "Part.hpp"
-#include <unordered_map>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

@@ -28,6 +28,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

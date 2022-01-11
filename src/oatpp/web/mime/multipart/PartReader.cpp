@@ -23,16 +23,6 @@
  ***************************************************************************/
 
 #include "PartReader.hpp"
-#include <memory>
-
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include "Part.hpp"
-#include "oatpp/core/data/resource/Resource.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include <stdexcept>
-#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -98,6 +88,7 @@ void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, const char*
   }
 
 }
+
 
 const char* const AsyncStreamPartReader::TAG_NAME = "[oatpp::web::mime::multipart::AsyncStreamPartReader::TAG]";
 

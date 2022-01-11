@@ -26,11 +26,6 @@
 #define oatpp_data_resource_Resource_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include "oatpp/core/Types.hpp"
-#include <memory>
-#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

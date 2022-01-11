@@ -28,6 +28,7 @@
 #include "./HttpRequestHandler.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
+#include "oatpp/web/server/api/Endpoint.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
 
 namespace oatpp { namespace web { namespace server {

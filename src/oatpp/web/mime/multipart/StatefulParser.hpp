@@ -27,7 +27,9 @@
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

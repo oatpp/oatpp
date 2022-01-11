@@ -26,12 +26,6 @@
 #define oatpp_orm_Transaction_hpp
 
 #include "Executor.hpp"
-#include <string>
-
-#include <memory>
-#include "oatpp/core/provider/Provider.hpp"
-#include "Connection.hpp"
-#include "oatpp/core/base/ObjectHandle.hpp"
 
 namespace oatpp { namespace orm {
 

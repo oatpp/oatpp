@@ -28,7 +28,6 @@
 
 #include "oatpp/core/async/Executor.hpp"
 #include "oatpp/core/async/Lock.hpp"
-#include "oatpp/core/async/Processor.hpp"
 
 #include <thread>
 #include <list>
@@ -164,6 +163,7 @@ bool checkSymbol(char symbol, const oatpp::String& str) {
 }
 
 }
+
 
 void LockTest::onRun() {
 

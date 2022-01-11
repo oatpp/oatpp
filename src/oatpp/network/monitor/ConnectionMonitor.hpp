@@ -26,10 +26,11 @@
 #define oatpp_network_monitor_ConnectionMonitor_hpp
 
 #include "MetricsChecker.hpp"
-#include "StatCollector.hpp"
 
 #include "oatpp/network/ConnectionProvider.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 
+#include <unordered_set>
 #include <condition_variable>
 
 namespace oatpp { namespace network { namespace monitor {

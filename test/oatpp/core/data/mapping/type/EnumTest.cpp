@@ -25,7 +25,6 @@
 #include "EnumTest.hpp"
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 #include <unordered_map>
@@ -300,6 +299,7 @@ void EnumTest::onRun() {
 
     OATPP_LOGI(TAG, "OK");
   }
+
 
 }
 

@@ -26,13 +26,10 @@
 #define oatpp_async_worker_IOEventWorker_hpp
 
 #include "./Worker.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-
-#include "oatpp/core/async/utils/FastQueue.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/IODefinitions.hpp"
 
 #include <thread>
+#include <mutex>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

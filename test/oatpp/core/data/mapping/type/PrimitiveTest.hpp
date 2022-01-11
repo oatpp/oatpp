@@ -27,8 +27,6 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include <string>
-
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 class PrimitiveTest : public UnitTest{

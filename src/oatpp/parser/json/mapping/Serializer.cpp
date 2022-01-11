@@ -24,11 +24,8 @@
 
 #include "Serializer.hpp"
 
-#include "oatpp/parser/json/Beautifier.hpp"
-#include "oatpp/core/data/mapping/type/Map.hpp"
-#include "oatpp/core/data/mapping/type/Collection.hpp"
-
-#include <cstring>
+#include "oatpp/parser/json/Utils.hpp"
+#include "oatpp/core/data/mapping/type/Any.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

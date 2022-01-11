@@ -27,10 +27,6 @@
 
 #include "oatpp/network/virtual_/Interface.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/provider/Provider.hpp"
-
-#include "oatpp/core/provider/Invalidator.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 

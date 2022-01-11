@@ -26,12 +26,6 @@
 #define oatpp_data_Bundle_hpp
 
 #include "oatpp/core/Types.hpp"
-#include <memory>
-
-#include "mapping/type/Type.hpp"
-#include "mapping/type/Primitive.hpp"
-#include <unordered_map>
-#include <stdexcept>
 
 namespace oatpp { namespace data {
 

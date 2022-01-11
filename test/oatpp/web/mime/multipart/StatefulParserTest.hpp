@@ -27,9 +27,6 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include <memory>
-#include <string>
-
 namespace oatpp { namespace test { namespace web { namespace mime { namespace multipart {
 
 class StatefulParserTest : public UnitTest {

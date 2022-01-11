@@ -28,11 +28,6 @@
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/data/Bundle.hpp"
-#include "oatpp/core/data/buffer/Processor.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

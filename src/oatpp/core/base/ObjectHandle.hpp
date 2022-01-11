@@ -25,7 +25,7 @@
 #ifndef oatpp_base_ObjectHandle_hpp
 #define oatpp_base_ObjectHandle_hpp
 
-#include <memory>
+#include "./Environment.hpp"
 
 namespace oatpp { namespace base {
 

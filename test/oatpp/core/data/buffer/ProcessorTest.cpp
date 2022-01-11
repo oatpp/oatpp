@@ -25,15 +25,9 @@
 #include "ProcessorTest.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/core/data/buffer/Processor.hpp"
 
 #include "oatpp/core/async/Executor.hpp"
-#include "oatpp/core/utils/String.hpp"
-#include <list>
-#include <thread>
-#include "oatpp/core/async/Processor.hpp"
-#include <atomic>
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace buffer {
 

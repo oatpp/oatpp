@@ -26,15 +26,9 @@
 #define oatpp_data_share_LazyStringMap_hpp
 
 #include "./MemoryLabel.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/base/Environment.hpp"
 
 #include <unordered_map>
-#include <memory>
-#include <mutex>
 
 namespace oatpp { namespace data { namespace share {
 

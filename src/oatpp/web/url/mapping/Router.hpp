@@ -28,9 +28,8 @@
 #include "./Pattern.hpp"
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/base/Countable.hpp"
 
+#include <utility>
 #include <list>
 
 namespace oatpp { namespace web { namespace url { namespace mapping {

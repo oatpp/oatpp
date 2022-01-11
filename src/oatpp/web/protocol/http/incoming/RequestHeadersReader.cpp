@@ -23,18 +23,6 @@
  ***************************************************************************/
 
 #include "RequestHeadersReader.hpp"
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-
-#include <memory>
-#include "oatpp/web/protocol/http/Http.hpp"
-#include <tuple>
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include <stdexcept>
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/web/protocol/CommunicationError.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

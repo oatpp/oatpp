@@ -27,8 +27,6 @@
 #include "oatpp/encoding/Unicode.hpp"
 #include "oatpp/encoding/Hex.hpp"
 
-#include <cstring>
-
 namespace oatpp { namespace parser { namespace json{
 
 v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags) {

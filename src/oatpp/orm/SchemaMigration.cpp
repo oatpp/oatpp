@@ -23,14 +23,8 @@
  ***************************************************************************/
 
 #include "SchemaMigration.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/base/Countable.hpp"
-
-#include "oatpp/core/provider/Provider.hpp"
-#include "Connection.hpp"
 
 #include <algorithm>
-#include <stdexcept>
 
 namespace oatpp { namespace orm {
 

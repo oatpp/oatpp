@@ -26,7 +26,7 @@
 #define oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 

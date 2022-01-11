@@ -28,9 +28,10 @@
 #include "oatpp/web/mime/multipart/PartList.hpp"
 #include "oatpp/web/mime/multipart/InMemoryDataProvider.hpp"
 #include "oatpp/web/mime/multipart/Reader.hpp"
-#include "oatpp/web/mime/multipart/StatefulParser.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
+
+#include <unordered_map>
 
 namespace oatpp { namespace test { namespace web { namespace mime { namespace multipart {
 
@@ -62,6 +63,7 @@ namespace {
     "part4-second-value\r\n"
     "--12345--\r\n"
     ;
+
 
   void parseStepByStep(const oatpp::String& text,
                        const oatpp::String& boundary,

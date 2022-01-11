@@ -27,10 +27,6 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include <memory>
-#include <string>
-#include <unordered_map>
-
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping {
 
 class TypeResolverTest : public UnitTest{

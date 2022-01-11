@@ -27,9 +27,6 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include <memory>
-#include <string>
-
 namespace oatpp { namespace test { namespace core { namespace data { namespace stream {
 
 class BufferStreamTest : public UnitTest{
@@ -41,5 +38,6 @@ public:
 };
 
 }}}}}
+
 
 #endif // oatpp_test_core_data_stream_BufferStream_hpp

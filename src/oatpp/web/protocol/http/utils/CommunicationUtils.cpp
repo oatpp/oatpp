@@ -23,19 +23,6 @@
  ***************************************************************************/
 
 #include "CommunicationUtils.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include "oatpp/core/utils/String.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
-#include <unordered_map>
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include <memory>
-#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
-#include "oatpp/web/protocol/http/encoding/EncoderProvider.hpp"
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
-#include "oatpp/core/data/share/LazyStringMap.hpp"
-#include <list>
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
   

@@ -26,6 +26,9 @@
 #define oatpp_parser_json_Utils_hpp
 
 #include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include <string>
 
 namespace oatpp { namespace parser { namespace json {
 

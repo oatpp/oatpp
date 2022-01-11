@@ -25,27 +25,7 @@
 #include "ApiControllerTest.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
-
-#include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
-#include "oatpp/web/server/api/Endpoint.hpp"
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/web/server/handler/ErrorHandler.hpp"
-#include "oatpp/web/server/HttpRequestHandler.hpp"
 #include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include <functional>
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include <unordered_map>
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include <list>
-#include "oatpp/core/data/mapping/type/Any.hpp"
-#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server { namespace api {
 

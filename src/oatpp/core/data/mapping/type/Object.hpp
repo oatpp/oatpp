@@ -25,12 +25,20 @@
 #ifndef oatpp_data_type_Object_hpp
 #define oatpp_data_type_Object_hpp
 
+#include "./Type.hpp"
+
+#include "./Any.hpp"
+#include "./Primitive.hpp"
 #include "./Enum.hpp"
 #include "./UnorderedMap.hpp"
 #include "./PairList.hpp"
 #include "./List.hpp"
 #include "./Vector.hpp"
 #include "./UnorderedSet.hpp"
+
+#include "oatpp/core/base/Countable.hpp"
+
+#include <type_traits>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

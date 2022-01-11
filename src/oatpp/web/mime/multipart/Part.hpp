@@ -26,9 +26,7 @@
 #define oatpp_web_mime_multipart_Part_hpp
 
 #include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/resource/Resource.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

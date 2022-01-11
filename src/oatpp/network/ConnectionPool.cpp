@@ -23,14 +23,6 @@
  ***************************************************************************/
 
 #include "ConnectionPool.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-
-#include "oatpp/core/provider/Provider.hpp"
-#include <memory>
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include <list>
-#include <unordered_set>
 
 namespace oatpp { namespace network {
 

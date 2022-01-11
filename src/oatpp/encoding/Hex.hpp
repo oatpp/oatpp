@@ -26,8 +26,7 @@
 #define oatpp_encoding_Hex_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include <stdexcept>
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace encoding {
 

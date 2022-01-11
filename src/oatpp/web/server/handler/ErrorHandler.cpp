@@ -23,12 +23,8 @@
  ***************************************************************************/
 
 #include "./ErrorHandler.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
-
-#include "oatpp/web/protocol/http/outgoing/Body.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 

@@ -25,13 +25,6 @@
 #include "VectorTest.hpp"
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/data/mapping/type/Collection.hpp"
-
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/mapping/type/Vector.hpp"
-#include <vector>
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

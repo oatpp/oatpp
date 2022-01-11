@@ -26,20 +26,6 @@
 #define oatpp_Types_hpp
 
 #include "oatpp/core/data/mapping/type/Object.hpp"
-#include "data/mapping/type/UnorderedMap.hpp"
-
-#include "data/mapping/type/Primitive.hpp"
-#include "data/mapping/type/List.hpp"
-#include "data/mapping/type/Vector.hpp"
-#include <memory>
-#include "data/mapping/type/Type.hpp"
-#include "base/Environment.hpp"
-#include "data/mapping/type/PairList.hpp"
-#include "data/mapping/type/Any.hpp"
-#include <mutex>
-#include <vector>
-#include "data/mapping/type/UnorderedSet.hpp"
-#include "data/mapping/type/Enum.hpp"
 
 namespace oatpp {
 

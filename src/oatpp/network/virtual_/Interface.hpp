@@ -26,12 +26,10 @@
 #define oatpp_network_virtual__Interface_hpp
 
 #include "./Socket.hpp"
-#include "oatpp/core/Types.hpp"
 
 #include <list>
 #include <unordered_map>
-#include <condition_variable>
-#include <atomic>
+#include <chrono>
 
 namespace oatpp { namespace network { namespace virtual_ {
 

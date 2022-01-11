@@ -26,13 +26,6 @@
 #define oatpp_orm_SchemaMigration_hpp
 
 #include "Executor.hpp"
-#include <memory>
-
-#include <vector>
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/base/ObjectHandle.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace orm {
 

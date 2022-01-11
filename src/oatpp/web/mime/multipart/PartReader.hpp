@@ -25,11 +25,8 @@
 #ifndef oatpp_web_mime_multipart_PartReader_hpp
 #define oatpp_web_mime_multipart_PartReader_hpp
 
-#include "Part.hpp"
+#include "./Multipart.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include <stdexcept>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

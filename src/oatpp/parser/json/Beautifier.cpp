@@ -25,10 +25,6 @@
 #include "Beautifier.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include <memory>
-
-#include <string>
 
 namespace oatpp { namespace parser { namespace json {
 
@@ -153,9 +149,11 @@ v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& 
 
 }
 
+
 void Beautifier::setOutputStreamIOMode(IOMode ioMode) {
   return m_outputStream->setOutputStreamIOMode(ioMode);
 }
+
 
 Beautifier::IOMode Beautifier::getOutputStreamIOMode() {
   return m_outputStream->getOutputStreamIOMode();

@@ -26,6 +26,7 @@
 #define oatpp_web_mime_multipart_FileProvider_hpp
 
 #include "PartReader.hpp"
+#include "Reader.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

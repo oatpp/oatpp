@@ -28,6 +28,8 @@
 #include "oatpp/network/Address.hpp"
 
 #include "oatpp/network/ConnectionProvider.hpp"
+#include "oatpp/core/provider/Invalidator.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network { namespace tcp { namespace client {
 

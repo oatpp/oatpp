@@ -27,12 +27,11 @@
 #include "oatpp/network/virtual_/Pipe.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp-test/Checker.hpp"
 
+#include <iostream>
 #include <thread>
-#include <cstring>
 
 namespace oatpp { namespace test { namespace network { namespace virtual_ {
   

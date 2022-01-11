@@ -23,11 +23,8 @@
  ***************************************************************************/
 
 #include "Url.hpp"
-#include "oatpp/core/parser/Caret.hpp"
 
-#include "oatpp/core/utils/String.hpp"
-
-#include <cstring>
+#include <cstdlib>
 
 namespace oatpp { namespace network {
 

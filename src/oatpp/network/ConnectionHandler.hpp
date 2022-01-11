@@ -27,6 +27,7 @@
 
 #include "oatpp/core/provider/Provider.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
+#include <unordered_map>
 
 namespace oatpp { namespace network {
 

@@ -23,12 +23,6 @@
  ***************************************************************************/
 
 #include "Processor.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include "oatpp/core/IODefinitions.hpp"
-#include <vector>
-#include <memory>
-#include "oatpp/core/base/ObjectHandle.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
 
@@ -139,12 +133,14 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
         }
         break;
 
+
       case Error::FLUSH_DATA_OUT:
         if (i < numOfProcessors - 1) {
           i ++;
           res = Error::OK;
         }
         break;
+
 
       case Error::FINISHED:
         if (i < numOfProcessors - 1) {

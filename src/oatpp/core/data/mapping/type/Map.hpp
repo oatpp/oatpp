@@ -26,12 +26,7 @@
 #define oatpp_data_mapping_type_Map_hpp
 
 #include "./Type.hpp"
-#include "oatpp/core/base/Environment.hpp"
 #include <list>
-#include <tuple>
-
-#include <memory>
-#include <vector>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

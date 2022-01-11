@@ -26,8 +26,10 @@
 #define oatpp_data_mapping_type_List_hpp
 
 #include "./Collection.hpp"
+#include "./Type.hpp"
 
 #include <list>
+#include <initializer_list>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

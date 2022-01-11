@@ -23,11 +23,6 @@
  ***************************************************************************/
 
 #include "Any.hpp"
-#include <memory>
-
-#include "Type.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include <stdexcept>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

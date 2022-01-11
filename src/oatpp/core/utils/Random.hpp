@@ -25,7 +25,8 @@
 #ifndef oatpp_utils_Random_hpp
 #define oatpp_utils_Random_hpp
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/core/Types.hpp"
 #include <random>
 
 namespace oatpp { namespace utils { namespace random {

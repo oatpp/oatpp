@@ -26,11 +26,7 @@
 #define oatpp_data_mapping_type_Collection_hpp
 
 #include "./Type.hpp"
-#include "oatpp/core/base/Environment.hpp"
 #include <unordered_set>
-#include <memory>
-
-#include <vector>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

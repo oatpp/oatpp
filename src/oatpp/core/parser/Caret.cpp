@@ -23,11 +23,9 @@
  ***************************************************************************/
 
 #include "Caret.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
 
+#include <cstdlib>
 #include <algorithm>
-#include <cstring>
 
 namespace oatpp { namespace parser {
   
@@ -313,6 +311,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   bool Caret::isAtRN() {
     return (m_pos + 1 < m_size && m_data[m_pos] == '\r' && m_data[m_pos + 1] == '\n');
   }
+
 
   bool Caret::findROrN() {
     while(m_pos < m_size) {

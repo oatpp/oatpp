@@ -25,10 +25,6 @@
 #include "CaretTest.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include <string>
-
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace test { namespace parser {
 

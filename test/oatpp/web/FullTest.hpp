@@ -26,9 +26,6 @@
 #define oatpp_test_web_FullTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include <functional>
 
 namespace oatpp { namespace test { namespace web {
 

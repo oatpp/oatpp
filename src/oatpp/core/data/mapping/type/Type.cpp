@@ -23,11 +23,6 @@
  ***************************************************************************/
 
 #include "Type.hpp"
-#include <unordered_map>
-
-#include <vector>
-#include <mutex>
-#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "FIFOBuffer.hpp"
+#include <mutex>
 
 namespace oatpp { namespace data{ namespace buffer {
 

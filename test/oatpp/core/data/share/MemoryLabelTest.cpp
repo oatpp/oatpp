@@ -24,7 +24,9 @@
 
 #include "MemoryLabelTest.hpp"
 
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+
+#include <unordered_map>
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp-test/Checker.hpp"
@@ -166,6 +168,7 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(stringMap.find("Key3") == stringMap.end());
     OATPP_ASSERT(stringMap.find("Key4") == stringMap.end());
 
+
     // CI
 
     stringMapCI[key1] = MemoryLabel(sharedData.getPtr(), &sharedData->data()[0], 3);
@@ -213,6 +216,7 @@ void MemoryLabelTest::onRun() {
 
           OATPP_ASSERT(status.code == 0);
           OATPP_ASSERT(headers.getSize() == 10);
+
 
           OATPP_ASSERT(headers.getAsMemoryLabel<StringKeyLabel>("header0").equals("value0", 6));
           OATPP_ASSERT(headers.getAsMemoryLabel<StringKeyLabel>("header1").equals("value1", 6));

@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 #include "MultipartBody.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

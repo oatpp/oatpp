@@ -27,8 +27,6 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include <memory>
-
 namespace oatpp { namespace test { namespace async {
 
 class LockTest : public UnitTest{

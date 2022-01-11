@@ -26,13 +26,7 @@
 #define oatpp_web_mime_multipart_Multipart_hpp
 
 #include "Part.hpp"
-#include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/Types.hpp"
-
-#include <memory>
+#include <list>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -111,6 +105,9 @@ public:
 
 };
 
+
+
 }}}}
+
 
 #endif // oatpp_web_mime_multipart_Multipart_hpp

@@ -27,10 +27,6 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-#include <unordered_map>
-#include <memory>
-#include <string>
-
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
   
 class DTOMapperTest : public UnitTest{

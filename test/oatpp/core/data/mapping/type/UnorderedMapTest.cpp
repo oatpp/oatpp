@@ -25,13 +25,6 @@
 #include "UnorderedMapTest.hpp"
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include <vector>
-
-#include "oatpp/core/data/mapping/type/Map.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/mapping/type/UnorderedMap.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

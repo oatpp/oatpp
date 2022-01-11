@@ -23,18 +23,8 @@
  ***************************************************************************/
 
 #include "ApiClient.hpp"
-#include "oatpp/web/protocol/http/incoming/Response.hpp"
-#include "RequestExecutor.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-
-#include <unordered_map>
-#include <vector>
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/share/StringTemplate.hpp"
-#include <list>
 
 namespace oatpp { namespace web { namespace client {
 

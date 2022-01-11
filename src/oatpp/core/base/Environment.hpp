@@ -26,10 +26,16 @@
 #ifndef oatpp_base_Environment_hpp
 #define oatpp_base_Environment_hpp
 
+#include "./Config.hpp"
+
+#include <cstdio>
 #include <atomic>
 #include <mutex>
+#include <string>
 #include <unordered_map>
 #include <memory>
+#include <stdexcept>
+#include <cstdlib>
 
 #define OATPP_VERSION "1.3.0"
 
@@ -503,6 +509,7 @@ if(!(EXP)) { \
 #define OATPP_LOG_CATEGORY(NAME, TAG, ENABLED) \
   oatpp::base::LogCategory NAME = oatpp::base::LogCategory(TAG, ENABLED);
 
+
 #ifndef OATPP_DISABLE_LOGV
 
   /**
@@ -584,5 +591,6 @@ if(!(EXP)) { \
 #endif
   
 }}
+
 
 #endif /* oatpp_base_Environment_hpp */

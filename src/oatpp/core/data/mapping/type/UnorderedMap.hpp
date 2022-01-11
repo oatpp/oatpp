@@ -26,8 +26,11 @@
 #define oatpp_data_mapping_type_UnorderedMap_hpp
 
 #include "./Map.hpp"
+#include "./Type.hpp"
 
 #include <unordered_map>
+#include <initializer_list>
+#include <utility>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

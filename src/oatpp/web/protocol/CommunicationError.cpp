@@ -23,11 +23,6 @@
  ***************************************************************************/
 
 #include "CommunicationError.hpp"
-#include <stdexcept>
-
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace web { namespace protocol {
   

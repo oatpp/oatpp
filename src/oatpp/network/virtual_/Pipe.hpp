@@ -27,9 +27,14 @@
 
 #include "oatpp/core/async/CoroutineWaitList.hpp"
 
+#include "oatpp/core/data/stream/Stream.hpp"
+
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
+#include "oatpp/core/concurrency/SpinLock.hpp"
+
+#include <mutex>
 #include <condition_variable>
 
 namespace oatpp { namespace network { namespace virtual_ {
@@ -264,6 +269,7 @@ public:
    * @return - &l:Pipe::Writer;.
    */
   Writer* getWriter();
+
 
   /**
    * Get pointer to &l:Pipe::Reader; for this pipe.

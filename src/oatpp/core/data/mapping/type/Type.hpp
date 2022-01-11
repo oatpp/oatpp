@@ -25,9 +25,13 @@
 #ifndef oatpp_data_type_Type_hpp
 #define oatpp_data_type_Type_hpp
 
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/base/Environment.hpp"
 
+#include <list>
+#include <unordered_map>
 #include <vector>
+#include <string>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
@@ -83,6 +87,7 @@ public:
   }
 
 };
+
 
 namespace __class {
   /**
@@ -611,6 +616,7 @@ public: \
     this->m_ptr = std::move(other.m_ptr); \
     return *this; \
   } \
+
 
 }}}}
 

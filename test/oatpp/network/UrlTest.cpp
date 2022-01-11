@@ -26,6 +26,8 @@
 
 #include "oatpp/network/Url.hpp"
 
+#include "oatpp-test/Checker.hpp"
+
 namespace oatpp { namespace test { namespace network {
 
 void UrlTest::onRun() {

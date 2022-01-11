@@ -24,9 +24,8 @@
 
 #include "UnicodeTest.hpp"
 
+#include "oatpp/encoding/Hex.hpp"
 #include "oatpp/encoding/Unicode.hpp"
-
-#include <string>
 
 namespace oatpp { namespace test { namespace encoding {
   

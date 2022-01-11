@@ -23,14 +23,9 @@
  ***************************************************************************/
 
 #include "FileStream.hpp"
-#include <memory>
-
-#include "Stream.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include <stdexcept>
-#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileInputStream

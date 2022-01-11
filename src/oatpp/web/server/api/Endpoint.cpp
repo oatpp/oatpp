@@ -23,20 +23,6 @@
  ***************************************************************************/
 
 #include "Endpoint.hpp"
-#include <memory>
-
-#include <functional>
-#include "oatpp/web/server/HttpRequestHandler.hpp"
-#include <list>
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
-#include <unordered_map>
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/data/mapping/type/Any.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace api {
 

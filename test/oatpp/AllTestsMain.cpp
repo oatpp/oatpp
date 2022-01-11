@@ -59,9 +59,12 @@
 #include "oatpp/core/base/LoggerTest.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include "oatpp/core/base/Environment.hpp"
 
 #include <iostream>
+#include <mutex>
 
 namespace {
 

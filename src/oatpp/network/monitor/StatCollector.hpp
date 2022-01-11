@@ -27,8 +27,6 @@
 
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/IODefinitions.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include <unordered_map>
 
 namespace oatpp { namespace network { namespace monitor {
 

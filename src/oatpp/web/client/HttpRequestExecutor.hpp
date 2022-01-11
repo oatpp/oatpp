@@ -28,9 +28,8 @@
 #include "./RequestExecutor.hpp"
 
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
+#include "oatpp/network/ConnectionPool.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace client {
 

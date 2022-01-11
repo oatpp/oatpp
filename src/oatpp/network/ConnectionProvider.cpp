@@ -24,8 +24,6 @@
 
 #include "./ConnectionProvider.hpp"
 
-#include <unordered_set>
-
 namespace oatpp { namespace network {
   
 const char* const ConnectionProvider::PROPERTY_HOST = "host";

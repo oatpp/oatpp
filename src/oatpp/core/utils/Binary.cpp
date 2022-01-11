@@ -23,7 +23,6 @@
  ***************************************************************************/
 
 #include "Binary.hpp"
-#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace utils {
 

@@ -23,14 +23,6 @@
  ***************************************************************************/
 
 #include "HttpRouter.hpp"
-#include <list>
-
-#include "api/ApiController.hpp"
-#include "api/Endpoint.hpp"
-#include <memory>
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/base/Countable.hpp"
-#include <unordered_map>
 
 namespace oatpp { namespace web { namespace server {
 

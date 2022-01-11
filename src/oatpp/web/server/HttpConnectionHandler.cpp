@@ -23,12 +23,17 @@
  ***************************************************************************/
 
 #include "./HttpConnectionHandler.hpp"
-#include "handler/ErrorHandler.hpp"
+
+#include "oatpp/web/protocol/http/incoming/Request.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
 
 #include "oatpp/core/concurrency/Thread.hpp"
-#include "oatpp/core/provider/Invalidator.hpp"
 
-#include <thread>
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
+
+#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
+
 
 namespace oatpp { namespace web { namespace server {
 

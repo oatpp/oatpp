@@ -26,11 +26,6 @@
 #define oatpp_async_Mutex_hpp
 
 #include "./CoroutineWaitList.hpp"
-#include <mutex>
-
-#include <atomic>
-#include "oatpp/core/base/Environment.hpp"
-#include "Coroutine.hpp"
 
 namespace oatpp { namespace async {
 

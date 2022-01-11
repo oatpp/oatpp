@@ -25,7 +25,6 @@
 #include "InterfaceTest.hpp"
 
 #include "oatpp/network/virtual_/Interface.hpp"
-#include "oatpp/network/virtual_/Socket.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 

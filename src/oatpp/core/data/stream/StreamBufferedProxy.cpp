@@ -23,13 +23,6 @@
  ***************************************************************************/
 
 #include "StreamBufferedProxy.hpp"
-#include "Stream.hpp"
-
-#include "oatpp/core/async/Coroutine.hpp"
-#include <memory>
-#include "oatpp/core/data/buffer/FIFOBuffer.hpp"
-#include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
   

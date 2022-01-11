@@ -23,23 +23,9 @@
  ***************************************************************************/
 
 #include "ConnectionMonitor.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/IODefinitions.hpp"
-#include "oatpp/network/ConnectionProvider.hpp"
-#include "oatpp/core/provider/Provider.hpp"
-#include "oatpp/core/provider/Invalidator.hpp"
-#include "StatCollector.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "MetricsChecker.hpp"
 
+#include <chrono>
 #include <thread>
-#include <unordered_set>
-
-#include <condition_variable>
-#include <unordered_map>
-#include <atomic>
 
 namespace oatpp { namespace network { namespace monitor {
 
