@@ -25,8 +25,10 @@
 #include "CommandLineArgumentsTest.hpp"
 
 #include "oatpp/core/base/CommandLineArguments.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 #include <cstring>
+#include <string>
 
 namespace oatpp { namespace test { namespace base {
   

@@ -28,6 +28,8 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <memory>
+
 namespace oatpp { namespace test { namespace core { namespace provider {
 
 class PoolTemplateTest : public UnitTest{
@@ -39,6 +41,5 @@ public:
 };
 
 }}}}
-
 
 #endif //oatpp_test_provider_PoolTemplateTest_hpp

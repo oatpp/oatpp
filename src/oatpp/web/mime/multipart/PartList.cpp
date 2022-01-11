@@ -24,6 +24,9 @@
  ***************************************************************************/
 
 #include "PartList.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+
+#include <stdexcept>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

@@ -25,12 +25,9 @@
 #include "DTOMapperPerfTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
-#include "oatpp/parser/json/mapping/Serializer.hpp"
-#include "oatpp/parser/json/mapping/Deserializer.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
 
-#include "oatpp/core/macro/basic.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 #include "oatpp-test/Checker.hpp"

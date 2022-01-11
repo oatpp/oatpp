@@ -23,6 +23,13 @@
  ***************************************************************************/
 
 #include "Socket.hpp"
+#include "oatpp/core/IODefinitions.hpp"
+
+#include <memory>
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "Pipe.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
 
@@ -71,7 +78,6 @@ oatpp::data::stream::IOMode Socket::getInputStreamIOMode() {
 oatpp::data::stream::Context& Socket::getOutputStreamContext() {
   return m_pipeOut->getWriter()->getOutputStreamContext();
 }
-
 
 oatpp::data::stream::Context& Socket::getInputStreamContext() {
   return m_pipeIn->getReader()->getInputStreamContext();

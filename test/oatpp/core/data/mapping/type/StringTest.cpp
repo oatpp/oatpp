@@ -26,8 +26,6 @@
 
 #include "oatpp/core/Types.hpp"
 
-#include <functional>
-
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 void StringTest::onRun() {

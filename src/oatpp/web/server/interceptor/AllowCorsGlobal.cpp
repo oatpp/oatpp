@@ -23,6 +23,21 @@
  ***************************************************************************/
 
 #include "AllowCorsGlobal.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
+
+#include <memory>
+#include "ResponseInterceptor.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/web/protocol/http/outgoing/Response.hpp"
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/web/protocol/http/outgoing/Body.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include <string>
+#include "oatpp/web/protocol/http/incoming/Request.hpp"
+#include "RequestInterceptor.hpp"
+#include <unordered_set>
+#include <list>
 
 namespace oatpp { namespace web { namespace server { namespace interceptor {
 

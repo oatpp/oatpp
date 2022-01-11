@@ -27,14 +27,13 @@
 
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
 #include "oatpp/web/protocol/http/encoding/EncoderProvider.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
 
 #include "oatpp/network/ConnectionHandler.hpp"
 
-#include "oatpp/core/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include "oatpp/core/data/Bundle.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

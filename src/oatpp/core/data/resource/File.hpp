@@ -27,6 +27,7 @@
 
 #include "./Resource.hpp"
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

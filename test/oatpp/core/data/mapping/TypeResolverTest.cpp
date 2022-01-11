@@ -25,8 +25,22 @@
 #include "TypeResolverTest.hpp"
 
 #include "oatpp/core/data/mapping/TypeResolver.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Map.hpp"
+
+#include "oatpp/core/data/mapping/type/Vector.hpp"
+#include "oatpp/core/data/mapping/type/Object.hpp"
+#include "oatpp/core/data/mapping/type/UnorderedSet.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
+#include "oatpp/core/data/mapping/type/List.hpp"
+#include "oatpp/core/data/mapping/type/UnorderedMap.hpp"
+#include "oatpp/core/data/mapping/type/Any.hpp"
+#include "oatpp/core/data/mapping/type/PairList.hpp"
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Countable.hpp"
 #include "oatpp/core/macro/codegen.hpp"
+#include <list>
+#include <unordered_set>
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping {
 
@@ -111,7 +125,6 @@ void TypeResolverTest::onRun() {
 
   dto1->f_dto = TestDto::createShared();
 
-
   {
 
     auto type = tr.resolveObjectPropertyType(oatpp::Object<TestDto>::Class::getType(), {"f_str"}, cache);
@@ -135,7 +148,6 @@ void TypeResolverTest::onRun() {
     OATPP_ASSERT(val.get() == dto1->f_dto->f_str.get());
 
   }
-
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Int8
@@ -340,8 +352,6 @@ void TypeResolverTest::onRun() {
     OATPP_ASSERT(val.get() == dto1->f_dto->f_uint64.get());
 
   }
-
-
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Float32

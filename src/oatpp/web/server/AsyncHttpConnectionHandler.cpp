@@ -23,6 +23,22 @@
  ***************************************************************************/
 
 #include "./AsyncHttpConnectionHandler.hpp"
+#include "handler/ErrorHandler.hpp"
+
+#include <mutex>
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "HttpProcessor.hpp"
+#include "oatpp/core/provider/Provider.hpp"
+#include "oatpp/core/async/Processor.hpp"
+#include "oatpp/core/async/Executor.hpp"
+#include "oatpp/network/ConnectionHandler.hpp"
+#include <list>
+#include <unordered_map>
+#include "oatpp/core/provider/Invalidator.hpp"
+#include <thread>
+#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace web { namespace server {
 

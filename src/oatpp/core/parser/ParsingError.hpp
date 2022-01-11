@@ -26,6 +26,10 @@
 #define oatpp_parser_ParsingError_hpp
 
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include <stdexcept>
 
 namespace oatpp { namespace parser {
 

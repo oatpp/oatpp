@@ -25,8 +25,11 @@
 #ifndef oatpp_async_utils_FastQueue_hpp
 #define oatpp_async_utils_FastQueue_hpp
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
+
+#include <unordered_map>
+#include <mutex>
+#include <memory>
 
 namespace oatpp { namespace async { namespace utils {
   

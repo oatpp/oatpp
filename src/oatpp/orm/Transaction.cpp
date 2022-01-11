@@ -23,6 +23,16 @@
  ***************************************************************************/
 
 #include "Transaction.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+
+#include <memory>
+#include <stdexcept>
+#include "oatpp/core/provider/Provider.hpp"
+#include "QueryResult.hpp"
+#include "Connection.hpp"
+#include "oatpp/core/base/ObjectHandle.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "Executor.hpp"
 
 namespace oatpp { namespace orm {
 

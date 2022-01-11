@@ -25,7 +25,16 @@
 #include "HttpRouterTest.hpp"
 
 #include "oatpp/web/server/HttpRouter.hpp"
-#include "oatpp/core/Types.hpp"
+
+#include "oatpp/web/url/mapping/Router.hpp"
+#include "oatpp/web/url/mapping/Pattern.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <list>
+#include <unordered_map>
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server {
 

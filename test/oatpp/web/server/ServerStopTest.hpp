@@ -26,6 +26,10 @@
 #define oatpp_test_web_server_ServerStopTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
+#include <memory>
+
+#include <string>
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server {
 

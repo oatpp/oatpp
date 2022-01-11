@@ -26,11 +26,6 @@
 #define oatpp_data_mapping_type_PairList_hpp
 
 #include "./Map.hpp"
-#include "./Type.hpp"
-
-#include <list>
-#include <initializer_list>
-#include <utility>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

@@ -27,14 +27,14 @@
 #define oatpp_async_Processor_hpp
 
 #include "./Coroutine.hpp"
-#include "./CoroutineWaitList.hpp"
+#include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/async/utils/FastQueue.hpp"
 
 #include <condition_variable>
 #include <list>
-#include <mutex>
 #include <set>
 #include <vector>
+#include <thread>
 
 namespace oatpp { namespace async {
 

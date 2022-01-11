@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "ObjectMapper.hpp"
+#include "type/Primitive.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 

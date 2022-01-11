@@ -26,6 +26,10 @@
 #define oatpp_parser_Caret_hpp
 
 #include "oatpp/core/Types.hpp"
+#include <memory>
+
+#include "oatpp/core/base/Environment.hpp"
+#include <string>
 
 namespace oatpp { namespace parser {
 
@@ -506,7 +510,5 @@ public:
 };
   
 }}
-
-
 
 #endif /* oatpp_parser_Caret_hpp */

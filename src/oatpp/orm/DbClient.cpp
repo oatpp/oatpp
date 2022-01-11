@@ -24,7 +24,12 @@
 
 #include "DbClient.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "QueryResult.hpp"
+#include "Transaction.hpp"
+
+#include "oatpp/core/data/mapping/TypeResolver.hpp"
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/share/StringTemplate.hpp"
 
 namespace oatpp { namespace orm {
 

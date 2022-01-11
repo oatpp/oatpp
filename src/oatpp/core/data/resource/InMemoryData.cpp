@@ -23,6 +23,16 @@
  ***************************************************************************/
 
 #include "InMemoryData.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include "Resource.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
+#include <string>
+#include <memory>
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

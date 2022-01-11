@@ -34,13 +34,10 @@
 #include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
 #include "oatpp/web/protocol/http/incoming/RequestHeadersReader.hpp"
-#include "oatpp/web/protocol/http/incoming/Request.hpp"
 
-#include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
 
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-#include "oatpp/core/async/Processor.hpp"
+#include "oatpp/core/provider/Provider.hpp"
 
 namespace oatpp { namespace web { namespace server {
 

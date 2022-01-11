@@ -25,6 +25,8 @@
 #include "BufferStreamTest.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/utils/Binary.hpp"
 

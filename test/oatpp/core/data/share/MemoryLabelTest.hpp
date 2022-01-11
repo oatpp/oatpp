@@ -27,6 +27,10 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <unordered_set>
+#include <memory>
+#include <string>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace share {
   
 class MemoryLabelTest : public UnitTest{

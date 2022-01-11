@@ -26,8 +26,9 @@
 #define oatpp_data_stream_FileStream_hpp
 
 #include "Stream.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 
-#include <cstdio>
+#include <memory>
 
 namespace oatpp { namespace data{ namespace stream {
 

@@ -26,7 +26,11 @@
 #define oatpp_web_protocol_http_outgoing_BufferBody_hpp
 
 #include "./Body.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/buffer/Processor.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

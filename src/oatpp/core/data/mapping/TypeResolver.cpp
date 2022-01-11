@@ -23,6 +23,19 @@
  ***************************************************************************/
 
 #include "TypeResolver.hpp"
+#include <stdexcept>
+
+#include "type/Object.hpp"
+#include <memory>
+#include "type/Primitive.hpp"
+#include "type/Enum.hpp"
+#include "type/Any.hpp"
+#include "type/List.hpp"
+#include "type/UnorderedSet.hpp"
+#include "type/PairList.hpp"
+#include "type/UnorderedMap.hpp"
+#include "type/Vector.hpp"
+#include <list>
 
 namespace oatpp { namespace data { namespace mapping {
 

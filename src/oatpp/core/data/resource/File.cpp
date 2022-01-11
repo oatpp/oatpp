@@ -25,6 +25,10 @@
 #include "File.hpp"
 
 #include "oatpp/core/data/stream/FileStream.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include <stdexcept>
+
+#include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

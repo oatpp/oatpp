@@ -28,8 +28,9 @@
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/Types.hpp"
 
-#include <list>
 #include <unordered_map>
 
 namespace oatpp { namespace web { namespace url { namespace mapping {

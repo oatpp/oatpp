@@ -27,6 +27,7 @@
 
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 

@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "String.hpp"
+#include "oatpp/core/base/Environment.hpp"
 #include <cstring>
 
 namespace oatpp { namespace utils {

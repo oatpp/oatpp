@@ -26,11 +26,15 @@
 #include "Environment.hpp"
 
 #include <iomanip>
-#include <chrono>
 #include <iostream>
-#include <cstring>
-#include <ctime>
 #include <cstdarg>
+#include <unordered_map>
+#include <mutex>
+#include <ostream>
+#include <atomic>
+#include <string.h>
+
+#include <memory>
 
 #if defined(WIN32) || defined(_WIN32)
 	#include <WinSock2.h>
@@ -328,7 +332,6 @@ void Environment::log(v_uint32 priority, const std::string& tag, const std::stri
     m_logger->log(priority, tag, message);
   }
 }
-
 
 void Environment::logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) {
   if (category.categoryEnabled && (category.enabledPriorities & (1 << priority))) {

@@ -26,6 +26,8 @@
 #include "AuthorizationHandlerTest.hpp"
 
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server { namespace handler {
 

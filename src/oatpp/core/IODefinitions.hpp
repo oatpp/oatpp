@@ -26,7 +26,8 @@
 #define oatpp_IODefinitions_hpp
 
 #include "oatpp/core/async/Error.hpp"
-#include "oatpp/core/Types.hpp"
+#include "base/Environment.hpp"
+#include <string>
 
 namespace oatpp {
 

@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "./Stream.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
@@ -425,7 +426,6 @@ v_io_size ConsistentOutputStream::writeAsString(bool value) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Other functions
-
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str) {
   if(str) {

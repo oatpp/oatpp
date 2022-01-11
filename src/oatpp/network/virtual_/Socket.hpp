@@ -26,6 +26,12 @@
 #define oatpp_network_virtual__Socket_hpp
 
 #include "./Pipe.hpp"
+#include <memory>
+
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
 

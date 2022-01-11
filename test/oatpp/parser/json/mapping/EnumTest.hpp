@@ -27,6 +27,9 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <memory>
+#include <string>
+
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
 
 class EnumTest : public UnitTest{

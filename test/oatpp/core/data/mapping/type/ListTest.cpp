@@ -25,6 +25,14 @@
 #include "ListTest.hpp"
 
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <vector>
+
+#include <list>
+#include "oatpp/core/data/mapping/type/Collection.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/List.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

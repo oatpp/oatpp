@@ -30,7 +30,8 @@
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/data/buffer/Processor.hpp"
 
-#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/Types.hpp"
+#include <cstring>
 
 namespace oatpp { namespace data{ namespace stream {
 
@@ -50,7 +51,6 @@ enum StreamType : v_int32 {
   STREAM_INFINITE = 1
 
 };
-
 
 /**
  * Stream Context.

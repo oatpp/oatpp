@@ -23,6 +23,11 @@
  ***************************************************************************/
 
 #include "IOBuffer.hpp"
+#include <new>
+
+#include <memory>
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace data { namespace buffer {
 

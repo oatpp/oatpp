@@ -26,6 +26,9 @@
 #define oatpp_test_web_ClientRetryTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
+#include <memory>
+
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test { namespace web {
 

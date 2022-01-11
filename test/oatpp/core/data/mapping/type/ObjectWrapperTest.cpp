@@ -24,6 +24,12 @@
 
 #include "ObjectWrapperTest.hpp"
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <memory>
+
+#include <stdexcept>
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

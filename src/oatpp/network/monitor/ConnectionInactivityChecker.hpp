@@ -26,6 +26,12 @@
 #define oatpp_network_monitor_ConnectionInactivityChecker_hpp
 
 #include "MetricsChecker.hpp"
+#include <memory>
+
+#include "oatpp/core/Types.hpp"
+#include <vector>
+#include "oatpp/core/base/Environment.hpp"
+#include <chrono>
 
 namespace oatpp { namespace network { namespace monitor {
 

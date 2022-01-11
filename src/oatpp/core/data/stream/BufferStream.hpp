@@ -26,6 +26,14 @@
 #define oatpp_data_stream_BufferStream_hpp
 
 #include "Stream.hpp"
+#include <string>
+
+#include "oatpp/core/data/buffer/Processor.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <memory>
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
 
@@ -198,7 +206,6 @@ public:
              p_char8 data,
              v_buff_size size,
              const std::shared_ptr<void>& captureData = nullptr);
-
 
   /**
    * Same as `reset(nullptr, nullptr, 0);.`

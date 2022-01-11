@@ -27,6 +27,20 @@
 
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
+#include <memory>
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Enum.hpp"
+#include <vector>
+#include <list>
+#include "oatpp/core/data/mapping/type/Map.hpp"
+#include "oatpp/core/data/mapping/type/PairList.hpp"
+#include <string>
+#include "oatpp/core/data/mapping/type/Object.hpp"
+#include <unordered_map>
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
 

@@ -27,6 +27,7 @@
 
 #include "EncoderProvider.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 

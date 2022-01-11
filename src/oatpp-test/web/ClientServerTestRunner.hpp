@@ -25,19 +25,13 @@
 #ifndef oatpp_test_web_ClientServerTestRunner_hpp
 #define oatpp_test_web_ClientServerTestRunner_hpp
 
-#include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
 #include "oatpp/network/Server.hpp"
-#include "oatpp/network/ConnectionProvider.hpp"
 
 #include "oatpp/core/macro/component.hpp"
 
-#include <list>
-#include <chrono>
-#include <mutex>
 #include <condition_variable>
-#include <thread>
 
 namespace oatpp { namespace test { namespace web {
 

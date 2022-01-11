@@ -25,7 +25,27 @@
 #include "DeserializerTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/parser/json/mapping/Serializer.hpp"
+#include "oatpp/parser/json/mapping/Deserializer.hpp"
 #include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <memory>
+#include "oatpp/core/Types.hpp"
+
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include <stdexcept>
+#include <vector>
+#include "oatpp/core/data/mapping/type/PairList.hpp"
+#include "oatpp/core/data/mapping/type/Object.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
+#include <list>
+#include "oatpp/core/data/mapping/type/List.hpp"
+#include "oatpp/core/data/mapping/type/Any.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include <unordered_map>
+#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/data/mapping/type/Map.hpp"
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
 

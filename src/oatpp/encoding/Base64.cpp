@@ -23,6 +23,9 @@
  ***************************************************************************/
 
 #include "Base64.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace encoding {
   

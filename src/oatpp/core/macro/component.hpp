@@ -38,7 +38,6 @@
 #define oatpp_macro_component_hpp
 
 #include "./basic.hpp"
-#include "oatpp/core/base/Environment.hpp"
 
 #define OATPP_MACRO_GET_COMPONENT_1(TYPE) \
 (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name())))
@@ -48,7 +47,6 @@
 
 #define OATPP_GET_COMPONENT(...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_GET_COMPONENT_, (__VA_ARGS__)) (__VA_ARGS__))
-
 
 #define OATPP_MACRO_COMPONENT_1(TYPE, NAME) \
 TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name())))

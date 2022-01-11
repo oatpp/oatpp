@@ -23,6 +23,16 @@
  ***************************************************************************/
 
 #include "Interface.hpp"
+#include <condition_variable>
+
+#include <list>
+#include "Socket.hpp"
+#include "oatpp/core/Types.hpp"
+#include <unordered_map>
+#include <mutex>
+#include <atomic>
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
 

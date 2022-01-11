@@ -25,6 +25,14 @@
 #include "PrimitiveTest.hpp"
 
 #include "oatpp/core/Types.hpp"
+#include <stdlib.h>
+#include "oatpp/core/base/Environment.hpp"
+
+#include <functional>
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include <memory>
+#include <string>
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

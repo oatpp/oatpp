@@ -25,6 +25,14 @@
 #include "PairListTest.hpp"
 
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <vector>
+
+#include "oatpp/core/data/mapping/type/Map.hpp"
+#include <list>
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/PairList.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

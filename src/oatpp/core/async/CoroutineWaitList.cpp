@@ -27,10 +27,8 @@
 
 #include "./Processor.hpp"
 #include <algorithm>
-#include <set>
 
 namespace oatpp { namespace async {
-
 
 CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
   {

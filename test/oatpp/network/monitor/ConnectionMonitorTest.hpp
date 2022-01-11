@@ -27,6 +27,8 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <memory>
+
 namespace oatpp { namespace test { namespace network { namespace monitor {
 
 class ConnectionMonitorTest : public UnitTest {
@@ -38,6 +40,5 @@ public:
 };
 
 }}}}
-
 
 #endif // oatpp_test_network_monitor_ConnectionMonitorTest_hpp

@@ -23,6 +23,12 @@
  ***************************************************************************/
 
 #include "ProviderCollection.hpp"
+#include <unordered_set>
+
+#include <memory>
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "EncoderProvider.hpp"
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 

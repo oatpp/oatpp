@@ -27,11 +27,12 @@
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
 #include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
 
 #include "oatpp-test/Checker.hpp"
 
 #include <thread>
+#include <unordered_set>
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

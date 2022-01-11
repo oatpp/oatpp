@@ -24,7 +24,7 @@
 
 #include "UnitTest.hpp"
 
-#include <chrono>
+#include <string>
 
 namespace oatpp { namespace test {
 

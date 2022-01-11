@@ -23,6 +23,17 @@
  ***************************************************************************/
 
 #include "ObjectMapper.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+
+#include "oatpp/core/Types.hpp"
+#include <memory>
+#include <vector>
+#include "Serializer.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "Deserializer.hpp"
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include <list>
+#include <unordered_set>
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

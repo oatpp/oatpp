@@ -23,6 +23,21 @@
  ***************************************************************************/
 
 #include "Reader.hpp"
+#include "oatpp/core/data/buffer/Processor.hpp"
+
+#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "Multipart.hpp"
+#include <memory>
+#include "PartReader.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include "StatefulParser.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "Part.hpp"
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

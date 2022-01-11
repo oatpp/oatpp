@@ -27,6 +27,8 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <memory>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace buffer {
 
 class ProcessorTest : public UnitTest{

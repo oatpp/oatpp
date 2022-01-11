@@ -26,11 +26,11 @@
 #define oatpp_network_Url_hpp
 
 #include "oatpp/core/data/share/LazyStringMap.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network {
-
 
 /**
  * Class holding URL information.

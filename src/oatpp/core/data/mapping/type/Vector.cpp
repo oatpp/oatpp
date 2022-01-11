@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Vector.hpp"
+#include "Type.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

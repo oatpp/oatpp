@@ -27,6 +27,10 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <string>
+#include <memory>
+#include <unordered_map>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 class UnorderedMapTest : public UnitTest{

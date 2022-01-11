@@ -25,16 +25,14 @@
 #ifndef oatpp_web_protocol_http_Http_hpp
 #define oatpp_web_protocol_http_Http_hpp
 
-#include "oatpp/network/tcp/Connection.hpp"
-
 #include "oatpp/web/protocol/CommunicationError.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 
 #include <unordered_map>
-#include <unordered_set>
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
 

@@ -26,6 +26,9 @@
 #define oatpp_encoding_Base64_hpp
 
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include <stdexcept>
 
 namespace oatpp { namespace encoding {
 

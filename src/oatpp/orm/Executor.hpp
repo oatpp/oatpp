@@ -29,9 +29,8 @@
 #include "QueryResult.hpp"
 
 #include "oatpp/core/data/mapping/TypeResolver.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
 #include "oatpp/core/data/share/StringTemplate.hpp"
+#include "oatpp/core/provider/Provider.hpp"
 
 namespace oatpp { namespace orm {
 

@@ -27,6 +27,10 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <memory>
+#include <unordered_set>
+#include <string>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 class EnumTest : public UnitTest{

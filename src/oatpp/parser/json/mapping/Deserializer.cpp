@@ -24,7 +24,8 @@
 
 #include "Deserializer.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/data/mapping/type/Map.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

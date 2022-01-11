@@ -27,6 +27,8 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <unordered_map>
+
 namespace oatpp { namespace test { namespace core { namespace data { namespace share {
 
 class LazyStringMapTest : public UnitTest{

@@ -28,13 +28,6 @@
 #include "./Processor.hpp"
 #include "oatpp/core/async/worker/Worker.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/concurrency/Thread.hpp"
-
-#include <tuple>
-#include <mutex>
-#include <condition_variable>
-
 namespace oatpp { namespace async {
 
 /**

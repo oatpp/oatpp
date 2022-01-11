@@ -23,6 +23,12 @@
  ***************************************************************************/
 
 #include "./Object.hpp"
+#include <list>
+
+#include "Type.hpp"
+#include <string>
+#include <unordered_map>
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 
@@ -51,7 +57,6 @@ void BaseObject::setBasePointer(void* basePointer) {
 void* BaseObject::getBasePointer() const {
   return m_basePointer;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BaseObject::Properties

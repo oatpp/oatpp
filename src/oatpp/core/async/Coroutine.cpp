@@ -24,6 +24,13 @@
  ***************************************************************************/
 
 #include "Coroutine.hpp"
+#include <chrono>
+
+#include "Error.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <string>
 
 namespace oatpp { namespace async {
 

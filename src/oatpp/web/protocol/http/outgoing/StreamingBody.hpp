@@ -26,6 +26,11 @@
 #define oatpp_web_protocol_http_outgoing_StreamingBody_hpp
 
 #include "./Body.hpp"
+#include <memory>
+
+#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

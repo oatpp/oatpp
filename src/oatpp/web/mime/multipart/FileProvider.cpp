@@ -25,6 +25,7 @@
 #include "FileProvider.hpp"
 
 #include "oatpp/core/data/resource/File.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

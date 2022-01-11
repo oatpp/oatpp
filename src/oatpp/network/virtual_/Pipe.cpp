@@ -23,6 +23,16 @@
  ***************************************************************************/
 
 #include "Pipe.hpp"
+#include "oatpp/core/IODefinitions.hpp"
+
+#include "oatpp/core/async/Coroutine.hpp"
+#include <condition_variable>
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/buffer/FIFOBuffer.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/async/CoroutineWaitList.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
 

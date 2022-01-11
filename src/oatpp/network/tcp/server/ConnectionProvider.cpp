@@ -25,6 +25,8 @@
 #include "./ConnectionProvider.hpp"
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 
 #include <fcntl.h>
 
@@ -35,14 +37,13 @@
 #else
   #include <netdb.h>
   #include <arpa/inet.h>
-  #include <sys/socket.h>
-  #include <netinet/tcp.h>
   #include <unistd.h>
+  #include <string.h>
+  #include <unordered_set>
   #if defined(__FreeBSD__)
     #include <netinet/in.h>
   #endif
 #endif
-
 
 // Workaround for MinGW from: https://www.mail-archive.com/users@ipv6.org/msg02107.html
 #if defined(__MINGW32__) && _WIN32_WINNT < 0x0600
@@ -115,7 +116,6 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 #else
   shutdown(handle, SHUT_RDWR);
 #endif
-
 
 }
 

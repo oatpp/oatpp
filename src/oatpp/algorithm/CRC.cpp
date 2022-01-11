@@ -23,6 +23,9 @@
  ***************************************************************************/
 
 #include "CRC.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include <new>
 
 namespace oatpp { namespace algorithm {
   

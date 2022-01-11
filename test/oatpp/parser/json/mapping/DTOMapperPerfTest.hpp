@@ -27,6 +27,8 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <string>
+
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
   
 class DTOMapperPerfTest : public UnitTest{

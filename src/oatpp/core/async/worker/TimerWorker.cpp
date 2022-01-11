@@ -23,10 +23,9 @@
  ***************************************************************************/
 
 #include "TimerWorker.hpp"
+#include "Worker.hpp"
 
 #include "oatpp/core/async/Processor.hpp"
-
-#include <chrono>
 
 namespace oatpp { namespace async { namespace worker {
 

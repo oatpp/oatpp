@@ -22,9 +22,7 @@
  *
  ***************************************************************************/
 
-#include "ConversionUtils.hpp"
-
-#include <cstdlib>
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace utils { namespace conversion {
   

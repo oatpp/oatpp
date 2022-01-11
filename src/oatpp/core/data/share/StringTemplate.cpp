@@ -25,6 +25,12 @@
 #include "StringTemplate.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
+#include <vector>
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+
+#include <stdexcept>
+#include <unordered_map>
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace data { namespace share {
 

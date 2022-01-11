@@ -23,10 +23,13 @@
  ***************************************************************************/
 
 #include "Multipart.hpp"
+#include "Part.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/encoding/Base64.hpp"
 #include "oatpp/core/utils/Random.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include <unordered_map>
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

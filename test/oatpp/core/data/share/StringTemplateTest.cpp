@@ -25,6 +25,17 @@
 #include "StringTemplateTest.hpp"
 
 #include "oatpp/core/data/share/StringTemplate.hpp"
+#include <stdlib.h>
+#include "oatpp/core/base/Environment.hpp"
+
+#include <unordered_map>
+#include <memory>
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include <vector>
+#include <string>
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace share {
 

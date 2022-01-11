@@ -28,8 +28,11 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/web/url/mapping/Pattern.hpp"
-#include "oatpp/network/Url.hpp"
 #include "oatpp/core/data/Bundle.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/core/base/ObjectHandle.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

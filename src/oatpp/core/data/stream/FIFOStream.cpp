@@ -22,9 +22,15 @@
  *
  ***************************************************************************/
 
-
 #include "FIFOStream.hpp"
+#include "Stream.hpp"
+#include "oatpp/core/data/buffer/FIFOBuffer.hpp"
 #include "oatpp/core/utils/Binary.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+
+#include <memory>
+#include <stdexcept>
+#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace data { namespace stream {
 

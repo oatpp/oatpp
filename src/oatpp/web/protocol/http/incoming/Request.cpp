@@ -23,6 +23,24 @@
  ***************************************************************************/
 
 #include "Request.hpp"
+#include "oatpp/core/Types.hpp"
+
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
+#include "oatpp/network/Url.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include <memory>
+#include "BodyDecoder.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
+#include "oatpp/core/base/ObjectHandle.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/data/Bundle.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/web/url/mapping/Pattern.hpp"
+#include <unordered_set>
+#include <list>
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

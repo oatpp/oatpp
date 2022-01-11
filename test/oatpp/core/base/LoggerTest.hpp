@@ -27,6 +27,7 @@
 #define oatpp_test_base_LoggerTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 namespace oatpp { namespace test { namespace base {
 

@@ -23,6 +23,20 @@
  ***************************************************************************/
 
 #include "ConnectionProvider.hpp"
+#include <memory>
+
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/network/virtual_/Socket.hpp"
+#include "oatpp/core/provider/Provider.hpp"
+#include <stdexcept>
+#include "oatpp/network/virtual_/Interface.hpp"
+#include "oatpp/core/provider/Invalidator.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/network/ConnectionProvider.hpp"
+#include <unordered_set>
 
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
 

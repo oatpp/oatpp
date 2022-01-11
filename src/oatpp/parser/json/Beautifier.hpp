@@ -26,6 +26,11 @@
 #define oatpp_parser_json_Beautifier_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/IODefinitions.hpp"
 
 namespace oatpp { namespace parser { namespace json {
 

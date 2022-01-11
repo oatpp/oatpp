@@ -26,6 +26,12 @@
 #define oatpp_network_monitor_MetricsChecker_hpp
 
 #include "StatCollector.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include <vector>
+#include <memory>
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Countable.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 

@@ -25,8 +25,18 @@
 
 #include "AuthorizationHandler.hpp"
 
+#include "oatpp/web/protocol/http/Http.hpp"
+
 #include "oatpp/encoding/Base64.hpp"
 #include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/utils/String.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/data/share/LazyStringMap.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 

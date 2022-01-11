@@ -25,9 +25,13 @@
 #ifndef oatpp_web_client_RetryPolicy_hpp
 #define oatpp_web_client_RetryPolicy_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 #include <unordered_set>
+#include <ext/aligned_buffer.h>
+#include <functional>
+
+#include <chrono>
 
 namespace oatpp { namespace web { namespace client {
 

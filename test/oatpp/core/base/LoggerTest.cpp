@@ -24,6 +24,11 @@
  ***************************************************************************/
 
 #include "LoggerTest.hpp"
+#include "oatpp/core/base/Environment.hpp"
+
+#include <string>
+#include <stdlib.h>
+#include <memory>
 
 namespace oatpp { namespace test { namespace base {
 

@@ -28,12 +28,9 @@
 #include "./DTOs.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/web/server/api/Endpoint.hpp"
+#include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/core/macro/component.hpp"
-
-#include <sstream>
 
 namespace oatpp { namespace test { namespace web { namespace app {
 

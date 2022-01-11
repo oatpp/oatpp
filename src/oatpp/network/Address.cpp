@@ -23,6 +23,10 @@
  ***************************************************************************/
 
 #include "Address.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+
+#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace network {
 

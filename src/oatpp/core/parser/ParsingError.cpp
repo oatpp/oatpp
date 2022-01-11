@@ -23,6 +23,11 @@
  ***************************************************************************/
 
 #include "ParsingError.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+
+#include <stdexcept>
+#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace parser {
 

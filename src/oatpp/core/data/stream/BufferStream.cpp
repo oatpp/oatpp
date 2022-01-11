@@ -23,8 +23,18 @@
  ***************************************************************************/
 
 #include "BufferStream.hpp"
+#include "Stream.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
 
 #include "oatpp/core/utils/Binary.hpp"
+#include <memory>
+
+#include <cstring>
+#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/IODefinitions.hpp"
+#include <stdexcept>
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
 
@@ -103,16 +113,13 @@ p_char8 BufferOutputStream::getData() {
   return m_data;
 }
 
-
 v_buff_size BufferOutputStream::getCapacity() {
   return m_capacity;
 }
 
-
 v_buff_size BufferOutputStream::getCurrentPosition() {
   return m_position;
 }
-
 
 void BufferOutputStream::setCurrentPosition(v_buff_size position) {
   m_position = position;
@@ -169,7 +176,6 @@ oatpp::async::CoroutineStarter BufferOutputStream::flushToStreamAsync(const std:
   return WriteDataCoroutine::start(_this, stream);
 
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferInputStream

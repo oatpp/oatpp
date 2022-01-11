@@ -25,14 +25,9 @@
 #ifndef oatpp_utils_ConversionUtils_hpp
 #define oatpp_utils_ConversionUtils_hpp
 
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/Types.hpp"
 
-
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include <string>
+#include "oatpp/core/base/Config.hpp"
 
 namespace oatpp { namespace utils { namespace conversion {
 

@@ -25,6 +25,21 @@
 #include "UnorderedSetTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <vector>
+
+#include <memory>
+#include <unordered_set>
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
+#include "oatpp/core/data/mapping/type/UnorderedSet.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/parser/json/mapping/Serializer.hpp"
+#include "oatpp/parser/json/mapping/Deserializer.hpp"
+#include <stdexcept>
+#include <list>
 
 namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
 

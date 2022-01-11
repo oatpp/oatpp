@@ -26,8 +26,11 @@
 #define oatpp_web_server_api_Endpoint_hpp
 
 #include "oatpp/web/server/HttpRequestHandler.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
 
-#include <list>
+#include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Countable.hpp"
+
 #include <unordered_map>
 #include <functional>
 

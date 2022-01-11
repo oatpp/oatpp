@@ -23,8 +23,14 @@
  ***************************************************************************/
 
 #include "MemoryLabel.hpp"
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
 
 #include <cstring>
+#include <memory>
+
+#include <string>
 
 namespace oatpp { namespace data { namespace share {
 

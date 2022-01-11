@@ -25,11 +25,17 @@
 #include "UnorderedSetTest.hpp"
 
 #include "oatpp/core/Types.hpp"
+#include "oatpp/core/base/Environment.hpp"
+#include <vector>
+
+#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/core/data/mapping/type/Collection.hpp"
+#include "oatpp/core/data/mapping/type/UnorderedSet.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 void UnorderedSetTest::onRun() {
-
 
   {
     OATPP_LOGI(TAG, "test default constructor...");

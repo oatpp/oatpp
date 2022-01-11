@@ -23,9 +23,11 @@
  ***************************************************************************/
 
 #include "Thread.hpp"
+#include "oatpp/core/base/Environment.hpp"
 
 #if defined(_GNU_SOURCE)
-  #include <pthread.h>
+  #include <thread>
+  #include <string>
 #endif
 
 namespace oatpp { namespace concurrency {

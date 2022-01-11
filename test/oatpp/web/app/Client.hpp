@@ -28,9 +28,15 @@
 #include "./DTOs.hpp"
 
 #include "oatpp/web/client/ApiClient.hpp"
+#include "oatpp/web/client/RequestExecutor.hpp"
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
+#include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
+#include "oatpp/web/protocol/http/incoming/Response.hpp"
+
+#include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/encoding/Base64.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/core/data/share/StringTemplate.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
   
