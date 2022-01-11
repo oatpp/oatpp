@@ -28,9 +28,6 @@
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/core/Types.hpp"
 
-#include <unordered_map>
-#include <vector>
-
 namespace oatpp { namespace data { namespace share {
 
 /**

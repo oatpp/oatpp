@@ -24,8 +24,6 @@
 
 #include "MemoryLabel.hpp"
 
-#include <cstring>
-
 namespace oatpp { namespace data { namespace share {
 
 MemoryLabel::MemoryLabel(const std::shared_ptr<std::string>& memHandle, const void* data, v_buff_size size)

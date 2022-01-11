@@ -25,7 +25,6 @@
 #include "RequestExecutor.hpp"
 
 #include <thread>
-#include <chrono>
 
 namespace oatpp { namespace web { namespace client {
 

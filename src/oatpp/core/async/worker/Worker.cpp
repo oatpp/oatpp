@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Worker.hpp"
+#include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace async { namespace worker {
 

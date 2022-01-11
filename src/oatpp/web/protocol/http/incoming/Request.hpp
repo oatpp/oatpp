@@ -25,10 +25,8 @@
 #ifndef oatpp_web_protocol_http_incoming_Request_hpp
 #define oatpp_web_protocol_http_incoming_Request_hpp
 
-#include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/web/url/mapping/Pattern.hpp"
-#include "oatpp/network/Url.hpp"
 #include "oatpp/core/data/Bundle.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {

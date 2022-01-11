@@ -32,12 +32,8 @@
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
-#include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
-
-#include <list>
-#include <unordered_map>
 
 namespace oatpp { namespace web { namespace server { namespace api {
 

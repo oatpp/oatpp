@@ -32,8 +32,6 @@
   #include <sys/socket.h>
 #endif
 
-#include <thread>
-#include <chrono>
 #include <fcntl.h>
 
 namespace oatpp { namespace network { namespace tcp {

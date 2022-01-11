@@ -26,8 +26,6 @@
 
 #include "oatpp/core/async/Processor.hpp"
 
-#include <chrono>
-
 namespace oatpp { namespace async { namespace worker {
 
 TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity)

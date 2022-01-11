@@ -25,6 +25,7 @@
 #include "InMemoryDataTest.hpp"
 
 #include "oatpp/core/data/resource/InMemoryData.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace resource {
 

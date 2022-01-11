@@ -31,7 +31,7 @@
 
 #include "oatpp/core/async/Processor.hpp"
 
-#include <unistd.h>
+#include <cstring>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 
@@ -245,7 +245,6 @@ void IOEventWorker::waitEvents() {
             popQueue.pushBack(coroutine);
 
             break;
-
 
           default:
 

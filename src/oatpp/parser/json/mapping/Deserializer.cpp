@@ -24,8 +24,6 @@
 
 #include "Deserializer.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
-
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 
 Deserializer::Deserializer(const std::shared_ptr<Config>& config)

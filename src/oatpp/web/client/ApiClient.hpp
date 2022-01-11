@@ -27,20 +27,9 @@
 
 #include "./RequestExecutor.hpp"
 
-#include "oatpp/web/protocol/http/incoming/Response.hpp"
-#include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
-
-#include "oatpp/encoding/Base64.hpp"
-
 #include "oatpp/core/data/share/StringTemplate.hpp"
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
-
-#include <string>
-#include <list>
-#include <unordered_map>
 
 namespace oatpp { namespace web { namespace client {
 

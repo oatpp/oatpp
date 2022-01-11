@@ -28,6 +28,7 @@
 #include "./Body.hpp"
 
 #include "oatpp/web/mime/multipart/Multipart.hpp"
+#include "oatpp/web/mime/multipart/Part.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {

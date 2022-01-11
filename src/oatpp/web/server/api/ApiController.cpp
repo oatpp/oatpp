@@ -23,7 +23,9 @@
  ***************************************************************************/
 
 #include "ApiController.hpp"
+#include "Endpoint.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
+#include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace api {
 

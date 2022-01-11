@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "InMemoryData.hpp"
+#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

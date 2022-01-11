@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "ConnectionInactivityChecker.hpp"
+#include "StatCollector.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 

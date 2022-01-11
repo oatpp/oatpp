@@ -28,12 +28,6 @@
 #include "oatpp/network/ConnectionHandler.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
-#include "oatpp/core/Types.hpp"
-
-#include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/Environment.hpp"
-
-#include <atomic>
 #include <thread>
 #include <functional>
 

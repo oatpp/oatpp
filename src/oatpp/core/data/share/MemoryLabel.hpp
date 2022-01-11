@@ -29,7 +29,6 @@
 #include "oatpp/core/utils/String.hpp"
 
 #include <cstring>
-#include <memory>
 
 namespace oatpp { namespace data { namespace share {
   

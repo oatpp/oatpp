@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "SchemaMigration.hpp"
+#include "Connection.hpp"
 
 #include <algorithm>
 

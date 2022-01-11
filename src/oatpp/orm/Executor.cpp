@@ -23,6 +23,9 @@
  ***************************************************************************/
 
 #include "Executor.hpp"
+#include "QueryResult.hpp"
+
+#include "Connection.hpp"
 
 namespace oatpp { namespace orm {
 

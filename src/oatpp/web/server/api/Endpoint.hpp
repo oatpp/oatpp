@@ -27,8 +27,6 @@
 
 #include "oatpp/web/server/HttpRequestHandler.hpp"
 
-#include <list>
-#include <unordered_map>
 #include <functional>
 
 namespace oatpp { namespace web { namespace server { namespace api {

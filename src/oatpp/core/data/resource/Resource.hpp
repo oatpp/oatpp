@@ -26,6 +26,7 @@
 #define oatpp_data_resource_Resource_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

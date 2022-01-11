@@ -25,6 +25,7 @@
 #include "Pattern.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
 

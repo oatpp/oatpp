@@ -27,6 +27,7 @@
 #define oatpp_web_mime_multipart_PartList_hpp
 
 #include "Multipart.hpp"
+#include "Part.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

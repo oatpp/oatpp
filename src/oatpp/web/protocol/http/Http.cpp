@@ -26,6 +26,7 @@
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
@@ -123,7 +124,6 @@ const char* const Header::HOST = "Host";
 const char* const Header::USER_AGENT = "User-Agent";
 const char* const Header::SERVER = "Server";
 const char* const Header::UPGRADE = "Upgrade";
-
 
 const char* const Header::CORS_ORIGIN = "Access-Control-Allow-Origin";
 const char* const Header::CORS_METHODS = "Access-Control-Allow-Methods";
@@ -248,7 +248,6 @@ ContentRange ContentRange::parse(const oatpp::String& str) {
   oatpp::parser::Caret caret(str);
   return parse(caret);
 }
-
 
 oatpp::String HeaderValueData::getTitleParamValue(const data::share::StringKeyLabelCI& key) const {
   auto it = titleParams.find(key);
