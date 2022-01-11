@@ -29,13 +29,14 @@
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/base/Environment.hpp"
 #include "oatpp/core/IODefinitions.hpp"
-#include <mutex>
-#include <thread>
 
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>
 #else
 #include <unistd.h>
+
+#include <mutex>
+#include <thread>
 #endif
 
 namespace oatpp { namespace async { namespace worker {
