@@ -28,8 +28,6 @@
 #include "./MemoryLabel.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 
-#include <unordered_map>
-
 namespace oatpp { namespace data { namespace share {
 
 /**

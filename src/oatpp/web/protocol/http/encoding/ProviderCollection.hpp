@@ -26,9 +26,6 @@
 #define oatpp_web_protocol_http_encoding_ProviderCollection_hpp
 
 #include "EncoderProvider.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include <unordered_map>
-#include <unordered_set>
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 

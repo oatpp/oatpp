@@ -29,9 +29,6 @@
 #include "oatpp/core/async/Executor.hpp"
 #include "oatpp/core/async/Lock.hpp"
 
-#include <thread>
-#include <list>
-
 namespace oatpp { namespace test { namespace async {
 
 namespace {
@@ -163,7 +160,6 @@ bool checkSymbol(char symbol, const oatpp::String& str) {
 }
 
 }
-
 
 void LockTest::onRun() {
 

@@ -24,9 +24,6 @@
 
 #include "Server.hpp"
 
-#include <thread>
-#include <chrono>
-
 namespace oatpp { namespace network {
 
 const v_int32 Server::STATUS_CREATED = 0;

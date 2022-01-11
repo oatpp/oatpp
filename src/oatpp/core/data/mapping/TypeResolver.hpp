@@ -25,7 +25,7 @@
 #ifndef oatpp_data_mapping_TypeResolver_hpp
 #define oatpp_data_mapping_TypeResolver_hpp
 
-#include "type/Object.hpp"
+#include "type/Type.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 

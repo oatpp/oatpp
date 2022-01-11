@@ -23,9 +23,18 @@
  ***************************************************************************/
 
 #include "HttpProcessor.hpp"
+#include "HttpRouter.hpp"
+#include "interceptor/RequestInterceptor.hpp"
+
+#include "handler/ErrorHandler.hpp"
+#include "HttpRequestHandler.hpp"
+#include "oatpp/web/url/mapping/Router.hpp"
+#include "interceptor/ResponseInterceptor.hpp"
 
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/web/protocol/http/incoming/RequestHeadersReader.hpp"
+#include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
+#include "oatpp/core/provider/Provider.hpp"
 
 namespace oatpp { namespace web { namespace server {
 

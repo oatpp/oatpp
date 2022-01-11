@@ -29,8 +29,6 @@
 #include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/Connection.hpp"
 
-#include "oatpp/core/Types.hpp"
-
 namespace oatpp { namespace network { namespace tcp { namespace server {
 
 /**

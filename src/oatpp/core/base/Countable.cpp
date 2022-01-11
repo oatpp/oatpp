@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Countable.hpp"
+#include "Environment.hpp"
 
 namespace oatpp { namespace base{
   

@@ -27,6 +27,8 @@
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 #include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
+#include "oatpp/web/server/HttpRouter.hpp"
+#include "oatpp/web/server/HttpRequestHandler.hpp"
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
@@ -34,6 +36,7 @@
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
 #include "oatpp/network/Server.hpp"
+#include "oatpp/core/async/Executor.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server {
 

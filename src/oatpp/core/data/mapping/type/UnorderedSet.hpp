@@ -26,10 +26,6 @@
 #define oatpp_data_mapping_type_UnorderedSet_hpp
 
 #include "./Collection.hpp"
-#include "./Type.hpp"
-
-#include <unordered_set>
-#include <initializer_list>
 
 namespace oatpp { namespace data { namespace mapping { namespace type {
 

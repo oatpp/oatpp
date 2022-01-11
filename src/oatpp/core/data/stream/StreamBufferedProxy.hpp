@@ -25,10 +25,7 @@
 #ifndef oatpp_data_stream_StreamBufferedProxy_hpp
 #define oatpp_data_stream_StreamBufferedProxy_hpp
 
-#include "Stream.hpp"
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
   

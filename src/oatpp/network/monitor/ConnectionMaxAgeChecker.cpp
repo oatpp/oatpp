@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "ConnectionMaxAgeChecker.hpp"
+#include "StatCollector.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 

@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Transaction.hpp"
+#include "QueryResult.hpp"
 
 namespace oatpp { namespace orm {
 

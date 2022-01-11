@@ -27,7 +27,6 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/parser/ParsingError.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

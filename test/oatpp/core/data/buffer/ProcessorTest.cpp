@@ -25,7 +25,7 @@
 #include "ProcessorTest.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/buffer/Processor.hpp"
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 #include "oatpp/core/async/Executor.hpp"
 

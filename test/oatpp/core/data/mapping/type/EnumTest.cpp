@@ -27,8 +27,6 @@
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
-#include <unordered_map>
-
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
@@ -299,7 +297,6 @@ void EnumTest::onRun() {
 
     OATPP_LOGI(TAG, "OK");
   }
-
 
 }
 

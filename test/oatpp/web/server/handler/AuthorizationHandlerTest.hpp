@@ -26,7 +26,6 @@
 #ifndef oatpp_test_encoding_AuthorizationHandlerTest_hpp
 #define oatpp_test_encoding_AuthorizationHandlerTest_hpp
 
-#include <oatpp/web/server/handler/AuthorizationHandler.hpp>
 #include "oatpp-test/UnitTest.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server { namespace handler {

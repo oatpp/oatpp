@@ -25,7 +25,6 @@
 #include "ChunkedTest.hpp"
 
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace protocol { namespace http { namespace encoding {
 
@@ -118,7 +117,6 @@ void ChunkedTest::onRun() {
     OATPP_LOGD(TAG, "result='%s'", result->c_str());
     OATPP_ASSERT(result == data);
   }
-
 
 }
 

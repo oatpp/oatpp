@@ -23,11 +23,12 @@
  ***************************************************************************/
 
 #include "Hex.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
   #include <WinSock2.h>
 #else
-  #include <arpa/inet.h>
+  #include <netinet/in.h>
 #endif
 
 namespace oatpp { namespace encoding {

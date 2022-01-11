@@ -29,7 +29,6 @@
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include <thread>
-#include <list>
 
 namespace oatpp { namespace test { namespace network { namespace virtual_ {
   

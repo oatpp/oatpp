@@ -27,7 +27,7 @@
 #if defined(WIN32) || defined(_WIN32)
   #include <Winsock2.h>
 #else
-  #include <arpa/inet.h>
+  #include <netinet/in.h>
 #endif
 
 namespace oatpp { namespace encoding {

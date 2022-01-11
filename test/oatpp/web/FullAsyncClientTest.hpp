@@ -27,6 +27,8 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
+#include <functional>
+
 namespace oatpp { namespace test { namespace web {
 
 class FullAsyncClientTest : public UnitTest {

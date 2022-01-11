@@ -23,6 +23,9 @@
  ***************************************************************************/
 
 #include "HttpRouter.hpp"
+#include "api/ApiController.hpp"
+
+#include "api/Endpoint.hpp"
 
 namespace oatpp { namespace web { namespace server {
 

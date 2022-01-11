@@ -25,7 +25,6 @@
 #ifndef oatpp_web_protocol_http_incoming_Response_hpp
 #define oatpp_web_protocol_http_incoming_Response_hpp
 
-#include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/core/data/Bundle.hpp"
 
@@ -230,7 +229,6 @@ public:
    * @return - &id:oatpp::async::CoroutineStarter;.
    */
   async::CoroutineStarter transferBodyAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const;
-
 
   /**
    * Same as &l:Response::readBodyToDto (); but Async.

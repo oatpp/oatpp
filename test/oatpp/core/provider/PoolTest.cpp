@@ -27,8 +27,6 @@
 #include "oatpp/core/provider/Pool.hpp"
 #include "oatpp/core/async/Executor.hpp"
 
-#include <thread>
-
 namespace oatpp { namespace test { namespace core { namespace provider {
 
 namespace {
@@ -114,7 +112,6 @@ public:
 
 };
 
-
 struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, AcquisitionProxy> {
 
   AcquisitionProxy(const oatpp::provider::ResourceHandle<Resource>& resource,
@@ -129,7 +126,6 @@ struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, Acq
 };
 
 typedef oatpp::provider::Pool<oatpp::provider::Provider<Resource>, Resource, AcquisitionProxy> Pool;
-
 
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
 private:
@@ -177,7 +173,6 @@ void PoolTest::onRun() {
 
   auto provider = std::make_shared<Provider>();
   auto pool = Pool::createShared(provider, 10, std::chrono::seconds(2));
-
 
   std::list<std::thread> threads;
 

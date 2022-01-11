@@ -29,7 +29,6 @@
 
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace client {
 

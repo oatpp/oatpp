@@ -27,9 +27,6 @@
 #include "oatpp/web/protocol/http/incoming/ResponseHeadersReader.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 
-#include "oatpp/network/tcp/Connection.hpp"
-
-#include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
@@ -102,7 +99,6 @@ void HttpRequestExecutor::ConnectionProxy::setInvalidateOnDestroy(bool invalidat
 HttpRequestExecutor::HttpConnectionHandle::HttpConnectionHandle(const std::shared_ptr<ConnectionProxy>& connectionProxy)
   : m_connectionProxy(connectionProxy)
 {}
-
 
 std::shared_ptr<HttpRequestExecutor::ConnectionProxy> HttpRequestExecutor::HttpConnectionHandle::getConnection() {
   return m_connectionProxy;

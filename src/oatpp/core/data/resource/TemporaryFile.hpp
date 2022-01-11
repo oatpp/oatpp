@@ -26,7 +26,6 @@
 #define oatpp_data_resource_TemporaryFile_hpp
 
 #include "./Resource.hpp"
-#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 

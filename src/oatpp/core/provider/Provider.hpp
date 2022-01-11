@@ -28,7 +28,7 @@
 #include "Invalidator.hpp"
 
 #include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace provider {
 

@@ -26,7 +26,8 @@
 #define oatpp_web_protocol_http_incoming_ResponseHeadersReader_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/core/parser/Caret.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

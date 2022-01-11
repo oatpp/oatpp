@@ -23,8 +23,8 @@
  ***************************************************************************/
 
 #include "DbClient.hpp"
-
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "QueryResult.hpp"
+#include "Transaction.hpp"
 
 namespace oatpp { namespace orm {
 
