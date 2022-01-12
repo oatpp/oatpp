@@ -26,8 +26,7 @@
 
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
-
-#include <vector>
+#include "oatpp/core/data/buffer/IOBuffer.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

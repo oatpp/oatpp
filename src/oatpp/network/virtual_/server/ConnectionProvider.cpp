@@ -24,8 +24,6 @@
 
 #include "ConnectionProvider.hpp"
 
-#include <chrono>
-
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
 void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {

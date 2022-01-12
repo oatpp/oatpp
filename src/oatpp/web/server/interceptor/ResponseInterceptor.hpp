@@ -27,7 +27,6 @@
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace interceptor {
 

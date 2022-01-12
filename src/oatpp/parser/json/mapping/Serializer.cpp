@@ -24,8 +24,7 @@
 
 #include "Serializer.hpp"
 
-#include "oatpp/parser/json/Utils.hpp"
-#include "oatpp/core/data/mapping/type/Any.hpp"
+#include "oatpp/parser/json/Beautifier.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

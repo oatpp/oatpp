@@ -27,8 +27,6 @@
 
 #include "Stream.hpp"
 
-#include <cstdio>
-
 namespace oatpp { namespace data{ namespace stream {
 
 /**

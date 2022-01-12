@@ -26,10 +26,6 @@
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/data/mapping/type/List.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
-
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include "oatpp/core/macro/codegen.hpp"

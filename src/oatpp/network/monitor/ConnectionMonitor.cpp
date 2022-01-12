@@ -24,7 +24,6 @@
 
 #include "ConnectionMonitor.hpp"
 
-#include <chrono>
 #include <thread>
 
 namespace oatpp { namespace network { namespace monitor {

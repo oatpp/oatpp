@@ -29,8 +29,6 @@
 #include "Multipart.hpp"
 #include "StatefulParser.hpp"
 
-#include <unordered_map>
-
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
 class Reader; // FWD

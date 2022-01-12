@@ -27,11 +27,6 @@
 
 #include "./Pattern.hpp"
 
-#include "oatpp/core/Types.hpp"
-
-#include <utility>
-#include <list>
-
 namespace oatpp { namespace web { namespace url { namespace mapping {
 
 /**

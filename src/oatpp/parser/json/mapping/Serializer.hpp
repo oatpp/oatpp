@@ -26,9 +26,7 @@
 #define oatpp_parser_json_mapping_Serializer_hpp
 
 #include "oatpp/parser/json/Utils.hpp"
-#include "oatpp/parser/json/Beautifier.hpp"
-#include "oatpp/core/Types.hpp"
-#include <vector>
+#include "oatpp/core/data/stream/Stream.hpp"
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

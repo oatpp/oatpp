@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Request.hpp"
+#include "oatpp/network/Url.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

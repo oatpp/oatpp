@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "TypeResolver.hpp"
+#include "type/Object.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 

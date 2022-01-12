@@ -25,6 +25,8 @@
 #include "ApiControllerTest.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
+#include "oatpp/web/server/api/Endpoint.hpp"
+#include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server { namespace api {

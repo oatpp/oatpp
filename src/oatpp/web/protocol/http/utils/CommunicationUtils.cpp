@@ -23,6 +23,10 @@
  ***************************************************************************/
 
 #include "CommunicationUtils.hpp"
+#include "oatpp/web/protocol/http/outgoing/Response.hpp"
+
+#include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
+#include "oatpp/web/protocol/http/incoming/Request.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
   

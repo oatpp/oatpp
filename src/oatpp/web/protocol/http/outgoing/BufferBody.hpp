@@ -26,7 +26,6 @@
 #define oatpp_web_protocol_http_outgoing_BufferBody_hpp
 
 #include "./Body.hpp"
-#include "oatpp/web/protocol/http/Http.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

@@ -25,12 +25,8 @@
 #ifndef oatpp_web_url_mapping_Pattern_hpp
 #define oatpp_web_url_mapping_Pattern_hpp
 
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-
 #include "oatpp/core/parser/Caret.hpp"
-
-#include <list>
-#include <unordered_map>
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace web { namespace url { namespace mapping {
   

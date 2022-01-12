@@ -27,8 +27,6 @@
 
 #include "oatpp/core/base/Environment.hpp"
 
-#include "oatpp/encoding/Hex.hpp"
-
 namespace oatpp { namespace algorithm {
 
 /**

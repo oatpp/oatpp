@@ -24,8 +24,6 @@
 
 #include "ApiClient.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-
 namespace oatpp { namespace web { namespace client {
 
 std::shared_ptr<RequestExecutor::ConnectionHandle> ApiClient::getConnection() {

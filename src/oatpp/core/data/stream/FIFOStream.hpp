@@ -25,11 +25,9 @@
 #ifndef oatpp_data_stream_FIFOStream_hpp
 #define oatpp_data_stream_FIFOStream_hpp
 
-#include "Stream.hpp"
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
 
 namespace oatpp { namespace data { namespace stream {
-
 
 /**
  * FIFOInputStream

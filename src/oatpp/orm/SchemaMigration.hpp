@@ -26,6 +26,7 @@
 #define oatpp_orm_SchemaMigration_hpp
 
 #include "Executor.hpp"
+#include "oatpp/core/base/ObjectHandle.hpp"
 
 namespace oatpp { namespace orm {
 

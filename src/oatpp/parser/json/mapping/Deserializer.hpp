@@ -26,10 +26,6 @@
 #define oatpp_parser_json_mapping_Deserializer_hpp
 
 #include "oatpp/parser/json/Utils.hpp"
-#include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/Types.hpp"
-
-#include <vector>
 
 namespace oatpp { namespace parser { namespace json { namespace mapping {
 

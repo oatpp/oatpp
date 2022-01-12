@@ -26,6 +26,7 @@
 #define oatpp_web_protocol_CommunicationError_hpp
 
 #include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace web { namespace protocol {
 
@@ -128,7 +129,6 @@ public:
   }
   
 };
-
 
 /**
  * Protocol Error template.
