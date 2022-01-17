@@ -184,6 +184,16 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
     if (serverHandle != INVALID_SOCKET) {
 
+      int no = 0;
+
+      if (hints.ai_family == AF_UNSPEC || hints.ai_family == Address::IP_6) {
+        if (setsockopt(serverHandle, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&no, sizeof( int ) ) != 0 ) {
+          OATPP_LOGW("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
+                     "Warning. Failed to set %s for accepting socket: %s", "IPV6_V6ONLY",
+                     strerror(errno));
+        }
+      }
+
       if (bind(serverHandle, currResult->ai_addr, (int) currResult->ai_addrlen) != SOCKET_ERROR &&
           listen(serverHandle, SOMAXCONN) != SOCKET_ERROR)
       {
