@@ -535,4 +535,30 @@ void Utils::convertFirstDecimalSeparatorInCurrentNumber(p_char8 data, p_char8 en
   }
 }
 
+void Utils::extractFloatNumberWithReplacedDecimalSeparator(ParsingCaret &caret, p_char8 float_buffer, v_buff_size buffer_size) {
+  const char locale_decimal_point = localeconv()->decimal_point[0];
+
+  const auto buffer_end = float_buffer + buffer_size;
+
+  while (caret.canContinue() && float_buffer != buffer_end) {
+    if (caret.isAtChar(JSON_DECIMAL_SEPARATOR)) {
+      // replace decimal separators
+      *float_buffer = locale_decimal_point;
+    } else if (!caret.isAtDigitChar()
+        && !caret.isAtChar('-') && !caret.isAtChar('+')
+        && !caret.isAtChar('e') && !caret.isAtChar('E')) {
+      // finish if no more digits/sign/exponent are found
+      break;
+    } else {
+      // copy all other characters
+      *float_buffer = *caret.getCurrData();
+    }
+
+    caret.inc();
+    ++float_buffer;
+  }
+
+  *float_buffer = '\0';
+}
+
 }}}

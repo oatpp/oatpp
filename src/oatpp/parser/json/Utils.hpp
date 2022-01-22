@@ -180,6 +180,8 @@ public:
    * @param new_char - character which will replace old character.
    */
   static void convertFirstDecimalSeparatorInCurrentNumber(p_char8 data, p_char8 end, char old_char, char new_char);
+
+  static void extractFloatNumberWithReplacedDecimalSeparator(ParsingCaret& caret, p_char8 float_buffer, v_buff_size buffer_size);
 };
   
 }}}

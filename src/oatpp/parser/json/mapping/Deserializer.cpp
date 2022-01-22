@@ -163,18 +163,16 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
     return oatpp::Void(Float32::Class::getType());
   }
 
-  const char* start = caret.getCurrData();
-  const char* end = caret.getData() + caret.getDataSize();
-  // here we remove constness and manipulate the internal memory of Caret directly
-  parser::json::Utils::convertFirstDecimalSeparatorFromJsonToLocale((p_char8) start, (p_char8) end);
+  static constexpr v_buff_size BUFFER_SIZE = 100;
+  char float_buffer[BUFFER_SIZE];
+  parser::json::Utils::extractFloatNumberWithReplacedDecimalSeparator(caret, (v_char8*)float_buffer, BUFFER_SIZE);
 
   char* parsing_end;
-  const v_float32 result = std::strtof(start , &parsing_end);
-  if(start == parsing_end){
+  const v_float32 result = std::strtof(float_buffer , &parsing_end);
+  if(float_buffer == parsing_end){
     caret.setError(Caret::ERROR_INVALID_FLOAT);
   }
 
-  caret.inc(parsing_end - start);
   return Float32(result);
 
 }
@@ -188,18 +186,16 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
     return oatpp::Void(Float64::Class::getType());
   }
 
-  const char* start = caret.getCurrData();
-  const char* end = caret.getData() + caret.getDataSize();
-  // here we remove constness and manipulate the internal memory of Caret directly
-  parser::json::Utils::convertFirstDecimalSeparatorFromJsonToLocale((p_char8) start, (p_char8) end);
+  static constexpr v_buff_size BUFFER_SIZE = 100;
+  char float_buffer[BUFFER_SIZE];
+  parser::json::Utils::extractFloatNumberWithReplacedDecimalSeparator(caret, (v_char8*)float_buffer, BUFFER_SIZE);
 
   char* parsing_end;
-  const v_float64 result = std::strtod(start , &parsing_end);
-  if(start == parsing_end){
+  const v_float64 result = std::strtod(float_buffer , &parsing_end);
+  if(float_buffer == parsing_end){
     caret.setError(Caret::ERROR_INVALID_FLOAT);
   }
 
-  caret.inc(parsing_end - start);
   return Float64(result);
 
 }
