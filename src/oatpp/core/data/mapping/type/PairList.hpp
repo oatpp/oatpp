@@ -133,7 +133,7 @@ private:
     Type::Info info;
     info.params.push_back(Key::Class::getType());
     info.params.push_back(Value::Class::getType());
-    info.polymorphicDispatcher = info.polymorphicDispatcher =
+    info.polymorphicDispatcher =
       new typename __class::StandardMap<std::list<std::pair<Key, Value>>, Key, Value, PairList>::PolymorphicDispatcher();
     info.isMap = true;
     return Type(__class::AbstractPairList::CLASS_ID, info);
