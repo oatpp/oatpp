@@ -125,6 +125,65 @@ namespace __class {
 
   const ClassId Boolean::CLASS_ID("Boolean");
 
+  Type* String::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int8::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt8::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int16::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt16::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int32::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt32::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int64::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt64::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Float32::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Float64::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Boolean::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
 }
   
 }}}}

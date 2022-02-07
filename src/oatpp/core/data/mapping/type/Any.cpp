@@ -28,6 +28,11 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
   const ClassId Any::CLASS_ID("Any");
+
+  Type* Any::getType() {
+    static Type type(CLASS_ID);
+    return &type;
+  }
 }
 
 Any::Any()
