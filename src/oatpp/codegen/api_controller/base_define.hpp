@@ -238,12 +238,22 @@ if(getDefaultObjectMapper()) { \
 if(!getDefaultObjectMapper()) { \
   return ApiController::handleError(Status::CODE_500, "ObjectMapper was NOT set. Can't deserialize the request body."); \
 } \
-const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = \
-__request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
-if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
-  return ApiController::handleError(Status::CODE_400, "Missing valid body parameter '" OATPP_MACRO_FIRSTARG_STR PARAM_LIST "'"); \
+TYPE OATPP_MACRO_FIRSTARG PARAM_LIST; \
+try { \
+  OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
+  if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
+    return ApiController::handleError(Status::CODE_400, "Missing valid body parameter '" OATPP_MACRO_FIRSTARG_STR PARAM_LIST "'"); \
+  } \
+} catch (const oatpp::parser::ParsingError &pe) {             \
+  oatpp::data::stream::BufferOutputStream buffer(pe.getMessage()->getSize() + 20); \
+  buffer.writeSimple(pe.getMessage()); \
+  buffer.writeSimple(" (Position: "); \
+  buffer.writeAsString((v_int64) pe.getPosition()); \
+  buffer.writeSimple(")"); \
+  return ApiController::handleError(Status::CODE_400, buffer.toString()); \
+} catch (const std::runtime_error &re) {                     \
+  return ApiController::handleError(Status::CODE_400, re.what()); \
 }
-
 // __INFO
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO_INFO(TYPE, PARAM_LIST) \

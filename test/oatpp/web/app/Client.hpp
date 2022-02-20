@@ -57,6 +57,7 @@ public:
   API_CALL("GET", "headers", getWithHeaders, HEADER(String, param, "X-TEST-HEADER"))
   API_CALL("POST", "body", postBody, BODY_STRING(String, body))
   API_CALL("POST", "body-dto", postBodyDto, BODY_DTO(Object<TestDto>, body))
+  API_CALL("POST", "body-dto", postInvalidBodyDto, BODY_DTO(Object<AnotherTestDto>, body))
 
   API_CALL("GET", "enum/as-string", getHeaderEnumAsString, HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
   API_CALL("GET", "enum/as-number", getHeaderEnumAsNumber, HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
