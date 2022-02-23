@@ -46,12 +46,12 @@ public:
    * */
   virtual ~ErrorHandler() = default;
 
-   /**
+  /**
    * Implement this method!
    * @param error - &std::exception;.
    * @return - std::shared_ptr to &id:oatpp::web::protocol::http::outgoing::Response;.
    */
-  virtual std::shared_ptr<protocol::http::outgoing::Response> handleError(const std::exception_ptr& exceptionPtr) = 0;
+  virtual std::shared_ptr<protocol::http::outgoing::Response> handleError(const std::exception_ptr& exceptionPtr);
 
   /**
    * Implement this method!
