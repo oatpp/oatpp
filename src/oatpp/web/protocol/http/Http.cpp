@@ -70,6 +70,7 @@ const Status Status::CODE_414(414, "Request-URI Too Large");
 const Status Status::CODE_415(415, "Unsupported Media Type");
 const Status Status::CODE_416(416, "Requested Range Not Satisfiable");
 const Status Status::CODE_417(417, "Expectation Failed");
+const Status Status::CODE_418(418, "I'm a Teapot");
 const Status Status::CODE_422(422, "Unprocessable Entity");
 const Status Status::CODE_423(423, "Locked");
 const Status Status::CODE_424(424, "Failed Dependency");

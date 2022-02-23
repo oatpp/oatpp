@@ -76,6 +76,8 @@ public:
 
   API_CALL("GET", "test/interceptors", getInterceptors)
 
+  API_CALL("GET", "test/errorhandling", getCaughtError)
+
   API_CALL_HEADERS(getDefaultHeaders1) {
     headers.put("X-DEFAULT", "hello_1");
   }
