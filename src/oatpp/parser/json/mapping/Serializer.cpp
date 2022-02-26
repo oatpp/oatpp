@@ -153,11 +153,12 @@ void Serializer::serializeObject(Serializer* serializer,
   auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(polymorph.valueType->polymorphicDispatcher);
   auto fields = dispatcher->getProperties()->getList();
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
+  auto config = serializer->getConfig();
 
   for (auto const& field : fields) {
 
     auto value = field->get(object);
-    if(value || serializer->m_config->includeNullFields) {
+    if(value || serializer->m_config->includeNullFields || (field->info.required && serializer->m_config->alwaysIncludeRequired)) {
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);

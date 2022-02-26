@@ -68,6 +68,14 @@ bool Request::putHeaderIfNotExists(const oatpp::String& key, const oatpp::String
   return m_headers.putIfNotExists(key, value);
 }
 
+bool Request::putOrReplaceHeader(const String &key, const String &value) {
+  return m_headers.putOrReplace(key, value);
+}
+bool Request::putOrReplaceHeader_Unsafe(const data::share::StringKeyLabelCI &key,
+                                        const data::share::StringKeyLabel &value) {
+  return m_headers.putOrReplace(key, value);
+}
+
 void Request::putHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value) {
   m_headers.put(key, value);
 }
