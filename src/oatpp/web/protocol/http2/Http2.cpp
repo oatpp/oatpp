@@ -181,6 +181,8 @@ Frame::Header::readFrameHeaderAsync(const std::shared_ptr<oatpp::data::stream::I
           return repeat();
         } else if (res == IOError::RETRY_READ || res == IOError::RETRY_WRITE) {
           return repeat();
+        } else {
+          return error<Error>("[oatpp::web::protocol::http2::Frame::Header::readFrameHeaderAsync()]: Error. Error reading connection stream.");
         }
       }
 

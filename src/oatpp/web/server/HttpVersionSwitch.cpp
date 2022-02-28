@@ -105,6 +105,10 @@ void HttpVersionSwitch::handleConnection(const std::shared_ptr<IOStream> &connec
         } else {
           throw std::runtime_error("[oatpp::web::server::HttpVersionSwitch::handleConnection()] Error: Unable to read first 12 bytes from connection.");
         }
+      } else if (ret == IOError::ZERO_VALUE) {
+//      throw std::runtime_error("[oatpp::web::server::HttpVersionSwitch::handleConnection()] Error: Unable to read first 12 bytes from connection. EOF.");
+        // EOF - Drop invalid connection.
+        return;
       }
       available += ret;
     }
