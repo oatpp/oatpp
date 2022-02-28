@@ -130,7 +130,7 @@ public:
    * @param value - &id:oatpp::String;.
    * @return - `true` if header was replaces, `false` if header was added.
    */
-  bool putOrReplaceHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI_FAST& key, const oatpp::data::share::StringKeyLabel& value);
+  bool putOrReplaceHeader_Unsafe(const oatpp::data::share::StringKeyLabelCI& key, const oatpp::data::share::StringKeyLabel& value);
 
   /**
    * Add http header.
