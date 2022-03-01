@@ -202,13 +202,22 @@ async::Action Http2StreamHandler::act() {
   if (path == nullptr) {
     return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':path'.");
   }
+  if (path->empty()) {
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Empty ':path' header.");
+  }
   auto method = requestHeaders.get(protocol::http2::Header::METHOD);
   if (method == nullptr) {
     return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':method'.");
   }
+  if (method->empty()) {
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Empty ':method' header.");
+  }
   auto scheme = requestHeaders.get(protocol::http2::Header::SCHEME);
   if (scheme == nullptr) {
     return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':scheme'.");
+  }
+  if (scheme->empty()) {
+    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Empty ':scheme' header.");
   }
   auto contentLength = requestHeaders.get(protocol::http2::Header::CONTENT_LENGTH);
   if (contentLength) {
