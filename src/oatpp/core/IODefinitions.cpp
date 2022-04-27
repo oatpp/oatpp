@@ -25,7 +25,7 @@
 #include "IODefinitions.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-  #include <WinSock2.h>
+  #include <winsock2.h>
 #endif
 
 namespace oatpp {

@@ -33,7 +33,7 @@
 #include <cstdarg>
 
 #if defined(WIN32) || defined(_WIN32)
-	#include <WinSock2.h>
+	#include <winsock2.h>
 
   struct tm* localtime_r(time_t *_clock, struct tm *_result) {
       localtime_s(_result, _clock);
