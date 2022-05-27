@@ -35,17 +35,10 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 {
-
-typedef oatpp::data::share::StringKeyLabelCI HeaderKey;
-
-/**
- * Typedef for headers map. Headers map key is case-insensitive.
- * For more info see &id:oatpp::data::share::LazyStringMap;.
- */
-typedef oatpp::data::share::LazyStringMultimap<HeaderKey> Headers;
 
 typedef std::vector<v_uint8> Payload;
 
@@ -141,6 +134,10 @@ namespace error {
 }
 
 namespace Header {
+  typedef oatpp::data::share::StringKeyLabel HeaderKey;
+  typedef data::share::StringKeyLabel HeaderLabel;
+  typedef std::multimap<HeaderKey, HeaderLabel> MapType;
+
   static const HeaderKey AUTHORITY(":authority");
   static const HeaderKey METHOD(":method");
   static const HeaderKey PATH(":path");
@@ -193,6 +190,61 @@ namespace Header {
   static const HeaderKey VARY("vary");
   static const HeaderKey VIA("via");
   static const HeaderKey WWW_AUTHENTICATE("www-authenticate");
+
+  class Headers : public oatpp::base::Countable {
+
+   private:
+    oatpp::data::share::LazyStringMultimap<HeaderKey> m_map;
+    bool m_hasNonPseudo;
+
+   public:
+    class PseudoHeaderError : public std::runtime_error {
+     public:
+      PseudoHeaderError(const char* msg) : std::runtime_error(msg) {}
+    };
+
+    Headers() : m_map(), m_hasNonPseudo(false) {}
+
+    Headers(const Headers& other) {
+      m_map = oatpp::data::share::LazyStringMultimap<HeaderKey>(other.m_map);
+    }
+
+    Headers(const http::Headers& other) {
+      auto all = other.getAll();
+      for (auto &kv : all) {
+        m_map.put({kv.first.getMemoryHandle(), (const char*)kv.first.getData(), kv.first.getSize()}, kv.second);
+      }
+    }
+
+    /**
+     * Move constructor.
+     * @param other
+     */
+    Headers(Headers&& other) {
+      m_map = std::move(other.m_map);
+    }
+
+    Headers& operator = (const Headers& other) {
+      if(this != &other) {
+        m_map = oatpp::data::share::LazyStringMultimap<HeaderKey>(other.m_map);
+      }
+      return *this;
+    }
+
+    Headers& operator = (Headers&& other) {
+      if(this != &other) {
+        m_map = std::move(other.m_map);
+      }
+      return *this;
+    }
+
+    void put(const HeaderKey &key, const HeaderLabel &label);
+    bool putIfNotExists(const HeaderKey &key, const HeaderLabel &label);
+    const MapType& getAll() const;
+    String get(const HeaderKey& key) const;
+    const protocol::http::Headers getHttpHeaders() const;
+    v_int32 getSize() const;
+  };
 }
 
 class Frame : public oatpp::base::Countable {

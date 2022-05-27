@@ -438,11 +438,11 @@ async::Action Http2SessionHandler::handleHandlerResult(const std::shared_ptr<Htt
       OATPP_LOGD(TAG, "Task %p ready, executing.", task.get());
       m_executor->execute<Http2StreamHandler>(task);
       break;
-      case Http2StreamHandler::H2StreamState::RESET:
+    case Http2StreamHandler::H2StreamState::RESET:
       OATPP_LOGD(TAG, "Task %p was reset.", task.get());
-      case Http2StreamHandler::H2StreamState::ABORTED:
+    case Http2StreamHandler::H2StreamState::ABORTED:
       return sendResetStreamFrame(task->streamId, H2ErrorCode::STREAM_CLOSED);
-      case Http2StreamHandler::H2StreamState::ERROR:
+    case Http2StreamHandler::H2StreamState::ERROR:
       OATPP_LOGE(TAG, "Task %p resulted in error.", task.get());
       break;
     default:

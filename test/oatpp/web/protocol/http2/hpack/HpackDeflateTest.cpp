@@ -36,14 +36,14 @@ void HpackDeflateTest::onRun() {
       0x4A, 0x96, 0x10, 0x9F, 0x54, 0x15, 0x72, 0x21, 0x1F, 0x87, 0x90, 0x73, 0x8C, 0x9D, 0x29, 0xAD,
       0x17, 0x18, 0x60, 0xE3, 0x4D, 0x75, 0xAE, 0x63, 0xFF, 0x76, 0x05, 0x6F, 0x61, 0x74, 0x2B, 0x2B
   };
-  oatpp::web::protocol::http2::Headers hdr;
+  oatpp::web::protocol::http2::Header::Headers hdr;
 
-  hdr.putIfNotExists(oatpp::web::protocol::http2::Header::SCHEME, "https");
-  hdr.putIfNotExists(oatpp::web::protocol::http2::Header::AUTHORITY, "oatpp.io");
-  hdr.putIfNotExists(oatpp::web::protocol::http2::Header::PATH, "/stylesheet/style.css");
-  hdr.putIfNotExists(oatpp::web::protocol::http2::Header::SERVER, "oat++");
-  hdr.putIfNotExists(oatpp::web::protocol::http2::Header::ACCEPT_ENCODING, "gzip, deflate");
-  hdr.putIfNotExists(oatpp::web::protocol::http2::Header::REFERER, "https://oatpp.io");
+  hdr.put(oatpp::web::protocol::http2::Header::SCHEME, "https");
+  hdr.put(oatpp::web::protocol::http2::Header::AUTHORITY, "oatpp.io");
+  hdr.put(oatpp::web::protocol::http2::Header::PATH, "/stylesheet/style.css");
+  hdr.put(oatpp::web::protocol::http2::Header::SERVER, "oat++");
+  hdr.put(oatpp::web::protocol::http2::Header::ACCEPT_ENCODING, "gzip, deflate");
+  hdr.put(oatpp::web::protocol::http2::Header::REFERER, "https://oatpp.io");
 
   {
     auto deflateTable = std::make_shared<oatpp::web::protocol::http2::hpack::SimpleTable>(1024);

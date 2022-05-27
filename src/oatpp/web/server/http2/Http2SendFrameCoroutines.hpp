@@ -105,7 +105,7 @@ class SendGoaway : public SendFrameCoroutine<SendGoaway> {
     *data++ = (errorCode >> 24) & 0xff;
     *data++ = (errorCode >> 16) & 0xff;
     *data++ = (errorCode >> 8) & 0xff;
-    *data++ = errorCode & 0xff;
+    *data   = errorCode & 0xff;
   }
 
   const data::share::MemoryLabel *frameData() const override {

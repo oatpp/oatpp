@@ -36,15 +36,15 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 { namespace hpack {
 
-typedef std::multimap<oatpp::data::share::StringKeyLabelCI, oatpp::data::share::StringKeyLabel> HeaderMap;
+typedef std::multimap<oatpp::data::share::StringKeyLabel, oatpp::data::share::StringKeyLabel> HeaderMap;
 
 class Table : public oatpp::base::Countable {
  public:
   class TableEntry {
    public:
-    oatpp::data::share::StringKeyLabelCI key;
+    oatpp::data::share::StringKeyLabel key;
     oatpp::data::share::StringKeyLabel value;
-    TableEntry(oatpp::data::share::StringKeyLabelCI pKey, oatpp::data::share::StringKeyLabel pValue)
+    TableEntry(oatpp::data::share::StringKeyLabel pKey, oatpp::data::share::StringKeyLabel pValue)
         : key(std::move(pKey)), value(std::move(pValue)) {};
   };
 
@@ -53,9 +53,9 @@ class Table : public oatpp::base::Countable {
   virtual v_io_size findKeyValue(const HeaderMap::iterator &it) = 0;
   virtual bool keyHasValue(unsigned int idx) = 0;
   virtual bool updateEntry(unsigned int idx,
-                           const oatpp::data::share::StringKeyLabelCI &key,
+                           const oatpp::data::share::StringKeyLabel &key,
                            const oatpp::data::share::StringKeyLabel &value) = 0;
-  virtual v_io_size addEntry(const oatpp::data::share::StringKeyLabelCI &key,
+  virtual v_io_size addEntry(const oatpp::data::share::StringKeyLabel &key,
                              const oatpp::data::share::StringKeyLabel &value) = 0;
   virtual const TableEntry *getEntry(unsigned int idx) = 0;
   virtual v_uint32 changeTableSize(v_uint32 newSize) = 0;
@@ -73,9 +73,9 @@ class SimpleTable : public Table {
   v_io_size findKeyValue(const HeaderMap::iterator &it) override;
   bool keyHasValue(unsigned int idx) override;
   bool updateEntry(unsigned int idx,
-                   const oatpp::data::share::StringKeyLabelCI &key,
+                   const oatpp::data::share::StringKeyLabel &key,
                    const oatpp::data::share::StringKeyLabel &value) override;
-  v_io_size addEntry(const oatpp::data::share::StringKeyLabelCI &key,
+  v_io_size addEntry(const oatpp::data::share::StringKeyLabel &key,
                      const oatpp::data::share::StringKeyLabel &value) override;
   const TableEntry *getEntry(unsigned int idx) override;
   v_uint32 changeTableSize(v_uint32 newSize) override;
@@ -92,11 +92,25 @@ class SimpleTable : public Table {
 
 class Hpack : public oatpp::base::Countable {
  public:
-  virtual std::shared_ptr<data::stream::BufferedInputStream> deflate(const Headers &headers) = 0;
-  virtual Headers inflate(const std::list<Payload> &payloads) = 0;
-  virtual Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream, v_buff_size streamPayloadLength) = 0;
+  virtual std::shared_ptr<data::stream::BufferedInputStream> deflate(const Header::Headers &headers) = 0;
+  virtual Header::Headers inflate(const std::list<Payload> &payloads) = 0;
+  virtual Header::Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream, v_buff_size streamPayloadLength) = 0;
   virtual void setMaxTableSize(v_uint32 size) = 0;
   virtual ~Hpack() = default;
+
+  class Error : public std::runtime_error {
+   public:
+    Error(const char* msg) : std::runtime_error(msg) {}
+  };
+
+  class CompressionError : public Error {
+   public:
+    CompressionError(const char* msg) : Error(msg) {}
+  };
+  class DecompressionError : public Error {
+   public:
+    DecompressionError(const char* msg) : Error(msg) {}
+  };
 };
 
 class SimpleHpack : public Hpack {
@@ -126,9 +140,9 @@ class SimpleHpack : public Hpack {
   }
   ~SimpleHpack();
 
-  std::shared_ptr<data::stream::BufferedInputStream> deflate(const Headers &headers) override;
-  Headers inflate(const std::list<Payload> &payloads) override;
-  Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
+  std::shared_ptr<data::stream::BufferedInputStream> deflate(const Header::Headers &headers) override;
+  Header::Headers inflate(const std::list<Payload> &payloads) override;
+  Header::Headers inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                   v_buff_size streamPayloadLength) override;
 
   void setMaxTableSize(v_uint32 size) override;
@@ -137,13 +151,13 @@ class SimpleHpack : public Hpack {
   v_io_size inflateKeyValuePair(InflateMode mode,
                                 Payload::const_iterator it,
                                 Payload::const_iterator last,
-                                Headers &hdr);
+                                Header::Headers &hdr);
   v_io_size inflateKeyValuePair(SimpleHpack::InflateMode mode,
                                 data::stream::BufferedInputStream *stream,
                                 v_buff_size streamPayloadLength,
-                                Headers &hdr,
+                                Header::Headers &hdr,
                                 async::Action &action);
-  v_io_size inflateKeyValuePairs(Headers &hdr, const Payload &payload);
+  v_io_size inflateKeyValuePairs(Header::Headers &hdr, const Payload &payload);
   v_io_size deflateKeyValuePair(data::stream::WriteCallback *to, const HeaderMap::iterator &it);
 
   v_io_size inflateHandleNewTableSize(Payload::const_iterator it, Payload::const_iterator last);
@@ -157,7 +171,7 @@ class SimpleHpack : public Hpack {
                                            data::share::StringKeyLabel &value,
                                            IndexingMode indexing);
   static v_io_size deflateHandleNewKeyValue(data::stream::WriteCallback *to,
-                                            const data::share::StringKeyLabelCI &key,
+                                            const data::share::StringKeyLabel &key,
                                             data::share::StringKeyLabel &value,
                                             IndexingMode indexing);
 
@@ -187,7 +201,7 @@ class SimpleHpack : public Hpack {
   static v_io_size decodeString(String &key,
                                 v_uint32 stringSize,
                                 data::stream::BufferedInputStream *stream);
-  static IndexingMode shouldIndex(const oatpp::data::share::StringKeyLabelCI &key);
+  static IndexingMode shouldIndex(const oatpp::data::share::StringKeyLabel &key);
 };
 
 }}}}}

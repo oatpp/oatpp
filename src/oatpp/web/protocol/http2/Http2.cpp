@@ -32,6 +32,76 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http2 {
 
+void Header::Headers::put(const Header::HeaderKey &key, const Header::HeaderLabel &label) {
+
+  if (((uint8_t*)key.getData())[0] == ':') {
+    // pseudo-header, employ additional checks!
+
+    // pseudo-header should not be added after non-pseudo-header
+    if (m_hasNonPseudo) {
+      throw PseudoHeaderError("[oatpp::web::protocol::http2::Header::Headers::put] Error: Pseudo-header followed by non-pseudo-header");
+    }
+
+    // pseudo-header should not be empty
+    if (label.getData() == nullptr) {
+      throw PseudoHeaderError("[oatpp::web::protocol::http2::Header::Headers::put] Error: Empty pseudo-header.");
+    }
+
+    // a pseudo-header should appear more then once
+    if (m_map.putIfNotExists(key, label) == false) {
+      throw PseudoHeaderError("[oatpp::web::protocol::http2::Header::Headers::put] Error: Duplicate pseudo-header.");
+    }
+
+  } else {
+    m_hasNonPseudo = true;
+    m_map.put(key, label);
+  }
+
+}
+
+bool Header::Headers::putIfNotExists(const Header::HeaderKey &key, const Header::HeaderLabel &label) {
+
+  if (((uint8_t*)key.getData())[0] == ':') {
+    // pseudo-header, employ additional checks!
+
+    // pseudo-header should not be added after non-pseudo-header
+    if (m_hasNonPseudo) {
+      throw PseudoHeaderError("[oatpp::web::protocol::http2::Header::Headers::put] Error: Pseudo-header followed by non-pseudo-header");
+    }
+
+    // pseudo-header should not be empty
+    if (label.getData() == nullptr) {
+      throw PseudoHeaderError("[oatpp::web::protocol::http2::Header::Headers::put] Error: Empty pseudo-header.");
+    }
+
+  } else {
+    m_hasNonPseudo = true;
+  }
+
+  return m_map.putIfNotExists(key, label);
+}
+
+const Header::MapType &Header::Headers::getAll() const {
+  return m_map.getAll();
+}
+
+String Header::Headers::get(const Header::HeaderKey &key) const {
+  return m_map.get(key);
+}
+
+const protocol::http::Headers Header::Headers::getHttpHeaders() const {
+  protocol::http::Headers hdr;
+  auto all = m_map.getAll();
+  for (const auto &item : all) {
+    hdr.put({item.first.getMemoryHandle(), (const char*)item.first.getData(), item.first.getSize()}, item.second);
+  }
+  return hdr;
+}
+
+v_int32 Header::Headers::getSize() const {
+  return 0;
+}
+
 const char* error::stringRepresentation(ErrorCode code) {
 #define ENUM2STR(x) case x: return #x
   switch (code) {

@@ -184,9 +184,11 @@ Http2StreamHandler::Http2StreamHandler(const std::shared_ptr<Task> &task)
 async::Action Http2StreamHandler::act() {
   m_task->setState(H2StreamState::PROCESSING);
 
-  protocol::http2::Headers requestHeaders;
+  protocol::http2::Header::Headers requestHeaders;
   try {
     requestHeaders = m_task->hpack->inflate(m_task->header, m_task->header->availableToRead());
+  } catch (protocol::http2::Header::Headers::PseudoHeaderError &phe) {
+    return error<protocol::http2::error::connection::ProtocolError>(phe.what());
   } catch (std::runtime_error &e) {
     return error<protocol::http2::error::connection::CompressionError>(e.what());
   }
@@ -202,22 +204,13 @@ async::Action Http2StreamHandler::act() {
   if (path == nullptr) {
     return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':path'.");
   }
-  if (path->empty()) {
-    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Empty ':path' header.");
-  }
   auto method = requestHeaders.get(protocol::http2::Header::METHOD);
   if (method == nullptr) {
     return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':method'.");
   }
-  if (method->empty()) {
-    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Empty ':method' header.");
-  }
   auto scheme = requestHeaders.get(protocol::http2::Header::SCHEME);
   if (scheme == nullptr) {
     return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Headers missing ':scheme'.");
-  }
-  if (scheme->empty()) {
-    return error<protocol::http2::error::connection::ProtocolError>("[oatpp::web::server::http2::Http2StreamHandler::prepareAndStartWorker] Error: Empty ':scheme' header.");
   }
   auto contentLength = requestHeaders.get(protocol::http2::Header::CONTENT_LENGTH);
   if (contentLength) {
@@ -231,7 +224,7 @@ async::Action Http2StreamHandler::act() {
   startingLine.path = path;
   startingLine.method = method;
 
-  m_resources = std::make_shared<TaskWorker::Resources>(protocol::http::incoming::Request::createShared(nullptr, startingLine, requestHeaders, m_task->data, m_task->components->bodyDecoder), m_task->components);
+  m_resources = std::make_shared<TaskWorker::Resources>(protocol::http::incoming::Request::createShared(nullptr, startingLine, requestHeaders.getHttpHeaders(), m_task->data, m_task->components->bodyDecoder), m_task->components);
   m_worker = std::make_shared<TaskWorker>(m_resources.get());
 
 
@@ -249,10 +242,16 @@ async::Action Http2StreamHandler::startWorker() {
 
 async::Action Http2StreamHandler::processWorkerResult() {
 
-  auto responseHeaders = m_resources->response->getHeaders();
-  responseHeaders.putIfNotExists(protocol::http2::Header::STATUS, utils::conversion::uint32ToStr(m_resources->response->getStatus().code));
+  auto rspHeaders = m_resources->response->getHeaders().getAll();
+  protocol::http2::Header::Headers headers;
+  //(m_resources->response->getHeaders());
+  headers.put(protocol::http2::Header::STATUS, utils::conversion::uint32ToStr(m_resources->response->getStatus().code));
+  for (auto &hdr : rspHeaders) {
+    // Convert to non-CI key and append to headers
+    headers.put({hdr.first.getMemoryHandle(), (const char*)hdr.first.getData(), hdr.first.getSize()}, hdr.second);
+  }
 
-  auto headerStream = m_task->hpack->deflate(responseHeaders);
+  auto headerStream = m_task->hpack->deflate(headers);
 
   if (!m_task->setStateWithExpection(H2StreamState::PROCESSING, H2StreamState::RESPONDING)) {
     return finish();
@@ -416,25 +415,5 @@ async::Action Http2StreamHandler::handleError(async::Error *error) {
   }
   return AbstractCoroutine::handleError(error);
 }
-
-//void Http2StreamHandler::TaskWorker::start() {
-//  // ToDo: Pool threads. Either with `Bench` or a similar approach as in `Executor`
-//  std::thread t([this]{
-//    run();
-//  });
-//
-//  /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
-//  v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
-//  if (concurrency > 1) {
-//    concurrency -= 1;
-//  }
-//
-//  /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
-//  oatpp::concurrency::setThreadAffinityToCpuRange(t.native_handle(),
-//                                                  0,
-//                                                  concurrency - 1 /* -1 because 0-based index */);
-//
-//  t.detach();
-//}
 
 }}}}

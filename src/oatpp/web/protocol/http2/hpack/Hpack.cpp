@@ -154,7 +154,7 @@ const SimpleTable::TableEntry *SimpleTable::getEntry(unsigned int idx) {
 }
 
 bool SimpleTable::updateEntry(unsigned int idx,
-                        const data::share::StringKeyLabelCI &key,
+                        const data::share::StringKeyLabel &key,
                         const data::share::StringKeyLabel &value) {
   if (idx > 60) {
     idx -= 61;
@@ -170,7 +170,7 @@ bool SimpleTable::updateEntry(unsigned int idx,
   return true;
 }
 
-v_io_size SimpleTable::addEntry(const data::share::StringKeyLabelCI &key, const data::share::StringKeyLabel &value) {
+v_io_size SimpleTable::addEntry(const data::share::StringKeyLabel &key, const data::share::StringKeyLabel &value) {
   m_dynamicTable.emplace_back(key, value);
   return m_dynamicTable.size() + 61;
 }
@@ -214,7 +214,7 @@ SimpleHpack::~SimpleHpack() {
 v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
                                            Payload::const_iterator it,
                                            Payload::const_iterator last,
-                                           Headers &hdr) {
+                                           Header::Headers &hdr) {
   bool requireIndex = (*it & 0x40) != 0;
   bool dontIndex = (*it & 0xf0u) == 0x10u;
   v_uint32 consumed, step;
@@ -233,10 +233,10 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
 //          OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",kv->key.getData(), kv->value.getData());
           hdr.put(kv->key, kv->value);
         } else {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed keyvalue in table");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed keyvalue in table");
         }
       } else {
-        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
+        throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
       }
       break;
     case INDEXED_KEY_TEXT_VALUE:
@@ -248,14 +248,14 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
       if (step > 0) {
         auto keyentry = m_table->getEntry(len-1);
         if (!keyentry) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed key in table");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed key in table");
         }
         it += step;
 
         oatpp::String value;
         consumed = inflateString(value, it, last);
         if (consumed < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         if (requireIndex) {
           m_table->addEntry(keyentry->key, value);
@@ -264,7 +264,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
 //        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",keyentry->key.getData(), value->data());
       }
       else {
-        throw std::runtime_error(
+        throw DecompressionError(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
       }
       consumed += step;
@@ -275,12 +275,12 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
         oatpp::String key, value;
         step = inflateString(key, it, last);
         if (step < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         it += step;
         consumed = inflateString(value, it, last);
         if (consumed < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         if (requireIndex) {
           m_table->addEntry(key, value);
@@ -297,7 +297,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(InflateMode mode,
 v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
                                            data::stream::BufferedInputStream *stream,
                                            v_buff_size streamPayloadLength,
-                                           Headers &hdr,
+                                           Header::Headers &hdr,
                                            async::Action &action) {
   v_uint8 it;
   stream->peek(&it, 1, action);
@@ -315,10 +315,10 @@ v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
 //          OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",kv->key.getData(), kv->value.getData());
           hdr.put(kv->key, kv->value);
         } else {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed keyvalue in table");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed keyvalue in table");
         }
       } else {
-        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
+        throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
       }
       break;
     case INDEXED_KEY_TEXT_VALUE:
@@ -330,13 +330,13 @@ v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
       if (step > 0) {
         auto keyentry = m_table->getEntry(len-1);
         if (!keyentry) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed key in table");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: Could not find indexed key in table");
         }
 
         oatpp::String value;
         consumed = inflateString(value, stream, streamPayloadLength, async::Action());
         if (consumed < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         if (requireIndex) {
           m_table->addEntry(keyentry->key, value);
@@ -345,7 +345,7 @@ v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
 //        OATPP_LOGD(TAG, "inflateKeyValuePair: k='%s' v='%s'",keyentry->key.getData(), value->data());
       }
       else {
-        throw std::runtime_error(
+        throw DecompressionError(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: decodeInteger signaled error");
       }
       consumed += step;
@@ -356,11 +356,11 @@ v_io_size SimpleHpack::inflateKeyValuePair(SimpleHpack::InflateMode mode,
         oatpp::String key, value;
         step = inflateString(key, stream, streamPayloadLength-1, async::Action());
         if (step < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         consumed = inflateString(value, stream, streamPayloadLength-1, async::Action());
         if (consumed < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePair] Error: inflateString signaled error");
         }
         if (requireIndex) {
           m_table->addEntry(key, value);
@@ -378,10 +378,10 @@ v_io_size SimpleHpack::inflateHandleNewTableSize(Payload::const_iterator it, Pay
   v_uint32 res;
   v_uint32 consumed = decodeInteger(&res, it, last, 5);
   if (consumed < 1) {
-    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
+    throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
   }
   if (res > m_maxTableSize) {
-    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: New table size exceeds max table size");
+    throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: New table size exceeds max table size");
   }
   // ToDo: Handle table size update
   OATPP_LOGW(TAG, "ToDo: Handle table size update");
@@ -393,28 +393,28 @@ v_io_size SimpleHpack::inflateHandleNewTableSize(data::stream::BufferedInputStre
   v_uint32 res;
   v_uint32 consumed = decodeInteger(&res, stream, streamPayloadLength, 5);
   if (consumed < 1) {
-    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
+    throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: decodeInteger signaled an error");
   }
   if (res > m_maxTableSize) {
-    throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: New table size exceeds max table size");
+    throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateHandleNewTableSize] Error: New table size exceeds max table size");
   }
   // ToDo: Handle table size update
   OATPP_LOGW(TAG, "ToDo: Handle table size update");
   return consumed;
 }
 
-v_io_size SimpleHpack::inflateKeyValuePairs(Headers &hdr, const Payload &payload) {
+v_io_size SimpleHpack::inflateKeyValuePairs(Header::Headers &hdr, const Payload &payload) {
   auto it = payload.begin();
   v_io_size consumed = 0, step;
   while ( it < payload.end()) {
     if ((*it & 0xe0u) == 0x20u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
       if (it == payload.begin()) {
-        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
+        throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: header table size change must appear at the beginning of the header block");
       }
       step = inflateHandleNewTableSize(it, payload.end());
       if (step < 1) {
-        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
+        throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateHandleNewTableSize signaled an error");
       }
       it += step;
     } else if (*it & 0x80u) {
@@ -424,7 +424,7 @@ v_io_size SimpleHpack::inflateKeyValuePairs(Headers &hdr, const Payload &payload
                                 payload.end(),
                                 hdr);
       if (step < 1) {
-        throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+        throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
       }
       it += step;
     } else {
@@ -432,14 +432,14 @@ v_io_size SimpleHpack::inflateKeyValuePairs(Headers &hdr, const Payload &payload
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Text key, text value");
         step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, it, payload.end(), hdr);
         if (step < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
         }
         it += step;
       } else {
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, text value");
         step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, it, payload.end(), hdr);
         if (step < 1) {
-          throw std::runtime_error("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
+          throw DecompressionError("[oatpp::web::protocol::http2::hpack::SimpleHpack::inflateKeyValuePairs] Error: inflateKeyValuePair signaled an error");
         }
         it += step;
       }
@@ -449,8 +449,8 @@ v_io_size SimpleHpack::inflateKeyValuePairs(Headers &hdr, const Payload &payload
   return consumed;
 }
 
-Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
-  Headers headers;
+Header::Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
+  Header::Headers headers;
 
   /*
    * Proxying to stream-inflate is roughly 5x slower than keeping the own implementation for a Payload.
@@ -475,9 +475,9 @@ Headers SimpleHpack::inflate(const std::list<Payload> &payloads) {
   return headers;
 }
 
-Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
+Header::Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputStream> &stream,
                              v_buff_size streamPayloadLength) {
-  Headers headers;
+  Header::Headers headers;
   async::Action action;
   v_io_size consumed = 0;
   v_io_size step;
@@ -490,12 +490,12 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
     if ((it & 0xe0u) == 0x20u) {
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Table size change");
 //      if (consumed != 0) {
-//        throw std::runtime_error(
+//        throw DecompressionError(
 //            "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: header table size change must appear at the beginning of the header block");
 //      }
       step = inflateHandleNewTableSize(stream.get(), streamPayloadLength);
       if (step < 1) {
-        throw std::runtime_error(
+        throw DecompressionError(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateHandleNewTableSize signaled an error");
       }
       consumed += step;
@@ -504,7 +504,7 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
 //      OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, indexed value");
       step = inflateKeyValuePair(InflateMode::INDEXED_KEY_INDEXED_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
       if (step < 1) {
-        throw std::runtime_error(
+        throw DecompressionError(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateKeyValuePair signaled an error");
       }
       consumed += step;
@@ -513,14 +513,14 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Text key, text value");
         step = inflateKeyValuePair(InflateMode::TEXT_KEY_TEXT_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
         if (step < 1) {
-          throw std::runtime_error(
+          throw DecompressionError(
               "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateKeyValuePair signaled an error");
         }
       } else {
 //        OATPP_LOGD(TAG, "inflateKeyValuePairs: Indexed key, text value");
         step = inflateKeyValuePair(InflateMode::INDEXED_KEY_TEXT_VALUE, stream.get(), streamPayloadLength - consumed, headers, action);
         if (step < 1) {
-          throw std::runtime_error(
+          throw DecompressionError(
               "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: inflateKeyValuePair signaled an error");
         }
       }
@@ -529,14 +529,14 @@ Headers SimpleHpack::inflate(const std::shared_ptr<data::stream::BufferedInputSt
   }
 
   if (lastEntryWasTableSizeChange) {
-    throw std::runtime_error(
+    throw DecompressionError(
             "[oatpp::web::protocol::http2::hpack::SimpleHpack::inflate] Error: header table size change cannot appear at the end of the header block");
   }
 
   return headers;
 }
 
-std::shared_ptr<data::stream::BufferedInputStream> SimpleHpack::deflate(const Headers &headers) {
+std::shared_ptr<data::stream::BufferedInputStream> SimpleHpack::deflate(const Header::Headers &headers) {
   auto payload = data::stream::FIFOInputStream::createShared();
 
   auto all = headers.getAll();
@@ -602,7 +602,7 @@ v_io_size SimpleHpack::deflateKeyValuePair(data::stream::WriteCallback *to, cons
 
 }
 
-SimpleHpack::IndexingMode SimpleHpack::shouldIndex(const data::share::StringKeyLabelCI &key) {
+SimpleHpack::IndexingMode SimpleHpack::shouldIndex(const data::share::StringKeyLabel &key) {
   // ToDo: Make me faster by hashing or other black magic
   if (key == Header::AUTHORIZATION || key == Header::COOKIE) { // ToDo: firefox does not compress cookies with value < 20
 //    OATPP_LOGD(TAG, "shouldIndex(%s): Never", (p_uint8)key.getData());
@@ -651,7 +651,7 @@ v_io_size SimpleHpack::deflateHandleIndexedKey(data::stream::WriteCallback *to, 
 }
 
 v_io_size SimpleHpack::deflateHandleNewKeyValue(data::stream::WriteCallback *to,
-                                                const data::share::StringKeyLabelCI &key,
+                                                const data::share::StringKeyLabel &key,
                                                 data::share::StringKeyLabel &value,
                                                 IndexingMode indexing) {
 
