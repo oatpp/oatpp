@@ -360,7 +360,9 @@ public:
   ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper, const oatpp::String &routerPrefix = nullptr)
     : m_defaultObjectMapper(defaultObjectMapper)
     , m_routerPrefix(routerPrefix)
-  {}
+  {
+
+  }
 public:
   
   template<class T>

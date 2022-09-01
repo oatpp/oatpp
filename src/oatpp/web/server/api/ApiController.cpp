@@ -56,11 +56,17 @@ void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>
 }
 
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(const std::exception_ptr& exceptionPtr) const {
+
   if(m_errorHandler) {
     return m_errorHandler->handleError(exceptionPtr);
   }
 
-  return nullptr;
+  if(exceptionPtr) {
+    std::rethrow_exception(exceptionPtr);
+  }
+
+  throw std::runtime_error("[oatpp::web::server::api::ApiController::handleError()]: Error. 'exceptionPtr' is not set.");
+
 }
 
 void ApiController::setDefaultAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler){

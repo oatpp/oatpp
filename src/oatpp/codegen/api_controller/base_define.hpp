@@ -71,34 +71,26 @@ const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request;
 #define OATPP_MACRO_API_CONTROLLER_HEADER_1(TYPE, NAME) \
 const auto& __param_str_val_##NAME = __request->getHeader(#NAME); \
 if(!__param_str_val_##NAME){                            \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing HEADER parameter '" #NAME "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing HEADER parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
 const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Invalid HEADER parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Invalid HEADER parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_HEADER_2(TYPE, NAME, QUALIFIER) \
 const auto& __param_str_val_##NAME = __request->getHeader(QUALIFIER); \
 if(!__param_str_val_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, oatpp::String("Missing HEADER parameter '") + QUALIFIER + "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, oatpp::String("Missing HEADER parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
 const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, \
-                                    oatpp::String("Invalid HEADER parameter '") + \
-                                    QUALIFIER + \
-                                    "'. Expected type is '" #TYPE "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
+                                              oatpp::String("Invalid HEADER parameter '") + \
+                                              QUALIFIER + \
+                                              "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_HEADER(TYPE, PARAM_LIST) \
@@ -121,35 +113,27 @@ OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_HEADER_INFO
 #define OATPP_MACRO_API_CONTROLLER_PATH_1(TYPE, NAME) \
 const auto& __param_str_val_##NAME = __request->getPathVariable(#NAME); \
 if(!__param_str_val_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing PATH parameter '" #NAME "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing PATH parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
 const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Invalid PATH parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Invalid PATH parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_PATH_2(TYPE, NAME, QUALIFIER) \
 const auto& __param_str_val_##NAME = __request->getPathVariable(QUALIFIER); \
 if(!__param_str_val_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, \
-                                             oatpp::String("Missing PATH parameter '") + QUALIFIER + "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
+                                              oatpp::String("Missing PATH parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
 const auto NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, \
-                                             oatpp::String("Invalid PATH parameter '") + \
-                                             QUALIFIER + \
-                                             "'. Expected type is '" #TYPE "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
+                                              oatpp::String("Invalid PATH parameter '") + \
+                                              QUALIFIER + \
+                                              "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_PATH(TYPE, PARAM_LIST) \
@@ -178,35 +162,27 @@ const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request->getQueryParameters();
 #define OATPP_MACRO_API_CONTROLLER_QUERY_1(TYPE, NAME) \
 const auto& __param_str_val_##NAME = __request->getQueryParameter(#NAME); \
 if(!__param_str_val_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing QUERY parameter '" #NAME "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing QUERY parameter '" #NAME "'"); \
 } \
 bool __param_validation_check_##NAME; \
 const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Invalid QUERY parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Invalid QUERY parameter '" #NAME "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_2(TYPE, NAME, QUALIFIER) \
 const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER); \
 if(!__param_str_val_##NAME) \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, \
-                                                         oatpp::String("Missing QUERY parameter '") + QUALIFIER + "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
+                                              oatpp::String("Missing QUERY parameter '") + QUALIFIER + "'"); \
 } \
 bool __param_validation_check_##NAME; \
 const auto& NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
 if(!__param_validation_check_##NAME){ \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, \
-                                                         oatpp::String("Invalid QUERY parameter '") + \
-                                                         QUALIFIER + \
-                                                         "'. Expected type is '" #TYPE "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
+                                              oatpp::String("Invalid QUERY parameter '") + \
+                                              QUALIFIER + \
+                                              "'. Expected type is '" #TYPE "'"); \
 }
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_3(TYPE, NAME, QUALIFIER, DEFAULT) \
@@ -216,12 +192,10 @@ if(__param_str_val_##NAME) { \
   bool __param_validation_check_##NAME; \
   NAME = ApiController::TypeInterpretation<TYPE>::fromString(#TYPE, __param_str_val_##NAME, __param_validation_check_##NAME); \
   if(!__param_validation_check_##NAME){ \
-    auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, \
-                                                           oatpp::String("Invalid QUERY parameter '") + \
-                                                           QUALIFIER + \
-                                                           "'. Expected type is '" #TYPE "'"); \
-    auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+    throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
+                                                oatpp::String("Invalid QUERY parameter '") + \
+                                                QUALIFIER + \
+                                                "'. Expected type is '" #TYPE "'"); \
   } \
 }
 
@@ -261,16 +235,12 @@ if(getDefaultObjectMapper()) { \
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, PARAM_LIST) \
 if(!getDefaultObjectMapper()) { \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_500, "ObjectMapper was NOT set. Can't deserialize the request body."); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "ObjectMapper was NOT set. Can't deserialize the request body."); \
 } \
 const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = \
 __request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
 if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
-  auto httpError = oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing valid body parameter '" OATPP_MACRO_FIRSTARG_STR PARAM_LIST "'"); \
-  auto eptr = std::make_exception_ptr(httpError); \
-  return ApiController::handleError(eptr); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing valid body parameter '" OATPP_MACRO_FIRSTARG_STR PARAM_LIST "'"); \
 }
 
 // __INFO
