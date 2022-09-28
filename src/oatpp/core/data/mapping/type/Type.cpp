@@ -96,12 +96,10 @@ const Type::AbstractInterpretation* Type::findInterpretation(const std::vector<s
 }
 
 bool Type::extends(const Type* other) const {
-  const Type* curr = this;
-  while(curr != nullptr) {
+  for(const Type* curr = this; curr != nullptr; curr = curr->parent) {
     if(curr == other) {
       return true;
     }
-    curr = curr->parent;
   }
   return false;
 }
