@@ -103,6 +103,10 @@ public:
       std::string pattern = "";
 
       /**
+       * Format.
+       */
+      std::string format = OATPP_FLOAT_STRING_FORMAT;
+      /**
        * Required.
        */
       bool required = false;

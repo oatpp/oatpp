@@ -405,6 +405,7 @@ public:
  */
 class ConsistentOutputStream : public OutputStream {
 public:
+  String floatFormat = OATPP_FLOAT_STRING_FORMAT;
 
   /**
    * Convert value to string and write to stream.

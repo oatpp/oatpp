@@ -243,7 +243,14 @@ void Serializer::serializeObject(Serializer* serializer,
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
+      auto streamFloatFormat = stream->floatFormat;
+      if (stream->floatFormat != field->info.format) {
+          streamFloatFormat = stream->floatFormat;
+          stream->floatFormat = field->info.format;
+      }
       serializer->serialize(stream, value);
+      if (stream->floatFormat != streamFloatFormat)
+          stream->floatFormat = streamFloatFormat;
     }
 
   }
@@ -276,6 +283,8 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
 void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
                                    const oatpp::Void& polymorph)
 {
+  if(m_config->floatStringFormat != stream->floatFormat)
+    stream->floatFormat = m_config->floatStringFormat;
   if(m_config->useBeautifier) {
     json::Beautifier beautifier(stream, "  ", "\n");
     serialize(&beautifier, polymorph);

@@ -399,7 +399,7 @@ v_io_size ConsistentOutputStream::writeAsString(v_uint64 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
   v_char8 a[100];
-  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100, floatFormat->c_str());
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -408,7 +408,7 @@ v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
 
 v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
   v_char8 a[100];
-  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100, floatFormat->c_str());
   if(size > 0){
     return writeSimple(&a[0], size);
   }

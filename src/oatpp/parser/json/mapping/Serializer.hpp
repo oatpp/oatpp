@@ -113,6 +113,11 @@ public:
      */
     v_uint32 escapeFlags = json::Utils::FLAG_ESCAPE_ALL;
 
+    /**
+     * Format of float string.
+     */
+    oatpp::String floatStringFormat = OATPP_FLOAT_STRING_FORMAT;
+
   };
 public:
   typedef void (*SerializerMethod)(Serializer*,

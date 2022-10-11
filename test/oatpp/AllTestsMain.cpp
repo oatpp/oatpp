@@ -22,6 +22,7 @@
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
 #include "oatpp/parser/json/mapping/EnumTest.hpp"
+#include "oatpp/parser/json/mapping/FloatTest.hpp"
 #include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
 
 #include "oatpp/encoding/UnicodeTest.hpp"
@@ -122,6 +123,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
+
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::FloatTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
 
