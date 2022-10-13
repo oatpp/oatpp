@@ -76,6 +76,8 @@ class DTO_64_1 : public oatpp::DTO {
 void FloatTest::onRun() {
 
   oatpp::parser::json::mapping::ObjectMapper mapper;
+  oatpp::parser::json::mapping::ObjectMapper mapperFmt;
+  mapperFmt.getSerializer()->getConfig()->floatStringFormat = "%.1f";
 
   OATPP_LOGI(TAG, "Serialize float: 123456.123456");
   {
@@ -113,6 +115,36 @@ void FloatTest::onRun() {
     test->f64 = 123456.123456;
     OATPP_LOGI(TAG, "using \"%%.2f\" format...");
     auto json = mapper.writeToString(test);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+    OATPP_ASSERT(json == "{\"f64\":123456.12}");
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    auto test = DTO_32_0::createShared();
+    test->f32 = 123456.123456;
+    OATPP_LOGI(TAG, "using config's \"%%.1f\" format...");
+    auto json = mapperFmt.writeToString(test);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+    OATPP_ASSERT(json == "{\"f32\":123456.1}");
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    auto test = DTO_64_0::createShared();
+    test->f64 = 123456.123456;
+    OATPP_LOGI(TAG, "using config's \"%%.1f\" format...");
+    auto json = mapperFmt.writeToString(test);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+    OATPP_ASSERT(json == "{\"f64\":123456.1}");
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    auto test = DTO_64_1::createShared();
+    test->f64 = 123456.123456;
+    OATPP_LOGI(TAG, "using field's \"%%.2f\" to override config's \"%%.1f\" format...");
+    auto json = mapperFmt.writeToString(test);
     OATPP_LOGD(TAG, "json='%s'", json->c_str());
     OATPP_ASSERT(json == "{\"f64\":123456.12}");
     OATPP_LOGI(TAG, "OK");

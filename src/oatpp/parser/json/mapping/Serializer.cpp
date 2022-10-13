@@ -244,13 +244,16 @@ void Serializer::serializeObject(Serializer* serializer,
       serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
       auto streamFloatFormat = stream->floatFormat;
-      if (stream->floatFormat != field->info.format) {
-          streamFloatFormat = stream->floatFormat;
+      if (config->floatStringFormat != OATPP_FLOAT_STRING_FORMAT) {
+          stream->floatFormat = config->floatStringFormat;
+      }
+      if (field->info.format != OATPP_FLOAT_STRING_FORMAT) {
           stream->floatFormat = field->info.format;
       }
       serializer->serialize(stream, value);
-      if (stream->floatFormat != streamFloatFormat)
+      if (stream->floatFormat != streamFloatFormat) {
           stream->floatFormat = streamFloatFormat;
+      }
     }
 
   }
