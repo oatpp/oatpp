@@ -405,7 +405,6 @@ public:
  */
 class ConsistentOutputStream : public OutputStream {
 public:
-  String floatFormat = OATPP_FLOAT_STRING_FORMAT;
 
   /**
    * Convert value to string and write to stream.
@@ -468,14 +467,14 @@ public:
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_float32 value);
+  v_io_size writeAsString(v_float32 value, const char* format);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_float64 value);
+  v_io_size writeAsString(v_float64 value, const char* format);
 
   /**
    * Convert value to string and write to stream.
@@ -506,6 +505,12 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, T value) {
   s.writeAsString(value);
   return s;
 }
+
+template<>
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value);
+
+template<>
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value);
 
 /**
  * Error of Asynchronous stream transfer.

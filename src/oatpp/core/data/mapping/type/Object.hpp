@@ -105,7 +105,7 @@ public:
       /**
        * Format.
        */
-      std::string format = OATPP_FLOAT_STRING_FORMAT;
+      std::string format = "";
       /**
        * Required.
        */

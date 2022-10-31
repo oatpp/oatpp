@@ -116,9 +116,26 @@ public:
     /**
      * Format of float string.
      */
-    oatpp::String floatStringFormat = OATPP_FLOAT_STRING_FORMAT;
+    oatpp::String floatStringFormat = "";
 
   };
+
+private:
+  /**
+   * Serializer context.
+  */
+  class Context : public oatpp::base::Countable {
+  public:
+    /**
+     * Constructor.
+     */
+    Context()
+    {}
+  public:
+
+    data::mapping::type::BaseObject::Property::Info info;
+  };
+
 public:
   typedef void (*SerializerMethod)(Serializer*,
                                    data::stream::ConsistentOutputStream*,
@@ -137,7 +154,7 @@ private:
       stream->writeSimple("null", 4);
     }
   }
-  
+
   static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream,
                               const char* data,
                               v_buff_size size,
@@ -171,6 +188,7 @@ private:
 
 private:
   std::shared_ptr<Config> m_config;
+  std::unique_ptr<Context> m_context;
   std::vector<SerializerMethod> m_methods;
 public:
 
@@ -201,6 +219,16 @@ public:
   const std::shared_ptr<Config>& getConfig();
 
 };
+
+template<>
+void Serializer::serializePrimitive<Float32>(Serializer* serializer,
+    data::stream::ConsistentOutputStream* stream,
+    const oatpp::Void& polymorph);
+
+template<>
+void Serializer::serializePrimitive<Float64>(Serializer* serializer,
+    data::stream::ConsistentOutputStream* stream,
+    const oatpp::Void& polymorph);
 
 }}}}
 

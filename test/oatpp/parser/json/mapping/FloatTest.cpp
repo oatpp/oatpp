@@ -54,19 +54,36 @@ class DTO_32_1 : public oatpp::DTO {
 
 class DTO_64_0 : public oatpp::DTO {
 
-    DTO_INIT(DTO_64_0, DTO)
+  DTO_INIT(DTO_64_0, DTO)
 
-    DTO_FIELD(Float64, f64);
+  DTO_FIELD(Float64, f64);
 };
 
 class DTO_64_1 : public oatpp::DTO {
 
-    DTO_INIT(DTO_64_1, DTO)
+  DTO_INIT(DTO_64_1, DTO)
 
-    DTO_FIELD_INFO(f64) {
-        info->format = "%.2f";
-    }
-    DTO_FIELD(Float64, f64);
+  DTO_FIELD_INFO(f64) {
+    info->format = "%.2f";
+  }
+  DTO_FIELD(Float64, f64);
+};
+
+class DTO_64_2 : public oatpp::DTO {
+
+  DTO_INIT(DTO_64_2, DTO)
+
+  DTO_FIELD_INFO(f64_1) {
+    info->format = "%.1f";
+  }
+  DTO_FIELD(Float64, f64_1);
+
+  DTO_FIELD_INFO(f64_2) {
+    info->format = "%.2f";
+  }
+  DTO_FIELD(Float64, f64_2);
+
+  DTO_FIELD(Int32, i);
 };
 
 #include OATPP_CODEGEN_END(DTO)
@@ -117,6 +134,18 @@ void FloatTest::onRun() {
     auto json = mapper.writeToString(test);
     OATPP_LOGD(TAG, "json='%s'", json->c_str());
     OATPP_ASSERT(json == "{\"f64\":123456.12}");
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    auto test = DTO_64_2::createShared();
+    test->f64_1 = 123456.123456;
+    test->f64_2 = 123456.123456;
+    test->i = 10;
+    OATPP_LOGI(TAG, "using 2 formats...");
+    auto json = mapper.writeToString(test);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+    OATPP_ASSERT(json == "{\"f64_1\":123456.1,\"f64_2\":123456.12,\"i\":10}");
     OATPP_LOGI(TAG, "OK");
   }
 

@@ -64,6 +64,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeMap);
   setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Serializer::serializeMap);
 
+  m_context = std::unique_ptr<Context>(new Context());
 }
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
@@ -72,6 +73,46 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
     m_methods.resize(id + 1, nullptr);
   }
   m_methods[id] = method;
+}
+
+template<>
+void Serializer::serializePrimitive<Float32>(Serializer* serializer,
+                                             data::stream::ConsistentOutputStream* stream,
+                                             const oatpp::Void& polymorph){
+  if (polymorph) {
+    std::string format;
+    if (!serializer->m_context->info.format.empty()) {
+      format = serializer->m_context->info.format;
+    }
+    else if (!serializer->m_config->floatStringFormat->empty()) {
+      format = serializer->m_config->floatStringFormat;
+    }
+    stream->writeAsString(*static_cast<v_float32*>(polymorph.get()),
+                          format.c_str());
+  }
+  else {
+    stream->writeSimple("null", 4);
+  }
+}
+
+template<>
+void Serializer::serializePrimitive<Float64>(Serializer* serializer,
+                                             data::stream::ConsistentOutputStream* stream,
+                                             const oatpp::Void& polymorph) {
+  if (polymorph) {
+    std::string format;
+    if (!serializer->m_context->info.format.empty()) {
+      format = serializer->m_context->info.format;
+    }
+    else if (!serializer->m_config->floatStringFormat->empty()) {
+      format = serializer->m_config->floatStringFormat;
+    }
+    stream->writeAsString(*static_cast<v_float64*>(polymorph.get()),
+                          format.c_str());
+  }
+  else {
+    stream->writeSimple("null", 4);
+  }
 }
 
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
@@ -228,6 +269,7 @@ void Serializer::serializeObject(Serializer* serializer,
   auto fields = dispatcher->getProperties()->getList();
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
   auto config = serializer->m_config;
+  auto &context = serializer->m_context;
 
   for (auto const& field : fields) {
 
@@ -243,17 +285,9 @@ void Serializer::serializeObject(Serializer* serializer,
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
-      auto streamFloatFormat = stream->floatFormat;
-      if (config->floatStringFormat != OATPP_FLOAT_STRING_FORMAT) {
-          stream->floatFormat = config->floatStringFormat;
-      }
-      if (field->info.format != OATPP_FLOAT_STRING_FORMAT) {
-          stream->floatFormat = field->info.format;
-      }
+
+      context->info = field->info;
       serializer->serialize(stream, value);
-      if (stream->floatFormat != streamFloatFormat) {
-          stream->floatFormat = streamFloatFormat;
-      }
     }
 
   }
@@ -286,8 +320,6 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
 void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
                                    const oatpp::Void& polymorph)
 {
-  if(m_config->floatStringFormat != stream->floatFormat)
-    stream->floatFormat = m_config->floatStringFormat;
   if(m_config->useBeautifier) {
     json::Beautifier beautifier(stream, "  ", "\n");
     serialize(&beautifier, polymorph);
