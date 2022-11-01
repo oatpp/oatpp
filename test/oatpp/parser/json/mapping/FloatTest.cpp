@@ -22,6 +22,8 @@
  *
  ***************************************************************************/
 
+#include <thread>
+
 #include "FloatTest.hpp"
 
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -177,6 +179,56 @@ void FloatTest::onRun() {
     OATPP_LOGD(TAG, "json='%s'", json->c_str());
     OATPP_ASSERT(json == "{\"f64\":123456.12}");
     OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    mapperFmt.getSerializer()->getConfig()->useBeautifier = true;
+    auto test = DTO_64_0::createShared();
+    test->f64 = 123456.123456;
+    OATPP_LOGI(TAG, "using config's \"%%.1f\" format(useBeautifier) ...");
+    auto json = mapperFmt.writeToString(test);
+    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+    OATPP_ASSERT(json == "{\n  \"f64\": 123456.1\n}");
+    OATPP_LOGI(TAG, "OK");
+  }
+
+  {
+    int count = 10000;
+    bool parallel_result = true;
+    auto test1 = DTO_64_0::createShared();
+    test1->f64 = 123456.123456;
+    OATPP_LOGI(TAG, "parallel 1: using default format...");
+    OATPP_LOGI(TAG, "expect: json1='%s'", "{\"f64\":123456.123456}");
+    std::thread proc1([&]() {
+      for (int i = 0; i < count; ++i) {
+        auto json = mapper.writeToString(test1);
+        if (json != "{\"f64\":123456.123456}") {
+          OATPP_LOGE(TAG, "json1='%s'", json->c_str());
+          parallel_result = false;
+          break;
+        }
+      }
+    });
+
+    auto test2 = DTO_64_1::createShared();
+    test2->f64 = 123456.123456;
+    OATPP_LOGI(TAG, "parallel 2: using \"%%.2f\" format...");
+    OATPP_LOGI(TAG, "expect:  json2='%s'", "{\"f64\":123456.12}");
+    std::thread proc2([&]() {
+      for (int i = 0; i < count; ++i) {
+        auto json = mapper.writeToString(test2);
+        if (json != "{\"f64\":123456.12}") {
+          OATPP_LOGE(TAG, "json2='%s'", json->c_str());
+          parallel_result = false;
+          break;
+        }
+      }
+    });
+    proc1.join();
+    proc2.join();
+
+    OATPP_ASSERT(parallel_result == true);
+    OATPP_LOGI(TAG, "parallel OK");
   }
 
 }
