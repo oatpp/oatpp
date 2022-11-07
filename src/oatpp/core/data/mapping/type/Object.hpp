@@ -103,6 +103,10 @@ public:
       std::string pattern = "";
 
       /**
+       * Format.
+       */
+      std::string format = "";
+      /**
        * Required.
        */
       bool required = false;

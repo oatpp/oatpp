@@ -397,18 +397,18 @@ v_io_size ConsistentOutputStream::writeAsString(v_uint64 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
+v_io_size ConsistentOutputStream::writeAsString(v_float32 value, const char* format){
   v_char8 a[100];
-  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100, format);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
+v_io_size ConsistentOutputStream::writeAsString(v_float64 value, const char* format){
   v_char8 a[100];
-  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
+  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100, format);
   if(size > 0){
     return writeSimple(&a[0], size);
   }
@@ -530,6 +530,18 @@ ConsistentOutputStream& operator << (ConsistentOutputStream& s, const char* str)
   } else {
     s.writeSimple("[<char*(null)>]");
   }
+  return s;
+}
+
+template<>
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float32 value) {
+  s.writeAsString(value, "");
+  return s;
+}
+
+template<>
+ConsistentOutputStream& operator << (ConsistentOutputStream& s, v_float64 value) {
+  s.writeAsString(value, "");
   return s;
 }
 

@@ -113,56 +113,72 @@ public:
      */
     v_uint32 escapeFlags = json::Utils::FLAG_ESCAPE_ALL;
 
+    /**
+     * Format of float string.
+     */
+    oatpp::String floatStringFormat = "";
+
   };
+
+private:
+  /**
+   * Serializer context.
+  */
+  class Context : public oatpp::base::Countable {
+  public:
+    /**
+     * Constructor.
+     */
+    Context(Serializer *serializer, data::stream::ConsistentOutputStream* stream)
+      : serializer(serializer), stream(stream)
+    {}
+  public:
+
+    Serializer* serializer;
+    data::stream::ConsistentOutputStream* stream;
+
+    data::mapping::type::BaseObject::Property::Info info;
+  };
+
 public:
-  typedef void (*SerializerMethod)(Serializer*,
-                                   data::stream::ConsistentOutputStream*,
+  typedef void (*SerializerMethod)(const std::unique_ptr<Context>&,
                                    const oatpp::Void&);
 private:
 
   template<class T>
-  static void serializePrimitive(Serializer* serializer,
-                                 data::stream::ConsistentOutputStream* stream,
+  static void serializePrimitive(const std::unique_ptr<Context>& context,
                                  const oatpp::Void& polymorph){
-    (void) serializer;
-
     if(polymorph){
-      stream->writeAsString(* static_cast<typename T::ObjectType*>(polymorph.get()));
+      context->stream->writeAsString(* static_cast<typename T::ObjectType*>(polymorph.get()));
     } else {
-      stream->writeSimple("null", 4);
+      context->stream->writeSimple("null", 4);
     }
   }
-  
+
   static void serializeString(oatpp::data::stream::ConsistentOutputStream* stream,
                               const char* data,
                               v_buff_size size,
                               v_uint32 escapeFlags);
 
-  static void serializeString(Serializer* serializer,
-                              data::stream::ConsistentOutputStream* stream,
+  static void serializeString(const std::unique_ptr<Context>& context,
                               const oatpp::Void& polymorph);
 
-  static void serializeAny(Serializer* serializer,
-                           data::stream::ConsistentOutputStream* stream,
+  static void serializeAny(const std::unique_ptr<Context>& context,
                            const oatpp::Void& polymorph);
 
-  static void serializeEnum(Serializer* serializer,
-                            data::stream::ConsistentOutputStream* stream,
+  static void serializeEnum(const std::unique_ptr<Context>& context,
                             const oatpp::Void& polymorph);
 
-  static void serializeCollection(Serializer* serializer,
-                                  data::stream::ConsistentOutputStream* stream,
+  static void serializeCollection(const std::unique_ptr<Context>& context,
                                   const oatpp::Void& polymorph);
 
-  static void serializeMap(Serializer* serializer,
-                           data::stream::ConsistentOutputStream* stream,
+  static void serializeMap(const std::unique_ptr<Context>& context,
                            const oatpp::Void& polymorph);
 
-  static void serializeObject(Serializer* serializer,
-                              data::stream::ConsistentOutputStream* stream,
+  static void serializeObject(const std::unique_ptr<Context>& context,
                               const oatpp::Void& polymorph);
 
-  void serialize(data::stream::ConsistentOutputStream* stream, const oatpp::Void& polymorph);
+  void serialize(const std::unique_ptr<Context>& context, const oatpp::Void& polymorph);
 
 private:
   std::shared_ptr<Config> m_config;
@@ -196,6 +212,14 @@ public:
   const std::shared_ptr<Config>& getConfig();
 
 };
+
+template<>
+void Serializer::serializePrimitive<Float32>(const std::unique_ptr<Context>& context,
+                                             const oatpp::Void& polymorph);
+
+template<>
+void Serializer::serializePrimitive<Float64>(const std::unique_ptr<Context>& context,
+                                             const oatpp::Void& polymorph);
 
 }}}}
 

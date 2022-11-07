@@ -74,6 +74,44 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
   m_methods[id] = method;
 }
 
+template<>
+void Serializer::serializePrimitive<Float32>(const std::unique_ptr<Context>& context,
+                                             const oatpp::Void& polymorph){
+  if (polymorph) {
+    std::string format;
+    if (!context->info.format.empty()) {
+      format = context->info.format;
+    }
+    else if (!context->serializer->m_config->floatStringFormat->empty()) {
+      format = context->serializer->m_config->floatStringFormat;
+    }
+    context->stream->writeAsString(*static_cast<v_float32*>(polymorph.get()),
+                          format.c_str());
+  }
+  else {
+    context->stream->writeSimple("null", 4);
+  }
+}
+
+template<>
+void Serializer::serializePrimitive<Float64>(const std::unique_ptr<Context>& context,
+                                             const oatpp::Void& polymorph) {
+  if (polymorph) {
+    std::string format;
+    if (!context->info.format.empty()) {
+      format = context->info.format;
+    }
+    else if (!context->serializer->m_config->floatStringFormat->empty()) {
+      format = context->serializer->m_config->floatStringFormat;
+    }
+    context->stream->writeAsString(*static_cast<v_float64*>(polymorph.get()),
+                          format.c_str());
+  }
+  else {
+    context->stream->writeSimple("null", 4);
+  }
+}
+
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
   auto encodedValue = Utils::escapeString(data, size, escapeFlags);
   stream->writeCharSimple('\"');
@@ -81,39 +119,36 @@ void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, c
   stream->writeCharSimple('\"');
 }
 
-void Serializer::serializeString(Serializer* serializer,
-                                 data::stream::ConsistentOutputStream* stream,
+void Serializer::serializeString(const std::unique_ptr<Context>& context,
                                  const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    context->stream->writeSimple("null", 4);
     return;
   }
 
   auto str = static_cast<std::string*>(polymorph.get());
 
-  serializeString(stream, str->data(), str->size(), serializer->m_config->escapeFlags);
+  serializeString(context->stream, str->data(), str->size(), context->serializer->m_config->escapeFlags);
 
 }
 
-void Serializer::serializeAny(Serializer* serializer,
-                              data::stream::ConsistentOutputStream* stream,
+void Serializer::serializeAny(const std::unique_ptr<Context>& context,
                               const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    context->stream->writeSimple("null", 4);
     return;
   }
 
   auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
-  serializer->serialize(stream, oatpp::Void(anyHandle->ptr, anyHandle->type));
+  context->serializer->serialize(context, oatpp::Void(anyHandle->ptr, anyHandle->type));
 
 }
 
-void Serializer::serializeEnum(Serializer* serializer,
-                               data::stream::ConsistentOutputStream* stream,
+void Serializer::serializeEnum(const std::unique_ptr<Context>& context,
                                const oatpp::Void& polymorph)
 {
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
@@ -121,7 +156,7 @@ void Serializer::serializeEnum(Serializer* serializer,
   );
 
   data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
-  serializer->serialize(stream, polymorphicDispatcher->toInterpretation(polymorph, e));
+  context->serializer->serialize(context, polymorphicDispatcher->toInterpretation(polymorph, e));
 
   if(e == data::mapping::type::EnumInterpreterError::OK) {
     return;
@@ -136,13 +171,12 @@ void Serializer::serializeEnum(Serializer* serializer,
 
 }
 
-void Serializer::serializeCollection(Serializer* serializer,
-                                     data::stream::ConsistentOutputStream* stream,
+void Serializer::serializeCollection(const std::unique_ptr<Context>& context,
                                      const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    context->stream->writeSimple("null", 4);
     return;
   }
 
@@ -150,31 +184,32 @@ void Serializer::serializeCollection(Serializer* serializer,
     polymorph.getValueType()->polymorphicDispatcher
   );
 
-  stream->writeCharSimple('[');
+  context->stream->writeCharSimple('[');
   bool first = true;
 
   auto iterator = dispatcher->beginIteration(polymorph);
 
   while (!iterator->finished()) {
     const auto& value = iterator->get();
-    if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeNullCollectionElements) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      serializer->serialize(stream, value);
+    if(value ||
+       context->serializer->getConfig()->includeNullFields ||
+       context->serializer->getConfig()->alwaysIncludeNullCollectionElements) {
+      (first) ? first = false : context->stream->writeSimple(",", 1);
+      context->serializer->serialize(context, value);
     }
     iterator->next();
   }
 
-  stream->writeCharSimple(']');
+  context->stream->writeCharSimple(']');
 
 }
 
-void Serializer::serializeMap(Serializer* serializer,
-                              data::stream::ConsistentOutputStream* stream,
+void Serializer::serializeMap(const std::unique_ptr<Context>& context,
                               const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    context->stream->writeSimple("null", 4);
     return;
   }
 
@@ -187,39 +222,40 @@ void Serializer::serializeMap(Serializer* serializer,
     throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeMap()]: Invalid json map key. Key should be String");
   }
 
-  stream->writeCharSimple('{');
+  context->stream->writeCharSimple('{');
   bool first = true;
 
   auto iterator = dispatcher->beginIteration(polymorph);
 
   while (!iterator->finished()) {
     const auto& value = iterator->getValue();
-    if(value || serializer->m_config->includeNullFields || serializer->m_config->alwaysIncludeNullCollectionElements) {
-      (first) ? first = false : stream->writeSimple(",", 1);
+    if(value ||
+       context->serializer->m_config->includeNullFields ||
+       context->serializer->m_config->alwaysIncludeNullCollectionElements) {
+      (first) ? first = false : context->stream->writeSimple(",", 1);
       const auto& untypedKey = iterator->getKey();
       const auto& key = oatpp::String(std::static_pointer_cast<std::string>(untypedKey.getPtr()));
-      serializeString(stream, key->data(), key->size(), serializer->m_config->escapeFlags);
-      stream->writeSimple(":", 1);
-      serializer->serialize(stream, value);
+      serializeString(context->stream, key->data(), key->size(), context->serializer->m_config->escapeFlags);
+      context->stream->writeSimple(":", 1);
+      context->serializer->serialize(context, value);
     }
     iterator->next();
   }
 
-  stream->writeCharSimple('}');
+  context->stream->writeCharSimple('}');
 
 }
 
-void Serializer::serializeObject(Serializer* serializer,
-                                  data::stream::ConsistentOutputStream* stream,
-                                  const oatpp::Void& polymorph)
+void Serializer::serializeObject(const std::unique_ptr<Context>& context,
+                                 const oatpp::Void& polymorph)
 {
 
   if(!polymorph) {
-    stream->writeSimple("null", 4);
+    context->stream->writeSimple("null", 4);
     return;
   }
 
-  stream->writeCharSimple('{');
+  context->stream->writeCharSimple('{');
 
   bool first = true;
   auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(
@@ -227,7 +263,7 @@ void Serializer::serializeObject(Serializer* serializer,
   );
   auto fields = dispatcher->getProperties()->getList();
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
-  auto config = serializer->m_config;
+  auto config = context->serializer->m_config;
 
   for (auto const& field : fields) {
 
@@ -240,30 +276,31 @@ void Serializer::serializeObject(Serializer* serializer,
     }
 
     if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
-      stream->writeSimple(":", 1);
-      serializer->serialize(stream, value);
+      (first) ? first = false : context->stream->writeSimple(",", 1);
+      serializeString(context->stream, field->name, std::strlen(field->name), context->serializer->m_config->escapeFlags);
+      context->stream->writeSimple(":", 1);
+      context->info = field->info;
+      context->serializer->serialize(context, value);
     }
 
   }
 
-  stream->writeCharSimple('}');
+  context->stream->writeCharSimple('}');
 
 }
 
-void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
+void Serializer::serialize(const std::unique_ptr<Context>& context,
                            const oatpp::Void& polymorph)
 {
   auto id = polymorph.getValueType()->classId.id;
   auto& method = m_methods[id];
   if(method) {
-    (*method)(this, stream, polymorph);
+    (*method)(context, polymorph);
   } else {
 
     auto* interpretation = polymorph.getValueType()->findInterpretation(m_config->enabledInterpretations);
     if(interpretation) {
-      serialize(stream, interpretation->toInterpretation(polymorph));
+      serialize(context, interpretation->toInterpretation(polymorph));
     } else {
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
                                "Error. No serialize method for type '" +
@@ -278,9 +315,11 @@ void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
 {
   if(m_config->useBeautifier) {
     json::Beautifier beautifier(stream, "  ", "\n");
-    serialize(&beautifier, polymorph);
+    auto context = std::unique_ptr<Context>(new Context(this, &beautifier));
+    serialize(context, polymorph);
   } else {
-    serialize(stream, polymorph);
+    auto context = std::unique_ptr<Context>(new Context(this,stream));
+    serialize(context, polymorph);
   }
 }
 
