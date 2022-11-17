@@ -189,6 +189,9 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
         return std::move(pipeline.next(data::stream::transferAsync(bodyStream, writeCallback, contentLength, buffer, processor)));
 
       }
+      else if (success) {
+        return nullptr;
+      }
 
     } else {
 
