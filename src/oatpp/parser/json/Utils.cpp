@@ -77,7 +77,9 @@ v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_b
           safeSize = i;
         }
         i += charSize;
-        if(charSize < 4) {
+        if (!(flags & FLAG_ESCAPE_UTF8CHAR)) {
+          result += charSize; // output as-is
+        } else if(charSize < 4) {
           result += 6; // '\uFFFF' - 6 chars
         } else if(charSize == 4) {
           result += 12; // '\uFFFF\uFFFF' - 12 chars surrogate pair
@@ -282,7 +284,13 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
       else {
         v_buff_size charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
         if (charSize != 0) {
-          pos += escapeUtf8Char(&data[i], &resultData[pos]);
+          if (!(flags & FLAG_ESCAPE_UTF8CHAR)) {
+            std::memcpy((void*)&resultData[pos], (void*)&data[i], charSize);
+            pos += charSize;
+          }
+          else {
+            pos += escapeUtf8Char(&data[i], &resultData[pos]);
+          }
           i += charSize;
         }
         else {

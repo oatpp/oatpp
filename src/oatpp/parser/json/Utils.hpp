@@ -40,8 +40,9 @@ class Utils {
 public:
 
   static constexpr v_uint32 FLAG_ESCAPE_SOLIDUS = 1;
+  static constexpr v_uint32 FLAG_ESCAPE_UTF8CHAR = 2;
 
-  static constexpr v_uint32 FLAG_ESCAPE_ALL = FLAG_ESCAPE_SOLIDUS;
+  static constexpr v_uint32 FLAG_ESCAPE_ALL = FLAG_ESCAPE_SOLIDUS | FLAG_ESCAPE_UTF8CHAR;
 
 public:
 
