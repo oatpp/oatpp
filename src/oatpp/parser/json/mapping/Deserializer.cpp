@@ -161,9 +161,20 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
 
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float32::Class::getType());
-  } else {
-    return Float32(caret.parseFloat32());
   }
+
+  static constexpr v_buff_size BUFFER_SIZE = 100;
+  char float_buffer[BUFFER_SIZE];
+  parser::json::Utils::extractFloatNumberWithReplacedDecimalSeparator(caret, (v_char8*)float_buffer, BUFFER_SIZE);
+
+  char* parsing_end;
+  const v_float32 result = std::strtof(float_buffer , &parsing_end);
+  if(float_buffer == parsing_end){
+    caret.setError(Caret::ERROR_INVALID_FLOAT);
+  }
+
+  return Float32(result);
+
 }
 
 oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser::Caret& caret, const Type* const type) {
@@ -173,9 +184,19 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
 
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float64::Class::getType());
-  } else {
-    return Float64(caret.parseFloat64());
   }
+
+  static constexpr v_buff_size BUFFER_SIZE = 100;
+  char float_buffer[BUFFER_SIZE];
+  parser::json::Utils::extractFloatNumberWithReplacedDecimalSeparator(caret, (v_char8*)float_buffer, BUFFER_SIZE);
+
+  char* parsing_end;
+  const v_float64 result = std::strtod(float_buffer , &parsing_end);
+  if(float_buffer == parsing_end){
+    caret.setError(Caret::ERROR_INVALID_FLOAT);
+  }
+
+  return Float64(result);
 
 }
 

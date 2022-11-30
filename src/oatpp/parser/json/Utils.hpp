@@ -135,12 +135,54 @@ public:
   static std::string parseStringToStdString(ParsingCaret& caret);
 
   /**
+   * Convert 32-bit float to it's JSON representation.
+   * @param value - 32-bit float value.
+   * @param data - buffer to write data to.
+   * @param n - buffer size.
+   * @return - length of the resultant string.
+   */
+  static v_buff_size float32ToJson(v_float32 value, p_char8 data, v_buff_size n);
+
+  /**
+   * Convert 64-bit float to it's JSON representation.
+   * @param value - 64-bit float value.
+   * @param data - buffer to write data to.
+   * @param n - buffer size.
+   * @return - length of the resultant string.
+   */
+  static v_buff_size float64ToJson(v_float64 value, p_char8 data, v_buff_size n);
+
+  /**
+   * Replace first found locale decimal separator by JSON style.
+   * @param data - buffer to read and replace found decimal separator.
+   * @param end - pointer to the first element after the buffer.
+   */
+  static void convertFirstDecimalSeparatorFromLocaleToJson(p_char8 data, p_char8 end);
+
+  /**
+   * Replace first found JSON decimal separator by locale style.
+   * @param data - buffer to read and replace found decimal separator.
+   * @param end - pointer to the first element after the buffer.
+   */
+  static void convertFirstDecimalSeparatorFromJsonToLocale(p_char8 data, p_char8 end);
+
+  /**
    * Search for a decimal separator in the to analyze number string.
    * @param caret - buffer to search for the decimal separator.
    * @return - if the analyzed word has been identified as floating point number.
    */
   static bool findDecimalSeparatorInCurrentNumber(ParsingCaret& caret);
-  
+
+  /**
+   * Search a string for old_char and replace only first occurrence found with new_char.
+   * @param data - buffer to read and replace found old_char.
+   * @param end - pointer to the first element after the buffer.
+   * @param old_char - searched character.
+   * @param new_char - character which will replace old character.
+   */
+  static void convertFirstDecimalSeparatorInCurrentNumber(p_char8 data, p_char8 end, char old_char, char new_char);
+
+  static void extractFloatNumberWithReplacedDecimalSeparator(ParsingCaret& caret, p_char8 float_buffer, v_buff_size buffer_size);
 };
   
 }}}

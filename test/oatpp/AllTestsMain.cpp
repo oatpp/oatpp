@@ -22,7 +22,9 @@
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
 #include "oatpp/parser/json/mapping/EnumTest.hpp"
+#include "oatpp/parser/json/mapping/LocaleFloatTest.hpp"
 #include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
+#include "oatpp/parser/json/LocaleDecimalSeparatorTest.hpp"
 
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
@@ -128,6 +130,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::LocaleFloatTest);
+
+  OATPP_RUN_TEST(oatpp::test::parser::json::LocaleDecimalSeparatorTest);
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);

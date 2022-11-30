@@ -75,8 +75,14 @@ add_executable(oatppAllTests
         oatpp/parser/json/mapping/DeserializerTest.hpp
         oatpp/parser/json/mapping/EnumTest.cpp
         oatpp/parser/json/mapping/EnumTest.hpp
+        oatpp/parser/json/mapping/LocaleFloatTest.cpp
+        oatpp/parser/json/mapping/LocaleFloatTest.hpp
         oatpp/parser/json/mapping/UnorderedSetTest.cpp
         oatpp/parser/json/mapping/UnorderedSetTest.hpp
+        oatpp/parser/json/LocaleDecimalSeparatorTest.cpp
+        oatpp/parser/json/LocaleDecimalSeparatorTest.hpp
+        oatpp/parser/json/LocaleTestBase.cpp
+        oatpp/parser/json/LocaleTestBase.hpp
         oatpp/web/protocol/http/encoding/ChunkedTest.cpp
         oatpp/web/protocol/http/encoding/ChunkedTest.hpp
         oatpp/web/mime/multipart/StatefulParserTest.cpp

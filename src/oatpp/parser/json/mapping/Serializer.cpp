@@ -50,8 +50,8 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   setSerializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
   setSerializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
 
-  setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
-  setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
+  setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializeFloat32);
+  setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializeFloat64);
   setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
 
   setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
@@ -72,6 +72,41 @@ void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId
     m_methods.resize(id + 1, nullptr);
   }
   m_methods[id] = method;
+}
+
+void Serializer::serializeFloat32(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const oatpp::Void& polymorph) {
+  if(!polymorph) {
+    stream->writeSimple("null", 4);
+    return;
+  }
+
+  auto value = *static_cast<v_float32*>(polymorph.get());
+
+  constexpr v_buff_size bufferSize = 100;
+  v_char8 buffer[bufferSize];
+  const v_buff_size result = Utils::float32ToJson(value, buffer, bufferSize);
+
+  stream->writeSimple(buffer, result);
+}
+
+void Serializer::serializeFloat64(Serializer* serializer,
+                                  data::stream::ConsistentOutputStream* stream,
+                                  const oatpp::Void& polymorph) {
+  if(!polymorph) {
+    stream->writeSimple("null", 4);
+    return;
+  }
+
+  auto value = *static_cast<v_float64*>(polymorph.get());
+  auto valueHandle = static_cast<data::mapping::type::Float64*>(polymorph.get());
+
+  constexpr v_buff_size bufferSize = 100;
+  v_char8 buffer[bufferSize];
+  const v_buff_size result = Utils::float64ToJson(value, buffer, bufferSize);
+
+  stream->writeSimple(buffer, result);
 }
 
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
