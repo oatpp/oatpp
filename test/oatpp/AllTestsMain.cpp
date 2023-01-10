@@ -25,8 +25,9 @@
 #include "oatpp/parser/json/mapping/BooleanTest.hpp"
 #include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
 
-#include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
+#include "oatpp/encoding/UnicodeTest.hpp"
+#include "oatpp/encoding/UrlTest.hpp"
 
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
@@ -133,6 +134,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::encoding::UrlTest);
 
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
   OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
