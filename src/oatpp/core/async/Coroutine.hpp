@@ -63,6 +63,8 @@ public:
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 public:
 
+  static const std::chrono::system_clock::time_point TIME_ZERO;
+
   /**
    * None - invalid Action.
    */
@@ -179,9 +181,9 @@ private:
     IOEventType ioEventType;
   };
 
-  struct WaitListWithTimeout {
+  struct WaitListData {
     CoroutineWaitList* waitList;
-    v_int64 timeoutTimeSinceEpochMS;
+    v_int64 timePointMicroseconds;
   };
 
 private:
@@ -191,8 +193,7 @@ private:
     Error* error;
     IOData ioData;
     v_int64 timePointMicroseconds;
-    CoroutineWaitList* waitList;
-    WaitListWithTimeout waitListWithTimeout;
+    WaitListData waitListData;
   };
 private:
   mutable v_int32 m_type;
@@ -250,17 +251,10 @@ public:
   /**
    * Create TYPE_WAIT_LIST Action.
    * @param waitList - wait-list to put coroutine on.
+   * @param timeoutTime - latest time point at which the coroutine should be continued.
    * @return - Action.
    */
-  static Action createWaitListAction(CoroutineWaitList* waitList);
-
-  /**
-   * Create TYPE_WAIT_LIST_WITH_TIMEOUT Action.
-   * @param waitList - wait-list to put coroutine on.
-   * @param timeout - latest time point at which the coroutine should be continued.
-   * @return - Action.
-   */
-  static Action createWaitListActionWithTimeout(CoroutineWaitList* waitList, const std::chrono::steady_clock::time_point& timeout);
+  static Action createWaitListAction(CoroutineWaitList* waitList, const std::chrono::system_clock::time_point& timeoutTime = TIME_ZERO);
 
   /**
    * Constructor. Create start-coroutine Action.
@@ -428,11 +422,11 @@ public:
   typedef oatpp::async::Error Error;
   typedef Action (AbstractCoroutine::*FunctionPtr)();
 private:
-  Processor* _PP;
-  AbstractCoroutine* _CP;
-  FunctionPtr _FP;
-  oatpp::async::Action _SCH_A;
-  CoroutineHandle* _ref;
+  Processor* _PP; // Processor pointer
+  AbstractCoroutine* _CP; // Coroutine pointer
+  FunctionPtr _FP; // Function pointer
+  oatpp::async::Action _SCH_A; // Scheduled action
+  CoroutineHandle* _ref; // pointer to next coroutine handle in list
 public:
 
   CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);

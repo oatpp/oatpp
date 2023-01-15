@@ -43,7 +43,7 @@ private:
 public:
 
   /**
-   * If the client is using the input stream to read data and push it to the processor,
+   * If the client is using the input stream to read data and add it to the processor,
    * the client MAY ask the processor for a suggested read size.
    * @return - suggested read size.
    */
@@ -82,7 +82,7 @@ public:
   DecoderChunked();
 
   /**
-   * If the client is using the input stream to read data and push it to the processor,
+   * If the client is using the input stream to read data and add it to the processor,
    * the client MAY ask the processor for a suggested read size.
    * @return - suggested read size.
    */

@@ -134,6 +134,12 @@ public:
   Action lockAsyncInline(oatpp::async::Action&& nextAction);
 
   /**
+   * Check if owns lock.
+   * @return
+   */
+  bool owns_lock() const;
+
+  /**
    * Unlock guarded lock.
    */
   void unlock();
