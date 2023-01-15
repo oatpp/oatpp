@@ -98,15 +98,15 @@ CoroutineStarter ConditionVariable::waitUntil(Lock* lock, std::function<bool()> 
     }
 
     Action onLocked() {
-      OATPP_LOGD("WaitCoroutine", "Waked!")
+
       if(m_lockGuard.owns_lock()) {
-        OATPP_LOGD("WaitCoroutine", "Locked")
+
         if (m_condition()) {
           return finish();
         }
         m_cv->m_notified = false;
         m_lockGuard.unlock();
-        OATPP_LOGD("WaitCoroutine", "UnLocked")
+
       } else {
         if(std::chrono::system_clock::now() > m_timeoutTime) {
           return finish();
@@ -118,7 +118,7 @@ CoroutineStarter ConditionVariable::waitUntil(Lock* lock, std::function<bool()> 
         return finish();
       }
 
-      OATPP_LOGD("WaitCoroutine", "Sleeeeep")
+
       return Action::createWaitListAction(&m_cv->m_list, m_timeoutTime);
     }
 
