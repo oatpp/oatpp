@@ -30,6 +30,7 @@
 #include "./CoroutineWaitList.hpp"
 #include "oatpp/core/async/utils/FastQueue.hpp"
 
+#include <thread>
 #include <condition_variable>
 #include <list>
 #include <mutex>
@@ -101,6 +102,15 @@ private:
 
 private:
 
+  std::unordered_set<CoroutineHandle*> m_sleepNoTimeSet;
+  std::unordered_set<CoroutineHandle*> m_sleepTimeSet;
+  std::mutex m_sleepMutex;
+  std::condition_variable m_sleepCV;
+
+  std::thread m_sleepSetTask{&Processor::checkCoroutinesSleep, this};
+
+private:
+
   oatpp::concurrency::SpinLock m_taskLock;
   std::condition_variable_any m_taskCondition;
   std::list<std::shared_ptr<TaskSubmission>> m_taskList;
@@ -111,21 +121,8 @@ private:
   utils::FastQueue<CoroutineHandle> m_queue;
 
 private:
-
   std::atomic_bool m_running{true};
   std::atomic<v_int32> m_tasksCounter{0};
-
-private:
-
-  std::recursive_mutex m_coroutineWaitListsWithTimeoutsMutex;
-  std::condition_variable_any m_coroutineWaitListsWithTimeoutsCV;
-  std::set<CoroutineWaitList*> m_coroutineWaitListsWithTimeouts;
-  std::thread m_coroutineWaitListTimeoutChecker{&Processor::checkCoroutinesForTimeouts, this};
-
-  void checkCoroutinesForTimeouts();
-  void addCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList);
-  void removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList);
-
 private:
 
   void popIOTask(CoroutineHandle* coroutine);
@@ -135,6 +132,10 @@ private:
   void addCoroutine(CoroutineHandle* coroutine);
   void popTasks();
   void pushQueues();
+
+  void putCoroutineToSleep(CoroutineHandle* ch);
+  void wakeCoroutine(CoroutineHandle* ch);
+  void checkCoroutinesSleep();
 
 public:
 

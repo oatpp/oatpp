@@ -27,13 +27,9 @@
 #define oatpp_async_CoroutineWaitList_hpp
 
 #include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/async/utils/FastQueue.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
-#include <map>
+#include <unordered_set>
 #include <mutex>
-#include <thread>
-#include <utility>
 
 namespace oatpp { namespace async {
 
@@ -60,49 +56,20 @@ public:
     virtual void onNewItem(CoroutineWaitList& list) = 0;
   };
 private:
-  utils::FastQueue<CoroutineHandle> m_list;
+  std::unordered_set<CoroutineHandle*> m_coroutines;
   std::mutex m_lock;
   Listener* m_listener = nullptr;
-  
-  std::map<Processor*, v_int64> m_timeoutCheckingProcessors;
-  std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
-  std::mutex m_timeoutsLock;
-
 private:
-  void checkCoroutinesForTimeouts();
-
-  void removeFirstCoroutine();
-
+  void removeCoroutine(CoroutineHandle* coroutine); //<-- Calls Processor
+  void forgetCoroutine(CoroutineHandle* coroutine); //<-- Called From Processor
 protected:
   /*
    * Put coroutine on wait-list.
    * This method should be called by Coroutine Processor only.
    * @param coroutine
    */
-  void pushFront(CoroutineHandle* coroutine);
+  void add(CoroutineHandle* coroutine);
 
-  /*
-   * Put coroutine on wait-list with timeout.
-   * This method should be called by Coroutine Processor only.
-   * @param coroutine
-   * @param timeoutTimeSinceEpochMS
-   */
-  void pushFront(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS);
-
-  /*
-   * Put coroutine on wait-list.
-   * This method should be called by Coroutine Processor only.
-   * @param coroutine
-   */
-  void pushBack(CoroutineHandle* coroutine);
-  
-  /*
-   * Put coroutine on wait-list with timeout.
-   * This method should be called by Coroutine Processor only.
-   * @param coroutine
-   * @param timeoutTimeSinceEpochMS
-   */
-  void pushBack(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS);
 public:
 
   /**

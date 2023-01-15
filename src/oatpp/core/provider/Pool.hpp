@@ -278,7 +278,7 @@ protected:
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const provider::ResourceHandle<TResource>&> {
     private:
       std::shared_ptr<PoolTemplate> m_pool;
-      std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
+      std::chrono::system_clock::time_point m_startTime{std::chrono::system_clock::now()};
     public:
 
       GetCoroutine(const std::shared_ptr<PoolTemplate>& pool)
@@ -286,7 +286,7 @@ protected:
       {}
 
       bool timedout() const noexcept {
-        return m_pool->m_timeout != std::chrono::microseconds::zero() && m_pool->m_timeout < (std::chrono::steady_clock::now() - m_startTime);
+        return m_pool->m_timeout != std::chrono::microseconds::zero() && m_pool->m_timeout < (std::chrono::system_clock::now() - m_startTime);
       }
 
       async::Action act() override {
@@ -301,7 +301,7 @@ protected:
             guard.unlock();
             return m_pool->m_timeout == std::chrono::microseconds::zero()
               ? async::Action::createWaitListAction(&m_pool->m_waitList)
-              : async::Action::createWaitListActionWithTimeout(&m_pool->m_waitList, m_startTime + m_pool->m_timeout);
+              : async::Action::createWaitListAction(&m_pool->m_waitList, m_startTime + m_pool->m_timeout);
           }
 
           if(!m_pool->m_running) {

@@ -60,7 +60,7 @@ public:
   ConditionVariable();
 
   CoroutineStarter wait(Lock* lock, std::function<bool()> condition);
-  CoroutineStarter waitUntil(Lock* lock, std::function<bool()> condition, const std::chrono::steady_clock::time_point& timeoutTime);
+  CoroutineStarter waitUntil(Lock* lock, std::function<bool()> condition, const std::chrono::system_clock::time_point& timeoutTime);
   CoroutineStarter waitFor(Lock* lock, std::function<bool()>, const std::chrono::duration<v_int64, std::micro>& timeout);
 
   void notifyFirst();
