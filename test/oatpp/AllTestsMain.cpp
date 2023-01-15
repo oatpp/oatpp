@@ -80,7 +80,6 @@ void runTests() {
   OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
   OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
 
-/*
   auto names = oatpp::data::mapping::type::ClassId::getRegisteredClassNames();
   v_int32 i = 0;
   for(auto& name : names) {
@@ -119,9 +118,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::TypeResolverTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
-*/
+
   OATPP_RUN_TEST(oatpp::test::async::ConditionVariableTest);
-/*
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
@@ -224,7 +222,7 @@ void runTests() {
     test_port.run();
 
   }
-*/
+
 }
 
 }
