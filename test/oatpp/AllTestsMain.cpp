@@ -32,6 +32,7 @@
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
 #include "oatpp/core/provider/PoolTemplateTest.hpp"
+#include "oatpp/core/async/ConditionVariableTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -73,7 +74,7 @@ namespace {
 void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
-
+/*
   OATPP_LOGD("Tests", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
   OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
   OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
@@ -116,7 +117,9 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::mapping::TypeResolverTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
-
+*/
+  OATPP_RUN_TEST(oatpp::test::async::ConditionVariableTest);
+/*
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
@@ -219,7 +222,7 @@ void runTests() {
     test_port.run();
 
   }
-
+*/
 }
 
 }

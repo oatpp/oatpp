@@ -34,11 +34,11 @@ namespace oatpp { namespace async {
 
 CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{other.m_lock};
+    std::lock_guard<std::mutex> lock{other.m_lock};
     m_list = std::move(other.m_list);
   }
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{other.m_timeoutsLock};
+    std::lock_guard<std::mutex> lock{other.m_timeoutsLock};
     m_coroutinesWithTimeout = std::move(other.m_coroutinesWithTimeout);
 
     m_timeoutCheckingProcessors = std::move(other.m_timeoutCheckingProcessors);
@@ -55,8 +55,8 @@ CoroutineWaitList::~CoroutineWaitList() {
 }
 
 void CoroutineWaitList::checkCoroutinesForTimeouts() {
-  std::lock_guard<oatpp::concurrency::SpinLock> listLock{m_lock};
-  std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
+  std::lock_guard<std::mutex> listLock{m_lock};
+  std::lock_guard<std::mutex> lock{m_timeoutsLock};
   const auto currentTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
   const auto newEndIt = std::remove_if(std::begin(m_coroutinesWithTimeout), std::end(m_coroutinesWithTimeout), [&](const std::pair<CoroutineHandle*, v_int64>& entry) {
     return currentTimeSinceEpochMS > entry.second;
@@ -89,7 +89,7 @@ void CoroutineWaitList::setListener(Listener* listener) {
 
 void CoroutineWaitList::pushFront(CoroutineHandle* coroutine) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+    std::lock_guard<std::mutex> lock(m_lock);
     m_list.pushFront(coroutine);
   }
   if(m_listener != nullptr) {
@@ -99,7 +99,7 @@ void CoroutineWaitList::pushFront(CoroutineHandle* coroutine) {
 
 void CoroutineWaitList::pushFront(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
+    std::lock_guard<std::mutex> lock{m_timeoutsLock};
     m_coroutinesWithTimeout.emplace_back(coroutine, timeoutTimeSinceEpochMS);
     if (++m_timeoutCheckingProcessors[coroutine->_PP] == 1) {
       coroutine->_PP->addCoroutineWaitListWithTimeouts(this);
@@ -110,7 +110,7 @@ void CoroutineWaitList::pushFront(CoroutineHandle* coroutine, v_int64 timeoutTim
 
 void CoroutineWaitList::pushBack(CoroutineHandle* coroutine) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+    std::lock_guard<std::mutex> lock(m_lock);
     m_list.pushBack(coroutine);
   }
   if(m_listener != nullptr) {
@@ -120,7 +120,7 @@ void CoroutineWaitList::pushBack(CoroutineHandle* coroutine) {
 
 void CoroutineWaitList::pushBack(CoroutineHandle* coroutine, v_int64 timeoutTimeSinceEpochMS) {
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
+    std::lock_guard<std::mutex> lock{m_timeoutsLock};
     m_coroutinesWithTimeout.emplace_back(coroutine, timeoutTimeSinceEpochMS);
     if (++m_timeoutCheckingProcessors[coroutine->_PP] == 1) {
       coroutine->_PP->addCoroutineWaitListWithTimeouts(this);
@@ -130,14 +130,14 @@ void CoroutineWaitList::pushBack(CoroutineHandle* coroutine, v_int64 timeoutTime
 }
 
 void CoroutineWaitList::notifyFirst() {
-  std::lock_guard<oatpp::concurrency::SpinLock> lock{m_lock};
+  std::lock_guard<std::mutex> lock{m_lock};
   if(m_list.first) {
     removeFirstCoroutine();
   }
 }
 
 void CoroutineWaitList::notifyAll() {
-  std::lock_guard<oatpp::concurrency::SpinLock> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
   while (!m_list.empty()) {
     removeFirstCoroutine();
   }
@@ -147,7 +147,7 @@ void CoroutineWaitList::removeFirstCoroutine() {
   auto coroutine = m_list.popFront();
   
   {
-    std::lock_guard<oatpp::concurrency::SpinLock> lock{m_timeoutsLock};
+    std::lock_guard<std::mutex> lock{m_timeoutsLock};
     if (--m_timeoutCheckingProcessors[coroutine->_PP] <= 0) {
       coroutine->_PP->removeCoroutineWaitListWithTimeouts(this);
       m_timeoutCheckingProcessors.erase(coroutine->_PP);
@@ -163,13 +163,13 @@ CoroutineWaitList& CoroutineWaitList::operator=(CoroutineWaitList&& other) {
     notifyAll();
     
     {
-      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_lock};
-      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_lock};
+      std::lock_guard<std::mutex> otherLock{other.m_lock};
+      std::lock_guard<std::mutex> myLock{m_lock};
       m_list = std::move(other.m_list);
     }
     {
-      std::lock_guard<oatpp::concurrency::SpinLock> otherLock{other.m_timeoutsLock};
-      std::lock_guard<oatpp::concurrency::SpinLock> myLock{m_timeoutsLock};
+      std::lock_guard<std::mutex> otherLock{other.m_timeoutsLock};
+      std::lock_guard<std::mutex> myLock{m_timeoutsLock};
       m_coroutinesWithTimeout = std::move(other.m_coroutinesWithTimeout);
 
       m_timeoutCheckingProcessors = std::move(other.m_timeoutCheckingProcessors);

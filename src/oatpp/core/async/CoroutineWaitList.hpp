@@ -61,12 +61,12 @@ public:
   };
 private:
   utils::FastQueue<CoroutineHandle> m_list;
-  oatpp::concurrency::SpinLock m_lock;
+  std::mutex m_lock;
   Listener* m_listener = nullptr;
   
   std::map<Processor*, v_int64> m_timeoutCheckingProcessors;
   std::vector<std::pair<CoroutineHandle*, v_int64>> m_coroutinesWithTimeout;
-  oatpp::concurrency::SpinLock m_timeoutsLock;
+  std::mutex m_timeoutsLock;
 
 private:
   void checkCoroutinesForTimeouts();
