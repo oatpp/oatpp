@@ -27,6 +27,8 @@
 
 #include "./Lock.hpp"
 
+#include <functional>
+
 namespace oatpp { namespace async {
 
 class ConditionVariable : private CoroutineWaitList::Listener {
