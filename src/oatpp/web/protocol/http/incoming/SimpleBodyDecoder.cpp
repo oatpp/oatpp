@@ -207,7 +207,7 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
 
   }
 
-  throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::decodeAsync()]: Error. Invalid Request.");
+  return std::move(pipeline);
 
 }
   
