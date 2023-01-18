@@ -218,7 +218,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   bool Caret::skipBlankChars(){
     
     while(m_pos < m_size){
-      v_char8 a = m_data[m_pos];
+      char a = m_data[m_pos];
       if(a != ' ' && a != '\t' && a != '\n' && a != '\r' && a != '\f')
         return true;
       m_pos ++;
@@ -227,7 +227,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return false;
   }
   
-  bool Caret::skipChar(v_char8 c) {
+  bool Caret::skipChar(char c) {
     while(m_pos < m_size){
       if(m_data[m_pos] != c)
         return true;
@@ -236,7 +236,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return false;
   }
   
-  bool Caret::findChar(v_char8 c){
+  bool Caret::findChar(char c){
     
     while(m_pos < m_size){
       if(m_data[m_pos] == c)
@@ -272,7 +272,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     
     while(m_pos < m_size){
       
-      v_char8 a = m_data[m_pos];
+      char a = m_data[m_pos];
       
       for(v_buff_size i = 0; i < setSize; i++){
         if(set[i] == a)
@@ -315,7 +315,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
 
   bool Caret::findROrN() {
     while(m_pos < m_size) {
-      v_char8 a = m_data[m_pos];
+      char a = m_data[m_pos];
       if(a == '\r' || a == '\n') {
         return true;
       }
@@ -339,7 +339,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   bool Caret::skipAllRsAndNs() {
     bool skipped = false;
     while(m_pos < m_size) {
-      v_char8 a = m_data[m_pos];
+      char a = m_data[m_pos];
       if(a == '\r' || a == '\n') {
         m_pos ++;
         skipped = true;
@@ -432,8 +432,8 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
       
       for(v_buff_size i = 0; i < textSize; i++){
         
-        v_char8 c1 = text[i];
-        v_char8 c2 = m_data[m_pos + i];
+        char c1 = text[i];
+        char c2 = m_data[m_pos + i];
         
         if(c1 >= 'a' && c1 <= 'z'){
           c1 = 'A' + c1 - 'a';
@@ -468,7 +468,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
       auto label = putLabel();
       while(canContinue()){
 
-        v_char8 a = m_data[m_pos];
+        char a = m_data[m_pos];
 
         if(a == escapeChar){
           m_pos++;
@@ -506,7 +506,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   
   bool Caret::isAtCharFromSet(const char* set, v_buff_size setSize) const{
     
-    v_char8 a = m_data[m_pos];
+    char a = m_data[m_pos];
     
     for(v_buff_size i = 0; i < setSize; i++){
       if(a == set[i]){
@@ -518,25 +518,25 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     
   }
   
-  bool Caret::isAtChar(v_char8 c) const{
+  bool Caret::isAtChar(char c) const{
     return m_data[m_pos] == c;
   }
   
   bool Caret::isAtBlankChar() const{
-    v_char8 a = m_data[m_pos];
+    char a = m_data[m_pos];
     return (a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\b' || a == '\f');
   }
   
   bool Caret::isAtDigitChar() const{
-    v_char8 a = m_data[m_pos];
+    char a = m_data[m_pos];
     return (a >= '0' && a <= '9');
   }
   
-  bool Caret::canContinueAtChar(v_char8 c) const{
+  bool Caret::canContinueAtChar(char c) const{
     return m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c;
   }
   
-  bool Caret::canContinueAtChar(v_char8 c, v_buff_size skipChars){
+  bool Caret::canContinueAtChar(char c, v_buff_size skipChars){
     
     if(m_pos < m_size && m_errorMessage == nullptr && m_data[m_pos] == c){
       m_pos = m_pos + skipChars;
