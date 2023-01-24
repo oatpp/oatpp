@@ -172,7 +172,7 @@ if(!__param_validation_check_##NAME){ \
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_2(TYPE, NAME, QUALIFIER) \
 const auto& __param_str_val_##NAME = __request->getQueryParameter(QUALIFIER); \
-if(!__param_str_val_##NAME) \
+if(!__param_str_val_##NAME) { \
   throw oatpp::web::protocol::http::HttpError(Status::CODE_400, \
                                               oatpp::String("Missing QUERY parameter '") + QUALIFIER + "'"); \
 } \
