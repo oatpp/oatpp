@@ -538,6 +538,40 @@ void ObjectTest::onRun() {
     OATPP_LOGI(TAG, "OK");
   }
 
+  {
+    OATPP_LOGI(TAG, "Test 18...");
+
+    oatpp::parser::json::mapping::ObjectMapper mapper;
+
+    auto dto = PolymorphicDto3::createShared();
+
+    dto->type = "str";
+    dto->polymorph = nullptr;
+
+    OATPP_ASSERT(dto->polymorph.getValueType() == oatpp::Any::Class::getType())
+
+    auto json = mapper.writeToString(dto);
+    OATPP_LOGD(TAG, "json0='%s'", json->c_str())
+
+    auto dtoClone = mapper.readFromString<oatpp::Object<PolymorphicDto3>>(json);
+
+    auto jsonClone = mapper.writeToString(dtoClone);
+    OATPP_LOGD(TAG, "json1='%s'", jsonClone->c_str())
+
+    OATPP_ASSERT(json == jsonClone)
+
+    OATPP_ASSERT(dtoClone->polymorph == nullptr)
+    OATPP_ASSERT(dtoClone->polymorph.getValueType() == oatpp::Any::Class::getType())
+    OATPP_ASSERT(dtoClone->polymorph.getStoredType() == oatpp::String::Class::getType())
+
+    auto polymorphClone = dtoClone->polymorph.retrieve<oatpp::String>();
+
+    OATPP_ASSERT(polymorphClone == nullptr)
+    OATPP_ASSERT(polymorphClone.getValueType() == oatpp::String::Class::getType())
+
+    OATPP_LOGI(TAG, "OK");
+  }
+
 }
 
 }}}}}}

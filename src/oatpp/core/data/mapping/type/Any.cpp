@@ -75,7 +75,7 @@ Void Any::retrieve(const Type* type) const {
     }
     return Void(m_ptr->ptr, type);
   }
-  return nullptr;
+  return Void(nullptr, type);
 }
 
 Any& Any::operator=(std::nullptr_t) {
