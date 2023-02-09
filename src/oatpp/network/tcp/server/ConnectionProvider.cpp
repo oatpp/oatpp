@@ -186,7 +186,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
       int no = 0;
 
-      if (hints.ai_family == AF_UNSPEC || hints.ai_family == Address::IP_6) {
+      if (hints.ai_family == AF_UNSPEC || hints.ai_family == AF_INET6) {
         if (setsockopt(serverHandle, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&no, sizeof( int ) ) != 0 ) {
           OATPP_LOGW("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
                      "Warning. Failed to set %s for accepting socket: %s", "IPV6_V6ONLY",
@@ -317,7 +317,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
 bool ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
 
-  if (handle < 0) {
+  if (!oatpp::isValidIOHandle(handle)) {
     v_int32 error = errno;
     if(error == EAGAIN || error == EWOULDBLOCK){
       return false;
@@ -344,10 +344,6 @@ bool ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getDefaultConnection() {
 
   oatpp::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
-
-  if(!oatpp::isValidIOHandle(handle)) {
-    return nullptr;
-  }
 
   if(prepareConnectionHandle(handle)) {
     return provider::ResourceHandle<data::stream::IOStream>(
@@ -419,15 +415,15 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
 
 provider::ResourceHandle<oatpp::data::stream::IOStream> ConnectionProvider::get() {
 
-  fd_set set;
-  struct timeval timeout;
-  FD_ZERO(&set);
-  FD_SET(m_serverHandle, &set);
-
-  timeout.tv_sec = 1;
-  timeout.tv_usec = 0;
-
   while(!m_closed) {
+
+    fd_set set;
+    struct timeval timeout;
+    FD_ZERO(&set);
+    FD_SET(m_serverHandle, &set);
+
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
 
     auto res = select(int(m_serverHandle + 1), &set, nullptr, nullptr, &timeout);
 
