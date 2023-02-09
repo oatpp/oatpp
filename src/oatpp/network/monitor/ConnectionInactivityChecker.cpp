@@ -42,8 +42,22 @@ std::shared_ptr<StatCollector> ConnectionInactivityChecker::createStatCollector(
 }
 
 bool ConnectionInactivityChecker::check(const ConnectionStats& stats, v_int64 currMicroTime) {
-  return  currMicroTime - stats.timestampLastRead < m_lastReadTimeout.count() &&
-          currMicroTime - stats.timestampLastWrite < m_lastWriteTimeout.count();
+
+  bool goodRead;
+  if(stats.timestampLastRead == 0) {
+    goodRead = currMicroTime - stats.timestampCreated < m_lastReadTimeout.count();
+  } else {
+    goodRead = currMicroTime - stats.timestampLastRead < m_lastReadTimeout.count();
+  }
+
+  bool goodWrite;
+  if(stats.timestampLastWrite == 0) {
+    goodWrite = currMicroTime - stats.timestampCreated < m_lastWriteTimeout.count();
+  } else {
+    goodWrite = currMicroTime - stats.timestampLastWrite < m_lastWriteTimeout.count();
+  }
+
+  return  goodRead && goodWrite;
 }
 
 }}}
