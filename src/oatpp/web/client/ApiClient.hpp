@@ -198,6 +198,12 @@ public:
    */
   void invalidateConnection(const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle);
 
+  /**
+   * Get ObjectMapper that was passed to constructor.
+   * @return - &id:oatpp::data::mapping::ObjectMapper;.
+   */
+  std::shared_ptr<oatpp::data::mapping::ObjectMapper> getObjectMapper();
+
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const StringTemplate& pathTemplate,
                                                    const Headers& headers,

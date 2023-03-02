@@ -40,6 +40,10 @@ void ApiClient::invalidateConnection(const std::shared_ptr<RequestExecutor::Conn
   m_requestExecutor->invalidateConnection(connectionHandle);
 }
 
+std::shared_ptr<oatpp::data::mapping::ObjectMapper> ApiClient::getObjectMapper() {
+  return m_objectMapper;
+}
+
 ApiClient::StringTemplate ApiClient::parsePathTemplate(const oatpp::String& name, const oatpp::String& text) {
 
   std::vector<StringTemplate::Variable> variables;
