@@ -216,10 +216,12 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
 }
 
 void Environment::destroy(){
-  if(getComponents().size() > 0) {
+  {
     std::lock_guard<std::mutex> lock(getComponentsMutex());
-    throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. "
-                             "Invalid state. Leaking components");
+    if(getComponents().size() > 0) {
+      throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. "
+                               "Invalid state. Leaking components");
+    }
   }
   m_logger.reset();
 
