@@ -38,32 +38,32 @@ void ConditionVariable::onNewItem(CoroutineWaitList& list) {
   }
 }
 
-CoroutineStarter ConditionVariable::wait(Lock* lock, std::function<bool()> condition) {
+CoroutineStarter ConditionVariable::wait(LockGuard& lockGuard, std::function<bool()> condition) {
 
   class WaitCoroutine : public Coroutine<WaitCoroutine> {
   private:
     ConditionVariable* m_cv;
-    oatpp::async::LockGuard m_lockGuard;
+    oatpp::async::LockGuard* m_lockGuard;
     std::function<bool()> m_condition;
   public:
 
-    WaitCoroutine(ConditionVariable* cv, Lock* lock, std::function<bool()> condition)
+    WaitCoroutine(ConditionVariable* cv, LockGuard& lockGuard, std::function<bool()> condition)
       : m_cv(cv)
-      , m_lockGuard(lock)
+      , m_lockGuard(&lockGuard)
       , m_condition(condition)
     {}
 
     Action act() override {
-      return m_lockGuard.lockAsyncInline(yieldTo(&WaitCoroutine::onLocked));
+      return m_lockGuard->lockAsyncInline(yieldTo(&WaitCoroutine::onLocked));
     }
 
     Action onLocked() {
-      if(m_lockGuard.owns_lock()) {
+      if(m_lockGuard->owns_lock()) {
         if (m_condition()) {
           return finish();
         }
         m_cv->m_notified = false;
-        m_lockGuard.unlock();
+        m_lockGuard->unlock();
       } else {
         return yieldTo(&WaitCoroutine::act);
       }
@@ -72,40 +72,40 @@ CoroutineStarter ConditionVariable::wait(Lock* lock, std::function<bool()> condi
 
   };
 
-  return WaitCoroutine::start(this, lock, condition);
+  return WaitCoroutine::start(this, lockGuard, condition);
 
 }
 
-CoroutineStarter ConditionVariable::waitUntil(Lock* lock, std::function<bool()> condition, const std::chrono::system_clock::time_point& timeoutTime) {
+CoroutineStarter ConditionVariable::waitUntil(LockGuard& lockGuard, std::function<bool()> condition, const std::chrono::system_clock::time_point& timeoutTime) {
 
   class WaitCoroutine : public Coroutine<WaitCoroutine> {
   private:
     ConditionVariable* m_cv;
-    oatpp::async::LockGuard m_lockGuard;
+    oatpp::async::LockGuard* m_lockGuard;
     std::function<bool()> m_condition;
     std::chrono::system_clock::time_point m_timeoutTime;
   public:
 
-    WaitCoroutine(ConditionVariable* cv, Lock* lock, std::function<bool()> condition, const std::chrono::system_clock::time_point& timeoutTime)
+    WaitCoroutine(ConditionVariable* cv, LockGuard& lockGuard, std::function<bool()> condition, const std::chrono::system_clock::time_point& timeoutTime)
       : m_cv(cv)
-      , m_lockGuard(lock)
+      , m_lockGuard(&lockGuard)
       , m_condition(condition)
       , m_timeoutTime(timeoutTime)
     {}
 
     Action act() override {
-      return m_lockGuard.lockAsyncInline(yieldTo(&WaitCoroutine::onLocked));
+      return m_lockGuard->lockAsyncInline(yieldTo(&WaitCoroutine::onLocked));
     }
 
     Action onLocked() {
 
-      if(m_lockGuard.owns_lock()) {
+      if(m_lockGuard->owns_lock()) {
 
         if (m_condition()) {
           return finish();
         }
         m_cv->m_notified = false;
-        m_lockGuard.unlock();
+        m_lockGuard->unlock();
 
       } else {
         if(std::chrono::system_clock::now() > m_timeoutTime) {
@@ -124,12 +124,12 @@ CoroutineStarter ConditionVariable::waitUntil(Lock* lock, std::function<bool()> 
 
   };
 
-  return WaitCoroutine::start(this, lock, condition, timeoutTime);
+  return WaitCoroutine::start(this, lockGuard, condition, timeoutTime);
 
 }
 
-CoroutineStarter ConditionVariable::waitFor(Lock* lock, std::function<bool()> condition, const std::chrono::duration<v_int64, std::micro>& timeout) {
-  return waitUntil(lock, condition, std::chrono::system_clock::now() + timeout);
+CoroutineStarter ConditionVariable::waitFor(LockGuard& lockGuard, std::function<bool()> condition, const std::chrono::duration<v_int64, std::micro>& timeout) {
+  return waitUntil(lockGuard, condition, std::chrono::system_clock::now() + timeout);
 }
 
 void ConditionVariable::notifyFirst() {

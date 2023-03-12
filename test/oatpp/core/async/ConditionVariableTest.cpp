@@ -38,7 +38,7 @@ struct Resource {
 class TestCoroutineWait : public oatpp::async::Coroutine<TestCoroutineWait> {
 private:
   std::shared_ptr<Resource> m_resource;
-  oatpp::async::Lock* m_lock;
+  oatpp::async::LockGuard m_lockGuard;
   oatpp::async::ConditionVariable* m_cv;
 public:
 
@@ -46,16 +46,17 @@ public:
                     oatpp::async::Lock* lock,
                     oatpp::async::ConditionVariable* cv)
     : m_resource(resource)
-    , m_lock(lock)
+    , m_lockGuard(lock)
     , m_cv(cv)
   {}
 
   Action act() override {
-    return m_cv->wait(m_lock, [this]{return m_resource->counter == 100;})
+    return m_cv->wait(m_lockGuard, [this]{return m_resource->counter == 100;})
             .next(yieldTo(&TestCoroutineWait::onReady));
   }
 
   Action onReady() {
+    OATPP_ASSERT(m_lockGuard.owns_lock())
     return finish();
   }
 
@@ -64,7 +65,7 @@ public:
 class TestCoroutineWaitWithTimeout : public oatpp::async::Coroutine<TestCoroutineWaitWithTimeout> {
 private:
   std::shared_ptr<Resource> m_resource;
-  oatpp::async::Lock* m_lock;
+  oatpp::async::LockGuard m_lockGuard;
   oatpp::async::ConditionVariable* m_cv;
 public:
 
@@ -72,16 +73,17 @@ public:
                                oatpp::async::Lock* lock,
                                oatpp::async::ConditionVariable* cv)
     : m_resource(resource)
-    , m_lock(lock)
+    , m_lockGuard(lock)
     , m_cv(cv)
   {}
 
   Action act() override {
-    return m_cv->waitFor(m_lock, [this]{return m_resource->counter == 100;}, std::chrono::seconds(5))
+    return m_cv->waitFor(m_lockGuard, [this]{return m_resource->counter == 100;}, std::chrono::seconds(5))
       .next(yieldTo(&TestCoroutineWaitWithTimeout::onReady));
   }
 
   Action onReady() {
+    OATPP_ASSERT(m_lockGuard.owns_lock())
     return finish();
   }
 
@@ -90,7 +92,7 @@ public:
 class TestCoroutineTimeout : public oatpp::async::Coroutine<TestCoroutineTimeout> {
 private:
   std::shared_ptr<Resource> m_resource;
-  oatpp::async::Lock* m_lock;
+  oatpp::async::LockGuard m_lockGuard;
   oatpp::async::ConditionVariable* m_cv;
 public:
 
@@ -98,12 +100,12 @@ public:
                        oatpp::async::Lock* lock,
                        oatpp::async::ConditionVariable* cv)
     : m_resource(resource)
-    , m_lock(lock)
+    , m_lockGuard(lock)
     , m_cv(cv)
   {}
 
   Action act() override {
-    return m_cv->waitFor(m_lock, [this]{return false;}, std::chrono::seconds(1))
+    return m_cv->waitFor(m_lockGuard, [this]{return false;}, std::chrono::seconds(1))
       .next(yieldTo(&TestCoroutineTimeout::onReady));
   }
 
