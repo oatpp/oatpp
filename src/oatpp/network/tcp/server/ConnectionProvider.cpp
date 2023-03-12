@@ -315,19 +315,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
 #endif
 
-bool ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
-
-  if (!oatpp::isValidIOHandle(handle)) {
-    v_int32 error = errno;
-    if(error == EAGAIN || error == EWOULDBLOCK){
-      return false;
-    } else {
-      if(!m_closed) { // m_serverHandle==0 if ConnectionProvider was closed. Not an error.
-        OATPP_LOGD("[oatpp::network::tcp::server::ConnectionProvider::prepareConnectionHandle()]", "Error. %d", error);
-      }
-      return false;
-    }
-  }
+void ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
 
 #ifdef SO_NOSIGPIPE
   int yes = 1;
@@ -337,22 +325,22 @@ bool ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
   }
 #endif
 
-  return true;
-
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getDefaultConnection() {
 
   oatpp::v_io_handle handle = accept(m_serverHandle, nullptr, nullptr);
 
-  if(prepareConnectionHandle(handle)) {
-    return provider::ResourceHandle<data::stream::IOStream>(
-      std::make_shared<Connection>(handle),
-        m_invalidator
-    );
+  if(!oatpp::isValidIOHandle(handle)) {
+    return nullptr;
   }
 
-  return nullptr;
+  prepareConnectionHandle(handle);
+
+  return provider::ResourceHandle<data::stream::IOStream>(
+    std::make_shared<Connection>(handle),
+      m_invalidator
+  );
 
 }
 
@@ -402,14 +390,12 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
 
   }
 
-  if(prepareConnectionHandle(handle)) {
-    return provider::ResourceHandle<data::stream::IOStream>(
-      std::make_shared<ExtendedConnection>(handle, std::move(properties)),
-      m_invalidator
-    );
-  }
+  prepareConnectionHandle(handle);
 
-  return nullptr;
+  return provider::ResourceHandle<data::stream::IOStream>(
+    std::make_shared<ExtendedConnection>(handle, std::move(properties)),
+    m_invalidator
+  );
 
 }
 

@@ -92,7 +92,7 @@ private:
 private:
   oatpp::v_io_handle instantiateServer();
 private:
-  bool prepareConnectionHandle(oatpp::v_io_handle handle);
+  void prepareConnectionHandle(oatpp::v_io_handle handle);
   provider::ResourceHandle<data::stream::IOStream> getDefaultConnection();
   provider::ResourceHandle<data::stream::IOStream> getExtendedConnection();
 public:
