@@ -22,6 +22,9 @@
  *
  ***************************************************************************/
 
+#if defined(WIN32) || defined(_WIN32)
+_Pragma("warning(disable : 4101)")
+#endif
 #include "StringTest.hpp"
 
 #include "oatpp/core/Types.hpp"

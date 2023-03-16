@@ -188,9 +188,11 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
       if (hints.ai_family == AF_UNSPEC || hints.ai_family == AF_INET6) {
         if (setsockopt(serverHandle, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&no, sizeof( int ) ) != 0 ) {
+          const size_t buflen = 500;
+          char buf[buflen];
           OATPP_LOGW("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
                      "Warning. Failed to set %s for accepting socket: %s", "IPV6_V6ONLY",
-                     strerror(errno));
+                     strerror_s(buf, buflen, errno));
         }
       }
 
