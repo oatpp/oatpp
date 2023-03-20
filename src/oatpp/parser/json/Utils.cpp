@@ -304,7 +304,7 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
   }
   
   if(size > safeSize){
-    for(v_buff_size i = pos; i < result->size(); i ++){
+    for(v_buff_size i = pos; (size_t) i < result->size(); i ++){
       resultData[i] = '?';
     }
   }

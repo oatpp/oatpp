@@ -143,7 +143,7 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
   }
 
   {
-    std::lock_guard<std::mutex>(monitor->m_runMutex);
+    std::lock_guard<std::mutex> lock(monitor->m_runMutex);
     monitor->m_stopped = true;
   }
 

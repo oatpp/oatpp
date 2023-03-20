@@ -92,7 +92,7 @@ class DtoD : public DtoA {
 
   DTO_INIT(DtoD, DtoA)
 
-  DTO_FIELD(Int32, a) = Int64(64);
+  DTO_FIELD(Int32, a) = Int32(64);
 
 };
 
