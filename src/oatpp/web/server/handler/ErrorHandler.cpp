@@ -32,9 +32,6 @@ std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(co
 
   std::shared_ptr<protocol::http::outgoing::Response> response;
 
-#if defined(WIN32) || defined(_WIN32)
-  _Pragma("warning(disable : 4068 4996)")
-#endif
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   /* Default impl for backwards compatibility until the deprecated methods are removed */

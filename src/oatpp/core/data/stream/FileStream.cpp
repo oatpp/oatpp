@@ -22,9 +22,6 @@
  *
  ***************************************************************************/
 
-#if defined(WIN32) || defined(_WIN32)
-_Pragma("warning(disable : 4996)")
-#endif
 #include "FileStream.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
