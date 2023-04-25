@@ -95,7 +95,7 @@ oatpp::String ApiClient::formatPath(const StringTemplate& pathTemplate,
     bool first = !extra->hasQueryParams;
     for(const auto& q : queryParams) {
       oatpp::String value = q.second;
-      if(value && value->size() > 0) {
+      if(value) {
         if (first) {
           stream.writeCharSimple('?');
           first = false;
