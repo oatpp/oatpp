@@ -67,6 +67,36 @@ DefaultLogger::DefaultLogger(const Config& config)
   : m_config(config)
 {}
 
+#ifdef _WIN32
+#define FOREGROUND_DEFAULT 7
+static const WORD LOG_CONST_TABLE[][2] = {
+  {FOREGROUND_DEFAULT, 'V'},
+  {FOREGROUND_BLUE, 'D'},
+  {FOREGROUND_GREEN, 'I'},
+  {FOREGROUND_RED | FOREGROUND_BLUE, 'W'},
+  {FOREGROUND_RED, 'E'}
+};
+
+bool SetConsoleColor(WORD Color)
+{
+  HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (handle == nullptr)
+    return false;
+
+  BOOL ret = SetConsoleTextAttribute(handle, Color);
+  return(ret == TRUE);
+}
+#else
+#define FOREGROUND_DEFAULT "\033[0m"
+static const char* LOG_CONST_TABLE[][2] = {
+  {"\033[0m", "V"},
+  {"\033[34m", "D"},
+  {"\033[32m", "I"},
+  {"\033[45m", "W"},
+  {"\033[41m", "E"}
+};
+#endif
+
 void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::string& message) {
 
   bool indent = false;
@@ -76,24 +106,19 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 
   switch (priority) {
     case PRIORITY_V:
-      std::cout << "\033[0m V \033[0m|";
-      break;
-
     case PRIORITY_D:
-      std::cout << "\033[34m D \033[0m|";
-      break;
-
     case PRIORITY_I:
-      std::cout << "\033[32m I \033[0m|";
-      break;
-
     case PRIORITY_W:
-      std::cout << "\033[45m W \033[0m|";
-      break;
-
     case PRIORITY_E:
-      std::cout << "\033[41m E \033[0m|";
-      break;
+#ifdef _WIN32
+      SetConsoleColor(LOG_CONST_TABLE[priority][0]);
+      std::cout << " " << (char)LOG_CONST_TABLE[priority][1] << " ";
+      SetConsoleColor(FOREGROUND_DEFAULT);
+      std::cout << "|";
+#else
+      std::cout << LOG_CONST_TABLE[priority][0];
+      std::cout << " " << LOG_CONST_TABLE[priority][1] << " " << FOREGROUND_DEFAULT << "|";
+#endif
 
     default:
       std::cout << " " << priority << " |";
