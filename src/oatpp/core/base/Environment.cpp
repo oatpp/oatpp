@@ -70,11 +70,11 @@ DefaultLogger::DefaultLogger(const Config& config)
 #ifdef _WIN32
 #define FOREGROUND_DEFAULT 7
 static const WORD LOG_CONST_TABLE[][2] = {
-  {FOREGROUND_DEFAULT, 'V'},
-  {FOREGROUND_BLUE, 'D'},
-  {FOREGROUND_GREEN, 'I'},
-  {FOREGROUND_RED | FOREGROUND_BLUE, 'W'},
-  {FOREGROUND_RED, 'E'}
+    {FOREGROUND_DEFAULT, 'V'},
+    {FOREGROUND_BLUE, 'D'},
+    {FOREGROUND_GREEN, 'I'},
+    {FOREGROUND_RED | FOREGROUND_BLUE, 'W'},
+    {FOREGROUND_RED, 'E'}
 };
 
 bool SetConsoleColor(WORD Color)
@@ -89,11 +89,11 @@ bool SetConsoleColor(WORD Color)
 #else
 #define FOREGROUND_DEFAULT "\033[0m"
 static const char* LOG_CONST_TABLE[][2] = {
-  {"\033[0m", "V"},
-  {"\033[34m", "D"},
-  {"\033[32m", "I"},
-  {"\033[45m", "W"},
-  {"\033[41m", "E"}
+    {"\033[0m", "V"},
+    {"\033[34m", "D"},
+    {"\033[32m", "I"},
+    {"\033[45m", "W"},
+    {"\033[41m", "E"}
 };
 #endif
 
