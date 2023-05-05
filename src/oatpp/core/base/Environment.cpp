@@ -104,24 +104,18 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 
   std::lock_guard<std::mutex> lock(m_lock);
 
-  switch (priority) {
-    case PRIORITY_V:
-    case PRIORITY_D:
-    case PRIORITY_I:
-    case PRIORITY_W:
-    case PRIORITY_E:
+  if (priority >= PRIORITY_V && priority <= PRIORITY_E) {
 #ifdef _WIN32
-      SetConsoleColor(LOG_CONST_TABLE[priority][0]);
-      std::cout << " " << (char)LOG_CONST_TABLE[priority][1] << " ";
-      SetConsoleColor(FOREGROUND_DEFAULT);
-      std::cout << "|";
+    SetConsoleColor(LOG_CONST_TABLE[priority][0]);
+    std::cout << " " << (char)LOG_CONST_TABLE[priority][1] << " ";
+    SetConsoleColor(FOREGROUND_DEFAULT);
+    std::cout << "|";
 #else
-      std::cout << LOG_CONST_TABLE[priority][0];
-      std::cout << " " << LOG_CONST_TABLE[priority][1] << " " << FOREGROUND_DEFAULT << "|";
+    std::cout << LOG_CONST_TABLE[priority][0];
+    std::cout << " " << LOG_CONST_TABLE[priority][1] << " " << FOREGROUND_DEFAULT << "|";
 #endif
-
-    default:
-      std::cout << " " << priority << " |";
+  } else {
+    std::cout << " " << priority << " |";
   }
 
   if (m_config.timeFormat) {
