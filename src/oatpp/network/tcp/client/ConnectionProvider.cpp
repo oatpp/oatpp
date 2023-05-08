@@ -28,6 +28,8 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#include <errno.h>
+#include <string.h>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -112,6 +114,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
   struct addrinfo* currResult = result;
   oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
+  int err = 0;
 
   while(currResult != nullptr) {
 
@@ -122,6 +125,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
       if(connect(clientHandle, currResult->ai_addr, (int)currResult->ai_addrlen) == 0) {
         break;
       } else {
+          err = errno;
 #if defined(WIN32) || defined(_WIN32)
 		    ::closesocket(clientHandle);
 #else
@@ -138,7 +142,8 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   freeaddrinfo(result);
 
   if(currResult == nullptr) {
-    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]: Error. Can't connect.");
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]: Error. Can't connect: " +
+                                 std::string(strerror(err)));
   }
 
 #ifdef SO_NOSIGPIPE
