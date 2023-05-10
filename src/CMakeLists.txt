@@ -294,6 +294,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
 )
+set_target_source_groups(oatpp STRIP_PREFIX "oatpp")
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
@@ -343,6 +344,7 @@ if(OATPP_LINK_TEST_LIBRARY)
 			oatpp-test/UnitTest.hpp
 			oatpp-test/web/ClientServerTestRunner.hpp
 	)
+	set_target_source_groups(oatpp-test STRIP_PREFIX oatpp-test)
 
 	set_target_properties(oatpp-test PROPERTIES
 			CXX_STANDARD 11

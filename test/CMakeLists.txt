@@ -117,6 +117,7 @@ add_executable(oatppAllTests
         oatpp/web/server/handler/AuthorizationHandlerTest.cpp
         oatpp/web/server/handler/AuthorizationHandlerTest.hpp
 )
+set_target_source_groups(oatppAllTests STRIP_PREFIX "oatpp")
 
 target_link_libraries(oatppAllTests PRIVATE oatpp PRIVATE oatpp-test)
 

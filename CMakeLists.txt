@@ -123,6 +123,8 @@ message("oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
 include(cmake/msvc-runtime.cmake)
 configure_msvc_runtime()
 
+include(cmake/project.cmake)
+
 add_subdirectory(src)
 
 if(OATPP_BUILD_TESTS)
