@@ -156,7 +156,7 @@ void Server::stop() {
 
 bool Server::setStatus(v_int32 expectedStatus, v_int32 newStatus) {
   v_int32 expected = expectedStatus;
-  return m_status.compare_exchange_weak(expected, newStatus);
+  return m_status.compare_exchange_strong(expected, newStatus);
 }
 
 void Server::setStatus(v_int32 status) {
