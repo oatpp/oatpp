@@ -21,7 +21,7 @@
  * limitations under the License.
  *
  ***************************************************************************/
-
+//my modification
 #include "CRC.hpp"
 
 namespace oatpp { namespace algorithm {
