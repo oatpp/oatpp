@@ -353,10 +353,11 @@ public:
 
   static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider<TResource>>& provider,
                                                     v_int64 maxResources,
-                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
+                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL,
+                                                    const std::chrono::duration<v_int64, std::micro>& timeout)
   {
     /* "new" is called directly to keep constructor private */
-    auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
+    auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count(), timeout));
     startCleanupTask(ptr);
     return ptr;
   }
