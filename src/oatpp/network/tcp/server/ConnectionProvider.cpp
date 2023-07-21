@@ -243,8 +243,8 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   v_int32 ret;
   int yes = 1;
 
-  struct addrinfo *result = NULL;
-  struct addrinfo hints;
+  addrinfo *result = NULL;
+  addrinfo hints;
 
   memset(&hints, 0, sizeof(hints));
   hints.ai_socktype = SOCK_STREAM;
@@ -266,7 +266,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
   }
 
-  struct addrinfo* currResult = result;
+  addrinfo* currResult = result;
   while(currResult != nullptr) {
 
     serverHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
@@ -305,10 +305,10 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   fcntl(serverHandle, F_SETFL, O_NONBLOCK);
 
   // Update port after binding (typicaly in case of port = 0)
-  struct ::sockaddr_in s_in;
+  ::sockaddr_in s_in;
   ::memset(&s_in, 0, sizeof(s_in));
   ::socklen_t s_in_len = sizeof(s_in);
-  ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
+  ::getsockname(serverHandle, (sockaddr *)&s_in, &s_in_len);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
@@ -348,12 +348,12 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getDefaultC
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtendedConnection() {
 
-  struct sockaddr_storage clientAddress;
+  sockaddr_storage clientAddress;
   socklen_t clientAddressSize = sizeof(clientAddress);
 
   data::stream::Context::Properties properties;
 
-  oatpp::v_io_handle handle = accept(m_serverHandle, (struct sockaddr*) &clientAddress, &clientAddressSize);
+  oatpp::v_io_handle handle = accept(m_serverHandle, (sockaddr*) &clientAddress, &clientAddressSize);
 
   if(!oatpp::isValidIOHandle(handle)) {
     return nullptr;
@@ -362,7 +362,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
   if (clientAddress.ss_family == AF_INET) {
 
     char strIp[INET_ADDRSTRLEN];
-    struct sockaddr_in* sockAddress = (struct sockaddr_in*) &clientAddress;
+    sockaddr_in* sockAddress = (sockaddr_in*) &clientAddress;
     inet_ntop(AF_INET, &sockAddress->sin_addr, strIp, INET_ADDRSTRLEN);
 
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
@@ -372,7 +372,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
   } else if (clientAddress.ss_family == AF_INET6) {
 
     char strIp[INET6_ADDRSTRLEN];
-    struct sockaddr_in6* sockAddress = (struct sockaddr_in6*) &clientAddress;
+    sockaddr_in6* sockAddress = (sockaddr_in6*) &clientAddress;
     inet_ntop(AF_INET6, &sockAddress->sin6_addr, strIp, INET6_ADDRSTRLEN);
 
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
@@ -406,7 +406,7 @@ provider::ResourceHandle<oatpp::data::stream::IOStream> ConnectionProvider::get(
   while(!m_closed) {
 
     fd_set set;
-    struct timeval timeout;
+    timeval timeout;
     FD_ZERO(&set);
     FD_SET(m_serverHandle, &set);
 

@@ -81,9 +81,9 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
-  struct addrinfo hints;
+  addrinfo hints;
 
-  memset(&hints, 0, sizeof(struct addrinfo));
+  memset(&hints, 0, sizeof(addrinfo));
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
@@ -95,7 +95,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
       hints.ai_family = AF_UNSPEC;
   }
 
-  struct addrinfo* result;
+  addrinfo* result;
   auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
@@ -112,7 +112,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
     throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() returned no results.");
   }
 
-  struct addrinfo* currResult = result;
+  addrinfo* currResult = result;
   oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
   int err = 0;
 
@@ -169,8 +169,8 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
     network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
   private:
-    struct addrinfo* m_result;
-    struct addrinfo* m_currentResult;
+    addrinfo* m_result;
+    addrinfo* m_currentResult;
     bool m_isHandleOpened;
   public:
 
@@ -193,9 +193,9 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
       auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
-      struct addrinfo hints;
+      addrinfo hints;
 
-      memset(&hints, 0, sizeof(struct addrinfo));
+      memset(&hints, 0, sizeof(addrinfo));
       hints.ai_socktype = SOCK_STREAM;
       hints.ai_flags = 0;
       hints.ai_protocol = 0;
