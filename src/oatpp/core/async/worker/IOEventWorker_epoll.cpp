@@ -50,11 +50,11 @@ void IOEventWorker::initEventQueue() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Call to ::epoll_create1() failed.");
   }
 
-  m_outEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[MAX_EVENTS * sizeof(struct epoll_event)]);
+  m_outEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[MAX_EVENTS * sizeof(epoll_event)]);
 
   if(!m_outEvents) {
     OATPP_LOGE("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
-               "Error. Unable to allocate %d bytes for events.", MAX_EVENTS * sizeof(struct epoll_event));
+               "Error. Unable to allocate %d bytes for events.", MAX_EVENTS * sizeof(epoll_event));
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Unable to allocate memory for events.");
   }
 
@@ -65,8 +65,8 @@ void IOEventWorker::initEventQueue() {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Call to ::eventfd() failed.");
   }
 
-  struct epoll_event event;
-  std::memset(&event, 0, sizeof(struct epoll_event));
+  epoll_event event;
+  std::memset(&event, 0, sizeof(epoll_event));
 
   event.data.ptr = this;
 
@@ -109,8 +109,8 @@ void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation,
 
   }
 
-  struct epoll_event event;
-  std::memset(&event, 0, sizeof(struct epoll_event));
+  epoll_event event;
+  std::memset(&event, 0, sizeof(epoll_event));
 
   event.data.ptr = coroutine;
 
@@ -155,7 +155,7 @@ void IOEventWorker::consumeBacklog() {
 
 void IOEventWorker::waitEvents() {
 
-  struct epoll_event* outEvents = (struct epoll_event*)m_outEvents.get();
+  epoll_event* outEvents = (epoll_event*)m_outEvents.get();
   auto eventsCount = epoll_wait(m_eventQueueHandle, outEvents, MAX_EVENTS, -1);
 
   if((eventsCount < 0) && (errno != EINTR)) {
