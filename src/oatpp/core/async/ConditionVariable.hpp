@@ -46,7 +46,7 @@ public:
   private:
     F lambda;
   public:
-    ConditionTemplate(const F& f) : lambda(f) {};
+    ConditionTemplate(const F& f) : lambda(f) {}
     bool check() override {
       return lambda();
     }

@@ -72,11 +72,11 @@ public:
   /**
    * Optionally override this method. It should contain logic run before all test iterations.
    */
-  virtual void before(){};
+  virtual void before(){}
   /**
    * Optionally override this method. It should contain logic run after all test iterations.
    */
-  virtual void after(){};
+  virtual void after(){}
 
   /**
    * Run this test repeatedly for specified number of times.

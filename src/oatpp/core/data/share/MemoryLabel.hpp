@@ -177,7 +177,7 @@ public:
 class StringKeyLabel : public MemoryLabel {
 public:
   
-  StringKeyLabel() : MemoryLabel() {};
+  StringKeyLabel() : MemoryLabel() {}
 
   StringKeyLabel(std::nullptr_t) : MemoryLabel() {}
 
@@ -241,7 +241,7 @@ public:
 class StringKeyLabelCI : public MemoryLabel {
 public:
   
-  StringKeyLabelCI() : MemoryLabel() {};
+  StringKeyLabelCI() : MemoryLabel() {}
 
   StringKeyLabelCI(std::nullptr_t) : MemoryLabel() {}
 

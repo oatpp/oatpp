@@ -162,7 +162,7 @@ class LogCategory {
     : tag(std::move(pTag))
     , categoryEnabled(pCategoryEnabled)
     , enabledPriorities(pEnabledPriorities)
-  {};
+  {}
 
   /**
    * The tag for this category
