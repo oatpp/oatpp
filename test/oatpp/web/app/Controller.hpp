@@ -83,22 +83,22 @@ public:
     OATPP_ASSERT_HTTP(false, Status::CODE_503, "Service unavailable")
   }
 
-  ADD_CORS(cors);
+  ADD_CORS(cors)
   ENDPOINT("GET", "/cors", cors) {
     return createResponse(Status::CODE_200, "Ping");
   }
 
-  ADD_CORS(corsOrigin, "127.0.0.1");
+  ADD_CORS(corsOrigin, "127.0.0.1")
   ENDPOINT("GET", "/cors-origin", corsOrigin) {
     return createResponse(Status::CODE_200, "Pong");
   }
 
-  ADD_CORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS");
+  ADD_CORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS")
   ENDPOINT("GET", "/cors-origin-methods", corsOriginMethods) {
     return createResponse(Status::CODE_200, "Ping");
   }
 
-  ADD_CORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT");
+  ADD_CORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT")
   ENDPOINT("GET", "/cors-origin-methods-headers", corsOriginMethodsHeaders) {
     return createResponse(Status::CODE_200, "Pong");
   }

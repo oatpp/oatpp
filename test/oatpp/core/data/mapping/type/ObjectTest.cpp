@@ -84,7 +84,7 @@ class DtoC : public DtoA {
   DTO_FIELD(String, b);
   DTO_FIELD(String, c);
 
-  DTO_HC_EQ(a, b, c);
+  DTO_HC_EQ(a, b, c)
 
 };
 
