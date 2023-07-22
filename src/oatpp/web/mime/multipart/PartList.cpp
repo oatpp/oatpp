@@ -46,7 +46,7 @@ std::shared_ptr<PartList> PartList::createSharedWithRandomBoundary(v_int32 bound
   return std::make_shared<PartList>(boundary);
 }
 
-std::shared_ptr<Part> PartList::readNextPart(async::Action& action) {
+std::shared_ptr<Part> PartList::readNextPart([[maybe_unused]] async::Action& action) {
   if(!m_readIteratorInitialized) {
     m_readIteratorInitialized = true;
     m_iterator = m_parts.begin();
@@ -57,7 +57,7 @@ std::shared_ptr<Part> PartList::readNextPart(async::Action& action) {
   return *m_iterator ++;
 }
 
-void PartList::writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) {
+void PartList::writeNextPart(const std::shared_ptr<Part>& part, [[maybe_unused]] async::Action& action) {
 
   if(part->getName()) {
     m_namedParts[part->getName()].push_back(part);

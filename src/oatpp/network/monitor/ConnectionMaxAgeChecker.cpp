@@ -34,7 +34,7 @@ std::vector<oatpp::String> ConnectionMaxAgeChecker::getMetricsList() {
   return {};
 }
 
-std::shared_ptr<StatCollector> ConnectionMaxAgeChecker::createStatCollector(const oatpp::String& metricName) {
+std::shared_ptr<StatCollector> ConnectionMaxAgeChecker::createStatCollector([[maybe_unused]] const oatpp::String& metricName) {
   throw std::runtime_error("[oatpp::network::monitor::ConnectionMaxAgeChecker::createStatCollector()]: "
                            "Error. ConnectionMaxAgeChecker doesn't use any stat collectors.");
 }

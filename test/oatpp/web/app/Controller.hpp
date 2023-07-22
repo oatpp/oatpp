@@ -190,7 +190,7 @@ public:
       , m_inlineData(text->data(), text->size())
     {}
 
-    v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
+    v_io_size read(void *buffer, v_buff_size count, [[maybe_unused]] async::Action& action) override {
 
       if(m_counter < m_iterations) {
 
@@ -227,6 +227,7 @@ public:
            PATH(Int32, numIterations, "num-iterations"),
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
+	[[maybe_unused]] auto unused = request;
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::StreamingBody>
       (std::make_shared<ReadCallback>(text, *numIterations));
     return OutgoingResponse::createShared(Status::CODE_200, body);
@@ -236,7 +237,7 @@ public:
            PATH(Int32, chunkSize, "chunk-size"),
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
-
+	[[maybe_unused]] auto unused = chunkSize;
     auto multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(request->getHeaders());
 
     oatpp::web::mime::multipart::Reader multipartReader(multipart.get());
@@ -306,7 +307,7 @@ public:
       : oatpp::web::mime::multipart::Multipart(generateRandomBoundary())
     {}
 
-    std::shared_ptr<Part> readNextPart(async::Action& action) override {
+    std::shared_ptr<Part> readNextPart([[maybe_unused]] async::Action& action) override {
 
       if(counter == 10) {
         return nullptr;
@@ -340,7 +341,9 @@ public:
 
     }
 
-    void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) override {
+    void writeNextPart(
+    		[[maybe_unused]] const std::shared_ptr<Part>& part,
+			[[maybe_unused]] async::Action& action) override {
       throw std::runtime_error("No writes here!!!");
     }
 
@@ -359,12 +362,14 @@ public:
   ENDPOINT("GET", "enum/as-string", testEnumString,
            HEADER(Enum<AllowedPathParams>::AsString, enumValue, "enum"))
   {
+	[[maybe_unused]] auto unused = enumValue;
     return createResponse(Status::CODE_200, "");
   }
 
   ENDPOINT("GET", "enum/as-number", testEnumNumber,
            HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
   {
+	[[maybe_unused]] auto unused = enumValue;
     return createResponse(Status::CODE_200, "");
   }
 
@@ -381,6 +386,7 @@ public:
            HEADER(String, header, "X-DEFAULT"),
            PATH(String, param))
   {
+	[[maybe_unused]] auto unused = param;
     if(header == "hello_2") {
       return createResponse(Status::CODE_200, "");
     }

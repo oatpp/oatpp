@@ -317,7 +317,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
 #endif
 
-void ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
+void ConnectionProvider::prepareConnectionHandle([[maybe_unused]] oatpp::v_io_handle handle) {
 
 #ifdef SO_NOSIGPIPE
   int yes = 1;

@@ -61,6 +61,8 @@ public:
   ENDPOINT("GET", "path/{param1}/{param2}", pathParams,
            PATH(String, param1),
            PATH(String, param2)) {
+	[[maybe_unused]] auto unused1 = param1;
+	[[maybe_unused]] auto unused2 = param2;
     return createResponse(Status::CODE_200, "test2");
   }
 
@@ -70,6 +72,8 @@ public:
   ENDPOINT("GET", "query", queryParams,
            QUERY(String, param1),
            QUERY(String, param2)) {
+	[[maybe_unused]] auto unused1 = param1;
+	[[maybe_unused]] auto unused2 = param2;
     return createResponse(Status::CODE_200, "test3");
   }
 

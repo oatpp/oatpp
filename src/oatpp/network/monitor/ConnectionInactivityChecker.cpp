@@ -36,7 +36,7 @@ std::vector<oatpp::String> ConnectionInactivityChecker::getMetricsList() {
   return {};
 }
 
-std::shared_ptr<StatCollector> ConnectionInactivityChecker::createStatCollector(const oatpp::String& metricName) {
+std::shared_ptr<StatCollector> ConnectionInactivityChecker::createStatCollector([[maybe_unused]] const oatpp::String& metricName) {
   throw std::runtime_error("[oatpp::network::monitor::ConnectionInactivityChecker::createStatCollector()]: "
                            "Error. ConnectionInactivityChecker doesn't use any stat collectors.");
 }

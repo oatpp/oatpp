@@ -32,7 +32,7 @@ ConditionVariable::ConditionVariable()
   m_list.setListener(this);
 }
 
-void ConditionVariable::onNewItem(CoroutineWaitList& list) {
+void ConditionVariable::onNewItem([[maybe_unused]] CoroutineWaitList& list) {
   if(m_notified) {
     m_list.notifyFirst();
   }

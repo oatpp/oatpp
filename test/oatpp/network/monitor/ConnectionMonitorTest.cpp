@@ -46,7 +46,9 @@ namespace {
 class ReadCallback : public oatpp::data::stream::ReadCallback {
 public:
 
-  v_io_size read(void *buffer, v_buff_size count, async::Action &action) override {
+  v_io_size read(void *buffer,
+		  [[maybe_unused]] v_buff_size count,
+		  [[maybe_unused]] async::Action &action) override {
     OATPP_LOGI("TEST", "read(...)")
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     char* data = (char*) buffer;
@@ -59,7 +61,7 @@ public:
 class StreamingHandler : public oatpp::web::server::HttpRequestHandler {
 public:
 
-  std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) override {
+  std::shared_ptr<OutgoingResponse> handle([[maybe_unused]] const std::shared_ptr<IncomingRequest>& request) override {
     auto body = std::make_shared<oatpp::web::protocol::http::outgoing::StreamingBody>
       (std::make_shared<ReadCallback>());
     return OutgoingResponse::createShared(Status::CODE_200, body);
@@ -71,7 +73,7 @@ class AsyncStreamingHandler : public oatpp::web::server::HttpRequestHandler {
 public:
 
   oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
-  handleAsync(const std::shared_ptr<IncomingRequest>& request) {
+  handleAsync([[maybe_unused]] const std::shared_ptr<IncomingRequest>& request) {
 
     class StreamCoroutine : public oatpp::async::CoroutineWithResult<StreamCoroutine, const std::shared_ptr<OutgoingResponse>&> {
     public:

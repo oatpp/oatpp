@@ -48,7 +48,7 @@ AllowCorsGlobal::AllowCorsGlobal(const oatpp::String &origin,
   , m_maxAge(maxAge)
 {}
 
-std::shared_ptr<protocol::http::outgoing::Response> AllowCorsGlobal::intercept(const std::shared_ptr<IncomingRequest>& request,
+std::shared_ptr<protocol::http::outgoing::Response> AllowCorsGlobal::intercept([[maybe_unused]] const std::shared_ptr<IncomingRequest>& request,
                                                                                const std::shared_ptr<OutgoingResponse>& response)
 {
   response->putHeaderIfNotExists(protocol::http::Header::CORS_ORIGIN, m_origin);

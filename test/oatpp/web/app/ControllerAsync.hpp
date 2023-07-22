@@ -156,7 +156,7 @@ public:
         , m_inlineData(text->data(), text->size())
       {}
 
-      v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
+      v_io_size read(void *buffer, v_buff_size count, [[maybe_unused]] async::Action& action) override {
 
         if(m_counter < m_iterations) {
 
@@ -339,7 +339,9 @@ public:
 
     }
 
-    void writeNextPart(const std::shared_ptr<Part>& part, async::Action& action) override {
+    void writeNextPart(
+    		[[maybe_unused]] const std::shared_ptr<Part>& part,
+			[[maybe_unused]] async::Action& action) override {
       throw std::runtime_error("No writes here!!!");
     }
 

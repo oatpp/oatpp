@@ -40,15 +40,21 @@ typedef oatpp::provider::Pool<
 class StubStream : public oatpp::data::stream::IOStream, public oatpp::base::Countable {
 public:
 
-  v_io_size write(const void *buff, v_buff_size count, async::Action& actions) override {
+  v_io_size write(
+		  [[maybe_unused]] const void *buff,
+		  [[maybe_unused]] v_buff_size count,
+		  [[maybe_unused]] async::Action& actions) override {
     throw std::runtime_error("It's a stub!");
   }
 
-  v_io_size read(void *buff, v_buff_size count, async::Action& action) override {
+  v_io_size read(
+		  [[maybe_unused]] void *buff,
+		  [[maybe_unused]] v_buff_size count,
+		  [[maybe_unused]] async::Action& action) override {
     throw std::runtime_error("It's a stub!");
   }
 
-  void setOutputStreamIOMode(oatpp::data::stream::IOMode ioMode) override {
+  void setOutputStreamIOMode([[maybe_unused]] oatpp::data::stream::IOMode ioMode) override {
     throw std::runtime_error("It's a stub!");
   }
 
@@ -60,7 +66,7 @@ public:
     throw std::runtime_error("It's a stub!");
   }
 
-  void setInputStreamIOMode(oatpp::data::stream::IOMode ioMode) override {
+  void setInputStreamIOMode([[maybe_unused]] oatpp::data::stream::IOMode ioMode) override {
     throw std::runtime_error("It's a stub!");
   }
 

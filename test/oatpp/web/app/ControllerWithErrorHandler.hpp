@@ -66,7 +66,10 @@ public:
     }
   }
 
-  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> handleError(const http::Status& status, const oatpp::String& message, const Headers& headers) override {
+  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> handleError(
+		  [[maybe_unused]] const http::Status& status,
+		  [[maybe_unused]] const oatpp::String& message,
+		  [[maybe_unused]] const Headers& headers) override {
     throw std::logic_error("Function not implemented");
   }
 
@@ -92,6 +95,7 @@ public:
   ENDPOINT("GET", "test/errorhandling", errorCaught,
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
+	[[maybe_unused]] auto unused = request;
     throw std::runtime_error("Controller With Errors!");
   }
 
