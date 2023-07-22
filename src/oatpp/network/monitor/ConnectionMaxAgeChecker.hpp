@@ -44,11 +44,11 @@ public:
    */
   ConnectionMaxAgeChecker(const std::chrono::duration<v_int64, std::micro>& maxAge);
 
-  std::vector<oatpp::String> getMetricsList();
+  std::vector<oatpp::String> getMetricsList() override;
 
-  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName);
+  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) override;
 
-  bool check(const ConnectionStats& stats, v_int64 currMicroTime);
+  bool check(const ConnectionStats& stats, v_int64 currMicroTime) override;
 
 };
 

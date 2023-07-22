@@ -140,7 +140,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(Interceptor)
 
-    Action act() {
+    Action act() override {
 
       OATPP_ASSERT(request->getHeader("header-in-inter1") == "inter1");
       OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2");
