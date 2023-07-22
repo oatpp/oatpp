@@ -165,7 +165,7 @@ public:
     COUNTER --;
   }
 
-  Action act() {
+  Action act() override {
     return oatpp::data::stream::transferAsync(m_readCallback, m_writeCallback, 0, m_buffer, m_processor)
       .next(yieldTo(&TestCoroutine::compare));
   }

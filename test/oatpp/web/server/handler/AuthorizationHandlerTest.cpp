@@ -40,7 +40,7 @@ public:
 class MyBasicAuthorizationHandler : public oatpp::web::server::handler::BasicAuthorizationHandler {
 public:
 
-  std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password) {
+  std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& userId, const oatpp::String& password) override {
     auto authObject = std::make_shared<MyBasicAuthorizationObject>();
     authObject->userId = userId;
     authObject->password = password;
