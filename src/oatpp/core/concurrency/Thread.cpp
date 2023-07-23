@@ -74,7 +74,7 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
 #endif
 }
   
-v_int32 calcHardwareConcurrency() {
+static v_int32 calcHardwareConcurrency() {
 #if !defined(OATPP_THREAD_HARDWARE_CONCURRENCY)
   v_int32 concurrency = std::thread::hardware_concurrency();
   if(concurrency == 0) {
