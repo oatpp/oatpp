@@ -47,11 +47,11 @@ public:
   ConnectionInactivityChecker(const std::chrono::duration<v_int64, std::micro>& lastReadTimeout,
                               const std::chrono::duration<v_int64, std::micro>& lastWriteTimeout);
 
-  std::vector<oatpp::String> getMetricsList();
+  std::vector<oatpp::String> getMetricsList() override;
 
-  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName);
+  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) override;
 
-  bool check(const ConnectionStats& stats, v_int64 currMicroTime);
+  bool check(const ConnectionStats& stats, v_int64 currMicroTime) override;
 
 };
 

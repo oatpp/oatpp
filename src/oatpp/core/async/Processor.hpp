@@ -78,7 +78,7 @@ private:
       : m_params(std::make_tuple(params...))
     {}
 
-    virtual CoroutineHandle* createCoroutine(Processor* processor) {
+    virtual CoroutineHandle* createCoroutine(Processor* processor) override {
       return creator(processor, typename SequenceGenerator<sizeof...(Args)>::type());
     }
 

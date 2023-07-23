@@ -68,7 +68,7 @@ public:
     
     ENDPOINT_ASYNC_INIT(Root)
     
-    Action act() {
+    Action act() override {
       //OATPP_LOGV(TAG, "GET '/'");
       return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
     }
@@ -79,7 +79,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(GetWithParams)
 
-    Action act() {
+    Action act() override {
       auto param = request->getPathVariable("param");
       //OATPP_LOGV(TAG, "GET params/%s", param->c_str());
       auto dto = TestDto::createShared();
@@ -93,7 +93,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(GetWithHeaders)
 
-    Action act() {
+    Action act() override {
       auto param = request->getHeader("X-TEST-HEADER");
       //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
       auto dto = TestDto::createShared();
@@ -107,7 +107,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(PostBody)
 
-    Action act() {
+    Action act() override {
       //OATPP_LOGV(TAG, "POST body. Reading body...");
       return request->readBodyToStringAsync().callbackTo(&PostBody::onBodyRead);
     }
@@ -125,7 +125,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(Echo)
 
-    Action act() {
+    Action act() override {
       //OATPP_LOGV(TAG, "POST body(echo). Reading body...");
       return request->readBodyToStringAsync().callbackTo(&Echo::onBodyRead);
     }
@@ -188,7 +188,7 @@ public:
 
     };
 
-    Action act() {
+    Action act() override {
       oatpp::String text = request->getPathVariable("text-value");
       auto numIterations = oatpp::utils::conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
 
@@ -349,7 +349,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(MultipartStream)
 
-    Action act() {
+    Action act() override {
       auto multipart = std::make_shared<MPStream>();
       auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
         multipart,
@@ -365,7 +365,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(HostHeader)
 
-    Action act() {
+    Action act() override {
       auto hostHeader = request->getHeader("Host");
       if(hostHeader) {
         return _return(controller->createResponse(Status::CODE_200, hostHeader));

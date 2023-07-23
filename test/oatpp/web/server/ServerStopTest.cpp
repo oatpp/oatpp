@@ -85,7 +85,7 @@ class AsyncStreamingHandler : public oatpp::web::server::HttpRequestHandler {
 public:
 
   oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse> &>
-  handleAsync(const std::shared_ptr<IncomingRequest> &request) {
+  handleAsync(const std::shared_ptr<IncomingRequest> &request) override {
 
     class StreamCoroutine
       : public oatpp::async::CoroutineWithResult<StreamCoroutine, const std::shared_ptr<OutgoingResponse> &> {
