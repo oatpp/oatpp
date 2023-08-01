@@ -79,6 +79,14 @@ std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createSh
   return std::make_shared<AsyncHttpConnectionHandler>(router, executor);
 }
 
+std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpProcessor::Components>& components, const std::shared_ptr<oatpp::async::Executor>& executor){
+  return std::make_shared<AsyncHttpConnectionHandler>(components, executor);
+}
+
+std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpProcessor::Components>& components, v_int32 threadCount){
+  return std::make_shared<AsyncHttpConnectionHandler>(components, threadCount);
+}
+
 void AsyncHttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
   m_components->errorHandler = errorHandler;
   if(!m_components->errorHandler) {
