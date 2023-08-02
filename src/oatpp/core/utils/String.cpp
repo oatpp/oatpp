@@ -55,8 +55,8 @@ v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const 
   if(data1 == nullptr) return -1;
   if(data2 == nullptr) return 1;
 
-  auto d1 = (p_char8) data1;
-  auto d2 = (p_char8) data2;
+  auto d1 = reinterpret_cast<p_char8>(const_cast<void*>(data1));
+  auto d2 = reinterpret_cast<p_char8>(const_cast<void*>(data2));
 
   v_buff_size size = size1;
   if(size2 < size1) size = size2;
@@ -70,7 +70,7 @@ v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const 
     if(b >= 'A' && b <= 'Z') b |= 32;
 
     if(a != b) {
-      return (int) a - (int) b;
+      return static_cast<int>(a) - static_cast<int>(b);
     }
 
   }
@@ -84,15 +84,15 @@ v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const 
 
 void String::lowerCase_ASCII(void* data, v_buff_size size) {
   for(v_buff_size i = 0; i < size; i++) {
-    v_char8 a = ((p_char8) data)[i];
-    if(a >= 'A' && a <= 'Z') ((p_char8) data)[i] = a | 32;
+    v_char8 a = (reinterpret_cast<p_char8>(data))[i];
+    if(a >= 'A' && a <= 'Z') (reinterpret_cast<p_char8>(data))[i] = a | 32;
   }
 }
 
 void String::upperCase_ASCII(void* data, v_buff_size size) {
   for(v_buff_size i = 0; i < size; i++) {
-    v_char8 a = ((p_char8) data)[i];
-    if(a >= 'a' && a <= 'z') ((p_char8) data)[i] = a & 223;
+    v_char8 a = (reinterpret_cast<p_char8>(data))[i];
+    if(a >= 'a' && a <= 'z') (reinterpret_cast<p_char8>(data))[i] = a & 223;
   }
 }
 

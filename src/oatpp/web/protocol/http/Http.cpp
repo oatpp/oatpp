@@ -172,8 +172,8 @@ Range Range::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   endLabel.end();
 
-  auto start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
-  auto end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  auto start = oatpp::utils::conversion::strToInt64(startLabel.getData());
+  auto end = oatpp::utils::conversion::strToInt64(endLabel.getData());
   return Range(unitsLabel.toString(), start, end);
   
 }
@@ -232,13 +232,13 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   sizeLabel.end();
   
-  v_int64 start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
-  v_int64 end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  v_int64 start = oatpp::utils::conversion::strToInt64(startLabel.getData());
+  v_int64 end = oatpp::utils::conversion::strToInt64(endLabel.getData());
   v_int64 size = 0;
   bool isSizeKnown = false;
   if(sizeLabel.getData()[0] != '*') {
     isSizeKnown = true;
-    size = oatpp::utils::conversion::strToInt64((const char*) sizeLabel.getData());
+    size = oatpp::utils::conversion::strToInt64(sizeLabel.getData());
   }
   
   return ContentRange(unitsLabel.toString(), start, end, size, isSizeKnown);
@@ -325,7 +325,7 @@ void Parser::parseResponseStartingLine(ResponseStartingLine& line,
     return;
   }
 
-  line.statusCode = (v_int32)caret.parseInt();
+  line.statusCode = static_cast<v_int32>(caret.parseInt());
 
   auto descriptionLabel = caret.putLabel();
   if(caret.findRN()){
@@ -381,7 +381,7 @@ void Parser::parseHeaders(Headers& headers,
 
 void Parser::parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, char separator) {
 
-  oatpp::parser::Caret caret((const char*) headerValue.getData(), headerValue.getSize());
+  oatpp::parser::Caret caret(reinterpret_cast<const char*>(headerValue.getData()), headerValue.getSize());
 
   const char charSet[5] = {' ', '=', separator, '\r', '\n'};
   const char charSet2[4] = {' ', separator, '\r', '\n'};

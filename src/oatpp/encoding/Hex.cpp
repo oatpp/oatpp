@@ -36,7 +36,7 @@ const char* Hex::ALPHABET_UPPER = "0123456789ABCDEF";
 const char* Hex::ALPHABET_LOWER = "0123456789abcdef";
     
 void Hex::writeUInt16(v_uint16 value, p_char8 buffer){
-  *((p_uint32) buffer) = htonl((ALPHABET_UPPER[ value & 0x000F       ]      ) |
+  *(reinterpret_cast<p_uint32>(buffer)) = htonl((ALPHABET_UPPER[ value & 0x000F       ]      ) |
                                (ALPHABET_UPPER[(value & 0x00F0) >>  4] <<  8) |
                                (ALPHABET_UPPER[(value & 0x0F00) >>  8] << 16) |
                                (ALPHABET_UPPER[(value & 0xF000) >> 12] << 24));
@@ -86,7 +86,7 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size,
                  const char* alphabet)
 {
-  p_char8 buffer = (p_char8) data;
+  p_char8 buffer = reinterpret_cast<p_char8>(const_cast<void*>(data));
   v_char8 oneByteBuffer[2];
   for(v_buff_size i = 0; i < size; i ++) {
     auto c = buffer[i];
@@ -101,7 +101,7 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
 void Hex::decode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size, bool allowSeparators)
 {
-  p_char8 buffer = (p_char8) data;
+  p_char8 buffer = reinterpret_cast<p_char8>(const_cast<void*>(data));
   v_char8 byte = 0;
   v_int32 shift = 4;
   for(v_buff_size i = 0; i < size; i ++) {

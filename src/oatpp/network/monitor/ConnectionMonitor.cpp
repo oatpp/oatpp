@@ -50,7 +50,7 @@ ConnectionMonitor::ConnectionProxy::ConnectionProxy(const std::shared_ptr<Monito
 
 ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
 
-  m_monitor->removeConnection((v_uint64) this);
+  m_monitor->removeConnection(reinterpret_cast<v_uint64>(this));
 
   std::lock_guard<std::mutex> lock(m_statsMutex);
 
@@ -122,7 +122,7 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
       for(auto& caddr : monitor->m_connections) {
 
-        auto connection = (ConnectionProxy*) caddr;
+        auto connection = reinterpret_cast<ConnectionProxy*>(caddr);
         std::lock_guard<std::mutex> dataLock(connection->m_statsMutex);
         std::lock_guard<std::mutex> analysersLock(monitor->m_checkMutex);
 
@@ -174,7 +174,7 @@ std::shared_ptr<ConnectionMonitor::Monitor> ConnectionMonitor::Monitor::createSh
 
 void ConnectionMonitor::Monitor::addConnection(ConnectionProxy* connection) {
   std::lock_guard<std::mutex> lock(m_connectionsMutex);
-  m_connections.insert((v_uint64) connection);
+  m_connections.insert(reinterpret_cast<v_uint64>(connection));
 }
 
 void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {

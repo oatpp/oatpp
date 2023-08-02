@@ -230,7 +230,7 @@ public:
    * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
   v_io_size writeSimple(const char* data){
-    return writeSimple((p_char8)data, std::strlen(data));
+    return writeSimple(reinterpret_cast<p_char8>(const_cast<char*>(data)), std::strlen(data));
   }
 
   /**

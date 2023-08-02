@@ -137,7 +137,7 @@ void runServer(v_uint16 port, v_int32 delaySeconds, v_int32 iterations, bool sta
       std::this_thread::sleep_for(std::chrono::seconds(delaySeconds));
       if(!stable) {
         controller->available = !controller->available;
-        OATPP_LOGI("Server", "Available=%d", (v_int32)controller->available.load());
+        OATPP_LOGI("Server", "Available=%d", static_cast<v_int32>(controller->available.load()));
       }
     }
 

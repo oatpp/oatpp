@@ -69,7 +69,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
       stream.write("\r\n", 2, action);
 
       m_chunkHeader = stream.toString();
-      dataOut.set((p_char8) m_chunkHeader->data(), m_chunkHeader->size());
+      dataOut.set(reinterpret_cast<p_char8>(const_cast<char*>(m_chunkHeader->data())), m_chunkHeader->size());
 
       m_firstChunk = false;
       m_writeChunkHeader = false;
@@ -96,7 +96,7 @@ v_int32 EncoderChunked::iterate(data::buffer::InlineReadData& dataIn, data::buff
     stream.write("0\r\n\r\n", 5, action);
 
     m_chunkHeader = stream.toString();
-    dataOut.set((p_char8) m_chunkHeader->data(), m_chunkHeader->size());
+    dataOut.set(reinterpret_cast<p_char8>(const_cast<char*>(m_chunkHeader->data())), m_chunkHeader->size());
 
     m_firstChunk = false;
     m_writeChunkHeader = false;
@@ -147,10 +147,10 @@ v_int32 DecoderChunked::readHeader(data::buffer::InlineReadData& dataIn) {
         if (pos > 2 && m_chunkHeaderBuffer.getData()[pos - 2] == '\r' && m_chunkHeaderBuffer.getData()[pos - 1] == '\n') {
 
           if(m_firstChunk) {
-            m_currentChunkSize = strtol((const char *) m_chunkHeaderBuffer.getData(), nullptr, 16);
+            m_currentChunkSize = strtol(reinterpret_cast<const char *>(m_chunkHeaderBuffer.getData()), nullptr, 16);
           } else {
             // skip "/r/n" before chunk size
-            m_currentChunkSize = strtol((const char *) (m_chunkHeaderBuffer.getData() + 2), nullptr, 16);
+            m_currentChunkSize = strtol(reinterpret_cast<const char *>(m_chunkHeaderBuffer.getData() + 2), nullptr, 16);
           }
 
           if (m_currentChunkSize > 0) {

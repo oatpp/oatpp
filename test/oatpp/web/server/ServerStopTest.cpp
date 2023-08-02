@@ -44,7 +44,7 @@ public:
 
   v_io_size read(void *buffer, v_buff_size count, async::Action &action) override {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    char *data = (char *) buffer;
+    char *data = reinterpret_cast<char*>(buffer);
     data[0] = 'A';
     return 1;
   }
@@ -63,7 +63,7 @@ public:
         oatpp::base::Environment::getMicroTickCount() + 100 * 1000);
       return oatpp::IOError::RETRY_READ;
     }
-    char *data = (char *) buffer;
+    char *data = reinterpret_cast<char*>(buffer);
     data[0] = 'A';
     return 1;
   }

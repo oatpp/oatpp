@@ -42,7 +42,7 @@ public:
                             const oatpp::data::share::MemoryLabel& memoryLabel)
     : m_outputStream(outputStream)
     , m_memoryLabel(memoryLabel)
-    , m_buffer((void *) memoryLabel.getData(), memoryLabel.getSize())
+    , m_buffer(const_cast<void *>(memoryLabel.getData()), memoryLabel.getSize())
   {}
 public:
   
@@ -92,7 +92,7 @@ public:
                            bool bufferCanRead)
     : m_inputStream(inputStream)
     , m_memoryLabel(memoryLabel)
-    , m_buffer((void*) memoryLabel.getData(), memoryLabel.getSize(), bufferReadPosition, bufferWritePosition, bufferCanRead)
+    , m_buffer(const_cast<void*>(memoryLabel.getData()), memoryLabel.getSize(), bufferReadPosition, bufferWritePosition, bufferCanRead)
   {}
 public:
   

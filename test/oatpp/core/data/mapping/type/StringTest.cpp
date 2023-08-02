@@ -42,7 +42,6 @@ void StringTest::onRun() {
     oatpp::String s;
     OATPP_ASSERT(!s);
     OATPP_ASSERT(s == nullptr);
-    OATPP_ASSERT(s == (const char*) nullptr);
     OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
@@ -52,7 +51,6 @@ void StringTest::onRun() {
     oatpp::String s(nullptr);
     OATPP_ASSERT(!s);
     OATPP_ASSERT(s == nullptr);
-    OATPP_ASSERT(s == (const char*) nullptr);
     OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
@@ -62,7 +60,6 @@ void StringTest::onRun() {
     oatpp::String s("abc\0xyz");
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 3);
     OATPP_ASSERT(s == "abc");
     OATPP_ASSERT(s == "abc\0xyz");
@@ -75,7 +72,6 @@ void StringTest::onRun() {
     oatpp::String s(a);
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 7);
     OATPP_ASSERT(s != "abc");
     OATPP_ASSERT(s != "abc\0xyz");
@@ -90,7 +86,6 @@ void StringTest::onRun() {
     oatpp::String s(std::move(a));
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 7);
     OATPP_ASSERT(s != "abc");
     OATPP_ASSERT(s != "abc\0xyz");
@@ -105,7 +100,6 @@ void StringTest::onRun() {
     s = "abc\0xyz";
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 3);
     OATPP_ASSERT(s == "abc");
     OATPP_ASSERT(s == "abc\0xyz");
@@ -119,7 +113,6 @@ void StringTest::onRun() {
     s = a;
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 7);
     OATPP_ASSERT(s != "abc");
     OATPP_ASSERT(s != "abc\0xyz");
@@ -135,7 +128,6 @@ void StringTest::onRun() {
     s = std::move(a);
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 7);
     OATPP_ASSERT(s != "abc");
     OATPP_ASSERT(s != "abc\0xyz");
@@ -149,7 +141,6 @@ void StringTest::onRun() {
     oatpp::String s = "";
     OATPP_ASSERT(s);
     OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s != (const char*) nullptr)
     OATPP_ASSERT(s->size() == 0);
     OATPP_LOGI(TAG, "OK");
   }

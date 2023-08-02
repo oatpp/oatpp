@@ -47,11 +47,11 @@ void BufferStreamTest::onRun() {
     OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(101));
 
     stream.setCurrentPosition(0);
-    stream << (v_float32)101.1;
+    stream << static_cast<v_float32>(101.1);
     OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(101.1f));
 
     stream.setCurrentPosition(0);
-    stream << (v_float64)101.1;
+    stream << 101.1;
     OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(101.1));
 
     stream.setCurrentPosition(0);

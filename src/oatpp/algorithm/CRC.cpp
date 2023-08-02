@@ -64,7 +64,7 @@ p_uint32 CRC32::generateTable(v_uint32 poly) {
   
 v_uint32 CRC32::calc(const void *buffer, v_buff_size size, v_uint32 crc, v_uint32 initValue, v_uint32 xorOut, p_uint32 table) {
   
-  p_uint8 data = (p_uint8) buffer;
+  p_uint8 data = reinterpret_cast<p_uint8>(const_cast<void*>(buffer));
   crc = crc ^ initValue;
   
   for(v_buff_size i = 0; i < size; i++) {

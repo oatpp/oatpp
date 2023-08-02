@@ -30,7 +30,7 @@ namespace oatpp { namespace data{ namespace buffer {
 FIFOBuffer::FIFOBuffer(void* buffer, v_buff_size bufferSize,
                        v_buff_size readPosition, v_buff_size writePosition,
                        bool canRead)
-  : m_buffer((p_char8)buffer)
+  : m_buffer(reinterpret_cast<p_char8>(buffer))
   , m_bufferSize(bufferSize)
   , m_readPosition(readPosition)
   , m_writePosition(writePosition)
@@ -84,7 +84,7 @@ v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
     if(size > count) {
       size = count;
     }
-    std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
+    std::memcpy(data, &m_buffer[m_readPosition], static_cast<size_t>(size));
     m_readPosition += size;
     if(m_readPosition == m_writePosition) {
       m_canRead = false;
@@ -95,18 +95,18 @@ v_io_size FIFOBuffer::read(void *data, v_buff_size count) {
   auto size = m_bufferSize - m_readPosition;
   
   if(size > count){
-    std::memcpy(data, &m_buffer[m_readPosition], (size_t)count);
+    std::memcpy(data, &m_buffer[m_readPosition], static_cast<size_t>(count));
     m_readPosition += count;
     return count;
   }
   
-  std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
+  std::memcpy(data, &m_buffer[m_readPosition], static_cast<size_t>(size));
   auto size2 = m_writePosition;
   if(size2 > count - size) {
     size2 = count - size;
   }
   
-  std::memcpy(&((p_char8) data)[size], m_buffer, (size_t)size2);
+  std::memcpy(&(reinterpret_cast<p_char8>(data))[size], m_buffer, static_cast<size_t>(size2));
   m_readPosition = size2;
   if(m_readPosition == m_writePosition) {
     m_canRead = false;
@@ -133,24 +133,24 @@ v_io_size FIFOBuffer::peek(void *data, v_buff_size count) {
     if(size > count) {
       size = count;
     }
-    std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
+    std::memcpy(data, &m_buffer[m_readPosition], static_cast<size_t>(size));
     return size;
   }
 
   auto size = m_bufferSize - m_readPosition;
 
   if(size > count){
-    std::memcpy(data, &m_buffer[m_readPosition], (size_t)count);
+    std::memcpy(data, &m_buffer[m_readPosition], static_cast<size_t>(count));
     return count;
   }
 
-  std::memcpy(data, &m_buffer[m_readPosition], (size_t)size);
+  std::memcpy(data, &m_buffer[m_readPosition], static_cast<size_t>(size));
   auto size2 = m_writePosition;
   if(size2 > count - size) {
     size2 = count - size;
   }
 
-  std::memcpy(&((p_char8) data)[size], m_buffer, (size_t)size2);
+  std::memcpy(&(reinterpret_cast<p_char8>(data))[size], m_buffer, static_cast<size_t>(size2));
 
   return (size + size2);
 
@@ -220,7 +220,7 @@ v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
     if(size > count) {
       size = count;
     }
-    std::memcpy(&m_buffer[m_writePosition], data, (size_t)size);
+    std::memcpy(&m_buffer[m_writePosition], data, static_cast<size_t>(size));
     m_writePosition += size;
     return size;
   }
@@ -228,18 +228,18 @@ v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
   auto size = m_bufferSize - m_writePosition;
   
   if(size > count){
-    std::memcpy(&m_buffer[m_writePosition], data, (size_t)count);
+    std::memcpy(&m_buffer[m_writePosition], data, static_cast<size_t>(count));
     m_writePosition += count;
     return count;
   }
   
-  std::memcpy(&m_buffer[m_writePosition], data, (size_t)size);
+  std::memcpy(&m_buffer[m_writePosition], data, static_cast<size_t>(size));
   auto size2 = m_readPosition;
   if(size2 > count - size) {
     size2 = count - size;
   }
   
-  std::memcpy(m_buffer, &((p_char8) data)[size], (size_t)size2);
+  std::memcpy(m_buffer, &(reinterpret_cast<p_char8>(const_cast<void*>(data)))[size], static_cast<size_t>(size2));
   m_writePosition = size2;
   
   return (size + size2);

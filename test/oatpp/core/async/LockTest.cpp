@@ -174,17 +174,17 @@ void LockTest::onRun() {
   oatpp::async::Executor executor(10, 1, 1);
 
   for (v_int32 c = 0; c <= 127; c++) {
-    executor.execute<TestCoroutine>((char)c, &buff, &lock);
+    executor.execute<TestCoroutine>(static_cast<char>(c), &buff, &lock);
   }
 
   for (v_int32 c = 128; c <= 200; c++) {
-    executor.execute<TestCoroutine2>((char)c, &buff, &lock);
+    executor.execute<TestCoroutine2>(static_cast<char>(c), &buff, &lock);
   }
 
   std::list<std::thread> threads;
 
   for (v_int32 c = 201; c <= 255; c++) {
-    threads.push_back(std::thread(testMethod, (char)c, &buff, &lock));
+    threads.push_back(std::thread(testMethod, static_cast<char>(c), &buff, &lock));
   }
 
   for (std::thread &thread : threads) {
@@ -198,10 +198,10 @@ void LockTest::onRun() {
   auto result = buffer.toString();
 
   for (v_int32 c = 0; c <= 255; c++) {
-    bool check = checkSymbol((char)c, result);
+    bool check = checkSymbol(static_cast<char>(c), result);
     if(!check) {
       v_int32 code = c;
-      auto str = oatpp::String((const char*)&c, 1);
+      auto str = oatpp::String(reinterpret_cast<const char*>(&c), 1);
       OATPP_LOGE(TAG, "Failed for symbol %d, '%s'", code, str->data());
     }
     OATPP_ASSERT(check);

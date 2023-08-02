@@ -641,7 +641,7 @@ struct hash<oatpp::data::mapping::type::Void> {
   typedef v_uint64 result_type;
 
   result_type operator()(argument_type const& v) const noexcept {
-    return (result_type) v.get();
+    return reinterpret_cast<result_type>(v.get());
   }
 
 };

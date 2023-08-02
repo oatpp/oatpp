@@ -78,7 +78,7 @@ namespace oatpp { namespace parser {
     if(end == -1){
       end = m_caret->m_pos;
     }
-    return oatpp::String((const char*)&m_caret->m_data[m_start], end - m_start);
+    return oatpp::String(&m_caret->m_data[m_start], end - m_start);
   }
 
   std::string Caret::Label::std_str(){
@@ -86,7 +86,7 @@ namespace oatpp { namespace parser {
     if(end == -1){
       end = m_caret->m_pos;
     }
-    return std::string((const char*) (&m_caret->m_data[m_start]), end - m_start);
+    return std::string(&m_caret->m_data[m_start], end - m_start);
   }
 
   Caret::Label::operator bool() const {
@@ -352,45 +352,45 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
 
   v_int64 Caret::parseInt(int base) {
     char* end;
-    char* start = (char*)&m_data[m_pos];
-    v_int64 result = (v_int64)std::strtoll(start, &end, base);
+    char* start = const_cast<char*>(&m_data[m_pos]);
+    v_int64 result = static_cast<v_int64>(std::strtoll(start, &end, base));
     if(start == end){
       m_errorMessage = ERROR_INVALID_INTEGER;
     }
-    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
+    m_pos = (reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(m_data));
     return result;
   }
 
   v_uint64 Caret::parseUnsignedInt(int base) {
     char* end;
-    char* start = (char*)&m_data[m_pos];
-    v_uint64 result = (v_uint64)std::strtoull(start, &end, base);
+    char* start = const_cast<char*>(&m_data[m_pos]);
+    v_uint64 result = static_cast<v_uint64>(std::strtoull(start, &end, base));
     if(start == end){
       m_errorMessage = ERROR_INVALID_INTEGER;
     }
-    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
+    m_pos = (reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(m_data));
     return result;
   }
   
   v_float32 Caret::parseFloat32(){
     char* end;
-    char* start = (char*)&m_data[m_pos];
+    char* start = const_cast<char*>(&m_data[m_pos]);
     v_float32 result = std::strtof(start , &end);
     if(start == end){
       m_errorMessage = ERROR_INVALID_FLOAT;
     }
-    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
+    m_pos = (reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(m_data));
     return result;
   }
   
   v_float64 Caret::parseFloat64(){
     char* end;
-    char* start = (char*)&m_data[m_pos];
+    char* start = const_cast<char*>(&m_data[m_pos]);
     v_float64 result = std::strtod(start , &end);
     if(start == end){
       m_errorMessage = ERROR_INVALID_FLOAT;
     }
-    m_pos = ((v_buff_size) end - (v_buff_size) m_data);
+    m_pos = (reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(m_data));
     return result;
   }
   

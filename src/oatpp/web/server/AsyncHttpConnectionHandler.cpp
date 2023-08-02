@@ -29,7 +29,7 @@ namespace oatpp { namespace web { namespace server {
 void AsyncHttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) {
 
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
-  m_connections.insert({(v_uint64) connection.object.get(), connection});
+  m_connections.insert({reinterpret_cast<v_uint64>(connection.object.get()), connection});
 
   if(!m_continue.load()) {
     connection.invalidator->invalidate(connection.object);
@@ -39,7 +39,7 @@ void AsyncHttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data
 
 void AsyncHttpConnectionHandler::onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
-  m_connections.erase((v_uint64) connection.object.get());
+  m_connections.erase(reinterpret_cast<v_uint64>(connection.object.get()));
 }
 
 void AsyncHttpConnectionHandler::invalidateAllConnections() {

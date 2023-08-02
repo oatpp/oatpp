@@ -111,7 +111,7 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
   flags |= MSG_NOSIGNAL;
 #endif
 
-  auto result = ::send(m_handle, buff, (size_t)count, flags);
+  auto result = ::send(m_handle, buff, static_cast<size_t>(count), flags);
 
   if(result < 0) {
     auto e = errno;
@@ -169,7 +169,7 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
 
   errno = 0;
 
-  auto result = ::read(m_handle, buff, (size_t)count);
+  auto result = ::read(m_handle, buff, static_cast<size_t>(count));
 
   if(result < 0) {
     auto e = errno;

@@ -45,12 +45,12 @@ void InlineReadData::set(void* data, v_buff_size size) {
 }
 
 void InlineReadData::inc(v_buff_size amount) {
-  currBufferPtr = &((p_char8) currBufferPtr)[amount];
+  currBufferPtr = &(reinterpret_cast<p_char8>(currBufferPtr))[amount];
   bytesLeft -= amount;
 }
 
 void InlineReadData::setEof() {
-  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  currBufferPtr = &(reinterpret_cast<p_char8>(currBufferPtr))[bytesLeft];
   bytesLeft = 0;
 }
 
@@ -73,12 +73,12 @@ void InlineWriteData::set(const void* data, v_buff_size size) {
 }
 
 void InlineWriteData::inc(v_buff_size amount) {
-  currBufferPtr = &((p_char8) currBufferPtr)[amount];
+  currBufferPtr = &(reinterpret_cast<p_char8>(const_cast<void*>(currBufferPtr)))[amount];
   bytesLeft -= amount;
 }
 
 void InlineWriteData::setEof() {
-  currBufferPtr = &((p_char8) currBufferPtr)[bytesLeft];
+  currBufferPtr = &(reinterpret_cast<p_char8>(const_cast<void*>(currBufferPtr)))[bytesLeft];
   bytesLeft = 0;
 }
 
@@ -115,7 +115,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
     }
 
     data::buffer::InlineReadData* currDataOut = &dataOut;
-    if(i < (v_int32) m_intermediateData.size()) {
+    if(i < static_cast<v_int32>(m_intermediateData.size())) {
       currDataOut = &m_intermediateData[i];
     }
 

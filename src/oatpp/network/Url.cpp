@@ -36,7 +36,7 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
     std::unique_ptr<v_char8[]> buff(new v_char8[size]);
     std::memcpy(buff.get(), &caret.getData()[pos0], size);
     utils::String::lowerCase_ASCII(buff.get(), size);
-    return oatpp::String((const char*)buff.get(), size);
+    return oatpp::String(reinterpret_cast<const char*>(buff.get()), size);
   }
   return nullptr;
 }
@@ -75,19 +75,19 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   Url::Authority result;
   
   if(atPos > -1) {
-    result.userInfo = oatpp::String((const char*)&data[pos0], atPos - pos0);
+    result.userInfo = oatpp::String(&data[pos0], atPos - pos0);
   }
   
   if(portPos > hostPos) {
-    result.host = oatpp::String((const char*)&data[hostPos], portPos - 1 - hostPos);
+    result.host = oatpp::String(&data[hostPos], portPos - 1 - hostPos);
     char* end;
-    result.port = std::strtol((const char*)&data[portPos], &end, 10);
-    bool success = (((v_buff_size)end - (v_buff_size)&data[portPos]) == pos - portPos);
+    result.port = std::strtol(&data[portPos], &end, 10);
+    bool success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(&data[portPos])) == pos - portPos);
     if(!success) {
       caret.setError("Invalid port string");
     }
   } else {
-    result.host = oatpp::String((const char*)&data[hostPos], pos - pos0);
+    result.host = oatpp::String(&data[hostPos], pos - pos0);
   }
   
   return result;

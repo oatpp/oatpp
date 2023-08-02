@@ -109,8 +109,8 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
   
   auto result = oatpp::String(resultSize);
   
-  p_char8 bdata = (p_char8) data;
-  p_char8 resultData = (p_char8) result->data();
+  p_char8 bdata = reinterpret_cast<p_char8>(const_cast<void*>(data));
+  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
   
   v_buff_size pos = 0;
   while (pos + 2 < size) {
@@ -159,7 +159,7 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
   }
   
   auto result = oatpp::String(resultSize);
-  p_char8 resultData = (p_char8) result->data();
+  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
   v_buff_size pos = 0;
   while (pos + 3 < base64StrLength) {
     v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
@@ -193,7 +193,7 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
 }
   
 oatpp::String Base64::decode(const oatpp::String& data, const char* auxiliaryChars) {
-  return decode((const char*)data->data(), data->size(), auxiliaryChars);
+  return decode(data->data(), data->size(), auxiliaryChars);
 }
   
 }}

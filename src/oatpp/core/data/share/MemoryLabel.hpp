@@ -73,7 +73,7 @@ public:
     MemoryLabel(
       ptr,
       ptr ? ptr->data() : nullptr,
-      ptr ? (v_buff_size) ptr->size() :  0
+      ptr ? static_cast<v_buff_size>(ptr->size()) :  0
     )
   {}
 
@@ -113,9 +113,9 @@ public:
    * Capture data referenced by memory label to its own memory.
    */
   void captureToOwnMemory() const {
-    if(!m_memoryHandle || m_memoryHandle->data() != (const char*)m_data || m_memoryHandle->size() != m_size) {
-      m_memoryHandle = std::make_shared<std::string>((const char*) m_data, m_size);
-      m_data = (p_char8) m_memoryHandle->data();
+    if(!m_memoryHandle || m_memoryHandle->data() != reinterpret_cast<const char*>(m_data) || m_memoryHandle->size() != m_size) {
+      m_memoryHandle = std::make_shared<std::string>(reinterpret_cast<const char*>(m_data), m_size);
+      m_data = reinterpret_cast<p_char8>(const_cast<char*>(m_memoryHandle->data()));
     }
   }
 
@@ -146,7 +146,7 @@ public:
    * @return oatpp::String(data, size)
    */
   String toString() const {
-    return String((const char*) m_data, m_size);
+    return String(reinterpret_cast<const char*>(m_data), m_size);
   }
 
   /**
@@ -154,7 +154,7 @@ public:
    * @return std::string(data, size)
    */
   std::string std_str() const {
-    return std::string((const char*) m_data, m_size);
+    return std::string(reinterpret_cast<const char*>(m_data), m_size);
   }
 
   inline bool operator==(std::nullptr_t) const {
@@ -308,7 +308,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
 
-      auto data = (p_char8) s.getData();
+      auto data = reinterpret_cast<p_char8>(const_cast<void*>(s.getData()));
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i];
@@ -328,7 +328,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
 
-      auto data = (p_char8) s.getData();
+      auto data = reinterpret_cast<p_char8>(const_cast<void*>(s.getData()));
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i] | 32;
