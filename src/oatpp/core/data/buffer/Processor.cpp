@@ -149,6 +149,8 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
         }
         break;
 
+      default:
+        break;
     }
 
   }

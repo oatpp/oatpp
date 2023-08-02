@@ -102,6 +102,8 @@ void Server::run(std::function<bool()> conditional) {
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already starting");
     case STATUS_RUNNING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already started");
+    default:
+      break;
   }
 
   m_threaded = false;
@@ -125,6 +127,8 @@ void Server::run(bool startAsNewThread) {
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already starting");
     case STATUS_RUNNING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already started");
+    default:
+      break;
   }
 
   m_threaded = startAsNewThread;
@@ -146,6 +150,8 @@ void Server::stop() {
     case STATUS_STARTING:
     case STATUS_RUNNING:
       setStatus(STATUS_STOPPING);
+      break;
+    default:
       break;
   }
 

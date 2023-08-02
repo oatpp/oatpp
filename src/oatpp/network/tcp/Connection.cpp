@@ -246,6 +246,9 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       m_mode = data::stream::ASYNCHRONOUS;
       break;
 
+    default:
+      break;
+
   }
 }
 #endif

@@ -332,6 +332,7 @@ void Utils::unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 r
           case 'n': resultData[pos] = '\n'; pos ++; break;
           case 'r': resultData[pos] = '\r'; pos ++; break;
           case 't': resultData[pos] = '\t'; pos ++; break;
+          default: break;
         }
         i += 2;
       } else {

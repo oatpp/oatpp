@@ -64,6 +64,9 @@ void StatefulParser::ListenerCall::call(StatefulParser* parser) {
         parser->m_listener->onPartData(data, size);
         break;
 
+      default:
+        break;
+
     }
 
   }
@@ -84,6 +87,9 @@ async::CoroutineStarter StatefulParser::ListenerCall::callAsync(StatefulParser* 
 
       case CALL_ON_DATA:
         return parser->m_asyncListener->onPartDataAsync(data, size);
+
+      default:
+        break;
 
     }
 

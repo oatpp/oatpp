@@ -115,6 +115,9 @@ void Action::free() {
     case TYPE_ERROR:
       delete m_data.error;
       break;
+
+    default:
+      break;
   }
   m_type = TYPE_NONE;
 }
