@@ -130,6 +130,10 @@ void Serializer::serializeEnum(Serializer* serializer,
   switch(e) {
     case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+    case data::mapping::type::EnumInterpreterError::OK:
+    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
+    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
+    case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
       throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
   }

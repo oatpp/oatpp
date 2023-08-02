@@ -43,6 +43,8 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
       m_timerPopQueues.push_back(utils::FastQueue<CoroutineHandle>());
     break;
 
+    case worker::Worker::Type::PROCESSOR:
+    case worker::Worker::Type::TYPES_COUNT:
     default:
       break;
 
