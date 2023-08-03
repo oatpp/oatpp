@@ -217,6 +217,8 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
       }
       m_mode = data::stream::ASYNCHRONOUS;
       break;
+    default:
+      break;
   }
 
 }
@@ -244,6 +246,9 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
         throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
       m_mode = data::stream::ASYNCHRONOUS;
+      break;
+
+    default:
       break;
 
   }
