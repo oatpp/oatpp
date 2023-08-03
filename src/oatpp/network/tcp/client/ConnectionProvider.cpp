@@ -91,6 +91,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   switch(m_address.family) {
     case Address::IP_4: hints.ai_family = AF_INET; break;
     case Address::IP_6: hints.ai_family = AF_INET6; break;
+    case Address::UNSPEC:
     default:
       hints.ai_family = AF_UNSPEC;
   }
@@ -203,6 +204,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       switch(m_address.family) {
         case Address::IP_4: hints.ai_family = AF_INET; break;
         case Address::IP_6: hints.ai_family = AF_INET6; break;
+        case Address::UNSPEC:
         default:
           hints.ai_family = AF_UNSPEC;
       }

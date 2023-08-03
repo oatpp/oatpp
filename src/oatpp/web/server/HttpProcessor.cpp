@@ -184,6 +184,7 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
         response->putHeaderIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
         break;
 
+      case ConnectionState::DELEGATED:
       default:
         break;
 
@@ -368,6 +369,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
       m_currentResponse->putHeaderIfNotExists(protocol::http::Header::CONNECTION, protocol::http::Header::Value::CONNECTION_CLOSE);
       break;
 
+    case ConnectionState::DELEGATED:
     default:
       break;
 
@@ -400,6 +402,8 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
       break;
     }
 
+    case ConnectionState::CLOSING:
+    case ConnectionState::DEAD:
     default:
       break;
 

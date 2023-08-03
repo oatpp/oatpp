@@ -285,6 +285,10 @@ oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Ca
     case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
       caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
       break;
+    case data::mapping::type::EnumInterpreterError::OK:
+    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
+    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
+    case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
       caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Can't deserialize Enum.");
   }

@@ -391,6 +391,9 @@ struct ApiClient::TypeInterpretation<data::mapping::type::EnumObjectWrapper<T, I
         throw std::runtime_error(
           "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. Enum constraint violation - NotNull."
         );
+      case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
+      case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
+      case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
       default:
         throw std::runtime_error(
           "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. Can't interpret Enum."
