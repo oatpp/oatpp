@@ -446,7 +446,7 @@ void ObjectTest::onRun() {
 
     try{
       dto["type"] = oatpp::Int32(32);
-    } catch(std::runtime_error e) {
+    } catch(std::runtime_error const& e) {
       OATPP_LOGD(TAG, "error='%s'", e.what());
       thrown = true;
     }
@@ -464,7 +464,7 @@ void ObjectTest::onRun() {
 
     try{
       dto["non-existing"];
-    } catch(std::out_of_range e) {
+    } catch(std::out_of_range const& e) {
       OATPP_LOGD(TAG, "error='%s'", e.what());
       thrown = true;
     }
