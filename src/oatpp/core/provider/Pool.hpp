@@ -104,6 +104,9 @@ private:
 
     void invalidate(const std::shared_ptr<TResource>& resource) override {
       auto proxy = std::static_pointer_cast<AcquisitionProxyImpl>(resource);
+      if (proxy == nullptr) {
+        return;
+      }
       proxy->__pool__invalidate();
       const auto& handle = proxy->__pool__getUnderlyingResource();
       handle.invalidator->invalidate(handle.object);
