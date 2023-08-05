@@ -80,7 +80,9 @@ add_compiler_flags("-Wpointer-arith")                                      # gcc
 add_compiler_flags("-Wredundant-decls")                                    # gcc 4.6.0
 #add_compiler_flags("-Wshadow")                                             # gcc 4.6.0
 #add_compiler_flags("-Wsign-conversion")                                    # gcc 4.6.0
+#add_compiler_flags("-Wsuggest-attribute=const")                            # gcc 4.6.0
 #add_compiler_flags("-Wsuggest-attribute=noreturn")                         # gcc 4.6.0
+#add_compiler_flags("-Wsuggest-attribute=pure")                             # gcc 4.6.0
 add_compiler_flags("-Wswitch-default")                                     # gcc 4.6.0
 add_compiler_flags("-Wswitch-enum")                                        # gcc 4.6.0
 add_compiler_flags("-Wtype-limits")                                         # gcc 4.6.0
@@ -104,6 +106,8 @@ add_compiler_flags("-Wunused-local-typedefs")                               # gc
 #add_compiler_flags("-Wsuggest-attribute=format")                           # gcc 4.8.0
 
 add_compiler_flags("-Wformat-signedness")                                  # gcc 5.1.0
+#add_compiler_flags("-Wsuggest-final-methods")                              # gcc 5.1.0
+#add_compiler_flags("-Wsuggest-final-types")                                # gcc 5.1.0
 
 add_compiler_flags("-Wduplicated-cond")                                    # gcc 6.1.0
 #add_compiler_flags("-Wlogical-op")                                         # gcc 6.1.0
@@ -187,6 +191,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags("-Wl,-z,now")
   add_compiler_flags("-Wl,-z,relro")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+
+#
+# Profiling and Debugging (see https://fedoraproject.org/wiki/Changes/fno-omit-frame-pointer)
+#
+#add_compiler_flags("-fno-omit-frame-pointer")
 
 #
 # Disable some warnings
