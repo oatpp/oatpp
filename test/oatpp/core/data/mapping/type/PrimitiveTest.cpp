@@ -33,7 +33,7 @@ namespace {
   template<class T>
   void checkHash(const T& val) {
     auto h = std::hash<T>{}(val);
-    OATPP_LOGI("HASH", "type='%s', hash=%llu", val.getValueType()->classId.name, h);
+    OATPP_LOGI("HASH", "type='%s', hash=%lu", val.getValueType()->classId.name, h);
   }
 
 }

@@ -54,7 +54,7 @@ void IOEventWorker::initEventQueue() {
 
   if(!m_outEvents) {
     OATPP_LOGE("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
-               "Error. Unable to allocate %d bytes for events.", MAX_EVENTS * sizeof(epoll_event));
+               "Error. Unable to allocate %lu bytes for events.", MAX_EVENTS * sizeof(epoll_event));
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Unable to allocate memory for events.");
   }
 
@@ -162,8 +162,8 @@ void IOEventWorker::waitEvents() {
     OATPP_LOGE("[oatpp::async::worker::IOEventWorker::waitEvents()]", "Error:\n"
                "errno=%d\n"
                "in-events=%d\n"
-               "foreman=%d\n"
-               "this=%d\n"
+               "foreman=%p\n"
+               "this=%p\n"
                "specialization=%d",
                errno, m_inEventsCount, m_foreman, this, m_specialization);
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");

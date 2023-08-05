@@ -150,7 +150,7 @@ void runClient() {
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
-  OATPP_LOGD("TEST", "data->size() == %d", data->size())
+  OATPP_LOGD("TEST", "data->size() == %lu", data->size())
   OATPP_ASSERT(data->size() < 110) // it should be less than 100. But we put 110 for redundancy
 
 }
@@ -190,7 +190,7 @@ void runAsyncClient() {
 
     Action onBody(const oatpp::String& data) {
       OATPP_ASSERT(data)
-      OATPP_LOGD("TEST", "data->size() == %d", data->size())
+      OATPP_LOGD("TEST", "data->size() == %lu", data->size())
       OATPP_ASSERT(data->size() < 60) // it should be less than 50. But we put 60 for redundancy
       m_monitor->stop();
       return finish();

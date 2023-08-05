@@ -105,7 +105,7 @@ add_compiler_flags("-Wunused-variable")                                     # gc
 
 add_compiler_flags("-Wunused-local-typedefs")                               # gcc 4.7.0
 
-#add_compiler_flags("-Wsuggest-attribute=format")                           # gcc 4.8.0
+add_compiler_flags("-Wsuggest-attribute=format")                           # gcc 4.8.0
 
 add_compiler_flags("-Wformat-signedness")                                  # gcc 5.1.0
 #add_compiler_flags("-Wsuggest-final-methods")                              # gcc 5.1.0
@@ -209,7 +209,6 @@ endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 add_compiler_flags("-Wno-dangling-reference")
 add_compiler_flags("-Wno-pessimizing-move")
 add_compiler_flags("-Wno-sign-compare")
-add_compiler_flags("-Wno-suggest-attribute=format")
 add_compiler_flags("-Wno-unused-parameter")
 
 #

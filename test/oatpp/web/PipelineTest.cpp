@@ -145,7 +145,7 @@ void PipelineTest::onRun() {
       }
 
       auto dataToSend = pipelineStream.toString();
-      OATPP_LOGD(TAG, "Sending %d bytes", dataToSend->size());
+      OATPP_LOGD(TAG, "Sending %lu bytes", dataToSend->size());
 
       oatpp::data::stream::BufferInputStream inputStream(dataToSend);
 
@@ -163,7 +163,7 @@ void PipelineTest::onRun() {
 
       v_io_size transferSize = sample->size() * m_pipelineSize;
 
-      OATPP_LOGD(TAG, "want to Receive %d bytes", transferSize);
+      OATPP_LOGD(TAG, "want to Receive %ld bytes", transferSize);
       oatpp::data::stream::transfer(connection.object.get(), &receiveStream, transferSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
