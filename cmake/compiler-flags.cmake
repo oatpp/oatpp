@@ -151,7 +151,7 @@ add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wstrict-null-sentinel")           # gcc
 
 add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wzero-as-null-pointer-constant")  # gcc 4.7.0
 
-#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wuseless-cast")                   # gcc 4.8.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wuseless-cast")                   # gcc 4.8.0
 
 add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wconditionally-supported")        # gcc 4.9.0
 

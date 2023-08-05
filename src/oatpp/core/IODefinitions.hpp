@@ -42,7 +42,7 @@ namespace oatpp {
     constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle (-1);
 #else
   typedef int v_io_handle;
-  constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle (-1);
+  constexpr const v_io_handle INVALID_IO_HANDLE = (-1);
 #endif
 
 /**
