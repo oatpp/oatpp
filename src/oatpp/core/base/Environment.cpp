@@ -241,7 +241,7 @@ void Environment::checkTypes(){
   static_assert(sizeof(v_uint64) == 8, "");
   static_assert(sizeof(v_float64) == 8, "");
 
-  v_int32 vInt32 = ~v_int32(1);
+  v_int32 vInt32 = ~(1);
   v_int64 vInt64 = ~v_int64(1);
   v_uint32 vUInt32 = ~v_uint32(1);
   v_uint64 vUInt64 = ~v_uint64(1);
