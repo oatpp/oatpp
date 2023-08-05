@@ -142,7 +142,7 @@ add_compiler_flags("-Wtrivial-auto-var-init")                              # gcc
 # C++ Warning Flags
 # See https://github.com/vadz/gcc-warnings-tools for gcc flags and versions
 #
-#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wctor-dtor-privacy")              # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wctor-dtor-privacy")              # gcc 4.6.0
 add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wnoexcept")                       # gcc 4.6.0
 #add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wold-style-cast")                 # gcc 4.6.0
 add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Woverloaded-virtual")             # gcc 4.6.0

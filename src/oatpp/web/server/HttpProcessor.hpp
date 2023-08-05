@@ -53,6 +53,9 @@ public:
   typedef std::list<std::shared_ptr<web::server::interceptor::ResponseInterceptor>> ResponseInterceptors;
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
+
+  HttpProcessor();
+
 public:
 
   /**
