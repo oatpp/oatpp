@@ -196,7 +196,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
   add_compiler_flags(4.7 "-Wzero-as-null-pointer-constant")
 
-  #add_compiler_flags(4.8 "-Wuseless-cast")
+  add_compiler_flags(4.8 "-Wuseless-cast")
 
   add_compiler_flags(4.9 "-Wconditionally-supported")
 
