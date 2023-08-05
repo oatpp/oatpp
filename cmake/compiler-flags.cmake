@@ -207,7 +207,6 @@ endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 # Disable some warnings
 #
 add_compiler_flags("-Wno-dangling-reference")
-add_compiler_flags("-Wno-missing-field-initializers")
 add_compiler_flags("-Wno-pessimizing-move")
 add_compiler_flags("-Wno-sign-compare")
 add_compiler_flags("-Wno-suggest-attribute=format")
