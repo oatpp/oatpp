@@ -57,6 +57,8 @@ endfunction()
 ## COMPILER FLAGS #################################################################################
 ###################################################################################################
 
+string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+
 #
 # Generic flags
 #
@@ -177,6 +179,10 @@ endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 #
 # Hardening flags (see https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc)
 #
+IF (NOT CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+  add_compiler_flags("-D_FORTIFY_SOURCE=2")
+ENDIF (NOT CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+add_compiler_flags("-D_GLIBCXX_ASSERTIONS")
 add_compiler_flags("-fasynchronous-unwind-tables")
 add_compiler_flags("-fexceptions")
 add_compiler_flags("-fstack-clash-protection")
