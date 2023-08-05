@@ -415,7 +415,7 @@ provider::ResourceHandle<oatpp::data::stream::IOStream> ConnectionProvider::get(
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
 
-    auto res = select(int(m_serverHandle + 1), &set, nullptr, nullptr, &timeout);
+    auto res = select(m_serverHandle + 1, &set, nullptr, nullptr, &timeout);
 
     if (res >= 0) {
       break;
