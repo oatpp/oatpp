@@ -57,7 +57,7 @@ endfunction()
 ## COMPILER FLAGS #################################################################################
 ###################################################################################################
 
-string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
 #
 # Generic flags
