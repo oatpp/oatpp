@@ -117,8 +117,7 @@ message("\n#####################################################################
 
 message("oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
 
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+include(cmake/compiler-flags.cmake)
 
 include(cmake/msvc-runtime.cmake)
 configure_msvc_runtime()
