@@ -163,7 +163,7 @@ void PipelineAsyncTest::onRun() {
       oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      auto res = oatpp::data::stream::transfer(connection.object.get(), &receiveStream, sample->size() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());
+      oatpp::data::stream::transfer(connection.object.get(), &receiveStream, sample->size() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
 

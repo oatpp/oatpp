@@ -101,7 +101,7 @@ add_compiler_flags("-Wunused-macros")                                       # gc
 #add_compiler_flags("-Wunused-parameter")                                    # gcc 4.6.0
 add_compiler_flags("-Wunused-result")                                       # gcc 4.6.0
 add_compiler_flags("-Wunused-value")                                        # gcc 4.6.0
-#add_compiler_flags("-Wunused-variable")                                     # gcc 4.6.0
+add_compiler_flags("-Wunused-variable")                                     # gcc 4.6.0
 
 add_compiler_flags("-Wunused-local-typedefs")                               # gcc 4.7.0
 
@@ -212,7 +212,6 @@ add_compiler_flags("-Wno-pessimizing-move")
 add_compiler_flags("-Wno-sign-compare")
 add_compiler_flags("-Wno-suggest-attribute=format")
 add_compiler_flags("-Wno-unused-parameter")
-add_compiler_flags("-Wno-unused-variable")
 
 #
 # Sanitize flags

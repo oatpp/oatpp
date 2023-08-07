@@ -252,8 +252,6 @@ void MemoryLabelTest::onRun() {
 
   {
 
-    v_int32 iterationsCount = 100;
-
     oatpp::String headersText =
       "header0: value0\r\n"
       "header0: value1\r\n"
