@@ -54,7 +54,7 @@ public:
   typedef web::protocol::http::incoming::RequestHeadersReader RequestHeadersReader;
   typedef protocol::http::utils::CommunicationUtils::ConnectionState ConnectionState;
 
-  HttpProcessor();
+  HttpProcessor() = default;
 
 public:
 
