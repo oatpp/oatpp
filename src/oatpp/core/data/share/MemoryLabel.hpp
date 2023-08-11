@@ -308,7 +308,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabel const& s) const noexcept {
 
-      auto data = reinterpret_cast<p_char8>(const_cast<void*>(s.getData()));
+      auto data = reinterpret_cast<const char*>(s.getData());
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i];
@@ -328,7 +328,7 @@ namespace std {
     
     result_type operator()(oatpp::data::share::StringKeyLabelCI const& s) const noexcept {
 
-      auto data = reinterpret_cast<p_char8>(const_cast<void*>(s.getData()));
+      auto data = reinterpret_cast<const char*>(s.getData());
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
         v_char8 c = data[i] | 32;

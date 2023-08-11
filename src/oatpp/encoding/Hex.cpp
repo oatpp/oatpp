@@ -86,7 +86,7 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size,
                  const char* alphabet)
 {
-  p_char8 buffer = reinterpret_cast<p_char8>(const_cast<void*>(data));
+  auto buffer = reinterpret_cast<const char*>(data);
   v_char8 oneByteBuffer[2];
   for(v_buff_size i = 0; i < size; i ++) {
     auto c = buffer[i];
@@ -101,7 +101,7 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
 void Hex::decode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size, bool allowSeparators)
 {
-  p_char8 buffer = reinterpret_cast<p_char8>(const_cast<void*>(data));
+  auto buffer = reinterpret_cast<const char*>(data);
   v_char8 byte = 0;
   v_int32 shift = 4;
   for(v_buff_size i = 0; i < size; i ++) {

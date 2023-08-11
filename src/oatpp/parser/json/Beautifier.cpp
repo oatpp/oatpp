@@ -53,7 +53,7 @@ v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& 
 
   for(v_buff_size i = 0; i < count; i ++) {
 
-    v_char8 c = (reinterpret_cast<p_char8>(const_cast<void*>(data))) [i];
+    v_char8 c = (reinterpret_cast<const char*>(data)) [i];
 
     if(m_isCharEscaped) {
       m_isCharEscaped = false;

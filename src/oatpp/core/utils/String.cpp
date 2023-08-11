@@ -55,8 +55,8 @@ v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const 
   if(data1 == nullptr) return -1;
   if(data2 == nullptr) return 1;
 
-  auto d1 = reinterpret_cast<p_char8>(const_cast<void*>(data1));
-  auto d2 = reinterpret_cast<p_char8>(const_cast<void*>(data2));
+  auto d1 = reinterpret_cast<const char*>(data1);
+  auto d2 = reinterpret_cast<const char*>(data2);
 
   v_buff_size size = size1;
   if(size2 < size1) size = size2;
@@ -70,7 +70,7 @@ v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const 
     if(b >= 'A' && b <= 'Z') b |= 32;
 
     if(a != b) {
-      return static_cast<int>(a) - static_cast<int>(b);
+      return static_cast<v_buff_size>(a) - static_cast<v_buff_size>(b);
     }
 
   }

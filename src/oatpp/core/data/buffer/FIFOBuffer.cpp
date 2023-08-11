@@ -239,7 +239,7 @@ v_io_size FIFOBuffer::write(const void *data, v_buff_size count) {
     size2 = count - size;
   }
   
-  std::memcpy(m_buffer, &(reinterpret_cast<p_char8>(const_cast<void*>(data)))[size], static_cast<size_t>(size2));
+  std::memcpy(m_buffer, &(reinterpret_cast<const char*>(data))[size], static_cast<size_t>(size2));
   m_writePosition = size2;
   
   return (size + size2);

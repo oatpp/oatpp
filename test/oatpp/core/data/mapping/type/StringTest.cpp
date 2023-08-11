@@ -42,6 +42,7 @@ void StringTest::onRun() {
     oatpp::String s;
     OATPP_ASSERT(!s);
     OATPP_ASSERT(s == nullptr);
+    OATPP_ASSERT(s == static_cast<const char*>(nullptr));
     OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
     OATPP_LOGI(TAG, "OK");
   }
