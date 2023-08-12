@@ -244,7 +244,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   v_int32 ret;
   int yes = 1;
 
-  addrinfo *result = NULL;
+  addrinfo *result = nullptr;
   addrinfo hints;
 
   memset(&hints, 0, sizeof(hints));
