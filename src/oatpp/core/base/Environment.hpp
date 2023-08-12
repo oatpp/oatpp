@@ -27,6 +27,7 @@
 #define oatpp_base_Environment_hpp
 
 #include "./Config.hpp"
+#include "../../compiler.hpp"
 
 #include <cstdio>
 #include <atomic>
@@ -356,7 +357,7 @@ public:
 private:
   static void registerComponent(const std::string& typeName, const std::string& componentName, void* component);
   static void unregisterComponent(const std::string& typeName, const std::string& componentName);
-  static void vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args) __attribute__ ((format (printf, 3, 0)));
+  static void vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args) COMPILER_ATTRIBUTE (format (printf, 3, 0));
 public:
 
   /**
@@ -448,7 +449,7 @@ public:
    * @param message - message.
    * @param ... - format arguments.
    */
-  static void logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...) __attribute__ ((format (printf, 3, 4)));
+  static void logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...) COMPILER_ATTRIBUTE (format (printf, 3, 4));
 
   /**
    * Format message and call `Logger::log()`<br>
@@ -458,7 +459,7 @@ public:
    * @param message - message.
    * @param ... - format arguments.
    */
-  static void logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) __attribute__ ((format (printf, 3, 4)));
+  static void logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) COMPILER_ATTRIBUTE (format (printf, 3, 4));
 
   /**
    * Get component object by typeName.
