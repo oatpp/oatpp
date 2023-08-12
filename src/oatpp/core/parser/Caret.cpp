@@ -67,11 +67,11 @@ namespace oatpp { namespace parser {
 
   v_buff_size Caret::Label::getStartPosition() {
     return m_start;
-  };
+  }
 
   v_buff_size Caret::Label::getEndPosition() {
     return m_end;
-  };
+  }
 
   oatpp::String Caret::Label::toString(){
     v_buff_size end = m_end;
