@@ -30,17 +30,17 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 // BaseObject
 
 void BaseObject::set(v_int64 offset, const Void& value) {
-  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  Void* property = reinterpret_cast<Void*>((reinterpret_cast<v_int64>(m_basePointer)) + offset);
   *property = value;
 }
 
 Void BaseObject::get(v_int64 offset) const {
-  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  Void* property = reinterpret_cast<Void*>((reinterpret_cast<v_int64>(m_basePointer)) + offset);
   return *property;
 }
 
 Void& BaseObject::getAsRef(v_int64 offset) const {
-  Void* property = (Void*)(((v_int64) m_basePointer) + offset);
+  Void* property = reinterpret_cast<Void*>((reinterpret_cast<v_int64>(m_basePointer)) + offset);
   return *property;
 }
 

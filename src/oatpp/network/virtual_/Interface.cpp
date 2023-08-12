@@ -84,7 +84,7 @@ Interface::~Interface() {
 
   {
     std::lock_guard<std::mutex> lock(m_listenerMutex);
-    if ((void*)m_listenerLock != nullptr) {
+    if (m_listenerLock != nullptr) {
       OATPP_LOGE("[oatpp::network::virtual_::Interface::~Interface()]",
                  "Error! Interface destructor called, but listener is still bonded!!!");
       m_listenerLock.load()->m_interface = nullptr;
@@ -161,7 +161,7 @@ std::shared_ptr<Socket> Interface::acceptSubmission(const std::shared_ptr<Connec
 
 std::shared_ptr<Interface::ListenerLock> Interface::bind() {
   std::lock_guard<std::mutex> lock(m_listenerMutex);
-  if((void*)m_listenerLock == nullptr) {
+  if(m_listenerLock == nullptr) {
     m_listenerLock = new ListenerLock(this);
     return std::shared_ptr<ListenerLock>(m_listenerLock.load());
   }
@@ -171,7 +171,7 @@ std::shared_ptr<Interface::ListenerLock> Interface::bind() {
 
 void Interface::unbindListener(ListenerLock* listenerLock) {
   std::lock_guard<std::mutex> lock(m_listenerMutex);
-  if((void*)m_listenerLock && m_listenerLock == listenerLock) {
+  if(m_listenerLock != nullptr && m_listenerLock == listenerLock) {
     m_listenerLock = nullptr;
     dropAllConnection();
   } else {
@@ -180,7 +180,7 @@ void Interface::unbindListener(ListenerLock* listenerLock) {
 }
   
 std::shared_ptr<Interface::ConnectionSubmission> Interface::connect() {
-  if((void*)m_listenerLock) {
+  if(m_listenerLock != nullptr) {
     auto submission = std::make_shared<ConnectionSubmission>(true);
     {
       std::lock_guard<std::mutex> lock(m_mutex);
@@ -193,7 +193,7 @@ std::shared_ptr<Interface::ConnectionSubmission> Interface::connect() {
 }
   
 std::shared_ptr<Interface::ConnectionSubmission> Interface::connectNonBlocking() {
-  if((void*)m_listenerLock) {
+  if(m_listenerLock != nullptr) {
     std::shared_ptr<ConnectionSubmission> submission;
     {
       std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);

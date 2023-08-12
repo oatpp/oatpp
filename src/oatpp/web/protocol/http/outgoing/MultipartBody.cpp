@@ -55,7 +55,7 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
     return 0;
   }
 
-  p_char8 currBufferPtr = (p_char8) buffer;
+  p_char8 currBufferPtr = reinterpret_cast<p_char8>(buffer);
   v_io_size bytesLeft = count;
 
   v_io_size res = 0;
@@ -134,7 +134,7 @@ v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& multipar
       boundary = "\r\n--" + multipart->getBoundary() + "\r\n";
     }
 
-    readStream.reset(boundary.getPtr(), (p_char8) boundary->data(), boundary->size());
+    readStream.reset(boundary.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(boundary->data())), boundary->size());
 
   }
 
@@ -161,7 +161,7 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
     http::Utils::writeHeaders(part->getHeaders(), &stream);
     stream.writeSimple("\r\n", 2);
     auto str = stream.toString();
-    readStream.reset(str.getPtr(), (p_char8) str->data(), str->size());
+    readStream.reset(str.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(str->data())), str->size());
 
   }
 

@@ -68,8 +68,8 @@ std::shared_ptr<handler::AuthorizationObject> BasicAuthorizationHandler::handleA
     parser::Caret caret(auth);
 
     if (caret.findChar(':')) {
-      oatpp::String userId((const char *) &caret.getData()[0], caret.getPosition());
-      oatpp::String password((const char *) &caret.getData()[caret.getPosition() + 1],
+      oatpp::String userId(&caret.getData()[0], caret.getPosition());
+      oatpp::String password(&caret.getData()[caret.getPosition() + 1],
                              caret.getDataSize() - caret.getPosition() - 1);
       auto authResult = authorize(userId, password);
       if(authResult) {

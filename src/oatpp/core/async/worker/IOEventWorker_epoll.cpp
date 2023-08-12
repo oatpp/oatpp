@@ -155,7 +155,7 @@ void IOEventWorker::consumeBacklog() {
 
 void IOEventWorker::waitEvents() {
 
-  epoll_event* outEvents = (epoll_event*)m_outEvents.get();
+  epoll_event* outEvents = reinterpret_cast<epoll_event*>(m_outEvents.get());
   auto eventsCount = epoll_wait(m_eventQueueHandle, outEvents, MAX_EVENTS, -1);
 
   if((eventsCount < 0) && (errno != EINTR)) {
@@ -184,7 +184,7 @@ void IOEventWorker::waitEvents() {
 
       } else {
 
-        auto coroutine = (CoroutineHandle*) dataPtr;
+        auto coroutine = reinterpret_cast<CoroutineHandle*>(dataPtr);
 
         Action action = coroutine->iterate();
 

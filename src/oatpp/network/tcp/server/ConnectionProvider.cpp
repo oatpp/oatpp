@@ -280,7 +280,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
                    "Warning. Failed to set %s for accepting socket: %s", "SO_REUSEADDR", strerror(errno));
       }
 
-      if (bind(serverHandle, currResult->ai_addr, (int) currResult->ai_addrlen) == 0 &&
+      if (bind(serverHandle, currResult->ai_addr, static_cast<int>(currResult->ai_addrlen)) == 0 &&
           listen(serverHandle, 10000) == 0)
       {
         break;
@@ -310,7 +310,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   ::sockaddr_in s_in;
   ::memset(&s_in, 0, sizeof(s_in));
   ::socklen_t s_in_len = sizeof(s_in);
-  ::getsockname(serverHandle, (sockaddr *)&s_in, &s_in_len);
+  ::getsockname(serverHandle, reinterpret_cast<sockaddr*>(&s_in), &s_in_len);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
@@ -355,7 +355,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
 
   data::stream::Context::Properties properties;
 
-  oatpp::v_io_handle handle = accept(m_serverHandle, (sockaddr*) &clientAddress, &clientAddressSize);
+  oatpp::v_io_handle handle = accept(m_serverHandle, reinterpret_cast<sockaddr*>(&clientAddress), &clientAddressSize);
 
   if(!oatpp::isValidIOHandle(handle)) {
     return nullptr;
@@ -364,20 +364,20 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
   if (clientAddress.ss_family == AF_INET) {
 
     char strIp[INET_ADDRSTRLEN];
-    sockaddr_in* sockAddress = (sockaddr_in*) &clientAddress;
+    sockaddr_in* sockAddress = reinterpret_cast<sockaddr_in*>(&clientAddress);
     inet_ntop(AF_INET, &sockAddress->sin_addr, strIp, INET_ADDRSTRLEN);
 
-    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
+    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String(reinterpret_cast<const char*>(strIp)));
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv4");
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin_port));
 
   } else if (clientAddress.ss_family == AF_INET6) {
 
     char strIp[INET6_ADDRSTRLEN];
-    sockaddr_in6* sockAddress = (sockaddr_in6*) &clientAddress;
+    sockaddr_in6* sockAddress = reinterpret_cast<sockaddr_in6*>(&clientAddress);
     inet_ntop(AF_INET6, &sockAddress->sin6_addr, strIp, INET6_ADDRSTRLEN);
 
-    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String((const char*) strIp));
+    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String(reinterpret_cast<const char*>(strIp)));
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv6");
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin6_port));
 

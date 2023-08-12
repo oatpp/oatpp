@@ -223,10 +223,10 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
   v_buff_size safeSize;
   v_buff_size escapedSize = calcEscapedStringSize(data, size, safeSize, flags);
   if(escapedSize == size) {
-    return String((const char*)data, size);
+    return String(data, size);
   }
   auto result = String(escapedSize);
-  p_char8 resultData = (p_char8) result->data();
+  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
   v_buff_size pos = 0;
 
   {
@@ -285,7 +285,7 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
         v_buff_size charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
         if (charSize != 0) {
           if (!(flags & FLAG_ESCAPE_UTF8CHAR)) {
-            std::memcpy((void*)&resultData[pos], (void*)&data[i], charSize);
+            std::memcpy(reinterpret_cast<void*>(&resultData[pos]), reinterpret_cast<void*>(const_cast<char*>(&data[i])), charSize);
             pos += charSize;
           }
           else {
@@ -304,7 +304,7 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
   }
   
   if(size > safeSize){
-    for(v_buff_size i = pos; (size_t) i < result->size(); i ++){
+    for(v_buff_size i = pos; static_cast<size_t>(i) < result->size(); i ++){
       resultData[i] = '?';
     }
   }
@@ -377,9 +377,9 @@ oatpp::String Utils::unescapeString(const char* data, v_buff_size size, v_int64&
   }
   auto result = String(unescapedSize);
   if(unescapedSize == size) {
-    std::memcpy((void*) result->data(), data, size);
+    std::memcpy(reinterpret_cast<void*>(const_cast<char*>(result->data())), data, size);
   } else {
-    unescapeStringToBuffer(data, size, (p_char8) result->data());
+    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(const_cast<char*>(result->data())));
   }
   return result;
   
@@ -394,9 +394,9 @@ std::string Utils::unescapeStringToStdString(const char* data, v_buff_size size,
   std::string result;
   result.resize(unescapedSize);
   if(unescapedSize == size) {
-    std::memcpy((p_char8) result.data(), data, size);
+    std::memcpy(reinterpret_cast<void*>(const_cast<char*>(result.data())), data, size);
   } else {
-    unescapeStringToBuffer(data, size, (p_char8) result.data());
+    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(const_cast<char*>(result.data())));
   }
   return result;
   

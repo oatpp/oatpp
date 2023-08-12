@@ -43,7 +43,7 @@ v_io_size ResponseHeadersReader::readHeadersSectionIterative(ReadHeadersIteratio
     }
   }
 
-  auto bufferData = (p_char8) m_buffer.getData();
+  auto bufferData = reinterpret_cast<p_char8>(const_cast<void*>(m_buffer.getData()));
   auto res = connection->read(bufferData, desiredToRead, action);
   if(res > 0) {
 

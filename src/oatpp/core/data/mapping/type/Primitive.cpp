@@ -45,7 +45,7 @@ String String::loadFromFile(const char* filename) {
   if (file.is_open()) {
     auto result = data::mapping::type::String(file.tellg());
     file.seekg(0, std::ios::beg);
-    file.read((char*) result->data(), result->size());
+    file.read(const_cast<char*>(result->data()), result->size());
     file.close();
     return result;
   }

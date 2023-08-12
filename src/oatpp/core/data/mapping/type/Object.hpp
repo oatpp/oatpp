@@ -466,7 +466,7 @@ private:
 public:
 
   virtual v_uint64 defaultHashCode() const {
-    return (v_uint64) reinterpret_cast<v_buff_usize>(this);
+    return reinterpret_cast<v_uint64>(this);
   }
 
   virtual bool defaultEquals(const DTO& other) const {

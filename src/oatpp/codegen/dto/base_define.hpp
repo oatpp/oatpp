@@ -65,9 +65,9 @@ public: \
 \
 static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
   char buffer[sizeof(Z__CLASS)]; \
-  auto obj = static_cast<Z__CLASS*>((void*)buffer); \
+  auto obj = static_cast<Z__CLASS*>(reinterpret_cast<void*>(buffer)); \
   auto ptr = &obj->NAME; \
-  return (v_int64) ptr - (v_int64) buffer; \
+  return reinterpret_cast<v_int64>(ptr) - reinterpret_cast<v_int64>(buffer); \
 } \
 \
 static oatpp::data::mapping::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
@@ -96,9 +96,9 @@ TYPE NAME = Z__PROPERTY_INITIALIZER_PROXY_##NAME()
 \
 static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
   char buffer[sizeof(Z__CLASS)]; \
-  auto obj = static_cast<Z__CLASS*>((void*)buffer); \
+  auto obj = static_cast<Z__CLASS*>(reinterpret_cast<void*>(buffer)); \
   auto ptr = &obj->NAME; \
-  return (v_int64) ptr - (v_int64) buffer; \
+  return reinterpret_cast<v_int64>(ptr) - reinterpret_cast<v_int64>(buffer); \
 } \
 \
 static oatpp::data::mapping::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \

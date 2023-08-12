@@ -65,7 +65,7 @@ void Url::Config::disallowCharRange(v_char8 from, v_char8 to) {
 
 void Url::encode(data::stream::ConsistentOutputStream *stream, const void *data, v_buff_size size, const Config& config) {
 
-  p_char8 pdata = (p_char8) data;
+  auto pdata = reinterpret_cast<const char*>(data);
 
   for(v_buff_size i = 0; i < size; i++) {
     v_char8 c = pdata[i];
@@ -83,7 +83,7 @@ void Url::encode(data::stream::ConsistentOutputStream *stream, const void *data,
 
 void Url::decode(data::stream::ConsistentOutputStream* stream, const void* data, v_buff_size size) {
 
-  p_char8 pdata = (p_char8) data;
+  auto pdata = reinterpret_cast<const char*>(data);
   v_buff_size i = 0;
 
   while (i < size) {

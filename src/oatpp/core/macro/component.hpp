@@ -41,7 +41,7 @@
 #include "oatpp/core/base/Environment.hpp"
 
 #define OATPP_MACRO_GET_COMPONENT_1(TYPE) \
-(*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name())))
+(*(reinterpret_cast<TYPE*>(oatpp::base::Environment::getComponent(typeid(TYPE).name()))))
 
 #define OATPP_MACRO_GET_COMPONENT_2(TYPE, QUALIFIER) \
 (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
@@ -51,7 +51,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_GET_COMPONENT_, (__VA_
 
 
 #define OATPP_MACRO_COMPONENT_1(TYPE, NAME) \
-TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name())))
+TYPE& NAME = (*(reinterpret_cast<TYPE*>(oatpp::base::Environment::getComponent(typeid(TYPE).name()))))
 
 #define OATPP_MACRO_COMPONENT_2(TYPE, NAME, QUALIFIER) \
 TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
