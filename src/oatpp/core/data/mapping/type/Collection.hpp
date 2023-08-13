@@ -166,7 +166,7 @@ public:
 
     v_int64 getCollectionSize(const type::Void& object) const override {
       ContainerType* collection = static_cast<ContainerType*>(object.get());
-      return collection->size();
+      return static_cast<v_int64>(collection->size());
     }
 
     void addItem(const type::Void& object, const type::Void& item) const override {

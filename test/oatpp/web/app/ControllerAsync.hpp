@@ -153,7 +153,7 @@ public:
         : m_text(text)
         , m_counter(0)
         , m_iterations(iterations)
-        , m_inlineData(text->data(), text->size())
+        , m_inlineData(text->data(), static_cast<v_buff_size>(text->size()))
       {}
 
       v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
@@ -168,11 +168,11 @@ public:
               desiredToRead = count;
             }
 
-            std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+            std::memcpy(buffer, m_inlineData.currBufferPtr, static_cast<size_t>(desiredToRead));
             m_inlineData.inc(desiredToRead);
 
             if (m_inlineData.bytesLeft == 0) {
-              m_inlineData.set(m_text->data(), m_text->size());
+              m_inlineData.set(m_text->data(), static_cast<v_buff_size>(m_text->size()));
               m_counter++;
             }
 

@@ -126,7 +126,7 @@ public:
    * @return - `true` if equals.
    */
   bool equals(const char* data) const {
-    auto len = data != nullptr ? std::strlen(data) : 0;
+    auto len = data != nullptr ? static_cast<v_buff_size>(std::strlen(data)) : 0;
     return utils::String::compare(m_data, m_size, data, len) == 0;
   }
 
@@ -154,7 +154,7 @@ public:
    * @return std::string(data, size)
    */
   std::string std_str() const {
-    return std::string(reinterpret_cast<const char*>(m_data), m_size);
+    return std::string(reinterpret_cast<const char*>(m_data), static_cast<size_t>(m_size));
   }
 
   inline bool operator==(std::nullptr_t) const {
@@ -210,7 +210,7 @@ public:
   inline bool operator==(const String& str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    return equals(str->data(), str->size());
+    return equals(str->data(), static_cast<v_buff_size>(str->size()));
   }
 
   inline bool operator!=(const String& str) const {
@@ -260,7 +260,7 @@ public:
   }
 
   inline bool operator==(const char* str) const {
-    auto len = str != nullptr ? std::strlen(str) : 0;
+    auto len = str != nullptr ? static_cast<v_buff_size>(std::strlen(str)) : 0;
     return utils::String::compareCI_ASCII(m_data, m_size, str, len) == 0;
   }
 
@@ -271,7 +271,7 @@ public:
   inline bool operator==(const String& str) const {
     if(m_data == nullptr) return str == nullptr;
     if(str == nullptr) return false;
-    return utils::String::compareCI_ASCII(m_data, m_size, str->data(), str->size()) == 0;
+    return utils::String::compareCI_ASCII(m_data, m_size, str->data(), static_cast<v_buff_size>(str->size())) == 0;
   }
 
   inline bool operator!=(const String& str) const {
@@ -311,8 +311,8 @@ namespace std {
       auto data = reinterpret_cast<const char*>(s.getData());
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
-        v_char8 c = data[i];
-        result = (31 * result) + c;
+        auto c = data[i];
+        result = (31 * result) + static_cast<result_type>(c);
       }
 
       return result;
@@ -331,8 +331,8 @@ namespace std {
       auto data = reinterpret_cast<const char*>(s.getData());
       result_type result = 0;
       for(v_buff_size i = 0; i < s.getSize(); i++) {
-        v_char8 c = data[i] | 32;
-        result = (31 * result) + c;
+        auto c = data[i] | 32;
+        result = (31 * result) + static_cast<result_type>(c);
       }
 
       return result;

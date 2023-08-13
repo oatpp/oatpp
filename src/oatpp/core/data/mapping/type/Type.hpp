@@ -629,7 +629,7 @@ struct hash<oatpp::data::mapping::type::ClassId> {
   typedef v_uint64 result_type;
 
   result_type operator()(argument_type const& v) const noexcept {
-    return v.id;
+    return static_cast<result_type>(v.id);
   }
 
 };
