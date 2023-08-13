@@ -144,14 +144,14 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
   auto size = inlineData.bytesLeft;
 
   auto sampleData = m_nextBoundarySample->data();
-  v_io_size sampleSize = m_nextBoundarySample->size();
+  v_io_size sampleSize = static_cast<v_io_size>(m_nextBoundarySample->size());
 
   if (m_currPartIndex == 0) {
     sampleData = m_firstBoundarySample->data();
-    sampleSize = m_firstBoundarySample->size();
+    sampleSize = static_cast<v_io_size>(m_firstBoundarySample->size());
   } else {
     sampleData = m_nextBoundarySample->data();
-    sampleSize = m_nextBoundarySample->size();
+    sampleSize = static_cast<v_io_size>(m_nextBoundarySample->size());
   }
 
   v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;

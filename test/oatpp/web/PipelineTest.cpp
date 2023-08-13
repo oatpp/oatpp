@@ -161,14 +161,14 @@ void PipelineTest::onRun() {
       oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      v_io_size transferSize = sample->size() * m_pipelineSize;
+      v_io_size transferSize = static_cast<v_io_size>(sample->size() * static_cast<size_t>(m_pipelineSize));
 
       OATPP_LOGD(TAG, "want to Receive %ld bytes", transferSize);
       oatpp::data::stream::transfer(connection.object.get(), &receiveStream, transferSize, ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
 
-      OATPP_ASSERT(result->size() == sample->size() * m_pipelineSize);
+      OATPP_ASSERT(result->size() == sample->size() * static_cast<size_t>(m_pipelineSize));
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
 
     });

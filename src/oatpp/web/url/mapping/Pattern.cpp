@@ -99,17 +99,17 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
 }
 
 std::shared_ptr<Pattern> Pattern::parse(const char* data){
-  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data)), std::strlen(data));
+  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data)), static_cast<v_buff_size>(std::strlen(data)));
 }
 
 std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
-  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data->data())), data->size());
+  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()));
 }
   
 v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   auto data = caret.getData();
   for (v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     if(a == '/' || a == '?') {
       caret.setPosition(i);
       return a;
@@ -136,7 +136,7 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
     
     if(part->function == Part::FUNCTION_CONST){
       
-      if(!caret.isAtText(part->text->data(), part->text->size(), true)) {
+      if(!caret.isAtText(part->text->data(), static_cast<v_buff_size>(part->text->size()), true)) {
         return false;
       }
       

@@ -94,7 +94,7 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
   m_allWorkers.insert(m_allWorkers.end(), m_processorWorkers.begin(), m_processorWorkers.end());
 
   std::vector<std::shared_ptr<worker::Worker>> ioWorkers;
-  ioWorkers.reserve(ioWorkersCount);
+  ioWorkers.reserve(static_cast<size_t>(ioWorkersCount));
   switch(ioWorkerType) {
 
     case IO_WORKER_TYPE_NAIVE: {
@@ -119,7 +119,7 @@ Executor::Executor(v_int32 processorWorkersCount, v_int32 ioWorkersCount, v_int3
   linkWorkers(ioWorkers);
 
   std::vector<std::shared_ptr<worker::Worker>> timerWorkers;
-  timerWorkers.reserve(timerWorkersCount);
+  timerWorkers.reserve(static_cast<size_t>(timerWorkersCount));
   for(v_int32 i = 0; i < timerWorkersCount; i++) {
     timerWorkers.push_back(std::make_shared<worker::TimerWorker>());
   }

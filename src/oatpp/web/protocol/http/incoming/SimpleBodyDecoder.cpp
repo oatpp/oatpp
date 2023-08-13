@@ -83,7 +83,7 @@ void SimpleBodyDecoder::handleExpectHeader(const Headers& headers, data::stream:
 
   auto expect = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::EXPECT);
   if(expect == Header::Value::EXPECT_100_CONTINUE) {
-    auto res = connection->writeExactSizeDataSimple(RESPONSE_100_CONTINUE.data(), RESPONSE_100_CONTINUE.size());
+    auto res = connection->writeExactSizeDataSimple(RESPONSE_100_CONTINUE.data(), static_cast<v_buff_size>(RESPONSE_100_CONTINUE.size()));
     if(res != static_cast<v_io_size>(RESPONSE_100_CONTINUE.size())) {
       throw std::runtime_error("[oatpp::web::protocol::http::incoming::SimpleBodyDecoder::handleExpectHeader()]: "
                                "Error. Unable to send 100-continue response.");
@@ -97,7 +97,7 @@ oatpp::async::CoroutineStarter SimpleBodyDecoder::handleExpectHeaderAsync(const 
 {
   auto expect = headers.getAsMemoryLabel<data::share::StringKeyLabelCI>(Header::EXPECT);
   if(expect == Header::Value::EXPECT_100_CONTINUE) {
-    return connection->writeExactSizeDataAsync(RESPONSE_100_CONTINUE.data(), RESPONSE_100_CONTINUE.size());
+    return connection->writeExactSizeDataAsync(RESPONSE_100_CONTINUE.data(), static_cast<v_buff_size>(RESPONSE_100_CONTINUE.size()));
   }
   return nullptr;
 }

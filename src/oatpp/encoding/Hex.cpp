@@ -36,10 +36,10 @@ const char* Hex::ALPHABET_UPPER = "0123456789ABCDEF";
 const char* Hex::ALPHABET_LOWER = "0123456789abcdef";
     
 void Hex::writeUInt16(v_uint16 value, p_char8 buffer){
-  *(reinterpret_cast<p_uint32>(buffer)) = htonl((ALPHABET_UPPER[ value & 0x000F       ]      ) |
-                               (ALPHABET_UPPER[(value & 0x00F0) >>  4] <<  8) |
-                               (ALPHABET_UPPER[(value & 0x0F00) >>  8] << 16) |
-                               (ALPHABET_UPPER[(value & 0xF000) >> 12] << 24));
+  *(reinterpret_cast<p_uint32>(buffer)) = htonl((static_cast<v_uint32>(ALPHABET_UPPER[ value & 0x000F       ])      ) |
+                               (static_cast<v_uint32>(ALPHABET_UPPER[(value & 0x00F0) >>  4]) <<  8) |
+                               (static_cast<v_uint32>(ALPHABET_UPPER[(value & 0x0F00) >>  8]) << 16) |
+                               (static_cast<v_uint32>(ALPHABET_UPPER[(value & 0xF000) >> 12]) << 24));
   
 }
   
@@ -50,8 +50,8 @@ void Hex::writeUInt32(v_uint32 value, p_char8 buffer){
   
 v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
   value = 0;
-  for(v_int32 i = 0; i < 4; i++){
-    v_char8 a = buffer[i];
+  for(v_uint32 i = 0; i < 4; i++){
+    v_char8 a = static_cast<v_char8>(buffer[i]);
     if(a >= '0' && a <= '9') {
       value |= static_cast<v_uint16>((a - '0') << ((3 - i) << 2));
     } else if (a >= 'A' && a <= 'F') {
@@ -67,14 +67,14 @@ v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
   
 v_int32 Hex::readUInt32(const char* buffer, v_uint32& value) {
   value = 0;
-  for(v_int32 i = 0; i < 8; i++){
-    v_char8 a = buffer[i];
+  for(v_uint32 i = 0; i < 8; i++){
+    v_char8 a = static_cast<v_char8>(buffer[i]);
     if(a >= '0' && a <= '9') {
-      value |= (a - '0') << ((7 - i) << 2);
+      value |= static_cast<v_uint32>(a - '0') << ((7 - i) << 2);
     } else if (a >= 'A' && a <= 'F') {
-      value |= (a - 'A' + 10) << ((7 - i) << 2);
+      value |= static_cast<v_uint32>(a - 'A' + 10) << ((7 - i) << 2);
     } else if (a >= 'a' && a <= 'f') {
-      value |= (a - 'a' + 10) << ((7 - i) << 2);
+      value |= static_cast<v_uint32>(a - 'a' + 10) << ((7 - i) << 2);
     } else {
       return ERROR_UNKNOWN_SYMBOL;
     }
@@ -87,9 +87,9 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
                  const char* alphabet)
 {
   auto buffer = reinterpret_cast<const char*>(data);
-  v_char8 oneByteBuffer[2];
+  char oneByteBuffer[2];
   for(v_buff_size i = 0; i < size; i ++) {
-    auto c = buffer[i];
+    v_char8 c = static_cast<v_char8>(buffer[i]);
     v_char8 b1 = 0x0F & (c >> 4);
     v_char8 b2 = 0x0F & (c);
     oneByteBuffer[0] = alphabet[b1];

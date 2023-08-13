@@ -32,7 +32,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   : m_config(config)
 {
 
-  m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
+  m_methods.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), nullptr);
 
   setDeserializerMethod(data::mapping::type::__class::String::CLASS_ID, &Deserializer::deserializeString);
   setDeserializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Deserializer::deserializeAny);
@@ -66,7 +66,7 @@ Deserializer::Deserializer(const std::shared_ptr<Config>& config)
 }
 
 void Deserializer::setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method) {
-  const v_uint32 id = classId.id;
+  const v_uint32 id = static_cast<v_uint32>(classId.id);
   if(id >= m_methods.size()) {
     m_methods.resize(id + 1, nullptr);
   }
@@ -83,7 +83,7 @@ void Deserializer::skipScope(oatpp::parser::Caret& caret, v_char8 charOpen, v_ch
   bool isInString = false;
 
   while(pos < size){
-    v_char8 a = data[pos];
+    v_char8 a = static_cast<v_char8>(data[pos]);
     if(a == charOpen){
       if(!isInString){
         scopeCounter ++;
@@ -113,7 +113,7 @@ void Deserializer::skipString(oatpp::parser::Caret& caret){
   v_buff_size pos = caret.getPosition();
   v_int32 scopeCounter = 0;
   while(pos < size){
-    v_char8 a = data[pos];
+    v_char8 a = static_cast<v_char8>(data[pos]);
     if(a == '"'){
       scopeCounter ++;
       if(scopeCounter == 2) {
@@ -132,7 +132,7 @@ void Deserializer::skipToken(oatpp::parser::Caret& caret){
   v_buff_size size = caret.getDataSize();
   v_buff_size pos = caret.getPosition();
   while(pos < size){
-    v_char8 a = data[pos];
+    v_char8 a = static_cast<v_char8>(data[pos]);
     if(a == ' ' || a == '\t' || a == '\n' || a == '\r' || a == '\b' || a == '\f' ||
        a == '}' || a == ',' || a == ']') {
       caret.setPosition(pos);
@@ -225,7 +225,7 @@ const data::mapping::type::Type* Deserializer::guessNumberType(oatpp::parser::Ca
 const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& caret) {
   {
     parser::Caret::StateSaveGuard stateGuard(caret);
-    v_char8 c = *caret.getCurrData();
+    v_char8 c = static_cast<v_char8>(*caret.getCurrData());
     switch (c) {
       case '"':
         return String::Class::getType();
@@ -494,7 +494,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 }
 
 oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
-  auto id = type->classId.id;
+  v_uint32 id = static_cast<v_uint32>(type->classId.id);
   auto& method = m_methods[id];
   if(method) {
     return (*method)(this, caret, type);

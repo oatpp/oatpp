@@ -280,7 +280,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
                    "Warning. Failed to set %s for accepting socket: %s", "SO_REUSEADDR", strerror(errno));
       }
 
-      if (bind(serverHandle, currResult->ai_addr, static_cast<int>(currResult->ai_addrlen)) == 0 &&
+      if (bind(serverHandle, currResult->ai_addr, static_cast<socklen_t>(currResult->ai_addrlen)) == 0 &&
           listen(serverHandle, 10000) == 0)
       {
         break;

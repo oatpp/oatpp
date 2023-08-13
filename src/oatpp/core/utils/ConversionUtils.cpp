@@ -77,19 +77,19 @@ namespace oatpp { namespace utils { namespace conversion {
   }
 
   v_buff_size int32ToCharSequence(v_int32 value, p_char8 data, v_buff_size n) {
-    return snprintf(reinterpret_cast<char*>(data), n, "%ld", static_cast<long>(value));
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), "%ld", static_cast<long>(value));
   }
 
   v_buff_size uint32ToCharSequence(v_uint32 value, p_char8 data, v_buff_size n) {
-    return snprintf(reinterpret_cast<char*>(data), n, "%lu", static_cast<unsigned long>(value));
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), "%lu", static_cast<unsigned long>(value));
   }
 
   v_buff_size int64ToCharSequence(v_int64 value, p_char8 data, v_buff_size n) {
-    return snprintf(reinterpret_cast<char*>(data), n, "%lld", static_cast<long long int>(value));
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), "%lld", static_cast<long long int>(value));
   }
 
   v_buff_size uint64ToCharSequence(v_uint64 value, p_char8 data, v_buff_size n) {
-    return snprintf(reinterpret_cast<char*>(data), n, "%llu", static_cast<long long unsigned int>(value));
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), "%llu", static_cast<long long unsigned int>(value));
   }
 
   oatpp::String int32ToStr(v_int32 value){
@@ -132,7 +132,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [16];
     auto size = int32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
-      return std::string(reinterpret_cast<const char*>(buff), size);
+      return std::string(reinterpret_cast<const char*>(buff), static_cast<size_t>(size));
     }
     return nullptr;
   }
@@ -141,7 +141,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [16];
     auto size = uint32ToCharSequence(value, &buff[0], 16);
     if(size > 0){
-      return std::string(reinterpret_cast<const char*>(buff), size);
+      return std::string(reinterpret_cast<const char*>(buff), static_cast<size_t>(size));
     }
     return nullptr;
   }
@@ -150,7 +150,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [32];
     v_int32 size = v_int32(int64ToCharSequence(value, &buff[0], 32));
     if(size > 0){
-      return std::string(reinterpret_cast<const char*>(buff), size);
+      return std::string(reinterpret_cast<const char*>(buff), static_cast<size_t>(size));
     }
     return nullptr;
   }
@@ -159,7 +159,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [32];
     auto size = uint64ToCharSequence(value, &buff[0], 32);
     if(size > 0){
-      return std::string(reinterpret_cast<const char*>(buff), size);
+      return std::string(reinterpret_cast<const char*>(buff), static_cast<size_t>(size));
     }
     return nullptr;
   }
@@ -189,11 +189,11 @@ namespace oatpp { namespace utils { namespace conversion {
   }
 
   v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n, const char* format) {
-    return snprintf(reinterpret_cast<char*>(data), n, format, static_cast<double>(value));
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), format, static_cast<double>(value));
   }
 
 v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n, const char* format) {
-    return snprintf(reinterpret_cast<char*>(data), n, format, value);
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), format, value);
   }
   
   oatpp::String float32ToStr(v_float32 value, const char* format) {

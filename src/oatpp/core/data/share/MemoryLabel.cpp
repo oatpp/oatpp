@@ -39,11 +39,11 @@ StringKeyLabel::StringKeyLabel(const std::shared_ptr<std::string>& memHandle, co
 {}
   
 StringKeyLabel::StringKeyLabel(const char* constText)
-  : oatpp::data::share::MemoryLabel(nullptr, constText, std::strlen(constText))
+  : oatpp::data::share::MemoryLabel(nullptr, constText, static_cast<v_buff_size>(std::strlen(constText)))
 {}
   
 StringKeyLabel::StringKeyLabel(const String& str)
-  : oatpp::data::share::MemoryLabel(str.getPtr(), str->data(), str->size())
+  : oatpp::data::share::MemoryLabel(str.getPtr(), str->data(), static_cast<v_buff_size>(str->size()))
 {}
   
 StringKeyLabelCI::StringKeyLabelCI(const std::shared_ptr<std::string>& memHandle, const char* data, v_buff_size size)
@@ -51,11 +51,11 @@ StringKeyLabelCI::StringKeyLabelCI(const std::shared_ptr<std::string>& memHandle
 {}
 
 StringKeyLabelCI::StringKeyLabelCI(const char* constText)
-  : oatpp::data::share::MemoryLabel(nullptr, constText, std::strlen(constText))
+  : oatpp::data::share::MemoryLabel(nullptr, constText, static_cast<v_buff_size>(std::strlen(constText)))
 {}
 
 StringKeyLabelCI::StringKeyLabelCI(const String& str)
-  : oatpp::data::share::MemoryLabel(str.getPtr(), str->data(), str->size())
+  : oatpp::data::share::MemoryLabel(str.getPtr(), str->data(), static_cast<v_buff_size>(str->size()))
 {}
   
 }}}

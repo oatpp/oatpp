@@ -68,15 +68,15 @@ namespace {
   void parseStepByStep(const oatpp::String& text,
                        const oatpp::String& boundary,
                        const std::shared_ptr<oatpp::web::mime::multipart::StatefulParser::Listener>& listener,
-                       const v_int32 step)
+                       const size_t step)
   {
 
     oatpp::web::mime::multipart::StatefulParser parser(boundary, listener, nullptr);
 
-    oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->data(), text->size());
+    oatpp::data::stream::BufferInputStream stream(text.getPtr(), text->data(), static_cast<v_buff_size>(text->size()));
     std::unique_ptr<v_char8[]> buffer(new v_char8[step]);
     v_io_size size;
-    while((size = stream.readSimple(buffer.get(), step)) != 0) {
+    while((size = stream.readSimple(buffer.get(), static_cast<v_buff_size>(step))) != 0) {
       oatpp::data::buffer::InlineWriteData inlineData(buffer.get(), size);
       while(inlineData.bytesLeft > 0 && !parser.finished()) {
         oatpp::async::Action action;
@@ -119,7 +119,7 @@ void StatefulParserTest::onRun() {
     auto listener = std::make_shared<oatpp::web::mime::multipart::PartsParser>(&multipart);
     listener->setDefaultPartReader(oatpp::web::mime::multipart::createInMemoryPartReader(128));
 
-    parseStepByStep(text, "12345", listener, static_cast<v_int32>(i));
+    parseStepByStep(text, "12345", listener, i);
 
     if(multipart.count() != 5) {
       OATPP_LOGD(TAG, "TEST_DATA_1 itearation %lu", i);
