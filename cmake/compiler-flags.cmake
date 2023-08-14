@@ -9,6 +9,10 @@ include(CheckCXXCompilerFlag)
 ## FUNCTIONS ######################################################################################
 ###################################################################################################
 
+#
+# Test compiler flags and add them when they are supported
+#
+
 function(add_cxx_compiler_flags var)
   foreach(flag ${ARGN})
     string(REGEX REPLACE "[^a-zA-Z0-9]+" "_" flag_var "CXXFLAG_${flag}")
@@ -19,6 +23,11 @@ function(add_cxx_compiler_flags var)
   endforeach()
   set(${var} "${${var}}" PARENT_SCOPE)
 endfunction()
+
+
+#
+# Remove compiler flags
+#
 
 function(remove_any_compiler_flags var)
   foreach(flag ${ARGN})
@@ -35,6 +44,11 @@ function(remove_compiler_flags)
   endforeach()
 endfunction()
 
+
+#
+# Save and Restore compiler flags
+#
+
 function(save_compiler_flags)
   set(CMAKE_CXX_FLAGS_SAVED "${CMAKE_CXX_FLAGS}" CACHE STRING "Saved compiler C++ flags" FORCE)
 endfunction()
@@ -43,6 +57,7 @@ function(restore_compiler_flags)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_SAVED}"       )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 endfunction()
+
 
 ###################################################################################################
 ## COMPILER FLAGS #################################################################################
