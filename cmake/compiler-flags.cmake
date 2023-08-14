@@ -20,13 +20,6 @@ function(add_cxx_compiler_flags var)
   set(${var} "${${var}}" PARENT_SCOPE)
 endfunction()
 
-function(add_compiler_flags)
-  foreach(flag ${ARGN})
-    add_cxx_compiler_flags(CMAKE_CXX_FLAGS ${flag})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
-  endforeach()
-endfunction()
-
 function(remove_any_compiler_flags var)
   foreach(flag ${ARGN})
     string(REPLACE       "${flag}" ""  ${var} "${${var}}")
@@ -60,81 +53,81 @@ string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 #
 # Generic flags
 #
-add_compiler_flags("-Wall")
-add_compiler_flags("-Wextra")
-add_compiler_flags("-g3")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wall")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wextra")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-g3")
 
 #
 # C/C++ Warning Flags
 # See https://github.com/vadz/gcc-warnings-tools for gcc flags and versions
 #
-add_compiler_flags("-Wcast-align")                                         # gcc 4.6.0
-#add_compiler_flags("-Wconversion")                                         # gcc 4.6.0
-#add_compiler_flags("-Wdouble-promotion")                                   # gcc 4.6.0
-add_compiler_flags("-Wformat=2")                                           # gcc 4.6.0
-add_compiler_flags("-Winvalid-pch")                                        # gcc 4.6.0
-add_compiler_flags("-Wmissing-declarations")                               # gcc 4.6.0
-add_compiler_flags("-Wmissing-format-attribute")                           # gcc 4.6.0
-add_compiler_flags("-Wmissing-include-dirs")                               # gcc 4.6.0
-add_compiler_flags("-Wpointer-arith")                                      # gcc 4.6.0
-add_compiler_flags("-Wredundant-decls")                                    # gcc 4.6.0
-#add_compiler_flags("-Wshadow")                                             # gcc 4.6.0
-#add_compiler_flags("-Wsign-conversion")                                    # gcc 4.6.0
-#add_compiler_flags("-Wsuggest-attribute=const")                            # gcc 4.6.0
-#add_compiler_flags("-Wsuggest-attribute=noreturn")                         # gcc 4.6.0
-#add_compiler_flags("-Wsuggest-attribute=pure")                             # gcc 4.6.0
-add_compiler_flags("-Wswitch-default")                                     # gcc 4.6.0
-add_compiler_flags("-Wswitch-enum")                                        # gcc 4.6.0
-add_compiler_flags("-Wtype-limits")                                         # gcc 4.6.0
-add_compiler_flags("-Wundef")                                              # gcc 4.6.0
-add_compiler_flags("-Wuninitialized")                                       # gcc 4.6.0
-add_compiler_flags("-Wunknown-pragmas")                                     # gcc 4.6.0
-add_compiler_flags("-Wunsafe-loop-optimizations")                           # gcc 4.6.0
-add_compiler_flags("-Wunused-but-set-parameter")                            # gcc 4.6.0
-add_compiler_flags("-Wunused-but-set-variable")                             # gcc 4.6.0
-add_compiler_flags("-Wunused-function")                                     # gcc 4.6.0
-add_compiler_flags("-Wunused")                                              # gcc 4.6.0
-add_compiler_flags("-Wunused-label")                                        # gcc 4.6.0
-add_compiler_flags("-Wunused-macros")                                       # gcc 4.6.0
-#add_compiler_flags("-Wunused-parameter")                                    # gcc 4.6.0
-add_compiler_flags("-Wunused-result")                                       # gcc 4.6.0
-add_compiler_flags("-Wunused-value")                                        # gcc 4.6.0
-add_compiler_flags("-Wunused-variable")                                     # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wcast-align")                                         # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wconversion")                                         # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wdouble-promotion")                                   # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wformat=2")                                           # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Winvalid-pch")                                        # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wmissing-declarations")                               # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wmissing-format-attribute")                           # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wmissing-include-dirs")                               # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wpointer-arith")                                      # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wredundant-decls")                                    # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wshadow")                                             # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsign-conversion")                                    # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-attribute=const")                            # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-attribute=noreturn")                         # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-attribute=pure")                             # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wswitch-default")                                     # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wswitch-enum")                                        # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wtype-limits")                                         # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wundef")                                              # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wuninitialized")                                       # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunknown-pragmas")                                     # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunsafe-loop-optimizations")                           # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-but-set-parameter")                            # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-but-set-variable")                             # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-function")                                     # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused")                                              # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-label")                                        # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-macros")                                       # gcc 4.6.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-parameter")                                    # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-result")                                       # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-value")                                        # gcc 4.6.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-variable")                                     # gcc 4.6.0
 
-add_compiler_flags("-Wunused-local-typedefs")                               # gcc 4.7.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wunused-local-typedefs")                               # gcc 4.7.0
 
-#add_compiler_flags("-Wsuggest-attribute=format")                           # gcc 4.8.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-attribute=format")                           # gcc 4.8.0
 
-add_compiler_flags("-Wformat-signedness")                                  # gcc 5.1.0
-#add_compiler_flags("-Wsuggest-final-methods")                              # gcc 5.1.0
-#add_compiler_flags("-Wsuggest-final-types")                                # gcc 5.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wformat-signedness")                                  # gcc 5.1.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-final-methods")                              # gcc 5.1.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-final-types")                                # gcc 5.1.0
 
-add_compiler_flags("-Wduplicated-cond")                                    # gcc 6.1.0
-#add_compiler_flags("-Wlogical-op")                                         # gcc 6.1.0
-add_compiler_flags("-Wnull-dereference")                                   # gcc 6.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wduplicated-cond")                                    # gcc 6.1.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wlogical-op")                                         # gcc 6.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wnull-dereference")                                   # gcc 6.1.0
 
-add_compiler_flags("-Wduplicated-branches")                                # gcc 7.1.0
-add_compiler_flags("-Wformat-overflow=2")                                  # gcc 7.1.0
-add_compiler_flags("-Wformat-truncation=2")                                # gcc 7.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wduplicated-branches")                                # gcc 7.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wformat-overflow=2")                                  # gcc 7.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wformat-truncation=2")                                # gcc 7.1.0
 
-#add_compiler_flags("-Wcast-align=strict")                                  # gcc 8.1.0
-#add_compiler_flags("-Wsuggest-attribute=cold")                             # gcc 8.1.0
-add_compiler_flags("-Wsuggest-attribute=malloc")                           # gcc 8.1.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wcast-align=strict")                                  # gcc 8.1.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-attribute=cold")                             # gcc 8.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wsuggest-attribute=malloc")                           # gcc 8.1.0
 
-#add_compiler_flags("-Warith-conversion")                                   # gcc 10.1.0
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Warith-conversion")                                   # gcc 10.1.0
 
-add_compiler_flags("-Wctad-maybe-unsupported")                             # gcc 11.1.0
-add_compiler_flags("-Wdeprecated-enum-enum-conversion")                    # gcc 11.1.0
-add_compiler_flags("-Wdeprecated-enum-float-conversion")                   # gcc 11.1.0
-add_compiler_flags("-Winvalid-imported-macros")                            # gcc 11.1.0
-add_compiler_flags("-Wrange-loop-construct")                               # gcc 11.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wctad-maybe-unsupported")                             # gcc 11.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wdeprecated-enum-enum-conversion")                    # gcc 11.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wdeprecated-enum-float-conversion")                   # gcc 11.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Winvalid-imported-macros")                            # gcc 11.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wrange-loop-construct")                               # gcc 11.1.0
 
-add_compiler_flags("-Warray-compare")                                      # gcc 12.1.0
-add_compiler_flags("-Wbidi-chars=unpaired,ucn")                            # gcc 12.1.0
-add_compiler_flags("-Winfinite-recursion")                                 # gcc 12.1.0
-add_compiler_flags("-Wopenacc-parallelism")                                # gcc 12.1.0
-add_compiler_flags("-ftrivial-auto-var-init=zero")                         # gcc 12.1.0
-add_compiler_flags("-Wtrivial-auto-var-init")                              # gcc 12.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Warray-compare")                                      # gcc 12.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wbidi-chars=unpaired,ucn")                            # gcc 12.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Winfinite-recursion")                                 # gcc 12.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wopenacc-parallelism")                                # gcc 12.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-ftrivial-auto-var-init=zero")                         # gcc 12.1.0
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wtrivial-auto-var-init")                              # gcc 12.1.0
 
 #
 # C++ Warning Flags
@@ -167,48 +160,48 @@ add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wvolatile")                       # gcc
 #
 # Allow the linker to remove unused data and functions
 #
-add_compiler_flags("-fdata-sections")
-add_compiler_flags("-ffunction-sections")
-add_compiler_flags("-fno-common")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fdata-sections")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-ffunction-sections")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fno-common")
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
-  add_compiler_flags("-Wl,--gc-sections")
+  add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wl,--gc-sections")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
 #
 # Hardening flags (see https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc)
 #
 IF (NOT CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
-  add_compiler_flags("-D_FORTIFY_SOURCE=2")
+  add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-D_FORTIFY_SOURCE=2")
 ENDIF (NOT CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
-add_compiler_flags("-D_GLIBCXX_ASSERTIONS")
-add_compiler_flags("-fasynchronous-unwind-tables")
-add_compiler_flags("-fexceptions")
-add_compiler_flags("-fstack-clash-protection")
-add_compiler_flags("-fstack-protector-strong")
-add_compiler_flags("-grecord-gcc-switches")
-add_compiler_flags("-fcf-protection")
-add_compiler_flags("-pipe")
-add_compiler_flags("-Wformat=2 -Werror=format-security -Wno-format-nonliteral")
-add_compiler_flags("-fPIE")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-D_GLIBCXX_ASSERTIONS")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fasynchronous-unwind-tables")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fexceptions")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fstack-clash-protection")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fstack-protector-strong")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-grecord-gcc-switches")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fcf-protection")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-pipe")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wformat=2 -Werror=format-security -Wno-format-nonliteral")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fPIE")
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
-  add_compiler_flags("-Wl,-z,defs")
-  add_compiler_flags("-Wl,-z,now")
-  add_compiler_flags("-Wl,-z,relro")
+  add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wl,-z,defs")
+  add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wl,-z,now")
+  add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wl,-z,relro")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
 #
 # Profiling and Debugging (see https://fedoraproject.org/wiki/Changes/fno-omit-frame-pointer)
 #
-#add_compiler_flags("-fno-omit-frame-pointer")
+#add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer")
 
 #
 # Disable some warnings
 #
-add_compiler_flags("-Wno-dangling-reference")
-add_compiler_flags("-Wno-pessimizing-move")
-add_compiler_flags("-Wno-sign-compare")
-add_compiler_flags("-Wno-suggest-attribute=format")
-add_compiler_flags("-Wno-unused-parameter")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wno-dangling-reference")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wno-pessimizing-move")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wno-sign-compare")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wno-suggest-attribute=format")
+add_cxx_compiler_flags(CMAKE_CXX_FLAGS "-Wno-unused-parameter")
 
 #
 # Sanitize flags
