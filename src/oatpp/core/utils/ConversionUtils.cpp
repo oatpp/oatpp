@@ -189,7 +189,7 @@ namespace oatpp { namespace utils { namespace conversion {
   }
 
   v_buff_size float32ToCharSequence(v_float32 value, p_char8 data, v_buff_size n, const char* format) {
-    return snprintf(reinterpret_cast<char*>(data), n, format, value);
+    return snprintf(reinterpret_cast<char*>(data), n, format, static_cast<double>(value));
   }
 
 v_buff_size float64ToCharSequence(v_float64 value, p_char8 data, v_buff_size n, const char* format) {
