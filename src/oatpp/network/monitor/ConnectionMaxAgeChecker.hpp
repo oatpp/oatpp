@@ -25,7 +25,9 @@
 #ifndef oatpp_network_monitor_ConnectionMaxAgeChecker_hpp
 #define oatpp_network_monitor_ConnectionMaxAgeChecker_hpp
 
+#include "../../core/base/Compiler.hpp"
 #include "MetricsChecker.hpp"
+
 
 namespace oatpp { namespace network { namespace monitor {
 
@@ -46,7 +48,7 @@ public:
 
   std::vector<oatpp::String> getMetricsList() override;
 
-  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) override;
+  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) override GPP_ATTRIBUTE(noreturn);
 
   bool check(const ConnectionStats& stats, v_int64 currMicroTime) override;
 
