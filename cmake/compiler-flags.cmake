@@ -173,12 +173,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
   #add_compiler_flags(10.1 "-Warith-conversion")
 
-  add_compiler_flags(11.1 "-Wctad-maybe-unsupported")
-  add_compiler_flags(11.1 "-Wdeprecated-enum-enum-conversion")
-  add_compiler_flags(11.1 "-Wdeprecated-enum-float-conversion")
-  add_compiler_flags(11.1 "-Winvalid-imported-macros")
-  add_compiler_flags(11.1 "-Wrange-loop-construct")
-
   add_compiler_flags(12.1 "-ftrivial-auto-var-init=zero")
   add_compiler_flags(12.1 "-Warray-compare")
   add_compiler_flags(12.1 "-Wbidi-chars=unpaired,ucn")
@@ -216,6 +210,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(10.1 "-Wmismatched-tags")
   add_compiler_flags(10.1 "-Wredundant-tags")
   add_compiler_flags(10.1 "-Wvolatile")
+
+  add_compiler_flags(11.1 "-Wctad-maybe-unsupported")
+  add_compiler_flags(11.1 "-Wdeprecated-enum-enum-conversion")
+  add_compiler_flags(11.1 "-Wdeprecated-enum-float-conversion")
+  add_compiler_flags(11.1 "-Winvalid-imported-macros")
+  add_compiler_flags(11.1 "-Wrange-loop-construct")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
 
