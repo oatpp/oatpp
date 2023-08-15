@@ -115,7 +115,19 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
 
   if(result < 0) {
     auto e = errno;
-    if(e == EAGAIN || e == EWOULDBLOCK){
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlogical-op"
+#endif
+
+    bool retry = ((e == EAGAIN) || (e == EWOULDBLOCK));
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+    if(retry){
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
@@ -173,7 +185,19 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
 
   if(result < 0) {
     auto e = errno;
-    if(e == EAGAIN || e == EWOULDBLOCK){
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlogical-op"
+#endif
+
+    bool retry = ((e == EAGAIN) || (e == EWOULDBLOCK));
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+    if(retry){
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
       }
