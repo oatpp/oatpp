@@ -170,7 +170,7 @@ void ClientRetryTest::onRun() {
     auto response = client->getRoot();
     auto ticks = checker.getElapsedTicks();
 
-    OATPP_LOGD(TAG, "ticks=%d", ticks);
+    OATPP_LOGD(TAG, "ticks=%ld", ticks);
 
     if(m_port == 0) {
 
@@ -255,7 +255,7 @@ void ClientRetryTest::onRun() {
         counter ++;
 
         if(counter % 1000 == 0) {
-          OATPP_LOGD("client", "requests=%d", counter);
+          OATPP_LOGD("client", "requests=%ld", counter);
         }
 
       }
