@@ -160,7 +160,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   #add_compiler_flags(5.1 "-Wsuggest-final-types")
 
   add_compiler_flags(6.1 "-Wduplicated-cond")
-  #add_compiler_flags(6.1 "-Wlogical-op")
+  add_compiler_flags(6.1 "-Wlogical-op")
   add_compiler_flags(6.1 "-Wnull-dereference")
 
   add_compiler_flags(7.1 "-Wduplicated-branches")
