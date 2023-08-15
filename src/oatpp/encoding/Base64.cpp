@@ -36,13 +36,13 @@ const char* const Base64::ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS = "._-";
   
 v_char8 Base64::getAlphabetCharIndex(v_char8 a, const char* auxiliaryChars) {
   if(a >= 'A' && a <='Z') {
-    return a - 'A';
+    return static_cast<v_char8>(a - 'A');
   }
   if(a >= 'a' && a <='z') {
-    return a - 'a' + 26;
+    return static_cast<v_char8>(a - 'a' + 26);
   }
   if(a >= '0' && a <='9') {
-    return a - '0' + 52;
+    return static_cast<v_char8>(a - '0' + 52);
   }
   if(a == auxiliaryChars[0]) {
     return 62;
@@ -167,9 +167,9 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
     v_char8 b2 = getAlphabetCharIndex(data[pos + 2], auxiliaryChars);
     v_char8 b3 = getAlphabetCharIndex(data[pos + 3], auxiliaryChars);
     
-    resultData[0] = (b0 << 2) | ((b1 >> 4) & 3);
-    resultData[1] = ((b1 & 15) << 4) | ((b2 >> 2) & 15);
-    resultData[2] = ((b2 & 3) << 6) | b3;
+    resultData[0] = static_cast<v_char8>((b0 << 2) | ((b1 >> 4) & 3));
+    resultData[1] = static_cast<v_char8>(((b1 & 15) << 4) | ((b2 >> 2) & 15));
+    resultData[2] = static_cast<v_char8>(((b2 & 3) << 6) | b3);
     
     resultData += 3;
     pos += 4;
@@ -180,12 +180,12 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
     v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
     v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);
     v_char8 b2 = getAlphabetCharIndex(data[pos + 2], auxiliaryChars);
-    resultData[0] = (b0 << 2) | ((b1 >> 4) & 3);
-    resultData[1] = ((b1 & 15) << 4) | ((b2 >> 2) & 15);
+    resultData[0] = static_cast<v_char8>((b0 << 2) | ((b1 >> 4) & 3));
+    resultData[1] = static_cast<v_char8>(((b1 & 15) << 4) | ((b2 >> 2) & 15));
   } else if(posDiff == 2) {
     v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
     v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);
-    resultData[0] = (b0 << 2) | ((b1 >> 4) & 3);
+    resultData[0] = static_cast<v_char8>((b0 << 2) | ((b1 >> 4) & 3));
   }
   
   return result;

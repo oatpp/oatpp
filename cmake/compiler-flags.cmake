@@ -119,7 +119,7 @@ endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 #
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.6 "-Wcast-align")
-  #add_compiler_flags(4.6 "-Wconversion")
+  add_compiler_flags(4.6 "-Wconversion")
   #add_compiler_flags(4.6 "-Wdouble-promotion")
   add_compiler_flags(4.6 "-Winvalid-pch")
   add_compiler_flags(4.6 "-Wmissing-declarations")
