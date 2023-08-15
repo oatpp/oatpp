@@ -44,8 +44,8 @@ void Hex::writeUInt16(v_uint16 value, p_char8 buffer){
 }
   
 void Hex::writeUInt32(v_uint32 value, p_char8 buffer){
-  writeUInt16(value >> 16, buffer);
-  writeUInt16(v_uint16(value), buffer + 4);
+  writeUInt16(static_cast<v_uint16>(value >> 16), buffer);
+  writeUInt16(static_cast<v_uint16>(value & 0xffff), buffer + 4);
 }
   
 v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
@@ -53,11 +53,11 @@ v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
   for(v_int32 i = 0; i < 4; i++){
     v_char8 a = buffer[i];
     if(a >= '0' && a <= '9') {
-      value |= (a - '0') << ((3 - i) << 2);
+      value |= static_cast<v_uint16>((a - '0') << ((3 - i) << 2));
     } else if (a >= 'A' && a <= 'F') {
-      value |= (a - 'A' + 10) << ((3 - i) << 2);
+      value |= static_cast<v_uint16>((a - 'A' + 10) << ((3 - i) << 2));
     } else if (a >= 'a' && a <= 'f') {
-      value |= (a - 'a' + 10) << ((3 - i) << 2);
+      value |= static_cast<v_uint16>((a - 'a' + 10) << ((3 - i) << 2));
     } else {
       return ERROR_UNKNOWN_SYMBOL;
     }
@@ -109,13 +109,13 @@ void Hex::decode(data::stream::ConsistentOutputStream* stream,
     auto a = buffer[i];
 
     if(a >= '0' && a <= '9') {
-      byte |= (a - '0') << shift;
+      byte |= static_cast<v_char8>((a - '0') << shift);
       shift -= 4;
     } else if (a >= 'A' && a <= 'F') {
-      byte |= (a - 'A' + 10) << shift;
+      byte |= static_cast<v_char8>((a - 'A' + 10) << shift);
       shift -= 4;
     } else if (a >= 'a' && a <= 'f') {
-      byte |= (a - 'a' + 10) << shift;
+      byte |= static_cast<v_char8>((a - 'a' + 10) << shift);
       shift -= 4;
     } else if(!allowSeparators) {
       throw DecodingError("Invalid Character");
