@@ -231,8 +231,8 @@ public:
      * @param contentType
      */
     template<class Wrapper>
-    ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& description = oatpp::String()) {
-      consumes.push_back({contentType, Wrapper::Class::getType(), description});
+    ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& desc = oatpp::String()) {
+      consumes.push_back({contentType, Wrapper::Class::getType(), desc});
       return consumes.back();
     }
 

@@ -90,8 +90,8 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executr);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executr);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
@@ -115,13 +115,13 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<app::Client>, appClient)([] {
 
-    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
-    OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvidr);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objMapper);
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(5, std::chrono::seconds(1));
 
-    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvider, retryPolicy);
-    return app::Client::createShared(requestExecutor, objectMapper);
+    auto requestExecutor = oatpp::web::client::HttpRequestExecutor::createShared(clientConnectionProvidr, retryPolicy);
+    return app::Client::createShared(requestExecutor, objMapper);
 
   }());
 
