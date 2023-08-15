@@ -52,10 +52,10 @@ void UnitTest::run(v_int32 times) {
   
   if(leakingObjects == 0){
     OATPP_LOGI(TAG, "\033[1mFINISHED\033[0m - \033[1;32msuccess!\033[0m");
-    OATPP_LOGI(TAG, "\033[33m%d(micro), %d(objs)\033[0m\n", millis, objectsCreatedPerTest);
+    OATPP_LOGI(TAG, "\033[33m%ld(micro), %ld(objs)\033[0m\n", millis, objectsCreatedPerTest);
   }else{
 
-    OATPP_LOGE(TAG, "\033[1mFINISHED\033[0m - \033[1;31mfailed\033[0m, leakingObjects = %d", leakingObjects);
+    OATPP_LOGE(TAG, "\033[1mFINISHED\033[0m - \033[1;31mfailed\033[0m, leakingObjects = %ld", leakingObjects);
 
     exit(EXIT_FAILURE);
 

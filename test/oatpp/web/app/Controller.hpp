@@ -273,7 +273,7 @@ public:
     request->transferBody(&multipartReader);
 
     /* Print number of uploaded parts */
-    OATPP_LOGD("Multipart", "parts_count=%d", multipart->count());
+    OATPP_LOGD("Multipart", "parts_count=%ld", multipart->count());
 
     /* Print value of "part1" */
     auto part1 = multipart->getNamedPart("part1");

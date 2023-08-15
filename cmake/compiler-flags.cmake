@@ -153,7 +153,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.7 "-Wunused-local-typedefs")
 
   add_compiler_flags(4.8 "-Wformat=2")
-  #add_compiler_flags(4.8 "-Wsuggest-attribute=format")
+  add_compiler_flags(4.8 "-Wsuggest-attribute=format")
 
   add_compiler_flags(5.1 "-Wformat-signedness")
   #add_compiler_flags(5.1 "-Wsuggest-final-methods")

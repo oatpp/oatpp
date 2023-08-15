@@ -166,7 +166,7 @@ void runClient(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& 
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
-  OATPP_LOGD("TEST", "data->size() == %d", data->size())
+  OATPP_LOGD("TEST", "data->size() == %lu", data->size())
 
 }
 
