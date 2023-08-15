@@ -85,8 +85,8 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executr);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executr);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {

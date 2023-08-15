@@ -330,7 +330,7 @@ void FullTest::onRun() {
 
       { // test Big Echo with body
         oatpp::data::stream::BufferOutputStream stream;
-        for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
+        for(v_int32 j = 0; j < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; j++) {
           stream.writeSimple("0123456789", 10);
         }
         auto data = stream.toString();
@@ -436,7 +436,7 @@ void FullTest::onRun() {
         oatpp::String sample = "__abcdefghijklmnopqrstuvwxyz-0123456789";
         v_int32 numIterations = 10;
         oatpp::data::stream::BufferOutputStream stream;
-        for(v_int32 i = 0; i < numIterations; i++) {
+        for(v_int32 j = 0; j < numIterations; j++) {
           stream.writeSimple(sample->data(), sample->size());
         }
         auto data = stream.toString();
