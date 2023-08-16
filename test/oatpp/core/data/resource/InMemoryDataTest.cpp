@@ -47,7 +47,7 @@ void InMemoryDataTest::onRun() {
       s->writeExactSizeDataSimple(testData->data(), testData->size());
     }
 
-    OATPP_ASSERT(data.getKnownSize() == testData->size())
+    OATPP_ASSERT(data.getKnownSize() == static_cast<v_int64>(testData->size()))
     OATPP_ASSERT(data.getInMemoryData() == testData)
     OATPP_ASSERT(data.getLocation() == nullptr)
   }

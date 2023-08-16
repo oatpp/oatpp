@@ -115,7 +115,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
     }
 
     data::buffer::InlineReadData* currDataOut = &dataOut;
-    if(i < m_intermediateData.size()) {
+    if(i < static_cast<v_buff_size>(m_intermediateData.size())) {
       currDataOut = &m_intermediateData[i];
     }
 

@@ -112,17 +112,17 @@ void StatefulParserTest::onRun() {
 
   oatpp::String text = TEST_DATA_1;
 
-  for(v_int32 i = 1; i < text->size(); i++) {
+  for(size_t i = 1; i < text->size(); i++) {
 
     oatpp::web::mime::multipart::PartList multipart("12345");
 
     auto listener = std::make_shared<oatpp::web::mime::multipart::PartsParser>(&multipart);
     listener->setDefaultPartReader(oatpp::web::mime::multipart::createInMemoryPartReader(128));
 
-    parseStepByStep(text, "12345", listener, i);
+    parseStepByStep(text, "12345", listener, static_cast<v_int32>(i));
 
     if(multipart.count() != 5) {
-      OATPP_LOGD(TAG, "TEST_DATA_1 itearation %d", i);
+      OATPP_LOGD(TAG, "TEST_DATA_1 itearation %lu", i);
     }
 
     OATPP_ASSERT(multipart.count() == 5);

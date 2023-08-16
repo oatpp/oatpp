@@ -62,7 +62,7 @@ void ChunkedTest::onRun() {
 
     auto count = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &decoder);
     decoded = outStream.toString();
-    OATPP_ASSERT(count == encoded->size());
+    OATPP_ASSERT(count == static_cast<v_io_size>(encoded->size()));
     OATPP_ASSERT(decoded == "");
   }
 
@@ -78,7 +78,7 @@ void ChunkedTest::onRun() {
     auto count = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &encoder);
     encoded = outStream.toString();
 
-    OATPP_ASSERT(count == data->size());
+    OATPP_ASSERT(count == static_cast<v_io_size>(data->size()));
     OATPP_ASSERT(encoded == "5\r\nHello\r\n5\r\n Worl\r\n4\r\nd!!!\r\n0\r\n\r\n");
   }
 
@@ -93,7 +93,7 @@ void ChunkedTest::onRun() {
 
     auto count = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &decoder);
     decoded = outStream.toString();
-    OATPP_ASSERT(count == encoded->size());
+    OATPP_ASSERT(count == static_cast<v_io_size>(encoded->size()));
     OATPP_LOGD(TAG, "decoded='%s'", decoded->c_str());
     OATPP_ASSERT(decoded == data);
   }
@@ -114,7 +114,7 @@ void ChunkedTest::onRun() {
 
     auto count = oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer, bufferSize, &pipeline);
     auto result = outStream.toString();
-    OATPP_ASSERT(count == data->size());
+    OATPP_ASSERT(count == static_cast<v_io_size>(data->size()));
     OATPP_LOGD(TAG, "result='%s'", result->c_str());
     OATPP_ASSERT(result == data);
   }
