@@ -26,6 +26,7 @@
 #ifndef oatpp_base_Environment_hpp
 #define oatpp_base_Environment_hpp
 
+#include "./Compiler.hpp"
 #include "./Config.hpp"
 
 #include <cstdio>
@@ -356,7 +357,7 @@ public:
 private:
   static void registerComponent(const std::string& typeName, const std::string& componentName, void* component);
   static void unregisterComponent(const std::string& typeName, const std::string& componentName);
-  static void vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args);
+  static void vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args) GPP_ATTRIBUTE(format (printf, 3, 0));
 public:
 
   /**
@@ -448,7 +449,7 @@ public:
    * @param message - message.
    * @param ... - format arguments.
    */
-  static void logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...);
+  static void logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...) GPP_ATTRIBUTE(format (printf, 3, 4));
 
   /**
    * Format message and call `Logger::log()`<br>
@@ -458,7 +459,7 @@ public:
    * @param message - message.
    * @param ... - format arguments.
    */
-  static void logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...);
+  static void logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) GPP_ATTRIBUTE(format (printf, 3, 4));
 
   /**
    * Get component object by typeName.
@@ -482,6 +483,17 @@ public:
   static v_int64 getMicroTickCount();
   
 };
+
+/**
+ * Default oatpp assert method.
+ * @param FMT - the format string used for the expression
+ * @param EXP - expression that must be `true`.
+ */
+#define OATPP_ASSERT_FMT(FMT, EXP) \
+if(!(EXP)) { \
+  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", FMT, #EXP); \
+  exit(EXIT_FAILURE); \
+}
 
 /**
  * Default oatpp assert method.

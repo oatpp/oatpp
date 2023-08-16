@@ -141,7 +141,7 @@ bool checkSymbol(char symbol, const char* data, v_buff_size size) {
       for (v_buff_size j = 0; j < NUM_SYMBOLS; j++) {
 
         if (data[i + j] != symbol) {
-          OATPP_LOGD("aaa", "j pos=%d", j);
+          OATPP_LOGD("aaa", "j pos=%ld", j);
           return false;
         }
 

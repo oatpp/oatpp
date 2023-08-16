@@ -107,7 +107,7 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
       }
 
     } else if(action.isNone()) {
-      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid read result %d. State=%d", res, m_state);
+      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid read result %ld. State=%d", res, m_state);
       return 0;
     }
 

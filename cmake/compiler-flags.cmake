@@ -153,7 +153,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.7 "-Wunused-local-typedefs")
 
   add_compiler_flags(4.8 "-Wformat=2")
-  #add_compiler_flags(4.8 "-Wsuggest-attribute=format")
+  add_compiler_flags(4.8 "-Wsuggest-attribute=format")
 
   add_compiler_flags(5.1 "-Wformat-signedness")
   #add_compiler_flags(5.1 "-Wsuggest-final-methods")
@@ -270,8 +270,6 @@ endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.6 "-Wno-sign-compare")
   add_compiler_flags(4.6 "-Wno-unused-parameter")
-
-  add_compiler_flags(4.8 "-Wno-suggest-attribute=format")
 
   add_compiler_flags(9.1 "-Wno-pessimizing-move")
 

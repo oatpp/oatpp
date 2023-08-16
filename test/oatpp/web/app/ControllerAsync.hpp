@@ -259,7 +259,7 @@ public:
     Action onUploaded() {
 
       /* Print number of uploaded parts */
-      OATPP_LOGD("Multipart", "parts_count=%d", m_multipart->count());
+      OATPP_LOGD("Multipart", "parts_count=%ld", m_multipart->count());
 
       /* Get multipart by name */
       auto part1 = m_multipart->getNamedPart("part1");

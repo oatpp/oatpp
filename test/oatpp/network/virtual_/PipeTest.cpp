@@ -66,7 +66,7 @@ namespace {
           }
         }
       }
-      OATPP_LOGV("WriterTask", "sent %d bytes", m_transferedBytes);
+      OATPP_LOGV("WriterTask", "sent %ld bytes", m_transferedBytes);
     }
     
   };
@@ -94,7 +94,7 @@ namespace {
           m_buffer->writeSimple(readBuffer, res);
         }
       }
-      OATPP_LOGV("ReaderTask", "sent %d bytes", m_buffer->getCurrentPosition());
+      OATPP_LOGV("ReaderTask", "sent %ld bytes", m_buffer->getCurrentPosition());
     }
     
   };

@@ -73,12 +73,12 @@ void StreamPartReader::onPartData(const std::shared_ptr<Part>& part, const char*
 
   if(size > 0) {
     if(m_maxDataSize > 0 && tagObject->size + size > m_maxDataSize) {
-      OATPP_LOGE("[oatpp::web::mime::multipart::StreamPartReader::onPartData()]", "Error. Part size exceeds specified maxDataSize=%d", m_maxDataSize);
+      OATPP_LOGE("[oatpp::web::mime::multipart::StreamPartReader::onPartData()]", "Error. Part size exceeds specified maxDataSize=%ld", m_maxDataSize);
       throw std::runtime_error("[oatpp::web::mime::multipart::StreamPartReader::onPartData()]: Error. Part size exceeds specified maxDataSize");
     }
     auto res = tagObject->outputStream->writeExactSizeDataSimple(data, size);
     if(res != size) {
-      OATPP_LOGE("[oatpp::web::mime::multipart::StreamPartReader::onPartData()]", "Error. Failed to stream all data. Streamed %d/%d", res, size);
+      OATPP_LOGE("[oatpp::web::mime::multipart::StreamPartReader::onPartData()]", "Error. Failed to stream all data. Streamed %ld/%ld", res, size);
       throw std::runtime_error("[oatpp::web::mime::multipart::StreamPartReader::onPartData()]: Error. Failed to stream all data.");
     }
     tagObject->size += res;
@@ -163,7 +163,7 @@ async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared
 
   if(size > 0) {
     if(m_maxDataSize > 0 && tagObject->size + size > m_maxDataSize) {
-      OATPP_LOGE("[oatpp::web::mime::multipart::AsyncStreamPartReader::onPartDataAsync()]", "Error. Part size exceeds specified maxDataSize=%d", m_maxDataSize);
+      OATPP_LOGE("[oatpp::web::mime::multipart::AsyncStreamPartReader::onPartDataAsync()]", "Error. Part size exceeds specified maxDataSize=%ld", m_maxDataSize);
       throw std::runtime_error("[oatpp::web::mime::multipart::AsyncStreamPartReader::onPartDataAsync()]: Error. Part size exceeds specified maxDataSize");
     }
     return tagObject->outputStream->writeExactSizeDataAsync(data, size);
