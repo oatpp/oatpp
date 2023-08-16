@@ -171,7 +171,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   #add_compiler_flags(8.1 "-Wsuggest-attribute=cold")
   add_compiler_flags(8.1 "-Wsuggest-attribute=malloc")
 
-  #add_compiler_flags(10.1 "-Warith-conversion")
+  add_compiler_flags(10.1 "-Warith-conversion")
 
   add_compiler_flags(12.1 "-ftrivial-auto-var-init=zero")
   add_compiler_flags(12.1 "-Warray-compare")
