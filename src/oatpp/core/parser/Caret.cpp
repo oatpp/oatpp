@@ -436,11 +436,11 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
         char c2 = m_data[m_pos + i];
         
         if(c1 >= 'a' && c1 <= 'z'){
-          c1 = 'A' + c1 - 'a';
+          c1 = static_cast<char>(c1 - 'a' + 'A');
         }
         
         if(c2 >= 'a' && c2 <= 'z'){
-          c2 = 'A' + c2 - 'a';
+          c2 = static_cast<char>(c2 - 'a' + 'A');
         }
         
         if(c1 != c2){

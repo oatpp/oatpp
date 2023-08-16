@@ -106,7 +106,7 @@ v_int32 Unicode::encodeUtf8Char(const char* sequence, v_buff_size& length){
     v_char8 bitIndex = 0;
     for(v_buff_size i = length; i > 1; i--){
       code |= (sequence[i - 1] & 63) << bitIndex;
-      bitIndex += 6;
+      bitIndex = static_cast<v_char8>(bitIndex + 6);
     }
     return code;
   } else {
@@ -151,8 +151,8 @@ v_buff_size Unicode::decodeUtf8Char(v_int32 code, p_char8 buffer) {
   
 void Unicode::codeToUtf16SurrogatePair(v_int32 code, v_int16& high, v_int16& low){
   code -= 0x010000;
-  high = 0xD800 + ((code >> 10) & 1023);
-  low = 0xDC00 + (code & 1023);
+  high = static_cast<v_int16>(0xD800 + ((code >> 10) & 1023));
+  low = static_cast<v_int16>(0xDC00 + (code & 1023));
 }
   
 v_int32 Unicode::utf16SurrogatePairToCode(v_int16 high, v_int16 low){
