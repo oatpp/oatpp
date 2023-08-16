@@ -495,8 +495,7 @@ Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interVa
   }
 
   try {
-    const auto &entry = EnumOW::getEntryByName(interValue.template cast<String>());
-    return EnumOW(entry.value);
+    return EnumOW(EnumOW::getEntryByName(interValue.template cast<String>()).value);
   } catch (const std::runtime_error&) { // TODO - add a specific error for this.
     error = EnumInterpreterError::ENTRY_NOT_FOUND;
   }

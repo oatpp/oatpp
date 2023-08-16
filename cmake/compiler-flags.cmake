@@ -272,8 +272,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.6 "-Wno-unused-parameter")
 
   add_compiler_flags(9.1 "-Wno-pessimizing-move")
-
-  add_compiler_flags(13.0 "-Wno-dangling-reference")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
 
