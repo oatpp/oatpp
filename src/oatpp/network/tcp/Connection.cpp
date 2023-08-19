@@ -76,6 +76,11 @@ Connection::~Connection(){
   close();
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlogical-op"
+#endif
+
 v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
@@ -116,16 +121,7 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
   if(result < 0) {
     auto e = errno;
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlogical-op"
-#endif
-
     bool retry = ((e == EAGAIN) || (e == EWOULDBLOCK));
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
     if(retry){
       if(m_mode == data::stream::ASYNCHRONOUS) {
@@ -150,6 +146,15 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
 #endif
 
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlogical-op"
+#endif
 
 v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
 
@@ -186,16 +191,7 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
   if(result < 0) {
     auto e = errno;
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wlogical-op"
-#endif
-
     bool retry = ((e == EAGAIN) || (e == EWOULDBLOCK));
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
     if(retry){
       if(m_mode == data::stream::ASYNCHRONOUS) {
@@ -220,6 +216,10 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
 #endif
 
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #if defined(WIN32) || defined(_WIN32)
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
