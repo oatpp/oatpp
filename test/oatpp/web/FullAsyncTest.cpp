@@ -93,8 +93,8 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executr);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executr);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
@@ -199,7 +199,7 @@ void FullAsyncTest::onRun() {
 
       { // test Big Echo with body
         oatpp::data::stream::BufferOutputStream stream;
-        for(v_int32 i = 0; i < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; i++) {
+        for(v_int32 j = 0; j < oatpp::data::buffer::IOBuffer::BUFFER_SIZE; j++) {
           stream.writeSimple("0123456789", 10);
         }
         auto data = stream.toString();
@@ -216,7 +216,7 @@ void FullAsyncTest::onRun() {
         oatpp::String sample = "__abcdefghijklmnopqrstuvwxyz-0123456789";
         v_int32 numIterations = 10;
         oatpp::data::stream::BufferOutputStream stream;
-        for(v_int32 i = 0; i < numIterations; i++) {
+        for(v_int32 j = 0; j < numIterations; j++) {
           stream.writeSimple(sample->data(), sample->size());
         }
         auto data = stream.toString();
