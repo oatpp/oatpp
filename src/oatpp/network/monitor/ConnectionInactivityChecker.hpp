@@ -25,8 +25,8 @@
 #ifndef oatpp_network_monitor_ConnectionInactivityChecker_hpp
 #define oatpp_network_monitor_ConnectionInactivityChecker_hpp
 
-#include "../../core/base/Compiler.hpp"
 #include "MetricsChecker.hpp"
+#include "oatpp/core/base/Compiler.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 

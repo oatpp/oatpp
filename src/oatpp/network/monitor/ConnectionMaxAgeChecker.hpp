@@ -25,9 +25,8 @@
 #ifndef oatpp_network_monitor_ConnectionMaxAgeChecker_hpp
 #define oatpp_network_monitor_ConnectionMaxAgeChecker_hpp
 
-#include "../../core/base/Compiler.hpp"
 #include "MetricsChecker.hpp"
-
+#include "oatpp/core/base/Compiler.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 
