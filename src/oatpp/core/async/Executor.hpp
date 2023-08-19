@@ -27,6 +27,7 @@
 
 #include "./Processor.hpp"
 #include "oatpp/core/async/worker/Worker.hpp"
+#include "oatpp/core/base/Compiler.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"
@@ -63,9 +64,9 @@ private:
 
     oatpp::async::Processor& getProcessor();
 
-    void pushTasks(utils::FastQueue<CoroutineHandle>& tasks) override;
+    void pushTasks(utils::FastQueue<CoroutineHandle>& tasks) override GPP_ATTRIBUTE(noreturn);
 
-    void pushOneTask(CoroutineHandle* task) override;
+    void pushOneTask(CoroutineHandle* task) override GPP_ATTRIBUTE(noreturn);
 
     void run();
 
