@@ -115,7 +115,7 @@ public:
   void captureToOwnMemory() const {
     if(!m_memoryHandle || m_memoryHandle->data() != reinterpret_cast<const char*>(m_data) || m_memoryHandle->size() != m_size) {
       m_memoryHandle = std::make_shared<std::string>(reinterpret_cast<const char*>(m_data), m_size);
-      m_data = reinterpret_cast<p_char8>(const_cast<char*>(m_memoryHandle->data()));
+      m_data = m_memoryHandle->data();
     }
   }
 

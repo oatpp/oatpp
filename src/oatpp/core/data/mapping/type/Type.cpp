@@ -68,7 +68,7 @@ int ClassId::getClassCount() {
 
 std::vector<const char*> ClassId::getRegisteredClassNames() {
   std::lock_guard<std::mutex> lock(getClassMutex());
-  return std::vector<const char*>(getClassNames());
+  return getClassNames();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
