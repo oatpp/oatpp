@@ -70,8 +70,8 @@ void LazyStringMapTest::onRun() {
     auto s13 = all["key1"];
     auto s23 = all["key2"];
 
-    OATPP_ASSERT(s13.getData() == s1->data() && s13.getSize() == s1->size());
-    OATPP_ASSERT(s23.getData() == s2->data() && s23.getSize() == s2->size());
+    OATPP_ASSERT(s13.getData() == s1->data() && s13.getSize() == static_cast<v_buff_size>(s1->size()));
+    OATPP_ASSERT(s23.getData() == s2->data() && s23.getSize() == static_cast<v_buff_size>(s2->size()));
     OATPP_ASSERT(s1.get() == s13.getMemoryHandle().get());
     OATPP_ASSERT(s2.get() == s23.getMemoryHandle().get());
 

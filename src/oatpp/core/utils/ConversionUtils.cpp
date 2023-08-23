@@ -36,7 +36,7 @@ namespace oatpp { namespace utils { namespace conversion {
   v_int32 strToInt32(const oatpp::String& str, bool& success){
     char* end;
     v_int32 result = static_cast<v_int32>(std::strtol(str->data(), &end, 10));
-    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == str->size());
+    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
     return result;
   }
 
@@ -48,7 +48,7 @@ namespace oatpp { namespace utils { namespace conversion {
   v_uint32 strToUInt32(const oatpp::String& str, bool& success){
     char* end;
     v_uint32 result = static_cast<v_uint32>(std::strtoul(str->data(), &end, 10));
-    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == str->size());
+    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
     return result;
   }
   
@@ -60,7 +60,7 @@ namespace oatpp { namespace utils { namespace conversion {
   v_int64 strToInt64(const oatpp::String& str, bool& success){
     char* end;
     v_int64 result = std::strtoll(str->data(), &end, 10);
-    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == str->size());
+    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
     return result;
   }
 
@@ -72,7 +72,7 @@ namespace oatpp { namespace utils { namespace conversion {
   v_uint64 strToUInt64(const oatpp::String& str, bool& success){
     char* end;
     v_uint64 result = std::strtoull(str->data(), &end, 10);
-    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == str->size());
+    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
     return result;
   }
 
@@ -172,7 +172,7 @@ namespace oatpp { namespace utils { namespace conversion {
   v_float32 strToFloat32(const oatpp::String& str, bool& success) {
     char* end;
     v_float32 result = std::strtof(str->data(), &end);
-    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == str->size());
+    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
     return result;
   }
   
@@ -184,7 +184,7 @@ namespace oatpp { namespace utils { namespace conversion {
   v_float64 strToFloat64(const oatpp::String& str, bool& success) {
     char* end;
     v_float64 result = std::strtod(str->data(), &end);
-    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == str->size());
+    success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
     return result;
   }
 

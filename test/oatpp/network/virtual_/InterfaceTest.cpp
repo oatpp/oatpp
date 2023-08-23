@@ -56,7 +56,7 @@ namespace {
       auto socket = submission->getSocket();
       
       auto res = socket->writeExactSizeDataSimple(m_dataSample->data(), m_dataSample->size());
-      OATPP_ASSERT(res == m_dataSample->size());
+      OATPP_ASSERT(res == static_cast<v_io_size>(m_dataSample->size()));
       
       v_char8 buffer[100];
       oatpp::data::stream::BufferOutputStream stream;
@@ -89,7 +89,7 @@ namespace {
       oatpp::data::stream::BufferOutputStream stream;
       auto res = oatpp::data::stream::transfer(m_socket.get(), &stream, m_dataSample->size(), buffer, 100);
       
-      OATPP_ASSERT(res == m_dataSample->size());
+      OATPP_ASSERT(res == static_cast<v_io_size>(m_dataSample->size()));
       OATPP_ASSERT(stream.getCurrentPosition() == res);
       OATPP_ASSERT(stream.toString() == m_dataSample);
       

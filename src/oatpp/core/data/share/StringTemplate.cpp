@@ -65,7 +65,7 @@ StringTemplate::StringTemplate(const oatpp::String& text, std::vector<Variable>&
   , m_variables(variables)
 {
   v_buff_size prevPos = 0;
-  for(v_int32 i = 0; i < m_variables.size(); i++) {
+  for(size_t i = 0; i < m_variables.size(); i++) {
     const auto& var = m_variables[i];
 
     if(var.posStart < prevPos) {

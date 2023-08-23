@@ -113,7 +113,7 @@ public:
    * Capture data referenced by memory label to its own memory.
    */
   void captureToOwnMemory() const {
-    if(!m_memoryHandle || m_memoryHandle->data() != reinterpret_cast<const char*>(m_data) || m_memoryHandle->size() != m_size) {
+    if(!m_memoryHandle || m_memoryHandle->data() != reinterpret_cast<const char*>(m_data) || static_cast<v_buff_size>(m_memoryHandle->size()) != m_size) {
       m_memoryHandle = std::make_shared<std::string>(reinterpret_cast<const char*>(m_data), m_size);
       m_data = m_memoryHandle->data();
     }
