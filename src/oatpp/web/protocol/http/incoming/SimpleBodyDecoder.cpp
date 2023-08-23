@@ -31,7 +31,7 @@
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
-const std::string SimpleBodyDecoder::RESPONSE_100_CONTINUE = "HTTP/1.1 100 Continue\r\n";
+const std::string SimpleBodyDecoder::RESPONSE_100_CONTINUE = "HTTP/1.1 100 Continue\r\n\r\n";
 
 SimpleBodyDecoder::SimpleBodyDecoder(const std::shared_ptr<encoding::ProviderCollection>& contentDecoders)
   : m_contentDecoders(contentDecoders)
