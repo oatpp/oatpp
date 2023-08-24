@@ -32,8 +32,10 @@ std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(co
 
   std::shared_ptr<protocol::http::outgoing::Response> response;
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
   /* Default impl for backwards compatibility until the deprecated methods are removed */
   try {
     if(exceptionPtr) {
@@ -46,7 +48,9 @@ std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(co
   } catch (...) {
     response = handleError(protocol::http::Status::CODE_500, "An unknown error has occurred");
   }
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
   return response;
 
@@ -54,10 +58,14 @@ std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(co
 
 std::shared_ptr<protocol::http::outgoing::Response> ErrorHandler::handleError(const protocol::http::Status& status, const oatpp::String& message) {
   Headers headers;
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
   return handleError(status, message, headers);
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 }
 
 std::shared_ptr<protocol::http::outgoing::Response>
