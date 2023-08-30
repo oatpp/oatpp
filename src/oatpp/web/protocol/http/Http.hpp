@@ -745,7 +745,7 @@ namespace std {
     typedef v_uint64 result_type;
     
     result_type operator()(oatpp::web::protocol::http::Status const& s) const noexcept {
-      return s.code;
+      return static_cast<result_type>(s.code);
     }
     
   };

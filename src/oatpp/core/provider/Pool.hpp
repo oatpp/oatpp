@@ -379,7 +379,7 @@ public:
       }
 
       m_running = false;
-      m_counter -= m_bench.size();
+      m_counter -= static_cast<v_int64>(m_bench.size());
       m_bench.clear();
     }
 
