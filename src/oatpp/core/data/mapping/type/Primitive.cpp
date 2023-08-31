@@ -45,7 +45,7 @@ String String::loadFromFile(const char* filename) {
   if (file.is_open()) {
     auto result = data::mapping::type::String(file.tellg());
     file.seekg(0, std::ios::beg);
-    file.read(const_cast<char*>(result->data()), static_cast<ssize_t>(result->size()));
+    file.read(const_cast<char*>(result->data()), static_cast<std::streamsize>(result->size()));
     file.close();
     return result;
   }
@@ -55,7 +55,7 @@ String String::loadFromFile(const char* filename) {
 void String::saveToFile(const char* filename) const {
   std::ofstream fs(filename, std::ios::out | std::ios::binary);
   if(m_ptr != nullptr) {
-    fs.write(m_ptr->data(), static_cast<ssize_t>(m_ptr->size()));
+    fs.write(m_ptr->data(), static_cast<std::streamsize>(m_ptr->size()));
   }
   fs.close();
 }
