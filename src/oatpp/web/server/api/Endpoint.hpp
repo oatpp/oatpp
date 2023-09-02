@@ -97,12 +97,12 @@ public:
       /**
        * Add parameter name to list order
        * @tparam T
-       * @param name
+       * @param aname
        * @return new or existing parameter
        */
       template<class T>
-      Param& add(const oatpp::String& name) {
-        return add(name, T::Class::getType());
+      Param& add(const oatpp::String& aname) {
+        return add(aname, T::Class::getType());
       }
 
       /**
