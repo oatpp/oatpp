@@ -240,7 +240,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
 oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
-  oatpp::v_io_handle serverHandle;
+  oatpp::v_io_handle serverHandle = -1;
   v_int32 ret;
   int yes = 1;
 
