@@ -180,7 +180,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~Provider() = default;
+  virtual ~Provider() override = default;
 
   /**
    * Some optional properties that user might want to know. <br>

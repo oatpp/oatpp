@@ -38,7 +38,7 @@ public:
   /**
    * virtual destructor.
    */
-  virtual ~Resource() = default;
+  virtual ~Resource() override = default;
 
   /**
    * Open output stream.

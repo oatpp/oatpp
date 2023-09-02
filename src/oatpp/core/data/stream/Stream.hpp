@@ -262,7 +262,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~OutputStream() = default;
+  virtual ~OutputStream() override = default;
 
   /**
    * Set stream I/O mode.
@@ -328,7 +328,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~InputStream() = default;
+  virtual ~InputStream() override = default;
 
   /**
    * Set stream I/O mode.
@@ -358,7 +358,7 @@ class BufferedInputStream : public InputStream {
   /**
    * Default virtual destructor.
    */
-  virtual ~BufferedInputStream() = default;
+  virtual ~BufferedInputStream() override = default;
 
   /**
    * Peek up to count of bytes int he buffer

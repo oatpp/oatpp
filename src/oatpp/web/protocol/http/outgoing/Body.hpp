@@ -44,7 +44,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~Body() = default;
+  virtual ~Body() override = default;
 
   ///////////////////////////
   // From the ReadCallback //

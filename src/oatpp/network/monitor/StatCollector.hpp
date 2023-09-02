@@ -89,7 +89,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~StatCollector() = default;
+  virtual ~StatCollector() override = default;
 
   /**
    * Unique metric name that is collected by this `StatCollector`.
