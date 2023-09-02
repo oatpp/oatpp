@@ -36,16 +36,16 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 class Dto1 : public oatpp::DTO {
-  DTO_INIT(Dto1, DTO);
+  DTO_INIT(Dto1, DTO)
 };
 
 class Dto2 : public oatpp::DTO {
-  DTO_INIT(Dto2, DTO);
+  DTO_INIT(Dto2, DTO)
 };
 
 class Test : public oatpp::DTO {
 
-  DTO_INIT(Test, DTO);
+  DTO_INIT(Test, DTO)
 
   DTO_FIELD(oatpp::Any, any);
 

@@ -36,7 +36,7 @@ namespace {
   
   class TestDto : public oatpp::DTO {
     
-    DTO_INIT(TestDto, DTO);
+    DTO_INIT(TestDto, DTO)
 
     DTO_FIELD(String, field_string);
     DTO_FIELD(Int8, field_int8);
