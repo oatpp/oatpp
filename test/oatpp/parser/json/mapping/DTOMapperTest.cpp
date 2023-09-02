@@ -24,6 +24,8 @@
 
 #include "DTOMapperTest.hpp"
 
+#include <cmath>
+
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 
 #include "oatpp/core/data/mapping/type/Object.hpp"
@@ -234,10 +236,10 @@ void DTOMapperTest::onRun(){
   OATPP_ASSERT(obj1->field_int64 == test1->field_int64)
   
   OATPP_ASSERT(obj1->field_float32)
-  OATPP_ASSERT(obj1->field_float32 == test1->field_float32)
+  OATPP_ASSERT(fabsf(obj1->field_float32 - test1->field_float32) < std::numeric_limits<float>::epsilon())
   
   OATPP_ASSERT(obj1->field_float64)
-  OATPP_ASSERT(obj1->field_float64 == test1->field_float64)
+  OATPP_ASSERT(fabs(obj1->field_float64 - test1->field_float64) < std::numeric_limits<double>::epsilon())
   
   OATPP_ASSERT(obj1->field_boolean)
   OATPP_ASSERT(obj1->field_boolean == test1->field_boolean)

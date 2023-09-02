@@ -24,6 +24,8 @@
 
 #include "DeserializerTest.hpp"
 
+#include <cmath>
+
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -133,7 +135,7 @@ void DeserializerTest::onRun(){
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 32}");
   
   OATPP_ASSERT(obj3)
-  OATPP_ASSERT(obj3->float32F == 32)
+  OATPP_ASSERT(fabsf(obj3->float32F - 32) < std::numeric_limits<float>::epsilon())
   
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e1}");
   
@@ -202,28 +204,28 @@ void DeserializerTest::onRun(){
     auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":-1.23456789,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
-    OATPP_ASSERT(dto->any.retrieve<Float64>() == -1.23456789)
+    OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - -1.23456789) < std::numeric_limits<double>::epsilon())
   }
   OATPP_LOGD(TAG, "Any: Positive Float")
   {
     auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":1.23456789,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
-    OATPP_ASSERT(dto->any.retrieve<Float64>() == 1.23456789)
+    OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - 1.23456789) < std::numeric_limits<double>::epsilon())
   }
   OATPP_LOGD(TAG, "Any: Negative exponential Float")
   {
     auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":-1.2345e30,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
-    OATPP_ASSERT(dto->any.retrieve<Float64>() == -1.2345e30)
+    OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - -1.2345e30) < std::numeric_limits<double>::epsilon())
   }
   OATPP_LOGD(TAG, "Any: Positive exponential Float")
   {
     auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":1.2345e30,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
-    OATPP_ASSERT(dto->any.retrieve<Float64>() == 1.2345e30)
+    OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - 1.2345e30) < std::numeric_limits<double>::epsilon())
   }
   OATPP_LOGD(TAG, "Any: Unsigned Integer")
   {
