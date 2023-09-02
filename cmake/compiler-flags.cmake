@@ -104,6 +104,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.6 "-Wextra")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compiler_flags(10 "-Weverything")
+endif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
 
 #
 # Preserve debug information flags
@@ -111,6 +115,10 @@ endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.6 "-g3")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compiler_flags(10 "-g3")
+endif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 
 #
@@ -272,6 +280,50 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
 
   add_compiler_flags(9.1 "-Wno-pessimizing-move")
 endif (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compiler_flags(14 "-Wno-c++14-attribute-extensions")
+  add_compiler_flags(10 "-Wno-c++14-extensions")
+  add_compiler_flags(10 "-Wno-c++98-compat")
+  add_compiler_flags(10 "-Wno-c++98-compat-pedantic")
+  add_compiler_flags(10 "-Wno-conditional-uninitialized")
+  add_compiler_flags(10 "-Wno-covered-switch-default")
+  add_compiler_flags(10 "-Wno-delete-non-abstract-non-virtual-dtor")
+  add_compiler_flags(10 "-Wno-deprecated-copy-dtor")
+  add_compiler_flags(14 "-Wno-deprecated-copy-with-user-provided-dtor")
+  add_compiler_flags(10 "-Wno-documentation")
+  add_compiler_flags(10 "-Wno-documentation-unknown-command")
+  add_compiler_flags(10 "-Wno-exit-time-destructors")
+  add_compiler_flags(10 "-Wno-extra-semi")
+  add_compiler_flags(10 "-Wno-extra-semi-stmt")
+  add_compiler_flags(10 "-Wno-float-equal")
+  add_compiler_flags(10 "-Wno-format-nonliteral")
+  add_compiler_flags(10 "-Wno-global-constructors")
+  add_compiler_flags(10 "-Wno-gnu-zero-variadic-macro-arguments")
+  add_compiler_flags(10 "-Wno-implicit-int-conversion")
+  add_compiler_flags(10 "-Wno-inconsistent-missing-destructor-override")
+  add_compiler_flags(10 "-Wno-newline-eof")
+  add_compiler_flags(10 "-Wno-non-virtual-dtor")
+  add_compiler_flags(10 "-Wno-padded")
+  add_compiler_flags(10 "-Wno-pessimizing-move")
+  add_compiler_flags(99 "-Wno-return-std-move-in-c++11")
+  add_compiler_flags(10 "-Wno-reserved-id-macro")
+  add_compiler_flags(14 "-Wno-reserved-identifier")
+  add_compiler_flags(10 "-Wno-shadow")
+  add_compiler_flags(10 "-Wno-sign-conversion")
+  add_compiler_flags(10 "-Wno-string-conversion")
+  add_compiler_flags(14 "-Wno-suggest-destructor-override")
+  add_compiler_flags(10 "-Wno-unknown-warning-option")
+  add_compiler_flags(10 "-Wno-unneeded-member-function")
+  add_compiler_flags(10 "-Wno-unreachable-code-return")
+  add_compiler_flags(10 "-Wno-unsafe-buffer-usage")
+  add_compiler_flags(10 "-Wno-unused-exception-parameter")
+  add_compiler_flags(10 "-Wno-unused-lambda-capture")
+  add_compiler_flags(10 "-Wno-unused-member-function")
+  add_compiler_flags(10 "-Wno-unused-parameter")
+  add_compiler_flags(10 "-Wno-unused-template")
+  add_compiler_flags(10 "-Wno-weak-vtables")
+endif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
 
 #
