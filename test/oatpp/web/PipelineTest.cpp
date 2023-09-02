@@ -129,7 +129,7 @@ void PipelineTest::onRun() {
 
   runner.addController(app::Controller::createShared());
 
-  runner.run([this, &runner] {
+  runner.run([this] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 

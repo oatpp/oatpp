@@ -147,7 +147,7 @@ void FullAsyncTest::onRun() {
   runner.addController(app::ControllerAsync::createShared());
   runner.addController(app::ControllerWithInterceptorsAsync::createShared());
 
-  runner.run([this, &runner] {
+  runner.run([this] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);

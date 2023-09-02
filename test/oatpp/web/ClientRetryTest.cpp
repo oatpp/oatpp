@@ -131,7 +131,7 @@ void runServer(v_uint16 port, v_int32 delaySeconds, v_int32 iterations, bool sta
 
   runner.addController(controller);
 
-  runner.run([&runner, delaySeconds, iterations, stable, controller] {
+  runner.run([delaySeconds, iterations, stable, controller] {
 
     for(v_int32 i = 0; i < iterations; i ++) {
       std::this_thread::sleep_for(std::chrono::seconds(delaySeconds));
