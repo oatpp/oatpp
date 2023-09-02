@@ -78,7 +78,7 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
     error.ioStatus = readHeadersSectionIterative(iteration, stream, action);
 
     if(!action.isNone()) {
-      OATPP_LOGE("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeaders]", "Error. Async action is unexpected.");
+      OATPP_LOGE("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeaders]", "Error. Async action is unexpected.")
       throw std::runtime_error("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeaders]: Error. Async action is unexpected.");
     }
 

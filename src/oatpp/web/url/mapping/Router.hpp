@@ -148,7 +148,7 @@ public:
 
     for(auto& pair : m_endpointsByPattern) {
       auto mapping = pair.first->toString();
-      OATPP_LOGD("Router", "url '%s %s' -> mapped", reinterpret_cast<const char*>(branch.getData()), mapping->c_str());
+      OATPP_LOGD("Router", "url '%s %s' -> mapped", reinterpret_cast<const char*>(branch.getData()), mapping->c_str())
     }
 
   }

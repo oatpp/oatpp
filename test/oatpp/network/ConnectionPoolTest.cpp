@@ -202,8 +202,8 @@ void ConnectionPoolTest::onRun() {
 
   executor.waitTasksFinished();
 
-  OATPP_LOGD(TAG, "connections_counter=%ld", connectionProvider->counter.load());
-  OATPP_ASSERT(connectionProvider->counter <= 10);
+  OATPP_LOGD(TAG, "connections_counter=%ld", connectionProvider->counter.load())
+  OATPP_ASSERT(connectionProvider->counter <= 10)
 
   pool->stop();
 

@@ -491,7 +491,7 @@ public:
  */
 #define OATPP_ASSERT_FMT(FMT, EXP) \
 if(!(EXP)) { \
-  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", FMT, #EXP); \
+  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", FMT, #EXP) \
   exit(EXIT_FAILURE); \
 }
 
@@ -501,7 +501,7 @@ if(!(EXP)) { \
  */
 #define OATPP_ASSERT(EXP) \
 if(!(EXP)) { \
-  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", #EXP); \
+  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", #EXP) \
   exit(EXIT_FAILURE); \
 }
 

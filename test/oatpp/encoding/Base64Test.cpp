@@ -35,17 +35,17 @@ void Base64Test::onRun() {
   
   {
     oatpp::String encoded = oatpp::encoding::Base64::encode(message);
-    OATPP_LOGV(TAG, "encoded='%s'", encoded->c_str());
-    OATPP_ASSERT(encoded == messageEncoded);
+    OATPP_LOGV(TAG, "encoded='%s'", encoded->c_str())
+    OATPP_ASSERT(encoded == messageEncoded)
     oatpp::String decoded = oatpp::encoding::Base64::decode(encoded);
-    OATPP_ASSERT(message == decoded);
+    OATPP_ASSERT(message == decoded)
   }
   
   {
     oatpp::String encoded = oatpp::encoding::Base64::encode(message, oatpp::encoding::Base64::ALPHABET_BASE64_URL_SAFE);
-    OATPP_LOGV(TAG, "encoded='%s'", encoded->c_str());
+    OATPP_LOGV(TAG, "encoded='%s'", encoded->c_str())
     oatpp::String decoded = oatpp::encoding::Base64::decode(encoded, oatpp::encoding::Base64::ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS);
-    OATPP_ASSERT(message == decoded);
+    OATPP_ASSERT(message == decoded)
   }
 
 }

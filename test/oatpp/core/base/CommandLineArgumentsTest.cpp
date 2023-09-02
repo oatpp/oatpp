@@ -38,25 +38,25 @@ void CommandLineArgumentsTest::onRun() {
   
   oatpp::base::CommandLineArguments args(argc, argv);
   
-  OATPP_ASSERT(args.getArgumentIndex("-k") == 0);
-  OATPP_ASSERT(args.getArgumentIndex("-c") == 1);
-  OATPP_ASSERT(args.getArgumentIndex("100") == 2);
-  OATPP_ASSERT(args.getArgumentIndex("-n") == 3);
-  OATPP_ASSERT(args.getArgumentIndex("500000") == 4);
-  OATPP_ASSERT(args.getArgumentIndex("http://127.0.0.1:8000/") == 5);
-  OATPP_ASSERT(args.getArgumentIndex("not-existing-arg") == -1);
+  OATPP_ASSERT(args.getArgumentIndex("-k") == 0)
+  OATPP_ASSERT(args.getArgumentIndex("-c") == 1)
+  OATPP_ASSERT(args.getArgumentIndex("100") == 2)
+  OATPP_ASSERT(args.getArgumentIndex("-n") == 3)
+  OATPP_ASSERT(args.getArgumentIndex("500000") == 4)
+  OATPP_ASSERT(args.getArgumentIndex("http://127.0.0.1:8000/") == 5)
+  OATPP_ASSERT(args.getArgumentIndex("not-existing-arg") == -1)
   
-  OATPP_ASSERT(args.hasArgument("-k"));
-  OATPP_ASSERT(args.hasArgument("not-existing-arg") == false);
+  OATPP_ASSERT(args.hasArgument("-k"))
+  OATPP_ASSERT(args.hasArgument("not-existing-arg") == false)
   
-  OATPP_ASSERT(std::strcmp(args.getArgumentStartingWith("http"), "http://127.0.0.1:8000/") == 0);
-  OATPP_ASSERT(std::strcmp(args.getArgumentStartingWith("tcp", "tcp://default/"), "tcp://default/") == 0);
+  OATPP_ASSERT(std::strcmp(args.getArgumentStartingWith("http"), "http://127.0.0.1:8000/") == 0)
+  OATPP_ASSERT(std::strcmp(args.getArgumentStartingWith("tcp", "tcp://default/"), "tcp://default/") == 0)
   
-  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-c"), "100") == 0);
-  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-c", nullptr), "100") == 0);
+  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-c"), "100") == 0)
+  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-c", nullptr), "100") == 0)
   
-  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-n"), "500000") == 0);
-  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("--non-existing", "default"), "default") == 0);
+  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("-n"), "500000") == 0)
+  OATPP_ASSERT(std::strcmp(args.getNamedArgumentValue("--non-existing", "default"), "default") == 0)
 
 }
   

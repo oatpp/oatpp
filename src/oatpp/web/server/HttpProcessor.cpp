@@ -204,7 +204,7 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
       handler->handleConnection(resources.connection, response->getConnectionUpgradeParameters());
       connectionState = ConnectionState::DELEGATED;
     } else {
-      OATPP_LOGW("[oatpp::web::server::HttpProcessor::processNextRequest()]", "Warning. ConnectionUpgradeHandler not set!");
+      OATPP_LOGW("[oatpp::web::server::HttpProcessor::processNextRequest()]", "Warning. ConnectionUpgradeHandler not set!")
       connectionState = ConnectionState::CLOSING;
     }
   }
@@ -396,7 +396,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestDone() {
         handler->handleConnection(m_connection, m_currentResponse->getConnectionUpgradeParameters());
         m_connectionState = ConnectionState::DELEGATED;
       } else {
-        OATPP_LOGW("[oatpp::web::server::HttpProcessor::Coroutine::onResponseFormed()]", "Warning. ConnectionUpgradeHandler not set!");
+        OATPP_LOGW("[oatpp::web::server::HttpProcessor::Coroutine::onResponseFormed()]", "Warning. ConnectionUpgradeHandler not set!")
         m_connectionState = ConnectionState::CLOSING;
       }
       break;
@@ -425,7 +425,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* er
     }
 
     if(m_currentResponse) {
-      //OATPP_LOGE("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '%s'. Dropping connection", error->what());
+      //OATPP_LOGE("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '%s'. Dropping connection", error->what())
       return error;
     }
 

@@ -193,164 +193,164 @@ void ObjectTest::onRun() {
 
   {
     auto dto = DtoA::createShared("id1");
-    OATPP_ASSERT(dto->id == "id1");
+    OATPP_ASSERT(dto->id == "id1")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Meta 1...");
+    OATPP_LOGI(TAG, "Test Meta 1...")
 
     auto type = Object<DtoA>::Class::getType();
     auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
     const auto& propsMap = dispatcher->getProperties()->getMap();
 
-    OATPP_ASSERT(propsMap.size() == 1);
+    OATPP_ASSERT(propsMap.size() == 1)
 
     auto it = propsMap.find("id");
-    OATPP_ASSERT(it != propsMap.end());
-    OATPP_ASSERT(it->second->info.description == "identifier");
-    OATPP_ASSERT(it->second->info.pattern == "^[a-z0-9]+$");
+    OATPP_ASSERT(it != propsMap.end())
+    OATPP_ASSERT(it->second->info.description == "identifier")
+    OATPP_ASSERT(it->second->info.pattern == "^[a-z0-9]+$")
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Meta 2...");
+    OATPP_LOGI(TAG, "Test Meta 2...")
 
     auto type = Object<DtoB>::Class::getType();
     auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
     const auto& propsMap = dispatcher->getProperties()->getMap();
 
-    OATPP_ASSERT(propsMap.size() == 2);
+    OATPP_ASSERT(propsMap.size() == 2)
 
     {
       auto it = propsMap.find("id");
-      OATPP_ASSERT("id" && it != propsMap.end());
-      OATPP_ASSERT(it->second->info.description == "identifier");
+      OATPP_ASSERT("id" && it != propsMap.end())
+      OATPP_ASSERT(it->second->info.description == "identifier")
     }
 
     {
       auto it = propsMap.find("field-a");
-      OATPP_ASSERT("field-a" && it != propsMap.end());
-      OATPP_ASSERT(it->second->info.description == "some field with a qualified name");
+      OATPP_ASSERT("field-a" && it != propsMap.end())
+      OATPP_ASSERT(it->second->info.description == "some field with a qualified name")
     }
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 1...");
+    OATPP_LOGI(TAG, "Test 1...")
     Object<DtoA> a;
-    OATPP_ASSERT(!a);
-    OATPP_ASSERT(a == nullptr);
-    OATPP_ASSERT(a.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!a)
+    OATPP_ASSERT(a == nullptr)
+    OATPP_ASSERT(a.getValueType()->classId.id == oatpp::data::mapping::type::__class::AbstractObject::CLASS_ID.id)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 2...");
+    OATPP_LOGI(TAG, "Test 2...")
     Object<DtoA> a;
     Object<DtoA> b;
-    OATPP_ASSERT(a == b);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(a == b)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 3...");
+    OATPP_LOGI(TAG, "Test 3...")
     auto a = DtoA::createShared();
     Object<DtoA> b;
-    OATPP_ASSERT(a != b);
-    OATPP_ASSERT(b != a);
+    OATPP_ASSERT(a != b)
+    OATPP_ASSERT(b != a)
     auto ohc = a->hashCode();
     auto whc = std::hash<oatpp::Object<DtoA>>{}(a);
-    OATPP_ASSERT(ohc == whc);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(ohc == whc)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 4...");
+    OATPP_LOGI(TAG, "Test 4...")
     auto a = Dto0::createShared();
     auto b = Dto0::createShared();
-    OATPP_ASSERT(a != b);
-    OATPP_ASSERT(a->hashCode() != b->hashCode());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(a != b)
+    OATPP_ASSERT(a->hashCode() != b->hashCode())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 5...");
+    OATPP_LOGI(TAG, "Test 5...")
     auto a = DtoA::createShared();
     auto b = DtoA::createShared();
 
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == b->hashCode());
+    OATPP_ASSERT(a == b)
+    OATPP_ASSERT(a->hashCode() == b->hashCode())
 
     a->id = "hello";
 
-    OATPP_ASSERT(a != b);
-    OATPP_ASSERT(a->hashCode() != b->hashCode());
+    OATPP_ASSERT(a != b)
+    OATPP_ASSERT(a->hashCode() != b->hashCode())
 
     b->id = "hello";
 
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == b->hashCode());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(a == b)
+    OATPP_ASSERT(a->hashCode() == b->hashCode())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 6...");
+    OATPP_LOGI(TAG, "Test 6...")
     auto a = DtoB::createShared();
     auto b = DtoB::createShared();
 
-    OATPP_ASSERT(a->a == "default-value");
-    OATPP_ASSERT(b->a == "default-value");
+    OATPP_ASSERT(a->a == "default-value")
+    OATPP_ASSERT(b->a == "default-value")
 
     a->a = "value1"; // value that is ignored in HC & EQ
     a->a = "value2"; // value that is ignored in HC & EQ
 
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == b->hashCode());
+    OATPP_ASSERT(a == b)
+    OATPP_ASSERT(a->hashCode() == b->hashCode())
 
     a->id = "hello";
 
-    OATPP_ASSERT(a != b);
-    OATPP_ASSERT(a->hashCode() != b->hashCode());
+    OATPP_ASSERT(a != b)
+    OATPP_ASSERT(a->hashCode() != b->hashCode())
 
     b->id = "hello";
 
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == b->hashCode());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(a == b)
+    OATPP_ASSERT(a->hashCode() == b->hashCode())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 7...");
+    OATPP_LOGI(TAG, "Test 7...")
     auto a = DtoC::createShared();
     auto b = DtoC::createShared();
 
     a->id = "1";
     b->id = "2";
 
-    OATPP_ASSERT(a != b);
-    OATPP_ASSERT(a->hashCode() != b->hashCode());
+    OATPP_ASSERT(a != b)
+    OATPP_ASSERT(a->hashCode() != b->hashCode())
 
     a->id = "2";
 
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == b->hashCode());
+    OATPP_ASSERT(a == b)
+    OATPP_ASSERT(a->hashCode() == b->hashCode())
 
     a->c = "a";
 
-    OATPP_ASSERT(a != b);
-    OATPP_ASSERT(a->hashCode() != b->hashCode());
+    OATPP_ASSERT(a != b)
+    OATPP_ASSERT(a->hashCode() != b->hashCode())
 
     b->c = "a";
 
-    OATPP_ASSERT(a == b);
-    OATPP_ASSERT(a->hashCode() == b->hashCode());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(a == b)
+    OATPP_ASSERT(a->hashCode() == b->hashCode())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 8...");
+    OATPP_LOGI(TAG, "Test 8...")
     auto a = DtoB::createShared();
     auto b = DtoB::createShared();
     auto c = DtoB::createShared();
@@ -368,26 +368,26 @@ void ObjectTest::onRun() {
 
     oatpp::UnorderedSet<oatpp::Object<DtoB>> set = {a, b, c, d, e};
 
-    OATPP_ASSERT(set->size() == 2);
-    OATPP_ASSERT(set[a] == true);
-    OATPP_ASSERT(set[b] == true);
-    OATPP_ASSERT(set[c] == true);
-    OATPP_ASSERT(set[d] == true);
-    OATPP_ASSERT(set[e] == true);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(set->size() == 2)
+    OATPP_ASSERT(set[a] == true)
+    OATPP_ASSERT(set[b] == true)
+    OATPP_ASSERT(set[c] == true)
+    OATPP_ASSERT(set[d] == true)
+    OATPP_ASSERT(set[e] == true)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 9...");
+    OATPP_LOGI(TAG, "Test 9...")
     auto dto = DtoD::createShared();
-    OATPP_ASSERT(dto->a.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(dto->a);
-    OATPP_ASSERT(dto->a == 64);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(dto->a.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_ASSERT(dto->a)
+    OATPP_ASSERT(dto->a == 64)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 10...");
+    OATPP_LOGI(TAG, "Test 10...")
     OATPP_ASSERT(oatpp::Object<DtoA>::Class::getType()->extends(oatpp::Object<oatpp::DTO>::Class::getType()))
     OATPP_ASSERT(oatpp::Object<DtoA>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
     OATPP_ASSERT(oatpp::Object<DtoB>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
@@ -395,35 +395,35 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(oatpp::Object<DtoC>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
     OATPP_ASSERT(oatpp::Object<DtoD>::Class::getType()->extends(oatpp::Object<DtoA>::Class::getType()))
     OATPP_ASSERT(!oatpp::Object<DtoC>::Class::getType()->extends(oatpp::Object<DtoB>::Class::getType()))
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 11...");
+    OATPP_LOGI(TAG, "Test 11...")
 
     auto map = oatpp::Object<PolymorphicDto1>::getPropertiesMap();
     auto p = map["polymorph"];
 
-    OATPP_ASSERT(p->info.description == "");
-    OATPP_ASSERT(p->info.typeSelector != nullptr);
+    OATPP_ASSERT(p->info.description == "")
+    OATPP_ASSERT(p->info.typeSelector != nullptr)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 12...");
+    OATPP_LOGI(TAG, "Test 12...")
 
     auto map = oatpp::Object<PolymorphicDto2>::getPropertiesMap();
     auto p = map["polymorph"];
 
-    OATPP_ASSERT(p->info.description == "description");
-    OATPP_ASSERT(p->info.typeSelector != nullptr);
+    OATPP_ASSERT(p->info.description == "description")
+    OATPP_ASSERT(p->info.typeSelector != nullptr)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 13...");
+    OATPP_LOGI(TAG, "Test 13...")
 
     auto dto = oatpp::Object<PolymorphicDto2>::createShared();
     OATPP_ASSERT(dto->type == nullptr)
@@ -432,14 +432,14 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(dto["type"].getValueType() == oatpp::String::Class::getType())
 
     dto["type"] = oatpp::String("hello");
-    OATPP_ASSERT(dto->type == "hello");
+    OATPP_ASSERT(dto->type == "hello")
     OATPP_ASSERT(dto->type.getValueType() == oatpp::String::Class::getType())
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 14...");
+    OATPP_LOGI(TAG, "Test 14...")
 
     auto dto = oatpp::Object<PolymorphicDto2>::createShared();
     bool thrown = false;
@@ -447,17 +447,17 @@ void ObjectTest::onRun() {
     try{
       dto["type"] = oatpp::Int32(32);
     } catch(std::runtime_error const& e) {
-      OATPP_LOGD(TAG, "error='%s'", e.what());
+      OATPP_LOGD(TAG, "error='%s'", e.what())
       thrown = true;
     }
 
     OATPP_ASSERT(thrown)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 15...");
+    OATPP_LOGI(TAG, "Test 15...")
 
     auto dto = oatpp::Object<PolymorphicDto2>::createShared();
     bool thrown = false;
@@ -465,17 +465,17 @@ void ObjectTest::onRun() {
     try{
       dto["non-existing"];
     } catch(std::out_of_range const& e) {
-      OATPP_LOGD(TAG, "error='%s'", e.what());
+      OATPP_LOGD(TAG, "error='%s'", e.what())
       thrown = true;
     }
 
     OATPP_ASSERT(thrown)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 16...");
+    OATPP_LOGI(TAG, "Test 16...")
 
     oatpp::parser::json::mapping::ObjectMapper mapper;
 
@@ -503,11 +503,11 @@ void ObjectTest::onRun() {
 
     OATPP_ASSERT(polymorphClone->fieldA == "type-A")
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 17...");
+    OATPP_LOGI(TAG, "Test 17...")
 
     oatpp::parser::json::mapping::ObjectMapper mapper;
 
@@ -535,11 +535,11 @@ void ObjectTest::onRun() {
 
     OATPP_ASSERT(polymorphClone == "Hello World!")
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test 18...");
+    OATPP_LOGI(TAG, "Test 18...")
 
     oatpp::parser::json::mapping::ObjectMapper mapper;
 
@@ -569,7 +569,7 @@ void ObjectTest::onRun() {
     OATPP_ASSERT(polymorphClone == nullptr)
     OATPP_ASSERT(polymorphClone.getValueType() == oatpp::String::Class::getType())
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
 }

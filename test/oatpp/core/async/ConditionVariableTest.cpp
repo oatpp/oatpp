@@ -130,7 +130,7 @@ void ConditionVariableTest::onRun() {
       }
       std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
-    OATPP_ASSERT(finished);
+    OATPP_ASSERT(finished)
   });
 
   {

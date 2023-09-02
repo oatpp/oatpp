@@ -215,60 +215,60 @@ void DTOMapperTest::onRun(){
   
   auto result = mapper->writeToString(test1);
   
-  OATPP_LOGV(TAG, "json='%s'", result->c_str());
+  OATPP_LOGV(TAG, "json='%s'", result->c_str())
   
-  OATPP_LOGV(TAG, "...");
-  OATPP_LOGV(TAG, "...");
-  OATPP_LOGV(TAG, "...");
+  OATPP_LOGV(TAG, "...")
+  OATPP_LOGV(TAG, "...")
+  OATPP_LOGV(TAG, "...")
 
   oatpp::parser::Caret caret(result);
   auto obj1 = mapper->readFromCaret<oatpp::Object<Test>>(caret);
   
-  OATPP_ASSERT(obj1->field_string);
-  OATPP_ASSERT(obj1->field_string == test1->field_string);
+  OATPP_ASSERT(obj1->field_string)
+  OATPP_ASSERT(obj1->field_string == test1->field_string)
   
-  OATPP_ASSERT(obj1->field_int32);
-  OATPP_ASSERT(obj1->field_int32 == test1->field_int32);
+  OATPP_ASSERT(obj1->field_int32)
+  OATPP_ASSERT(obj1->field_int32 == test1->field_int32)
   
-  OATPP_ASSERT(obj1->field_int64);
-  OATPP_ASSERT(obj1->field_int64 == test1->field_int64);
+  OATPP_ASSERT(obj1->field_int64)
+  OATPP_ASSERT(obj1->field_int64 == test1->field_int64)
   
-  OATPP_ASSERT(obj1->field_float32);
-  OATPP_ASSERT(obj1->field_float32 == test1->field_float32);
+  OATPP_ASSERT(obj1->field_float32)
+  OATPP_ASSERT(obj1->field_float32 == test1->field_float32)
   
-  OATPP_ASSERT(obj1->field_float64);
-  OATPP_ASSERT(obj1->field_float64 == test1->field_float64);
+  OATPP_ASSERT(obj1->field_float64)
+  OATPP_ASSERT(obj1->field_float64 == test1->field_float64)
   
-  OATPP_ASSERT(obj1->field_boolean);
-  OATPP_ASSERT(obj1->field_boolean == test1->field_boolean);
+  OATPP_ASSERT(obj1->field_boolean)
+  OATPP_ASSERT(obj1->field_boolean == test1->field_boolean)
 
   {
     auto c = obj1->field_vector;
-    OATPP_ASSERT(c[0] == "vector_item1");
-    OATPP_ASSERT(c[1] == "vector_item2");
-    OATPP_ASSERT(c[2] == "vector_item3");
+    OATPP_ASSERT(c[0] == "vector_item1")
+    OATPP_ASSERT(c[1] == "vector_item2")
+    OATPP_ASSERT(c[2] == "vector_item3")
   }
 
   {
     auto c = obj1->field_fields;
     v_int32 i = 0;
     for(auto& pair : *c) {
-      OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i));
-      OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i));
+      OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i))
+      OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i))
       i++;
     }
   }
 
   {
     auto c = obj1->field_unordered_fields;
-    OATPP_ASSERT(c["key1"] == "map_item1");
-    OATPP_ASSERT(c["key2"] == "map_item2");
-    OATPP_ASSERT(c["key3"] == "map_item3");
+    OATPP_ASSERT(c["key1"] == "map_item1")
+    OATPP_ASSERT(c["key2"] == "map_item2")
+    OATPP_ASSERT(c["key3"] == "map_item3")
   }
   
   result = mapper->writeToString(obj1);
   
-  OATPP_LOGV(TAG, "json='%s'", result->c_str());
+  OATPP_LOGV(TAG, "json='%s'", result->c_str())
 
   {
 
@@ -290,12 +290,12 @@ void DTOMapperTest::onRun(){
     obj2->anyList->push_back(map);
 
     auto json = mapper->writeToString(obj2);
-    OATPP_LOGV(TAG, "any json='%s'", json->c_str());
+    OATPP_LOGV(TAG, "any json='%s'", json->c_str())
 
     auto deserializedAny = mapper->readFromString<oatpp::Fields<oatpp::Any>>(json);
 
     auto json2 = mapper->writeToString(deserializedAny);
-    OATPP_LOGV(TAG, "any json='%s'", json2->c_str());
+    OATPP_LOGV(TAG, "any json='%s'", json2->c_str())
 
   }
 

@@ -33,7 +33,7 @@ PerformanceChecker::PerformanceChecker(const char* tag)
 
 PerformanceChecker::~PerformanceChecker(){
   v_int64 elapsedTicks = oatpp::base::Environment::getMicroTickCount() - m_ticks;
-  OATPP_LOGD(m_tag, "%ld(micro)", elapsedTicks);
+  OATPP_LOGD(m_tag, "%ld(micro)", elapsedTicks)
 }
 
 v_int64 PerformanceChecker::getElapsedTicks(){
@@ -54,10 +54,10 @@ ThreadLocalObjectsChecker::~ThreadLocalObjectsChecker(){
   v_counter objectsCreatedPerTest = base::Environment::getThreadLocalObjectsCreated() - m_objectsCreated;
   
   if(leakingObjects == 0){
-    OATPP_LOGE(m_tag, "OK:\n created(obj): %ld", objectsCreatedPerTest);
+    OATPP_LOGE(m_tag, "OK:\n created(obj): %ld", objectsCreatedPerTest)
   }else{
-    OATPP_LOGE(m_tag, "FAILED, leakingObjects = %ld", leakingObjects);
-    OATPP_ASSERT(false);
+    OATPP_LOGE(m_tag, "FAILED, leakingObjects = %ld", leakingObjects)
+    OATPP_ASSERT(false)
   }
   
 }

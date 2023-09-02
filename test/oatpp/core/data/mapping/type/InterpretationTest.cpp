@@ -73,7 +73,7 @@ namespace __class {
     public:
 
       oatpp::Object<PointDto> interpret(const Point& value) const override {
-        OATPP_LOGD("Point::Interpretation", "interpret");
+        OATPP_LOGD("Point::Interpretation", "interpret")
         auto dto = PointDto::createShared();
         dto->x = value->x;
         dto->y = value->y;
@@ -82,7 +82,7 @@ namespace __class {
       }
 
       Point reproduce(const oatpp::Object<PointDto>& value) const override {
-        OATPP_LOGD("Point::Interpretation", "reproduce");
+        OATPP_LOGD("Point::Interpretation", "reproduce")
         return Point({value->x, value->y, value->z});
       }
 
@@ -127,7 +127,7 @@ namespace __class {
     public:
 
       oatpp::Object<LineDto> interpret(const Line& value) const override {
-        OATPP_LOGD("Line::Interpretation", "interpret");
+        OATPP_LOGD("Line::Interpretation", "interpret")
         auto dto = LineDto::createShared();
         dto->p1 = {value->p1.x, value->p1.y, value->p1.z};
         dto->p2 = {value->p2.x, value->p2.y, value->p2.z};
@@ -135,7 +135,7 @@ namespace __class {
       }
 
       Line reproduce(const oatpp::Object<LineDto>& value) const override {
-        OATPP_LOGD("Line::Interpretation", "reproduce");
+        OATPP_LOGD("Line::Interpretation", "reproduce")
         return Line({{value->p1->x, value->p1->y, value->p1->z},
                      {value->p2->x, value->p2->y, value->p2->z}});
       }
@@ -193,15 +193,15 @@ void InterpretationTest::onRun() {
 
   auto json1 = mapper.writeToString(l);
 
-  OATPP_LOGD(TAG, "json1='%s'", json1->c_str());
+  OATPP_LOGD(TAG, "json1='%s'", json1->c_str())
 
   auto rl = mapper.readFromString<Line>(json1);
 
   auto json2 = mapper.writeToString(rl);
 
-  OATPP_LOGD(TAG, "json2='%s'", json2->c_str());
+  OATPP_LOGD(TAG, "json2='%s'", json2->c_str())
 
-  OATPP_ASSERT(json1 == json2);
+  OATPP_ASSERT(json1 == json2)
 
   oatpp::data::mapping::TypeResolver::Cache cache;
 
@@ -212,9 +212,9 @@ void InterpretationTest::onRun() {
     //oatpp::data::mapping::TypeResolver::Cache cache;
 
     auto v = tr.resolveObjectPropertyValue(l, {"p1", "x"}, cache);
-    OATPP_ASSERT(v);
-    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(v.cast<oatpp::Int32>() == 1);
+    OATPP_ASSERT(v)
+    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_ASSERT(v.cast<oatpp::Int32>() == 1)
   }
 
   {
@@ -224,9 +224,9 @@ void InterpretationTest::onRun() {
     //oatpp::data::mapping::TypeResolver::Cache cache;
 
     auto v = tr.resolveObjectPropertyValue(l, {"p1", "y"}, cache);
-    OATPP_ASSERT(v);
-    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(v.cast<oatpp::Int32>() == 2);
+    OATPP_ASSERT(v)
+    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_ASSERT(v.cast<oatpp::Int32>() == 2)
   }
 
   {
@@ -236,9 +236,9 @@ void InterpretationTest::onRun() {
     //oatpp::data::mapping::TypeResolver::Cache cache;
 
     auto v = tr.resolveObjectPropertyValue(l, {"p1", "z"}, cache);
-    OATPP_ASSERT(v);
-    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(v.cast<oatpp::Int32>() == 3);
+    OATPP_ASSERT(v)
+    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_ASSERT(v.cast<oatpp::Int32>() == 3)
   }
 
 }

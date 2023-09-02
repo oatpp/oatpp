@@ -101,7 +101,7 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
     } else if(e == WSAECONNRESET) {
       return IOError::BROKEN_PIPE;
     } else {
-      //OATPP_LOGD("Connection", "write errno=%d", e);
+      //OATPP_LOGD("Connection", "write errno=%d", e)
       return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
@@ -138,7 +138,7 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
       return IOError::BROKEN_PIPE;
     }
 
-    //OATPP_LOGD("Connection", "write errno=%d", e);
+    //OATPP_LOGD("Connection", "write errno=%d", e)
     return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
   }
   return result;
@@ -176,7 +176,7 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
     } else if(e == WSAECONNRESET) {
       return IOError::BROKEN_PIPE;
     } else {
-      //OATPP_LOGD("Connection", "write errno=%d", e);
+      //OATPP_LOGD("Connection", "write errno=%d", e)
       return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
@@ -208,7 +208,7 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
       return IOError::BROKEN_PIPE;
     }
 
-    //OATPP_LOGD("Connection", "write errno=%d", e);
+    //OATPP_LOGD("Connection", "write errno=%d", e)
     return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
   }
   return result;

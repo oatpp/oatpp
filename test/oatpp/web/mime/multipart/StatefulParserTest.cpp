@@ -83,7 +83,7 @@ namespace {
         parser.parseNext(inlineData, action);
       }
     }
-    OATPP_ASSERT(parser.finished());
+    OATPP_ASSERT(parser.finished())
 
   }
 
@@ -91,8 +91,8 @@ namespace {
 
     auto payload = part->getPayload();
     OATPP_ASSERT(payload)
-    OATPP_ASSERT(payload->getInMemoryData());
-    OATPP_ASSERT(payload->getInMemoryData() == value);
+    OATPP_ASSERT(payload->getInMemoryData())
+    OATPP_ASSERT(payload->getInMemoryData() == value)
 
     v_int64 bufferSize = 16;
     std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
@@ -102,7 +102,7 @@ namespace {
 
     oatpp::String readData = stream.toString();
 
-    OATPP_ASSERT(readData == payload->getInMemoryData());
+    OATPP_ASSERT(readData == payload->getInMemoryData())
 
   }
 
@@ -122,10 +122,10 @@ void StatefulParserTest::onRun() {
     parseStepByStep(text, "12345", listener, i);
 
     if(multipart.count() != 5) {
-      OATPP_LOGD(TAG, "TEST_DATA_1 itearation %lu", i);
+      OATPP_LOGD(TAG, "TEST_DATA_1 itearation %lu", i)
     }
 
-    OATPP_ASSERT(multipart.count() == 5);
+    OATPP_ASSERT(multipart.count() == 5)
 
     auto part1 = multipart.getNamedPart("part1");
     auto part2 = multipart.getNamedPart("part2");
@@ -134,16 +134,16 @@ void StatefulParserTest::onRun() {
     auto part4 = multipart.getNamedPart("part4");
     auto part4List = multipart.getNamedParts("part4");
 
-    OATPP_ASSERT(part1);
-    OATPP_ASSERT(part2);
-    OATPP_ASSERT(part3);
-    OATPP_ASSERT(part4);
-    OATPP_ASSERT(part4List.size() == 2);
-    OATPP_ASSERT(part4List.front().get() == part4.get());
+    OATPP_ASSERT(part1)
+    OATPP_ASSERT(part2)
+    OATPP_ASSERT(part3)
+    OATPP_ASSERT(part4)
+    OATPP_ASSERT(part4List.size() == 2)
+    OATPP_ASSERT(part4List.front().get() == part4.get())
 
-    OATPP_ASSERT(part1->getFilename().get() == nullptr);
-    OATPP_ASSERT(part2->getFilename() == "filename.txt");
-    OATPP_ASSERT(part3->getFilename() == "filename.jpg");
+    OATPP_ASSERT(part1->getFilename().get() == nullptr)
+    OATPP_ASSERT(part2->getFilename() == "filename.txt")
+    OATPP_ASSERT(part3->getFilename() == "filename.jpg")
 
     assertPartData(part1, "part1-value");
     assertPartData(part2, "--part2-file-content-line1\r\n--1234part2-file-content-line2");

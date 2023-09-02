@@ -137,7 +137,7 @@ void runServer(v_uint16 port, v_int32 delaySeconds, v_int32 iterations, bool sta
       std::this_thread::sleep_for(std::chrono::seconds(delaySeconds));
       if(!stable) {
         controller->available = !controller->available;
-        OATPP_LOGI("Server", "Available=%d", static_cast<v_int32>(controller->available.load()));
+        OATPP_LOGI("Server", "Available=%d", static_cast<v_int32>(controller->available.load()))
       }
     }
 
@@ -160,7 +160,7 @@ void ClientRetryTest::onRun() {
 
   {
 
-    OATPP_LOGI(TAG, "Test: no server available");
+    OATPP_LOGI(TAG, "Test: no server available")
     oatpp::test::PerformanceChecker checker("test: no server available");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(2, std::chrono::seconds(1));
@@ -170,22 +170,22 @@ void ClientRetryTest::onRun() {
     auto response = client->getRoot();
     auto ticks = checker.getElapsedTicks();
 
-    OATPP_LOGD(TAG, "ticks=%ld", ticks);
+    OATPP_LOGD(TAG, "ticks=%ld", ticks)
 
     if(m_port == 0) {
 
-      OATPP_ASSERT(response.get() == nullptr);
-      OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */);
-      OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 3s */);
+      OATPP_ASSERT(response.get() == nullptr)
+      OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */)
+      OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 3s */)
 
     } else {
 
 // TODO - investigate why it takes more than 2 seconds on windows to try to connect to unavailable host
 #if !defined(WIN32) && !defined(_WIN32)
 
-      OATPP_ASSERT(response.get() == nullptr);
-      OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */);
-      OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 3s */);
+      OATPP_ASSERT(response.get() == nullptr)
+      OATPP_ASSERT(ticks >= 2 * 1000 * 1000 /* 2s */)
+      OATPP_ASSERT(ticks < 3 * 1000 * 1000 /* 3s */)
 
 #endif
 
@@ -195,7 +195,7 @@ void ClientRetryTest::onRun() {
 
   {
 
-    OATPP_LOGI(TAG, "Test: server pops up");
+    OATPP_LOGI(TAG, "Test: server pops up")
     oatpp::test::PerformanceChecker checker("test: server pops up");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(10 * 10, std::chrono::milliseconds(100));
@@ -207,14 +207,14 @@ void ClientRetryTest::onRun() {
     for(v_int32 i = 0; i < 100; i ++) {
       threads.push_back(std::thread([client]{
         auto response = client->getRoot();
-        OATPP_ASSERT(response && "Test: server pops up");
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response && "Test: server pops up")
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto data = response->readBodyToString();
-        OATPP_ASSERT(data == "Hello World!!!");
+        OATPP_ASSERT(data == "Hello World!!!")
       }));
     }
 
-    OATPP_LOGD(TAG, "Waiting for server to start...");
+    OATPP_LOGD(TAG, "Waiting for server to start...")
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
     runServer(m_port, 2, 2, true, controller);
@@ -224,13 +224,13 @@ void ClientRetryTest::onRun() {
     }
 
     auto ticks = checker.getElapsedTicks();
-    OATPP_ASSERT(ticks < 10 * 1000 * 1000 /* 10s */);
+    OATPP_ASSERT(ticks < 10 * 1000 * 1000 /* 10s */)
 
   }
 
   {
 
-    OATPP_LOGI(TAG, "Test: unstable server!");
+    OATPP_LOGI(TAG, "Test: unstable server!")
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(-1, std::chrono::seconds(1));
     auto connectionPool = oatpp::network::ClientConnectionPool::createShared(connectionProvider, 10, std::chrono::seconds(1));
@@ -248,14 +248,14 @@ void ClientRetryTest::onRun() {
       while(oatpp::base::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
 
         auto response = client->getAvailability();
-        OATPP_ASSERT(response && "Test: unstable server!");
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response && "Test: unstable server!")
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto data = response->readBodyToString();
-        OATPP_ASSERT(data == "Hello World!!!");
+        OATPP_ASSERT(data == "Hello World!!!")
         counter ++;
 
         if(counter % 1000 == 0) {
-          OATPP_LOGD("client", "requests=%ld", counter);
+          OATPP_LOGD("client", "requests=%ld", counter)
         }
 
       }

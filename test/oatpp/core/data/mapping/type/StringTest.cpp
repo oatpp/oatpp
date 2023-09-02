@@ -38,230 +38,230 @@ void StringTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "test default constructor");
+    OATPP_LOGI(TAG, "test default constructor")
     oatpp::String s;
-    OATPP_ASSERT(!s);
-    OATPP_ASSERT(s == nullptr);
-    OATPP_ASSERT(s == static_cast<const char*>(nullptr));
-    OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!s)
+    OATPP_ASSERT(s == nullptr)
+    OATPP_ASSERT(s == static_cast<const char*>(nullptr))
+    OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test nullptr constructor");
+    OATPP_LOGI(TAG, "test nullptr constructor")
     oatpp::String s(nullptr);
-    OATPP_ASSERT(!s);
-    OATPP_ASSERT(s == nullptr);
-    OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!s)
+    OATPP_ASSERT(s == nullptr)
+    OATPP_ASSERT(s.getValueType() == oatpp::String::Class::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test const char* constructor");
+    OATPP_LOGI(TAG, "test const char* constructor")
     oatpp::String s("abc\0xyz");
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 3);
-    OATPP_ASSERT(s == "abc");
-    OATPP_ASSERT(s == "abc\0xyz");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 3)
+    OATPP_ASSERT(s == "abc")
+    OATPP_ASSERT(s == "abc\0xyz")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test std::string constructor");
+    OATPP_LOGI(TAG, "test std::string constructor")
     std::string a("abc\0xyz", 7);
     oatpp::String s(a);
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 7);
-    OATPP_ASSERT(s != "abc");
-    OATPP_ASSERT(s != "abc\0xyz");
-    OATPP_ASSERT(s == std::string("abc\0xyz", 7));
-    OATPP_ASSERT(s == a);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 7)
+    OATPP_ASSERT(s != "abc")
+    OATPP_ASSERT(s != "abc\0xyz")
+    OATPP_ASSERT(s == std::string("abc\0xyz", 7))
+    OATPP_ASSERT(s == a)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test std::string move constructor");
+    OATPP_LOGI(TAG, "test std::string move constructor")
     std::string a("abc\0xyz", 7);
     oatpp::String s(std::move(a));
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 7);
-    OATPP_ASSERT(s != "abc");
-    OATPP_ASSERT(s != "abc\0xyz");
-    OATPP_ASSERT(s == std::string("abc\0xyz", 7));
-    OATPP_ASSERT(a == "");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 7)
+    OATPP_ASSERT(s != "abc")
+    OATPP_ASSERT(s != "abc\0xyz")
+    OATPP_ASSERT(s == std::string("abc\0xyz", 7))
+    OATPP_ASSERT(a == "")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test const char* assign operator");
+    OATPP_LOGI(TAG, "test const char* assign operator")
     oatpp::String s;
     s = "abc\0xyz";
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 3);
-    OATPP_ASSERT(s == "abc");
-    OATPP_ASSERT(s == "abc\0xyz");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 3)
+    OATPP_ASSERT(s == "abc")
+    OATPP_ASSERT(s == "abc\0xyz")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test std::string assign operator");
+    OATPP_LOGI(TAG, "test std::string assign operator")
     oatpp::String s;
     std::string a = std::string("abc\0xyz", 7);
     s = a;
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 7);
-    OATPP_ASSERT(s != "abc");
-    OATPP_ASSERT(s != "abc\0xyz");
-    OATPP_ASSERT(s == std::string("abc\0xyz", 7));
-    OATPP_ASSERT(s == a);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 7)
+    OATPP_ASSERT(s != "abc")
+    OATPP_ASSERT(s != "abc\0xyz")
+    OATPP_ASSERT(s == std::string("abc\0xyz", 7))
+    OATPP_ASSERT(s == a)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test std::string move assign operator");
+    OATPP_LOGI(TAG, "test std::string move assign operator")
     oatpp::String s;
     std::string a = std::string("abc\0xyz", 7);
     s = std::move(a);
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 7);
-    OATPP_ASSERT(s != "abc");
-    OATPP_ASSERT(s != "abc\0xyz");
-    OATPP_ASSERT(s == std::string("abc\0xyz", 7));
-    OATPP_ASSERT(a == "");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 7)
+    OATPP_ASSERT(s != "abc")
+    OATPP_ASSERT(s != "abc\0xyz")
+    OATPP_ASSERT(s == std::string("abc\0xyz", 7))
+    OATPP_ASSERT(a == "")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test const char* implicit constructor");
+    OATPP_LOGI(TAG, "test const char* implicit constructor")
     oatpp::String s = "";
-    OATPP_ASSERT(s);
-    OATPP_ASSERT(s != nullptr);
-    OATPP_ASSERT(s->size() == 0);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s)
+    OATPP_ASSERT(s != nullptr)
+    OATPP_ASSERT(s->size() == 0)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test '==', '!=' operators");
+    OATPP_LOGI(TAG, "test '==', '!=' operators")
     oatpp::String s1 = "a";
     oatpp::String s2;
 
-    OATPP_ASSERT(s1 != s2);
-    OATPP_ASSERT(s2 != s1);
+    OATPP_ASSERT(s1 != s2)
+    OATPP_ASSERT(s2 != s1)
 
-    OATPP_ASSERT(s1 == "a");
-    OATPP_ASSERT(s1 != "aa");
-    OATPP_ASSERT(s1 != "");
+    OATPP_ASSERT(s1 == "a")
+    OATPP_ASSERT(s1 != "aa")
+    OATPP_ASSERT(s1 != "")
 
     s2 = "aa";
 
-    OATPP_ASSERT(s1 != s2);
-    OATPP_ASSERT(s2 != s1);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s1 != s2)
+    OATPP_ASSERT(s2 != s1)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test copy-asssign operator");
+    OATPP_LOGI(TAG, "test copy-asssign operator")
     oatpp::String s1 = "s1";
     oatpp::String s2;
 
     s2 = s1;
 
-    OATPP_ASSERT(s1 == s2);
-    OATPP_ASSERT(s1.get() == s2.get());
+    OATPP_ASSERT(s1 == s2)
+    OATPP_ASSERT(s1.get() == s2.get())
 
     s1 = "s2";
 
-    OATPP_ASSERT(s1 != s2);
-    OATPP_ASSERT(s2 != s1);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s1 != s2)
+    OATPP_ASSERT(s2 != s1)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test const char* assign operator");
+    OATPP_LOGI(TAG, "test const char* assign operator")
     oatpp::String s1 = "s1";
     oatpp::String s2(s1);
 
-    OATPP_ASSERT(s1 == s2);
-    OATPP_ASSERT(s1.get() == s2.get());
+    OATPP_ASSERT(s1 == s2)
+    OATPP_ASSERT(s1.get() == s2.get())
 
     s1 = "s2";
 
-    OATPP_ASSERT(s1 != s2);
-    OATPP_ASSERT(s2 != s1);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s1 != s2)
+    OATPP_ASSERT(s2 != s1)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test move assign operator");
+    OATPP_LOGI(TAG, "test move assign operator")
     oatpp::String s1 = "s1";
     oatpp::String s2;
 
     s2 = std::move(s1);
 
-    OATPP_ASSERT(s1 == nullptr);
-    OATPP_ASSERT(s2 != nullptr);
-    OATPP_ASSERT(s2 == "s1");
+    OATPP_ASSERT(s1 == nullptr)
+    OATPP_ASSERT(s2 != nullptr)
+    OATPP_ASSERT(s2 == "s1")
 
-    OATPP_ASSERT(s1 != s2);
-    OATPP_ASSERT(s1.get() != s2.get());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(s1 != s2)
+    OATPP_ASSERT(s1.get() != s2.get())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test compareCI_ASCII methods 1");
+    OATPP_LOGI(TAG, "test compareCI_ASCII methods 1")
 
     oatpp::String s1 = "hello";
 
     {
       oatpp::String s2;
-      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2))
     }
 
     {
       const char* s2 = nullptr;
-      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2))
     }
 
   }
 
   {
-    OATPP_LOGI(TAG, "test compareCI_ASCII methods 2");
+    OATPP_LOGI(TAG, "test compareCI_ASCII methods 2")
 
     oatpp::String s1;
 
     {
       oatpp::String s2 = "hello";
-      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2))
     }
 
     {
       std::string s2 = "hello";
-      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2))
     }
 
     {
       const char* s2 = "hello";
-      OATPP_ASSERT(!s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(!s1.equalsCI_ASCII(s2))
     }
 
     {
       oatpp::String s2;
-      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2))
     }
 
     {
       const char* s2 = nullptr;
-      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2))
     }
 
     {
-      OATPP_ASSERT(s1.equalsCI_ASCII(nullptr));
+      OATPP_ASSERT(s1.equalsCI_ASCII(nullptr))
     }
 
     {
@@ -274,40 +274,40 @@ void StringTest::onRun() {
         exceptionThrown = true;
       }
 
-      OATPP_ASSERT(exceptionThrown);
+      OATPP_ASSERT(exceptionThrown)
 
     }
 
   }
 
   {
-    OATPP_LOGI(TAG, "test compareCI_ASCII methods 3");
+    OATPP_LOGI(TAG, "test compareCI_ASCII methods 3")
 
     oatpp::String s1 = "hello";
 
     {
       oatpp::String s2 = "HELLO";
-      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2))
     }
 
     {
       std::string s2 = "HELLO";
-      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2))
     }
 
     {
       const char* s2 = "HELLO";
-      OATPP_ASSERT(s1.equalsCI_ASCII(s2));
+      OATPP_ASSERT(s1.equalsCI_ASCII(s2))
     }
 
     {
-      OATPP_ASSERT(s1.equalsCI_ASCII("HELLO"));
+      OATPP_ASSERT(s1.equalsCI_ASCII("HELLO"))
     }
 
   }
 
   {
-    OATPP_LOGI(TAG, "check default value");
+    OATPP_LOGI(TAG, "check default value")
     oatpp::String s0;
     oatpp::String s1 = "hello";
     OATPP_ASSERT(s0.getValue("def") == "def")

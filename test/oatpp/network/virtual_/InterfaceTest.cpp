@@ -56,17 +56,17 @@ namespace {
       auto socket = submission->getSocket();
       
       auto res = socket->writeExactSizeDataSimple(m_dataSample->data(), static_cast<v_buff_size>(m_dataSample->size()));
-      OATPP_ASSERT(res == static_cast<v_io_size>(m_dataSample->size()));
+      OATPP_ASSERT(res == static_cast<v_io_size>(m_dataSample->size()))
       
       v_char8 buffer[100];
       oatpp::data::stream::BufferOutputStream stream;
       res = oatpp::data::stream::transfer(socket.get(), &stream, 2, buffer, 100);
       
-      OATPP_ASSERT(res == 2);
-      OATPP_ASSERT(stream.getCurrentPosition() == res);
-      OATPP_ASSERT(stream.toString() == "OK");
+      OATPP_ASSERT(res == 2)
+      OATPP_ASSERT(stream.getCurrentPosition() == res)
+      OATPP_ASSERT(stream.toString() == "OK")
       
-      //OATPP_LOGV("client", "finished - OK");
+      //OATPP_LOGV("client", "finished - OK")
       
     }
     
@@ -89,13 +89,13 @@ namespace {
       oatpp::data::stream::BufferOutputStream stream;
       auto res = oatpp::data::stream::transfer(m_socket.get(), &stream, static_cast<v_io_size>(m_dataSample->size()), buffer, 100);
       
-      OATPP_ASSERT(res == static_cast<v_io_size>(m_dataSample->size()));
-      OATPP_ASSERT(stream.getCurrentPosition() == res);
-      OATPP_ASSERT(stream.toString() == m_dataSample);
+      OATPP_ASSERT(res == static_cast<v_io_size>(m_dataSample->size()))
+      OATPP_ASSERT(stream.getCurrentPosition() == res)
+      OATPP_ASSERT(stream.toString() == m_dataSample)
       
       res = m_socket->writeExactSizeDataSimple("OK", 2);
       
-      OATPP_ASSERT(res == 2);
+      OATPP_ASSERT(res == 2)
     }
     
   };

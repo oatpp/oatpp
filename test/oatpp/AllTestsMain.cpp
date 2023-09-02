@@ -75,15 +75,15 @@ void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
-  OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle));
-  OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine));
-  OATPP_LOGD("Tests", "action size=%lu", sizeof(oatpp::async::Action));
-  OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
+  OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle))
+  OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine))
+  OATPP_LOGD("Tests", "action size=%lu", sizeof(oatpp::async::Action))
+  OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount())
 
   auto names = oatpp::data::mapping::type::ClassId::getRegisteredClassNames();
   v_int32 i = 0;
   for(auto& name : names) {
-    OATPP_LOGD("CLASS", "%d --> '%s'", i, name);
+    OATPP_LOGD("CLASS", "%d --> '%s'", i, name)
     i ++;
   }
 
@@ -239,7 +239,7 @@ int main() {
   std::cout << "objectsCount = " << oatpp::base::Environment::getObjectsCount() << "\n";
   std::cout << "objectsCreated = " << oatpp::base::Environment::getObjectsCreated() << "\n\n";
 
-  OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0);
+  OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0)
 
   oatpp::base::Environment::destroy();
 
