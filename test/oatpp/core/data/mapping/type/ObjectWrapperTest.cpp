@@ -86,7 +86,7 @@ void ObjectWrapperTest::onRun() {
     bool throws = false;
     try {
       pw2 = pw1;
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error&) {
       throws = true;
     }
     OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
@@ -101,7 +101,7 @@ void ObjectWrapperTest::onRun() {
     bool throws = false;
     try {
       pw2 = std::move(pw1);
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error&) {
       throws = true;
     }
     OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType())

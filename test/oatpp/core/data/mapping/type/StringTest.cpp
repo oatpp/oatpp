@@ -270,7 +270,7 @@ void StringTest::onRun() {
 
       try {
         std::string s2 = s1;
-      } catch (const std::runtime_error& e) {
+      } catch (const std::runtime_error&) {
         exceptionThrown = true;
       }
 
