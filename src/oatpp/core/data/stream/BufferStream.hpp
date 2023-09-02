@@ -55,7 +55,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~BufferOutputStream();
+  ~BufferOutputStream() override;
 
   /**
    * Write `count` of bytes to stream.

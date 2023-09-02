@@ -58,7 +58,7 @@ public:
   /**
    * Virtual destructor. Close corresponding pipes.
    */
-  ~Socket();
+  ~Socket() override;
 
   /**
    * Limit the available amount of bytes to read from socket and limit the available amount of bytes to write to socket. <br>

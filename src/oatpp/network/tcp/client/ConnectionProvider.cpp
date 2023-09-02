@@ -184,7 +184,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       , m_isHandleOpened(false)
     {}
 
-    ~ConnectCoroutine() {
+    ~ConnectCoroutine() override {
       if(m_result != nullptr) {
         freeaddrinfo(m_result);
       }

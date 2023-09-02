@@ -161,7 +161,7 @@ public:
     COUNTER ++;
   }
 
-  ~TestCoroutine() {
+  ~TestCoroutine() override {
     COUNTER --;
   }
 

@@ -72,7 +72,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~FileInputStream();
+  ~FileInputStream() override;
 
   /**
    * Get file.
@@ -160,7 +160,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~FileOutputStream();
+  ~FileOutputStream() override;
 
   /**
    * Get file.

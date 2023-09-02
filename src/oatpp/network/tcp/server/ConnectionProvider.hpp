@@ -121,7 +121,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~ConnectionProvider();
+  ~ConnectionProvider() override;
 
   /**
    * Close accept-socket.
