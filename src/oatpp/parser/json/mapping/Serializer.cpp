@@ -259,7 +259,7 @@ void Serializer::serializeObject(Serializer* serializer,
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
                            const oatpp::Void& polymorph)
 {
-  v_uint32 id = static_cast<v_uint32>(polymorph.getValueType()->classId.id);
+  auto id = static_cast<v_uint32>(polymorph.getValueType()->classId.id);
   auto& method = m_methods[id];
   if(method) {
     (*method)(this, stream, polymorph);
