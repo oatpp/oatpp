@@ -34,7 +34,7 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   v_buff_size size = caret.getPosition() - pos0;
   if(size > 0) {
     std::unique_ptr<v_char8[]> buff(new v_char8[size]);
-    std::memcpy(buff.get(), &caret.getData()[pos0], size);
+    std::memcpy(buff.get(), &caret.getData()[pos0], static_cast<size_t>(size));
     utils::String::lowerCase_ASCII(buff.get(), size);
     return oatpp::String(reinterpret_cast<const char*>(buff.get()), size);
   }
@@ -52,7 +52,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   v_buff_size portPos = -1;
   
   while (pos < caret.getDataSize()) {
-    v_char8 a = data[pos];
+    v_char8 a = static_cast<v_char8>(data[pos]);
     if(a == '@') {
       atPos = pos;
       pos ++;

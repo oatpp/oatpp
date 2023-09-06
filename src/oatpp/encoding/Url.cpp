@@ -68,7 +68,7 @@ void Url::encode(data::stream::ConsistentOutputStream *stream, const void *data,
   auto pdata = reinterpret_cast<const char*>(data);
 
   for(v_buff_size i = 0; i < size; i++) {
-    v_char8 c = pdata[i];
+    v_char8 c = static_cast<v_char8>(pdata[i]);
     if(config.allowedChars[c]) {
       stream->writeCharSimple(c);
     } else if(c == ' ' && config.spaceToPlus) {
@@ -88,7 +88,7 @@ void Url::decode(data::stream::ConsistentOutputStream* stream, const void* data,
 
   while (i < size) {
 
-    v_char8 c = pdata[i];
+    v_char8 c = static_cast<v_char8>(pdata[i]);
     if(c == '%') {
       if(size - i > 1) {
         Hex::decode(stream, pdata + i + 1, 2);
@@ -109,14 +109,14 @@ void Url::decode(data::stream::ConsistentOutputStream* stream, const void* data,
 }
 
 oatpp::String Url::encode(const oatpp::String data, const Config& config) {
-  data::stream::BufferOutputStream stream(data->size() * 3);
-  encode(&stream, data->data(), data->size(), config);
+  data::stream::BufferOutputStream stream(static_cast<v_buff_size>(data->size() * 3));
+  encode(&stream, data->data(), static_cast<v_buff_size>(data->size()), config);
   return stream.toString();
 }
 
 oatpp::String Url::decode(const oatpp::String data) {
-  data::stream::BufferOutputStream stream(data->size());
-  decode(&stream, data->data(), data->size());
+  data::stream::BufferOutputStream stream(static_cast<v_buff_size>(data->size()));
+  decode(&stream, data->data(), static_cast<v_buff_size>(data->size()));
   return stream.toString();
 }
 

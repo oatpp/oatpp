@@ -99,14 +99,14 @@ void StringTemplate::format(stream::ConsistentOutputStream* stream, ValueProvide
       stream->writeSimple(m_text->data() + prevPos, var.posStart - prevPos);
     }
 
-    stream->writeSimple(value->data(), value->size());
+    stream->writeSimple(value->data(), static_cast<v_buff_size>(value->size()));
 
     prevPos = var.posEnd + 1;
 
   }
 
   if(static_cast<size_t>(prevPos) < m_text->size()) {
-    stream->writeSimple(m_text->data() + prevPos, m_text->size() - prevPos);
+    stream->writeSimple(m_text->data() + prevPos, static_cast<v_buff_size>(m_text->size()) - prevPos);
   }
 
 }

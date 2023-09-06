@@ -140,7 +140,7 @@ const char* const ContentRange::UNIT_BYTES = "bytes";
   
 oatpp::String Range::toString() const {
   data::stream::BufferOutputStream stream(256);
-  stream.writeSimple(units->data(), units->size());
+  stream.writeSimple(units->data(), static_cast<v_buff_size>(units->size()));
   stream.writeSimple("=", 1);
   stream.writeAsString(start);
   stream.writeSimple("-", 1);
@@ -185,7 +185,7 @@ Range Range::parse(const oatpp::String& str) {
 
 oatpp::String ContentRange::toString() const {
   data::stream::BufferOutputStream stream(256);
-  stream.writeSimple(units->data(), units->size());
+  stream.writeSimple(units->data(), static_cast<v_buff_size>(units->size()));
   stream.writeSimple(" ", 1);
   stream.writeAsString(start);
   stream.writeSimple("-", 1);
@@ -266,7 +266,7 @@ oatpp::data::share::StringKeyLabelCI Parser::parseHeaderNameLabel(const std::sha
                                                                   oatpp::parser::Caret& caret) {
   const char* data = caret.getData();
   for(v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     if(a == ':' || a == ' '){
       oatpp::data::share::StringKeyLabelCI label(headersText, &data[caret.getPosition()], i - caret.getPosition());
       caret.setPosition(i);

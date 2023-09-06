@@ -163,11 +163,11 @@ void PipelineAsyncTest::onRun() {
       oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      oatpp::data::stream::transfer(connection.object.get(), &receiveStream, sample->size() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());
+      oatpp::data::stream::transfer(connection.object.get(), &receiveStream, static_cast<v_io_size>(sample->size() * static_cast<size_t>(m_pipelineSize)), ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
 
-      OATPP_ASSERT(result->size() == sample->size() * m_pipelineSize);
+      OATPP_ASSERT(result->size() == sample->size() * static_cast<size_t>(m_pipelineSize));
       //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
 
     });

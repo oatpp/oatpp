@@ -40,7 +40,7 @@ namespace {
   typedef oatpp::network::virtual_::Pipe Pipe;
   
   const char* DATA_CHUNK = "<0123456789/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ>";
-  const v_buff_size CHUNK_SIZE = std::strlen(DATA_CHUNK);
+  const v_buff_size CHUNK_SIZE = static_cast<v_buff_size>(std::strlen(DATA_CHUNK));
 
   class WriterTask : public oatpp::base::Countable {
   private:

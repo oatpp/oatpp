@@ -102,7 +102,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
     return Error::FLUSH_DATA_OUT;
   }
 
-  v_buff_size i = 0;
+  size_t i = 0;
   v_int32 res = Error::OK;
 
   while(res == Error::OK) {
@@ -115,7 +115,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
     }
 
     data::buffer::InlineReadData* currDataOut = &dataOut;
-    if(i < static_cast<v_buff_size>(m_intermediateData.size())) {
+    if(i < m_intermediateData.size()) {
       currDataOut = &m_intermediateData[i];
     }
 
@@ -123,7 +123,7 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
       res = p->iterate(*currDataIn, *currDataOut);
     }
 
-    const v_int32 numOfProcessors = v_int32(m_processors.size());
+    const size_t numOfProcessors = m_processors.size();
 
     switch (res) {
       case Error::PROVIDE_DATA_IN:

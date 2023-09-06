@@ -33,7 +33,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
   : m_config(config)
 {
 
-  m_methods.resize(data::mapping::type::ClassId::getClassCount(), nullptr);
+  m_methods.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), nullptr);
 
   setSerializerMethod(data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
   setSerializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Serializer::serializeAny);
@@ -67,7 +67,7 @@ Serializer::Serializer(const std::shared_ptr<Config>& config)
 }
 
 void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
-  const v_uint32 id = classId.id;
+  const v_uint32 id = static_cast<v_uint32>(classId.id);
   if(id >= m_methods.size()) {
     m_methods.resize(id + 1, nullptr);
   }
@@ -93,7 +93,7 @@ void Serializer::serializeString(Serializer* serializer,
 
   auto str = static_cast<std::string*>(polymorph.get());
 
-  serializeString(stream, str->data(), str->size(), serializer->m_config->escapeFlags);
+  serializeString(stream, str->data(), static_cast<v_buff_size>(str->size()), serializer->m_config->escapeFlags);
 
 }
 
@@ -202,7 +202,7 @@ void Serializer::serializeMap(Serializer* serializer,
       (first) ? first = false : stream->writeSimple(",", 1);
       const auto& untypedKey = iterator->getKey();
       const auto& key = oatpp::String(std::static_pointer_cast<std::string>(untypedKey.getPtr()));
-      serializeString(stream, key->data(), key->size(), serializer->m_config->escapeFlags);
+      serializeString(stream, key->data(), static_cast<v_buff_size>(key->size()), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
       serializer->serialize(stream, value);
     }
@@ -245,7 +245,7 @@ void Serializer::serializeObject(Serializer* serializer,
 
     if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {
       (first) ? first = false : stream->writeSimple(",", 1);
-      serializeString(stream, field->name, std::strlen(field->name), serializer->m_config->escapeFlags);
+      serializeString(stream, field->name, static_cast<v_buff_size>(std::strlen(field->name)), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
       serializer->serialize(stream, value);
     }
@@ -259,7 +259,7 @@ void Serializer::serializeObject(Serializer* serializer,
 void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
                            const oatpp::Void& polymorph)
 {
-  auto id = polymorph.getValueType()->classId.id;
+  auto id = static_cast<v_uint32>(polymorph.getValueType()->classId.id);
   auto& method = m_methods[id];
   if(method) {
     (*method)(this, stream, polymorph);

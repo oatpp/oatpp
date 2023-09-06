@@ -49,7 +49,7 @@ public:
 
   void writeChar(char c) {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_buffer->writeCharSimple(c);
+    m_buffer->writeCharSimple(static_cast<v_char8>(c));
   }
 
 };
@@ -159,7 +159,7 @@ bool checkSymbol(char symbol, const char* data, v_buff_size size) {
 }
 
 bool checkSymbol(char symbol, const oatpp::String& str) {
-  return checkSymbol(symbol, str->data(), str->size());
+  return checkSymbol(symbol, str->data(), static_cast<v_buff_size>(str->size()));
 }
 
 }

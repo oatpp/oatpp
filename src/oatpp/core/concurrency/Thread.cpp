@@ -51,7 +51,7 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
     CPU_ZERO(&cpuset);
 
     for(v_int32 i = firstCpuIndex; i <= lastCpuIndex; i++) {
-      CPU_SET(i, &cpuset);
+      CPU_SET(static_cast<size_t>(i), &cpuset);
     }
 
     v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
@@ -76,7 +76,7 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
   
 static v_int32 calcHardwareConcurrency() {
 #if !defined(OATPP_THREAD_HARDWARE_CONCURRENCY)
-  v_int32 concurrency = std::thread::hardware_concurrency();
+  v_int32 concurrency = static_cast<v_int32>(std::thread::hardware_concurrency());
   if(concurrency == 0) {
     OATPP_LOGD("[oatpp::concurrency:Thread::calcHardwareConcurrency()]", "Warning - failed to get hardware_concurrency. Setting hardware_concurrency=1");
     concurrency = 1;

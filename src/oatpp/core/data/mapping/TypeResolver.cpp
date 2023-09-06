@@ -28,7 +28,7 @@ namespace oatpp { namespace data { namespace mapping {
 
 TypeResolver::TypeResolver() {
 
-  m_knownClasses.resize(data::mapping::type::ClassId::getClassCount(), false);
+  m_knownClasses.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), false);
 
   addKnownClasses({
     data::mapping::type::__class::String::CLASS_ID,
@@ -64,7 +64,7 @@ TypeResolver::TypeResolver() {
 }
 
 void TypeResolver::setKnownClass(const type::ClassId& classId, bool isKnown) {
-  const v_uint32 id = classId.id;
+  const v_uint32 id = static_cast<v_uint32>(classId.id);
   if(id >= m_knownClasses.size()) {
     m_knownClasses.resize(id + 1, false);
   }
@@ -78,7 +78,7 @@ void TypeResolver::addKnownClasses(const std::vector<type::ClassId>& knownClasse
 }
 
 bool TypeResolver::isKnownClass(const type::ClassId& classId) const {
-  const v_uint32 id = classId.id;
+  const v_uint32 id = static_cast<v_uint32>(classId.id);
   if(id < m_knownClasses.size()) {
     return m_knownClasses[id];
   }

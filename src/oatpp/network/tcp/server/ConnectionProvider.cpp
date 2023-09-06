@@ -46,7 +46,7 @@
 
 // Workaround for MinGW from: https://www.mail-archive.com/users@ipv6.org/msg02107.html
 #if defined(__MINGW32__) && _WIN32_WINNT < 0x0600
-  const char * inet_ntop (int af, const void *src, char *dst, socklen_t cnt) {
+  const char * inet_ntop (int af, const void *src, char *dst, oatpp::v_sock_size cnt) {
     if (af == AF_INET) {
       struct sockaddr_in in;
 
@@ -228,7 +228,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   // Update port after binding (typicaly in case of port = 0)
   struct ::sockaddr_in s_in;
   ::memset(&s_in, 0, sizeof(s_in));
-  ::socklen_t s_in_len = sizeof(s_in);
+  oatpp::v_sock_size s_in_len = sizeof(s_in);
   ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
@@ -280,7 +280,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
                    "Warning. Failed to set %s for accepting socket: %s", "SO_REUSEADDR", strerror(errno));
       }
 
-      if (bind(serverHandle, currResult->ai_addr, static_cast<int>(currResult->ai_addrlen)) == 0 &&
+      if (bind(serverHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0 &&
           listen(serverHandle, 10000) == 0)
       {
         break;
@@ -309,7 +309,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   // Update port after binding (typicaly in case of port = 0)
   ::sockaddr_in s_in;
   ::memset(&s_in, 0, sizeof(s_in));
-  ::socklen_t s_in_len = sizeof(s_in);
+  oatpp::v_sock_size s_in_len = sizeof(s_in);//FIXME trace
   ::getsockname(serverHandle, reinterpret_cast<sockaddr*>(&s_in), &s_in_len);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
 
@@ -351,7 +351,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getDefaultC
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtendedConnection() {
 
   sockaddr_storage clientAddress;
-  socklen_t clientAddressSize = sizeof(clientAddress);
+  v_sock_size clientAddressSize = sizeof(clientAddress);
 
   data::stream::Context::Properties properties;
 

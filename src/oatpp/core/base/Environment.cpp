@@ -138,42 +138,42 @@ void DefaultLogger::enablePriority(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return;
   }
-  m_config.logMask |= (1 << priority);
+  m_config.logMask |= (1U << priority);
 }
 
 void DefaultLogger::disablePriority(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return;
   }
-  m_config.logMask &= ~(1 << priority);
+  m_config.logMask &= ~(1U << priority);
 }
 
 bool DefaultLogger::isLogPriorityEnabled(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return true;
   }
-  return m_config.logMask & (1 << priority);
+  return m_config.logMask & (1U << priority);
 }
 
 void LogCategory::enablePriority(v_uint32 priority) {
   if (priority > Logger::PRIORITY_E) {
     return;
   }
-  enabledPriorities |= (1 << priority);
+  enabledPriorities |= (1U << priority);
 }
 
 void LogCategory::disablePriority(v_uint32 priority) {
   if (priority > Logger::PRIORITY_E) {
     return;
   }
-  enabledPriorities &= ~(1 << priority);
+  enabledPriorities &= ~(1U << priority);
 }
 
 bool LogCategory::isLogPriorityEnabled(v_uint32 priority) {
   if (priority > Logger::PRIORITY_E) {
     return true;
   }
-  return enabledPriorities & (1 << priority);
+  return enabledPriorities & (1U << priority);
 }
 
 void Environment::init() {
@@ -333,7 +333,7 @@ void Environment::log(v_uint32 priority, const std::string& tag, const std::stri
 
 
 void Environment::logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) {
-  if (category.categoryEnabled && (category.enabledPriorities & (1 << priority))) {
+  if (category.categoryEnabled && (category.enabledPriorities & (1U << priority))) {
     va_list args;
     va_start(args, message);
     vlogFormatted(priority, category.tag, message, args);
@@ -367,9 +367,9 @@ void Environment::vlogFormatted(v_uint32 priority, const std::string& tag, const
     allocsize = m_logger->getMaxFormattingBufferSize();
   }
   auto buffer = std::unique_ptr<char[]>(new char[allocsize]);
-  memset(buffer.get(), 0, allocsize);
+  memset(buffer.get(), 0, static_cast<size_t>(allocsize));
   // actually format
-  vsnprintf(buffer.get(), allocsize, message, args);
+  vsnprintf(buffer.get(), static_cast<size_t>(allocsize), message, args);
   // call (user) providen log function
   log(priority, tag, buffer.get());
 }

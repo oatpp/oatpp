@@ -34,18 +34,18 @@ v_buff_size String::compare(const void* data1, v_buff_size size1, const void* da
   if(data2 == nullptr) return 1;
 
   if(size1 < size2) {
-    auto res = std::memcmp(data1, data2, size1);
+    auto res = std::memcmp(data1, data2, static_cast<size_t>(size1));
     if(res == 0) return -1;
     return res;
   }
 
   if(size1 > size2) {
-    auto res = std::memcmp(data1, data2, size2);
+    auto res = std::memcmp(data1, data2, static_cast<size_t>(size2));
     if(res == 0) return 1;
     return res;
   }
 
-  return std::memcmp(data1, data2, size1);
+  return std::memcmp(data1, data2, static_cast<size_t>(size1));
 
 }
 
@@ -63,8 +63,8 @@ v_buff_size String::compareCI_ASCII(const void* data1, v_buff_size size1, const 
 
   for(v_buff_size i = 0; i < size; i ++) {
 
-    v_char8 a = d1[i];
-    v_char8 b = d2[i];
+    v_char8 a = static_cast<v_char8>(d1[i]);
+    v_char8 b = static_cast<v_char8>(d2[i]);
 
     if(a >= 'A' && a <= 'Z') a |= 32;
     if(b >= 'A' && b <= 'Z') b |= 32;
