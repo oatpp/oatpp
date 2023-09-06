@@ -28,6 +28,8 @@
 #include "oatpp/core/async/Error.hpp"
 #include "oatpp/core/Types.hpp"
 
+#include <unistd.h>
+
 namespace oatpp {
 
 /**
@@ -39,9 +41,11 @@ namespace oatpp {
   #else
     typedef unsigned long v_io_handle;
   #endif
+    typedef int v_sock_size;
     constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle (-1);
 #else
   typedef int v_io_handle;
+  typedef socklen_t v_sock_size;
   constexpr const v_io_handle INVALID_IO_HANDLE = (-1);
 #endif
 
