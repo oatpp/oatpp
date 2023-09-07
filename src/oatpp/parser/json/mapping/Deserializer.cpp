@@ -494,7 +494,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 }
 
 oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const type) {
-  v_uint32 id = static_cast<v_uint32>(type->classId.id);
+  auto id = static_cast<v_uint32>(type->classId.id);
   auto& method = m_methods[id];
   if(method) {
     return (*method)(this, caret, type);
