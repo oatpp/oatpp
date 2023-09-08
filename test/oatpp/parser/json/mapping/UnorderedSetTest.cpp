@@ -35,16 +35,16 @@ void UnorderedSetTest::onRun() {
   {
     oatpp::UnorderedSet<oatpp::String> set = {"Hello", "World", "!"};
     auto json = mapper.writeToString(set);
-    OATPP_LOGD(TAG, "json='%s'", json->c_str());
+    OATPP_LOGD(TAG, "json='%s'", json->c_str())
   }
 
   {
     oatpp::String json = "[\"Hello\",\"World\",\"!\",\"Hello\",\"World\",\"!\"]";
     auto set = mapper.readFromString<oatpp::UnorderedSet<oatpp::String>>(json);
-    OATPP_ASSERT(set);
-    OATPP_ASSERT(set->size() == 3);
+    OATPP_ASSERT(set)
+    OATPP_ASSERT(set->size() == 3)
     for(auto& item : *set) {
-      OATPP_LOGD(TAG, "item='%s'", item->c_str());
+      OATPP_LOGD(TAG, "item='%s'", item->c_str())
     }
   }
   

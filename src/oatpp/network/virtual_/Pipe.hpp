@@ -261,7 +261,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~Pipe();
+  virtual ~Pipe() override;
 
   /**
    * Get pointer to &l:Pipe::Writer; for this pipe.

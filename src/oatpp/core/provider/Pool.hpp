@@ -365,7 +365,7 @@ public:
     return ptr;
   }
 
-  virtual ~PoolTemplate() {
+  virtual ~PoolTemplate() override {
     stop();
   }
 

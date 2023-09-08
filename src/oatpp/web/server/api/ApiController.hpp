@@ -263,9 +263,9 @@ protected:
 
       if(m_method == nullptr) {
         if(m_methodAsync == nullptr) {
-          throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");;
+          throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
         }
-        throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Non-async call to async endpoint.");;
+        throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Non-async call to async endpoint.");
       }
 
       try {
@@ -437,7 +437,7 @@ public:
       (void) text;
       success = false;
       OATPP_LOGE("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->c_str());
+                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->c_str())
       throw std::runtime_error("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]: Error. "
                                "No conversion from 'oatpp::String' to '" + *typeName + "' is defined. "
                                "Please define type conversion.");

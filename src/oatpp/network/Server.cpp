@@ -62,7 +62,7 @@ void Server::conditionalMainLoop() {
             setStatus(STATUS_STOPPING);
           }
         } else {
-          OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+          OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
         }
       }
 
@@ -86,7 +86,7 @@ void Server::mainLoop(Server *instance) {
       if (instance->getStatus() == STATUS_RUNNING) {
         instance->m_connectionHandler->handleConnection(connectionHandle, params /* null params */);
       } else {
-        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
       }
     }
   }

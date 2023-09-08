@@ -151,7 +151,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   int yes = 1;
   v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
   }
 #endif
 
@@ -184,7 +184,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       , m_isHandleOpened(false)
     {}
 
-    ~ConnectCoroutine() {
+    ~ConnectCoroutine() override {
       if(m_result != nullptr) {
         freeaddrinfo(m_result);
       }
@@ -266,7 +266,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
         if(ret < 0) {
-          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
         }
 #endif
 

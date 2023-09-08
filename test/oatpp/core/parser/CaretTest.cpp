@@ -36,50 +36,50 @@ void CaretTest::onRun() {
 
   {
     Caret caret(" \t\n\r\f \t\n\r\f \t\n\r\fhello!\t\n\r\f");
-    OATPP_ASSERT(caret.skipBlankChars());
-    OATPP_ASSERT(caret.isAtChar('h'));
-    OATPP_ASSERT(caret.isAtText("hello!"));
-    OATPP_ASSERT(caret.isAtText("hello!", true));
-    OATPP_ASSERT(caret.skipBlankChars() == false); // false because no other char found
-    OATPP_ASSERT(caret.canContinue() == false);
-    OATPP_ASSERT(caret.getPosition() == caret.getDataSize());
+    OATPP_ASSERT(caret.skipBlankChars())
+    OATPP_ASSERT(caret.isAtChar('h'))
+    OATPP_ASSERT(caret.isAtText("hello!"))
+    OATPP_ASSERT(caret.isAtText("hello!", true))
+    OATPP_ASSERT(caret.skipBlankChars() == false) // false because no other char found
+    OATPP_ASSERT(caret.canContinue() == false)
+    OATPP_ASSERT(caret.getPosition() == caret.getDataSize())
   }
 
   {
     Caret caret(" \t\n\r\f \t\n\r\f \t\n\r\fhello!\t\n\r\f");
-    OATPP_ASSERT(caret.findText("hello!"));
-    OATPP_ASSERT(caret.isAtText("hello!"));
-    OATPP_ASSERT(caret.isAtTextNCS("HELLO!"));
-    OATPP_ASSERT(caret.isAtTextNCS("HELLO!", true));
-    OATPP_ASSERT(caret.skipBlankChars() == false); // false because no other char found
-    OATPP_ASSERT(caret.canContinue() == false);
-    OATPP_ASSERT(caret.getPosition() == caret.getDataSize());
+    OATPP_ASSERT(caret.findText("hello!"))
+    OATPP_ASSERT(caret.isAtText("hello!"))
+    OATPP_ASSERT(caret.isAtTextNCS("HELLO!"))
+    OATPP_ASSERT(caret.isAtTextNCS("HELLO!", true))
+    OATPP_ASSERT(caret.skipBlankChars() == false) // false because no other char found
+    OATPP_ASSERT(caret.canContinue() == false)
+    OATPP_ASSERT(caret.getPosition() == caret.getDataSize())
   }
 
   {
     Caret caret(" \t\n\r\f \t\n\r\f \t\n\r\fhello!\t\n\r\f");
-    OATPP_ASSERT(caret.findText("hello world!") == false);
-    OATPP_ASSERT(caret.canContinue() == false);
-    OATPP_ASSERT(caret.getPosition() == caret.getDataSize());
+    OATPP_ASSERT(caret.findText("hello world!") == false)
+    OATPP_ASSERT(caret.canContinue() == false)
+    OATPP_ASSERT(caret.getPosition() == caret.getDataSize())
   }
 
   {
     Caret caret("\r\n'let\\'s'\r\n'play'");
-    OATPP_ASSERT(caret.findRN());
-    OATPP_ASSERT(caret.skipRN());
+    OATPP_ASSERT(caret.findRN())
+    OATPP_ASSERT(caret.skipRN())
 
     auto label = caret.parseStringEnclosed('\'', '\'', '\\');
-    OATPP_ASSERT(label);
-    OATPP_ASSERT(label.toString() == "let\\'s");
+    OATPP_ASSERT(label)
+    OATPP_ASSERT(label.toString() == "let\\'s")
 
-    OATPP_ASSERT(caret.skipRN());
+    OATPP_ASSERT(caret.skipRN())
 
     label = caret.parseStringEnclosed('\'', '\'', '\\');
-    OATPP_ASSERT(label);
-    OATPP_ASSERT(label.toString() == "play");
+    OATPP_ASSERT(label)
+    OATPP_ASSERT(label.toString() == "play")
 
-    OATPP_ASSERT(caret.canContinue() == false);
-    OATPP_ASSERT(caret.getPosition() == caret.getDataSize());
+    OATPP_ASSERT(caret.canContinue() == false)
+    OATPP_ASSERT(caret.getPosition() == caret.getDataSize())
   }
 
 }

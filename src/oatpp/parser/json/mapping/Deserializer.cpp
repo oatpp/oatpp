@@ -332,7 +332,7 @@ oatpp::Void Deserializer::deserializeCollection(Deserializer* deserializer, pars
         caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeCollection()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
       }
       return nullptr;
-    };
+    }
 
     return collection;
 

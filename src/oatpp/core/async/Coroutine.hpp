@@ -430,7 +430,7 @@ private:
 public:
 
   CoroutineHandle(Processor* processor, AbstractCoroutine* rootCoroutine);
-  ~CoroutineHandle();
+  ~CoroutineHandle() override;
 
   Action takeAction(Action&& action);
   Action iterate();
@@ -501,7 +501,7 @@ public:
   /**
    * Virtual Destructor
    */
-  virtual ~AbstractCoroutine() = default;
+  virtual ~AbstractCoroutine() override = default;
 
   /**
    * Entrypoint of Coroutine.

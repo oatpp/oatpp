@@ -246,10 +246,10 @@ void Environment::checkTypes(){
   v_uint32 vUInt32 = ~v_uint32(1);
   v_uint64 vUInt64 = ~v_uint64(1);
 
-  OATPP_ASSERT(vInt32 < 0);
-  OATPP_ASSERT(vInt64 < 0);
-  OATPP_ASSERT(vUInt32 > 0);
-  OATPP_ASSERT(vUInt64 > 0);
+  OATPP_ASSERT(vInt32 < 0)
+  OATPP_ASSERT(vInt64 < 0)
+  OATPP_ASSERT(vUInt32 > 0)
+  OATPP_ASSERT(vUInt64 > 0)
 
 }
 
@@ -309,18 +309,18 @@ std::shared_ptr<Logger> Environment::getLogger() {
 
 void Environment::printCompilationConfig() {
 
-  OATPP_LOGD("oatpp-version", OATPP_VERSION);
+  OATPP_LOGD("oatpp-version", OATPP_VERSION)
 
 #ifdef OATPP_DISABLE_ENV_OBJECT_COUNTERS
-  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS");
+  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS")
 #endif
 
 #ifdef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
-  OATPP_LOGD("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL");
+  OATPP_LOGD("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL")
 #endif
 
 #ifdef OATPP_THREAD_HARDWARE_CONCURRENCY
-  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY=%d", OATPP_THREAD_HARDWARE_CONCURRENCY);
+  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY=%d", OATPP_THREAD_HARDWARE_CONCURRENCY)
 #endif
 
 }

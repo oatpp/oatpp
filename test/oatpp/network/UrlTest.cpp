@@ -36,146 +36,146 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "http://root@127.0.0.1:8000/path/to/resource/?q1=1&q2=2";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
-    OATPP_ASSERT(url.scheme && url.scheme == "http");
-    OATPP_ASSERT(url.authority.userInfo && url.authority.userInfo == "root");
-    OATPP_ASSERT(url.authority.host && url.authority.host == "127.0.0.1");
-    OATPP_ASSERT(url.authority.port == 8000);
-    OATPP_ASSERT(url.path && url.path == "/path/to/resource/");
-    OATPP_ASSERT(url.queryParams.getSize() == 2);
-    OATPP_ASSERT(url.queryParams.get("q1") == "1");
-    OATPP_ASSERT(url.queryParams.get("q2") == "2");
+    OATPP_ASSERT(url.scheme && url.scheme == "http")
+    OATPP_ASSERT(url.authority.userInfo && url.authority.userInfo == "root")
+    OATPP_ASSERT(url.authority.host && url.authority.host == "127.0.0.1")
+    OATPP_ASSERT(url.authority.port == 8000)
+    OATPP_ASSERT(url.path && url.path == "/path/to/resource/")
+    OATPP_ASSERT(url.queryParams.getSize() == 2)
+    OATPP_ASSERT(url.queryParams.get("q1") == "1")
+    OATPP_ASSERT(url.queryParams.get("q2") == "2")
   }
 
   {
     const char* urlText = "ftp://root@oatpp.io:8000/path/to/resource?q1=1&q2=2";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
-    OATPP_ASSERT(url.scheme && url.scheme == "ftp");
-    OATPP_ASSERT(url.authority.userInfo && url.authority.userInfo == "root");
-    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io");
-    OATPP_ASSERT(url.authority.port == 8000);
-    OATPP_ASSERT(url.path && url.path == "/path/to/resource");
-    OATPP_ASSERT(url.queryParams.getSize() == 2);
-    OATPP_ASSERT(url.queryParams.get("q1") == "1");
-    OATPP_ASSERT(url.queryParams.get("q2") == "2");
+    OATPP_ASSERT(url.scheme && url.scheme == "ftp")
+    OATPP_ASSERT(url.authority.userInfo && url.authority.userInfo == "root")
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == 8000)
+    OATPP_ASSERT(url.path && url.path == "/path/to/resource")
+    OATPP_ASSERT(url.queryParams.getSize() == 2)
+    OATPP_ASSERT(url.queryParams.get("q1") == "1")
+    OATPP_ASSERT(url.queryParams.get("q2") == "2")
   }
 
   {
     const char* urlText = "https://oatpp.io/?q1=1&q2=2";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
-    OATPP_ASSERT(url.scheme && url.scheme == "https");
-    OATPP_ASSERT(url.authority.userInfo == nullptr);
-    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io");
-    OATPP_ASSERT(url.authority.port == -1);
-    OATPP_ASSERT(url.path && url.path == "/");
-    OATPP_ASSERT(url.queryParams.getSize() == 2);
-    OATPP_ASSERT(url.queryParams.get("q1") == "1");
-    OATPP_ASSERT(url.queryParams.get("q2") == "2");
+    OATPP_ASSERT(url.scheme && url.scheme == "https")
+    OATPP_ASSERT(url.authority.userInfo == nullptr)
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == -1)
+    OATPP_ASSERT(url.path && url.path == "/")
+    OATPP_ASSERT(url.queryParams.getSize() == 2)
+    OATPP_ASSERT(url.queryParams.get("q1") == "1")
+    OATPP_ASSERT(url.queryParams.get("q2") == "2")
   }
 
   {
     const char* urlText = "https://oatpp.io/";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
-    OATPP_ASSERT(url.scheme && url.scheme == "https");
-    OATPP_ASSERT(url.authority.userInfo == nullptr);
-    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io");
-    OATPP_ASSERT(url.authority.port == -1);
-    OATPP_ASSERT(url.path && url.path == "/");
-    OATPP_ASSERT(url.queryParams.getSize() == 0);
+    OATPP_ASSERT(url.scheme && url.scheme == "https")
+    OATPP_ASSERT(url.authority.userInfo == nullptr)
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == -1)
+    OATPP_ASSERT(url.path && url.path == "/")
+    OATPP_ASSERT(url.queryParams.getSize() == 0)
   }
 
   {
     const char* urlText = "https://oatpp.io";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
-    OATPP_ASSERT(url.scheme && url.scheme == "https");
-    OATPP_ASSERT(url.authority.userInfo == nullptr);
-    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io");
-    OATPP_ASSERT(url.authority.port == -1);
-    OATPP_ASSERT(url.path == nullptr);
-    OATPP_ASSERT(url.queryParams.getSize() == 0);
+    OATPP_ASSERT(url.scheme && url.scheme == "https")
+    OATPP_ASSERT(url.authority.userInfo == nullptr)
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == -1)
+    OATPP_ASSERT(url.path == nullptr)
+    OATPP_ASSERT(url.queryParams.getSize() == 0)
   }
 
   {
     const char* urlText = "oatpp.io";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
-    OATPP_ASSERT(url.scheme == nullptr);
-    OATPP_ASSERT(url.authority.userInfo == nullptr);
-    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io");
-    OATPP_ASSERT(url.authority.port == -1);
-    OATPP_ASSERT(url.path == nullptr);
-    OATPP_ASSERT(url.queryParams.getSize() == 0);
+    OATPP_ASSERT(url.scheme == nullptr)
+    OATPP_ASSERT(url.authority.userInfo == nullptr)
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == -1)
+    OATPP_ASSERT(url.path == nullptr)
+    OATPP_ASSERT(url.queryParams.getSize() == 0)
   }
 
   {
     const char* urlText = "?key1=value1&key2=value2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
-    OATPP_ASSERT(params.getSize() == 3);
-    OATPP_ASSERT(params.get("key1") == "value1");
-    OATPP_ASSERT(params.get("key2") == "value2");
-    OATPP_ASSERT(params.get("key2") == "value2");
+    OATPP_ASSERT(params.getSize() == 3)
+    OATPP_ASSERT(params.get("key1") == "value1")
+    OATPP_ASSERT(params.get("key2") == "value2")
+    OATPP_ASSERT(params.get("key2") == "value2")
   }
 
   {
     const char *urlText = "?key1=value1&key2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
-    OATPP_ASSERT(params.getSize() == 3);
-    OATPP_ASSERT(params.get("key1") == "value1");
-    OATPP_ASSERT(params.get("key2") == "");
-    OATPP_ASSERT(params.get("key3") == "value3");
+    OATPP_ASSERT(params.getSize() == 3)
+    OATPP_ASSERT(params.get("key1") == "value1")
+    OATPP_ASSERT(params.get("key2") == "")
+    OATPP_ASSERT(params.get("key3") == "value3")
   }
 
   {
     const char *urlText = "?key1=value1&key2&key3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
-    OATPP_ASSERT(params.getSize() == 3);
-    OATPP_ASSERT(params.get("key1") == "value1");
-    OATPP_ASSERT(params.get("key2") == "");
-    OATPP_ASSERT(params.get("key3") == "");
+    OATPP_ASSERT(params.getSize() == 3)
+    OATPP_ASSERT(params.get("key1") == "value1")
+    OATPP_ASSERT(params.get("key2") == "")
+    OATPP_ASSERT(params.get("key3") == "")
   }
 
   {
     const char *urlText = "label?key1=value1&key2=value2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
-    OATPP_ASSERT(params.getSize() == 3);
-    OATPP_ASSERT(params.get("key1") == "value1");
-    OATPP_ASSERT(params.get("key2") == "value2");
-    OATPP_ASSERT(params.get("key2") == "value2");
+    OATPP_ASSERT(params.getSize() == 3)
+    OATPP_ASSERT(params.get("key1") == "value1")
+    OATPP_ASSERT(params.get("key2") == "value2")
+    OATPP_ASSERT(params.get("key2") == "value2")
   }
 
   {
     const char* urlText = "label?key1=value1&key2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
-    OATPP_ASSERT(params.getSize() == 3);
-    OATPP_ASSERT(params.get("key1") == "value1");
-    OATPP_ASSERT(params.get("key2") == "");
-    OATPP_ASSERT(params.get("key3") == "value3");
+    OATPP_ASSERT(params.getSize() == 3)
+    OATPP_ASSERT(params.get("key1") == "value1")
+    OATPP_ASSERT(params.get("key2") == "")
+    OATPP_ASSERT(params.get("key3") == "value3")
   }
 
   {
     const char* urlText = "label?key1=value1&key2&key3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText);
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
-    OATPP_ASSERT(params.getSize() == 3);
-    OATPP_ASSERT(params.get("key1") == "value1");
-    OATPP_ASSERT(params.get("key2") == "");
-    OATPP_ASSERT(params.get("key3") == "");
+    OATPP_ASSERT(params.getSize() == 3)
+    OATPP_ASSERT(params.get("key1") == "value1")
+    OATPP_ASSERT(params.get("key2") == "")
+    OATPP_ASSERT(params.get("key3") == "")
   }
 
 }

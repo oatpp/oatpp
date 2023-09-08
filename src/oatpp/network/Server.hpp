@@ -74,7 +74,7 @@ public:
   Server(const std::shared_ptr<ConnectionProvider>& connectionProvider,
          const std::shared_ptr<ConnectionHandler>& connectionHandler);
 
-  virtual ~Server();
+  virtual ~Server() override;
 
  public:
 

@@ -118,9 +118,9 @@ runServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& conne
 
   std::thread t([server, connectionHandler] {
     server->run();
-    OATPP_LOGD("TEST", "server stopped");
+    OATPP_LOGD("TEST", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST", "connectionHandler stopped");
+    OATPP_LOGD("TEST", "connectionHandler stopped")
   });
   t.detach();
 
@@ -142,13 +142,13 @@ runAsyncServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& 
 
   std::thread t([server, connectionHandler, executor] {
     server->run();
-    OATPP_LOGD("TEST_ASYNC", "server stopped");
+    OATPP_LOGD("TEST_ASYNC", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped");
+    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped")
     executor->waitTasksFinished();
     executor->stop();
     executor->join();
-    OATPP_LOGD("TEST_ASYNC", "executor stopped");
+    OATPP_LOGD("TEST_ASYNC", "executor stopped")
   });
   t.detach();
 
@@ -162,7 +162,7 @@ void runClient(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& 
 
   auto response = executor.execute("GET", "/stream", oatpp::web::protocol::http::Headers({}), nullptr, nullptr);
 
-  OATPP_ASSERT(response->getStatusCode() == 200);
+  OATPP_ASSERT(response->getStatusCode() == 200)
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
@@ -208,7 +208,7 @@ void ServerStopTest::onRun() {
 
     /* wait connection handler to stop */
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    OATPP_LOGD(TAG, "DONE");
+    OATPP_LOGD(TAG, "DONE")
   }
 
   {
@@ -233,7 +233,7 @@ void ServerStopTest::onRun() {
 
     /* wait connection handler to stop */
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    OATPP_LOGD(TAG, "DONE");
+    OATPP_LOGD(TAG, "DONE")
   }
 
 }

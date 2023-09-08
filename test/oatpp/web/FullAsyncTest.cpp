@@ -147,7 +147,7 @@ void FullAsyncTest::onRun() {
   runner.addController(app::ControllerAsync::createShared());
   runner.addController(app::ControllerWithInterceptorsAsync::createShared());
 
-  runner.run([this, &runner] {
+  runner.run([this] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper);
@@ -156,7 +156,7 @@ void FullAsyncTest::onRun() {
     auto client = app::Client::createShared(requestExecutor, objectMapper);
 
     auto connection = client->getConnection();
-    OATPP_ASSERT(connection);
+    OATPP_ASSERT(connection)
 
     v_int32 iterationsStep = m_iterationsPerStep;
 
@@ -164,37 +164,37 @@ void FullAsyncTest::onRun() {
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
 
-      //OATPP_LOGV("i", "%d", i);
+      //OATPP_LOGV("i", "%d", i)
 
       { // test simple GET
         auto response = client->getRoot(connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto value = response->readBodyToString();
-        OATPP_ASSERT(value == "Hello World Async!!!");
+        OATPP_ASSERT(value == "Hello World Async!!!")
       }
       
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param-Async", connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto dto = response->readBodyToDto<oatpp::Object<app::TestDto>>(objectMapper.get());
-        OATPP_ASSERT(dto);
-        OATPP_ASSERT(dto->testValue == "my_test_param-Async");
+        OATPP_ASSERT(dto)
+        OATPP_ASSERT(dto->testValue == "my_test_param-Async")
       }
       
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header-Async", connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto dto = response->readBodyToDto<oatpp::Object<app::TestDto>>(objectMapper.get());
-        OATPP_ASSERT(dto);
-        OATPP_ASSERT(dto->testValue == "my_test_header-Async");
+        OATPP_ASSERT(dto)
+        OATPP_ASSERT(dto->testValue == "my_test_header-Async")
       }
       
       { // test POST with body
         auto response = client->postBody("my_test_body-Async", connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto dto = response->readBodyToDto<oatpp::Object<app::TestDto>>(objectMapper.get());
-        OATPP_ASSERT(dto);
-        OATPP_ASSERT(dto->testValue == "my_test_body-Async");
+        OATPP_ASSERT(dto)
+        OATPP_ASSERT(dto->testValue == "my_test_body-Async")
       }
 
       { // test Big Echo with body
@@ -204,12 +204,12 @@ void FullAsyncTest::onRun() {
         }
         auto data = stream.toString();
         auto response = client->echoBody(data, connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
 
         auto returnedData = response->readBodyToString();
 
-        OATPP_ASSERT(returnedData);
-        OATPP_ASSERT(returnedData == data);
+        OATPP_ASSERT(returnedData)
+        OATPP_ASSERT(returnedData == data)
       }
 
       { // test Chunked body
@@ -221,10 +221,10 @@ void FullAsyncTest::onRun() {
         }
         auto data = stream.toString();
         auto response = client->getChunked(sample, numIterations, connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto returnedData = response->readBodyToString();
-        OATPP_ASSERT(returnedData);
-        OATPP_ASSERT(returnedData == data);
+        OATPP_ASSERT(returnedData)
+        OATPP_ASSERT(returnedData == data)
       }
 
       { // Multipart body
@@ -237,7 +237,7 @@ void FullAsyncTest::onRun() {
         auto body = std::make_shared<MultipartBody>(multipart);
 
         auto response = client->multipartTest(i + 1, body);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
 
         multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(response->getHeaders());
 
@@ -247,41 +247,41 @@ void FullAsyncTest::onRun() {
 
         response->transferBody(&multipartReader);
 
-        OATPP_ASSERT(multipart->getAllParts().size() == 2);
+        OATPP_ASSERT(multipart->getAllParts().size() == 2)
         auto part1 = multipart->getNamedPart("value1");
         auto part2 = multipart->getNamedPart("value2");
 
-        OATPP_ASSERT(part1);
-        OATPP_ASSERT(part1->getPayload());
+        OATPP_ASSERT(part1)
+        OATPP_ASSERT(part1->getPayload())
 
-        OATPP_ASSERT(part2);
-        OATPP_ASSERT(part2->getPayload());
+        OATPP_ASSERT(part2)
+        OATPP_ASSERT(part2->getPayload())
 
-        OATPP_ASSERT(part1->getPayload()->getInMemoryData() == "Hello");
-        OATPP_ASSERT(part2->getPayload()->getInMemoryData() == "World");
+        OATPP_ASSERT(part1->getPayload()->getInMemoryData() == "Hello")
+        OATPP_ASSERT(part2->getPayload()->getInMemoryData() == "World")
 
       }
 
       { // test interceptor GET
         auto response = client->getInterceptors(connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto value = response->readBodyToString();
-        OATPP_ASSERT(value == "Hello World Async!!!");
+        OATPP_ASSERT(value == "Hello World Async!!!")
       }
 
       { // test host header
         auto response = client->getHostHeader(connection);
-        OATPP_ASSERT(response->getStatusCode() == 200);
+        OATPP_ASSERT(response->getStatusCode() == 200)
         auto value = response->readBodyToString();
         auto host = clientConnectionProvider->getProperty("host");
-        OATPP_ASSERT(host);
-        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port));
+        OATPP_ASSERT(host)
+        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port))
       }
 
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::base::Environment::getMicroTickCount();
-        OATPP_LOGV("i", "%d, tick=%ld", i + 1, ticks);
+        OATPP_LOGV("i", "%d, tick=%ld", i + 1, ticks)
       }
       
     }

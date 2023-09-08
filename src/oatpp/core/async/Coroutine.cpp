@@ -315,7 +315,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
       default:
         return std::forward<oatpp::async::Action>(action);
 
-    };
+    }
 
 //    action = iterate();
 //    ++ iterations;

@@ -104,7 +104,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~IOEventWorker();
+  ~IOEventWorker() override;
 
   /**
    * Push list of tasks to worker.
@@ -158,7 +158,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~IOEventWorkerForeman();
+  ~IOEventWorkerForeman() override;
 
   /**
    * Push list of tasks to worker.

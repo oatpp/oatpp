@@ -134,7 +134,7 @@ void PipelineAsyncTest::onRun() {
 
   runner.addController(app::ControllerAsync::createShared());
 
-  runner.run([this, &runner] {
+  runner.run([this] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 
@@ -167,8 +167,8 @@ void PipelineAsyncTest::onRun() {
 
       auto result = receiveStream.toString();
 
-      OATPP_ASSERT(result->size() == sample->size() * static_cast<size_t>(m_pipelineSize));
-      //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
+      OATPP_ASSERT(result->size() == sample->size() * static_cast<size_t>(m_pipelineSize))
+      //OATPP_ASSERT(result == wantedResult) // headers may come in different order on different OSs
 
     });
 

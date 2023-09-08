@@ -41,7 +41,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~Invalidator() = default;
+  virtual ~Invalidator() override = default;
 
   /**
    * Invalidate resource that was previously created by the correspondent provider. <br>

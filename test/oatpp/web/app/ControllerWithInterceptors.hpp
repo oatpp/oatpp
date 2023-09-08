@@ -55,8 +55,8 @@ public:
   ENDPOINT_INTERCEPTOR(interceptor, inter1) {
 
     /* assert order of interception */
-    OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2");
-    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
+    OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2")
+    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3")
     /********************************/
 
     request->putHeader("header-in-inter1", "inter1");
@@ -68,7 +68,7 @@ public:
   ENDPOINT_INTERCEPTOR(interceptor, inter2) {
 
     /* assert order of interception */
-    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
+    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3")
     /********************************/
 
     request->putHeader("header-in-inter2", "inter2");
@@ -91,9 +91,9 @@ public:
   ENDPOINT_INTERCEPTOR(interceptor, asserter) {
     auto response = (this->*intercepted)(request);
 
-    OATPP_ASSERT(response->getHeader("header-out-inter1") == "inter1");
-    OATPP_ASSERT(response->getHeader("header-out-inter2") == "inter2");
-    OATPP_ASSERT(response->getHeader("header-out-inter3") == "inter3");
+    OATPP_ASSERT(response->getHeader("header-out-inter1") == "inter1")
+    OATPP_ASSERT(response->getHeader("header-out-inter2") == "inter2")
+    OATPP_ASSERT(response->getHeader("header-out-inter3") == "inter3")
 
     return response;
   }
@@ -101,9 +101,9 @@ public:
            REQUEST(std::shared_ptr<IncomingRequest>, request))
   {
 
-    OATPP_ASSERT(request->getHeader("header-in-inter1") == "inter1");
-    OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2");
-    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
+    OATPP_ASSERT(request->getHeader("header-in-inter1") == "inter1")
+    OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2")
+    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3")
 
     auto response = createResponse(Status::CODE_200, "Hello World!!!");
     response->putHeader("to-be-replaced", "original_value");
