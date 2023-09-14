@@ -40,7 +40,6 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <thread>
-#include <utility>
 
 #define OATPP_VERSION "1.3.0"
 
