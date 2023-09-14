@@ -73,6 +73,7 @@ DefaultLogger::AsyncLogWriter::~AsyncLogWriter() {
   m_exitFlag = true;
   m_sem.post();
   m_thread.join();
+  flushAll();
 }
 
 void DefaultLogger::AsyncLogWriter::run() {
