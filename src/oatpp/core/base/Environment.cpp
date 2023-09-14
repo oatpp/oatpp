@@ -31,6 +31,7 @@
 #include <cstring>
 #include <ctime>
 #include <cstdarg>
+#include <utility>
 
 #if defined(WIN32) || defined(_WIN32)
 	#include <winsock2.h>
@@ -63,52 +64,71 @@ std::unordered_map<std::string, std::unordered_map<std::string, void*>>& Environ
 
 std::shared_ptr<Logger> Environment::m_logger;
 
-DefaultLogger::DefaultLogger(const Config& config)
-  : m_config(config)
-{}
+DefaultLogger::AsyncLogWriter::AsyncLogWriter(const Config& config) : m_config(config) {
+  m_queue = std::make_shared<async::utils::LockFreeQueue<LogMessage>>();
+  m_thread = std::thread([this](){this->run();});
+}
 
-void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::string& message) {
+DefaultLogger::AsyncLogWriter::~AsyncLogWriter() {
+  m_exitFlag = true;
+  m_sem.post();
+  m_thread.join();
+}
+
+void DefaultLogger::AsyncLogWriter::run() {
+  while(!m_exitFlag) {
+    m_sem.wait();
+    flushAll();
+  }
+}
+
+void DefaultLogger::AsyncLogWriter::flushAll() {
+  LogMessage message;
+  while(m_queue->pop(message)) {
+    write(message.priority, message.tag, message.message);
+  }
+}
+
+void DefaultLogger::AsyncLogWriter::write(v_uint32 priority, const std::string &tag, const std::string &message) const {
 
   bool indent = false;
   auto time = std::chrono::system_clock::now().time_since_epoch();
 
-  std::lock_guard<std::mutex> lock(m_lock);
-
   switch (priority) {
-    case PRIORITY_V:
-      std::cout << "\033[0m V \033[0m|";
-      break;
+  case PRIORITY_V:
+    std::cout << "\033[0m V \033[0m|";
+    break;
 
-    case PRIORITY_D:
-      std::cout << "\033[34m D \033[0m|";
-      break;
+  case PRIORITY_D:
+    std::cout << "\033[34m D \033[0m|";
+    break;
 
-    case PRIORITY_I:
-      std::cout << "\033[32m I \033[0m|";
-      break;
+  case PRIORITY_I:
+    std::cout << "\033[32m I \033[0m|";
+    break;
 
-    case PRIORITY_W:
-      std::cout << "\033[45m W \033[0m|";
-      break;
+  case PRIORITY_W:
+    std::cout << "\033[45m W \033[0m|";
+    break;
 
-    case PRIORITY_E:
-      std::cout << "\033[41m E \033[0m|";
-      break;
+  case PRIORITY_E:
+    std::cout << "\033[41m E \033[0m|";
+    break;
 
-    default:
-      std::cout << " " << priority << " |";
+  default:
+    std::cout << " " << priority << " |";
   }
 
   if (m_config.timeFormat) {
-	time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
-    tm now;
+    time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
+    tm now{};
     localtime_r(&seconds, &now);
 #ifdef OATPP_DISABLE_STD_PUT_TIME
-	  char timeBuffer[50];
-      strftime(timeBuffer, sizeof(timeBuffer), m_config.timeFormat, &now);
-      std::cout << timeBuffer;
+    char timeBuffer[50];
+    strftime(timeBuffer, sizeof(timeBuffer), m_config.timeFormat, &now);
+    std::cout << timeBuffer;
 #else
-      std::cout << std::put_time(&now, m_config.timeFormat);
+    std::cout << std::put_time(&now, m_config.timeFormat);
 #endif
     indent = true;
   }
@@ -134,25 +154,34 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 
 }
 
+DefaultLogger::DefaultLogger() {
+  m_writer = std::make_shared<AsyncLogWriter>();
+}
+
+void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::string& message) {
+  m_writer->m_queue->push(LogMessage(priority, tag, message));
+  m_writer->m_sem.post();
+}
+
 void DefaultLogger::enablePriority(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return;
   }
-  m_config.logMask |= (1U << priority);
+  m_writer->m_config.logMask |= (1U << priority);
 }
 
 void DefaultLogger::disablePriority(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return;
   }
-  m_config.logMask &= ~(1U << priority);
+  m_writer->m_config.logMask &= ~(1U << priority);
 }
 
 bool DefaultLogger::isLogPriorityEnabled(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return true;
   }
-  return m_config.logMask & (1U << priority);
+  return m_writer->m_config.logMask & (1U << priority);
 }
 
 void LogCategory::enablePriority(v_uint32 priority) {
