@@ -273,10 +273,22 @@ public:
 
     ~AsyncLogWriter();
 
+    /**
+     * Run async log writer.
+     */
     void run();
 
+    /**
+     * Flush all messages in the queue.
+     */
     void flushAll();
 
+    /**
+     * Write log.
+     * @param priority - log-priority channel of the message.
+     * @param tag - tag of the log message.
+     * @param message - message.
+     */
     void write(v_uint32 priority, const std::string& tag, const std::string& message) const;
 
   private:
