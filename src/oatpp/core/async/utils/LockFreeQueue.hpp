@@ -113,4 +113,4 @@ private:
 
 }}}
 
-#endif
+#endif /* oatpp_async_utils_LockFreeQueue_hpp */

@@ -33,6 +33,7 @@
 #include "oatpp/core/provider/PoolTest.hpp"
 #include "oatpp/core/provider/PoolTemplateTest.hpp"
 #include "oatpp/core/async/ConditionVariableTest.hpp"
+#include "oatpp/core/async/LockFreeQueueTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -120,6 +121,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
 
   OATPP_RUN_TEST(oatpp::test::async::ConditionVariableTest);
+  OATPP_RUN_TEST(oatpp::test::async::LockFreeQueueTest);
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
