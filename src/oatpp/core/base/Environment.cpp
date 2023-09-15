@@ -31,7 +31,6 @@
 #include <cstring>
 #include <ctime>
 #include <cstdarg>
-#include <utility>
 
 #if defined(WIN32) || defined(_WIN32)
 	#include <winsock2.h>
