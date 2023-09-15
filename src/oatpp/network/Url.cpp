@@ -149,9 +149,13 @@ Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
   Url result;
 
   if(caret.findChar(':')) {
-    caret.setPosition(0);
-    result.scheme = parseScheme(caret);
-    caret.canContinueAtChar(':', 1);
+    if(caret.canContinueAtChar(':', 1) && !caret.isAtText("//", 2, true)) {
+      caret.setPosition(0);
+    } else {
+      caret.setPosition(0);
+      result.scheme = parseScheme(caret);
+      caret.canContinueAtChar(':', 1);
+    }
   } else {
     caret.setPosition(0);
   }

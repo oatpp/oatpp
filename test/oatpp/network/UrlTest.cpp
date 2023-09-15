@@ -119,6 +119,19 @@ void UrlTest::onRun() {
   }
 
   {
+    const char* urlText = "oatpp.io:8000/path";
+    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    auto url = Url::Parser::parseUrl(urlText);
+
+    OATPP_ASSERT(url.scheme == nullptr)
+    OATPP_ASSERT(url.authority.userInfo == nullptr)
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == 8000)
+    OATPP_ASSERT(url.path == "/path")
+    OATPP_ASSERT(url.queryParams.getSize() == 0)
+  }
+
+  {
     const char* urlText = "?key1=value1&key2=value2&key3=value3";
     OATPP_LOGV(TAG, "urlText='%s'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
