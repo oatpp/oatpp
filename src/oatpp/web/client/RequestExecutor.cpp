@@ -150,6 +150,7 @@ RequestExecutor::executeAsync(
     {}
 
     Action act() override {
+      m_context.attempt ++;
 
       if(!m_connectionHandle) {
         return m_this->getConnectionAsync().callbackTo(&ExecutorCoroutine::onConnection);
@@ -165,7 +166,6 @@ RequestExecutor::executeAsync(
     }
 
     Action execute() {
-      m_context.attempt ++;
       return m_this->executeOnceAsync(m_method, m_path, m_headers, m_body, m_connectionHandle).callbackTo(&ExecutorCoroutine::onResponse);
     }
 
