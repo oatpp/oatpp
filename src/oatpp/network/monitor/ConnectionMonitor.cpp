@@ -274,6 +274,8 @@ ConnectionMonitor::ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& 
   , m_monitor(Monitor::createShared())
   , m_connectionProvider(connectionProvider)
 {
+  setProperty(PROPERTY_HOST, m_connectionProvider->getProperty("host").toString());
+  setProperty(PROPERTY_PORT, m_connectionProvider->getProperty("port").toString());
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionMonitor::get() {
