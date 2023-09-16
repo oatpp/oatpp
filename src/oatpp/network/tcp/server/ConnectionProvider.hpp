@@ -22,12 +22,13 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_netword_tcp_server_ConnectionProvider_hpp
-#define oatpp_netword_tcp_server_ConnectionProvider_hpp
+#ifndef oatpp_network_tcp_server_ConnectionProvider_hpp
+#define oatpp_network_tcp_server_ConnectionProvider_hpp
 
 #include "oatpp/network/Address.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/Connection.hpp"
+#include "oatpp/network/tcp/ConnectionConfigurer.hpp"
 
 #include "oatpp/core/Types.hpp"
 
@@ -89,6 +90,7 @@ private:
   std::atomic<bool> m_closed;
   oatpp::v_io_handle m_serverHandle;
   bool m_useExtendedConnections;
+  std::shared_ptr<ConnectionConfigurer> m_connectionConfigurer;
 private:
   oatpp::v_io_handle instantiateServer();
 private:
@@ -117,6 +119,12 @@ public:
   static std::shared_ptr<ConnectionProvider> createShared(const network::Address& address, bool useExtendedConnections = false){
     return std::make_shared<ConnectionProvider>(address, useExtendedConnections);
   }
+
+  /**
+   * Set connection configurer.
+   * @param connectionConfigurer
+   */
+  void setConnectionConfigurer(const std::shared_ptr<ConnectionConfigurer>& connectionConfigurer);
 
   /**
    * Virtual destructor.
