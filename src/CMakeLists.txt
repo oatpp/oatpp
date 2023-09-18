@@ -171,6 +171,7 @@ add_library(oatpp
         oatpp/network/monitor/StatCollector.hpp
         oatpp/network/tcp/Connection.cpp
         oatpp/network/tcp/Connection.hpp
+        oatpp/network/tcp/ConnectionConfigurer.hpp
         oatpp/network/tcp/client/ConnectionProvider.cpp
         oatpp/network/tcp/client/ConnectionProvider.hpp
         oatpp/network/tcp/server/ConnectionProvider.cpp

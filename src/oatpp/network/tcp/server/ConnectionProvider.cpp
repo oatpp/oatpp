@@ -133,6 +133,10 @@ ConnectionProvider::ConnectionProvider(const network::Address& address, bool use
   m_serverHandle = instantiateServer();
 }
 
+void ConnectionProvider::setConnectionConfigurer(const std::shared_ptr<ConnectionConfigurer> &connectionConfigurer) {
+  m_connectionConfigurer = connectionConfigurer;
+}
+
 ConnectionProvider::~ConnectionProvider() {
   stop();
 }
@@ -328,6 +332,10 @@ void ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
     OATPP_LOGD("[oatpp::network::tcp::server::ConnectionProvider::prepareConnectionHandle()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
   }
 #endif
+
+  if(m_connectionConfigurer) {
+    m_connectionConfigurer->configure(handle);
+  }
 
 }
 
