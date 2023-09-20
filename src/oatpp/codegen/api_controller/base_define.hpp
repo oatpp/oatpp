@@ -211,7 +211,8 @@ info->queryParams.add(#NAME, TYPE::Class::getType());
 info->queryParams.add(QUALIFIER, TYPE::Class::getType());
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_INFO_3(TYPE, NAME, QUALIFIER, DEFAULT) \
-info->queryParams.add(QUALIFIER, TYPE::Class::getType());
+info->queryParams.add(QUALIFIER, TYPE::Class::getType());                       \
+info->queryParams[QUALIFIER].required = false;
 
 #define OATPP_MACRO_API_CONTROLLER_QUERY_INFO(TYPE, PARAM_LIST) \
 OATPP_MACRO_API_CONTROLLER_MACRO_SELECTOR(OATPP_MACRO_API_CONTROLLER_QUERY_INFO_, TYPE, OATPP_MACRO_UNFOLD_VA_ARGS PARAM_LIST)
