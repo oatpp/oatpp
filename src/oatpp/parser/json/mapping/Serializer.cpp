@@ -247,6 +247,7 @@ void Serializer::serializeObject(Serializer* serializer,
       (first) ? first = false : stream->writeSimple(",", 1);
       serializeString(stream, field->name, static_cast<v_buff_size>(std::strlen(field->name)), serializer->m_config->escapeFlags);
       stream->writeSimple(":", 1);
+      stream->setContextPtr(&field->info);
       serializer->serialize(stream, value);
     }
 

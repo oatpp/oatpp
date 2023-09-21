@@ -106,6 +106,21 @@ class TestAnyNested : public oatpp::DTO {
   DTO_FIELD(String, f2) = "Field_2";
 
 };
+
+class TestDtoF : public oatpp::DTO {
+
+  DTO_INIT(TestDtoF, DTO)
+
+  DTO_FIELD_INFO(test_float32) {
+    info->format = "%.3g";
+  }
+  DTO_FIELD(Float32, test_float32);
+
+  DTO_FIELD_INFO(test_float64) {
+    info->format = "%.3g";
+  }
+  DTO_FIELD(Float64, test_float64);
+};
   
 #include OATPP_CODEGEN_END(DTO)
   
@@ -299,6 +314,17 @@ void DTOMapperTest::onRun(){
     auto json2 = mapper->writeToString(deserializedAny);
     OATPP_LOGV(TAG, "any json='%s'", json2->c_str())
 
+  }
+
+  {
+    auto obj = TestDtoF::createShared();
+    obj->test_float32 = 1.23456f;
+    obj->test_float64 = 1.23456789;
+    auto json = mapper->writeToString(obj);
+    OATPP_ASSERT(json == "{\n"
+                         "  \"test_float32\": 1.23,\n"
+                         "  \"test_float64\": 1.23\n"
+                         "}")
   }
 
 }
