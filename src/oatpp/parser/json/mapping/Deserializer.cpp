@@ -447,7 +447,13 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
           skipValue(caret);
           polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
         } else {
-          field->set(static_cast<oatpp::BaseObject *>(object.get()), deserializer->deserialize(caret, field->type));
+          auto value = deserializer->deserialize(caret, field->type);
+          if(field->info.required && value == nullptr) {
+            throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
+                                     "Error. " + std::string(type->nameQualifier) + "::"
+                                     + std::string(field->name) + " is required!");
+          }
+          field->set(static_cast<oatpp::BaseObject *>(object.get()), value);
         }
 
       } else if (deserializer->getConfig()->allowUnknownFields) {
@@ -479,6 +485,11 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
       parser::Caret polyCaret(p.second);
       auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
       auto value = deserializer->deserialize(polyCaret, selectedType);
+      if(p.first->info.required && value == nullptr) {
+        throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
+                                 "Error. " + std::string(type->nameQualifier) + "::"
+                                 + std::string(p.first->name) + " is required!");
+      }
       oatpp::Any any(value);
       p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(any.getPtr(), p.first->type));
     }
