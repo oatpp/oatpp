@@ -162,7 +162,12 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float32::Class::getType());
   } else {
-    return Float32(caret.parseFloat32());
+    v_buff_size pos0 = caret.getPosition();
+    auto ret = caret.parseFloat32();
+    if(caret.getExtraData() && caret.getPosition() == pos0) {
+      caret.setErrorMessage(reinterpret_cast<BaseObject::Property::Info*>(caret.getExtraData())->errorMessage.data());
+    }
+    return Float32(ret);
   }
 }
 
@@ -174,7 +179,12 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float64::Class::getType());
   } else {
-    return Float64(caret.parseFloat64());
+    v_buff_size pos0 = caret.getPosition();
+    auto ret = caret.parseFloat64();
+    if(caret.getExtraData() && caret.getPosition() == pos0) {
+      caret.setErrorMessage(reinterpret_cast<BaseObject::Property::Info*>(caret.getExtraData())->errorMessage.data());
+    }
+    return Float64(ret);
   }
 
 }
@@ -447,6 +457,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
           skipValue(caret);
           polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
         } else {
+          caret.setExtraData(&field->info);
           field->set(static_cast<oatpp::BaseObject *>(object.get()), deserializer->deserialize(caret, field->type));
         }
 
@@ -478,6 +489,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
     for(auto& p : polymorphs) {
       parser::Caret polyCaret(p.second);
       auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
+      polyCaret.setExtraData(&p.first->info);
       auto value = deserializer->deserialize(polyCaret, selectedType);
       oatpp::Any any(value);
       p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(any.getPtr(), p.first->type));

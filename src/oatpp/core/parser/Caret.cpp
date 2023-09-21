@@ -190,6 +190,10 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return m_errorMessage;
   }
 
+  void Caret::setErrorMessage(const char* errMsg) {
+    m_errorMessage = errMsg;
+  }
+
   v_int64 Caret::getErrorCode() {
     return m_errorCode;
   }
@@ -201,6 +205,14 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
   void Caret::clearError() {
     m_errorMessage = nullptr;
     m_errorCode = 0;
+  }
+
+  void Caret::setExtraData(void *extraData) {
+    m_extraData = extraData;
+  }
+
+  void *Caret::getExtraData() {
+    return m_extraData;
   }
 
   Caret::Label Caret::putLabel() {

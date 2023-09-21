@@ -157,6 +157,7 @@ private:
   const char* m_errorMessage;
   v_int64 m_errorCode;
   std::shared_ptr<std::string> m_dataMemoryHandle;
+  void* m_extraData;
 public:
   Caret(const char* text);
   Caret(const char* parseData, v_buff_size dataSize);
@@ -220,6 +221,11 @@ public:
   const char* getErrorMessage();
 
   /**
+   * Set error message
+   */
+  void setErrorMessage(const char* errMsg);
+
+  /**
    * Get error code
    * @return error code
    */
@@ -235,6 +241,16 @@ public:
    * Clear error message and error code
    */
   void clearError();
+
+  /**
+   * Set extra data
+   */
+  void setExtraData(void* extraData);
+
+   /**
+    * Get extra data
+    */
+  void* getExtraData();
 
   /**
    * Create Label(this);
