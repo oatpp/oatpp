@@ -164,8 +164,12 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
   } else {
     v_buff_size pos0 = caret.getPosition();
     auto ret = caret.parseFloat32();
-    if(caret.getExtraData() && caret.getPosition() == pos0) {
-      caret.setErrorMessage(reinterpret_cast<BaseObject::Property::Info*>(caret.getExtraData())->errorMessage.data());
+    if(caret.getContextPtr() && caret.getPosition() == pos0) {
+      auto info = reinterpret_cast<BaseObject::Property::Info*>(caret.getContextPtr());
+      if(!info->errorMessage.empty()) {
+        caret.setErrorMessage(info->errorMessage.data());
+      }
+      caret.setContextPtr(nullptr);
     }
     return Float32(ret);
   }
@@ -181,8 +185,12 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
   } else {
     v_buff_size pos0 = caret.getPosition();
     auto ret = caret.parseFloat64();
-    if(caret.getExtraData() && caret.getPosition() == pos0) {
-      caret.setErrorMessage(reinterpret_cast<BaseObject::Property::Info*>(caret.getExtraData())->errorMessage.data());
+    if(caret.getContextPtr() && caret.getPosition() == pos0) {
+      auto info = reinterpret_cast<BaseObject::Property::Info*>(caret.getContextPtr());
+      if(!info->errorMessage.empty()) {
+        caret.setErrorMessage(info->errorMessage.data());
+      }
+      caret.setContextPtr(nullptr);
     }
     return Float64(ret);
   }
@@ -457,7 +465,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
           skipValue(caret);
           polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
         } else {
-          caret.setExtraData(&field->info);
+          caret.setContextPtr(&field->info);
           field->set(static_cast<oatpp::BaseObject *>(object.get()), deserializer->deserialize(caret, field->type));
         }
 
@@ -489,7 +497,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
     for(auto& p : polymorphs) {
       parser::Caret polyCaret(p.second);
       auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
-      polyCaret.setExtraData(&p.first->info);
+      polyCaret.setContextPtr(&p.first->info);
       auto value = deserializer->deserialize(polyCaret, selectedType);
       oatpp::Any any(value);
       p.first->set(static_cast<oatpp::BaseObject *>(object.get()), oatpp::Void(any.getPtr(), p.first->type));

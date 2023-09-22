@@ -134,6 +134,7 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     , m_pos(0)
     , m_errorMessage(nullptr)
     , m_errorCode(0)
+    , m_contextPtr(nullptr)
   {}
   
   Caret::Caret(const oatpp::String& str)
@@ -207,12 +208,12 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     m_errorCode = 0;
   }
 
-  void Caret::setExtraData(void *extraData) {
-    m_extraData = extraData;
+  void Caret::setContextPtr(void* contextPtr) {
+    m_contextPtr = contextPtr;
   }
 
-  void *Caret::getExtraData() {
-    return m_extraData;
+  void *Caret::getContextPtr() {
+    return m_contextPtr;
   }
 
   Caret::Label Caret::putLabel() {
