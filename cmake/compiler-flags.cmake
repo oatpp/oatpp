@@ -253,7 +253,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compiler_flags(4.6 "-fstack-protector-strong")
   add_compiler_flags(4.6 "-grecord-gcc-switches")
   # Issue 872: https://github.com/oatpp/oatpp/issues/872
-  # -fcf-protection is supported on x86 GNU/Linux per this gcc doc:
+  # -fcf-protection is supported only on x86 GNU/Linux per this gcc doc:
   # https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html#index-fcf-protection
   # add_compiler_flags(4.6 "-fcf-protection")
   add_compiler_flags(4.6 "-pipe")
