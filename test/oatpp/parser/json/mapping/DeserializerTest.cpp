@@ -79,6 +79,58 @@ class Test4 : public oatpp::DTO {
 
 };
 
+class Test5 : public oatpp::DTO {
+
+  DTO_INIT(Test5, DTO)
+
+  DTO_FIELD_INFO(strF) {
+    info->required = true;
+  }
+  DTO_FIELD(String, strF);
+};
+
+class Test6 : public oatpp::DTO {
+
+  DTO_INIT(Test6, DTO)
+
+  DTO_FIELD(String, strF);
+};
+
+class TestChild1 : public oatpp::DTO {
+
+  DTO_INIT(TestChild1, DTO)
+
+  DTO_FIELD_INFO(name) {
+    info->required = true;
+  }
+  DTO_FIELD(String, name);
+};
+
+class Test7 : public oatpp::DTO {
+
+  DTO_INIT(Test7, DTO)
+
+  DTO_FIELD(String, strF);
+
+  DTO_FIELD(Object<TestChild1>, child);
+};
+
+class TestChild2 : public oatpp::DTO {
+
+  DTO_INIT(TestChild2, DTO)
+
+  DTO_FIELD(String, name);
+};
+
+class Test8 : public oatpp::DTO {
+
+  DTO_INIT(Test8, DTO)
+
+  DTO_FIELD(String, strF);
+
+  DTO_FIELD(Object<TestChild2>, child);
+};
+
 class AnyDto : public oatpp::DTO {
 
   DTO_INIT(AnyDto, DTO)
@@ -148,7 +200,7 @@ void DeserializerTest::onRun(){
   OATPP_ASSERT(obj1)
   OATPP_ASSERT(!obj1->strF)
   
-  obj1 = mapper->readFromString<oatpp::Object<Test1>>("{\"strF\":\"value1\"}");
+  obj1 = mapper->readFromString<oatpp::Object<Test1>>(R"({"strF":"value1"})");
   
   OATPP_ASSERT(obj1)
   OATPP_ASSERT(obj1->strF)
@@ -232,6 +284,34 @@ void DeserializerTest::onRun(){
   OATPP_ASSERT(obj4->list)
   OATPP_ASSERT(obj4->list->size() == 0)
   OATPP_ASSERT(obj4->map->size() == 0)
+
+  data::mapping::type::DTOWrapper<Test5> obj5;
+  try {
+    obj5 = mapper->readFromString<oatpp::Object<Test5>>(R"({"strF":null})");
+  } catch (std::runtime_error& e) {
+    OATPP_LOGD(TAG, "Test5::strF is required!")
+  }
+  OATPP_ASSERT(obj5 == nullptr)
+
+  try {
+    auto obj6 = mapper->readFromString<oatpp::Object<Test6>>(R"({"strF":null})");
+  } catch (std::runtime_error& e) {
+    OATPP_ASSERT(false)
+  }
+
+  data::mapping::type::DTOWrapper<Test7> obj7;
+  try {
+    obj7 = mapper->readFromString<oatpp::Object<Test7>>(R"({"strF":"value1", "child":{"name":null}})");
+  } catch (std::runtime_error& e) {
+    OATPP_LOGD(TAG, "TestChild1::name is required!")
+  }
+  OATPP_ASSERT(obj7 == nullptr)
+
+  try {
+    auto obj8 = mapper->readFromString<oatpp::Object<Test8>>(R"({"strF":"value1", "child":{"name":null}})");
+  } catch (std::runtime_error& e) {
+    OATPP_ASSERT(false)
+  }
 
   OATPP_LOGD(TAG, "Any: String")
   {

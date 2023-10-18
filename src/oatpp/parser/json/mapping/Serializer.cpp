@@ -226,8 +226,9 @@ void Serializer::serializeObject(Serializer* serializer,
   stream->writeCharSimple('{');
 
   bool first = true;
+  auto type = polymorph.getValueType();
   auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(
-    polymorph.getValueType()->polymorphicDispatcher
+    type->polymorphicDispatcher
   );
   auto fields = dispatcher->getProperties()->getList();
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
@@ -241,6 +242,12 @@ void Serializer::serializeObject(Serializer* serializer,
       value = any.retrieve(field->info.typeSelector->selectType(object));
     } else {
       value = field->get(object);
+    }
+
+    if(field->info.required && value == nullptr) {
+      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
+                               "Error. " + std::string(type->nameQualifier) + "::"
+                               + std::string(field->name) + " is required!");
     }
 
     if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {

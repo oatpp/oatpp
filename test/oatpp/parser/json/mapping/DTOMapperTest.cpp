@@ -90,6 +90,57 @@ class Test : public oatpp::DTO {
   
 };
 
+class Test2 : public oatpp::DTO {
+
+  DTO_INIT(Test2, DTO)
+
+  DTO_FIELD_INFO(field_string) {
+    info->required = true;
+  }
+  DTO_FIELD(String, field_string);
+};
+
+class Test3 : public oatpp::DTO {
+  DTO_INIT(Test3, DTO)
+
+  DTO_FIELD(String, field_string);
+};
+
+class TestChild1 : public oatpp::DTO {
+
+  DTO_INIT(TestChild1, DTO)
+
+  DTO_FIELD_INFO(name) {
+    info->required = true;
+  }
+  DTO_FIELD(String, name);
+};
+
+class Test4 : public oatpp::DTO {
+
+  DTO_INIT(Test4, DTO)
+
+  DTO_FIELD(String, field_string);
+
+  DTO_FIELD(Object<TestChild1>, child);
+};
+
+class TestChild2 : public oatpp::DTO {
+
+  DTO_INIT(TestChild2, DTO)
+
+  DTO_FIELD(String, name);
+};
+
+class Test5 : public oatpp::DTO {
+
+  DTO_INIT(Test5, DTO)
+
+  DTO_FIELD(String, field_string);
+
+  DTO_FIELD(Object<TestChild2>, child);
+};
+
 class TestAny : public oatpp::DTO {
 
   DTO_INIT(TestAny, DTO)
@@ -116,161 +167,207 @@ void DTOMapperTest::onRun(){
   auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
   mapper->getSerializer()->getConfig()->useBeautifier = true;
 
-  auto test1 = Test::createShared();
-  
-  test1->field_string = "string value";
-  test1->field_int32 = 32;
-  test1->field_int64 = 64;
-  test1->field_float32 = 0.32f;
-  test1->field_float64 = 0.64;
-  test1->field_boolean = true;
-  
-  test1->obj1 = Test::createShared();
-  test1->obj1->field_string = "inner string";
-  test1->obj1->field_list_string->push_back("inner str_item_1");
-  test1->obj1->field_list_string->push_back("inner str_item_2");
-  test1->obj1->field_list_string->push_back("inner str_item_3");
-  
-  test1->child1 = TestChild::createShared();
-  test1->child1->name = "child1_name";
-  test1->child1->secondName = "child1_second_name";
-  
-  test1->field_list_string->push_back("str_item_1");
-  test1->field_list_string->push_back("str_item_2");
-  test1->field_list_string->push_back("str_item_3");
-  
-  test1->field_list_int32->push_back(321);
-  test1->field_list_int32->push_back(322);
-  test1->field_list_int32->push_back(323);
-  
-  test1->field_list_int64->push_back(641);
-  test1->field_list_int64->push_back(642);
-  test1->field_list_int64->push_back(643);
-  
-  test1->field_list_float32->push_back(0.321f);
-  test1->field_list_float32->push_back(0.322f);
-  test1->field_list_float32->push_back(0.323f);
-  
-  test1->field_list_float64->push_back(0.641);
-  test1->field_list_float64->push_back(0.642);
-  test1->field_list_float64->push_back(0.643);
-  
-  test1->field_list_boolean->push_back(true);
-  test1->field_list_boolean->push_back(false);
-  test1->field_list_boolean->push_back(true);
-  
-  test1->field_list_object->push_back(TestChild::createShared("child", "1"));
-  test1->field_list_object->push_back(TestChild::createShared("child", "2"));
-  test1->field_list_object->push_back(TestChild::createShared("child", "3"));
-  
-  auto l1 = oatpp::List<oatpp::Object<TestChild>>::createShared();
-  auto l2 = oatpp::List<oatpp::Object<TestChild>>::createShared();
-  auto l3 = oatpp::List<oatpp::Object<TestChild>>::createShared();
-  
-  l1->push_back(TestChild::createShared("list_1", "item_1"));
-  l1->push_back(TestChild::createShared("list_1", "item_2"));
-  l1->push_back(TestChild::createShared("list_1", "item_3"));
-  
-  l2->push_back(TestChild::createShared("list_2", "item_1"));
-  l2->push_back(TestChild::createShared("list_2", "item_2"));
-  l2->push_back(TestChild::createShared("list_2", "item_3"));
-  
-  l3->push_back(TestChild::createShared("list_3", "item_1"));
-  l3->push_back(TestChild::createShared("list_3", "item_2"));
-  l3->push_back(TestChild::createShared("list_3", "item_3"));
-  
-  test1->field_list_list_object->push_back(l1);
-  test1->field_list_list_object->push_back(l2);
-  test1->field_list_list_object->push_back(l3);
-
-  test1->field_vector = {"vector_item1", "vector_item2", "vector_item3"};
-
-  test1->field_fields = {
-    {"key0", "pair_item0"},
-    {"key1", "pair_item1"},
-    {"key2", "pair_item2"},
-    {"key3", "pair_item3"},
-    {"key4", "pair_item4"},
-    {"key5", "pair_item5"},
-    {"key6", "pair_item6"},
-    {"key7", "pair_item7"},
-    {"key8", "pair_item8"},
-    {"key9", "pair_item9"},
-    {"key10", "pair_item10"},
-    {"key11", "pair_item11"}
-  };
-
-  test1->field_unordered_fields = {
-    {"key0", "map_item0"},
-    {"key1", "map_item1"},
-    {"key2", "map_item2"},
-    {"key3", "map_item3"},
-    {"key4", "map_item4"},
-    {"key5", "map_item5"},
-    {"key6", "map_item6"},
-    {"key7", "map_item7"},
-    {"key8", "map_item8"},
-    {"key9", "map_item9"},
-    {"key10", "map_item10"},
-    {"key11", "map_item11"}
-  };
-  
-  auto result = mapper->writeToString(test1);
-  
-  OATPP_LOGV(TAG, "json='%s'", result->c_str())
-  
-  OATPP_LOGV(TAG, "...")
-  OATPP_LOGV(TAG, "...")
-  OATPP_LOGV(TAG, "...")
-
-  oatpp::parser::Caret caret(result);
-  auto obj1 = mapper->readFromCaret<oatpp::Object<Test>>(caret);
-  
-  OATPP_ASSERT(obj1->field_string)
-  OATPP_ASSERT(obj1->field_string == test1->field_string)
-  
-  OATPP_ASSERT(obj1->field_int32)
-  OATPP_ASSERT(obj1->field_int32 == test1->field_int32)
-  
-  OATPP_ASSERT(obj1->field_int64)
-  OATPP_ASSERT(obj1->field_int64 == test1->field_int64)
-  
-  OATPP_ASSERT(obj1->field_float32)
-  OATPP_ASSERT(fabsf(obj1->field_float32 - test1->field_float32) < std::numeric_limits<float>::epsilon())
-  
-  OATPP_ASSERT(obj1->field_float64)
-  OATPP_ASSERT(fabs(obj1->field_float64 - test1->field_float64) < std::numeric_limits<double>::epsilon())
-  
-  OATPP_ASSERT(obj1->field_boolean)
-  OATPP_ASSERT(obj1->field_boolean == test1->field_boolean)
-
   {
-    auto c = obj1->field_vector;
-    OATPP_ASSERT(c[0] == "vector_item1")
-    OATPP_ASSERT(c[1] == "vector_item2")
-    OATPP_ASSERT(c[2] == "vector_item3")
+    auto test1 = Test::createShared();
+
+    test1->field_string = "string value";
+    test1->field_int32 = 32;
+    test1->field_int64 = 64;
+    test1->field_float32 = 0.32f;
+    test1->field_float64 = 0.64;
+    test1->field_boolean = true;
+
+    test1->obj1 = Test::createShared();
+    test1->obj1->field_string = "inner string";
+    test1->obj1->field_list_string->push_back("inner str_item_1");
+    test1->obj1->field_list_string->push_back("inner str_item_2");
+    test1->obj1->field_list_string->push_back("inner str_item_3");
+
+    test1->child1 = TestChild::createShared();
+    test1->child1->name = "child1_name";
+    test1->child1->secondName = "child1_second_name";
+
+    test1->field_list_string->push_back("str_item_1");
+    test1->field_list_string->push_back("str_item_2");
+    test1->field_list_string->push_back("str_item_3");
+
+    test1->field_list_int32->push_back(321);
+    test1->field_list_int32->push_back(322);
+    test1->field_list_int32->push_back(323);
+
+    test1->field_list_int64->push_back(641);
+    test1->field_list_int64->push_back(642);
+    test1->field_list_int64->push_back(643);
+
+    test1->field_list_float32->push_back(0.321f);
+    test1->field_list_float32->push_back(0.322f);
+    test1->field_list_float32->push_back(0.323f);
+
+    test1->field_list_float64->push_back(0.641);
+    test1->field_list_float64->push_back(0.642);
+    test1->field_list_float64->push_back(0.643);
+
+    test1->field_list_boolean->push_back(true);
+    test1->field_list_boolean->push_back(false);
+    test1->field_list_boolean->push_back(true);
+
+    test1->field_list_object->push_back(TestChild::createShared("child", "1"));
+    test1->field_list_object->push_back(TestChild::createShared("child", "2"));
+    test1->field_list_object->push_back(TestChild::createShared("child", "3"));
+
+    auto l1 = oatpp::List<oatpp::Object<TestChild>>::createShared();
+    auto l2 = oatpp::List<oatpp::Object<TestChild>>::createShared();
+    auto l3 = oatpp::List<oatpp::Object<TestChild>>::createShared();
+
+    l1->push_back(TestChild::createShared("list_1", "item_1"));
+    l1->push_back(TestChild::createShared("list_1", "item_2"));
+    l1->push_back(TestChild::createShared("list_1", "item_3"));
+
+    l2->push_back(TestChild::createShared("list_2", "item_1"));
+    l2->push_back(TestChild::createShared("list_2", "item_2"));
+    l2->push_back(TestChild::createShared("list_2", "item_3"));
+
+    l3->push_back(TestChild::createShared("list_3", "item_1"));
+    l3->push_back(TestChild::createShared("list_3", "item_2"));
+    l3->push_back(TestChild::createShared("list_3", "item_3"));
+
+    test1->field_list_list_object->push_back(l1);
+    test1->field_list_list_object->push_back(l2);
+    test1->field_list_list_object->push_back(l3);
+
+    test1->field_vector = {"vector_item1", "vector_item2", "vector_item3"};
+
+    test1->field_fields = {
+        {"key0", "pair_item0"},
+        {"key1", "pair_item1"},
+        {"key2", "pair_item2"},
+        {"key3", "pair_item3"},
+        {"key4", "pair_item4"},
+        {"key5", "pair_item5"},
+        {"key6", "pair_item6"},
+        {"key7", "pair_item7"},
+        {"key8", "pair_item8"},
+        {"key9", "pair_item9"},
+        {"key10", "pair_item10"},
+        {"key11", "pair_item11"}
+    };
+
+    test1->field_unordered_fields = {
+        {"key0", "map_item0"},
+        {"key1", "map_item1"},
+        {"key2", "map_item2"},
+        {"key3", "map_item3"},
+        {"key4", "map_item4"},
+        {"key5", "map_item5"},
+        {"key6", "map_item6"},
+        {"key7", "map_item7"},
+        {"key8", "map_item8"},
+        {"key9", "map_item9"},
+        {"key10", "map_item10"},
+        {"key11", "map_item11"}
+    };
+
+    auto result = mapper->writeToString(test1);
+
+    OATPP_LOGV(TAG, "json='%s'", result->c_str())
+
+    OATPP_LOGV(TAG, "...")
+    OATPP_LOGV(TAG, "...")
+    OATPP_LOGV(TAG, "...")
+
+    oatpp::parser::Caret caret(result);
+    auto obj1 = mapper->readFromCaret<oatpp::Object<Test>>(caret);
+
+    OATPP_ASSERT(obj1->field_string)
+    OATPP_ASSERT(obj1->field_string == test1->field_string)
+
+    OATPP_ASSERT(obj1->field_int32)
+    OATPP_ASSERT(obj1->field_int32 == test1->field_int32)
+
+    OATPP_ASSERT(obj1->field_int64)
+    OATPP_ASSERT(obj1->field_int64 == test1->field_int64)
+
+    OATPP_ASSERT(obj1->field_float32)
+    OATPP_ASSERT(fabsf(obj1->field_float32 - test1->field_float32) < std::numeric_limits<float>::epsilon())
+
+    OATPP_ASSERT(obj1->field_float64)
+    OATPP_ASSERT(fabs(obj1->field_float64 - test1->field_float64) < std::numeric_limits<double>::epsilon())
+
+    OATPP_ASSERT(obj1->field_boolean)
+    OATPP_ASSERT(obj1->field_boolean == test1->field_boolean)
+
+    {
+      auto c = obj1->field_vector;
+      OATPP_ASSERT(c[0] == "vector_item1")
+      OATPP_ASSERT(c[1] == "vector_item2")
+      OATPP_ASSERT(c[2] == "vector_item3")
+    }
+
+    {
+      auto c = obj1->field_fields;
+      v_int32 i = 0;
+      for(auto& pair : *c) {
+        OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i))
+        OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i))
+        i++;
+      }
+    }
+
+    {
+      auto c = obj1->field_unordered_fields;
+      OATPP_ASSERT(c["key1"] == "map_item1")
+      OATPP_ASSERT(c["key2"] == "map_item2")
+      OATPP_ASSERT(c["key3"] == "map_item3")
+    }
+
+    result = mapper->writeToString(obj1);
+
+    OATPP_LOGV(TAG, "json='%s'", result->c_str())
   }
 
   {
-    auto c = obj1->field_fields;
-    v_int32 i = 0;
-    for(auto& pair : *c) {
-      OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i))
-      OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i))
-      i++;
+    auto test2 = Test2::createShared();
+    oatpp::String result;
+    try {
+      result = mapper->writeToString(test2);
+    } catch(std::runtime_error& e) {
+      OATPP_LOGV(TAG, "Test2::field_string is required!")
+    }
+    OATPP_ASSERT(result == nullptr)
+  }
+
+  {
+    auto test3 = Test3::createShared();
+    try {
+      auto result = mapper->writeToString(test3);
+    } catch(std::runtime_error& e) {
+      OATPP_ASSERT(false)
     }
   }
 
   {
-    auto c = obj1->field_unordered_fields;
-    OATPP_ASSERT(c["key1"] == "map_item1")
-    OATPP_ASSERT(c["key2"] == "map_item2")
-    OATPP_ASSERT(c["key3"] == "map_item3")
+    auto test4 = Test4::createShared();
+    test4->field_string = "string value";
+    test4->child = TestChild1::createShared();
+    oatpp::String result;
+    try {
+      result = mapper->writeToString(test4);
+    } catch(std::runtime_error& e) {
+      OATPP_LOGV(TAG, "TestChild1::name is required!")
+    }
+    OATPP_ASSERT(result == nullptr)
   }
-  
-  result = mapper->writeToString(obj1);
-  
-  OATPP_LOGV(TAG, "json='%s'", result->c_str())
+
+  {
+    auto test5 = Test5::createShared();
+    test5->field_string = "string value";
+    test5->child = TestChild2::createShared();
+    try {
+      auto result = mapper->writeToString(test5);
+    } catch(std::runtime_error& e) {
+      OATPP_ASSERT(false)
+    }
+  }
 
   {
 
