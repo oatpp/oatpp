@@ -74,28 +74,28 @@ function(set_target_source_groups arg_TARGET)
     endif()
   endforeach()
 
-  set(filterSources ${sourceFiles})
+  set(filterSources "${sourceFiles}")
   list(FILTER filterSources INCLUDE REGEX "/.+\\.h(h|pp)?$")
   source_group(
     TREE "${sourceTreeDir}"
     PREFIX "Header Files"
     FILES ${filterSources}
   )
-  set(filterSources ${sourceFiles})
+  set(filterSources "${sourceFiles}")
   list(FILTER filterSources INCLUDE REGEX "/.+\\.h(h|pp)?\\.in$")
   source_group(
     TREE "${sourceTreeDir}"
     PREFIX "Header Templates"
     FILES ${filterSources}
   )
-  set(filterSources ${sourceFiles})
+  set(filterSources "${sourceFiles}")
   list(FILTER filterSources INCLUDE REGEX "/.+\\.c(c|xx|pp)?$")
   source_group(
     TREE "${sourceTreeDir}"
     PREFIX "Source Files"
     FILES ${filterSources}
   )
-  set(filterSources ${sourceFiles})
+  set(filterSources "${sourceFiles}")
   list(FILTER filterSources INCLUDE REGEX "/.+\\.c(c|xx|pp)?\\.in$")
   source_group(
     TREE "${sourceTreeDir}"
@@ -103,7 +103,7 @@ function(set_target_source_groups arg_TARGET)
     FILES ${filterSources}
   )
 
-  set(filterSources ${binaryFiles})
+  set(filterSources "${binaryFiles}")
   source_group(
     TREE "${binaryTreeDir}"
     PREFIX "Generated Files"
