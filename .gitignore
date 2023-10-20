@@ -42,8 +42,6 @@ cmake-build-debug/
 # local build
 build*/
 _build*/
-srt/build/
-test/build/
 
 # Docker
 Dockerfile
