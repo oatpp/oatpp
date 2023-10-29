@@ -255,7 +255,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   # Issue 872: https://github.com/oatpp/oatpp/issues/872
   # -fcf-protection is supported only on x86 GNU/Linux per this gcc doc:
   # https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html#index-fcf-protection
-  # add_compiler_flags(4.6 "-fcf-protection")
+  if ((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)"))
+    add_compiler_flags(4.6 "-fcf-protection")
+  endif ()
   add_compiler_flags(4.6 "-pipe")
   add_compiler_flags(4.6 "-Werror=format-security")
   add_compiler_flags(4.6 "-Wno-format-nonliteral")
