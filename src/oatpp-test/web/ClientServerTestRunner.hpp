@@ -51,10 +51,18 @@ public:
 private:
   std::shared_ptr<oatpp::network::Server> m_server;
   std::list<std::shared_ptr<ApiController>> m_controllers;
-  OATPP_COMPONENT(std::shared_ptr<HttpRouter>, m_router);
-  OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, m_connectionProvider);
-  OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, m_connectionHandler);
+  std::shared_ptr<HttpRouter> m_router;
+  std::shared_ptr<oatpp::network::ServerConnectionProvider> m_connectionProvider;
+  std::shared_ptr<oatpp::network::ConnectionHandler> m_connectionHandler;
+
 public:
+  ClientServerTestRunner(OATPP_COMPONENT(std::shared_ptr<HttpRouter>, router),
+                        OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider),
+                        OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler))
+    : m_router(router)
+    , m_connectionProvider(connectionProvider)
+    , m_connectionHandler(connectionHandler)
+  {}
 
   std::shared_ptr<HttpRouter> getRouter() {
     return m_router;
