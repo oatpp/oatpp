@@ -249,7 +249,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_cxx_compiler_flags_no_test(CMAKE_CXX_FLAGS "-D_GLIBCXX_ASSERTIONS")
   add_compiler_flags(4.6 "-fasynchronous-unwind-tables")
   add_compiler_flags(4.6 "-fexceptions")
-  add_compiler_flags(4.6 "-fstack-clash-protection")
+  add_compiler_flags(8.1 "-fstack-clash-protection")
   add_compiler_flags(4.6 "-fstack-protector-strong")
   add_compiler_flags(4.6 "-grecord-gcc-switches")
   # Issue 872: https://github.com/oatpp/oatpp/issues/872
