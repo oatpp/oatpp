@@ -29,6 +29,7 @@
 #include "./Compiler.hpp"
 #include "./Config.hpp"
 
+#include <cstdarg>
 #include <cstdio>
 #include <atomic>
 #include <mutex>
