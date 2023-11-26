@@ -166,6 +166,26 @@ void HttpRouterTest::onRun() {
     OATPP_ASSERT(r.getMatchMap().getTail() == "abc")
   }
 
+  {
+    OATPP_LOGI(TAG, "Case 15")
+    auto r = router.getRoute("GET", "ints/1?q1=1&q2=2");
+    OATPP_ASSERT(r.isValid())
+    OATPP_ASSERT(r)
+    OATPP_ASSERT(r.getEndpoint() == 1)
+    OATPP_ASSERT(r.getMatchMap().getTail() == "?q1=1&q2=2")
+  }
+
+  {
+    OATPP_LOGI(TAG, "Case 16")
+    auto r = router.getRoute("GET", "ints/all/3?q1=1&q2=2");
+    OATPP_ASSERT(r.isValid())
+    OATPP_ASSERT(r)
+    OATPP_ASSERT(r.getEndpoint() == -1)
+    OATPP_ASSERT(r.getMatchMap().getVariables().size() == 1)
+    OATPP_ASSERT(r.getMatchMap().getVariable("value") == "3")
+    OATPP_ASSERT(r.getMatchMap().getTail() == "?q1=1&q2=2")
+  }
+
 }
 
 }}}}
