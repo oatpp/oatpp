@@ -126,7 +126,7 @@ public:
     auto type = Wrapper::Class::getType();
     oatpp::parser::Caret caret(str);
     auto result = read(caret, type).template cast<Wrapper>();
-    if(result == nullptr) {
+    if(caret.hasError()) {
       throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
     }
     return result;
