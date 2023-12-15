@@ -240,7 +240,7 @@ if(!getDefaultObjectMapper()) { \
 } \
 const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = \
 __request->readBodyToDto<TYPE>(getDefaultObjectMapper().get()); \
-if(!OATPP_MACRO_FIRSTARG PARAM_LIST) { \
+if(OATPP_MACRO_FIRSTARG PARAM_LIST == nullptr) { \
   throw oatpp::web::protocol::http::HttpError(Status::CODE_400, "Missing valid body parameter '" OATPP_MACRO_FIRSTARG_STR PARAM_LIST "'"); \
 }
 
