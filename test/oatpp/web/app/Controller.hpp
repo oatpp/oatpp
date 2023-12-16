@@ -62,7 +62,7 @@ public:
     , available(true)
   {}
 public:
-  
+
   static std::shared_ptr<Controller> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
     return std::make_shared<Controller>(objectMapper);
   }
@@ -110,7 +110,7 @@ public:
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
   ENDPOINT("GET", "queries", getWithQueries,
            QUERY(String, name), QUERY(Int32, age)) {
     auto dto = TestDto::createShared();
@@ -134,7 +134,7 @@ public:
     }
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
   ENDPOINT("GET", "headers", getWithHeaders,
            HEADER(String, param, "X-TEST-HEADER")) {
     //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str())
@@ -142,7 +142,7 @@ public:
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
   ENDPOINT("POST", "body", postBody,
            BODY_STRING(String, body)) {
     //OATPP_LOGV(TAG, "POST body %s", body->c_str())
@@ -161,6 +161,16 @@ public:
            BODY_STRING(String, body)) {
     //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize())
     return createResponse(Status::CODE_200, body);
+  }
+
+  ENDPOINT("POST", "testBodyIsNull1", testBodyIsNull1,
+           BODY_DTO(String, body)) {
+    return createResponse(Status::CODE_200, "OK---" + body);
+  }
+
+  ENDPOINT("POST", "testBodyIsNull2", testBodyIsNull2,
+           BODY_STRING(String, body)) {
+    return createResponse(Status::CODE_200, "OK---" + body);
   }
 
   ENDPOINT("GET", "header-value-set", headerValueSet,

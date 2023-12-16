@@ -342,6 +342,46 @@ void FullTest::onRun() {
       }
 
       {
+        String bodyIn = "null";
+        auto response = client->testBodyIsNull1(bodyIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 400)
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData)
+        OATPP_ASSERT(returnedData == "server=oatpp/" OATPP_VERSION "\n"
+                                     "code=400\n"
+                                     "description=Bad Request\n"
+                                     "message=Missing valid body parameter 'body'\n")
+        connection = client->getConnection();
+      }
+
+      {
+        String bodyIn = "\"null\"";
+        auto response = client->testBodyIsNull1(bodyIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200)
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData)
+        OATPP_ASSERT(returnedData == "OK---null")
+      }
+
+      {
+        String bodyIn = "null";
+        auto response = client->testBodyIsNull2(bodyIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200)
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData)
+        OATPP_ASSERT(returnedData == "OK---null")
+      }
+
+      {
+        String bodyIn = "\"null\"";
+        auto response = client->testBodyIsNull2(bodyIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200)
+        auto returnedData = response->readBodyToString();
+        OATPP_ASSERT(returnedData)
+        OATPP_ASSERT(returnedData == "OK---\"null\"")
+      }
+
+      {
         auto response = client->headerValueSet("   VALUE_1, VALUE_2,  VALUE_3", connection);
         OATPP_ASSERT(response->getStatusCode() == 200)
       }
