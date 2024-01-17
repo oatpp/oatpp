@@ -115,7 +115,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
     throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]. Error. Call to getaddrinfo() returned no results.");
   }
 
-  struct addrinfo* currResult = result;
+  addrinfo* currResult = result;
   oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
   int err = 0;
 
@@ -123,7 +123,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
     clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
 
-    if (clientHandle >= 0) {
+    if(clientHandle >= 0) {
 
       if(connect(clientHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0) {
         break;
