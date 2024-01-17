@@ -69,7 +69,9 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 
 ConnectionProvider::ConnectionProvider(const network::Address& address)
   : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_closed(false)
   , m_address(address)
+  , m_clientHandle(INVALID_IO_HANDLE)
 {
   setProperty(PROPERTY_HOST, address.host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
@@ -111,24 +113,22 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   }
 
   struct addrinfo* currResult = result;
-  oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
 
   while(currResult != nullptr) {
 
-    clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
+    m_clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
 
-    if(clientHandle >= 0) {
+    if (m_clientHandle >= 0) {
 
-      if(connect(clientHandle, currResult->ai_addr, (int)currResult->ai_addrlen) == 0) {
+      if(connect(m_clientHandle, currResult->ai_addr, (int)currResult->ai_addrlen) == 0) {
         break;
       } else {
 #if defined(WIN32) || defined(_WIN32)
-		    ::closesocket(clientHandle);
+		    ::closesocket(m_clientHandle);
 #else
-        ::close(clientHandle);
+        ::close(m_clientHandle);
 #endif
       }
-
     }
 
     currResult = currResult->ai_next;
@@ -143,17 +143,27 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
 #ifdef SO_NOSIGPIPE
   int yes = 1;
-  v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
+  v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
     OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
   }
 #endif
 
   return provider::ResourceHandle<data::stream::IOStream>(
-      std::make_shared<oatpp::network::tcp::Connection>(clientHandle),
+      std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
       m_invalidator
   );
+}
 
+void ConnectionProvider::stop() {
+  if (!m_closed) {
+    m_closed = true;
+#if defined(WIN32) || defined(_WIN32)
+    ::closesocket(m_clientHandle);
+#else
+    ::close(m_clientHandle);
+#endif
+  }
 }
 
 oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> ConnectionProvider::getAsync() {
