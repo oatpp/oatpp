@@ -236,7 +236,8 @@ protected:
       }
 
       async::Action handleError(async::Error* error) override {
-        auto response = m_handler->m_controller->m_errorHandler->handleError(protocol::http::Status::CODE_500, error->what());
+        auto eptr = std::make_exception_ptr(*error);
+        auto response = m_handler->m_controller->m_errorHandler->handleError(eptr);
         return this->_return(response);
       }
 
@@ -262,27 +263,22 @@ protected:
 
       if(m_method == nullptr) {
         if(m_methodAsync == nullptr) {
-          return m_controller->handleError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
+          throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
         }
-        return m_controller->handleError(Status::CODE_500, "[ApiController]: Error. Non-async call to async endpoint.");
+        throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Non-async call to async endpoint.");
       }
 
-      if(m_controller->m_errorHandler) {
-
-        try {
-          return (m_controller->*m_method)(request);
-        } catch (oatpp::web::protocol::http::HttpError& error) {
-          return m_controller->m_errorHandler->handleError(error.getInfo().status, error.getMessage(), error.getHeaders());
-        } catch (std::exception& error) {
-          return m_controller->m_errorHandler->handleError(protocol::http::Status::CODE_500, error.what());
-        } catch (...) {
-          return m_controller->m_errorHandler->handleError(protocol::http::Status::CODE_500, "Unknown error");
+      try {
+        return (m_controller->*m_method)(request);
+      } catch (...) {
+        auto response = m_controller->handleError(std::current_exception());
+        if(response != nullptr) {
+          return response;
         }
 
+        throw;
       }
-
-      return (m_controller->*m_method)(request);
-
+      
     }
     
     oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
@@ -364,7 +360,9 @@ public:
   ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper, const oatpp::String &routerPrefix = nullptr)
     : m_defaultObjectMapper(defaultObjectMapper)
     , m_routerPrefix(routerPrefix)
-  {}
+  {
+
+  }
 public:
   
   template<class T>
@@ -383,18 +381,16 @@ public:
   const Endpoints& getEndpoints();
 
   /**
-   * [under discussion]
-   * Set error handler to handle calls to handleError
+   * Set error handler to handle errors that occur during the endpoint's execution
    */
   void setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler);
 
   /**
-   * [under discussion]
-   * Do not use it directly. This method is under discussion.
-   * Currently returns Response created by registered ErrorHandler or returns Response created by DefaultErrorHandler::handleDefaultError
-   * Notice: Does not throw the Error anymore, error-response has to be returned by the caller!
+   * Handle the exception using the registered ErrorHandler or if no handler has been set, uses the DefaultErrorHandler::handleError
+   * @note Does not rethrow an exception anymore, OutgoingResponse has to be returned by the caller!
+   * @note If this handler fails to handle the exception, it will be handled by the connection handlers ErrorHandler.
    */
-  std::shared_ptr<OutgoingResponse> handleError(const Status& status, const oatpp::String& message) const;
+  std::shared_ptr<OutgoingResponse> handleError(const std::exception_ptr& exceptionPtr) const;
 
   /**
    * [under discussion]
@@ -441,7 +437,7 @@ public:
       (void) text;
       success = false;
       OATPP_LOGE("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->c_str());
+                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->c_str())
       throw std::runtime_error("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]: Error. "
                                "No conversion from 'oatpp::String' to '" + *typeName + "' is defined. "
                                "Please define type conversion.");

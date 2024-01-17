@@ -198,6 +198,12 @@ public:
    */
   void invalidateConnection(const std::shared_ptr<RequestExecutor::ConnectionHandle>& connectionHandle);
 
+  /**
+   * Get ObjectMapper that was passed to constructor.
+   * @return - &id:oatpp::data::mapping::ObjectMapper;.
+   */
+  std::shared_ptr<oatpp::data::mapping::ObjectMapper> getObjectMapper();
+
   virtual std::shared_ptr<Response> executeRequest(const oatpp::String& method,
                                                    const StringTemplate& pathTemplate,
                                                    const Headers& headers,
@@ -225,7 +231,7 @@ public:
       (void) parameter;
 
       OATPP_LOGE("[oatpp::web::client::ApiClient::TypeInterpretation::toString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", typeName->c_str(), "oatpp::String");
+                 "Error. No conversion from '%s' to '%s' is defined.", typeName->c_str(), "oatpp::String")
 
       throw std::runtime_error(
         "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. "
@@ -385,6 +391,9 @@ struct ApiClient::TypeInterpretation<data::mapping::type::EnumObjectWrapper<T, I
         throw std::runtime_error(
           "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. Enum constraint violation - NotNull."
         );
+      case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
+      case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
+      case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
       default:
         throw std::runtime_error(
           "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. Can't interpret Enum."

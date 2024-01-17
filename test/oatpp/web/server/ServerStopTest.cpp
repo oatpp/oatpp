@@ -44,7 +44,7 @@ public:
 
   v_io_size read(void *buffer, v_buff_size count, async::Action &action) override {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    char *data = (char *) buffer;
+    char *data = reinterpret_cast<char*>(buffer);
     data[0] = 'A';
     return 1;
   }
@@ -63,7 +63,7 @@ public:
         oatpp::base::Environment::getMicroTickCount() + 100 * 1000);
       return oatpp::IOError::RETRY_READ;
     }
-    char *data = (char *) buffer;
+    char *data = reinterpret_cast<char*>(buffer);
     data[0] = 'A';
     return 1;
   }
@@ -85,7 +85,7 @@ class AsyncStreamingHandler : public oatpp::web::server::HttpRequestHandler {
 public:
 
   oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse> &>
-  handleAsync(const std::shared_ptr<IncomingRequest> &request) {
+  handleAsync(const std::shared_ptr<IncomingRequest> &request) override {
 
     class StreamCoroutine
       : public oatpp::async::CoroutineWithResult<StreamCoroutine, const std::shared_ptr<OutgoingResponse> &> {
@@ -118,9 +118,9 @@ runServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& conne
 
   std::thread t([server, connectionHandler] {
     server->run();
-    OATPP_LOGD("TEST", "server stopped");
+    OATPP_LOGD("TEST", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST", "connectionHandler stopped");
+    OATPP_LOGD("TEST", "connectionHandler stopped")
   });
   t.detach();
 
@@ -142,13 +142,13 @@ runAsyncServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& 
 
   std::thread t([server, connectionHandler, executor] {
     server->run();
-    OATPP_LOGD("TEST_ASYNC", "server stopped");
+    OATPP_LOGD("TEST_ASYNC", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped");
+    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped")
     executor->waitTasksFinished();
     executor->stop();
     executor->join();
-    OATPP_LOGD("TEST_ASYNC", "executor stopped");
+    OATPP_LOGD("TEST_ASYNC", "executor stopped")
   });
   t.detach();
 
@@ -162,11 +162,11 @@ void runClient(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& 
 
   auto response = executor.execute("GET", "/stream", oatpp::web::protocol::http::Headers({}), nullptr, nullptr);
 
-  OATPP_ASSERT(response->getStatusCode() == 200);
+  OATPP_ASSERT(response->getStatusCode() == 200)
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
-  OATPP_LOGD("TEST", "data->size() == %d", data->size())
+  OATPP_LOGD("TEST", "data->size() == %lu", data->size())
 
 }
 
@@ -208,7 +208,7 @@ void ServerStopTest::onRun() {
 
     /* wait connection handler to stop */
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    OATPP_LOGD(TAG, "DONE");
+    OATPP_LOGD(TAG, "DONE")
   }
 
   {
@@ -233,7 +233,7 @@ void ServerStopTest::onRun() {
 
     /* wait connection handler to stop */
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    OATPP_LOGD(TAG, "DONE");
+    OATPP_LOGD(TAG, "DONE")
   }
 
 }

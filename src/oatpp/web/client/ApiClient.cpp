@@ -40,6 +40,10 @@ void ApiClient::invalidateConnection(const std::shared_ptr<RequestExecutor::Conn
   m_requestExecutor->invalidateConnection(connectionHandle);
 }
 
+std::shared_ptr<oatpp::data::mapping::ObjectMapper> ApiClient::getObjectMapper() {
+  return m_objectMapper;
+}
+
 ApiClient::StringTemplate ApiClient::parsePathTemplate(const oatpp::String& name, const oatpp::String& text) {
 
   std::vector<StringTemplate::Variable> variables;
@@ -91,7 +95,7 @@ oatpp::String ApiClient::formatPath(const StringTemplate& pathTemplate,
     bool first = !extra->hasQueryParams;
     for(const auto& q : queryParams) {
       oatpp::String value = q.second;
-      if(value && value->size() > 0) {
+      if(value) {
         if (first) {
           stream.writeCharSimple('?');
           first = false;

@@ -7,26 +7,29 @@ add_library(oatpp
         oatpp/algorithm/CRC.hpp
         oatpp/codegen/ApiClient_define.hpp
         oatpp/codegen/ApiClient_undef.hpp
-        oatpp/codegen/api_controller/base_define.hpp
-        oatpp/codegen/api_controller/base_undef.hpp
-        oatpp/codegen/api_controller/auth_define.hpp
-        oatpp/codegen/api_controller/auth_undef.hpp
-        oatpp/codegen/api_controller/bundle_define.hpp
-        oatpp/codegen/api_controller/bundle_undef.hpp
-        oatpp/codegen/api_controller/cors_define.hpp
-        oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/ApiController_define.hpp
         oatpp/codegen/ApiController_undef.hpp
         oatpp/codegen/DbClient_define.hpp
         oatpp/codegen/DbClient_undef.hpp
+        oatpp/codegen/DTO_define.hpp
+        oatpp/codegen/DTO_undef.hpp
+        oatpp/codegen/api_controller/auth_define.hpp
+        oatpp/codegen/api_controller/auth_undef.hpp
+        oatpp/codegen/api_controller/base_define.hpp
+        oatpp/codegen/api_controller/base_undef.hpp
+        oatpp/codegen/api_controller/bundle_define.hpp
+        oatpp/codegen/api_controller/bundle_undef.hpp
+        oatpp/codegen/api_controller/cors_define.hpp
+        oatpp/codegen/api_controller/cors_undef.hpp
         oatpp/codegen/dto/base_define.hpp
         oatpp/codegen/dto/base_undef.hpp
         oatpp/codegen/dto/enum_define.hpp
         oatpp/codegen/dto/enum_undef.hpp
-        oatpp/codegen/DTO_define.hpp
-        oatpp/codegen/DTO_undef.hpp
+        oatpp/core/IODefinitions.cpp
+        oatpp/core/IODefinitions.hpp
         oatpp/core/Types.hpp
-        oatpp/core/async/utils/FastQueue.hpp
+        oatpp/core/async/ConditionVariable.cpp
+        oatpp/core/async/ConditionVariable.hpp
         oatpp/core/async/Coroutine.cpp
         oatpp/core/async/Coroutine.hpp
         oatpp/core/async/CoroutineWaitList.cpp
@@ -39,17 +42,18 @@ add_library(oatpp
         oatpp/core/async/Lock.hpp
         oatpp/core/async/Processor.cpp
         oatpp/core/async/Processor.hpp
-        oatpp/core/async/worker/Worker.cpp
-        oatpp/core/async/worker/Worker.hpp
+        oatpp/core/async/utils/FastQueue.hpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
-        oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
+        oatpp/core/async/worker/IOEventWorker_kqueue.cpp
         oatpp/core/async/worker/IOEventWorker_stub.cpp
         oatpp/core/async/worker/IOEventWorker.hpp
         oatpp/core/async/worker/IOWorker.cpp
         oatpp/core/async/worker/IOWorker.hpp
         oatpp/core/async/worker/TimerWorker.cpp
         oatpp/core/async/worker/TimerWorker.hpp
+        oatpp/core/async/worker/Worker.cpp
+        oatpp/core/async/worker/Worker.hpp
         oatpp/core/base/CommandLineArguments.cpp
         oatpp/core/base/CommandLineArguments.hpp
         oatpp/core/base/Config.hpp
@@ -62,8 +66,8 @@ add_library(oatpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp
         oatpp/core/concurrency/Thread.hpp
-        oatpp/core/IODefinitions.cpp
-        oatpp/core/IODefinitions.hpp
+        oatpp/core/data/Bundle.cpp
+        oatpp/core/data/Bundle.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp
         oatpp/core/data/buffer/FIFOBuffer.hpp
         oatpp/core/data/buffer/IOBuffer.cpp
@@ -82,10 +86,10 @@ add_library(oatpp
         oatpp/core/data/mapping/type/List.cpp
         oatpp/core/data/mapping/type/List.hpp
         oatpp/core/data/mapping/type/Map.hpp
-        oatpp/core/data/mapping/type/PairList.cpp
-        oatpp/core/data/mapping/type/PairList.hpp
         oatpp/core/data/mapping/type/Object.cpp
         oatpp/core/data/mapping/type/Object.hpp
+        oatpp/core/data/mapping/type/PairList.cpp
+        oatpp/core/data/mapping/type/PairList.hpp
         oatpp/core/data/mapping/type/Primitive.cpp
         oatpp/core/data/mapping/type/Primitive.hpp
         oatpp/core/data/mapping/type/Type.cpp
@@ -118,8 +122,6 @@ add_library(oatpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
         oatpp/core/data/stream/StreamBufferedProxy.hpp
-        oatpp/core/data/Bundle.cpp
-        oatpp/core/data/Bundle.hpp
         oatpp/core/macro/basic.hpp
         oatpp/core/macro/codegen.hpp
         oatpp/core/macro/component.hpp
@@ -144,30 +146,8 @@ add_library(oatpp
         oatpp/encoding/Hex.hpp
         oatpp/encoding/Unicode.cpp
         oatpp/encoding/Unicode.hpp
-        oatpp/network/monitor/ConnectionInactivityChecker.cpp
-        oatpp/network/monitor/ConnectionInactivityChecker.hpp
-        oatpp/network/monitor/ConnectionMaxAgeChecker.cpp
-        oatpp/network/monitor/ConnectionMaxAgeChecker.hpp
-        oatpp/network/monitor/ConnectionMonitor.cpp
-        oatpp/network/monitor/ConnectionMonitor.hpp
-        oatpp/network/monitor/MetricsChecker.hpp
-        oatpp/network/monitor/StatCollector.hpp
-        oatpp/network/tcp/client/ConnectionProvider.cpp
-        oatpp/network/tcp/client/ConnectionProvider.hpp
-        oatpp/network/tcp/server/ConnectionProvider.cpp
-        oatpp/network/tcp/server/ConnectionProvider.hpp
-        oatpp/network/tcp/Connection.cpp
-        oatpp/network/tcp/Connection.hpp
-        oatpp/network/virtual_/Interface.cpp
-        oatpp/network/virtual_/Interface.hpp
-        oatpp/network/virtual_/Pipe.cpp
-        oatpp/network/virtual_/Pipe.hpp
-        oatpp/network/virtual_/Socket.cpp
-        oatpp/network/virtual_/Socket.hpp
-        oatpp/network/virtual_/client/ConnectionProvider.cpp
-        oatpp/network/virtual_/client/ConnectionProvider.hpp
-        oatpp/network/virtual_/server/ConnectionProvider.cpp
-        oatpp/network/virtual_/server/ConnectionProvider.hpp
+        oatpp/encoding/Url.cpp
+        oatpp/encoding/Url.hpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
         oatpp/network/ConnectionHandler.hpp
@@ -181,6 +161,31 @@ add_library(oatpp
         oatpp/network/Server.hpp
         oatpp/network/Url.cpp
         oatpp/network/Url.hpp
+        oatpp/network/monitor/ConnectionInactivityChecker.cpp
+        oatpp/network/monitor/ConnectionInactivityChecker.hpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.cpp
+        oatpp/network/monitor/ConnectionMaxAgeChecker.hpp
+        oatpp/network/monitor/ConnectionMonitor.cpp
+        oatpp/network/monitor/ConnectionMonitor.hpp
+        oatpp/network/monitor/MetricsChecker.hpp
+        oatpp/network/monitor/StatCollector.hpp
+        oatpp/network/tcp/Connection.cpp
+        oatpp/network/tcp/Connection.hpp
+        oatpp/network/tcp/ConnectionConfigurer.hpp
+        oatpp/network/tcp/client/ConnectionProvider.cpp
+        oatpp/network/tcp/client/ConnectionProvider.hpp
+        oatpp/network/tcp/server/ConnectionProvider.cpp
+        oatpp/network/tcp/server/ConnectionProvider.hpp
+        oatpp/network/virtual_/Interface.cpp
+        oatpp/network/virtual_/Interface.hpp
+        oatpp/network/virtual_/Pipe.cpp
+        oatpp/network/virtual_/Pipe.hpp
+        oatpp/network/virtual_/Socket.cpp
+        oatpp/network/virtual_/Socket.hpp
+        oatpp/network/virtual_/client/ConnectionProvider.cpp
+        oatpp/network/virtual_/client/ConnectionProvider.hpp
+        oatpp/network/virtual_/server/ConnectionProvider.cpp
+        oatpp/network/virtual_/server/ConnectionProvider.hpp
         oatpp/orm/Connection.hpp
         oatpp/orm/DbClient.cpp
         oatpp/orm/DbClient.hpp
@@ -232,6 +237,11 @@ add_library(oatpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp
         oatpp/web/protocol/http/Http.hpp
+        oatpp/web/protocol/http/encoding/Chunked.cpp
+        oatpp/web/protocol/http/encoding/Chunked.hpp
+        oatpp/web/protocol/http/encoding/EncoderProvider.hpp
+        oatpp/web/protocol/http/encoding/ProviderCollection.cpp
+        oatpp/web/protocol/http/encoding/ProviderCollection.hpp
         oatpp/web/protocol/http/incoming/BodyDecoder.cpp
         oatpp/web/protocol/http/incoming/BodyDecoder.hpp
         oatpp/web/protocol/http/incoming/Request.cpp
@@ -250,19 +260,14 @@ add_library(oatpp
         oatpp/web/protocol/http/outgoing/BufferBody.hpp
         oatpp/web/protocol/http/outgoing/MultipartBody.cpp
         oatpp/web/protocol/http/outgoing/MultipartBody.hpp
-        oatpp/web/protocol/http/outgoing/StreamingBody.cpp
-        oatpp/web/protocol/http/outgoing/StreamingBody.hpp
         oatpp/web/protocol/http/outgoing/Request.cpp
         oatpp/web/protocol/http/outgoing/Request.hpp
         oatpp/web/protocol/http/outgoing/Response.cpp
         oatpp/web/protocol/http/outgoing/Response.hpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.cpp
         oatpp/web/protocol/http/outgoing/ResponseFactory.hpp
-        oatpp/web/protocol/http/encoding/Chunked.cpp
-        oatpp/web/protocol/http/encoding/Chunked.hpp
-        oatpp/web/protocol/http/encoding/ProviderCollection.cpp
-        oatpp/web/protocol/http/encoding/ProviderCollection.hpp
-        oatpp/web/protocol/http/encoding/EncoderProvider.hpp
+        oatpp/web/protocol/http/outgoing/StreamingBody.cpp
+        oatpp/web/protocol/http/outgoing/StreamingBody.hpp
         oatpp/web/protocol/http/utils/CommunicationUtils.cpp
         oatpp/web/protocol/http/utils/CommunicationUtils.hpp
         oatpp/web/server/AsyncHttpConnectionHandler.cpp
@@ -290,6 +295,7 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
 )
+set_target_source_groups(oatpp STRIP_PREFIX "oatpp")
 
 set_target_properties(oatpp PROPERTIES
         CXX_STANDARD 11
@@ -330,30 +336,35 @@ target_include_directories(oatpp PUBLIC
 #######################################################################################################
 ## oatpp-test
 
-add_library(oatpp-test
-        oatpp-test/Checker.cpp
-        oatpp-test/Checker.hpp
-        oatpp-test/UnitTest.cpp
-        oatpp-test/UnitTest.hpp
-        oatpp-test/web/ClientServerTestRunner.hpp
-)
+if(OATPP_LINK_TEST_LIBRARY)
 
-set_target_properties(oatpp-test PROPERTIES
-        CXX_STANDARD 11
-        CXX_EXTENSIONS OFF
-        CXX_STANDARD_REQUIRED ON
-)
-if (MSVC)
-    target_compile_options(oatpp-test PRIVATE /permissive-)
+	add_library(oatpp-test
+			oatpp-test/Checker.cpp
+			oatpp-test/Checker.hpp
+			oatpp-test/UnitTest.cpp
+			oatpp-test/UnitTest.hpp
+			oatpp-test/web/ClientServerTestRunner.hpp
+	)
+	set_target_source_groups(oatpp-test STRIP_PREFIX oatpp-test)
+
+	set_target_properties(oatpp-test PROPERTIES
+			CXX_STANDARD 11
+			CXX_EXTENSIONS OFF
+			CXX_STANDARD_REQUIRED ON
+	)
+	if (MSVC)
+		target_compile_options(oatpp-test PRIVATE /permissive-)
+	endif()
+
+	target_link_libraries(oatpp-test PUBLIC oatpp)
+
+	target_include_directories(oatpp-test PUBLIC
+			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	)
+
+	add_dependencies(oatpp-test oatpp)
+
 endif()
-
-target_link_libraries(oatpp-test PUBLIC oatpp)
-
-target_include_directories(oatpp-test PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-)
-
-add_dependencies(oatpp-test oatpp)
 
 #######################################################################################################
 ## Install targets

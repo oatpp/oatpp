@@ -64,12 +64,12 @@ std::shared_ptr<handler::AuthorizationObject> BasicAuthorizationHandler::handleA
 
   if(header && header->size() > 6 && utils::String::compare(header->data(), 6, "Basic ", 6) == 0) {
 
-    oatpp::String auth = oatpp::encoding::Base64::decode(header->c_str() + 6, header->size() - 6);
+    oatpp::String auth = oatpp::encoding::Base64::decode(header->c_str() + 6, static_cast<v_buff_size>(header->size() - 6));
     parser::Caret caret(auth);
 
     if (caret.findChar(':')) {
-      oatpp::String userId((const char *) &caret.getData()[0], caret.getPosition());
-      oatpp::String password((const char *) &caret.getData()[caret.getPosition() + 1],
+      oatpp::String userId(&caret.getData()[0], caret.getPosition());
+      oatpp::String password(&caret.getData()[caret.getPosition() + 1],
                              caret.getDataSize() - caret.getPosition() - 1);
       auto authResult = authorize(userId, password);
       if(authResult) {
@@ -110,7 +110,7 @@ std::shared_ptr<AuthorizationObject> BearerAuthorizationHandler::handleAuthoriza
 
   if(header && header->size() > 7 && utils::String::compare(header->data(), 7, "Bearer ", 7) == 0) {
 
-    oatpp::String token = oatpp::String(header->c_str() + 7, header->size() - 7);
+    oatpp::String token = oatpp::String(header->c_str() + 7, static_cast<v_buff_size>(header->size() - 7));
 
     auto authResult = authorize(token);
     if(authResult) {

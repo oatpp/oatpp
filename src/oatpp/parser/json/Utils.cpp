@@ -34,7 +34,7 @@ v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_b
   v_buff_size i = 0;
   safeSize = size;
   while (i < size) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     if(a < 32) {
       i ++;
 
@@ -77,7 +77,9 @@ v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_b
           safeSize = i;
         }
         i += charSize;
-        if(charSize < 4) {
+        if (!(flags & FLAG_ESCAPE_UTF8CHAR)) {
+          result += charSize; // output as-is
+        } else if(charSize < 4) {
           result += 6; // '\uFFFF' - 6 chars
         } else if(charSize == 4) {
           result += 12; // '\uFFFF\uFFFF' - 12 chars surrogate pair
@@ -100,7 +102,7 @@ v_buff_size Utils::calcUnescapedStringSize(const char* data, v_buff_size size, v
   v_buff_size i = 0;
   
   while (i < size) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     if(a == '\\'){
       
       if(i + 1 == size){
@@ -109,7 +111,7 @@ v_buff_size Utils::calcUnescapedStringSize(const char* data, v_buff_size size, v
         return 0;
       }
       
-      v_char8 b = data[i + 1];
+      v_char8 b = static_cast<v_char8>(data[i + 1]);
       
       if(b == '"' || b == '\\' || b == '/' || b == 'b' || b == 'f' || b == 'n' || b == 'r' || b == 't'){
         result += 1;
@@ -158,7 +160,7 @@ v_buff_size Utils::calcUnescapedStringSize(const char* data, v_buff_size size, v
             }
             
             if(low >= 0xDC00 && low <= 0xDFFF){
-              v_uint32 bigCode = encoding::Unicode::utf16SurrogatePairToCode(code, low);
+              v_uint32 bigCode = static_cast<v_uint32>(encoding::Unicode::utf16SurrogatePairToCode(static_cast<v_int16>(code), static_cast<v_int16>(low)));
               i += 12;
               result += encoding::Unicode::getUtf8CharSequenceLengthForCode(bigCode);
             } else {
@@ -203,16 +205,16 @@ v_buff_size Utils::escapeUtf8Char(const char* sequence, p_char8 buffer){
     oatpp::encoding::Unicode::codeToUtf16SurrogatePair(code, high, low);
     buffer[0] = '\\';
     buffer[1] = 'u';
-    oatpp::encoding::Hex::writeUInt16(high, &buffer[2]);
+    oatpp::encoding::Hex::writeUInt16(static_cast<v_uint16>(high), &buffer[2]);
     buffer[6] = '\\';
     buffer[7] = 'u';
-    oatpp::encoding::Hex::writeUInt16(low, &buffer[8]);
+    oatpp::encoding::Hex::writeUInt16(static_cast<v_uint16>(low), &buffer[8]);
     return 12;
   } else {
     buffer[0] = '\\';
     buffer[1] = 'u';
     buffer[2] = '+';
-    oatpp::encoding::Hex::writeUInt32(code, &buffer[2]);
+    oatpp::encoding::Hex::writeUInt32(static_cast<v_uint32>(code), &buffer[2]);
     return 11;
   }
 }
@@ -221,16 +223,16 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
   v_buff_size safeSize;
   v_buff_size escapedSize = calcEscapedStringSize(data, size, safeSize, flags);
   if(escapedSize == size) {
-    return String((const char*)data, size);
+    return String(data, size);
   }
   auto result = String(escapedSize);
-  p_char8 resultData = (p_char8) result->data();
+  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
   v_buff_size pos = 0;
 
   {
     v_buff_size i = 0;
     while (i < safeSize) {
-      v_char8 a = data[i];
+      v_char8 a = static_cast<v_char8>(data[i]);
       if (a < 32) {
 
         switch (a) {
@@ -265,13 +267,13 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
               resultData[pos + 1] = '/';
               pos += 2;
             } else {
-              resultData[pos] = data[i];
+              resultData[pos] = static_cast<v_char8>(data[i]);
               pos++;
             }
             break;
 
           default:
-            resultData[pos] = data[i];
+            resultData[pos] = static_cast<v_char8>(data[i]);
             pos++;
             break;
 
@@ -282,12 +284,18 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
       else {
         v_buff_size charSize = oatpp::encoding::Unicode::getUtf8CharSequenceLength(a);
         if (charSize != 0) {
-          pos += escapeUtf8Char(&data[i], &resultData[pos]);
+          if (!(flags & FLAG_ESCAPE_UTF8CHAR)) {
+            std::memcpy(reinterpret_cast<void*>(&resultData[pos]), reinterpret_cast<void*>(const_cast<char*>(&data[i])), static_cast<size_t>(charSize));
+            pos += charSize;
+          }
+          else {
+            pos += escapeUtf8Char(&data[i], &resultData[pos]);
+          }
           i += charSize;
         }
         else {
           // invalid char
-          resultData[pos] = data[i];
+          resultData[pos] = static_cast<v_char8>(data[i]);
           i++;
           pos++;
         }
@@ -296,7 +304,7 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
   }
   
   if(size > safeSize){
-    for(v_buff_size i = pos; i < result->size(); i ++){
+    for(v_buff_size i = pos; static_cast<size_t>(i) < result->size(); i ++){
       resultData[i] = '?';
     }
   }
@@ -310,10 +318,10 @@ void Utils::unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 r
   v_buff_size pos = 0;
   
   while (i < size) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     
     if(a == '\\'){
-      v_char8 b = data[i + 1];
+      v_char8 b = static_cast<v_char8>(data[i + 1]);
       if(b != 'u'){
         switch (b) {
           case '"': resultData[pos] = '"'; pos ++; break;
@@ -324,6 +332,7 @@ void Utils::unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 r
           case 'n': resultData[pos] = '\n'; pos ++; break;
           case 'r': resultData[pos] = '\r'; pos ++; break;
           case 't': resultData[pos] = '\t'; pos ++; break;
+          default: break;
         }
         i += 2;
       } else {
@@ -331,7 +340,7 @@ void Utils::unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 r
           v_uint32 code;
           encoding::Hex::readUInt32(&data[i + 3], code);
           i += 11;
-          pos += encoding::Unicode::decodeUtf8Char(code, &resultData[pos]);
+          pos += encoding::Unicode::decodeUtf8Char(static_cast<v_int32>(code), &resultData[pos]);
         } else {
           
           v_uint16 code;
@@ -340,8 +349,8 @@ void Utils::unescapeStringToBuffer(const char* data, v_buff_size size, p_char8 r
           if(code >= 0xD800 && code <= 0xDBFF){
             v_uint16 low;
             encoding::Hex::readUInt16(&data[i + 8], low);
-            v_uint32 bigCode = encoding::Unicode::utf16SurrogatePairToCode(code, low);
-            pos += encoding::Unicode::decodeUtf8Char(bigCode, &resultData[pos]);
+            v_uint32 bigCode = static_cast<v_uint32>(encoding::Unicode::utf16SurrogatePairToCode(static_cast<v_int16>(code), static_cast<v_int16>(low)));
+            pos += encoding::Unicode::decodeUtf8Char(static_cast<v_int32>(bigCode), &resultData[pos]);
             i += 12;
           } else {
             pos += encoding::Unicode::decodeUtf8Char(code, &resultData[pos]);
@@ -368,9 +377,9 @@ oatpp::String Utils::unescapeString(const char* data, v_buff_size size, v_int64&
   }
   auto result = String(unescapedSize);
   if(unescapedSize == size) {
-    std::memcpy((void*) result->data(), data, size);
+    std::memcpy(reinterpret_cast<void*>(const_cast<char*>(result->data())), data, static_cast<size_t>(size));
   } else {
-    unescapeStringToBuffer(data, size, (p_char8) result->data());
+    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(const_cast<char*>(result->data())));
   }
   return result;
   
@@ -383,11 +392,11 @@ std::string Utils::unescapeStringToStdString(const char* data, v_buff_size size,
     return "";
   }
   std::string result;
-  result.resize(unescapedSize);
+  result.resize(static_cast<size_t>(unescapedSize));
   if(unescapedSize == size) {
-    std::memcpy((p_char8) result.data(), data, size);
+    std::memcpy(reinterpret_cast<void*>(const_cast<char*>(result.data())), data, static_cast<size_t>(size));
   } else {
-    unescapeStringToBuffer(data, size, (p_char8) result.data());
+    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(const_cast<char*>(result.data())));
   }
   return result;
   
@@ -403,7 +412,7 @@ const char* Utils::preparseString(ParsingCaret& caret, v_buff_size& size){
     v_buff_size length = caret.getDataSize();
     
     while (pos < length) {
-      v_char8 a = data[pos];
+      v_char8 a = static_cast<v_char8>(data[pos]);
       if(a == '"'){
         size = pos - pos0;
         return &data[pos0];

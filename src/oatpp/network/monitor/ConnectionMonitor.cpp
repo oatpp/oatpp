@@ -50,7 +50,7 @@ ConnectionMonitor::ConnectionProxy::ConnectionProxy(const std::shared_ptr<Monito
 
 ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
 
-  m_monitor->removeConnection((v_uint64) this);
+  m_monitor->removeConnection(reinterpret_cast<v_uint64>(this));
 
   std::lock_guard<std::mutex> lock(m_statsMutex);
 
@@ -60,7 +60,7 @@ ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
 
     for(auto& pair : m_stats.metricsData) {
       OATPP_LOGE("[oatpp::network::ConnectionMonitor::ConnectionProxy::~ConnectionProxy()]",
-                 "Error. Memory leak. Metric data was not deleted: Metric name - '%s'", pair.first->c_str());
+                 "Error. Memory leak. Metric data was not deleted: Metric name - '%s'", pair.first->c_str())
     }
 
   }
@@ -122,7 +122,7 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
 
       for(auto& caddr : monitor->m_connections) {
 
-        auto connection = (ConnectionProxy*) caddr;
+        auto connection = reinterpret_cast<ConnectionProxy*>(caddr);
         std::lock_guard<std::mutex> dataLock(connection->m_statsMutex);
         std::lock_guard<std::mutex> analysersLock(monitor->m_checkMutex);
 
@@ -143,7 +143,7 @@ void ConnectionMonitor::Monitor::monitorTask(std::shared_ptr<Monitor> monitor) {
   }
 
   {
-    std::lock_guard<std::mutex>(monitor->m_runMutex);
+    std::lock_guard<std::mutex> lock(monitor->m_runMutex);
     monitor->m_stopped = true;
   }
 
@@ -174,7 +174,7 @@ std::shared_ptr<ConnectionMonitor::Monitor> ConnectionMonitor::Monitor::createSh
 
 void ConnectionMonitor::Monitor::addConnection(ConnectionProxy* connection) {
   std::lock_guard<std::mutex> lock(m_connectionsMutex);
-  m_connections.insert((v_uint64) connection);
+  m_connections.insert(reinterpret_cast<v_uint64>(connection));
 }
 
 void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
@@ -187,7 +187,7 @@ void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
       it->second->deleteMetricData(metric.second);
     } else {
       OATPP_LOGE("[oatpp::network::ConnectionMonitor::Monitor::freeConnectionStats]",
-                 "Error. Can't free Metric data. Unknown Metric: name - '%s'", it->first->c_str());
+                 "Error. Can't free Metric data. Unknown Metric: name - '%s'", it->first->c_str())
     }
   }
 
@@ -274,6 +274,7 @@ ConnectionMonitor::ConnectionMonitor(const std::shared_ptr<ConnectionProvider>& 
   , m_monitor(Monitor::createShared())
   , m_connectionProvider(connectionProvider)
 {
+  m_properties = m_connectionProvider->getProperties();
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionMonitor::get() {

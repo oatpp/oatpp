@@ -53,7 +53,7 @@ v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::
 
   reserveBytesUpfront(count);
 
-  std::memcpy(m_data + m_position, data, count);
+  std::memcpy(m_data + m_position, data, static_cast<size_t>(count));
   m_position += count;
 
   return count;
@@ -90,7 +90,7 @@ void BufferOutputStream::reserveBytesUpfront(v_buff_size count) {
 
     p_char8 newData = new v_char8[newCapacity];
 
-    std::memcpy(newData, m_data, m_position);
+    std::memcpy(newData, m_data, static_cast<size_t>(m_position));
     delete [] m_data;
     m_data = newData;
     m_capacity = newCapacity;
@@ -126,14 +126,14 @@ void BufferOutputStream::reset(v_buff_size initialCapacity) {
 }
 
 oatpp::String BufferOutputStream::toString() {
-  return oatpp::String((const char*) m_data, m_position);
+  return oatpp::String(reinterpret_cast<const char*>(m_data), m_position);
 }
 
 oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size count) {
   if(pos + count <= m_position) {
-    return oatpp::String((const char *) (m_data + pos), count);
+    return oatpp::String(reinterpret_cast<const char*>(m_data + pos), count);
   } else {
-    return oatpp::String((const char *) (m_data + pos), m_position - pos);
+    return oatpp::String(reinterpret_cast<const char*>(m_data + pos), m_position - pos);
   }
 }
 
@@ -181,7 +181,7 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryH
                                      v_buff_size size,
                                      const std::shared_ptr<void>& captureData)
   : m_memoryHandle(memoryHandle)
-  , m_data((p_char8) data)
+  , m_data(reinterpret_cast<p_char8>(const_cast<void*>(data)))
   , m_size(size)
   , m_position(0)
   , m_ioMode(IOMode::ASYNCHRONOUS)
@@ -189,7 +189,7 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryH
 {}
 
 BufferInputStream::BufferInputStream(const oatpp::String& data, const std::shared_ptr<void>& captureData)
-  : BufferInputStream(data.getPtr(), (p_char8) data->data(), data->size(), captureData)
+  : BufferInputStream(data.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()), captureData)
 {}
 
 void BufferInputStream::reset(const std::shared_ptr<std::string>& memoryHandle,
@@ -220,7 +220,7 @@ v_io_size BufferInputStream::read(void *data, v_buff_size count, async::Action& 
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;
   }
-  std::memcpy(data, &m_data[m_position], desiredAmount);
+  std::memcpy(data, &m_data[m_position], static_cast<size_t>(desiredAmount));
   m_position += desiredAmount;
   return desiredAmount;
 }
@@ -264,7 +264,7 @@ v_io_size BufferInputStream::peek(void *data, v_buff_size count, async::Action &
   if(desiredAmount > m_size - m_position) {
     desiredAmount = m_size - m_position;
   }
-  std::memcpy(data, &m_data[m_position], desiredAmount);
+  std::memcpy(data, &m_data[m_position], static_cast<size_t>(desiredAmount));
   return desiredAmount;
 }
 

@@ -62,7 +62,7 @@ void Server::conditionalMainLoop() {
             setStatus(STATUS_STOPPING);
           }
         } else {
-          OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+          OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
         }
       }
 
@@ -86,7 +86,7 @@ void Server::mainLoop(Server *instance) {
       if (instance->getStatus() == STATUS_RUNNING) {
         instance->m_connectionHandler->handleConnection(connectionHandle, params /* null params */);
       } else {
-        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...");
+        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
       }
     }
   }
@@ -102,6 +102,8 @@ void Server::run(std::function<bool()> conditional) {
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already starting");
     case STATUS_RUNNING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already started");
+    default:
+      break;
   }
 
   m_threaded = false;
@@ -125,6 +127,8 @@ void Server::run(bool startAsNewThread) {
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already starting");
     case STATUS_RUNNING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already started");
+    default:
+      break;
   }
 
   m_threaded = startAsNewThread;
@@ -147,6 +151,8 @@ void Server::stop() {
     case STATUS_RUNNING:
       setStatus(STATUS_STOPPING);
       break;
+    default:
+      break;
   }
 
   if (m_threaded && m_thread.joinable()) {
@@ -156,7 +162,7 @@ void Server::stop() {
 
 bool Server::setStatus(v_int32 expectedStatus, v_int32 newStatus) {
   v_int32 expected = expectedStatus;
-  return m_status.compare_exchange_weak(expected, newStatus);
+  return m_status.compare_exchange_strong(expected, newStatus);
 }
 
 void Server::setStatus(v_int32 status) {

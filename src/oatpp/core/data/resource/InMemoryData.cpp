@@ -69,7 +69,7 @@ oatpp::String InMemoryData::getInMemoryData() {
 
 v_int64 InMemoryData::getKnownSize() {
   if(m_handle && m_handle->data) {
-    return m_handle->data->size();
+    return static_cast<v_int64>(m_handle->data->size());
   }
   return 0;
 }

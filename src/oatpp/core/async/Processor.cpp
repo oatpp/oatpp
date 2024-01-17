@@ -29,38 +29,6 @@
 
 namespace oatpp { namespace async {
 
-void Processor::checkCoroutinesForTimeouts() {
-  while (m_running) {
-    {
-      std::unique_lock<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
-      while (m_coroutineWaitListsWithTimeouts.empty()) {
-        m_coroutineWaitListsWithTimeoutsCV.wait(lock);
-        if (!m_running) return;
-      }
-      
-      const auto coroutineWaitListsWithTimeouts = m_coroutineWaitListsWithTimeouts;    
-      for (CoroutineWaitList* waitList : coroutineWaitListsWithTimeouts) {
-          waitList->checkCoroutinesForTimeouts();
-      }
-    }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds{100});
-  }
-}
-
-void Processor::addCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList) {
-  {
-    std::lock_guard<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
-    m_coroutineWaitListsWithTimeouts.insert(waitList);
-  }
-  m_coroutineWaitListsWithTimeoutsCV.notify_one();
-}
-
-void Processor::removeCoroutineWaitListWithTimeouts(CoroutineWaitList* waitList) {
-  std::lock_guard<std::recursive_mutex> lock{m_coroutineWaitListsWithTimeoutsMutex};
-  m_coroutineWaitListsWithTimeouts.erase(waitList);
-}
-
 void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
   switch(worker->getType()) {
@@ -75,6 +43,8 @@ void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
       m_timerPopQueues.push_back(utils::FastQueue<CoroutineHandle>());
     break;
 
+    case worker::Worker::Type::PROCESSOR:
+    case worker::Worker::Type::TYPES_COUNT:
     default:
       break;
 
@@ -126,13 +96,9 @@ void Processor::addCoroutine(CoroutineHandle* coroutine) {
         break;
 
       case Action::TYPE_WAIT_LIST:
-        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-        action.m_data.waitList->pushBack(coroutine);
-        break;
-
-      case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
-        coroutine->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-        action.m_data.waitListWithTimeout.waitList->pushBack(coroutine, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
+        coroutine->_SCH_A = Action::clone(action);
+        putCoroutineToSleep(coroutine);
+        action.m_data.waitListData.waitList->add(coroutine);
         break;
 
       default:
@@ -210,6 +176,56 @@ void Processor::pushQueues() {
 
 }
 
+void Processor::putCoroutineToSleep(CoroutineHandle* ch) {
+  if(ch->_SCH_A.m_data.waitListData.timePointMicroseconds == 0) {
+    std::lock_guard<std::mutex> lock(m_sleepMutex);
+    m_sleepNoTimeSet.insert(ch);
+  } else {
+    std::lock_guard<std::mutex> lock(m_sleepMutex);
+    m_sleepTimeSet.insert(ch);
+    m_sleepCV.notify_one();
+  }
+}
+
+void Processor::wakeCoroutine(CoroutineHandle* ch) {
+  if(ch->_SCH_A.m_data.waitListData.timePointMicroseconds == 0) {
+    std::lock_guard<std::mutex> lock(m_sleepMutex);
+    m_sleepNoTimeSet.erase(ch);
+  } else {
+    std::lock_guard<std::mutex> lock(m_sleepMutex);
+    m_sleepTimeSet.erase(ch);
+  }
+  ch->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+  pushOneTask(ch);
+}
+
+void Processor::checkCoroutinesSleep() {
+  while (m_running) {
+    {
+      std::unique_lock<std::mutex> lock{m_sleepMutex};
+      while (m_running && m_sleepTimeSet.empty()) {
+        m_sleepCV.wait(lock);
+      }
+
+      auto now = oatpp::base::Environment::getMicroTickCount();
+      for(auto it = m_sleepTimeSet.begin(); it != m_sleepTimeSet.end();) {
+        auto ch = *it;
+        if(ch->_SCH_A.m_data.waitListData.timePointMicroseconds < now) {
+          it = m_sleepTimeSet.erase(it);
+          ch->_SCH_A.m_data.waitListData.waitList->forgetCoroutine(ch);
+          ch->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+          pushOneTask(ch);
+        } else {
+          it ++;
+        }
+      }
+
+    }
+
+    if(m_running) std::this_thread::sleep_for(std::chrono::milliseconds{100});
+  }
+}
+
 bool Processor::iterate(v_int32 numIterations) {
 
   pushQueues();
@@ -242,15 +258,10 @@ bool Processor::iterate(v_int32 numIterations) {
           break;
 
         case Action::TYPE_WAIT_LIST:
-          CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
+          CP->_SCH_A = Action::clone(action);
           m_queue.popFront();
-          action.m_data.waitList->pushBack(CP);
-          break;
-
-        case Action::TYPE_WAIT_LIST_WITH_TIMEOUT:
-          CP->_SCH_A = Action::createActionByType(Action::TYPE_NONE);
-          m_queue.popFront();
-          action.m_data.waitListWithTimeout.waitList->pushBack(CP, action.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS);
+          putCoroutineToSleep(CP);
+          action.m_data.waitListData.waitList->add(CP);
           break;
 
         default:
@@ -274,9 +285,10 @@ void Processor::stop() {
     m_running = false;
   }
   m_taskCondition.notify_one();
+  m_sleepCV.notify_one();
 
-  m_coroutineWaitListsWithTimeoutsCV.notify_one();
-  m_coroutineWaitListTimeoutChecker.join();
+  m_sleepSetTask.join();
+
 }
 
 v_int32 Processor::getTasksCount() {

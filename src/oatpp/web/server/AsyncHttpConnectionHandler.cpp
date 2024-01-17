@@ -29,7 +29,7 @@ namespace oatpp { namespace web { namespace server {
 void AsyncHttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) {
 
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
-  m_connections.insert({(v_uint64) connection.object.get(), connection});
+  m_connections.insert({reinterpret_cast<v_uint64>(connection.object.get()), connection});
 
   if(!m_continue.load()) {
     connection.invalidator->invalidate(connection.object);
@@ -39,7 +39,7 @@ void AsyncHttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data
 
 void AsyncHttpConnectionHandler::onTaskEnd(const provider::ResourceHandle<data::stream::IOStream>& connection) {
   std::lock_guard<oatpp::concurrency::SpinLock> lock(m_connectionsLock);
-  m_connections.erase((v_uint64) connection.object.get());
+  m_connections.erase(reinterpret_cast<v_uint64>(connection.object.get()));
 }
 
 void AsyncHttpConnectionHandler::invalidateAllConnections() {
@@ -77,6 +77,14 @@ std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createSh
 
 std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpRouter>& router, const std::shared_ptr<oatpp::async::Executor>& executor){
   return std::make_shared<AsyncHttpConnectionHandler>(router, executor);
+}
+
+std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpProcessor::Components>& components, const std::shared_ptr<oatpp::async::Executor>& executor){
+  return std::make_shared<AsyncHttpConnectionHandler>(components, executor);
+}
+
+std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createShared(const std::shared_ptr<HttpProcessor::Components>& components, v_int32 threadCount){
+  return std::make_shared<AsyncHttpConnectionHandler>(components, threadCount);
 }
 
 void AsyncHttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){

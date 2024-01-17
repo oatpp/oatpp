@@ -25,11 +25,11 @@ jobs:
       displayName: 'Test'
       workingDirectory: build
 
-- job: ubuntu_18_04_mem_pool_on
-  displayName: 'Build - Ubuntu 18.04'
+- job: ubuntu_22_04_mem_pool_on
+  displayName: 'Build - Ubuntu 22.04'
   continueOnError: false
   pool:
-    vmImage: 'Ubuntu 18.04'
+    vmImage: 'ubuntu-22.04'
   workspace:
     clean: all
   steps:

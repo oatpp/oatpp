@@ -94,7 +94,7 @@ const std::list<std::shared_ptr<Part>>& PartList::getAllParts() {
 }
 
 v_int64 PartList::count() {
-  return m_parts.size();
+  return static_cast<v_int64>(m_parts.size());
 }
 
 }}}}

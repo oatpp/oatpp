@@ -25,7 +25,7 @@
 #include "Hex.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-  #include <WinSock2.h>
+  #include <winsock2.h>
 #else
   #include <arpa/inet.h>
 #endif
@@ -36,28 +36,28 @@ const char* Hex::ALPHABET_UPPER = "0123456789ABCDEF";
 const char* Hex::ALPHABET_LOWER = "0123456789abcdef";
     
 void Hex::writeUInt16(v_uint16 value, p_char8 buffer){
-  *((p_uint32) buffer) = htonl((ALPHABET_UPPER[ value & 0x000F       ]      ) |
-                               (ALPHABET_UPPER[(value & 0x00F0) >>  4] <<  8) |
-                               (ALPHABET_UPPER[(value & 0x0F00) >>  8] << 16) |
-                               (ALPHABET_UPPER[(value & 0xF000) >> 12] << 24));
+  *(reinterpret_cast<p_uint32>(buffer)) = htonl((static_cast<v_uint32>(ALPHABET_UPPER[ value & 0x000F       ])      ) |
+                               (static_cast<v_uint32>(ALPHABET_UPPER[(value & 0x00F0) >>  4]) <<  8) |
+                               (static_cast<v_uint32>(ALPHABET_UPPER[(value & 0x0F00) >>  8]) << 16) |
+                               (static_cast<v_uint32>(ALPHABET_UPPER[(value & 0xF000) >> 12]) << 24));
   
 }
   
 void Hex::writeUInt32(v_uint32 value, p_char8 buffer){
-  writeUInt16(value >> 16, buffer);
-  writeUInt16(v_uint16(value), buffer + 4);
+  writeUInt16(static_cast<v_uint16>(value >> 16), buffer);
+  writeUInt16(static_cast<v_uint16>(value & 0xffff), buffer + 4);
 }
   
 v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
   value = 0;
-  for(v_int32 i = 0; i < 4; i++){
-    v_char8 a = buffer[i];
+  for(v_uint32 i = 0; i < 4; i++){
+    v_char8 a = static_cast<v_char8>(buffer[i]);
     if(a >= '0' && a <= '9') {
-      value |= (a - '0') << ((3 - i) << 2);
+      value |= static_cast<v_uint16>((a - '0') << ((3 - i) << 2));
     } else if (a >= 'A' && a <= 'F') {
-      value |= (a - 'A' + 10) << ((3 - i) << 2);
+      value |= static_cast<v_uint16>((a - 'A' + 10) << ((3 - i) << 2));
     } else if (a >= 'a' && a <= 'f') {
-      value |= (a - 'a' + 10) << ((3 - i) << 2);
+      value |= static_cast<v_uint16>((a - 'a' + 10) << ((3 - i) << 2));
     } else {
       return ERROR_UNKNOWN_SYMBOL;
     }
@@ -67,14 +67,14 @@ v_int32 Hex::readUInt16(const char* buffer, v_uint16& value) {
   
 v_int32 Hex::readUInt32(const char* buffer, v_uint32& value) {
   value = 0;
-  for(v_int32 i = 0; i < 8; i++){
-    v_char8 a = buffer[i];
+  for(v_uint32 i = 0; i < 8; i++){
+    v_char8 a = static_cast<v_char8>(buffer[i]);
     if(a >= '0' && a <= '9') {
-      value |= (a - '0') << ((7 - i) << 2);
+      value |= static_cast<v_uint32>(a - '0') << ((7 - i) << 2);
     } else if (a >= 'A' && a <= 'F') {
-      value |= (a - 'A' + 10) << ((7 - i) << 2);
+      value |= static_cast<v_uint32>(a - 'A' + 10) << ((7 - i) << 2);
     } else if (a >= 'a' && a <= 'f') {
-      value |= (a - 'a' + 10) << ((7 - i) << 2);
+      value |= static_cast<v_uint32>(a - 'a' + 10) << ((7 - i) << 2);
     } else {
       return ERROR_UNKNOWN_SYMBOL;
     }
@@ -86,10 +86,10 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size,
                  const char* alphabet)
 {
-  p_char8 buffer = (p_char8) data;
-  v_char8 oneByteBuffer[2];
+  auto buffer = reinterpret_cast<const char*>(data);
+  char oneByteBuffer[2];
   for(v_buff_size i = 0; i < size; i ++) {
-    auto c = buffer[i];
+    v_char8 c = static_cast<v_char8>(buffer[i]);
     v_char8 b1 = 0x0F & (c >> 4);
     v_char8 b2 = 0x0F & (c);
     oneByteBuffer[0] = alphabet[b1];
@@ -101,7 +101,7 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
 void Hex::decode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size, bool allowSeparators)
 {
-  p_char8 buffer = (p_char8) data;
+  auto buffer = reinterpret_cast<const char*>(data);
   v_char8 byte = 0;
   v_int32 shift = 4;
   for(v_buff_size i = 0; i < size; i ++) {
@@ -109,13 +109,13 @@ void Hex::decode(data::stream::ConsistentOutputStream* stream,
     auto a = buffer[i];
 
     if(a >= '0' && a <= '9') {
-      byte |= (a - '0') << shift;
+      byte |= static_cast<v_char8>((a - '0') << shift);
       shift -= 4;
     } else if (a >= 'A' && a <= 'F') {
-      byte |= (a - 'A' + 10) << shift;
+      byte |= static_cast<v_char8>((a - 'A' + 10) << shift);
       shift -= 4;
     } else if (a >= 'a' && a <= 'f') {
-      byte |= (a - 'a' + 10) << shift;
+      byte |= static_cast<v_char8>((a - 'a' + 10) << shift);
       shift -= 4;
     } else if(!allowSeparators) {
       throw DecodingError("Invalid Character");

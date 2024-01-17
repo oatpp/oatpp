@@ -26,6 +26,7 @@
 #define oatpp_network_monitor_ConnectionInactivityChecker_hpp
 
 #include "MetricsChecker.hpp"
+#include "oatpp/core/base/Compiler.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 
@@ -47,11 +48,11 @@ public:
   ConnectionInactivityChecker(const std::chrono::duration<v_int64, std::micro>& lastReadTimeout,
                               const std::chrono::duration<v_int64, std::micro>& lastWriteTimeout);
 
-  std::vector<oatpp::String> getMetricsList();
+  std::vector<oatpp::String> getMetricsList() override;
 
-  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName);
+  std::shared_ptr<StatCollector> createStatCollector(const oatpp::String& metricName) override GPP_ATTRIBUTE(noreturn);
 
-  bool check(const ConnectionStats& stats, v_int64 currMicroTime);
+  bool check(const ConnectionStats& stats, v_int64 currMicroTime) override;
 
 };
 

@@ -255,7 +255,7 @@ public:
     if(it != m_map.end()) {
       it->second.captureToOwnMemory();
       const auto& label = it->second;
-      return T(label.getMemoryHandle(), (const char*) label.getData(), label.getSize());
+      return T(label.getMemoryHandle(), reinterpret_cast<const char*>(label.getData()), label.getSize());
     }
 
     return T(nullptr, nullptr, 0);
@@ -278,7 +278,7 @@ public:
 
     if(it != m_map.end()) {
       const auto& label = it->second;
-      return T(label.getMemoryHandle(), (const char*)label.getData(), label.getSize());
+      return T(label.getMemoryHandle(), reinterpret_cast<const char*>(label.getData()), label.getSize());
     }
 
     return T(nullptr, nullptr, 0);
@@ -321,7 +321,7 @@ public:
    */
   v_int32 getSize() const {
     std::lock_guard<concurrency::SpinLock> lock(m_lock);
-    return (v_int32) m_map.size();
+    return static_cast<v_int32>(m_map.size());
   }
 
 };

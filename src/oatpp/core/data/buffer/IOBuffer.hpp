@@ -57,7 +57,7 @@ public:
   /**
    * Virtual destructor.
    */
-  ~IOBuffer();
+  ~IOBuffer() override;
 
   /**
    * Get pointer to buffer data.

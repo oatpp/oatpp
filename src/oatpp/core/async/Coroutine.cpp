@@ -30,6 +30,8 @@ namespace oatpp { namespace async {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Action
 
+const std::chrono::system_clock::time_point Action::TIME_ZERO = std::chrono::system_clock::from_time_t(0);
+
 Action Action::clone(const Action& action) {
   Action result(action.m_type);
   result.m_data = action.m_data;
@@ -60,16 +62,10 @@ Action Action::createWaitRepeatAction(v_int64 timePointMicroseconds) {
   return result;
 }
 
-Action Action::createWaitListAction(CoroutineWaitList* waitList) {
+Action Action::createWaitListAction(CoroutineWaitList* waitList, const std::chrono::system_clock::time_point& timeoutTime) {
   Action result(TYPE_WAIT_LIST);
-  result.m_data.waitList = waitList;
-  return result;
-}
-
-Action Action::createWaitListActionWithTimeout(CoroutineWaitList* waitList, const std::chrono::steady_clock::time_point& timeout) {
-  Action result(TYPE_WAIT_LIST_WITH_TIMEOUT);
-  result.m_data.waitListWithTimeout.waitList = waitList;
-  result.m_data.waitListWithTimeout.timeoutTimeSinceEpochMS = std::chrono::duration_cast<std::chrono::milliseconds>(timeout.time_since_epoch()).count();
+  result.m_data.waitListData.waitList = waitList;
+  result.m_data.waitListData.timePointMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(timeoutTime.time_since_epoch()).count();
   return result;
 }
 
@@ -118,6 +114,9 @@ void Action::free() {
 
     case TYPE_ERROR:
       delete m_data.error;
+      break;
+
+    default:
       break;
   }
   m_type = TYPE_NONE;
@@ -316,7 +315,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
       default:
         return std::forward<oatpp::async::Action>(action);
 
-    };
+    }
 
 //    action = iterate();
 //    ++ iterations;

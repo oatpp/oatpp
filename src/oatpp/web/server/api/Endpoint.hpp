@@ -97,12 +97,12 @@ public:
       /**
        * Add parameter name to list order
        * @tparam T
-       * @param name
+       * @param aname
        * @return new or existing parameter
        */
       template<class T>
-      Param& add(const oatpp::String& name) {
-        return add(name, T::Class::getType());
+      Param& add(const oatpp::String& aname) {
+        return add(aname, T::Class::getType());
       }
 
       /**
@@ -231,8 +231,8 @@ public:
      * @param contentType
      */
     template<class Wrapper>
-    ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& description = oatpp::String()) {
-      consumes.push_back({contentType, Wrapper::Class::getType(), description});
+    ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& desc = oatpp::String()) {
+      consumes.push_back({contentType, Wrapper::Class::getType(), desc});
       return consumes.back();
     }
 

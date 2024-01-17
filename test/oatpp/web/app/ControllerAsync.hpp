@@ -68,8 +68,8 @@ public:
     
     ENDPOINT_ASYNC_INIT(Root)
     
-    Action act() {
-      //OATPP_LOGV(TAG, "GET '/'");
+    Action act() override {
+      //OATPP_LOGV(TAG, "GET '/'")
       return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
     }
 
@@ -79,9 +79,9 @@ public:
 
     ENDPOINT_ASYNC_INIT(GetWithParams)
 
-    Action act() {
+    Action act() override {
       auto param = request->getPathVariable("param");
-      //OATPP_LOGV(TAG, "GET params/%s", param->c_str());
+      //OATPP_LOGV(TAG, "GET params/%s", param->c_str())
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
@@ -93,9 +93,9 @@ public:
 
     ENDPOINT_ASYNC_INIT(GetWithHeaders)
 
-    Action act() {
+    Action act() override {
       auto param = request->getHeader("X-TEST-HEADER");
-      //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
+      //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str())
       auto dto = TestDto::createShared();
       dto->testValue = param;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
@@ -107,13 +107,13 @@ public:
 
     ENDPOINT_ASYNC_INIT(PostBody)
 
-    Action act() {
-      //OATPP_LOGV(TAG, "POST body. Reading body...");
+    Action act() override {
+      //OATPP_LOGV(TAG, "POST body. Reading body...")
       return request->readBodyToStringAsync().callbackTo(&PostBody::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {
-      //OATPP_LOGV(TAG, "POST body %s", body->c_str());
+      //OATPP_LOGV(TAG, "POST body %s", body->c_str())
       auto dto = TestDto::createShared();
       dto->testValue = body;
       return _return(controller->createDtoResponse(Status::CODE_200, dto));
@@ -125,13 +125,13 @@ public:
 
     ENDPOINT_ASYNC_INIT(Echo)
 
-    Action act() {
-      //OATPP_LOGV(TAG, "POST body(echo). Reading body...");
+    Action act() override {
+      //OATPP_LOGV(TAG, "POST body(echo). Reading body...")
       return request->readBodyToStringAsync().callbackTo(&Echo::onBodyRead);
     }
 
     Action onBodyRead(const String& body) {
-      //OATPP_LOGV(TAG, "POST echo size=%d", body->getSize());
+      //OATPP_LOGV(TAG, "POST echo size=%d", body->getSize())
       return _return(controller->createResponse(Status::CODE_200, body));
     }
 
@@ -153,7 +153,7 @@ public:
         : m_text(text)
         , m_counter(0)
         , m_iterations(iterations)
-        , m_inlineData(text->data(), text->size())
+        , m_inlineData(text->data(), static_cast<v_buff_size>(text->size()))
       {}
 
       v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
@@ -168,11 +168,11 @@ public:
               desiredToRead = count;
             }
 
-            std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+            std::memcpy(buffer, m_inlineData.currBufferPtr, static_cast<size_t>(desiredToRead));
             m_inlineData.inc(desiredToRead);
 
             if (m_inlineData.bytesLeft == 0) {
-              m_inlineData.set(m_text->data(), m_text->size());
+              m_inlineData.set(m_text->data(), static_cast<v_buff_size>(m_text->size()));
               m_counter++;
             }
 
@@ -188,7 +188,7 @@ public:
 
     };
 
-    Action act() {
+    Action act() override {
       oatpp::String text = request->getPathVariable("text-value");
       auto numIterations = oatpp::utils::conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
 
@@ -259,22 +259,22 @@ public:
     Action onUploaded() {
 
       /* Print number of uploaded parts */
-      OATPP_LOGD("Multipart", "parts_count=%d", m_multipart->count());
+      OATPP_LOGD("Multipart", "parts_count=%ld", m_multipart->count())
 
       /* Get multipart by name */
       auto part1 = m_multipart->getNamedPart("part1");
 
       /* Asser part not-null */
-      OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty");
+      OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty")
 
       /* Print value of "part1" */
-      OATPP_LOGD("Multipart", "part1='%s'", part1->getPayload()->getInMemoryData()->c_str());
+      OATPP_LOGD("Multipart", "part1='%s'", part1->getPayload()->getInMemoryData()->c_str())
 
       /* Get multipart by name */
       auto filePart = m_multipart->getNamedPart("part2");
 
       /* Asser part not-null */
-      OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty");
+      OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty")
 
       auto inputStream = filePart->getPayload()->openInputStream();
 
@@ -333,7 +333,7 @@ public:
 
       ++ counter;
 
-      OATPP_LOGD("Multipart", "Frame sent!");
+      OATPP_LOGD("Multipart", "Frame sent!")
 
       return part;
 
@@ -349,7 +349,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(MultipartStream)
 
-    Action act() {
+    Action act() override {
       auto multipart = std::make_shared<MPStream>();
       auto body = std::make_shared<oatpp::web::protocol::http::outgoing::MultipartBody>(
         multipart,
@@ -365,7 +365,7 @@ public:
 
     ENDPOINT_ASYNC_INIT(HostHeader)
 
-    Action act() {
+    Action act() override {
       auto hostHeader = request->getHeader("Host");
       if(hostHeader) {
         return _return(controller->createResponse(Status::CODE_200, hostHeader));

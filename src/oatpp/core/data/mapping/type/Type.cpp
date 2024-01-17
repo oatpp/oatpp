@@ -53,7 +53,7 @@ std::vector<const char*>& ClassId::getClassNames() {
 v_int32 ClassId::registerClassName(const char* name) {
   std::lock_guard<std::mutex> lock(getClassMutex());
   getClassNames().push_back(name);
-  return getClassNames().size() - 1;
+  return static_cast<v_int32>(getClassNames().size()) - 1;
 }
 
 ClassId::ClassId(const char* pName)
@@ -63,12 +63,12 @@ ClassId::ClassId(const char* pName)
 
 int ClassId::getClassCount() {
   std::lock_guard<std::mutex> lock(getClassMutex());
-  return getClassNames().size();
+  return static_cast<int>(getClassNames().size());
 }
 
 std::vector<const char*> ClassId::getRegisteredClassNames() {
   std::lock_guard<std::mutex> lock(getClassMutex());
-  return std::vector<const char*>(getClassNames());
+  return getClassNames();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

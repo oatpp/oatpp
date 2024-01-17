@@ -26,7 +26,7 @@
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
-  #include <WinSock2.h>
+  #include <winsock2.h>
 #else
   #include <unistd.h>
   #include <sys/socket.h>
@@ -76,6 +76,11 @@ Connection::~Connection(){
   close();
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlogical-op"
+#endif
+
 v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& action){
 
 #if defined(WIN32) || defined(_WIN32)
@@ -96,7 +101,7 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
     } else if(e == WSAECONNRESET) {
       return IOError::BROKEN_PIPE;
     } else {
-      //OATPP_LOGD("Connection", "write errno=%d", e);
+      //OATPP_LOGD("Connection", "write errno=%d", e)
       return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
@@ -111,29 +116,45 @@ v_io_size Connection::write(const void *buff, v_buff_size count, async::Action& 
   flags |= MSG_NOSIGNAL;
 #endif
 
-  auto result = ::send(m_handle, buff, (size_t)count, flags);
+  auto result = ::send(m_handle, buff, static_cast<size_t>(count), flags);
 
   if(result < 0) {
     auto e = errno;
-    if(e == EAGAIN || e == EWOULDBLOCK){
+
+    bool retry = ((e == EAGAIN) || (e == EWOULDBLOCK));
+
+    if(retry){
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
       return IOError::RETRY_WRITE; // For async io. In case socket is non-blocking
-    } else if(e == EINTR) {
-      return IOError::RETRY_WRITE;
-    } else if(e == EPIPE) {
-      return IOError::BROKEN_PIPE;
-    } else {
-      //OATPP_LOGD("Connection", "write errno=%d", e);
-      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
+
+    if(e == EINTR) {
+      return IOError::RETRY_WRITE;
+    }
+
+    if(e == EPIPE) {
+      return IOError::BROKEN_PIPE;
+    }
+
+    //OATPP_LOGD("Connection", "write errno=%d", e)
+    return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
   }
   return result;
 
 #endif
 
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlogical-op"
+#endif
 
 v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action){
 
@@ -155,7 +176,7 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
     } else if(e == WSAECONNRESET) {
       return IOError::BROKEN_PIPE;
     } else {
-      //OATPP_LOGD("Connection", "write errno=%d", e);
+      //OATPP_LOGD("Connection", "write errno=%d", e)
       return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
   }
@@ -165,29 +186,40 @@ v_io_size Connection::read(void *buff, v_buff_size count, async::Action& action)
 
   errno = 0;
 
-  auto result = ::read(m_handle, buff, (size_t)count);
+  auto result = ::read(m_handle, buff, static_cast<size_t>(count));
 
   if(result < 0) {
     auto e = errno;
-    if(e == EAGAIN || e == EWOULDBLOCK){
+
+    bool retry = ((e == EAGAIN) || (e == EWOULDBLOCK));
+
+    if(retry){
       if(m_mode == data::stream::ASYNCHRONOUS) {
         action = oatpp::async::Action::createIOWaitAction(m_handle, oatpp::async::Action::IOEventType::IO_EVENT_READ);
       }
       return IOError::RETRY_READ; // For async io. In case socket is non-blocking
-    } else if(e == EINTR) {
-      return IOError::RETRY_READ;
-    } else if(e == ECONNRESET) {
-      return IOError::BROKEN_PIPE;
-    } else {
-      //OATPP_LOGD("Connection", "write errno=%d", e);
-      return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
     }
+
+    if(e == EINTR) {
+      return IOError::RETRY_READ;
+    }
+
+    if(e == ECONNRESET) {
+      return IOError::BROKEN_PIPE;
+    }
+
+    //OATPP_LOGD("Connection", "write errno=%d", e)
+    return IOError::BROKEN_PIPE; // Consider all other errors as a broken pipe.
   }
   return result;
 
 #endif
 
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #if defined(WIN32) || defined(_WIN32)
 void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
@@ -208,6 +240,8 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
           throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
       m_mode = data::stream::ASYNCHRONOUS;
+      break;
+    default:
       break;
   }
 
@@ -236,6 +270,9 @@ void Connection::setStreamIOMode(oatpp::data::stream::IOMode ioMode) {
         throw std::runtime_error("[oatpp::network::tcp::Connection::setStreamIOMode()]: Error. Can't set stream I/O mode to IOMode::ASYNCHRONOUS.");
       }
       m_mode = data::stream::ASYNCHRONOUS;
+      break;
+
+    default:
       break;
 
   }

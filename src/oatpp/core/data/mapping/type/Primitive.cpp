@@ -45,7 +45,7 @@ String String::loadFromFile(const char* filename) {
   if (file.is_open()) {
     auto result = data::mapping::type::String(file.tellg());
     file.seekg(0, std::ios::beg);
-    file.read((char*) result->data(), result->size());
+    file.read(const_cast<char*>(result->data()), static_cast<std::streamsize>(result->size()));
     file.close();
     return result;
   }
@@ -55,7 +55,7 @@ String String::loadFromFile(const char* filename) {
 void String::saveToFile(const char* filename) const {
   std::ofstream fs(filename, std::ios::out | std::ios::binary);
   if(m_ptr != nullptr) {
-    fs.write(m_ptr->data(), m_ptr->size());
+    fs.write(m_ptr->data(), static_cast<std::streamsize>(m_ptr->size()));
   }
   fs.close();
 }
@@ -125,6 +125,65 @@ namespace __class {
 
   const ClassId Boolean::CLASS_ID("Boolean");
 
+  Type* String::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int8::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt8::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int16::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt16::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int32::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt32::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Int64::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* UInt64::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Float32::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Float64::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
+
+  Type* Boolean::getType(){
+    static Type type(CLASS_ID);
+    return &type;
+  }
 }
   
 }}}}

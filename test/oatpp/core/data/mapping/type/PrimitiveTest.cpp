@@ -33,7 +33,7 @@ namespace {
   template<class T>
   void checkHash(const T& val) {
     auto h = std::hash<T>{}(val);
-    OATPP_LOGI("HASH", "type='%s', hash=%llu", val.getValueType()->classId.name, h);
+    OATPP_LOGI("HASH", "type='%s', hash=%lu", val.getValueType()->classId.name, h)
   }
 
 }
@@ -55,197 +55,197 @@ void PrimitiveTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "test default constructor");
+    OATPP_LOGI(TAG, "test default constructor")
     oatpp::Int32 i;
-    OATPP_ASSERT(!i);
-    OATPP_ASSERT(i == nullptr);
-    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!i)
+    OATPP_ASSERT(i == nullptr)
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test value constructor");
+    OATPP_LOGI(TAG, "test value constructor")
     oatpp::Int32 i(0);
-    OATPP_ASSERT(i);
-    OATPP_ASSERT(i != nullptr);
-    OATPP_ASSERT(i == 0);
-    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(i)
+    OATPP_ASSERT(i != nullptr)
+    OATPP_ASSERT(i == 0)
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test implicit value constructor");
+    OATPP_LOGI(TAG, "test implicit value constructor")
     oatpp::Int32 i = 0;
-    OATPP_ASSERT(i);
-    OATPP_ASSERT(i != nullptr);
-    OATPP_ASSERT(i == 0);
-    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(i)
+    OATPP_ASSERT(i != nullptr)
+    OATPP_ASSERT(i == 0)
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test '==' and '!=' operators");
+    OATPP_LOGI(TAG, "test '==' and '!=' operators")
     oatpp::Int32 i1 = 0;
     oatpp::Int32 i2;
 
-    OATPP_ASSERT(i1);
-    OATPP_ASSERT(i1 != nullptr);
-    OATPP_ASSERT(i1 == 0);
-    OATPP_ASSERT(i1 != 1);
+    OATPP_ASSERT(i1)
+    OATPP_ASSERT(i1 != nullptr)
+    OATPP_ASSERT(i1 == 0)
+    OATPP_ASSERT(i1 != 1)
 
-    OATPP_ASSERT(!i2);
+    OATPP_ASSERT(!i2)
     OATPP_ASSERT(i2 == nullptr)
 
-    OATPP_ASSERT(i1 != i2);
-    OATPP_ASSERT(i2 != i1);
+    OATPP_ASSERT(i1 != i2)
+    OATPP_ASSERT(i2 != i1)
 
     i2 = 0;
 
-    OATPP_ASSERT(i1 == i2);
-    OATPP_ASSERT(i2 == i1);
+    OATPP_ASSERT(i1 == i2)
+    OATPP_ASSERT(i2 == i1)
 
     i1 = nullptr;
     i2 = nullptr;
 
-    OATPP_ASSERT(i1 == i2);
+    OATPP_ASSERT(i1 == i2)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test copy-assign operator");
+    OATPP_LOGI(TAG, "test copy-assign operator")
     oatpp::Int32 i1 = 0;
     oatpp::Int32 i2;
 
-    OATPP_ASSERT(i1 != i2);
+    OATPP_ASSERT(i1 != i2)
 
     i2 = i1;
 
-    OATPP_ASSERT(i1 == i2);
-    OATPP_ASSERT(i1.get() == i2.get());
+    OATPP_ASSERT(i1 == i2)
+    OATPP_ASSERT(i1.get() == i2.get())
 
     i2 = 1;
 
-    OATPP_ASSERT(i1 != i2);
-    OATPP_ASSERT(i1.get() != i2.get());
+    OATPP_ASSERT(i1 != i2)
+    OATPP_ASSERT(i1.get() != i2.get())
 
-    OATPP_ASSERT(i1 == 0);
-    OATPP_ASSERT(i2 == 1);
+    OATPP_ASSERT(i1 == 0)
+    OATPP_ASSERT(i2 == 1)
   }
 
   {
-    OATPP_LOGI(TAG, "test move-assign operator");
+    OATPP_LOGI(TAG, "test move-assign operator")
     oatpp::Int32 i1 = 0;
     oatpp::Int32 i2;
 
-    OATPP_ASSERT(i1 != i2);
+    OATPP_ASSERT(i1 != i2)
 
     i2 = std::move(i1);
 
-    OATPP_ASSERT(i1 == nullptr);
-    OATPP_ASSERT(i2 != nullptr);
+    OATPP_ASSERT(i1 == nullptr)
+    OATPP_ASSERT(i2 != nullptr)
 
-    OATPP_ASSERT(i2 == 0);
+    OATPP_ASSERT(i2 == 0)
   }
 
   {
-    OATPP_LOGI(TAG, "test move-assign operator");
+    OATPP_LOGI(TAG, "test move-assign operator")
     oatpp::Int32 i = 0;
     v_int32 v = i;
-    OATPP_ASSERT(v == i);
+    OATPP_ASSERT(v == i)
   }
 
   {
-    OATPP_LOGI(TAG, "Test Boolean [nullptr]");
+    OATPP_LOGI(TAG, "Test Boolean [nullptr]")
     oatpp::Boolean b;
 
-    OATPP_ASSERT(!b);
-    OATPP_ASSERT(b == nullptr);
-    OATPP_ASSERT(b != false);
-    OATPP_ASSERT(b != true);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!b)
+    OATPP_ASSERT(b == nullptr)
+    OATPP_ASSERT(b != false)
+    OATPP_ASSERT(b != true)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Boolean nullptr constructor");
+    OATPP_LOGI(TAG, "Test Boolean nullptr constructor")
     oatpp::Boolean b = nullptr;
 
-    OATPP_ASSERT(!b);
-    OATPP_ASSERT(b == nullptr);
-    OATPP_ASSERT(b != false);
-    OATPP_ASSERT(b != true);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!b)
+    OATPP_ASSERT(b == nullptr)
+    OATPP_ASSERT(b != false)
+    OATPP_ASSERT(b != true)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Boolean [false]");
+    OATPP_LOGI(TAG, "Test Boolean [false]")
     oatpp::Boolean b = false;
 
-    OATPP_ASSERT(!b); // <--- still !b
-    OATPP_ASSERT(b != nullptr);
-    OATPP_ASSERT(b == false);
-    OATPP_ASSERT(b != true);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!b) // <--- still !b
+    OATPP_ASSERT(b != nullptr)
+    OATPP_ASSERT(b == false)
+    OATPP_ASSERT(b != true)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Boolean [true]");
+    OATPP_LOGI(TAG, "Test Boolean [true]")
     oatpp::Boolean b = true;
 
-    OATPP_ASSERT(b);
-    OATPP_ASSERT(b != nullptr);
-    OATPP_ASSERT(b != false);
-    OATPP_ASSERT(b == true);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(b)
+    OATPP_ASSERT(b != nullptr)
+    OATPP_ASSERT(b != false)
+    OATPP_ASSERT(b == true)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Boolean copy-assign operator");
+    OATPP_LOGI(TAG, "Test Boolean copy-assign operator")
     oatpp::Boolean b1 = true;
     oatpp::Boolean b2;
 
     b2 = b1;
 
-    OATPP_ASSERT(b2);
-    OATPP_ASSERT(b1);
-    OATPP_ASSERT(b1 == b2);
-    OATPP_ASSERT(b1.get() == b2.get());
+    OATPP_ASSERT(b2)
+    OATPP_ASSERT(b1)
+    OATPP_ASSERT(b1 == b2)
+    OATPP_ASSERT(b1.get() == b2.get())
 
     b2 = false;
 
-    OATPP_ASSERT(b1.get() != b2.get());
-    OATPP_ASSERT(b1 != b2);
-    OATPP_ASSERT(b2 != b1);
+    OATPP_ASSERT(b1.get() != b2.get())
+    OATPP_ASSERT(b1 != b2)
+    OATPP_ASSERT(b2 != b1)
 
     b1 = false;
     b2 = nullptr;
 
-    OATPP_ASSERT(b1 != b2);
-    OATPP_ASSERT(b2 != b1);
+    OATPP_ASSERT(b1 != b2)
+    OATPP_ASSERT(b2 != b1)
 
     b1 = nullptr;
     b2 = nullptr;
 
-    OATPP_ASSERT(b1 == b2);
+    OATPP_ASSERT(b1 == b2)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Boolean move-assign operator");
+    OATPP_LOGI(TAG, "Test Boolean move-assign operator")
     oatpp::Boolean b1 = true;
     oatpp::Boolean b2;
 
     b2 = std::move(b1);
 
-    OATPP_ASSERT(b2 != nullptr);
-    OATPP_ASSERT(b1 == nullptr);
+    OATPP_ASSERT(b2 != nullptr)
+    OATPP_ASSERT(b1 == nullptr)
 
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "check default value");
+    OATPP_LOGI(TAG, "check default value")
     oatpp::UInt8 s0;
     oatpp::UInt8 s1 = 255;
     OATPP_ASSERT(s0.getValue(128) == 128)

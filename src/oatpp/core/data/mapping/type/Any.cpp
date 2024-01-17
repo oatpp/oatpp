@@ -28,6 +28,11 @@ namespace oatpp { namespace data { namespace mapping { namespace type {
 
 namespace __class {
   const ClassId Any::CLASS_ID("Any");
+
+  Type* Any::getType() {
+    static Type type(CLASS_ID);
+    return &type;
+  }
 }
 
 Any::Any()
@@ -70,7 +75,7 @@ Void Any::retrieve(const Type* type) const {
     }
     return Void(m_ptr->ptr, type);
   }
-  return nullptr;
+  return Void(nullptr, type);
 }
 
 Any& Any::operator=(std::nullptr_t) {

@@ -40,63 +40,63 @@ void BufferStreamTest::onRun() {
     stream  << "int=" << 1 << ", float=" << 1.1 << ", "
             << "bool=" << true << " or " << false;
 
-    OATPP_LOGV(TAG, "str='%s'", stream.toString()->c_str());
+    OATPP_LOGV(TAG, "str='%s'", stream.toString()->c_str())
 
     stream.setCurrentPosition(0);
     stream << 101;
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(101));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(101))
 
     stream.setCurrentPosition(0);
-    stream << (v_float32)101.1;
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(101.1f));
+    stream << static_cast<v_float32>(101.5);
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(101.5f))
 
     stream.setCurrentPosition(0);
-    stream << (v_float64)101.1;
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(101.1));
+    stream << static_cast<v_float64>(101.5f);
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(101.5))
 
     stream.setCurrentPosition(0);
     stream << true;
-    OATPP_ASSERT(stream.toString() == "true");
+    OATPP_ASSERT(stream.toString() == "true")
 
     stream.setCurrentPosition(0);
     stream << false;
-    OATPP_ASSERT(stream.toString() == "false");
+    OATPP_ASSERT(stream.toString() == "false")
 
     stream.setCurrentPosition(0);
     stream << oatpp::String("oat++");
-    OATPP_ASSERT(stream.toString() == "oat++");
+    OATPP_ASSERT(stream.toString() == "oat++")
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int8(8);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(8));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(8))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int16(16);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(16));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(16))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int32(32);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(32));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(32))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int64(64);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(64));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(64))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Float32(0.32f);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(0.32f));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(0.32f))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Float64(0.64);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(0.64));
+    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(0.64))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Boolean(true);
-    OATPP_ASSERT(stream.toString() == "true");
+    OATPP_ASSERT(stream.toString() == "true")
 
     stream.setCurrentPosition(0);
     stream << oatpp::Boolean(false);
-    OATPP_ASSERT(stream.toString() == "false");
+    OATPP_ASSERT(stream.toString() == "false")
 
   }
 
@@ -111,11 +111,11 @@ void BufferStreamTest::onRun() {
 
     auto wholeText = stream.toString();
 
-    OATPP_ASSERT(wholeText->size() == fragmentsCount * 10);
+    OATPP_ASSERT(wholeText->size() == static_cast<size_t>(fragmentsCount * 10))
 
-    v_int32 substringSize = 10;
-    for(v_int32 i = 0; i < wholeText->size() - substringSize; i ++) {
-      OATPP_ASSERT(oatpp::String(&wholeText->data()[i], substringSize) == stream.getSubstring(i, substringSize));
+    v_buff_size substringSize = 10;
+    for(v_buff_size i = 0; i < static_cast<v_buff_size>(wholeText->size()) - substringSize; i ++) {
+      OATPP_ASSERT(oatpp::String(&wholeText->data()[i], substringSize) == stream.getSubstring(i, substringSize))
     }
 
   }
@@ -134,13 +134,13 @@ void BufferStreamTest::onRun() {
     for(v_int32 i = 0; i < 1024; i++ ) {
       stream << sample;
 
-      OATPP_ASSERT(stream.getCapacity() >= stream.getCurrentPosition());
+      OATPP_ASSERT(stream.getCapacity() >= stream.getCurrentPosition())
 
     }
 
-    OATPP_ASSERT(text == stream.toString());
+    OATPP_ASSERT(text == stream.toString())
 
-    OATPP_ASSERT(stream.getCapacity() == oatpp::utils::Binary::nextP2(1024 * (10)));
+    OATPP_ASSERT(stream.getCapacity() == oatpp::utils::Binary::nextP2(1024 * (10)))
 
   }
 

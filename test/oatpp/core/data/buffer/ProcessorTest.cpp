@@ -161,18 +161,18 @@ public:
     COUNTER ++;
   }
 
-  ~TestCoroutine() {
+  ~TestCoroutine() override {
     COUNTER --;
   }
 
-  Action act() {
+  Action act() override {
     return oatpp::data::stream::transferAsync(m_readCallback, m_writeCallback, 0, m_buffer, m_processor)
       .next(yieldTo(&TestCoroutine::compare));
   }
 
   Action compare() {
     auto result = m_writeCallback->toString();
-    OATPP_ASSERT(m_etalon == result);
+    OATPP_ASSERT(m_etalon == result)
     return finish();
   }
 
@@ -213,9 +213,9 @@ void ProcessorTest::onRun() {
           auto result = runTestCase(data, p1N, p2N, p3N, buffSize);
 
           if (result != etalon) {
-            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->data());
+            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->data())
           }
-          OATPP_ASSERT(result == etalon);
+          OATPP_ASSERT(result == etalon)
 
         }
       }
@@ -235,8 +235,8 @@ void ProcessorTest::onRun() {
 
       auto result = outStream.toString();
 
-      OATPP_ASSERT(result == data);
-      OATPP_ASSERT(inStream.getCurrentPosition() == progress);
+      OATPP_ASSERT(result == data)
+      OATPP_ASSERT(inStream.getCurrentPosition() == progress)
 
     }
 

@@ -37,161 +37,161 @@ namespace {
 void ObjectWrapperTest::onRun() {
 
   {
-    OATPP_LOGI(TAG, "Check default valueType is assigned (default tparam Clazz)...");
+    OATPP_LOGI(TAG, "Check default valueType is assigned (default tparam Clazz)...")
     ObjectWrapper<std::string> pw;
-    OATPP_ASSERT(!pw);
-    OATPP_ASSERT(pw == nullptr);
-    OATPP_ASSERT(pw.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!pw)
+    OATPP_ASSERT(pw == nullptr)
+    OATPP_ASSERT(pw.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check default valueType is assigned (specified tparam Clazz)...");
+    OATPP_LOGI(TAG, "Check default valueType is assigned (specified tparam Clazz)...")
     ObjectWrapper<std::string, oatpp::data::mapping::type::__class::String> pw;
-    OATPP_ASSERT(!pw);
-    OATPP_ASSERT(pw == nullptr);
-    OATPP_ASSERT(pw.getValueType() == oatpp::data::mapping::type::__class::String::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!pw)
+    OATPP_ASSERT(pw == nullptr)
+    OATPP_ASSERT(pw.getValueType() == oatpp::data::mapping::type::__class::String::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check valueType is assigned from constructor...");
+    OATPP_LOGI(TAG, "Check valueType is assigned from constructor...")
     ObjectWrapper<std::string> pw(oatpp::data::mapping::type::__class::String::getType());
-    OATPP_ASSERT(!pw);
-    OATPP_ASSERT(pw == nullptr);
-    OATPP_ASSERT(pw.getValueType() == oatpp::data::mapping::type::__class::String::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!pw)
+    OATPP_ASSERT(pw == nullptr)
+    OATPP_ASSERT(pw.getValueType() == oatpp::data::mapping::type::__class::String::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check valueType is assigned from copy constructor...");
+    OATPP_LOGI(TAG, "Check valueType is assigned from copy constructor...")
     ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
     ObjectWrapper<std::string> pw2(pw1);
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::String::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::String::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check valueType is assigned from move constructor...");
+    OATPP_LOGI(TAG, "Check valueType is assigned from move constructor...")
     ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
     ObjectWrapper<std::string> pw2(std::move(pw1));
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::String::getType());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::String::getType())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check valueType is NOT assigned from copy-assign operator...");
+    OATPP_LOGI(TAG, "Check valueType is NOT assigned from copy-assign operator...")
     ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
     ObjectWrapper<std::string> pw2;
     bool throws = false;
     try {
       pw2 = pw1;
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error&) {
       throws = true;
     }
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
     OATPP_ASSERT(throws)
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check valueType is NOT assigned from move-assign operator...");
+    OATPP_LOGI(TAG, "Check valueType is NOT assigned from move-assign operator...")
     ObjectWrapper<std::string> pw1(oatpp::data::mapping::type::__class::String::getType());
     ObjectWrapper<std::string> pw2;
     bool throws = false;
     try {
       pw2 = std::move(pw1);
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error&) {
       throws = true;
     }
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
     OATPP_ASSERT(throws)
-    OATPP_LOGI(TAG, "OK");
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check copy-assign operator. Check == operator...");
+    OATPP_LOGI(TAG, "Check copy-assign operator. Check == operator...")
     ObjectWrapper<std::string> pw1;
-    OATPP_ASSERT(!pw1);
-    OATPP_ASSERT(pw1 == nullptr);
-    OATPP_ASSERT(pw1.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(!pw1)
+    OATPP_ASSERT(pw1 == nullptr)
+    OATPP_ASSERT(pw1.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
 
     ObjectWrapper<std::string> pw2 = std::make_shared<std::string>("Hello!");
-    OATPP_ASSERT(pw2);
-    OATPP_ASSERT(pw2 != nullptr);
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(pw2)
+    OATPP_ASSERT(pw2 != nullptr)
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
 
     pw1 = pw2;
 
-    OATPP_ASSERT(pw1);
-    OATPP_ASSERT(pw1 != nullptr);
+    OATPP_ASSERT(pw1)
+    OATPP_ASSERT(pw1 != nullptr)
 
-    OATPP_ASSERT(pw2);
-    OATPP_ASSERT(pw2 != nullptr);
+    OATPP_ASSERT(pw2)
+    OATPP_ASSERT(pw2 != nullptr)
 
-    OATPP_ASSERT(pw1 == pw2);
-    OATPP_ASSERT(pw1.get() == pw2.get());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(pw1 == pw2)
+    OATPP_ASSERT(pw1.get() == pw2.get())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check != operator...");
+    OATPP_LOGI(TAG, "Check != operator...")
     ObjectWrapper<std::string, oatpp::data::mapping::type::__class::String> pw1(std::make_shared<std::string>("Hello!"));
-    OATPP_ASSERT(pw1);
-    OATPP_ASSERT(pw1 != nullptr);
-    OATPP_ASSERT(pw1.getValueType() == oatpp::data::mapping::type::__class::String::getType());
+    OATPP_ASSERT(pw1)
+    OATPP_ASSERT(pw1 != nullptr)
+    OATPP_ASSERT(pw1.getValueType() == oatpp::data::mapping::type::__class::String::getType())
 
     ObjectWrapper<std::string, oatpp::data::mapping::type::__class::String> pw2(std::make_shared<std::string>("Hello!"));
-    OATPP_ASSERT(pw2);
-    OATPP_ASSERT(pw2 != nullptr);
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::String::getType());
+    OATPP_ASSERT(pw2)
+    OATPP_ASSERT(pw2 != nullptr)
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::String::getType())
 
-    OATPP_ASSERT(pw1 != pw2);
-    OATPP_ASSERT(pw1.get() != pw2.get());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(pw1 != pw2)
+    OATPP_ASSERT(pw1.get() != pw2.get())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check move-assign operator. Check != operator...");
+    OATPP_LOGI(TAG, "Check move-assign operator. Check != operator...")
     ObjectWrapper<std::string> pw1;
-    OATPP_ASSERT(!pw1);
-    OATPP_ASSERT(pw1 == nullptr);
-    OATPP_ASSERT(pw1.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(!pw1)
+    OATPP_ASSERT(pw1 == nullptr)
+    OATPP_ASSERT(pw1.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
 
     ObjectWrapper<std::string> pw2 = std::make_shared<std::string>("Hello!");
-    OATPP_ASSERT(pw2);
-    OATPP_ASSERT(pw2 != nullptr);
-    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType());
+    OATPP_ASSERT(pw2)
+    OATPP_ASSERT(pw2 != nullptr)
+    OATPP_ASSERT(pw2.getValueType() == oatpp::data::mapping::type::__class::Void::getType())
 
     pw1 = std::move(pw2);
 
-    OATPP_ASSERT(pw1);
-    OATPP_ASSERT(pw1 != nullptr);
+    OATPP_ASSERT(pw1)
+    OATPP_ASSERT(pw1 != nullptr)
 
-    OATPP_ASSERT(!pw2);
-    OATPP_ASSERT(pw2 == nullptr);
+    OATPP_ASSERT(!pw2)
+    OATPP_ASSERT(pw2 == nullptr)
 
-    OATPP_ASSERT(pw1 != pw2);
-    OATPP_ASSERT(pw1.get() != pw2.get());
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(pw1 != pw2)
+    OATPP_ASSERT(pw1.get() != pw2.get())
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check oatpp::Void type reassigned");
+    OATPP_LOGI(TAG, "Check oatpp::Void type reassigned")
 
     oatpp::Void v;
     v = oatpp::String("test");
 
-    OATPP_ASSERT(v.getValueType() == oatpp::String::Class::getType());
+    OATPP_ASSERT(v.getValueType() == oatpp::String::Class::getType())
 
     v = oatpp::Int32(32);
 
-    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType());
+    OATPP_ASSERT(v.getValueType() == oatpp::Int32::Class::getType())
 
     oatpp::Int32 i = v.cast<oatpp::Int32>();
 
-    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType());
-    OATPP_ASSERT(i == 32);
+    OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_ASSERT(i == 32)
 
   }
 

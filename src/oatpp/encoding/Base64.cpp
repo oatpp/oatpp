@@ -36,13 +36,13 @@ const char* const Base64::ALPHABET_BASE64_URL_SAFE_AUXILIARY_CHARS = "._-";
   
 v_char8 Base64::getAlphabetCharIndex(v_char8 a, const char* auxiliaryChars) {
   if(a >= 'A' && a <='Z') {
-    return a - 'A';
+    return static_cast<v_char8>(a - 'A');
   }
   if(a >= 'a' && a <='z') {
-    return a - 'a' + 26;
+    return static_cast<v_char8>(a - 'a' + 26);
   }
   if(a >= '0' && a <='9') {
-    return a - '0' + 52;
+    return static_cast<v_char8>(a - '0' + 52);
   }
   if(a == auxiliaryChars[0]) {
     return 62;
@@ -66,14 +66,14 @@ v_buff_size Base64::calcDecodedStringSize(const char* data, v_buff_size size, v_
   
   base64StrLength = size;
   
-  v_char8 auxChar1 = auxiliaryChars[0];
-  v_char8 auxChar2 = auxiliaryChars[1];
-  v_char8 paddingChar = auxiliaryChars[2];
+  v_char8 auxChar1 = static_cast<v_char8>(auxiliaryChars[0]);
+  v_char8 auxChar2 = static_cast<v_char8>(auxiliaryChars[1]);
+  v_char8 paddingChar = static_cast<v_char8>(auxiliaryChars[2]);
   
   v_buff_size i = 0;
   while (i < size) {
     
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     
     bool isValidChar = (a >= 'A' && a <='Z') || (a >= 'a' && a <='z') || (a >= '0' && a <='9') || (a == auxChar1) || (a == auxChar2);
     if(!isValidChar) {
@@ -109,8 +109,8 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
   
   auto result = oatpp::String(resultSize);
   
-  p_char8 bdata = (p_char8) data;
-  p_char8 resultData = (p_char8) result->data();
+  p_char8 bdata = reinterpret_cast<p_char8>(const_cast<void*>(data));
+  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
   
   v_buff_size pos = 0;
   while (pos + 2 < size) {
@@ -118,10 +118,10 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
     v_char8 b0 = bdata[pos];
     v_char8 b1 = bdata[pos + 1];
     v_char8 b2 = bdata[pos + 2];
-    resultData[0] = alphabet[(b0 & 252) >> 2];
-    resultData[1] = alphabet[((b0 & 3) << 4) | ((b1 >> 4) & 15)];
-    resultData[2] = alphabet[((b1 & 15) << 2) | ((b2 >> 6) & 3)];
-    resultData[3] = alphabet[(b2 & 63)];
+    resultData[0] = static_cast<v_char8>(alphabet[(b0 & 252) >> 2]);
+    resultData[1] = static_cast<v_char8>(alphabet[((b0 & 3) << 4) | ((b1 >> 4) & 15)]);
+    resultData[2] = static_cast<v_char8>(alphabet[((b1 & 15) << 2) | ((b2 >> 6) & 3)]);
+    resultData[3] = static_cast<v_char8>(alphabet[(b2 & 63)]);
     resultData += 4;
     pos += 3;
     
@@ -130,16 +130,16 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
   if(pos + 1 < size) {
     v_char8 b0 = bdata[pos];
     v_char8 b1 = bdata[pos + 1];
-    resultData[0] = alphabet[(b0 & 252) >> 2];
-    resultData[1] = alphabet[((b0 & 3) << 4) | ((b1 >> 4) & 15)];
-    resultData[2] = alphabet[((b1 & 15) << 2)];
-    resultData[3] = alphabet[64];
+    resultData[0] = static_cast<v_char8>(alphabet[(b0 & 252) >> 2]);
+    resultData[1] = static_cast<v_char8>(alphabet[((b0 & 3) << 4) | ((b1 >> 4) & 15)]);
+    resultData[2] = static_cast<v_char8>(alphabet[((b1 & 15) << 2)]);
+    resultData[3] = static_cast<v_char8>(alphabet[64]);
   } else if(pos < size) {
     v_char8 b0 = bdata[pos];
-    resultData[0] = alphabet[(b0 & 252) >> 2];
-    resultData[1] = alphabet[(b0 & 3) << 4];
-    resultData[2] = alphabet[64];
-    resultData[3] = alphabet[64];
+    resultData[0] = static_cast<v_char8>(alphabet[(b0 & 252) >> 2]);
+    resultData[1] = static_cast<v_char8>(alphabet[(b0 & 3) << 4]);
+    resultData[2] = static_cast<v_char8>(alphabet[64]);
+    resultData[3] = static_cast<v_char8>(alphabet[64]);
   }
   
   return result;
@@ -147,7 +147,7 @@ oatpp::String Base64::encode(const void* data, v_buff_size size, const char* alp
 }
   
 oatpp::String Base64::encode(const oatpp::String& data, const char* alphabet) {
-  return encode(data->data(), data->size(), alphabet);
+  return encode(data->data(), static_cast<v_buff_size>(data->size()), alphabet);
 }
   
 oatpp::String Base64::decode(const char* data, v_buff_size size, const char* auxiliaryChars) {
@@ -159,17 +159,17 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
   }
   
   auto result = oatpp::String(resultSize);
-  p_char8 resultData = (p_char8) result->data();
+  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
   v_buff_size pos = 0;
   while (pos + 3 < base64StrLength) {
-    v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
-    v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);
-    v_char8 b2 = getAlphabetCharIndex(data[pos + 2], auxiliaryChars);
-    v_char8 b3 = getAlphabetCharIndex(data[pos + 3], auxiliaryChars);
+    v_char8 b0 = getAlphabetCharIndex(static_cast<v_char8>(data[pos]), auxiliaryChars);
+    v_char8 b1 = getAlphabetCharIndex(static_cast<v_char8>(data[pos + 1]), auxiliaryChars);
+    v_char8 b2 = getAlphabetCharIndex(static_cast<v_char8>(data[pos + 2]), auxiliaryChars);
+    v_char8 b3 = getAlphabetCharIndex(static_cast<v_char8>(data[pos + 3]), auxiliaryChars);
     
-    resultData[0] = (b0 << 2) | ((b1 >> 4) & 3);
-    resultData[1] = ((b1 & 15) << 4) | ((b2 >> 2) & 15);
-    resultData[2] = ((b2 & 3) << 6) | b3;
+    resultData[0] = static_cast<v_char8>((b0 << 2) | ((b1 >> 4) & 3));
+    resultData[1] = static_cast<v_char8>(((b1 & 15) << 4) | ((b2 >> 2) & 15));
+    resultData[2] = static_cast<v_char8>(((b2 & 3) << 6) | b3);
     
     resultData += 3;
     pos += 4;
@@ -177,15 +177,15 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
   
   v_buff_size posDiff = base64StrLength - pos;
   if(posDiff == 3) {
-    v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
-    v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);
-    v_char8 b2 = getAlphabetCharIndex(data[pos + 2], auxiliaryChars);
-    resultData[0] = (b0 << 2) | ((b1 >> 4) & 3);
-    resultData[1] = ((b1 & 15) << 4) | ((b2 >> 2) & 15);
+    v_char8 b0 = getAlphabetCharIndex(static_cast<v_char8>(data[pos]), auxiliaryChars);
+    v_char8 b1 = getAlphabetCharIndex(static_cast<v_char8>(data[pos + 1]), auxiliaryChars);
+    v_char8 b2 = getAlphabetCharIndex(static_cast<v_char8>(data[pos + 2]), auxiliaryChars);
+    resultData[0] = static_cast<v_char8>((b0 << 2) | ((b1 >> 4) & 3));
+    resultData[1] = static_cast<v_char8>(((b1 & 15) << 4) | ((b2 >> 2) & 15));
   } else if(posDiff == 2) {
-    v_char8 b0 = getAlphabetCharIndex(data[pos], auxiliaryChars);
-    v_char8 b1 = getAlphabetCharIndex(data[pos + 1], auxiliaryChars);
-    resultData[0] = (b0 << 2) | ((b1 >> 4) & 3);
+    v_char8 b0 = getAlphabetCharIndex(static_cast<v_char8>(data[pos]), auxiliaryChars);
+    v_char8 b1 = getAlphabetCharIndex(static_cast<v_char8>(data[pos + 1]), auxiliaryChars);
+    resultData[0] = static_cast<v_char8>((b0 << 2) | ((b1 >> 4) & 3));
   }
   
   return result;
@@ -193,7 +193,7 @@ oatpp::String Base64::decode(const char* data, v_buff_size size, const char* aux
 }
   
 oatpp::String Base64::decode(const oatpp::String& data, const char* auxiliaryChars) {
-  return decode((const char*)data->data(), data->size(), auxiliaryChars);
+  return decode(data->data(), static_cast<v_buff_size>(data->size()), auxiliaryChars);
 }
   
 }}

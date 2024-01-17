@@ -247,6 +247,11 @@ public:
   static const Status CODE_417;// Expectation Failed
 
   /**
+   * I'm a Teapot (rfc7168 2.3.3)
+   */
+  static const Status CODE_418;// I'm a teapot
+
+  /**
    * Unprocessable Entity.
    */
   static const Status CODE_422;// Unprocessable Entity
@@ -740,7 +745,7 @@ namespace std {
     typedef v_uint64 result_type;
     
     result_type operator()(oatpp::web::protocol::http::Status const& s) const noexcept {
-      return s.code;
+      return static_cast<result_type>(s.code);
     }
     
   };

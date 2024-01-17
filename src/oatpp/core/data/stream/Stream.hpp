@@ -230,7 +230,7 @@ public:
    * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
   v_io_size writeSimple(const char* data){
-    return writeSimple((p_char8)data, std::strlen(data));
+    return writeSimple(data, static_cast<v_buff_size>(std::strlen(data)));
   }
 
   /**
@@ -239,7 +239,7 @@ public:
    * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
   v_io_size writeSimple(const oatpp::String& str){
-    return writeSimple(str->data(), str->size());
+    return writeSimple(str->data(), static_cast<v_buff_size>(str->size()));
   }
 
   /**
@@ -262,7 +262,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~OutputStream() = default;
+  virtual ~OutputStream() override = default;
 
   /**
    * Set stream I/O mode.
@@ -328,7 +328,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~InputStream() = default;
+  virtual ~InputStream() override = default;
 
   /**
    * Set stream I/O mode.
@@ -358,7 +358,7 @@ class BufferedInputStream : public InputStream {
   /**
    * Default virtual destructor.
    */
-  virtual ~BufferedInputStream() = default;
+  virtual ~BufferedInputStream() override = default;
 
   /**
    * Peek up to count of bytes int he buffer

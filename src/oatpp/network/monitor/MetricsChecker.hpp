@@ -38,7 +38,7 @@ public:
   /**
    * Default virtual destructor.
    */
-  virtual ~MetricsChecker() = default;
+  virtual ~MetricsChecker() override = default;
 
   /**
    * Get list of metrics names that are checked by this MetricsChecker.

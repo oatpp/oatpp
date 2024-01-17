@@ -70,6 +70,7 @@ const Status Status::CODE_414(414, "Request-URI Too Large");
 const Status Status::CODE_415(415, "Unsupported Media Type");
 const Status Status::CODE_416(416, "Requested Range Not Satisfiable");
 const Status Status::CODE_417(417, "Expectation Failed");
+const Status Status::CODE_418(418, "I'm a Teapot");
 const Status Status::CODE_422(422, "Unprocessable Entity");
 const Status Status::CODE_423(423, "Locked");
 const Status Status::CODE_424(424, "Failed Dependency");
@@ -139,7 +140,7 @@ const char* const ContentRange::UNIT_BYTES = "bytes";
   
 oatpp::String Range::toString() const {
   data::stream::BufferOutputStream stream(256);
-  stream.writeSimple(units->data(), units->size());
+  stream.writeSimple(units->data(), static_cast<v_buff_size>(units->size()));
   stream.writeSimple("=", 1);
   stream.writeAsString(start);
   stream.writeSimple("-", 1);
@@ -171,8 +172,8 @@ Range Range::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   endLabel.end();
 
-  auto start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
-  auto end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  auto start = oatpp::utils::conversion::strToInt64(startLabel.getData());
+  auto end = oatpp::utils::conversion::strToInt64(endLabel.getData());
   return Range(unitsLabel.toString(), start, end);
   
 }
@@ -184,7 +185,7 @@ Range Range::parse(const oatpp::String& str) {
 
 oatpp::String ContentRange::toString() const {
   data::stream::BufferOutputStream stream(256);
-  stream.writeSimple(units->data(), units->size());
+  stream.writeSimple(units->data(), static_cast<v_buff_size>(units->size()));
   stream.writeSimple(" ", 1);
   stream.writeAsString(start);
   stream.writeSimple("-", 1);
@@ -231,13 +232,13 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   sizeLabel.end();
   
-  v_int64 start = oatpp::utils::conversion::strToInt64((const char*) startLabel.getData());
-  v_int64 end = oatpp::utils::conversion::strToInt64((const char*) endLabel.getData());
+  v_int64 start = oatpp::utils::conversion::strToInt64(startLabel.getData());
+  v_int64 end = oatpp::utils::conversion::strToInt64(endLabel.getData());
   v_int64 size = 0;
   bool isSizeKnown = false;
   if(sizeLabel.getData()[0] != '*') {
     isSizeKnown = true;
-    size = oatpp::utils::conversion::strToInt64((const char*) sizeLabel.getData());
+    size = oatpp::utils::conversion::strToInt64(sizeLabel.getData());
   }
   
   return ContentRange(unitsLabel.toString(), start, end, size, isSizeKnown);
@@ -265,7 +266,7 @@ oatpp::data::share::StringKeyLabelCI Parser::parseHeaderNameLabel(const std::sha
                                                                   oatpp::parser::Caret& caret) {
   const char* data = caret.getData();
   for(v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     if(a == ':' || a == ' '){
       oatpp::data::share::StringKeyLabelCI label(headersText, &data[caret.getPosition()], i - caret.getPosition());
       caret.setPosition(i);
@@ -324,7 +325,7 @@ void Parser::parseResponseStartingLine(ResponseStartingLine& line,
     return;
   }
 
-  line.statusCode = (v_int32)caret.parseInt();
+  line.statusCode = static_cast<v_int32>(caret.parseInt());
 
   auto descriptionLabel = caret.putLabel();
   if(caret.findRN()){
@@ -380,7 +381,7 @@ void Parser::parseHeaders(Headers& headers,
 
 void Parser::parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, char separator) {
 
-  oatpp::parser::Caret caret((const char*) headerValue.getData(), headerValue.getSize());
+  oatpp::parser::Caret caret(reinterpret_cast<const char*>(headerValue.getData()), headerValue.getSize());
 
   const char charSet[5] = {' ', '=', separator, '\r', '\n'};
   const char charSet2[4] = {' ', separator, '\r', '\n'};

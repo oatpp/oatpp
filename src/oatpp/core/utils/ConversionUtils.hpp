@@ -199,7 +199,7 @@ namespace oatpp { namespace utils { namespace conversion {
    */
   template<typename T>
   v_buff_size primitiveToCharSequence(T value, p_char8 data, v_buff_size n, const char *pattern) {
-    return snprintf((char*)data, n, pattern, value);
+    return snprintf(reinterpret_cast<char*>(data), static_cast<size_t>(n), pattern, value);
   }
 
   /**
@@ -214,7 +214,7 @@ namespace oatpp { namespace utils { namespace conversion {
     v_char8 buff [100];
     auto size = primitiveToCharSequence(value, &buff[0], 100, pattern);
     if(size > 0){
-      return oatpp::String((const char*)&buff[0], size);
+      return oatpp::String(reinterpret_cast<const char*>(&buff[0]), size);
     }
     return nullptr;
   }

@@ -188,7 +188,7 @@ public:
 
     v_int64 getMapSize(const type::Void& object) const override {
       ContainerType* map = static_cast<ContainerType*>(object.get());
-      return map->size();
+      return static_cast<v_int64>(map->size());
     }
 
     void addItem(const type::Void& object, const type::Void& key, const type::Void& value) const override {

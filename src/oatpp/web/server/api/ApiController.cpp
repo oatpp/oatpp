@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "ApiController.hpp"
+
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace api {
@@ -49,13 +50,23 @@ std::shared_ptr<ApiController::RequestHandler> ApiController::getEndpointHandler
 
 void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
   m_errorHandler = errorHandler;
+  if(!m_errorHandler) {
+    m_errorHandler = handler::DefaultErrorHandler::createShared();
+  }
 }
 
-std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(const Status& status, const oatpp::String& message) const {
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::handleError(const std::exception_ptr& exceptionPtr) const {
+
   if(m_errorHandler) {
-    return m_errorHandler->handleError(status, message);
+    return m_errorHandler->handleError(exceptionPtr);
   }
-  throw oatpp::web::protocol::http::HttpError(status, message);
+
+  if(exceptionPtr) {
+    std::rethrow_exception(exceptionPtr);
+  }
+
+  throw std::runtime_error("[oatpp::web::server::api::ApiController::handleError()]: Error. 'exceptionPtr' is not set.");
+
 }
 
 void ApiController::setDefaultAuthorizationHandler(const std::shared_ptr<handler::AuthorizationHandler>& authorizationHandler){

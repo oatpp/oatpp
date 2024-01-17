@@ -402,7 +402,7 @@ public:
     auto dispatcher = static_cast<const __class::AbstractObject::PolymorphicDispatcher*>(
       __class::Object<ObjT>::getType()->polymorphicDispatcher
     );
-    return dispatcher->getProperties()->getList().size();
+    return static_cast<v_int64>(dispatcher->getProperties()->getList().size());
   }
 
   ObjectWrapper<void>& operator[](const std::string& propertyName) {
@@ -466,7 +466,7 @@ private:
 public:
 
   virtual v_uint64 defaultHashCode() const {
-    return (v_uint64) reinterpret_cast<v_buff_usize>(this);
+    return reinterpret_cast<v_uint64>(this);
   }
 
   virtual bool defaultEquals(const DTO& other) const {

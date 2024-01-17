@@ -50,7 +50,7 @@ void writeBinaryInt(v_int32 value){
     }
   }
   
-  OATPP_LOGV("bin", "value='%s'", (const char*) &buff);
+  OATPP_LOGV("bin", "value='%s'", reinterpret_cast<const char*>(&buff))
   
 }
   
@@ -67,50 +67,50 @@ void UnicodeTest::onRun(){
   
   for(v_int32 c = 128; c < 2048; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
-    OATPP_ASSERT(size == 2);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
-    OATPP_ASSERT(cnt == 2);
-    OATPP_ASSERT(code == c);
+    OATPP_ASSERT(size == 2)
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char(reinterpret_cast<const char*>(buff), cnt);
+    OATPP_ASSERT(cnt == 2)
+    OATPP_ASSERT(code == c)
   }
   
   // 3 byte test
   
   for(v_int32 c = 2048; c < 65536; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
-    OATPP_ASSERT(size == 3);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
-    OATPP_ASSERT(cnt == 3);
-    OATPP_ASSERT(code == c);
+    OATPP_ASSERT(size == 3)
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char(reinterpret_cast<const char*>(buff), cnt);
+    OATPP_ASSERT(cnt == 3)
+    OATPP_ASSERT(code == c)
   }
   
   // 4 byte test
   
   for(v_int32 c = 65536; c < 2097152; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
-    OATPP_ASSERT(size == 4);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
-    OATPP_ASSERT(cnt == 4);
-    OATPP_ASSERT(code == c);
+    OATPP_ASSERT(size == 4)
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char(reinterpret_cast<const char*>(buff), cnt);
+    OATPP_ASSERT(cnt == 4)
+    OATPP_ASSERT(code == c)
   }
   
   // 5 byte test
   
   for(v_int32 c = 2097152; c < 67108864; c ++){
     auto size = oatpp::encoding::Unicode::decodeUtf8Char(c, buff);
-    OATPP_ASSERT(size == 5);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
-    OATPP_ASSERT(cnt == 5);
-    OATPP_ASSERT(code == c);
+    OATPP_ASSERT(size == 5)
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char(reinterpret_cast<const char*>(buff), cnt);
+    OATPP_ASSERT(cnt == 5)
+    OATPP_ASSERT(code == c)
   }
   
   // 6 byte test
 
   for (v_int64 c = 67108864; c < 2147483647; c = c + 100) {
-    auto size = oatpp::encoding::Unicode::decodeUtf8Char((v_int32) c, buff);
-    OATPP_ASSERT(size == 6);
-    auto code = oatpp::encoding::Unicode::encodeUtf8Char((const char*) buff, cnt);
-    OATPP_ASSERT(cnt == 6);
-    OATPP_ASSERT(code == c);
+    auto size = oatpp::encoding::Unicode::decodeUtf8Char(static_cast<v_int32>(c), buff);
+    OATPP_ASSERT(size == 6)
+    auto code = oatpp::encoding::Unicode::encodeUtf8Char(reinterpret_cast<const char*>(buff), cnt);
+    OATPP_ASSERT(cnt == 6)
+    OATPP_ASSERT(code == c)
   }
 
   // */
@@ -124,12 +124,12 @@ void UnicodeTest::onRun(){
   auto check = oatpp::encoding::Unicode::utf16SurrogatePairToCode(high, low);
   writeBinaryInt(code);
   writeBinaryInt(check);
-  OATPP_ASSERT(code == check);
+  OATPP_ASSERT(code == check)
   
   for(v_int32 c = 0x010000; c <= 0x10FFFF; c++) {
     oatpp::encoding::Unicode::codeToUtf16SurrogatePair(code, high, low);
     check = oatpp::encoding::Unicode::utf16SurrogatePairToCode(high, low);
-    OATPP_ASSERT(code == check);
+    OATPP_ASSERT(code == check)
   }
 
 }

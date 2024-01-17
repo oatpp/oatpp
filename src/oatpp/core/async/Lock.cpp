@@ -149,6 +149,9 @@ Action LockGuard::lockAsyncInline(oatpp::async::Action&& nextAction) {
 
 }
 
+bool LockGuard::owns_lock() const {
+  return m_ownsLock;
+}
 
 void LockGuard::unlock() {
 

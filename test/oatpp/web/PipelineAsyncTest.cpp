@@ -85,8 +85,8 @@ public:
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
-    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executor);
-    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executor);
+    OATPP_COMPONENT(std::shared_ptr<oatpp::async::Executor>, executr);
+    return oatpp::web::server::AsyncHttpConnectionHandler::createShared(router, executr);
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
@@ -134,7 +134,7 @@ void PipelineAsyncTest::onRun() {
 
   runner.addController(app::ControllerAsync::createShared());
 
-  runner.run([this, &runner] {
+  runner.run([this] {
 
     OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider);
 
@@ -163,12 +163,12 @@ void PipelineAsyncTest::onRun() {
       oatpp::data::stream::BufferOutputStream receiveStream;
       oatpp::data::buffer::IOBuffer ioBuffer;
 
-      auto res = oatpp::data::stream::transfer(connection.object.get(), &receiveStream, sample->size() * m_pipelineSize, ioBuffer.getData(), ioBuffer.getSize());
+      oatpp::data::stream::transfer(connection.object.get(), &receiveStream, static_cast<v_io_size>(sample->size() * static_cast<size_t>(m_pipelineSize)), ioBuffer.getData(), ioBuffer.getSize());
 
       auto result = receiveStream.toString();
 
-      OATPP_ASSERT(result->size() == sample->size() * m_pipelineSize);
-      //OATPP_ASSERT(result == wantedResult); // headers may come in different order on different OSs
+      OATPP_ASSERT(result->size() == sample->size() * static_cast<size_t>(m_pipelineSize))
+      //OATPP_ASSERT(result == wantedResult) // headers may come in different order on different OSs
 
     });
 

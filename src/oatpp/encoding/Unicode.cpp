@@ -25,7 +25,7 @@
 #include "Unicode.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
-  #include <Winsock2.h>
+  #include <winsock2.h>
 #else
   #include <arpa/inet.h>
 #endif
@@ -75,7 +75,7 @@ v_buff_size Unicode::getUtf8CharSequenceLengthForCode(v_uint32 code){
 }
   
 v_int32 Unicode::encodeUtf8Char(const char* sequence, v_buff_size& length){
-  v_char8 byte = sequence[0];
+  v_char8 byte = static_cast<v_char8>(sequence[0]);
   if(byte > 127){
     v_int32 code;
     if((byte | 32) != byte){
@@ -87,7 +87,7 @@ v_int32 Unicode::encodeUtf8Char(const char* sequence, v_buff_size& length){
       length = 3;
     } else if((byte | 8) != byte){
       length = 4;
-      v_int32 value = *((p_int32)sequence);
+      v_int32 value = *(reinterpret_cast<p_int32>(const_cast<char*>(sequence)));
       code =  ((7 & byte) << 18)                  |
               (((value >> 24) & 0xFF) & 63)       |
               (((value >> 16) & 0xFF) & 63) << 6  |
@@ -106,7 +106,7 @@ v_int32 Unicode::encodeUtf8Char(const char* sequence, v_buff_size& length){
     v_char8 bitIndex = 0;
     for(v_buff_size i = length; i > 1; i--){
       code |= (sequence[i - 1] & 63) << bitIndex;
-      bitIndex += 6;
+      bitIndex = static_cast<v_char8>(bitIndex + 6);
     }
     return code;
   } else {
@@ -115,34 +115,35 @@ v_int32 Unicode::encodeUtf8Char(const char* sequence, v_buff_size& length){
   }
 }
   
-v_buff_size Unicode::decodeUtf8Char(v_int32 code, p_char8 buffer) {
+v_buff_size Unicode::decodeUtf8Char(v_int32 signed_code, p_char8 buffer) {
+  v_uint32 code = static_cast<v_uint32>(signed_code);
   if(code >= 0x00000080 && code < 0x00000800){
-    *((p_int16) buffer) = htons(((((code >> 6) & 31) | 192) << 8) | ((code & 63) | 128));
+    *(reinterpret_cast<p_int16>(buffer)) = static_cast<v_int16>(htons(((((code >> 6) & 31) | 192) << 8) | ((code & 63) | 128)));
     return 2;
   } else if(code >= 0x00000800 && code < 0x00010000){
-    *((p_int16) buffer) = htons((((( code >> 12 ) & 15) | 224) << 8) |
-                                  (((code >>  6 ) & 63) | 128));
+    *(reinterpret_cast<p_int16>(buffer)) = static_cast<v_int16>(htons((((( code >> 12 ) & 15) | 224) << 8) |
+                                  (((code >>  6 ) & 63) | 128)));
     buffer[2] = (code & 63) | 128;
     return 3;
   } else if(code >= 0x00010000 && code < 0x00200000){
-    *((p_int32) buffer) = htonl(((((code >> 18 ) &  7) | 240) << 24) |
+    *(reinterpret_cast<p_int32>(buffer)) = static_cast<v_int32>(htonl(((((code >> 18 ) &  7) | 240) << 24) |
                                 ((((code >> 12 ) & 63) | 128) << 16) |
                                 ((((code >>  6 ) & 63) | 128) <<  8) |
-                                 (( code         & 63) | 128)      );
+                                 (( code         & 63) | 128)      ));
     return 4;
   } else if(code >= 0x00200000 && code < 0x04000000){
-    *((p_int32) buffer) = htonl(((((code >> 24 ) &  3) | 248) << 24) |
+    *(reinterpret_cast<p_int32>(buffer)) = static_cast<v_int32>(htonl(((((code >> 24 ) &  3) | 248) << 24) |
                                 ((((code >> 18 ) & 63) | 128) << 16) |
                                 ((((code >> 12 ) & 63) | 128) <<  8) |
-                                 (((code >>  6 ) & 63) | 128));
+                                 (((code >>  6 ) & 63) | 128)));
     buffer[4] = (code & 63) | 128;
     return 5;
   } else if(code >= 0x04000000){
-    *((p_int32) buffer) = htonl(((((code >> 30 ) &  1) | 252) << 24) |
+    *(reinterpret_cast<p_int32>(buffer)) = static_cast<v_int32>(htonl(((((code >> 30 ) &  1) | 252) << 24) |
                                 ((((code >> 24 ) & 63) | 128) << 16) |
                                 ((((code >> 18 ) & 63) | 128) <<  8) |
-                                 (((code >> 12 ) & 63) | 128));
-    *((p_int16) &buffer[4]) = htons(((((code >> 6 ) & 63) | 128) << 8) | (code & 63));
+                                 (((code >> 12 ) & 63) | 128)));
+    *(reinterpret_cast<p_int16>(&buffer[4])) = static_cast<v_int16>(htons(((((code >> 6 ) & 63) | 128) << 8) | (code & 63)));
     return 6;
   }
   buffer[0] = v_char8(code);
@@ -151,8 +152,8 @@ v_buff_size Unicode::decodeUtf8Char(v_int32 code, p_char8 buffer) {
   
 void Unicode::codeToUtf16SurrogatePair(v_int32 code, v_int16& high, v_int16& low){
   code -= 0x010000;
-  high = 0xD800 + ((code >> 10) & 1023);
-  low = 0xDC00 + (code & 1023);
+  high = static_cast<v_int16>(0xD800 + ((code >> 10) & 1023));
+  low = static_cast<v_int16>(0xDC00 + (code & 1023));
 }
   
 v_int32 Unicode::utf16SurrogatePairToCode(v_int16 high, v_int16 low){

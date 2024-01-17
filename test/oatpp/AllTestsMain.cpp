@@ -22,14 +22,17 @@
 #include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
 #include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
 #include "oatpp/parser/json/mapping/EnumTest.hpp"
+#include "oatpp/parser/json/mapping/BooleanTest.hpp"
 #include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
 
-#include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/Base64Test.hpp"
+#include "oatpp/encoding/UnicodeTest.hpp"
+#include "oatpp/encoding/UrlTest.hpp"
 
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
 #include "oatpp/core/provider/PoolTemplateTest.hpp"
+#include "oatpp/core/async/ConditionVariableTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -72,14 +75,15 @@ void runTests() {
 
   oatpp::base::Environment::printCompilationConfig();
 
-  OATPP_LOGD("Tests", "coroutine size=%d", sizeof(oatpp::async::AbstractCoroutine));
-  OATPP_LOGD("Tests", "action size=%d", sizeof(oatpp::async::Action));
-  OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount());
+  OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle))
+  OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine))
+  OATPP_LOGD("Tests", "action size=%lu", sizeof(oatpp::async::Action))
+  OATPP_LOGD("Tests", "class count=%d", oatpp::data::mapping::type::ClassId::getClassCount())
 
   auto names = oatpp::data::mapping::type::ClassId::getRegisteredClassNames();
   v_int32 i = 0;
   for(auto& name : names) {
-    OATPP_LOGD("CLASS", "%d --> '%s'", i, name);
+    OATPP_LOGD("CLASS", "%d --> '%s'", i, name)
     i ++;
   }
 
@@ -115,6 +119,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
 
+  OATPP_RUN_TEST(oatpp::test::async::ConditionVariableTest);
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
@@ -122,6 +127,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
+  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::BooleanTest);
 
   OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
 
@@ -131,6 +137,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::encoding::UrlTest);
 
   OATPP_RUN_TEST(oatpp::test::network::UrlTest);
   OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
@@ -232,7 +239,7 @@ int main() {
   std::cout << "objectsCount = " << oatpp::base::Environment::getObjectsCount() << "\n";
   std::cout << "objectsCreated = " << oatpp::base::Environment::getObjectsCreated() << "\n\n";
 
-  OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0);
+  OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0)
 
   oatpp::base::Environment::destroy();
 

@@ -40,7 +40,7 @@ namespace {
   typedef oatpp::network::virtual_::Pipe Pipe;
   
   const char* DATA_CHUNK = "<0123456789/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ>";
-  const v_buff_size CHUNK_SIZE = std::strlen(DATA_CHUNK);
+  const v_buff_size CHUNK_SIZE = static_cast<v_buff_size>(std::strlen(DATA_CHUNK));
 
   class WriterTask : public oatpp::base::Countable {
   private:
@@ -66,7 +66,7 @@ namespace {
           }
         }
       }
-      OATPP_LOGV("WriterTask", "sent %d bytes", m_transferedBytes);
+      OATPP_LOGV("WriterTask", "sent %ld bytes", m_transferedBytes)
     }
     
   };
@@ -94,14 +94,14 @@ namespace {
           m_buffer->writeSimple(readBuffer, res);
         }
       }
-      OATPP_LOGV("ReaderTask", "sent %d bytes", m_buffer->getCurrentPosition());
+      OATPP_LOGV("ReaderTask", "sent %ld bytes", m_buffer->getCurrentPosition())
     }
     
   };
   
   void runTransfer(const std::shared_ptr<Pipe>& pipe, v_int64 chunksToTransfer, bool writeNonBlock, bool readerNonBlock) {
     
-    OATPP_LOGV("transfer", "writer-nb: %d, reader-nb: %d", writeNonBlock, readerNonBlock);
+    OATPP_LOGV("transfer", "writer-nb: %d, reader-nb: %d", writeNonBlock, readerNonBlock)
     
     auto buffer = std::make_shared<oatpp::data::stream::BufferOutputStream>();
     
@@ -117,7 +117,7 @@ namespace {
       
     }
     
-    OATPP_ASSERT(buffer->getCurrentPosition() == chunksToTransfer * CHUNK_SIZE);
+    OATPP_ASSERT(buffer->getCurrentPosition() == chunksToTransfer * CHUNK_SIZE)
     
     auto ruleBuffer = std::make_shared<oatpp::data::stream::BufferOutputStream>();
     for(v_int32 i = 0; i < chunksToTransfer; i ++) {
@@ -127,7 +127,7 @@ namespace {
     auto str1 = buffer->toString();
     auto str2 = buffer->toString();
     
-    OATPP_ASSERT(str1 == str2);
+    OATPP_ASSERT(str1 == str2)
     
   }
   

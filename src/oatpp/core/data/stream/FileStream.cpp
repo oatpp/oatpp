@@ -52,7 +52,7 @@ FileInputStream::FileInputStream(const char* filename, const std::shared_ptr<voi
   : FileInputStream(std::fopen(filename, "rb"), true, captureData)
 {
   if(!m_file) {
-    OATPP_LOGE("[oatpp::data::stream::FileInputStream::FileInputStream(filename)]", "Error. Can't open file '%s'.", filename);
+    OATPP_LOGE("[oatpp::data::stream::FileInputStream::FileInputStream(filename)]", "Error. Can't open file '%s'.", filename)
     throw std::runtime_error("[oatpp::data::stream::FileInputStream::FileInputStream(filename)]: Error. Can't open file.");
   }
 }
@@ -68,7 +68,7 @@ std::FILE* FileInputStream::getFile() {
 v_io_size FileInputStream::read(void *data, v_buff_size count, async::Action& action) {
   (void) action;
   if(m_file != nullptr) {
-    return std::fread(data, 1, count, m_file);
+    return static_cast<v_io_size>(std::fread(data, 1, static_cast<size_t>(count), m_file));
   }
   return oatpp::IOError::BROKEN_PIPE;
 }
@@ -132,7 +132,7 @@ FileOutputStream::FileOutputStream(const char* filename, const char* mode, const
   : FileOutputStream(std::fopen(filename, mode), true, captureData)
 {
   if(!m_file) {
-    OATPP_LOGE("[oatpp::data::stream::FileOutputStream::FileOutputStream(filename, mode)]", "Error. Can't open file '%s'.", filename);
+    OATPP_LOGE("[oatpp::data::stream::FileOutputStream::FileOutputStream(filename, mode)]", "Error. Can't open file '%s'.", filename)
     throw std::runtime_error("[oatpp::data::stream::FileOutputStream::FileOutputStream(filename, mode)]: Error. Can't open file.");
   }
 }
@@ -147,7 +147,7 @@ std::FILE* FileOutputStream::getFile() {
 
 v_io_size FileOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
   (void) action;
-  return std::fwrite(data, 1, count, m_file);
+  return static_cast<v_io_size>(std::fwrite(data, 1, static_cast<size_t>(count), m_file));
 }
 
 void FileOutputStream::setOutputStreamIOMode(IOMode ioMode) {

@@ -28,11 +28,13 @@
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
 #include <fcntl.h>
+#include <errno.h>
+#include <string.h>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
-  #include <WinSock2.h>
-  #include <WS2tcpip.h>
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
 #else
   #include <netdb.h>
   #include <arpa/inet.h>
@@ -81,9 +83,9 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
-  struct addrinfo hints;
+  addrinfo hints;
 
-  memset(&hints, 0, sizeof(struct addrinfo));
+  memset(&hints, 0, sizeof(addrinfo));
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
@@ -91,11 +93,12 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   switch(m_address.family) {
     case Address::IP_4: hints.ai_family = AF_INET; break;
     case Address::IP_6: hints.ai_family = AF_INET6; break;
+    case Address::UNSPEC:
     default:
       hints.ai_family = AF_UNSPEC;
   }
 
-  struct addrinfo* result;
+  addrinfo* result;
   auto res = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
 
   if (res != 0) {
@@ -113,6 +116,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   }
 
   struct addrinfo* currResult = result;
+  int err = 0;
 
   while(currResult != nullptr) {
 
@@ -120,9 +124,10 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
     if (m_clientHandle >= 0) {
 
-      if(connect(m_clientHandle, currResult->ai_addr, (int)currResult->ai_addrlen) == 0) {
+      if(connect(m_clientHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0) {
         break;
       } else {
+          err = errno;
 #if defined(WIN32) || defined(_WIN32)
 		    ::closesocket(m_clientHandle);
 #else
@@ -138,14 +143,15 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   freeaddrinfo(result);
 
   if(currResult == nullptr) {
-    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]: Error. Can't connect.");
+    throw std::runtime_error("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]: Error. Can't connect: " +
+                                 std::string(strerror(err)));
   }
 
 #ifdef SO_NOSIGPIPE
   int yes = 1;
   v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
   }
 #endif
 
@@ -174,8 +180,8 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
     network::Address m_address;
     oatpp::v_io_handle m_clientHandle;
   private:
-    struct addrinfo* m_result;
-    struct addrinfo* m_currentResult;
+    addrinfo* m_result;
+    addrinfo* m_currentResult;
     bool m_isHandleOpened;
   public:
 
@@ -188,7 +194,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       , m_isHandleOpened(false)
     {}
 
-    ~ConnectCoroutine() {
+    ~ConnectCoroutine() override {
       if(m_result != nullptr) {
         freeaddrinfo(m_result);
       }
@@ -198,9 +204,9 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
       auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
-      struct addrinfo hints;
+      addrinfo hints;
 
-      memset(&hints, 0, sizeof(struct addrinfo));
+      memset(&hints, 0, sizeof(addrinfo));
       hints.ai_socktype = SOCK_STREAM;
       hints.ai_flags = 0;
       hints.ai_protocol = 0;
@@ -208,6 +214,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
       switch(m_address.family) {
         case Address::IP_4: hints.ai_family = AF_INET; break;
         case Address::IP_6: hints.ai_family = AF_INET6; break;
+        case Address::UNSPEC:
         default:
           hints.ai_family = AF_UNSPEC;
       }
@@ -269,7 +276,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
         if(ret < 0) {
-          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE");
+          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
         }
 #endif
 
@@ -285,7 +292,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
     Action doConnect() {
       errno = 0;
 
-      auto res = connect(m_clientHandle, m_currentResult->ai_addr, (int)m_currentResult->ai_addrlen);
+      auto res = connect(m_clientHandle, m_currentResult->ai_addr, static_cast<v_sock_size>(m_currentResult->ai_addrlen));
 
 #if defined(WIN32) || defined(_WIN32)
 

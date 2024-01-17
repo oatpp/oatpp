@@ -131,7 +131,7 @@ public:
   /**
    * Destructor.
    */
-  ~Interface();
+  ~Interface() override;
 
   /**
    * Obtain interface for given name.

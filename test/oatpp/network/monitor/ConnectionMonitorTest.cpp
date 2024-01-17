@@ -49,7 +49,7 @@ public:
   v_io_size read(void *buffer, v_buff_size count, async::Action &action) override {
     OATPP_LOGI("TEST", "read(...)")
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    char* data = (char*) buffer;
+    char* data = reinterpret_cast<char*>(buffer);
     data[0] = 'A';
     return 1;
   }
@@ -71,7 +71,7 @@ class AsyncStreamingHandler : public oatpp::web::server::HttpRequestHandler {
 public:
 
   oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
-  handleAsync(const std::shared_ptr<IncomingRequest>& request) {
+  handleAsync(const std::shared_ptr<IncomingRequest>& request) override {
 
     class StreamCoroutine : public oatpp::async::CoroutineWithResult<StreamCoroutine, const std::shared_ptr<OutgoingResponse>&> {
     public:
@@ -101,9 +101,9 @@ std::shared_ptr<oatpp::network::Server> runServer(const std::shared_ptr<oatpp::n
 
   std::thread t([server, connectionHandler]{
     server->run();
-    OATPP_LOGD("TEST", "server stopped");
+    OATPP_LOGD("TEST", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST", "connectionHandler stopped");
+    OATPP_LOGD("TEST", "connectionHandler stopped")
   });
   t.detach();
 
@@ -124,13 +124,13 @@ std::shared_ptr<oatpp::network::Server> runAsyncServer(const std::shared_ptr<oat
 
   std::thread t([server, connectionHandler, executor]{
     server->run();
-    OATPP_LOGD("TEST_ASYNC", "server stopped");
+    OATPP_LOGD("TEST_ASYNC", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped");
+    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped")
     executor->waitTasksFinished();
     executor->stop();
     executor->join();
-    OATPP_LOGD("TEST_ASYNC", "executor stopped");
+    OATPP_LOGD("TEST_ASYNC", "executor stopped")
   });
   t.detach();
 
@@ -146,11 +146,11 @@ void runClient() {
 
   auto response = executor.execute("GET", "/stream", oatpp::web::protocol::http::Headers({}), nullptr, nullptr);
 
-  OATPP_ASSERT(response->getStatusCode() == 200);
+  OATPP_ASSERT(response->getStatusCode() == 200)
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
-  OATPP_LOGD("TEST", "data->size() == %d", data->size())
+  OATPP_LOGD("TEST", "data->size() == %lu", data->size())
   OATPP_ASSERT(data->size() < 110) // it should be less than 100. But we put 110 for redundancy
 
 }
@@ -184,13 +184,13 @@ void runAsyncClient() {
     }
 
     Action onResponse(const std::shared_ptr<oatpp::web::protocol::http::incoming::Response>& response) {
-      OATPP_ASSERT(response->getStatusCode() == 200);
+      OATPP_ASSERT(response->getStatusCode() == 200)
       return response->readBodyToStringAsync().callbackTo(&ClientCoroutine::onBody);
     }
 
     Action onBody(const oatpp::String& data) {
       OATPP_ASSERT(data)
-      OATPP_LOGD("TEST", "data->size() == %d", data->size())
+      OATPP_LOGD("TEST", "data->size() == %lu", data->size())
       OATPP_ASSERT(data->size() < 60) // it should be less than 50. But we put 60 for redundancy
       m_monitor->stop();
       return finish();

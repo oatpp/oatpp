@@ -104,6 +104,9 @@ private:
 
     void invalidate(const std::shared_ptr<TResource>& resource) override {
       auto proxy = std::static_pointer_cast<AcquisitionProxyImpl>(resource);
+      if (proxy == nullptr) {
+        return;
+      }
       proxy->__pool__invalidate();
       const auto& handle = proxy->__pool__getUnderlyingResource();
       handle.invalidator->invalidate(handle.object);
@@ -278,7 +281,7 @@ protected:
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const provider::ResourceHandle<TResource>&> {
     private:
       std::shared_ptr<PoolTemplate> m_pool;
-      std::chrono::steady_clock::time_point m_startTime{std::chrono::steady_clock::now()};
+      std::chrono::system_clock::time_point m_startTime{std::chrono::system_clock::now()};
     public:
 
       GetCoroutine(const std::shared_ptr<PoolTemplate>& pool)
@@ -286,7 +289,7 @@ protected:
       {}
 
       bool timedout() const noexcept {
-        return m_pool->m_timeout != std::chrono::microseconds::zero() && m_pool->m_timeout < (std::chrono::steady_clock::now() - m_startTime);
+        return m_pool->m_timeout != std::chrono::microseconds::zero() && m_pool->m_timeout < (std::chrono::system_clock::now() - m_startTime);
       }
 
       async::Action act() override {
@@ -301,7 +304,7 @@ protected:
             guard.unlock();
             return m_pool->m_timeout == std::chrono::microseconds::zero()
               ? async::Action::createWaitListAction(&m_pool->m_waitList)
-              : async::Action::createWaitListActionWithTimeout(&m_pool->m_waitList, m_startTime + m_pool->m_timeout);
+              : async::Action::createWaitListAction(&m_pool->m_waitList, m_startTime + m_pool->m_timeout);
           }
 
           if(!m_pool->m_running) {
@@ -353,15 +356,16 @@ public:
 
   static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider<TResource>>& provider,
                                                     v_int64 maxResources,
-                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL)
+                                                    const std::chrono::duration<v_int64, std::micro>& maxResourceTTL,
+                                                    const std::chrono::duration<v_int64, std::micro>& timeout)
   {
     /* "new" is called directly to keep constructor private */
-    auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count()));
+    auto ptr = std::shared_ptr<PoolTemplate>(new PoolTemplate(provider, maxResources, maxResourceTTL.count(), timeout));
     startCleanupTask(ptr);
     return ptr;
   }
 
-  virtual ~PoolTemplate() {
+  virtual ~PoolTemplate() override {
     stop();
   }
 
@@ -375,7 +379,7 @@ public:
       }
 
       m_running = false;
-      m_counter -= m_bench.size();
+      m_counter -= static_cast<v_int64>(m_bench.size());
       m_bench.clear();
     }
 

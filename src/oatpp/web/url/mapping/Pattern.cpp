@@ -50,7 +50,7 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
     if(a == '/'){
       
       if(i - lastPos > 0){
-        auto part = Part::createShared(Part::FUNCTION_CONST, oatpp::String((const char*)&data[lastPos], i - lastPos));
+        auto part = Part::createShared(Part::FUNCTION_CONST, oatpp::String(reinterpret_cast<const char*>(&data[lastPos]), i - lastPos));
         result->m_parts->push_back(part);
       }
       
@@ -59,10 +59,10 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
     } else if(a == '*'){
       lastPos = i + 1;
       if(size > lastPos){
-        auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((const char*)&data[lastPos], size - lastPos));
+        auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String(reinterpret_cast<const char*>(&data[lastPos]), size - lastPos));
         result->m_parts->push_back(part);
       }else{
-        auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String((v_buff_size)0));
+        auto part = Part::createShared(Part::FUNCTION_ANY_END, oatpp::String(0));
         result->m_parts->push_back(part);
       }
       return result;
@@ -75,10 +75,10 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
       }
       
       if(i > lastPos){
-        auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((const char*)&data[lastPos], i - lastPos));
+        auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String(reinterpret_cast<const char*>(&data[lastPos]), i - lastPos));
         result->m_parts->push_back(part);
       }else{
-        auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String((v_buff_size)0));
+        auto part = Part::createShared(Part::FUNCTION_VAR, oatpp::String(0));
         result->m_parts->push_back(part);
       }
       
@@ -91,7 +91,7 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
   }
   
   if(i - lastPos > 0){
-    auto part = Part::createShared(Part::FUNCTION_CONST, oatpp::String((const char*)&data[lastPos], i - lastPos));
+    auto part = Part::createShared(Part::FUNCTION_CONST, oatpp::String(reinterpret_cast<const char*>(&data[lastPos]), i - lastPos));
     result->m_parts->push_back(part);
   }
   
@@ -99,17 +99,17 @@ std::shared_ptr<Pattern> Pattern::parse(p_char8 data, v_buff_size size){
 }
 
 std::shared_ptr<Pattern> Pattern::parse(const char* data){
-  return parse((p_char8) data, std::strlen(data));
+  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data)), static_cast<v_buff_size>(std::strlen(data)));
 }
 
 std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
-  return parse((p_char8) data->data(), data->size());
+  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()));
 }
   
 v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   auto data = caret.getData();
   for (v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
-    v_char8 a = data[i];
+    v_char8 a = static_cast<v_char8>(data[i]);
     if(a == '/' || a == '?') {
       caret.setPosition(i);
       return a;
@@ -121,7 +121,7 @@ v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   
 bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
-  oatpp::parser::Caret caret((const char*) url.getData(), url.getSize());
+  oatpp::parser::Caret caret(reinterpret_cast<const char*>(url.getData()), url.getSize());
   
   if (m_parts->empty()) {
     return !caret.skipChar('/');    
@@ -136,7 +136,7 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
     
     if(part->function == Part::FUNCTION_CONST){
       
-      if(!caret.isAtText(part->text->data(), part->text->size(), true)) {
+      if(!caret.isAtText(part->text->data(), static_cast<v_buff_size>(part->text->size()), true)) {
         return false;
       }
       

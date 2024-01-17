@@ -39,9 +39,9 @@ Beautifier::Beautifier(ConsistentOutputStream* outputStream, const oatpp::String
 {}
 
 void Beautifier::writeIndent(ConsistentOutputStream* outputStream) {
-  outputStream->writeSimple(m_newLine->data(), m_newLine->size());
+  outputStream->writeSimple(m_newLine->data(), static_cast<v_buff_size>(m_newLine->size()));
   for(v_int32 i = 0; i < m_level; i ++ ) {
-    outputStream->writeSimple(m_indent->data(), m_indent->size());
+    outputStream->writeSimple(m_indent->data(), static_cast<v_buff_size>(m_indent->size()));
   }
 }
 
@@ -53,7 +53,7 @@ v_io_size Beautifier::write(const void *data, v_buff_size count, async::Action& 
 
   for(v_buff_size i = 0; i < count; i ++) {
 
-    v_char8 c = ((p_char8) data) [i];
+    v_char8 c = static_cast<v_char8>((reinterpret_cast<const char*>(data)) [i]);
 
     if(m_isCharEscaped) {
       m_isCharEscaped = false;

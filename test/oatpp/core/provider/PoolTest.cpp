@@ -105,7 +105,7 @@ public:
   }
 
   void stop() override {
-    OATPP_LOGD("Provider", "stop()");
+    OATPP_LOGD("Provider", "stop()")
   }
 
   v_int64 getIdCounter() {
@@ -181,7 +181,7 @@ void PoolTest::onRun() {
 
   std::list<std::thread> threads;
 
-  OATPP_LOGD(TAG, "Run 1");
+  OATPP_LOGD(TAG, "Run 1")
   for(v_int32 i = 0; i < 100; i ++ ) {
     threads.push_back(std::thread(clientMethod, pool, false));
     executor.execute<ClientCoroutine>(pool, false);
@@ -189,14 +189,14 @@ void PoolTest::onRun() {
 
   std::this_thread::sleep_for(std::chrono::milliseconds (200));
 
-  OATPP_LOGD(TAG, "1) pool->getCounter() == %d", pool->getCounter());
-  OATPP_ASSERT(pool->getCounter() == 10);
-  OATPP_LOGD(TAG, "Waiting...");
+  OATPP_LOGD(TAG, "1) pool->getCounter() == %ld", pool->getCounter())
+  OATPP_ASSERT(pool->getCounter() == 10)
+  OATPP_LOGD(TAG, "Waiting...")
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
-  OATPP_ASSERT(pool->getCounter() == 0);
+  OATPP_LOGD(TAG, "Pool counter=%ld", pool->getCounter())
+  OATPP_ASSERT(pool->getCounter() == 0)
 
-  OATPP_LOGD(TAG, "Run 2");
+  OATPP_LOGD(TAG, "Run 2")
   for(v_int32 i = 0; i < 100; i ++ ) {
     threads.push_back(std::thread(clientMethod, pool, false));
     executor.execute<ClientCoroutine>(pool, false);
@@ -204,12 +204,12 @@ void PoolTest::onRun() {
 
   std::this_thread::sleep_for(std::chrono::milliseconds (200));
 
-  OATPP_LOGD(TAG, "2) pool->getCounter() == %d", pool->getCounter());
-  OATPP_ASSERT(pool->getCounter() == 10);
-  OATPP_LOGD(TAG, "Waiting...");
+  OATPP_LOGD(TAG, "2) pool->getCounter() == %ld", pool->getCounter())
+  OATPP_ASSERT(pool->getCounter() == 10)
+  OATPP_LOGD(TAG, "Waiting...")
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  OATPP_LOGD(TAG, "Pool counter=%d", pool->getCounter());
-  OATPP_ASSERT(pool->getCounter() == 0);
+  OATPP_LOGD(TAG, "Pool counter=%ld", pool->getCounter())
+  OATPP_ASSERT(pool->getCounter() == 0)
 
   for(std::thread& thread : threads) {
     thread.join();
@@ -217,8 +217,8 @@ void PoolTest::onRun() {
 
   executor.waitTasksFinished();
 
-  OATPP_LOGD(TAG, "counter=%d", provider->getIdCounter());
-  OATPP_ASSERT(provider->getIdCounter() == 20);
+  OATPP_LOGD(TAG, "counter=%ld", provider->getIdCounter())
+  OATPP_ASSERT(provider->getIdCounter() == 20)
 
   pool->stop();
 

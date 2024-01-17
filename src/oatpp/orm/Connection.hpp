@@ -38,7 +38,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~Connection() = default;
+  virtual ~Connection() override = default;
 
 };
 

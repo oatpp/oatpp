@@ -49,7 +49,7 @@ public:
 
   void writeChar(char c) {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_buffer->writeCharSimple(c);
+    m_buffer->writeCharSimple(static_cast<v_char8>(c));
   }
 
 };
@@ -141,7 +141,7 @@ bool checkSymbol(char symbol, const char* data, v_buff_size size) {
       for (v_buff_size j = 0; j < NUM_SYMBOLS; j++) {
 
         if (data[i + j] != symbol) {
-          OATPP_LOGD("aaa", "j pos=%d", j);
+          OATPP_LOGD("aaa", "j pos=%ld", j)
           return false;
         }
 
@@ -153,13 +153,13 @@ bool checkSymbol(char symbol, const char* data, v_buff_size size) {
 
   }
 
-  OATPP_LOGD("aaa", "No symbol found");
+  OATPP_LOGD("aaa", "No symbol found")
   return false;
 
 }
 
 bool checkSymbol(char symbol, const oatpp::String& str) {
-  return checkSymbol(symbol, str->data(), str->size());
+  return checkSymbol(symbol, str->data(), static_cast<v_buff_size>(str->size()));
 }
 
 }
@@ -174,17 +174,17 @@ void LockTest::onRun() {
   oatpp::async::Executor executor(10, 1, 1);
 
   for (v_int32 c = 0; c <= 127; c++) {
-    executor.execute<TestCoroutine>((char)c, &buff, &lock);
+    executor.execute<TestCoroutine>(static_cast<char>(c), &buff, &lock);
   }
 
   for (v_int32 c = 128; c <= 200; c++) {
-    executor.execute<TestCoroutine2>((char)c, &buff, &lock);
+    executor.execute<TestCoroutine2>(static_cast<char>(c), &buff, &lock);
   }
 
   std::list<std::thread> threads;
 
   for (v_int32 c = 201; c <= 255; c++) {
-    threads.push_back(std::thread(testMethod, (char)c, &buff, &lock));
+    threads.push_back(std::thread(testMethod, static_cast<char>(c), &buff, &lock));
   }
 
   for (std::thread &thread : threads) {
@@ -198,13 +198,13 @@ void LockTest::onRun() {
   auto result = buffer.toString();
 
   for (v_int32 c = 0; c <= 255; c++) {
-    bool check = checkSymbol((char)c, result);
+    bool check = checkSymbol(static_cast<char>(c), result);
     if(!check) {
       v_int32 code = c;
-      auto str = oatpp::String((const char*)&c, 1);
-      OATPP_LOGE(TAG, "Failed for symbol %d, '%s'", code, str->data());
+      auto str = oatpp::String(reinterpret_cast<const char*>(&c), 1);
+      OATPP_LOGE(TAG, "Failed for symbol %d, '%s'", code, str->data())
     }
-    OATPP_ASSERT(check);
+    OATPP_ASSERT(check)
   }
 
 }

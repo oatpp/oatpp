@@ -546,10 +546,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -557,10 +554,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -568,10 +562,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -579,10 +570,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -590,10 +578,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -601,10 +586,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -612,10 +594,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -623,10 +602,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -634,10 +610,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -645,10 +618,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -656,10 +626,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -667,10 +634,7 @@ namespace __class {
   public:
     static const ClassId CLASS_ID;
 
-    static Type* getType(){
-      static Type type(CLASS_ID);
-      return &type;
-    }
+    static Type* getType();
 
   };
 
@@ -714,7 +678,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -727,7 +691,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -740,7 +704,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -753,7 +717,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -766,7 +730,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -779,7 +743,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -792,7 +756,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return static_cast<result_type>(*v);
     }
 
   };
@@ -805,7 +769,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return (result_type) *v;
+      return (*v);
     }
 
   };
@@ -818,7 +782,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return *((v_uint32*) v.get());
+      return *(reinterpret_cast<v_uint32*>(v.get()));
     }
 
   };
@@ -831,7 +795,7 @@ namespace std {
 
     result_type operator()(argument_type const& v) const noexcept {
       if(v.get() == nullptr) return 0;
-      return *((result_type*) v.get());
+      return *(reinterpret_cast<result_type*>(v.get()));
     }
 
   };

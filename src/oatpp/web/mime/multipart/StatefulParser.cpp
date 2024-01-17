@@ -64,6 +64,9 @@ void StatefulParser::ListenerCall::call(StatefulParser* parser) {
         parser->m_listener->onPartData(data, size);
         break;
 
+      default:
+        break;
+
     }
 
   }
@@ -84,6 +87,9 @@ async::CoroutineStarter StatefulParser::ListenerCall::callAsync(StatefulParser* 
 
       case CALL_ON_DATA:
         return parser->m_asyncListener->onPartDataAsync(data, size);
+
+      default:
+        break;
 
     }
 
@@ -138,14 +144,14 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
   auto size = inlineData.bytesLeft;
 
   auto sampleData = m_nextBoundarySample->data();
-  v_io_size sampleSize = m_nextBoundarySample->size();
+  v_io_size sampleSize = static_cast<v_io_size>(m_nextBoundarySample->size());
 
   if (m_currPartIndex == 0) {
     sampleData = m_firstBoundarySample->data();
-    sampleSize = m_firstBoundarySample->size();
+    sampleSize = static_cast<v_io_size>(m_firstBoundarySample->size());
   } else {
     sampleData = m_nextBoundarySample->data();
-    sampleSize = m_nextBoundarySample->size();
+    sampleSize = static_cast<v_io_size>(m_nextBoundarySample->size());
   }
 
   v_io_size checkSize = sampleSize - m_currBoundaryCharIndex;
@@ -153,7 +159,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
     checkSize = size;
   }
 
-  parser::Caret caret((const char*)data, size);
+  parser::Caret caret(reinterpret_cast<const char*>(data), size);
 
   if(caret.isAtText(&sampleData[m_currBoundaryCharIndex], checkSize, true)) {
 
@@ -192,7 +198,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
 
 void StatefulParser::parseNext_AfterBoundary(data::buffer::InlineWriteData& inlineData) {
 
-  p_char8 data = (p_char8) inlineData.currBufferPtr;
+  p_char8 data = reinterpret_cast<p_char8>(const_cast<void*>(inlineData.currBufferPtr));
   auto size = inlineData.bytesLeft;
 
   if(m_currBoundaryCharIndex == 0) {
@@ -236,7 +242,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Headers(data::buffer::Inl
 
   ListenerCall result;
 
-  p_char8 data = (p_char8) inlineData.currBufferPtr;
+  p_char8 data = reinterpret_cast<p_char8>(const_cast<void*>(inlineData.currBufferPtr));
   auto size = inlineData.bytesLeft;
 
   for(v_buff_size i = 0; i < size; i ++) {
@@ -280,7 +286,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::buffer::Inline
 
   ListenerCall result;
 
-  const char* data = (const char*) inlineData.currBufferPtr;
+  const char* data = reinterpret_cast<const char*>(inlineData.currBufferPtr);
   auto size = inlineData.bytesLeft;
 
   parser::Caret caret(data, size);

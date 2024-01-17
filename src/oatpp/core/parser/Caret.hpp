@@ -264,7 +264,7 @@ public:
    * @param c
    * @return true if other char found
    */
-  bool skipChar(v_char8 c);
+  bool skipChar(char c);
 
   /**
    * Find char. Position will be set to a found char. If
@@ -272,7 +272,7 @@ public:
    * @param c
    * @return true if found
    */
-  bool findChar(v_char8 c);
+  bool findChar(char c);
 
   /**
    * Skip chars defined by set.
@@ -467,7 +467,7 @@ public:
    * @param c
    * @return
    */
-  bool isAtChar(v_char8 c) const;
+  bool isAtChar(char c) const;
 
   /**
    * Check if caret is at one of chars [' ', '\t', '\n', '\r','\f']
@@ -486,7 +486,7 @@ public:
    * @param c
    * @return
    */
-  bool canContinueAtChar(v_char8 c) const;
+  bool canContinueAtChar(char c) const;
 
   /**
    * Check if caret is at char, and no error is set.
@@ -495,7 +495,7 @@ public:
    * @param skipChars
    * @return
    */
-  bool canContinueAtChar(v_char8 c, v_buff_size skipChars);
+  bool canContinueAtChar(char c, v_buff_size skipChars);
 
   /**
    * Check if caret position < dataSize and not error is set

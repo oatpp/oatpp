@@ -29,7 +29,7 @@ namespace oatpp { namespace web { namespace protocol { namespace http { namespac
 BufferBody::BufferBody(const oatpp::String &buffer, const data::share::StringKeyLabel &contentType)
   : m_buffer(buffer ? buffer : "")
   , m_contentType(contentType)
-  , m_inlineData((void*) m_buffer->data(), m_buffer->size())
+  , m_inlineData(reinterpret_cast<void*>(const_cast<char*>(m_buffer->data())), static_cast<v_buff_size>(m_buffer->size()))
 {}
 
 std::shared_ptr<BufferBody> BufferBody::createShared(const oatpp::String &buffer,
@@ -49,7 +49,7 @@ v_io_size BufferBody::read(void *buffer, v_buff_size count, async::Action &actio
       desiredToRead = count;
     }
 
-    std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+    std::memcpy(buffer, m_inlineData.currBufferPtr, static_cast<size_t>(desiredToRead));
     m_inlineData.inc(desiredToRead);
 
     return desiredToRead;
@@ -67,11 +67,11 @@ void BufferBody::declareHeaders(Headers &headers) {
 }
 
 p_char8 BufferBody::getKnownData() {
-  return (p_char8) m_buffer->data();
+  return reinterpret_cast<p_char8>(const_cast<char*>(m_buffer->data()));
 }
 
 v_int64 BufferBody::getKnownSize() {
-  return m_buffer->size();
+  return static_cast<v_int64>(m_buffer->size());
 }
 
 }}}}}

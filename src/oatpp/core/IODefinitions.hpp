@@ -28,6 +28,10 @@
 #include "oatpp/core/async/Error.hpp"
 #include "oatpp/core/Types.hpp"
 
+#if !defined(WIN32) && !defined(_WIN32)
+#include <sys/socket.h>
+#endif
+
 namespace oatpp {
 
 /**
@@ -39,10 +43,12 @@ namespace oatpp {
   #else
     typedef unsigned long v_io_handle;
   #endif
+    typedef int v_sock_size;
     constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle (-1);
 #else
   typedef int v_io_handle;
-  constexpr const v_io_handle INVALID_IO_HANDLE = v_io_handle (-1);
+  typedef socklen_t v_sock_size;
+  constexpr const v_io_handle INVALID_IO_HANDLE = (-1);
 #endif
 
 /**

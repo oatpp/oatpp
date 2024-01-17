@@ -62,6 +62,8 @@ public:
   API_CALL("GET", "enum/as-number", getHeaderEnumAsNumber, HEADER(Enum<AllowedPathParams>::AsNumber, enumValue, "enum"))
 
   API_CALL("POST", "echo", echoBody, BODY_STRING(String, body))
+  API_CALL("POST", "testBodyIsNull1", testBodyIsNull1, BODY_STRING(String, body))
+  API_CALL("POST", "testBodyIsNull2", testBodyIsNull2, BODY_STRING(String, body))
   API_CALL("GET", "header-value-set", headerValueSet, HEADER(String, valueSet, "X-VALUE-SET"))
 
   API_CALL("GET", "default-basic-authorization", defaultBasicAuthorization, AUTHORIZATION_BASIC(String, authString))
@@ -75,6 +77,8 @@ public:
   API_CALL("POST", "test/multipart/{chunk-size}", multipartTest, PATH(Int32, chunkSize, "chunk-size"), BODY(std::shared_ptr<MultipartBody>, body))
 
   API_CALL("GET", "test/interceptors", getInterceptors)
+
+  API_CALL("GET", "test/errorhandling", getCaughtError)
 
   API_CALL_HEADERS(getDefaultHeaders1) {
     headers.put("X-DEFAULT", "hello_1");

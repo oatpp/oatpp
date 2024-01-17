@@ -33,7 +33,7 @@
 #include <cstdarg>
 
 #if defined(WIN32) || defined(_WIN32)
-	#include <WinSock2.h>
+	#include <winsock2.h>
 
   struct tm* localtime_r(time_t *_clock, struct tm *_result) {
       localtime_s(_result, _clock);
@@ -101,7 +101,7 @@ void DefaultLogger::log(v_uint32 priority, const std::string& tag, const std::st
 
   if (m_config.timeFormat) {
 	time_t seconds = std::chrono::duration_cast<std::chrono::seconds>(time).count();
-    struct tm now;
+    tm now;
     localtime_r(&seconds, &now);
 #ifdef OATPP_DISABLE_STD_PUT_TIME
 	  char timeBuffer[50];
@@ -138,42 +138,42 @@ void DefaultLogger::enablePriority(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return;
   }
-  m_config.logMask |= (1 << priority);
+  m_config.logMask |= (1U << priority);
 }
 
 void DefaultLogger::disablePriority(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return;
   }
-  m_config.logMask &= ~(1 << priority);
+  m_config.logMask &= ~(1U << priority);
 }
 
 bool DefaultLogger::isLogPriorityEnabled(v_uint32 priority) {
   if (priority > PRIORITY_E) {
     return true;
   }
-  return m_config.logMask & (1 << priority);
+  return m_config.logMask & (1U << priority);
 }
 
 void LogCategory::enablePriority(v_uint32 priority) {
   if (priority > Logger::PRIORITY_E) {
     return;
   }
-  enabledPriorities |= (1 << priority);
+  enabledPriorities |= (1U << priority);
 }
 
 void LogCategory::disablePriority(v_uint32 priority) {
   if (priority > Logger::PRIORITY_E) {
     return;
   }
-  enabledPriorities &= ~(1 << priority);
+  enabledPriorities &= ~(1U << priority);
 }
 
 bool LogCategory::isLogPriorityEnabled(v_uint32 priority) {
   if (priority > Logger::PRIORITY_E) {
     return true;
   }
-  return enabledPriorities & (1 << priority);
+  return enabledPriorities & (1U << priority);
 }
 
 void Environment::init() {
@@ -216,10 +216,12 @@ void Environment::init(const std::shared_ptr<Logger>& logger) {
 }
 
 void Environment::destroy(){
-  if(getComponents().size() > 0) {
+  {
     std::lock_guard<std::mutex> lock(getComponentsMutex());
-    throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. "
-                             "Invalid state. Leaking components");
+    if(getComponents().size() > 0) {
+      throw std::runtime_error("[oatpp::base::Environment::destroy()]: Error. "
+                               "Invalid state. Leaking components");
+    }
   }
   m_logger.reset();
 
@@ -239,15 +241,15 @@ void Environment::checkTypes(){
   static_assert(sizeof(v_uint64) == 8, "");
   static_assert(sizeof(v_float64) == 8, "");
 
-  v_int32 vInt32 = ~v_int32(1);
+  v_int32 vInt32 = ~(1);
   v_int64 vInt64 = ~v_int64(1);
   v_uint32 vUInt32 = ~v_uint32(1);
   v_uint64 vUInt64 = ~v_uint64(1);
 
-  OATPP_ASSERT(vInt32 < 0);
-  OATPP_ASSERT(vInt64 < 0);
-  OATPP_ASSERT(vUInt32 > 0);
-  OATPP_ASSERT(vUInt64 > 0);
+  OATPP_ASSERT(vInt32 < 0)
+  OATPP_ASSERT(vInt64 < 0)
+  OATPP_ASSERT(vUInt32 > 0)
+  OATPP_ASSERT(vUInt64 > 0)
 
 }
 
@@ -307,18 +309,18 @@ std::shared_ptr<Logger> Environment::getLogger() {
 
 void Environment::printCompilationConfig() {
 
-  OATPP_LOGD("oatpp-version", OATPP_VERSION);
+  OATPP_LOGD("oatpp-version", OATPP_VERSION)
 
 #ifdef OATPP_DISABLE_ENV_OBJECT_COUNTERS
-  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS");
+  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS")
 #endif
 
 #ifdef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
-  OATPP_LOGD("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL");
+  OATPP_LOGD("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL")
 #endif
 
 #ifdef OATPP_THREAD_HARDWARE_CONCURRENCY
-  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY=%d", OATPP_THREAD_HARDWARE_CONCURRENCY);
+  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY=%d", OATPP_THREAD_HARDWARE_CONCURRENCY)
 #endif
 
 }
@@ -331,7 +333,7 @@ void Environment::log(v_uint32 priority, const std::string& tag, const std::stri
 
 
 void Environment::logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) {
-  if (category.categoryEnabled && (category.enabledPriorities & (1 << priority))) {
+  if (category.categoryEnabled && (category.enabledPriorities & (1U << priority))) {
     va_list args;
     va_start(args, message);
     vlogFormatted(priority, category.tag, message, args);
@@ -365,9 +367,9 @@ void Environment::vlogFormatted(v_uint32 priority, const std::string& tag, const
     allocsize = m_logger->getMaxFormattingBufferSize();
   }
   auto buffer = std::unique_ptr<char[]>(new char[allocsize]);
-  memset(buffer.get(), 0, allocsize);
+  memset(buffer.get(), 0, static_cast<size_t>(allocsize));
   // actually format
-  vsnprintf(buffer.get(), allocsize, message, args);
+  vsnprintf(buffer.get(), static_cast<size_t>(allocsize), message, args);
   // call (user) providen log function
   log(priority, tag, buffer.get());
 }

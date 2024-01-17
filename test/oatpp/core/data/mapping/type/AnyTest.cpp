@@ -36,16 +36,16 @@ namespace {
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 class Dto1 : public oatpp::DTO {
-  DTO_INIT(Dto1, DTO);
+  DTO_INIT(Dto1, DTO)
 };
 
 class Dto2 : public oatpp::DTO {
-  DTO_INIT(Dto2, DTO);
+  DTO_INIT(Dto2, DTO)
 };
 
 class Test : public oatpp::DTO {
 
-  DTO_INIT(Test, DTO);
+  DTO_INIT(Test, DTO)
 
   DTO_FIELD(oatpp::Any, any);
 
@@ -58,59 +58,59 @@ class Test : public oatpp::DTO {
 void AnyTest::onRun() {
 
   {
-    OATPP_LOGI(TAG, "Test default constructor...");
+    OATPP_LOGI(TAG, "Test default constructor...")
     oatpp::Any any;
-    OATPP_ASSERT(!any);
-    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == nullptr);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!any)
+    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any.getStoredType() == nullptr)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test nullptr constructor...");
+    OATPP_LOGI(TAG, "Test nullptr constructor...")
     oatpp::Any any(nullptr);
-    OATPP_ASSERT(!any);
-    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == nullptr);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(!any)
+    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any.getStoredType() == nullptr)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test retrieve()...");
+    OATPP_LOGI(TAG, "Test retrieve()...")
     oatpp::Any any(oatpp::String("Hello Any!"));
-    OATPP_ASSERT(any);
-    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::String::getType());
+    OATPP_ASSERT(any)
+    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::String::getType())
     auto str = any.retrieve<oatpp::String>();
-    OATPP_ASSERT(str == "Hello Any!");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(str == "Hello Any!")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test store()...");
+    OATPP_LOGI(TAG, "Test store()...")
     oatpp::Any any(oatpp::Int32(32));
 
-    OATPP_ASSERT(any);
-    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::Int32::getType());
+    OATPP_ASSERT(any)
+    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::Int32::getType())
 
     any.store(oatpp::String("Hello Any!"));
 
-    OATPP_ASSERT(any);
-    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::String::getType());
+    OATPP_ASSERT(any)
+    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any.getStoredType() == oatpp::data::mapping::type::__class::String::getType())
 
     auto str = any.retrieve<oatpp::String>();
-    OATPP_ASSERT(str == "Hello Any!");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(str == "Hello Any!")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test retrieve() class check...");
+    OATPP_LOGI(TAG, "Test retrieve() class check...")
     oatpp::Any any(Dto1::createShared());
-    OATPP_ASSERT(any);
-    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any.getStoredType() == Object<Dto1>::Class::getType());
+    OATPP_ASSERT(any)
+    OATPP_ASSERT(any.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any.getStoredType() == Object<Dto1>::Class::getType())
 
     bool wasError = false;
 
@@ -120,62 +120,62 @@ void AnyTest::onRun() {
       wasError = true;
     }
 
-    OATPP_ASSERT(wasError);
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(wasError)
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test copy-assign operator...");
+    OATPP_LOGI(TAG, "Test copy-assign operator...")
     oatpp::Any any1(oatpp::String("Hello!"));
     oatpp::Any any2;
 
     any2 = any1;
 
-    OATPP_ASSERT(any1);
-    OATPP_ASSERT(any2);
+    OATPP_ASSERT(any1)
+    OATPP_ASSERT(any2)
 
-    OATPP_ASSERT(any1.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any2.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
+    OATPP_ASSERT(any1.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any2.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
 
-    OATPP_ASSERT(any1.getStoredType() == oatpp::data::mapping::type::__class::String::getType());
-    OATPP_ASSERT(any2.getStoredType() == oatpp::data::mapping::type::__class::String::getType());
+    OATPP_ASSERT(any1.getStoredType() == oatpp::data::mapping::type::__class::String::getType())
+    OATPP_ASSERT(any2.getStoredType() == oatpp::data::mapping::type::__class::String::getType())
 
-    OATPP_ASSERT(any1 == any2);
-    OATPP_ASSERT(any1.getPtr().get() != any2.getPtr().get());
+    OATPP_ASSERT(any1 == any2)
+    OATPP_ASSERT(any1.getPtr().get() != any2.getPtr().get())
 
     auto str1 = any1.retrieve<oatpp::String>();
     auto str2 = any2.retrieve<oatpp::String>();
 
-    OATPP_ASSERT(str1 == str2);
-    OATPP_ASSERT(str1.get() == str2.get() && str1 == "Hello!");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(str1 == str2)
+    OATPP_ASSERT(str1.get() == str2.get() && str1 == "Hello!")
+    OATPP_LOGI(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test move-assign operator...");
+    OATPP_LOGI(TAG, "Test move-assign operator...")
     oatpp::Any any1(oatpp::String("Hello!"));
     oatpp::Any any2;
 
     any2 = std::move(any1);
 
-    OATPP_ASSERT(!any1);
-    OATPP_ASSERT(any2);
+    OATPP_ASSERT(!any1)
+    OATPP_ASSERT(any2)
 
-    OATPP_ASSERT(any1.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
-    OATPP_ASSERT(any2.getValueType() == oatpp::data::mapping::type::__class::Any::getType());
+    OATPP_ASSERT(any1.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
+    OATPP_ASSERT(any2.getValueType() == oatpp::data::mapping::type::__class::Any::getType())
 
-    OATPP_ASSERT(any1.getStoredType() == nullptr);
-    OATPP_ASSERT(any2.getStoredType() == oatpp::data::mapping::type::__class::String::getType());
+    OATPP_ASSERT(any1.getStoredType() == nullptr)
+    OATPP_ASSERT(any2.getStoredType() == oatpp::data::mapping::type::__class::String::getType())
 
-    OATPP_ASSERT(any1 != any2);
-    OATPP_ASSERT(any1.getPtr().get() != any2.getPtr().get());
+    OATPP_ASSERT(any1 != any2)
+    OATPP_ASSERT(any1.getPtr().get() != any2.getPtr().get())
 
     auto str1 = any1.retrieve<oatpp::String>();
     auto str2 = any2.retrieve<oatpp::String>();
 
-    OATPP_ASSERT(str1 != str2);
-    OATPP_ASSERT(str2 == "Hello!");
-    OATPP_LOGI(TAG, "OK");
+    OATPP_ASSERT(str1 != str2)
+    OATPP_ASSERT(str2 == "Hello!")
+    OATPP_LOGI(TAG, "OK")
   }
 
 }

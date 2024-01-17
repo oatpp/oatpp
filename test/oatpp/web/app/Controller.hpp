@@ -62,7 +62,7 @@ public:
     , available(true)
   {}
 public:
-  
+
   static std::shared_ptr<Controller> createShared(const std::shared_ptr<ObjectMapper>& objectMapper = OATPP_GET_COMPONENT(std::shared_ptr<ObjectMapper>)){
     return std::make_shared<Controller>(objectMapper);
   }
@@ -70,47 +70,47 @@ public:
   std::atomic<bool> available;
 
   ENDPOINT("GET", "/", root) {
-    //OATPP_LOGD(TAG, "GET ROOT");
+    //OATPP_LOGD(TAG, "GET ROOT")
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
   ENDPOINT("GET", "/availability", availability) {
-    //OATPP_LOGV(TAG, "GET '/availability'");
+    //OATPP_LOGV(TAG, "GET '/availability'")
     if(available) {
       return createResponse(Status::CODE_200, "Hello World!!!");
     }
-    OATPP_LOGI(TAG, "GET '/availability'. Service unavailable.");
+    OATPP_LOGI(TAG, "GET '/availability'. Service unavailable.")
     OATPP_ASSERT_HTTP(false, Status::CODE_503, "Service unavailable")
   }
 
-  ADD_CORS(cors);
+  ADD_CORS(cors)
   ENDPOINT("GET", "/cors", cors) {
     return createResponse(Status::CODE_200, "Ping");
   }
 
-  ADD_CORS(corsOrigin, "127.0.0.1");
+  ADD_CORS(corsOrigin, "127.0.0.1")
   ENDPOINT("GET", "/cors-origin", corsOrigin) {
     return createResponse(Status::CODE_200, "Pong");
   }
 
-  ADD_CORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS");
+  ADD_CORS(corsOriginMethods, "127.0.0.1", "GET, OPTIONS")
   ENDPOINT("GET", "/cors-origin-methods", corsOriginMethods) {
     return createResponse(Status::CODE_200, "Ping");
   }
 
-  ADD_CORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT");
+  ADD_CORS(corsOriginMethodsHeaders, "127.0.0.1", "GET, OPTIONS", "X-PWNT")
   ENDPOINT("GET", "/cors-origin-methods-headers", corsOriginMethodsHeaders) {
     return createResponse(Status::CODE_200, "Pong");
   }
 
   ENDPOINT("GET", "params/{param}", getWithParams,
            PATH(String, param)) {
-    //OATPP_LOGV(TAG, "GET params/%s", param->c_str());
+    //OATPP_LOGV(TAG, "GET params/%s", param->c_str())
     auto dto = TestDto::createShared();
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
   ENDPOINT("GET", "queries", getWithQueries,
            QUERY(String, name), QUERY(Int32, age)) {
     auto dto = TestDto::createShared();
@@ -134,18 +134,18 @@ public:
     }
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
   ENDPOINT("GET", "headers", getWithHeaders,
            HEADER(String, param, "X-TEST-HEADER")) {
-    //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str());
+    //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str())
     auto dto = TestDto::createShared();
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
   }
-  
+
   ENDPOINT("POST", "body", postBody,
            BODY_STRING(String, body)) {
-    //OATPP_LOGV(TAG, "POST body %s", body->c_str());
+    //OATPP_LOGV(TAG, "POST body %s", body->c_str())
     auto dto = TestDto::createShared();
     dto->testValue = body;
     return createDtoResponse(Status::CODE_200, dto);
@@ -153,14 +153,24 @@ public:
 
   ENDPOINT("POST", "body-dto", postBodyDto,
            BODY_DTO(Object<TestDto>, body)) {
-    //OATPP_LOGV(TAG, "POST body %s", body->c_str());
+    //OATPP_LOGV(TAG, "POST body %s", body->c_str())
     return createDtoResponse(Status::CODE_200, body);
   }
 
   ENDPOINT("POST", "echo", echo,
            BODY_STRING(String, body)) {
-    //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize());
+    //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize())
     return createResponse(Status::CODE_200, body);
+  }
+
+  ENDPOINT("POST", "testBodyIsNull1", testBodyIsNull1,
+           BODY_DTO(String, body)) {
+    return createResponse(Status::CODE_200, "OK---" + body);
+  }
+
+  ENDPOINT("POST", "testBodyIsNull2", testBodyIsNull2,
+           BODY_STRING(String, body)) {
+    return createResponse(Status::CODE_200, "OK---" + body);
   }
 
   ENDPOINT("GET", "header-value-set", headerValueSet,
@@ -169,9 +179,9 @@ public:
     oatpp::web::protocol::http::HeaderValueData valueData;
     oatpp::web::protocol::http::Parser::parseHeaderValueData(valueData, valueSet, ',');
 
-    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_1") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_1' in value set");
-    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_2") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_2' in value set");
-    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_3") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_3' in value set");
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_1") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_1' in value set")
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_2") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_2' in value set")
+    OATPP_ASSERT_HTTP(valueData.tokens.find("VALUE_3") != valueData.tokens.end(), Status::CODE_400, "No header 'VALUE_3' in value set")
     return createResponse(Status::CODE_200, "");
   }
 
@@ -187,7 +197,7 @@ public:
       : m_text(text)
       , m_counter(0)
       , m_iterations(iterations)
-      , m_inlineData(text->data(), text->size())
+      , m_inlineData(text->data(), static_cast<v_buff_size>(text->size()))
     {}
 
     v_io_size read(void *buffer, v_buff_size count, async::Action& action) override {
@@ -202,11 +212,11 @@ public:
             desiredToRead = count;
           }
 
-          std::memcpy(buffer, m_inlineData.currBufferPtr, desiredToRead);
+          std::memcpy(buffer, m_inlineData.currBufferPtr, static_cast<size_t>(desiredToRead));
           m_inlineData.inc(desiredToRead);
 
           if (m_inlineData.bytesLeft == 0) {
-            m_inlineData.set(m_text->data(), m_text->size());
+            m_inlineData.set(m_text->data(), static_cast<v_buff_size>(m_text->size()));
             m_counter++;
           }
 
@@ -273,19 +283,19 @@ public:
     request->transferBody(&multipartReader);
 
     /* Print number of uploaded parts */
-    OATPP_LOGD("Multipart", "parts_count=%d", multipart->count());
+    OATPP_LOGD("Multipart", "parts_count=%ld", multipart->count())
 
     /* Print value of "part1" */
     auto part1 = multipart->getNamedPart("part1");
 
-    OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty");
+    OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty")
 
-    OATPP_LOGD("Multipart", "part1='%s'", part1->getPayload()->getInMemoryData()->c_str());
+    OATPP_LOGD("Multipart", "part1='%s'", part1->getPayload()->getInMemoryData()->c_str())
 
     /* Get part by name "part2"*/
     auto filePart = multipart->getNamedPart("part2");
 
-    OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty");
+    OATPP_ASSERT_HTTP(filePart, Status::CODE_400, "part2 is empty")
 
     auto inputStream = filePart->getPayload()->openInputStream();
 
@@ -334,7 +344,7 @@ public:
 
       ++ counter;
 
-      OATPP_LOGD("Multipart", "Frame sent!");
+      OATPP_LOGD("Multipart", "Frame sent!")
 
       return part;
 

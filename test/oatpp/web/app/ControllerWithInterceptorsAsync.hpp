@@ -55,8 +55,8 @@ public:
   ENDPOINT_INTERCEPTOR_ASYNC(Interceptor, inter1) {
 
     /* assert order of interception */
-    OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2");
-    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
+    OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2")
+    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3")
     /********************************/
 
     request->putHeader("header-in-inter1", "inter1");
@@ -66,7 +66,7 @@ public:
   ENDPOINT_INTERCEPTOR_ASYNC(Interceptor, inter2) {
 
     /* assert order of interception */
-    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
+    OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3")
     /********************************/
 
     request->putHeader("header-in-inter2", "inter2");
@@ -127,7 +127,7 @@ public:
       }
 
       oatpp::async::Action onResponse(const std::shared_ptr<OutgoingResponse>& response) {
-        OATPP_ASSERT(response->getHeader("header-out-inter3") == "inter3");
+        OATPP_ASSERT(response->getHeader("header-out-inter3") == "inter3")
         return this->_return(response);
       }
 
@@ -140,11 +140,11 @@ public:
 
     ENDPOINT_ASYNC_INIT(Interceptor)
 
-    Action act() {
+    Action act() override {
 
-      OATPP_ASSERT(request->getHeader("header-in-inter1") == "inter1");
-      OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2");
-      OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3");
+      OATPP_ASSERT(request->getHeader("header-in-inter1") == "inter1")
+      OATPP_ASSERT(request->getHeader("header-in-inter2") == "inter2")
+      OATPP_ASSERT(request->getHeader("header-in-inter3") == "inter3")
 
       return _return(controller->createResponse(Status::CODE_200, "Hello World Async!!!"));
     }

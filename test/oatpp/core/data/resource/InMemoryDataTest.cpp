@@ -44,10 +44,10 @@ void InMemoryDataTest::onRun() {
 
     {
       auto s = data.openOutputStream();
-      s->writeExactSizeDataSimple(testData->data(), testData->size());
+      s->writeExactSizeDataSimple(testData->data(), static_cast<v_buff_size>(testData->size()));
     }
 
-    OATPP_ASSERT(data.getKnownSize() == testData->size())
+    OATPP_ASSERT(data.getKnownSize() == static_cast<v_int64>(testData->size()))
     OATPP_ASSERT(data.getInMemoryData() == testData)
     OATPP_ASSERT(data.getLocation() == nullptr)
   }
@@ -59,10 +59,10 @@ void InMemoryDataTest::onRun() {
 
     {
       auto s1 = data.openOutputStream();
-      s1->writeExactSizeDataSimple(testData1->data(), testData1->size());
+      s1->writeExactSizeDataSimple(testData1->data(), static_cast<v_buff_size>(testData1->size()));
 
       auto s2 = data.openOutputStream();
-      s2->writeExactSizeDataSimple(testData2->data(), testData2->size());
+      s2->writeExactSizeDataSimple(testData2->data(), static_cast<v_buff_size>(testData2->size()));
 
       s1.reset();
       OATPP_ASSERT(data.getInMemoryData() == "data=" + testData1)
@@ -79,7 +79,7 @@ void InMemoryDataTest::onRun() {
 
     {
       auto s1 = data.openOutputStream();
-      s1->writeExactSizeDataSimple(testData->data(), testData->size());
+      s1->writeExactSizeDataSimple(testData->data(), static_cast<v_buff_size>(testData->size()));
     }
 
     oatpp::data::stream::BufferOutputStream s;

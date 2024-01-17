@@ -98,95 +98,95 @@ void ApiControllerTest::onRun() {
 
   {
     auto endpoint = controller.Z__ENDPOINT_root;
-    OATPP_ASSERT(endpoint);
-    OATPP_ASSERT(endpoint->info()->summary == "root_summary");
+    OATPP_ASSERT(endpoint)
+    OATPP_ASSERT(endpoint->info()->summary == "root_summary")
 
     auto r200 = endpoint->info()->responses[Status::CODE_200];
-    OATPP_ASSERT(r200.contentType == "text/plain");
-    OATPP_ASSERT(r200.schema == oatpp::String::Class::getType());
-    OATPP_ASSERT(r200.description == "test1-success");
+    OATPP_ASSERT(r200.contentType == "text/plain")
+    OATPP_ASSERT(r200.schema == oatpp::String::Class::getType())
+    OATPP_ASSERT(r200.description == "test1-success")
 
     auto r404 = endpoint->info()->responses[Status::CODE_404];
-    OATPP_ASSERT(r404.contentType == "text/plain");
-    OATPP_ASSERT(r404.description == "Not Found");
-    OATPP_ASSERT(r404.schema == oatpp::String::Class::getType());
+    OATPP_ASSERT(r404.contentType == "text/plain")
+    OATPP_ASSERT(r404.description == "Not Found")
+    OATPP_ASSERT(r404.schema == oatpp::String::Class::getType())
 
     auto response = controller.root();
-    OATPP_ASSERT(response->getStatus().code == 200);
+    OATPP_ASSERT(response->getStatus().code == 200)
 
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
 
   }
 
   {
     auto endpoint = controller.Z__ENDPOINT_pathParams;
-    OATPP_ASSERT(endpoint);
-    OATPP_ASSERT(!endpoint->info()->summary);
+    OATPP_ASSERT(endpoint)
+    OATPP_ASSERT(!endpoint->info()->summary)
 
-    OATPP_ASSERT(endpoint->info()->pathParams["param1"].name == "param1");
-    OATPP_ASSERT(endpoint->info()->pathParams["param1"].description == "this is param1");
+    OATPP_ASSERT(endpoint->info()->pathParams["param1"].name == "param1")
+    OATPP_ASSERT(endpoint->info()->pathParams["param1"].description == "this is param1")
 
-    OATPP_ASSERT(endpoint->info()->pathParams["param2"].name == "param2");
-    OATPP_ASSERT(!endpoint->info()->pathParams["param2"].description);
+    OATPP_ASSERT(endpoint->info()->pathParams["param2"].name == "param2")
+    OATPP_ASSERT(!endpoint->info()->pathParams["param2"].description)
 
-    OATPP_ASSERT(endpoint->info()->queryParams["q1"].name == "q1");
-    OATPP_ASSERT(endpoint->info()->queryParams["q1"].description == "query param");
+    OATPP_ASSERT(endpoint->info()->queryParams["q1"].name == "q1")
+    OATPP_ASSERT(endpoint->info()->queryParams["q1"].description == "query param")
 
-    OATPP_ASSERT(endpoint->info()->headers["X-TEST-HEADER"].name == "X-TEST-HEADER");
-    OATPP_ASSERT(endpoint->info()->headers["X-TEST-HEADER"].description == "TEST-HEADER-PARAM");
+    OATPP_ASSERT(endpoint->info()->headers["X-TEST-HEADER"].name == "X-TEST-HEADER")
+    OATPP_ASSERT(endpoint->info()->headers["X-TEST-HEADER"].description == "TEST-HEADER-PARAM")
 
     auto response = controller.pathParams("p1", "p2");
-    OATPP_ASSERT(response->getStatus().code == 200);
+    OATPP_ASSERT(response->getStatus().code == 200)
 
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
 
   }
 
   {
     auto endpoint = controller.Z__ENDPOINT_queryParams;
-    OATPP_ASSERT(endpoint);
-    OATPP_ASSERT(!endpoint->info()->summary);
+    OATPP_ASSERT(endpoint)
+    OATPP_ASSERT(!endpoint->info()->summary)
 
-    OATPP_ASSERT(endpoint->info()->queryParams["param1"].name == "param1");
-    OATPP_ASSERT(endpoint->info()->queryParams["param1"].description == "this is param1");
+    OATPP_ASSERT(endpoint->info()->queryParams["param1"].name == "param1")
+    OATPP_ASSERT(endpoint->info()->queryParams["param1"].description == "this is param1")
 
-    OATPP_ASSERT(endpoint->info()->queryParams["param2"].name == "param2");
-    OATPP_ASSERT(!endpoint->info()->queryParams["param2"].description);
+    OATPP_ASSERT(endpoint->info()->queryParams["param2"].name == "param2")
+    OATPP_ASSERT(!endpoint->info()->queryParams["param2"].description)
 
     auto response = controller.queryParams("p1", "p2");
-    OATPP_ASSERT(response->getStatus().code == 200);
+    OATPP_ASSERT(response->getStatus().code == 200)
 
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
 
   }
 
   {
     auto endpoint = controller.Z__ENDPOINT_noContent;
-    OATPP_ASSERT(endpoint);
-    OATPP_ASSERT(!endpoint->info()->summary);
+    OATPP_ASSERT(endpoint)
+    OATPP_ASSERT(!endpoint->info()->summary)
 
     auto r204 = endpoint->info()->responses[Status::CODE_204];
-    OATPP_ASSERT(!r204.contentType);
-    OATPP_ASSERT(!r204.schema);
-    OATPP_ASSERT(r204.description == "No Content");
+    OATPP_ASSERT(!r204.contentType)
+    OATPP_ASSERT(!r204.schema)
+    OATPP_ASSERT(r204.description == "No Content")
 
     auto response = controller.noContent();
-    OATPP_ASSERT(response->getStatus().code == 204);
-    OATPP_ASSERT(!response->getBody());
+    OATPP_ASSERT(response->getStatus().code == 204)
+    OATPP_ASSERT(!response->getBody())
 
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str());
+    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
 
   }
 

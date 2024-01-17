@@ -51,10 +51,18 @@ public:
 private:
   std::shared_ptr<oatpp::network::Server> m_server;
   std::list<std::shared_ptr<ApiController>> m_controllers;
-  OATPP_COMPONENT(std::shared_ptr<HttpRouter>, m_router);
-  OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, m_connectionProvider);
-  OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, m_connectionHandler);
+  std::shared_ptr<HttpRouter> m_router;
+  std::shared_ptr<oatpp::network::ServerConnectionProvider> m_connectionProvider;
+  std::shared_ptr<oatpp::network::ConnectionHandler> m_connectionHandler;
+
 public:
+  ClientServerTestRunner(OATPP_COMPONENT(std::shared_ptr<HttpRouter>, router),
+                        OATPP_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, connectionProvider),
+                        OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler))
+    : m_router(router)
+    , m_connectionProvider(connectionProvider)
+    , m_connectionHandler(connectionHandler)
+  {}
 
   std::shared_ptr<HttpRouter> getRouter() {
     return m_router;
@@ -92,9 +100,9 @@ public:
     bool runConditionForLambda = true;
 
     m_server = std::make_shared<oatpp::network::Server>(m_connectionProvider, m_connectionHandler);
-    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %lld(micro)\033[0m",
+    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %ld(micro)\033[0m",
                m_connectionProvider->getProperty("port").toString()->c_str(),
-               timeout.count());
+               timeout.count())
 
     std::function<bool()> condition = [&runConditionForLambda](){
         return runConditionForLambda;
@@ -120,7 +128,7 @@ public:
       while(running) {
         timeoutCondition.wait_for(lock, std::chrono::seconds(1));
         auto elapsed = std::chrono::system_clock::now() - startTime;
-        OATPP_ASSERT("ClientServerTestRunner: Error. Timeout." && elapsed < timeout);
+        OATPP_ASSERT("ClientServerTestRunner: Error. Timeout." && elapsed < timeout)
       }
 
     });
@@ -129,7 +137,7 @@ public:
     clientThread.join();
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - startTime);
-    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mFinished with time %lld(micro). Stopping server...\033[0m", elapsed.count());
+    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mFinished with time %ld(micro). Stopping server...\033[0m", elapsed.count())
 
     running = false;
     timeoutCondition.notify_one();
