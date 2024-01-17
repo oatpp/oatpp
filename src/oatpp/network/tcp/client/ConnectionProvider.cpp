@@ -71,9 +71,9 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 
 ConnectionProvider::ConnectionProvider(const network::Address& address)
   : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_clientHandle(INVALID_IO_HANDLE)
   , m_closed(false)
   , m_address(address)
-  , m_clientHandle(INVALID_IO_HANDLE)
 {
   setProperty(PROPERTY_HOST, address.host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
@@ -116,22 +116,23 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   }
 
   struct addrinfo* currResult = result;
+  oatpp::v_io_handle clientHandle = INVALID_IO_HANDLE;
   int err = 0;
 
   while(currResult != nullptr) {
 
-    m_clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
+    clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
 
-    if (m_clientHandle >= 0) {
+    if (clientHandle >= 0) {
 
-      if(connect(m_clientHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0) {
+      if(connect(clientHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0) {
         break;
       } else {
           err = errno;
 #if defined(WIN32) || defined(_WIN32)
-		    ::closesocket(m_clientHandle);
+		    ::closesocket(clientHandle);
 #else
-        ::close(m_clientHandle);
+        ::close(clientHandle);
 #endif
       }
     }
@@ -149,14 +150,15 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
 #ifdef SO_NOSIGPIPE
   int yes = 1;
-  v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
+  v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
     OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
   }
 #endif
 
+  m_clientHandle = clientHandle;
   return provider::ResourceHandle<data::stream::IOStream>(
-      std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
+      std::make_shared<oatpp::network::tcp::Connection>(clientHandle),
       m_invalidator
   );
 }
