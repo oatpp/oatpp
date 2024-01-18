@@ -27,9 +27,10 @@
 #include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <string.h>
+#include <tuple>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -69,17 +70,16 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 
 }
 
-ConnectionProvider::ConnectionProvider(const network::Address& address)
-  : m_invalidator(std::make_shared<ConnectionInvalidator>())
-  , m_clientHandle(INVALID_IO_HANDLE)
-  , m_closed(false)
-  , m_address(address)
-{
+ConnectionProvider::ConnectionProvider(const network::Address &address)
+    : m_invalidator(std::make_shared<ConnectionInvalidator>()),
+      m_address(address) {
   setProperty(PROPERTY_HOST, address.host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
+
+  OATPP_LOGD("Dencrypt", "ConnectionProvider::get");
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
@@ -121,7 +121,12 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
   while(currResult != nullptr) {
 
-    clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
+    {
+      std::lock_guard<std::mutex> lock(m_handlesMutex);
+      clientHandle = socket(currResult->ai_family, currResult->ai_socktype,
+                            currResult->ai_protocol);
+      m_clientHandles.push_back(std::make_tuple(clientHandle, false));
+    }
 
     if(clientHandle >= 0) {
 
@@ -156,13 +161,6 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   }
 #endif
 
-  if (m_clientHandle != INVALID_IO_HANDLE) {
-    /* This was not really made to support multiple handles */
-    OATPP_LOGW(
-        "[oatpp::network::tcp::client::ConnectionProvider::getConnection()]",
-        "Overwriting existing m_clientHandle.");
-  }
-  m_clientHandle = clientHandle;
   return provider::ResourceHandle<data::stream::IOStream>(
       std::make_shared<oatpp::network::tcp::Connection>(clientHandle),
       m_invalidator
@@ -170,13 +168,17 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 }
 
 void ConnectionProvider::stop() {
-  if (!m_closed) {
-    m_closed = true;
+  std::lock_guard<std::mutex> lock(m_handlesMutex);
+  for (auto &tup : m_clientHandles) {
+    if (std::get<1>(tup) == false) {
+      std::get<1>(tup) = true;
+      auto clientHandle = std::get<0>(tup);
 #if defined(WIN32) || defined(_WIN32)
-    ::closesocket(m_clientHandle);
+      ::closesocket(clientHandle);
 #else
-    ::close(m_clientHandle);
+      ::close(clientHandle);
 #endif
+    }
   }
 }
 

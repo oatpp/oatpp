@@ -48,8 +48,8 @@ private:
 
 private:
   std::shared_ptr<ConnectionInvalidator> m_invalidator;
-  oatpp::v_io_handle m_clientHandle;
-  std::atomic<bool> m_closed;
+  std::mutex m_handlesMutex;
+  std::vector<std::tuple<oatpp::v_io_handle, bool>> m_clientHandles;
 
 protected:
   network::Address m_address;
