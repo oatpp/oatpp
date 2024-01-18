@@ -27,8 +27,8 @@
 #include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
-#include <errno.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <string.h>
 #include <tuple>
 
@@ -71,15 +71,13 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 }
 
 ConnectionProvider::ConnectionProvider(const network::Address &address)
-    : m_invalidator(std::make_shared<ConnectionInvalidator>()),
-      m_address(address) {
+  : m_invalidator(std::make_shared<ConnectionInvalidator>())
+  , m_address(address) {
   setProperty(PROPERTY_HOST, address.host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
-
-  OATPP_LOGD("Dencrypt", "ConnectionProvider::get");
 
   auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
 
@@ -123,8 +121,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
     {
       std::lock_guard<std::mutex> lock(m_handlesMutex);
-      clientHandle = socket(currResult->ai_family, currResult->ai_socktype,
-                            currResult->ai_protocol);
+      clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
       m_clientHandles.push_back(std::make_tuple(clientHandle, false));
     }
 
@@ -140,6 +137,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
         ::close(clientHandle);
 #endif
       }
+
     }
 
     currResult = currResult->ai_next;
