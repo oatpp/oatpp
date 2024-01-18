@@ -156,6 +156,12 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   }
 #endif
 
+  if (m_clientHandle != INVALID_IO_HANDLE) {
+    /* This was not really made to support multiple handles */
+    OATPP_LOGW(
+        "[oatpp::network::tcp::client::ConnectionProvider::getConnection()]",
+        "Overwriting existing m_clientHandle.");
+  }
   m_clientHandle = clientHandle;
   return provider::ResourceHandle<data::stream::IOStream>(
       std::make_shared<oatpp::network::tcp::Connection>(clientHandle),
