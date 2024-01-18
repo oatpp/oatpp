@@ -72,7 +72,8 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 
 ConnectionProvider::ConnectionProvider(const network::Address &address)
   : m_invalidator(std::make_shared<ConnectionInvalidator>())
-  , m_address(address) {
+  , m_address(address)
+{
   setProperty(PROPERTY_HOST, address.host);
   setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
 }
