@@ -70,7 +70,7 @@ void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr
 
 }
 
-ConnectionProvider::ConnectionProvider(const network::Address &address)
+ConnectionProvider::ConnectionProvider(const network::Address& address)
   : m_invalidator(std::make_shared<ConnectionInvalidator>())
   , m_address(address)
 {
