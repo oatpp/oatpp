@@ -187,7 +187,7 @@ void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
       it->second->deleteMetricData(metric.second);
     } else {
       OATPP_LOGE("[oatpp::network::ConnectionMonitor::Monitor::freeConnectionStats]",
-                 "Error. Can't free Metric data. Unknown Metric: name - '%s'", it->first->c_str())
+                 "Error. Can't free Metric data. Unknown Metric: name - '%s'", metric.first->c_str())
     }
   }
 
