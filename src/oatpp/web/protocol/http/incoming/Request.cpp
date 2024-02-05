@@ -37,6 +37,7 @@ Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connectio
   , m_bodyStream(bodyStream)
   , m_bodyDecoder(bodyDecoder)
   , m_queryParamsParsed(false)
+  , m_bodyRead(false)
 {}
 
 std::shared_ptr<Request> Request::createShared(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
@@ -93,6 +94,10 @@ std::shared_ptr<const http::incoming::BodyDecoder> Request::getBodyDecoder() con
   return m_bodyDecoder;
 }
 
+bool Request::hasReadBody() const {
+  return m_bodyRead;
+}
+
 void Request::putHeader(const oatpp::String& key, const oatpp::String& value) {
   m_headers.put(key, value);
 }
@@ -139,26 +144,32 @@ const data::Bundle& Request::getBundle() const {
 }
 
 void Request::transferBody(const base::ObjectHandle<data::stream::WriteCallback>& writeCallback) const {
+  m_bodyRead = true;
   m_bodyDecoder->decode(m_headers, m_bodyStream.get(), writeCallback.get(), m_connection.get());
 }
 
 void Request::transferBodyToStream(const base::ObjectHandle<oatpp::data::stream::OutputStream>& toStream) const {
+  m_bodyRead = true;
   m_bodyDecoder->decode(m_headers, m_bodyStream.get(), toStream.get(), m_connection.get());
 }
 
 oatpp::String Request::readBodyToString() const {
+  m_bodyRead = true;
   return m_bodyDecoder->decodeToString(m_headers, m_bodyStream.get(), m_connection.get());
 }
 
 async::CoroutineStarter Request::transferBodyAsync(const std::shared_ptr<data::stream::WriteCallback>& writeCallback) const {
+  m_bodyRead = true;
   return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, writeCallback, m_connection);
 }
 
 async::CoroutineStarter Request::transferBodyToStreamAsync(const std::shared_ptr<oatpp::data::stream::OutputStream>& toStream) const {
+  m_bodyRead = true;
   return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream, m_connection);
 }
 
 async::CoroutineStarterForResult<const oatpp::String&> Request::readBodyToStringAsync() const {
+  m_bodyRead = true;
   return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream, m_connection);
 }
 
