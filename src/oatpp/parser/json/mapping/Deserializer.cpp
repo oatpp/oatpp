@@ -162,7 +162,16 @@ oatpp::Void Deserializer::deserializeFloat32(Deserializer* deserializer, parser:
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float32::Class::getType());
   } else {
-    return Float32(caret.parseFloat32());
+    v_buff_size pos0 = caret.getPosition();
+    auto ret = caret.parseFloat32();
+    if(caret.getContextPtr() && caret.getPosition() == pos0) {
+      auto info = reinterpret_cast<BaseObject::Property::Info*>(caret.getContextPtr());
+      if(!info->errorMessage.empty()) {
+        caret.setErrorMessage(info->errorMessage.data());
+      }
+      caret.setContextPtr(nullptr);
+    }
+    return Float32(ret);
   }
 }
 
@@ -174,7 +183,16 @@ oatpp::Void Deserializer::deserializeFloat64(Deserializer* deserializer, parser:
   if(caret.isAtText("null", true)){
     return oatpp::Void(Float64::Class::getType());
   } else {
-    return Float64(caret.parseFloat64());
+    v_buff_size pos0 = caret.getPosition();
+    auto ret = caret.parseFloat64();
+    if(caret.getContextPtr() && caret.getPosition() == pos0) {
+      auto info = reinterpret_cast<BaseObject::Property::Info*>(caret.getContextPtr());
+      if(!info->errorMessage.empty()) {
+        caret.setErrorMessage(info->errorMessage.data());
+      }
+      caret.setContextPtr(nullptr);
+    }
+    return Float64(ret);
   }
 
 }
@@ -447,6 +465,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
           skipValue(caret);
           polymorphs.emplace_back(field, label.toString()); // store polymorphs for later processing.
         } else {
+          caret.setContextPtr(&field->info);
           auto value = deserializer->deserialize(caret, field->type);
           if(field->info.required && value == nullptr) {
             throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
@@ -484,6 +503,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
     for(auto& p : polymorphs) {
       parser::Caret polyCaret(p.second);
       auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
+      polyCaret.setContextPtr(&p.first->info);
       auto value = deserializer->deserialize(polyCaret, selectedType);
       if(p.first->info.required && value == nullptr) {
         throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "

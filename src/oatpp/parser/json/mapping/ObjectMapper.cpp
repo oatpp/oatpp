@@ -55,8 +55,7 @@ void ObjectMapper::write(data::stream::ConsistentOutputStream* stream,
   m_serializer->serializeToStream(stream, variant);
 }
 
-oatpp::Void ObjectMapper::read(oatpp::parser::Caret& caret,
-                                                                     const oatpp::data::mapping::type::Type* const type) const {
+oatpp::Void ObjectMapper::read(oatpp::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const {
   return m_deserializer->deserialize(caret, type);
 }
 
