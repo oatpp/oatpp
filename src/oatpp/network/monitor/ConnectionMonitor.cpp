@@ -198,6 +198,14 @@ void ConnectionMonitor::Monitor::removeConnection(v_uint64 id) {
   m_connections.erase(id);
 }
 
+void ConnectionMonitor::Monitor::invalidateAll() {
+  std::lock_guard<std::mutex> lock(m_connectionsMutex);
+  for(v_uint64 caddr : m_connections) {
+    auto connection = reinterpret_cast<ConnectionProxy*>(caddr);
+    connection->invalidate();
+  }
+}
+
 void ConnectionMonitor::Monitor::addStatCollector(const std::shared_ptr<StatCollector>& collector) {
   std::lock_guard<std::mutex> lock(m_checkMutex);
   m_statCollectors.insert({collector->metricName(), collector});
@@ -330,6 +338,10 @@ void ConnectionMonitor::addStatCollector(const std::shared_ptr<StatCollector>& c
 
 void ConnectionMonitor::addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker) {
   m_monitor->addMetricsChecker(checker);
+}
+
+void ConnectionMonitor::invalidateAll() {
+  m_monitor->invalidateAll();
 }
 
 void ConnectionMonitor::stop() {

@@ -111,6 +111,8 @@ private:
     void freeConnectionStats(ConnectionStats& stats);
     void removeConnection(v_uint64 id);
 
+    void invalidateAll();
+
     void addStatCollector(const std::shared_ptr<StatCollector>& collector);
     void removeStatCollector(const oatpp::String& metricName);
 
@@ -146,6 +148,11 @@ public:
    * @param checker - &id:oatpp::network::monitor::MetricsChecker;.
    */
   void addMetricsChecker(const std::shared_ptr<MetricsChecker>& checker);
+
+  /**
+   * Invalidate all currently active connections.
+   */
+  void invalidateAll();
 
   void stop() override;
 
