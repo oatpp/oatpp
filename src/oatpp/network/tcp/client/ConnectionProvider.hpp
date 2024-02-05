@@ -48,6 +48,9 @@ private:
 
 private:
   std::shared_ptr<ConnectionInvalidator> m_invalidator;
+  std::mutex m_handlesMutex;
+  std::vector<std::tuple<oatpp::v_io_handle, bool>> m_clientHandles;
+
 protected:
   network::Address m_address;
 public:
@@ -68,11 +71,9 @@ public:
   }
 
   /**
-   * Implements &id:oatpp::provider::Provider::stop;. Here does nothing.
+   * Implements &id:oatpp::provider::Provider::stop;.
    */
-  void stop() override {
-    // DO NOTHING
-  }
+  void stop() override;
 
   /**
    * Get connection.

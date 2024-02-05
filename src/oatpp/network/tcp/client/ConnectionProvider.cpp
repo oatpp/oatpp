@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <tuple>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -119,7 +120,11 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
   while(currResult != nullptr) {
 
-    clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
+    {
+      std::lock_guard<std::mutex> lock(m_handlesMutex);
+      clientHandle = socket(currResult->ai_family, currResult->ai_socktype, currResult->ai_protocol);
+      m_clientHandles.push_back(std::make_tuple(clientHandle, false));
+    }
 
     if(clientHandle >= 0) {
 
@@ -159,7 +164,21 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
       std::make_shared<oatpp::network::tcp::Connection>(clientHandle),
       m_invalidator
   );
+}
 
+void ConnectionProvider::stop() {
+  std::lock_guard<std::mutex> lock(m_handlesMutex);
+  for (auto &tup : m_clientHandles) {
+    if (std::get<1>(tup) == false) {
+      std::get<1>(tup) = true;
+      auto clientHandle = std::get<0>(tup);
+#if defined(WIN32) || defined(_WIN32)
+      ::closesocket(clientHandle);
+#else
+      ::close(clientHandle);
+#endif
+    }
+  }
 }
 
 oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::stream::IOStream>&> ConnectionProvider::getAsync() {
