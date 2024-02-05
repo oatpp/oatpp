@@ -411,78 +411,92 @@ public:
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_int8 value);
+  v_io_size writeAsString(v_int8 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_uint8 value);
+  v_io_size writeAsString(v_uint8 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_int16 value);
+  v_io_size writeAsString(v_int16 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_uint16 value);
+  v_io_size writeAsString(v_uint16 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_int32 value);
+  v_io_size writeAsString(v_int32 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_uint32 value);
+  v_io_size writeAsString(v_uint32 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_int64 value);
+  v_io_size writeAsString(v_int64 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_uint64 value);
+  v_io_size writeAsString(v_uint64 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_float32 value);
+  v_io_size writeAsString(v_float32 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(v_float64 value);
+  v_io_size writeAsString(v_float64 value, const char* format = nullptr);
 
   /**
    * Convert value to string and write to stream.
    * @param value
    * @return - actual number of bytes written. &id:oatpp::v_io_size;. <br>
    */
-  v_io_size writeAsString(bool value);
+  v_io_size writeAsString(bool value, const char* format = nullptr);
 
+  /**
+   * set context ptr
+   * @param contextPtr
+   */
+  void setContextPtr(void* contextPtr);
+
+  /**
+   * get context ptr
+   * @return m_contextPtr
+   */
+  void* getContextPtr();
+
+private:
+  void* m_contextPtr = nullptr;
 };
 
 ConsistentOutputStream& operator << (ConsistentOutputStream& s, const oatpp::String& str);

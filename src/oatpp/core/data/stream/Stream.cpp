@@ -325,7 +325,8 @@ async::CoroutineStarter IOStream::initContextsAsync() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConsistentOutputStream
 
-v_io_size ConsistentOutputStream::writeAsString(v_int8 value){
+v_io_size ConsistentOutputStream::writeAsString(v_int8 value, const char* format){
+  (void)format;
   v_char8 a[16];
   auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -334,7 +335,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_int8 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_uint8 value){
+v_io_size ConsistentOutputStream::writeAsString(v_uint8 value, const char* format){
+  (void)format;
   v_char8 a[16];
   auto size = utils::conversion::uint32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -343,7 +345,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_uint8 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_int16 value){
+v_io_size ConsistentOutputStream::writeAsString(v_int16 value, const char* format){
+  (void)format;
   v_char8 a[16];
   auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -352,7 +355,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_int16 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_uint16 value){
+v_io_size ConsistentOutputStream::writeAsString(v_uint16 value, const char* format){
+  (void)format;
   v_char8 a[16];
   auto size = utils::conversion::uint32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -361,7 +365,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_uint16 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
+v_io_size ConsistentOutputStream::writeAsString(v_int32 value, const char* format){
+  (void)format;
   v_char8 a[16];
   auto size = utils::conversion::int32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -370,7 +375,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_int32 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_uint32 value){
+v_io_size ConsistentOutputStream::writeAsString(v_uint32 value, const char* format){
+  (void)format;
   v_char8 a[16];
   auto size = utils::conversion::uint32ToCharSequence(value, &a[0], 16);
   if(size > 0){
@@ -379,7 +385,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_uint32 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
+v_io_size ConsistentOutputStream::writeAsString(v_int64 value, const char* format){
+  (void)format;
   v_char8 a[32];
   auto size = utils::conversion::int64ToCharSequence(value, &a[0], 32);
   if(size > 0){
@@ -388,7 +395,8 @@ v_io_size ConsistentOutputStream::writeAsString(v_int64 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_uint64 value){
+v_io_size ConsistentOutputStream::writeAsString(v_uint64 value, const char* format){
+  (void)format;
   v_char8 a[32];
   auto size = utils::conversion::uint64ToCharSequence(value, &a[0], 32);
   if(size > 0){
@@ -397,30 +405,49 @@ v_io_size ConsistentOutputStream::writeAsString(v_uint64 value){
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_float32 value){
+v_io_size ConsistentOutputStream::writeAsString(v_float32 value, const char* format){
   v_char8 a[100];
-  auto size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
+  v_buff_size size;
+  if(format) {
+    size = utils::conversion::float32ToCharSequence(value, &a[0], 100, format);
+  } else {
+    size = utils::conversion::float32ToCharSequence(value, &a[0], 100);
+  }
   if(size > 0){
     return writeSimple(&a[0], size);
   }
   return 0;
 }
 
-v_io_size ConsistentOutputStream::writeAsString(v_float64 value){
+v_io_size ConsistentOutputStream::writeAsString(v_float64 value, const char* format){
   v_char8 a[100];
-  auto size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
+  v_buff_size size;
+  if(format) {
+    size = utils::conversion::float64ToCharSequence(value, &a[0], 100, format);
+  } else {
+    size = utils::conversion::float64ToCharSequence(value, &a[0], 100);
+  }
   if(size > 0){
     return writeSimple(&a[0], size);
   }
   return 0;
 }
   
-v_io_size ConsistentOutputStream::writeAsString(bool value) {
+v_io_size ConsistentOutputStream::writeAsString(bool value, const char* format) {
+  (void)format;
   if(value){
     return writeSimple("true", 4);
   } else {
     return writeSimple("false", 5);
   }
+}
+
+void ConsistentOutputStream::setContextPtr(void *contextPtr) {
+  m_contextPtr = contextPtr;
+}
+
+void *ConsistentOutputStream::getContextPtr() {
+  return m_contextPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

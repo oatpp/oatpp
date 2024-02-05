@@ -127,7 +127,16 @@ private:
     (void) serializer;
 
     if(polymorph){
-      stream->writeAsString(* static_cast<typename T::ObjectType*>(polymorph.get()));
+      if(stream->getContextPtr()) {
+        auto info = reinterpret_cast<BaseObject::Property::Info*>(stream->getContextPtr());
+        if(!info->format.empty()) {
+          stream->writeAsString(*static_cast<typename T::ObjectType*>(polymorph.get()), info->format.data());
+          stream->setContextPtr(nullptr);
+          return;
+        }
+        stream->setContextPtr(nullptr);
+      }
+      stream->writeAsString(*static_cast<typename T::ObjectType*>(polymorph.get()));
     } else {
       stream->writeSimple("null", 4);
     }
