@@ -43,6 +43,8 @@ add_library(oatpp
         oatpp/core/async/Processor.cpp
         oatpp/core/async/Processor.hpp
         oatpp/core/async/utils/FastQueue.hpp
+        oatpp/core/async/utils/LockFreeQueue.hpp
+        oatpp/core/async/utils/Semaphore.hpp
         oatpp/core/async/worker/IOEventWorker_common.cpp
         oatpp/core/async/worker/IOEventWorker_epoll.cpp
         oatpp/core/async/worker/IOEventWorker_kqueue.cpp

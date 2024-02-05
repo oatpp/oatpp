@@ -33,6 +33,7 @@
 #include "oatpp/core/provider/PoolTest.hpp"
 #include "oatpp/core/provider/PoolTemplateTest.hpp"
 #include "oatpp/core/async/ConditionVariableTest.hpp"
+#include "oatpp/core/async/LockFreeQueueTest.hpp"
 #include "oatpp/core/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
@@ -120,6 +121,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
 
   OATPP_RUN_TEST(oatpp::test::async::ConditionVariableTest);
+  OATPP_RUN_TEST(oatpp::test::async::LockFreeQueueTest);
   OATPP_RUN_TEST(oatpp::test::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
@@ -235,9 +237,9 @@ int main() {
 
   /* Print how much objects were created during app running, and what have left-probably leaked */
   /* Disable object counting for release builds using '-D OATPP_DISABLE_ENV_OBJECT_COUNTERS' flag for better performance */
-  std::cout << "\nEnvironment:\n";
-  std::cout << "objectsCount = " << oatpp::base::Environment::getObjectsCount() << "\n";
-  std::cout << "objectsCreated = " << oatpp::base::Environment::getObjectsCreated() << "\n\n";
+  OATPP_LOGD("Environment","Environment:")
+  OATPP_LOGD("Environment","objectsCount = %ld", oatpp::base::Environment::getObjectsCount())
+  OATPP_LOGD("Environment","objectsCreated = %ld", oatpp::base::Environment::getObjectsCreated())
 
   OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0)
 

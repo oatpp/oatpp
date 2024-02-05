@@ -28,6 +28,8 @@
 
 #include "./Compiler.hpp"
 #include "./Config.hpp"
+#include "oatpp/core/async/utils/LockFreeQueue.hpp"
+#include "oatpp/core/async/utils/Semaphore.hpp"
 
 #include <cstdarg>
 #include <cstdio>
@@ -38,6 +40,7 @@
 #include <memory>
 #include <stdexcept>
 #include <cstdlib>
+#include <thread>
 
 #define OATPP_VERSION "1.3.0"
 
@@ -238,20 +241,72 @@ public:
      */
     v_uint32 logMask;
   };
+
+  /**
+   * Log message.
+   */
+  struct LogMessage {
+    LogMessage() = default;
+
+    LogMessage(v_uint32 pPriority, std::string pTag, std::string pMessage)
+      : priority(pPriority)
+      , tag(std::move(pTag))
+      , message(std::move(pMessage))
+    {}
+
+    v_uint32 priority{};
+    std::string tag;
+    std::string message;
+  };
+
+  /**
+   * Async Log Writer.
+   */
+  class AsyncLogWriter {
+    friend class DefaultLogger;
+  public:
+    explicit AsyncLogWriter(const Config& config = Config(
+                            "%Y-%m-%d %H:%M:%S",
+                            true,
+                            (1 << PRIORITY_V) | (1 << PRIORITY_D) | (1 << PRIORITY_I) | (1 << PRIORITY_W) | (1 << PRIORITY_E)
+                            ));
+
+    ~AsyncLogWriter();
+
+    /**
+     * Run async log writer.
+     */
+    void run();
+
+    /**
+     * Flush all messages in the queue.
+     */
+    void flushAll();
+
+    /**
+     * Write log.
+     * @param priority - log-priority channel of the message.
+     * @param tag - tag of the log message.
+     * @param message - message.
+     */
+    void write(v_uint32 priority, const std::string& tag, const std::string& message) const;
+
+  private:
+    bool m_exitFlag{false};
+    Config m_config;
+    std::thread m_thread;
+    async::utils::Semaphore m_sem;
+    std::shared_ptr<async::utils::LockFreeQueue<LogMessage>> m_queue;
+  };
 private:
-  Config m_config;
-  std::mutex m_lock;
+  std::shared_ptr<AsyncLogWriter> m_writer;
 public:
 
   /**
    * Constructor.
    * @param config - Logger config.
    */
-  DefaultLogger(const Config& config = Config(
-          "%Y-%m-%d %H:%M:%S",
-          true,
-          (1 << PRIORITY_V) | (1 << PRIORITY_D) | (1 << PRIORITY_I) | (1 << PRIORITY_W) | (1 << PRIORITY_E)
-          ));
+  DefaultLogger();
 
   /**
    * Log message with priority, tag, message.
@@ -482,7 +537,7 @@ public:
    * @return - ticks count in microseconds.
    */
   static v_int64 getMicroTickCount();
-  
+
 };
 
 /**
@@ -538,7 +593,7 @@ if(!(EXP)) { \
 #else
   #define OATPP_LOGV(TAG, ...)
 #endif
-  
+
 #ifndef OATPP_DISABLE_LOGD
 
   /**
@@ -602,7 +657,7 @@ if(!(EXP)) { \
 #else
   #define OATPP_LOGE(TAG, ...)
 #endif
-  
+
 }}
 
 
