@@ -324,6 +324,8 @@ class DTOWrapper : public ObjectWrapper<ObjT, __class::Object<ObjT>> {
 public:
   typedef ObjT TemplateObjectType;
   typedef __class::Object<ObjT> TemplateObjectClass;
+  using ObjectWrapper<ObjT, __class::Object<ObjT>>::operator==;
+  using ObjectWrapper<ObjT, __class::Object<ObjT>>::operator!=;
 public:
 
   OATPP_DEFINE_OBJECT_WRAPPER_DEFAULTS(DTOWrapper, TemplateObjectType, TemplateObjectClass)

@@ -313,6 +313,24 @@ void FullTest::onRun() {
         OATPP_ASSERT(dtoOut->testValueInt == i)
       }
 
+      { // test POST with boolean(true) body
+        Boolean bodyIn = true;
+        auto response = client->postTestBoolean(bodyIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200)
+        auto bodyOut = response->readBodyToString();
+        OATPP_ASSERT(bodyOut)
+        OATPP_ASSERT(bodyOut == "OK---true")
+      }
+
+      { // test POST with boolean(false) body
+        Boolean bodyIn = false;
+        auto response = client->postTestBoolean(bodyIn, connection);
+        OATPP_ASSERT(response->getStatusCode() == 200)
+        auto bodyOut = response->readBodyToString();
+        OATPP_ASSERT(bodyOut)
+        OATPP_ASSERT(bodyOut == "OK---false")
+      }
+
       { // test Enum as String
 
         OATPP_ASSERT(oatpp::Enum<app::AllowedPathParams>::getEntries().size() == 2)
