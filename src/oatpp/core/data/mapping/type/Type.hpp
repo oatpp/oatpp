@@ -556,7 +556,7 @@ public:
 template <class T, class Clazz>
 template<class Wrapper>
 Wrapper ObjectWrapper<T, Clazz>::cast() const {
-  if(!Wrapper::Class::getType()->extends(m_valueType)) {
+  if(!m_valueType->extends(Wrapper::Class::getType())) {
     if(Wrapper::Class::getType() != __class::Void::getType() && m_valueType != __class::Void::getType()) {
       throw std::runtime_error("[oatpp::data::mapping::type::ObjectWrapper::cast()]: Error. Invalid cast "
                                "from '" + std::string(m_valueType->classId.name) + "' to '" +
