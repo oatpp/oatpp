@@ -51,12 +51,12 @@ option(OATPP_DISABLE_LOGE "DISABLE logs priority E" OFF)
 
 ## Print config ##################################################################################
 
-message("\n############################################################################")
-message("## oatpp module compilation config:\n")
+message(TRACE "\n############################################################################")
+message(TRACE "## oatpp module compilation config:\n")
 
-message("OATPP_DISABLE_ENV_OBJECT_COUNTERS=${OATPP_DISABLE_ENV_OBJECT_COUNTERS}")
-message("OATPP_THREAD_HARDWARE_CONCURRENCY=${OATPP_THREAD_HARDWARE_CONCURRENCY}")
-message("OATPP_COMPAT_BUILD_NO_THREAD_LOCAL=${OATPP_COMPAT_BUILD_NO_THREAD_LOCAL}")
+message(TRACE "OATPP_DISABLE_ENV_OBJECT_COUNTERS=${OATPP_DISABLE_ENV_OBJECT_COUNTERS}")
+message(TRACE "OATPP_THREAD_HARDWARE_CONCURRENCY=${OATPP_THREAD_HARDWARE_CONCURRENCY}")
+message(TRACE "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL=${OATPP_COMPAT_BUILD_NO_THREAD_LOCAL}")
 
 ## Set definitions ###############################################################################
 
@@ -66,7 +66,7 @@ endif()
 
 if(OATPP_DISABLE_POOL_ALLOCATIONS)
     add_definitions (-DOATPP_DISABLE_POOL_ALLOCATIONS)
-    message("WARNING: OATPP_DISABLE_POOL_ALLOCATIONS option is deprecated and has no effect.")
+    message(WARNING "OATPP_DISABLE_POOL_ALLOCATIONS option is deprecated and has no effect.")
 endif()
 
 set(AUTO_VALUE AUTO)
@@ -76,7 +76,7 @@ endif()
 
 if(OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT)
     add_definitions (-DOATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT=${OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT})
-    message("WARNING: OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT option is deprecated and has no effect.")
+    message(WARNING "OATPP_THREAD_DISTRIBUTED_MEM_POOL_SHARDS_COUNT option is deprecated and has no effect.")
 endif()
 
 if(OATPP_COMPAT_BUILD_NO_THREAD_LOCAL)
@@ -111,11 +111,11 @@ if(CMAKE_COMPILER_IS_GNUCXX AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
     add_definitions(-DOATPP_DISABLE_STD_PUT_TIME)
 endif()
 
-message("\n############################################################################\n")
+message(TRACE "\n############################################################################\n")
 
 ###################################################################################################
 
-message("oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
+message(TRACE "oatpp version: '${OATPP_THIS_MODULE_VERSION}'")
 
 include(cmake/compiler-flags.cmake)
 

@@ -22,16 +22,16 @@
 ##
 ######################################################################################
 
-message("\n############################################################################")
-message("## oatpp-module-install.cmake\n")
+message(TRACE "\n############################################################################")
+message(TRACE "## oatpp-module-install.cmake\n")
 
-message("OATPP_THIS_MODULE_NAME=${OATPP_THIS_MODULE_NAME}")
-message("OATPP_THIS_MODULE_VERSION=${OATPP_THIS_MODULE_VERSION}")
-message("OATPP_THIS_MODULE_LIBRARIES=${OATPP_THIS_MODULE_LIBRARIES}")
-message("OATPP_THIS_MODULE_TARGETS=${OATPP_THIS_MODULE_TARGETS}")
-message("OATPP_THIS_MODULE_DIRECTORIES=${OATPP_THIS_MODULE_DIRECTORIES}")
+message(TRACE "OATPP_THIS_MODULE_NAME=${OATPP_THIS_MODULE_NAME}")
+message(TRACE "OATPP_THIS_MODULE_VERSION=${OATPP_THIS_MODULE_VERSION}")
+message(TRACE "OATPP_THIS_MODULE_LIBRARIES=${OATPP_THIS_MODULE_LIBRARIES}")
+message(TRACE "OATPP_THIS_MODULE_TARGETS=${OATPP_THIS_MODULE_TARGETS}")
+message(TRACE "OATPP_THIS_MODULE_DIRECTORIES=${OATPP_THIS_MODULE_DIRECTORIES}")
 
-message("\n############################################################################\n")
+message(TRACE "\n############################################################################\n")
 
 #######################################################################################
 ## Set cache variables to configure module-config.cmake.in template
