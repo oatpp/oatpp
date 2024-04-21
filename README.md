@@ -20,7 +20,7 @@
 
 **News**  
 
-- :tada: Welcome the new oatpp version `1.3.0`. Now it's better than ever! See the [changelog](https://github.com/oatpp/oatpp/blob/master/changelog/1.3.0.md) for details. :tada:   
+- ⚠️ Attention! Oat++ main repo is bumping it's version to 1.4.0. While 1.4.0 is **IN DEVELOPMENT** use `1.3.0-latest` tag.
 
 ---
 
