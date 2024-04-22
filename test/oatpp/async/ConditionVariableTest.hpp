@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_async_test_ConditionVariableTest_hpp
-#define oatpp_async_test_ConditionVariableTest_hpp
+#ifndef oatpp_async_ConditionVariableTest_hpp
+#define oatpp_async_ConditionVariableTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace async { namespace test {
+namespace oatpp { namespace async {
 
 class ConditionVariableTest : public oatpp::test::UnitTest{
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}
+}}
 
-#endif // oatpp_async_test_ConditionVariableTest_hpp
+#endif // oatpp_async_ConditionVariableTest_hpp

@@ -35,7 +35,7 @@
 
 #include "oatpp-test/Checker.hpp"
 
-namespace oatpp { namespace json { namespace test {
+namespace oatpp { namespace json {
   
 namespace {
 
@@ -98,4 +98,4 @@ void DTOMapperPerfTest::onRun() {
 
 }
   
-}}}
+}}

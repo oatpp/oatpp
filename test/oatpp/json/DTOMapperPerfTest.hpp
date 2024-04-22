@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_json_test_DTOMapperPerfTest_hpp
-#define oatpp_json_test_DTOMapperPerfTest_hpp
+#ifndef oatpp_json_DTOMapperPerfTest_hpp
+#define oatpp_json_DTOMapperPerfTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace json { namespace test {
+namespace oatpp { namespace json {
   
 class DTOMapperPerfTest : public oatpp::test::UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
   
 };
   
-}}}
+}}
 
-#endif /* oatpp_json_test_DTOMapperPerfTest_hpp */
+#endif /* oatpp_json_DTOMapperPerfTest_hpp */

@@ -27,7 +27,7 @@
 #include "oatpp/async/Executor.hpp"
 #include "oatpp/async/ConditionVariable.hpp"
 
-namespace oatpp { namespace async { namespace test {
+namespace oatpp { namespace async {
 
 namespace {
 
@@ -233,4 +233,4 @@ void ConditionVariableTest::onRun() {
 
 }
 
-}}}
+}}

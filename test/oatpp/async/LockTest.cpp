@@ -32,7 +32,7 @@
 #include <thread>
 #include <list>
 
-namespace oatpp { namespace async { namespace test {
+namespace oatpp { namespace async {
 
 namespace {
 
@@ -209,4 +209,4 @@ void LockTest::onRun() {
 
 }
 
-}}}
+}}

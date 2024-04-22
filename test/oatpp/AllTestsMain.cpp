@@ -119,21 +119,21 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
 
-  OATPP_RUN_TEST(oatpp::async::test::ConditionVariableTest);
-  OATPP_RUN_TEST(oatpp::async::test::LockTest);
+  OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
+  OATPP_RUN_TEST(oatpp::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
-  OATPP_RUN_TEST(oatpp::json::test::EnumTest);
-  OATPP_RUN_TEST(oatpp::json::test::BooleanTest);
+  OATPP_RUN_TEST(oatpp::json::EnumTest);
+  OATPP_RUN_TEST(oatpp::json::BooleanTest);
 
-  OATPP_RUN_TEST(oatpp::json::test::UnorderedSetTest);
+  OATPP_RUN_TEST(oatpp::json::UnorderedSetTest);
 
-  OATPP_RUN_TEST(oatpp::json::test::DeserializerTest);
-  OATPP_RUN_TEST(oatpp::json::test::DTOMapperPerfTest);
-  OATPP_RUN_TEST(oatpp::json::test::DTOMapperTest);
+  OATPP_RUN_TEST(oatpp::json::DeserializerTest);
+  OATPP_RUN_TEST(oatpp::json::DTOMapperPerfTest);
+  OATPP_RUN_TEST(oatpp::json::DTOMapperTest);
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);

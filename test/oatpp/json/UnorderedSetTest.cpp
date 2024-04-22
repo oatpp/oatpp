@@ -26,7 +26,7 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-namespace oatpp { namespace json { namespace test {
+namespace oatpp { namespace json {
 
 void UnorderedSetTest::onRun() {
 
@@ -50,4 +50,4 @@ void UnorderedSetTest::onRun() {
   
 }
 
-}}}
+}}

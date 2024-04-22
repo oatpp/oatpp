@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_json_test_DeserializerTest_hpp
-#define oatpp_json_test_DeserializerTest_hpp
+#ifndef oatpp_json_DeserializerTest_hpp
+#define oatpp_json_DeserializerTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace json { namespace test {
+namespace oatpp { namespace json {
   
 class DeserializerTest : public oatpp::test::UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
   
 };
   
-}}}
+}}
 
-#endif /* oatpp_json_test_DeserializerTest_hpp */
+#endif /* oatpp_json_DeserializerTest_hpp */

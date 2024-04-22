@@ -26,7 +26,7 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-namespace oatpp { namespace json { namespace test {
+namespace oatpp { namespace json {
 
 void BooleanTest::onRun() {
   oatpp::json::ObjectMapper mapper;
@@ -60,4 +60,4 @@ void BooleanTest::onRun() {
   }
 }
 
-}}}
+}}
