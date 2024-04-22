@@ -22,17 +22,17 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_CommandLineArgumentsTest_hpp
-#define oatpp_test_base_CommandLineArgumentsTest_hpp
+#ifndef oatpp_base_CommandLineArgumentsTest_hpp
+#define oatpp_base_CommandLineArgumentsTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace base {
+namespace oatpp { namespace base {
   
 /**
  * Test command line arguments parsing.
  */
-class CommandLineArgumentsTest : public UnitTest{
+class CommandLineArgumentsTest : public oatpp::test::UnitTest{
 public:
   
   CommandLineArgumentsTest():UnitTest("TEST[base::CommandLineArgumentsTest]"){}
@@ -40,6 +40,6 @@ public:
   
 };
   
-}}}
+}}
 
-#endif /* oatpp_test_core_base_CommandLineArgumentsTest_hpp */
+#endif /* oatpp_base_CommandLineArgumentsTest_hpp */

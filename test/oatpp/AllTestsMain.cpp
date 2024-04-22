@@ -58,7 +58,7 @@
 #include "oatpp/core/data/share/MemoryLabelTest.hpp"
 #include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
-#include "oatpp/core/base/CommandLineArgumentsTest.hpp"
+#include "oatpp/base/CommandLineArgumentsTest.hpp"
 #include "oatpp/LoggerTest.hpp"
 
 #include "oatpp/async/Coroutine.hpp"
@@ -88,7 +88,7 @@ void runTests() {
   }
 
   OATPP_RUN_TEST(oatpp::test::LoggerTest);
-  OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
+  OATPP_RUN_TEST(oatpp::base::CommandLineArgumentsTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);

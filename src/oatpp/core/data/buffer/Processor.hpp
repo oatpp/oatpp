@@ -26,7 +26,7 @@
 #define oatpp_data_buffer_Processor_hpp
 
 #include "oatpp/IODefinitions.hpp"
-#include "oatpp/core/base/ObjectHandle.hpp"
+#include "oatpp/base/ObjectHandle.hpp"
 #include <vector>
 
 namespace oatpp { namespace data { namespace buffer {

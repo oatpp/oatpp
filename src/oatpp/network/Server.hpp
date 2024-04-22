@@ -30,7 +30,7 @@
 
 #include "oatpp/Types.hpp"
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 #include "oatpp/Environment.hpp"
 
 #include <atomic>

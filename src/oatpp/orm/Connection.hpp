@@ -25,7 +25,7 @@
 #ifndef oatpp_orm_Connection_hpp
 #define oatpp_orm_Connection_hpp
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 
 namespace oatpp { namespace orm {
 

@@ -27,7 +27,7 @@
 
 #include "./Processor.hpp"
 #include "oatpp/async/worker/Worker.hpp"
-#include "oatpp/core/base/Compiler.hpp"
+#include "oatpp/base/Compiler.hpp"
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
 #include "oatpp/core/concurrency/Thread.hpp"

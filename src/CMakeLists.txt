@@ -29,6 +29,13 @@ add_library(oatpp
 		oatpp/async/worker/TimerWorker.hpp
 		oatpp/async/worker/Worker.cpp
 		oatpp/async/worker/Worker.hpp
+		oatpp/base/CommandLineArguments.cpp
+		oatpp/base/CommandLineArguments.hpp
+		oatpp/base/Compiler.hpp
+		oatpp/base/Config.hpp
+		oatpp/base/Countable.cpp
+		oatpp/base/Countable.hpp
+		oatpp/base/ObjectHandle.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
@@ -49,12 +56,6 @@ add_library(oatpp
 		oatpp/codegen/DbClient_undef.hpp
 		oatpp/codegen/DTO_define.hpp
 		oatpp/codegen/DTO_undef.hpp
-        oatpp/core/base/CommandLineArguments.cpp
-        oatpp/core/base/CommandLineArguments.hpp
-        oatpp/core/base/Config.hpp
-        oatpp/core/base/Countable.cpp
-        oatpp/core/base/Countable.hpp
-        oatpp/core/base/ObjectHandle.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
         oatpp/core/concurrency/Thread.cpp

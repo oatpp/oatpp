@@ -25,7 +25,7 @@
 #ifndef oatpp_async_Error_hpp
 #define oatpp_async_Error_hpp
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 #include <string>
 
 namespace oatpp { namespace async {

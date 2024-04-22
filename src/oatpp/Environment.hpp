@@ -26,8 +26,8 @@
 #ifndef oatpp_Environment_hpp
 #define oatpp_Environment_hpp
 
-#include "oatpp/core/base/Compiler.hpp"
-#include "oatpp/core/base/Config.hpp"
+#include "oatpp/base/Compiler.hpp"
+#include "oatpp/base/Config.hpp"
 
 #include <cstdarg>
 #include <cstdio>

@@ -25,7 +25,7 @@
 #ifndef oatpp_data_buffer_IOBuffer_hpp
 #define oatpp_data_buffer_IOBuffer_hpp
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 
 namespace oatpp { namespace data{ namespace buffer {
 

@@ -25,7 +25,7 @@
 #ifndef oatpp_provider_Invalidator_hpp
 #define oatpp_provider_Invalidator_hpp
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 #include <memory>
 
 namespace oatpp { namespace provider {

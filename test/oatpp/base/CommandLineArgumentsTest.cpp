@@ -24,11 +24,11 @@
 
 #include "CommandLineArgumentsTest.hpp"
 
-#include "oatpp/core/base/CommandLineArguments.hpp"
+#include "oatpp/base/CommandLineArguments.hpp"
 
 #include <cstring>
 
-namespace oatpp { namespace test { namespace base {
+namespace oatpp { namespace base {
   
 void CommandLineArgumentsTest::onRun() {
   
@@ -60,4 +60,4 @@ void CommandLineArgumentsTest::onRun() {
 
 }
   
-}}}
+}}

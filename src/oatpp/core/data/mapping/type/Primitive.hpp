@@ -27,7 +27,7 @@
 
 #include "./Type.hpp"
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 
 #include <algorithm>
 #include <cctype>

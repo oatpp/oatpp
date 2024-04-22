@@ -25,7 +25,7 @@
 #ifndef oatpp_data_type_Type_hpp
 #define oatpp_data_type_Type_hpp
 
-#include "oatpp/core/base/Countable.hpp"
+#include "oatpp/base/Countable.hpp"
 #include "oatpp/Environment.hpp"
 
 #include <list>
