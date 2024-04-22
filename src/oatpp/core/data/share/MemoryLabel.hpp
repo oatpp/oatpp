@@ -26,7 +26,7 @@
 #define oatpp_data_share_MemoryLabel_hpp
 
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/utils/String.hpp"
+#include "oatpp/utils/String.hpp"
 
 #include <cstring>
 #include <memory>

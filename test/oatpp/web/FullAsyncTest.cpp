@@ -275,7 +275,7 @@ void FullAsyncTest::onRun() {
         auto value = response->readBodyToString();
         auto host = clientConnectionProvider->getProperty("host");
         OATPP_ASSERT(host)
-        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port))
+        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::Conversion::int32ToStr(m_port))
       }
 
       if((i + 1) % iterationsStep == 0) {

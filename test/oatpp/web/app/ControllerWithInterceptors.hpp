@@ -27,7 +27,7 @@
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/json/ObjectMapper.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 

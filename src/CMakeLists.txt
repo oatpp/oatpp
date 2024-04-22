@@ -3,8 +3,6 @@
 ## oatpp
 
 add_library(oatpp
-        oatpp/algorithm/CRC.cpp
-        oatpp/algorithm/CRC.hpp
         oatpp/codegen/ApiClient_define.hpp
         oatpp/codegen/ApiClient_undef.hpp
         oatpp/codegen/ApiController_define.hpp
@@ -132,14 +130,6 @@ add_library(oatpp
         oatpp/core/provider/Invalidator.hpp
         oatpp/core/provider/Pool.hpp
         oatpp/core/provider/Provider.hpp
-        oatpp/core/utils/Binary.cpp
-        oatpp/core/utils/Binary.hpp
-        oatpp/core/utils/ConversionUtils.cpp
-        oatpp/core/utils/ConversionUtils.hpp
-        oatpp/core/utils/Random.cpp
-        oatpp/core/utils/Random.hpp
-        oatpp/core/utils/String.cpp
-        oatpp/core/utils/String.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
@@ -207,6 +197,16 @@ add_library(oatpp
         oatpp/orm/SchemaMigration.hpp
         oatpp/orm/Transaction.cpp
         oatpp/orm/Transaction.hpp
+		oatpp/utils/Binary.cpp
+		oatpp/utils/Binary.hpp
+		oatpp/utils/Conversion.cpp
+		oatpp/utils/Conversion.hpp
+		oatpp/utils/CRC32.cpp
+		oatpp/utils/CRC32.hpp
+		oatpp/utils/Random.cpp
+		oatpp/utils/Random.hpp
+		oatpp/utils/String.cpp
+		oatpp/utils/String.hpp
         oatpp/web/client/ApiClient.cpp
         oatpp/web/client/ApiClient.hpp
         oatpp/web/client/HttpRequestExecutor.cpp

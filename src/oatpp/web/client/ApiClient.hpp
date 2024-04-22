@@ -36,7 +36,7 @@
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
 #include "oatpp/core/Types.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 #include <string>
 #include <list>
@@ -258,7 +258,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int8> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int8 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::int32ToStr(*parameter);
+      return utils::Conversion::int32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -269,7 +269,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt8> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt8 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::uint32ToStr(*parameter);
+      return utils::Conversion::uint32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -280,7 +280,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int16> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int16 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::int32ToStr(*parameter);
+      return utils::Conversion::int32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -291,7 +291,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt16> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt16 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::uint32ToStr(*parameter);
+      return utils::Conversion::uint32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -302,7 +302,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int32> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int32 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::int32ToStr(*parameter);
+      return utils::Conversion::int32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -313,7 +313,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt32> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt32 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::uint32ToStr(*parameter);
+      return utils::Conversion::uint32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -324,7 +324,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int64> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int64 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::int64ToStr(*parameter);
+      return utils::Conversion::int64ToStr(*parameter);
     }
     return nullptr;
   }
@@ -335,7 +335,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt64> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt64 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::uint64ToStr(*parameter);
+      return utils::Conversion::uint64ToStr(*parameter);
     }
     return nullptr;
   }
@@ -346,7 +346,7 @@ struct ApiClient::TypeInterpretation<oatpp::Float32> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Float32 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::float32ToStr(*parameter);
+      return utils::Conversion::float32ToStr(*parameter);
     }
     return nullptr;
   }
@@ -357,7 +357,7 @@ struct ApiClient::TypeInterpretation<oatpp::Float64> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Float64 &parameter) {
     (void) typeName;
     if (parameter) {
-      return utils::conversion::float64ToStr(*parameter);
+      return utils::Conversion::float64ToStr(*parameter);
     }
     return nullptr;
   }
@@ -368,7 +368,7 @@ struct ApiClient::TypeInterpretation<oatpp::Boolean> {
   static oatpp::String toString(const oatpp::String &typeName, const oatpp::Boolean &parameter) {
     (void) typeName;
     if(parameter != nullptr) {
-        return utils::conversion::boolToStr(*parameter);
+        return utils::Conversion::boolToStr(*parameter);
     }
     return nullptr;
   }

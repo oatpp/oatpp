@@ -25,7 +25,7 @@
 #include "./Primitive.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 #include "oatpp/core/data/share/MemoryLabel.hpp"
 
 #include <fstream>

@@ -22,9 +22,9 @@
  *
  ***************************************************************************/
 
-#include "CRC.hpp"
+#include "CRC32.hpp"
 
-namespace oatpp { namespace algorithm {
+namespace oatpp { namespace utils {
   
 const p_uint32 CRC32::TABLE_04C11DB7 = generateTable(0x04C11DB7);
   

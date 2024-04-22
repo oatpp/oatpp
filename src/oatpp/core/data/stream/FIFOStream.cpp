@@ -24,7 +24,7 @@
 
 
 #include "FIFOStream.hpp"
-#include "oatpp/core/utils/Binary.hpp"
+#include "oatpp/utils/Binary.hpp"
 
 namespace oatpp { namespace data { namespace stream {
 

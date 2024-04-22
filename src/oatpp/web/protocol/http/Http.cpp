@@ -25,7 +25,7 @@
 #include "./Http.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http {
   
@@ -172,8 +172,8 @@ Range Range::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   endLabel.end();
 
-  auto start = oatpp::utils::conversion::strToInt64(startLabel.getData());
-  auto end = oatpp::utils::conversion::strToInt64(endLabel.getData());
+  auto start = oatpp::utils::Conversion::strToInt64(startLabel.getData());
+  auto end = oatpp::utils::Conversion::strToInt64(endLabel.getData());
   return Range(unitsLabel.toString(), start, end);
   
 }
@@ -232,13 +232,13 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
   caret.findRN();
   sizeLabel.end();
   
-  v_int64 start = oatpp::utils::conversion::strToInt64(startLabel.getData());
-  v_int64 end = oatpp::utils::conversion::strToInt64(endLabel.getData());
+  v_int64 start = oatpp::utils::Conversion::strToInt64(startLabel.getData());
+  v_int64 end = oatpp::utils::Conversion::strToInt64(endLabel.getData());
   v_int64 size = 0;
   bool isSizeKnown = false;
   if(sizeLabel.getData()[0] != '*') {
     isSizeKnown = true;
-    size = oatpp::utils::conversion::strToInt64(sizeLabel.getData());
+    size = oatpp::utils::Conversion::strToInt64(sizeLabel.getData());
   }
   
   return ContentRange(unitsLabel.toString(), start, end, size, isSizeKnown);

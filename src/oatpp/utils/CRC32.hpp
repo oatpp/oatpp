@@ -22,14 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_algorithm_CRC_hpp
-#define oatpp_algorithm_CRC_hpp
+#ifndef oatpp_utils_CRC32_hpp
+#define oatpp_utils_CRC32_hpp
 
 #include "oatpp/core/base/Environment.hpp"
 
 #include "oatpp/encoding/Hex.hpp"
 
-namespace oatpp { namespace algorithm {
+namespace oatpp { namespace utils {
 
 /**
  * Implementation of CRC-32. Cyclic redundancy check algorithm.
@@ -66,4 +66,4 @@ public:
     
 }}
 
-#endif /* oatpp_algorithm_CRC_hpp */
+#endif /* oatpp_utils_CRC32_hpp */

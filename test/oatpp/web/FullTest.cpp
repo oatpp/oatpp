@@ -284,7 +284,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testMap->size() == 3)
         OATPP_ASSERT(dto->testMap["key1"] == "value1")
         OATPP_ASSERT(dto->testMap["key2"] == "32")
-        OATPP_ASSERT(dto->testMap["key3"] == oatpp::utils::conversion::float32ToStr(0.32f))
+        OATPP_ASSERT(dto->testMap["key3"] == oatpp::utils::Conversion::float32ToStr(0.32f))
       }
 
       { // test GET with header parameter
@@ -563,7 +563,7 @@ void FullTest::onRun() {
         auto value = response->readBodyToString();
         auto host = clientConnectionProvider->getProperty("host");
         OATPP_ASSERT(host)
-        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port))
+        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::Conversion::int32ToStr(m_port))
       }
 
     }

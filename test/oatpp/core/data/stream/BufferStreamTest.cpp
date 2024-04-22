@@ -25,8 +25,8 @@
 #include "BufferStreamTest.hpp"
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
-#include "oatpp/core/utils/Binary.hpp"
+#include "oatpp/utils/Conversion.hpp"
+#include "oatpp/utils/Binary.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace stream {
 
@@ -44,15 +44,15 @@ void BufferStreamTest::onRun() {
 
     stream.setCurrentPosition(0);
     stream << 101;
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(101))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::int32ToStr(101))
 
     stream.setCurrentPosition(0);
     stream << static_cast<v_float32>(101.5);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(101.5f))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::float32ToStr(101.5f))
 
     stream.setCurrentPosition(0);
     stream << static_cast<v_float64>(101.5f);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(101.5))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::float64ToStr(101.5))
 
     stream.setCurrentPosition(0);
     stream << true;
@@ -68,27 +68,27 @@ void BufferStreamTest::onRun() {
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int8(8);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(8))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::int32ToStr(8))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int16(16);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(16))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::int32ToStr(16))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int32(32);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(32))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::int32ToStr(32))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Int64(64);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::int32ToStr(64))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::int32ToStr(64))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Float32(0.32f);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float32ToStr(0.32f))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::float32ToStr(0.32f))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Float64(0.64);
-    OATPP_ASSERT(stream.toString() == oatpp::utils::conversion::float64ToStr(0.64))
+    OATPP_ASSERT(stream.toString() == oatpp::utils::Conversion::float64ToStr(0.64))
 
     stream.setCurrentPosition(0);
     stream << oatpp::Boolean(true);

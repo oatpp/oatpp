@@ -32,7 +32,7 @@
 #include "oatpp/core/data/mapping/type/List.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -307,8 +307,8 @@ void DTOMapperTest::onRun(){
       auto c = obj1->field_fields;
       v_int32 i = 0;
       for(auto& pair : *c) {
-        OATPP_ASSERT(pair.first == "key" + oatpp::utils::conversion::int32ToStr(i))
-        OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::conversion::int32ToStr(i))
+        OATPP_ASSERT(pair.first == "key" + oatpp::utils::Conversion::int32ToStr(i))
+        OATPP_ASSERT(pair.second == "pair_item" + oatpp::utils::Conversion::int32ToStr(i))
         i++;
       }
     }

@@ -29,7 +29,7 @@
 #include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/encoding/Hex.hpp"
-#include "oatpp/core/utils/Random.hpp"
+#include "oatpp/utils/Random.hpp"
 
 namespace oatpp { namespace data { namespace resource {
 
