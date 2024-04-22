@@ -24,7 +24,6 @@
 
 #include "TypeTest.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
 

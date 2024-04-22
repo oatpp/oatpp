@@ -26,18 +26,18 @@
 
 #include <cmath>
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
 
 namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
 typedef oatpp::parser::Caret ParsingCaret;
-typedef oatpp::parser::json::mapping::Serializer Serializer;
-typedef oatpp::parser::json::mapping::Deserializer Deserializer;
+typedef oatpp::json::Serializer Serializer;
+typedef oatpp::json::Deserializer Deserializer;
 
 class EmptyDto : public oatpp::DTO {
 
@@ -145,7 +145,7 @@ class AnyDto : public oatpp::DTO {
   
 void DeserializerTest::onRun(){
   
-  auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+  auto mapper = oatpp::json::ObjectMapper::createShared();
   
   auto obj1 = mapper->readFromString<oatpp::Object<Test1>>("{}");
   
@@ -324,4 +324,4 @@ void DeserializerTest::onRun(){
 
 }
   
-}}}}}
+}}}

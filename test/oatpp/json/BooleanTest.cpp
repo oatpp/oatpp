@@ -22,21 +22,42 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_parser_json_mapping_EnumTest_hpp
-#define oatpp_test_parser_json_mapping_EnumTest_hpp
+#include "BooleanTest.hpp"
 
-#include "oatpp-test/UnitTest.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
 
-class EnumTest : public UnitTest{
-public:
+void BooleanTest::onRun() {
+  oatpp::json::ObjectMapper mapper;
 
-  EnumTest():UnitTest("TEST[parser::json::mapping::EnumTest]"){}
-  void onRun() override;
+  {
+    OATPP_LOGI(TAG, "Serialize true to string...")
+    auto value = mapper.writeToString(Boolean(true));
+    OATPP_ASSERT(value == "true")
+    OATPP_LOGI(TAG, "OK")
+  }
 
-};
+  {
+    OATPP_LOGI(TAG, "Serialize false to string...")
+    auto value = mapper.writeToString(Boolean(false));
+    OATPP_ASSERT(value == "false")
+    OATPP_LOGI(TAG, "OK")
+  }
 
-}}}}}
+  {
+    OATPP_LOGI(TAG, "Deserialize true string...")
+    Boolean value = mapper.readFromString<Boolean>("true");
+    OATPP_ASSERT(static_cast<bool>(value))
+    OATPP_LOGI(TAG, "OK")
+  }
 
-#endif /* oatpp_test_parser_json_mapping_EnumTest_hpp */
+  {
+    OATPP_LOGI(TAG, "Deserialize false string...")
+    Boolean value = mapper.readFromString<Boolean>("false");
+    OATPP_ASSERT(!static_cast<bool>(value))
+    OATPP_LOGI(TAG, "OK")
+  }
+}
+
+}}}

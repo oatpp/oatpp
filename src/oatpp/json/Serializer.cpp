@@ -24,10 +24,10 @@
 
 #include "Serializer.hpp"
 
-#include "oatpp/parser/json/Utils.hpp"
+#include "./Utils.hpp"
 #include "oatpp/core/data/mapping/type/Any.hpp"
 
-namespace oatpp { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json {
 
 Serializer::Serializer(const std::shared_ptr<Config>& config)
   : m_config(config)
@@ -129,13 +129,13 @@ void Serializer::serializeEnum(Serializer* serializer,
 
   switch(e) {
     case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
-      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+      throw std::runtime_error("[oatpp::json::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
     case data::mapping::type::EnumInterpreterError::OK:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
     case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
-      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
+      throw std::runtime_error("[oatpp::json::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
   }
 
 }
@@ -188,7 +188,7 @@ void Serializer::serializeMap(Serializer* serializer,
 
   auto keyType = dispatcher->getKeyType();
   if(keyType->classId != oatpp::String::Class::CLASS_ID){
-    throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serializeMap()]: Invalid json map key. Key should be String");
+    throw std::runtime_error("[oatpp::json::Serializer::serializeMap()]: Invalid json map key. Key should be String");
   }
 
   stream->writeCharSimple('{');
@@ -245,7 +245,7 @@ void Serializer::serializeObject(Serializer* serializer,
     }
 
     if(field->info.required && value == nullptr) {
-      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
+      throw std::runtime_error("[oatpp::json::Serializer::serialize()]: "
                                "Error. " + std::string(type->nameQualifier) + "::"
                                + std::string(field->name) + " is required!");
     }
@@ -276,7 +276,7 @@ void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
     if(interpretation) {
       serialize(stream, interpretation->toInterpretation(polymorph));
     } else {
-      throw std::runtime_error("[oatpp::parser::json::mapping::Serializer::serialize()]: "
+      throw std::runtime_error("[oatpp::json::Serializer::serialize()]: "
                                "Error. No serialize method for type '" +
                                std::string(polymorph.getValueType()->classId.name) + "'");
     }
@@ -299,4 +299,4 @@ const std::shared_ptr<Serializer::Config>& Serializer::getConfig() {
   return m_config;
 }
 
-}}}}
+}}

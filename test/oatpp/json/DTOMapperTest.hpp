@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_parser_json_mapping_DTOMapperPerfTest_hpp
-#define oatpp_test_parser_json_mapping_DTOMapperPerfTest_hpp
+#ifndef oatpp_json_test_DTOMapperTest_hpp
+#define oatpp_json_test_DTOMapperTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
   
-class DTOMapperPerfTest : public UnitTest{
+class DTOMapperTest : public oatpp::test::UnitTest {
 public:
   
-  DTOMapperPerfTest():UnitTest("TEST[parser::json::mapping::DTOMapperPerfTest]"){}
+  DTOMapperTest():UnitTest("TEST[oatpp::json::DTOMapperTest]"){}
   void onRun() override;
   
 };
   
-}}}}}
+}}}
 
-#endif /* oatpp_test_parser_json_mapping_DTOMapperPerfTest_hpp */
+#endif /* oatpp_json_test_DTOMapperTest_hpp */

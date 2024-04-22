@@ -22,15 +22,15 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_json_mapping_ObjectMapper_hpp
-#define oatpp_parser_json_mapping_ObjectMapper_hpp
+#ifndef oatpp_json_ObjectMapper_hpp
+#define oatpp_json_ObjectMapper_hpp
 
 #include "./Serializer.hpp"
 #include "./Deserializer.hpp"
 
 #include "oatpp/core/data/mapping/ObjectMapper.hpp"
 
-namespace oatpp { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json {
 
 /**
  * Json ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from JSON.
@@ -49,8 +49,8 @@ private:
 public:
   /**
    * Constructor.
-   * @param serializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
-   * @param deserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   * @param serializerConfig - &id:oatpp::json::Serializer::Config;.
+   * @param deserializerConfig - &id:oatpp::json::Deserializer::Config;.
    */
   ObjectMapper(const std::shared_ptr<Serializer::Config>& serializerConfig,
                const std::shared_ptr<Deserializer::Config>& deserializerConfig);
@@ -66,8 +66,8 @@ public:
 
   /**
    * Create shared ObjectMapper.
-   * @param serializerConfig - &id:oatpp::parser::json::mapping::Serializer::Config;.
-   * @param deserializerConfig - &id:oatpp::parser::json::mapping::Deserializer::Config;.
+   * @param serializerConfig - &id:oatpp::json::Serializer::Config;.
+   * @param deserializerConfig - &id:oatpp::json::Deserializer::Config;.
    * @return - `std::shared_ptr` to ObjectMapper.
    */
   static std::shared_ptr<ObjectMapper>
@@ -114,6 +114,6 @@ public:
   
 };
   
-}}}}
+}}
 
-#endif /* oatpp_parser_json_mapping_ObjectMapper_hpp */
+#endif /* oatpp_json_ObjectMapper_hpp */

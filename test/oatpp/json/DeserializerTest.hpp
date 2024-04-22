@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_parser_json_mapping_DeserializerTest_hpp
-#define oatpp_test_parser_json_mapping_DeserializerTest_hpp
+#ifndef oatpp_json_test_DeserializerTest_hpp
+#define oatpp_json_test_DeserializerTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
   
-class DeserializerTest : public UnitTest{
+class DeserializerTest : public oatpp::test::UnitTest {
 public:
   
-  DeserializerTest():UnitTest("TEST[parser::json::mapping::DeserializerTest]"){}
+  DeserializerTest():UnitTest("TEST[oatpp::json::DeserializerTest]"){}
   void onRun() override;
   
 };
   
-}}}}}
+}}}
 
-#endif /* oatpp_test_parser_json_mapping_DeserializerTest_hpp */
+#endif /* oatpp_json_test_DeserializerTest_hpp */

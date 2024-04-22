@@ -148,6 +148,16 @@ add_library(oatpp
         oatpp/encoding/Unicode.hpp
         oatpp/encoding/Url.cpp
         oatpp/encoding/Url.hpp
+		oatpp/json/Beautifier.cpp
+		oatpp/json/Beautifier.hpp
+		oatpp/json/Deserializer.cpp
+		oatpp/json/Deserializer.hpp
+		oatpp/json/ObjectMapper.cpp
+		oatpp/json/ObjectMapper.hpp
+		oatpp/json/Serializer.cpp
+		oatpp/json/Serializer.hpp
+		oatpp/json/Utils.cpp
+		oatpp/json/Utils.hpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
         oatpp/network/ConnectionHandler.hpp
@@ -197,16 +207,6 @@ add_library(oatpp
         oatpp/orm/SchemaMigration.hpp
         oatpp/orm/Transaction.cpp
         oatpp/orm/Transaction.hpp
-        oatpp/parser/json/Beautifier.cpp
-        oatpp/parser/json/Beautifier.hpp
-        oatpp/parser/json/Utils.cpp
-        oatpp/parser/json/Utils.hpp
-        oatpp/parser/json/mapping/Deserializer.cpp
-        oatpp/parser/json/mapping/Deserializer.hpp
-        oatpp/parser/json/mapping/ObjectMapper.cpp
-        oatpp/parser/json/mapping/ObjectMapper.hpp
-        oatpp/parser/json/mapping/Serializer.cpp
-        oatpp/parser/json/mapping/Serializer.hpp
         oatpp/web/client/ApiClient.cpp
         oatpp/web/client/ApiClient.hpp
         oatpp/web/client/HttpRequestExecutor.cpp

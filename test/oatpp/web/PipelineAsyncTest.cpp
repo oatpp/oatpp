@@ -29,7 +29,7 @@
 #include "oatpp/web/server/AsyncHttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
@@ -90,7 +90,7 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
-    return oatpp::parser::json::mapping::ObjectMapper::createShared();
+    return oatpp::json::ObjectMapper::createShared();
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider)([this] {

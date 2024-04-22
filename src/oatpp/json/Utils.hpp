@@ -22,19 +22,19 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_json_Utils_hpp
-#define oatpp_parser_json_Utils_hpp
+#ifndef oatpp_json_Utils_hpp
+#define oatpp_json_Utils_hpp
 
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <string>
 
-namespace oatpp { namespace parser { namespace json {
+namespace oatpp { namespace json {
 
 /**
  * Utility class for json serializer/deserializer.
- * Used by &id:oatpp::parser::json::mapping::Serializer;, &id:oatpp::parser::json::mapping::Deserializer;.
+ * Used by &id:oatpp::json::Serializer;, &id:oatpp::json::Deserializer;.
  */
 class Utils {
 public:
@@ -143,6 +143,6 @@ public:
   
 };
   
-}}}
+}}
 
-#endif /* oatpp_parser_json_Utils_hpp */
+#endif /* oatpp_json_Utils_hpp */

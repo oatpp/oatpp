@@ -26,7 +26,7 @@
 
 #include "oatpp/core/utils/ConversionUtils.hpp"
 
-namespace oatpp { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json {
 
 Deserializer::Deserializer(const std::shared_ptr<Config>& config)
   : m_config(config)
@@ -192,7 +192,7 @@ oatpp::Void Deserializer::deserializeBoolean(Deserializer* deserializer, parser:
     } else if(caret.isAtText("false", true)) {
       return Boolean(false);
     } else {
-      caret.setError("[oatpp::parser::json::mapping::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
+      caret.setError("[oatpp::json::Deserializer::readBooleanValue()]: Error. 'true' or 'false' - expected.", ERROR_CODE_VALUE_BOOLEAN);
       return oatpp::Void(Boolean::Class::getType());
     }
   }
@@ -207,7 +207,7 @@ oatpp::Void Deserializer::deserializeString(Deserializer* deserializer, parser::
   if(caret.isAtText("null", true)){
     return oatpp::Void(String::Class::getType());
   } else {
-    return oatpp::Void(oatpp::parser::json::Utils::parseString(caret).getPtr(), String::Class::getType());
+    return oatpp::Void(Utils::parseString(caret).getPtr(), String::Class::getType());
   }
 }
 
@@ -245,7 +245,7 @@ const data::mapping::type::Type* Deserializer::guessType(oatpp::parser::Caret& c
         }
     }
   }
-  caret.setError("[oatpp::parser::json::mapping::Deserializer::guessType()]: Error. Can't guess type for oatpp::Any.");
+  caret.setError("[oatpp::json::Deserializer::guessType()]: Error. Can't guess type for oatpp::Any.");
   return nullptr;
 }
 
@@ -283,14 +283,14 @@ oatpp::Void Deserializer::deserializeEnum(Deserializer* deserializer, parser::Ca
 
   switch(e) {
     case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
-      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
+      caret.setError("[oatpp::json::Deserializer::deserializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
       break;
     case data::mapping::type::EnumInterpreterError::OK:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
     case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
-      caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeEnum()]: Error. Can't deserialize Enum.");
+      caret.setError("[oatpp::json::Deserializer::deserializeEnum()]: Error. Can't deserialize Enum.");
   }
 
   return nullptr;
@@ -329,7 +329,7 @@ oatpp::Void Deserializer::deserializeCollection(Deserializer* deserializer, pars
 
     if(!caret.canContinueAtChar(']', 1)){
       if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeCollection()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
+        caret.setError("[oatpp::json::Deserializer::deserializeCollection()]: Error. ']' - expected", ERROR_CODE_ARRAY_SCOPE_CLOSE);
       }
       return nullptr;
     }
@@ -337,7 +337,7 @@ oatpp::Void Deserializer::deserializeCollection(Deserializer* deserializer, pars
     return collection;
 
   } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeCollection()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
+    caret.setError("[oatpp::json::Deserializer::deserializeCollection()]: Error. '[' - expected", ERROR_CODE_ARRAY_SCOPE_OPEN);
     return nullptr;
   }
 
@@ -356,7 +356,7 @@ oatpp::Void Deserializer::deserializeMap(Deserializer* deserializer, parser::Car
 
     auto keyType = dispatcher->getKeyType();
     if(keyType->classId != oatpp::String::Class::CLASS_ID){
-      throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Invalid json map key. Key should be String");
+      throw std::runtime_error("[oatpp::json::Deserializer::deserializeMap()]: Invalid json map key. Key should be String");
     }
     auto valueType = dispatcher->getValueType();
 
@@ -372,7 +372,7 @@ oatpp::Void Deserializer::deserializeMap(Deserializer* deserializer, parser::Car
 
       caret.skipBlankChars();
       if(!caret.canContinueAtChar(':', 1)){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+        caret.setError("[oatpp::json::Deserializer::deserializeMap()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
         return nullptr;
       }
 
@@ -391,7 +391,7 @@ oatpp::Void Deserializer::deserializeMap(Deserializer* deserializer, parser::Car
 
     if(!caret.canContinueAtChar('}', 1)){
       if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
+        caret.setError("[oatpp::json::Deserializer::deserializeMap()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
       }
       return nullptr;
     }
@@ -399,7 +399,7 @@ oatpp::Void Deserializer::deserializeMap(Deserializer* deserializer, parser::Car
     return map;
 
   } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::deserializeMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+    caret.setError("[oatpp::json::Deserializer::deserializeMap()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
   }
 
   return nullptr;
@@ -434,7 +434,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
         caret.skipBlankChars();
         if(!caret.canContinueAtChar(':', 1)){
-          caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+          caret.setError("[oatpp::json::Deserializer::readObject()]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
           return nullptr;
         }
 
@@ -449,7 +449,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
         } else {
           auto value = deserializer->deserialize(caret, field->type);
           if(field->info.required && value == nullptr) {
-            throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
+            throw std::runtime_error("[oatpp::json::Deserializer::deserialize()]: "
                                      "Error. " + std::string(type->nameQualifier) + "::"
                                      + std::string(field->name) + " is required!");
           }
@@ -459,13 +459,13 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
       } else if (deserializer->getConfig()->allowUnknownFields) {
         caret.skipBlankChars();
         if(!caret.canContinueAtChar(':', 1)){
-          caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()/if(config->allowUnknownFields){}]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
+          caret.setError("[oatpp::json::Deserializer::readObject()/if(config->allowUnknownFields){}]: Error. ':' - expected", ERROR_CODE_OBJECT_SCOPE_COLON_MISSING);
           return nullptr;
         }
         caret.skipBlankChars();
         skipValue(caret);
       } else {
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. Unknown field", ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
+        caret.setError("[oatpp::json::Deserializer::readObject()]: Error. Unknown field", ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
         return nullptr;
       }
 
@@ -476,7 +476,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
 
     if(!caret.canContinueAtChar('}', 1)){
       if(!caret.hasError()){
-        caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
+        caret.setError("[oatpp::json::Deserializer::readObject()]: Error. '}' - expected", ERROR_CODE_OBJECT_SCOPE_CLOSE);
       }
       return nullptr;
     }
@@ -486,7 +486,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
       auto selectedType = p.first->info.typeSelector->selectType(static_cast<oatpp::BaseObject *>(object.get()));
       auto value = deserializer->deserialize(polyCaret, selectedType);
       if(p.first->info.required && value == nullptr) {
-        throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
+        throw std::runtime_error("[oatpp::json::Deserializer::deserialize()]: "
                                  "Error. " + std::string(type->nameQualifier) + "::"
                                  + std::string(p.first->name) + " is required!");
       }
@@ -497,7 +497,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, parser::
     return object;
 
   } else {
-    caret.setError("[oatpp::parser::json::mapping::Deserializer::readObject()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
+    caret.setError("[oatpp::json::Deserializer::readObject()]: Error. '{' - expected", ERROR_CODE_OBJECT_SCOPE_OPEN);
   }
 
   return nullptr;
@@ -516,7 +516,7 @@ oatpp::Void Deserializer::deserialize(parser::Caret& caret, const Type* const ty
       return interpretation->fromInterpretation(deserialize(caret, interpretation->getInterpretationType()));
     }
 
-    throw std::runtime_error("[oatpp::parser::json::mapping::Deserializer::deserialize()]: "
+    throw std::runtime_error("[oatpp::json::Deserializer::deserialize()]: "
                              "Error. No deserialize method for type '" + std::string(type->classId.name) + "'");
   }
 }
@@ -525,4 +525,4 @@ const std::shared_ptr<Deserializer::Config>& Deserializer::getConfig() {
   return m_config;
 }
 
-}}}}
+}}

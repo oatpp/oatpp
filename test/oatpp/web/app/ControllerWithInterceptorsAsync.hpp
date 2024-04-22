@@ -26,7 +26,7 @@
 #define oatpp_test_web_app_ControllerWithInterceptorsAsync_hpp
 
 #include "oatpp/web/server/api/ApiController.hpp"
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 #include "oatpp/core/utils/ConversionUtils.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"

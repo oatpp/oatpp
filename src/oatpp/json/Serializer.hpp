@@ -22,15 +22,15 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_json_mapping_Serializer_hpp
-#define oatpp_parser_json_mapping_Serializer_hpp
+#ifndef oatpp_json_Serializer_hpp
+#define oatpp_json_Serializer_hpp
 
-#include "oatpp/parser/json/Utils.hpp"
-#include "oatpp/parser/json/Beautifier.hpp"
+#include "./Utils.hpp"
+#include "./Beautifier.hpp"
 #include "oatpp/core/Types.hpp"
 #include <vector>
 
-namespace oatpp { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json {
 
 /**
  * Json Serializer.
@@ -197,6 +197,6 @@ public:
 
 };
 
-}}}}
+}}
 
-#endif /* oatpp_parser_json_mapping_Serializer_hpp */
+#endif /* oatpp_json_Serializer_hpp */

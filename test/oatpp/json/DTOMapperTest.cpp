@@ -26,7 +26,7 @@
 
 #include <cmath>
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/core/data/mapping/type/Object.hpp"
 #include "oatpp/core/data/mapping/type/List.hpp"
@@ -36,7 +36,7 @@
 
 #include "oatpp/core/macro/codegen.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
   
 namespace {
   
@@ -164,7 +164,7 @@ class TestAnyNested : public oatpp::DTO {
   
 void DTOMapperTest::onRun(){
   
-  auto mapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+  auto mapper = oatpp::json::ObjectMapper::createShared();
   mapper->getSerializer()->getConfig()->useBeautifier = true;
 
   {
@@ -402,4 +402,4 @@ void DTOMapperTest::onRun(){
   
 #include OATPP_CODEGEN_END(DTO)
 
-}}}}}
+}}}

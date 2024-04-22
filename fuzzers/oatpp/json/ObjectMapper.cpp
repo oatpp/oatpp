@@ -1,9 +1,9 @@
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
 typedef oatpp::parser::Caret ParsingCaret;
-typedef oatpp::parser::json::mapping::Serializer Serializer;
-typedef oatpp::parser::json::mapping::Deserializer Deserializer;
+typedef oatpp::json::Serializer Serializer;
+typedef oatpp::json::Deserializer Deserializer;
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -18,7 +18,7 @@ class Test1 : public oatpp::DTO {
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   oatpp::String input(reinterpret_cast<const char*>(data), size);
-  oatpp::parser::json::mapping::ObjectMapper mapper;
+  oatpp::json::ObjectMapper mapper;
   try {
     mapper.readFromString<oatpp::Object<Test1>>(input);
   } catch(...) {}

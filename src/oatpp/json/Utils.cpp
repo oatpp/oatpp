@@ -27,7 +27,7 @@
 #include "oatpp/encoding/Unicode.hpp"
 #include "oatpp/encoding/Hex.hpp"
 
-namespace oatpp { namespace parser { namespace json{
+namespace oatpp { namespace json{
 
 v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags) {
   v_buff_size result = 0;
@@ -423,9 +423,9 @@ const char* Utils::preparseString(ParsingCaret& caret, v_buff_size& size){
       }
     }
     caret.setPosition(caret.getDataSize());
-    caret.setError("[oatpp::parser::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
+    caret.setError("[oatpp::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
   } else {
-    caret.setError("[oatpp::parser::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
+    caret.setError("[oatpp::json::Utils::preparseString()]: Error. '\"' - expected", ERROR_CODE_PARSER_QUOTE_EXPECTED);
   }
   
   return nullptr;
@@ -445,7 +445,7 @@ oatpp::String Utils::parseString(ParsingCaret& caret) {
     v_buff_size errorPosition;
     auto result = unescapeString(data, size, errorCode, errorPosition);
     if(errorCode != 0){
-      caret.setError("[oatpp::parser::json::Utils::parseString()]: Error. Call to unescapeString() failed", errorCode);
+      caret.setError("[oatpp::json::Utils::parseString()]: Error. Call to unescapeString() failed", errorCode);
       caret.setPosition(pos + errorPosition);
     } else {
       caret.setPosition(pos + size + 1);
@@ -472,7 +472,7 @@ std::string Utils::parseStringToStdString(ParsingCaret& caret){
     v_buff_size errorPosition;
     const std::string& result = unescapeStringToStdString(data, size, errorCode, errorPosition);
     if(errorCode != 0){
-      caret.setError("[oatpp::parser::json::Utils::parseStringToStdString()]: Error. Call to unescapeStringToStdString() failed", errorCode);
+      caret.setError("[oatpp::json::Utils::parseStringToStdString()]: Error. Call to unescapeStringToStdString() failed", errorCode);
       caret.setPosition(pos + errorPosition);
     } else {
       caret.setPosition(pos + size + 1);
@@ -502,4 +502,4 @@ bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
   return false;
 }
   
-}}}
+}}

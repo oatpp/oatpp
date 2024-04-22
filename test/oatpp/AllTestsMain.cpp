@@ -18,12 +18,12 @@
 #include "oatpp/network/ConnectionPoolTest.hpp"
 #include "oatpp/network/monitor/ConnectionMonitorTest.hpp"
 
-#include "oatpp/parser/json/mapping/DeserializerTest.hpp"
-#include "oatpp/parser/json/mapping/DTOMapperPerfTest.hpp"
-#include "oatpp/parser/json/mapping/DTOMapperTest.hpp"
-#include "oatpp/parser/json/mapping/EnumTest.hpp"
-#include "oatpp/parser/json/mapping/BooleanTest.hpp"
-#include "oatpp/parser/json/mapping/UnorderedSetTest.hpp"
+#include "oatpp/json/DeserializerTest.hpp"
+#include "oatpp/json/DTOMapperPerfTest.hpp"
+#include "oatpp/json/DTOMapperTest.hpp"
+#include "oatpp/json/EnumTest.hpp"
+#include "oatpp/json/BooleanTest.hpp"
+#include "oatpp/json/UnorderedSetTest.hpp"
 
 #include "oatpp/encoding/Base64Test.hpp"
 #include "oatpp/encoding/UnicodeTest.hpp"
@@ -126,14 +126,14 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
 
-  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::EnumTest);
-  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::BooleanTest);
+  OATPP_RUN_TEST(oatpp::json::test::EnumTest);
+  OATPP_RUN_TEST(oatpp::json::test::BooleanTest);
 
-  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::UnorderedSetTest);
+  OATPP_RUN_TEST(oatpp::json::test::UnorderedSetTest);
 
-  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DeserializerTest);
-  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperPerfTest);
-  OATPP_RUN_TEST(oatpp::test::parser::json::mapping::DTOMapperTest);
+  OATPP_RUN_TEST(oatpp::json::test::DeserializerTest);
+  OATPP_RUN_TEST(oatpp::json::test::DTOMapperPerfTest);
+  OATPP_RUN_TEST(oatpp::json::test::DTOMapperTest);
 
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);

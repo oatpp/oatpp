@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_json_Beautifier_hpp
-#define oatpp_parser_json_Beautifier_hpp
+#ifndef oatpp_json_Beautifier_hpp
+#define oatpp_json_Beautifier_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
 
-namespace oatpp { namespace parser { namespace json {
+namespace oatpp { namespace json {
 
 /**
  * JSON output stream beautifier.
@@ -87,6 +87,6 @@ public:
 
 };
 
-}}}
+}}
 
-#endif // oatpp_parser_json_Beautifier_hpp
+#endif // oatpp_json_Beautifier_hpp

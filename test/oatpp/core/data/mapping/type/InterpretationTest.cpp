@@ -24,7 +24,7 @@
 
 #include "InterpretationTest.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 #include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/Types.hpp"
 #include "oatpp/core/macro/codegen.hpp"
@@ -173,7 +173,7 @@ namespace __class {
 
 void InterpretationTest::onRun() {
 
-  oatpp::parser::json::mapping::ObjectMapper mapper;
+  oatpp::json::ObjectMapper mapper;
 
   {
     auto config = mapper.getSerializer()->getConfig();

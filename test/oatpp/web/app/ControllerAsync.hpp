@@ -36,7 +36,7 @@
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/core/data/resource/File.hpp"
 #include "oatpp/core/data/stream/FileStream.hpp"

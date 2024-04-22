@@ -24,11 +24,11 @@
 
 #include "EnumTest.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/core/macro/codegen.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
 
 namespace {
 
@@ -56,7 +56,7 @@ class DTO1 : public oatpp::DTO {
 
 void EnumTest::onRun() {
 
-  oatpp::parser::json::mapping::ObjectMapper mapper;
+  oatpp::json::ObjectMapper mapper;
 
   {
     OATPP_LOGI(TAG, "Serializer as string...")
@@ -184,4 +184,4 @@ void EnumTest::onRun() {
 
 }
 
-}}}}}
+}}}

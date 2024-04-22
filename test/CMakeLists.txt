@@ -61,6 +61,18 @@ add_executable(oatppAllTests
         oatpp/encoding/UnicodeTest.hpp
         oatpp/encoding/UrlTest.cpp
         oatpp/encoding/UrlTest.hpp
+        oatpp/json/BooleanTest.cpp
+        oatpp/json/BooleanTest.hpp
+        oatpp/json/DeserializerTest.cpp
+        oatpp/json/DeserializerTest.hpp
+        oatpp/json/DTOMapperPerfTest.cpp
+        oatpp/json/DTOMapperPerfTest.hpp
+        oatpp/json/DTOMapperTest.cpp
+        oatpp/json/DTOMapperTest.hpp
+        oatpp/json/EnumTest.cpp
+        oatpp/json/EnumTest.hpp
+        oatpp/json/UnorderedSetTest.cpp
+        oatpp/json/UnorderedSetTest.hpp
         oatpp/network/ConnectionPoolTest.cpp
         oatpp/network/ConnectionPoolTest.hpp
         oatpp/network/UrlTest.cpp
@@ -71,18 +83,6 @@ add_executable(oatppAllTests
         oatpp/network/virtual_/InterfaceTest.hpp
         oatpp/network/virtual_/PipeTest.cpp
         oatpp/network/virtual_/PipeTest.hpp
-        oatpp/parser/json/mapping/BooleanTest.cpp
-        oatpp/parser/json/mapping/BooleanTest.hpp
-        oatpp/parser/json/mapping/DeserializerTest.cpp
-        oatpp/parser/json/mapping/DeserializerTest.hpp
-        oatpp/parser/json/mapping/DTOMapperPerfTest.cpp
-        oatpp/parser/json/mapping/DTOMapperPerfTest.hpp
-        oatpp/parser/json/mapping/DTOMapperTest.cpp
-        oatpp/parser/json/mapping/DTOMapperTest.hpp
-        oatpp/parser/json/mapping/EnumTest.cpp
-        oatpp/parser/json/mapping/EnumTest.hpp
-        oatpp/parser/json/mapping/UnorderedSetTest.cpp
-        oatpp/parser/json/mapping/UnorderedSetTest.hpp
         oatpp/web/ClientRetryTest.cpp
         oatpp/web/ClientRetryTest.hpp
         oatpp/web/FullAsyncClientTest.cpp

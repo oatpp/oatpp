@@ -24,7 +24,7 @@
 
 #include "ObjectTest.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
@@ -477,7 +477,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test 16...")
 
-    oatpp::parser::json::mapping::ObjectMapper mapper;
+    oatpp::json::ObjectMapper mapper;
 
     auto dto = PolymorphicDto1::createShared();
 
@@ -509,7 +509,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test 17...")
 
-    oatpp::parser::json::mapping::ObjectMapper mapper;
+    oatpp::json::ObjectMapper mapper;
 
     auto dto = PolymorphicDto3::createShared();
 
@@ -541,7 +541,7 @@ void ObjectTest::onRun() {
   {
     OATPP_LOGI(TAG, "Test 18...")
 
-    oatpp::parser::json::mapping::ObjectMapper mapper;
+    oatpp::json::ObjectMapper mapper;
 
     auto dto = PolymorphicDto3::createShared();
 

@@ -22,33 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_parser_json_mapping_BooleanTest_hpp
-#define oatpp_test_parser_json_mapping_BooleanTest_hpp
+#ifndef oatpp_json_test_EnumTest_hpp
+#define oatpp_json_test_EnumTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp
-{
-namespace test
-{
-namespace parser
-{
-namespace json
-{
-namespace mapping
-{
+namespace oatpp { namespace json { namespace test {
 
-class BooleanTest : public UnitTest
-{
+class EnumTest : public oatpp::test::UnitTest {
 public:
-   BooleanTest() : UnitTest("TEST[parser::json::mapping::BooleanTest]") {}
-   void onRun() override;
+
+  EnumTest():UnitTest("TEST[oatpp::json::EnumTest]"){}
+  void onRun() override;
+
 };
 
-}  // namespace mapping
-}  // namespace json
-}  // namespace parser
-}  // namespace test
-}  // namespace oatpp
+}}}
 
-#endif /* oatpp_test_parser_json_mapping_BooleanTest_hpp */
+#endif /* oatpp_json_test_EnumTest_hpp */

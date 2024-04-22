@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_parser_json_mapping_UnorderedSetTest_hpp
-#define oatpp_test_parser_json_mapping_UnorderedSetTest_hpp
+#ifndef oatpp_json_test_UnorderedSetTest_hpp
+#define oatpp_json_test_UnorderedSetTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json { namespace test {
 
-class UnorderedSetTest : public UnitTest{
+class UnorderedSetTest : public oatpp::test::UnitTest {
 public:
 
-  UnorderedSetTest():UnitTest("TEST[parser::json::mapping::UnorderedSetTest]"){}
+  UnorderedSetTest():UnitTest("TEST[oatpp::json::UnorderedSetTest]"){}
   void onRun() override;
 
 };
 
-}}}}}
+}}}
 
-#endif /* oatpp_test_parser_json_mapping_UnorderedSetTest_hpp */
+#endif /* oatpp_json_test_UnorderedSetTest_hpp */

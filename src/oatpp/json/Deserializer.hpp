@@ -22,16 +22,16 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_json_mapping_Deserializer_hpp
-#define oatpp_parser_json_mapping_Deserializer_hpp
+#ifndef oatpp_json_Deserializer_hpp
+#define oatpp_json_Deserializer_hpp
 
-#include "oatpp/parser/json/Utils.hpp"
+#include "./Utils.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include <vector>
 
-namespace oatpp { namespace parser { namespace json { namespace mapping {
+namespace oatpp { namespace json {
 
 /**
  * Json Deserializer.
@@ -209,6 +209,6 @@ public:
 
 };
 
-}}}}
+}}
 
-#endif /* oatpp_parser_json_mapping_Deserializer_hpp */
+#endif /* oatpp_json_Deserializer_hpp */
