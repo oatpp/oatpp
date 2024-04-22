@@ -23,11 +23,11 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_base_Environment_hpp
-#define oatpp_base_Environment_hpp
+#ifndef oatpp_Environment_hpp
+#define oatpp_Environment_hpp
 
-#include "./Compiler.hpp"
-#include "./Config.hpp"
+#include "oatpp/core/base/Compiler.hpp"
+#include "oatpp/core/base/Config.hpp"
 
 #include <cstdarg>
 #include <cstdio>
@@ -83,7 +83,7 @@ typedef v_buff_size* p_buff_size;
 typedef uintptr_t v_buff_usize;
 typedef v_buff_usize* p_buff_usize;
 
-namespace oatpp { namespace base {
+namespace oatpp {
 
 /**
  * Interface for system-wide Logger.<br>
@@ -511,7 +511,7 @@ if(!(EXP)) { \
  * @param NAME - variable-name of the category which is later used to reference the category.
  */
 #define OATPP_DECLARE_LOG_CATEGORY(NAME) \
-  static oatpp::base::LogCategory NAME;
+  static oatpp::LogCategory NAME;
 
 /**
  * Convenience macro to implement a logging category directly in a class header.
@@ -520,7 +520,7 @@ if(!(EXP)) { \
  * @param ENABLED - enable or disable a category (bool).
  */
 #define OATPP_LOG_CATEGORY(NAME, TAG, ENABLED) \
-  oatpp::base::LogCategory NAME = oatpp::base::LogCategory(TAG, ENABLED);
+  oatpp::LogCategory NAME = oatpp::LogCategory(TAG, ENABLED);
 
 
 #ifndef OATPP_DISABLE_LOGV
@@ -533,7 +533,7 @@ if(!(EXP)) { \
    * @param ... - optional format parameter.
    */
   #define OATPP_LOGV(TAG, ...) \
-  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_V, TAG, __VA_ARGS__);
+  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_V, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGV(TAG, ...)
@@ -549,7 +549,7 @@ if(!(EXP)) { \
    * @param ... - optional format parameter.
    */
   #define OATPP_LOGD(TAG, ...) \
-  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_D, TAG, __VA_ARGS__);
+  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_D, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGD(TAG, ...)
@@ -565,7 +565,7 @@ if(!(EXP)) { \
    * @param ... - optional format parameter.
    */
   #define OATPP_LOGI(TAG, ...) \
-  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_I, TAG, __VA_ARGS__);
+  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_I, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGI(TAG, ...)
@@ -581,7 +581,7 @@ if(!(EXP)) { \
    * @param ... - optional format parameter.
    */
   #define OATPP_LOGW(TAG, ...) \
-  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_W, TAG, __VA_ARGS__);
+  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_W, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGW(TAG, ...)
@@ -597,13 +597,13 @@ if(!(EXP)) { \
    * @param ... - optional format parameter.
    */
   #define OATPP_LOGE(TAG, ...) \
-  oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_E, TAG, __VA_ARGS__);
+  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_E, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGE(TAG, ...)
 #endif
   
-}}
+}
 
 
-#endif /* oatpp_base_Environment_hpp */
+#endif /* oatpp_Environment_hpp */

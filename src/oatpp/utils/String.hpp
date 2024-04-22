@@ -25,7 +25,7 @@
 #ifndef oatpp_utils_String_hpp
 #define oatpp_utils_String_hpp
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 namespace oatpp { namespace utils {
 

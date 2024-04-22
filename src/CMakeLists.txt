@@ -54,8 +54,6 @@ add_library(oatpp
         oatpp/core/base/Config.hpp
         oatpp/core/base/Countable.cpp
         oatpp/core/base/Countable.hpp
-        oatpp/core/base/Environment.cpp
-        oatpp/core/base/Environment.hpp
         oatpp/core/base/ObjectHandle.hpp
         oatpp/core/concurrency/SpinLock.cpp
         oatpp/core/concurrency/SpinLock.hpp
@@ -291,6 +289,8 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
+		oatpp/Environment.cpp
+		oatpp/Environment.hpp
 		oatpp/IODefinitions.cpp
 		oatpp/IODefinitions.hpp
 		oatpp/Types.hpp

@@ -25,7 +25,7 @@
 #ifndef oatpp_encoding_Unicode_hpp
 #define oatpp_encoding_Unicode_hpp
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 namespace oatpp { namespace encoding {
 

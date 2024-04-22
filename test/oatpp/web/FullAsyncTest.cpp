@@ -160,7 +160,7 @@ void FullAsyncTest::onRun() {
 
     v_int32 iterationsStep = m_iterationsPerStep;
 
-    auto lastTick = oatpp::base::Environment::getMicroTickCount();
+    auto lastTick = oatpp::Environment::getMicroTickCount();
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
 
@@ -279,8 +279,8 @@ void FullAsyncTest::onRun() {
       }
 
       if((i + 1) % iterationsStep == 0) {
-        auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
-        lastTick = oatpp::base::Environment::getMicroTickCount();
+        auto ticks = oatpp::Environment::getMicroTickCount() - lastTick;
+        lastTick = oatpp::Environment::getMicroTickCount();
         OATPP_LOGV("i", "%d, tick=%ld", i + 1, ticks)
       }
       

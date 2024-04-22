@@ -1,14 +1,11 @@
 
 add_executable(oatppAllTests
-        oatpp/AllTestsMain.cpp
         oatpp/async/ConditionVariableTest.cpp
         oatpp/async/ConditionVariableTest.hpp
         oatpp/async/LockTest.cpp
         oatpp/async/LockTest.hpp
         oatpp/core/base/CommandLineArgumentsTest.cpp
         oatpp/core/base/CommandLineArgumentsTest.hpp
-        oatpp/core/base/LoggerTest.cpp
-        oatpp/core/base/LoggerTest.hpp
         oatpp/core/data/buffer/ProcessorTest.cpp
         oatpp/core/data/buffer/ProcessorTest.hpp
         oatpp/core/data/mapping/TypeResolverTest.cpp
@@ -116,6 +113,9 @@ add_executable(oatppAllTests
         oatpp/web/server/api/ApiControllerTest.hpp
         oatpp/web/server/handler/AuthorizationHandlerTest.cpp
         oatpp/web/server/handler/AuthorizationHandlerTest.hpp
+        oatpp/AllTestsMain.cpp
+        oatpp/LoggerTest.cpp
+        oatpp/LoggerTest.hpp
 )
 set_target_source_groups(oatppAllTests STRIP_PREFIX "oatpp")
 

@@ -38,23 +38,23 @@
 #define oatpp_macro_component_hpp
 
 #include "./basic.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 #define OATPP_MACRO_GET_COMPONENT_1(TYPE) \
-(*(reinterpret_cast<TYPE*>(oatpp::base::Environment::getComponent(typeid(TYPE).name()))))
+(*(reinterpret_cast<TYPE*>(oatpp::Environment::getComponent(typeid(TYPE).name()))))
 
 #define OATPP_MACRO_GET_COMPONENT_2(TYPE, QUALIFIER) \
-(*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
+(*((TYPE*) oatpp::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
 
 #define OATPP_GET_COMPONENT(...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_GET_COMPONENT_, (__VA_ARGS__)) (__VA_ARGS__))
 
 
 #define OATPP_MACRO_COMPONENT_1(TYPE, NAME) \
-TYPE& NAME = (*(reinterpret_cast<TYPE*>(oatpp::base::Environment::getComponent(typeid(TYPE).name()))))
+TYPE& NAME = (*(reinterpret_cast<TYPE*>(oatpp::Environment::getComponent(typeid(TYPE).name()))))
 
 #define OATPP_MACRO_COMPONENT_2(TYPE, NAME, QUALIFIER) \
-TYPE& NAME = (*((TYPE*) oatpp::base::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
+TYPE& NAME = (*((TYPE*) oatpp::Environment::getComponent(typeid(TYPE).name(), QUALIFIER)))
 
 /**
  * Inject component. Create variable of type=TYPE and name=NAME and assign registered component to it.
@@ -72,6 +72,6 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(OATPP_MACRO_COMPONENT_, (__VA_ARGS
  * @param NAME - name of the component field.
  */
 #define OATPP_CREATE_COMPONENT(TYPE, NAME) \
-oatpp::base::Environment::Component<TYPE> NAME = oatpp::base::Environment::Component<TYPE>
+oatpp::Environment::Component<TYPE> NAME = oatpp::Environment::Component<TYPE>
 
 #endif /* oatpp_macro_component_hpp */

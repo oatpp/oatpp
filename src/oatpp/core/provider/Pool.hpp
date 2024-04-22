@@ -145,7 +145,7 @@ private:
       }
 
       if(canReuse) {
-        m_bench.push_back({resource, oatpp::base::Environment::getMicroTickCount()});
+        m_bench.push_back({resource, oatpp::Environment::getMicroTickCount()});
       } else {
         -- m_counter;
       }
@@ -165,7 +165,7 @@ private:
 
       {
         std::lock_guard<std::mutex> guard(pool->m_lock);
-        auto ticks = oatpp::base::Environment::getMicroTickCount();
+        auto ticks = oatpp::Environment::getMicroTickCount();
 
         auto i = pool->m_bench.begin();
         while (i != pool->m_bench.end()) {

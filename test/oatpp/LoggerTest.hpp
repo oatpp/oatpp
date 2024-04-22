@@ -23,22 +23,22 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_LoggerTest_hpp
-#define oatpp_test_base_LoggerTest_hpp
+#ifndef oatpp_test_LoggerTest_hpp
+#define oatpp_test_LoggerTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace base {
+namespace oatpp { namespace test {
 
-class LoggerTest : public UnitTest{
+class LoggerTest : public oatpp::test::UnitTest{
  public:
 
-  LoggerTest():UnitTest("TEST[base::LoggerTest]"){}
+  LoggerTest():UnitTest("TEST[LoggerTest]"){}
   void onRun() override;
 
   OATPP_DECLARE_LOG_CATEGORY(TESTCATEGORY)
 };
 
-}}}
+}}
 
-#endif /* oatpp_test_base_LoggerTest_hpp */
+#endif /* oatpp_test_LoggerTest_hpp */

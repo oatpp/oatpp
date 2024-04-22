@@ -207,7 +207,7 @@ void Processor::checkCoroutinesSleep() {
         m_sleepCV.wait(lock);
       }
 
-      auto now = oatpp::base::Environment::getMicroTickCount();
+      auto now = oatpp::Environment::getMicroTickCount();
       for(auto it = m_sleepTimeSet.begin(); it != m_sleepTimeSet.end();) {
         auto ch = *it;
         if(ch->_SCH_A.m_data.waitListData.timePointMicroseconds < now) {

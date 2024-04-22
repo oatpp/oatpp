@@ -100,11 +100,11 @@ std::shared_ptr<RequestExecutor::Response> RequestExecutor::execute(
       ch.reset();
 
       v_int64 waitMicro = m_retryPolicy->waitForMicroseconds(context);
-      v_int64 tick0 = oatpp::base::Environment::getMicroTickCount();
+      v_int64 tick0 = oatpp::Environment::getMicroTickCount();
       v_int64 tick = tick0;
       while(tick < tick0 + waitMicro) {
         std::this_thread::sleep_for(std::chrono::microseconds(tick0 + waitMicro - tick));
-        tick = oatpp::base::Environment::getMicroTickCount();
+        tick = oatpp::Environment::getMicroTickCount();
       }
 
     }

@@ -26,7 +26,7 @@
 #define oatpp_data_type_Type_hpp
 
 #include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 #include <list>
 #include <unordered_map>

@@ -25,7 +25,7 @@
 #ifndef oatpp_concurrency_Thread_hpp
 #define oatpp_concurrency_Thread_hpp
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 #include <thread>
 
 namespace oatpp { namespace concurrency {

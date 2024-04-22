@@ -307,7 +307,7 @@ public:
 
       if(m_wait) {
         m_wait = false;
-        action = async::Action::createWaitRepeatAction(1000 * 1000 + oatpp::base::Environment::getMicroTickCount());
+        action = async::Action::createWaitRepeatAction(1000 * 1000 + oatpp::Environment::getMicroTickCount());
         return nullptr;
       }
 

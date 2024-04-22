@@ -31,7 +31,7 @@
 #include "oatpp/async/utils/FastQueue.hpp"
 
 #include "oatpp/IODefinitions.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 #include "oatpp/Types.hpp"
 

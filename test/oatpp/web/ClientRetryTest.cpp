@@ -243,9 +243,9 @@ void ClientRetryTest::onRun() {
 
       v_int64 counter = 0;
 
-      v_int64 tick0 = oatpp::base::Environment::getMicroTickCount();
+      v_int64 tick0 = oatpp::Environment::getMicroTickCount();
 
-      while(oatpp::base::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
+      while(oatpp::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
 
         auto response = client->getAvailability();
         OATPP_ASSERT(response && "Test: unstable server!")

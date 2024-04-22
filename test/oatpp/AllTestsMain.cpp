@@ -59,12 +59,12 @@
 #include "oatpp/core/data/buffer/ProcessorTest.hpp"
 
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
-#include "oatpp/core/base/LoggerTest.hpp"
+#include "oatpp/LoggerTest.hpp"
 
 #include "oatpp/async/Coroutine.hpp"
 #include "oatpp/Types.hpp"
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 #include <iostream>
 #include <mutex>
@@ -73,7 +73,7 @@ namespace {
 
 void runTests() {
 
-  oatpp::base::Environment::printCompilationConfig();
+  oatpp::Environment::printCompilationConfig();
 
   OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle))
   OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine))
@@ -87,8 +87,8 @@ void runTests() {
     i ++;
   }
 
+  OATPP_RUN_TEST(oatpp::test::LoggerTest);
   OATPP_RUN_TEST(oatpp::test::base::CommandLineArgumentsTest);
-  OATPP_RUN_TEST(oatpp::test::base::LoggerTest);
 
   OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
@@ -229,19 +229,19 @@ void runTests() {
 
 int main() {
 
-  oatpp::base::Environment::init();
+  oatpp::Environment::init();
 
   runTests();
 
   /* Print how much objects were created during app running, and what have left-probably leaked */
   /* Disable object counting for release builds using '-D OATPP_DISABLE_ENV_OBJECT_COUNTERS' flag for better performance */
   std::cout << "\nEnvironment:\n";
-  std::cout << "objectsCount = " << oatpp::base::Environment::getObjectsCount() << "\n";
-  std::cout << "objectsCreated = " << oatpp::base::Environment::getObjectsCreated() << "\n\n";
+  std::cout << "objectsCount = " << oatpp::Environment::getObjectsCount() << "\n";
+  std::cout << "objectsCreated = " << oatpp::Environment::getObjectsCreated() << "\n\n";
 
-  OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0)
+  OATPP_ASSERT(oatpp::Environment::getObjectsCount() == 0)
 
-  oatpp::base::Environment::destroy();
+  oatpp::Environment::destroy();
 
   return 0;
 }

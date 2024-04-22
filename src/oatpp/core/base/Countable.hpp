@@ -25,8 +25,9 @@
 #ifndef oatpp_base_Countable
 #define oatpp_base_Countable
 
+#include "oatpp/Environment.hpp"
+
 #include <memory>
-#include "./Environment.hpp"
 
 namespace oatpp { namespace base{
 
@@ -36,18 +37,18 @@ namespace oatpp { namespace base{
 class Countable {
 public:
   /**
-   * Constructor. Increment counter calling &id:oatpp::base::Environment::incObjects;.
+   * Constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
    */
   Countable();
 
   /**
-   * Copy constructor. Increment counter calling &id:oatpp::base::Environment::incObjects;.
+   * Copy constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
    * @param other
    */
   Countable(const Countable& other);
 
   /**
-   * Virtual destructor. Decrement counter calling &id:oatpp::base::Environment::decObjects;.
+   * Virtual destructor. Decrement counter calling &id:oatpp::Environment::decObjects;.
    */
   virtual ~Countable();
 

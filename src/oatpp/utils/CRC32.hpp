@@ -25,7 +25,7 @@
 #ifndef oatpp_utils_CRC32_hpp
 #define oatpp_utils_CRC32_hpp
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 #include "oatpp/encoding/Hex.hpp"
 

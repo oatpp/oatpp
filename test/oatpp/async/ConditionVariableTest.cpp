@@ -122,9 +122,9 @@ void ConditionVariableTest::onRun() {
   std::atomic<bool> finished(false);
 
   std::thread timeoutThread([&finished] {
-    auto now = oatpp::base::Environment::getMicroTickCount();
+    auto now = oatpp::Environment::getMicroTickCount();
     while(!finished) {
-      auto ticks = oatpp::base::Environment::getMicroTickCount();
+      auto ticks = oatpp::Environment::getMicroTickCount();
       if(ticks - now > 10 * 60 * 1000 * 1000) {
         break;
       }

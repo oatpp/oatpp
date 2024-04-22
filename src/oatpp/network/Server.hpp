@@ -31,7 +31,7 @@
 #include "oatpp/Types.hpp"
 
 #include "oatpp/core/base/Countable.hpp"
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 #include <atomic>
 #include <thread>
