@@ -103,6 +103,11 @@ public:
       std::string pattern = "";
 
       /**
+       * Error message.
+       */
+      std::string errorMessage = "";
+
+      /**
        * Required.
        */
       bool required = false;

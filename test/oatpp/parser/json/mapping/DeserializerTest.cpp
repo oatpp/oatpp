@@ -139,6 +139,54 @@ class AnyDto : public oatpp::DTO {
 
 };
 
+class TestDtoEM : public DTO {
+
+  DTO_INIT(TestDtoEM, DTO)
+
+  DTO_FIELD_INFO(test_int8) {
+    info->errorMessage = "error test_int8";
+  }
+  DTO_FIELD(Int8,test_int8);
+  DTO_FIELD_INFO(test_int16) {
+    info->errorMessage = "error test_int16";
+  }
+  DTO_FIELD(Int16, test_int16);
+  DTO_FIELD_INFO(test_int32) {
+    info->errorMessage = "error test_int32";
+  }
+  DTO_FIELD(Int32, test_int32);
+  DTO_FIELD_INFO(test_int64) {
+    info->errorMessage = "error test_int64";
+  }
+  DTO_FIELD(Int64, test_int64);
+
+  DTO_FIELD_INFO(test_uint8) {
+    info->errorMessage = "error test_uint8";
+  }
+  DTO_FIELD(UInt8, test_uint8);
+  DTO_FIELD_INFO(test_uint16) {
+    info->errorMessage = "error test_uint16";
+  }
+  DTO_FIELD(UInt16, test_uint16);
+  DTO_FIELD_INFO(test_uint32) {
+    info->errorMessage = "error test_uint32";
+  }
+  DTO_FIELD(UInt32, test_uint32);
+  DTO_FIELD_INFO(test_uint64) {
+    info->errorMessage = "error test_uint64";
+  }
+  DTO_FIELD(UInt64, test_uint64);
+
+  DTO_FIELD_INFO(test_float32) {
+    info->errorMessage = "error test_float32";
+  }
+  DTO_FIELD(Float32, test_float32);
+  DTO_FIELD_INFO(test_float64) {
+    info->errorMessage = "error test_float64";
+  }
+  DTO_FIELD(Float64 , test_float64);
+};
+
 #include OATPP_CODEGEN_END(DTO)
   
 }
@@ -322,6 +370,109 @@ void DeserializerTest::onRun(){
     OATPP_ASSERT(dto->any.retrieve<Int64>() == -1234567890)
   }
 
+  {
+    std::string test_str1 = R"({"test_int8":abc,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str2 = R"({"test_int8":42,"test_int16":abc,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str3 = R"({"test_int8":42,"test_int16":12345,"test_int32":abc,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str4 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":abc,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str5 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":abc,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str6 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":abc,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str7 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":abc,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str8 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":abc,
+                                "test_float32":3.14159,"test_float64":2.71828})";
+    std::string test_str9 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":abc,"test_float64":2.71828})";
+    std::string test_str10 = R"({"test_int8":42,"test_int16":12345,"test_int32":987654,"test_int64":1234567890123,
+                                "test_uint8":255,"test_uint16":65535,"test_uint32":4294967295,"test_uint64":18446744073709551615,
+                                "test_float32":3.14159,"test_float64":abc})";
+
+    data::mapping::type::DTOWrapper<TestDtoEM> testDtoEM;
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str1);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_int8")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str2);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_int16")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str3);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_int32")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str4);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_int64")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str5);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_uint8")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str6);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_uint16")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str7);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_uint32")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str8);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_uint64")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str9);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_float32")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+
+    try {
+      testDtoEM = mapper->readFromString<oatpp::Object<TestDtoEM>>(test_str10);
+    } catch (oatpp::parser::ParsingError& e) {
+      OATPP_ASSERT(e.getMessage() == "error test_float64")
+    }
+    OATPP_ASSERT(testDtoEM == nullptr)
+  }
 }
   
 }}}}}

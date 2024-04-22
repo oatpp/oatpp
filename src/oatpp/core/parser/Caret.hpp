@@ -105,7 +105,7 @@ public:
     std::string std_str();
 
     explicit operator bool() const;
-    
+
   };
 
   /**
@@ -157,12 +157,13 @@ private:
   const char* m_errorMessage;
   v_int64 m_errorCode;
   std::shared_ptr<std::string> m_dataMemoryHandle;
+  void* m_contextPtr;
 public:
   Caret(const char* text);
   Caret(const char* parseData, v_buff_size dataSize);
   Caret(const oatpp::String& str);
 public:
-  
+
   static std::shared_ptr<Caret> createShared(const char* text);
   static std::shared_ptr<Caret> createShared(const char* parseData, v_buff_size dataSize);
   static std::shared_ptr<Caret> createShared(const oatpp::String& str);
@@ -220,6 +221,11 @@ public:
   const char* getErrorMessage();
 
   /**
+   * Set error message
+   */
+  void setErrorMessage(const char* errMsg);
+
+  /**
    * Get error code
    * @return error code
    */
@@ -235,6 +241,16 @@ public:
    * Clear error message and error code
    */
   void clearError();
+
+  /**
+   * Set Context Ptr
+   */
+  void setContextPtr(void* contextPtr);
+
+   /**
+    * Get Context Ptr
+    */
+  void* getContextPtr();
 
   /**
    * Create Label(this);
@@ -504,7 +520,7 @@ public:
   bool canContinue() const;
 
 };
-  
+
 }}
 
 

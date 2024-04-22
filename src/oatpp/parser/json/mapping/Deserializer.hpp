@@ -141,7 +141,16 @@ private:
       //TODO: shall we handle overflow cases like
       // oatpp::String json = "128";
       // auto value = jsonObjectMapper->readFromString<oatpp::Int8>(json); // UInt8 will overflow to -128
-      return T(static_cast<typename T::UnderlyingType>(caret.parseInt()));
+      v_buff_size pos0 = caret.getPosition();
+      auto ret = caret.parseInt();
+      if(caret.getContextPtr() && caret.getPosition() == pos0) {
+        auto info = reinterpret_cast<BaseObject::Property::Info*>(caret.getContextPtr());
+        if(!info->errorMessage.empty()) {
+          caret.setErrorMessage(info->errorMessage.data());
+        }
+        caret.setContextPtr(nullptr);
+      }
+      return T(static_cast<typename T::UnderlyingType>(ret));
     }
 
   }
@@ -158,7 +167,16 @@ private:
       //TODO: shall we handle overflow cases like
       // oatpp::String json = "256";
       // auto value = jsonObjectMapper->readFromString<oatpp::UInt8>(json); // UInt8 will overflow to 0
-      return T(static_cast<typename T::UnderlyingType>(caret.parseUnsignedInt()));
+      v_buff_size pos0 = caret.getPosition();
+      auto ret = caret.parseUnsignedInt();
+      if(caret.getContextPtr() && caret.getPosition() == pos0) {
+        auto info = reinterpret_cast<BaseObject::Property::Info*>(caret.getContextPtr());
+        if(!info->errorMessage.empty()) {
+          caret.setErrorMessage(info->errorMessage.data());
+        }
+        caret.setContextPtr(nullptr);
+      }
+      return T(static_cast<typename T::UnderlyingType>(ret));
     }
 
   }
