@@ -27,7 +27,7 @@
 #include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/macro/codegen.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #include "oatpp-test/Checker.hpp"
 

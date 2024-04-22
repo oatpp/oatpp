@@ -25,7 +25,7 @@
 #ifndef oatpp_web_client_RetryPolicy_hpp
 #define oatpp_web_client_RetryPolicy_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #include <unordered_set>
 

@@ -26,7 +26,7 @@
 #define oatpp_utils_Random_hpp
 
 #include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 #include <random>
 
 namespace oatpp { namespace utils { namespace random {

@@ -25,7 +25,7 @@
 #ifndef oatpp_data_buffer_Processor_hpp
 #define oatpp_data_buffer_Processor_hpp
 
-#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/IODefinitions.hpp"
 #include "oatpp/core/base/ObjectHandle.hpp"
 #include <vector>
 

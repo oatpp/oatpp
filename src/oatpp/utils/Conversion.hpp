@@ -26,7 +26,7 @@
 #define oatpp_utils_Conversion_hpp
 
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 
 #include "oatpp/core/base/Countable.hpp"

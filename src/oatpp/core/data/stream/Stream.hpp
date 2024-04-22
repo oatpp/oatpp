@@ -30,7 +30,7 @@
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/data/buffer/Processor.hpp"
 
-#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/IODefinitions.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
 

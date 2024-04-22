@@ -27,7 +27,7 @@
 
 #include "./Utils.hpp"
 #include "./Beautifier.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 #include <vector>
 
 namespace oatpp { namespace json {

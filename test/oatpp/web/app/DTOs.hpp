@@ -26,7 +26,7 @@
 #define oatpp_test_web_app_DTOs_hpp
 
 #include "oatpp/macro/codegen.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
 

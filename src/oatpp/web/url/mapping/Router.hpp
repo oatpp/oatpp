@@ -27,7 +27,7 @@
 
 #include "./Pattern.hpp"
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #include <utility>
 #include <list>

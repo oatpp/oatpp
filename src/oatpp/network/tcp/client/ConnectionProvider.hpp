@@ -29,7 +29,7 @@
 
 #include "oatpp/network/ConnectionProvider.hpp"
 #include "oatpp/core/provider/Invalidator.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace network { namespace tcp { namespace client {
 

@@ -27,7 +27,7 @@
 
 #include "Connection.hpp"
 #include "oatpp/core/provider/Provider.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace orm {
 

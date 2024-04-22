@@ -49,9 +49,6 @@ add_library(oatpp
 		oatpp/codegen/DbClient_undef.hpp
 		oatpp/codegen/DTO_define.hpp
 		oatpp/codegen/DTO_undef.hpp
-        oatpp/core/IODefinitions.cpp
-        oatpp/core/IODefinitions.hpp
-        oatpp/core/Types.hpp
         oatpp/core/base/CommandLineArguments.cpp
         oatpp/core/base/CommandLineArguments.hpp
         oatpp/core/base/Config.hpp
@@ -294,6 +291,9 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
+		oatpp/IODefinitions.cpp
+		oatpp/IODefinitions.hpp
+		oatpp/Types.hpp
 )
 set_target_source_groups(oatpp STRIP_PREFIX "oatpp")
 

@@ -62,7 +62,7 @@
 #include "oatpp/core/base/LoggerTest.hpp"
 
 #include "oatpp/async/Coroutine.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #include "oatpp/core/base/Environment.hpp"
 

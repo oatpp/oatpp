@@ -26,7 +26,7 @@
 #define oatpp_data_share_StringTemplate_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #include <unordered_map>
 #include <vector>

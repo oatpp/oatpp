@@ -25,7 +25,7 @@
 #ifndef oatpp_data_Bundle_hpp
 #define oatpp_data_Bundle_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace data {
 

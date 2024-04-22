@@ -27,7 +27,7 @@
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #include <unordered_map>
 

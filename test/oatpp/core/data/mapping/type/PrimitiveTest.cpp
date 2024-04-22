@@ -24,7 +24,7 @@
 
 #include "PrimitiveTest.hpp"
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {
 

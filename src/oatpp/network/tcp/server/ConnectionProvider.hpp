@@ -30,7 +30,7 @@
 #include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/network/tcp/ConnectionConfigurer.hpp"
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace network { namespace tcp { namespace server {
 

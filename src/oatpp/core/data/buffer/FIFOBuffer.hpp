@@ -26,7 +26,7 @@
 #define oatpp_data_buffer_FIFOBuffer_hpp
 
 #include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/IODefinitions.hpp"
 #include "oatpp/async/Coroutine.hpp"
 #include "oatpp/core/concurrency/SpinLock.hpp"
 

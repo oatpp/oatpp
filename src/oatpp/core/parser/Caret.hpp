@@ -25,7 +25,7 @@
 #ifndef oatpp_parser_Caret_hpp
 #define oatpp_parser_Caret_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace parser {
 

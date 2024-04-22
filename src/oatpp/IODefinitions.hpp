@@ -26,7 +26,7 @@
 #define oatpp_IODefinitions_hpp
 
 #include "oatpp/async/Error.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 #if !defined(WIN32) && !defined(_WIN32)
 #include <sys/socket.h>
