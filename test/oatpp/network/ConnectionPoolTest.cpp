@@ -25,7 +25,7 @@
 #include "ConnectionPoolTest.hpp"
 
 #include "oatpp/network/ConnectionPool.hpp"
-#include "oatpp/core/async/Executor.hpp"
+#include "oatpp/async/Executor.hpp"
 
 namespace oatpp { namespace test { namespace network {
 

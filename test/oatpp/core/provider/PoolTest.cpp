@@ -25,7 +25,7 @@
 #include "PoolTest.hpp"
 
 #include "oatpp/core/provider/Pool.hpp"
-#include "oatpp/core/async/Executor.hpp"
+#include "oatpp/async/Executor.hpp"
 
 #include <thread>
 

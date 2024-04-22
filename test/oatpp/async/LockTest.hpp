@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_async_LockTest_hpp
-#define oatpp_test_async_LockTest_hpp
+#ifndef oatpp_async_test_LockTest_hpp
+#define oatpp_async_test_LockTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace async {
+namespace oatpp { namespace async { namespace test {
 
-class LockTest : public UnitTest{
+class LockTest : public oatpp::test::UnitTest{
 public:
 
-  LockTest():UnitTest("TEST[async::LockTest]"){}
+  LockTest():UnitTest("TEST[oatpp::async::LockTest]"){}
   void onRun() override;
 
 };
 
 }}}
 
-#endif // oatpp_test_async_LockTest_hpp
+#endif // oatpp_async_test_LockTest_hpp

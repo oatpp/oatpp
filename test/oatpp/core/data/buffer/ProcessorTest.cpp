@@ -27,7 +27,7 @@
 #include "oatpp/core/data/stream/BufferStream.hpp"
 #include "oatpp/core/data/buffer/Processor.hpp"
 
-#include "oatpp/core/async/Executor.hpp"
+#include "oatpp/async/Executor.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace buffer {
 

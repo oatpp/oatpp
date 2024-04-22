@@ -1,10 +1,10 @@
 
 add_executable(oatppAllTests
         oatpp/AllTestsMain.cpp
-        oatpp/core/async/ConditionVariableTest.cpp
-        oatpp/core/async/ConditionVariableTest.hpp
-        oatpp/core/async/LockTest.cpp
-        oatpp/core/async/LockTest.hpp
+        oatpp/async/ConditionVariableTest.cpp
+        oatpp/async/ConditionVariableTest.hpp
+        oatpp/async/LockTest.cpp
+        oatpp/async/LockTest.hpp
         oatpp/core/base/CommandLineArgumentsTest.cpp
         oatpp/core/base/CommandLineArgumentsTest.hpp
         oatpp/core/base/LoggerTest.cpp

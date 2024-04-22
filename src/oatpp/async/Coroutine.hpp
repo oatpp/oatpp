@@ -28,7 +28,7 @@
 
 #include "./Error.hpp"
 
-#include "oatpp/core/async/utils/FastQueue.hpp"
+#include "oatpp/async/utils/FastQueue.hpp"
 
 #include "oatpp/core/IODefinitions.hpp"
 #include "oatpp/core/base/Environment.hpp"

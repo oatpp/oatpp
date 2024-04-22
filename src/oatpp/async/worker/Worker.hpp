@@ -25,7 +25,7 @@
 #ifndef oatpp_async_worker_Worker_hpp
 #define oatpp_async_worker_Worker_hpp
 
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/async/Coroutine.hpp"
 #include <thread>
 
 namespace oatpp { namespace async { namespace worker {

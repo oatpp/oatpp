@@ -29,7 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // windows based implementation
 
-#include "oatpp/core/async/Processor.hpp"
+#include "oatpp/async/Processor.hpp"
 
 namespace oatpp { namespace async { namespace worker {
 

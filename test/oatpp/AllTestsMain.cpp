@@ -32,8 +32,8 @@
 #include "oatpp/core/parser/CaretTest.hpp"
 #include "oatpp/core/provider/PoolTest.hpp"
 #include "oatpp/core/provider/PoolTemplateTest.hpp"
-#include "oatpp/core/async/ConditionVariableTest.hpp"
-#include "oatpp/core/async/LockTest.hpp"
+#include "oatpp/async/ConditionVariableTest.hpp"
+#include "oatpp/async/LockTest.hpp"
 
 #include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
 #include "oatpp/core/data/mapping/type/PairListTest.hpp"
@@ -61,7 +61,7 @@
 #include "oatpp/core/base/CommandLineArgumentsTest.hpp"
 #include "oatpp/core/base/LoggerTest.hpp"
 
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/async/Coroutine.hpp"
 #include "oatpp/core/Types.hpp"
 
 #include "oatpp/core/base/Environment.hpp"
@@ -119,8 +119,8 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
 
-  OATPP_RUN_TEST(oatpp::test::async::ConditionVariableTest);
-  OATPP_RUN_TEST(oatpp::test::async::LockTest);
+  OATPP_RUN_TEST(oatpp::async::test::ConditionVariableTest);
+  OATPP_RUN_TEST(oatpp::async::test::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);

@@ -31,7 +31,7 @@
 
 #include "oatpp/network/ConnectionHandler.hpp"
 
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/async/Coroutine.hpp"
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
 #include "oatpp/core/data/Bundle.hpp"

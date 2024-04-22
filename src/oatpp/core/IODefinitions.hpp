@@ -25,7 +25,7 @@
 #ifndef oatpp_IODefinitions_hpp
 #define oatpp_IODefinitions_hpp
 
-#include "oatpp/core/async/Error.hpp"
+#include "oatpp/async/Error.hpp"
 #include "oatpp/core/Types.hpp"
 
 #if !defined(WIN32) && !defined(_WIN32)

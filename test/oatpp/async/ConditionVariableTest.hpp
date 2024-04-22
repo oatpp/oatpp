@@ -22,21 +22,21 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_async_ConditionVariableTest_hpp
-#define oatpp_test_async_ConditionVariableTest_hpp
+#ifndef oatpp_async_test_ConditionVariableTest_hpp
+#define oatpp_async_test_ConditionVariableTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace async {
+namespace oatpp { namespace async { namespace test {
 
-class ConditionVariableTest : public UnitTest{
+class ConditionVariableTest : public oatpp::test::UnitTest{
 public:
 
-  ConditionVariableTest():UnitTest("TEST[async::ConditionVariableTest]"){}
+  ConditionVariableTest():UnitTest("TEST[oatpp::async::ConditionVariableTest]"){}
   void onRun() override;
 
 };
 
 }}}
 
-#endif // oatpp_test_async_ConditionVariableTest_hpp
+#endif // oatpp_async_test_ConditionVariableTest_hpp

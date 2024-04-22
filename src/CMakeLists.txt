@@ -3,6 +3,32 @@
 ## oatpp
 
 add_library(oatpp
+		oatpp/async/ConditionVariable.cpp
+		oatpp/async/ConditionVariable.hpp
+		oatpp/async/Coroutine.cpp
+		oatpp/async/Coroutine.hpp
+		oatpp/async/CoroutineWaitList.cpp
+		oatpp/async/CoroutineWaitList.hpp
+		oatpp/async/Error.cpp
+		oatpp/async/Error.hpp
+		oatpp/async/Executor.cpp
+		oatpp/async/Executor.hpp
+		oatpp/async/Lock.cpp
+		oatpp/async/Lock.hpp
+		oatpp/async/Processor.cpp
+		oatpp/async/Processor.hpp
+		oatpp/async/utils/FastQueue.hpp
+		oatpp/async/worker/IOEventWorker_common.cpp
+		oatpp/async/worker/IOEventWorker_epoll.cpp
+		oatpp/async/worker/IOEventWorker_kqueue.cpp
+		oatpp/async/worker/IOEventWorker_stub.cpp
+		oatpp/async/worker/IOEventWorker.hpp
+		oatpp/async/worker/IOWorker.cpp
+		oatpp/async/worker/IOWorker.hpp
+		oatpp/async/worker/TimerWorker.cpp
+		oatpp/async/worker/TimerWorker.hpp
+		oatpp/async/worker/Worker.cpp
+		oatpp/async/worker/Worker.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
@@ -26,32 +52,6 @@ add_library(oatpp
         oatpp/core/IODefinitions.cpp
         oatpp/core/IODefinitions.hpp
         oatpp/core/Types.hpp
-        oatpp/core/async/ConditionVariable.cpp
-        oatpp/core/async/ConditionVariable.hpp
-        oatpp/core/async/Coroutine.cpp
-        oatpp/core/async/Coroutine.hpp
-        oatpp/core/async/CoroutineWaitList.cpp
-        oatpp/core/async/CoroutineWaitList.hpp
-        oatpp/core/async/Error.cpp
-        oatpp/core/async/Error.hpp
-        oatpp/core/async/Executor.cpp
-        oatpp/core/async/Executor.hpp
-        oatpp/core/async/Lock.cpp
-        oatpp/core/async/Lock.hpp
-        oatpp/core/async/Processor.cpp
-        oatpp/core/async/Processor.hpp
-        oatpp/core/async/utils/FastQueue.hpp
-        oatpp/core/async/worker/IOEventWorker_common.cpp
-        oatpp/core/async/worker/IOEventWorker_epoll.cpp
-        oatpp/core/async/worker/IOEventWorker_kqueue.cpp
-        oatpp/core/async/worker/IOEventWorker_stub.cpp
-        oatpp/core/async/worker/IOEventWorker.hpp
-        oatpp/core/async/worker/IOWorker.cpp
-        oatpp/core/async/worker/IOWorker.hpp
-        oatpp/core/async/worker/TimerWorker.cpp
-        oatpp/core/async/worker/TimerWorker.hpp
-        oatpp/core/async/worker/Worker.cpp
-        oatpp/core/async/worker/Worker.hpp
         oatpp/core/base/CommandLineArguments.cpp
         oatpp/core/base/CommandLineArguments.hpp
         oatpp/core/base/Config.hpp

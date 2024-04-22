@@ -27,7 +27,7 @@
 #define oatpp_provider_Pool_hpp
 
 #include "Provider.hpp"
-#include "oatpp/core/async/CoroutineWaitList.hpp"
+#include "oatpp/async/CoroutineWaitList.hpp"
 
 #include <thread>
 #include <condition_variable>

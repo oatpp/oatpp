@@ -25,7 +25,7 @@
 
 #include "Processor.hpp"
 #include "./CoroutineWaitList.hpp"
-#include "oatpp/core/async/worker/Worker.hpp"
+#include "oatpp/async/worker/Worker.hpp"
 
 namespace oatpp { namespace async {
 

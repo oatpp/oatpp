@@ -24,10 +24,10 @@
 
 #include "ConditionVariableTest.hpp"
 
-#include "oatpp/core/async/Executor.hpp"
-#include "oatpp/core/async/ConditionVariable.hpp"
+#include "oatpp/async/Executor.hpp"
+#include "oatpp/async/ConditionVariable.hpp"
 
-namespace oatpp { namespace test { namespace async {
+namespace oatpp { namespace async { namespace test {
 
 namespace {
 

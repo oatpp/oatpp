@@ -26,7 +26,7 @@
 #ifndef oatpp_async_CoroutineWaitList_hpp
 #define oatpp_async_CoroutineWaitList_hpp
 
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/async/Coroutine.hpp"
 
 #include <unordered_set>
 #include <mutex>

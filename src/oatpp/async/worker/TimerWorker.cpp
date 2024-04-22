@@ -24,7 +24,7 @@
 
 #include "TimerWorker.hpp"
 
-#include "oatpp/core/async/Processor.hpp"
+#include "oatpp/async/Processor.hpp"
 
 #include <chrono>
 

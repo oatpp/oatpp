@@ -40,7 +40,7 @@
 #include "oatpp/web/protocol/http/utils/CommunicationUtils.hpp"
 
 #include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-#include "oatpp/core/async/Processor.hpp"
+#include "oatpp/async/Processor.hpp"
 
 namespace oatpp { namespace web { namespace server {
 

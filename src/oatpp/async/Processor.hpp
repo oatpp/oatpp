@@ -28,7 +28,7 @@
 
 #include "./Coroutine.hpp"
 #include "./CoroutineWaitList.hpp"
-#include "oatpp/core/async/utils/FastQueue.hpp"
+#include "oatpp/async/utils/FastQueue.hpp"
 
 #include <thread>
 #include <condition_variable>

@@ -25,7 +25,7 @@
 #ifndef oatpp_network_virtual__Pipe_hpp
 #define oatpp_network_virtual__Pipe_hpp
 
-#include "oatpp/core/async/CoroutineWaitList.hpp"
+#include "oatpp/async/CoroutineWaitList.hpp"
 
 #include "oatpp/core/data/stream/Stream.hpp"
 

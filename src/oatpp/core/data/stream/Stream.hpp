@@ -26,7 +26,7 @@
 #define oatpp_data_Stream
 
 #include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/async/Coroutine.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 #include "oatpp/core/data/buffer/Processor.hpp"
 
