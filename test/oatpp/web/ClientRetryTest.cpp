@@ -47,7 +47,7 @@
 
 #include "oatpp/network/ConnectionPool.hpp"
 
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/macro/component.hpp"
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 #include "oatpp-test/Checker.hpp"

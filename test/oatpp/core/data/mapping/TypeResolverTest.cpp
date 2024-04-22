@@ -26,7 +26,7 @@
 
 #include "oatpp/core/data/mapping/TypeResolver.hpp"
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping {
 

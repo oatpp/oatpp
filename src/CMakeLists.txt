@@ -3,14 +3,6 @@
 ## oatpp
 
 add_library(oatpp
-        oatpp/codegen/ApiClient_define.hpp
-        oatpp/codegen/ApiClient_undef.hpp
-        oatpp/codegen/ApiController_define.hpp
-        oatpp/codegen/ApiController_undef.hpp
-        oatpp/codegen/DbClient_define.hpp
-        oatpp/codegen/DbClient_undef.hpp
-        oatpp/codegen/DTO_define.hpp
-        oatpp/codegen/DTO_undef.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
@@ -23,6 +15,14 @@ add_library(oatpp
         oatpp/codegen/dto/base_undef.hpp
         oatpp/codegen/dto/enum_define.hpp
         oatpp/codegen/dto/enum_undef.hpp
+		oatpp/codegen/ApiClient_define.hpp
+		oatpp/codegen/ApiClient_undef.hpp
+		oatpp/codegen/ApiController_define.hpp
+		oatpp/codegen/ApiController_undef.hpp
+		oatpp/codegen/DbClient_define.hpp
+		oatpp/codegen/DbClient_undef.hpp
+		oatpp/codegen/DTO_define.hpp
+		oatpp/codegen/DTO_undef.hpp
         oatpp/core/IODefinitions.cpp
         oatpp/core/IODefinitions.hpp
         oatpp/core/Types.hpp
@@ -120,9 +120,6 @@ add_library(oatpp
         oatpp/core/data/stream/Stream.hpp
         oatpp/core/data/stream/StreamBufferedProxy.cpp
         oatpp/core/data/stream/StreamBufferedProxy.hpp
-        oatpp/core/macro/basic.hpp
-        oatpp/core/macro/codegen.hpp
-        oatpp/core/macro/component.hpp
         oatpp/core/parser/Caret.cpp
         oatpp/core/parser/Caret.hpp
         oatpp/core/parser/ParsingError.cpp
@@ -148,6 +145,9 @@ add_library(oatpp
 		oatpp/json/Serializer.hpp
 		oatpp/json/Utils.cpp
 		oatpp/json/Utils.hpp
+		oatpp/macro/basic.hpp
+		oatpp/macro/codegen.hpp
+		oatpp/macro/component.hpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
         oatpp/network/ConnectionHandler.hpp

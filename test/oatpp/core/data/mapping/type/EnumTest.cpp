@@ -25,7 +25,7 @@
 #include "EnumTest.hpp"
 
 #include "oatpp/core/Types.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 #include <unordered_map>
 

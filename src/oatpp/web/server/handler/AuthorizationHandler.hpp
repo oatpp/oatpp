@@ -28,7 +28,7 @@
 
 #include <oatpp/web/protocol/http/incoming/Request.hpp>
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/codegen.hpp"
 #include "oatpp/core/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {

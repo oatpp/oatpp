@@ -30,8 +30,8 @@
 
 #include "oatpp/core/data/stream/BufferStream.hpp"
 
-#include "oatpp/core/macro/basic.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/basic.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 #include "oatpp-test/Checker.hpp"
 

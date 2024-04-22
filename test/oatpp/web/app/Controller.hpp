@@ -41,8 +41,8 @@
 #include "oatpp/core/data/resource/File.hpp"
 #include "oatpp/core/data/stream/FileStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
-#include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/macro/codegen.hpp"
+#include "oatpp/macro/component.hpp"
 
 #include <sstream>
 #include <thread>

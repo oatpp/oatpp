@@ -24,7 +24,7 @@
 
 #include "TypeTest.hpp"
 
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/codegen.hpp"
 #include "oatpp/core/Types.hpp"
 
 namespace oatpp { namespace test { namespace core { namespace data { namespace mapping { namespace  type {

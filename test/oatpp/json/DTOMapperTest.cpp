@@ -34,7 +34,7 @@
 
 #include "oatpp/utils/Conversion.hpp"
 
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 namespace oatpp { namespace json { namespace test {
   

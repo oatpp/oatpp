@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#include "oatpp/core/macro/basic.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/basic.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 #define OATPP_MACRO_DB_CLIENT_PARAM_TYPE(MACRO, TYPE, PARAM_LIST) TYPE
 #define OATPP_MACRO_DB_CLIENT_PARAM_NAME(MACRO, TYPE, PARAM_LIST) OATPP_MACRO_FIRSTARG PARAM_LIST

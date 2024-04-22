@@ -27,7 +27,7 @@
 
 #include <functional>
 #include "oatpp/core/base/Environment.hpp"
-#include "oatpp/core/macro/basic.hpp"
+#include "oatpp/macro/basic.hpp"
 
 namespace oatpp { namespace test {
 
