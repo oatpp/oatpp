@@ -25,7 +25,7 @@
 #include "./Response.hpp"
 
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
@@ -121,7 +121,7 @@ void Response::send(data::stream::OutputStream* stream,
       bodySize = m_body->getKnownSize();
 
       if (bodySize >= 0) {
-        m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::conversion::int64ToStr(bodySize));
+        m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::Conversion::int64ToStr(bodySize));
       } else {
         m_headers.put_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
       }
@@ -238,7 +238,7 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
           bodySize = m_this->m_body->getKnownSize();
 
           if (bodySize >= 0) {
-            m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::conversion::int64ToStr(bodySize));
+            m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::Conversion::int64ToStr(bodySize));
           } else {
             m_this->m_headers.put_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
           }

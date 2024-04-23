@@ -24,7 +24,7 @@
 
 #include "DbClient.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace orm {
 

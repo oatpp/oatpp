@@ -25,7 +25,7 @@
 #include "ChunkedTest.hpp"
 
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace protocol { namespace http { namespace encoding {
 

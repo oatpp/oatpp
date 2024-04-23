@@ -25,7 +25,7 @@
 #include "SimpleBodyDecoder.hpp"
 
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 #include <vector>
 
@@ -125,7 +125,7 @@ void SimpleBodyDecoder::decode(const Headers& headers,
     if(contentLengthStr) {
 
       bool success;
-      auto contentLength = utils::conversion::strToInt64(contentLengthStr.toString(), success);
+      auto contentLength = utils::Conversion::strToInt64(contentLengthStr.toString(), success);
 
       if (success && contentLength > 0) {
 
@@ -179,7 +179,7 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
     if(contentLengthStr) {
 
       bool success;
-      auto contentLength = utils::conversion::strToInt64(contentLengthStr.toString(), success);
+      auto contentLength = utils::Conversion::strToInt64(contentLengthStr.toString(), success);
 
       if (success && contentLength > 0) {
 

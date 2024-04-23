@@ -27,8 +27,8 @@
 
 #include "oatpp/web/server/HttpProcessor.hpp"
 #include "oatpp/network/ConnectionHandler.hpp"
-#include "oatpp/core/async/Executor.hpp"
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/async/Executor.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 #include <unordered_map>
 

@@ -24,7 +24,7 @@
 
 #include "UrlTest.hpp"
 
-#include "oatpp/core/utils/Random.hpp"
+#include "oatpp/utils/Random.hpp"
 #include "oatpp/encoding/Url.hpp"
 
 namespace oatpp { namespace test { namespace encoding {

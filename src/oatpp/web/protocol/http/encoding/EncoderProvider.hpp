@@ -25,13 +25,13 @@
 #ifndef oatpp_web_protocol_http_encoding_EncoderProvider_hpp
 #define oatpp_web_protocol_http_encoding_EncoderProvider_hpp
 
-#include "oatpp/core/data/buffer/Processor.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/data/buffer/Processor.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 
 /**
- * Provider of encoding or decoding &id:oatpp::data::buffer::Processor;.
+ * TestProvider of encoding or decoding &id:oatpp::data::buffer::Processor;.
  */
 class EncoderProvider {
 public:

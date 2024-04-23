@@ -3,16 +3,39 @@
 ## oatpp
 
 add_library(oatpp
-        oatpp/algorithm/CRC.cpp
-        oatpp/algorithm/CRC.hpp
-        oatpp/codegen/ApiClient_define.hpp
-        oatpp/codegen/ApiClient_undef.hpp
-        oatpp/codegen/ApiController_define.hpp
-        oatpp/codegen/ApiController_undef.hpp
-        oatpp/codegen/DbClient_define.hpp
-        oatpp/codegen/DbClient_undef.hpp
-        oatpp/codegen/DTO_define.hpp
-        oatpp/codegen/DTO_undef.hpp
+		oatpp/async/ConditionVariable.cpp
+		oatpp/async/ConditionVariable.hpp
+		oatpp/async/Coroutine.cpp
+		oatpp/async/Coroutine.hpp
+		oatpp/async/CoroutineWaitList.cpp
+		oatpp/async/CoroutineWaitList.hpp
+		oatpp/async/Error.cpp
+		oatpp/async/Error.hpp
+		oatpp/async/Executor.cpp
+		oatpp/async/Executor.hpp
+		oatpp/async/Lock.cpp
+		oatpp/async/Lock.hpp
+		oatpp/async/Processor.cpp
+		oatpp/async/Processor.hpp
+		oatpp/async/utils/FastQueue.hpp
+		oatpp/async/worker/IOEventWorker_common.cpp
+		oatpp/async/worker/IOEventWorker_epoll.cpp
+		oatpp/async/worker/IOEventWorker_kqueue.cpp
+		oatpp/async/worker/IOEventWorker_stub.cpp
+		oatpp/async/worker/IOEventWorker.hpp
+		oatpp/async/worker/IOWorker.cpp
+		oatpp/async/worker/IOWorker.hpp
+		oatpp/async/worker/TimerWorker.cpp
+		oatpp/async/worker/TimerWorker.hpp
+		oatpp/async/worker/Worker.cpp
+		oatpp/async/worker/Worker.hpp
+		oatpp/base/CommandLineArguments.cpp
+		oatpp/base/CommandLineArguments.hpp
+		oatpp/base/Compiler.hpp
+		oatpp/base/Config.hpp
+		oatpp/base/Countable.cpp
+		oatpp/base/Countable.hpp
+		oatpp/base/ObjectHandle.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp
         oatpp/codegen/api_controller/base_define.hpp
@@ -25,121 +48,74 @@ add_library(oatpp
         oatpp/codegen/dto/base_undef.hpp
         oatpp/codegen/dto/enum_define.hpp
         oatpp/codegen/dto/enum_undef.hpp
-        oatpp/core/IODefinitions.cpp
-        oatpp/core/IODefinitions.hpp
-        oatpp/core/Types.hpp
-        oatpp/core/async/ConditionVariable.cpp
-        oatpp/core/async/ConditionVariable.hpp
-        oatpp/core/async/Coroutine.cpp
-        oatpp/core/async/Coroutine.hpp
-        oatpp/core/async/CoroutineWaitList.cpp
-        oatpp/core/async/CoroutineWaitList.hpp
-        oatpp/core/async/Error.cpp
-        oatpp/core/async/Error.hpp
-        oatpp/core/async/Executor.cpp
-        oatpp/core/async/Executor.hpp
-        oatpp/core/async/Lock.cpp
-        oatpp/core/async/Lock.hpp
-        oatpp/core/async/Processor.cpp
-        oatpp/core/async/Processor.hpp
-        oatpp/core/async/utils/FastQueue.hpp
-        oatpp/core/async/worker/IOEventWorker_common.cpp
-        oatpp/core/async/worker/IOEventWorker_epoll.cpp
-        oatpp/core/async/worker/IOEventWorker_kqueue.cpp
-        oatpp/core/async/worker/IOEventWorker_stub.cpp
-        oatpp/core/async/worker/IOEventWorker.hpp
-        oatpp/core/async/worker/IOWorker.cpp
-        oatpp/core/async/worker/IOWorker.hpp
-        oatpp/core/async/worker/TimerWorker.cpp
-        oatpp/core/async/worker/TimerWorker.hpp
-        oatpp/core/async/worker/Worker.cpp
-        oatpp/core/async/worker/Worker.hpp
-        oatpp/core/base/CommandLineArguments.cpp
-        oatpp/core/base/CommandLineArguments.hpp
-        oatpp/core/base/Config.hpp
-        oatpp/core/base/Countable.cpp
-        oatpp/core/base/Countable.hpp
-        oatpp/core/base/Environment.cpp
-        oatpp/core/base/Environment.hpp
-        oatpp/core/base/ObjectHandle.hpp
-        oatpp/core/concurrency/SpinLock.cpp
-        oatpp/core/concurrency/SpinLock.hpp
-        oatpp/core/concurrency/Thread.cpp
-        oatpp/core/concurrency/Thread.hpp
-        oatpp/core/data/Bundle.cpp
-        oatpp/core/data/Bundle.hpp
-        oatpp/core/data/buffer/FIFOBuffer.cpp
-        oatpp/core/data/buffer/FIFOBuffer.hpp
-        oatpp/core/data/buffer/IOBuffer.cpp
-        oatpp/core/data/buffer/IOBuffer.hpp
-        oatpp/core/data/buffer/Processor.cpp
-        oatpp/core/data/buffer/Processor.hpp
-        oatpp/core/data/mapping/ObjectMapper.cpp
-        oatpp/core/data/mapping/ObjectMapper.hpp
-        oatpp/core/data/mapping/TypeResolver.cpp
-        oatpp/core/data/mapping/TypeResolver.hpp
-        oatpp/core/data/mapping/type/Any.cpp
-        oatpp/core/data/mapping/type/Any.hpp
-        oatpp/core/data/mapping/type/Collection.hpp
-        oatpp/core/data/mapping/type/Enum.cpp
-        oatpp/core/data/mapping/type/Enum.hpp
-        oatpp/core/data/mapping/type/List.cpp
-        oatpp/core/data/mapping/type/List.hpp
-        oatpp/core/data/mapping/type/Map.hpp
-        oatpp/core/data/mapping/type/Object.cpp
-        oatpp/core/data/mapping/type/Object.hpp
-        oatpp/core/data/mapping/type/PairList.cpp
-        oatpp/core/data/mapping/type/PairList.hpp
-        oatpp/core/data/mapping/type/Primitive.cpp
-        oatpp/core/data/mapping/type/Primitive.hpp
-        oatpp/core/data/mapping/type/Type.cpp
-        oatpp/core/data/mapping/type/Type.hpp
-        oatpp/core/data/mapping/type/UnorderedMap.cpp
-        oatpp/core/data/mapping/type/UnorderedMap.hpp
-        oatpp/core/data/mapping/type/UnorderedSet.cpp
-        oatpp/core/data/mapping/type/UnorderedSet.hpp
-        oatpp/core/data/mapping/type/Vector.cpp
-        oatpp/core/data/mapping/type/Vector.hpp
-        oatpp/core/data/resource/File.cpp
-        oatpp/core/data/resource/File.hpp
-        oatpp/core/data/resource/InMemoryData.cpp
-        oatpp/core/data/resource/InMemoryData.hpp
-        oatpp/core/data/resource/Resource.hpp
-        oatpp/core/data/resource/TemporaryFile.cpp
-        oatpp/core/data/resource/TemporaryFile.hpp
-        oatpp/core/data/share/LazyStringMap.hpp
-        oatpp/core/data/share/MemoryLabel.cpp
-        oatpp/core/data/share/MemoryLabel.hpp
-        oatpp/core/data/share/StringTemplate.cpp
-        oatpp/core/data/share/StringTemplate.hpp
-        oatpp/core/data/stream/BufferStream.cpp
-        oatpp/core/data/stream/BufferStream.hpp
-        oatpp/core/data/stream/FIFOStream.cpp
-        oatpp/core/data/stream/FIFOStream.hpp
-        oatpp/core/data/stream/FileStream.cpp
-        oatpp/core/data/stream/FileStream.hpp
-        oatpp/core/data/stream/Stream.cpp
-        oatpp/core/data/stream/Stream.hpp
-        oatpp/core/data/stream/StreamBufferedProxy.cpp
-        oatpp/core/data/stream/StreamBufferedProxy.hpp
-        oatpp/core/macro/basic.hpp
-        oatpp/core/macro/codegen.hpp
-        oatpp/core/macro/component.hpp
-        oatpp/core/parser/Caret.cpp
-        oatpp/core/parser/Caret.hpp
-        oatpp/core/parser/ParsingError.cpp
-        oatpp/core/parser/ParsingError.hpp
-        oatpp/core/provider/Invalidator.hpp
-        oatpp/core/provider/Pool.hpp
-        oatpp/core/provider/Provider.hpp
-        oatpp/core/utils/Binary.cpp
-        oatpp/core/utils/Binary.hpp
-        oatpp/core/utils/ConversionUtils.cpp
-        oatpp/core/utils/ConversionUtils.hpp
-        oatpp/core/utils/Random.cpp
-        oatpp/core/utils/Random.hpp
-        oatpp/core/utils/String.cpp
-        oatpp/core/utils/String.hpp
+		oatpp/codegen/ApiClient_define.hpp
+		oatpp/codegen/ApiClient_undef.hpp
+		oatpp/codegen/ApiController_define.hpp
+		oatpp/codegen/ApiController_undef.hpp
+		oatpp/codegen/DbClient_define.hpp
+		oatpp/codegen/DbClient_undef.hpp
+		oatpp/codegen/DTO_define.hpp
+		oatpp/codegen/DTO_undef.hpp
+		oatpp/concurrency/SpinLock.cpp
+		oatpp/concurrency/SpinLock.hpp
+		oatpp/concurrency/Utils.cpp
+		oatpp/concurrency/Utils.hpp
+		oatpp/data/Bundle.cpp
+		oatpp/data/Bundle.hpp
+		oatpp/data/buffer/FIFOBuffer.cpp
+		oatpp/data/buffer/FIFOBuffer.hpp
+		oatpp/data/buffer/IOBuffer.cpp
+		oatpp/data/buffer/IOBuffer.hpp
+		oatpp/data/buffer/Processor.cpp
+		oatpp/data/buffer/Processor.hpp
+		oatpp/data/mapping/ObjectMapper.cpp
+		oatpp/data/mapping/ObjectMapper.hpp
+		oatpp/data/mapping/TypeResolver.cpp
+		oatpp/data/mapping/TypeResolver.hpp
+		oatpp/data/mapping/type/Any.cpp
+		oatpp/data/mapping/type/Any.hpp
+		oatpp/data/mapping/type/Collection.hpp
+		oatpp/data/mapping/type/Enum.cpp
+		oatpp/data/mapping/type/Enum.hpp
+		oatpp/data/mapping/type/List.cpp
+		oatpp/data/mapping/type/List.hpp
+		oatpp/data/mapping/type/Map.hpp
+		oatpp/data/mapping/type/Object.cpp
+		oatpp/data/mapping/type/Object.hpp
+		oatpp/data/mapping/type/PairList.cpp
+		oatpp/data/mapping/type/PairList.hpp
+		oatpp/data/mapping/type/Primitive.cpp
+		oatpp/data/mapping/type/Primitive.hpp
+		oatpp/data/mapping/type/Type.cpp
+		oatpp/data/mapping/type/Type.hpp
+		oatpp/data/mapping/type/UnorderedMap.cpp
+		oatpp/data/mapping/type/UnorderedMap.hpp
+		oatpp/data/mapping/type/UnorderedSet.cpp
+		oatpp/data/mapping/type/UnorderedSet.hpp
+		oatpp/data/mapping/type/Vector.cpp
+		oatpp/data/mapping/type/Vector.hpp
+		oatpp/data/resource/File.cpp
+		oatpp/data/resource/File.hpp
+		oatpp/data/resource/InMemoryData.cpp
+		oatpp/data/resource/InMemoryData.hpp
+		oatpp/data/resource/Resource.hpp
+		oatpp/data/resource/TemporaryFile.cpp
+		oatpp/data/resource/TemporaryFile.hpp
+		oatpp/data/share/LazyStringMap.hpp
+		oatpp/data/share/MemoryLabel.cpp
+		oatpp/data/share/MemoryLabel.hpp
+		oatpp/data/share/StringTemplate.cpp
+		oatpp/data/share/StringTemplate.hpp
+		oatpp/data/stream/BufferStream.cpp
+		oatpp/data/stream/BufferStream.hpp
+		oatpp/data/stream/FIFOStream.cpp
+		oatpp/data/stream/FIFOStream.hpp
+		oatpp/data/stream/FileStream.cpp
+		oatpp/data/stream/FileStream.hpp
+		oatpp/data/stream/Stream.cpp
+		oatpp/data/stream/Stream.hpp
+		oatpp/data/stream/StreamBufferedProxy.cpp
+		oatpp/data/stream/StreamBufferedProxy.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
@@ -148,6 +124,19 @@ add_library(oatpp
         oatpp/encoding/Unicode.hpp
         oatpp/encoding/Url.cpp
         oatpp/encoding/Url.hpp
+		oatpp/json/Beautifier.cpp
+		oatpp/json/Beautifier.hpp
+		oatpp/json/Deserializer.cpp
+		oatpp/json/Deserializer.hpp
+		oatpp/json/ObjectMapper.cpp
+		oatpp/json/ObjectMapper.hpp
+		oatpp/json/Serializer.cpp
+		oatpp/json/Serializer.hpp
+		oatpp/json/Utils.cpp
+		oatpp/json/Utils.hpp
+		oatpp/macro/basic.hpp
+		oatpp/macro/codegen.hpp
+		oatpp/macro/component.hpp
         oatpp/network/Address.cpp
         oatpp/network/Address.hpp
         oatpp/network/ConnectionHandler.hpp
@@ -197,16 +186,23 @@ add_library(oatpp
         oatpp/orm/SchemaMigration.hpp
         oatpp/orm/Transaction.cpp
         oatpp/orm/Transaction.hpp
-        oatpp/parser/json/Beautifier.cpp
-        oatpp/parser/json/Beautifier.hpp
-        oatpp/parser/json/Utils.cpp
-        oatpp/parser/json/Utils.hpp
-        oatpp/parser/json/mapping/Deserializer.cpp
-        oatpp/parser/json/mapping/Deserializer.hpp
-        oatpp/parser/json/mapping/ObjectMapper.cpp
-        oatpp/parser/json/mapping/ObjectMapper.hpp
-        oatpp/parser/json/mapping/Serializer.cpp
-        oatpp/parser/json/mapping/Serializer.hpp
+		oatpp/provider/Invalidator.hpp
+		oatpp/provider/Pool.hpp
+		oatpp/provider/Provider.hpp
+		oatpp/utils/parser/Caret.cpp
+		oatpp/utils/parser/Caret.hpp
+		oatpp/utils/parser/ParsingError.cpp
+		oatpp/utils/parser/ParsingError.hpp
+		oatpp/utils/Binary.cpp
+		oatpp/utils/Binary.hpp
+		oatpp/utils/Conversion.cpp
+		oatpp/utils/Conversion.hpp
+		oatpp/utils/CRC32.cpp
+		oatpp/utils/CRC32.hpp
+		oatpp/utils/Random.cpp
+		oatpp/utils/Random.hpp
+		oatpp/utils/String.cpp
+		oatpp/utils/String.hpp
         oatpp/web/client/ApiClient.cpp
         oatpp/web/client/ApiClient.hpp
         oatpp/web/client/HttpRequestExecutor.cpp
@@ -294,6 +290,11 @@ add_library(oatpp
         oatpp/web/url/mapping/Pattern.cpp
         oatpp/web/url/mapping/Pattern.hpp
         oatpp/web/url/mapping/Router.hpp
+		oatpp/Environment.cpp
+		oatpp/Environment.hpp
+		oatpp/IODefinitions.cpp
+		oatpp/IODefinitions.hpp
+		oatpp/Types.hpp
 )
 set_target_source_groups(oatpp STRIP_PREFIX "oatpp")
 

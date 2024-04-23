@@ -31,7 +31,7 @@
 namespace oatpp { namespace network { namespace virtual_ { namespace server {
 
 /**
- * Provider of "virtual" connections.
+ * TestProvider of "virtual" connections.
  * See &id:oatpp::network::virtual_::Interface;, &id:oatpp::network::virtual_::Socket; <br>
  * Extends &id:oatpp::network::ServerConnectionProvider;.
  */

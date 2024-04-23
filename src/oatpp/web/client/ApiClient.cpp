@@ -24,7 +24,7 @@
 
 #include "ApiClient.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace client {
 
@@ -47,7 +47,7 @@ std::shared_ptr<oatpp::data::mapping::ObjectMapper> ApiClient::getObjectMapper()
 ApiClient::StringTemplate ApiClient::parsePathTemplate(const oatpp::String& name, const oatpp::String& text) {
 
   std::vector<StringTemplate::Variable> variables;
-  parser::Caret caret(text);
+  utils::parser::Caret caret(text);
 
   while(caret.canContinue()) {
 

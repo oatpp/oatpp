@@ -25,7 +25,7 @@
 #include "HttpRouterTest.hpp"
 
 #include "oatpp/web/server/HttpRouter.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace server {
 

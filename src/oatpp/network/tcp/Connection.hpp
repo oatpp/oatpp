@@ -25,7 +25,7 @@
 #ifndef oatpp_network_tcp_Connection_hpp
 #define oatpp_network_tcp_Connection_hpp
 
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
 
 namespace oatpp { namespace network { namespace tcp {
 

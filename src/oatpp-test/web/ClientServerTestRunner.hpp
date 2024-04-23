@@ -31,7 +31,7 @@
 #include "oatpp/network/Server.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/macro/component.hpp"
 
 #include <list>
 #include <chrono>

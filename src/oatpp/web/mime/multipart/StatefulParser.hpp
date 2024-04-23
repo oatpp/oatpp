@@ -25,9 +25,9 @@
 #ifndef oatpp_web_mime_multipart_StatefulParser_hpp
 #define oatpp_web_mime_multipart_StatefulParser_hpp
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/Types.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/data/share/LazyStringMap.hpp"
+#include "oatpp/Types.hpp"
 
 #include <unordered_map>
 

@@ -36,14 +36,14 @@
 #include "oatpp/web/protocol/http/outgoing/StreamingBody.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/core/data/resource/File.hpp"
-#include "oatpp/core/data/stream/FileStream.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
-#include "oatpp/core/macro/codegen.hpp"
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/data/resource/File.hpp"
+#include "oatpp/data/stream/FileStream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
+#include "oatpp/utils/Conversion.hpp"
+#include "oatpp/macro/codegen.hpp"
+#include "oatpp/macro/component.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
 
@@ -190,7 +190,7 @@ public:
 
     Action act() override {
       oatpp::String text = request->getPathVariable("text-value");
-      auto numIterations = oatpp::utils::conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
+      auto numIterations = oatpp::utils::Conversion::strToInt32(request->getPathVariable("num-iterations")->c_str());
 
       auto body = std::make_shared<oatpp::web::protocol::http::outgoing::StreamingBody>
         (std::make_shared<ReadCallback>(text, numIterations));
@@ -209,7 +209,7 @@ public:
 
     Action act() override {
 
-      m_chunkSize = oatpp::utils::conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
+      m_chunkSize = oatpp::utils::Conversion::strToInt32(request->getPathVariable("chunk-size")->c_str());
 
       m_multipart = std::make_shared<oatpp::web::mime::multipart::PartList>(request->getHeaders());
       auto multipartReader = std::make_shared<oatpp::web::mime::multipart::AsyncReader>(m_multipart);
@@ -307,7 +307,7 @@ public:
 
       if(m_wait) {
         m_wait = false;
-        action = async::Action::createWaitRepeatAction(1000 * 1000 + oatpp::base::Environment::getMicroTickCount());
+        action = async::Action::createWaitRepeatAction(1000 * 1000 + oatpp::Environment::getMicroTickCount());
         return nullptr;
       }
 

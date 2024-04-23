@@ -25,7 +25,7 @@
 #ifndef oatpp_network_Address_hpp
 #define oatpp_network_Address_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace network {
 

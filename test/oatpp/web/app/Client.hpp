@@ -30,7 +30,7 @@
 #include "oatpp/web/client/ApiClient.hpp"
 #include "oatpp/web/protocol/http/outgoing/MultipartBody.hpp"
 #include "oatpp/encoding/Base64.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 namespace oatpp { namespace test { namespace web { namespace app {
   

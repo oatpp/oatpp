@@ -27,7 +27,7 @@
 
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/data/Bundle.hpp"
+#include "oatpp/data/Bundle.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

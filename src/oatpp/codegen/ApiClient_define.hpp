@@ -42,8 +42,8 @@
  * </ul>
  */
 
-#include "oatpp/core/macro/basic.hpp"
-#include "oatpp/core/macro/codegen.hpp"
+#include "oatpp/macro/basic.hpp"
+#include "oatpp/macro/codegen.hpp"
 
 #define OATPP_MACRO_API_CLIENT_PARAM_MACRO(MACRO, TYPE, PARAM_LIST) MACRO(TYPE, PARAM_LIST)
 #define OATPP_MACRO_API_CLIENT_PARAM_TYPE(MACRO, TYPE, PARAM_LIST) const TYPE&

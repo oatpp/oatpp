@@ -60,7 +60,7 @@ public:
     wait = !wait;
     if(wait) {
       action = oatpp::async::Action::createWaitRepeatAction(
-        oatpp::base::Environment::getMicroTickCount() + 100 * 1000);
+        oatpp::Environment::getMicroTickCount() + 100 * 1000);
       return oatpp::IOError::RETRY_READ;
     }
     char *data = reinterpret_cast<char*>(buffer);

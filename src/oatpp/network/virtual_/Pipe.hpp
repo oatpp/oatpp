@@ -25,14 +25,14 @@
 #ifndef oatpp_network_virtual__Pipe_hpp
 #define oatpp_network_virtual__Pipe_hpp
 
-#include "oatpp/core/async/CoroutineWaitList.hpp"
+#include "oatpp/async/CoroutineWaitList.hpp"
 
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
 
-#include "oatpp/core/data/buffer/FIFOBuffer.hpp"
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/data/buffer/FIFOBuffer.hpp"
+#include "oatpp/data/buffer/IOBuffer.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 #include <mutex>
 #include <condition_variable>

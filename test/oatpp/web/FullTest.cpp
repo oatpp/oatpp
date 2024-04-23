@@ -37,7 +37,7 @@
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
@@ -46,8 +46,8 @@
 #include "oatpp/network/virtual_/server/ConnectionProvider.hpp"
 #include "oatpp/network/virtual_/Interface.hpp"
 
-#include "oatpp/core/data/resource/InMemoryData.hpp"
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/data/resource/InMemoryData.hpp"
+#include "oatpp/macro/component.hpp"
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 
@@ -96,7 +96,7 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
-    return oatpp::parser::json::mapping::ObjectMapper::createShared();
+    return oatpp::json::ObjectMapper::createShared();
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, clientConnectionProvider)([this] {
@@ -162,7 +162,7 @@ void FullTest::onRun() {
 
     v_int32 iterationsStep = m_iterationsPerStep;
 
-    auto lastTick = oatpp::base::Environment::getMicroTickCount();
+    auto lastTick = oatpp::Environment::getMicroTickCount();
 
     for(v_int32 i = 0; i < iterationsStep * 10; i ++) {
 
@@ -284,7 +284,7 @@ void FullTest::onRun() {
         OATPP_ASSERT(dto->testMap->size() == 3)
         OATPP_ASSERT(dto->testMap["key1"] == "value1")
         OATPP_ASSERT(dto->testMap["key2"] == "32")
-        OATPP_ASSERT(dto->testMap["key3"] == oatpp::utils::conversion::float32ToStr(0.32f))
+        OATPP_ASSERT(dto->testMap["key3"] == oatpp::utils::Conversion::float32ToStr(0.32f))
       }
 
       { // test GET with header parameter
@@ -543,8 +543,8 @@ void FullTest::onRun() {
       }
 
       if((i + 1) % iterationsStep == 0) {
-        auto ticks = oatpp::base::Environment::getMicroTickCount() - lastTick;
-        lastTick = oatpp::base::Environment::getMicroTickCount();
+        auto ticks = oatpp::Environment::getMicroTickCount() - lastTick;
+        lastTick = oatpp::Environment::getMicroTickCount();
         OATPP_LOGV("i", "%d, tick=%ld", i + 1, ticks)
       }
 
@@ -563,7 +563,7 @@ void FullTest::onRun() {
         auto value = response->readBodyToString();
         auto host = clientConnectionProvider->getProperty("host");
         OATPP_ASSERT(host)
-        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::conversion::int32ToStr(m_port))
+        OATPP_ASSERT(value == host.toString() + ":" + oatpp::utils::Conversion::int32ToStr(m_port))
       }
 
     }

@@ -24,7 +24,7 @@
 
 #include "./ConnectionProvider.hpp"
 
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 #include <fcntl.h>
 
@@ -129,7 +129,7 @@ ConnectionProvider::ConnectionProvider(const network::Address& address, bool use
         , m_useExtendedConnections(useExtendedConnections)
 {
   setProperty(PROPERTY_HOST, m_address.host);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(m_address.port));
+  setProperty(PROPERTY_PORT, oatpp::utils::Conversion::int32ToStr(m_address.port));
   m_serverHandle = instantiateServer();
 }
 
@@ -174,7 +174,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
       hints.ai_family = AF_UNSPEC;
   }
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
+  auto portStr = oatpp::utils::Conversion::int32ToStr(m_address.port);
 
   const int iResult = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (iResult != 0) {
@@ -234,7 +234,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   ::memset(&s_in, 0, sizeof(s_in));
   oatpp::v_sock_size s_in_len = sizeof(s_in);
   ::getsockname(serverHandle, (struct sockaddr *)&s_in, &s_in_len);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
+  setProperty(PROPERTY_PORT, oatpp::utils::Conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
 
@@ -264,7 +264,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
       hints.ai_family = AF_UNSPEC;
   }
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
+  auto portStr = oatpp::utils::Conversion::int32ToStr(m_address.port);
 
   ret = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (ret != 0) {
@@ -315,7 +315,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   ::memset(&s_in, 0, sizeof(s_in));
   oatpp::v_sock_size s_in_len = sizeof(s_in);//FIXME trace
   ::getsockname(serverHandle, reinterpret_cast<sockaddr*>(&s_in), &s_in_len);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(ntohs(s_in.sin_port)));
+  setProperty(PROPERTY_PORT, oatpp::utils::Conversion::int32ToStr(ntohs(s_in.sin_port)));
 
   return serverHandle;
 
@@ -377,7 +377,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
 
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String(reinterpret_cast<const char*>(strIp)));
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv4");
-    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin_port));
+    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::Conversion::int32ToStr(sockAddress->sin_port));
 
   } else if (clientAddress.ss_family == AF_INET6) {
 
@@ -387,7 +387,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
 
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS, oatpp::String(reinterpret_cast<const char*>(strIp)));
     properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_ADDRESS_FORMAT, "ipv6");
-    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::conversion::int32ToStr(sockAddress->sin6_port));
+    properties.put_LockFree(ExtendedConnection::PROPERTY_PEER_PORT, oatpp::utils::Conversion::int32ToStr(sockAddress->sin6_port));
 
   } else {
 

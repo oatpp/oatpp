@@ -25,7 +25,7 @@
 #include "./ConnectionProvider.hpp"
 
 #include "oatpp/network/tcp/Connection.hpp"
-#include "oatpp/core/utils/ConversionUtils.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 #include <fcntl.h>
 #include <errno.h>
@@ -74,12 +74,12 @@ ConnectionProvider::ConnectionProvider(const network::Address& address)
   , m_address(address)
 {
   setProperty(PROPERTY_HOST, address.host);
-  setProperty(PROPERTY_PORT, oatpp::utils::conversion::int32ToStr(address.port));
+  setProperty(PROPERTY_PORT, oatpp::utils::Conversion::int32ToStr(address.port));
 }
 
 provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
-  auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
+  auto portStr = oatpp::utils::Conversion::int32ToStr(m_address.port);
 
   addrinfo hints;
 
@@ -192,7 +192,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
     Action act() override {
 
-      auto portStr = oatpp::utils::conversion::int32ToStr(m_address.port);
+      auto portStr = oatpp::utils::Conversion::int32ToStr(m_address.port);
 
       addrinfo hints;
 

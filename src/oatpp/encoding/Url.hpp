@@ -26,7 +26,7 @@
 #define oatpp_encoding_Url_hpp
 
 #include "Hex.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
 
 namespace oatpp { namespace encoding {
 

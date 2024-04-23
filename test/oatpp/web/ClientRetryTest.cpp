@@ -36,7 +36,7 @@
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 
-#include "oatpp/parser/json/mapping/ObjectMapper.hpp"
+#include "oatpp/json/ObjectMapper.hpp"
 
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
@@ -47,7 +47,7 @@
 
 #include "oatpp/network/ConnectionPool.hpp"
 
-#include "oatpp/core/macro/component.hpp"
+#include "oatpp/macro/component.hpp"
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 #include "oatpp-test/Checker.hpp"
@@ -92,7 +92,7 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
-    return oatpp::parser::json::mapping::ObjectMapper::createShared();
+    return oatpp::json::ObjectMapper::createShared();
   }());
 
 };
@@ -153,7 +153,7 @@ void ClientRetryTest::onRun() {
 
   TestClientComponent component(m_port);
 
-  auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared();
+  auto objectMapper = oatpp::json::ObjectMapper::createShared();
   auto controller = app::Controller::createShared(objectMapper);
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);
@@ -243,9 +243,9 @@ void ClientRetryTest::onRun() {
 
       v_int64 counter = 0;
 
-      v_int64 tick0 = oatpp::base::Environment::getMicroTickCount();
+      v_int64 tick0 = oatpp::Environment::getMicroTickCount();
 
-      while(oatpp::base::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
+      while(oatpp::Environment::getMicroTickCount() - tick0 < 10 * 1000 * 1000) {
 
         auto response = client->getAvailability();
         OATPP_ASSERT(response && "Test: unstable server!")

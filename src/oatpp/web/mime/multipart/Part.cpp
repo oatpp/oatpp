@@ -25,7 +25,7 @@
 #include "Part.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
 
 #include <cstring>
 

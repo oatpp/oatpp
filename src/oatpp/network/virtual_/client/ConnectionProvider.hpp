@@ -31,7 +31,7 @@
 namespace oatpp { namespace network { namespace virtual_ { namespace client {
 
 /**
- * Provider of "virtual" connections for client.
+ * TestProvider of "virtual" connections for client.
  * See &id:oatpp::network::virtual_::Interface;, &id:oatpp::network::virtual_::Socket; <br>
  * Extends &id:oatpp::network::ClientConnectionProvider;.
  */
@@ -78,7 +78,7 @@ public:
   }
 
   /**
-   * Implementation of &id:oatpp::provider::Provider::Stop; method.
+   * Implementation of &id:oatpp::provider::TestProvider::Stop; method.
    */
   void stop() override;
 

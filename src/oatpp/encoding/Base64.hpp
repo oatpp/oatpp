@@ -25,7 +25,7 @@
 #ifndef oatpp_encoding_Base64_hpp
 #define oatpp_encoding_Base64_hpp
 
-#include "oatpp/core/Types.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace encoding {
 

@@ -25,8 +25,8 @@
 #ifndef oatpp_network_monitor_StatCollector_hpp
 #define oatpp_network_monitor_StatCollector_hpp
 
-#include "oatpp/core/Types.hpp"
-#include "oatpp/core/IODefinitions.hpp"
+#include "oatpp/Types.hpp"
+#include "oatpp/IODefinitions.hpp"
 
 namespace oatpp { namespace network { namespace monitor {
 

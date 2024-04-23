@@ -27,12 +27,12 @@
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-#include "oatpp/core/concurrency/Thread.hpp"
+#include "oatpp/concurrency/Utils.hpp"
 
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/data/buffer/IOBuffer.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/StreamBufferedProxy.hpp"
 
 
 namespace oatpp { namespace web { namespace server {
@@ -105,15 +105,15 @@ void HttpConnectionHandler::handleConnection(const provider::ResourceHandle<data
     std::thread thread(&HttpProcessor::Task::run, std::move(HttpProcessor::Task(m_components, connection, this)));
 
     /* Get hardware concurrency -1 in order to have 1cpu free of workers. */
-    v_int32 concurrency = oatpp::concurrency::getHardwareConcurrency();
+    v_int32 concurrency = oatpp::concurrency::Utils::getHardwareConcurrency();
     if (concurrency > 1) {
       concurrency -= 1;
     }
 
     /* Set thread affinity group CPUs [0..cpu_count - 1]. Leave one cpu free of workers */
-    oatpp::concurrency::setThreadAffinityToCpuRange(thread.native_handle(),
-                                                    0,
-                                                    concurrency - 1 /* -1 because 0-based index */);
+    oatpp::concurrency::Utils::setThreadAffinityToCpuRange(thread.native_handle(),
+                                                           0,
+                                                           concurrency - 1 /* -1 because 0-based index */);
 
     thread.detach();
   }

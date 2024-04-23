@@ -31,10 +31,10 @@
 
 #include "oatpp/network/ConnectionHandler.hpp"
 
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/async/Coroutine.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
-#include "oatpp/core/data/Bundle.hpp"
+#include "oatpp/data/Bundle.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

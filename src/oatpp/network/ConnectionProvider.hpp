@@ -25,9 +25,9 @@
 #ifndef oatpp_network_ConnectionProvider_hpp
 #define oatpp_network_ConnectionProvider_hpp
 
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
-#include "oatpp/core/provider/Provider.hpp"
+#include "oatpp/data/share/MemoryLabel.hpp"
+#include "oatpp/data/stream/Stream.hpp"
+#include "oatpp/provider/Provider.hpp"
 
 #include <unordered_map>
 

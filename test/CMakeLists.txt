@@ -1,66 +1,69 @@
 
 add_executable(oatppAllTests
-        oatpp/AllTestsMain.cpp
-        oatpp/core/async/ConditionVariableTest.cpp
-        oatpp/core/async/ConditionVariableTest.hpp
-        oatpp/core/async/LockTest.cpp
-        oatpp/core/async/LockTest.hpp
-        oatpp/core/base/CommandLineArgumentsTest.cpp
-        oatpp/core/base/CommandLineArgumentsTest.hpp
-        oatpp/core/base/LoggerTest.cpp
-        oatpp/core/base/LoggerTest.hpp
-        oatpp/core/data/buffer/ProcessorTest.cpp
-        oatpp/core/data/buffer/ProcessorTest.hpp
-        oatpp/core/data/mapping/TypeResolverTest.cpp
-        oatpp/core/data/mapping/TypeResolverTest.hpp
-        oatpp/core/data/mapping/type/AnyTest.cpp
-        oatpp/core/data/mapping/type/AnyTest.hpp
-        oatpp/core/data/mapping/type/EnumTest.cpp
-        oatpp/core/data/mapping/type/EnumTest.hpp
-        oatpp/core/data/mapping/type/InterpretationTest.cpp
-        oatpp/core/data/mapping/type/InterpretationTest.hpp
-        oatpp/core/data/mapping/type/ListTest.cpp
-        oatpp/core/data/mapping/type/ListTest.hpp
-        oatpp/core/data/mapping/type/ObjectTest.cpp
-        oatpp/core/data/mapping/type/ObjectTest.hpp
-        oatpp/core/data/mapping/type/ObjectWrapperTest.cpp
-        oatpp/core/data/mapping/type/ObjectWrapperTest.hpp
-        oatpp/core/data/mapping/type/PairListTest.cpp
-        oatpp/core/data/mapping/type/PairListTest.hpp
-        oatpp/core/data/mapping/type/PrimitiveTest.cpp
-        oatpp/core/data/mapping/type/PrimitiveTest.hpp
-        oatpp/core/data/mapping/type/StringTest.cpp
-        oatpp/core/data/mapping/type/StringTest.hpp
-        oatpp/core/data/mapping/type/TypeTest.cpp
-        oatpp/core/data/mapping/type/TypeTest.hpp
-        oatpp/core/data/mapping/type/UnorderedMapTest.cpp
-        oatpp/core/data/mapping/type/UnorderedMapTest.hpp
-        oatpp/core/data/mapping/type/UnorderedSetTest.cpp
-        oatpp/core/data/mapping/type/UnorderedSetTest.hpp
-        oatpp/core/data/mapping/type/VectorTest.cpp
-        oatpp/core/data/mapping/type/VectorTest.hpp
-        oatpp/core/data/resource/InMemoryDataTest.cpp
-        oatpp/core/data/resource/InMemoryDataTest.hpp
-        oatpp/core/data/share/LazyStringMapTest.cpp
-        oatpp/core/data/share/LazyStringMapTest.hpp
-        oatpp/core/data/share/MemoryLabelTest.cpp
-        oatpp/core/data/share/MemoryLabelTest.hpp
-        oatpp/core/data/share/StringTemplateTest.cpp
-        oatpp/core/data/share/StringTemplateTest.hpp
-        oatpp/core/data/stream/BufferStreamTest.cpp
-        oatpp/core/data/stream/BufferStreamTest.hpp
-        oatpp/core/parser/CaretTest.cpp
-        oatpp/core/parser/CaretTest.hpp
-        oatpp/core/provider/PoolTemplateTest.cpp
-        oatpp/core/provider/PoolTemplateTest.hpp
-        oatpp/core/provider/PoolTest.cpp
-        oatpp/core/provider/PoolTest.hpp
+        oatpp/async/ConditionVariableTest.cpp
+        oatpp/async/ConditionVariableTest.hpp
+        oatpp/async/LockTest.cpp
+        oatpp/async/LockTest.hpp
+        oatpp/base/CommandLineArgumentsTest.cpp
+        oatpp/base/CommandLineArgumentsTest.hpp
+        oatpp/data/buffer/ProcessorTest.cpp
+        oatpp/data/buffer/ProcessorTest.hpp
+        oatpp/data/mapping/TypeResolverTest.cpp
+        oatpp/data/mapping/TypeResolverTest.hpp
+        oatpp/data/mapping/type/AnyTest.cpp
+        oatpp/data/mapping/type/AnyTest.hpp
+        oatpp/data/mapping/type/EnumTest.cpp
+        oatpp/data/mapping/type/EnumTest.hpp
+        oatpp/data/mapping/type/InterpretationTest.cpp
+        oatpp/data/mapping/type/InterpretationTest.hpp
+        oatpp/data/mapping/type/ListTest.cpp
+        oatpp/data/mapping/type/ListTest.hpp
+        oatpp/data/mapping/type/ObjectTest.cpp
+        oatpp/data/mapping/type/ObjectTest.hpp
+        oatpp/data/mapping/type/ObjectWrapperTest.cpp
+        oatpp/data/mapping/type/ObjectWrapperTest.hpp
+        oatpp/data/mapping/type/PairListTest.cpp
+        oatpp/data/mapping/type/PairListTest.hpp
+        oatpp/data/mapping/type/PrimitiveTest.cpp
+        oatpp/data/mapping/type/PrimitiveTest.hpp
+        oatpp/data/mapping/type/StringTest.cpp
+        oatpp/data/mapping/type/StringTest.hpp
+        oatpp/data/mapping/type/TypeTest.cpp
+        oatpp/data/mapping/type/TypeTest.hpp
+        oatpp/data/mapping/type/UnorderedMapTest.cpp
+        oatpp/data/mapping/type/UnorderedMapTest.hpp
+        oatpp/data/mapping/type/UnorderedSetTest.cpp
+        oatpp/data/mapping/type/UnorderedSetTest.hpp
+        oatpp/data/mapping/type/VectorTest.cpp
+        oatpp/data/mapping/type/VectorTest.hpp
+        oatpp/data/resource/InMemoryDataTest.cpp
+        oatpp/data/resource/InMemoryDataTest.hpp
+        oatpp/data/share/LazyStringMapTest.cpp
+        oatpp/data/share/LazyStringMapTest.hpp
+        oatpp/data/share/MemoryLabelTest.cpp
+        oatpp/data/share/MemoryLabelTest.hpp
+        oatpp/data/share/StringTemplateTest.cpp
+        oatpp/data/share/StringTemplateTest.hpp
+        oatpp/data/stream/BufferStreamTest.cpp
+        oatpp/data/stream/BufferStreamTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
         oatpp/encoding/UrlTest.cpp
         oatpp/encoding/UrlTest.hpp
+        oatpp/json/BooleanTest.cpp
+        oatpp/json/BooleanTest.hpp
+        oatpp/json/DeserializerTest.cpp
+        oatpp/json/DeserializerTest.hpp
+        oatpp/json/DTOMapperPerfTest.cpp
+        oatpp/json/DTOMapperPerfTest.hpp
+        oatpp/json/DTOMapperTest.cpp
+        oatpp/json/DTOMapperTest.hpp
+        oatpp/json/EnumTest.cpp
+        oatpp/json/EnumTest.hpp
+        oatpp/json/UnorderedSetTest.cpp
+        oatpp/json/UnorderedSetTest.hpp
         oatpp/network/ConnectionPoolTest.cpp
         oatpp/network/ConnectionPoolTest.hpp
         oatpp/network/UrlTest.cpp
@@ -71,18 +74,12 @@ add_executable(oatppAllTests
         oatpp/network/virtual_/InterfaceTest.hpp
         oatpp/network/virtual_/PipeTest.cpp
         oatpp/network/virtual_/PipeTest.hpp
-        oatpp/parser/json/mapping/BooleanTest.cpp
-        oatpp/parser/json/mapping/BooleanTest.hpp
-        oatpp/parser/json/mapping/DeserializerTest.cpp
-        oatpp/parser/json/mapping/DeserializerTest.hpp
-        oatpp/parser/json/mapping/DTOMapperPerfTest.cpp
-        oatpp/parser/json/mapping/DTOMapperPerfTest.hpp
-        oatpp/parser/json/mapping/DTOMapperTest.cpp
-        oatpp/parser/json/mapping/DTOMapperTest.hpp
-        oatpp/parser/json/mapping/EnumTest.cpp
-        oatpp/parser/json/mapping/EnumTest.hpp
-        oatpp/parser/json/mapping/UnorderedSetTest.cpp
-        oatpp/parser/json/mapping/UnorderedSetTest.hpp
+        oatpp/provider/PoolTemplateTest.cpp
+        oatpp/provider/PoolTemplateTest.hpp
+        oatpp/provider/PoolTest.cpp
+        oatpp/provider/PoolTest.hpp
+        oatpp/utils/parser/CaretTest.cpp
+        oatpp/utils/parser/CaretTest.hpp
         oatpp/web/ClientRetryTest.cpp
         oatpp/web/ClientRetryTest.hpp
         oatpp/web/FullAsyncClientTest.cpp
@@ -116,6 +113,9 @@ add_executable(oatppAllTests
         oatpp/web/server/api/ApiControllerTest.hpp
         oatpp/web/server/handler/AuthorizationHandlerTest.cpp
         oatpp/web/server/handler/AuthorizationHandlerTest.hpp
+        oatpp/AllTestsMain.cpp
+        oatpp/LoggerTest.cpp
+        oatpp/LoggerTest.hpp
 )
 set_target_source_groups(oatppAllTests STRIP_PREFIX "oatpp")
 

@@ -26,9 +26,9 @@
 #define oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/async/Coroutine.hpp"
+#include "oatpp/data/stream/StreamBufferedProxy.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

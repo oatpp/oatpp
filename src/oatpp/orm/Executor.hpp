@@ -28,10 +28,10 @@
 #include "Connection.hpp"
 #include "QueryResult.hpp"
 
-#include "oatpp/core/data/mapping/TypeResolver.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
-#include "oatpp/core/data/share/MemoryLabel.hpp"
-#include "oatpp/core/data/share/StringTemplate.hpp"
+#include "oatpp/data/mapping/TypeResolver.hpp"
+#include "oatpp/data/mapping/type/Type.hpp"
+#include "oatpp/data/share/MemoryLabel.hpp"
+#include "oatpp/data/share/StringTemplate.hpp"
 
 namespace oatpp { namespace orm {
 

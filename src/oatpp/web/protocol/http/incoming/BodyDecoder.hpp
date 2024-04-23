@@ -26,9 +26,9 @@
 #define oatpp_web_protocol_http_incoming_BodyDecoder_hpp
 
 #include "oatpp/web/protocol/http/Http.hpp"
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/async/Coroutine.hpp"
+#include "oatpp/data/mapping/ObjectMapper.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/async/Coroutine.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -72,7 +72,7 @@ private:
     
     oatpp::async::Action onDecoded() {
       auto body = m_outputStream->toString();
-      oatpp::parser::Caret caret(body);
+      oatpp::utils::parser::Caret caret(body);
       auto dto = m_objectMapper->readFromCaret<Wrapper>(caret);
       if(caret.hasError()) {
         return this->template error<oatpp::async::Error>(caret.getErrorMessage());

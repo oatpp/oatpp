@@ -25,7 +25,7 @@
 #ifndef oatpp_test_Checker_hpp
 #define oatpp_test_Checker_hpp
 
-#include "oatpp/core/base/Environment.hpp"
+#include "oatpp/Environment.hpp"
 
 namespace oatpp { namespace test {
 
