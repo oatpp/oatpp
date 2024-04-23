@@ -26,7 +26,7 @@
 #define oatpp_orm_QueryResult_hpp
 
 #include "Connection.hpp"
-#include "oatpp/core/provider/Provider.hpp"
+#include "oatpp/provider/Provider.hpp"
 #include "oatpp/Types.hpp"
 
 namespace oatpp { namespace orm {

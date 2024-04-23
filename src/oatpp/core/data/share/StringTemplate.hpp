@@ -87,7 +87,7 @@ public:
   };
 
   /**
-   * Provider of template variable-values based on the std::vector.
+   * TestProvider of template variable-values based on the std::vector.
    */
   class VectorValueProvider : public ValueProvider {
   private:
@@ -98,7 +98,7 @@ public:
   };
 
   /**
-   * Provider of template variable-values based on the std::unordered_map.
+   * TestProvider of template variable-values based on the std::unordered_map.
    */
   class MapValueProvider : public ValueProvider {
   private:
@@ -109,7 +109,7 @@ public:
   };
 
   /**
-   * Provider of template variable-values which returns the same value for all variables.
+   * TestProvider of template variable-values which returns the same value for all variables.
    */
   class SingleValueProvider : public ValueProvider {
   private:

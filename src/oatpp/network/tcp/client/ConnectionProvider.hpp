@@ -28,7 +28,7 @@
 #include "oatpp/network/Address.hpp"
 
 #include "oatpp/network/ConnectionProvider.hpp"
-#include "oatpp/core/provider/Invalidator.hpp"
+#include "oatpp/provider/Invalidator.hpp"
 #include "oatpp/Types.hpp"
 
 namespace oatpp { namespace network { namespace tcp { namespace client {
@@ -68,7 +68,7 @@ public:
   }
 
   /**
-   * Implements &id:oatpp::provider::Provider::stop;. Here does nothing.
+   * Implements &id:oatpp::provider::TestProvider::stop;. Here does nothing.
    */
   void stop() override {
     // DO NOTHING

@@ -30,8 +30,8 @@
 #include "oatpp/encoding/UrlTest.hpp"
 
 #include "oatpp/core/parser/CaretTest.hpp"
-#include "oatpp/core/provider/PoolTest.hpp"
-#include "oatpp/core/provider/PoolTemplateTest.hpp"
+#include "oatpp/provider/PoolTest.hpp"
+#include "oatpp/provider/PoolTemplateTest.hpp"
 #include "oatpp/async/ConditionVariableTest.hpp"
 #include "oatpp/async/LockTest.hpp"
 
@@ -123,8 +123,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::async::LockTest);
   OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::provider::PoolTest);
-  OATPP_RUN_TEST(oatpp::test::core::provider::PoolTemplateTest);
+  OATPP_RUN_TEST(oatpp::provider::PoolTest);
+  OATPP_RUN_TEST(oatpp::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::json::EnumTest);
   OATPP_RUN_TEST(oatpp::json::BooleanTest);

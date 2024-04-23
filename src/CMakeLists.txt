@@ -120,9 +120,6 @@ add_library(oatpp
         oatpp/core/parser/Caret.hpp
         oatpp/core/parser/ParsingError.cpp
         oatpp/core/parser/ParsingError.hpp
-        oatpp/core/provider/Invalidator.hpp
-        oatpp/core/provider/Pool.hpp
-        oatpp/core/provider/Provider.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp
@@ -193,6 +190,9 @@ add_library(oatpp
         oatpp/orm/SchemaMigration.hpp
         oatpp/orm/Transaction.cpp
         oatpp/orm/Transaction.hpp
+		oatpp/provider/Invalidator.hpp
+		oatpp/provider/Pool.hpp
+		oatpp/provider/Provider.hpp
 		oatpp/utils/Binary.cpp
 		oatpp/utils/Binary.hpp
 		oatpp/utils/Conversion.cpp

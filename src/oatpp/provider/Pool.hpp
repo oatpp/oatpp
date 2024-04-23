@@ -38,7 +38,7 @@ template<class TResource, class AcquisitionProxyImpl>
 class PoolTemplate; // FWD
 
 /**
- * Pool acquisition proxy template.
+ * TestPool acquisition proxy template.
  * @tparam TResource - abstract resource interface type, Ex.: `IOStream`.
  * @tparam AcquisitionProxyImpl - implementation of proxy.
  */
@@ -47,7 +47,7 @@ class AcquisitionProxy : public TResource {
   friend PoolTemplate<TResource, AcquisitionProxyImpl>;
 public:
   /**
-   * Convenience typedef for Pool.
+   * Convenience typedef for TestPool.
    */
   typedef PoolTemplate<TResource, AcquisitionProxyImpl> PoolInstance;
 private:
@@ -406,9 +406,9 @@ public:
 };
 
 /**
- * Pool template class.
+ * TestPool template class.
  * @tparam TProvider - base class for pool to inherit, ex.: ServerConnectionProvider.
- * @tparam TResource - abstract resource interface type, Ex.: `IOStream`. Must be the same as a return-type of Provider.
+ * @tparam TResource - abstract resource interface type, Ex.: `IOStream`. Must be the same as a return-type of TestProvider.
  * @tparam AcquisitionProxyImpl - implementation of &l:AcquisitionProxy;.
  */
 template<class TProvider, class TResource, class AcquisitionProxyImpl>
@@ -440,12 +440,12 @@ protected:
 public:
 
   /**
-   * Create shared Pool.
+   * Create shared TestPool.
    * @param provider - resource provider.
    * @param maxResources - max resource count in the pool.
    * @param maxResourceTTL - max time-to-live for unused resource in the pool.
-   * @param timeout - optional timeout on &l:Pool::get (); and &l:Pool::getAsync (); operations.
-   * @return - `std::shared_ptr` of `Pool`.
+   * @param timeout - optional timeout on &l:TestPool::get (); and &l:TestPool::getAsync (); operations.
+   * @return - `std::shared_ptr` of `TestPool`.
    */
   static std::shared_ptr<Pool> createShared(const std::shared_ptr<TProvider>& provider,
                                             v_int64 maxResources,

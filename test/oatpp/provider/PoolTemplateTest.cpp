@@ -26,17 +26,17 @@
 #include "PoolTemplateTest.hpp"
 #include <future>
 
-#include "oatpp/core/provider/Pool.hpp"
+#include "oatpp/provider/Pool.hpp"
 #include "oatpp/async/Executor.hpp"
 
-namespace oatpp { namespace test { namespace core { namespace provider {
+namespace oatpp { namespace provider {
 
 namespace {
 
 struct Resource {
 };
 
-class Provider : public oatpp::provider::Provider<Resource> {
+class TestProvider : public oatpp::provider::Provider<Resource> {
 private:
 
   class ResourceInvalidator : public oatpp::provider::Invalidator<Resource> {
@@ -60,10 +60,10 @@ public:
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const oatpp::provider::ResourceHandle<Resource>&> {
     private:
-      Provider* m_provider;
+      TestProvider* m_provider;
     public:
 
-      GetCoroutine(Provider* provider)
+      GetCoroutine(TestProvider* provider)
         : m_provider(provider)
       {}
 
@@ -77,7 +77,7 @@ public:
   }
 
   void stop() override {
-    OATPP_LOGD("Provider", "stop()")
+    OATPP_LOGD("TestProvider", "stop()")
   }
 
 };
@@ -90,9 +90,9 @@ struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, Acq
 
 };
 
-struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
+struct TestPool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
 
-  Pool(const std::shared_ptr<Provider>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout)
+  TestPool(const std::shared_ptr<TestProvider>& provider, v_int64 maxResources, v_int64 maxResourceTTL, const std::chrono::duration<v_int64, std::micro>& timeout)
     : oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>(provider, maxResources, maxResourceTTL, timeout)
   {}
 
@@ -104,11 +104,11 @@ struct Pool : public oatpp::provider::PoolTemplate<Resource, AcquisitionProxy> {
     return oatpp::provider::PoolTemplate<Resource, AcquisitionProxy>::getAsync(_this);
   }
 
-  static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<Provider>& provider,
+  static std::shared_ptr<PoolTemplate> createShared(const std::shared_ptr<TestProvider>& provider,
                                                     v_int64 maxResources,
                                                     const std::chrono::duration<v_int64, std::micro>& maxResourceTTL,
                                                     const std::chrono::duration<v_int64, std::micro>& timeout) {
-    auto ptr = std::make_shared<Pool>(provider, maxResources, maxResourceTTL.count(), timeout);
+    auto ptr = std::make_shared<TestPool>(provider, maxResources, maxResourceTTL.count(), timeout);
     startCleanupTask(ptr);
     return ptr;
   }
@@ -127,7 +127,7 @@ public:
   {}
 
   Action act() override {
-    return Pool::getAsync(m_pool).callbackTo(&ClientCoroutine::onGet);
+    return TestPool::getAsync(m_pool).callbackTo(&ClientCoroutine::onGet);
   }
 
   Action onGet(const oatpp::provider::ResourceHandle<Resource>& resource) {
@@ -140,40 +140,40 @@ public:
 }
 
 void PoolTemplateTest::onRun() {
-  const auto provider = std::make_shared<Provider>();
+  const auto provider = std::make_shared<TestProvider>();
   const v_int64 maxResources = 1;
 
   {
     OATPP_LOGD(TAG, "Synchronously with timeout")
-    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
+    auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
 
-    oatpp::provider::ResourceHandle<Resource> resource = Pool::get(poolTemplate);
+    oatpp::provider::ResourceHandle<Resource> resource = TestPool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr)
-    OATPP_ASSERT(Pool::get(poolTemplate) == nullptr)
+    OATPP_ASSERT(TestPool::get(poolTemplate) == nullptr)
     
     poolTemplate->stop();
     
-    OATPP_ASSERT(Pool::get(poolTemplate) == nullptr)
+    OATPP_ASSERT(TestPool::get(poolTemplate) == nullptr)
   }
   {
     OATPP_LOGD(TAG, "Synchronously without timeout")
-    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
+    auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
-    oatpp::provider::ResourceHandle<Resource> resource = Pool::get(poolTemplate);
+    oatpp::provider::ResourceHandle<Resource> resource = TestPool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr)
     std::future<oatpp::provider::ResourceHandle<Resource>> futureResource = std::async(std::launch::async, [&poolTemplate]() {
-      return Pool::get(poolTemplate);
+      return TestPool::get(poolTemplate);
     });
     OATPP_ASSERT(futureResource.wait_for(std::chrono::seconds(1)) == std::future_status::timeout)
 
     poolTemplate->stop();
 
-    OATPP_ASSERT(Pool::get(poolTemplate) == nullptr)
+    OATPP_ASSERT(TestPool::get(poolTemplate) == nullptr)
   }
   {
     OATPP_LOGD(TAG, "Asynchronously with timeout")
     oatpp::async::Executor executor(1, 1, 1);
-    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
+    auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
 
     oatpp::provider::ResourceHandle<Resource> resourceHandle;
     {
@@ -202,9 +202,9 @@ void PoolTemplateTest::onRun() {
   {
     OATPP_LOGD(TAG, "Asynchronously without timeout")
     oatpp::async::Executor executor(1, 1, 1);
-    auto poolTemplate = Pool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
+    auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
-    oatpp::provider::ResourceHandle<Resource> resource = Pool::get(poolTemplate);
+    oatpp::provider::ResourceHandle<Resource> resource = TestPool::get(poolTemplate);
     OATPP_ASSERT(resource != nullptr)
 
     std::promise<oatpp::provider::ResourceHandle<Resource>> promise;
@@ -218,4 +218,4 @@ void PoolTemplateTest::onRun() {
   }
 }
 
-}}}}
+}}

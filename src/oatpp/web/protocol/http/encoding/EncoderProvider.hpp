@@ -31,7 +31,7 @@
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 
 /**
- * Provider of encoding or decoding &id:oatpp::data::buffer::Processor;.
+ * TestProvider of encoding or decoding &id:oatpp::data::buffer::Processor;.
  */
 class EncoderProvider {
 public:

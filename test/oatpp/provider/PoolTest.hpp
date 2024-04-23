@@ -22,14 +22,14 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_provider_PoolTest_hpp
-#define oatpp_test_provider_PoolTest_hpp
+#ifndef oatpp_provider_PoolTest_hpp
+#define oatpp_provider_PoolTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace core { namespace provider {
+namespace oatpp { namespace provider {
 
-class PoolTest : public UnitTest{
+class PoolTest : public oatpp::test::UnitTest{
 public:
 
   PoolTest():UnitTest("TEST[provider::PoolTest]"){}
@@ -37,7 +37,7 @@ public:
 
 };
 
-}}}}
+}}
 
 
-#endif //oatpp_test_provider_PoolTest_hpp
+#endif //oatpp_provider_PoolTest_hpp

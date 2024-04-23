@@ -24,12 +24,12 @@
 
 #include "PoolTest.hpp"
 
-#include "oatpp/core/provider/Pool.hpp"
+#include "oatpp/provider/Pool.hpp"
 #include "oatpp/async/Executor.hpp"
 
 #include <thread>
 
-namespace oatpp { namespace test { namespace core { namespace provider {
+namespace oatpp { namespace provider {
 
 namespace {
 
@@ -57,7 +57,7 @@ public:
 
 };
 
-class Provider : public oatpp::provider::Provider<Resource> {
+class TestProvider : public oatpp::provider::Provider<Resource> {
 private:
 
   class ResourceInvalidator : public oatpp::provider::Invalidator<Resource> {
@@ -85,10 +85,10 @@ public:
 
     class GetCoroutine : public oatpp::async::CoroutineWithResult<GetCoroutine, const oatpp::provider::ResourceHandle<Resource>&> {
     private:
-      Provider* m_provider;
+      TestProvider* m_provider;
     public:
 
-      GetCoroutine(Provider* provider)
+      GetCoroutine(TestProvider* provider)
         : m_provider(provider)
       {}
 
@@ -105,7 +105,7 @@ public:
   }
 
   void stop() override {
-    OATPP_LOGD("Provider", "stop()")
+    OATPP_LOGD("TestProvider", "stop()")
   }
 
   v_int64 getIdCounter() {
@@ -128,17 +128,17 @@ struct AcquisitionProxy : public oatpp::provider::AcquisitionProxy<Resource, Acq
 
 };
 
-typedef oatpp::provider::Pool<oatpp::provider::Provider<Resource>, Resource, AcquisitionProxy> Pool;
+typedef oatpp::provider::Pool<oatpp::provider::Provider<Resource>, Resource, AcquisitionProxy> TestPool;
 
 
 class ClientCoroutine : public oatpp::async::Coroutine<ClientCoroutine> {
 private:
-  std::shared_ptr<Pool> m_pool;
+  std::shared_ptr<TestPool> m_pool;
   oatpp::provider::ResourceHandle<Resource> m_resource;
   bool m_invalidate;
 public:
 
-  ClientCoroutine(const std::shared_ptr<Pool>& pool, bool invalidate)
+  ClientCoroutine(const std::shared_ptr<TestPool>& pool, bool invalidate)
     : m_pool(pool)
     , m_invalidate(invalidate)
   {}
@@ -161,7 +161,7 @@ public:
 
 };
 
-void clientMethod(std::shared_ptr<Pool> pool, bool invalidate) {
+void clientMethod(std::shared_ptr<TestPool> pool, bool invalidate) {
   auto resource = pool->get();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   if(invalidate) {
@@ -175,8 +175,8 @@ void PoolTest::onRun() {
 
   oatpp::async::Executor executor(10, 1, 1);
 
-  auto provider = std::make_shared<Provider>();
-  auto pool = Pool::createShared(provider, 10, std::chrono::seconds(2));
+  auto provider = std::make_shared<TestProvider>();
+  auto pool = TestPool::createShared(provider, 10, std::chrono::seconds(2));
 
 
   std::list<std::thread> threads;
@@ -193,7 +193,7 @@ void PoolTest::onRun() {
   OATPP_ASSERT(pool->getCounter() == 10)
   OATPP_LOGD(TAG, "Waiting...")
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  OATPP_LOGD(TAG, "Pool counter=%ld", pool->getCounter())
+  OATPP_LOGD(TAG, "TestPool counter=%ld", pool->getCounter())
   OATPP_ASSERT(pool->getCounter() == 0)
 
   OATPP_LOGD(TAG, "Run 2")
@@ -208,7 +208,7 @@ void PoolTest::onRun() {
   OATPP_ASSERT(pool->getCounter() == 10)
   OATPP_LOGD(TAG, "Waiting...")
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  OATPP_LOGD(TAG, "Pool counter=%ld", pool->getCounter())
+  OATPP_LOGD(TAG, "TestPool counter=%ld", pool->getCounter())
   OATPP_ASSERT(pool->getCounter() == 0)
 
   for(std::thread& thread : threads) {
@@ -230,4 +230,4 @@ void PoolTest::onRun() {
 
 }
 
-}}}}
+}}

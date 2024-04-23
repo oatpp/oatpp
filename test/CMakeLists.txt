@@ -48,10 +48,6 @@ add_executable(oatppAllTests
         oatpp/core/data/stream/BufferStreamTest.hpp
         oatpp/core/parser/CaretTest.cpp
         oatpp/core/parser/CaretTest.hpp
-        oatpp/core/provider/PoolTemplateTest.cpp
-        oatpp/core/provider/PoolTemplateTest.hpp
-        oatpp/core/provider/PoolTest.cpp
-        oatpp/core/provider/PoolTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp
@@ -80,6 +76,10 @@ add_executable(oatppAllTests
         oatpp/network/virtual_/InterfaceTest.hpp
         oatpp/network/virtual_/PipeTest.cpp
         oatpp/network/virtual_/PipeTest.hpp
+        oatpp/provider/PoolTemplateTest.cpp
+        oatpp/provider/PoolTemplateTest.hpp
+        oatpp/provider/PoolTest.cpp
+        oatpp/provider/PoolTest.hpp
         oatpp/web/ClientRetryTest.cpp
         oatpp/web/ClientRetryTest.hpp
         oatpp/web/FullAsyncClientTest.cpp
