@@ -60,10 +60,6 @@ add_library(oatpp
 		oatpp/concurrency/SpinLock.hpp
 		oatpp/concurrency/Utils.cpp
 		oatpp/concurrency/Utils.hpp
-        oatpp/core/parser/Caret.cpp
-        oatpp/core/parser/Caret.hpp
-        oatpp/core/parser/ParsingError.cpp
-        oatpp/core/parser/ParsingError.hpp
 		oatpp/data/Bundle.cpp
 		oatpp/data/Bundle.hpp
 		oatpp/data/buffer/FIFOBuffer.cpp
@@ -193,6 +189,10 @@ add_library(oatpp
 		oatpp/provider/Invalidator.hpp
 		oatpp/provider/Pool.hpp
 		oatpp/provider/Provider.hpp
+		oatpp/utils/parser/Caret.cpp
+		oatpp/utils/parser/Caret.hpp
+		oatpp/utils/parser/ParsingError.cpp
+		oatpp/utils/parser/ParsingError.hpp
 		oatpp/utils/Binary.cpp
 		oatpp/utils/Binary.hpp
 		oatpp/utils/Conversion.cpp

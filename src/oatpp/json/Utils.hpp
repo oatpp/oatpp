@@ -25,7 +25,7 @@
 #ifndef oatpp_json_Utils_hpp
 #define oatpp_json_Utils_hpp
 
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/Types.hpp"
 
 #include <string>
@@ -69,7 +69,7 @@ public:
 
 public:
   typedef oatpp::String String;
-  typedef oatpp::parser::Caret ParsingCaret;
+  typedef oatpp::utils::parser::Caret ParsingCaret;
 private:
   static v_buff_size escapeUtf8Char(const char* sequence, p_char8 buffer);
   static v_buff_size calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags);
@@ -122,14 +122,14 @@ public:
 
   /**
    * Parse string enclosed in `"<string>"`.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @return - &id:oatpp::String;.
    */
   static String parseString(ParsingCaret& caret);
 
   /**
    * Parse string enclosed in `"<string>"`.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @return - `std::string`.
    */
   static std::string parseStringToStdString(ParsingCaret& caret);

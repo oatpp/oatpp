@@ -275,7 +275,7 @@ void DTOMapperTest::onRun(){
     OATPP_LOGV(TAG, "...")
     OATPP_LOGV(TAG, "...")
 
-    oatpp::parser::Caret caret(result);
+    oatpp::utils::parser::Caret caret(result);
     auto obj1 = mapper->readFromCaret<oatpp::Object<Test>>(caret);
 
     OATPP_ASSERT(obj1->field_string)

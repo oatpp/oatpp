@@ -93,11 +93,11 @@ public:
 
   /**
    * Implementation of &id:oatpp::data::mapping::ObjectMapper::read;.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @param type - type of resultant object &id:oatpp::data::mapping::type::Type;.
    * @return - &id:oatpp::Void; holding resultant object.
    */
-  oatpp::Void read(oatpp::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const override;
+  oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const override;
 
 
   /**

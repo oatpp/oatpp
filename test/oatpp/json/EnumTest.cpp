@@ -144,7 +144,7 @@ void EnumTest::onRun() {
     oatpp::String json = "{\"enum\":null}";
     try {
       auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsString::NotNull>>(json);
-    } catch (const oatpp::parser::ParsingError& e) {
+    } catch (const oatpp::utils::parser::ParsingError& e) {
       OATPP_LOGD(TAG, "error - %s", e.what())
       error = true;
     }
@@ -174,7 +174,7 @@ void EnumTest::onRun() {
     oatpp::String json = "{\"enum\":null}";
     try {
       auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsNumber::NotNull>>(json);
-    } catch (const oatpp::parser::ParsingError& e) {
+    } catch (const oatpp::utils::parser::ParsingError& e) {
       OATPP_LOGD(TAG, "error - %s", e.what())
       error = true;
     }

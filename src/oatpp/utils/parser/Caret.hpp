@@ -22,12 +22,12 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_Caret_hpp
-#define oatpp_parser_Caret_hpp
+#ifndef oatpp_utils_parser_Caret_hpp
+#define oatpp_utils_parser_Caret_hpp
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace parser {
+namespace oatpp { namespace utils { namespace parser {
 
 /**
  * Helper class to do parsing operations
@@ -505,8 +505,6 @@ public:
 
 };
   
-}}
+}}}
 
-
-
-#endif /* oatpp_parser_Caret_hpp */
+#endif /* oatpp_utils_parser_Caret_hpp */

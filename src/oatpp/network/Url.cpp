@@ -28,7 +28,7 @@
 
 namespace oatpp { namespace network {
 
-oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
+oatpp::String Url::Parser::parseScheme(oatpp::utils::parser::Caret& caret) {
   v_buff_size pos0 = caret.getPosition();
   caret.findChar(':');
   v_buff_size size = caret.getPosition() - pos0;
@@ -41,7 +41,7 @@ oatpp::String Url::Parser::parseScheme(oatpp::parser::Caret& caret) {
   return nullptr;
 }
 
-Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
+Url::Authority Url::Parser::parseAuthority(oatpp::utils::parser::Caret& caret) {
   
   const char* data = caret.getData();
   v_buff_size pos0 = caret.getPosition();
@@ -94,7 +94,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::parser::Caret& caret) {
   
 }
 
-oatpp::String Url::Parser::parsePath(oatpp::parser::Caret& caret) {
+oatpp::String Url::Parser::parsePath(oatpp::utils::parser::Caret& caret) {
   auto label = caret.putLabel();
   caret.findCharFromSet("?#", 2);
   if(label.getSize() > 0) {
@@ -103,7 +103,7 @@ oatpp::String Url::Parser::parsePath(oatpp::parser::Caret& caret) {
   return nullptr;
 }
 
-void Url::Parser::parseQueryParams(Url::Parameters& params, oatpp::parser::Caret& caret) {
+void Url::Parser::parseQueryParams(Url::Parameters& params, oatpp::utils::parser::Caret& caret) {
 
   if(caret.findChar('?')) {
 
@@ -128,11 +128,11 @@ void Url::Parser::parseQueryParams(Url::Parameters& params, oatpp::parser::Caret
 }
 
 void Url::Parser::parseQueryParams(Url::Parameters& params, const oatpp::String& str) {
-  oatpp::parser::Caret caret(str.getPtr());
+  oatpp::utils::parser::Caret caret(str.getPtr());
   parseQueryParams(params, caret);
 }
 
-Url::Parameters Url::Parser::parseQueryParams(oatpp::parser::Caret& caret) {
+Url::Parameters Url::Parser::parseQueryParams(oatpp::utils::parser::Caret& caret) {
   Url::Parameters params;
   parseQueryParams(params, caret);
   return params;
@@ -144,7 +144,7 @@ Url::Parameters Url::Parser::parseQueryParams(const oatpp::String& str) {
   return params;
 }
 
-Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
+Url Url::Parser::parseUrl(oatpp::utils::parser::Caret& caret) {
 
   Url result;
 
@@ -173,7 +173,7 @@ Url Url::Parser::parseUrl(oatpp::parser::Caret& caret) {
 }
 
 Url Url::Parser::parseUrl(const oatpp::String& str) {
-  oatpp::parser::Caret caret(str);
+  oatpp::utils::parser::Caret caret(str);
   return parseUrl(caret);
 }
   

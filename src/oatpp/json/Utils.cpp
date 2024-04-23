@@ -487,7 +487,7 @@ std::string Utils::parseStringToStdString(ParsingCaret& caret){
 }
 
 bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
-  parser::Caret::StateSaveGuard stateGuard(caret);
+  utils::parser::Caret::StateSaveGuard stateGuard(caret);
 
   // search until a decimal separator is found or no more digits/sign are found or no more data available
   while(caret.canContinue()) {

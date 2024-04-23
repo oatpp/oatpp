@@ -203,7 +203,7 @@ void MemoryLabelTest::onRun() {
 
         for (v_int32 i = 0; i < iterationsCount; i++) {
 
-          oatpp::parser::Caret caret(headersText);
+          oatpp::utils::parser::Caret caret(headersText);
           oatpp::web::protocol::http::Status status;
           oatpp::web::protocol::http::Headers headers;
           oatpp::web::protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
@@ -259,7 +259,7 @@ void MemoryLabelTest::onRun() {
       "header4: value9\r\n"
       "\r\n";
 
-    oatpp::parser::Caret caret(headersText);
+    oatpp::utils::parser::Caret caret(headersText);
     oatpp::web::protocol::http::Status status;
     oatpp::web::protocol::http::Headers headers;
     oatpp::web::protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);

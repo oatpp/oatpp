@@ -106,7 +106,7 @@ std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
   return parse(reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()));
 }
   
-v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
+v_char8 Pattern::findSysChar(oatpp::utils::parser::Caret& caret) {
   auto data = caret.getData();
   for (v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = static_cast<v_char8>(data[i]);
@@ -121,7 +121,7 @@ v_char8 Pattern::findSysChar(oatpp::parser::Caret& caret) {
   
 bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
-  oatpp::parser::Caret caret(reinterpret_cast<const char*>(url.getData()), url.getSize());
+  oatpp::utils::parser::Caret caret(reinterpret_cast<const char*>(url.getData()), url.getSize());
   
   if (m_parts->empty()) {
     return !caret.skipChar('/');    

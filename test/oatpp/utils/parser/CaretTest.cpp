@@ -24,13 +24,9 @@
 
 #include "CaretTest.hpp"
 
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
 
-namespace oatpp { namespace test { namespace parser {
-
-  namespace {
-    typedef oatpp::parser::Caret Caret;
-  }
+namespace oatpp { namespace utils { namespace parser {
 
 void CaretTest::onRun() {
 

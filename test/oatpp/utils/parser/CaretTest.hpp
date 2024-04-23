@@ -22,17 +22,17 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_test_base_CaretTest_hpp
-#define oatpp_test_base_CaretTest_hpp
+#ifndef oatpp_utils_parser_CaretTest_hpp
+#define oatpp_utils_parser_CaretTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace parser {
+namespace oatpp { namespace utils { namespace parser {
 
-class CaretTest : public UnitTest{
+class CaretTest : public oatpp::test::UnitTest{
 public:
 
-  CaretTest():UnitTest("TEST[parser::CaretTest]"){}
+  CaretTest():UnitTest("TEST[utils::parser::CaretTest]"){}
   void onRun() override;
 
 };
@@ -40,4 +40,4 @@ public:
 }}}
 
 
-#endif //oatpp_test_base_CaretTest_hpp
+#endif //oatpp_utils_parser_CaretTest_hpp

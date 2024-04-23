@@ -29,7 +29,7 @@
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/UrlTest.hpp"
 
-#include "oatpp/core/parser/CaretTest.hpp"
+#include "oatpp/utils/parser/CaretTest.hpp"
 #include "oatpp/provider/PoolTest.hpp"
 #include "oatpp/provider/PoolTemplateTest.hpp"
 #include "oatpp/async/ConditionVariableTest.hpp"
@@ -121,7 +121,8 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
   OATPP_RUN_TEST(oatpp::async::LockTest);
-  OATPP_RUN_TEST(oatpp::test::parser::CaretTest);
+
+  OATPP_RUN_TEST(oatpp::utils::parser::CaretTest);
 
   OATPP_RUN_TEST(oatpp::provider::PoolTest);
   OATPP_RUN_TEST(oatpp::provider::PoolTemplateTest);

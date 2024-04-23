@@ -26,7 +26,7 @@
 #include "AuthorizationHandler.hpp"
 
 #include "oatpp/encoding/Base64.hpp"
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 
@@ -65,7 +65,7 @@ std::shared_ptr<handler::AuthorizationObject> BasicAuthorizationHandler::handleA
   if(header && header->size() > 6 && utils::String::compare(header->data(), 6, "Basic ", 6) == 0) {
 
     oatpp::String auth = oatpp::encoding::Base64::decode(header->c_str() + 6, static_cast<v_buff_size>(header->size() - 6));
-    parser::Caret caret(auth);
+    utils::parser::Caret caret(auth);
 
     if (caret.findChar(':')) {
       oatpp::String userId(&caret.getData()[0], caret.getPosition());

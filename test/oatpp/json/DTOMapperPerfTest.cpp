@@ -89,7 +89,7 @@ void DTOMapperPerfTest::onRun() {
   
   {
     oatpp::test::PerformanceChecker checker("Deserializer");
-    oatpp::parser::Caret caret(test1_Text);
+    oatpp::utils::parser::Caret caret(test1_Text);
     for(v_int32 i = 0; i < numIterations; i ++) {
       caret.setPosition(0);
       mapper->readFromCaret<oatpp::Object<Test1>>(caret);

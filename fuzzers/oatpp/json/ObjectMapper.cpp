@@ -1,7 +1,7 @@
 #include "oatpp/json/ObjectMapper.hpp"
 #include "oatpp/macro/codegen.hpp"
 
-typedef oatpp::parser::Caret ParsingCaret;
+typedef oatpp::utils::parser::Caret ParsingCaret;
 typedef oatpp::json::Serializer Serializer;
 typedef oatpp::json::Deserializer Deserializer;
 

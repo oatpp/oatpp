@@ -35,7 +35,7 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-typedef oatpp::parser::Caret ParsingCaret;
+typedef oatpp::utils::parser::Caret ParsingCaret;
 typedef oatpp::json::Serializer Serializer;
 typedef oatpp::json::Deserializer Deserializer;
 

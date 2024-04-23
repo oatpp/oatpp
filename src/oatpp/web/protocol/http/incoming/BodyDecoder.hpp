@@ -72,7 +72,7 @@ private:
     
     oatpp::async::Action onDecoded() {
       auto body = m_outputStream->toString();
-      oatpp::parser::Caret caret(body);
+      oatpp::utils::parser::Caret caret(body);
       auto dto = m_objectMapper->readFromCaret<Wrapper>(caret);
       if(caret.hasError()) {
         return this->template error<oatpp::async::Error>(caret.getErrorMessage());

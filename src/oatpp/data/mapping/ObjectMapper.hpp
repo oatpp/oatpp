@@ -30,8 +30,8 @@
 
 #include "oatpp/data/stream/Stream.hpp"
 
-#include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/parser/ParsingError.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
+#include "oatpp/utils/parser/ParsingError.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -86,11 +86,11 @@ public:
 
   /**
    * Deserialize object. Implement this method.
-   * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
+   * @param caret - &id:oatpp::utils::parser::Caret; over serialized buffer.
    * @param type - pointer to object type. See &id:oatpp::data::mapping::type::Type;.
    * @return - deserialized object wrapped in &id:oatpp::Void;.
    */
-  virtual mapping::type::Void read(oatpp::parser::Caret& caret, const mapping::type::Type* const type) const = 0;
+  virtual mapping::type::Void read(oatpp::utils::parser::Caret& caret, const mapping::type::Type* const type) const = 0;
 
   /**
    * Serialize object to String.
@@ -103,12 +103,12 @@ public:
    * Deserialize object.
    * If nullptr is returned - check caret.getError()
    * @tparam Wrapper - ObjectWrapper type.
-   * @param caret - &id:oatpp::parser::Caret; over serialized buffer.
+   * @param caret - &id:oatpp::utils::parser::Caret; over serialized buffer.
    * @return - deserialized Object.
    * @throws - depends on implementation.
    */
   template<class Wrapper>
-  Wrapper readFromCaret(oatpp::parser::Caret& caret) const {
+  Wrapper readFromCaret(oatpp::utils::parser::Caret& caret) const {
     auto type = Wrapper::Class::getType();
     return read(caret, type).template cast<Wrapper>();
   }
@@ -118,16 +118,16 @@ public:
    * @tparam Wrapper - ObjectWrapper type.
    * @param str - serialized data.
    * @return - deserialized Object.
-   * @throws - &id:oatpp::parser::ParsingError;
+   * @throws - &id:oatpp::utils::parser::ParsingError;
    * @throws - depends on implementation.
    */
   template<class Wrapper>
   Wrapper readFromString(const oatpp::String& str) const {
     auto type = Wrapper::Class::getType();
-    oatpp::parser::Caret caret(str);
+    oatpp::utils::parser::Caret caret(str);
     auto result = read(caret, type).template cast<Wrapper>();
     if(caret.hasError()) {
-      throw oatpp::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
+      throw oatpp::utils::parser::ParsingError(caret.getErrorMessage(), caret.getErrorCode(), caret.getPosition());
     }
     return result;
   }

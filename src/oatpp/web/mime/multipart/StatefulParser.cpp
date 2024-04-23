@@ -26,8 +26,8 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 
-#include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/parser/ParsingError.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
+#include "oatpp/utils/parser/ParsingError.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
@@ -131,7 +131,7 @@ void StatefulParser::parseHeaders(Headers& headers) {
   m_headersBuffer.setCurrentPosition(0);
 
   protocol::http::Status status;
-  parser::Caret caret(headersText);
+  utils::parser::Caret caret(headersText);
 
   protocol::http::Parser::parseHeaders(headers, headersText.getPtr(), caret, status);
 
@@ -159,7 +159,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Boundary(data::buffer::In
     checkSize = size;
   }
 
-  parser::Caret caret(reinterpret_cast<const char*>(data), size);
+  utils::parser::Caret caret(reinterpret_cast<const char*>(data), size);
 
   if(caret.isAtText(&sampleData[m_currBoundaryCharIndex], checkSize, true)) {
 
@@ -289,7 +289,7 @@ StatefulParser::ListenerCall StatefulParser::parseNext_Data(data::buffer::Inline
   const char* data = reinterpret_cast<const char*>(inlineData.currBufferPtr);
   auto size = inlineData.bytesLeft;
 
-  parser::Caret caret(data, size);
+  utils::parser::Caret caret(data, size);
 
   bool rFound = caret.findChar('\r');
   if(rFound && !m_checkForBoundary) {

@@ -24,7 +24,7 @@
 
 #include "ParsingError.hpp"
 
-namespace oatpp { namespace parser {
+namespace oatpp { namespace utils { namespace parser {
 
 ParsingError::ParsingError(const oatpp::String &message, v_int64 code, v_buff_size position)
   :std::runtime_error(*message)
@@ -45,4 +45,4 @@ v_buff_size ParsingError::getPosition() const {
   return m_position;
 }
 
-}}
+}}}

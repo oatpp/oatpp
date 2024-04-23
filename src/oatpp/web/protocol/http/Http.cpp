@@ -148,7 +148,7 @@ oatpp::String Range::toString() const {
   return stream.toString();
 }
 
-Range Range::parse(oatpp::parser::Caret& caret) {
+Range Range::parse(oatpp::utils::parser::Caret& caret) {
 
   auto unitsLabel = caret.putLabel();
   if(caret.findChar('=')) {
@@ -179,7 +179,7 @@ Range Range::parse(oatpp::parser::Caret& caret) {
 }
 
 Range Range::parse(const oatpp::String& str) {
-  oatpp::parser::Caret caret(str);
+  oatpp::utils::parser::Caret caret(str);
   return parse(caret);
 }
 
@@ -199,7 +199,7 @@ oatpp::String ContentRange::toString() const {
   return stream.toString();
 }
 
-ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
+ContentRange ContentRange::parse(oatpp::utils::parser::Caret& caret) {
 
   auto unitsLabel = caret.putLabel();
   if(caret.findChar(' ')) {
@@ -246,7 +246,7 @@ ContentRange ContentRange::parse(oatpp::parser::Caret& caret) {
 }
 
 ContentRange ContentRange::parse(const oatpp::String& str) {
-  oatpp::parser::Caret caret(str);
+  oatpp::utils::parser::Caret caret(str);
   return parse(caret);
 }
 
@@ -263,7 +263,7 @@ oatpp::String HeaderValueData::getTitleParamValue(const data::share::StringKeyLa
 // Parser
   
 oatpp::data::share::StringKeyLabelCI Parser::parseHeaderNameLabel(const std::shared_ptr<std::string>& headersText,
-                                                                  oatpp::parser::Caret& caret) {
+                                                                  oatpp::utils::parser::Caret& caret) {
   const char* data = caret.getData();
   for(v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = static_cast<v_char8>(data[i]);
@@ -279,7 +279,7 @@ oatpp::data::share::StringKeyLabelCI Parser::parseHeaderNameLabel(const std::sha
   
 void Parser::parseRequestStartingLine(RequestStartingLine& line,
                                       const std::shared_ptr<std::string>& headersText,
-                                      oatpp::parser::Caret& caret,
+                                      oatpp::utils::parser::Caret& caret,
                                       Status& error) {
 
   auto methodLabel = caret.putLabel();
@@ -313,7 +313,7 @@ void Parser::parseRequestStartingLine(RequestStartingLine& line,
   
 void Parser::parseResponseStartingLine(ResponseStartingLine& line,
                                        const std::shared_ptr<std::string>& headersText,
-                                       oatpp::parser::Caret& caret,
+                                       oatpp::utils::parser::Caret& caret,
                                        Status& error) {
 
   auto protocolLabel = caret.putLabel();
@@ -340,7 +340,7 @@ void Parser::parseResponseStartingLine(ResponseStartingLine& line,
   
 void Parser::parseOneHeader(Headers& headers,
                             const std::shared_ptr<std::string>& headersText,
-                            oatpp::parser::Caret& caret,
+                            oatpp::utils::parser::Caret& caret,
                             Status& error)
 {
   caret.skipChar(' ');
@@ -364,7 +364,7 @@ void Parser::parseOneHeader(Headers& headers,
 
 void Parser::parseHeaders(Headers& headers,
                           const std::shared_ptr<std::string>& headersText,
-                          oatpp::parser::Caret& caret,
+                          oatpp::utils::parser::Caret& caret,
                           Status& error)
 {
   
@@ -381,7 +381,7 @@ void Parser::parseHeaders(Headers& headers,
 
 void Parser::parseHeaderValueData(HeaderValueData& data, const oatpp::data::share::StringKeyLabel& headerValue, char separator) {
 
-  oatpp::parser::Caret caret(reinterpret_cast<const char*>(headerValue.getData()), headerValue.getSize());
+  oatpp::utils::parser::Caret caret(reinterpret_cast<const char*>(headerValue.getData()), headerValue.getSize());
 
   const char charSet[5] = {' ', '=', separator, '\r', '\n'};
   const char charSet2[4] = {' ', separator, '\r', '\n'};

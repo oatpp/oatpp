@@ -29,7 +29,7 @@
 
 #include "oatpp/web/protocol/CommunicationError.hpp"
 
-#include "oatpp/core/parser/Caret.hpp"
+#include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/data/share/LazyStringMap.hpp"
 #include "oatpp/Types.hpp"
 
@@ -538,7 +538,7 @@ public:
     return units.get() != nullptr;
   }
   
-  static Range parse(oatpp::parser::Caret& caret);
+  static Range parse(oatpp::utils::parser::Caret& caret);
   static Range parse(const oatpp::String& str);
   
 };
@@ -576,7 +576,7 @@ public:
     return units.get() != nullptr;
   }
   
-  static ContentRange parse(oatpp::parser::Caret& caret);
+  static ContentRange parse(oatpp::utils::parser::Caret& caret);
   static ContentRange parse(const oatpp::String& str);
   
 };
@@ -653,7 +653,7 @@ struct HeaderValueData {
 class Parser {
 private:
   static oatpp::data::share::StringKeyLabelCI parseHeaderNameLabel(const std::shared_ptr<std::string>& headersText,
-                                                                   oatpp::parser::Caret& caret);
+                                                                   oatpp::utils::parser::Caret& caret);
 public:
 
   /**
@@ -661,12 +661,12 @@ public:
    * @param line - &l:RequestStartingLine;. Values will be set to line's fields.
    * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:RequestStartingLine; fields. See &id:oatpp::data::share::MemoryLabel;.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseRequestStartingLine(RequestStartingLine& line,
                                        const std::shared_ptr<std::string>& headersText,
-                                       oatpp::parser::Caret& caret,
+                                       oatpp::utils::parser::Caret& caret,
                                        Status& error);
 
   /**
@@ -674,12 +674,12 @@ public:
    * @param line - &l:ResponseStartingLine;. Values will be set to line's fields.
    * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:ResponseStartingLine; fields. See &id:oatpp::data::share::MemoryLabel;.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseResponseStartingLine(ResponseStartingLine& line,
                                         const std::shared_ptr<std::string>& headersText,
-                                        oatpp::parser::Caret& caret,
+                                        oatpp::utils::parser::Caret& caret,
                                         Status& error);
 
   /**
@@ -688,12 +688,12 @@ public:
    * @param headers - &l:Headers; map to put parsed header to.
    * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:Headers; values. See &id:oatpp::data::share::MemoryLabel;.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseOneHeader(Headers& headers,
                              const std::shared_ptr<std::string>& headersText,
-                             oatpp::parser::Caret& caret,
+                             oatpp::utils::parser::Caret& caret,
                              Status& error);
 
   /**
@@ -701,12 +701,12 @@ public:
    * @param headers - &l:Headers; map to put parsed headers to.
    * @param headersText - `std::shared_ptr` to `std::string` needed as a "memory handle" for
    * &l:Headers; values. See &id:oatpp::data::share::MemoryLabel;.
-   * @param caret - &id:oatpp::parser::Caret;.
+   * @param caret - &id:oatpp::utils::parser::Caret;.
    * @param error - out parameter &l:Status;.
    */
   static void parseHeaders(Headers& headers,
                            const std::shared_ptr<std::string>& headersText,
-                           oatpp::parser::Caret& caret,
+                           oatpp::utils::parser::Caret& caret,
                            Status& error);
 
   /**

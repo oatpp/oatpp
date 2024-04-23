@@ -22,16 +22,16 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_parser_ParsingError_hpp
-#define oatpp_parser_ParsingError_hpp
+#ifndef oatpp_utils_parser_ParsingError_hpp
+#define oatpp_utils_parser_ParsingError_hpp
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace parser {
+namespace oatpp { namespace utils { namespace parser {
 
 /**
  * Thrown when parsing error occurred and ParsingCaret object is not accessible for user.
- * If parsing was made via oatpp::parser::ParsingCaret and ParsingCaret is accessible for user
+ * If parsing was made via oatpp::utils::parser::ParsingCaret and ParsingCaret is accessible for user
  * then do not throw this error.- User should read error from ParsingCaret::getError()
  */
 class ParsingError : public std::runtime_error {
@@ -68,6 +68,6 @@ public:
 
 };
 
-}}
+}}}
 
-#endif //oatpp_parser_ParsingError_hpp
+#endif //oatpp_utils_parser_ParsingError_hpp

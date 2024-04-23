@@ -27,7 +27,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-namespace oatpp { namespace parser {
+namespace oatpp { namespace utils { namespace parser {
   
   const char* const Caret::ERROR_INVALID_INTEGER = "ERROR_INVALID_INTEGER";
   const char* const Caret::ERROR_INVALID_FLOAT = "ERROR_INVALID_FLOAT";
@@ -549,4 +549,4 @@ v_int64 Caret::StateSaveGuard::getSavedErrorCode() {
     return m_pos < m_size && m_errorMessage == nullptr;
   }
   
-}}
+}}}
