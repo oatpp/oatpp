@@ -24,7 +24,7 @@
 
 #include "InMemoryDataProvider.hpp"
 
-#include "oatpp/core/data/resource/InMemoryData.hpp"
+#include "oatpp/data/resource/InMemoryData.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

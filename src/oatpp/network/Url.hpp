@@ -25,7 +25,7 @@
 #ifndef oatpp_network_Url_hpp
 #define oatpp_network_Url_hpp
 
-#include "oatpp/core/data/share/LazyStringMap.hpp"
+#include "oatpp/data/share/LazyStringMap.hpp"
 #include "oatpp/core/parser/Caret.hpp"
 #include "oatpp/Types.hpp"
 

@@ -26,7 +26,7 @@
 
 #include "oatpp/network/virtual_/Pipe.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 #include "oatpp-test/Checker.hpp"
 

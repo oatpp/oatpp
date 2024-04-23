@@ -25,7 +25,7 @@
 #include "HttpProcessor.hpp"
 
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace server {
 

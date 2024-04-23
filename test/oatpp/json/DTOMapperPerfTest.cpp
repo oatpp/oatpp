@@ -28,7 +28,7 @@
 #include "oatpp/json/Serializer.hpp"
 #include "oatpp/json/Deserializer.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 #include "oatpp/macro/basic.hpp"
 #include "oatpp/macro/codegen.hpp"

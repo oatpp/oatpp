@@ -25,7 +25,7 @@
 #ifndef oatpp_json_Beautifier_hpp
 #define oatpp_json_Beautifier_hpp
 
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
 
 namespace oatpp { namespace json {
 

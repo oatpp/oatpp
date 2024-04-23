@@ -32,8 +32,8 @@
 
 #include "oatpp/encoding/Base64.hpp"
 
-#include "oatpp/core/data/share/StringTemplate.hpp"
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
+#include "oatpp/data/share/StringTemplate.hpp"
+#include "oatpp/data/mapping/ObjectMapper.hpp"
 #include "oatpp/Types.hpp"
 
 #include "oatpp/utils/Conversion.hpp"

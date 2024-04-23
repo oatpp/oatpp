@@ -38,8 +38,8 @@
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/core/data/resource/File.hpp"
-#include "oatpp/core/data/stream/FileStream.hpp"
+#include "oatpp/data/resource/File.hpp"
+#include "oatpp/data/stream/FileStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/macro/component.hpp"

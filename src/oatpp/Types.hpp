@@ -25,7 +25,7 @@
 #ifndef oatpp_Types_hpp
 #define oatpp_Types_hpp
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
+#include "oatpp/data/mapping/type/Object.hpp"
 
 namespace oatpp {
 

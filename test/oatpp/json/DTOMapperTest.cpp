@@ -28,9 +28,9 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/core/data/mapping/type/Object.hpp"
-#include "oatpp/core/data/mapping/type/List.hpp"
-#include "oatpp/core/data/mapping/type/Primitive.hpp"
+#include "oatpp/data/mapping/type/Object.hpp"
+#include "oatpp/data/mapping/type/List.hpp"
+#include "oatpp/data/mapping/type/Primitive.hpp"
 
 #include "oatpp/utils/Conversion.hpp"
 

@@ -35,28 +35,28 @@
 #include "oatpp/async/ConditionVariableTest.hpp"
 #include "oatpp/async/LockTest.hpp"
 
-#include "oatpp/core/data/mapping/type/UnorderedMapTest.hpp"
-#include "oatpp/core/data/mapping/type/PairListTest.hpp"
-#include "oatpp/core/data/mapping/type/VectorTest.hpp"
-#include "oatpp/core/data/mapping/type/UnorderedSetTest.hpp"
-#include "oatpp/core/data/mapping/type/ListTest.hpp"
-#include "oatpp/core/data/mapping/type/ObjectTest.hpp"
-#include "oatpp/core/data/mapping/type/StringTest.hpp"
-#include "oatpp/core/data/mapping/type/PrimitiveTest.hpp"
-#include "oatpp/core/data/mapping/type/ObjectWrapperTest.hpp"
-#include "oatpp/core/data/mapping/type/TypeTest.hpp"
-#include "oatpp/core/data/mapping/type/AnyTest.hpp"
-#include "oatpp/core/data/mapping/type/EnumTest.hpp"
-#include "oatpp/core/data/mapping/type/InterpretationTest.hpp"
-#include "oatpp/core/data/mapping/TypeResolverTest.hpp"
+#include "oatpp/data/mapping/type/UnorderedMapTest.hpp"
+#include "oatpp/data/mapping/type/PairListTest.hpp"
+#include "oatpp/data/mapping/type/VectorTest.hpp"
+#include "oatpp/data/mapping/type/UnorderedSetTest.hpp"
+#include "oatpp/data/mapping/type/ListTest.hpp"
+#include "oatpp/data/mapping/type/ObjectTest.hpp"
+#include "oatpp/data/mapping/type/StringTest.hpp"
+#include "oatpp/data/mapping/type/PrimitiveTest.hpp"
+#include "oatpp/data/mapping/type/ObjectWrapperTest.hpp"
+#include "oatpp/data/mapping/type/TypeTest.hpp"
+#include "oatpp/data/mapping/type/AnyTest.hpp"
+#include "oatpp/data/mapping/type/EnumTest.hpp"
+#include "oatpp/data/mapping/type/InterpretationTest.hpp"
+#include "oatpp/data/mapping/TypeResolverTest.hpp"
 
-#include "oatpp/core/data/resource/InMemoryDataTest.hpp"
+#include "oatpp/data/resource/InMemoryDataTest.hpp"
 
-#include "oatpp/core/data/stream/BufferStreamTest.hpp"
-#include "oatpp/core/data/share/LazyStringMapTest.hpp"
-#include "oatpp/core/data/share/StringTemplateTest.hpp"
-#include "oatpp/core/data/share/MemoryLabelTest.hpp"
-#include "oatpp/core/data/buffer/ProcessorTest.hpp"
+#include "oatpp/data/stream/BufferStreamTest.hpp"
+#include "oatpp/data/share/LazyStringMapTest.hpp"
+#include "oatpp/data/share/StringTemplateTest.hpp"
+#include "oatpp/data/share/MemoryLabelTest.hpp"
+#include "oatpp/data/buffer/ProcessorTest.hpp"
 
 #include "oatpp/base/CommandLineArgumentsTest.hpp"
 #include "oatpp/LoggerTest.hpp"
@@ -90,34 +90,34 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::LoggerTest);
   OATPP_RUN_TEST(oatpp::base::CommandLineArgumentsTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::share::MemoryLabelTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::share::LazyStringMapTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::share::StringTemplateTest);
+  OATPP_RUN_TEST(oatpp::data::share::MemoryLabelTest);
+  OATPP_RUN_TEST(oatpp::data::share::LazyStringMapTest);
+  OATPP_RUN_TEST(oatpp::data::share::StringTemplateTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::buffer::ProcessorTest);
+  OATPP_RUN_TEST(oatpp::data::buffer::ProcessorTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::stream::BufferStreamTest);
+  OATPP_RUN_TEST(oatpp::data::stream::BufferStreamTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectWrapperTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::TypeTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectWrapperTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::TypeTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::StringTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::StringTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PrimitiveTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ListTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::VectorTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedSetTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::PairListTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::UnorderedMapTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::AnyTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::EnumTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::PrimitiveTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::ListTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::VectorTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::UnorderedSetTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::PairListTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::UnorderedMapTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::AnyTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::EnumTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::ObjectTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::type::InterpretationTest);
-  OATPP_RUN_TEST(oatpp::test::core::data::mapping::TypeResolverTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::type::InterpretationTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::TypeResolverTest);
 
-  OATPP_RUN_TEST(oatpp::test::core::data::resource::InMemoryDataTest);
+  OATPP_RUN_TEST(oatpp::data::resource::InMemoryDataTest);
 
   OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
   OATPP_RUN_TEST(oatpp::async::LockTest);

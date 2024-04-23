@@ -25,8 +25,8 @@
 #ifndef oatpp_web_mime_multipart_Part_hpp
 #define oatpp_web_mime_multipart_Part_hpp
 
-#include "oatpp/core/data/share/LazyStringMap.hpp"
-#include "oatpp/core/data/resource/Resource.hpp"
+#include "oatpp/data/share/LazyStringMap.hpp"
+#include "oatpp/data/resource/Resource.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 

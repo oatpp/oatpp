@@ -38,9 +38,9 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/core/data/resource/File.hpp"
-#include "oatpp/core/data/stream/FileStream.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/data/resource/File.hpp"
+#include "oatpp/data/stream/FileStream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/macro/component.hpp"

@@ -27,8 +27,8 @@
 
 #include "./Response.hpp"
 
-#include "oatpp/core/data/mapping/ObjectMapper.hpp"
-#include "oatpp/core/data/mapping/type/Type.hpp"
+#include "oatpp/data/mapping/ObjectMapper.hpp"
+#include "oatpp/data/mapping/type/Type.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 

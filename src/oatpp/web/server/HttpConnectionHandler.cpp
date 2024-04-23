@@ -29,10 +29,10 @@
 
 #include "oatpp/concurrency/Utils.hpp"
 
-#include "oatpp/core/data/buffer/IOBuffer.hpp"
+#include "oatpp/data/buffer/IOBuffer.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/StreamBufferedProxy.hpp"
 
 
 namespace oatpp { namespace web { namespace server {

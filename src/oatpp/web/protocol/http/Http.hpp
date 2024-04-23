@@ -30,7 +30,7 @@
 #include "oatpp/web/protocol/CommunicationError.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
-#include "oatpp/core/data/share/LazyStringMap.hpp"
+#include "oatpp/data/share/LazyStringMap.hpp"
 #include "oatpp/Types.hpp"
 
 #include <unordered_map>

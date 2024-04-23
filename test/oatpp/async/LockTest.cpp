@@ -24,7 +24,7 @@
 
 #include "LockTest.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 #include "oatpp/async/Executor.hpp"
 #include "oatpp/async/Lock.hpp"

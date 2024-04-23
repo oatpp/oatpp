@@ -25,7 +25,7 @@
 #include "Serializer.hpp"
 
 #include "./Utils.hpp"
-#include "oatpp/core/data/mapping/type/Any.hpp"
+#include "oatpp/data/mapping/type/Any.hpp"
 
 namespace oatpp { namespace json {
 

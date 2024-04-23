@@ -26,7 +26,7 @@
 #define oatpp_web_protocol_http_encoding_Chunked_hpp
 
 #include "EncoderProvider.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
 

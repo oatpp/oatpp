@@ -29,8 +29,8 @@
 
 #include "oatpp/network/tcp/Connection.hpp"
 
-#include "oatpp/core/data/stream/BufferStream.hpp"
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/StreamBufferedProxy.hpp"
 
 #if defined(WIN32) || defined(_WIN32)
 #include <io.h>

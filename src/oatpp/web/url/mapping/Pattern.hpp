@@ -25,7 +25,7 @@
 #ifndef oatpp_web_url_mapping_Pattern_hpp
 #define oatpp_web_url_mapping_Pattern_hpp
 
-#include "oatpp/core/data/share/MemoryLabel.hpp"
+#include "oatpp/data/share/MemoryLabel.hpp"
 
 #include "oatpp/core/parser/Caret.hpp"
 

@@ -27,8 +27,8 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/async/Coroutine.hpp"
-#include "oatpp/core/data/stream/StreamBufferedProxy.hpp"
-#include "oatpp/core/data/stream/BufferStream.hpp"
+#include "oatpp/data/stream/StreamBufferedProxy.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

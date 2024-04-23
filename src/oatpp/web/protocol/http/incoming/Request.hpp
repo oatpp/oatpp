@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/web/url/mapping/Pattern.hpp"
 #include "oatpp/network/Url.hpp"
-#include "oatpp/core/data/Bundle.hpp"
+#include "oatpp/data/Bundle.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 

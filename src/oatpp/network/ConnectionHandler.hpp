@@ -26,7 +26,7 @@
 #define oatpp_network_ConnectionHandler_hpp
 
 #include "oatpp/provider/Provider.hpp"
-#include "oatpp/core/data/stream/Stream.hpp"
+#include "oatpp/data/stream/Stream.hpp"
 #include <unordered_map>
 
 namespace oatpp { namespace network {

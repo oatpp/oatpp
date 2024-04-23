@@ -59,7 +59,7 @@ void IOEventWorker::triggerWakeup() {
   event.filter = EVFILT_USER;
   event.fflags = NOTE_TRIGGER;
 
-  auto res = kevent(m_eventQueueHandle, &event, 1, nullptr, 0, NULL);
+  auto res = kevent(m_eventQueueHandle, &event, 1, nullptr, 0, nullptr);
 
   if(res < 0) {
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::triggerWakeup()]: Error. trigger wakeup failed.");
@@ -155,7 +155,7 @@ void IOEventWorker::consumeBacklog() {
 
 void IOEventWorker::waitEvents() {
 
-  auto eventsCount = kevent(m_eventQueueHandle, (struct kevent*)m_inEvents.get(), m_inEventsCount, (struct kevent*)m_outEvents.get(), MAX_EVENTS, NULL);
+  auto eventsCount = kevent(m_eventQueueHandle, (struct kevent*)m_inEvents.get(), m_inEventsCount, (struct kevent*)m_outEvents.get(), MAX_EVENTS,nullptr);
 
   if((eventsCount < 0) && (errno != EINTR)) {
     OATPP_LOGE("[oatpp::async::worker::IOEventWorker::waitEvents()]", "Error:\n"

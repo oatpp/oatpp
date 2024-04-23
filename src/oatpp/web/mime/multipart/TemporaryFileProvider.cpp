@@ -24,7 +24,7 @@
 
 #include "TemporaryFileProvider.hpp"
 
-#include "oatpp/core/data/resource/TemporaryFile.hpp"
+#include "oatpp/data/resource/TemporaryFile.hpp"
 
 namespace oatpp { namespace web { namespace mime { namespace multipart {
 
