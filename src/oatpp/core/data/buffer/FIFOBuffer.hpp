@@ -28,7 +28,7 @@
 #include "oatpp/core/data/stream/Stream.hpp"
 #include "oatpp/IODefinitions.hpp"
 #include "oatpp/async/Coroutine.hpp"
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 namespace oatpp { namespace data { namespace buffer {
 

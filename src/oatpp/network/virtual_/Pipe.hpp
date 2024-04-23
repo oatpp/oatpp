@@ -32,7 +32,7 @@
 #include "oatpp/core/data/buffer/FIFOBuffer.hpp"
 #include "oatpp/core/data/buffer/IOBuffer.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 #include <mutex>
 #include <condition_variable>

@@ -26,7 +26,7 @@
 #define oatpp_async_worker_IOEventWorker_hpp
 
 #include "./Worker.hpp"
-#include "oatpp/core/concurrency/SpinLock.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 #include <thread>
 #include <mutex>

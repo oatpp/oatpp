@@ -29,8 +29,7 @@
 #include "oatpp/async/worker/Worker.hpp"
 #include "oatpp/base/Compiler.hpp"
 
-#include "oatpp/core/concurrency/SpinLock.hpp"
-#include "oatpp/core/concurrency/Thread.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 #include <tuple>
 #include <mutex>

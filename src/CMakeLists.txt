@@ -56,10 +56,10 @@ add_library(oatpp
 		oatpp/codegen/DbClient_undef.hpp
 		oatpp/codegen/DTO_define.hpp
 		oatpp/codegen/DTO_undef.hpp
-        oatpp/core/concurrency/SpinLock.cpp
-        oatpp/core/concurrency/SpinLock.hpp
-        oatpp/core/concurrency/Thread.cpp
-        oatpp/core/concurrency/Thread.hpp
+		oatpp/concurrency/SpinLock.cpp
+		oatpp/concurrency/SpinLock.hpp
+		oatpp/concurrency/Utils.cpp
+		oatpp/concurrency/Utils.hpp
         oatpp/core/data/Bundle.cpp
         oatpp/core/data/Bundle.hpp
         oatpp/core/data/buffer/FIFOBuffer.cpp

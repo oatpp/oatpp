@@ -23,9 +23,12 @@
  ***************************************************************************/
 
 #include "Executor.hpp"
+
 #include "oatpp/async/worker/IOEventWorker.hpp"
 #include "oatpp/async/worker/IOWorker.hpp"
 #include "oatpp/async/worker/TimerWorker.hpp"
+
+#include "oatpp/concurrency/Utils.hpp"
 
 namespace oatpp { namespace async {
 
@@ -133,7 +136,7 @@ v_int32 Executor::chooseProcessorWorkersCount(v_int32 processorWorkersCount) {
     return processorWorkersCount;
   }
   if(processorWorkersCount == VALUE_SUGGESTED) {
-    return oatpp::concurrency::getHardwareConcurrency();
+    return oatpp::concurrency::Utils::getHardwareConcurrency();
   }
   throw std::runtime_error("[oatpp::async::Executor::chooseProcessorWorkersCount()]: Error. Invalid processor workers count specified.");
 }

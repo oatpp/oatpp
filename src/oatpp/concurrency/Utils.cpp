@@ -22,19 +22,15 @@
  *
  ***************************************************************************/
 
-#include "Thread.hpp"
-
-#if defined(_GNU_SOURCE)
-  #include <pthread.h>
-#endif
+#include "Utils.hpp"
 
 namespace oatpp { namespace concurrency {
 
-v_int32 setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
+v_int32 Utils::setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
   return setThreadAffinityToCpuRange(nativeHandle, cpuIndex, cpuIndex);
 }
-  
-v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 firstCpuIndex, v_int32 lastCpuIndex) {
+
+v_int32 Utils::setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle, v_int32 firstCpuIndex, v_int32 lastCpuIndex) {
 #if defined(_GNU_SOURCE)
 
   // NOTE:
@@ -73,8 +69,8 @@ v_int32 setThreadAffinityToCpuRange(std::thread::native_handle_type nativeHandle
   return -1;
 #endif
 }
-  
-static v_int32 calcHardwareConcurrency() {
+
+v_int32 Utils::calcHardwareConcurrency() {
 #if !defined(OATPP_THREAD_HARDWARE_CONCURRENCY)
   v_int32 concurrency = static_cast<v_int32>(std::thread::hardware_concurrency());
   if(concurrency == 0) {
@@ -86,11 +82,10 @@ static v_int32 calcHardwareConcurrency() {
   return OATPP_THREAD_HARDWARE_CONCURRENCY;
 #endif
 }
-  
-v_int32 getHardwareConcurrency() {
+
+v_int32 Utils::getHardwareConcurrency() {
   static v_int32 concurrency = calcHardwareConcurrency();
   return concurrency;
 }
-  
-}}
 
+}}

@@ -29,6 +29,7 @@
 #include "./Coroutine.hpp"
 #include "./CoroutineWaitList.hpp"
 #include "oatpp/async/utils/FastQueue.hpp"
+#include "oatpp/concurrency/SpinLock.hpp"
 
 #include <thread>
 #include <condition_variable>
