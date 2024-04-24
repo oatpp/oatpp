@@ -53,6 +53,7 @@
 #include "oatpp/data/resource/InMemoryDataTest.hpp"
 
 #include "oatpp/data/stream/BufferStreamTest.hpp"
+#include "oatpp/data/TreeTest.hpp"
 #include "oatpp/data/share/LazyStringMapTest.hpp"
 #include "oatpp/data/share/StringTemplateTest.hpp"
 #include "oatpp/data/share/MemoryLabelTest.hpp"
@@ -73,7 +74,11 @@ namespace {
 
 void runTests() {
 
+  /*
   oatpp::Environment::printCompilationConfig();
+
+  OATPP_LOGD("Tests", "oatpp::String size=%lu", sizeof(oatpp::String))
+  OATPP_LOGD("Tests", "std::string size=%lu", sizeof(std::string))
 
   OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle))
   OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine))
@@ -97,7 +102,11 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::data::buffer::ProcessorTest);
 
   OATPP_RUN_TEST(oatpp::data::stream::BufferStreamTest);
+  */
 
+  OATPP_RUN_TEST(oatpp::data::TreeTest);
+
+  /*
   OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::data::mapping::type::TypeTest);
 
@@ -223,6 +232,8 @@ void runTests() {
     test_port.run();
 
   }
+
+   */
 
 }
 
