@@ -34,11 +34,12 @@ namespace oatpp { namespace data {
 namespace {
 
 template<typename T>
-void testNodeValue(T value) {
+void testTreeValue(T value) {
 
-  Tree::Node node;
+  Tree node;
 
-  node.setValue<T>(value);
+  //node.setValue<T>(value);
+  node = value;
   auto v = node.getValue<T>();
   OATPP_ASSERT(v == value && "value check")
 
@@ -56,20 +57,20 @@ void testNodeValue(T value) {
 
 void TreeTest::onRun() {
 
-  testNodeValue<bool>(true);
-  testNodeValue<v_int8>(16);
-  testNodeValue<v_uint8>(16);
-  testNodeValue<v_int16>(16);
-  testNodeValue<v_uint16>(16);
-  testNodeValue<v_int32>(16);
-  testNodeValue<v_uint32>(16);
-  testNodeValue<v_int64>(16);
-  testNodeValue<v_uint64>(16);
-  testNodeValue<v_float32>(16);
-  testNodeValue<v_float64>(16);
+  testTreeValue<bool>(true);
+  testTreeValue<v_int8>(16);
+  testTreeValue<v_uint8>(16);
+  testTreeValue<v_int16>(16);
+  testTreeValue<v_uint16>(16);
+  testTreeValue<v_int32>(16);
+  testTreeValue<v_uint32>(16);
+  testTreeValue<v_int64>(16);
+  testTreeValue<v_uint64>(16);
+  testTreeValue<v_float32>(16);
+  testTreeValue<v_float64>(16);
 
   {
-    Tree::Node node;
+    Tree node;
     oatpp::String original = "Hello World!";
     node.setString(original);
     auto stored = node.getString();
@@ -78,38 +79,38 @@ void TreeTest::onRun() {
   }
 
   {
-    Tree::Node node1;
-    Tree::Node node2;
+    Tree node1;
+    Tree node2;
 
     node1.setString("Hello World!");
     node2 = node1;
 
     OATPP_ASSERT(node1.getString() == "Hello World!")
-    OATPP_ASSERT(node1.getType() == Tree::Node::Type::STRING)
+    OATPP_ASSERT(node1.getType() == Tree::Type::STRING)
 
     OATPP_ASSERT(node2.getString() == "Hello World!")
-    OATPP_ASSERT(node2.getType() == Tree::Node::Type::STRING)
+    OATPP_ASSERT(node2.getType() == Tree::Type::STRING)
   }
 
   {
-    Tree::Node node1;
-    Tree::Node node2;
+    Tree node1;
+    Tree node2;
 
     node1.setString("Hello World!");
     node2 = std::move(node1);
 
     OATPP_ASSERT(node1.isNull())
     OATPP_ASSERT(node2.getString() == "Hello World!")
-    OATPP_ASSERT(node2.getType() == Tree::Node::Type::STRING)
+    OATPP_ASSERT(node2.getType() == Tree::Type::STRING)
   }
 
   {
-    std::vector<Tree::Node> originalVector(10);
+    std::vector<Tree> originalVector(10);
     for(v_uint32 i = 0; i < 10; i ++) {
       originalVector.at(i).setValue(i);
     }
 
-    Tree::Node node;
+    Tree node;
     node.setVector(originalVector);
 
     auto& vector = node.getVector();
@@ -131,13 +132,12 @@ void TreeTest::onRun() {
   }
 
   {
-    std::vector<std::pair<oatpp::String, Tree::Node>> originalMap(10);
+    Tree::Map originalMap;
     for(v_uint32 i = 0; i < 10; i ++) {
-      originalMap.at(i).first = "node_" + utils::Conversion::int32ToStr(i);
-      originalMap.at(i).second.setValue(i);
+      originalMap["node_" + utils::Conversion::int32ToStr(static_cast<v_int32>(i))].setValue(i);
     }
 
-    Tree::Node node;
+    Tree node;
     node.setMap(originalMap);
 
     auto& map = node.getMap();
@@ -145,12 +145,32 @@ void TreeTest::onRun() {
     OATPP_ASSERT(map.size() == originalMap.size())
 
     for(v_uint32 i = 0; i < originalMap.size(); i ++) {
-      OATPP_ASSERT(originalMap.at(i).first = map.at(i).first)
-      OATPP_ASSERT(originalMap.at(i).second.getValue<v_uint32>() == map.at(i).second.getValue<v_uint32>())
+      OATPP_ASSERT(originalMap[i].first == map[i].first)
+      OATPP_ASSERT(originalMap[i].second.get().getValue<v_uint32>() == map[i].second.get().getValue<v_uint32>())
     }
 
-    originalMap.resize(5);
-    OATPP_ASSERT(map.size() == 10)
+    originalMap[0].second.get().setValue<v_uint32>(100);
+    OATPP_ASSERT(map[0].second.get().getValue<v_uint32>() == 0)
+    OATPP_ASSERT(originalMap[0].second.get().getValue<v_uint32>() == 100)
+
+  }
+
+  {
+    Tree article;
+
+    article["name"] = "Hello World!";
+    article["pages"] = 96;
+
+    article["references"].setVector(2);
+    article["references"][0]["author"] = "Alexander";
+    article["references"][1]["author"] = "Leonid";
+
+    article["references"].getVector().size();
+
+    v_int32 value = article["pages"];
+    oatpp::String author = article["references"][0]["author"];
+
+    OATPP_LOGD(TAG, "pages=%d', refs='%s', node_type=%d", value, author->c_str(), static_cast<v_int32>(article.getType()))
 
   }
 

@@ -26,42 +26,82 @@
 
 namespace oatpp { namespace data {
 
-Tree::Node::Node()
-  : m_type(Type::NULL_VALUE)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tree::Map
+
+Tree& Tree::Map::operator [] (const oatpp::String& key) {
+  auto it = m_map.find(key);
+  if(it == m_map.end()) {
+    auto& result = m_map[key];
+    m_order.push_back(key);
+    return result;
+  }
+  return it->second;
+}
+
+const Tree& Tree::Map::operator [] (const oatpp::String& key) const {
+  auto it = m_map.find(key);
+  if(it == m_map.end()) {
+    throw std::runtime_error("[oatpp::data::Tree::Map::operator[]]: const operator[] can't add items.");
+  }
+  return it->second;
+}
+
+std::pair<oatpp::String, std::reference_wrapper<Tree>> Tree::Map::operator [] (v_uint64 index) {
+  auto& key = m_order.at(index);
+  return {key, m_map[key]};
+}
+
+std::pair<oatpp::String, std::reference_wrapper<const Tree>> Tree::Map::operator [] (v_uint64 index) const {
+  auto& key = m_order.at(index);
+  return {key, m_map.at(key)};
+}
+
+v_uint64 Tree::Map::size() const {
+  return m_map.size();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tree
+
+Tree::Tree()
+  : m_type(Type::UNDEFINED)
   , m_data(0)
 {}
 
-Tree::Node::Node(const Node& other)
-  : Node()
+Tree::Tree(const Tree& other)
+  : Tree()
 {
   setCopy(other);
 }
 
-Tree::Node::Node(Node&& other) noexcept
+Tree::Tree(Tree&& other) noexcept
   : m_type(other.m_type)
   , m_data(other.m_data)
 {
-  other.m_type = Type::NULL_VALUE;
+  other.m_type = Type::UNDEFINED;
   other.m_data = 0;
 }
 
-Tree::Node::~Node() {
+Tree::~Tree() {
   deleteValueObject();
 }
 
-Tree::Node& Tree::Node::operator = (const Node& other) {
+Tree& Tree::operator = (const Tree& other) {
   setCopy(other);
   return *this;
 }
 
-Tree::Node& Tree::Node::operator = (Node&& other) noexcept {
-  setMove(std::forward<Node>(other));
+Tree& Tree::operator = (Tree&& other) noexcept {
+  setMove(std::forward<Tree>(other));
   return *this;
 }
 
-void Tree::Node::deleteValueObject() {
+void Tree::deleteValueObject() {
 
   switch (m_type) {
+
+    case Type::UNDEFINED:
 
     case Type::NULL_VALUE:
 
@@ -89,12 +129,12 @@ void Tree::Node::deleteValueObject() {
       break;
     }
     case Type::VECTOR: {
-      auto data = reinterpret_cast<std::vector<Node> *>(m_data);
+      auto data = reinterpret_cast<std::vector<Tree> *>(m_data);
       delete data;
       break;
     }
     case Type::MAP: {
-      auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Node>> *>(m_data);
+      auto data = reinterpret_cast<Map *>(m_data);
       delete data;
       break;
     }
@@ -106,17 +146,38 @@ void Tree::Node::deleteValueObject() {
   }
 }
 
-Tree::Node::Type Tree::Node::getType() const {
+Tree::operator oatpp::String () {
+  return getString();
+}
+
+Tree& Tree::operator [] (const oatpp::String& key) {
+  return getMap()[key];
+}
+
+const Tree& Tree::operator [] (const oatpp::String& key) const {
+  return getMap()[key];
+}
+
+Tree& Tree::operator [] (v_uint64 index) {
+  return getVector().at(index);
+}
+
+const Tree& Tree::operator [] (v_uint64 index) const {
+  return getVector().at(index);
+}
+
+Tree::Type Tree::getType() const {
   return m_type;
 }
 
-void Tree::Node::setCopy(const Node& other) {
+void Tree::setCopy(const Tree& other) {
 
   deleteValueObject();
   m_type = other.m_type;
 
   switch (other.m_type) {
 
+    case Type::UNDEFINED:
     case Type::NULL_VALUE:
       break;
 
@@ -142,27 +203,27 @@ void Tree::Node::setCopy(const Node& other) {
     case Type::STRING: {
       auto otherData = reinterpret_cast<oatpp::String *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::Node::setCopy()]: other.data is null, other.type is 'STRING'");
+        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'STRING'");
       }
       auto ptr = new oatpp::String(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::VECTOR: {
-      auto otherData = reinterpret_cast<std::vector<Node> *>(other.m_data);
+      auto otherData = reinterpret_cast<std::vector<Tree> *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::Node::setCopy()]: other.data is null, other.type is 'VECTOR'");
+        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'VECTOR'");
       }
-      auto ptr = new std::vector<Node>(*otherData);
+      auto ptr = new std::vector<Tree>(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::MAP: {
-      auto otherData = reinterpret_cast<std::vector<std::pair<oatpp::String, Node>> *>(other.m_data);
+      auto otherData = reinterpret_cast<Map *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::Node::setCopy()]: other.data is null, other.type is 'MAP'");
+        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'MAP'");
       }
-      auto ptr = new std::vector<std::pair<oatpp::String, Node>>(*otherData);
+      auto ptr = new Map(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
@@ -175,7 +236,7 @@ void Tree::Node::setCopy(const Node& other) {
 
 }
 
-void Tree::Node::setMove(Node&& other) {
+void Tree::setMove(Tree&& other) {
   deleteValueObject();
   m_type = other.m_type;
   m_data = other.m_data;
@@ -183,104 +244,254 @@ void Tree::Node::setMove(Node&& other) {
   other.m_data = 0;
 }
 
-void Tree::Node::setNull() {
+void Tree::setNull() {
   deleteValueObject();
   m_type = Type::NULL_VALUE;
   m_data = 0;
 }
 
-void Tree::Node::setInteger(v_int64 value) {
+void Tree::setUndefined() {
+  deleteValueObject();
+  m_type = Type::UNDEFINED;
+  m_data = 0;
+}
+
+void Tree::setInteger(v_int64 value) {
   deleteValueObject();
   m_type = Type::INTEGER;
   std::memcpy (&m_data, &value, sizeof(v_int64));
 }
 
-void Tree::Node::setFloat(v_float64 value) {
+void Tree::setFloat(v_float64 value) {
   deleteValueObject();
   m_type = Type::FLOAT;
   std::memcpy (&m_data, &value, sizeof(v_float64));
 }
 
-void Tree::Node::setString(const oatpp::String& value) {
+void Tree::setString(const oatpp::String& value) {
   deleteValueObject();
   m_type = Type::STRING;
   auto data = new oatpp::String(value);
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
-void Tree::Node::setVector(const std::vector<Node>& value) {
+void Tree::setVector(const std::vector<Tree>& value) {
   deleteValueObject();
   m_type = Type::VECTOR;
-  auto data = new std::vector<Node>(value);
+  auto data = new std::vector<Tree>(value);
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
-void Tree::Node::setMap(const std::vector<std::pair<oatpp::String, Node>>& value) {
+void Tree::setVector(v_uint64 size) {
+  deleteValueObject();
+  m_type = Type::VECTOR;
+  auto data = new std::vector<Tree>(size);
+  m_data = reinterpret_cast<LARGEST_TYPE>(data);
+}
+
+void Tree::setMap(const Map& value) {
   deleteValueObject();
   m_type = Type::MAP;
-  auto data = new std::vector<std::pair<oatpp::String, Node>>(value);
+  auto data = new Map(value);
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
-bool Tree::Node::isNull() const {
+bool Tree::isNull() const {
   return m_type == Type::NULL_VALUE;
 }
 
-v_int64 Tree::Node::getInteger() const {
+bool Tree::isUndefined() const {
+  return m_type == Type::UNDEFINED;
+}
+
+bool Tree::isPrimitive() const {
+  switch (m_type) {
+
+    case Type::UNDEFINED:
+    case Type::NULL_VALUE:
+      return false;
+
+    case Type::INTEGER:
+    case Type::FLOAT:
+
+    case Type::BOOL:
+    case Type::INT_8:
+    case Type::UINT_8:
+    case Type::INT_16:
+    case Type::UINT_16:
+    case Type::INT_32:
+    case Type::UINT_32:
+    case Type::INT_64:
+    case Type::UINT_64:
+    case Type::FLOAT_32:
+    case Type::FLOAT_64:
+      return true;
+
+    case Type::STRING:
+    case Type::VECTOR:
+    case Type::MAP:
+    default:
+      return false;
+  }
+
+}
+
+v_int32 Tree::primitiveDataSize() const {
+  switch (m_type) {
+
+    case Type::UNDEFINED:
+    case Type::NULL_VALUE:
+      return -1;
+
+    case Type::INTEGER:
+    case Type::FLOAT: return 8;
+
+    case Type::BOOL:
+    case Type::INT_8:
+    case Type::UINT_8: return 1;
+
+    case Type::INT_16:
+    case Type::UINT_16: return 2;
+
+    case Type::INT_32:
+    case Type::UINT_32: return 4;
+
+    case Type::INT_64:
+    case Type::UINT_64: return 8;
+
+    case Type::FLOAT_32: return 4;
+    case Type::FLOAT_64: return 8;
+
+    case Type::STRING:
+    case Type::VECTOR:
+    case Type::MAP:
+    default:
+      return -1;
+  }
+}
+
+bool Tree::isFloatPrimitive() const {
+  switch (m_type) {
+
+    case Type::UNDEFINED:
+    case Type::NULL_VALUE:
+    case Type::INTEGER: return false;
+
+    case Type::FLOAT: return true;
+
+    case Type::BOOL:
+    case Type::INT_8:
+    case Type::UINT_8:
+    case Type::INT_16:
+    case Type::UINT_16:
+    case Type::INT_32:
+    case Type::UINT_32:
+    case Type::INT_64:
+    case Type::UINT_64: return false;
+
+    case Type::FLOAT_32:
+    case Type::FLOAT_64: return true;
+
+    case Type::STRING:
+    case Type::VECTOR:
+    case Type::MAP:
+    default:
+      return false;
+  }
+}
+
+bool Tree::isIntPrimitive() const {
+  switch (m_type) {
+
+    case Type::UNDEFINED:
+    case Type::NULL_VALUE:
+      return false;
+
+    case Type::INTEGER: return true;
+    case Type::FLOAT: return false;
+
+    case Type::BOOL:
+    case Type::INT_8:
+    case Type::UINT_8:
+    case Type::INT_16:
+    case Type::UINT_16:
+    case Type::INT_32:
+    case Type::UINT_32:
+    case Type::INT_64:
+    case Type::UINT_64: return true;
+
+    case Type::FLOAT_32:
+    case Type::FLOAT_64:
+
+    case Type::STRING:
+    case Type::VECTOR:
+    case Type::MAP:
+    default:
+      return false;
+  }
+}
+
+v_int64 Tree::getInteger() const {
   if(m_type != Type::INTEGER) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT an arbitrary INTEGER.");
+    throw std::runtime_error("[oatpp::data::Tree::getInteger()]: NOT an arbitrary INTEGER.");
   }
   v_int64 result;
   std::memcpy (&result, &m_data, sizeof(v_float64));
   return result;
 }
 
-v_float64 Tree::Node::getFloat() const {
+v_float64 Tree::getFloat() const {
   if(m_type != Type::FLOAT) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT an arbitrary FLOAT.");
+    throw std::runtime_error("[oatpp::data::Tree::getFloat()]: NOT an arbitrary FLOAT.");
   }
   v_float64 result;
   std::memcpy (&result, &m_data, sizeof(v_float64));
   return result;
 }
 
-const oatpp::String& Tree::Node::getString() const {
+const oatpp::String& Tree::getString() const {
   if(m_type != Type::STRING) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT a STRING.");
+    throw std::runtime_error("[oatpp::data::Tree::getString()]: NOT a STRING.");
   }
   auto data = reinterpret_cast<const oatpp::String*>(m_data);
   return *data;
 }
 
-const std::vector<Tree::Node>& Tree::Node::getVector() const {
+const std::vector<Tree>& Tree::getVector() const {
   if(m_type != Type::VECTOR) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT a VECTOR.");
+    throw std::runtime_error("[oatpp::data::Tree::getVector()]: NOT a VECTOR.");
   }
-  auto data = reinterpret_cast<const std::vector<Tree::Node>*>(m_data);
+  auto data = reinterpret_cast<const std::vector<Tree>*>(m_data);
   return *data;
 }
 
-const std::vector<std::pair<oatpp::String, Tree::Node>>& Tree::Node::getMap() const {
+const Tree::Map& Tree::getMap() const {
   if(m_type != Type::MAP) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT a MAP.");
+    throw std::runtime_error("[oatpp::data::Tree::getMap()]: NOT a MAP.");
   }
-  auto data = reinterpret_cast<const std::vector<std::pair<oatpp::String, Tree::Node>>*>(m_data);
+  auto data = reinterpret_cast<const Map*>(m_data);
   return *data;
 }
 
-std::vector<Tree::Node>& Tree::Node::getVector() {
+std::vector<Tree>& Tree::getVector() {
+  if(m_type == Type::UNDEFINED) {
+    setVector({});
+  }
   if(m_type != Type::VECTOR) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT a VECTOR.");
+    throw std::runtime_error("[oatpp::data::Tree::getVector()]: NOT a VECTOR.");
   }
-  auto data = reinterpret_cast<std::vector<Tree::Node>*>(m_data);
+  auto data = reinterpret_cast<std::vector<Tree>*>(m_data);
   return *data;
 }
 
-std::vector<std::pair<oatpp::String, Tree::Node>>& Tree::Node::getMap() {
-  if(m_type != Type::MAP) {
-    throw std::runtime_error("[oatpp::data::Tree::Node::getInteger()]: NOT a MAP.");
+Tree::Map& Tree::getMap() {
+  if(m_type == Type::UNDEFINED) {
+    setMap({});
   }
-  auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree::Node>>*>(m_data);
+  if(m_type != Type::MAP) {
+    throw std::runtime_error("[oatpp::data::Tree::getMap()]: NOT a MAP.");
+  }
+  auto data = reinterpret_cast<Map*>(m_data);
   return *data;
 }
 
