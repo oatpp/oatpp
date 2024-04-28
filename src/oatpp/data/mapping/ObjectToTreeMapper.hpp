@@ -27,7 +27,7 @@
 
 #include "./Tree.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 class ObjectToTreeMapper : public base::Countable {
 public:
@@ -86,6 +86,6 @@ public:
 
 };
 
-}}
+}}}
 
 #endif //oatpp_data_mapping_ObjectToTreeMapper_hpp

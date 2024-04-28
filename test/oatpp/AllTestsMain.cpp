@@ -68,6 +68,8 @@
 #include "oatpp/async/Coroutine.hpp"
 #include "oatpp/Types.hpp"
 
+#include "oatpp/data/mapping/Tree.hpp"
+
 #include "oatpp/Environment.hpp"
 
 #include <iostream>

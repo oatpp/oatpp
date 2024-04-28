@@ -27,7 +27,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 oatpp::String TreeToObjectMapper::MappingState::errorStacktrace() const {
   stream::BufferOutputStream ss;
@@ -382,4 +382,4 @@ oatpp::Void TreeToObjectMapper::mapObject(TreeToObjectMapper* mapper, MappingSta
 
 }
 
-}}
+}}}

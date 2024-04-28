@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tree::Map
@@ -64,6 +64,59 @@ v_uint64 Tree::Map::size() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tree::Attributes
+
+Tree::Attributes::Attributes()
+  : m_attributes(nullptr)
+{}
+
+Tree::Attributes::Attributes(const Attributes& other)
+  : m_attributes(other.m_attributes != nullptr ? new std::unordered_map<oatpp::String, oatpp::String>(*other.m_attributes) : nullptr)
+{}
+
+Tree::Attributes::Attributes(Attributes&& other) noexcept
+  : m_attributes(other.m_attributes)
+{
+  other.m_attributes = nullptr;
+}
+
+Tree::Attributes& Tree::Attributes::operator = (const Attributes& other) {
+  if(other.m_attributes) {
+    if(m_attributes) {
+      *m_attributes = *other.m_attributes;
+    } else {
+      m_attributes = new std::unordered_map<oatpp::String, oatpp::String>(*other.m_attributes);
+    }
+  } else {
+    delete m_attributes;
+    m_attributes = nullptr;
+  }
+  return *this;
+}
+
+Tree::Attributes& Tree::Attributes::operator = (Attributes&& other) noexcept {
+  delete m_attributes;
+  m_attributes = other.m_attributes;
+  other.m_attributes = nullptr;
+  return *this;
+}
+
+Tree::Attributes::~Attributes() {
+  delete m_attributes;
+}
+
+bool Tree::Attributes::empty() const {
+  return m_attributes == nullptr || m_attributes->empty();
+}
+
+v_uint64 Tree::Attributes::size() const {
+  if(m_attributes) {
+    return m_attributes->size();
+  }
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tree
 
 Tree::Tree()
@@ -80,9 +133,16 @@ Tree::Tree(const Tree& other)
 Tree::Tree(Tree&& other) noexcept
   : m_type(other.m_type)
   , m_data(other.m_data)
+  , m_attributes(std::move(other.m_attributes))
 {
   other.m_type = Type::UNDEFINED;
   other.m_data = 0;
+}
+
+Tree::Tree(const oatpp::String& value)
+  : Tree()
+{
+  setString(value);
 }
 
 Tree::~Tree() {
@@ -96,6 +156,11 @@ Tree& Tree::operator = (const Tree& other) {
 
 Tree& Tree::operator = (Tree&& other) noexcept {
   setMove(std::forward<Tree>(other));
+  return *this;
+}
+
+Tree& Tree::operator = (const oatpp::String& value) {
+  setString(value);
   return *this;
 }
 
@@ -140,6 +205,11 @@ void Tree::deleteValueObject() {
       delete data;
       break;
     }
+    case Type::PAIRS: {
+      auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>> *>(m_data);
+      delete data;
+      break;
+    }
 
     default:
       // DO-NOTHING
@@ -176,6 +246,7 @@ void Tree::setCopy(const Tree& other) {
 
   deleteValueObject();
   m_type = other.m_type;
+  m_attributes = other.m_attributes;
 
   switch (other.m_type) {
 
@@ -229,6 +300,15 @@ void Tree::setCopy(const Tree& other) {
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
+    case Type::PAIRS: {
+      auto otherData = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>> *>(other.m_data);
+      if(otherData == nullptr) {
+        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'PAIRS'");
+      }
+      auto ptr = new std::vector<std::pair<oatpp::String, Tree>>(*otherData);
+      m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
+      break;
+    }
 
     default:
       m_data = other.m_data;
@@ -239,11 +319,16 @@ void Tree::setCopy(const Tree& other) {
 }
 
 void Tree::setMove(Tree&& other) {
+
   deleteValueObject();
+
   m_type = other.m_type;
   m_data = other.m_data;
+  m_attributes = std::move(other.m_attributes);
+
   other.m_type = Type::NULL_VALUE;
   other.m_data = 0;
+
 }
 
 void Tree::setNull() {
@@ -298,6 +383,13 @@ void Tree::setMap(const Map& value) {
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
+void Tree::setPairs(const std::vector<std::pair<oatpp::String, Tree>>& value) {
+  deleteValueObject();
+  m_type = Type::PAIRS;
+  auto data = new std::vector<std::pair<oatpp::String, Tree>>(value);
+  m_data = reinterpret_cast<LARGEST_TYPE>(data);
+}
+
 bool Tree::isNull() const {
   return m_type == Type::NULL_VALUE;
 }
@@ -332,6 +424,7 @@ bool Tree::isPrimitive() const {
     case Type::STRING:
     case Type::VECTOR:
     case Type::MAP:
+    case Type::PAIRS:
     default:
       return false;
   }
@@ -367,6 +460,7 @@ v_int32 Tree::primitiveDataSize() const {
     case Type::STRING:
     case Type::VECTOR:
     case Type::MAP:
+    case Type::PAIRS:
     default:
       return -1;
   }
@@ -397,6 +491,7 @@ bool Tree::isFloatPrimitive() const {
     case Type::STRING:
     case Type::VECTOR:
     case Type::MAP:
+    case Type::PAIRS:
     default:
       return false;
   }
@@ -428,6 +523,7 @@ bool Tree::isIntPrimitive() const {
     case Type::STRING:
     case Type::VECTOR:
     case Type::MAP:
+    case Type::PAIRS:
     default:
       return false;
   }
@@ -475,6 +571,14 @@ const Tree::Map& Tree::getMap() const {
   return *data;
 }
 
+const std::vector<std::pair<oatpp::String, Tree>>& Tree::getPairs() const {
+  if(m_type != Type::PAIRS) {
+    throw std::runtime_error("[oatpp::data::Tree::getPairs()]: NOT a PAIRS.");
+  }
+  auto data = reinterpret_cast<const std::vector<std::pair<oatpp::String, Tree>>*>(m_data);
+  return *data;
+}
+
 std::vector<Tree>& Tree::getVector() {
   if(m_type == Type::UNDEFINED) {
     setVector({});
@@ -495,6 +599,25 @@ Tree::Map& Tree::getMap() {
   }
   auto data = reinterpret_cast<Map*>(m_data);
   return *data;
+}
+
+std::vector<std::pair<oatpp::String, Tree>>& Tree::getPairs() {
+  if(m_type == Type::UNDEFINED) {
+    setPairs({});
+  }
+  if(m_type != Type::MAP) {
+    throw std::runtime_error("[oatpp::data::Tree::getMap()]: NOT a MAP.");
+  }
+  auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>>*>(m_data);
+  return *data;
+}
+
+Tree::Attributes& Tree::attributes() {
+  return m_attributes;
+}
+
+const Tree::Attributes& Tree::attributes() const {
+  return m_attributes;
 }
 
 oatpp::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firstLineIndent) const {
@@ -588,7 +711,7 @@ oatpp::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firs
     }
 
     case Type::VECTOR: {
-      ss << "[\n";
+      ss << "VECTOR [\n";
       auto& vector = getVector();
       for(auto& v : vector) {
         ss << v.debugPrint(indent0 + indentDelta, indentDelta) << "\n";
@@ -597,11 +720,20 @@ oatpp::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firs
       break;
     }
     case Type::MAP: {
-      ss << "{\n";
+      ss << "MAP {\n";
       auto& map = getMap();
       for(v_uint32 i = 0; i < map.size(); i ++) {
         const auto& node = map[i];
         ss << indentStr0 << indentDeltaStr << node.first << ": " << node.second.get().debugPrint(indent0 + indentDelta, indentDelta, false) << "\n";
+      }
+      ss << indentStr0 << "}";
+      break;
+    }
+    case Type::PAIRS: {
+      ss << "PAIRS {\n";
+      auto& pairs = getPairs();
+      for(auto& node : pairs) {
+        ss << indentStr0 << indentDeltaStr << node.first << ": " << node.second.debugPrint(indent0 + indentDelta, indentDelta, false) << "\n";
       }
       ss << indentStr0 << "}";
       break;
@@ -615,4 +747,4 @@ oatpp::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firs
 
 }
 
-}}
+}}}

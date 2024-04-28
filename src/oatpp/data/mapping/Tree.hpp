@@ -27,7 +27,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 class Tree {
 public:
@@ -58,7 +58,8 @@ public:
     STRING = 14,
 
     VECTOR = 15,
-    MAP = 16
+    MAP = 16,
+    PAIRS = 17
 
   };
 
@@ -84,6 +85,28 @@ public:
 
   };
 
+public:
+
+  class Attributes {
+  private:
+    std::unordered_map<oatpp::String, oatpp::String>* m_attributes;
+  public:
+
+    Attributes();
+    Attributes(const Attributes& other);
+    Attributes(Attributes&& other) noexcept;
+
+    Attributes& operator = (const Attributes& other);
+    Attributes& operator = (Attributes&& other) noexcept;
+
+    ~Attributes();
+
+    bool empty() const;
+
+    v_uint64 size() const;
+
+  };
+
 private:
   typedef v_uint64 LARGEST_TYPE;
 private:
@@ -91,6 +114,7 @@ private:
 private:
   Type m_type;
   LARGEST_TYPE m_data;
+  Attributes m_attributes;
 public:
 
   Tree();
@@ -104,11 +128,7 @@ public:
     setValue<T>(value);
   }
 
-  explicit Tree(const oatpp::String& value)
-    : Tree()
-  {
-    setString(value);
-  }
+  explicit Tree(const oatpp::String& value);
 
   ~Tree();
 
@@ -121,10 +141,7 @@ public:
     return *this;
   }
 
-  Tree& operator = (const oatpp::String& value) {
-    setString(value);
-    return *this;
-  }
+  Tree& operator = (const oatpp::String& value);
 
   template <typename T, typename enabled = typename NodePrimitiveType<T>::value_type>
   operator T () const {
@@ -154,6 +171,7 @@ public:
       case Type::STRING:
       case Type::VECTOR:
       case Type::MAP:
+      case Type::PAIRS:
 
       default:
         break;
@@ -205,6 +223,7 @@ public:
   void setVector(const std::vector<Tree>& value);
   void setVector(v_uint64 size);
   void setMap(const Map& value);
+  void setPairs(const std::vector<std::pair<oatpp::String, Tree>>& value);
 
   bool isNull() const;
   bool isUndefined() const;
@@ -221,9 +240,14 @@ public:
 
   const std::vector<Tree>& getVector() const;
   const Map& getMap() const;
+  const std::vector<std::pair<oatpp::String, Tree>>& getPairs() const;
 
   std::vector<Tree>& getVector();
   Map& getMap();
+  std::vector<std::pair<oatpp::String, Tree>>& getPairs();
+
+  Attributes& attributes();
+  const Attributes& attributes() const;
 
   oatpp::String debugPrint(v_uint32 indent0 = 0, v_uint32 indentDelta = 2, bool firstLineIndent = true) const;
 
@@ -309,6 +333,6 @@ struct Tree::NodePrimitiveType<v_float64> {
   typedef v_float64 value_type;
 };
 
-}}
+}}}
 
 #endif //oatpp_data_mapping_Tree_hpp
