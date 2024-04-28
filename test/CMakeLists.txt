@@ -8,8 +8,6 @@ add_executable(oatppAllTests
         oatpp/base/CommandLineArgumentsTest.hpp
         oatpp/data/buffer/ProcessorTest.cpp
         oatpp/data/buffer/ProcessorTest.hpp
-        oatpp/data/mapping/TypeResolverTest.cpp
-        oatpp/data/mapping/TypeResolverTest.hpp
         oatpp/data/mapping/type/AnyTest.cpp
         oatpp/data/mapping/type/AnyTest.hpp
         oatpp/data/mapping/type/EnumTest.cpp
@@ -36,6 +34,12 @@ add_executable(oatppAllTests
         oatpp/data/mapping/type/UnorderedSetTest.hpp
         oatpp/data/mapping/type/VectorTest.cpp
         oatpp/data/mapping/type/VectorTest.hpp
+        oatpp/data/mapping/TreeTest.cpp
+        oatpp/data/mapping/TreeTest.hpp
+        oatpp/data/mapping/TreeToObjectMapperTest.cpp
+        oatpp/data/mapping/TreeToObjectMapperTest.hpp
+        oatpp/data/mapping/TypeResolverTest.cpp
+        oatpp/data/mapping/TypeResolverTest.hpp
         oatpp/data/resource/InMemoryDataTest.cpp
         oatpp/data/resource/InMemoryDataTest.hpp
         oatpp/data/share/LazyStringMapTest.cpp
@@ -46,10 +50,6 @@ add_executable(oatppAllTests
         oatpp/data/share/StringTemplateTest.hpp
         oatpp/data/stream/BufferStreamTest.cpp
         oatpp/data/stream/BufferStreamTest.hpp
-        oatpp/data/TreeTest.cpp
-        oatpp/data/TreeTest.hpp
-        oatpp/data/TreeToObjectMapperTest.cpp
-        oatpp/data/TreeToObjectMapperTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp

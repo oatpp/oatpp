@@ -24,12 +24,12 @@
 
 #include "TreeTest.hpp"
 
-#include "oatpp/data/Tree.hpp"
+#include "oatpp/data/mapping/Tree.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
 #include <limits>
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 namespace {
 
@@ -176,4 +176,4 @@ void TreeTest::onRun() {
 
 }
 
-}}
+}}}

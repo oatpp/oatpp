@@ -22,19 +22,19 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_json_TreeTest_hpp
-#define oatpp_json_TreeTest_hpp
+#ifndef oatpp_data_mapping_TreeTest_hpp
+#define oatpp_data_mapping_TreeTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 class TreeTest : public oatpp::test::UnitTest {
 public:
-  TreeTest() : UnitTest("TEST[oatpp::data::TreeTest]") {}
+  TreeTest() : UnitTest("TEST[oatpp::data::mapping::TreeTest]") {}
   void onRun() override;
 };
 
-}}
+}}}
 
-#endif /* oatpp_json_TreeTest_hpp */
+#endif /* oatpp_data_mapping_TreeTest_hpp */

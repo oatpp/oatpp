@@ -22,19 +22,19 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_json_TreeToObjectMapperTest_hpp
-#define oatpp_json_TreeToObjectMapperTest_hpp
+#ifndef oatpp_data_mapping_TreeToObjectMapperTest_hpp
+#define oatpp_data_mapping_TreeToObjectMapperTest_hpp
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 class TreeToObjectMapperTest : public oatpp::test::UnitTest {
 public:
-  TreeToObjectMapperTest() : UnitTest("TEST[oatpp::data::TreeToObjectMapperTest]") {}
+  TreeToObjectMapperTest() : UnitTest("TEST[oatpp::data::mapping::TreeToObjectMapperTest]") {}
   void onRun() override;
 };
 
-}}
+}}}
 
-#endif /* oatpp_json_TreeToObjectMapperTest_hpp */
+#endif /* oatpp_data_mapping_TreeToObjectMapperTest_hpp */

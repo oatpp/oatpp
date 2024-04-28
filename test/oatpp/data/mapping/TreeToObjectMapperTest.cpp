@@ -26,14 +26,14 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/data/ObjectToTreeMapper.hpp"
-#include "oatpp/data/TreeToObjectMapper.hpp"
+#include "oatpp/data/mapping/ObjectToTreeMapper.hpp"
+#include "oatpp/data/mapping/TreeToObjectMapper.hpp"
 
 #include "oatpp/macro/codegen.hpp"
 
 #include <iostream>
 
-namespace oatpp { namespace data {
+namespace oatpp { namespace data { namespace mapping {
 
 namespace {
 
@@ -130,4 +130,4 @@ void TreeToObjectMapperTest::onRun() {
 
 }
 
-}}
+}}}

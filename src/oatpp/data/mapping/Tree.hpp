@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_Tree_hpp
-#define oatpp_data_Tree_hpp
+#ifndef oatpp_data_mapping_Tree_hpp
+#define oatpp_data_mapping_Tree_hpp
 
 #include "oatpp/Types.hpp"
 
@@ -311,4 +311,4 @@ struct Tree::NodePrimitiveType<v_float64> {
 
 }}
 
-#endif //oatpp_data_Tree_hpp
+#endif //oatpp_data_mapping_Tree_hpp

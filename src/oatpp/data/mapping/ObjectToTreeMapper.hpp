@@ -22,8 +22,8 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_data_ObjectToTreeMapper_hpp
-#define oatpp_data_ObjectToTreeMapper_hpp
+#ifndef oatpp_data_mapping_ObjectToTreeMapper_hpp
+#define oatpp_data_mapping_ObjectToTreeMapper_hpp
 
 #include "./Tree.hpp"
 
@@ -88,4 +88,4 @@ public:
 
 }}
 
-#endif //oatpp_data_ObjectToTreeMapper_hpp
+#endif //oatpp_data_mapping_ObjectToTreeMapper_hpp

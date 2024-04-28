@@ -62,12 +62,6 @@ add_library(oatpp
 		oatpp/concurrency/Utils.hpp
 		oatpp/data/Bundle.cpp
 		oatpp/data/Bundle.hpp
-		oatpp/data/ObjectToTreeMapper.cpp
-		oatpp/data/ObjectToTreeMapper.hpp
-		oatpp/data/Tree.cpp
-		oatpp/data/Tree.hpp
-		oatpp/data/TreeToObjectMapper.cpp
-		oatpp/data/TreeToObjectMapper.hpp
 		oatpp/data/buffer/FIFOBuffer.cpp
 		oatpp/data/buffer/FIFOBuffer.hpp
 		oatpp/data/buffer/IOBuffer.cpp
@@ -76,6 +70,12 @@ add_library(oatpp
 		oatpp/data/buffer/Processor.hpp
 		oatpp/data/mapping/ObjectMapper.cpp
 		oatpp/data/mapping/ObjectMapper.hpp
+		oatpp/data/mapping/ObjectToTreeMapper.cpp
+		oatpp/data/mapping/ObjectToTreeMapper.hpp
+		oatpp/data/mapping/Tree.cpp
+		oatpp/data/mapping/Tree.hpp
+		oatpp/data/mapping/TreeToObjectMapper.cpp
+		oatpp/data/mapping/TreeToObjectMapper.hpp
 		oatpp/data/mapping/TypeResolver.cpp
 		oatpp/data/mapping/TypeResolver.hpp
 		oatpp/data/mapping/type/Any.cpp
