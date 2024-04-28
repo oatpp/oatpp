@@ -24,6 +24,8 @@
 
 #include "Tree.hpp"
 
+#include "oatpp/data/stream/BufferStream.hpp"
+
 namespace oatpp { namespace data {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -493,6 +495,124 @@ Tree::Map& Tree::getMap() {
   }
   auto data = reinterpret_cast<Map*>(m_data);
   return *data;
+}
+
+oatpp::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firstLineIndent) const {
+
+  stream::BufferOutputStream ss;
+  for(v_uint32 i = 0; i < indent0; i ++) {
+    ss << " ";
+  }
+  oatpp::String indentStr0 = ss.toString();
+
+  ss.setCurrentPosition(0);
+  for(v_uint32 i = 0; i < indentDelta; i ++) {
+    ss << " ";
+  }
+  oatpp::String indentDeltaStr = ss.toString();
+
+  ss.setCurrentPosition(0);
+  if(firstLineIndent) {
+    ss << indentStr0;
+  }
+
+
+  switch (m_type) {
+
+    case Type::UNDEFINED: {
+      ss << "undefined";
+      break;
+    }
+    case Type::NULL_VALUE: {
+      ss << "null";
+      break;
+    }
+
+    case Type::INTEGER: {
+      ss << getInteger() << " (integer)";
+      break;
+    }
+    case Type::FLOAT: {
+      ss << getFloat() << " (float)";
+      break;
+    }
+
+    case Type::BOOL: {
+      ss << getValue<bool>() << " (bool)";
+      break;
+    }
+    case Type::INT_8: {
+      ss << getValue<v_int8>() << " (int_8)";
+      break;
+    }
+
+    case Type::UINT_8: {
+      ss << getValue<v_uint8>() << " (uint_8)";
+      break;
+    }
+    case Type::INT_16: {
+      ss << getValue<v_int16>() << " (int_16)";
+      break;
+    }
+    case Type::UINT_16: {
+      ss << getValue<v_uint16>() << " (uint_16)";
+      break;
+    }
+    case Type::INT_32: {
+      ss << getValue<v_int32 >() << " (int_32)";
+      break;
+    }
+    case Type::UINT_32: {
+      ss << getValue<v_uint32>() << " (uint_32)";
+      break;
+    }
+    case Type::INT_64: {
+      ss << getValue<v_int64>() << " (int_64)";
+      break;
+    }
+    case Type::UINT_64: {
+      ss << getValue<v_uint64>() << " (uint_64)";
+      break;
+    }
+    case Type::FLOAT_32: {
+      ss << getValue<v_float32>() << " (float_32)";
+      break;
+    }
+    case Type::FLOAT_64: {
+      ss << getValue<v_float64>() << " (float_64)";
+      break;
+    }
+    case Type::STRING: {
+      ss << "'" << getString() << "'";
+      break;
+    }
+
+    case Type::VECTOR: {
+      ss << "[\n";
+      auto& vector = getVector();
+      for(auto& v : vector) {
+        ss << v.debugPrint(indent0 + indentDelta, indentDelta) << "\n";
+      }
+      ss << indentStr0 << "]";
+      break;
+    }
+    case Type::MAP: {
+      ss << "{\n";
+      auto& map = getMap();
+      for(v_uint32 i = 0; i < map.size(); i ++) {
+        const auto& node = map[i];
+        ss << indentStr0 << indentDeltaStr << node.first << ": " << node.second.get().debugPrint(indent0 + indentDelta, indentDelta, false) << "\n";
+      }
+      ss << indentStr0 << "}";
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  return ss.toString();
+
 }
 
 }}

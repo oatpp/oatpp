@@ -48,6 +48,8 @@ add_executable(oatppAllTests
         oatpp/data/stream/BufferStreamTest.hpp
         oatpp/data/TreeTest.cpp
         oatpp/data/TreeTest.hpp
+        oatpp/data/TreeToObjectMapperTest.cpp
+        oatpp/data/TreeToObjectMapperTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp

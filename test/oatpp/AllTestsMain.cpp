@@ -53,7 +53,10 @@
 #include "oatpp/data/resource/InMemoryDataTest.hpp"
 
 #include "oatpp/data/stream/BufferStreamTest.hpp"
+
 #include "oatpp/data/TreeTest.hpp"
+#include "oatpp/data/TreeToObjectMapperTest.hpp"
+
 #include "oatpp/data/share/LazyStringMapTest.hpp"
 #include "oatpp/data/share/StringTemplateTest.hpp"
 #include "oatpp/data/share/MemoryLabelTest.hpp"
@@ -104,7 +107,8 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::data::stream::BufferStreamTest);
   */
 
-  OATPP_RUN_TEST(oatpp::data::TreeTest);
+  //OATPP_RUN_TEST(oatpp::data::TreeTest);
+  OATPP_RUN_TEST(oatpp::data::TreeToObjectMapperTest);
 
   /*
   OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectWrapperTest);

@@ -129,30 +129,38 @@ public:
   template <typename T, typename enabled = typename NodePrimitiveType<T>::value_type>
   operator T () const {
 
-    auto size = primitiveDataSize();
-    if(size < 0) {
-      throw std::runtime_error("[oatpp::data::Tree::operator T ()]: Value NOT a Primitive type.");
+    switch (m_type) {
+
+      case Type::UNDEFINED:
+      case Type::NULL_VALUE: break;
+
+      case Type::INTEGER: return static_cast<T>(getInteger());
+      case Type::FLOAT: return static_cast<T>(getFloat());
+
+      case Type::BOOL: return static_cast<T>(getValue<bool>());
+
+      case Type::INT_8: return static_cast<T>(getValue<v_int8>());
+      case Type::UINT_8: return static_cast<T>(getValue<v_uint8>());
+      case Type::INT_16: return static_cast<T>(getValue<v_int16>());
+      case Type::UINT_16: return static_cast<T>(getValue<v_uint16>());
+      case Type::INT_32: return static_cast<T>(getValue<v_int32>());
+      case Type::UINT_32: return static_cast<T>(getValue<v_uint32>());
+      case Type::INT_64: return static_cast<T>(getValue<v_int64>());
+      case Type::UINT_64: return static_cast<T>(getValue<v_uint64>());
+
+      case Type::FLOAT_32: return static_cast<T>(getValue<v_float32>());
+      case Type::FLOAT_64: return static_cast<T>(getValue<v_float64>());
+
+      case Type::STRING:
+      case Type::VECTOR:
+      case Type::MAP:
+
+      default:
+        break;
+
     }
 
-    if(isIntPrimitive()) {
-      LARGEST_TYPE value = 0;
-      std::memcpy (&value, &m_data, static_cast<size_t>(size));
-      return static_cast<T>(value);
-    }
-
-    if(isFloatPrimitive()) {
-      if(size == 4) {
-        v_float32 value;
-        std::memcpy (&value, &m_data, static_cast<size_t>(size));
-        return static_cast<T>(value);
-      } else if(size == 8) {
-        v_float64 value;
-        std::memcpy (&value, &m_data, static_cast<size_t>(size));
-        return static_cast<T>(value);
-      }
-    }
-
-    throw std::runtime_error("[oatpp::data::Tree::operator T ()]: Unable to autocast.");
+    throw std::runtime_error("[oatpp::data::Tree::operator T ()]: Value is NOT a Primitive type.");
 
   }
 
@@ -216,6 +224,8 @@ public:
 
   std::vector<Tree>& getVector();
   Map& getMap();
+
+  oatpp::String debugPrint(v_uint32 indent0 = 0, v_uint32 indentDelta = 2, bool firstLineIndent = true) const;
 
 };
 
