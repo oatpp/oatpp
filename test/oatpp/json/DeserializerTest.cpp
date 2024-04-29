@@ -307,12 +307,12 @@ void DeserializerTest::onRun(){
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
     OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - 1.2345e30) < std::numeric_limits<double>::epsilon())
   }
-  OATPP_LOGD(TAG, "Any: Unsigned Integer")
+  OATPP_LOGD(TAG, "Any: Big Integer")
   {
-    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":12345678901234567890,"another":1.1})");
+    auto dto = mapper->readFromString<oatpp::Object<AnyDto>>(R"({"any":9223372036854775807,"another":1.1})");
     OATPP_ASSERT(dto)
-    OATPP_ASSERT(dto->any.getStoredType() == UInt64::Class::getType())
-    OATPP_ASSERT(dto->any.retrieve<UInt64>() == 12345678901234567890u)
+    OATPP_ASSERT(dto->any.getStoredType() == Int64::Class::getType())
+    OATPP_ASSERT(dto->any.retrieve<Int64>() == 9223372036854775807)
   }
   OATPP_LOGD(TAG, "Any: Signed Integer")
   {

@@ -80,7 +80,7 @@ void TreeToObjectMapper::setMapperMethod(const data::mapping::type::ClassId& cla
   m_methods[id] = method;
 }
 
-oatpp::Void TreeToObjectMapper::map(MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::map(MappingState& state, const Type* const type) const {
   auto id = static_cast<v_uint32>(type->classId.id);
   auto& method = m_methods[id];
   if(method) {
@@ -131,7 +131,7 @@ const Type* TreeToObjectMapper::guessType(const Tree& node) {
 
 }
 
-oatpp::Void TreeToObjectMapper::mapString(TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapString(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
   (void) mapper;
   (void) type;
@@ -149,7 +149,7 @@ oatpp::Void TreeToObjectMapper::mapString(TreeToObjectMapper* mapper, MappingSta
 
 }
 
-oatpp::Void TreeToObjectMapper::mapAny(TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapAny(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
   (void) type;
   if(state.tree->isNull()){
     return oatpp::Void(Any::Class::getType());
@@ -164,7 +164,7 @@ oatpp::Void TreeToObjectMapper::mapAny(TreeToObjectMapper* mapper, MappingState&
   return oatpp::Void(Any::Class::getType());
 }
 
-oatpp::Void TreeToObjectMapper::mapEnum(TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     type->polymorphicDispatcher
@@ -198,7 +198,7 @@ oatpp::Void TreeToObjectMapper::mapEnum(TreeToObjectMapper* mapper, MappingState
 
 }
 
-oatpp::Void TreeToObjectMapper::mapCollection(TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
   if(state.tree->isNull()){
     return oatpp::Void(type);
@@ -242,7 +242,7 @@ oatpp::Void TreeToObjectMapper::mapCollection(TreeToObjectMapper* mapper, Mappin
 
 }
 
-oatpp::Void TreeToObjectMapper::mapMap(TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
   if(state.tree->isNull()){
     return oatpp::Void(type);
@@ -290,7 +290,7 @@ oatpp::Void TreeToObjectMapper::mapMap(TreeToObjectMapper* mapper, MappingState&
 
 }
 
-oatpp::Void TreeToObjectMapper::mapObject(TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
   if(state.tree->isNull()){
     return oatpp::Void(type);

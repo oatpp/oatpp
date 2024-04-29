@@ -80,7 +80,7 @@ void ObjectToTreeMapper::setMapperMethod(const data::mapping::type::ClassId& cla
   m_methods[id] = method;
 }
 
-void ObjectToTreeMapper::map(MappingState& state, const oatpp::Void& polymorph)
+void ObjectToTreeMapper::map(MappingState& state, const oatpp::Void& polymorph) const
 {
   auto id = static_cast<v_uint32>(polymorph.getValueType()->classId.id);
   auto& method = m_methods[id];
@@ -101,7 +101,7 @@ void ObjectToTreeMapper::map(MappingState& state, const oatpp::Void& polymorph)
   }
 }
 
-void ObjectToTreeMapper::mapString(ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapString(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
   if(!polymorph) {
     state.tree->setNull();
     return;
@@ -109,7 +109,7 @@ void ObjectToTreeMapper::mapString(ObjectToTreeMapper* mapper, MappingState& sta
   state.tree->setString(oatpp::String(std::static_pointer_cast<std::string>(polymorph.getPtr()), oatpp::String::Class::getType()));
 }
 
-void ObjectToTreeMapper::mapAny(ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapAny(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
   if(!polymorph) {
     state.tree->setNull();
     return;
@@ -118,7 +118,7 @@ void ObjectToTreeMapper::mapAny(ObjectToTreeMapper* mapper, MappingState& state,
   mapper->map(state, oatpp::Void(anyHandle->ptr, anyHandle->type));
 }
 
-void ObjectToTreeMapper::mapEnum(ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();
@@ -150,7 +150,7 @@ void ObjectToTreeMapper::mapEnum(ObjectToTreeMapper* mapper, MappingState& state
 
 }
 
-void ObjectToTreeMapper::mapCollection(ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();
@@ -196,7 +196,7 @@ void ObjectToTreeMapper::mapCollection(ObjectToTreeMapper* mapper, MappingState&
 
 }
 
-void ObjectToTreeMapper::mapMap(ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();
@@ -243,7 +243,7 @@ void ObjectToTreeMapper::mapMap(ObjectToTreeMapper* mapper, MappingState& state,
 
 }
 
-void ObjectToTreeMapper::mapObject(ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();

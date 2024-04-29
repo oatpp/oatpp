@@ -182,7 +182,7 @@ void InterpretationTest::onRun() {
   }
 
   {
-    auto config = mapper.getDeserializer()->getConfig();
+    auto config = mapper.getDeserializerConfig();
     config->enabledInterpretations = {"test"};
   }
 

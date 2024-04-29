@@ -50,11 +50,11 @@ public:
   };
 
 public:
-  typedef oatpp::Void (*MapperMethod)(TreeToObjectMapper*, MappingState&, const Type* const);
+  typedef oatpp::Void (*MapperMethod)(const TreeToObjectMapper*, MappingState&, const Type* const);
 public:
 
   template<class T>
-  static oatpp::Void mapPrimitive(TreeToObjectMapper* mapper, MappingState& state, const Type* const type){
+  static oatpp::Void mapPrimitive(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type){
     (void) mapper;
     (void) type;
     if(state.tree->isNull()) {
@@ -69,14 +69,14 @@ public:
 
   static const Type* guessType(const Tree& node);
 
-  static oatpp::Void mapString(TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
-  static oatpp::Void mapAny(TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
-  static oatpp::Void mapEnum(TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
+  static oatpp::Void mapString(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
+  static oatpp::Void mapAny(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
+  static oatpp::Void mapEnum(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
 
-  static oatpp::Void mapCollection(TreeToObjectMapper* mapper, MappingState& state, const Type* type);
-  static oatpp::Void mapMap(TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
+  static oatpp::Void mapCollection(const TreeToObjectMapper* mapper, MappingState& state, const Type* type);
+  static oatpp::Void mapMap(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
 
-  static oatpp::Void mapObject(TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
+  static oatpp::Void mapObject(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type);
 
 private:
   std::vector<MapperMethod> m_methods;
@@ -86,7 +86,7 @@ public:
 
   void setMapperMethod(const data::mapping::type::ClassId& classId, MapperMethod method);
 
-  oatpp::Void map(MappingState& state, const Type* const type);
+  oatpp::Void map(MappingState& state, const Type* const type) const;
 
 };
 

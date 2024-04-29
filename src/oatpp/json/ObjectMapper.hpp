@@ -28,6 +28,7 @@
 #include "./Serializer.hpp"
 #include "./Deserializer.hpp"
 
+#include "oatpp/data/mapping/TreeToObjectMapper.hpp"
 #include "oatpp/data/mapping/ObjectMapper.hpp"
 
 namespace oatpp { namespace json {
@@ -43,9 +44,21 @@ private:
     static Info info("application/json");
     return info;
   }
+
+public:
+
+  class DeserializerConfig : public data::mapping::TreeToObjectMapper::Config, public Deserializer::Config {
+  public:
+
+
+
+  };
+
 private:
   std::shared_ptr<Serializer> m_serializer;
-  std::shared_ptr<Deserializer> m_deserializer;
+  std::shared_ptr<DeserializerConfig> m_deserializerConfig;
+private:
+  data::mapping::TreeToObjectMapper m_treeToObjectMapper;
 public:
   /**
    * Constructor.
@@ -53,15 +66,14 @@ public:
    * @param deserializerConfig - &id:oatpp::json::Deserializer::Config;.
    */
   ObjectMapper(const std::shared_ptr<Serializer::Config>& serializerConfig,
-               const std::shared_ptr<Deserializer::Config>& deserializerConfig);
+               const std::shared_ptr<DeserializerConfig>& deserializerConfig);
 
   /**
    * Constructor.
    * @param serializer
    * @param deserializer
    */
-  ObjectMapper(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>(),
-               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>());
+  ObjectMapper(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>());
 public:
 
   /**
@@ -72,7 +84,7 @@ public:
    */
   static std::shared_ptr<ObjectMapper>
   createShared(const std::shared_ptr<Serializer::Config>& serializerConfig,
-               const std::shared_ptr<Deserializer::Config>& deserializerConfig);
+               const std::shared_ptr<DeserializerConfig>& deserializerConfig);
 
   /**
    * Create shared ObjectMapper.
@@ -110,7 +122,7 @@ public:
    * Get deserializer.
    * @return
    */
-  std::shared_ptr<Deserializer> getDeserializer();
+  std::shared_ptr<DeserializerConfig> getDeserializerConfig();
   
 };
   

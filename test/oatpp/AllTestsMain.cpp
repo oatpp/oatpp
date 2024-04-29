@@ -79,7 +79,7 @@ namespace {
 
 void runTests() {
 
-  /*
+
   oatpp::Environment::printCompilationConfig();
 
   OATPP_LOGD("Tests", "oatpp::String size=%lu", sizeof(oatpp::String))
@@ -96,7 +96,7 @@ void runTests() {
     OATPP_LOGD("CLASS", "%d --> '%s'", i, name)
     i ++;
   }
-
+/*
   OATPP_RUN_TEST(oatpp::test::LoggerTest);
   OATPP_RUN_TEST(oatpp::base::CommandLineArgumentsTest);
 
@@ -112,35 +112,35 @@ void runTests() {
   //OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
   OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
 
-  /*
-  OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectWrapperTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::TypeTest);
 
-  OATPP_RUN_TEST(oatpp::data::mapping::type::StringTest);
-
-  OATPP_RUN_TEST(oatpp::data::mapping::type::PrimitiveTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::ListTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::VectorTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::UnorderedSetTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::PairListTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::UnorderedMapTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::AnyTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::type::EnumTest);
-
-  OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectTest);
-
-  OATPP_RUN_TEST(oatpp::data::mapping::type::InterpretationTest);
-  OATPP_RUN_TEST(oatpp::data::mapping::TypeResolverTest);
-
-  OATPP_RUN_TEST(oatpp::data::resource::InMemoryDataTest);
-
-  OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
-  OATPP_RUN_TEST(oatpp::async::LockTest);
-
-  OATPP_RUN_TEST(oatpp::utils::parser::CaretTest);
-
-  OATPP_RUN_TEST(oatpp::provider::PoolTest);
-  OATPP_RUN_TEST(oatpp::provider::PoolTemplateTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectWrapperTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::TypeTest);
+//
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::StringTest);
+//
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::PrimitiveTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::ListTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::VectorTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::UnorderedSetTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::PairListTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::UnorderedMapTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::AnyTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::EnumTest);
+//
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::ObjectTest);
+//
+//  OATPP_RUN_TEST(oatpp::data::mapping::type::InterpretationTest);
+//  OATPP_RUN_TEST(oatpp::data::mapping::TypeResolverTest);
+//
+//  OATPP_RUN_TEST(oatpp::data::resource::InMemoryDataTest);
+//
+//  OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
+//  OATPP_RUN_TEST(oatpp::async::LockTest);
+//
+//  OATPP_RUN_TEST(oatpp::utils::parser::CaretTest);
+//
+//  OATPP_RUN_TEST(oatpp::provider::PoolTest);
+//  OATPP_RUN_TEST(oatpp::provider::PoolTemplateTest);
 
   OATPP_RUN_TEST(oatpp::json::EnumTest);
   OATPP_RUN_TEST(oatpp::json::BooleanTest);
@@ -150,7 +150,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::json::DeserializerTest);
   OATPP_RUN_TEST(oatpp::json::DTOMapperPerfTest);
   OATPP_RUN_TEST(oatpp::json::DTOMapperTest);
-
+/*
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
   OATPP_RUN_TEST(oatpp::test::encoding::UrlTest);

@@ -26,6 +26,9 @@
 #define oatpp_json_Deserializer_hpp
 
 #include "./Utils.hpp"
+
+#include "oatpp/data/mapping/TreeToObjectMapper.hpp"
+
 #include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/Types.hpp"
 
@@ -39,173 +42,42 @@ namespace oatpp { namespace json {
  */
 class Deserializer {
 public:
-  typedef oatpp::data::mapping::type::Type Type;
-  typedef oatpp::data::mapping::type::BaseObject::Property Property;
-  typedef oatpp::data::mapping::type::BaseObject::Properties Properties;
-
-  typedef oatpp::String String;
-
-public:
-
-  /**
- * "'{' - expected"
- */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_OPEN = 1;
-
-  /**
-   * "'}' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_CLOSE = 2;
-
-  /**
-   * "Unknown field"
-   */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD = 3;
-
-  /**
-   * "':' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_OBJECT_SCOPE_COLON_MISSING = 4;
-
-  /**
-   * "'[' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_ARRAY_SCOPE_OPEN = 5;
-
-  /**
-   * "']' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_ARRAY_SCOPE_CLOSE = 6;
-
-  /**
-   * "'true' or 'false' - expected"
-   */
-  static constexpr v_int32 ERROR_CODE_VALUE_BOOLEAN = 7;
-
-public:
 
   /**
    * Deserializer config.
    */
   class Config : public oatpp::base::Countable {
   public:
-    /**
-     * Constructor.
-     */
-    Config()
-    {}
-  public:
-
-    /**
-     * Create shared Config.
-     * @return - `std::shared_ptr` to Config.
-     */
-    static std::shared_ptr<Config> createShared(){
-      return std::make_shared<Config>();
-    }
-
-    /**
-     * Do not fail if unknown field is found in json.
-     * "unknown field" is the one which is not present in DTO object class.
-     */
-    bool allowUnknownFields = true;
-
-    /**
-     * Enable type interpretations.
-     */
-    std::vector<std::string> enabledInterpretations = {};
 
   };
 
 public:
-  typedef oatpp::Void (*DeserializerMethod)(Deserializer*, utils::parser::Caret&, const Type* const);
-private:
-  static void skipScope(oatpp::utils::parser::Caret& caret, v_char8 charOpen, v_char8 charClose);
-  static void skipString(oatpp::utils::parser::Caret& caret);
-  static void skipToken(oatpp::utils::parser::Caret& caret);
-  static void skipValue(oatpp::utils::parser::Caret& caret);
-private:
-  static const Type* guessNumberType(oatpp::utils::parser::Caret& caret);
-  static const Type* guessType(oatpp::utils::parser::Caret& caret);
-private:
 
-  template<class T>
-  static oatpp::Void deserializeInt(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type){
+  struct MappingState {
 
-    (void) deserializer;
-    (void) type;
+    Config* config;
+    data::mapping::Tree* tree;
+    utils::parser::Caret* caret;
 
-    if(caret.isAtText("null", true)){
-      return oatpp::Void(T::Class::getType());
-    } else {
-      //TODO: shall we handle overflow cases like
-      // oatpp::String json = "128";
-      // auto value = jsonObjectMapper->readFromString<oatpp::Int8>(json); // UInt8 will overflow to -128
-      return T(static_cast<typename T::UnderlyingType>(caret.parseInt()));
-    }
+    std::list<oatpp::String> errorStack;
 
-  }
+    oatpp::String errorStacktrace() const;
 
-  template<class T>
-  static oatpp::Void deserializeUInt(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type){
-
-    (void) deserializer;
-    (void) type;
-
-    if(caret.isAtText("null", true)){
-      return oatpp::Void(T::Class::getType());
-    } else {
-      //TODO: shall we handle overflow cases like
-      // oatpp::String json = "256";
-      // auto value = jsonObjectMapper->readFromString<oatpp::UInt8>(json); // UInt8 will overflow to 0
-      return T(static_cast<typename T::UnderlyingType>(caret.parseUnsignedInt()));
-    }
-
-  }
-
-  static oatpp::Void deserializeFloat32(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-  static oatpp::Void deserializeFloat64(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-  static oatpp::Void deserializeBoolean(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-  static oatpp::Void deserializeString(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-  static oatpp::Void deserializeAny(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-  static oatpp::Void deserializeEnum(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-
-  static oatpp::Void deserializeCollection(Deserializer* deserializer, utils::parser::Caret& caret, const Type* type);
-  static oatpp::Void deserializeMap(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
-
-  static oatpp::Void deserializeObject(Deserializer* deserializer, utils::parser::Caret& caret, const Type* const type);
+  };
 
 private:
-  std::shared_ptr<Config> m_config;
-  std::vector<DeserializerMethod> m_methods;
+
+  static void deserializeNull(MappingState& state);
+  static void deserializeNumber(MappingState& state);
+  static void deserializeBoolean(MappingState& state);
+  static void deserializeString(MappingState& state);
+
+  static void deserializeArray(MappingState& state);
+  static void deserializeMap(MappingState& state);
+
 public:
 
-  /**
-   * Constructor.
-   * @param config
-   */
-  Deserializer(const std::shared_ptr<Config>& config = std::make_shared<Config>());
-
-  /**
-   * Set deserializer method for type.
-   * @param classId - &id:oatpp::data::mapping::type::ClassId;.
-   * @param method - `typedef oatpp::Void (*DeserializerMethod)(Deserializer*, utils::parser::Caret&, const Type* const)`.
-   */
-  void setDeserializerMethod(const data::mapping::type::ClassId& classId, DeserializerMethod method);
-
-  /**
-   * Deserialize text.
-   * @param caret - &id:oatpp::utils::parser::Caret;.
-   * @param type - &id:oatpp::data::mapping::type::Type;
-   * @return - `oatpp::Void` over deserialized object.
-   */
-  oatpp::Void deserialize(utils::parser::Caret& caret, const Type* const type);
-
-  /**
-   * Get deserializer config.
-   * @return
-   */
-  const std::shared_ptr<Config>& getConfig();
+  static void deserialize(MappingState& state);
 
 };
 
