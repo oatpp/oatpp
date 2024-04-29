@@ -29,6 +29,8 @@
 
 namespace oatpp { namespace data { namespace mapping {
 
+class TreeMap;
+
 class Tree {
 public:
 
@@ -65,24 +67,6 @@ public:
 
   template<typename T>
   struct NodePrimitiveType {
-  };
-
-public:
-
-  class Map {
-  private:
-    std::unordered_map<oatpp::String, Tree> m_map;
-    std::vector<oatpp::String> m_order;
-  public:
-
-    Tree& operator [] (const oatpp::String& key);
-    const Tree& operator [] (const oatpp::String& key) const;
-
-    std::pair<oatpp::String, std::reference_wrapper<Tree>> operator [] (v_uint64 index);
-    std::pair<oatpp::String, std::reference_wrapper<const Tree>> operator [] (v_uint64 index) const;
-
-    v_uint64 size() const;
-
   };
 
 public:
@@ -178,7 +162,7 @@ public:
 
     }
 
-    throw std::runtime_error("[oatpp::data::Tree::operator T ()]: Value is NOT a Primitive type.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::operator T ()]: Value is NOT a Primitive type.");
 
   }
 
@@ -206,7 +190,7 @@ public:
   template<typename T>
   T getValue() const {
     if(m_type != NodePrimitiveType<T>::type) {
-      throw std::runtime_error(std::string("[oatpp::data::Tree::getValue()]: NOT a ") + NodePrimitiveType<T>::name);
+      throw std::runtime_error(std::string("[oatpp::data::mapping::Tree::getValue()]: NOT a ") + NodePrimitiveType<T>::name);
     }
     T result;
     std::memcpy (&result, &m_data, sizeof(T));
@@ -222,7 +206,7 @@ public:
   void setString(const oatpp::String& value);
   void setVector(const std::vector<Tree>& value);
   void setVector(v_uint64 size);
-  void setMap(const Map& value);
+  void setMap(const TreeMap& value);
   void setPairs(const std::vector<std::pair<oatpp::String, Tree>>& value);
 
   bool isNull() const;
@@ -239,17 +223,33 @@ public:
   const oatpp::String& getString() const;
 
   const std::vector<Tree>& getVector() const;
-  const Map& getMap() const;
+  const TreeMap& getMap() const;
   const std::vector<std::pair<oatpp::String, Tree>>& getPairs() const;
 
   std::vector<Tree>& getVector();
-  Map& getMap();
+  TreeMap& getMap();
   std::vector<std::pair<oatpp::String, Tree>>& getPairs();
 
   Attributes& attributes();
   const Attributes& attributes() const;
 
   oatpp::String debugPrint(v_uint32 indent0 = 0, v_uint32 indentDelta = 2, bool firstLineIndent = true) const;
+
+};
+
+class TreeMap {
+private:
+  std::unordered_map<oatpp::String, Tree> m_map;
+  std::vector<oatpp::String> m_order;
+public:
+
+  Tree& operator [] (const oatpp::String& key);
+  const Tree& operator [] (const oatpp::String& key) const;
+
+  std::pair<oatpp::String, std::reference_wrapper<Tree>> operator [] (v_uint64 index);
+  std::pair<oatpp::String, std::reference_wrapper<const Tree>> operator [] (v_uint64 index) const;
+
+  v_uint64 size() const;
 
 };
 

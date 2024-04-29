@@ -29,9 +29,9 @@
 namespace oatpp { namespace data { namespace mapping {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Tree::Map
+// TreeMap
 
-Tree& Tree::Map::operator [] (const oatpp::String& key) {
+Tree& TreeMap::operator [] (const oatpp::String& key) {
   auto it = m_map.find(key);
   if(it == m_map.end()) {
     auto& result = m_map[key];
@@ -41,25 +41,25 @@ Tree& Tree::Map::operator [] (const oatpp::String& key) {
   return it->second;
 }
 
-const Tree& Tree::Map::operator [] (const oatpp::String& key) const {
+const Tree& TreeMap::operator [] (const oatpp::String& key) const {
   auto it = m_map.find(key);
   if(it == m_map.end()) {
-    throw std::runtime_error("[oatpp::data::Tree::Map::operator[]]: const operator[] can't add items.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::TreeMap::operator[]]: const operator[] can't add items.");
   }
   return it->second;
 }
 
-std::pair<oatpp::String, std::reference_wrapper<Tree>> Tree::Map::operator [] (v_uint64 index) {
+std::pair<oatpp::String, std::reference_wrapper<Tree>> TreeMap::operator [] (v_uint64 index) {
   auto& key = m_order.at(index);
   return {key, m_map[key]};
 }
 
-std::pair<oatpp::String, std::reference_wrapper<const Tree>> Tree::Map::operator [] (v_uint64 index) const {
+std::pair<oatpp::String, std::reference_wrapper<const Tree>> TreeMap::operator [] (v_uint64 index) const {
   auto& key = m_order.at(index);
   return {key, m_map.at(key)};
 }
 
-v_uint64 Tree::Map::size() const {
+v_uint64 TreeMap::size() const {
   return m_map.size();
 }
 
@@ -201,7 +201,7 @@ void Tree::deleteValueObject() {
       break;
     }
     case Type::MAP: {
-      auto data = reinterpret_cast<Map *>(m_data);
+      auto data = reinterpret_cast<TreeMap *>(m_data);
       delete data;
       break;
     }
@@ -276,7 +276,7 @@ void Tree::setCopy(const Tree& other) {
     case Type::STRING: {
       auto otherData = reinterpret_cast<oatpp::String *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'STRING'");
+        throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'STRING'");
       }
       auto ptr = new oatpp::String(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
@@ -285,25 +285,25 @@ void Tree::setCopy(const Tree& other) {
     case Type::VECTOR: {
       auto otherData = reinterpret_cast<std::vector<Tree> *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'VECTOR'");
+        throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'VECTOR'");
       }
       auto ptr = new std::vector<Tree>(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::MAP: {
-      auto otherData = reinterpret_cast<Map *>(other.m_data);
+      auto otherData = reinterpret_cast<TreeMap *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'MAP'");
+        throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'MAP'");
       }
-      auto ptr = new Map(*otherData);
+      auto ptr = new TreeMap(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::PAIRS: {
       auto otherData = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>> *>(other.m_data);
       if(otherData == nullptr) {
-        throw std::runtime_error("[oatpp::data::Tree::setCopy()]: other.data is null, other.type is 'PAIRS'");
+        throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'PAIRS'");
       }
       auto ptr = new std::vector<std::pair<oatpp::String, Tree>>(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
@@ -376,10 +376,10 @@ void Tree::setVector(v_uint64 size) {
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
-void Tree::setMap(const Map& value) {
+void Tree::setMap(const TreeMap& value) {
   deleteValueObject();
   m_type = Type::MAP;
-  auto data = new Map(value);
+  auto data = new TreeMap(value);
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
@@ -531,7 +531,7 @@ bool Tree::isIntPrimitive() const {
 
 v_int64 Tree::getInteger() const {
   if(m_type != Type::INTEGER) {
-    throw std::runtime_error("[oatpp::data::Tree::getInteger()]: NOT an arbitrary INTEGER.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getInteger()]: NOT an arbitrary INTEGER.");
   }
   v_int64 result;
   std::memcpy (&result, &m_data, sizeof(v_float64));
@@ -540,7 +540,7 @@ v_int64 Tree::getInteger() const {
 
 v_float64 Tree::getFloat() const {
   if(m_type != Type::FLOAT) {
-    throw std::runtime_error("[oatpp::data::Tree::getFloat()]: NOT an arbitrary FLOAT.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getFloat()]: NOT an arbitrary FLOAT.");
   }
   v_float64 result;
   std::memcpy (&result, &m_data, sizeof(v_float64));
@@ -549,7 +549,7 @@ v_float64 Tree::getFloat() const {
 
 const oatpp::String& Tree::getString() const {
   if(m_type != Type::STRING) {
-    throw std::runtime_error("[oatpp::data::Tree::getString()]: NOT a STRING.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getString()]: NOT a STRING.");
   }
   auto data = reinterpret_cast<const oatpp::String*>(m_data);
   return *data;
@@ -557,23 +557,23 @@ const oatpp::String& Tree::getString() const {
 
 const std::vector<Tree>& Tree::getVector() const {
   if(m_type != Type::VECTOR) {
-    throw std::runtime_error("[oatpp::data::Tree::getVector()]: NOT a VECTOR.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getVector()]: NOT a VECTOR.");
   }
   auto data = reinterpret_cast<const std::vector<Tree>*>(m_data);
   return *data;
 }
 
-const Tree::Map& Tree::getMap() const {
+const TreeMap& Tree::getMap() const {
   if(m_type != Type::MAP) {
-    throw std::runtime_error("[oatpp::data::Tree::getMap()]: NOT a MAP.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getMap()]: NOT a MAP.");
   }
-  auto data = reinterpret_cast<const Map*>(m_data);
+  auto data = reinterpret_cast<const TreeMap*>(m_data);
   return *data;
 }
 
 const std::vector<std::pair<oatpp::String, Tree>>& Tree::getPairs() const {
   if(m_type != Type::PAIRS) {
-    throw std::runtime_error("[oatpp::data::Tree::getPairs()]: NOT a PAIRS.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getPairs()]: NOT a PAIRS.");
   }
   auto data = reinterpret_cast<const std::vector<std::pair<oatpp::String, Tree>>*>(m_data);
   return *data;
@@ -584,20 +584,20 @@ std::vector<Tree>& Tree::getVector() {
     setVector({});
   }
   if(m_type != Type::VECTOR) {
-    throw std::runtime_error("[oatpp::data::Tree::getVector()]: NOT a VECTOR.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getVector()]: NOT a VECTOR.");
   }
   auto data = reinterpret_cast<std::vector<Tree>*>(m_data);
   return *data;
 }
 
-Tree::Map& Tree::getMap() {
+TreeMap& Tree::getMap() {
   if(m_type == Type::UNDEFINED) {
     setMap({});
   }
   if(m_type != Type::MAP) {
-    throw std::runtime_error("[oatpp::data::Tree::getMap()]: NOT a MAP.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getMap()]: NOT a MAP.");
   }
-  auto data = reinterpret_cast<Map*>(m_data);
+  auto data = reinterpret_cast<TreeMap*>(m_data);
   return *data;
 }
 
@@ -606,7 +606,7 @@ std::vector<std::pair<oatpp::String, Tree>>& Tree::getPairs() {
     setPairs({});
   }
   if(m_type != Type::MAP) {
-    throw std::runtime_error("[oatpp::data::Tree::getMap()]: NOT a MAP.");
+    throw std::runtime_error("[oatpp::data::mapping::Tree::getMap()]: NOT a MAP.");
   }
   auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>>*>(m_data);
   return *data;

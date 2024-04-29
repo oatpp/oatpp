@@ -132,7 +132,7 @@ void TreeTest::onRun() {
   }
 
   {
-    Tree::Map originalMap;
+    TreeMap originalMap;
     for(v_uint32 i = 0; i < 10; i ++) {
       originalMap["node_" + utils::Conversion::int32ToStr(static_cast<v_int32>(i))].setValue(i);
     }
