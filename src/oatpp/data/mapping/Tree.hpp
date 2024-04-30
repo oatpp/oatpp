@@ -36,32 +36,31 @@ public:
 
   enum class Type : v_int32 {
 
-    UNDEFINED = -1,
+    UNDEFINED = 0,
+    NULL_VALUE = 1,
 
-    NULL_VALUE = 0,
+    INTEGER = 2,
+    FLOAT = 3,
 
-    INTEGER = 1,
-    FLOAT = 2,
+    BOOL = 4,
 
-    BOOL = 3,
+    INT_8 = 5,
+    UINT_8 = 6,
+    INT_16 = 7,
+    UINT_16 = 8,
+    INT_32 = 9,
+    UINT_32 = 10,
+    INT_64 = 11,
+    UINT_64 = 12,
 
-    INT_8 = 4,
-    UINT_8 = 5,
-    INT_16 = 6,
-    UINT_16 = 7,
-    INT_32 = 8,
-    UINT_32 = 9,
-    INT_64 = 10,
-    UINT_64 = 11,
+    FLOAT_32 = 13,
+    FLOAT_64 = 14,
 
-    FLOAT_32 = 12,
-    FLOAT_64 = 13,
+    STRING = 15,
 
-    STRING = 14,
-
-    VECTOR = 15,
-    MAP = 16,
-    PAIRS = 17
+    VECTOR = 16,
+    MAP = 17,
+    PAIRS = 18
 
   };
 
@@ -240,8 +239,16 @@ public:
 class TreeMap {
 private:
   std::unordered_map<oatpp::String, Tree> m_map;
-  std::vector<oatpp::String> m_order;
+  std::vector<std::pair<std::weak_ptr<std::string>, Tree*>> m_order;
 public:
+
+  TreeMap() = default;
+
+  TreeMap(const TreeMap& other);
+  TreeMap(TreeMap&& other) noexcept;
+
+  TreeMap& operator = (const TreeMap& other);
+  TreeMap& operator = (TreeMap&& other) noexcept;
 
   Tree& operator [] (const oatpp::String& key);
   const Tree& operator [] (const oatpp::String& key) const;

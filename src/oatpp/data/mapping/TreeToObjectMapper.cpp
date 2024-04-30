@@ -124,6 +124,7 @@ const Type* TreeToObjectMapper::guessType(const Tree& node) {
     case Tree::Type::STRING: return String::Class::getType();
     case Tree::Type::VECTOR: return Vector<oatpp::Any>::Class::getType();
     case Tree::Type::MAP: return Fields<oatpp::Any>::Class::getType();
+    case Tree::Type::PAIRS: return Fields<oatpp::Any>::Class::getType();
 
     default: return nullptr;
 
@@ -136,12 +137,12 @@ oatpp::Void TreeToObjectMapper::mapString(const TreeToObjectMapper* mapper, Mapp
   (void) mapper;
   (void) type;
 
-  if(state.tree->isNull()){
-    return oatpp::Void(String::Class::getType());
-  }
-
   if(state.tree->getType() == Tree::Type::STRING) {
     return state.tree->getString();
+  }
+
+  if(state.tree->isNull()){
+    return oatpp::Void(String::Class::getType());
   }
 
   state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapString()]: Node is NOT a STRING");
@@ -200,11 +201,10 @@ oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, Mappin
 
 oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
-  if(state.tree->isNull()){
-    return oatpp::Void(type);
-  }
-
   if(state.tree->getType() != Tree::Type::VECTOR) {
+    if(state.tree->isNull()){
+      return oatpp::Void(type);
+    }
     state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapCollection()]: Node is NOT a VECTOR.");
     return nullptr;
   }
@@ -218,12 +218,12 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
 
   v_int64 index = 0;
 
+  MappingState nestedState;
+  nestedState.config = state.config;
+
   for(const auto& node : vector) {
 
-    MappingState nestedState;
     nestedState.tree = &node;
-    nestedState.config = state.config;
-
     auto item = mapper->map(nestedState, itemType);
 
     if(!nestedState.errorStack.empty()) {
@@ -244,11 +244,10 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
 
 oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
-  if(state.tree->isNull()){
-    return oatpp::Void(type);
-  }
-
   if(state.tree->getType() != Tree::Type::MAP) {
+    if(state.tree->isNull()){
+      return oatpp::Void(type);
+    }
     state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapMap()]: Node is NOT a MAP.");
     return nullptr;
   }
@@ -266,13 +265,14 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, Mapping
   const auto& treeMap = state.tree->getMap();
   auto treeMapSize = treeMap.size();
 
+  MappingState nestedState;
+  nestedState.config = state.config;
+
   for(v_uint64 i = 0; i < treeMapSize; i ++) {
 
     const auto& node = treeMap[i];
 
-    MappingState nestedState;
     nestedState.tree = &node.second.get();
-    nestedState.config = state.config;
 
     auto item = mapper->map(nestedState, valueType);
 
@@ -292,11 +292,10 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, Mapping
 
 oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
 
-  if(state.tree->isNull()){
-    return oatpp::Void(type);
-  }
-
   if(state.tree->getType() != Tree::Type::MAP) {
+    if(state.tree->isNull()){
+      return oatpp::Void(type);
+    }
     state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: Node is NOT a MAP.");
     return nullptr;
   }

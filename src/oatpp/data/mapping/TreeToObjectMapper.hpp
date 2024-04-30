@@ -57,14 +57,14 @@ public:
   static oatpp::Void mapPrimitive(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type){
     (void) mapper;
     (void) type;
+    if(state.tree->isPrimitive()) {
+      return T(state.tree->operator typename T::UnderlyingType());
+    }
     if(state.tree->isNull()) {
       return oatpp::Void(T::Class::getType());
     }
-    if(!state.tree->isPrimitive()) {
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapPrimitive()]: Value is NOT a Primitive type");
-      return nullptr;
-    }
-    return T(state.tree->operator typename T::UnderlyingType());
+    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapPrimitive()]: Value is NOT a Primitive type");
+    return nullptr;
   }
 
   static const Type* guessType(const Tree& node);

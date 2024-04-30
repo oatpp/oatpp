@@ -31,11 +31,41 @@ namespace oatpp { namespace data { namespace mapping {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TreeMap
 
+TreeMap::TreeMap(const TreeMap& other) {
+  operator=(other);
+}
+
+TreeMap::TreeMap(TreeMap&& other) noexcept {
+  operator=(std::forward<TreeMap>(other));
+}
+
+TreeMap& TreeMap::operator = (const TreeMap& other) {
+  m_map = other.m_map;
+  m_order.resize(other.m_order.size());
+  for(v_uint64 i = 0; i < other.m_order.size(); i ++) {
+    auto& po = other.m_order[i];
+    auto& pt = m_order[i];
+    pt.first = po.first;
+
+    pt.second = &m_map.at(po.first.lock());
+  }
+  return *this;
+}
+
+TreeMap& TreeMap::operator = (TreeMap&& other) noexcept {
+  m_map = std::move(other.m_map);
+  m_order = std::move(other.m_order);
+  for(auto& p : m_order) {
+    p.second = &m_map.at(p.first.lock());
+  }
+  return *this;
+}
+
 Tree& TreeMap::operator [] (const oatpp::String& key) {
   auto it = m_map.find(key);
   if(it == m_map.end()) {
     auto& result = m_map[key];
-    m_order.push_back(key);
+    m_order.emplace_back(key.getPtr(), &result);
     return result;
   }
   return it->second;
@@ -50,13 +80,13 @@ const Tree& TreeMap::operator [] (const oatpp::String& key) const {
 }
 
 std::pair<oatpp::String, std::reference_wrapper<Tree>> TreeMap::operator [] (v_uint64 index) {
-  auto& key = m_order.at(index);
-  return {key, m_map[key]};
+  auto& item = m_order.at(index);
+  return {item.first.lock(), *item.second};
 }
 
 std::pair<oatpp::String, std::reference_wrapper<const Tree>> TreeMap::operator [] (v_uint64 index) const {
-  auto& key = m_order.at(index);
-  return {key, m_map.at(key)};
+  auto& item = m_order.at(index);
+  return {item.first.lock(), *item.second};
 }
 
 v_uint64 TreeMap::size() const {
