@@ -25,53 +25,17 @@
 #include "Serializer.hpp"
 
 #include "./Utils.hpp"
-#include "oatpp/data/mapping/type/Any.hpp"
+#include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/utils/Conversion.hpp"
 
 namespace oatpp { namespace json {
 
-Serializer::Serializer(const std::shared_ptr<Config>& config)
-  : m_config(config)
-{
-
-  m_methods.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), nullptr);
-
-  setSerializerMethod(data::mapping::type::__class::String::CLASS_ID, &Serializer::serializeString);
-  setSerializerMethod(data::mapping::type::__class::Any::CLASS_ID, &Serializer::serializeAny);
-
-  setSerializerMethod(data::mapping::type::__class::Int8::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int8>);
-  setSerializerMethod(data::mapping::type::__class::UInt8::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt8>);
-
-  setSerializerMethod(data::mapping::type::__class::Int16::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int16>);
-  setSerializerMethod(data::mapping::type::__class::UInt16::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt16>);
-
-  setSerializerMethod(data::mapping::type::__class::Int32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int32>);
-  setSerializerMethod(data::mapping::type::__class::UInt32::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt32>);
-
-  setSerializerMethod(data::mapping::type::__class::Int64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Int64>);
-  setSerializerMethod(data::mapping::type::__class::UInt64::CLASS_ID, &Serializer::serializePrimitive<oatpp::UInt64>);
-
-  setSerializerMethod(data::mapping::type::__class::Float32::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float32>);
-  setSerializerMethod(data::mapping::type::__class::Float64::CLASS_ID, &Serializer::serializePrimitive<oatpp::Float64>);
-  setSerializerMethod(data::mapping::type::__class::Boolean::CLASS_ID, &Serializer::serializePrimitive<oatpp::Boolean>);
-
-  setSerializerMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &Serializer::serializeObject);
-  setSerializerMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &Serializer::serializeEnum);
-
-  setSerializerMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &Serializer::serializeCollection);
-  setSerializerMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &Serializer::serializeCollection);
-  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &Serializer::serializeCollection);
-
-  setSerializerMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &Serializer::serializeMap);
-  setSerializerMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &Serializer::serializeMap);
-
-}
-
-void Serializer::setSerializerMethod(const data::mapping::type::ClassId& classId, SerializerMethod method) {
-  const v_uint32 id = static_cast<v_uint32>(classId.id);
-  if(id >= m_methods.size()) {
-    m_methods.resize(id + 1, nullptr);
+oatpp::String Serializer::MappingState::errorStacktrace() const {
+  data::stream::BufferOutputStream ss;
+  for(auto& s : errorStack) {
+    ss << s << "\n";
   }
-  m_methods[id] = method;
+  return ss.toString();
 }
 
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
@@ -81,222 +45,188 @@ void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, c
   stream->writeCharSimple('\"');
 }
 
-void Serializer::serializeString(Serializer* serializer,
-                                 data::stream::ConsistentOutputStream* stream,
-                                 const oatpp::Void& polymorph)
-{
+void Serializer::serializeNull(MappingState& state) {
+  state.stream->writeSimple("null");
+}
 
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
+void Serializer::serializeString(MappingState& state) {
+  const auto& str = state.tree->getString();
+  serializeString(state.stream, str->data(), static_cast<v_buff_size>(str->size()), state.config->escapeFlags);
+}
+
+void Serializer::serializeArray(MappingState& state) {
+
+  state.stream->writeCharSimple('[');
+
+  MappingState nestedState;
+  nestedState.stream = state.stream;
+  nestedState.config = state.config;
+
+  auto& vector = state.tree->getVector();
+
+  v_int64 index = 0;
+  for(auto& tree : vector) {
+
+    nestedState.tree = &tree;
+
+    if(!tree.isNull() || state.config->includeNullElements) {
+
+      if(index > 0) state.stream->writeSimple(",", 1);
+
+      serialize(nestedState);
+
+      if(!nestedState.errorStack.empty()) {
+        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
+        state.errorStack.emplace_back("[oatpp::json::Serializer::serializeArray()]: index=" + utils::Conversion::int64ToStr(index));
+        return;
+      }
+    }
+
+    index ++;
+
   }
 
-  auto str = static_cast<std::string*>(polymorph.get());
-
-  serializeString(stream, str->data(), static_cast<v_buff_size>(str->size()), serializer->m_config->escapeFlags);
+  state.stream->writeCharSimple(']');
 
 }
 
-void Serializer::serializeAny(Serializer* serializer,
-                              data::stream::ConsistentOutputStream* stream,
-                              const oatpp::Void& polymorph)
-{
+void Serializer::serializeMap(MappingState& state) {
 
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
+  state.stream->writeCharSimple('{');
+
+  MappingState nestedState;
+  nestedState.stream = state.stream;
+  nestedState.config = state.config;
+
+  auto& map = state.tree->getMap();
+  auto mapSize = map.size();
+
+  for(v_uint64 index = 0; index < mapSize; index ++) {
+
+    const auto& pair = map[index];
+
+    nestedState.tree = &pair.second.get();
+
+    if(!nestedState.tree->isNull() || state.config->includeNullElements) {
+
+      if(index > 0) state.stream->writeSimple(",", 1);
+
+      const auto& str = pair.first;
+      serializeString(state.stream, str->data(), static_cast<v_buff_size>(str->size()), state.config->escapeFlags);
+      state.stream->writeCharSimple(':');
+
+      serialize(nestedState);
+
+      if(!nestedState.errorStack.empty()) {
+        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
+        state.errorStack.emplace_back("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
+        return;
+      }
+    }
+
   }
 
-  auto anyHandle = static_cast<data::mapping::type::AnyHandle*>(polymorph.get());
-  serializer->serialize(stream, oatpp::Void(anyHandle->ptr, anyHandle->type));
+  state.stream->writeCharSimple('}');
 
 }
 
-void Serializer::serializeEnum(Serializer* serializer,
-                               data::stream::ConsistentOutputStream* stream,
-                               const oatpp::Void& polymorph)
-{
-  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
-    polymorph.getValueType()->polymorphicDispatcher
-  );
+void Serializer::serializePairs(MappingState& state) {
 
-  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
-  serializer->serialize(stream, polymorphicDispatcher->toInterpretation(polymorph, e));
+  state.stream->writeCharSimple('{');
 
-  if(e == data::mapping::type::EnumInterpreterError::OK) {
-    return;
+  MappingState nestedState;
+  nestedState.stream = state.stream;
+  nestedState.config = state.config;
+
+  auto& map = state.tree->getPairs();
+  auto mapSize = map.size();
+
+  for(v_uint64 index = 0; index < mapSize; index ++) {
+
+    const auto& pair = map[index];
+
+    nestedState.tree = &pair.second;
+
+    if(!nestedState.tree->isNull() || state.config->includeNullElements) {
+
+      if(index > 0) state.stream->writeSimple(",", 1);
+
+      const auto& str = pair.first;
+      serializeString(state.stream, str->data(), static_cast<v_buff_size>(str->size()), state.config->escapeFlags);
+      state.stream->writeCharSimple(':');
+
+      serialize(nestedState);
+
+      if(!nestedState.errorStack.empty()) {
+        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
+        state.errorStack.emplace_back("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
+        return;
+      }
+    }
+
   }
 
-  switch(e) {
-    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
-      throw std::runtime_error("[oatpp::json::Serializer::serializeEnum()]: Error. Enum constraint violated - 'NotNull'.");
-    case data::mapping::type::EnumInterpreterError::OK:
-    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
-    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
-    case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
+  state.stream->writeCharSimple('}');
+
+}
+
+void Serializer::serialize(MappingState& state) {
+
+  switch (state.tree->getType()) {
+
+    case data::mapping::Tree::Type::UNDEFINED: break;
+    case data::mapping::Tree::Type::NULL_VALUE: serializeNull(state); return;
+
+    case data::mapping::Tree::Type::INTEGER: state.stream->writeAsString(state.tree->getInteger()); return;
+    case data::mapping::Tree::Type::FLOAT: state.stream->writeAsString(state.tree->getFloat()); return;
+
+    case data::mapping::Tree::Type::BOOL:  state.stream->writeAsString(state.tree->getValue<bool>()); return;
+
+    case data::mapping::Tree::Type::INT_8: state.stream->writeAsString(state.tree->getValue<v_int8>()); return;
+    case data::mapping::Tree::Type::UINT_8: state.stream->writeAsString(state.tree->getValue<v_uint8>()); return;
+    case data::mapping::Tree::Type::INT_16: state.stream->writeAsString(state.tree->getValue<v_int16>()); return;
+    case data::mapping::Tree::Type::UINT_16: state.stream->writeAsString(state.tree->getValue<v_uint16>()); return;
+    case data::mapping::Tree::Type::INT_32: state.stream->writeAsString(state.tree->getValue<v_int32>()); return;
+    case data::mapping::Tree::Type::UINT_32: state.stream->writeAsString(state.tree->getValue<v_uint32>()); return;
+    case data::mapping::Tree::Type::INT_64: state.stream->writeAsString(state.tree->getValue<v_int64>()); return;
+    case data::mapping::Tree::Type::UINT_64: state.stream->writeAsString(state.tree->getValue<v_uint64>()); return;
+
+    case data::mapping::Tree::Type::FLOAT_32: state.stream->writeAsString(state.tree->getValue<v_float32>()); return;
+    case data::mapping::Tree::Type::FLOAT_64: state.stream->writeAsString(state.tree->getValue<v_float64>()); return;
+
+    case data::mapping::Tree::Type::STRING: serializeString(state); return;
+    case data::mapping::Tree::Type::VECTOR: serializeArray(state); return;
+    case data::mapping::Tree::Type::MAP: serializeMap(state); return;
+    case data::mapping::Tree::Type::PAIRS: serializePairs(state); return;
+
     default:
-      throw std::runtime_error("[oatpp::json::Serializer::serializeEnum()]: Error. Can't serialize Enum.");
+      break;
+
   }
+
+  state.errorStack.emplace_back("[oatpp::json::Serializer::serialize()]: Unknown node type");
 
 }
 
-void Serializer::serializeCollection(Serializer* serializer,
-                                     data::stream::ConsistentOutputStream* stream,
-                                     const oatpp::Void& polymorph)
-{
+void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream, MappingState& state) {
 
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
-  }
+  if(state.config->useBeautifier) {
 
-  auto dispatcher = static_cast<const data::mapping::type::__class::Collection::PolymorphicDispatcher*>(
-    polymorph.getValueType()->polymorphicDispatcher
-  );
-
-  stream->writeCharSimple('[');
-  bool first = true;
-
-  auto iterator = dispatcher->beginIteration(polymorph);
-
-  while (!iterator->finished()) {
-    const auto& value = iterator->get();
-    if(value || serializer->getConfig()->includeNullFields || serializer->getConfig()->alwaysIncludeNullCollectionElements) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      serializer->serialize(stream, value);
-    }
-    iterator->next();
-  }
-
-  stream->writeCharSimple(']');
-
-}
-
-void Serializer::serializeMap(Serializer* serializer,
-                              data::stream::ConsistentOutputStream* stream,
-                              const oatpp::Void& polymorph)
-{
-
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
-  }
-
-  auto dispatcher = static_cast<const data::mapping::type::__class::Map::PolymorphicDispatcher*>(
-    polymorph.getValueType()->polymorphicDispatcher
-  );
-
-  auto keyType = dispatcher->getKeyType();
-  if(keyType->classId != oatpp::String::Class::CLASS_ID){
-    throw std::runtime_error("[oatpp::json::Serializer::serializeMap()]: Invalid json map key. Key should be String");
-  }
-
-  stream->writeCharSimple('{');
-  bool first = true;
-
-  auto iterator = dispatcher->beginIteration(polymorph);
-
-  while (!iterator->finished()) {
-    const auto& value = iterator->getValue();
-    if(value || serializer->m_config->includeNullFields || serializer->m_config->alwaysIncludeNullCollectionElements) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      const auto& untypedKey = iterator->getKey();
-      const auto& key = oatpp::String(std::static_pointer_cast<std::string>(untypedKey.getPtr()));
-      serializeString(stream, key->data(), static_cast<v_buff_size>(key->size()), serializer->m_config->escapeFlags);
-      stream->writeSimple(":", 1);
-      serializer->serialize(stream, value);
-    }
-    iterator->next();
-  }
-
-  stream->writeCharSimple('}');
-
-}
-
-void Serializer::serializeObject(Serializer* serializer,
-                                  data::stream::ConsistentOutputStream* stream,
-                                  const oatpp::Void& polymorph)
-{
-
-  if(!polymorph) {
-    stream->writeSimple("null", 4);
-    return;
-  }
-
-  stream->writeCharSimple('{');
-
-  bool first = true;
-  auto type = polymorph.getValueType();
-  auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(
-    type->polymorphicDispatcher
-  );
-  auto fields = dispatcher->getProperties()->getList();
-  auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
-  auto config = serializer->m_config;
-
-  for (auto const& field : fields) {
-
-    oatpp::Void value;
-    if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
-      const auto& any = field->get(object).cast<oatpp::Any>();
-      value = any.retrieve(field->info.typeSelector->selectType(object));
-    } else {
-      value = field->get(object);
-    }
-
-    if(field->info.required && value == nullptr) {
-      throw std::runtime_error("[oatpp::json::Serializer::serialize()]: "
-                               "Error. " + std::string(type->nameQualifier) + "::"
-                               + std::string(field->name) + " is required!");
-    }
-
-    if (value || config->includeNullFields || (field->info.required && config->alwaysIncludeRequired)) {
-      (first) ? first = false : stream->writeSimple(",", 1);
-      serializeString(stream, field->name, static_cast<v_buff_size>(std::strlen(field->name)), serializer->m_config->escapeFlags);
-      stream->writeSimple(":", 1);
-      serializer->serialize(stream, value);
-    }
-
-  }
-
-  stream->writeCharSimple('}');
-
-}
-
-void Serializer::serialize(data::stream::ConsistentOutputStream* stream,
-                           const oatpp::Void& polymorph)
-{
-  auto id = static_cast<v_uint32>(polymorph.getValueType()->classId.id);
-  auto& method = m_methods[id];
-  if(method) {
-    (*method)(this, stream, polymorph);
-  } else {
-
-    auto* interpretation = polymorph.getValueType()->findInterpretation(m_config->enabledInterpretations);
-    if(interpretation) {
-      serialize(stream, interpretation->toInterpretation(polymorph));
-    } else {
-      throw std::runtime_error("[oatpp::json::Serializer::serialize()]: "
-                               "Error. No serialize method for type '" +
-                               std::string(polymorph.getValueType()->classId.name) + "'");
-    }
-
-  }
-}
-
-void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
-                                   const oatpp::Void& polymorph)
-{
-  if(m_config->useBeautifier) {
     json::Beautifier beautifier(stream, "  ", "\n");
-    serialize(&beautifier, polymorph);
-  } else {
-    serialize(stream, polymorph);
-  }
-}
 
-const std::shared_ptr<Serializer::Config>& Serializer::getConfig() {
-  return m_config;
+    MappingState beautifulState;
+    beautifulState.stream = &beautifier;
+    beautifulState.tree = state.tree;
+    beautifulState.config = state.config;
+    serialize(beautifulState);
+
+    state.errorStack = std::move(beautifulState.errorStack);
+
+  } else {
+    state.stream = stream;
+    serialize(state);
+  }
+
 }
 
 }}

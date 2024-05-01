@@ -120,11 +120,6 @@ void ObjectToTreeMapper::mapAny(const ObjectToTreeMapper* mapper, MappingState& 
 
 void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
 
-  if(!polymorph) {
-    state.tree->setNull();
-    return;
-  }
-
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     polymorph.getValueType()->polymorphicDispatcher
   );

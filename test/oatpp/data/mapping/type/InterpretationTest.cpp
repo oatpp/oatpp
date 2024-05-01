@@ -176,7 +176,7 @@ void InterpretationTest::onRun() {
   oatpp::json::ObjectMapper mapper;
 
   {
-    auto config = mapper.getSerializer()->getConfig();
+    auto config = mapper.getSerializerConfig();
     config->enabledInterpretations = {"test"};
     config->useBeautifier = false;
   }

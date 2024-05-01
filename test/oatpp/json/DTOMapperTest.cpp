@@ -165,7 +165,7 @@ class TestAnyNested : public oatpp::DTO {
 void DTOMapperTest::onRun(){
   
   auto mapper = oatpp::json::ObjectMapper::createShared();
-  mapper->getSerializer()->getConfig()->useBeautifier = true;
+  mapper->getSerializerConfig()->useBeautifier = true;
 
   {
     auto test1 = Test::createShared();

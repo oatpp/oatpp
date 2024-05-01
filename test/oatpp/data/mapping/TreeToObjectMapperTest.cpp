@@ -69,8 +69,8 @@ class TestDto1 : public oatpp::DTO {
 void TreeToObjectMapperTest::onRun() {
 
   json::ObjectMapper jsonMapper;
-  jsonMapper.getSerializer()->getConfig()->useBeautifier = true;
-  jsonMapper.getSerializer()->getConfig()->includeNullFields = false;
+  jsonMapper.getSerializerConfig()->useBeautifier = true;
+  jsonMapper.getSerializerConfig()->includeNullFields = false;
 
   TreeToObjectMapper mapper;
   TreeToObjectMapper::Config config;
