@@ -46,27 +46,27 @@ class EmptyDto : public oatpp::DTO {
 };
 
 class Test1 : public oatpp::DTO {
-  
+
   DTO_INIT(Test1, DTO)
-  
+
   DTO_FIELD(String, strF);
-  
+
 };
-  
+
 class Test2 : public oatpp::DTO {
-  
+
   DTO_INIT(Test2, DTO)
-  
+
   DTO_FIELD(Int32, int32F);
-  
+
 };
-  
+
 class Test3 : public oatpp::DTO {
-  
+
   DTO_INIT(Test3, DTO)
-  
+
   DTO_FIELD(Float32, float32F);
-  
+
 };
 
 class Test4 : public oatpp::DTO {
@@ -140,80 +140,80 @@ class AnyDto : public oatpp::DTO {
 };
 
 #include OATPP_CODEGEN_END(DTO)
-  
+
 }
-  
+
 void DeserializerTest::onRun(){
-  
+
   auto mapper = oatpp::json::ObjectMapper::createShared();
-  
+
   auto obj1 = mapper->readFromString<oatpp::Object<Test1>>("{}");
-  
+
   OATPP_ASSERT(obj1)
   OATPP_ASSERT(!obj1->strF)
-  
+
   obj1 = mapper->readFromString<oatpp::Object<Test1>>(R"({"strF":"value1"})");
-  
+
   OATPP_ASSERT(obj1)
   OATPP_ASSERT(obj1->strF)
   OATPP_ASSERT(obj1->strF == "value1")
-  
+
   obj1 = mapper->readFromString<oatpp::Object<Test1>>("{\n\r\t\f\"strF\"\n\r\t\f:\n\r\t\f\"value1\"\n\r\t\f}");
-  
+
   OATPP_ASSERT(obj1)
   OATPP_ASSERT(obj1->strF)
   OATPP_ASSERT(obj1->strF == "value1")
-  
+
   auto obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\": null}");
-  
+
   OATPP_ASSERT(obj2)
   OATPP_ASSERT(!obj2->int32F)
-  
+
   obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\": 32}");
-  
+
   OATPP_ASSERT(obj2)
   OATPP_ASSERT(obj2->int32F == 32)
-  
+
   obj2 = mapper->readFromString<oatpp::Object<Test2>>("{\"int32F\":    -32}");
-  
+
   OATPP_ASSERT(obj2)
   OATPP_ASSERT(obj2->int32F == -32)
-  
+
   auto obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": null}");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(!obj3->float32F)
-  
+
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 32}");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(fabsf(obj3->float32F - 32) < std::numeric_limits<float>::epsilon())
-  
+
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e1}");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(obj3->float32F)
-  
+
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e+1 }");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(obj3->float32F)
-  
+
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": 1.32e-1 }");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(obj3->float32F)
-  
+
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": -1.32E-1 }");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(obj3->float32F)
-  
+
   obj3 = mapper->readFromString<oatpp::Object<Test3>>("{\"float32F\": -1.32E1 }");
-  
+
   OATPP_ASSERT(obj3)
   OATPP_ASSERT(obj3->float32F)
-  
+
   auto list = mapper->readFromString<oatpp::List<oatpp::Int32>>("[1, 2, 3]");
   OATPP_ASSERT(list)
   OATPP_ASSERT(list->size() == 3)
@@ -322,6 +322,22 @@ void DeserializerTest::onRun(){
     OATPP_ASSERT(dto->any.retrieve<Int64>() == -1234567890)
   }
 
+  OATPP_LOGD(TAG, "Unknown field")
+  {
+    auto strictMapper = oatpp::json::ObjectMapper::createShared();
+    strictMapper->getDeserializer()->getConfig()->allowUnknownFields = false;
+
+    data::mapping::type::DTOWrapper<Test1> testObj1;
+    try {
+      testObj1 = strictMapper->readFromString<oatpp::Object<Test1>>(R"({"strF":"value1", "unexpectedField":"value2"})");
+    } catch (oatpp::utils::parser::ParsingError& e) {
+      // Error message should contain the unknown field key
+      OATPP_ASSERT(e.getMessage()->find("unexpectedField") != std::string::npos)
+    }
+
+    OATPP_ASSERT(testObj1 == nullptr)
+  }
+
 }
-  
+
 }}
