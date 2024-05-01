@@ -105,7 +105,7 @@ public:
     std::string std_str();
 
     explicit operator bool() const;
-    
+
   };
 
   /**
@@ -115,7 +115,7 @@ public:
   private:
     Caret& m_caret;
     v_buff_size m_savedPosition;
-    const char* m_savedErrorMessage;
+    std::string m_savedErrorMessage;
     v_int64 m_savedErrorCode;
   public:
 
@@ -134,19 +134,19 @@ public:
      * Get caret saved position.
      * @return
      */
-    v_buff_size getSavedPosition();
+    v_buff_size getSavedPosition() const;
 
     /**
      * Get caret saved error message.
      * @return
      */
-    const char* getSavedErrorMessage();
+    std::string getSavedErrorMessage() const;
 
     /**
      * Get caret saved error code.
      * @return
      */
-    v_int64 getSavedErrorCode();
+    v_int64 getSavedErrorCode() const;
 
   };
 
@@ -154,7 +154,7 @@ private:
   const char* m_data;
   v_buff_size m_size;
   v_buff_size m_pos;
-  const char* m_errorMessage;
+  std::string m_errorMessage;
   v_int64 m_errorCode;
   std::shared_ptr<std::string> m_dataMemoryHandle;
 public:
@@ -162,7 +162,7 @@ public:
   Caret(const char* parseData, v_buff_size dataSize);
   Caret(const oatpp::String& str);
 public:
-  
+
   static std::shared_ptr<Caret> createShared(const char* text);
   static std::shared_ptr<Caret> createShared(const char* parseData, v_buff_size dataSize);
   static std::shared_ptr<Caret> createShared(const oatpp::String& str);
@@ -185,7 +185,7 @@ public:
    * Get size of a data
    * @return
    */
-  v_buff_size getDataSize();
+  v_buff_size getDataSize() const;
 
   /**
    * Get data memoryHandle.
@@ -203,7 +203,7 @@ public:
    * Get caret position relative to data
    * @return
    */
-  v_buff_size getPosition();
+  v_buff_size getPosition() const;
 
   /**
    * Set error message and error code.
@@ -211,25 +211,25 @@ public:
    * @param errorMessage
    * @param errorCode
    */
-  void setError(const char* errorMessage, v_int64 errorCode = 0);
+  void setError(const std::string& errorMessage, v_int64 errorCode = 0);
 
   /**
    * Get error message
    * @return error message
    */
-  const char* getErrorMessage();
+  const char* getErrorMessage() const;
 
   /**
    * Get error code
    * @return error code
    */
-  v_int64 getErrorCode();
+  v_int64 getErrorCode() const;
 
   /**
    * Check if error is set for the Caret
    * @return
    */
-  bool hasError();
+  bool hasError() const;
 
   /**
    * Clear error message and error code
@@ -504,7 +504,7 @@ public:
   bool canContinue() const;
 
 };
-  
+
 }}}
 
 #endif /* oatpp_utils_parser_Caret_hpp */

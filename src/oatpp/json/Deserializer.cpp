@@ -465,7 +465,7 @@ oatpp::Void Deserializer::deserializeObject(Deserializer* deserializer, utils::p
         caret.skipBlankChars();
         skipValue(caret);
       } else {
-        caret.setError("[oatpp::json::Deserializer::readObject()]: Error. Unknown field", ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
+        caret.setError(std::string{"[oatpp::json::Deserializer::readObject()]: Error. Unknown field - "} + key, ERROR_CODE_OBJECT_SCOPE_UNKNOWN_FIELD);
         return nullptr;
       }
 
