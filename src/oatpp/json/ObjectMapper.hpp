@@ -48,54 +48,39 @@ private:
 
 public:
 
-  class DeserializerConfig : public data::mapping::TreeToObjectMapper::Config, public Deserializer::Config {
+  class DeserializerConfig {
   public:
-
+    data::mapping::TreeToObjectMapper::Config mapper;
+    Deserializer::Config json;
   };
 
 public:
 
-  class SerializerConfig : public data::mapping::ObjectToTreeMapper::Config, public Serializer::Config {
+  class SerializerConfig {
   public:
-
+    data::mapping::ObjectToTreeMapper::Config mapper;
+    Serializer::Config json;
   };
 
 private:
-  std::shared_ptr<SerializerConfig> m_serializerConfig;
-  std::shared_ptr<DeserializerConfig> m_deserializerConfig;
+  SerializerConfig m_serializerConfig;
+  DeserializerConfig m_deserializerConfig;
 private:
   data::mapping::ObjectToTreeMapper m_objectToTreeMapper;
   data::mapping::TreeToObjectMapper m_treeToObjectMapper;
 public:
 
-  ObjectMapper(const std::shared_ptr<SerializerConfig>& serializerConfig = std::make_shared<SerializerConfig>(),
-               const std::shared_ptr<DeserializerConfig>& deserializerConfig = std::make_shared<DeserializerConfig>());
+  ObjectMapper(const SerializerConfig& serializerConfig = {}, const DeserializerConfig& deserializerConfig = {});
 
-public:
+  void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant, data::mapping::ErrorStack& errorStack) const override;
 
-  static std::shared_ptr<ObjectMapper>
-  createShared(const std::shared_ptr<SerializerConfig>& serializerConfig = std::make_shared<SerializerConfig>(),
-               const std::shared_ptr<DeserializerConfig>& deserializerConfig = std::make_shared<DeserializerConfig>());
+  oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::Type* type, data::mapping::ErrorStack& errorStack) const override;
 
-  /**
-   * Implementation of &id:oatpp::data::mapping::ObjectMapper::write;.
-   * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
-   * @param variant - object to serialize &id:oatpp::Void;.
-   */
-  void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant) const override;
+  const SerializerConfig& serializerConfig() const;
+  const DeserializerConfig& deserializerConfig() const;
 
-  /**
-   * Implementation of &id:oatpp::data::mapping::ObjectMapper::read;.
-   * @param caret - &id:oatpp::utils::parser::Caret;.
-   * @param type - type of resultant object &id:oatpp::data::mapping::type::Type;.
-   * @return - &id:oatpp::Void; holding resultant object.
-   */
-  oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const override;
-
-
-  std::shared_ptr<ObjectMapper::SerializerConfig> getSerializerConfig();
-
-  std::shared_ptr<DeserializerConfig> getDeserializerConfig();
+  SerializerConfig& serializerConfig();
+  DeserializerConfig& deserializerConfig();
   
 };
   

@@ -29,14 +29,6 @@
 
 namespace oatpp { namespace data { namespace mapping {
 
-oatpp::String TreeToObjectMapper::MappingState::errorStacktrace() const {
-  stream::BufferOutputStream ss;
-  for(auto& s : errorStack) {
-    ss << s << "\n";
-  }
-  return ss.toString();
-}
-
 TreeToObjectMapper::TreeToObjectMapper() {
 
   m_methods.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), nullptr);
@@ -80,7 +72,7 @@ void TreeToObjectMapper::setMapperMethod(const data::mapping::type::ClassId& cla
   m_methods[id] = method;
 }
 
-oatpp::Void TreeToObjectMapper::map(MappingState& state, const Type* const type) const {
+oatpp::Void TreeToObjectMapper::map(MappingState& state, const Type* type) const {
   auto id = static_cast<v_uint32>(type->classId.id);
   auto& method = m_methods[id];
   if(method) {
@@ -92,8 +84,8 @@ oatpp::Void TreeToObjectMapper::map(MappingState& state, const Type* const type)
       return interpretation->fromInterpretation(map(state, interpretation->getInterpretationType()));
     }
 
-    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::map()]: "
-                                  "Error. No map method for type '" + std::string(type->classId.name) + "'");
+    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::map()]: "
+                          "Error. No map method for type '" + std::string(type->classId.name) + "'");
     return nullptr;
 
   }
@@ -132,7 +124,7 @@ const Type* TreeToObjectMapper::guessType(const Tree& node) {
 
 }
 
-oatpp::Void TreeToObjectMapper::mapString(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapString(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
 
   (void) mapper;
   (void) type;
@@ -145,12 +137,12 @@ oatpp::Void TreeToObjectMapper::mapString(const TreeToObjectMapper* mapper, Mapp
     return oatpp::Void(String::Class::getType());
   }
 
-  state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapString()]: Node is NOT a STRING");
+  state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapString()]: Node is NOT a STRING");
   return nullptr;
 
 }
 
-oatpp::Void TreeToObjectMapper::mapAny(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapAny(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
   (void) type;
   if(state.tree->isNull()){
     return oatpp::Void(Any::Class::getType());
@@ -165,7 +157,7 @@ oatpp::Void TreeToObjectMapper::mapAny(const TreeToObjectMapper* mapper, Mapping
   return oatpp::Void(Any::Class::getType());
 }
 
-oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
 
   auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     type->polymorphicDispatcher
@@ -174,7 +166,7 @@ oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, Mappin
   data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
   const auto& value = mapper->map(state, polymorphicDispatcher->getInterpretationType());
   if(!state.errorStack.empty()) {
-    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapEnum()]");
+    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]");
     return nullptr;
   }
   const auto& result = polymorphicDispatcher->fromInterpretation(value, e);
@@ -185,27 +177,27 @@ oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, Mappin
 
   switch(e) {
     case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapEnum()]: Error. Enum constraint violated - 'NotNull'.");
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]: Error. Enum constraint violated - 'NotNull'.");
       break;
     case data::mapping::type::EnumInterpreterError::OK:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
     case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapEnum()]: Error. Can't map Enum.");
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]: Error. Can't map Enum.");
   }
 
   return nullptr;
 
 }
 
-oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
 
   if(state.tree->getType() != Tree::Type::VECTOR) {
     if(state.tree->isNull()){
       return oatpp::Void(type);
     }
-    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapCollection()]: Node is NOT a VECTOR.");
+    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapCollection()]: Node is NOT a VECTOR.");
     return nullptr;
   }
 
@@ -227,8 +219,8 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
     auto item = mapper->map(nestedState, itemType);
 
     if(!nestedState.errorStack.empty()) {
-      state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapCollection()]: index=" + utils::Conversion::int64ToStr(index));
+      state.errorStack.splice(nestedState.errorStack);
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapCollection()]: index=" + utils::Conversion::int64ToStr(index));
       return nullptr;
     }
 
@@ -242,13 +234,13 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
 
 }
 
-oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
 
   if(state.tree->getType() != Tree::Type::MAP) {
     if(state.tree->isNull()){
       return oatpp::Void(type);
     }
-    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapMap()]: Node is NOT a MAP.");
+    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapMap()]: Node is NOT a MAP.");
     return nullptr;
   }
 
@@ -257,7 +249,7 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, Mapping
 
   auto keyType = dispatcher->getKeyType();
   if(keyType->classId != oatpp::String::Class::CLASS_ID){
-    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapMap()]: Invalid map key. Key should be String");
+    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapMap()]: Invalid map key. Key should be String");
     return nullptr;
   }
   auto valueType = dispatcher->getValueType();
@@ -277,8 +269,8 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, Mapping
     auto item = mapper->map(nestedState, valueType);
 
     if(!nestedState.errorStack.empty()) {
-      state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapMap()]: key='" + node.first + "'");
+      state.errorStack.splice(nestedState.errorStack);
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapMap()]: key='" + node.first + "'");
       return nullptr;
     }
 
@@ -290,13 +282,13 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, Mapping
 
 }
 
-oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, MappingState& state, const Type* const type) {
+oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
 
   if(state.tree->getType() != Tree::Type::MAP) {
     if(state.tree->isNull()){
       return oatpp::Void(type);
     }
-    state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: Node is NOT a MAP.");
+    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Node is NOT a MAP.");
     return nullptr;
   }
 
@@ -329,22 +321,22 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Mapp
         auto value = mapper->map(nestedState, field->type);
 
         if(!nestedState.errorStack.empty()) {
-          state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-          state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: field='" + node.first + "'");
+          state.errorStack.splice(nestedState.errorStack);
+          state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: field='" + node.first + "'");
           return nullptr;
         }
 
         if(field->info.required && value == nullptr) {
-          state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: Error. "
-                                        + oatpp::String(type->nameQualifier) + "::"
-                                        + oatpp::String(field->name) + " is required!");
+          state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. " +
+                                oatpp::String(type->nameQualifier) + "::" +
+                                oatpp::String(field->name) + " is required!");
           return nullptr;
         }
         field->set(static_cast<oatpp::BaseObject *>(object.get()), value);
       }
 
     } else if (!state.config->allowUnknownFields) {
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: Error. Unknown field '" + node.first + "'");
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. Unknown field '" + node.first + "'");
       return nullptr;
     }
 
@@ -360,15 +352,15 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Mapp
     auto value = mapper->map(nestedState, selectedType);
 
     if(!nestedState.errorStack.empty()) {
-      state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: field='" + oatpp::String(p.first->name) + "'");
+      state.errorStack.splice(nestedState.errorStack);
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: field='" + oatpp::String(p.first->name) + "'");
       return nullptr;
     }
 
     if(p.first->info.required && value == nullptr) {
-      state.errorStack.emplace_back("[oatpp::data::TreeToObjectMapper::mapObject()]: Error. "
-                                    + oatpp::String(type->nameQualifier) + "::"
-                                    + oatpp::String(p.first->name) + " is required!");
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. " +
+                            oatpp::String(type->nameQualifier) + "::" +
+                            oatpp::String(p.first->name) + " is required!");
       return nullptr;
     }
 

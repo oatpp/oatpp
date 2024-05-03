@@ -26,6 +26,7 @@
 #define oatpp_data_mapping_ObjectToTreeMapper_hpp
 
 #include "./Tree.hpp"
+#include "./ObjectMapper.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -43,11 +44,9 @@ public:
 
   struct MappingState {
 
-    Config* config;
+    const Config* config;
     Tree* tree;
-    std::list<oatpp::String> errorStack;
-
-    oatpp::String errorStacktrace() const;
+    ErrorStack errorStack;
 
   };
 

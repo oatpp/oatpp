@@ -82,8 +82,8 @@ void EnumTest::onRun() {
     oatpp::Fields<oatpp::Enum<Enum1>::AsString::NotNull> map = {{"enum", nullptr}};
     try {
       auto json = mapper.writeToString(map);
-    } catch (const std::runtime_error& e) {
-      OATPP_LOGD(TAG, "error - %s", e.what())
+    } catch (const data::mapping::MappingError& e) {
+      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)
@@ -114,8 +114,8 @@ void EnumTest::onRun() {
     oatpp::Fields<oatpp::Enum<Enum1>::AsNumber::NotNull> map = {{"enum", nullptr}};
     try {
       auto json = mapper.writeToString(map);
-    } catch (const std::runtime_error& e) {
-      OATPP_LOGD(TAG, "error - %s", e.what())
+    } catch (const data::mapping::MappingError& e) {
+      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)
@@ -144,8 +144,8 @@ void EnumTest::onRun() {
     oatpp::String json = "{\"enum\":null}";
     try {
       auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsString::NotNull>>(json);
-    } catch (const oatpp::utils::parser::ParsingError& e) {
-      OATPP_LOGD(TAG, "error - %s", e.what())
+    } catch (const data::mapping::MappingError& e) {
+      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)
@@ -174,8 +174,8 @@ void EnumTest::onRun() {
     oatpp::String json = "{\"enum\":null}";
     try {
       auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsNumber::NotNull>>(json);
-    } catch (const oatpp::utils::parser::ParsingError& e) {
-      OATPP_LOGD(TAG, "error - %s", e.what())
+    } catch (const data::mapping::MappingError& e) {
+      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)

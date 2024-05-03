@@ -29,14 +29,6 @@
 
 namespace oatpp { namespace data { namespace mapping {
 
-oatpp::String ObjectToTreeMapper::MappingState::errorStacktrace() const {
-  stream::BufferOutputStream ss;
-  for(auto& s : errorStack) {
-    ss << s << "\n";
-  }
-  return ss.toString();
-}
-
 ObjectToTreeMapper::ObjectToTreeMapper() {
 
   m_methods.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), nullptr);
@@ -92,9 +84,9 @@ void ObjectToTreeMapper::map(MappingState& state, const oatpp::Void& polymorph) 
       map(state, interpretation->toInterpretation(polymorph));
     } else {
 
-      state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::map()]: "
-                                    "Error. No serialize method for type '" +
-                                    oatpp::String(polymorph.getValueType()->classId.name) + "'");
+      state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::map()]: "
+                            "Error. No serialize method for type '" +
+                            oatpp::String(polymorph.getValueType()->classId.name) + "'");
 
       return;
     }
@@ -133,14 +125,14 @@ void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, MappingState&
 
   switch(e) {
     case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
-      state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapEnum()]: Error. Enum constraint violated - 'NotNull'.");
+      state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapEnum()]: Error. Enum constraint violated - 'NotNull'.");
       break;
     case data::mapping::type::EnumInterpreterError::OK:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
     case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
     case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
-      state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapEnum()]: Error. Can't serialize Enum.");
+      state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapEnum()]: Error. Can't serialize Enum.");
   }
 
 }
@@ -177,8 +169,8 @@ void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, Mapping
       mapper->map(nestedState, value);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapCollection()]: index=" + utils::Conversion::int64ToStr(index));
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapCollection()]: index=" + utils::Conversion::int64ToStr(index));
         return;
       }
 
@@ -204,7 +196,7 @@ void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, MappingState& 
 
   auto keyType = dispatcher->getKeyType();
   if(keyType->classId != oatpp::String::Class::CLASS_ID){
-    state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapMap()]: Invalid map key. Key should be String");
+    state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapMap()]: Invalid map key. Key should be String");
     return;
   }
 
@@ -227,8 +219,8 @@ void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, MappingState& 
       mapper->map(nestedState, value);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapMap()]: key='" + key + "'");
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapMap()]: key='" + key + "'");
         return;
       }
 
@@ -266,9 +258,9 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, MappingStat
     }
 
     if(field->info.required && value == nullptr) {
-      state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapObject()]: "
-                                    "Error. " + std::string(type->nameQualifier) + "::"
-                                    + std::string(field->name) + " is required!");
+      state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapObject()]: "
+                            "Error. " + std::string(type->nameQualifier) + "::"
+                            + std::string(field->name) + " is required!");
       return;
     }
 
@@ -281,8 +273,8 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, MappingStat
       mapper->map(nestedState, value);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::data::ObjectToTreeMapper::mapObject()]: field='" + oatpp::String(field->name) + "'");
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapObject()]: field='" + oatpp::String(field->name) + "'");
         return;
       }
 

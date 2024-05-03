@@ -29,19 +29,11 @@
 
 namespace oatpp { namespace json {
 
-oatpp::String Deserializer::MappingState::errorStacktrace() const {
-  data::stream::BufferOutputStream ss;
-  for(auto& s : errorStack) {
-    ss << s << "\n";
-  }
-  return ss.toString();
-}
-
 void Deserializer::deserializeNull(MappingState& state) {
   if(state.caret->isAtText("null", true)){
     state.tree->setNull();
   } else {
-    state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeNull()]: 'null' expected");
+    state.errorStack.push("[oatpp::json::Deserializer::deserializeNull()]: 'null' expected");
   }
 }
 
@@ -59,7 +51,7 @@ void Deserializer::deserializeBoolean(MappingState& state) {
   } else if(state.caret->isAtText("false", true)) {
     state.tree->setValue<bool>(false);
   } else {
-    state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeBoolean()]: 'true' or 'false' expected");
+    state.errorStack.push("[oatpp::json::Deserializer::deserializeBoolean()]: 'true' or 'false' expected");
   }
 }
 
@@ -92,8 +84,8 @@ void Deserializer::deserializeArray(MappingState& state) {
       deserialize(nestedState);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeArray()]: index=" + utils::Conversion::int64ToStr(index));
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::json::Deserializer::deserializeArray()]: index=" + utils::Conversion::int64ToStr(index));
         return;
       }
 
@@ -106,12 +98,12 @@ void Deserializer::deserializeArray(MappingState& state) {
     }
 
     if(!state.caret->canContinueAtChar(']', 1)){
-      state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeArray()]: ']' expected");
+      state.errorStack.push("[oatpp::json::Deserializer::deserializeArray()]: ']' expected");
       return;
     }
 
   } else {
-    state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeArray()]: '[' expected");
+    state.errorStack.push("[oatpp::json::Deserializer::deserializeArray()]: '[' expected");
   }
 
 }
@@ -131,13 +123,13 @@ void Deserializer::deserializeMap(MappingState& state) {
 
       auto key = Utils::parseString(*state.caret);
       if(state.caret->hasError()){
-        state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeMap()]: Item key name expected");
+        state.errorStack.push("[oatpp::json::Deserializer::deserializeMap()]: Item key name expected");
         return;
       }
 
       state.caret->skipBlankChars();
       if(!state.caret->canContinueAtChar(':', 1)){
-        state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeMap()]: ':' expected");
+        state.errorStack.push("[oatpp::json::Deserializer::deserializeMap()]: ':' expected");
         return;
       }
 
@@ -151,8 +143,8 @@ void Deserializer::deserializeMap(MappingState& state) {
       deserialize(nestedState);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeMap()]: key='" + key + "'");
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::json::Deserializer::deserializeMap()]: key='" + key + "'");
         return;
       }
 
@@ -162,12 +154,12 @@ void Deserializer::deserializeMap(MappingState& state) {
     }
 
     if(!state.caret->canContinueAtChar('}', 1)){
-      state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeMap()]: '}' expected");
+      state.errorStack.push("[oatpp::json::Deserializer::deserializeMap()]: '}' expected");
       return;
     }
 
   } else {
-    state.errorStack.emplace_back("[oatpp::json::Deserializer::deserializeMap()]: '{' expected");
+    state.errorStack.push("[oatpp::json::Deserializer::deserializeMap()]: '{' expected");
   }
 
 }
@@ -208,7 +200,7 @@ void Deserializer::deserialize(MappingState& state) {
       deserializeNumber(state);
       break;
     default:
-      state.errorStack.emplace_back("[json]: Unknown character.");
+      state.errorStack.push("[json]: Unknown character.");
       break;
   }
 

@@ -27,7 +27,8 @@
 
 #include "./Utils.hpp"
 
-#include "oatpp/data/mapping/TreeToObjectMapper.hpp"
+#include "oatpp/data/mapping/ObjectMapper.hpp"
+#include "oatpp/data/mapping/Tree.hpp"
 
 #include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/Types.hpp"
@@ -54,15 +55,10 @@ public:
 public:
 
   struct MappingState {
-
-    Config* config;
+    const Config* config;
     data::mapping::Tree* tree;
     utils::parser::Caret* caret;
-
-    std::list<oatpp::String> errorStack;
-
-    oatpp::String errorStacktrace() const;
-
+    data::mapping::ErrorStack errorStack;
   };
 
 private:

@@ -69,8 +69,8 @@ class TestDto1 : public oatpp::DTO {
 void TreeToObjectMapperTest::onRun() {
 
   json::ObjectMapper jsonMapper;
-  jsonMapper.getSerializerConfig()->useBeautifier = true;
-  jsonMapper.getSerializerConfig()->includeNullFields = false;
+  jsonMapper.serializerConfig().json.useBeautifier = true;
+  jsonMapper.serializerConfig().mapper.includeNullFields = false;
 
   TreeToObjectMapper mapper;
   TreeToObjectMapper::Config config;
@@ -110,7 +110,7 @@ void TreeToObjectMapperTest::onRun() {
       auto json = jsonMapper.writeToString(obj);
       std::cout << *json << std::endl;
     } else {
-      auto err = state.errorStacktrace();
+      auto err = state.errorStack.stacktrace();
       std::cout << *err << std::endl;
     }
 

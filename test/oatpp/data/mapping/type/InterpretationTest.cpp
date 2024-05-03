@@ -176,14 +176,14 @@ void InterpretationTest::onRun() {
   oatpp::json::ObjectMapper mapper;
 
   {
-    auto config = mapper.getSerializerConfig();
-    config->enabledInterpretations = {"test"};
-    config->useBeautifier = false;
+    auto& config = mapper.serializerConfig();
+    config.mapper.enabledInterpretations = {"test"};
+    config.json.useBeautifier = false;
   }
 
   {
-    auto config = mapper.getDeserializerConfig();
-    config->enabledInterpretations = {"test"};
+    auto& config = mapper.deserializerConfig();
+    config.mapper.enabledInterpretations = {"test"};
   }
 
   Point p1 ({1, 2, 3});

@@ -27,6 +27,8 @@
 
 #include "./Utils.hpp"
 #include "./Beautifier.hpp"
+
+#include "oatpp/data/mapping/ObjectMapper.hpp"
 #include "oatpp/data/mapping/Tree.hpp"
 #include "oatpp/Types.hpp"
 
@@ -77,12 +79,11 @@ public:
 
   struct MappingState {
 
-    Config* config;
+    const Config* config;
     const data::mapping::Tree* tree;
     data::stream::ConsistentOutputStream* stream;
 
-    std::list<oatpp::String> errorStack;
-    oatpp::String errorStacktrace() const;
+    data::mapping::ErrorStack errorStack;
 
   };
 

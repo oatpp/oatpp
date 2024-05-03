@@ -26,42 +26,40 @@
 
 namespace oatpp { namespace json {
 
-ObjectMapper::ObjectMapper(const std::shared_ptr<SerializerConfig>& serializerConfig,
-                           const std::shared_ptr<DeserializerConfig>& deserializerConfig)
+ObjectMapper::ObjectMapper(const SerializerConfig& serializerConfig, const DeserializerConfig& deserializerConfig)
   : data::mapping::ObjectMapper(getMapperInfo())
   , m_serializerConfig(serializerConfig)
   , m_deserializerConfig(deserializerConfig)
 {}
 
-std::shared_ptr<ObjectMapper> ObjectMapper::createShared(const std::shared_ptr<SerializerConfig>& serializerConfig,
-                                                         const std::shared_ptr<DeserializerConfig>& deserializerConfig)
-{
-  return std::make_shared<ObjectMapper>(serializerConfig, deserializerConfig);
-}
-
-void ObjectMapper::write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant) const {
+void ObjectMapper::write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant, data::mapping::ErrorStack& errorStack) const {
 
   data::mapping::Tree tree;
   {
     data::mapping::ObjectToTreeMapper::MappingState state;
-    state.config = m_serializerConfig.get();
+    state.config = &m_serializerConfig.mapper;
     state.tree = &tree;
     m_objectToTreeMapper.map(state, variant);
     if(!state.errorStack.empty()) {
-      throw std::runtime_error(state.errorStacktrace());
+      errorStack = std::move(state.errorStack);
+      return;
     }
   }
 
   {
     Serializer::MappingState state;
-    state.config = m_serializerConfig.get();
+    state.config = &m_serializerConfig.json;
     state.tree = &tree;
     Serializer::serializeToStream(stream, state);
+    if(!state.errorStack.empty()) {
+      errorStack = std::move(state.errorStack);
+      return;
+    }
   }
 
 }
 
-oatpp::Void ObjectMapper::read(oatpp::utils::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const {
+oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::mapping::type::Type* type, data::mapping::ErrorStack& errorStack) const {
 
   data::mapping::Tree tree;
 
@@ -69,37 +67,41 @@ oatpp::Void ObjectMapper::read(oatpp::utils::parser::Caret& caret, const oatpp::
     Deserializer::MappingState state;
     state.caret = &caret;
     state.tree = &tree;
-    state.config = m_deserializerConfig.get();
-
+    state.config = &m_deserializerConfig.json;
     Deserializer::deserialize(state);
-
-    if (!state.errorStack.empty()) {
-      //return nullptr;
-      throw utils::parser::ParsingError(state.errorStacktrace(), 0, 0);
+    if(!state.errorStack.empty()) {
+      errorStack = std::move(state.errorStack);
+      return nullptr;
     }
   }
 
   {
     data::mapping::TreeToObjectMapper::MappingState state;
     state.tree = &tree;
-    state.config = m_deserializerConfig.get();
-
+    state.config = &m_deserializerConfig.mapper;
     const auto & result = m_treeToObjectMapper.map(state, type);
-    if(!state.errorStacktrace()->empty()) {
-      throw utils::parser::ParsingError(state.errorStacktrace(), 0, 0);
+    if(!state.errorStack.empty()) {
+      errorStack = std::move(state.errorStack);
+      return nullptr;
     }
-
     return result;
-
   }
 
 }
 
-std::shared_ptr<ObjectMapper::SerializerConfig> ObjectMapper::getSerializerConfig() {
+const ObjectMapper::SerializerConfig& ObjectMapper::serializerConfig() const {
   return m_serializerConfig;
 }
 
-std::shared_ptr<ObjectMapper::DeserializerConfig> ObjectMapper::getDeserializerConfig() {
+const ObjectMapper::DeserializerConfig& ObjectMapper::deserializerConfig() const {
+  return m_deserializerConfig;
+}
+
+ObjectMapper::SerializerConfig& ObjectMapper::serializerConfig() {
+  return m_serializerConfig;
+}
+
+ObjectMapper::DeserializerConfig& ObjectMapper::deserializerConfig() {
   return m_deserializerConfig;
 }
 

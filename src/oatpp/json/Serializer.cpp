@@ -30,14 +30,6 @@
 
 namespace oatpp { namespace json {
 
-oatpp::String Serializer::MappingState::errorStacktrace() const {
-  data::stream::BufferOutputStream ss;
-  for(auto& s : errorStack) {
-    ss << s << "\n";
-  }
-  return ss.toString();
-}
-
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
   auto encodedValue = Utils::escapeString(data, size, escapeFlags);
   stream->writeCharSimple('\"');
@@ -76,8 +68,8 @@ void Serializer::serializeArray(MappingState& state) {
       serialize(nestedState);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::json::Serializer::serializeArray()]: index=" + utils::Conversion::int64ToStr(index));
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::json::Serializer::serializeArray()]: index=" + utils::Conversion::int64ToStr(index));
         return;
       }
     }
@@ -118,8 +110,8 @@ void Serializer::serializeMap(MappingState& state) {
       serialize(nestedState);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
         return;
       }
     }
@@ -158,8 +150,8 @@ void Serializer::serializePairs(MappingState& state) {
       serialize(nestedState);
 
       if(!nestedState.errorStack.empty()) {
-        state.errorStack.splice(state.errorStack.end(), nestedState.errorStack);
-        state.errorStack.emplace_back("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
+        state.errorStack.splice(nestedState.errorStack);
+        state.errorStack.push("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
         return;
       }
     }
@@ -204,7 +196,7 @@ void Serializer::serialize(MappingState& state) {
 
   }
 
-  state.errorStack.emplace_back("[oatpp::json::Serializer::serialize()]: Unknown node type");
+  state.errorStack.push("[oatpp::json::Serializer::serialize()]: Unknown node type");
 
 }
 
