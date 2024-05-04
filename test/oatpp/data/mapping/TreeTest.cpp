@@ -157,6 +157,8 @@ void TreeTest::onRun() {
 
   {
     Tree article;
+    oatpp::Tree ot;
+
 
     article["name"] = "Hello World!";
     article["pages"] = 96;

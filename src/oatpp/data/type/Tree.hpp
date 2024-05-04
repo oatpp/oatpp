@@ -54,7 +54,64 @@ public:
 
 }
 
-typedef ObjectWrapper<mapping::Tree, __class::Tree> Tree;
+class Tree : public ObjectWrapper<mapping::Tree, __class::Tree> {
+public:
+
+  /**
+   * Default constructor.
+   */
+  Tree();
+
+  /**
+   * Nullptr constructor.
+   */
+  Tree(std::nullptr_t);
+
+  /**
+   * Copy constructor.
+   * @param other - other Any.
+   */
+  Tree(const Tree& other);
+
+  /**
+   * Move constructor.
+   * @param other
+   */
+  Tree(Tree&& other);
+
+  /**
+   * Constructor from `mapping::Tree`.
+   * @param other
+   */
+  Tree(const mapping::Tree& other);
+
+  /**
+   * Constructor.
+   * Construct from `mapping::Tree`
+   * @param other
+   */
+  Tree(mapping::Tree&& other);
+
+  Tree(const std::shared_ptr<mapping::Tree>& node, const Type* const type);
+
+  Tree& operator = (std::nullptr_t);
+
+  Tree& operator = (const Tree& other);
+  Tree& operator = (Tree&& other);
+
+  Tree& operator = (const mapping::Tree& other);
+  Tree& operator = (mapping::Tree&& other);
+
+  bool operator == (std::nullptr_t) const;
+  bool operator != (std::nullptr_t) const;
+
+  bool operator == (const Tree& other) const;
+  bool operator != (const Tree& other) const;
+
+  const mapping::Tree& operator*() const;
+  mapping::Tree& operator*();
+
+};
 
 }}}
 

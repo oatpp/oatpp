@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "./Tree.hpp"
+#include "oatpp/data/mapping/Tree.hpp"
 
 namespace oatpp { namespace data { namespace type {
 
@@ -35,6 +36,100 @@ Type* Tree::getType() {
   return &type;
 }
 
+}
+
+Tree::Tree()
+  : ObjectWrapper<mapping::Tree, __class::Tree>()
+{}
+
+Tree::Tree(std::nullptr_t)
+  : ObjectWrapper<mapping::Tree, __class::Tree>()
+{}
+
+/**
+ * Copy constructor.
+ * @param other - other Any.
+ */
+Tree::Tree(const Tree& other)
+  : ObjectWrapper<mapping::Tree, __class::Tree>(other)
+{}
+
+/**
+ * Move constructor.
+ * @param other
+ */
+Tree::Tree(Tree&& other)
+  : ObjectWrapper<mapping::Tree, __class::Tree>(std::forward<ObjectWrapper<mapping::Tree, __class::Tree>>(other))
+{}
+
+Tree::Tree(const mapping::Tree& other)
+  : ObjectWrapper<mapping::Tree, __class::Tree>(std::make_shared<mapping::Tree>(other))
+{}
+
+Tree::Tree(mapping::Tree&& other)
+  : ObjectWrapper<mapping::Tree, __class::Tree>(std::make_shared<mapping::Tree>(std::forward<mapping::Tree>(other)))
+{}
+
+Tree::Tree(const std::shared_ptr<mapping::Tree>& node, const Type* const type)
+  : ObjectWrapper<mapping::Tree, __class::Tree>(node, type)
+{}
+
+Tree& Tree::operator = (std::nullptr_t) {
+  m_ptr.reset();
+}
+
+Tree& Tree::operator = (const Tree& other) {
+  m_ptr = other.m_ptr;
+}
+
+Tree& Tree::operator = (Tree&& other) {
+  m_ptr = std::move(other.m_ptr);
+}
+
+Tree& Tree::operator = (const mapping::Tree& other) {
+  if(m_ptr) {
+    *m_ptr = other;
+  } else {
+    m_ptr = std::make_shared<mapping::Tree>(other);
+  }
+}
+
+Tree& Tree::operator = (mapping::Tree&& other) {
+  if(m_ptr) {
+    *m_ptr = std::forward<mapping::Tree>(std::forward<mapping::Tree>(other));
+  } else {
+    m_ptr = std::make_shared<mapping::Tree>(std::forward<mapping::Tree>(other));
+  }
+}
+
+bool Tree::operator == (std::nullptr_t) const {
+  return m_ptr.get() == nullptr;
+}
+
+bool Tree::operator != (std::nullptr_t) const {
+  return m_ptr.get() != nullptr;
+}
+
+bool Tree::operator == (const Tree& other) const {
+  return m_ptr.get() == other.m_ptr.get();
+}
+
+bool Tree::operator != (const Tree& other) const {
+  return !operator == (other);
+}
+
+const mapping::Tree& Tree::operator*() const {
+  if(!m_ptr) {
+    throw std::runtime_error("[oatpp::data::type::Tree::operator *()]: null-pointer exception");
+  }
+  return *m_ptr;
+}
+
+mapping::Tree& Tree::operator*() {
+  if(!m_ptr) {
+    throw std::runtime_error("[oatpp::data::type::Tree::operator *()]: null-pointer exception");
+  }
+  return *m_ptr;
 }
 
 

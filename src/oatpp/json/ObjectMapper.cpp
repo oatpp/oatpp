@@ -86,7 +86,7 @@ oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::type::Ty
 
   /* if expected type is Tree (root element is Tree) - then we can just move deserialized tree */
   if(type == data::type::Tree::Class::getType()) {
-    return oatpp::Tree(std::make_shared<data::mapping::Tree>(std::move(tree)));
+    return oatpp::Tree(tree);
   }
 
   {
