@@ -26,6 +26,7 @@
 #define oatpp_Types_hpp
 
 #include "oatpp/data/type/Object.hpp"
+#include "oatpp/data/mapping/Tree.hpp"
 
 namespace oatpp {
 
@@ -44,6 +45,12 @@ namespace oatpp {
    */
   template <class T, class Clazz = oatpp::data::type::__class::Void>
   using ObjectWrapper = oatpp::data::type::ObjectWrapper<T, Clazz>;
+
+  /**
+   * Mapping enabled &id:oatpp::data::mapping::Tree;
+   * `mapping::Tree` and `type::Tree` are inter-mappable;
+   */
+  typedef oatpp::data::type::Tree Tree;
 
   /**
    * ObjectWrapper over the `void*`.

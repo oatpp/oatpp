@@ -100,7 +100,7 @@ void TreeToObjectMapperTest::onRun() {
     tree["map"]["nested_2"]["i32"] = 2;
     tree["map"]["nested_3"]["i32"] = 3;
 
-    TreeToObjectMapper::MappingState state;
+    TreeToObjectMapper::State state;
     state.config = &config;
     state.tree = &tree;
 
@@ -116,7 +116,7 @@ void TreeToObjectMapperTest::onRun() {
 
     Tree clonedTree;
 
-    ObjectToTreeMapper::MappingState reverseState;
+    ObjectToTreeMapper::State reverseState;
     reverseState.config = &reverseConfig;
     reverseState.tree = &clonedTree;
 

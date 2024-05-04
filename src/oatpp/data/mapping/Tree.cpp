@@ -61,7 +61,7 @@ TreeMap& TreeMap::operator = (TreeMap&& other) noexcept {
   return *this;
 }
 
-Tree& TreeMap::operator [] (const oatpp::String& key) {
+Tree& TreeMap::operator [] (const type::String& key) {
   auto it = m_map.find(key);
   if(it == m_map.end()) {
     auto& result = m_map[key];
@@ -71,7 +71,7 @@ Tree& TreeMap::operator [] (const oatpp::String& key) {
   return it->second;
 }
 
-const Tree& TreeMap::operator [] (const oatpp::String& key) const {
+const Tree& TreeMap::operator [] (const type::String& key) const {
   auto it = m_map.find(key);
   if(it == m_map.end()) {
     throw std::runtime_error("[oatpp::data::mapping::Tree::TreeMap::operator[]]: const operator[] can't add items.");
@@ -79,12 +79,12 @@ const Tree& TreeMap::operator [] (const oatpp::String& key) const {
   return it->second;
 }
 
-std::pair<oatpp::String, std::reference_wrapper<Tree>> TreeMap::operator [] (v_uint64 index) {
+std::pair<type::String, std::reference_wrapper<Tree>> TreeMap::operator [] (v_uint64 index) {
   auto& item = m_order.at(index);
   return {item.first.lock(), *item.second};
 }
 
-std::pair<oatpp::String, std::reference_wrapper<const Tree>> TreeMap::operator [] (v_uint64 index) const {
+std::pair<type::String, std::reference_wrapper<const Tree>> TreeMap::operator [] (v_uint64 index) const {
   auto& item = m_order.at(index);
   return {item.first.lock(), *item.second};
 }
@@ -101,7 +101,7 @@ Tree::Attributes::Attributes()
 {}
 
 Tree::Attributes::Attributes(const Attributes& other)
-  : m_attributes(other.m_attributes != nullptr ? new std::unordered_map<oatpp::String, oatpp::String>(*other.m_attributes) : nullptr)
+  : m_attributes(other.m_attributes != nullptr ? new std::unordered_map<type::String, type::String>(*other.m_attributes) : nullptr)
 {}
 
 Tree::Attributes::Attributes(Attributes&& other) noexcept
@@ -115,7 +115,7 @@ Tree::Attributes& Tree::Attributes::operator = (const Attributes& other) {
     if(m_attributes) {
       *m_attributes = *other.m_attributes;
     } else {
-      m_attributes = new std::unordered_map<oatpp::String, oatpp::String>(*other.m_attributes);
+      m_attributes = new std::unordered_map<type::String, type::String>(*other.m_attributes);
     }
   } else {
     delete m_attributes;
@@ -169,7 +169,7 @@ Tree::Tree(Tree&& other) noexcept
   other.m_data = 0;
 }
 
-Tree::Tree(const oatpp::String& value)
+Tree::Tree(const type::String& value)
   : Tree()
 {
   setString(value);
@@ -189,7 +189,7 @@ Tree& Tree::operator = (Tree&& other) noexcept {
   return *this;
 }
 
-Tree& Tree::operator = (const oatpp::String& value) {
+Tree& Tree::operator = (const type::String& value) {
   setString(value);
   return *this;
 }
@@ -221,7 +221,7 @@ void Tree::deleteValueObject() {
       break;
 
     case Type::STRING: {
-      auto data = reinterpret_cast<oatpp::String *>(m_data);
+      auto data = reinterpret_cast<type::String *>(m_data);
       delete data;
       break;
     }
@@ -236,7 +236,7 @@ void Tree::deleteValueObject() {
       break;
     }
     case Type::PAIRS: {
-      auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>> *>(m_data);
+      auto data = reinterpret_cast<std::vector<std::pair<type::String, Tree>> *>(m_data);
       delete data;
       break;
     }
@@ -248,15 +248,15 @@ void Tree::deleteValueObject() {
   }
 }
 
-Tree::operator oatpp::String () {
+Tree::operator type::String () {
   return getString();
 }
 
-Tree& Tree::operator [] (const oatpp::String& key) {
+Tree& Tree::operator [] (const type::String& key) {
   return getMap()[key];
 }
 
-const Tree& Tree::operator [] (const oatpp::String& key) const {
+const Tree& Tree::operator [] (const type::String& key) const {
   return getMap()[key];
 }
 
@@ -304,11 +304,11 @@ void Tree::setCopy(const Tree& other) {
     }
 
     case Type::STRING: {
-      auto otherData = reinterpret_cast<oatpp::String *>(other.m_data);
+      auto otherData = reinterpret_cast<type::String *>(other.m_data);
       if(otherData == nullptr) {
         throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'STRING'");
       }
-      auto ptr = new oatpp::String(*otherData);
+      auto ptr = new type::String(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
@@ -331,11 +331,11 @@ void Tree::setCopy(const Tree& other) {
       break;
     }
     case Type::PAIRS: {
-      auto otherData = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>> *>(other.m_data);
+      auto otherData = reinterpret_cast<std::vector<std::pair<type::String, Tree>> *>(other.m_data);
       if(otherData == nullptr) {
         throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'PAIRS'");
       }
-      auto ptr = new std::vector<std::pair<oatpp::String, Tree>>(*otherData);
+      auto ptr = new std::vector<std::pair<type::String, Tree>>(*otherData);
       m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
@@ -385,10 +385,10 @@ void Tree::setFloat(v_float64 value) {
   std::memcpy (&m_data, &value, sizeof(v_float64));
 }
 
-void Tree::setString(const oatpp::String& value) {
+void Tree::setString(const type::String& value) {
   deleteValueObject();
   m_type = Type::STRING;
-  auto data = new oatpp::String(value);
+  auto data = new type::String(value);
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
@@ -413,10 +413,10 @@ void Tree::setMap(const TreeMap& value) {
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
-void Tree::setPairs(const std::vector<std::pair<oatpp::String, Tree>>& value) {
+void Tree::setPairs(const std::vector<std::pair<type::String, Tree>>& value) {
   deleteValueObject();
   m_type = Type::PAIRS;
-  auto data = new std::vector<std::pair<oatpp::String, Tree>>(value);
+  auto data = new std::vector<std::pair<type::String, Tree>>(value);
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
@@ -577,11 +577,11 @@ v_float64 Tree::getFloat() const {
   return result;
 }
 
-const oatpp::String& Tree::getString() const {
+const type::String& Tree::getString() const {
   if(m_type != Type::STRING) {
     throw std::runtime_error("[oatpp::data::mapping::Tree::getString()]: NOT a STRING.");
   }
-  auto data = reinterpret_cast<const oatpp::String*>(m_data);
+  auto data = reinterpret_cast<const type::String*>(m_data);
   return *data;
 }
 
@@ -601,11 +601,11 @@ const TreeMap& Tree::getMap() const {
   return *data;
 }
 
-const std::vector<std::pair<oatpp::String, Tree>>& Tree::getPairs() const {
+const std::vector<std::pair<type::String, Tree>>& Tree::getPairs() const {
   if(m_type != Type::PAIRS) {
     throw std::runtime_error("[oatpp::data::mapping::Tree::getPairs()]: NOT a PAIRS.");
   }
-  auto data = reinterpret_cast<const std::vector<std::pair<oatpp::String, Tree>>*>(m_data);
+  auto data = reinterpret_cast<const std::vector<std::pair<type::String, Tree>>*>(m_data);
   return *data;
 }
 
@@ -631,14 +631,14 @@ TreeMap& Tree::getMap() {
   return *data;
 }
 
-std::vector<std::pair<oatpp::String, Tree>>& Tree::getPairs() {
+std::vector<std::pair<type::String, Tree>>& Tree::getPairs() {
   if(m_type == Type::UNDEFINED) {
     setPairs({});
   }
   if(m_type != Type::MAP) {
     throw std::runtime_error("[oatpp::data::mapping::Tree::getMap()]: NOT a MAP.");
   }
-  auto data = reinterpret_cast<std::vector<std::pair<oatpp::String, Tree>>*>(m_data);
+  auto data = reinterpret_cast<std::vector<std::pair<type::String, Tree>>*>(m_data);
   return *data;
 }
 
@@ -650,19 +650,19 @@ const Tree::Attributes& Tree::attributes() const {
   return m_attributes;
 }
 
-oatpp::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firstLineIndent) const {
+type::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firstLineIndent) const {
 
   stream::BufferOutputStream ss;
   for(v_uint32 i = 0; i < indent0; i ++) {
     ss << " ";
   }
-  oatpp::String indentStr0 = ss.toString();
+  type::String indentStr0 = ss.toString();
 
   ss.setCurrentPosition(0);
   for(v_uint32 i = 0; i < indentDelta; i ++) {
     ss << " ";
   }
-  oatpp::String indentDeltaStr = ss.toString();
+  type::String indentDeltaStr = ss.toString();
 
   ss.setCurrentPosition(0);
   if(firstLineIndent) {

@@ -63,6 +63,8 @@ public:
   };
 
 private:
+  void writeTree(data::stream::ConsistentOutputStream* stream, const data::mapping::Tree& tree, data::mapping::ErrorStack& errorStack) const;
+private:
   SerializerConfig m_serializerConfig;
   DeserializerConfig m_deserializerConfig;
 private:

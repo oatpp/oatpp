@@ -29,7 +29,7 @@
 
 namespace oatpp { namespace json {
 
-void Deserializer::deserializeNull(MappingState& state) {
+void Deserializer::deserializeNull(State& state) {
   if(state.caret->isAtText("null", true)){
     state.tree->setNull();
   } else {
@@ -37,7 +37,7 @@ void Deserializer::deserializeNull(MappingState& state) {
   }
 }
 
-void Deserializer::deserializeNumber(MappingState& state) {
+void Deserializer::deserializeNumber(State& state) {
   if (!Utils::findDecimalSeparatorInCurrentNumber(*state.caret)) {
     state.tree->setInteger(state.caret->parseInt());
   } else {
@@ -45,7 +45,7 @@ void Deserializer::deserializeNumber(MappingState& state) {
   }
 }
 
-void Deserializer::deserializeBoolean(MappingState& state) {
+void Deserializer::deserializeBoolean(State& state) {
   if(state.caret->isAtText("true", true)) {
     state.tree->setValue<bool>(true);
   } else if(state.caret->isAtText("false", true)) {
@@ -55,11 +55,11 @@ void Deserializer::deserializeBoolean(MappingState& state) {
   }
 }
 
-void Deserializer::deserializeString(MappingState& state) {
+void Deserializer::deserializeString(State& state) {
   state.tree->setString(Utils::parseString(*state.caret));
 }
 
-void Deserializer::deserializeArray(MappingState& state) {
+void Deserializer::deserializeArray(State& state) {
 
   if(state.caret->canContinueAtChar('[', 1)) {
 
@@ -76,7 +76,7 @@ void Deserializer::deserializeArray(MappingState& state) {
 
       vector.emplace_back();
 
-      MappingState nestedState;
+      State nestedState;
       nestedState.caret = state.caret;
       nestedState.config = state.config;
       nestedState.tree = &vector[vector.size() - 1];
@@ -108,7 +108,7 @@ void Deserializer::deserializeArray(MappingState& state) {
 
 }
 
-void Deserializer::deserializeMap(MappingState& state) {
+void Deserializer::deserializeMap(State& state) {
 
   if(state.caret->canContinueAtChar('{', 1)) {
 
@@ -135,7 +135,7 @@ void Deserializer::deserializeMap(MappingState& state) {
 
       state.caret->skipBlankChars();
 
-      MappingState nestedState;
+      State nestedState;
       nestedState.caret = state.caret;
       nestedState.config = state.config;
       nestedState.tree = &map[key];
@@ -164,7 +164,7 @@ void Deserializer::deserializeMap(MappingState& state) {
 
 }
 
-void Deserializer::deserialize(MappingState& state) {
+void Deserializer::deserialize(State& state) {
 
   state.caret->skipBlankChars();
 

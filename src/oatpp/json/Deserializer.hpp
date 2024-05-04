@@ -54,7 +54,7 @@ public:
 
 public:
 
-  struct MappingState {
+  struct State {
     const Config* config;
     data::mapping::Tree* tree;
     utils::parser::Caret* caret;
@@ -63,17 +63,17 @@ public:
 
 private:
 
-  static void deserializeNull(MappingState& state);
-  static void deserializeNumber(MappingState& state);
-  static void deserializeBoolean(MappingState& state);
-  static void deserializeString(MappingState& state);
+  static void deserializeNull(State& state);
+  static void deserializeNumber(State& state);
+  static void deserializeBoolean(State& state);
+  static void deserializeString(State& state);
 
-  static void deserializeArray(MappingState& state);
-  static void deserializeMap(MappingState& state);
+  static void deserializeArray(State& state);
+  static void deserializeMap(State& state);
 
 public:
 
-  static void deserialize(MappingState& state);
+  static void deserialize(State& state);
 
 };
 

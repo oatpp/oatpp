@@ -42,7 +42,7 @@ public:
 
 public:
 
-  struct MappingState {
+  struct State {
 
     const Config* config;
     Tree* tree;
@@ -51,11 +51,11 @@ public:
   };
 
 public:
-  typedef void (*MapperMethod)(const ObjectToTreeMapper*, MappingState&, const oatpp::Void&);
+  typedef void (*MapperMethod)(const ObjectToTreeMapper*, State&, const oatpp::Void&);
 public:
 
   template<class T>
-  static void mapPrimitive(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph){
+  static void mapPrimitive(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph){
     (void) mapper;
     if(polymorph){
       state.tree->setValue<typename T::ObjectType>(* static_cast<typename T::ObjectType*>(polymorph.get()));
@@ -64,14 +64,15 @@ public:
     }
   }
 
-  static void mapString(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph);
-  static void mapAny(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph);
-  static void mapEnum(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph);
+  static void mapString(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
+  static void mapTree(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
+  static void mapAny(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
+  static void mapEnum(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
 
-  static void mapCollection(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph);
-  static void mapMap(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph);
+  static void mapCollection(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
+  static void mapMap(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
 
-  static void mapObject(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph);
+  static void mapObject(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph);
 
 private:
   std::vector<MapperMethod> m_methods;
@@ -81,7 +82,7 @@ public:
 
   void setMapperMethod(const data::type::ClassId& classId, MapperMethod method);
 
-  void map(MappingState& state, const oatpp::Void& polymorph) const;
+  void map(State& state, const oatpp::Void& polymorph) const;
 
 };
 

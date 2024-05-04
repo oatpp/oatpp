@@ -27,6 +27,7 @@
 
 #include "./Type.hpp"
 
+#include "./Tree.hpp"
 #include "./Any.hpp"
 #include "./Primitive.hpp"
 #include "./Enum.hpp"

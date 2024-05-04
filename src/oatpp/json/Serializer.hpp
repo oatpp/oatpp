@@ -77,7 +77,7 @@ public:
 
 public:
 
-  struct MappingState {
+  struct State {
 
     const Config* config;
     const data::mapping::Tree* tree;
@@ -95,17 +95,17 @@ private:
                               v_buff_size size,
                               v_uint32 escapeFlags);
 
-  static void serializeNull(MappingState& state);
-  static void serializeString(MappingState& state);
-  static void serializeArray(MappingState& state);
-  static void serializeMap(MappingState& state);
-  static void serializePairs(MappingState& state);
+  static void serializeNull(State& state);
+  static void serializeString(State& state);
+  static void serializeArray(State& state);
+  static void serializeMap(State& state);
+  static void serializePairs(State& state);
 
-  static void serialize(MappingState& state);
+  static void serialize(State& state);
 
 public:
 
-  static void serializeToStream(data::stream::ConsistentOutputStream* stream, MappingState& state);
+  static void serializeToStream(data::stream::ConsistentOutputStream* stream, State& state);
 
 };
 

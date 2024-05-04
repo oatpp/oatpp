@@ -34,6 +34,7 @@ ObjectToTreeMapper::ObjectToTreeMapper() {
   m_methods.resize(static_cast<size_t>(data::type::ClassId::getClassCount()), nullptr);
 
   setMapperMethod(data::type::__class::String::CLASS_ID, &ObjectToTreeMapper::mapString);
+  setMapperMethod(data::type::__class::Tree::CLASS_ID, &ObjectToTreeMapper::mapTree);
   setMapperMethod(data::type::__class::Any::CLASS_ID, &ObjectToTreeMapper::mapAny);
 
   setMapperMethod(data::type::__class::Int8::CLASS_ID, &ObjectToTreeMapper::mapPrimitive<oatpp::Int8>);
@@ -72,7 +73,7 @@ void ObjectToTreeMapper::setMapperMethod(const data::type::ClassId& classId, Map
   m_methods[id] = method;
 }
 
-void ObjectToTreeMapper::map(MappingState& state, const oatpp::Void& polymorph) const
+void ObjectToTreeMapper::map(State& state, const oatpp::Void& polymorph) const
 {
   auto id = static_cast<v_uint32>(polymorph.getValueType()->classId.id);
   auto& method = m_methods[id];
@@ -93,7 +94,7 @@ void ObjectToTreeMapper::map(MappingState& state, const oatpp::Void& polymorph) 
   }
 }
 
-void ObjectToTreeMapper::mapString(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapString(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
   if(!polymorph) {
     state.tree->setNull();
     return;
@@ -101,7 +102,16 @@ void ObjectToTreeMapper::mapString(const ObjectToTreeMapper* mapper, MappingStat
   state.tree->setString(oatpp::String(std::static_pointer_cast<std::string>(polymorph.getPtr()), oatpp::String::Class::getType()));
 }
 
-void ObjectToTreeMapper::mapAny(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapTree(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
+  if(!polymorph) {
+    state.tree->setNull();
+    return;
+  }
+  auto tree = static_cast<mapping::Tree*>(polymorph.get());
+  *state.tree = *tree; // copy
+}
+
+void ObjectToTreeMapper::mapAny(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
   if(!polymorph) {
     state.tree->setNull();
     return;
@@ -110,7 +120,7 @@ void ObjectToTreeMapper::mapAny(const ObjectToTreeMapper* mapper, MappingState& 
   mapper->map(state, oatpp::Void(anyHandle->ptr, anyHandle->type));
 }
 
-void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
 
   auto polymorphicDispatcher = static_cast<const data::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     polymorph.getValueType()->polymorphicDispatcher
@@ -137,7 +147,7 @@ void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, MappingState&
 
 }
 
-void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();
@@ -162,7 +172,7 @@ void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, Mapping
 
       vector.emplace_back();
 
-      MappingState nestedState;
+      State nestedState;
       nestedState.tree = &vector[vector.size() - 1];
       nestedState.config = state.config;
 
@@ -183,7 +193,7 @@ void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, Mapping
 
 }
 
-void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();
@@ -212,7 +222,7 @@ void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, MappingState& 
       const auto& untypedKey = iterator->getKey();
       const auto& key = oatpp::String(std::static_pointer_cast<std::string>(untypedKey.getPtr()));
 
-      MappingState nestedState;
+      State nestedState;
       nestedState.tree = &map[key];
       nestedState.config = state.config;
 
@@ -230,7 +240,7 @@ void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, MappingState& 
 
 }
 
-void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, MappingState& state, const oatpp::Void& polymorph) {
+void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph) {
 
   if(!polymorph) {
     state.tree->setNull();
@@ -266,7 +276,7 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, MappingStat
 
     if (value || state.config->includeNullFields || (field->info.required && state.config->alwaysIncludeRequired)) {
 
-      MappingState nestedState;
+      State nestedState;
       nestedState.tree = &map[oatpp::String(field->name)];
       nestedState.config = state.config;
 

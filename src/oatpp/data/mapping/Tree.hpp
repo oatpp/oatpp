@@ -25,7 +25,7 @@
 #ifndef oatpp_data_mapping_Tree_hpp
 #define oatpp_data_mapping_Tree_hpp
 
-#include "oatpp/Types.hpp"
+#include "oatpp/data/type/Object.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -72,7 +72,7 @@ public:
 
   class Attributes {
   private:
-    std::unordered_map<oatpp::String, oatpp::String>* m_attributes;
+    std::unordered_map<type::String, type::String>* m_attributes;
   public:
 
     Attributes();
@@ -111,7 +111,7 @@ public:
     setValue<T>(value);
   }
 
-  explicit Tree(const oatpp::String& value);
+  explicit Tree(const type::String& value);
 
   ~Tree();
 
@@ -124,7 +124,7 @@ public:
     return *this;
   }
 
-  Tree& operator = (const oatpp::String& value);
+  Tree& operator = (const type::String& value);
 
   template <typename T, typename enabled = typename NodePrimitiveType<T>::value_type>
   operator T () const {
@@ -165,10 +165,10 @@ public:
 
   }
 
-  operator oatpp::String ();
+  operator type::String ();
 
-  Tree& operator [] (const oatpp::String& key);
-  const Tree& operator [] (const oatpp::String& key) const;
+  Tree& operator [] (const type::String& key);
+  const Tree& operator [] (const type::String& key) const;
 
   Tree& operator [] (v_uint64 index);
   const Tree& operator [] (v_uint64 index) const;
@@ -202,11 +202,11 @@ public:
   void setInteger(v_int64 value);
   void setFloat(v_float64 value);
 
-  void setString(const oatpp::String& value);
+  void setString(const type::String& value);
   void setVector(const std::vector<Tree>& value);
   void setVector(v_uint64 size);
   void setMap(const TreeMap& value);
-  void setPairs(const std::vector<std::pair<oatpp::String, Tree>>& value);
+  void setPairs(const std::vector<std::pair<type::String, Tree>>& value);
 
   bool isNull() const;
   bool isUndefined() const;
@@ -219,26 +219,26 @@ public:
   v_int64 getInteger() const;
   v_float64 getFloat() const;
 
-  const oatpp::String& getString() const;
+  const type::String& getString() const;
 
   const std::vector<Tree>& getVector() const;
   const TreeMap& getMap() const;
-  const std::vector<std::pair<oatpp::String, Tree>>& getPairs() const;
+  const std::vector<std::pair<type::String, Tree>>& getPairs() const;
 
   std::vector<Tree>& getVector();
   TreeMap& getMap();
-  std::vector<std::pair<oatpp::String, Tree>>& getPairs();
+  std::vector<std::pair<type::String, Tree>>& getPairs();
 
   Attributes& attributes();
   const Attributes& attributes() const;
 
-  oatpp::String debugPrint(v_uint32 indent0 = 0, v_uint32 indentDelta = 2, bool firstLineIndent = true) const;
+  type::String debugPrint(v_uint32 indent0 = 0, v_uint32 indentDelta = 2, bool firstLineIndent = true) const;
 
 };
 
 class TreeMap {
 private:
-  std::unordered_map<oatpp::String, Tree> m_map;
+  std::unordered_map<type::String, Tree> m_map;
   std::vector<std::pair<std::weak_ptr<std::string>, Tree*>> m_order;
 public:
 
@@ -250,11 +250,11 @@ public:
   TreeMap& operator = (const TreeMap& other);
   TreeMap& operator = (TreeMap&& other) noexcept;
 
-  Tree& operator [] (const oatpp::String& key);
-  const Tree& operator [] (const oatpp::String& key) const;
+  Tree& operator [] (const type::String& key);
+  const Tree& operator [] (const type::String& key) const;
 
-  std::pair<oatpp::String, std::reference_wrapper<Tree>> operator [] (v_uint64 index);
-  std::pair<oatpp::String, std::reference_wrapper<const Tree>> operator [] (v_uint64 index) const;
+  std::pair<type::String, std::reference_wrapper<Tree>> operator [] (v_uint64 index);
+  std::pair<type::String, std::reference_wrapper<const Tree>> operator [] (v_uint64 index) const;
 
   v_uint64 size() const;
 

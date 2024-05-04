@@ -37,20 +37,20 @@ void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, c
   stream->writeCharSimple('\"');
 }
 
-void Serializer::serializeNull(MappingState& state) {
+void Serializer::serializeNull(State& state) {
   state.stream->writeSimple("null");
 }
 
-void Serializer::serializeString(MappingState& state) {
+void Serializer::serializeString(State& state) {
   const auto& str = state.tree->getString();
   serializeString(state.stream, str->data(), static_cast<v_buff_size>(str->size()), state.config->escapeFlags);
 }
 
-void Serializer::serializeArray(MappingState& state) {
+void Serializer::serializeArray(State& state) {
 
   state.stream->writeCharSimple('[');
 
-  MappingState nestedState;
+  State nestedState;
   nestedState.stream = state.stream;
   nestedState.config = state.config;
 
@@ -82,11 +82,11 @@ void Serializer::serializeArray(MappingState& state) {
 
 }
 
-void Serializer::serializeMap(MappingState& state) {
+void Serializer::serializeMap(State& state) {
 
   state.stream->writeCharSimple('{');
 
-  MappingState nestedState;
+  State nestedState;
   nestedState.stream = state.stream;
   nestedState.config = state.config;
 
@@ -122,11 +122,11 @@ void Serializer::serializeMap(MappingState& state) {
 
 }
 
-void Serializer::serializePairs(MappingState& state) {
+void Serializer::serializePairs(State& state) {
 
   state.stream->writeCharSimple('{');
 
-  MappingState nestedState;
+  State nestedState;
   nestedState.stream = state.stream;
   nestedState.config = state.config;
 
@@ -162,11 +162,14 @@ void Serializer::serializePairs(MappingState& state) {
 
 }
 
-void Serializer::serialize(MappingState& state) {
+void Serializer::serialize(State& state) {
 
   switch (state.tree->getType()) {
 
-    case data::mapping::Tree::Type::UNDEFINED: break;
+    case data::mapping::Tree::Type::UNDEFINED:
+      state.errorStack.push("[oatpp::json::Serializer::serialize()]: "
+                            "UNDEFINED tree node is NOT serializable. To fix: set node value.");
+      return;
     case data::mapping::Tree::Type::NULL_VALUE: serializeNull(state); return;
 
     case data::mapping::Tree::Type::INTEGER: state.stream->writeAsString(state.tree->getInteger()); return;
@@ -200,13 +203,13 @@ void Serializer::serialize(MappingState& state) {
 
 }
 
-void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream, MappingState& state) {
+void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream, State& state) {
 
   if(state.config->useBeautifier) {
 
     json::Beautifier beautifier(stream, "  ", "\n");
 
-    MappingState beautifulState;
+    State beautifulState;
     beautifulState.stream = &beautifier;
     beautifulState.tree = state.tree;
     beautifulState.config = state.config;

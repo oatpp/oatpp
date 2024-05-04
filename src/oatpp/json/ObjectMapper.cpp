@@ -32,30 +32,39 @@ ObjectMapper::ObjectMapper(const SerializerConfig& serializerConfig, const Deser
   , m_deserializerConfig(deserializerConfig)
 {}
 
+void ObjectMapper::writeTree(data::stream::ConsistentOutputStream* stream, const data::mapping::Tree& tree, data::mapping::ErrorStack& errorStack) const {
+  Serializer::State state;
+  state.config = &m_serializerConfig.json;
+  state.tree = &tree;
+  Serializer::serializeToStream(stream, state);
+  if(!state.errorStack.empty()) {
+    errorStack = std::move(state.errorStack);
+    return;
+  }
+}
+
 void ObjectMapper::write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant, data::mapping::ErrorStack& errorStack) const {
 
-  data::mapping::Tree tree;
-  {
-    data::mapping::ObjectToTreeMapper::MappingState state;
-    state.config = &m_serializerConfig.mapper;
-    state.tree = &tree;
-    m_objectToTreeMapper.map(state, variant);
-    if(!state.errorStack.empty()) {
-      errorStack = std::move(state.errorStack);
-      return;
-    }
+  /* if variant is Tree - we can serialize it right away */
+  if(variant.getValueType() == oatpp::Tree::Class::getType()) {
+    auto tree = static_cast<const data::mapping::Tree*>(variant.get());
+    writeTree(stream, *tree, errorStack);
+    return;
   }
 
-  {
-    Serializer::MappingState state;
-    state.config = &m_serializerConfig.json;
-    state.tree = &tree;
-    Serializer::serializeToStream(stream, state);
-    if(!state.errorStack.empty()) {
-      errorStack = std::move(state.errorStack);
-      return;
-    }
+  data::mapping::Tree tree;
+  data::mapping::ObjectToTreeMapper::State state;
+
+  state.config = &m_serializerConfig.mapper;
+  state.tree = &tree;
+
+  m_objectToTreeMapper.map(state, variant);
+  if(!state.errorStack.empty()) {
+    errorStack = std::move(state.errorStack);
+    return;
   }
+
+  writeTree(stream, tree, errorStack);
 
 }
 
@@ -64,7 +73,7 @@ oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::type::Ty
   data::mapping::Tree tree;
 
   {
-    Deserializer::MappingState state;
+    Deserializer::State state;
     state.caret = &caret;
     state.tree = &tree;
     state.config = &m_deserializerConfig.json;
@@ -75,8 +84,13 @@ oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::type::Ty
     }
   }
 
+  /* if expected type is Tree (root element is Tree) - then we can just move deserialized tree */
+  if(type == data::type::Tree::Class::getType()) {
+    return oatpp::Tree(std::make_shared<data::mapping::Tree>(std::move(tree)));
+  }
+
   {
-    data::mapping::TreeToObjectMapper::MappingState state;
+    data::mapping::TreeToObjectMapper::State state;
     state.tree = &tree;
     state.config = &m_deserializerConfig.mapper;
     const auto & result = m_treeToObjectMapper.map(state, type);

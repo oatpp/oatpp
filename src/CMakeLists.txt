@@ -114,6 +114,8 @@ add_library(oatpp
 		oatpp/data/type/PairList.hpp
 		oatpp/data/type/Primitive.cpp
 		oatpp/data/type/Primitive.hpp
+		oatpp/data/type/Tree.cpp
+		oatpp/data/type/Tree.hpp
 		oatpp/data/type/Type.cpp
 		oatpp/data/type/Type.hpp
 		oatpp/data/type/UnorderedMap.cpp
