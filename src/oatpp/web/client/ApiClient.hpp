@@ -63,67 +63,67 @@ public:
 public:
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::String;.
+   * Convenience typedef for &id:oatpp::data::type::String;.
    */
   typedef oatpp::String String;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int8;.
+   * Convenience typedef for &id:oatpp::data::type::Int8;.
    */
   typedef oatpp::Int8 Int8;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt8;.
+   * Convenience typedef for &id:oatpp::data::type::UInt8;.
    */
   typedef oatpp::UInt8 UInt8;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int16;.
+   * Convenience typedef for &id:oatpp::data::type::Int16;.
    */
   typedef oatpp::Int16 Int16;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt16;.
+   * Convenience typedef for &id:oatpp::data::type::UInt16;.
    */
   typedef oatpp::UInt16 UInt16;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
+   * Convenience typedef for &id:oatpp::data::type::Int32;.
    */
   typedef oatpp::Int32 Int32;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt32;.
+   * Convenience typedef for &id:oatpp::data::type::UInt32;.
    */
   typedef oatpp::UInt32 UInt32;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
+   * Convenience typedef for &id:oatpp::data::type::Int64;.
    */
   typedef oatpp::Int64 Int64;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt64;.
+   * Convenience typedef for &id:oatpp::data::type::UInt64;.
    */
   typedef oatpp::UInt64 UInt64;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
+   * Convenience typedef for &id:oatpp::data::type::Float32;.
    */
   typedef oatpp::Float32 Float32;
 
   /**
-   * Convenience typedef for &id:atpp::data::mapping::type::Float64;.
+   * Convenience typedef for &id:atpp::data::type::Float64;.
    */
   typedef oatpp::Float64 Float64;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
+   * Convenience typedef for &id:oatpp::data::type::Boolean;.
    */
   typedef oatpp::Boolean Boolean;
 
   template <class T>
-  using Enum = oatpp::data::mapping::type::Enum<T>;
+  using Enum = oatpp::data::type::Enum<T>;
 
   template <class T>
   using Object = oatpp::Object<T>;
@@ -375,25 +375,25 @@ struct ApiClient::TypeInterpretation<oatpp::Boolean> {
 };
 
 template<class T, class I>
-struct ApiClient::TypeInterpretation<data::mapping::type::EnumObjectWrapper<T, I>> {
+struct ApiClient::TypeInterpretation<data::type::EnumObjectWrapper<T, I>> {
 
-  typedef data::mapping::type::EnumObjectWrapper<T, I> EnumOW;
+  typedef data::type::EnumObjectWrapper<T, I> EnumOW;
   typedef typename I::UnderlyingTypeObjectWrapper UTOW;
 
   static oatpp::String toString(const oatpp::String &typeName, const EnumOW &parameter) {
 
-    data::mapping::type::EnumInterpreterError error = data::mapping::type::EnumInterpreterError::OK;
+    data::type::EnumInterpreterError error = data::type::EnumInterpreterError::OK;
     const auto& value = I::toInterpretation(parameter, error);
 
     switch(error){
-      case data::mapping::type::EnumInterpreterError::OK: break;
-      case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+      case data::type::EnumInterpreterError::OK: break;
+      case data::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
         throw std::runtime_error(
           "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. Enum constraint violation - NotNull."
         );
-      case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
-      case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
-      case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
+      case data::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
+      case data::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
+      case data::type::EnumInterpreterError::ENTRY_NOT_FOUND:
       default:
         throw std::runtime_error(
           "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. Can't interpret Enum."

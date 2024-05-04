@@ -79,7 +79,7 @@ public:
 
   ObjectToTreeMapper();
 
-  void setMapperMethod(const data::mapping::type::ClassId& classId, MapperMethod method);
+  void setMapperMethod(const data::type::ClassId& classId, MapperMethod method);
 
   void map(MappingState& state, const oatpp::Void& polymorph) const;
 

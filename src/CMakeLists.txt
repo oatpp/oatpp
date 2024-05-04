@@ -78,28 +78,6 @@ add_library(oatpp
 		oatpp/data/mapping/TreeToObjectMapper.hpp
 		oatpp/data/mapping/TypeResolver.cpp
 		oatpp/data/mapping/TypeResolver.hpp
-		oatpp/data/mapping/type/Any.cpp
-		oatpp/data/mapping/type/Any.hpp
-		oatpp/data/mapping/type/Collection.hpp
-		oatpp/data/mapping/type/Enum.cpp
-		oatpp/data/mapping/type/Enum.hpp
-		oatpp/data/mapping/type/List.cpp
-		oatpp/data/mapping/type/List.hpp
-		oatpp/data/mapping/type/Map.hpp
-		oatpp/data/mapping/type/Object.cpp
-		oatpp/data/mapping/type/Object.hpp
-		oatpp/data/mapping/type/PairList.cpp
-		oatpp/data/mapping/type/PairList.hpp
-		oatpp/data/mapping/type/Primitive.cpp
-		oatpp/data/mapping/type/Primitive.hpp
-		oatpp/data/mapping/type/Type.cpp
-		oatpp/data/mapping/type/Type.hpp
-		oatpp/data/mapping/type/UnorderedMap.cpp
-		oatpp/data/mapping/type/UnorderedMap.hpp
-		oatpp/data/mapping/type/UnorderedSet.cpp
-		oatpp/data/mapping/type/UnorderedSet.hpp
-		oatpp/data/mapping/type/Vector.cpp
-		oatpp/data/mapping/type/Vector.hpp
 		oatpp/data/resource/File.cpp
 		oatpp/data/resource/File.hpp
 		oatpp/data/resource/InMemoryData.cpp
@@ -122,6 +100,28 @@ add_library(oatpp
 		oatpp/data/stream/Stream.hpp
 		oatpp/data/stream/StreamBufferedProxy.cpp
 		oatpp/data/stream/StreamBufferedProxy.hpp
+		oatpp/data/type/Any.cpp
+		oatpp/data/type/Any.hpp
+		oatpp/data/type/Collection.hpp
+		oatpp/data/type/Enum.cpp
+		oatpp/data/type/Enum.hpp
+		oatpp/data/type/List.cpp
+		oatpp/data/type/List.hpp
+		oatpp/data/type/Map.hpp
+		oatpp/data/type/Object.cpp
+		oatpp/data/type/Object.hpp
+		oatpp/data/type/PairList.cpp
+		oatpp/data/type/PairList.hpp
+		oatpp/data/type/Primitive.cpp
+		oatpp/data/type/Primitive.hpp
+		oatpp/data/type/Type.cpp
+		oatpp/data/type/Type.hpp
+		oatpp/data/type/UnorderedMap.cpp
+		oatpp/data/type/UnorderedMap.hpp
+		oatpp/data/type/UnorderedSet.cpp
+		oatpp/data/type/UnorderedSet.hpp
+		oatpp/data/type/Vector.cpp
+		oatpp/data/type/Vector.hpp
         oatpp/encoding/Base64.cpp
         oatpp/encoding/Base64.hpp
         oatpp/encoding/Hex.cpp

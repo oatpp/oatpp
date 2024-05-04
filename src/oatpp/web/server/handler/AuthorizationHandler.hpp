@@ -29,7 +29,7 @@
 #include <oatpp/web/protocol/http/incoming/Request.hpp>
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/macro/codegen.hpp"
-#include "oatpp/data/mapping/type/Type.hpp"
+#include "oatpp/data/type/Type.hpp"
 
 namespace oatpp { namespace web { namespace server { namespace handler {
 

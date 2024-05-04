@@ -41,7 +41,7 @@ namespace oatpp { namespace data { namespace share {
 template<typename Key, typename MapType>
 class LazyStringMapTemplate {
 public:
-  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::type::String String;
 private:
   mutable concurrency::SpinLock m_lock;
   mutable bool m_fullyInitialized;

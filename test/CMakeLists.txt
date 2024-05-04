@@ -8,32 +8,6 @@ add_executable(oatppAllTests
         oatpp/base/CommandLineArgumentsTest.hpp
         oatpp/data/buffer/ProcessorTest.cpp
         oatpp/data/buffer/ProcessorTest.hpp
-        oatpp/data/mapping/type/AnyTest.cpp
-        oatpp/data/mapping/type/AnyTest.hpp
-        oatpp/data/mapping/type/EnumTest.cpp
-        oatpp/data/mapping/type/EnumTest.hpp
-        oatpp/data/mapping/type/InterpretationTest.cpp
-        oatpp/data/mapping/type/InterpretationTest.hpp
-        oatpp/data/mapping/type/ListTest.cpp
-        oatpp/data/mapping/type/ListTest.hpp
-        oatpp/data/mapping/type/ObjectTest.cpp
-        oatpp/data/mapping/type/ObjectTest.hpp
-        oatpp/data/mapping/type/ObjectWrapperTest.cpp
-        oatpp/data/mapping/type/ObjectWrapperTest.hpp
-        oatpp/data/mapping/type/PairListTest.cpp
-        oatpp/data/mapping/type/PairListTest.hpp
-        oatpp/data/mapping/type/PrimitiveTest.cpp
-        oatpp/data/mapping/type/PrimitiveTest.hpp
-        oatpp/data/mapping/type/StringTest.cpp
-        oatpp/data/mapping/type/StringTest.hpp
-        oatpp/data/mapping/type/TypeTest.cpp
-        oatpp/data/mapping/type/TypeTest.hpp
-        oatpp/data/mapping/type/UnorderedMapTest.cpp
-        oatpp/data/mapping/type/UnorderedMapTest.hpp
-        oatpp/data/mapping/type/UnorderedSetTest.cpp
-        oatpp/data/mapping/type/UnorderedSetTest.hpp
-        oatpp/data/mapping/type/VectorTest.cpp
-        oatpp/data/mapping/type/VectorTest.hpp
         oatpp/data/mapping/TreeTest.cpp
         oatpp/data/mapping/TreeTest.hpp
         oatpp/data/mapping/TreeToObjectMapperTest.cpp
@@ -50,6 +24,32 @@ add_executable(oatppAllTests
         oatpp/data/share/StringTemplateTest.hpp
         oatpp/data/stream/BufferStreamTest.cpp
         oatpp/data/stream/BufferStreamTest.hpp
+        oatpp/data/type/AnyTest.cpp
+        oatpp/data/type/AnyTest.hpp
+        oatpp/data/type/EnumTest.cpp
+        oatpp/data/type/EnumTest.hpp
+        oatpp/data/type/InterpretationTest.cpp
+        oatpp/data/type/InterpretationTest.hpp
+        oatpp/data/type/ListTest.cpp
+        oatpp/data/type/ListTest.hpp
+        oatpp/data/type/ObjectTest.cpp
+        oatpp/data/type/ObjectTest.hpp
+        oatpp/data/type/ObjectWrapperTest.cpp
+        oatpp/data/type/ObjectWrapperTest.hpp
+        oatpp/data/type/PairListTest.cpp
+        oatpp/data/type/PairListTest.hpp
+        oatpp/data/type/PrimitiveTest.cpp
+        oatpp/data/type/PrimitiveTest.hpp
+        oatpp/data/type/StringTest.cpp
+        oatpp/data/type/StringTest.hpp
+        oatpp/data/type/TypeTest.cpp
+        oatpp/data/type/TypeTest.hpp
+        oatpp/data/type/UnorderedMapTest.cpp
+        oatpp/data/type/UnorderedMapTest.hpp
+        oatpp/data/type/UnorderedSetTest.cpp
+        oatpp/data/type/UnorderedSetTest.hpp
+        oatpp/data/type/VectorTest.cpp
+        oatpp/data/type/VectorTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
         oatpp/encoding/UnicodeTest.cpp

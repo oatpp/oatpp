@@ -83,7 +83,7 @@ public:
 
   TreeToObjectMapper();
 
-  void setMapperMethod(const data::mapping::type::ClassId& classId, MapperMethod method);
+  void setMapperMethod(const data::type::ClassId& classId, MapperMethod method);
 
   oatpp::Void map(MappingState& state, const Type* type) const;
 

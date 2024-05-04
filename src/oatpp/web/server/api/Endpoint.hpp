@@ -58,10 +58,10 @@ public:
     struct Param {
       
       Param();
-      Param(const oatpp::String& pName, oatpp::data::mapping::type::Type* pType);
+      Param(const oatpp::String& pName, oatpp::data::type::Type* pType);
 
       oatpp::String name;
-      oatpp::data::mapping::type::Type* type;
+      oatpp::data::type::Type* type;
 
       oatpp::String description;
       oatpp::Boolean required = true;
@@ -92,7 +92,7 @@ public:
        * @param name
        * @return new or existing parameter
        */
-      Param& add(const oatpp::String& name, oatpp::data::mapping::type::Type* type);
+      Param& add(const oatpp::String& name, oatpp::data::type::Type* type);
 
       /**
        * Add parameter name to list order
@@ -119,7 +119,7 @@ public:
      */
     struct ContentHints {
       oatpp::String contentType;
-      oatpp::data::mapping::type::Type* schema;
+      oatpp::data::type::Type* schema;
       oatpp::String description;
       std::list<std::pair<oatpp::String, oatpp::Any>> examples;
 

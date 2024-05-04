@@ -25,7 +25,7 @@
 #ifndef oatpp_utils_Conversion_hpp
 #define oatpp_utils_Conversion_hpp
 
-#include "oatpp/data/mapping/type/Primitive.hpp"
+#include "oatpp/data/type/Primitive.hpp"
 #include "oatpp/Types.hpp"
 
 

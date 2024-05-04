@@ -59,7 +59,7 @@ void ObjectMapper::write(data::stream::ConsistentOutputStream* stream, const oat
 
 }
 
-oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::mapping::type::Type* type, data::mapping::ErrorStack& errorStack) const {
+oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::type::Type* type, data::mapping::ErrorStack& errorStack) const {
 
   data::mapping::Tree tree;
 

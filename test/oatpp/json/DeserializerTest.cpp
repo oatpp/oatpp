@@ -237,7 +237,7 @@ void DeserializerTest::onRun(){
   OATPP_ASSERT(obj4->list->size() == 0)
   OATPP_ASSERT(obj4->map->size() == 0)
 
-  data::mapping::type::DTOWrapper<Test5> obj5;
+  data::type::DTOWrapper<Test5> obj5;
   try {
     obj5 = mapper.readFromString<oatpp::Object<Test5>>(R"({"strF":null})");
   } catch (std::runtime_error& e) {
@@ -251,7 +251,7 @@ void DeserializerTest::onRun(){
     OATPP_ASSERT(false)
   }
 
-  data::mapping::type::DTOWrapper<Test7> obj7;
+  data::type::DTOWrapper<Test7> obj7;
   try {
     obj7 = mapper.readFromString<oatpp::Object<Test7>>(R"({"strF":"value1", "child":{"name":null}})");
   } catch (std::runtime_error& e) {

@@ -25,8 +25,7 @@
 #ifndef oatpp_data_mapping_ObjectMapper_hpp
 #define oatpp_data_mapping_ObjectMapper_hpp
 
-#include "type/Object.hpp"
-#include "type/Type.hpp"
+#include "oatpp/Types.hpp"
 
 #include "oatpp/data/stream/Stream.hpp"
 
@@ -153,16 +152,16 @@ public:
    * @param errorStack - See &id:oatpp::data::mapping::ErrorStack;.
    * @param variant - Object to serialize.
    */
-  virtual void write(data::stream::ConsistentOutputStream* stream, const type::Void& variant, ErrorStack& errorStack) const = 0;
+  virtual void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant, ErrorStack& errorStack) const = 0;
 
   /**
    * Deserialize object. Implement this method.
    * @param caret - &id:oatpp::utils::parser::Caret; over serialized buffer.
-   * @param type - pointer to object type. See &id:oatpp::data::mapping::type::Type;.
+   * @param type - pointer to object type. See &id:oatpp::data::type::Type;.
    * @param errorStack - See &id:oatpp::data::mapping::ErrorStack;.
    * @return - deserialized object wrapped in &id:oatpp::Void;.
    */
-  virtual mapping::type::Void read(oatpp::utils::parser::Caret& caret, const mapping::type::Type* type, ErrorStack& errorStack) const = 0;
+  virtual oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::Type* type, ErrorStack& errorStack) const = 0;
 
   /**
    * Serialize object to String.
@@ -171,7 +170,7 @@ public:
    * @throws - &id:oatpp::data::mapping::MappingError;
    * @throws - depends on implementation.
    */
-  oatpp::String writeToString(const type::Void& variant) const;
+  oatpp::String writeToString(const oatpp::Void& variant) const;
 
   /**
    * Deserialize object.

@@ -31,40 +31,40 @@ namespace oatpp { namespace data { namespace mapping {
 
 TreeToObjectMapper::TreeToObjectMapper() {
 
-  m_methods.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), nullptr);
+  m_methods.resize(static_cast<size_t>(data::type::ClassId::getClassCount()), nullptr);
 
-  setMapperMethod(data::mapping::type::__class::String::CLASS_ID, &TreeToObjectMapper::mapString);
-  setMapperMethod(data::mapping::type::__class::Any::CLASS_ID, &TreeToObjectMapper::mapAny);
+  setMapperMethod(data::type::__class::String::CLASS_ID, &TreeToObjectMapper::mapString);
+  setMapperMethod(data::type::__class::Any::CLASS_ID, &TreeToObjectMapper::mapAny);
 
-  setMapperMethod(data::mapping::type::__class::Int8::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int8>);
-  setMapperMethod(data::mapping::type::__class::UInt8::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt8>);
+  setMapperMethod(data::type::__class::Int8::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int8>);
+  setMapperMethod(data::type::__class::UInt8::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt8>);
 
-  setMapperMethod(data::mapping::type::__class::Int16::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int16>);
-  setMapperMethod(data::mapping::type::__class::UInt16::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt16>);
+  setMapperMethod(data::type::__class::Int16::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int16>);
+  setMapperMethod(data::type::__class::UInt16::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt16>);
 
-  setMapperMethod(data::mapping::type::__class::Int32::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int32>);
-  setMapperMethod(data::mapping::type::__class::UInt32::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt32>);
+  setMapperMethod(data::type::__class::Int32::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int32>);
+  setMapperMethod(data::type::__class::UInt32::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt32>);
 
-  setMapperMethod(data::mapping::type::__class::Int64::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int64>);
-  setMapperMethod(data::mapping::type::__class::UInt64::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt64>);
+  setMapperMethod(data::type::__class::Int64::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Int64>);
+  setMapperMethod(data::type::__class::UInt64::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::UInt64>);
 
-  setMapperMethod(data::mapping::type::__class::Float32::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Float32>);
-  setMapperMethod(data::mapping::type::__class::Float64::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Float64>);
-  setMapperMethod(data::mapping::type::__class::Boolean::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Boolean>);
+  setMapperMethod(data::type::__class::Float32::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Float32>);
+  setMapperMethod(data::type::__class::Float64::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Float64>);
+  setMapperMethod(data::type::__class::Boolean::CLASS_ID, &TreeToObjectMapper::mapPrimitive<oatpp::Boolean>);
 
-  setMapperMethod(data::mapping::type::__class::AbstractObject::CLASS_ID, &TreeToObjectMapper::mapObject);
-  setMapperMethod(data::mapping::type::__class::AbstractEnum::CLASS_ID, &TreeToObjectMapper::mapEnum);
+  setMapperMethod(data::type::__class::AbstractObject::CLASS_ID, &TreeToObjectMapper::mapObject);
+  setMapperMethod(data::type::__class::AbstractEnum::CLASS_ID, &TreeToObjectMapper::mapEnum);
 
-  setMapperMethod(data::mapping::type::__class::AbstractVector::CLASS_ID, &TreeToObjectMapper::mapCollection);
-  setMapperMethod(data::mapping::type::__class::AbstractList::CLASS_ID, &TreeToObjectMapper::mapCollection);
-  setMapperMethod(data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID, &TreeToObjectMapper::mapCollection);
+  setMapperMethod(data::type::__class::AbstractVector::CLASS_ID, &TreeToObjectMapper::mapCollection);
+  setMapperMethod(data::type::__class::AbstractList::CLASS_ID, &TreeToObjectMapper::mapCollection);
+  setMapperMethod(data::type::__class::AbstractUnorderedSet::CLASS_ID, &TreeToObjectMapper::mapCollection);
 
-  setMapperMethod(data::mapping::type::__class::AbstractPairList::CLASS_ID, &TreeToObjectMapper::mapMap);
-  setMapperMethod(data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID, &TreeToObjectMapper::mapMap);
+  setMapperMethod(data::type::__class::AbstractPairList::CLASS_ID, &TreeToObjectMapper::mapMap);
+  setMapperMethod(data::type::__class::AbstractUnorderedMap::CLASS_ID, &TreeToObjectMapper::mapMap);
 
 }
 
-void TreeToObjectMapper::setMapperMethod(const data::mapping::type::ClassId& classId, MapperMethod method) {
+void TreeToObjectMapper::setMapperMethod(const data::type::ClassId& classId, MapperMethod method) {
   const auto id = static_cast<v_uint32>(classId.id);
   if(id >= m_methods.size()) {
     m_methods.resize(id + 1, nullptr);
@@ -150,7 +150,7 @@ oatpp::Void TreeToObjectMapper::mapAny(const TreeToObjectMapper* mapper, Mapping
     const Type* const fieldType = guessType(*state.tree);
     if(fieldType != nullptr) {
       auto fieldValue = mapper->map(state, fieldType);
-      auto anyHandle = std::make_shared<data::mapping::type::AnyHandle>(fieldValue.getPtr(), fieldValue.getValueType());
+      auto anyHandle = std::make_shared<data::type::AnyHandle>(fieldValue.getPtr(), fieldValue.getValueType());
       return oatpp::Void(anyHandle, Any::Class::getType());
     }
   }
@@ -159,11 +159,11 @@ oatpp::Void TreeToObjectMapper::mapAny(const TreeToObjectMapper* mapper, Mapping
 
 oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, MappingState& state, const Type* type) {
 
-  auto polymorphicDispatcher = static_cast<const data::mapping::type::__class::AbstractEnum::PolymorphicDispatcher*>(
+  auto polymorphicDispatcher = static_cast<const data::type::__class::AbstractEnum::PolymorphicDispatcher*>(
     type->polymorphicDispatcher
   );
 
-  data::mapping::type::EnumInterpreterError e = data::mapping::type::EnumInterpreterError::OK;
+  data::type::EnumInterpreterError e = data::type::EnumInterpreterError::OK;
   const auto& value = mapper->map(state, polymorphicDispatcher->getInterpretationType());
   if(!state.errorStack.empty()) {
     state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]");
@@ -171,18 +171,18 @@ oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, Mappin
   }
   const auto& result = polymorphicDispatcher->fromInterpretation(value, e);
 
-  if(e == data::mapping::type::EnumInterpreterError::OK) {
+  if(e == data::type::EnumInterpreterError::OK) {
     return result;
   }
 
   switch(e) {
-    case data::mapping::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
+    case data::type::EnumInterpreterError::CONSTRAINT_NOT_NULL:
       state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]: Error. Enum constraint violated - 'NotNull'.");
       break;
-    case data::mapping::type::EnumInterpreterError::OK:
-    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
-    case data::mapping::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
-    case data::mapping::type::EnumInterpreterError::ENTRY_NOT_FOUND:
+    case data::type::EnumInterpreterError::OK:
+    case data::type::EnumInterpreterError::TYPE_MISMATCH_ENUM:
+    case data::type::EnumInterpreterError::TYPE_MISMATCH_ENUM_VALUE:
+    case data::type::EnumInterpreterError::ENTRY_NOT_FOUND:
     default:
       state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]: Error. Can't map Enum.");
   }
@@ -201,7 +201,7 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
     return nullptr;
   }
 
-  auto dispatcher = static_cast<const data::mapping::type::__class::Collection::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+  auto dispatcher = static_cast<const data::type::__class::Collection::PolymorphicDispatcher*>(type->polymorphicDispatcher);
   auto collection = dispatcher->createObject();
 
   auto itemType = dispatcher->getItemType();
@@ -244,7 +244,7 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, Mapping
     return nullptr;
   }
 
-  auto dispatcher = static_cast<const data::mapping::type::__class::Map::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+  auto dispatcher = static_cast<const data::type::__class::Map::PolymorphicDispatcher*>(type->polymorphicDispatcher);
   auto map = dispatcher->createObject();
 
   auto keyType = dispatcher->getKeyType();
@@ -292,7 +292,7 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Mapp
     return nullptr;
   }
 
-  auto dispatcher = static_cast<const oatpp::data::mapping::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
+  auto dispatcher = static_cast<const oatpp::data::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
   auto object = dispatcher->createObject();
   const auto& fieldsMap = dispatcher->getProperties()->getMap();
 
