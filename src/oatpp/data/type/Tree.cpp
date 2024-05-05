@@ -76,14 +76,17 @@ Tree::Tree(const std::shared_ptr<mapping::Tree>& node, const Type* const type)
 
 Tree& Tree::operator = (std::nullptr_t) {
   m_ptr.reset();
+  return *this;
 }
 
 Tree& Tree::operator = (const Tree& other) {
   m_ptr = other.m_ptr;
+  return *this;
 }
 
 Tree& Tree::operator = (Tree&& other) {
   m_ptr = std::move(other.m_ptr);
+  return *this;
 }
 
 Tree& Tree::operator = (const mapping::Tree& other) {
@@ -92,6 +95,7 @@ Tree& Tree::operator = (const mapping::Tree& other) {
   } else {
     m_ptr = std::make_shared<mapping::Tree>(other);
   }
+  return *this;
 }
 
 Tree& Tree::operator = (mapping::Tree&& other) {
@@ -100,6 +104,7 @@ Tree& Tree::operator = (mapping::Tree&& other) {
   } else {
     m_ptr = std::make_shared<mapping::Tree>(std::forward<mapping::Tree>(other));
   }
+  return *this;
 }
 
 bool Tree::operator == (std::nullptr_t) const {

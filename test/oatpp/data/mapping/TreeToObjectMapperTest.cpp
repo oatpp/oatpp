@@ -59,6 +59,7 @@ class TestDto1 : public oatpp::DTO {
 
   DTO_FIELD(Vector<oatpp::Object<TestDto1>>, vector);
   DTO_FIELD(Fields<oatpp::Object<TestDto1>>, map);
+  DTO_FIELD(Fields<String>, pairs);
 
 };
 
@@ -99,6 +100,15 @@ void TreeToObjectMapperTest::onRun() {
     tree["map"]["nested_1"]["i32"] = 1;
     tree["map"]["nested_2"]["i32"] = 2;
     tree["map"]["nested_3"]["i32"] = 3;
+
+    auto& pairs = tree["pairs"].getPairs();
+    pairs.push_back({"same-key", {}});
+    pairs.push_back({"same-key", {}});
+    pairs.push_back({"same-key", {}});
+
+    pairs[0].second = "value1";
+    pairs[1].second = "value2";
+    pairs[2].second = "value3";
 
     TreeToObjectMapper::State state;
     state.config = &config;

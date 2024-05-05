@@ -201,12 +201,8 @@ oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, State&
 
 oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, State& state, const Type* type) {
 
-  if(state.tree->getType() != Tree::Type::VECTOR) {
-    if(state.tree->isNull()){
-      return oatpp::Void(type);
-    }
-    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapCollection()]: Node is NOT a VECTOR.");
-    return nullptr;
+  if(state.tree->isNull()){
+    return oatpp::Void(type);
   }
 
   auto dispatcher = static_cast<const data::type::__class::Collection::PolymorphicDispatcher*>(type->polymorphicDispatcher);
@@ -214,27 +210,24 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
 
   auto itemType = dispatcher->getItemType();
 
-  const auto& vector = state.tree->getVector();
-
-  v_int64 index = 0;
+  const TreeChildrenOperator childrenOperator(*state.tree);
+  v_uint64 childrenCount = childrenOperator.size();
 
   State nestedState;
   nestedState.config = state.config;
 
-  for(const auto& node : vector) {
+  for(v_uint64 index = 0; index < childrenCount; index ++) {
 
-    nestedState.tree = &node;
+    nestedState.tree = childrenOperator.getItem(index);
     auto item = mapper->map(nestedState, itemType);
 
     if(!nestedState.errorStack.empty()) {
       state.errorStack.splice(nestedState.errorStack);
-      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapCollection()]: index=" + utils::Conversion::int64ToStr(index));
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapCollection()]: index=" + utils::Conversion::uint64ToStr(index));
       return nullptr;
     }
 
     dispatcher->addItem(collection, item);
-
-    index ++;
 
   }
 
@@ -244,12 +237,8 @@ oatpp::Void TreeToObjectMapper::mapCollection(const TreeToObjectMapper* mapper, 
 
 oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, State& state, const Type* type) {
 
-  if(state.tree->getType() != Tree::Type::MAP) {
-    if(state.tree->isNull()){
-      return oatpp::Void(type);
-    }
-    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapMap()]: Node is NOT a MAP.");
-    return nullptr;
+  if(state.tree->isNull()){
+    return oatpp::Void(type);
   }
 
   auto dispatcher = static_cast<const data::type::__class::Map::PolymorphicDispatcher*>(type->polymorphicDispatcher);
@@ -262,27 +251,27 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, State& 
   }
   auto valueType = dispatcher->getValueType();
 
-  const auto& treeMap = state.tree->getMap();
-  auto treeMapSize = treeMap.size();
+  const TreeChildrenOperator childrenOperator(*state.tree);
+  v_uint64 childrenCount = childrenOperator.size();
 
   State nestedState;
   nestedState.config = state.config;
 
-  for(v_uint64 i = 0; i < treeMapSize; i ++) {
+  for(v_uint64 i = 0; i < childrenCount; i ++) {
 
-    const auto& node = treeMap[i];
+    const auto& pair = childrenOperator.getPair(i);
 
-    nestedState.tree = &node.second.get();
+    nestedState.tree = pair.second;
 
     auto item = mapper->map(nestedState, valueType);
 
     if(!nestedState.errorStack.empty()) {
       state.errorStack.splice(nestedState.errorStack);
-      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapMap()]: key='" + node.first + "'");
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapMap()]: key='" + pair.first + "'");
       return nullptr;
     }
 
-    dispatcher->addItem(map, node.first, item);
+    dispatcher->addItem(map, pair.first, item);
 
   }
 
@@ -292,12 +281,8 @@ oatpp::Void TreeToObjectMapper::mapMap(const TreeToObjectMapper* mapper, State& 
 
 oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, State& state, const Type* type) {
 
-  if(state.tree->getType() != Tree::Type::MAP) {
-    if(state.tree->isNull()){
-      return oatpp::Void(type);
-    }
-    state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Node is NOT a MAP.");
-    return nullptr;
+  if(state.tree->isNull()){
+    return oatpp::Void(type);
   }
 
   auto dispatcher = static_cast<const oatpp::data::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
@@ -306,31 +291,31 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
 
   std::vector<std::pair<oatpp::BaseObject::Property*, const Tree*>> polymorphs;
 
-  const auto& treeMap = state.tree->getMap();
-  auto treeMapSize = treeMap.size();
+  const TreeChildrenOperator childrenOperator(*state.tree);
+  v_uint64 childrenCount = childrenOperator.size();
 
-  for(v_uint64 i = 0; i < treeMapSize; i ++) {
+  for(v_uint64 i = 0; i < childrenCount; i ++) {
 
-    const auto& node = treeMap[i];
+    const auto& pair = childrenOperator.getPair(i);
 
-    auto fieldIterator = fieldsMap.find(node.first);
+    auto fieldIterator = fieldsMap.find(pair.first);
     if(fieldIterator != fieldsMap.end()){
 
       auto field = fieldIterator->second;
 
       if(field->info.typeSelector && field->type == oatpp::Any::Class::getType()) {
-        polymorphs.emplace_back(field, &node.second.get()); // store polymorphs for later processing.
+        polymorphs.emplace_back(field, pair.second); // store polymorphs for later processing.
       } else {
 
         State nestedState;
-        nestedState.tree = &node.second.get();
+        nestedState.tree = pair.second;
         nestedState.config = state.config;
 
         auto value = mapper->map(nestedState, field->type);
 
         if(!nestedState.errorStack.empty()) {
           state.errorStack.splice(nestedState.errorStack);
-          state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: field='" + node.first + "'");
+          state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: field='" + pair.first + "'");
           return nullptr;
         }
 
@@ -344,7 +329,7 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
       }
 
     } else if (!state.config->allowUnknownFields) {
-      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. Unknown field '" + node.first + "'");
+      state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. Unknown field '" + pair.first + "'");
       return nullptr;
     }
 

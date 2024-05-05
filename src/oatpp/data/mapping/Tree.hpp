@@ -260,6 +260,39 @@ public:
 
 };
 
+class TreeChildrenOperator {
+private:
+  enum IteratorType {
+    VECTOR,
+    MAP,
+    PAIRS
+  };
+private:
+  std::vector<Tree>* m_vector;
+  TreeMap* m_map;
+  std::vector<std::pair<type::String, Tree>>* m_pairs;
+private:
+  const std::vector<Tree>* c_vector;
+  const TreeMap* c_map;
+  const std::vector<std::pair<type::String, Tree>>* c_pairs;
+private:
+  bool m_const;
+  IteratorType m_type;
+public:
+
+  TreeChildrenOperator(Tree& tree);
+  TreeChildrenOperator(const Tree& tree);
+
+  std::pair<type::String, Tree*> getPair(v_uint64 index);
+  std::pair<type::String, const Tree*> getPair(v_uint64 index) const;
+
+  Tree* getItem(v_uint64 index);
+  const Tree* getItem(v_uint64 index) const;
+
+  v_uint64 size() const;
+
+};
+
 //////////////////////////////////////////////////////
 // Tree::NodePrimitiveType
 
