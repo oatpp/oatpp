@@ -784,33 +784,23 @@ TreeChildrenOperator::TreeChildrenOperator(Tree& tree)
   : TreeChildrenOperator(const_cast<const Tree&>(tree))
 {
   m_const = false;
-  if(tree.getType() == Tree::Type::VECTOR) {
-    m_vector = std::addressof(tree.getVector());
-  } else if(tree.getType() == Tree::Type::MAP) {
-    m_map = std::addressof(tree.getMap());
-  } else if(tree.getType() == Tree::Type::PAIRS) {
-    m_pairs = std::addressof(tree.getPairs());
-  }
 }
 
 TreeChildrenOperator::TreeChildrenOperator(const Tree& tree)
   : m_vector(nullptr)
   , m_map(nullptr)
   , m_pairs(nullptr)
-  , c_vector(nullptr)
-  , c_map(nullptr)
-  , c_pairs(nullptr)
 {
   m_const = true;
   if(tree.getType() == Tree::Type::VECTOR) {
     m_type = VECTOR;
-    c_vector = std::addressof(tree.getVector());
+    m_vector = std::addressof(tree.getVector());
   } else if(tree.getType() == Tree::Type::MAP) {
     m_type = MAP;
-    c_map = std::addressof(tree.getMap());
+    m_map = std::addressof(tree.getMap());
   } else if(tree.getType() == Tree::Type::PAIRS) {
     m_type = PAIRS;
-    c_pairs = std::addressof(tree.getPairs());
+    m_pairs = std::addressof(tree.getPairs());
   } else {
     throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::TreeChildrenOperator()]: Node type is NOT suppoerted");
   }
@@ -823,11 +813,11 @@ std::pair<type::String, Tree*> TreeChildrenOperator::getPair(v_uint64 index) {
   switch (m_type) {
     case VECTOR: break;
     case MAP: {
-      const auto& p = (*m_map)[index];
+      const auto& p = (*const_cast<TreeMap*>(m_map))[index];
       return {p.first, std::addressof(p.second.get())};
     }
     case PAIRS: {
-      auto& p = m_pairs->at(index);
+      auto& p = const_cast<std::vector<std::pair<type::String, Tree>>*>(m_pairs)->at(index);
       return {p.first, &p.second};
     }
     default:
@@ -840,11 +830,11 @@ std::pair<type::String, const Tree*> TreeChildrenOperator::getPair(v_uint64 inde
   switch (m_type) {
     case VECTOR: break;
     case MAP: {
-      const auto& p = (*c_map)[index];
+      const auto& p = (*m_map)[index];
       return {p.first, std::addressof(p.second.get())};
     }
     case PAIRS: {
-      auto& p = (*c_pairs)[index];
+      auto& p = (*m_pairs)[index];
       return {p.first, &p.second};
     }
     default:
@@ -858,9 +848,9 @@ Tree* TreeChildrenOperator::getItem(v_uint64 index) {
     throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::getItem()]: Can't operate on CONST tree node");
   }
   switch (m_type) {
-    case VECTOR: return std::addressof(m_vector->at(index));
-    case MAP: return std::addressof((*m_map)[index].second.get());
-    case PAIRS: return &m_pairs->at(index).second;
+    case VECTOR: return std::addressof(const_cast<std::vector<Tree>*>(m_vector)->at(index));
+    case MAP: return std::addressof((*const_cast<TreeMap*>(m_map))[index].second.get());
+    case PAIRS: return &const_cast<std::vector<std::pair<type::String, Tree>>*>(m_pairs)->at(index).second;
     default:
       break;
   }
@@ -869,20 +859,102 @@ Tree* TreeChildrenOperator::getItem(v_uint64 index) {
 
 const Tree* TreeChildrenOperator::getItem(v_uint64 index) const {
   switch (m_type) {
-    case VECTOR: return std::addressof(c_vector->at(index));
-    case MAP: return std::addressof((*c_map)[index].second.get());
-    case PAIRS: return &c_pairs->at(index).second;
+    case VECTOR: return std::addressof(m_vector->at(index));
+    case MAP: return std::addressof((*m_map)[index].second.get());
+    case PAIRS: return &m_pairs->at(index).second;
     default:
       break;
   }
   throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::getItem()]: Invalid operator type");
 }
 
+Tree* TreeChildrenOperator::putPair(const type::String& key, const Tree& tree) {
+  if(m_const) {
+    throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putPair()]: Can't operate on CONST tree node");
+  }
+  switch (m_type) {
+    case VECTOR: break;
+    case MAP: {
+      auto& node = (*const_cast<TreeMap*>(m_map))[key];
+      node = tree;
+      return std::addressof(node);
+    }
+    case PAIRS: {
+      auto& pairs = *const_cast<std::vector<std::pair<type::String, Tree>>*>(m_pairs);
+      pairs.emplace_back(key, tree);
+      auto& p = pairs.at(pairs.size() - 1);
+      return std::addressof(p.second);
+    }
+    default:
+      break;
+  }
+  throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putPair()]: Node type doesn't support pairs");
+}
+
+Tree* TreeChildrenOperator::putPair(const type::String& key, Tree&& tree) {
+  if(m_const) {
+    throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putPair()]: Can't operate on CONST tree node");
+  }
+  switch (m_type) {
+    case VECTOR: break;
+    case MAP: {
+      auto& node = (*const_cast<TreeMap*>(m_map))[key];
+      node = std::forward<Tree>(tree);
+      return std::addressof(node);
+    }
+    case PAIRS: {
+      auto& pairs = *const_cast<std::vector<std::pair<type::String, Tree>>*>(m_pairs);
+      pairs.emplace_back(key, std::forward<Tree>(tree));
+      auto& p = pairs.at(pairs.size() - 1);
+      return std::addressof(p.second);
+    }
+    default:
+      break;
+  }
+  throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putPair()]: Node type doesn't support pairs");
+}
+
+Tree* TreeChildrenOperator::putItem(const Tree& tree) {
+  if(m_const) {
+    throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putItem()]: Can't operate on CONST tree node");
+  }
+  switch (m_type) {
+    case VECTOR: {
+      auto& vector = *const_cast<std::vector<Tree>*>(m_vector);
+      vector.push_back(tree);
+      return std::addressof(vector.at(vector.size() - 1));
+    }
+    case MAP:
+    case PAIRS:
+    default:
+      break;
+  }
+  throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putItem()]: Invalid iterator type");
+}
+
+Tree* TreeChildrenOperator::putItem(Tree&& tree) {
+  if(m_const) {
+    throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putItem()]: Can't operate on CONST tree node");
+  }
+  switch (m_type) {
+    case VECTOR: {
+      auto& vector = *const_cast<std::vector<Tree>*>(m_vector);
+      vector.emplace_back(std::forward<Tree>(tree));
+      return std::addressof(vector.at(vector.size() - 1));
+    }
+    case MAP:
+    case PAIRS:
+    default:
+      break;
+  }
+  throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::putItem()]: Invalid iterator type");
+}
+
 v_uint64 TreeChildrenOperator::size() const {
   switch (m_type) {
-    case VECTOR: return c_vector->size();
-    case MAP: return c_map->size();
-    case PAIRS: return c_pairs->size();
+    case VECTOR: return m_vector->size();
+    case MAP: return m_map->size();
+    case PAIRS: return m_pairs->size();
     default:
       break;
   }

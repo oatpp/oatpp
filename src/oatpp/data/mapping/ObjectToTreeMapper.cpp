@@ -161,7 +161,7 @@ void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, State& 
   auto iterator = dispatcher->beginIteration(polymorph);
 
   state.tree->setVector(0);
-  auto& vector = state.tree->getVector();
+  TreeChildrenOperator childrenOperator(*state.tree);
   v_int64 index = 0;
 
   while (!iterator->finished()) {
@@ -170,10 +170,8 @@ void ObjectToTreeMapper::mapCollection(const ObjectToTreeMapper* mapper, State& 
 
     if(value || state.config->includeNullFields || state.config->alwaysIncludeNullCollectionElements) {
 
-      vector.emplace_back();
-
       State nestedState;
-      nestedState.tree = &vector[vector.size() - 1];
+      nestedState.tree = childrenOperator.putItem({});
       nestedState.config = state.config;
 
       mapper->map(nestedState, value);
@@ -212,8 +210,15 @@ void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, State& state, 
 
   auto iterator = dispatcher->beginIteration(polymorph);
 
-  state.tree->setMap({});
-  auto& map = state.tree->getMap();
+  if(polymorph.getValueType()->classId == data::type::__class::AbstractUnorderedMap::CLASS_ID) {
+    state.tree->setMap({});
+  } else if(polymorph.getValueType()->classId == data::type::__class::AbstractPairList::CLASS_ID) {
+    state.tree->setPairs({});
+  } else {
+    state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapMap()]: Invalid polymorph type");
+  }
+
+  TreeChildrenOperator childrenOperator(*state.tree);
 
   while (!iterator->finished()) {
     const auto& value = iterator->getValue();
@@ -223,7 +228,7 @@ void ObjectToTreeMapper::mapMap(const ObjectToTreeMapper* mapper, State& state, 
       const auto& key = oatpp::String(std::static_pointer_cast<std::string>(untypedKey.getPtr()));
 
       State nestedState;
-      nestedState.tree = &map[key];
+      nestedState.tree = childrenOperator.putPair(key, {});
       nestedState.config = state.config;
 
       mapper->map(nestedState, value);
@@ -255,7 +260,7 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& stat
   auto object = static_cast<oatpp::BaseObject*>(polymorph.get());
 
   state.tree->setMap({});
-  auto& map = state.tree->getMap();
+  TreeChildrenOperator childrenOperator(*state.tree);
 
   for (auto const& field : fields) {
 
@@ -277,7 +282,7 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& stat
     if (value || state.config->includeNullFields || (field->info.required && state.config->alwaysIncludeRequired)) {
 
       State nestedState;
-      nestedState.tree = &map[oatpp::String(field->name)];
+      nestedState.tree = childrenOperator.putPair(oatpp::String(field->name), {});
       nestedState.config = state.config;
 
       mapper->map(nestedState, value);

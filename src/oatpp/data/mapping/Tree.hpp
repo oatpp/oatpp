@@ -268,26 +268,28 @@ private:
     PAIRS
   };
 private:
-  std::vector<Tree>* m_vector;
-  TreeMap* m_map;
-  std::vector<std::pair<type::String, Tree>>* m_pairs;
-private:
-  const std::vector<Tree>* c_vector;
-  const TreeMap* c_map;
-  const std::vector<std::pair<type::String, Tree>>* c_pairs;
+  const std::vector<Tree>* m_vector;
+  const TreeMap* m_map;
+  const std::vector<std::pair<type::String, Tree>>* m_pairs;
 private:
   bool m_const;
   IteratorType m_type;
 public:
 
-  TreeChildrenOperator(Tree& tree);
-  TreeChildrenOperator(const Tree& tree);
+  explicit TreeChildrenOperator(Tree& tree);
+  explicit TreeChildrenOperator(const Tree& tree);
 
   std::pair<type::String, Tree*> getPair(v_uint64 index);
   std::pair<type::String, const Tree*> getPair(v_uint64 index) const;
 
   Tree* getItem(v_uint64 index);
   const Tree* getItem(v_uint64 index) const;
+
+  Tree* putPair(const type::String& key, const Tree& tree);
+  Tree* putPair(const type::String& key, Tree&& tree);
+
+  Tree* putItem(const Tree& tree);
+  Tree* putItem(Tree&& tree);
 
   v_uint64 size() const;
 

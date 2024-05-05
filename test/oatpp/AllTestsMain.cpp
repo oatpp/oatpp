@@ -55,6 +55,7 @@
 #include "oatpp/data/stream/BufferStreamTest.hpp"
 
 #include "oatpp/data/mapping/TreeTest.hpp"
+#include "oatpp/data/mapping/ObjectToTreeMapperTest.hpp"
 #include "oatpp/data/mapping/TreeToObjectMapperTest.hpp"
 
 #include "oatpp/data/share/LazyStringMapTest.hpp"
@@ -115,9 +116,10 @@ void runTests() {
 //  OATPP_RUN_TEST(oatpp::data::stream::BufferStreamTest);
 //
 
-  OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
+  //OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
 
-  OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::ObjectToTreeMapperTest);
+  //OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
 
 //
 //

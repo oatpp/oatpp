@@ -330,7 +330,7 @@ void DTOMapperTest::onRun(){
     oatpp::String result;
     try {
       result = mapper.writeToString(test2);
-    } catch(std::runtime_error& e) {
+    } catch(std::runtime_error&) {
       OATPP_LOGV(TAG, "Test2::field_string is required!")
     }
     OATPP_ASSERT(result == nullptr)
@@ -340,7 +340,7 @@ void DTOMapperTest::onRun(){
     auto test3 = Test3::createShared();
     try {
       auto result = mapper.writeToString(test3);
-    } catch(std::runtime_error& e) {
+    } catch(std::runtime_error&) {
       OATPP_ASSERT(false)
     }
   }
@@ -352,7 +352,7 @@ void DTOMapperTest::onRun(){
     oatpp::String result;
     try {
       result = mapper.writeToString(test4);
-    } catch(std::runtime_error& e) {
+    } catch(std::runtime_error&) {
       OATPP_LOGV(TAG, "TestChild1::name is required!")
     }
     OATPP_ASSERT(result == nullptr)
@@ -364,7 +364,7 @@ void DTOMapperTest::onRun(){
     test5->child = TestChild2::createShared();
     try {
       auto result = mapper.writeToString(test5);
-    } catch(std::runtime_error& e) {
+    } catch(std::runtime_error&) {
       OATPP_ASSERT(false)
     }
   }
