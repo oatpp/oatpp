@@ -52,7 +52,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (NAME, __VA_
 
 #define OATPP_MACRO_DTO_ENUM_VALUE_1(NAME, VAL) \
 { \
-  oatpp::data::mapping::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, #NAME, nullptr}; \
+  oatpp::data::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, #NAME, nullptr}; \
   info.byName.insert({#NAME, entry}); \
   info.byValue.insert({static_cast<v_uint64>(EnumType::NAME), entry}); \
   info.byIndex.push_back(entry); \
@@ -60,7 +60,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (NAME, __VA_
 
 #define OATPP_MACRO_DTO_ENUM_VALUE_2(NAME, VAL, QUALIFIER) \
 { \
-  oatpp::data::mapping::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, QUALIFIER, nullptr}; \
+  oatpp::data::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, QUALIFIER, nullptr}; \
   info.byName.insert({QUALIFIER, entry}); \
   info.byValue.insert({static_cast<v_uint64>(EnumType::NAME), entry}); \
   info.byIndex.push_back(entry); \
@@ -68,7 +68,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_SELECTOR(MACRO, (__VA_ARGS__)) (NAME, __VA_
 
 #define OATPP_MACRO_DTO_ENUM_VALUE_3(NAME, VAL, QUALIFIER, DESCRIPTION) \
 { \
-  oatpp::data::mapping::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, QUALIFIER, DESCRIPTION}; \
+  oatpp::data::type::EnumValueInfo<EnumType> entry = {EnumType::NAME, index ++, QUALIFIER, DESCRIPTION}; \
   info.byName.insert({QUALIFIER, entry}); \
   info.byValue.insert({static_cast<v_uint64>(EnumType::NAME), entry}); \
   info.byIndex.push_back(entry); \
@@ -95,7 +95,7 @@ enum class NAME : ORDINAL_TYPE {}; \
 \
 namespace { \
 \
-class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
+class Z__OATPP_ENUM_META_##NAME : public oatpp::data::type::EnumMeta<NAME> { \
 private: \
 \
   static bool init() { \
@@ -128,7 +128,7 @@ enum class NAME : ORDINAL_TYPE { \
   ) \
 }; \
 \
-class Z__OATPP_ENUM_META_##NAME : public oatpp::data::mapping::type::EnumMeta<NAME> { \
+class Z__OATPP_ENUM_META_##NAME : public oatpp::data::type::EnumMeta<NAME> { \
 private: \
 \
   static bool init() { \

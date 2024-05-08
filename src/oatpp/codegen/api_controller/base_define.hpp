@@ -227,7 +227,7 @@ const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = __request->readBodyToString();
 #define OATPP_MACRO_API_CONTROLLER_BODY_STRING_INFO(TYPE, PARAM_LIST) \
 info->body.name = OATPP_MACRO_FIRSTARG_STR PARAM_LIST; \
 info->body.required = true; \
-info->body.type = oatpp::data::mapping::type::__class::String::getType(); \
+info->body.type = oatpp::data::type::__class::String::getType(); \
 if(getDefaultObjectMapper()) { \
   info->bodyContentType = getDefaultObjectMapper()->getInfo().http_content_type; \
 }

@@ -25,7 +25,7 @@
 #ifndef oatpp_data_share_MemoryLabel_hpp
 #define oatpp_data_share_MemoryLabel_hpp
 
-#include "oatpp/data/mapping/type/Primitive.hpp"
+#include "oatpp/data/type/Primitive.hpp"
 #include "oatpp/utils/String.hpp"
 
 #include <cstring>
@@ -40,7 +40,7 @@ namespace oatpp { namespace data { namespace share {
  */
 class MemoryLabel {
 public:
-  typedef oatpp::data::mapping::type::String String;
+  typedef oatpp::data::type::String String;
 protected:
   mutable std::shared_ptr<std::string> m_memoryHandle;
   mutable const void* m_data;

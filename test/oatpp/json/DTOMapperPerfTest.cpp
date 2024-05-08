@@ -73,17 +73,16 @@ void DTOMapperPerfTest::onRun() {
   
   v_int32 numIterations = 1000000;
 
-  auto serializer2 = std::make_shared<oatpp::json::Serializer>();
-  auto mapper = oatpp::json::ObjectMapper::createShared();
+  oatpp::json::ObjectMapper mapper;
   
   auto test1 = Test1::createTestInstance();
-  auto test1_Text = mapper->writeToString(test1);
+  auto test1_Text = mapper.writeToString(test1);
   OATPP_LOGV(TAG, "json='%s'", test1_Text->c_str())
 
   {
     oatpp::test::PerformanceChecker checker("Serializer");
     for(v_int32 i = 0; i < numIterations; i ++) {
-      mapper->writeToString(test1);
+      mapper.writeToString(test1);
     }
   }
   
@@ -92,7 +91,7 @@ void DTOMapperPerfTest::onRun() {
     oatpp::utils::parser::Caret caret(test1_Text);
     for(v_int32 i = 0; i < numIterations; i ++) {
       caret.setPosition(0);
-      mapper->readFromCaret<oatpp::Object<Test1>>(caret);
+      mapper.readFromCaret<oatpp::Object<Test1>>(caret);
     }
   }
 

@@ -28,37 +28,37 @@ namespace oatpp { namespace data { namespace mapping {
 
 TypeResolver::TypeResolver() {
 
-  m_knownClasses.resize(static_cast<size_t>(data::mapping::type::ClassId::getClassCount()), false);
+  m_knownClasses.resize(static_cast<size_t>(data::type::ClassId::getClassCount()), false);
 
   addKnownClasses({
-    data::mapping::type::__class::String::CLASS_ID,
-    data::mapping::type::__class::Any::CLASS_ID,
+    data::type::__class::String::CLASS_ID,
+    data::type::__class::Any::CLASS_ID,
 
-    data::mapping::type::__class::Int8::CLASS_ID,
-    data::mapping::type::__class::UInt8::CLASS_ID,
+    data::type::__class::Int8::CLASS_ID,
+    data::type::__class::UInt8::CLASS_ID,
 
-    data::mapping::type::__class::Int16::CLASS_ID,
-    data::mapping::type::__class::UInt16::CLASS_ID,
+    data::type::__class::Int16::CLASS_ID,
+    data::type::__class::UInt16::CLASS_ID,
 
-    data::mapping::type::__class::Int32::CLASS_ID,
-    data::mapping::type::__class::UInt32::CLASS_ID,
+    data::type::__class::Int32::CLASS_ID,
+    data::type::__class::UInt32::CLASS_ID,
 
-    data::mapping::type::__class::Int64::CLASS_ID,
-    data::mapping::type::__class::UInt64::CLASS_ID,
+    data::type::__class::Int64::CLASS_ID,
+    data::type::__class::UInt64::CLASS_ID,
 
-    data::mapping::type::__class::Float32::CLASS_ID,
-    data::mapping::type::__class::Float64::CLASS_ID,
-    data::mapping::type::__class::Boolean::CLASS_ID,
+    data::type::__class::Float32::CLASS_ID,
+    data::type::__class::Float64::CLASS_ID,
+    data::type::__class::Boolean::CLASS_ID,
 
-    data::mapping::type::__class::AbstractObject::CLASS_ID,
-    data::mapping::type::__class::AbstractEnum::CLASS_ID,
+    data::type::__class::AbstractObject::CLASS_ID,
+    data::type::__class::AbstractEnum::CLASS_ID,
 
-    data::mapping::type::__class::AbstractVector::CLASS_ID,
-    data::mapping::type::__class::AbstractList::CLASS_ID,
-    data::mapping::type::__class::AbstractUnorderedSet::CLASS_ID,
+    data::type::__class::AbstractVector::CLASS_ID,
+    data::type::__class::AbstractList::CLASS_ID,
+    data::type::__class::AbstractUnorderedSet::CLASS_ID,
 
-    data::mapping::type::__class::AbstractPairList::CLASS_ID,
-    data::mapping::type::__class::AbstractUnorderedMap::CLASS_ID
+    data::type::__class::AbstractPairList::CLASS_ID,
+    data::type::__class::AbstractUnorderedMap::CLASS_ID
   });
 
 }
@@ -85,7 +85,7 @@ bool TypeResolver::isKnownClass(const type::ClassId& classId) const {
   return false;
 }
 
-bool TypeResolver::isKnownType(const type::Type* type) const {
+bool TypeResolver::isKnownType(const oatpp::Type* type) const {
   if (type != nullptr) {
     return isKnownClass(type->classId);
   }
@@ -100,7 +100,7 @@ const std::vector<std::string>& TypeResolver::getEnabledInterpretations() const 
   return m_enabledInterpretations;
 }
 
-const type::Type* TypeResolver::resolveType(const type::Type* type, Cache& cache) const {
+const oatpp::Type* TypeResolver::resolveType(const oatpp::Type* type, Cache& cache) const {
 
   if(type == nullptr) {
     return nullptr;
@@ -155,7 +155,7 @@ type::Void TypeResolver::resolveValue(const type::Void& value, Cache& cache) con
 
 }
 
-const type::Type* TypeResolver::findPropertyType(const type::Type* baseType,
+const oatpp::Type* TypeResolver::findPropertyType(const oatpp::Type* baseType,
                                                  const std::vector<std::string>& path,
                                                  v_uint32 pathPosition,
                                                  Cache& cache) const
@@ -228,7 +228,7 @@ type::Void TypeResolver::findPropertyValue(const type::Void& baseObject,
 
 }
 
-const type::Type* TypeResolver::resolveObjectPropertyType(const type::Type* objectType,
+const oatpp::Type* TypeResolver::resolveObjectPropertyType(const oatpp::Type* objectType,
                                                           const std::vector<std::string>& path,
                                                           Cache& cache) const
 {

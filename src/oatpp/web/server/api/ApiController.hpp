@@ -108,62 +108,62 @@ public:
   typedef oatpp::data::mapping::ObjectMapper ObjectMapper;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::String;.
+   * Convenience typedef for &id:oatpp::data::type::String;.
    */
   typedef oatpp::String String;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int8;.
+   * Convenience typedef for &id:oatpp::data::type::Int8;.
    */
   typedef oatpp::Int8 Int8;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt8;.
+   * Convenience typedef for &id:oatpp::data::type::UInt8;.
    */
   typedef oatpp::UInt8 UInt8;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int16;.
+   * Convenience typedef for &id:oatpp::data::type::Int16;.
    */
   typedef oatpp::Int16 Int16;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt16;.
+   * Convenience typedef for &id:oatpp::data::type::UInt16;.
    */
   typedef oatpp::UInt16 UInt16;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int32;.
+   * Convenience typedef for &id:oatpp::data::type::Int32;.
    */
   typedef oatpp::Int32 Int32;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt32;.
+   * Convenience typedef for &id:oatpp::data::type::UInt32;.
    */
   typedef oatpp::UInt32 UInt32;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Int64;.
+   * Convenience typedef for &id:oatpp::data::type::Int64;.
    */
   typedef oatpp::Int64 Int64;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::UInt64;.
+   * Convenience typedef for &id:oatpp::data::type::UInt64;.
    */
   typedef oatpp::UInt64 UInt64;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Float32;.
+   * Convenience typedef for &id:oatpp::data::type::Float32;.
    */
   typedef oatpp::Float32 Float32;
 
   /**
-   * Convenience typedef for &id:atpp::data::mapping::type::Float64;.
+   * Convenience typedef for &id:atpp::data::type::Float64;.
    */
   typedef oatpp::Float64 Float64;
 
   /**
-   * Convenience typedef for &id:oatpp::data::mapping::type::Boolean;.
+   * Convenience typedef for &id:oatpp::data::type::Boolean;.
    */
   typedef oatpp::Boolean Boolean;
 
@@ -182,7 +182,7 @@ public:
   using Fields = oatpp::Fields<Value>;
 
   template <class T>
-  using Enum = oatpp::data::mapping::type::Enum<T>;
+  using Enum = oatpp::data::type::Enum<T>;
 
 protected:
   
@@ -549,17 +549,17 @@ struct ApiController::TypeInterpretation <oatpp::Boolean> {
 };
 
 template<class T, class I>
-struct ApiController::TypeInterpretation <data::mapping::type::EnumObjectWrapper<T, I>> {
+struct ApiController::TypeInterpretation <data::type::EnumObjectWrapper<T, I>> {
 
-  typedef data::mapping::type::EnumObjectWrapper<T, I> EnumOW;
+  typedef data::type::EnumObjectWrapper<T, I> EnumOW;
   typedef typename I::UnderlyingTypeObjectWrapper UTOW;
 
   static EnumOW fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     const auto& parsedValue = ApiController::TypeInterpretation<UTOW>::fromString(typeName, text, success);
     if(success) {
-      data::mapping::type::EnumInterpreterError error = data::mapping::type::EnumInterpreterError::OK;
+      data::type::EnumInterpreterError error = data::type::EnumInterpreterError::OK;
       const auto& result = I::fromInterpretation(parsedValue, error);
-      if(error == data::mapping::type::EnumInterpreterError::OK) {
+      if(error == data::type::EnumInterpreterError::OK) {
         return result.template cast<EnumOW>();
       }
       success = false;

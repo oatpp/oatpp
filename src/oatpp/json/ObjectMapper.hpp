@@ -28,6 +28,8 @@
 #include "./Serializer.hpp"
 #include "./Deserializer.hpp"
 
+#include "oatpp/data/mapping/ObjectToTreeMapper.hpp"
+#include "oatpp/data/mapping/TreeToObjectMapper.hpp"
 #include "oatpp/data/mapping/ObjectMapper.hpp"
 
 namespace oatpp { namespace json {
@@ -43,74 +45,44 @@ private:
     static Info info("application/json");
     return info;
   }
+
+public:
+
+  class DeserializerConfig {
+  public:
+    data::mapping::TreeToObjectMapper::Config mapper;
+    Deserializer::Config json;
+  };
+
+public:
+
+  class SerializerConfig {
+  public:
+    data::mapping::ObjectToTreeMapper::Config mapper;
+    Serializer::Config json;
+  };
+
 private:
-  std::shared_ptr<Serializer> m_serializer;
-  std::shared_ptr<Deserializer> m_deserializer;
-public:
-  /**
-   * Constructor.
-   * @param serializerConfig - &id:oatpp::json::Serializer::Config;.
-   * @param deserializerConfig - &id:oatpp::json::Deserializer::Config;.
-   */
-  ObjectMapper(const std::shared_ptr<Serializer::Config>& serializerConfig,
-               const std::shared_ptr<Deserializer::Config>& deserializerConfig);
-
-  /**
-   * Constructor.
-   * @param serializer
-   * @param deserializer
-   */
-  ObjectMapper(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>(),
-               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>());
+  void writeTree(data::stream::ConsistentOutputStream* stream, const data::mapping::Tree& tree, data::mapping::ErrorStack& errorStack) const;
+private:
+  SerializerConfig m_serializerConfig;
+  DeserializerConfig m_deserializerConfig;
+private:
+  data::mapping::ObjectToTreeMapper m_objectToTreeMapper;
+  data::mapping::TreeToObjectMapper m_treeToObjectMapper;
 public:
 
-  /**
-   * Create shared ObjectMapper.
-   * @param serializerConfig - &id:oatpp::json::Serializer::Config;.
-   * @param deserializerConfig - &id:oatpp::json::Deserializer::Config;.
-   * @return - `std::shared_ptr` to ObjectMapper.
-   */
-  static std::shared_ptr<ObjectMapper>
-  createShared(const std::shared_ptr<Serializer::Config>& serializerConfig,
-               const std::shared_ptr<Deserializer::Config>& deserializerConfig);
+  ObjectMapper(const SerializerConfig& serializerConfig = {}, const DeserializerConfig& deserializerConfig = {});
 
-  /**
-   * Create shared ObjectMapper.
-   * @param serializer
-   * @param deserializer
-   * @return
-   */
-  static std::shared_ptr<ObjectMapper>
-  createShared(const std::shared_ptr<Serializer>& serializer = std::make_shared<Serializer>(),
-               const std::shared_ptr<Deserializer>& deserializer = std::make_shared<Deserializer>());
+  void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant, data::mapping::ErrorStack& errorStack) const override;
 
-  /**
-   * Implementation of &id:oatpp::data::mapping::ObjectMapper::write;.
-   * @param stream - stream to write serializerd data to &id:oatpp::data::stream::ConsistentOutputStream;.
-   * @param variant - object to serialize &id:oatpp::Void;.
-   */
-  void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant) const override;
+  oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::Type* type, data::mapping::ErrorStack& errorStack) const override;
 
-  /**
-   * Implementation of &id:oatpp::data::mapping::ObjectMapper::read;.
-   * @param caret - &id:oatpp::utils::parser::Caret;.
-   * @param type - type of resultant object &id:oatpp::data::mapping::type::Type;.
-   * @return - &id:oatpp::Void; holding resultant object.
-   */
-  oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::data::mapping::type::Type* const type) const override;
+  const SerializerConfig& serializerConfig() const;
+  const DeserializerConfig& deserializerConfig() const;
 
-
-  /**
-   * Get serializer.
-   * @return
-   */
-  std::shared_ptr<Serializer> getSerializer();
-
-  /**
-   * Get deserializer.
-   * @return
-   */
-  std::shared_ptr<Deserializer> getDeserializer();
+  SerializerConfig& serializerConfig();
+  DeserializerConfig& deserializerConfig();
   
 };
   

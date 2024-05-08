@@ -25,7 +25,7 @@
 #ifndef oatpp_data_mapping_TypeResolver_hpp
 #define oatpp_data_mapping_TypeResolver_hpp
 
-#include "type/Object.hpp"
+#include "oatpp/Types.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -42,25 +42,25 @@ public:
     /**
      * types map.
      */
-    std::unordered_map<const type::Type*, const type::Type*> types;
+    std::unordered_map<const oatpp::Type*, const oatpp::Type*> types;
 
     /**
      * values by type map.
      */
-    std::unordered_map<const type::Type*, std::unordered_map<type::Void, type::Void>> values;
+    std::unordered_map<const oatpp::Type*, std::unordered_map<oatpp::Void, oatpp::Void>> values;
   };
 
 private:
 
-  const type::Type* findPropertyType(const type::Type* baseType,
-                                     const std::vector<std::string>& path,
-                                     v_uint32 pathPosition,
-                                     Cache& cache) const;
+  const oatpp::Type* findPropertyType(const oatpp::Type* baseType,
+                                      const std::vector<std::string>& path,
+                                      v_uint32 pathPosition,
+                                      Cache& cache) const;
 
-  type::Void findPropertyValue(const type::Void& baseObject,
-                               const std::vector<std::string>& path,
-                               v_uint32 pathPosition,
-                               Cache& cache) const;
+  oatpp::Void findPropertyValue(const oatpp::Void& baseObject,
+                                const std::vector<std::string>& path,
+                                v_uint32 pathPosition,
+                                Cache& cache) const;
 
 private:
   std::vector<bool> m_knownClasses;
@@ -82,27 +82,27 @@ public:
    * @param classId
    * @param isKnown
    */
-  void setKnownClass(const type::ClassId& classId, bool isKnown);
+  void setKnownClass(const oatpp::ClassId& classId, bool isKnown);
 
   /**
    * Set all mentioned type classes as known.
    * @param knownClasses
    */
-  void addKnownClasses(const std::vector<type::ClassId>& knownClasses);
+  void addKnownClasses(const std::vector<oatpp::ClassId>& knownClasses);
 
   /**
    * Check if type class is known.
    * @param classId
    * @return
    */
-  bool isKnownClass(const type::ClassId& classId) const;
+  bool isKnownClass(const oatpp::ClassId& classId) const;
 
   /**
    * Check if type is known.
    * @param type
    * @return
    */
-  bool isKnownType(const type::Type* type) const;
+  bool isKnownType(const oatpp::Type* type) const;
 
   /**
    * Set enabled type interpretations.
@@ -122,7 +122,7 @@ public:
    * @param cache - local cache.
    * @return
    */
-  const type::Type* resolveType(const type::Type* type, Cache& cache) const;
+  const oatpp::Type* resolveType(const oatpp::Type* type, Cache& cache) const;
 
   /**
    * Resolve unknown value according to enabled interpretations.
@@ -130,7 +130,7 @@ public:
    * @param cache - local cache.
    * @return
    */
-  type::Void resolveValue(const type::Void& value, Cache& cache) const;
+  oatpp::Void resolveValue(const oatpp::Void& value, Cache& cache) const;
 
   /**
    * Traverse object property tree resolving unknown types according to enabled interpretations.
@@ -139,7 +139,7 @@ public:
    * @param cache - local cache.
    * @return - &id:oatpp::Type;. `nullptr` - if couldn't resolve.
    */
-  const type::Type* resolveObjectPropertyType(const type::Type* objectType,
+  const oatpp::Type* resolveObjectPropertyType(const oatpp::Type* objectType,
                                               const std::vector<std::string>& path,
                                               Cache& cache) const;
 
@@ -151,9 +151,9 @@ public:
    * @return - value as &id:oatpp::Void;. The `valueType` will be set to resolved type
    * or to `oatpp::Void::Class::getType()` if couldn't resolve.
    */
-  type::Void resolveObjectPropertyValue(const type::Void& object,
-                                        const std::vector<std::string>& path,
-                                        Cache& cache) const;
+  oatpp::Void resolveObjectPropertyValue(const oatpp::Void& object,
+                                         const std::vector<std::string>& path,
+                                         Cache& cache) const;
 
 };
 

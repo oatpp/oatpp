@@ -29,7 +29,7 @@
 #include "QueryResult.hpp"
 
 #include "oatpp/data/mapping/TypeResolver.hpp"
-#include "oatpp/data/mapping/type/Type.hpp"
+#include "oatpp/data/type/Type.hpp"
 #include "oatpp/data/share/MemoryLabel.hpp"
 #include "oatpp/data/share/StringTemplate.hpp"
 

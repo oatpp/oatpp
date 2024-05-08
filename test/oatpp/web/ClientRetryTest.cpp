@@ -92,7 +92,7 @@ public:
   }());
 
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper)([] {
-    return oatpp::json::ObjectMapper::createShared();
+    return std::make_shared<oatpp::json::ObjectMapper>();
   }());
 
 };
@@ -153,7 +153,7 @@ void ClientRetryTest::onRun() {
 
   TestClientComponent component(m_port);
 
-  auto objectMapper = oatpp::json::ObjectMapper::createShared();
+  auto objectMapper = std::make_shared<oatpp::json::ObjectMapper>();
   auto controller = app::Controller::createShared(objectMapper);
 
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ClientConnectionProvider>, connectionProvider);

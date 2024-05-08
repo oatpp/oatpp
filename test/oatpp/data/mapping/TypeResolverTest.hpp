@@ -32,7 +32,7 @@ namespace oatpp { namespace data { namespace mapping {
 class TypeResolverTest : public oatpp::test::UnitTest{
 public:
 
-  TypeResolverTest():UnitTest("TEST[data::mapping::type::TypeResolverTest]"){}
+  TypeResolverTest():UnitTest("TEST[data::type::TypeResolverTest]"){}
   void onRun() override;
 
 };

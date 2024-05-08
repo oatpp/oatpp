@@ -28,9 +28,9 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/data/mapping/type/Object.hpp"
-#include "oatpp/data/mapping/type/List.hpp"
-#include "oatpp/data/mapping/type/Primitive.hpp"
+#include "oatpp/data/type/Object.hpp"
+#include "oatpp/data/type/List.hpp"
+#include "oatpp/data/type/Primitive.hpp"
 
 #include "oatpp/utils/Conversion.hpp"
 
@@ -163,9 +163,9 @@ class TestAnyNested : public oatpp::DTO {
 }
   
 void DTOMapperTest::onRun(){
-  
-  auto mapper = oatpp::json::ObjectMapper::createShared();
-  mapper->getSerializer()->getConfig()->useBeautifier = true;
+
+  oatpp::json::ObjectMapper mapper;
+  mapper.serializerConfig().json.useBeautifier = true;
 
   {
     auto test1 = Test::createShared();
@@ -267,7 +267,7 @@ void DTOMapperTest::onRun(){
         {"key11", "map_item11"}
     };
 
-    auto result = mapper->writeToString(test1);
+    auto result = mapper.writeToString(test1);
 
     OATPP_LOGV(TAG, "json='%s'", result->c_str())
 
@@ -276,7 +276,7 @@ void DTOMapperTest::onRun(){
     OATPP_LOGV(TAG, "...")
 
     oatpp::utils::parser::Caret caret(result);
-    auto obj1 = mapper->readFromCaret<oatpp::Object<Test>>(caret);
+    auto obj1 = mapper.readFromCaret<oatpp::Object<Test>>(caret);
 
     OATPP_ASSERT(obj1->field_string)
     OATPP_ASSERT(obj1->field_string == test1->field_string)
@@ -320,7 +320,7 @@ void DTOMapperTest::onRun(){
       OATPP_ASSERT(c["key3"] == "map_item3")
     }
 
-    result = mapper->writeToString(obj1);
+    result = mapper.writeToString(obj1);
 
     OATPP_LOGV(TAG, "json='%s'", result->c_str())
   }
@@ -329,8 +329,8 @@ void DTOMapperTest::onRun(){
     auto test2 = Test2::createShared();
     oatpp::String result;
     try {
-      result = mapper->writeToString(test2);
-    } catch(std::runtime_error& e) {
+      result = mapper.writeToString(test2);
+    } catch(std::runtime_error&) {
       OATPP_LOGV(TAG, "Test2::field_string is required!")
     }
     OATPP_ASSERT(result == nullptr)
@@ -339,8 +339,8 @@ void DTOMapperTest::onRun(){
   {
     auto test3 = Test3::createShared();
     try {
-      auto result = mapper->writeToString(test3);
-    } catch(std::runtime_error& e) {
+      auto result = mapper.writeToString(test3);
+    } catch(std::runtime_error&) {
       OATPP_ASSERT(false)
     }
   }
@@ -351,8 +351,8 @@ void DTOMapperTest::onRun(){
     test4->child = TestChild1::createShared();
     oatpp::String result;
     try {
-      result = mapper->writeToString(test4);
-    } catch(std::runtime_error& e) {
+      result = mapper.writeToString(test4);
+    } catch(std::runtime_error&) {
       OATPP_LOGV(TAG, "TestChild1::name is required!")
     }
     OATPP_ASSERT(result == nullptr)
@@ -363,8 +363,8 @@ void DTOMapperTest::onRun(){
     test5->field_string = "string value";
     test5->child = TestChild2::createShared();
     try {
-      auto result = mapper->writeToString(test5);
-    } catch(std::runtime_error& e) {
+      auto result = mapper.writeToString(test5);
+    } catch(std::runtime_error&) {
       OATPP_ASSERT(false)
     }
   }
@@ -388,12 +388,12 @@ void DTOMapperTest::onRun(){
 
     obj2->anyList->push_back(map);
 
-    auto json = mapper->writeToString(obj2);
+    auto json = mapper.writeToString(obj2);
     OATPP_LOGV(TAG, "any json='%s'", json->c_str())
 
-    auto deserializedAny = mapper->readFromString<oatpp::Fields<oatpp::Any>>(json);
+    auto deserializedAny = mapper.readFromString<oatpp::Fields<oatpp::Any>>(json);
 
-    auto json2 = mapper->writeToString(deserializedAny);
+    auto json2 = mapper.writeToString(deserializedAny);
     OATPP_LOGV(TAG, "any json='%s'", json2->c_str())
 
   }

@@ -26,17 +26,17 @@
 // Defaults
 
 /**
- * Codegen macro to be used in classes extending &id:oatpp::data::mapping::type::Object; to generate required fields/methods/constructors for DTO object.
+ * Codegen macro to be used in classes extending &id:oatpp::data::type::Object; to generate required fields/methods/constructors for DTO object.
  * @param TYPE_NAME - name of the DTO class.
- * @param TYPE_EXTEND - name of the parent DTO class. If DTO extends &id:oatpp::data::mapping::type::Object; TYPE_EXETENDS should be `Object`.
+ * @param TYPE_EXTEND - name of the parent DTO class. If DTO extends &id:oatpp::data::type::Object; TYPE_EXETENDS should be `Object`.
  */
 #define DTO_INIT(TYPE_NAME, TYPE_EXTEND) \
   template<class __Z__T__PARAM> \
-  friend class oatpp::data::mapping::type::__class::Object; \
+  friend class oatpp::data::type::__class::Object; \
 public: \
   typedef TYPE_NAME Z__CLASS; \
   typedef TYPE_EXTEND Z__CLASS_EXTENDED; \
-  typedef oatpp::data::mapping::type::DTOWrapper<Z__CLASS> Wrapper; \
+  typedef oatpp::data::type::DTOWrapper<Z__CLASS> Wrapper; \
 private: \
 \
   static const oatpp::Type* getParentType() { \
@@ -47,8 +47,8 @@ private: \
     return #TYPE_NAME; \
   } \
 \
-  static oatpp::data::mapping::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP(){ \
-    static oatpp::data::mapping::type::BaseObject::Properties map = oatpp::data::mapping::type::BaseObject::Properties(); \
+  static oatpp::data::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP(){ \
+    static oatpp::data::type::BaseObject::Properties map = oatpp::data::type::BaseObject::Properties(); \
     return &map; \
   } \
 \
@@ -70,9 +70,9 @@ static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
   return reinterpret_cast<v_int64>(ptr) - reinterpret_cast<v_int64>(buffer); \
 } \
 \
-static oatpp::data::mapping::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
-  static oatpp::data::mapping::type::BaseObject::Property* property = \
-      new oatpp::data::mapping::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
+static oatpp::data::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
+  static oatpp::data::type::BaseObject::Property* property = \
+      new oatpp::data::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                      #NAME, \
                                                      TYPE::Class::getType()); \
   return property; \
@@ -101,9 +101,9 @@ static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
   return reinterpret_cast<v_int64>(ptr) - reinterpret_cast<v_int64>(buffer); \
 } \
 \
-static oatpp::data::mapping::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
-  static oatpp::data::mapping::type::BaseObject::Property* property = \
-      new oatpp::data::mapping::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
+static oatpp::data::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
+  static oatpp::data::type::BaseObject::Property* property = \
+      new oatpp::data::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                      QUALIFIER, \
                                                      TYPE::Class::getType()); \
   return property; \
@@ -142,7 +142,7 @@ static bool Z__PROPERTY_INIT_##NAME(int, ...) { \
   return true; \
 } \
 \
-static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::mapping::type::BaseObject::Property::Info* info)
+static void Z__PROPERTY_ADD_INFO_##NAME(oatpp::data::type::BaseObject::Property::Info* info)
 
 
 #define DTO_FIELD_TYPE_SELECTOR(NAME) \
