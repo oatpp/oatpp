@@ -26,7 +26,6 @@
 
 #include "oatpp/json/ObjectMapper.hpp"
 
-#include "oatpp/data/mapping/ObjectToTreeMapper.hpp"
 #include "oatpp/data/mapping/TreeToObjectMapper.hpp"
 
 #include "oatpp/macro/codegen.hpp"
@@ -58,7 +57,7 @@ class TestDto1 : public oatpp::DTO {
   DTO_FIELD(UInt64, ui64);
 
   DTO_FIELD(Vector<oatpp::Object<TestDto1>>, vector);
-  DTO_FIELD(Fields<oatpp::Object<TestDto1>>, map);
+  DTO_FIELD(UnorderedFields<oatpp::Object<TestDto1>>, map);
   DTO_FIELD(Fields<String>, pairs);
 
 };
@@ -114,27 +113,42 @@ void TreeToObjectMapperTest::onRun() {
     state.config = &config;
     state.tree = &tree;
 
-    const auto& obj = mapper.map(state,oatpp::Object<TestDto1>::Class::getType());
+    const auto& polymorph = mapper.map(state,oatpp::Object<TestDto1>::Class::getType());
 
     if(state.errorStack.empty()) {
-      auto json = jsonMapper.writeToString(obj);
+      auto json = jsonMapper.writeToString(polymorph);
       std::cout << *json << std::endl;
     } else {
       auto err = state.errorStack.stacktrace();
       std::cout << *err << std::endl;
     }
 
-    Tree clonedTree;
+    auto obj = polymorph.cast<oatpp::Object<TestDto1>>();
 
-    ObjectToTreeMapper::State reverseState;
-    reverseState.config = &reverseConfig;
-    reverseState.tree = &clonedTree;
+    OATPP_ASSERT(obj->str == "Hello World!")
+    OATPP_ASSERT(obj->i8 == -8)
+    OATPP_ASSERT(obj->ui8 == 8)
+    OATPP_ASSERT(obj->i16 == -16)
+    OATPP_ASSERT(obj->ui16 == 16)
+    OATPP_ASSERT(obj->i32 == -32)
+    OATPP_ASSERT(obj->ui32 == 32)
+    OATPP_ASSERT(obj->i64 == -64)
+    OATPP_ASSERT(obj->ui64 == 64)
 
-    reverseMapper.map(reverseState, obj);
+    OATPP_ASSERT(obj->vector->size() == 3)
+    OATPP_ASSERT(obj->vector[0]->str == "nested_1 (in vector)")
+    OATPP_ASSERT(obj->vector[1]->str == "nested_2 (in vector)")
+    OATPP_ASSERT(obj->vector[2]->str == "nested_3 (in vector)")
 
-    auto debugStr = clonedTree.debugPrint();
+    OATPP_ASSERT(obj->map->size() == 3)
+    OATPP_ASSERT(obj->map["nested_1"]->i32 = 1)
+    OATPP_ASSERT(obj->map["nested_2"]->i32 = 2)
+    OATPP_ASSERT(obj->map["nested_3"]->i32 = 3)
 
-    std::cout << *debugStr << std::endl;
+    OATPP_ASSERT(obj->pairs->size() == 3)
+    OATPP_ASSERT(obj->pairs[0].first == "same-key" && obj->pairs[0].second == "value1")
+    OATPP_ASSERT(obj->pairs[1].first == "same-key" && obj->pairs[1].second == "value2")
+    OATPP_ASSERT(obj->pairs[2].first == "same-key" && obj->pairs[2].second == "value3")
 
   }
 

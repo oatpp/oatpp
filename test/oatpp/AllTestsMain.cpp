@@ -119,7 +119,7 @@ void runTests() {
   //OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
 
   OATPP_RUN_TEST(oatpp::data::mapping::ObjectToTreeMapperTest);
-  //OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
 
 //
 //
