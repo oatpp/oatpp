@@ -56,6 +56,8 @@ class TestDto1 : public oatpp::DTO {
   DTO_FIELD(Enum<TestEnum1>, enum1);
   DTO_FIELD(Enum<TestEnum1>, enum2, "enum-2");
 
+  DTO_FIELD(Int32 , i32);
+
 };
 
 class TestDto2 : public oatpp::DTO {
@@ -136,6 +138,34 @@ void ObjectRemapperTest::onRun() {
     OATPP_ASSERT(obj2->enum1 == TestEnum2::VALUE_1)
     OATPP_ASSERT(obj2->enum2 == TestEnum2::VALUE_2)
 
+  }
+
+  {
+    OATPP_LOGD(TAG, "Remap. Object to Vector")
+
+    remapper.objectToTreeConfig().useUnqualifiedFieldNames = false;
+    remapper.treeToObjectConfig().useUnqualifiedFieldNames = false;
+
+    remapper.objectToTreeConfig().useUnqualifiedEnumNames = false;
+    remapper.treeToObjectConfig().useUnqualifiedEnumNames = false;
+
+    auto obj1 = TestDto1::createShared();
+    obj1->field1 = "f1";
+    obj1->field2 = "f2";
+    obj1->enum1 = TestEnum1::VALUE_1;
+    obj1->enum2 = TestEnum1::VALUE_2;
+    obj1->i32 = nullptr;
+
+    ErrorStack errorStack;
+    auto vec = remapper.remap<oatpp::Vector<oatpp::String>>(obj1, errorStack);
+    if(!errorStack.empty()) {
+      std::cout << *errorStack.stacktrace() << std::endl;
+    }
+    OATPP_ASSERT(vec[0] == "f1")
+    OATPP_ASSERT(vec[1] == "f2")
+    OATPP_ASSERT(vec[2] == "value-1")
+    OATPP_ASSERT(vec[3] == "value-2")
+    OATPP_ASSERT(vec[4] == nullptr)
   }
 
 }

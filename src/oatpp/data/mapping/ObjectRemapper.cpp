@@ -26,7 +26,25 @@
 
 namespace oatpp { namespace data { namespace mapping {
 
+oatpp::Void ObjectRemapper::mapTree(const Tree* tree, const oatpp::Type* toType, ErrorStack& errorStack) const {
+  TreeToObjectMapper::State state;
+  state.tree = tree;
+  state.config = &m_treeToObjectConfig;
+  const auto & result = m_treeToObjectMapper.map(state, toType);
+  if(!state.errorStack.empty()) {
+    errorStack = std::move(state.errorStack);
+    return nullptr;
+  }
+  return result;
+}
+
 oatpp::Void ObjectRemapper::remap(const oatpp::Void& polymorph, const oatpp::Type* toType, ErrorStack& errorStack) const {
+
+  /* if polymorph is a Tree - we can map it right away */
+  if(polymorph.getValueType() == oatpp::Tree::Class::getType()) {
+    auto tree = static_cast<const Tree*>(polymorph.get());
+    return mapTree(tree, toType, errorStack);
+  }
 
   Tree tree;
 
@@ -41,22 +59,12 @@ oatpp::Void ObjectRemapper::remap(const oatpp::Void& polymorph, const oatpp::Typ
     }
   }
 
-  /* if expected type is Tree (root element is Tree) - then we can just move deserialized tree */
+  /* if expected type is a Tree (root element is a Tree) - then we can just move mapped tree */
   if(toType == data::type::Tree::Class::getType()) {
     return oatpp::Tree(std::move(tree));
   }
 
-  {
-    TreeToObjectMapper::State state;
-    state.tree = &tree;
-    state.config = &m_treeToObjectConfig;
-    const auto & result = m_treeToObjectMapper.map(state, toType);
-    if(!state.errorStack.empty()) {
-      errorStack = std::move(state.errorStack);
-      return nullptr;
-    }
-    return result;
-  }
+  return mapTree(&tree, toType, errorStack);
 
 }
 

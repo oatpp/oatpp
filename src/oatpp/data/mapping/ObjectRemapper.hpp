@@ -33,7 +33,9 @@
 namespace oatpp { namespace data { namespace mapping {
 
 class ObjectRemapper {
-private:
+protected:
+  oatpp::Void mapTree(const Tree* tree, const oatpp::Type* toType, ErrorStack& errorStack) const;
+protected:
   ObjectToTreeMapper::Config m_objectToTreeConfig;
   TreeToObjectMapper::Config m_treeToObjectConfig;
   ObjectToTreeMapper m_objectToTreeMapper;
