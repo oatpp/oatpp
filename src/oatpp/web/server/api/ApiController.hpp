@@ -558,7 +558,7 @@ struct ApiController::TypeInterpretation <data::type::EnumObjectWrapper<T, I>> {
     const auto& parsedValue = ApiController::TypeInterpretation<UTOW>::fromString(typeName, text, success);
     if(success) {
       data::type::EnumInterpreterError error = data::type::EnumInterpreterError::OK;
-      const auto& result = I::fromInterpretation(parsedValue, error);
+      const auto& result = I::fromInterpretation(parsedValue, false, error);
       if(error == data::type::EnumInterpreterError::OK) {
         return result.template cast<EnumOW>();
       }

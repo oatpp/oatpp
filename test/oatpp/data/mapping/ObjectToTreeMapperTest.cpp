@@ -36,27 +36,32 @@ namespace {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
+ENUM(TestEnum, v_int32,
+  VALUE(VALUE_1, 1, "value-1"),
+  VALUE(VALUE_2, 2, "value-2")
+)
+
 class TestDto1 : public oatpp::DTO {
 
   DTO_INIT(TestDto1, DTO)
 
-  DTO_FIELD(String, str);
+  DTO_FIELD(String, str, "str-q");
 
-  DTO_FIELD(Int8, i8);
-  DTO_FIELD(UInt8, ui8);
+  DTO_FIELD(Int8, i8, "i8-q");
+  DTO_FIELD(UInt8, ui8, "ui8-q");
 
-  DTO_FIELD(Int16, i16);
-  DTO_FIELD(UInt16, ui16);
+  DTO_FIELD(Int16, i16, "i16-q");
+  DTO_FIELD(UInt16, ui16, "ui16-q");
 
-  DTO_FIELD(Int32, i32);
-  DTO_FIELD(UInt32, ui32);
+  DTO_FIELD(Int32, i32, "i32-q");
+  DTO_FIELD(UInt32, ui32, "ui32-q");
 
-  DTO_FIELD(Int64, i64);
-  DTO_FIELD(UInt64, ui64);
+  DTO_FIELD(Int64, i64, "i64-q");
+  DTO_FIELD(UInt64, ui64, "ui64-q");
 
-  DTO_FIELD(Vector<oatpp::Object<TestDto1>>, vector);
-  DTO_FIELD(UnorderedFields<oatpp::Object<TestDto1>>, map);
-  DTO_FIELD(Fields<String>, pairs);
+  DTO_FIELD(Vector<oatpp::Object<TestDto1>>, vector, "vector-q");
+  DTO_FIELD(UnorderedFields<oatpp::Object<TestDto1>>, map, "map-q");
+  DTO_FIELD(Fields<String>, pairs, "pairs-q");
 
 };
 
@@ -105,7 +110,79 @@ void ObjectToTreeMapperTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Map Object")
+    OATPP_LOGD(TAG, "Map Object qualified")
+    config.useUnqualifiedFieldNames = false;
+
+    Tree tree;
+    ObjectToTreeMapper::State state;
+    state.tree = &tree;
+    state.config = &config;
+
+    auto obj = TestDto1::createShared();
+
+    obj->str = "hello object";
+
+    obj->i8 = -8;
+    obj->ui8 = 8;
+    obj->i16 = -16;
+    obj->ui16 = 16;
+    obj->i32 = -32;
+    obj->ui32 = 32;
+    obj->i64 = -64;
+    obj->ui64 = 64;
+
+    obj->vector = {TestDto1::createShared(), TestDto1::createShared(), TestDto1::createShared()};
+    obj->map = {{"key1", TestDto1::createShared()}, {"key2", TestDto1::createShared()}, {"key3", TestDto1::createShared()}};
+    obj->pairs = {{"same-key", "value1"}, {"same-key", "value2"}, {"same-key", "value3"}};
+
+    obj->vector[0]->str = "vec-item-1";
+    obj->vector[1]->str = "vec-item-2";
+    obj->vector[2]->str = "vec-item-3";
+
+    obj->map["key1"]->i64 = 1;
+    obj->map["key2"]->i64 = 2;
+    obj->map["key3"]->i64 = 3;
+
+    mapper.map(state, obj);
+
+    OATPP_ASSERT(state.errorStack.empty())
+
+    std::cout << *tree.debugPrint() << std::endl;
+
+    OATPP_ASSERT(tree.getType() == Tree::Type::MAP)
+
+    OATPP_ASSERT(tree["str-q"].getString() == "hello object")
+    OATPP_ASSERT(tree["i8-q"].getValue<v_int8>() == -8)
+    OATPP_ASSERT(tree["ui8-q"].getValue<v_uint8>() == 8)
+    OATPP_ASSERT(tree["i16-q"].getValue<v_int16>() == -16)
+    OATPP_ASSERT(tree["ui16-q"].getValue<v_uint16>() == 16)
+    OATPP_ASSERT(tree["i32-q"].getValue<v_int32>() == -32)
+    OATPP_ASSERT(tree["ui32-q"].getValue<v_uint32>() == 32)
+    OATPP_ASSERT(tree["i64-q"].getValue<v_int64>() == -64)
+    OATPP_ASSERT(tree["ui64-q"].getValue<v_uint64>() == 64)
+
+    OATPP_ASSERT(tree["vector-q"].getVector().size() == 3)
+    OATPP_ASSERT(tree["vector-q"][0]["str-q"].getString() == "vec-item-1")
+    OATPP_ASSERT(tree["vector-q"][1]["str-q"].getString() == "vec-item-2")
+    OATPP_ASSERT(tree["vector-q"][2]["str-q"].getString() == "vec-item-3")
+
+    OATPP_ASSERT(tree["map-q"].getMap().size() == 3)
+    OATPP_ASSERT(tree["map-q"]["key1"]["i64-q"].getValue<v_int64>() == 1)
+    OATPP_ASSERT(tree["map-q"]["key2"]["i64-q"].getValue<v_int64>() == 2)
+    OATPP_ASSERT(tree["map-q"]["key3"]["i64-q"].getValue<v_int64>() == 3)
+
+    auto& pairs = tree["pairs-q"].getPairs();
+    OATPP_ASSERT(pairs.size() == 3)
+    OATPP_ASSERT(pairs[0].first == "same-key" && pairs[0].second.getString() == "value1")
+    OATPP_ASSERT(pairs[1].first == "same-key" && pairs[1].second.getString() == "value2")
+    OATPP_ASSERT(pairs[2].first == "same-key" && pairs[2].second.getString() == "value3")
+
+  }
+
+  {
+    OATPP_LOGD(TAG, "Map Object unqualified")
+    config.useUnqualifiedFieldNames = true;
+
     Tree tree;
     ObjectToTreeMapper::State state;
     state.tree = &tree;
@@ -170,6 +247,42 @@ void ObjectToTreeMapperTest::onRun() {
     OATPP_ASSERT(pairs[1].first == "same-key" && pairs[1].second.getString() == "value2")
     OATPP_ASSERT(pairs[2].first == "same-key" && pairs[2].second.getString() == "value3")
 
+  }
+
+  {
+    OATPP_LOGD(TAG, "Map Enum qualified")
+    config.useUnqualifiedEnumNames = false;
+
+    Tree tree;
+    ObjectToTreeMapper::State state;
+    state.tree = &tree;
+    state.config = &config;
+
+    oatpp::Enum<TestEnum> enumObj(TestEnum::VALUE_1);
+
+    mapper.map(state, enumObj);
+
+    std::cout << *tree.debugPrint() << std::endl;
+
+    OATPP_ASSERT(tree.getString() == "value-1");
+  }
+
+  {
+    OATPP_LOGD(TAG, "Map Enum Unqualified")
+    config.useUnqualifiedEnumNames = true;
+
+    Tree tree;
+    ObjectToTreeMapper::State state;
+    state.tree = &tree;
+    state.config = &config;
+
+    oatpp::Enum<TestEnum> enumObj = oatpp::Enum<TestEnum>::getEntryByUnqualifiedName("VALUE_2").value;
+
+    mapper.map(state, enumObj);
+
+    std::cout << *tree.debugPrint() << std::endl;
+
+    OATPP_ASSERT(tree.getString() == "VALUE_2");
   }
 
 }

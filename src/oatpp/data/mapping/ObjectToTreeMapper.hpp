@@ -37,6 +37,8 @@ public:
     bool includeNullFields = true;
     bool alwaysIncludeRequired = false;
     bool alwaysIncludeNullCollectionElements = false;
+    bool useUnqualifiedFieldNames = false;
+    bool useUnqualifiedEnumNames = false;
     std::vector<std::string> enabledInterpretations = {};
   };
 

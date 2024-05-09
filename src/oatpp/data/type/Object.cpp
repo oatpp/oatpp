@@ -58,33 +58,48 @@ void* BaseObject::getBasePointer() const {
 
 BaseObject::Property* BaseObject::Properties::pushBack(Property* property) {
   m_map.insert({property->name, property});
+  m_unqualifiedMap.insert({property->unqualifiedName, property});
   m_list.push_back(property);
   return property;
 }
 
 void BaseObject::Properties::pushFrontAll(Properties* properties) {
   m_map.insert(properties->m_map.begin(), properties->m_map.end());
+  m_unqualifiedMap.insert(properties->m_unqualifiedMap.begin(), properties->m_unqualifiedMap.end());
   m_list.insert(m_list.begin(), properties->m_list.begin(), properties->m_list.end());
+}
+
+const std::unordered_map<std::string, BaseObject::Property*>& BaseObject::Properties::getMap() const {
+  return m_map;
+}
+
+const std::unordered_map<std::string, BaseObject::Property*>& BaseObject::Properties::getUnqualifiedMap() const {
+  return m_unqualifiedMap;
+}
+
+const std::list<BaseObject::Property*>& BaseObject::Properties::getList() const {
+  return m_list;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BaseObject::Property
 
-BaseObject::Property::Property(v_int64 pOffset, const char* pName, const Type* pType)
+BaseObject::Property::Property(v_int64 pOffset, std::string pName, std::string pUName, const Type* pType)
   : offset(pOffset)
-  , name(pName)
+  , name(std::move(pName))
+  , unqualifiedName(std::move(pUName))
   , type(pType)
 {}
 
-void BaseObject::Property::set(BaseObject* object, const Void& value) {
+void BaseObject::Property::set(BaseObject* object, const Void& value) const {
   object->set(offset, value);
 }
 
-Void BaseObject::Property::get(BaseObject* object) {
+Void BaseObject::Property::get(BaseObject* object) const {
   return object->get(offset);
 }
 
-Void& BaseObject::Property::getAsRef(BaseObject* object) {
+Void& BaseObject::Property::getAsRef(BaseObject* object) const {
   return object->getAsRef(offset);
 }
 

@@ -93,10 +93,10 @@ namespace __class {
 
       virtual type::Void createObject() const = 0;
 
-      virtual type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const = 0;
-      virtual type::Void fromInterpretation(const type::Void& interValue, EnumInterpreterError& error) const = 0;
+      virtual type::Void toInterpretation(const type::Void& enumValue, bool useUnqualifiedNames, EnumInterpreterError& error) const = 0;
+      virtual type::Void fromInterpretation(const type::Void& interValue, bool useUnqualifiedNames, EnumInterpreterError& error) const = 0;
       virtual type::Type* getInterpretationType() const = 0;
-      virtual std::vector<type::Any> getInterpretedEnum() const = 0;
+      virtual std::vector<type::Any> getInterpretedEnum(bool useUnqualifiedNames) const = 0;
 
     };
 
@@ -128,6 +128,12 @@ struct EnumValueInfo {
    * &id:oatpp::data::share::StringKeyLabel;.
    */
   const data::share::StringKeyLabel name;
+
+  /**
+   * Name of the enum entry <br>
+   * &id:oatpp::data::share::StringKeyLabel;.
+   */
+  const data::share::StringKeyLabel unqualifiedName;
   
   /**
    * Description of the enum etry. <br>
@@ -141,6 +147,7 @@ struct EnumInfo {
 public:
   const char* nameQualifier = nullptr;
   std::unordered_map<data::share::StringKeyLabel, EnumValueInfo<T>> byName;
+  std::unordered_map<data::share::StringKeyLabel, EnumValueInfo<T>> byUnqualifiedName;
   std::unordered_map<v_uint64, EnumValueInfo<T>> byValue;
   std::vector<EnumValueInfo<T>> byIndex;
 };
@@ -181,8 +188,8 @@ public:
 public:
   constexpr static bool notNull = notnull;
 public:
-  static Void toInterpretation(const Void& enumValue, EnumInterpreterError& error);
-  static Void fromInterpretation(const Void& interValue, EnumInterpreterError& error);
+  static Void toInterpretation(const Void& enumValue, bool useUnqualifiedNames, EnumInterpreterError& error);
+  static Void fromInterpretation(const Void& interValue, bool useUnqualifiedNames, EnumInterpreterError& error);
   static Type* getInterpretationType();
 };
 
@@ -203,8 +210,8 @@ public:
 public:
   constexpr static bool notNull = notnull;
 public:
-  static Void toInterpretation(const Void& enumValue, EnumInterpreterError& error);
-  static Void fromInterpretation(const Void& interValue, EnumInterpreterError& error);
+  static Void toInterpretation(const Void& enumValue, bool useUnqualifiedNames, EnumInterpreterError& error);
+  static Void fromInterpretation(const Void& interValue, bool useUnqualifiedNames, EnumInterpreterError& error);
   static Type* getInterpretationType();
 };
 
@@ -399,6 +406,20 @@ public:
   }
 
   /**
+   * Get &l:EnumValueInfo <T>; by unqualified name.
+   * @param name - name of the enum entry.
+   * @return - &l:EnumValueInfo <T>;.
+   * @throws - `std::runtime_error` if not found.
+   */
+  static const EnumValueInfo<T>& getEntryByUnqualifiedName(const String& unqualifiedName) {
+    auto it = EnumMeta<T>::getInfo()->byUnqualifiedName.find(unqualifiedName);
+    if(it != EnumMeta<T>::getInfo()->byUnqualifiedName.end()) {
+      return it->second;
+    }
+    throw std::runtime_error("[oatpp::data::type::Enum::getEntryByUnqualifiedName()]: Error. Entry not found.");
+  }
+
+  /**
    * Get &l:EnumValueInfo <T>; by enum value.
    * @param value - enum value.
    * @return - &l:EnumValueInfo <T>;.
@@ -456,7 +477,7 @@ template <class T>
 using Enum = EnumObjectWrapper<T, EnumInterpreterAsString<T, false>>;
 
 template<class T, bool notnull>
-Void EnumInterpreterAsString<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
+Void EnumInterpreterAsString<T, notnull>::toInterpretation(const Void& enumValue, bool useUnqualifiedNames, EnumInterpreterError& error) {
   typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>> EnumOW;
 
   if(enumValue.getValueType() != EnumOW::Class::getType()) {
@@ -474,11 +495,14 @@ Void EnumInterpreterAsString<T, notnull>::toInterpretation(const Void& enumValue
 
   const auto& ow = enumValue.template cast<EnumOW>();
   const auto& entry = EnumOW::getEntryByValue(*ow);
+  if(useUnqualifiedNames) {
+    return entry.unqualifiedName.toString();
+  }
   return entry.name.toString();
 }
 
 template<class T, bool notnull>
-Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
+Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interValue, bool useUnqualifiedNames, EnumInterpreterError& error) {
   typedef EnumObjectWrapper<T, EnumInterpreterAsString<T, notnull>> EnumOW;
 
   if(interValue.getValueType() != String::Class::getType()) {
@@ -495,6 +519,9 @@ Void EnumInterpreterAsString<T, notnull>::fromInterpretation(const Void& interVa
   }
 
   try {
+    if(useUnqualifiedNames) {
+      return EnumOW(EnumOW::getEntryByUnqualifiedName(interValue.template cast<String>()).value);
+    }
     return EnumOW(EnumOW::getEntryByName(interValue.template cast<String>()).value);
   } catch (const std::runtime_error&) { // TODO - add a specific error for this.
     error = EnumInterpreterError::ENTRY_NOT_FOUND;
@@ -508,8 +535,8 @@ Type* EnumInterpreterAsString<T, notnull>::getInterpretationType() {
 }
 
 template<class T, bool notnull>
-Void EnumInterpreterAsNumber<T, notnull>::toInterpretation(const Void& enumValue, EnumInterpreterError& error) {
-
+Void EnumInterpreterAsNumber<T, notnull>::toInterpretation(const Void& enumValue, bool useUnqualifiedNames, EnumInterpreterError& error) {
+  (void) useUnqualifiedNames;
   typedef EnumObjectWrapper<T, EnumInterpreterAsNumber<T, notnull>> EnumOW;
   typedef typename std::underlying_type<T>::type EnumUT;
   typedef typename ObjectWrapperByUnderlyingType<EnumUT>::ObjectWrapper UTOW;
@@ -533,7 +560,8 @@ Void EnumInterpreterAsNumber<T, notnull>::toInterpretation(const Void& enumValue
 }
 
 template<class T, bool notnull>
-Void EnumInterpreterAsNumber<T, notnull>::fromInterpretation(const Void& interValue, EnumInterpreterError& error) {
+Void EnumInterpreterAsNumber<T, notnull>::fromInterpretation(const Void& interValue, bool useUnqualifiedNames, EnumInterpreterError& error) {
+  (void) useUnqualifiedNames;
   typedef EnumObjectWrapper<T, EnumInterpreterAsNumber<T, notnull>> EnumOW;
 
   typedef typename std::underlying_type<T>::type EnumUT;
@@ -586,19 +614,19 @@ namespace __class {
         return type::Void(std::make_shared<T>(), getType());
       }
 
-      type::Void toInterpretation(const type::Void& enumValue, EnumInterpreterError& error) const override {
-        return Interpreter::toInterpretation(enumValue, error);
+      type::Void toInterpretation(const type::Void& enumValue, bool useUnqualifiedNames, EnumInterpreterError& error) const override {
+        return Interpreter::toInterpretation(enumValue, useUnqualifiedNames, error);
       }
 
-      type::Void fromInterpretation(const type::Void& interValue, EnumInterpreterError& error) const override {
-        return Interpreter::fromInterpretation(interValue, error);
+      type::Void fromInterpretation(const type::Void& interValue, bool useUnqualifiedNames, EnumInterpreterError& error) const override {
+        return Interpreter::fromInterpretation(interValue, useUnqualifiedNames, error);
       }
 
       type::Type* getInterpretationType() const override {
         return Interpreter::getInterpretationType();
       }
 
-      std::vector<type::Any> getInterpretedEnum() const override {
+      std::vector<type::Any> getInterpretedEnum(bool useUnqualifiedNames) const override {
 
         typedef type::EnumObjectWrapper<T, Interpreter> EnumOW;
 
@@ -606,7 +634,7 @@ namespace __class {
 
         for(const auto& e : EnumOW::getEntries()) {
           type::EnumInterpreterError error = type::EnumInterpreterError::OK;
-          result.push_back(type::Any(toInterpretation(EnumOW(e.value), error)));
+          result.push_back(type::Any(toInterpretation(EnumOW(e.value), useUnqualifiedNames, error)));
           if(error != type::EnumInterpreterError::OK) {
             throw std::runtime_error("[oatpp::data::type::__class::Enum<T, Interpreter>::getInterpretedEnum()]: Unknown error.");
           }

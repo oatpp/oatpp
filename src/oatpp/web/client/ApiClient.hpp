@@ -383,7 +383,7 @@ struct ApiClient::TypeInterpretation<data::type::EnumObjectWrapper<T, I>> {
   static oatpp::String toString(const oatpp::String &typeName, const EnumOW &parameter) {
 
     data::type::EnumInterpreterError error = data::type::EnumInterpreterError::OK;
-    const auto& value = I::toInterpretation(parameter, error);
+    const auto& value = I::toInterpretation(parameter, false, error);
 
     switch(error){
       case data::type::EnumInterpreterError::OK: break;

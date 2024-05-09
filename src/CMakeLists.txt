@@ -68,6 +68,8 @@ add_library(oatpp
 		oatpp/data/buffer/IOBuffer.hpp
 		oatpp/data/buffer/Processor.cpp
 		oatpp/data/buffer/Processor.hpp
+		oatpp/data/mapping/ObjectRemapper.cpp
+		oatpp/data/mapping/ObjectRemapper.hpp
 		oatpp/data/mapping/ObjectMapper.cpp
 		oatpp/data/mapping/ObjectMapper.hpp
 		oatpp/data/mapping/ObjectToTreeMapper.cpp

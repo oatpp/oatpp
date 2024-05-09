@@ -154,7 +154,7 @@ void EnumTest::onRun() {
     OATPP_ASSERT(pd2->notNull == true)
 
     {
-      auto interEnum = pd1->getInterpretedEnum();
+      auto interEnum = pd1->getInterpretedEnum(false);
       OATPP_ASSERT(interEnum.size() == 3)
       OATPP_ASSERT(interEnum[0].getStoredType() == oatpp::String::Class::getType())
     }
@@ -163,16 +163,16 @@ void EnumTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsString...")
+    OATPP_LOGI(TAG, "Test Interpreter AsString (Qualified)...")
     oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
-    auto inter = oatpp::Enum<Enum2>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsString(Enum2::NAME_1), e);
+    auto inter = oatpp::Enum<Enum2>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsString(Enum2::NAME_1), false, e);
     OATPP_ASSERT(inter.getValueType() == oatpp::String::Class::getType())
     OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
 
     auto interValue = inter.cast<oatpp::String>();
     OATPP_ASSERT(interValue == "name-1")
 
-    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsString::Interpreter::fromInterpretation(interValue, e);
+    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsString::Interpreter::fromInterpretation(interValue, false,  e);
     OATPP_ASSERT(voidValue.getValueType() == oatpp::Enum<Enum2>::AsString::Class::getType())
     OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
 
@@ -182,16 +182,54 @@ void EnumTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsNumber...")
+    OATPP_LOGI(TAG, "Test Interpreter AsString (Unqualified)...")
     oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
-    auto inter = oatpp::Enum<Enum2>::AsNumber::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsNumber(Enum2::NAME_1), e);
+    auto inter = oatpp::Enum<Enum2>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsString(Enum2::NAME_1), true, e);
+    OATPP_ASSERT(inter.getValueType() == oatpp::String::Class::getType())
+    OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
+
+    auto interValue = inter.cast<oatpp::String>();
+    OATPP_ASSERT(interValue == "NAME_1")
+
+    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsString::Interpreter::fromInterpretation(interValue, true, e);
+    OATPP_ASSERT(voidValue.getValueType() == oatpp::Enum<Enum2>::AsString::Class::getType())
+    OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
+
+    auto value = voidValue.cast<oatpp::Enum<Enum2>::AsString>();
+    OATPP_ASSERT(value == Enum2::NAME_1)
+    OATPP_LOGI(TAG, "OK")
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test Interpreter AsNumber (Qualified)...")
+    oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
+    auto inter = oatpp::Enum<Enum2>::AsNumber::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsNumber(Enum2::NAME_1), false, e);
     OATPP_ASSERT(inter.getValueType() == oatpp::Int32::Class::getType())
     OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
 
     auto interValue = inter.cast<oatpp::Int32>();
     OATPP_ASSERT(interValue == static_cast<v_int32>(Enum2::NAME_1))
 
-    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsNumber::Interpreter::fromInterpretation(interValue, e);
+    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsNumber::Interpreter::fromInterpretation(interValue, false, e);
+    OATPP_ASSERT(voidValue.getValueType() == oatpp::Enum<Enum2>::AsNumber::Class::getType())
+    OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
+
+    auto value = voidValue.cast<oatpp::Enum<Enum2>::AsNumber>();
+    OATPP_ASSERT(value == Enum2::NAME_1)
+    OATPP_LOGI(TAG, "OK")
+  }
+
+  {
+    OATPP_LOGI(TAG, "Test Interpreter AsNumber (Unualified)...")
+    oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
+    auto inter = oatpp::Enum<Enum2>::AsNumber::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsNumber(Enum2::NAME_1), true, e);
+    OATPP_ASSERT(inter.getValueType() == oatpp::Int32::Class::getType())
+    OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
+
+    auto interValue = inter.cast<oatpp::Int32>();
+    OATPP_ASSERT(interValue == static_cast<v_int32>(Enum2::NAME_1))
+
+    oatpp::Void voidValue = oatpp::Enum<Enum2>::AsNumber::Interpreter::fromInterpretation(interValue, true, e);
     OATPP_ASSERT(voidValue.getValueType() == oatpp::Enum<Enum2>::AsNumber::Class::getType())
     OATPP_ASSERT(e == oatpp::data::type::EnumInterpreterError::OK)
 

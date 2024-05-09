@@ -35,6 +35,8 @@ public:
 
   struct Config {
     bool allowUnknownFields = true;
+    bool useUnqualifiedFieldNames = false;
+    bool useUnqualifiedEnumNames = false;
     std::vector<std::string> enabledInterpretations = {};
   };
 

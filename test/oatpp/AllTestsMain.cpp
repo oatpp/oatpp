@@ -57,6 +57,7 @@
 #include "oatpp/data/mapping/TreeTest.hpp"
 #include "oatpp/data/mapping/ObjectToTreeMapperTest.hpp"
 #include "oatpp/data/mapping/TreeToObjectMapperTest.hpp"
+#include "oatpp/data/mapping/ObjectRemapperTest.hpp"
 
 #include "oatpp/data/share/LazyStringMapTest.hpp"
 #include "oatpp/data/share/StringTemplateTest.hpp"
@@ -117,6 +118,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
   OATPP_RUN_TEST(oatpp::data::mapping::ObjectToTreeMapperTest);
   OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::ObjectRemapperTest);
 
   OATPP_RUN_TEST(oatpp::data::type::ObjectWrapperTest);
   OATPP_RUN_TEST(oatpp::data::type::TypeTest);
