@@ -124,14 +124,21 @@ public:
      * Constructor.
      * @param pOffset - memory offset of object field from object start address.
      * @param pName - name of the property.
+     * @param pUName - unqualified name of the property. Name of the class field in the code.
      * @param pType - &l:Type; of the property.
      */
-    Property(v_int64 pOffset, const char* pName, const Type* pType);
+    Property(v_int64 pOffset, std::string pName, std::string pUName, const Type* pType);
 
     /**
      * Property name.
      */
-    const char* const name;
+    const std::string name;
+
+    /**
+     * Unqualified property name.
+     * Name of the class field that is used in the code.
+     */
+    const std::string unqualifiedName;
 
     /**
      * Property type.
@@ -148,21 +155,21 @@ public:
      * @param object - object address.
      * @param value - value to set.
      */
-    void set(BaseObject* object, const Void& value);
+    void set(BaseObject* object, const Void& value) const;
 
     /**
      * Get value of object field mapped by this property.
      * @param object - object address.
      * @return - value of the field.
      */
-    Void get(BaseObject* object);
+    Void get(BaseObject* object) const;
 
     /**
      * Get reference to ObjectWrapper of the object field.
      * @param object - object address.
      * @return - reference to ObjectWrapper of the object field.
      */
-    Void& getAsRef(BaseObject* object);
+    Void& getAsRef(BaseObject* object) const;
 
   };
 
@@ -172,6 +179,7 @@ public:
   class Properties {
   private:
     std::unordered_map<std::string, Property*> m_map;
+    std::unordered_map<std::string, Property*> m_unqualifiedMap;
     std::list<Property*> m_list;
   public:
 
@@ -191,17 +199,19 @@ public:
      * Get properties as unordered map for random access.
      * @return reference to std::unordered_map of std::string to &id:oatpp::data::type::BaseObject::Property;*.
      */
-    const std::unordered_map<std::string, Property*>& getMap() const {
-      return m_map;
-    }
+    const std::unordered_map<std::string, Property*>& getMap() const;
+
+    /**
+     * Get properties as unordered map for random access by unqualified names.
+     * @return reference to std::unordered_map of std::string to &id:oatpp::data::type::BaseObject::Property;*.
+     */
+    const std::unordered_map<std::string, Property*>& getUnqualifiedMap() const;
 
     /**
      * Get properties in ordered way.
      * @return std::list of &id:oatpp::data::type::BaseObject::Property;*.
      */
-    const std::list<Property*>& getList() const {
-      return m_list;
-    }
+    const std::list<Property*>& getList() const;
 
   };
 
@@ -425,6 +435,7 @@ private:
 public:
   typedef oatpp::data::type::Void Void;
   typedef oatpp::data::type::Any Any;
+  typedef oatpp::data::type::Tree Tree;
   typedef oatpp::data::type::String String;
   typedef oatpp::data::type::Int8 Int8;
   typedef oatpp::data::type::UInt8 UInt8;

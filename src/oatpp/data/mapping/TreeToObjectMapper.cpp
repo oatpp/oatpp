@@ -177,7 +177,7 @@ oatpp::Void TreeToObjectMapper::mapEnum(const TreeToObjectMapper* mapper, State&
     state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapEnum()]");
     return nullptr;
   }
-  const auto& result = polymorphicDispatcher->fromInterpretation(value, e);
+  const auto& result = polymorphicDispatcher->fromInterpretation(value, state.config->useUnqualifiedEnumNames, e);
 
   if(e == data::type::EnumInterpreterError::OK) {
     return result;
@@ -287,7 +287,13 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
 
   auto dispatcher = static_cast<const oatpp::data::type::__class::AbstractObject::PolymorphicDispatcher*>(type->polymorphicDispatcher);
   auto object = dispatcher->createObject();
-  const auto& fieldsMap = dispatcher->getProperties()->getMap();
+  const std::unordered_map<std::string, BaseObject::Property*>* fieldsMap;
+
+  if(state.config->useUnqualifiedFieldNames) {
+    fieldsMap = std::addressof(dispatcher->getProperties()->getUnqualifiedMap());
+  } else {
+    fieldsMap = std::addressof(dispatcher->getProperties()->getMap());
+  }
 
   std::vector<std::pair<oatpp::BaseObject::Property*, const Tree*>> polymorphs;
 
@@ -298,8 +304,8 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
 
     const auto& pair = childrenOperator.getPair(i);
 
-    auto fieldIterator = fieldsMap.find(pair.first);
-    if(fieldIterator != fieldsMap.end()){
+    auto fieldIterator = fieldsMap->find(pair.first);
+    if(fieldIterator != fieldsMap->end()){
 
       auto field = fieldIterator->second;
 

@@ -72,7 +72,14 @@ public:
 
   class Attributes {
   private:
-    std::unordered_map<type::String, type::String>* m_attributes;
+    struct Attrs {
+      std::unordered_map<type::String, type::String> map;
+      std::vector<std::pair<std::weak_ptr<std::string>, type::String*>> order;
+    };
+  private:
+    void initAttributes();
+  private:
+    Attrs* m_attributes;
   public:
 
     Attributes();
@@ -84,8 +91,15 @@ public:
 
     ~Attributes();
 
-    bool empty() const;
+    type::String& operator [] (const type::String& key);
+    const type::String& operator [] (const type::String& key) const;
 
+    std::pair<type::String, std::reference_wrapper<type::String>> operator [] (v_uint64 index);
+    std::pair<type::String, std::reference_wrapper<const type::String>> operator [] (v_uint64 index) const;
+
+    type::String get(const type::String& key) const;
+
+    bool empty() const;
     v_uint64 size() const;
 
   };

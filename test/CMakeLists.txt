@@ -8,6 +8,8 @@ add_executable(oatppAllTests
         oatpp/base/CommandLineArgumentsTest.hpp
         oatpp/data/buffer/ProcessorTest.cpp
         oatpp/data/buffer/ProcessorTest.hpp
+        oatpp/data/mapping/ObjectRemapperTest.cpp
+        oatpp/data/mapping/ObjectRemapperTest.hpp
         oatpp/data/mapping/ObjectToTreeMapperTest.cpp
         oatpp/data/mapping/ObjectToTreeMapperTest.hpp
         oatpp/data/mapping/TreeTest.cpp

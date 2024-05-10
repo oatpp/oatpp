@@ -36,8 +36,10 @@ Tree::Attributes::Attributes()
 {}
 
 Tree::Attributes::Attributes(const Attributes& other)
-  : m_attributes(other.m_attributes != nullptr ? new std::unordered_map<type::String, type::String>(*other.m_attributes) : nullptr)
-{}
+  : Attributes()
+{
+  operator=(other);
+}
 
 Tree::Attributes::Attributes(Attributes&& other) noexcept
   : m_attributes(other.m_attributes)
@@ -46,37 +48,101 @@ Tree::Attributes::Attributes(Attributes&& other) noexcept
 }
 
 Tree::Attributes& Tree::Attributes::operator = (const Attributes& other) {
+
   if(other.m_attributes) {
+
     if(m_attributes) {
       *m_attributes = *other.m_attributes;
     } else {
-      m_attributes = new std::unordered_map<type::String, type::String>(*other.m_attributes);
+      m_attributes = new Attrs(*other.m_attributes);
     }
+
+    for(auto & po : m_attributes->order){
+      po.second = &m_attributes->map.at(po.first.lock());
+    }
+
   } else {
     delete m_attributes;
     m_attributes = nullptr;
   }
+
   return *this;
 }
 
 Tree::Attributes& Tree::Attributes::operator = (Attributes&& other) noexcept {
+
   delete m_attributes;
+
   m_attributes = other.m_attributes;
   other.m_attributes = nullptr;
+
   return *this;
 }
 
 Tree::Attributes::~Attributes() {
   delete m_attributes;
+  m_attributes = nullptr;
+}
+
+void Tree::Attributes::initAttributes() {
+  if(m_attributes == nullptr)  {
+    m_attributes = new Attrs();
+  }
+}
+
+type::String& Tree::Attributes::operator [] (const type::String& key) {
+  initAttributes();
+  auto it = m_attributes->map.find(key);
+  if(it == m_attributes->map.end()) {
+    auto& result = m_attributes->map[key];
+    m_attributes->order.emplace_back(key.getPtr(), &result);
+    return result;
+  }
+  return it->second;
+}
+
+const type::String& Tree::Attributes::operator [] (const type::String& key) const {
+  if(m_attributes != nullptr) {
+    auto it = m_attributes->map.find(key);
+    if (it != m_attributes->map.end()) {
+      return it->second;
+    }
+  }
+  throw std::runtime_error("[oatpp::data::mapping::Tree::Attributes::operator []]: const operator[] can't add items.");
+}
+
+std::pair<type::String, std::reference_wrapper<type::String>> Tree::Attributes::operator [] (v_uint64 index) {
+  if(m_attributes != nullptr) {
+    auto &item = m_attributes->order.at(index);
+    return {item.first.lock(), *item.second};
+  }
+  throw std::runtime_error("[oatpp::data::mapping::Tree::Attributes::operator []]: const operator[] can't get item - empty attributes.");
+}
+
+std::pair<type::String, std::reference_wrapper<const type::String>> Tree::Attributes::operator [] (v_uint64 index) const {
+  if(m_attributes != nullptr) {
+    auto &item = m_attributes->order.at(index);
+    return {item.first.lock(), *item.second};
+  }
+  throw std::runtime_error("[oatpp::data::mapping::Tree::Attributes::operator []]: const operator[] can't get item - empty attributes.");
+}
+
+type::String Tree::Attributes::get(const type::String& key) const {
+  if(m_attributes == nullptr) return nullptr;
+  auto it = m_attributes->map.find(key);
+  if(it != m_attributes->map.end()) {
+    return it->second;
+  }
+  return nullptr;
 }
 
 bool Tree::Attributes::empty() const {
-  return m_attributes == nullptr || m_attributes->empty();
+  return m_attributes == nullptr || m_attributes->map.empty();
 }
 
 v_uint64 Tree::Attributes::size() const {
   if(m_attributes) {
-    return m_attributes->size();
+    return m_attributes->map.size();
   }
   return 0;
 }
@@ -725,13 +791,9 @@ TreeMap::TreeMap(TreeMap&& other) noexcept {
 
 TreeMap& TreeMap::operator = (const TreeMap& other) {
   m_map = other.m_map;
-  m_order.resize(other.m_order.size());
-  for(v_uint64 i = 0; i < other.m_order.size(); i ++) {
-    auto& po = other.m_order[i];
-    auto& pt = m_order[i];
-    pt.first = po.first;
-
-    pt.second = &m_map.at(po.first.lock());
+  m_order = other.m_order;
+  for(auto & po : m_order){
+    po.second = &m_map.at(po.first.lock());
   }
   return *this;
 }

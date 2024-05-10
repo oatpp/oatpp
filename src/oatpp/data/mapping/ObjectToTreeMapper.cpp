@@ -127,7 +127,7 @@ void ObjectToTreeMapper::mapEnum(const ObjectToTreeMapper* mapper, State& state,
   );
 
   data::type::EnumInterpreterError e = data::type::EnumInterpreterError::OK;
-  mapper->map(state, polymorphicDispatcher->toInterpretation(polymorph, e));
+  mapper->map(state, polymorphicDispatcher->toInterpretation(polymorph, state.config->useUnqualifiedEnumNames, e));
 
   if(e == data::type::EnumInterpreterError::OK) {
     return;
@@ -273,23 +273,28 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& stat
     }
 
     if(field->info.required && value == nullptr) {
+      oatpp::String key;
+      state.config->useUnqualifiedFieldNames ? key = field->unqualifiedName : key = field->name;
       state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapObject()]: "
                             "Error. " + std::string(type->nameQualifier) + "::"
-                            + std::string(field->name) + " is required!");
+                            + key + " is required!");
       return;
     }
 
     if (value || state.config->includeNullFields || (field->info.required && state.config->alwaysIncludeRequired)) {
 
+      oatpp::String key;
+      state.config->useUnqualifiedFieldNames ? key = field->unqualifiedName : key = field->name;
+
       State nestedState;
-      nestedState.tree = childrenOperator.putPair(oatpp::String(field->name), {});
+      nestedState.tree = childrenOperator.putPair(key, {});
       nestedState.config = state.config;
 
       mapper->map(nestedState, value);
 
       if(!nestedState.errorStack.empty()) {
         state.errorStack.splice(nestedState.errorStack);
-        state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapObject()]: field='" + oatpp::String(field->name) + "'");
+        state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapObject()]: field='" + key + "'");
         return;
       }
 

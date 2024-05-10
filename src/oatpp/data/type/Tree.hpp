@@ -26,6 +26,7 @@
 #define oatpp_data_type_Tree_hpp
 
 #include "./Type.hpp"
+#include "./Primitive.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -108,8 +109,17 @@ public:
   bool operator == (const Tree& other) const;
   bool operator != (const Tree& other) const;
 
-  const mapping::Tree& operator*() const;
+  mapping::Tree* operator->();
+  mapping::Tree* operator->() const;
+
   mapping::Tree& operator*();
+  const mapping::Tree& operator*() const;
+
+  mapping::Tree& operator [] (const String& key);
+  const mapping::Tree& operator [] (const String& key) const;
+
+  mapping::Tree& operator [] (v_uint64 index);
+  const mapping::Tree& operator [] (v_uint64 index) const;
 
 };
 

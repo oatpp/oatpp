@@ -123,6 +123,27 @@ bool Tree::operator != (const Tree& other) const {
   return !operator == (other);
 }
 
+mapping::Tree* Tree::operator->() {
+  if(!m_ptr) {
+    m_ptr = std::make_shared<mapping::Tree>();
+  }
+  return m_ptr.get();
+}
+
+mapping::Tree* Tree::operator->() const {
+  if(!m_ptr) {
+    throw std::runtime_error("[oatpp::data::type::Tree::operator ->()]: null-pointer exception");
+  }
+  return m_ptr.get();
+}
+
+mapping::Tree& Tree::operator*() {
+  if(!m_ptr) {
+    m_ptr = std::make_shared<mapping::Tree>();
+  }
+  return *m_ptr;
+}
+
 const mapping::Tree& Tree::operator*() const {
   if(!m_ptr) {
     throw std::runtime_error("[oatpp::data::type::Tree::operator *()]: null-pointer exception");
@@ -130,12 +151,32 @@ const mapping::Tree& Tree::operator*() const {
   return *m_ptr;
 }
 
-mapping::Tree& Tree::operator*() {
+mapping::Tree& Tree::operator [] (const String& key) {
   if(!m_ptr) {
-    throw std::runtime_error("[oatpp::data::type::Tree::operator *()]: null-pointer exception");
+    m_ptr = std::make_shared<mapping::Tree>();
   }
-  return *m_ptr;
+  return (*m_ptr)[key];
 }
 
+const mapping::Tree& Tree::operator [] (const String& key) const {
+  if(!m_ptr) {
+    throw std::runtime_error("[oatpp::data::type::Tree::operator []]: null-pointer exception");
+  }
+  return (*m_ptr)[key];
+}
+
+mapping::Tree& Tree::operator [] (v_uint64 index) {
+  if(!m_ptr) {
+    m_ptr = std::make_shared<mapping::Tree>();
+  }
+  return (*m_ptr)[index];
+}
+
+const mapping::Tree& Tree::operator [] (v_uint64 index) const {
+  if(!m_ptr) {
+    throw std::runtime_error("[oatpp::data::type::Tree::operator []]: null-pointer exception");
+  }
+  return (*m_ptr)[index];
+}
 
 }}}

@@ -20,7 +20,9 @@
 
 **News**  
 
-- ⚠️ Attention! Oat++ main repo is bumping it's version to 1.4.0. While 1.4.0 is **IN DEVELOPMENT** use `1.3.0-latest` tag.
+- ⚠️ Attention! Oat++ main repo is bumping its version to 1.4.0. While 1.4.0 is **IN DEVELOPMENT** use `1.3.0-latest` tag.
+- Follow the [changelog](https://github.com/oatpp/oatpp/blob/master/changelog/1.4.0.md) for news and features in version `1.4.0`.
+- Consider supporting Oat++ via the [GitHub sponsors](https://github.com/sponsors/oatpp) page.
 
 ---
 

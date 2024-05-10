@@ -73,8 +73,9 @@ static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
 static oatpp::data::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
   static oatpp::data::type::BaseObject::Property* property = \
       new oatpp::data::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
-                                                     #NAME, \
-                                                     TYPE::Class::getType()); \
+                                                  #NAME, \
+                                                  #NAME, \
+                                                  TYPE::Class::getType()); \
   return property; \
 } \
 \
@@ -104,8 +105,9 @@ static v_int64 Z__PROPERTY_OFFSET_##NAME() { \
 static oatpp::data::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() { \
   static oatpp::data::type::BaseObject::Property* property = \
       new oatpp::data::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
-                                                     QUALIFIER, \
-                                                     TYPE::Class::getType()); \
+                                                  QUALIFIER, \
+                                                  #NAME, \
+                                                  TYPE::Class::getType()); \
   return property; \
 } \
 \

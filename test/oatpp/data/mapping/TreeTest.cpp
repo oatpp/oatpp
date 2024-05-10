@@ -36,6 +36,8 @@ namespace {
 template<typename T>
 void testTreeValue(T value) {
 
+  OATPP_LOGD("TEST", "Test value retrieval for '%s'", Tree::NodePrimitiveType<T>::name)
+
   Tree node;
 
   //node.setValue<T>(value);
@@ -70,6 +72,7 @@ void TreeTest::onRun() {
   testTreeValue<v_float64>(16);
 
   {
+    OATPP_LOGD(TAG, "Case 1")
     Tree node;
     oatpp::String original = "Hello World!";
     node.setString(original);
@@ -79,6 +82,7 @@ void TreeTest::onRun() {
   }
 
   {
+    OATPP_LOGD(TAG, "Case 2")
     Tree node1;
     Tree node2;
 
@@ -93,6 +97,7 @@ void TreeTest::onRun() {
   }
 
   {
+    OATPP_LOGD(TAG, "Case 3")
     Tree node1;
     Tree node2;
 
@@ -105,6 +110,7 @@ void TreeTest::onRun() {
   }
 
   {
+    OATPP_LOGD(TAG, "Case 4")
     std::vector<Tree> originalVector(10);
     for(v_uint32 i = 0; i < 10; i ++) {
       originalVector.at(i).setValue(i);
@@ -132,6 +138,7 @@ void TreeTest::onRun() {
   }
 
   {
+    OATPP_LOGD(TAG, "Case 5")
     TreeMap originalMap;
     for(v_uint32 i = 0; i < 10; i ++) {
       originalMap["node_" + utils::Conversion::int32ToStr(static_cast<v_int32>(i))].setValue(i);
@@ -156,6 +163,7 @@ void TreeTest::onRun() {
   }
 
   {
+    OATPP_LOGD(TAG, "Case 6")
     Tree article;
     oatpp::Tree ot;
 
@@ -173,6 +181,120 @@ void TreeTest::onRun() {
     oatpp::String author = article["references"][0]["author"];
 
     OATPP_LOGD(TAG, "pages=%d', refs='%s', node_type=%d", value, author->c_str(), static_cast<v_int32>(article.getType()))
+
+  }
+
+  {
+
+    OATPP_LOGD(TAG, "Attributes Case 1")
+    OATPP_LOGD(TAG, "size of Tree::Attributes='%lu'", sizeof(Tree::Attributes))
+
+    Tree::Attributes attr;
+
+    attr["key1"] = "value1";
+    attr["key1"] = "value1.2";
+    attr["key2"] = "value2";
+
+    OATPP_ASSERT(attr.size() == 2)
+
+    OATPP_ASSERT(attr["key1"] == "value1.2")
+    OATPP_ASSERT(attr["key2"] == "value2")
+    OATPP_ASSERT(attr["key3"] == nullptr) // key3 added
+
+    OATPP_ASSERT(attr.size() == 3)
+
+    OATPP_ASSERT(attr[0].second.get() == "value1.2")
+    OATPP_ASSERT(attr[1].second.get() == "value2")
+    OATPP_ASSERT(attr[2].second.get() == nullptr)
+
+  }
+
+  {
+
+    OATPP_LOGD(TAG, "Attributes Case 2")
+
+    Tree::Attributes attr1;
+    Tree::Attributes attr2;
+
+    attr1["key1"] = "value1";
+    attr1["key2"] = "value2";
+    attr1["key3"] = nullptr;
+
+    attr2["key1"] = "v1";
+    attr2["key2"] = "v2";
+
+    attr2 = attr1;
+
+    attr1["key1"] = "1";
+    attr1["key2"] = "2";
+    attr1["key3"] = "3";
+
+    OATPP_ASSERT(attr1[0].second.get() == "1")
+    OATPP_ASSERT(attr1[1].second.get() == "2")
+    OATPP_ASSERT(attr1[2].second.get() == "3")
+
+    OATPP_ASSERT(attr1["key1"] == "1")
+    OATPP_ASSERT(attr1["key2"] == "2")
+    OATPP_ASSERT(attr1["key3"] == "3")
+
+    OATPP_ASSERT(attr2[0].second.get() == "value1")
+    OATPP_ASSERT(attr2[1].second.get() == "value2")
+    OATPP_ASSERT(attr2[2].second.get() == nullptr)
+
+    OATPP_ASSERT(attr2["key1"] == "value1")
+    OATPP_ASSERT(attr2["key2"] == "value2")
+    OATPP_ASSERT(attr2["key3"] == nullptr)
+
+    Tree::Attributes attr3;
+    attr2 = attr3;
+
+    OATPP_ASSERT(attr2.empty())
+
+  }
+
+  {
+
+    OATPP_LOGD(TAG, "Attributes Case 3")
+
+    Tree tree1;
+    Tree tree2;
+
+    tree1 = "hello";
+    tree2 = "world";
+
+    tree1.attributes()["key1"] = "value1";
+    tree1.attributes()["key2"] = "value2";
+    tree1.attributes()["key3"] = nullptr;
+
+    tree2.attributes()["key1"] = "v1";
+    tree2.attributes()["key2"] = "v2";
+
+    tree2 = tree1;
+
+    tree1.attributes()["key1"] = "1";
+    tree1.attributes()["key2"] = "2";
+    tree1.attributes()["key3"] = "3";
+
+    OATPP_ASSERT(tree1.attributes()[0].second.get() == "1")
+    OATPP_ASSERT(tree1.attributes()[1].second.get() == "2")
+    OATPP_ASSERT(tree1.attributes()[2].second.get() == "3")
+
+    OATPP_ASSERT(tree1.attributes()["key1"] == "1")
+    OATPP_ASSERT(tree1.attributes()["key2"] == "2")
+    OATPP_ASSERT(tree1.attributes()["key3"] == "3")
+
+    OATPP_ASSERT(tree2.attributes()[0].second.get() == "value1")
+    OATPP_ASSERT(tree2.attributes()[1].second.get() == "value2")
+    OATPP_ASSERT(tree2.attributes()[2].second.get() == nullptr)
+
+    OATPP_ASSERT(tree2.attributes()["key1"] == "value1")
+    OATPP_ASSERT(tree2.attributes()["key2"] == "value2")
+    OATPP_ASSERT(tree2.attributes()["key3"] == nullptr)
+
+    Tree tree3;
+    tree2 = tree3;
+
+    OATPP_ASSERT(tree2.attributes().empty())
 
   }
 
