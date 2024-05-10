@@ -34,8 +34,6 @@ namespace oatpp { namespace data { namespace mapping {
 
 class ObjectRemapper {
 protected:
-  oatpp::Void mapTree(const Tree* tree, const oatpp::Type* toType, ErrorStack& errorStack) const;
-protected:
   ObjectToTreeMapper::Config m_objectToTreeConfig;
   TreeToObjectMapper::Config m_treeToObjectConfig;
   ObjectToTreeMapper m_objectToTreeMapper;
@@ -44,6 +42,25 @@ public:
 
   ObjectRemapper() = default;
   virtual ~ObjectRemapper() = default;
+
+  oatpp::Void remap(const Tree& tree, const oatpp::Type* toType, ErrorStack& errorStack) const;
+
+  template<class Wrapper>
+  Wrapper remap(const Tree& tree, ErrorStack& errorStack) const {
+    auto toType = Wrapper::Class::getType();
+    return remap(tree, toType, errorStack).template cast<Wrapper>();
+  }
+
+  template<class Wrapper>
+  Wrapper remap(const Tree& tree) const {
+    auto toType = Wrapper::Class::getType();
+    ErrorStack errorStack;
+    const auto& result = remap(tree, toType, errorStack).template cast<Wrapper>();
+    if(!errorStack.empty()) {
+      throw MappingError(std::move(errorStack));
+    }
+    return result;
+  }
 
   oatpp::Void remap(const oatpp::Void& polymorph, const oatpp::Type* toType, ErrorStack& errorStack) const;
 

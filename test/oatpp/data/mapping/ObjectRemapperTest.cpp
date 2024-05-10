@@ -168,6 +168,57 @@ void ObjectRemapperTest::onRun() {
     OATPP_ASSERT(vec[4] == nullptr)
   }
 
+  {
+
+    OATPP_LOGD(TAG, "Remap tree fragments")
+
+    Tree tree;
+    tree.setVector(3);
+
+    tree[0]["field_1"] = "val1";
+    tree[0]["field_2"] = "val2";
+
+    tree[1]["field_1"] = "val1.2";
+    tree[1]["field_2"] = "val2.2";
+
+    tree[2]["field_1"] = "val1.3";
+    tree[2]["field_2"] = "val2.3";
+
+    {
+      auto map = remapper.remap<oatpp::UnorderedFields<String>>(tree[0]);
+      OATPP_ASSERT(map->size() == 2)
+      OATPP_ASSERT(map["field_1"] == "val1")
+      OATPP_ASSERT(map["field_2"] == "val2")
+    }
+
+    {
+      auto map = remapper.remap<oatpp::UnorderedFields<String>>(tree[1]);
+      OATPP_ASSERT(map->size() == 2)
+      OATPP_ASSERT(map["field_1"] == "val1.2")
+      OATPP_ASSERT(map["field_2"] == "val2.2")
+    }
+
+    {
+      auto map = remapper.remap<oatpp::UnorderedFields<String>>(tree[2]);
+      OATPP_ASSERT(map->size() == 2)
+      OATPP_ASSERT(map["field_1"] == "val1.3")
+      OATPP_ASSERT(map["field_2"] == "val2.3")
+    }
+
+  }
+
+  {
+    oatpp::Tree tree;
+    OATPP_ASSERT(tree == nullptr)
+
+    OATPP_ASSERT(tree->isUndefined()) // implicitly initialized
+    OATPP_ASSERT(tree != nullptr)
+
+    tree["hello"] = "world";
+    std::cout << *tree->debugPrint() << std::endl;
+
+  }
+
 }
 
 }}}

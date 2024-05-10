@@ -26,9 +26,9 @@
 
 namespace oatpp { namespace data { namespace mapping {
 
-oatpp::Void ObjectRemapper::mapTree(const Tree* tree, const oatpp::Type* toType, ErrorStack& errorStack) const {
+oatpp::Void ObjectRemapper::remap(const Tree& tree, const oatpp::Type* toType, ErrorStack& errorStack) const {
   TreeToObjectMapper::State state;
-  state.tree = tree;
+  state.tree = std::addressof(tree);
   state.config = &m_treeToObjectConfig;
   const auto & result = m_treeToObjectMapper.map(state, toType);
   if(!state.errorStack.empty()) {
@@ -40,10 +40,14 @@ oatpp::Void ObjectRemapper::mapTree(const Tree* tree, const oatpp::Type* toType,
 
 oatpp::Void ObjectRemapper::remap(const oatpp::Void& polymorph, const oatpp::Type* toType, ErrorStack& errorStack) const {
 
+  if(polymorph == nullptr) {
+    return nullptr;
+  }
+
   /* if polymorph is a Tree - we can map it right away */
   if(polymorph.getValueType() == oatpp::Tree::Class::getType()) {
     auto tree = static_cast<const Tree*>(polymorph.get());
-    return mapTree(tree, toType, errorStack);
+    return remap(*tree, toType, errorStack);
   }
 
   Tree tree;
@@ -64,7 +68,7 @@ oatpp::Void ObjectRemapper::remap(const oatpp::Void& polymorph, const oatpp::Typ
     return oatpp::Tree(std::move(tree));
   }
 
-  return mapTree(&tree, toType, errorStack);
+  return remap(tree, toType, errorStack);
 
 }
 

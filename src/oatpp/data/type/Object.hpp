@@ -435,6 +435,7 @@ private:
 public:
   typedef oatpp::data::type::Void Void;
   typedef oatpp::data::type::Any Any;
+  typedef oatpp::data::type::Tree Tree;
   typedef oatpp::data::type::String String;
   typedef oatpp::data::type::Int8 Int8;
   typedef oatpp::data::type::UInt8 UInt8;
