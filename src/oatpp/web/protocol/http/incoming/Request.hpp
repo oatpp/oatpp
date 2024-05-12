@@ -193,6 +193,13 @@ public:
   oatpp::String getHeader(const oatpp::data::share::StringKeyLabelCI& headerName) const;
 
   /**
+   * Get all header values
+   * @param headerName
+   * @return
+   */
+  std::vector<oatpp::String> getHeaderValues(const oatpp::data::share::StringKeyLabelCI& headerName) const;
+
+  /**
    * Get path variable according to path-pattern
    * @param name
    * @return matched value for path-pattern

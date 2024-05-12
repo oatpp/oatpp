@@ -85,8 +85,8 @@ std::shared_ptr<handler::AuthorizationObject> ApiController::handleDefaultAuthor
   throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Authorization is not setup.");
 }
 
-const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& ApiController::getDefaultObjectMapper() const {
-  return m_defaultObjectMapper;
+const std::shared_ptr<mime::ContentMappers>& ApiController::getContentMappers() const {
+  return m_contentMappers;
 }
 
 // Helper methods
@@ -106,9 +106,19 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoRespons
   return ResponseFactory::createResponse(status, dto, objectMapper);
 }
 
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status, const oatpp::Void& dto) const {
+  return ResponseFactory::createResponse(status, dto, m_contentMappers->getDefaultMapper());
+}
+
 std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoResponse(const Status& status,
-                                                                                  const oatpp::Void& dto) const {
-  return ResponseFactory::createResponse(status, dto, m_defaultObjectMapper);
+                                                                                  const oatpp::Void& dto,
+                                                                                  const std::vector<oatpp::String>& acceptableContentTypes) const
+{
+  auto mapper = m_contentMappers->selectMapper(acceptableContentTypes);
+  if(mapper) {
+    return ResponseFactory::createResponse(status, dto, mapper);
+  }
+  throw std::runtime_error("[ApiController::createDtoResponse()]: Unsupported content-type");
 }
 
 }}}}

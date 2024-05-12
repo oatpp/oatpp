@@ -27,6 +27,7 @@
 
 #include "./Endpoint.hpp"
 
+#include "oatpp/web/mime/ContentMappers.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
@@ -352,16 +353,24 @@ protected:
   Endpoints m_endpoints;
   std::shared_ptr<handler::ErrorHandler> m_errorHandler;
   std::shared_ptr<handler::AuthorizationHandler> m_defaultAuthorizationHandler;
-  std::shared_ptr<oatpp::data::mapping::ObjectMapper> m_defaultObjectMapper;
+  std::shared_ptr<mime::ContentMappers> m_contentMappers;
   std::unordered_map<std::string, std::shared_ptr<Endpoint::Info>> m_endpointInfo;
   std::unordered_map<std::string, std::shared_ptr<RequestHandler>> m_endpointHandlers;
   const oatpp::String m_routerPrefix;
 public:
-  ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper, const oatpp::String &routerPrefix = nullptr)
-    : m_defaultObjectMapper(defaultObjectMapper)
+
+  ApiController(const std::shared_ptr<mime::ContentMappers>& contentMappers, const oatpp::String &routerPrefix = nullptr)
+    : m_contentMappers(contentMappers)
     , m_routerPrefix(routerPrefix)
   {
 
+  }
+
+  ApiController(const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& defaultObjectMapper, const oatpp::String &routerPrefix = nullptr)
+    : m_contentMappers(std::make_shared<mime::ContentMappers>())
+    , m_routerPrefix(routerPrefix)
+  {
+    m_contentMappers->setDefaultMapper(defaultObjectMapper);
   }
 public:
   
@@ -411,8 +420,12 @@ public:
    * Currently returns AuthorizationObject created by AuthorizationHandler or return DefaultAuthorizationObject by DefaultAuthorizationHandler if AuthorizationHandler is null
    */
   std::shared_ptr<handler::AuthorizationObject> handleDefaultAuthorization(const String &authHeader) const;
-  
-  const std::shared_ptr<oatpp::data::mapping::ObjectMapper>& getDefaultObjectMapper() const;
+
+  /**
+   * Get content mappers
+   * @return
+   */
+  const std::shared_ptr<mime::ContentMappers>& getContentMappers() const;
   
   // Helper methods
   
@@ -427,6 +440,10 @@ public:
   
   std::shared_ptr<OutgoingResponse> createDtoResponse(const Status& status,
                                                       const oatpp::Void& dto) const;
+
+  std::shared_ptr<ApiController::OutgoingResponse> createDtoResponse(const Status& status,
+                                                                     const oatpp::Void& dto,
+                                                                     const std::vector<oatpp::String>& acceptableContentTypes) const;
 
 public:
 

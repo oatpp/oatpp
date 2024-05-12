@@ -122,6 +122,15 @@ oatpp::String Request::getHeader(const oatpp::data::share::StringKeyLabelCI& hea
   return m_headers.get(headerName);
 }
 
+std::vector<oatpp::String> Request::getHeaderValues(const oatpp::data::share::StringKeyLabelCI& headerName) const {
+  std::vector<oatpp::String> result;
+  auto range = m_headers.getAll_Unsafe().equal_range(headerName);
+  for (auto it = range.first; it != range.second; ++it) {
+    result.emplace_back(it->second.toString());
+  }
+  return result;
+}
+
 oatpp::String Request::getPathVariable(const oatpp::data::share::StringKeyLabel& name) const {
   return m_pathVariables.getVariable(name);
 }

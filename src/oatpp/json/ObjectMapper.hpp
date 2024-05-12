@@ -41,9 +41,8 @@ namespace oatpp { namespace json {
  */
 class ObjectMapper : public oatpp::base::Countable, public oatpp::data::mapping::ObjectMapper {
 private:
-  static Info& getMapperInfo() {
-    static Info info("application/json");
-    return info;
+  static Info getMapperInfo() {
+    return Info("application", "json");
   }
 
 public:
