@@ -34,9 +34,26 @@ namespace oatpp::web::mime {
 
 class ContentMappers {
 private:
+
+  struct MatchedMapper {
+
+    std::shared_ptr<data::mapping::ObjectMapper> mapper;
+    v_float64 quality;
+
+    bool operator < (const MatchedMapper& other) const {
+      return quality > other.quality;
+    }
+
+  };
+
+private:
+  typedef std::unordered_map<data::share::StringKeyLabelCI, std::shared_ptr<data::mapping::ObjectMapper>> MappersBySubtypes;
+private:
+  std::pair<oatpp::String, oatpp::String> typeAndSubtype(const data::share::StringKeyLabelCI& contentType) const;
   std::shared_ptr<data::mapping::ObjectMapper> selectMapper(const protocol::http::HeaderValueData& values) const;
 private:
-  std::unordered_map<oatpp::String, std::shared_ptr<data::mapping::ObjectMapper>> m_mappers;
+  std::unordered_map<data::share::StringKeyLabelCI, MappersBySubtypes> m_index;
+  std::unordered_map<data::share::StringKeyLabelCI, std::shared_ptr<data::mapping::ObjectMapper>> m_mappers;
   std::shared_ptr<data::mapping::ObjectMapper> m_defaultMapper;
   mutable std::shared_mutex m_mutex;
 public:
@@ -52,7 +69,7 @@ public:
   std::shared_ptr<data::mapping::ObjectMapper> getMapper(const oatpp::String& contentType) const;
   std::shared_ptr<data::mapping::ObjectMapper> getDefaultMapper() const;
 
-  std::shared_ptr<data::mapping::ObjectMapper> selectMapper(const oatpp::String& contentType) const;
+  std::shared_ptr<data::mapping::ObjectMapper> selectMapper(const oatpp::String& acceptHeader) const;
   std::shared_ptr<data::mapping::ObjectMapper> selectMapper(const std::vector<oatpp::String>& acceptableContentTypes) const;
 
   void clear();

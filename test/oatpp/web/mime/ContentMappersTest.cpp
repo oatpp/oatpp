@@ -31,37 +31,161 @@
 
 namespace oatpp::web::mime {
 
+namespace {
+
+class FakeMapper : public data::mapping::ObjectMapper {
+public:
+
+  FakeMapper(const oatpp::String& mimeType, const oatpp::String& mimeSubtype)
+    : ObjectMapper(Info(mimeType, mimeSubtype))
+  {}
+
+
+  void write(data::stream::ConsistentOutputStream* stream, const oatpp::Void& variant, data::mapping::ErrorStack& errorStack) const override {
+    // DO NOTHING
+  }
+
+  oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::Type* type, data::mapping::ErrorStack& errorStack) const override {
+    return nullptr;
+  }
+
+};
+
+}
+
 void ContentMappersTest::onRun() {
 
-  protocol::http::incoming::Request request(nullptr, {}, {}, nullptr, nullptr);
-
-  request.putHeader("Content-Type", "application/json");
-  request.putHeader("Content-Length", "1000");
-
-  request.putHeader("Accept", "application/*");
-  request.putHeader("Accept", "application/json");
-  request.putHeader("Accept", "text/html, application/xhtml+xml, application/xml;q=0.9, image/webp, */*;q=0.8");
-
-  auto values = request.getHeaderValues("Accept");
-
-  protocol::http::HeaderValueData data;
-
-  for(auto& v : values) {
-    protocol::http::Parser::parseHeaderValueData(data, v, ',');
-    OATPP_LOGD(TAG, "value='%s'", v->c_str())
+  {
+    OATPP_LOGD(TAG, "case 1 - default mapper")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    auto m = mappers.getMapper("APPLICATION/JSON");
+    OATPP_ASSERT(m != nullptr)
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+    OATPP_ASSERT(mappers.getDefaultMapper().get() == m.get())
   }
 
-  OATPP_LOGD(TAG, "")
+  {
+    OATPP_LOGD(TAG, "case 2 - default mapper")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
 
-  for(auto& t : data.tokens) {
-    OATPP_LOGD(TAG, "token='%s'", t.toString()->c_str())
+    auto m = mappers.getMapper("text/HTML");
+    auto d = mappers.getDefaultMapper();
+    OATPP_ASSERT(m != nullptr)
+    OATPP_ASSERT(m->getInfo().httpContentType == "text/html")
+    OATPP_ASSERT(d->getInfo().httpContentType == "application/json")
   }
 
-  for(auto& p : data.titleParams) {
-    OATPP_LOGD(TAG, "'%s'='%s'", p.first.toString()->c_str(), p.second.toString()->c_str())
+  {
+    OATPP_LOGD(TAG, "case 3 - default mapper")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
+
+    mappers.setDefaultMapper("text/html");
+
+    auto m = mappers.getMapper("application/JSON");
+    auto d = mappers.getDefaultMapper();
+    OATPP_ASSERT(m != nullptr)
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+    OATPP_ASSERT(d->getInfo().httpContentType == "text/html")
   }
 
-  ContentMappers mappers;
+
+  {
+    OATPP_LOGD(TAG, "case 4 - select mapper")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
+    auto m= mappers.selectMapper(std::vector<oatpp::String>{
+        "application/json",
+        "text/html",
+      }
+    );
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json" || m->getInfo().httpContentType == "text/html")
+  }
+
+  {
+    OATPP_LOGD(TAG, "case 5 - select mapper")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
+    auto m= mappers.selectMapper(std::vector<oatpp::String>{
+        "application/json;q=0.9",
+        "text/html;q=0.1",
+      }
+    );
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+  }
+
+  {
+    OATPP_LOGD(TAG, "case 6 - select mapper")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
+    auto m= mappers.selectMapper(std::vector<oatpp::String>{
+                                   "application/json;q=0.1",
+                                   "text/html;q=0.9",
+                                 }
+    );
+    OATPP_ASSERT(m->getInfo().httpContentType == "text/html")
+  }
+
+  {
+    OATPP_LOGD(TAG, "case 7 - select mapper - corrupted input")
+    ContentMappers mappers;
+    mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+    mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
+    auto m= mappers.selectMapper(std::vector<oatpp::String>{
+                                   "application/json;<anything>=0.5",
+                                   "text/html;q=",
+                                 }
+    );
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+  }
+
+  ContentMappers richMappers;
+
+  richMappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
+  richMappers.putMapper(std::make_shared<FakeMapper>("application", "xml"));
+  richMappers.putMapper(std::make_shared<FakeMapper>("application", "octet-stream"));
+  richMappers.putMapper(std::make_shared<FakeMapper>("text", "css"));
+  richMappers.putMapper(std::make_shared<FakeMapper>("text", "csv"));
+  richMappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
+
+  {
+    OATPP_LOGD(TAG, "case 8 - select mapper - empty")
+    auto m = richMappers.selectMapper(
+      ""
+      );
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+  }
+
+  {
+    OATPP_LOGD(TAG, "case 9 - select mapper - corrupted input")
+    auto m = richMappers.selectMapper(
+      "application/*;q=0.8, text/*;q=0.9, *.*"
+    );
+    OATPP_ASSERT(m->getInfo().mimeType == "text")
+  }
+
+  {
+    OATPP_LOGD(TAG, "case 10 - select mapper ")
+    auto m = richMappers.selectMapper(
+      "application/*;q=0.8, text/*;q=0.9, */*"
+    );
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+  }
+
+  {
+    OATPP_LOGD(TAG, "case 11 - select mapper ")
+    auto m = richMappers.selectMapper(
+      "application/*;q=0.9, text/*;q=0.8"
+    );
+    OATPP_ASSERT(m->getInfo().httpContentType == "application/json")
+  }
 
 }
 
