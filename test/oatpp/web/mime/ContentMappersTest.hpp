@@ -22,31 +22,22 @@
  *
  ***************************************************************************/
 
-#include "./ResponseFactory.hpp"
+#ifndef oatpp_web_mime_ContentMappersTest_hpp
+#define oatpp_web_mime_ContentMappersTest_hpp
 
-#include "./BufferBody.hpp"
+#include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::mime {
 
-std::shared_ptr<Response>
-ResponseFactory::createResponse(const Status& status) {
-  return Response::createShared(status, nullptr);
+class ContentMappersTest : public oatpp::test::UnitTest{
+public:
+
+  ContentMappersTest() : UnitTest("TEST[web::mime::ContentMappersTest]"){}
+  void onRun() override;
+
+};
+
 }
 
-std::shared_ptr<Response>
-ResponseFactory::createResponse(const Status& status, const oatpp::String& text) {
-  return Response::createShared(status, BufferBody::createShared(text));
-}
 
-std::shared_ptr<Response>
-ResponseFactory::createResponse(const Status& status,
-                                const oatpp::Void& dto,
-                                const std::shared_ptr<data::mapping::ObjectMapper>& objectMapper) {
-  return Response::createShared(status, BufferBody::createShared(
-    objectMapper->writeToString(dto),
-    objectMapper->getInfo().httpContentType
-  ));
-}
-
-  
-}}}}}
+#endif //oatpp_web_mime_ContentMappersTest_hpp

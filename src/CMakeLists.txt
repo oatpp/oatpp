@@ -239,6 +239,8 @@ add_library(oatpp
         oatpp/web/mime/multipart/StatefulParser.hpp
         oatpp/web/mime/multipart/TemporaryFileProvider.cpp
         oatpp/web/mime/multipart/TemporaryFileProvider.hpp
+		oatpp/web/mime/ContentMappers.cpp
+		oatpp/web/mime/ContentMappers.hpp
         oatpp/web/protocol/CommunicationError.cpp
         oatpp/web/protocol/CommunicationError.hpp
         oatpp/web/protocol/http/Http.cpp
@@ -309,7 +311,7 @@ add_library(oatpp
 set_target_source_groups(oatpp STRIP_PREFIX "oatpp")
 
 set_target_properties(oatpp PROPERTIES
-        CXX_STANDARD 11
+        CXX_STANDARD 17
         CXX_EXTENSIONS OFF
         CXX_STANDARD_REQUIRED ON
 )

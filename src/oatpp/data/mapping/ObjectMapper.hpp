@@ -25,6 +25,8 @@
 #ifndef oatpp_data_mapping_ObjectMapper_hpp
 #define oatpp_data_mapping_ObjectMapper_hpp
 
+#include <utility>
+
 #include "oatpp/Types.hpp"
 
 #include "oatpp/data/stream/Stream.hpp"
@@ -117,17 +119,28 @@ public:
   public:
 
     /**
-     * Constructor.
-     * @param _http_content_type
+     * Constructor
      */
-    Info(const char* _http_content_type)
-      : http_content_type(_http_content_type)
+    Info(const oatpp::String& pMimeType, const oatpp::String& pMimeSubtype)
+      : httpContentType(pMimeType + "/" + pMimeSubtype)
+      , mimeType(pMimeType)
+      , mimeSubtype(pMimeSubtype)
     {}
 
     /**
      * Value for Content-Type http header when DTO is serialized via specified ObjectMapper.
      */
-    const char* const http_content_type;
+    const oatpp::String httpContentType;
+
+    /**
+     * Mime type
+     */
+    const oatpp::String mimeType;
+
+    /**
+     * Mime subtype
+     */
+    const oatpp::String mimeSubtype;
 
   };
 private:

@@ -34,6 +34,10 @@ v_int32 Conversion::strToInt32(const char* str){
 }
 
 v_int32 Conversion::strToInt32(const oatpp::String& str, bool& success){
+  if(str == nullptr || str->empty()) {
+    success = false;
+    return 0;
+  }
   char* end;
   v_int32 result = static_cast<v_int32>(std::strtol(str->data(), &end, 10));
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
@@ -46,6 +50,10 @@ v_uint32 Conversion::strToUInt32(const char* str){
 }
 
 v_uint32 Conversion::strToUInt32(const oatpp::String& str, bool& success){
+  if(str == nullptr || str->empty()) {
+    success = false;
+    return 0;
+  }
   char* end;
   v_uint32 result = static_cast<v_uint32>(std::strtoul(str->data(), &end, 10));
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
@@ -58,6 +66,10 @@ v_int64 Conversion::strToInt64(const char* str){
 }
 
 v_int64 Conversion::strToInt64(const oatpp::String& str, bool& success){
+  if(str == nullptr || str->empty()) {
+    success = false;
+    return 0;
+  }
   char* end;
   v_int64 result = std::strtoll(str->data(), &end, 10);
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
@@ -70,6 +82,10 @@ v_uint64 Conversion::strToUInt64(const char* str){
 }
 
 v_uint64 Conversion::strToUInt64(const oatpp::String& str, bool& success){
+  if(str == nullptr || str->empty()) {
+    success = false;
+    return 0;
+  }
   char* end;
   v_uint64 result = std::strtoull(str->data(), &end, 10);
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
@@ -170,6 +186,10 @@ v_float32 Conversion::strToFloat32(const char* str){
 }
 
 v_float32 Conversion::strToFloat32(const oatpp::String& str, bool& success) {
+  if(str == nullptr || str->empty()) {
+    success = false;
+    return 0;
+  }
   char* end;
   v_float32 result = std::strtof(str->data(), &end);
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
@@ -182,6 +202,10 @@ v_float64 Conversion::strToFloat64(const char* str){
 }
 
 v_float64 Conversion::strToFloat64(const oatpp::String& str, bool& success) {
+  if(str == nullptr || str->empty()) {
+    success = false;
+    return 0;
+  }
   char* end;
   v_float64 result = std::strtod(str->data(), &end);
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));

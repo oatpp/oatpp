@@ -11,6 +11,7 @@
 #include "oatpp/web/server/HttpRouterTest.hpp"
 #include "oatpp/web/server/ServerStopTest.hpp"
 #include "oatpp/web/mime/multipart/StatefulParserTest.hpp"
+#include "oatpp/web/mime/ContentMappersTest.hpp"
 
 #include "oatpp/network/virtual_/PipeTest.hpp"
 #include "oatpp/network/virtual_/InterfaceTest.hpp"
@@ -81,7 +82,6 @@ namespace {
 
 void runTests() {
 
-
   oatpp::Environment::printCompilationConfig();
 
   OATPP_LOGD("Tests", "oatpp::String size=%lu", sizeof(oatpp::String))
@@ -91,7 +91,6 @@ void runTests() {
   OATPP_LOGD("Tests", "Tree size=%lu", sizeof(oatpp::data::mapping::Tree))
 
   //return;
-
 
   OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle))
   OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine))
@@ -172,6 +171,7 @@ void runTests() {
   OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
 
   OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
+  OATPP_RUN_TEST(oatpp::web::mime::ContentMappersTest);
 
   OATPP_RUN_TEST(oatpp::test::web::server::HttpRouterTest);
   OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
