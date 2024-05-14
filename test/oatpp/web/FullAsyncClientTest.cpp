@@ -160,6 +160,7 @@ public:
       OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. {}", error->what())
     }
     OATPP_ASSERT(!"Error")
+    return error;
   }
 
 };
@@ -201,6 +202,7 @@ public:
       OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "Error. {}", error->what())
     }
     OATPP_ASSERT(!"Error")
+    return error;
   }
 
 };
@@ -248,6 +250,7 @@ public:
       }
     }
     OATPP_ASSERT(!"Error")
+    return error;
   }
 
 };

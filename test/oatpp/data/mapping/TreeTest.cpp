@@ -177,8 +177,6 @@ void TreeTest::onRun() {
     article["references"][0]["author"] = "Alexander";
     article["references"][1]["author"] = "Leonid";
 
-    article["references"].getVector().size();
-
     v_int32 value = article["pages"];
     oatpp::String author = article["references"][0]["author"];
 
