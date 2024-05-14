@@ -58,7 +58,7 @@ void Multipart::writeNextPartSimple(const std::shared_ptr<Part>& part) {
 }
 
 oatpp::String Multipart::generateRandomBoundary(v_int32 boundarySize) {
-  std::unique_ptr<v_char8[]> buffer(new v_char8[boundarySize]);
+  std::unique_ptr<v_char8[]> buffer(new v_char8[static_cast<unsigned long>(boundarySize)]);
   utils::random::Random::randomBytes(buffer.get(), boundarySize);
   return encoding::Base64::encode(buffer.get(), boundarySize, encoding::Base64::ALPHABET_BASE64_URL_SAFE);
 }

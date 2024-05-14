@@ -192,7 +192,7 @@ oatpp::String runTestCase(const oatpp::String& data, v_int32 p1N, v_int32 p2N, v
     oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToLower>(p3N)),
   });
 
-  std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
+  std::unique_ptr<v_char8[]> buffer(new v_char8[static_cast<unsigned long>(bufferSize)]);
   oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer.get(), bufferSize, &processor);
 
   return outStream.toString();

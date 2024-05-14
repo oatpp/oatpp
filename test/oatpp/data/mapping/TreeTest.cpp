@@ -43,15 +43,17 @@ void testTreeValue(T value) {
   //node.setValue<T>(value);
   node = value;
   auto v = node.getValue<T>();
-  OATPP_ASSERT(v == value && "value check")
+  OATPP_ASSERT(std::memcmp(&v, &value, sizeof(T)) == 0 && "value check")
 
   node.setValue<T>(std::numeric_limits<T>::min());
   auto min = node.getValue<T>();
-  OATPP_ASSERT(min == std::numeric_limits<T>::min() && "min check")
+  auto minLim = std::numeric_limits<T>::min();
+  OATPP_ASSERT(std::memcmp(&min, &minLim, sizeof(T)) == 0 && "min check")
 
   node.setValue<T>(std::numeric_limits<T>::max());
   auto max = node.getValue<T>();
-  OATPP_ASSERT(max == std::numeric_limits<T>::max() && "max check")
+  auto maxLim = std::numeric_limits<T>::max();
+  OATPP_ASSERT(std::memcmp(&max, &maxLim, sizeof(T)) == 0 && "max check")
 
 }
 

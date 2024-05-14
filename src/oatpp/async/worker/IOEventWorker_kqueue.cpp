@@ -70,7 +70,7 @@ void IOEventWorker::triggerWakeup() {
 
 void IOEventWorker::setTriggerEvent(p_char8 eventPtr) {
 
-  struct kevent* event = (struct kevent*) eventPtr;
+  auto* event = reinterpret_cast<struct kevent*>(eventPtr);
 
   std::memset(event, 0, sizeof(struct kevent));
 
@@ -87,7 +87,7 @@ void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation,
 
   switch(action.getType()) {
 
-    case Action::TYPE_IO_WAIT: break;
+    case Action::TYPE_IO_WAIT:
     case Action::TYPE_IO_REPEAT: break;
 
     default:
@@ -95,10 +95,10 @@ void IOEventWorker::setCoroutineEvent(CoroutineHandle* coroutine, int operation,
 
   }
 
-  struct kevent* event = (struct kevent*) eventPtr;
+  auto* event = reinterpret_cast<struct kevent*>(eventPtr);
   std::memset(event, 0, sizeof(struct kevent));
 
-  event->ident = action.getIOHandle();
+  event->ident = static_cast<uintptr_t>(action.getIOHandle());
   event->flags = EV_ADD | EV_ONESHOT;
   event->udata = coroutine;
 
@@ -141,7 +141,7 @@ void IOEventWorker::consumeBacklog() {
   setTriggerEvent(&m_inEvents[0]);
 
   auto curr = m_backlog.first;
-  v_int32 i = 1;
+  unsigned long i = 1;
   while(curr != nullptr) {
     setCoroutineEvent(curr, 0, &m_inEvents[i * sizeof(struct kevent)]);
     curr = nextCoroutine(curr);
@@ -156,7 +156,12 @@ void IOEventWorker::consumeBacklog() {
 
 void IOEventWorker::waitEvents() {
 
-  auto eventsCount = kevent(m_eventQueueHandle, (struct kevent*)m_inEvents.get(), m_inEventsCount, (struct kevent*)m_outEvents.get(), MAX_EVENTS,nullptr);
+  auto eventsCount = kevent(m_eventQueueHandle,
+                            reinterpret_cast<struct kevent *>(m_inEvents.get()),
+                            m_inEventsCount,
+                            reinterpret_cast<struct kevent *>(m_outEvents.get()),
+                            MAX_EVENTS,
+                            nullptr);
 
   if((eventsCount < 0) && (errno != EINTR)) {
     OATPP_LOGe("[oatpp::async::worker::IOEventWorker::waitEvents()]", "Error:\n"
@@ -174,8 +179,8 @@ void IOEventWorker::waitEvents() {
 
   for(v_int32 i = 0; i < eventsCount; i ++) {
 
-    struct kevent* event = (struct kevent *)&m_outEvents[i * sizeof(struct kevent)];
-    auto coroutine = (CoroutineHandle*) event->udata;
+    auto* event = reinterpret_cast<struct kevent *>(&m_outEvents[static_cast<unsigned long>(i) * sizeof(struct kevent)]);
+    auto coroutine = reinterpret_cast<CoroutineHandle*>(event->udata);
 
     if((event->flags & EV_ERROR) > 0) {
       OATPP_LOGd("Error", "data='{}'", strerror(static_cast<int>(event->data)))

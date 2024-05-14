@@ -241,28 +241,28 @@ void DeserializerTest::onRun(){
   data::type::DTOWrapper<Test5> obj5;
   try {
     obj5 = mapper.readFromString<oatpp::Object<Test5>>(R"({"strF":null})");
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error&) {
     OATPP_LOGd(TAG, "Test5::strF is required!")
   }
   OATPP_ASSERT(obj5 == nullptr)
 
   try {
     auto obj6 = mapper.readFromString<oatpp::Object<Test6>>(R"({"strF":null})");
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error&) {
     OATPP_ASSERT(false)
   }
 
   data::type::DTOWrapper<Test7> obj7;
   try {
     obj7 = mapper.readFromString<oatpp::Object<Test7>>(R"({"strF":"value1", "child":{"name":null}})");
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error&) {
     OATPP_LOGd(TAG, "TestChild1::name is required!")
   }
   OATPP_ASSERT(obj7 == nullptr)
 
   try {
     auto obj8 = mapper.readFromString<oatpp::Object<Test8>>(R"({"strF":"value1", "child":{"name":null}})");
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error&) {
     OATPP_ASSERT(false)
   }
 

@@ -28,7 +28,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/macro/basic.hpp"
 
-namespace oatpp::base{
+namespace oatpp { namespace base{
 
 class LogMessage {
 private:
@@ -84,7 +84,7 @@ public:
 
 };
 
-}
+}}
 
 #define OATPP_LOG_PARAMS(IDX, CNT, P) \
 << P

@@ -27,7 +27,7 @@
 #include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/macro/basic.hpp"
 
-namespace oatpp::base{
+namespace oatpp { namespace base {
 
 LogMessage::LogMessage(const oatpp::String& msg)
   : m_msg(msg != nullptr ? msg : "<null>")
@@ -298,4 +298,4 @@ void LogMessage::log(v_uint32 priority, const LogCategory& category, const LogMe
   }
 }
 
-}
+}}
