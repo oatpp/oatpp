@@ -53,18 +53,16 @@ public:
 
   LogMessage& operator << (const char* str);
   LogMessage& operator << (bool value);
-  LogMessage& operator << (v_int8 value);
-  LogMessage& operator << (v_uint8 value);
-  LogMessage& operator << (v_int16 value);
-  LogMessage& operator << (v_uint16 value);
-  LogMessage& operator << (v_int32 value);
-  LogMessage& operator << (v_uint32 value);
-  LogMessage& operator << (v_int64 value);
-  LogMessage& operator << (v_uint64 value);
-  LogMessage& operator << (v_buff_size value);
-  LogMessage& operator << (v_buff_usize value);
-  LogMessage& operator << (v_float32 value);
-  LogMessage& operator << (v_float64 value);
+
+  LogMessage& operator << (int value);
+  LogMessage& operator << (unsigned value);
+  LogMessage& operator << (long value);
+  LogMessage& operator << (unsigned long value);
+  LogMessage& operator << (long long value);
+  LogMessage& operator << (unsigned long long value);
+  LogMessage& operator << (float value);
+  LogMessage& operator << (double value);
+  LogMessage& operator << (long double value);
 
   LogMessage& operator << (const oatpp::String& str);
   LogMessage& operator << (const Boolean& value);

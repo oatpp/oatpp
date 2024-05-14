@@ -248,8 +248,6 @@ void Environment::checkTypes(){
   v_uint32 vUInt32 = ~v_uint32(1);
   v_uint64 vUInt64 = ~v_uint64(1);
 
-  OATPP_LOGe("AAA", "")
-
   OATPP_ASSERT(vInt32 < 0)
   OATPP_ASSERT(vInt64 < 0)
   OATPP_ASSERT(vUInt32 > 0)

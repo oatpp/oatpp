@@ -30,6 +30,7 @@
 // epoll based implementation
 
 #include "oatpp/async/Processor.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <unistd.h>
 #include <sys/epoll.h>

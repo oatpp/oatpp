@@ -93,86 +93,65 @@ LogMessage& LogMessage::operator << (bool value) {
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_int8 value) {
+LogMessage& LogMessage::operator << (int value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(value);
+    m_stream.writeAsString(static_cast<v_int32>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_uint8 value) {
+LogMessage& LogMessage::operator << (unsigned value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(value);
+    m_stream.writeAsString(static_cast<v_uint32>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_int16 value) {
+LogMessage& LogMessage::operator << (long value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(value);
+    m_stream.writeAsString(static_cast<v_int32>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_uint16 value) {
+LogMessage& LogMessage::operator << (unsigned long value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(value);
+    m_stream.writeAsString(static_cast<v_uint32>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_int32 value) {
-  if(writeNextChunk()) {
-    m_stream.writeAsString(value);
-  }
-  return *this;
-}
-
-LogMessage& LogMessage::operator << (v_uint32 value) {
-  if(writeNextChunk()) {
-    m_stream.writeAsString(value);
-  }
-  return *this;
-}
-
-LogMessage& LogMessage::operator << (v_int64 value) {
-  if(writeNextChunk()) {
-    m_stream.writeAsString(value);
-  }
-  return *this;
-}
-
-LogMessage& LogMessage::operator << (v_uint64 value) {
-  if(writeNextChunk()) {
-    m_stream.writeAsString(value);
-  }
-  return *this;
-}
-
-LogMessage& LogMessage::operator << (v_buff_size value) {
+LogMessage& LogMessage::operator << (long long value) {
   if(writeNextChunk()) {
     m_stream.writeAsString(static_cast<v_int64>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_buff_usize value) {
+LogMessage& LogMessage::operator << (unsigned long long value) {
   if(writeNextChunk()) {
     m_stream.writeAsString(static_cast<v_uint64>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_float32 value) {
+LogMessage& LogMessage::operator << (float value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(value);
+    m_stream.writeAsString(static_cast<v_float32>(value));
   }
   return *this;
 }
 
-LogMessage& LogMessage::operator << (v_float64 value) {
+LogMessage& LogMessage::operator << (double value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(value);
+    m_stream.writeAsString(static_cast<v_float64>(value));
+  }
+  return *this;
+}
+
+LogMessage& LogMessage::operator << (long double value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_float64>(value));
   }
   return *this;
 }

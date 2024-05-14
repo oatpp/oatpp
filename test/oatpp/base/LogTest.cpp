@@ -30,16 +30,45 @@ namespace oatpp::base {
 
 void LogTest::onRun() {
 
-//  oatpp::String val = "hello";
-//  oatpp::Float64 fv;
-//
-//  LogMessage msg("{} double={}, float={}");
-//
-//  //msg << val << fv << "<end>";
-//
-//  LogMessage::log(0, TAG, msg << 1 << 2 << 3);
-//
-//  //std::cout << msg.toStdString() << std::endl;
+  {
+    LogMessage msg("{}");
+    msg << "hello";
+    OATPP_ASSERT(msg.toStdString() == "hello")
+  }
+
+  {
+    LogMessage msg("{}");
+    msg << oatpp::String("hello");
+    OATPP_ASSERT(msg.toStdString() == "hello")
+  }
+
+  {
+    LogMessage msg("{}");
+    msg << std::string("hello");
+    OATPP_ASSERT(msg.toStdString() == "hello")
+  }
+
+  {
+    LogMessage msg("{} {}");
+    msg << true << false;
+    OATPP_ASSERT(msg.toStdString() == "true false")
+  }
+
+  {
+    LogMessage msg("{} {}");
+    msg << oatpp::Boolean(true) << oatpp::Boolean(false);
+    OATPP_ASSERT(msg.toStdString() == "true false")
+  }
+
+  {
+    LogMessage msg("{} {} {} {} {} {} {} {}");
+    msg << v_int8(-8) << v_uint8(8);
+    msg << v_int16(-16) << v_uint16(16);
+    msg << v_int32(-32) << v_uint32(32);
+    msg << v_int64(-64) << v_uint64(64);
+    OATPP_ASSERT(msg.toStdString() == "-8 8 -16 16 -32 32 -64 64")
+  }
+
 
   OATPP_LOGv(TAG, "1={}, 2={}, 3={}", 1, 2, 3)
   OATPP_LOGv(TAG, "empty params")
