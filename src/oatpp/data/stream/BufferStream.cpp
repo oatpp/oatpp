@@ -129,6 +129,10 @@ oatpp::String BufferOutputStream::toString() {
   return oatpp::String(reinterpret_cast<const char*>(m_data), m_position);
 }
 
+std::string BufferOutputStream::toStdString() const {
+  return std::string(reinterpret_cast<const char*>(m_data), static_cast<unsigned long>(m_position));
+}
+
 oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size count) {
   if(pos + count <= m_position) {
     return oatpp::String(reinterpret_cast<const char*>(m_data + pos), count);

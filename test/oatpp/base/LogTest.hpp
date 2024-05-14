@@ -22,41 +22,24 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_base_Countable_hpp
-#define oatpp_base_Countable_hpp
+#ifndef oatpp_base_LogTest_hpp
+#define oatpp_base_LogTest_hpp
 
-#include "oatpp/Environment.hpp"
+#include "oatpp-test/UnitTest.hpp"
 
-#include <memory>
-
-namespace oatpp { namespace base{
+namespace oatpp::base {
 
 /**
- * Class instantiations of which can be counted.
+ * Test command line arguments parsing.
  */
-class Countable {
+class LogTest : public oatpp::test::UnitTest{
 public:
-  /**
-   * Constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
-   */
-  Countable();
 
-  /**
-   * Copy constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
-   * @param other
-   */
-  Countable(const Countable& other);
-
-  /**
-   * Virtual destructor. Decrement counter calling &id:oatpp::Environment::decObjects;.
-   */
-  virtual ~Countable();
-
-  Countable& operator = (Countable&) = default;
-
+  LogTest():UnitTest("TEST[base::LogTest]"){}
+  void onRun() override;
 
 };
-  
-}}
 
-#endif /* oatpp_base_Countable_hpp */
+}
+
+#endif /* oatpp_base_LogTest_hpp */

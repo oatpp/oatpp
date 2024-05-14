@@ -22,41 +22,40 @@
  *
  ***************************************************************************/
 
-#ifndef oatpp_base_Countable_hpp
-#define oatpp_base_Countable_hpp
+#include "LogTest.hpp"
 
-#include "oatpp/Environment.hpp"
+#include "oatpp/base/Log.hpp"
 
-#include <memory>
+namespace oatpp::base {
 
-namespace oatpp { namespace base{
+void LogTest::onRun() {
 
-/**
- * Class instantiations of which can be counted.
- */
-class Countable {
-public:
-  /**
-   * Constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
-   */
-  Countable();
+//  oatpp::String val = "hello";
+//  oatpp::Float64 fv;
+//
+//  LogMessage msg("{} double={}, float={}");
+//
+//  //msg << val << fv << "<end>";
+//
+//  LogMessage::log(0, TAG, msg << 1 << 2 << 3);
+//
+//  //std::cout << msg.toStdString() << std::endl;
 
-  /**
-   * Copy constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
-   * @param other
-   */
-  Countable(const Countable& other);
+  OATPP_LOGv(TAG, "1={}, 2={}, 3={}", 1, 2, 3)
+  OATPP_LOGv(TAG, "empty params")
 
-  /**
-   * Virtual destructor. Decrement counter calling &id:oatpp::Environment::decObjects;.
-   */
-  virtual ~Countable();
+  OATPP_LOGd(TAG, "1={}, 2={}, 3={}", 1, 2, 3)
+  OATPP_LOGd(TAG, "empty params")
 
-  Countable& operator = (Countable&) = default;
+  OATPP_LOGi(TAG, "1={}, 2={}, 3={}", 1, 2, 3)
+  OATPP_LOGi(TAG, "empty params")
 
+  OATPP_LOGw(TAG, "1={}, 2={}, 3={}", 1, 2, 3)
+  OATPP_LOGw(TAG, "empty params")
 
-};
-  
-}}
+  OATPP_LOGe(TAG, "1={}, 2={}, 3={}", 1, 2, 3)
+  OATPP_LOGe(TAG, "empty params")
 
-#endif /* oatpp_base_Countable_hpp */
+}
+
+}

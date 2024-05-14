@@ -87,8 +87,8 @@ namespace oatpp {
 
 /**
  * Interface for system-wide Logger.<br>
- * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGD`, `OATPP_DISABLE_LOGI`,
- * `OATPP_DISABLE_LOGW`, `OATPP_DISABLE_LOGE` will come here.
+ * All calls to `OATPP_LOGV`, `OATPP_LOGD`, `OATPP_LOGI`,
+ * `OATPP_LOGW`, `OATPP_LOGE` will come here.
  */
 class Logger {
 public:
