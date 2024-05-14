@@ -288,11 +288,11 @@ LogMessage& LogMessage::operator << (const Float64& value) {
   return *this;
 }
 
-void LogMessage::log(v_uint32 priority, const std::string& tag, const LogMessage& message) {
+void Log::log(v_uint32 priority, const std::string& tag, const LogMessage& message) {
   oatpp::Environment::log(priority, tag, message.toStdString());
 }
 
-void LogMessage::log(v_uint32 priority, const LogCategory& category, const LogMessage& message) {
+void Log::log(v_uint32 priority, const LogCategory& category, const LogMessage& message) {
   if (category.categoryEnabled && (category.enabledPriorities & (1U << priority))) {
     log(priority, category.tag, message);
   }

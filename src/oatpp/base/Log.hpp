@@ -28,7 +28,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/macro/basic.hpp"
 
-namespace oatpp { namespace base{
+namespace oatpp { namespace base {
 
 class LogMessage {
 private:
@@ -77,7 +77,27 @@ public:
   LogMessage& operator << (const Float32& value);
   LogMessage& operator << (const Float64& value);
 
-public:
+};
+
+struct Log {
+
+  static void ignore(std::initializer_list<void*> list) {
+    (void) list;
+  }
+
+  template<typename ... Types>
+  static void stream(v_uint32 priority, const std::string& tag, const oatpp::String& message, Types... args) {
+    oatpp::base::LogMessage msg(message);
+    ignore({std::addressof(msg << args)...});
+    log(priority, tag, msg);
+  }
+
+  template<typename ... Types>
+  static void stream(v_uint32 priority, const LogCategory& category, const oatpp::String& message, Types... args) {
+    oatpp::base::LogMessage msg(message);
+    ignore({std::addressof(msg << args)...});
+    log(priority, category, msg);
+  }
 
   static void log(v_uint32 priority, const std::string& tag, const LogMessage& message);
   static void log(v_uint32 priority, const LogCategory& category, const LogMessage& message);
@@ -85,24 +105,6 @@ public:
 };
 
 }}
-
-#define OATPP_LOG_PARAMS(IDX, CNT, P) \
-<< P
-
-#define OATPP_LOG_MACRO_0(PRIORITY, TAG, MSG) \
-oatpp::base::LogMessage::log(PRIORITY, TAG, oatpp::base::LogMessage(MSG));
-
-#define OATPP_LOG_MACRO_1(PRIORITY, TAG, MSG, ...) \
-oatpp::base::LogMessage::log(PRIORITY, TAG, oatpp::base::LogMessage(MSG) OATPP_MACRO_FOREACH_OR_EMPTY(OATPP_LOG_PARAMS, __VA_ARGS__));
-
-/**
- * General LOG macro
- * @param PRIORITY - Http method ("GET", "POST", "PUT", etc.)
- * @param TAG - Path to endpoint (without host)
- * @param MSG - Name of the generated method
- */
-#define OATPP_LOG(PRIORITY, TAG, ...) \
-OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARGS__)) (PRIORITY, TAG, __VA_ARGS__))
 
 ////////////////////////////
 ////////////////////////////
@@ -118,7 +120,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGv(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_V, TAG, __VA_ARGS__)
+  oatpp::base::Log::stream(oatpp::Logger::PRIORITY_V, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGv(TAG, ...)
@@ -134,7 +136,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGd(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_D, TAG, __VA_ARGS__)
+  oatpp::base::Log::stream(oatpp::Logger::PRIORITY_D, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGd(TAG, ...)
@@ -150,7 +152,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGi(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_I, TAG, __VA_ARGS__)
+  oatpp::base::Log::stream(oatpp::Logger::PRIORITY_I, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGi(TAG, ...)
@@ -166,7 +168,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGw(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_W, TAG, __VA_ARGS__)
+  oatpp::base::Log::stream(oatpp::Logger::PRIORITY_W, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGw(TAG, ...)
@@ -182,7 +184,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGe(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_E, TAG, __VA_ARGS__)
+  oatpp::base::Log::stream(oatpp::Logger::PRIORITY_E, TAG, __VA_ARGS__);
 
 #else
   #define OATPP_LOGe(TAG, ...)
