@@ -77,7 +77,7 @@ public:
   }
 
   void stop() override {
-    OATPP_LOGD("TestProvider", "stop()")
+    OATPP_LOGd("TestProvider", "stop()")
   }
 
 };
@@ -144,7 +144,7 @@ void PoolTemplateTest::onRun() {
   const v_int64 maxResources = 1;
 
   {
-    OATPP_LOGD(TAG, "Synchronously with timeout")
+    OATPP_LOGd(TAG, "Synchronously with timeout")
     auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
 
     oatpp::provider::ResourceHandle<Resource> resource = TestPool::get(poolTemplate);
@@ -156,7 +156,7 @@ void PoolTemplateTest::onRun() {
     OATPP_ASSERT(TestPool::get(poolTemplate) == nullptr)
   }
   {
-    OATPP_LOGD(TAG, "Synchronously without timeout")
+    OATPP_LOGd(TAG, "Synchronously without timeout")
     auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 
     oatpp::provider::ResourceHandle<Resource> resource = TestPool::get(poolTemplate);
@@ -171,7 +171,7 @@ void PoolTemplateTest::onRun() {
     OATPP_ASSERT(TestPool::get(poolTemplate) == nullptr)
   }
   {
-    OATPP_LOGD(TAG, "Asynchronously with timeout")
+    OATPP_LOGd(TAG, "Asynchronously with timeout")
     oatpp::async::Executor executor(1, 1, 1);
     auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds(500));
 
@@ -200,7 +200,7 @@ void PoolTemplateTest::onRun() {
     executor.join();
   }
   {
-    OATPP_LOGD(TAG, "Asynchronously without timeout")
+    OATPP_LOGd(TAG, "Asynchronously without timeout")
     oatpp::async::Executor executor(1, 1, 1);
     auto poolTemplate = TestPool::createShared(provider, maxResources, std::chrono::seconds(10), std::chrono::milliseconds::zero());
 

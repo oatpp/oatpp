@@ -30,6 +30,7 @@
 // kqueue based implementation
 
 #include "oatpp/async/Processor.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <sys/event.h>
 
@@ -44,8 +45,8 @@ void IOEventWorker::initEventQueue() {
 
   m_outEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[MAX_EVENTS * sizeof(struct kevent)]);
   if(!m_outEvents) {
-    OATPP_LOGE("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
-               "Error. Unable to allocate %d bytes for events.", MAX_EVENTS * sizeof(struct kevent))
+    OATPP_LOGe("[oatpp::async::worker::IOEventWorker::initEventQueue()]",
+               "Error. Unable to allocate {} bytes for events.", v_int32(MAX_EVENTS * sizeof(struct kevent)))
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::initEventQueue()]: Error. Unable to allocate memory for events.");
   }
 
@@ -128,10 +129,10 @@ void IOEventWorker::consumeBacklog() {
 
     m_inEventsCapacity = m_inEventsCount;
 
-    m_inEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[m_inEventsCapacity * sizeof(struct kevent)]);
+    m_inEvents = std::unique_ptr<v_char8[]>(new (std::nothrow) v_char8[static_cast<unsigned long>(m_inEventsCapacity) * sizeof(struct kevent)]);
     if(!m_inEvents) {
-      OATPP_LOGE("[oatpp::async::worker::IOEventWorker::consumeBacklog()]",
-                 "Error. Unable to allocate %d bytes for events.", m_inEventsCapacity * sizeof(struct kevent))
+      OATPP_LOGe("[oatpp::async::worker::IOEventWorker::consumeBacklog()]",
+                 "Error. Unable to allocate {} bytes for events.", v_uint64(static_cast<unsigned long>(m_inEventsCapacity) * sizeof(struct kevent)))
       throw std::runtime_error("[oatpp::async::worker::IOEventWorker::consumeBacklog()]: Error. Unable to allocate memory for events.");
     }
 
@@ -158,12 +159,12 @@ void IOEventWorker::waitEvents() {
   auto eventsCount = kevent(m_eventQueueHandle, (struct kevent*)m_inEvents.get(), m_inEventsCount, (struct kevent*)m_outEvents.get(), MAX_EVENTS,nullptr);
 
   if((eventsCount < 0) && (errno != EINTR)) {
-    OATPP_LOGE("[oatpp::async::worker::IOEventWorker::waitEvents()]", "Error:\n"
-               "errno=%d\n"
-               "in-events=%d\n"
-               "foreman=%d\n"
-               "this=%d\n"
-               "specialization=%d",
+    OATPP_LOGe("[oatpp::async::worker::IOEventWorker::waitEvents()]", "Error:\n"
+               "errno={}\n"
+               "in-events={}\n"
+               "foreman={}\n"
+               "this={}\n"
+               "specialization={}",
                errno, m_inEventsCount, m_foreman, this, m_specialization)
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
@@ -177,7 +178,7 @@ void IOEventWorker::waitEvents() {
     auto coroutine = (CoroutineHandle*) event->udata;
 
     if((event->flags & EV_ERROR) > 0) {
-      OATPP_LOGD("Error", "data='%s'", strerror((int)event->data))
+      OATPP_LOGd("Error", "data='{}'", strerror(static_cast<int>(event->data)))
       continue;
     }
 

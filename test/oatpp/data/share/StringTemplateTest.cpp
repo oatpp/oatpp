@@ -33,79 +33,79 @@ void StringTemplateTest::onRun() {
   typedef oatpp::data::share::StringTemplate StringTemplate;
 
   {
-    OATPP_LOGI(TAG, "Case1 ...")
+    OATPP_LOGi(TAG, "Case1 ...")
     StringTemplate t("{} World!", {{0, 1, "p1", nullptr}});
     auto result = t.format(std::vector<oatpp::String>({"Hello"}));
     OATPP_ASSERT(result == "Hello World!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case2 ...")
+    OATPP_LOGi(TAG, "Case2 ...")
     StringTemplate t("{} World!", {{0, 1, "p1", nullptr}});
     auto result = t.format(std::unordered_map<oatpp::String, oatpp::String>({{"p1", "Hello"}}));
     OATPP_ASSERT(result == "Hello World!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case3 ...")
+    OATPP_LOGi(TAG, "Case3 ...")
     StringTemplate t("Hello {}", {{6, 7, "p1", nullptr}});
     auto result = t.format(std::vector<oatpp::String>({"World!"}));
     OATPP_ASSERT(result == "Hello World!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case4 ...")
+    OATPP_LOGi(TAG, "Case4 ...")
     StringTemplate t("Hello {}", {{6, 7, "p1", nullptr}});
     auto result = t.format(std::unordered_map<oatpp::String, oatpp::String>({{"p1", "World!"}}));
     OATPP_ASSERT(result == "Hello World!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case5 ...")
+    OATPP_LOGi(TAG, "Case5 ...")
     StringTemplate t("Hello {} World!", {{6, 7, "p1", nullptr}});
     auto result = t.format(std::vector<oatpp::String>({"My"}));
     OATPP_ASSERT(result == "Hello My World!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case6 ...")
+    OATPP_LOGi(TAG, "Case6 ...")
     StringTemplate t("Hello {} World!", {{6, 7, "p1", nullptr}});
     auto result = t.format(std::unordered_map<oatpp::String, oatpp::String>({{"p1", "My"}}));
     OATPP_ASSERT(result == "Hello My World!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case7 ...")
+    OATPP_LOGi(TAG, "Case7 ...")
     StringTemplate t("? ? ?", {{0, 0, "p1", nullptr}, {2, 2, "p2", nullptr}, {4, 4, "p3", nullptr}});
     auto result = t.format(std::vector<oatpp::String>({"Hello", "World", "Oat++!"}));
     OATPP_ASSERT(result == "Hello World Oat++!")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case8 ...")
+    OATPP_LOGi(TAG, "Case8 ...")
     StringTemplate t("? ? ?", {{0, 0, "p1", nullptr}, {2, 2, "p2", nullptr}, {4, 4, "p3", nullptr}});
     auto result = t.format(std::unordered_map<oatpp::String, oatpp::String>({{"p3", "Hello"}, {"p2", "World"}, {"p1", "Oat++!"}}));
     OATPP_ASSERT(result == "Oat++! World Hello")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case9 ...")
+    OATPP_LOGi(TAG, "Case9 ...")
     StringTemplate t("? ? ?", {{0, 0, "p1", nullptr}, {2, 2, "p2", nullptr}, {4, 4, "p3", nullptr}});
     auto result = t.format("A");
     OATPP_ASSERT(result == "A A A")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Case10 ...")
+    OATPP_LOGi(TAG, "Case10 ...")
     StringTemplate t("? ? ?",
       {
         {0, 0, "p1", std::make_shared<oatpp::base::Countable>()},
@@ -115,7 +115,7 @@ void StringTemplateTest::onRun() {
     );
     auto result = t.format("(A)");
     OATPP_ASSERT(result == "(A) (A) (A)")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
 }

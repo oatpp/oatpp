@@ -24,6 +24,8 @@
 
 #include "Server.hpp"
 
+#include "oatpp/base/Log.hpp"
+
 #include <thread>
 #include <chrono>
 
@@ -62,7 +64,7 @@ void Server::conditionalMainLoop() {
             setStatus(STATUS_STOPPING);
           }
         } else {
-          OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
+          OATPP_LOGd("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
         }
       }
 
@@ -86,7 +88,7 @@ void Server::mainLoop(Server *instance) {
       if (instance->getStatus() == STATUS_RUNNING) {
         instance->m_connectionHandler->handleConnection(connectionHandle, params /* null params */);
       } else {
-        OATPP_LOGD("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
+        OATPP_LOGd("[oatpp::network::server::mainLoop()]", "Error. Server already stopped - closing connection...")
       }
     }
   }
@@ -121,7 +123,7 @@ void Server::run(std::function<bool()> conditional) {
 
 void Server::run(bool startAsNewThread) {
   std::unique_lock<std::mutex> ul(m_mutex);
-  OATPP_LOGW("[oatpp::network::server::run(bool)]", "Using oatpp::network::server::run(bool) is deprecated and will be removed in the next release. Please implement your own threading (See https://github.com/oatpp/oatpp-threaded-starter).")
+  OATPP_LOGw("[oatpp::network::server::run(bool)]", "Using oatpp::network::server::run(bool) is deprecated and will be removed in the next release. Please implement your own threading (See https://github.com/oatpp/oatpp-threaded-starter).")
   switch (getStatus()) {
     case STATUS_STARTING:
       throw std::runtime_error("[oatpp::network::server::run()] Error. Server already starting");

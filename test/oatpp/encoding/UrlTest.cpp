@@ -26,6 +26,7 @@
 
 #include "oatpp/utils/Random.hpp"
 #include "oatpp/encoding/Url.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace test { namespace encoding {
 
@@ -61,7 +62,7 @@ void UrlTest::onRun(){
     oatpp::encoding::Url::Config config;
     config.spaceToPlus = false;
     auto encoded = oatpp::encoding::Url::encode(" ", config);
-    OATPP_ASSERT_FMT("%s", encoded == "%20")
+    OATPP_ASSERT_FMT("{}", encoded == "%20")
   }
 
   {
@@ -75,14 +76,14 @@ void UrlTest::onRun(){
     oatpp::encoding::Url::Config config;
     config.spaceToPlus = false;
     auto encoded = oatpp::encoding::Url::encode("Смачна Овсяночка!", config);
-    OATPP_ASSERT_FMT("%s", encoded == "%D0%A1%D0%BC%D0%B0%D1%87%D0%BD%D0%B0%20%D0%9E%D0%B2%D1%81%D1%8F%D0%BD%D0%BE%D1%87%D0%BA%D0%B0%21")
+    OATPP_ASSERT_FMT("{}", encoded == "%D0%A1%D0%BC%D0%B0%D1%87%D0%BD%D0%B0%20%D0%9E%D0%B2%D1%81%D1%8F%D0%BD%D0%BE%D1%87%D0%BA%D0%B0%21")
   }
 
   {
     oatpp::encoding::Url::Config config;
     config.spaceToPlus = true;
     auto encoded = oatpp::encoding::Url::encode("Смачна Овсяночка!", config);
-    OATPP_ASSERT_FMT("%s", encoded == "%D0%A1%D0%BC%D0%B0%D1%87%D0%BD%D0%B0+%D0%9E%D0%B2%D1%81%D1%8F%D0%BD%D0%BE%D1%87%D0%BA%D0%B0%21")
+    OATPP_ASSERT_FMT("{}", encoded == "%D0%A1%D0%BC%D0%B0%D1%87%D0%BD%D0%B0+%D0%9E%D0%B2%D1%81%D1%8F%D0%BD%D0%BE%D1%87%D0%BA%D0%B0%21")
   }
 
 }

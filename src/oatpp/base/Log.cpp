@@ -149,6 +149,20 @@ LogMessage& LogMessage::operator << (v_uint64 value) {
   return *this;
 }
 
+LogMessage& LogMessage::operator << (v_buff_size value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_int64>(value));
+  }
+  return *this;
+}
+
+LogMessage& LogMessage::operator << (v_buff_usize value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_uint64>(value));
+  }
+  return *this;
+}
+
 LogMessage& LogMessage::operator << (v_float32 value) {
   if(writeNextChunk()) {
     m_stream.writeAsString(value);
@@ -297,6 +311,12 @@ LogMessage& LogMessage::operator << (const Float64& value) {
 
 void LogMessage::log(v_uint32 priority, const std::string& tag, const LogMessage& message) {
   oatpp::Environment::log(priority, tag, message.toStdString());
+}
+
+void LogMessage::log(v_uint32 priority, const LogCategory& category, const LogMessage& message) {
+  if (category.categoryEnabled && (category.enabledPriorities & (1U << priority))) {
+    log(priority, category.tag, message);
+  }
 }
 
 }

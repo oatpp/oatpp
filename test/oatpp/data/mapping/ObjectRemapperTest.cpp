@@ -82,7 +82,7 @@ void ObjectRemapperTest::onRun() {
 
   {
 
-    OATPP_LOGD(TAG, "Remap. useUnqualifiedFieldNames = false; useUnqualifiedEnumNames = true")
+    OATPP_LOGd(TAG, "Remap. useUnqualifiedFieldNames = false; useUnqualifiedEnumNames = true")
 
     remapper.objectToTreeConfig().useUnqualifiedFieldNames = false;
     remapper.treeToObjectConfig().useUnqualifiedFieldNames = false;
@@ -112,7 +112,7 @@ void ObjectRemapperTest::onRun() {
 
   {
 
-    OATPP_LOGD(TAG, "Remap. useUnqualifiedFieldNames = true; useUnqualifiedEnumNames = true")
+    OATPP_LOGd(TAG, "Remap. useUnqualifiedFieldNames = true; useUnqualifiedEnumNames = true")
 
     remapper.objectToTreeConfig().useUnqualifiedFieldNames = true;
     remapper.treeToObjectConfig().useUnqualifiedFieldNames = true;
@@ -141,7 +141,7 @@ void ObjectRemapperTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Remap. Object to Vector")
+    OATPP_LOGd(TAG, "Remap. Object to Vector")
 
     remapper.objectToTreeConfig().useUnqualifiedFieldNames = false;
     remapper.treeToObjectConfig().useUnqualifiedFieldNames = false;
@@ -170,7 +170,7 @@ void ObjectRemapperTest::onRun() {
 
   {
 
-    OATPP_LOGD(TAG, "Remap tree fragments")
+    OATPP_LOGd(TAG, "Remap tree fragments")
 
     Tree tree;
     tree.setVector(3);

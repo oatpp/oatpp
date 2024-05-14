@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "RequestHeadersReader.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
 
@@ -78,7 +79,7 @@ RequestHeadersReader::Result RequestHeadersReader::readHeaders(data::stream::Inp
     error.ioStatus = readHeadersSectionIterative(iteration, stream, action);
 
     if(!action.isNone()) {
-      OATPP_LOGE("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeaders]", "Error. Async action is unexpected.")
+      OATPP_LOGe("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeaders]", "Error. Async action is unexpected.")
       throw std::runtime_error("[oatpp::web::protocol::http::incoming::RequestHeadersReader::readHeaders]: Error. Async action is unexpected.");
     }
 

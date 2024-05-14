@@ -118,9 +118,9 @@ runServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& conne
 
   std::thread t([server, connectionHandler] {
     server->run();
-    OATPP_LOGD("TEST", "server stopped")
+    OATPP_LOGd("TEST", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST", "connectionHandler stopped")
+    OATPP_LOGd("TEST", "connectionHandler stopped")
   });
   t.detach();
 
@@ -142,13 +142,13 @@ runAsyncServer(const std::shared_ptr<oatpp::network::ServerConnectionProvider>& 
 
   std::thread t([server, connectionHandler, executor] {
     server->run();
-    OATPP_LOGD("TEST_ASYNC", "server stopped")
+    OATPP_LOGd("TEST_ASYNC", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped")
+    OATPP_LOGd("TEST_ASYNC", "connectionHandler stopped")
     executor->waitTasksFinished();
     executor->stop();
     executor->join();
-    OATPP_LOGD("TEST_ASYNC", "executor stopped")
+    OATPP_LOGd("TEST_ASYNC", "executor stopped")
   });
   t.detach();
 
@@ -166,7 +166,7 @@ void runClient(const std::shared_ptr<oatpp::network::ClientConnectionProvider>& 
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
-  OATPP_LOGD("TEST", "data->size() == %lu", data->size())
+  OATPP_LOGd("TEST", "data->size() == {}", data->size())
 
 }
 
@@ -187,9 +187,9 @@ void ServerStopTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Run Simple API test on host=%s, port=%s",
-               serverConnectionProvider->getProperty("host").toString()->c_str(),
-               serverConnectionProvider->getProperty("port").toString()->c_str())
+    OATPP_LOGd(TAG, "Run Simple API test on host={}, port={}",
+               serverConnectionProvider->getProperty("host").toString(),
+               serverConnectionProvider->getProperty("port").toString())
 
     auto server = runServer(serverConnectionProvider);
     std::list<std::thread> threads;
@@ -208,13 +208,13 @@ void ServerStopTest::onRun() {
 
     /* wait connection handler to stop */
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    OATPP_LOGD(TAG, "DONE")
+    OATPP_LOGd(TAG, "DONE")
   }
 
   {
-    OATPP_LOGD(TAG, "Run Async API test on host=%s, port=%s",
-               serverConnectionProvider->getProperty("host").toString()->c_str(),
-               serverConnectionProvider->getProperty("port").toString()->c_str())
+    OATPP_LOGd(TAG, "Run Async API test on host={}, port={}",
+               serverConnectionProvider->getProperty("host").toString(),
+               serverConnectionProvider->getProperty("port").toString())
 
     auto server = runAsyncServer(serverConnectionProvider);
     std::list<std::thread> threads;
@@ -233,7 +233,7 @@ void ServerStopTest::onRun() {
 
     /* wait connection handler to stop */
     std::this_thread::sleep_for(std::chrono::seconds(5));
-    OATPP_LOGD(TAG, "DONE")
+    OATPP_LOGd(TAG, "DONE")
   }
 
 }

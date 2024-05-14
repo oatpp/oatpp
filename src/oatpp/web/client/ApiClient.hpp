@@ -37,6 +37,7 @@
 #include "oatpp/Types.hpp"
 
 #include "oatpp/utils/Conversion.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <string>
 #include <list>
@@ -230,8 +231,8 @@ public:
 
       (void) parameter;
 
-      OATPP_LOGE("[oatpp::web::client::ApiClient::TypeInterpretation::toString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", typeName->c_str(), "oatpp::String")
+      OATPP_LOGe("[oatpp::web::client::ApiClient::TypeInterpretation::toString()]",
+                 "Error. No conversion from '{}' to '{}' is defined.", typeName, "oatpp::String")
 
       throw std::runtime_error(
         "[oatpp::web::client::ApiClient::TypeInterpretation::toString()]: Error. "

@@ -28,6 +28,7 @@
 #include "oatpp/data/buffer/Processor.hpp"
 
 #include "oatpp/async/Executor.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace data { namespace buffer {
 
@@ -213,7 +214,7 @@ void ProcessorTest::onRun() {
           auto result = runTestCase(data, p1N, p2N, p3N, buffSize);
 
           if (result != etalon) {
-            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->data())
+            OATPP_LOGd(TAG, "error[{}, {}, {}, b={}] result='{}'", p1N, p2N, p3N, buffSize, result->data())
           }
           OATPP_ASSERT(result == etalon)
 

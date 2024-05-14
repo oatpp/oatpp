@@ -24,6 +24,8 @@
 
 #include "ConnectionMonitor.hpp"
 
+#include "oatpp/base/Log.hpp"
+
 #include <chrono>
 #include <thread>
 
@@ -59,8 +61,8 @@ ConnectionMonitor::ConnectionProxy::~ConnectionProxy() {
   if(m_stats.metricsData.size() > 0) {
 
     for(auto& pair : m_stats.metricsData) {
-      OATPP_LOGE("[oatpp::network::ConnectionMonitor::ConnectionProxy::~ConnectionProxy()]",
-                 "Error. Memory leak. Metric data was not deleted: Metric name - '%s'", pair.first->c_str())
+      OATPP_LOGe("[oatpp::network::ConnectionMonitor::ConnectionProxy::~ConnectionProxy()]",
+                 "Error. Memory leak. Metric data was not deleted: Metric name - '{}'", pair.first->c_str())
     }
 
   }
@@ -186,8 +188,8 @@ void ConnectionMonitor::Monitor::freeConnectionStats(ConnectionStats& stats) {
     if(it != m_statCollectors.end()) {
       it->second->deleteMetricData(metric.second);
     } else {
-      OATPP_LOGE("[oatpp::network::ConnectionMonitor::Monitor::freeConnectionStats]",
-                 "Error. Can't free Metric data. Unknown Metric: name - '%s'", metric.first->c_str())
+      OATPP_LOGe("[oatpp::network::ConnectionMonitor::Monitor::freeConnectionStats]",
+                 "Error. Can't free Metric data. Unknown Metric: name - '{}'", metric.first->c_str())
     }
   }
 

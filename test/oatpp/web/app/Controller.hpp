@@ -70,16 +70,16 @@ public:
   std::atomic<bool> available;
 
   ENDPOINT("GET", "/", root) {
-    //OATPP_LOGD(TAG, "GET ROOT")
+    //OATPP_LOGd(TAG, "GET ROOT")
     return createResponse(Status::CODE_200, "Hello World!!!");
   }
 
   ENDPOINT("GET", "/availability", availability) {
-    //OATPP_LOGV(TAG, "GET '/availability'")
+    //OATPP_LOGv(TAG, "GET '/availability'")
     if(available) {
       return createResponse(Status::CODE_200, "Hello World!!!");
     }
-    OATPP_LOGI(TAG, "GET '/availability'. Service unavailable.")
+    OATPP_LOGi(TAG, "GET '/availability'. Service unavailable.")
     OATPP_ASSERT_HTTP(false, Status::CODE_503, "Service unavailable")
   }
 
@@ -105,7 +105,7 @@ public:
 
   ENDPOINT("GET", "params/{param}", getWithParams,
            PATH(String, param)) {
-    //OATPP_LOGV(TAG, "GET params/%s", param->c_str())
+    //OATPP_LOGv(TAG, "GET params/{}", param)
     auto dto = TestDto::createShared();
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
@@ -137,7 +137,7 @@ public:
 
   ENDPOINT("GET", "headers", getWithHeaders,
            HEADER(String, param, "X-TEST-HEADER")) {
-    //OATPP_LOGV(TAG, "GET headers {X-TEST-HEADER: %s}", param->c_str())
+    //OATPP_LOGv(TAG, "GET headers {X-TEST-HEADER: {}}", param)
     auto dto = TestDto::createShared();
     dto->testValue = param;
     return createDtoResponse(Status::CODE_200, dto);
@@ -145,7 +145,7 @@ public:
 
   ENDPOINT("POST", "body", postBody,
            BODY_STRING(String, body)) {
-    //OATPP_LOGV(TAG, "POST body %s", body->c_str())
+    //OATPP_LOGv(TAG, "POST body {}", body)
     auto dto = TestDto::createShared();
     dto->testValue = body;
     return createDtoResponse(Status::CODE_200, dto);
@@ -153,13 +153,13 @@ public:
 
   ENDPOINT("POST", "body-dto", postBodyDto,
            BODY_DTO(Object<TestDto>, body)) {
-    //OATPP_LOGV(TAG, "POST body %s", body->c_str())
+    //OATPP_LOGv(TAG, "POST body {}", body->c_str())
     return createDtoResponse(Status::CODE_200, body);
   }
 
   ENDPOINT("POST", "echo", echo,
            BODY_STRING(String, body)) {
-    //OATPP_LOGV(TAG, "POST body(echo) size=%d", body->getSize())
+    //OATPP_LOGv(TAG, "POST body(echo) size={}", body->getSize())
     return createResponse(Status::CODE_200, body);
   }
 
@@ -283,14 +283,14 @@ public:
     request->transferBody(&multipartReader);
 
     /* Print number of uploaded parts */
-    OATPP_LOGD("Multipart", "parts_count=%ld", multipart->count())
+    OATPP_LOGd("Multipart", "parts_count={}", multipart->count())
 
     /* Print value of "part1" */
     auto part1 = multipart->getNamedPart("part1");
 
     OATPP_ASSERT_HTTP(part1, Status::CODE_400, "part1 is empty")
 
-    OATPP_LOGD("Multipart", "part1='%s'", part1->getPayload()->getInMemoryData()->c_str())
+    OATPP_LOGd("Multipart", "part1='{}'", part1->getPayload()->getInMemoryData())
 
     /* Get part by name "part2"*/
     auto filePart = multipart->getNamedPart("part2");
@@ -344,7 +344,7 @@ public:
 
       ++ counter;
 
-      OATPP_LOGD("Multipart", "Frame sent!")
+      OATPP_LOGd("Multipart", "Frame sent!")
 
       return part;
 

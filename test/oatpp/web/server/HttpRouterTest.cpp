@@ -49,7 +49,7 @@ void HttpRouterTest::onRun() {
   router.route("POST", "*", -100);
 
   {
-    OATPP_LOGI(TAG, "Case 1")
+    OATPP_LOGi(TAG, "Case 1")
     auto r = router.getRoute("GET", "ints/1");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -57,7 +57,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 2")
+    OATPP_LOGi(TAG, "Case 2")
     auto r = router.getRoute("GET", "/ints/1");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -65,7 +65,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 3")
+    OATPP_LOGi(TAG, "Case 3")
     auto r = router.getRoute("GET", "ints/1//");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -73,7 +73,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 4")
+    OATPP_LOGi(TAG, "Case 4")
     auto r = router.getRoute("GET", "//ints///1//");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -81,14 +81,14 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 5")
+    OATPP_LOGi(TAG, "Case 5")
     auto r = router.getRoute("GET", "ints/1/*");
     OATPP_ASSERT(r.isValid() == false)
     OATPP_ASSERT(!r)
   }
 
   {
-    OATPP_LOGI(TAG, "Case 6")
+    OATPP_LOGi(TAG, "Case 6")
     auto r = router.getRoute("GET", "ints/2");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -96,7 +96,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 7")
+    OATPP_LOGi(TAG, "Case 7")
     auto r = router.getRoute("GET", "ints/all/10");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -106,7 +106,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 8")
+    OATPP_LOGi(TAG, "Case 8")
     auto r = router.getRoute("GET", "//ints//all//10//");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -116,14 +116,14 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 9")
+    OATPP_LOGi(TAG, "Case 9")
     auto r = router.getRoute("GET", "//ints//all//10//*");
     OATPP_ASSERT(r.isValid() == false)
     OATPP_ASSERT(!r)
   }
 
   {
-    OATPP_LOGI(TAG, "Case 10")
+    OATPP_LOGi(TAG, "Case 10")
     auto r = router.getRoute("POST", "ints/1");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -131,7 +131,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 11")
+    OATPP_LOGi(TAG, "Case 11")
     auto r = router.getRoute("POST", "ints/2");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -139,7 +139,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 12")
+    OATPP_LOGi(TAG, "Case 12")
     auto r = router.getRoute("POST", "ints/3");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -149,7 +149,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 13")
+    OATPP_LOGi(TAG, "Case 13")
     auto r = router.getRoute("POST", "ints/3/10");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -158,7 +158,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 14")
+    OATPP_LOGi(TAG, "Case 14")
     auto r = router.getRoute("POST", "abc");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -167,7 +167,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 15")
+    OATPP_LOGi(TAG, "Case 15")
     auto r = router.getRoute("GET", "ints/1?q1=1&q2=2");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)
@@ -176,7 +176,7 @@ void HttpRouterTest::onRun() {
   }
 
   {
-    OATPP_LOGI(TAG, "Case 16")
+    OATPP_LOGi(TAG, "Case 16")
     auto r = router.getRoute("GET", "ints/all/3?q1=1&q2=2");
     OATPP_ASSERT(r.isValid())
     OATPP_ASSERT(r)

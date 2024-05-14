@@ -47,7 +47,7 @@ class ReadCallback : public oatpp::data::stream::ReadCallback {
 public:
 
   v_io_size read(void *buffer, v_buff_size count, async::Action &action) override {
-    OATPP_LOGI("TEST", "read(...)")
+    OATPP_LOGi("TEST", "read(...)")
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     char* data = reinterpret_cast<char*>(buffer);
     data[0] = 'A';
@@ -101,9 +101,9 @@ std::shared_ptr<oatpp::network::Server> runServer(const std::shared_ptr<oatpp::n
 
   std::thread t([server, connectionHandler]{
     server->run();
-    OATPP_LOGD("TEST", "server stopped")
+    OATPP_LOGd("TEST", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST", "connectionHandler stopped")
+    OATPP_LOGd("TEST", "connectionHandler stopped")
   });
   t.detach();
 
@@ -124,13 +124,13 @@ std::shared_ptr<oatpp::network::Server> runAsyncServer(const std::shared_ptr<oat
 
   std::thread t([server, connectionHandler, executor]{
     server->run();
-    OATPP_LOGD("TEST_ASYNC", "server stopped")
+    OATPP_LOGd("TEST_ASYNC", "server stopped")
     connectionHandler->stop();
-    OATPP_LOGD("TEST_ASYNC", "connectionHandler stopped")
+    OATPP_LOGd("TEST_ASYNC", "connectionHandler stopped")
     executor->waitTasksFinished();
     executor->stop();
     executor->join();
-    OATPP_LOGD("TEST_ASYNC", "executor stopped")
+    OATPP_LOGd("TEST_ASYNC", "executor stopped")
   });
   t.detach();
 
@@ -150,7 +150,7 @@ void runClient() {
   auto data = response->readBodyToString();
 
   OATPP_ASSERT(data)
-  OATPP_LOGD("TEST", "data->size() == %lu", data->size())
+  OATPP_LOGd("TEST", "data->size() == {}", data->size())
   OATPP_ASSERT(data->size() < 110) // it should be less than 100. But we put 110 for redundancy
 
 }
@@ -190,7 +190,7 @@ void runAsyncClient() {
 
     Action onBody(const oatpp::String& data) {
       OATPP_ASSERT(data)
-      OATPP_LOGD("TEST", "data->size() == %lu", data->size())
+      OATPP_LOGd("TEST", "data->size() == {}", data->size())
       OATPP_ASSERT(data->size() < 60) // it should be less than 50. But we put 60 for redundancy
       m_monitor->stop();
       return finish();
@@ -203,11 +203,11 @@ void runAsyncClient() {
   executor->execute<ClientCoroutine>();
 
   executor->waitTasksFinished();
-  OATPP_LOGD("TEST_ASYNC_CLIENT", "task finished")
+  OATPP_LOGd("TEST_ASYNC_CLIENT", "task finished")
   executor->stop();
-  OATPP_LOGD("TEST_ASYNC_CLIENT", "executor stopped")
+  OATPP_LOGd("TEST_ASYNC_CLIENT", "executor stopped")
   executor->join();
-  OATPP_LOGD("TEST_ASYNC_CLIENT", "done")
+  OATPP_LOGd("TEST_ASYNC_CLIENT", "done")
 
 }
 
@@ -226,7 +226,7 @@ void ConnectionMonitorTest::onRun() {
   );
 
   {
-    OATPP_LOGD(TAG, "run simple API test")
+    OATPP_LOGd(TAG, "run simple API test")
     auto server = runServer(monitor);
     runClient();
     server->stop();
@@ -234,7 +234,7 @@ void ConnectionMonitorTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "run Async API test")
+    OATPP_LOGd(TAG, "run Async API test")
     auto server = runAsyncServer(monitor);
     runClient();
     server->stop();
@@ -242,7 +242,7 @@ void ConnectionMonitorTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "run Async Client test")
+    OATPP_LOGd(TAG, "run Async Client test")
     auto server = runServer(monitor);
     runAsyncClient();
     server->stop();

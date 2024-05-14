@@ -25,6 +25,7 @@
 #include "UnorderedSetTest.hpp"
 
 #include "oatpp/Types.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace data { namespace  type {
 
@@ -32,7 +33,7 @@ void UnorderedSetTest::onRun() {
 
 
   {
-    OATPP_LOGI(TAG, "test default constructor...")
+    OATPP_LOGi(TAG, "test default constructor...")
     oatpp::UnorderedSet<oatpp::String> set;
 
     OATPP_ASSERT(!set)
@@ -42,11 +43,11 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set.getValueType()->classId.id == oatpp::data::type::__class::AbstractUnorderedSet::CLASS_ID.id)
     OATPP_ASSERT(set.getValueType()->params.size() == 1)
     OATPP_ASSERT(set.getValueType()->params.front() == oatpp::String::Class::getType())
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test empty ilist constructor...")
+    OATPP_LOGi(TAG, "test empty ilist constructor...")
     oatpp::UnorderedSet<oatpp::String> set({});
 
     OATPP_ASSERT(set)
@@ -57,11 +58,11 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set.getValueType()->classId.id == oatpp::data::type::__class::AbstractUnorderedSet::CLASS_ID.id)
     OATPP_ASSERT(set.getValueType()->params.size() == 1)
     OATPP_ASSERT(set.getValueType()->params.front() == oatpp::String::Class::getType())
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test createShared()...")
+    OATPP_LOGi(TAG, "test createShared()...")
     oatpp::UnorderedSet<oatpp::String> set = oatpp::UnorderedSet<oatpp::String>::createShared();
 
     OATPP_ASSERT(set)
@@ -70,11 +71,11 @@ void UnorderedSetTest::onRun() {
 
     OATPP_ASSERT(set.get() != nullptr)
     OATPP_ASSERT(set.getValueType()->classId.id == oatpp::data::type::__class::AbstractUnorderedSet::CLASS_ID.id)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test copy-assignment operator...")
+    OATPP_LOGi(TAG, "test copy-assignment operator...")
     oatpp::UnorderedSet<oatpp::String> set1({});
     oatpp::UnorderedSet<oatpp::String> set2;
 
@@ -101,11 +102,11 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set2["b"] == true)
     OATPP_ASSERT(set2["c"] == true)
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test move-assignment operator...")
+    OATPP_LOGi(TAG, "test move-assignment operator...")
     oatpp::UnorderedSet<oatpp::String> set1({});
     oatpp::UnorderedSet<oatpp::String> set2;
 
@@ -113,11 +114,11 @@ void UnorderedSetTest::onRun() {
 
     OATPP_ASSERT(!set1)
     OATPP_ASSERT(set2)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test polymorphicDispatcher...")
+    OATPP_LOGi(TAG, "test polymorphicDispatcher...")
     oatpp::UnorderedSet<oatpp::String> set = {"a", "b", "c"};
 
     auto polymorphicDispatcher = static_cast<const typename oatpp::data::type::__class::Collection::PolymorphicDispatcher*>(
@@ -136,7 +137,7 @@ void UnorderedSetTest::onRun() {
     OATPP_ASSERT(set["b"])
     OATPP_ASSERT(set["c"])
     OATPP_ASSERT(set["d"])
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
 }

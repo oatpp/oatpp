@@ -59,127 +59,127 @@ void EnumTest::onRun() {
   oatpp::json::ObjectMapper mapper;
 
   {
-    OATPP_LOGI(TAG, "Serializer as string...")
+    OATPP_LOGi(TAG, "Serializer as string...")
     oatpp::Fields<oatpp::Enum<Enum1>::AsString> map = {{"enum", Enum1::V1}};
     auto json = mapper.writeToString(map);
-    OATPP_LOGD(TAG, "json='%s'", json->c_str())
+    OATPP_LOGd(TAG, "json='{}'", json->c_str())
     OATPP_ASSERT(json == "{\"enum\":\"enum1-v1\"}")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Serializer as string null...")
+    OATPP_LOGi(TAG, "Serializer as string null...")
     oatpp::Fields<oatpp::Enum<Enum1>::AsString> map = {{"enum", nullptr}};
     auto json = mapper.writeToString(map);
-    OATPP_LOGD(TAG, "json='%s'", json->c_str())
+    OATPP_LOGd(TAG, "json='{}'", json->c_str())
     OATPP_ASSERT(json == "{\"enum\":null}")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Serializer as string error on null...")
+    OATPP_LOGi(TAG, "Serializer as string error on null...")
     bool error = false;
     oatpp::Fields<oatpp::Enum<Enum1>::AsString::NotNull> map = {{"enum", nullptr}};
     try {
       auto json = mapper.writeToString(map);
     } catch (const data::mapping::MappingError& e) {
-      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
+      OATPP_LOGd(TAG, "error - '{}'\ntrace:\n{}", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Serializer as int...")
+    OATPP_LOGi(TAG, "Serializer as int...")
     oatpp::Fields<oatpp::Enum<Enum1>::AsNumber> map = {{"enum", Enum1::V1}};
     auto json = mapper.writeToString(map);
-    OATPP_LOGD(TAG, "json='%s'", json->c_str())
+    OATPP_LOGd(TAG, "json='{}'", json)
     OATPP_ASSERT(json == "{\"enum\":10}")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Serializer as int null...")
+    OATPP_LOGi(TAG, "Serializer as int null...")
     oatpp::Fields<oatpp::Enum<Enum1>::AsNumber> map = {{"enum", nullptr}};
     auto json = mapper.writeToString(map);
-    OATPP_LOGD(TAG, "json='%s'", json->c_str())
+    OATPP_LOGd(TAG, "json='{}'", json)
     OATPP_ASSERT(json == "{\"enum\":null}")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Serializer as int error on null...")
+    OATPP_LOGi(TAG, "Serializer as int error on null...")
     bool error = false;
     oatpp::Fields<oatpp::Enum<Enum1>::AsNumber::NotNull> map = {{"enum", nullptr}};
     try {
       auto json = mapper.writeToString(map);
     } catch (const data::mapping::MappingError& e) {
-      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
+      OATPP_LOGd(TAG, "error - '{}'\ntrace:\n{}", e.what(), e.errorStack().stacktrace())
       error = true;
     }
     OATPP_ASSERT(error == true)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserializer as string...")
+    OATPP_LOGi(TAG, "Deserializer as string...")
     oatpp::String json = "{\"enum\":\"enum1-v2\"}";
     auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsString>>(json);
     OATPP_ASSERT(map["enum"] == Enum1::V2)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserializer as string null...")
+    OATPP_LOGi(TAG, "Deserializer as string null...")
     oatpp::String json = "{\"enum\":null}";
     auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsString>>(json);
     OATPP_ASSERT(map["enum"] == nullptr)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserializer as string error on null...")
+    OATPP_LOGi(TAG, "Deserializer as string error on null...")
     bool error = false;
     oatpp::String json = "{\"enum\":null}";
     try {
       auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsString::NotNull>>(json);
     } catch (const data::mapping::MappingError& e) {
-      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
+      OATPP_LOGd(TAG, "error - '{}'\ntrace:\n{}", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserializer as int...")
+    OATPP_LOGi(TAG, "Deserializer as int...")
     oatpp::String json = "{\"enum\":20}";
     auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsNumber>>(json);
     OATPP_ASSERT(map["enum"] == Enum1::V2)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserializer as int null...")
+    OATPP_LOGi(TAG, "Deserializer as int null...")
     oatpp::String json = "{\"enum\":null}";
     auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsNumber>>(json);
     OATPP_ASSERT(map["enum"] == nullptr)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserializer as int error on null...")
+    OATPP_LOGi(TAG, "Deserializer as int error on null...")
     bool error = false;
     oatpp::String json = "{\"enum\":null}";
     try {
       auto map = mapper.readFromString<oatpp::Fields<oatpp::Enum<Enum1>::AsNumber::NotNull>>(json);
     } catch (const data::mapping::MappingError& e) {
-      OATPP_LOGD(TAG, "error - '%s'\ntrace:\n%s", e.what(), e.errorStack().stacktrace()->c_str())
+      OATPP_LOGd(TAG, "error - '{}'\ntrace:\n{}", e.what(), e.errorStack().stacktrace()->c_str())
       error = true;
     }
     OATPP_ASSERT(error == true)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
 }

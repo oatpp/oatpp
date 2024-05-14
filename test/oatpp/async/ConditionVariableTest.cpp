@@ -137,7 +137,7 @@ void ConditionVariableTest::onRun() {
 
     for (v_int32 iter = 0; iter < 100; iter++) {
 
-      OATPP_LOGD("ITERATION 'WAIT'", "%d", iter)
+      OATPP_LOGd("ITERATION 'WAIT'", "{}", iter)
 
       oatpp::async::Executor executor;
 
@@ -174,7 +174,7 @@ void ConditionVariableTest::onRun() {
 
     for (v_int32 iter = 0; iter < 100; iter++) {
 
-      OATPP_LOGD("ITERATION 'WAIT-WITH-TIMEOUT'", "%d", iter)
+      OATPP_LOGd("ITERATION 'WAIT-WITH-TIMEOUT'", "{}", iter)
 
       oatpp::async::Executor executor;
 
@@ -211,7 +211,7 @@ void ConditionVariableTest::onRun() {
 
     for (v_int32 iter = 0; iter < 5; iter++) {
 
-      OATPP_LOGD("ITERATION 'TIMEOUT'", "%d", iter)
+      OATPP_LOGd("ITERATION 'TIMEOUT'", "{}", iter)
 
       oatpp::async::Executor executor;
 

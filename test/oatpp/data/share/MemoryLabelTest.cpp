@@ -36,7 +36,7 @@ namespace oatpp { namespace data { namespace share {
 void MemoryLabelTest::onRun() {
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabel default constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabel default constructor...")
     StringKeyLabel s;
     StringKeyLabel s0;
     OATPP_ASSERT(!s)
@@ -44,21 +44,21 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(s == s0)
     OATPP_ASSERT(s != "text")
     OATPP_ASSERT(s != oatpp::String("text"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabel nullptr constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabel nullptr constructor...")
     StringKeyLabel s(nullptr);
     OATPP_ASSERT(!s)
     OATPP_ASSERT(s == nullptr)
     OATPP_ASSERT(s != "text")
     OATPP_ASSERT(s != oatpp::String("text"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabel const char* constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabel const char* constructor...")
     StringKeyLabel s("hello");
     StringKeyLabel s0;
     OATPP_ASSERT(s)
@@ -69,11 +69,11 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(s == oatpp::String("hello"))
     OATPP_ASSERT(s != "text")
     OATPP_ASSERT(s != oatpp::String("text"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabel oatpp::String constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabel oatpp::String constructor...")
     StringKeyLabel s(oatpp::String("hello"));
     OATPP_ASSERT(s)
     OATPP_ASSERT(s != nullptr)
@@ -81,11 +81,11 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(s == oatpp::String("hello"))
     OATPP_ASSERT(s != "text")
     OATPP_ASSERT(s != oatpp::String("text"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabelCI default constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabelCI default constructor...")
     StringKeyLabelCI s;
     StringKeyLabelCI s0;
     OATPP_ASSERT(!s)
@@ -93,21 +93,21 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(s == s0)
     OATPP_ASSERT(s != "teXt")
     OATPP_ASSERT(s != oatpp::String("teXt"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabelCI nullptr constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabelCI nullptr constructor...")
     StringKeyLabelCI s(nullptr);
     OATPP_ASSERT(!s)
     OATPP_ASSERT(s == nullptr)
     OATPP_ASSERT(s != "teXt")
     OATPP_ASSERT(s != oatpp::String("teXt"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabelCI const char* constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabelCI const char* constructor...")
     StringKeyLabelCI s("hello");
     StringKeyLabelCI s0;
     OATPP_ASSERT(s)
@@ -118,11 +118,11 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(s == oatpp::String("helLO"))
     OATPP_ASSERT(s != "text")
     OATPP_ASSERT(s != oatpp::String("teXt"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "StringKeyLabelCI oatpp::String constructor...")
+    OATPP_LOGi(TAG, "StringKeyLabelCI oatpp::String constructor...")
     StringKeyLabelCI s(oatpp::String("hello"));
     OATPP_ASSERT(s)
     OATPP_ASSERT(s != nullptr)
@@ -130,11 +130,11 @@ void MemoryLabelTest::onRun() {
     OATPP_ASSERT(s == oatpp::String("helLO"))
     OATPP_ASSERT(s != "text")
     OATPP_ASSERT(s != oatpp::String("teXt"))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "general test...")
+    OATPP_LOGi(TAG, "general test...")
 
     oatpp::String sharedData = "big text goes here";
     oatpp::String key1 = "key1";
@@ -240,7 +240,7 @@ void MemoryLabelTest::onRun() {
 
     }
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
 
   }
 
@@ -270,7 +270,7 @@ void MemoryLabelTest::onRun() {
     for(auto& h : headers.getAll()) {
       auto key = h.first.toString();
       auto val = h.second.toString();
-      OATPP_LOGD(TAG, "'%s': '%s'", key->c_str(), val->c_str())
+      OATPP_LOGd(TAG, "'{}': '{}'", key->c_str(), val->c_str())
     }
 
   }

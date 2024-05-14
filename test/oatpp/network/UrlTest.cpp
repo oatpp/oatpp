@@ -25,6 +25,7 @@
 #include "UrlTest.hpp"
 
 #include "oatpp/network/Url.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include "oatpp-test/Checker.hpp"
 
@@ -36,7 +37,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "http://root@127.0.0.1:8000/path/to/resource/?q1=1&q2=2";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme && url.scheme == "http")
@@ -51,7 +52,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "ftp://root@oatpp.io:8000/path/to/resource?q1=1&q2=2";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme && url.scheme == "ftp")
@@ -66,7 +67,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "https://oatpp.io/?q1=1&q2=2";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme && url.scheme == "https")
@@ -81,7 +82,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "https://oatpp.io/";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme && url.scheme == "https")
@@ -94,7 +95,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "https://oatpp.io";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme && url.scheme == "https")
@@ -107,7 +108,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "oatpp.io";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme == nullptr)
@@ -120,7 +121,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "oatpp.io:8000/path";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto url = Url::Parser::parseUrl(urlText);
 
     OATPP_ASSERT(url.scheme == nullptr)
@@ -133,7 +134,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "?key1=value1&key2=value2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
     OATPP_ASSERT(params.getSize() == 3)
     OATPP_ASSERT(params.get("key1") == "value1")
@@ -143,7 +144,7 @@ void UrlTest::onRun() {
 
   {
     const char *urlText = "?key1=value1&key2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
     OATPP_ASSERT(params.getSize() == 3)
     OATPP_ASSERT(params.get("key1") == "value1")
@@ -153,7 +154,7 @@ void UrlTest::onRun() {
 
   {
     const char *urlText = "?key1=value1&key2&key3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
     OATPP_ASSERT(params.getSize() == 3)
     OATPP_ASSERT(params.get("key1") == "value1")
@@ -163,7 +164,7 @@ void UrlTest::onRun() {
 
   {
     const char *urlText = "label?key1=value1&key2=value2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
     OATPP_ASSERT(params.getSize() == 3)
     OATPP_ASSERT(params.get("key1") == "value1")
@@ -173,7 +174,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "label?key1=value1&key2&key3=value3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
     OATPP_ASSERT(params.getSize() == 3)
     OATPP_ASSERT(params.get("key1") == "value1")
@@ -183,7 +184,7 @@ void UrlTest::onRun() {
 
   {
     const char* urlText = "label?key1=value1&key2&key3";
-    OATPP_LOGV(TAG, "urlText='%s'", urlText)
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);
     OATPP_ASSERT(params.getSize() == 3)
     OATPP_ASSERT(params.get("key1") == "value1")

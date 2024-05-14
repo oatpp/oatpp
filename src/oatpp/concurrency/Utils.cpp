@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Utils.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace concurrency {
 
@@ -53,7 +54,7 @@ v_int32 Utils::setThreadAffinityToCpuRange(std::thread::native_handle_type nativ
     v_int32 result = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
 
     if (result != 0) {
-      OATPP_LOGD("[oatpp::concurrency::Thread::assignThreadToCpu(...)]", "error code - %d", result)
+      OATPP_LOGd("[oatpp::concurrency::Thread::assignThreadToCpu(...)]", "error code - {}", result)
     }
 
     return result;
@@ -74,7 +75,7 @@ v_int32 Utils::calcHardwareConcurrency() {
 #if !defined(OATPP_THREAD_HARDWARE_CONCURRENCY)
   v_int32 concurrency = static_cast<v_int32>(std::thread::hardware_concurrency());
   if(concurrency == 0) {
-    OATPP_LOGD("[oatpp::concurrency:Thread::calcHardwareConcurrency()]", "Warning - failed to get hardware_concurrency. Setting hardware_concurrency=1")
+    OATPP_LOGd("[oatpp::concurrency:Thread::calcHardwareConcurrency()]", "Warning - failed to get hardware_concurrency. Setting hardware_concurrency=1")
     concurrency = 1;
   }
   return concurrency;

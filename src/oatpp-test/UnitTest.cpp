@@ -30,7 +30,7 @@ namespace oatpp { namespace test {
 
 void UnitTest::run(v_int32 times) {
   
-  OATPP_LOGI(TAG, "\033[1mSTART\033[0m...")
+  OATPP_LOGi(TAG, "\033[1mSTART\033[0m...")
   
   v_counter objectsCount = oatpp::Environment::getObjectsCount();
   v_counter objectsCreated = oatpp::Environment::getObjectsCreated();
@@ -51,11 +51,11 @@ void UnitTest::run(v_int32 times) {
   v_counter objectsCreatedPerTest = oatpp::Environment::getObjectsCreated() - objectsCreated;
   
   if(leakingObjects == 0){
-    OATPP_LOGI(TAG, "\033[1mFINISHED\033[0m - \033[1;32msuccess!\033[0m")
-    OATPP_LOGI(TAG, "\033[33m%ld(micro), %ld(objs)\033[0m\n", millis, objectsCreatedPerTest)
+    OATPP_LOGi(TAG, "\033[1mFINISHED\033[0m - \033[1;32msuccess!\033[0m")
+    OATPP_LOGi(TAG, "\033[33m{}(micro), {}(objs)\033[0m\n", millis, objectsCreatedPerTest)
   }else{
 
-    OATPP_LOGE(TAG, "\033[1mFINISHED\033[0m - \033[1;31mfailed\033[0m, leakingObjects = %ld", leakingObjects)
+    OATPP_LOGe(TAG, "\033[1mFINISHED\033[0m - \033[1;31mfailed\033[0m, leakingObjects = {}", leakingObjects)
 
     exit(EXIT_FAILURE);
 

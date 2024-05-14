@@ -26,7 +26,7 @@
 #define oatpp_test_UnitTest_hpp
 
 #include "oatpp/Environment.hpp"
-#include "oatpp/macro/basic.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <functional>
 

@@ -31,7 +31,7 @@ namespace oatpp { namespace data { namespace  type {
 void ListTest::onRun() {
 
   {
-    OATPP_LOGI(TAG, "test default constructor...")
+    OATPP_LOGi(TAG, "test default constructor...")
     oatpp::List<oatpp::String> list;
 
     OATPP_ASSERT(!list)
@@ -41,11 +41,11 @@ void ListTest::onRun() {
     OATPP_ASSERT(list.getValueType()->classId.id == oatpp::data::type::__class::AbstractList::CLASS_ID.id)
     OATPP_ASSERT(list.getValueType()->params.size() == 1)
     OATPP_ASSERT(list.getValueType()->params.front() == oatpp::String::Class::getType())
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test empty ilist constructor...")
+    OATPP_LOGi(TAG, "test empty ilist constructor...")
     oatpp::List<oatpp::String> list({});
 
     OATPP_ASSERT(list)
@@ -56,11 +56,11 @@ void ListTest::onRun() {
     OATPP_ASSERT(list.getValueType()->classId.id == oatpp::data::type::__class::AbstractList::CLASS_ID.id)
     OATPP_ASSERT(list.getValueType()->params.size() == 1)
     OATPP_ASSERT(list.getValueType()->params.front() == oatpp::String::Class::getType())
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test createShared()...")
+    OATPP_LOGi(TAG, "test createShared()...")
     oatpp::List<oatpp::String> list = oatpp::List<oatpp::String>::createShared();
 
     OATPP_ASSERT(list)
@@ -69,11 +69,11 @@ void ListTest::onRun() {
 
     OATPP_ASSERT(list.get() != nullptr)
     OATPP_ASSERT(list.getValueType()->classId.id == oatpp::data::type::__class::AbstractList::CLASS_ID.id)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test copy-assignment operator...")
+    OATPP_LOGi(TAG, "test copy-assignment operator...")
     oatpp::List<oatpp::String> list1({});
     oatpp::List<oatpp::String> list2;
 
@@ -99,11 +99,11 @@ void ListTest::onRun() {
 
     OATPP_ASSERT(list2[0] == "b")
     OATPP_ASSERT(list2[1] == "c")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test move-assignment operator...")
+    OATPP_LOGi(TAG, "test move-assignment operator...")
     oatpp::List<oatpp::String> list1({});
     oatpp::List<oatpp::String> list2;
 
@@ -111,11 +111,11 @@ void ListTest::onRun() {
 
     OATPP_ASSERT(!list1)
     OATPP_ASSERT(list2)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test get element by index...")
+    OATPP_LOGi(TAG, "test get element by index...")
     oatpp::List<oatpp::String> list = {"a", "b", "c"};
 
     OATPP_ASSERT(list)
@@ -133,11 +133,11 @@ void ListTest::onRun() {
     OATPP_ASSERT(list[0] == "a")
     OATPP_ASSERT(list[1] == "Hello!")
     OATPP_ASSERT(list[2] == "c")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test polymorphicDispatcher...")
+    OATPP_LOGi(TAG, "test polymorphicDispatcher...")
     oatpp::List<oatpp::String> list = {"a", "b", "c"};
 
     auto polymorphicDispatcher = static_cast<const oatpp::data::type::__class::Collection::PolymorphicDispatcher*>(
@@ -152,7 +152,7 @@ void ListTest::onRun() {
     OATPP_ASSERT(list[1] == "b")
     OATPP_ASSERT(list[2] == "c")
     OATPP_ASSERT(list[3] == "d")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
 }

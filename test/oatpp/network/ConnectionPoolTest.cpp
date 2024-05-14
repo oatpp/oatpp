@@ -26,6 +26,7 @@
 
 #include "oatpp/network/ConnectionPool.hpp"
 #include "oatpp/async/Executor.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace test { namespace network {
 
@@ -202,7 +203,7 @@ void ConnectionPoolTest::onRun() {
 
   executor.waitTasksFinished();
 
-  OATPP_LOGD(TAG, "connections_counter=%ld", connectionProvider->counter.load())
+  OATPP_LOGd(TAG, "connections_counter={}", connectionProvider->counter.load())
   OATPP_ASSERT(connectionProvider->counter <= 10)
 
   pool->stop();

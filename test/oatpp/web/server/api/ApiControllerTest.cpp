@@ -117,7 +117,7 @@ void ApiControllerTest::onRun() {
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
+    OATPP_LOGd(TAG, "response:\n---\n{}\n---\n", stream.toString())
 
   }
 
@@ -144,7 +144,7 @@ void ApiControllerTest::onRun() {
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
+    OATPP_LOGd(TAG, "response:\n---\n{}\n---\n", stream.toString())
 
   }
 
@@ -165,7 +165,7 @@ void ApiControllerTest::onRun() {
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
+    OATPP_LOGd(TAG, "response:\n---\n{}\n---\n", stream.toString())
 
   }
 
@@ -186,7 +186,7 @@ void ApiControllerTest::onRun() {
     oatpp::data::stream::BufferOutputStream stream;
     response->send(&stream, &headersOutBuffer, nullptr);
 
-    OATPP_LOGD(TAG, "response:\n---\n%s\n---\n", stream.toString()->c_str())
+    OATPP_LOGd(TAG, "response:\n---\n{}\n---\n", stream.toString())
 
   }
 

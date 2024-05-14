@@ -32,6 +32,7 @@
 
 #include "oatpp/macro/basic.hpp"
 #include "oatpp/macro/codegen.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include "oatpp-test/Checker.hpp"
 
@@ -77,7 +78,7 @@ void DTOMapperPerfTest::onRun() {
   
   auto test1 = Test1::createTestInstance();
   auto test1_Text = mapper.writeToString(test1);
-  OATPP_LOGV(TAG, "json='%s'", test1_Text->c_str())
+  OATPP_LOGv(TAG, "json='{}'", test1_Text->c_str())
 
   {
     oatpp::test::PerformanceChecker checker("Serializer");

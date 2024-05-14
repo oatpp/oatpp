@@ -25,6 +25,7 @@
 #include "BooleanTest.hpp"
 
 #include "oatpp/json/ObjectMapper.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace json {
 
@@ -32,31 +33,31 @@ void BooleanTest::onRun() {
   oatpp::json::ObjectMapper mapper;
 
   {
-    OATPP_LOGI(TAG, "Serialize true to string...")
+    OATPP_LOGd(TAG, "Serialize true to string...")
     auto value = mapper.writeToString(Boolean(true));
     OATPP_ASSERT(value == "true")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGd(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Serialize false to string...")
+    OATPP_LOGd(TAG, "Serialize false to string...")
     auto value = mapper.writeToString(Boolean(false));
     OATPP_ASSERT(value == "false")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGd(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserialize true string...")
+    OATPP_LOGd(TAG, "Deserialize true string...")
     Boolean value = mapper.readFromString<Boolean>("true");
     OATPP_ASSERT(static_cast<bool>(value))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGd(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Deserialize false string...")
+    OATPP_LOGd(TAG, "Deserialize false string...")
     Boolean value = mapper.readFromString<Boolean>("false");
     OATPP_ASSERT(!static_cast<bool>(value))
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGd(TAG, "OK")
   }
 }
 

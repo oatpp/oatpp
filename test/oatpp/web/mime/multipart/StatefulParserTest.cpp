@@ -122,7 +122,7 @@ void StatefulParserTest::onRun() {
     parseStepByStep(text, "12345", listener, i);
 
     if(multipart.count() != 5) {
-      OATPP_LOGD(TAG, "TEST_DATA_1 itearation %lu", i)
+      OATPP_LOGd(TAG, "TEST_DATA_1 itearation {}", i)
     }
 
     OATPP_ASSERT(multipart.count() == 5)

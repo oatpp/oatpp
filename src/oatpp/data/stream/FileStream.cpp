@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "FileStream.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace data{ namespace stream {
 
@@ -52,7 +53,7 @@ FileInputStream::FileInputStream(const char* filename, const std::shared_ptr<voi
   : FileInputStream(std::fopen(filename, "rb"), true, captureData)
 {
   if(!m_file) {
-    OATPP_LOGE("[oatpp::data::stream::FileInputStream::FileInputStream(filename)]", "Error. Can't open file '%s'.", filename)
+    OATPP_LOGe("[oatpp::data::stream::FileInputStream::FileInputStream(filename)]", "Error. Can't open file '{}'.", filename)
     throw std::runtime_error("[oatpp::data::stream::FileInputStream::FileInputStream(filename)]: Error. Can't open file.");
   }
 }
@@ -132,7 +133,7 @@ FileOutputStream::FileOutputStream(const char* filename, const char* mode, const
   : FileOutputStream(std::fopen(filename, mode), true, captureData)
 {
   if(!m_file) {
-    OATPP_LOGE("[oatpp::data::stream::FileOutputStream::FileOutputStream(filename, mode)]", "Error. Can't open file '%s'.", filename)
+    OATPP_LOGe("[oatpp::data::stream::FileOutputStream::FileOutputStream(filename, mode)]", "Error. Can't open file '{}'.", filename)
     throw std::runtime_error("[oatpp::data::stream::FileOutputStream::FileOutputStream(filename, mode)]: Error. Can't open file.");
   }
 }

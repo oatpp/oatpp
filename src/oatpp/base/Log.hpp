@@ -26,6 +26,7 @@
 #define oatpp_base_Log_hpp
 
 #include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/macro/basic.hpp"
 
 namespace oatpp::base{
 
@@ -60,6 +61,8 @@ public:
   LogMessage& operator << (v_uint32 value);
   LogMessage& operator << (v_int64 value);
   LogMessage& operator << (v_uint64 value);
+  LogMessage& operator << (v_buff_size value);
+  LogMessage& operator << (v_buff_usize value);
   LogMessage& operator << (v_float32 value);
   LogMessage& operator << (v_float64 value);
 
@@ -79,6 +82,7 @@ public:
 public:
 
   static void log(v_uint32 priority, const std::string& tag, const LogMessage& message);
+  static void log(v_uint32 priority, const LogCategory& category, const LogMessage& message);
 
 };
 
@@ -88,10 +92,10 @@ public:
 << P
 
 #define OATPP_LOG_MACRO_0(PRIORITY, TAG, MSG) \
-oatpp::base::LogMessage::log(PRIORITY, TAG, LogMessage(MSG));
+oatpp::base::LogMessage::log(PRIORITY, TAG, oatpp::base::LogMessage(MSG));
 
 #define OATPP_LOG_MACRO_1(PRIORITY, TAG, MSG, ...) \
-oatpp::base::LogMessage::log(PRIORITY, TAG, LogMessage(MSG) OATPP_MACRO_FOREACH_OR_EMPTY(OATPP_LOG_PARAMS, __VA_ARGS__));
+oatpp::base::LogMessage::log(PRIORITY, TAG, oatpp::base::LogMessage(MSG) OATPP_MACRO_FOREACH_OR_EMPTY(OATPP_LOG_PARAMS, __VA_ARGS__));
 
 /**
  * General LOG macro
@@ -116,7 +120,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGv(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_V, TAG, __VA_ARGS__);
+  OATPP_LOG(oatpp::Logger::PRIORITY_V, TAG, __VA_ARGS__)
 
 #else
   #define OATPP_LOGv(TAG, ...)
@@ -132,7 +136,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGd(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_D, TAG, __VA_ARGS__);
+  OATPP_LOG(oatpp::Logger::PRIORITY_D, TAG, __VA_ARGS__)
 
 #else
   #define OATPP_LOGd(TAG, ...)
@@ -148,7 +152,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGi(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_I, TAG, __VA_ARGS__);
+  OATPP_LOG(oatpp::Logger::PRIORITY_I, TAG, __VA_ARGS__)
 
 #else
   #define OATPP_LOGi(TAG, ...)
@@ -164,7 +168,7 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGw(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_W, TAG, __VA_ARGS__);
+  OATPP_LOG(oatpp::Logger::PRIORITY_W, TAG, __VA_ARGS__)
 
 #else
   #define OATPP_LOGw(TAG, ...)
@@ -180,10 +184,57 @@ OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_LOG_MACRO_, (__VA_ARG
  * @param ... - optional format parameter.
  */
 #define OATPP_LOGe(TAG, ...) \
-  OATPP_LOG(oatpp::Logger::PRIORITY_E, TAG, __VA_ARGS__);
+  OATPP_LOG(oatpp::Logger::PRIORITY_E, TAG, __VA_ARGS__)
 
 #else
   #define OATPP_LOGe(TAG, ...)
 #endif
+
+//////////////////////
+//////////////////////
+//////////////////////
+
+
+/**
+ * Convenience macro to declare a logging category directly in a class header.
+ * @param NAME - variable-name of the category which is later used to reference the category.
+ */
+#define OATPP_DECLARE_LOG_CATEGORY(NAME) \
+  static oatpp::LogCategory NAME;
+
+/**
+ * Convenience macro to implement a logging category directly in a class header.
+ * @param NAME - variable-name of the category which is later used to reference the category.
+ * @param TAG - tag printed with each message printed usig this category.
+ * @param ENABLED - enable or disable a category (bool).
+ */
+#define OATPP_LOG_CATEGORY(NAME, TAG, ENABLED) \
+  oatpp::LogCategory NAME = oatpp::LogCategory(TAG, ENABLED);
+
+
+//////////////////////
+//////////////////////
+//////////////////////
+
+/**
+ * Default oatpp assert method.
+ * @param FMT - the format string used for the expression
+ * @param EXP - expression that must be `true`.
+ */
+#define OATPP_ASSERT_FMT(FMT, EXP) \
+if(!(EXP)) { \
+  OATPP_LOGe("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", FMT, #EXP) \
+  exit(EXIT_FAILURE); \
+}
+
+/**
+ * Default oatpp assert method.
+ * @param EXP - expression that must be `true`.
+ */
+#define OATPP_ASSERT(EXP) \
+if(!(EXP)) { \
+  OATPP_LOGe("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", #EXP) \
+  exit(EXIT_FAILURE); \
+}
 
 #endif /* oatpp_base_Log_hpp */

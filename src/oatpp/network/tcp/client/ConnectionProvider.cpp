@@ -26,6 +26,7 @@
 
 #include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/utils/Conversion.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <fcntl.h>
 #include <errno.h>
@@ -151,7 +152,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   int yes = 1;
   v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
+    OATPP_LOGd("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set {} for socket", "SO_NOSIGPIPE")
   }
 #endif
 
@@ -266,7 +267,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
         if(ret < 0) {
-          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
+          OATPP_LOGd("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set {} for socket", "SO_NOSIGPIPE")
         }
 #endif
 
