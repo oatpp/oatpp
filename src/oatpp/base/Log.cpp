@@ -95,14 +95,14 @@ LogMessage& LogMessage::operator << (bool value) {
 
 LogMessage& LogMessage::operator << (int value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(static_cast<v_int32>(value));
+    m_stream.writeAsString(value);
   }
   return *this;
 }
 
 LogMessage& LogMessage::operator << (unsigned value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(static_cast<v_uint32>(value));
+    m_stream.writeAsString(value);
   }
   return *this;
 }
@@ -137,14 +137,14 @@ LogMessage& LogMessage::operator << (unsigned long long value) {
 
 LogMessage& LogMessage::operator << (float value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(static_cast<v_float32>(value));
+    m_stream.writeAsString(value);
   }
   return *this;
 }
 
 LogMessage& LogMessage::operator << (double value) {
   if(writeNextChunk()) {
-    m_stream.writeAsString(static_cast<v_float64>(value));
+    m_stream.writeAsString(value);
   }
   return *this;
 }

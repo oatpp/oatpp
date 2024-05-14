@@ -166,7 +166,9 @@ void IOEventWorker::waitEvents() {
                "foreman={}\n"
                "this={}\n"
                "specialization={}",
-               errno, m_inEventsCount, reinterpret_cast<v_buff_usize>(m_foreman), reinterpret_cast<v_buff_usize>(this), m_specialization)
+               errno, m_inEventsCount,
+               reinterpret_cast<v_buff_usize>(m_foreman), reinterpret_cast<v_buff_usize>(this),
+               m_specialization)
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
