@@ -30,8 +30,6 @@ namespace oatpp { namespace data { namespace share {
 
 void StringTemplateTest::onRun() {
 
-  typedef oatpp::data::share::StringTemplate StringTemplate;
-
   {
     OATPP_LOGi(TAG, "Case1 ...")
     StringTemplate t("{} World!", {{0, 1, "p1", nullptr}});

@@ -51,7 +51,7 @@ public:
   {}
 
   Action act() override {
-    return m_cv->wait(m_lockGuard, [this]{return m_resource->counter == 100;})
+    return m_cv->wait(m_lockGuard, [this]() noexcept {return m_resource->counter == 100;})
             .next(yieldTo(&TestCoroutineWait::onReady));
   }
 
@@ -78,7 +78,7 @@ public:
   {}
 
   Action act() override {
-    return m_cv->waitFor(m_lockGuard, [this]{return m_resource->counter == 100;}, std::chrono::seconds(5))
+    return m_cv->waitFor(m_lockGuard, [this]() noexcept{return m_resource->counter == 100;}, std::chrono::seconds(5))
       .next(yieldTo(&TestCoroutineWaitWithTimeout::onReady));
   }
 
@@ -105,7 +105,7 @@ public:
   {}
 
   Action act() override {
-    return m_cv->waitFor(m_lockGuard, []{return false;}, std::chrono::seconds(1))
+    return m_cv->waitFor(m_lockGuard, []() noexcept{return false;}, std::chrono::seconds(1))
       .next(yieldTo(&TestCoroutineTimeout::onReady));
   }
 

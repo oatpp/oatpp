@@ -93,6 +93,34 @@ LogMessage& LogMessage::operator << (bool value) {
   return *this;
 }
 
+LogMessage& LogMessage::operator << (char value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_int32>(value));
+  }
+  return *this;
+}
+
+LogMessage& LogMessage::operator << (unsigned char value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_uint32>(value));
+  }
+  return *this;
+}
+
+LogMessage& LogMessage::operator << (short value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_int32>(value));
+  }
+  return *this;
+}
+
+LogMessage& LogMessage::operator << (unsigned short value) {
+  if(writeNextChunk()) {
+    m_stream.writeAsString(static_cast<v_uint32>(value));
+  }
+  return *this;
+}
+
 LogMessage& LogMessage::operator << (int value) {
   if(writeNextChunk()) {
     m_stream.writeAsString(value);

@@ -124,7 +124,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
     if(clientHandle >= 0) {
 
-      if(connect(clientHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0) {
+      if(connect(clientHandle, currResult->ai_addr, currResult->ai_addrlen) == 0) {
         break;
       } else {
           err = errno;
@@ -283,7 +283,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
     Action doConnect() {
       errno = 0;
 
-      auto res = connect(m_clientHandle, m_currentResult->ai_addr, static_cast<v_sock_size>(m_currentResult->ai_addrlen));
+      auto res = connect(m_clientHandle, m_currentResult->ai_addr, m_currentResult->ai_addrlen);
 
 #if defined(WIN32) || defined(_WIN32)
 

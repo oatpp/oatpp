@@ -193,7 +193,7 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryH
 {}
 
 BufferInputStream::BufferInputStream(const oatpp::String& data, const std::shared_ptr<void>& captureData)
-  : BufferInputStream(data.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()), captureData)
+  : BufferInputStream(data.getPtr(), reinterpret_cast<p_char8>(data->data()), static_cast<v_buff_size>(data->size()), captureData)
 {}
 
 void BufferInputStream::reset(const std::shared_ptr<std::string>& memoryHandle,

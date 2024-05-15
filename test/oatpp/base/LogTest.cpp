@@ -61,11 +61,24 @@ void LogTest::onRun() {
   }
 
   {
+
+    v_int8 i8 = -8;
+    v_uint8 u8 = 8;
+
+    v_int16 i16 = -16;
+    v_uint16 u16 = 16;
+
+    v_int32 i32 = -32;
+    v_uint32 u32 = 32;
+
+    v_int64 i64 = -64;
+    v_uint64 u64 = 64;
+
     LogMessage msg("{} {} {} {} {} {} {} {}");
-    msg << v_int8(-8) << v_uint8(8);
-    msg << v_int16(-16) << v_uint16(16);
-    msg << v_int32(-32) << v_uint32(32);
-    msg << v_int64(-64) << v_uint64(64);
+    msg << i8 << u8;
+    msg << i16 << u16;
+    msg << i32 << u32;
+    msg << i64 << u64;
     OATPP_ASSERT(msg.toStdString() == "-8 8 -16 16 -32 32 -64 64")
   }
 

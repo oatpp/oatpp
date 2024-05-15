@@ -54,6 +54,10 @@ public:
   LogMessage& operator << (const char* str);
   LogMessage& operator << (bool value);
 
+  LogMessage& operator << (char value);
+  LogMessage& operator << (unsigned char value);
+  LogMessage& operator << (short value);
+  LogMessage& operator << (unsigned short value);
   LogMessage& operator << (int value);
   LogMessage& operator << (unsigned value);
   LogMessage& operator << (long value);

@@ -225,8 +225,8 @@ oatpp::String Utils::escapeString(const char* data, v_buff_size size, v_uint32 f
   if(escapedSize == size) {
     return String(data, size);
   }
-  auto result = String(escapedSize);
-  p_char8 resultData = reinterpret_cast<p_char8>(const_cast<char*>(result->data()));
+  String result(escapedSize);
+  auto resultData = reinterpret_cast<p_char8>(result->data());
   v_buff_size pos = 0;
 
   {
@@ -375,11 +375,11 @@ oatpp::String Utils::unescapeString(const char* data, v_buff_size size, v_int64&
   if(errorCode != 0){
     return nullptr;
   }
-  auto result = String(unescapedSize);
+  String result(unescapedSize);
   if(unescapedSize == size) {
-    std::memcpy(reinterpret_cast<void*>(const_cast<char*>(result->data())), data, static_cast<size_t>(size));
+    std::memcpy(reinterpret_cast<void*>(result->data()), data, static_cast<size_t>(size));
   } else {
-    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(const_cast<char*>(result->data())));
+    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(result->data()));
   }
   return result;
   
@@ -394,9 +394,9 @@ std::string Utils::unescapeStringToStdString(const char* data, v_buff_size size,
   std::string result;
   result.resize(static_cast<size_t>(unescapedSize));
   if(unescapedSize == size) {
-    std::memcpy(reinterpret_cast<void*>(const_cast<char*>(result.data())), data, static_cast<size_t>(size));
+    std::memcpy(reinterpret_cast<void*>(result.data()), data, static_cast<size_t>(size));
   } else {
-    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(const_cast<char*>(result.data())));
+    unescapeStringToBuffer(data, size, reinterpret_cast<p_char8>(result.data()));
   }
   return result;
   

@@ -168,7 +168,7 @@ void IOEventWorker::waitEvents() {
                "specialization={}",
                errno, m_inEventsCount,
                reinterpret_cast<v_buff_usize>(m_foreman), reinterpret_cast<v_buff_usize>(this),
-               m_specialization)
+               static_cast<v_int32>(m_specialization))
     throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Event loop failed.");
   }
 
@@ -222,7 +222,7 @@ void IOEventWorker::waitEvents() {
               OATPP_LOGe(
                 "[oatpp::async::worker::IOEventWorker::waitEvents()]",
                 "Error. Call to epoll_ctl failed. operation={}, errno={}. action_code={}, worker_specialization={}",
-                EPOLL_CTL_DEL, errno, action.getIOEventCode(), m_specialization
+                EPOLL_CTL_DEL, errno, action.getIOEventCode(), static_cast<v_int32>(m_specialization)
               )
               throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Call to epoll_ctl failed.");
             }
@@ -239,7 +239,7 @@ void IOEventWorker::waitEvents() {
               OATPP_LOGe(
                 "[oatpp::async::worker::IOEventWorker::waitEvents()]",
                 "Error. Call to epoll_ctl failed. operation={}, errno={}. action_code={}, worker_specialization={}",
-                EPOLL_CTL_DEL, errno, action.getIOEventCode(), m_specialization
+                EPOLL_CTL_DEL, errno, action.getIOEventCode(), static_cast<v_int32>(m_specialization)
               )
               throw std::runtime_error("[oatpp::async::worker::IOEventWorker::waitEvents()]: Error. Call to epoll_ctl failed.");
             }
