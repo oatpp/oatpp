@@ -160,6 +160,25 @@ std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const 
 
 }
 
+std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapperForContent(const oatpp::String& contentTypeHeader) const {
+
+  std::shared_lock<std::shared_mutex> lock(m_mutex);
+
+  if(!contentTypeHeader || contentTypeHeader->empty()) {
+    return m_defaultMapper;
+  }
+
+  protocol::http::HeaderValueData values;
+  protocol::http::Parser::parseHeaderValueData(values, contentTypeHeader, ';');
+
+  if(values.tokens.empty()) {
+    return nullptr;
+  }
+
+  return getMapper(values.tokens.begin()->toString());
+
+}
+
 std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const oatpp::String& acceptHeader) const {
 
   std::shared_lock<std::shared_mutex> lock(m_mutex);

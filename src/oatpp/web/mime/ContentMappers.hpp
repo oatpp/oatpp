@@ -69,6 +69,8 @@ public:
   std::shared_ptr<data::mapping::ObjectMapper> getMapper(const oatpp::String& contentType) const;
   std::shared_ptr<data::mapping::ObjectMapper> getDefaultMapper() const;
 
+  std::shared_ptr<data::mapping::ObjectMapper> selectMapperForContent(const oatpp::String& contentTypeHeader) const;
+
   std::shared_ptr<data::mapping::ObjectMapper> selectMapper(const oatpp::String& acceptHeader) const;
   std::shared_ptr<data::mapping::ObjectMapper> selectMapper(const std::vector<oatpp::String>& acceptableContentTypes) const;
 

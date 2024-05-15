@@ -235,9 +235,9 @@ if(getContentMappers()->getDefaultMapper()) { \
 // BODY_DTO MACRO // ------------------------------------------------------
 
 #define OATPP_MACRO_API_CONTROLLER_BODY_DTO(TYPE, PARAM_LIST) \
-const auto& __bodyMapper = getContentMappers()->selectMapper(__request->getHeader(oatpp::web::protocol::http::Header::CONTENT_TYPE)); \
+const auto& __bodyMapper = getContentMappers()->selectMapperForContent(__request->getHeader(oatpp::web::protocol::http::Header::CONTENT_TYPE)); \
 if(!__bodyMapper) { \
-  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "ObjectMapper was NOT set. Can't deserialize the request body."); \
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "No suitable mapper found to deserialize the request body."); \
 } \
 const auto& OATPP_MACRO_FIRSTARG PARAM_LIST = \
 __request->readBodyToDto<TYPE>(__bodyMapper.get()); \
