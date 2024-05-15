@@ -35,6 +35,7 @@
 #include "oatpp/utils/Conversion.hpp"
 
 #include "oatpp/macro/codegen.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace json {
   
@@ -269,11 +270,11 @@ void DTOMapperTest::onRun(){
 
     auto result = mapper.writeToString(test1);
 
-    OATPP_LOGV(TAG, "json='%s'", result->c_str())
+    OATPP_LOGv(TAG, "json='{}'", result->c_str())
 
-    OATPP_LOGV(TAG, "...")
-    OATPP_LOGV(TAG, "...")
-    OATPP_LOGV(TAG, "...")
+    OATPP_LOGv(TAG, "...")
+    OATPP_LOGv(TAG, "...")
+    OATPP_LOGv(TAG, "...")
 
     oatpp::utils::parser::Caret caret(result);
     auto obj1 = mapper.readFromCaret<oatpp::Object<Test>>(caret);
@@ -322,7 +323,7 @@ void DTOMapperTest::onRun(){
 
     result = mapper.writeToString(obj1);
 
-    OATPP_LOGV(TAG, "json='%s'", result->c_str())
+    OATPP_LOGv(TAG, "json='{}'", result->c_str())
   }
 
   {
@@ -331,7 +332,7 @@ void DTOMapperTest::onRun(){
     try {
       result = mapper.writeToString(test2);
     } catch(std::runtime_error&) {
-      OATPP_LOGV(TAG, "Test2::field_string is required!")
+      OATPP_LOGv(TAG, "Test2::field_string is required!")
     }
     OATPP_ASSERT(result == nullptr)
   }
@@ -353,7 +354,7 @@ void DTOMapperTest::onRun(){
     try {
       result = mapper.writeToString(test4);
     } catch(std::runtime_error&) {
-      OATPP_LOGV(TAG, "TestChild1::name is required!")
+      OATPP_LOGv(TAG, "TestChild1::name is required!")
     }
     OATPP_ASSERT(result == nullptr)
   }
@@ -389,12 +390,12 @@ void DTOMapperTest::onRun(){
     obj2->anyList->push_back(map);
 
     auto json = mapper.writeToString(obj2);
-    OATPP_LOGV(TAG, "any json='%s'", json->c_str())
+    OATPP_LOGv(TAG, "any json='{}'", json->c_str())
 
     auto deserializedAny = mapper.readFromString<oatpp::Fields<oatpp::Any>>(json);
 
     auto json2 = mapper.writeToString(deserializedAny);
-    OATPP_LOGV(TAG, "any json='%s'", json2->c_str())
+    OATPP_LOGv(TAG, "any json='{}'", json2->c_str())
 
   }
 

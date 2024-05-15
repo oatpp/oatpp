@@ -100,11 +100,11 @@ public:
     bool runConditionForLambda = true;
 
     m_server = std::make_shared<oatpp::network::Server>(m_connectionProvider, m_connectionHandler);
-    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port %s. Timeout %ld(micro)\033[0m",
+    OATPP_LOGd("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mRunning server on port {}. Timeout {}(micro)\033[0m",
                m_connectionProvider->getProperty("port").toString()->c_str(),
                timeout.count())
 
-    std::function<bool()> condition = [&runConditionForLambda](){
+    std::function<bool()> condition = [&runConditionForLambda]() noexcept {
         return runConditionForLambda;
     };
 
@@ -137,7 +137,7 @@ public:
     clientThread.join();
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - startTime);
-    OATPP_LOGD("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mFinished with time %ld(micro). Stopping server...\033[0m", elapsed.count())
+    OATPP_LOGd("\033[1;34mClientServerTestRunner\033[0m", "\033[1;34mFinished with time {}(micro). Stopping server...\033[0m", elapsed.count())
 
     running = false;
     timeoutCondition.notify_one();

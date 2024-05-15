@@ -31,7 +31,7 @@ namespace oatpp { namespace data { namespace  type {
 void UnorderedMapTest::onRun() {
 
   {
-    OATPP_LOGI(TAG, "test default constructor...")
+    OATPP_LOGi(TAG, "test default constructor...")
     oatpp::UnorderedFields<String> map;
 
     OATPP_ASSERT(!map)
@@ -43,11 +43,11 @@ void UnorderedMapTest::onRun() {
     auto it = map.getValueType()->params.begin();
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType())
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType())
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test empty ilist constructor...")
+    OATPP_LOGi(TAG, "test empty ilist constructor...")
     oatpp::UnorderedFields<String> map({});
 
     OATPP_ASSERT(map)
@@ -60,11 +60,11 @@ void UnorderedMapTest::onRun() {
     auto it = map.getValueType()->params.begin();
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType())
     OATPP_ASSERT(*it++ == oatpp::String::Class::getType())
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test createShared()...")
+    OATPP_LOGi(TAG, "test createShared()...")
     oatpp::UnorderedFields<String> map = oatpp::UnorderedFields<String>::createShared();
 
     OATPP_ASSERT(map)
@@ -73,11 +73,11 @@ void UnorderedMapTest::onRun() {
 
     OATPP_ASSERT(map.get() != nullptr)
     OATPP_ASSERT(map.getValueType()->classId.id == oatpp::data::type::__class::AbstractUnorderedMap::CLASS_ID.id)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test copy-assignment operator...")
+    OATPP_LOGi(TAG, "test copy-assignment operator...")
     oatpp::UnorderedFields<String> map1({});
     oatpp::UnorderedFields<String> map2;
 
@@ -103,11 +103,11 @@ void UnorderedMapTest::onRun() {
 
     OATPP_ASSERT(map2["key1"] == "b")
     OATPP_ASSERT(map2["key2"] == "c")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test move-assignment operator...")
+    OATPP_LOGi(TAG, "test move-assignment operator...")
     oatpp::UnorderedFields<String> map1({});
     oatpp::UnorderedFields<String> map2;
 
@@ -115,11 +115,11 @@ void UnorderedMapTest::onRun() {
 
     OATPP_ASSERT(!map1)
     OATPP_ASSERT(map2)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test get element by index...")
+    OATPP_LOGi(TAG, "test get element by index...")
     oatpp::UnorderedFields<String> map = {{"key1", "a"}, {"key2", "b"}, {"key3", "c"}};
 
     OATPP_ASSERT(map)
@@ -137,11 +137,11 @@ void UnorderedMapTest::onRun() {
     OATPP_ASSERT(map["key1"] == "a")
     OATPP_ASSERT(map["key2"] == "Hello!")
     OATPP_ASSERT(map["key3"] == "c")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "test polymorphicDispatcher...")
+    OATPP_LOGi(TAG, "test polymorphicDispatcher...")
     oatpp::UnorderedFields<String> map = {{"key1", "a"}, {"key2", "b"}, {"key3", "c"}};
 
     auto polymorphicDispatcher = static_cast<const typename oatpp::data::type::__class::Map::PolymorphicDispatcher*>(
@@ -155,7 +155,7 @@ void UnorderedMapTest::onRun() {
     OATPP_ASSERT(map["key1"] == "d")
     OATPP_ASSERT(map["key2"] == "b")
     OATPP_ASSERT(map["key3"] == "c")
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
 }

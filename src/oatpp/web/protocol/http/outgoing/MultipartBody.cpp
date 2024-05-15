@@ -24,13 +24,14 @@
 
 #include "MultipartBody.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
 
 v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action& action) {
   const auto& stream = m_iterator.getPartInputStream();
   if(!stream) {
-    OATPP_LOGW("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream.")
+    OATPP_LOGw("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::readBody()]", "Warning. Part has no input stream.")
     return 0;
   }
   return stream->read(buffer, count, action);
@@ -81,7 +82,7 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
         break;
 
       default:
-        OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid state %d", m_state)
+        OATPP_LOGe("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid state {}", m_state)
         return 0;
 
     }
@@ -107,7 +108,7 @@ v_io_size MultipartBody::read(void *buffer, v_buff_size count, async::Action& ac
       }
 
     } else if(action.isNone()) {
-      OATPP_LOGE("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid read result %ld. State=%d", res, m_state)
+      OATPP_LOGe("[oatpp::web::protocol::http::outgoing::MultipartBody::MultipartReadCallback::read()]", "Error. Invalid read result {}. State={}", res, m_state)
       return 0;
     }
 
@@ -134,7 +135,7 @@ v_io_size MultipartBody::readBoundary(const std::shared_ptr<Multipart>& multipar
       boundary = "\r\n--" + multipart->getBoundary() + "\r\n";
     }
 
-    readStream.reset(boundary.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(boundary->data())), static_cast<v_buff_size>(boundary->size()));
+    readStream.reset(boundary.getPtr(), reinterpret_cast<p_char8>(boundary->data()), static_cast<v_buff_size>(boundary->size()));
 
   }
 
@@ -161,7 +162,7 @@ v_io_size MultipartBody::readHeaders(const std::shared_ptr<Multipart>& multipart
     http::Utils::writeHeaders(part->getHeaders(), &stream);
     stream.writeSimple("\r\n", 2);
     auto str = stream.toString();
-    readStream.reset(str.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(str->data())), static_cast<v_buff_size>(str->size()));
+    readStream.reset(str.getPtr(), reinterpret_cast<p_char8>(str->data()), static_cast<v_buff_size>(str->size()));
 
   }
 

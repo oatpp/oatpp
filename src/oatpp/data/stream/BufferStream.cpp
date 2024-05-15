@@ -34,7 +34,7 @@ namespace oatpp { namespace data{ namespace stream {
 data::stream::DefaultInitializedContext BufferOutputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
 BufferOutputStream::BufferOutputStream(v_buff_size initialCapacity, const std::shared_ptr<void>& captureData)
-  : m_data(new v_char8[initialCapacity])
+  : m_data(new v_char8[static_cast<unsigned long>(initialCapacity)])
   , m_capacity(initialCapacity)
   , m_position(0)
   , m_maxCapacity(-1)
@@ -88,7 +88,7 @@ void BufferOutputStream::reserveBytesUpfront(v_buff_size count) {
       throw std::runtime_error("[oatpp::data::stream::BufferOutputStream::reserveBytesUpfront()]: Error. Unable to allocate requested memory.");
     }
 
-    p_char8 newData = new v_char8[newCapacity];
+    auto newData = new v_char8[static_cast<unsigned long>(newCapacity)];
 
     std::memcpy(newData, m_data, static_cast<size_t>(m_position));
     delete [] m_data;
@@ -120,13 +120,17 @@ void BufferOutputStream::setCurrentPosition(v_buff_size position) {
 
 void BufferOutputStream::reset(v_buff_size initialCapacity) {
   delete [] m_data;
-  m_data = new v_char8[initialCapacity];
+  m_data = new v_char8[static_cast<unsigned long>(initialCapacity)];
   m_capacity = initialCapacity;
   m_position = 0;
 }
 
 oatpp::String BufferOutputStream::toString() {
   return oatpp::String(reinterpret_cast<const char*>(m_data), m_position);
+}
+
+std::string BufferOutputStream::toStdString() const {
+  return std::string(reinterpret_cast<const char*>(m_data), static_cast<unsigned long>(m_position));
 }
 
 oatpp::String BufferOutputStream::getSubstring(v_buff_size pos, v_buff_size count) {
@@ -189,7 +193,7 @@ BufferInputStream::BufferInputStream(const std::shared_ptr<std::string>& memoryH
 {}
 
 BufferInputStream::BufferInputStream(const oatpp::String& data, const std::shared_ptr<void>& captureData)
-  : BufferInputStream(data.getPtr(), reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()), captureData)
+  : BufferInputStream(data.getPtr(), reinterpret_cast<p_char8>(data->data()), static_cast<v_buff_size>(data->size()), captureData)
 {}
 
 void BufferInputStream::reset(const std::shared_ptr<std::string>& memoryHandle,

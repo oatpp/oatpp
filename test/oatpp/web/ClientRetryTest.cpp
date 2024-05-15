@@ -137,7 +137,7 @@ void runServer(v_uint16 port, v_int32 delaySeconds, v_int32 iterations, bool sta
       std::this_thread::sleep_for(std::chrono::seconds(delaySeconds));
       if(!stable) {
         controller->available = !controller->available;
-        OATPP_LOGI("Server", "Available=%d", static_cast<v_int32>(controller->available.load()))
+        OATPP_LOGi("Server", "Available={}", static_cast<v_int32>(controller->available.load()))
       }
     }
 
@@ -160,7 +160,7 @@ void ClientRetryTest::onRun() {
 
   {
 
-    OATPP_LOGI(TAG, "Test: no server available")
+    OATPP_LOGi(TAG, "Test: no server available")
     oatpp::test::PerformanceChecker checker("test: no server available");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(2, std::chrono::seconds(1));
@@ -170,7 +170,7 @@ void ClientRetryTest::onRun() {
     auto response = client->getRoot();
     auto ticks = checker.getElapsedTicks();
 
-    OATPP_LOGD(TAG, "ticks=%ld", ticks)
+    OATPP_LOGd(TAG, "ticks={}", ticks)
 
     if(m_port == 0) {
 
@@ -195,7 +195,7 @@ void ClientRetryTest::onRun() {
 
   {
 
-    OATPP_LOGI(TAG, "Test: server pops up")
+    OATPP_LOGi(TAG, "Test: server pops up")
     oatpp::test::PerformanceChecker checker("test: server pops up");
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(10 * 10, std::chrono::milliseconds(100));
@@ -214,7 +214,7 @@ void ClientRetryTest::onRun() {
       }));
     }
 
-    OATPP_LOGD(TAG, "Waiting for server to start...")
+    OATPP_LOGd(TAG, "Waiting for server to start...")
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
     runServer(m_port, 2, 2, true, controller);
@@ -230,7 +230,7 @@ void ClientRetryTest::onRun() {
 
   {
 
-    OATPP_LOGI(TAG, "Test: unstable server!")
+    OATPP_LOGi(TAG, "Test: unstable server!")
 
     auto retryPolicy = std::make_shared<oatpp::web::client::SimpleRetryPolicy>(-1, std::chrono::seconds(1));
     auto connectionPool = oatpp::network::ClientConnectionPool::createShared(connectionProvider, 10, std::chrono::seconds(1));
@@ -255,7 +255,7 @@ void ClientRetryTest::onRun() {
         counter ++;
 
         if(counter % 1000 == 0) {
-          OATPP_LOGD("client", "requests=%ld", counter)
+          OATPP_LOGd("client", "requests={}", counter)
         }
 
       }

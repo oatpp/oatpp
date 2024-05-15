@@ -545,7 +545,7 @@ void FullTest::onRun() {
       if((i + 1) % iterationsStep == 0) {
         auto ticks = oatpp::Environment::getMicroTickCount() - lastTick;
         lastTick = oatpp::Environment::getMicroTickCount();
-        OATPP_LOGV("i", "%d, tick=%ld", i + 1, ticks)
+        OATPP_LOGv("i", "{}, tick={}", i + 1, ticks)
       }
 
       { // test bundle

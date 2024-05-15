@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Checker.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace test {
 
@@ -33,7 +34,7 @@ PerformanceChecker::PerformanceChecker(const char* tag)
 
 PerformanceChecker::~PerformanceChecker(){
   v_int64 elapsedTicks = oatpp::Environment::getMicroTickCount() - m_ticks;
-  OATPP_LOGD(m_tag, "%ld(micro)", elapsedTicks)
+  OATPP_LOGd(m_tag, "{}(micro)", elapsedTicks)
 }
 
 v_int64 PerformanceChecker::getElapsedTicks(){
@@ -54,9 +55,9 @@ ThreadLocalObjectsChecker::~ThreadLocalObjectsChecker(){
   v_counter objectsCreatedPerTest = oatpp::Environment::getThreadLocalObjectsCreated() - m_objectsCreated;
   
   if(leakingObjects == 0){
-    OATPP_LOGE(m_tag, "OK:\n created(obj): %ld", objectsCreatedPerTest)
+    OATPP_LOGe(m_tag, "OK:\n created(obj): {}", objectsCreatedPerTest)
   }else{
-    OATPP_LOGE(m_tag, "FAILED, leakingObjects = %ld", leakingObjects)
+    OATPP_LOGe(m_tag, "FAILED, leakingObjects = {}", leakingObjects)
     OATPP_ASSERT(false)
   }
   

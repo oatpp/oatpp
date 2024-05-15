@@ -28,6 +28,7 @@
 #include "oatpp/data/buffer/Processor.hpp"
 
 #include "oatpp/async/Executor.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace data { namespace buffer {
 
@@ -191,7 +192,7 @@ oatpp::String runTestCase(const oatpp::String& data, v_int32 p1N, v_int32 p2N, v
     oatpp::base::ObjectHandle<Processor>(std::make_shared<ProcessorToLower>(p3N)),
   });
 
-  std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
+  std::unique_ptr<v_char8[]> buffer(new v_char8[static_cast<unsigned long>(bufferSize)]);
   oatpp::data::stream::transfer(&inStream, &outStream, 0, buffer.get(), bufferSize, &processor);
 
   return outStream.toString();
@@ -213,7 +214,7 @@ void ProcessorTest::onRun() {
           auto result = runTestCase(data, p1N, p2N, p3N, buffSize);
 
           if (result != etalon) {
-            OATPP_LOGD(TAG, "error[%d, %d, %d, b=%d] result='%s'", p1N, p2N, p3N, buffSize, result->data())
+            OATPP_LOGd(TAG, "error[{}, {}, {}, b={}] result='{}'", p1N, p2N, p3N, buffSize, result->data())
           }
           OATPP_ASSERT(result == etalon)
 

@@ -36,22 +36,24 @@ namespace {
 template<typename T>
 void testTreeValue(T value) {
 
-  OATPP_LOGD("TEST", "Test value retrieval for '%s'", Tree::NodePrimitiveType<T>::name)
+  OATPP_LOGd("TEST", "Test value retrieval for '{}'", Tree::NodePrimitiveType<T>::name)
 
   Tree node;
 
   //node.setValue<T>(value);
   node = value;
   auto v = node.getValue<T>();
-  OATPP_ASSERT(v == value && "value check")
+  OATPP_ASSERT(std::memcmp(&v, &value, sizeof(T)) == 0 && "value check")
 
   node.setValue<T>(std::numeric_limits<T>::min());
   auto min = node.getValue<T>();
-  OATPP_ASSERT(min == std::numeric_limits<T>::min() && "min check")
+  auto minLim = std::numeric_limits<T>::min();
+  OATPP_ASSERT(std::memcmp(&min, &minLim, sizeof(T)) == 0 && "min check")
 
   node.setValue<T>(std::numeric_limits<T>::max());
   auto max = node.getValue<T>();
-  OATPP_ASSERT(max == std::numeric_limits<T>::max() && "max check")
+  auto maxLim = std::numeric_limits<T>::max();
+  OATPP_ASSERT(std::memcmp(&max, &maxLim, sizeof(T)) == 0 && "max check")
 
 }
 
@@ -72,7 +74,7 @@ void TreeTest::onRun() {
   testTreeValue<v_float64>(16);
 
   {
-    OATPP_LOGD(TAG, "Case 1")
+    OATPP_LOGd(TAG, "Case 1")
     Tree node;
     oatpp::String original = "Hello World!";
     node.setString(original);
@@ -82,7 +84,7 @@ void TreeTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Case 2")
+    OATPP_LOGd(TAG, "Case 2")
     Tree node1;
     Tree node2;
 
@@ -97,7 +99,7 @@ void TreeTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Case 3")
+    OATPP_LOGd(TAG, "Case 3")
     Tree node1;
     Tree node2;
 
@@ -110,7 +112,7 @@ void TreeTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Case 4")
+    OATPP_LOGd(TAG, "Case 4")
     std::vector<Tree> originalVector(10);
     for(v_uint32 i = 0; i < 10; i ++) {
       originalVector.at(i).setValue(i);
@@ -138,7 +140,7 @@ void TreeTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Case 5")
+    OATPP_LOGd(TAG, "Case 5")
     TreeMap originalMap;
     for(v_uint32 i = 0; i < 10; i ++) {
       originalMap["node_" + utils::Conversion::int32ToStr(static_cast<v_int32>(i))].setValue(i);
@@ -163,7 +165,7 @@ void TreeTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Case 6")
+    OATPP_LOGd(TAG, "Case 6")
     Tree article;
     oatpp::Tree ot;
 
@@ -175,19 +177,17 @@ void TreeTest::onRun() {
     article["references"][0]["author"] = "Alexander";
     article["references"][1]["author"] = "Leonid";
 
-    article["references"].getVector().size();
-
     v_int32 value = article["pages"];
     oatpp::String author = article["references"][0]["author"];
 
-    OATPP_LOGD(TAG, "pages=%d', refs='%s', node_type=%d", value, author->c_str(), static_cast<v_int32>(article.getType()))
+    OATPP_LOGd(TAG, "pages={}', refs='{}', node_type={}", value, author, static_cast<v_int32>(article.getType()))
 
   }
 
   {
 
-    OATPP_LOGD(TAG, "Attributes Case 1")
-    OATPP_LOGD(TAG, "size of Tree::Attributes='%lu'", sizeof(Tree::Attributes))
+    OATPP_LOGd(TAG, "Attributes Case 1")
+    OATPP_LOGd(TAG, "size of Tree::Attributes='{}'", sizeof(Tree::Attributes))
 
     Tree::Attributes attr;
 
@@ -211,7 +211,7 @@ void TreeTest::onRun() {
 
   {
 
-    OATPP_LOGD(TAG, "Attributes Case 2")
+    OATPP_LOGd(TAG, "Attributes Case 2")
 
     Tree::Attributes attr1;
     Tree::Attributes attr2;
@@ -254,7 +254,7 @@ void TreeTest::onRun() {
 
   {
 
-    OATPP_LOGD(TAG, "Attributes Case 3")
+    OATPP_LOGd(TAG, "Attributes Case 3")
 
     Tree tree1;
     Tree tree2;

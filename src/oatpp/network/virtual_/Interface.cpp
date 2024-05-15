@@ -23,6 +23,7 @@
  ***************************************************************************/
 
 #include "Interface.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace network { namespace virtual_ {
 
@@ -85,7 +86,7 @@ Interface::~Interface() {
   {
     std::lock_guard<std::mutex> lock(m_listenerMutex);
     if (m_listenerLock != nullptr) {
-      OATPP_LOGE("[oatpp::network::virtual_::Interface::~Interface()]",
+      OATPP_LOGe("[oatpp::network::virtual_::Interface::~Interface()]",
                  "Error! Interface destructor called, but listener is still bonded!!!")
       m_listenerLock.load()->m_interface = nullptr;
     }
@@ -175,7 +176,7 @@ void Interface::unbindListener(ListenerLock* listenerLock) {
     m_listenerLock = nullptr;
     dropAllConnection();
   } else {
-    OATPP_LOGE("[oatpp::network::virtual_::Interface::unbindListener()]", "Error! Unbinding wrong listener!!!")
+    OATPP_LOGe("[oatpp::network::virtual_::Interface::unbindListener()]", "Error! Unbinding wrong listener!!!")
   }
 }
   

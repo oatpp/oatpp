@@ -25,6 +25,7 @@
 #include "./ConnectionProvider.hpp"
 
 #include "oatpp/utils/Conversion.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <fcntl.h>
 
@@ -178,7 +179,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
   const int iResult = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (iResult != 0) {
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d", iResult)
+    OATPP_LOGe("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result={}", iResult)
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
   }
 
@@ -195,8 +196,8 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
         if (setsockopt(serverHandle, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&no, sizeof( int ) ) != 0 ) {
           const size_t buflen = 500;
           char buf[buflen];
-          OATPP_LOGW("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
-                     "Warning. Failed to set %s for accepting socket: %s", "IPV6_V6ONLY",
+          OATPP_LOGw("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
+                     "Warning. Failed to set {} for accepting socket: {}", "IPV6_V6ONLY",
                      strerror_s(buf, buflen, errno))
         }
       }
@@ -218,8 +219,8 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
   freeaddrinfo(result);
 
   if (currResult == nullptr) {
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
-               "Error. Couldn't bind. WSAGetLastError=%ld", WSAGetLastError())
+    OATPP_LOGe("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
+               "Error. Couldn't bind. WSAGetLastError={}", WSAGetLastError())
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: "
                              "Error. Couldn't bind ");
   }
@@ -268,7 +269,7 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
   ret = getaddrinfo(m_address.host->c_str(), portStr->c_str(), &hints, &result);
   if (ret != 0) {
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result=%d: %s", ret, strerror(errno))
+    OATPP_LOGe("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]", "Error. Call to getaddrinfo() failed with result={}: {}", ret, strerror(errno))
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: Error. Call to getaddrinfo() failed.");
   }
 
@@ -280,11 +281,11 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
     if (serverHandle >= 0) {
 
       if (setsockopt(serverHandle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) != 0) {
-        OATPP_LOGW("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
-                   "Warning. Failed to set %s for accepting socket: %s", "SO_REUSEADDR", strerror(errno))
+        OATPP_LOGw("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
+                   "Warning. Failed to set {} for accepting socket: {}", "SO_REUSEADDR", strerror(errno))
       }
 
-      if (bind(serverHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0 &&
+      if (bind(serverHandle, currResult->ai_addr, currResult->ai_addrlen) == 0 &&
           listen(serverHandle, 10000) == 0)
       {
         break;
@@ -302,8 +303,8 @@ oatpp::v_io_handle ConnectionProvider::instantiateServer(){
 
   if (currResult == nullptr) {
     std::string err = strerror(errno);
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
-               "Error. Couldn't bind. %s", err.c_str())
+    OATPP_LOGe("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]",
+               "Error. Couldn't bind. {}", err.c_str())
     throw std::runtime_error("[oatpp::network::tcp::server::ConnectionProvider::instantiateServer()]: "
                              "Error. Couldn't bind " + err);
   }
@@ -329,7 +330,7 @@ void ConnectionProvider::prepareConnectionHandle(oatpp::v_io_handle handle) {
   int yes = 1;
   v_int32 ret = setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::tcp::server::ConnectionProvider::prepareConnectionHandle()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
+    OATPP_LOGd("[oatpp::network::tcp::server::ConnectionProvider::prepareConnectionHandle()]", "Warning. Failed to set {} for socket", "SO_NOSIGPIPE")
   }
 #endif
 
@@ -397,7 +398,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::getExtended
     ::close(handle);
 #endif
 
-    OATPP_LOGE("[oatpp::network::tcp::server::ConnectionProvider::getExtendedConnection()]", "Error. Unknown address family.")
+    OATPP_LOGe("[oatpp::network::tcp::server::ConnectionProvider::getExtendedConnection()]", "Error. Unknown address family.")
     return nullptr;
 
   }

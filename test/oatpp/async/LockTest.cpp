@@ -141,7 +141,7 @@ bool checkSymbol(char symbol, const char* data, v_buff_size size) {
       for (v_buff_size j = 0; j < NUM_SYMBOLS; j++) {
 
         if (data[i + j] != symbol) {
-          OATPP_LOGD("aaa", "j pos=%ld", j)
+          OATPP_LOGd("aaa", "j pos={}", j)
           return false;
         }
 
@@ -153,7 +153,7 @@ bool checkSymbol(char symbol, const char* data, v_buff_size size) {
 
   }
 
-  OATPP_LOGD("aaa", "No symbol found")
+  OATPP_LOGd("aaa", "No symbol found")
   return false;
 
 }
@@ -202,7 +202,7 @@ void LockTest::onRun() {
     if(!check) {
       v_int32 code = c;
       auto str = oatpp::String(reinterpret_cast<const char*>(&c), 1);
-      OATPP_LOGE(TAG, "Failed for symbol %d, '%s'", code, str->data())
+      OATPP_LOGe(TAG, "Failed for symbol {}, '{}'", code, str->data())
     }
     OATPP_ASSERT(check)
   }

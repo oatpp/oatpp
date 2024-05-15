@@ -38,7 +38,7 @@ void BufferStreamTest::onRun() {
     stream  << "int=" << 1 << ", float=" << 1.1 << ", "
             << "bool=" << true << " or " << false;
 
-    OATPP_LOGV(TAG, "str='%s'", stream.toString()->c_str())
+    OATPP_LOGv(TAG, "str='{}'", stream.toString()->c_str())
 
     stream.setCurrentPosition(0);
     stream << 101;

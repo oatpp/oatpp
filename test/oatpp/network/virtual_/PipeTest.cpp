@@ -66,7 +66,7 @@ namespace {
           }
         }
       }
-      OATPP_LOGV("WriterTask", "sent %ld bytes", m_transferedBytes)
+      OATPP_LOGv("WriterTask", "sent {} bytes", m_transferedBytes)
     }
     
   };
@@ -94,14 +94,14 @@ namespace {
           m_buffer->writeSimple(readBuffer, res);
         }
       }
-      OATPP_LOGV("ReaderTask", "sent %ld bytes", m_buffer->getCurrentPosition())
+      OATPP_LOGv("ReaderTask", "sent {} bytes", m_buffer->getCurrentPosition())
     }
     
   };
   
   void runTransfer(const std::shared_ptr<Pipe>& pipe, v_int64 chunksToTransfer, bool writeNonBlock, bool readerNonBlock) {
     
-    OATPP_LOGV("transfer", "writer-nb: %d, reader-nb: %d", writeNonBlock, readerNonBlock)
+    OATPP_LOGv("transfer", "writer-nb: {}, reader-nb: {}", writeNonBlock, readerNonBlock)
     
     auto buffer = std::make_shared<oatpp::data::stream::BufferOutputStream>();
     

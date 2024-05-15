@@ -56,7 +56,7 @@ public:
 void ContentMappersTest::onRun() {
 
   {
-    OATPP_LOGD(TAG, "case 1 - default mapper")
+    OATPP_LOGd(TAG, "case 1 - default mapper")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     auto m = mappers.getMapper("APPLICATION/JSON");
@@ -66,7 +66,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 2 - default mapper")
+    OATPP_LOGd(TAG, "case 2 - default mapper")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
@@ -79,7 +79,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 3 - default mapper")
+    OATPP_LOGd(TAG, "case 3 - default mapper")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
@@ -95,7 +95,7 @@ void ContentMappersTest::onRun() {
 
 
   {
-    OATPP_LOGD(TAG, "case 4 - select mapper")
+    OATPP_LOGd(TAG, "case 4 - select mapper")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
@@ -108,7 +108,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 5 - select mapper")
+    OATPP_LOGd(TAG, "case 5 - select mapper")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
@@ -121,7 +121,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 6 - select mapper")
+    OATPP_LOGd(TAG, "case 6 - select mapper")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
@@ -134,7 +134,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 7 - select mapper - corrupted input")
+    OATPP_LOGd(TAG, "case 7 - select mapper - corrupted input")
     ContentMappers mappers;
     mappers.putMapper(std::make_shared<FakeMapper>("application", "json"));
     mappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
@@ -156,7 +156,7 @@ void ContentMappersTest::onRun() {
   richMappers.putMapper(std::make_shared<FakeMapper>("text", "html"));
 
   {
-    OATPP_LOGD(TAG, "case 8 - select mapper - empty")
+    OATPP_LOGd(TAG, "case 8 - select mapper - empty")
     auto m = richMappers.selectMapper(
       ""
       );
@@ -164,7 +164,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 9 - select mapper - corrupted input")
+    OATPP_LOGd(TAG, "case 9 - select mapper - corrupted input")
     auto m = richMappers.selectMapper(
       "application/*;q=0.8, text/*;q=0.9, *.*"
     );
@@ -172,7 +172,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 10 - select mapper ")
+    OATPP_LOGd(TAG, "case 10 - select mapper ")
     auto m = richMappers.selectMapper(
       "application/*;q=0.8, text/*;q=0.9, */*"
     );
@@ -180,7 +180,7 @@ void ContentMappersTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "case 11 - select mapper ")
+    OATPP_LOGd(TAG, "case 11 - select mapper ")
     auto m = richMappers.selectMapper(
       "application/*;q=0.9, text/*;q=0.8"
     );

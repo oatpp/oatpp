@@ -94,8 +94,8 @@ namespace {
     OATPP_ASSERT(payload->getInMemoryData())
     OATPP_ASSERT(payload->getInMemoryData() == value)
 
-    v_int64 bufferSize = 16;
-    std::unique_ptr<v_char8[]> buffer(new v_char8[bufferSize]);
+    v_buff_size bufferSize = 16;
+    std::unique_ptr<v_char8[]> buffer(new v_char8[static_cast<unsigned long>(bufferSize)]);
 
     oatpp::data::stream::BufferOutputStream stream;
     oatpp::data::stream::transfer(payload->openInputStream(), &stream, 0, buffer.get(), bufferSize);
@@ -122,7 +122,7 @@ void StatefulParserTest::onRun() {
     parseStepByStep(text, "12345", listener, i);
 
     if(multipart.count() != 5) {
-      OATPP_LOGD(TAG, "TEST_DATA_1 itearation %lu", i)
+      OATPP_LOGd(TAG, "TEST_DATA_1 itearation {}", i)
     }
 
     OATPP_ASSERT(multipart.count() == 5)

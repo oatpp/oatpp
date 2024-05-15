@@ -26,6 +26,7 @@
 
 #include "oatpp/network/tcp/Connection.hpp"
 #include "oatpp/utils/Conversion.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <fcntl.h>
 #include <errno.h>
@@ -123,7 +124,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
 
     if(clientHandle >= 0) {
 
-      if(connect(clientHandle, currResult->ai_addr, static_cast<v_sock_size>(currResult->ai_addrlen)) == 0) {
+      if(connect(clientHandle, currResult->ai_addr, currResult->ai_addrlen) == 0) {
         break;
       } else {
           err = errno;
@@ -151,7 +152,7 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   int yes = 1;
   v_int32 ret = setsockopt(clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
   if(ret < 0) {
-    OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
+    OATPP_LOGd("[oatpp::network::tcp::client::ConnectionProvider::getConnection()]", "Warning. Failed to set {} for socket", "SO_NOSIGPIPE")
   }
 #endif
 
@@ -266,7 +267,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
         int yes = 1;
         v_int32 ret = setsockopt(m_clientHandle, SOL_SOCKET, SO_NOSIGPIPE, &yes, sizeof(int));
         if(ret < 0) {
-          OATPP_LOGD("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set %s for socket", "SO_NOSIGPIPE")
+          OATPP_LOGd("[oatpp::network::tcp::client::ConnectionProvider::getConnectionAsync()]", "Warning. Failed to set {} for socket", "SO_NOSIGPIPE")
         }
 #endif
 
@@ -282,7 +283,7 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
     Action doConnect() {
       errno = 0;
 
-      auto res = connect(m_clientHandle, m_currentResult->ai_addr, static_cast<v_sock_size>(m_currentResult->ai_addrlen));
+      auto res = connect(m_clientHandle, m_currentResult->ai_addr, m_currentResult->ai_addrlen);
 
 #if defined(WIN32) || defined(_WIN32)
 

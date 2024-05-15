@@ -32,7 +32,7 @@ data::stream::DefaultInitializedContext FIFOInputStream::DEFAULT_CONTEXT(data::s
 
 FIFOInputStream::FIFOInputStream(v_buff_size initialSize)
   : m_memoryHandle(std::make_shared<std::string>(initialSize, static_cast<char>(0)))
-  , m_fifo(std::make_shared<data::buffer::FIFOBuffer>(reinterpret_cast<void*>(const_cast<char*>(m_memoryHandle->data())), m_memoryHandle->size(), 0, 0, false))
+  , m_fifo(std::make_shared<data::buffer::FIFOBuffer>(reinterpret_cast<void*>(m_memoryHandle->data()), m_memoryHandle->size(), 0, 0, false))
   , m_maxCapacity(-1) {
 
 }
@@ -87,8 +87,8 @@ void FIFOInputStream::reserveBytesUpfront(v_buff_size count) {
     // ToDo: In-Memory-Resize
     auto newHandle = std::make_shared<std::string>(newCapacity, static_cast<char>(0));
     v_io_size oldSize = m_fifo->availableToRead();
-    m_fifo->read(reinterpret_cast<void*>(const_cast<char*>(newHandle->data())), oldSize);
-    auto newFifo = std::make_shared<data::buffer::FIFOBuffer>(reinterpret_cast<void*>(const_cast<char*>(newHandle->data())), newHandle->size(), 0, oldSize, oldSize > 0);
+    m_fifo->read(reinterpret_cast<void*>(newHandle->data()), oldSize);
+    auto newFifo = std::make_shared<data::buffer::FIFOBuffer>(reinterpret_cast<void*>(newHandle->data()), newHandle->size(), 0, oldSize, oldSize > 0);
     m_memoryHandle = newHandle;
     m_fifo = newFifo;
   }

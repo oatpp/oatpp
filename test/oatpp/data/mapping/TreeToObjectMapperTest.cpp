@@ -84,7 +84,7 @@ void TreeToObjectMapperTest::onRun() {
   ObjectToTreeMapper::Config reverseConfig;
 
   {
-    OATPP_LOGD(TAG, "Map Object qualified")
+    OATPP_LOGd(TAG, "Map Object qualified")
     config.useUnqualifiedFieldNames = false;
 
     Tree tree;
@@ -161,7 +161,7 @@ void TreeToObjectMapperTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Map Object unqualified")
+    OATPP_LOGd(TAG, "Map Object unqualified")
     config.useUnqualifiedFieldNames = true;
 
     Tree tree;
@@ -238,7 +238,7 @@ void TreeToObjectMapperTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Map Enum qualified")
+    OATPP_LOGd(TAG, "Map Enum qualified")
     config.useUnqualifiedEnumNames = false;
 
     Tree tree;
@@ -261,7 +261,7 @@ void TreeToObjectMapperTest::onRun() {
   }
 
   {
-    OATPP_LOGD(TAG, "Map Enum unqualified")
+    OATPP_LOGd(TAG, "Map Enum unqualified")
     config.useUnqualifiedEnumNames = true;
 
     Tree tree;

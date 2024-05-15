@@ -26,6 +26,7 @@
 
 #include "oatpp/encoding/Hex.hpp"
 #include "oatpp/encoding/Unicode.hpp"
+#include "oatpp/base/Log.hpp"
 
 namespace oatpp { namespace test { namespace encoding {
   
@@ -50,7 +51,7 @@ void writeBinaryInt(v_int32 value){
     }
   }
   
-  OATPP_LOGV("bin", "value='%s'", reinterpret_cast<const char*>(&buff))
+  OATPP_LOGv("bin", "value='{}'", reinterpret_cast<const char*>(&buff))
   
 }
   

@@ -58,7 +58,7 @@ ENUM(Enum3, v_int32,
 void EnumTest::onRun() {
 
   {
-    OATPP_LOGI(TAG, "Check Hash...")
+    OATPP_LOGi(TAG, "Check Hash...")
 
     {
       auto v = std::hash<oatpp::Enum<Enum1>>{}(oatpp::Enum<Enum1>());
@@ -91,11 +91,11 @@ void EnumTest::onRun() {
     OATPP_ASSERT(map[Enum1::V2] == "v2")
     OATPP_ASSERT(map[Enum1::V3] == "v3")
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Check Meta...")
+    OATPP_LOGi(TAG, "Check Meta...")
     {
       const auto &entries = oatpp::Enum<Enum0>::getEntries();
       OATPP_ASSERT(entries.size() == 0)
@@ -125,11 +125,11 @@ void EnumTest::onRun() {
       OATPP_ASSERT(v[2].index == 2 && v[2].name == "v-3" && v[2].value == Enum3::V_3 && v[2].description == "description_3")
     }
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Declaration...")
+    OATPP_LOGi(TAG, "Declaration...")
     OATPP_ASSERT(oatpp::Enum<Enum2>::Interpreter::notNull == false)
     OATPP_ASSERT(oatpp::Enum<Enum2>::NotNull::Interpreter::notNull == true)
 
@@ -159,11 +159,11 @@ void EnumTest::onRun() {
       OATPP_ASSERT(interEnum[0].getStoredType() == oatpp::String::Class::getType())
     }
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsString (Qualified)...")
+    OATPP_LOGi(TAG, "Test Interpreter AsString (Qualified)...")
     oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
     auto inter = oatpp::Enum<Enum2>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsString(Enum2::NAME_1), false, e);
     OATPP_ASSERT(inter.getValueType() == oatpp::String::Class::getType())
@@ -178,11 +178,11 @@ void EnumTest::onRun() {
 
     auto value = voidValue.cast<oatpp::Enum<Enum2>::AsString>();
     OATPP_ASSERT(value == Enum2::NAME_1)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsString (Unqualified)...")
+    OATPP_LOGi(TAG, "Test Interpreter AsString (Unqualified)...")
     oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
     auto inter = oatpp::Enum<Enum2>::AsString::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsString(Enum2::NAME_1), true, e);
     OATPP_ASSERT(inter.getValueType() == oatpp::String::Class::getType())
@@ -197,11 +197,11 @@ void EnumTest::onRun() {
 
     auto value = voidValue.cast<oatpp::Enum<Enum2>::AsString>();
     OATPP_ASSERT(value == Enum2::NAME_1)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsNumber (Qualified)...")
+    OATPP_LOGi(TAG, "Test Interpreter AsNumber (Qualified)...")
     oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
     auto inter = oatpp::Enum<Enum2>::AsNumber::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsNumber(Enum2::NAME_1), false, e);
     OATPP_ASSERT(inter.getValueType() == oatpp::Int32::Class::getType())
@@ -216,11 +216,11 @@ void EnumTest::onRun() {
 
     auto value = voidValue.cast<oatpp::Enum<Enum2>::AsNumber>();
     OATPP_ASSERT(value == Enum2::NAME_1)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test Interpreter AsNumber (Unualified)...")
+    OATPP_LOGi(TAG, "Test Interpreter AsNumber (Unualified)...")
     oatpp::data::type::EnumInterpreterError e = oatpp::data::type::EnumInterpreterError::OK;
     auto inter = oatpp::Enum<Enum2>::AsNumber::Interpreter::toInterpretation(oatpp::Enum<Enum2>::AsNumber(Enum2::NAME_1), true, e);
     OATPP_ASSERT(inter.getValueType() == oatpp::Int32::Class::getType())
@@ -235,11 +235,11 @@ void EnumTest::onRun() {
 
     auto value = voidValue.cast<oatpp::Enum<Enum2>::AsNumber>();
     OATPP_ASSERT(value == Enum2::NAME_1)
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test default constructors and == operators...")
+    OATPP_LOGi(TAG, "Test default constructors and == operators...")
     oatpp::Enum<Enum2>::AsString e1;
     oatpp::Enum<Enum2>::AsString e2;
 
@@ -261,11 +261,11 @@ void EnumTest::onRun() {
     OATPP_ASSERT(e1.getValueType() != e4.getValueType()) // Types are not equal because interpreters are different
     OATPP_ASSERT(e1.getValueType()->classId.id == e4.getValueType()->classId.id) // But classId is the same
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test value constructor and == operators...")
+    OATPP_LOGi(TAG, "Test value constructor and == operators...")
     oatpp::Enum<Enum2> e1(Enum2::NAME_1);
     oatpp::Enum<Enum2> e2(Enum2::NAME_1);
     oatpp::Enum<Enum2> e3;
@@ -280,11 +280,11 @@ void EnumTest::onRun() {
     OATPP_ASSERT(e1 != Enum2::NAME_2)
     OATPP_ASSERT(e3 != Enum2::NAME_1)
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test copy-assignment operator...")
+    OATPP_LOGi(TAG, "Test copy-assignment operator...")
     oatpp::Enum<Enum2>::AsString e1;
     oatpp::Enum<Enum2>::AsNumber e2(Enum2::NAME_1);
     Enum2 ve;
@@ -320,11 +320,11 @@ void EnumTest::onRun() {
 
     OATPP_ASSERT(ve == Enum2::NAME_1)
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
   {
-    OATPP_LOGI(TAG, "Test move-assignment operator...")
+    OATPP_LOGi(TAG, "Test move-assignment operator...")
     oatpp::Enum<Enum2>::AsString e1;
     oatpp::Enum<Enum2>::AsNumber e2(Enum2::NAME_1);
 
@@ -335,7 +335,7 @@ void EnumTest::onRun() {
 
     OATPP_ASSERT(e1 == Enum2::NAME_1)
 
-    OATPP_LOGI(TAG, "OK")
+    OATPP_LOGi(TAG, "OK")
   }
 
 

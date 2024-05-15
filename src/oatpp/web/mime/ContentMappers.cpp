@@ -53,7 +53,7 @@ std::pair<oatpp::String, oatpp::String> ContentMappers::typeAndSubtype(const dat
 }
 
 void ContentMappers::putMapper(const std::shared_ptr<data::mapping::ObjectMapper>& mapper) {
-  std::unique_lock lock(m_mutex);
+  std::unique_lock<std::shared_mutex> lock(m_mutex);
   if(m_defaultMapper == nullptr) {
     m_defaultMapper = mapper;
   }
@@ -62,12 +62,12 @@ void ContentMappers::putMapper(const std::shared_ptr<data::mapping::ObjectMapper
 }
 
 void ContentMappers::setDefaultMapper(const oatpp::String& contentType) {
-  std::unique_lock lock(m_mutex);
+  std::unique_lock<std::shared_mutex> lock(m_mutex);
   m_defaultMapper = m_mappers.at(contentType);
 }
 
 void ContentMappers::setDefaultMapper(const std::shared_ptr<data::mapping::ObjectMapper>& mapper) {
-  std::unique_lock lock(m_mutex);
+  std::unique_lock<std::shared_mutex> lock(m_mutex);
   m_defaultMapper = mapper;
   if(m_defaultMapper) {
     m_index[m_defaultMapper->getInfo().mimeType][m_defaultMapper->getInfo().mimeSubtype] = m_defaultMapper;
@@ -76,7 +76,7 @@ void ContentMappers::setDefaultMapper(const std::shared_ptr<data::mapping::Objec
 }
 
 std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::getMapper(const oatpp::String& contentType) const {
-  std::shared_lock lock(m_mutex);
+  std::shared_lock<std::shared_mutex> lock(m_mutex);
   auto it = m_mappers.find(contentType);
   if(it == m_mappers.end()) {
     return nullptr;
@@ -85,7 +85,7 @@ std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::getMapper(const oat
 }
 
 std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::getDefaultMapper() const {
-  std::shared_lock lock(m_mutex);
+  std::shared_lock<std::shared_mutex> lock(m_mutex);
   return m_defaultMapper;
 }
 
@@ -162,7 +162,7 @@ std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const 
 
 std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const oatpp::String& acceptHeader) const {
 
-  std::shared_lock lock(m_mutex);
+  std::shared_lock<std::shared_mutex> lock(m_mutex);
 
   if(!acceptHeader || acceptHeader->empty()) {
     return m_defaultMapper;
@@ -177,7 +177,7 @@ std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const 
 
 std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const std::vector<oatpp::String>& acceptableContentTypes) const {
 
-  std::shared_lock lock(m_mutex);
+  std::shared_lock<std::shared_mutex> lock(m_mutex);
 
   if(acceptableContentTypes.empty()) {
     return m_defaultMapper;
@@ -194,7 +194,7 @@ std::shared_ptr<data::mapping::ObjectMapper> ContentMappers::selectMapper(const 
 }
 
 void ContentMappers::clear() {
-  std::unique_lock lock(m_mutex);
+  std::unique_lock<std::shared_mutex> lock(m_mutex);
   m_defaultMapper = nullptr;
   m_mappers.clear();
 }

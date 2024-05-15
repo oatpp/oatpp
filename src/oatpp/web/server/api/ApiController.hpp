@@ -36,6 +36,7 @@
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
 
 #include "oatpp/utils/Conversion.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -453,8 +454,8 @@ public:
     static T fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
       (void) text;
       success = false;
-      OATPP_LOGE("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]",
-                 "Error. No conversion from '%s' to '%s' is defined.", "oatpp::String", typeName->c_str())
+      OATPP_LOGe("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]",
+                 "Error. No conversion from '{}' to '{}' is defined.", "oatpp::String", typeName)
       throw std::runtime_error("[oatpp::web::server::api::ApiController::TypeInterpretation::fromString()]: Error. "
                                "No conversion from 'oatpp::String' to '" + *typeName + "' is defined. "
                                "Please define type conversion.");

@@ -27,6 +27,7 @@
 #include <cmath>
 
 #include "oatpp/json/ObjectMapper.hpp"
+#include "oatpp/base/Log.hpp"
 #include "oatpp/macro/codegen.hpp"
 
 namespace oatpp { namespace json {
@@ -240,81 +241,81 @@ void DeserializerTest::onRun(){
   data::type::DTOWrapper<Test5> obj5;
   try {
     obj5 = mapper.readFromString<oatpp::Object<Test5>>(R"({"strF":null})");
-  } catch (std::runtime_error& e) {
-    OATPP_LOGD(TAG, "Test5::strF is required!")
+  } catch (std::runtime_error&) {
+    OATPP_LOGd(TAG, "Test5::strF is required!")
   }
   OATPP_ASSERT(obj5 == nullptr)
 
   try {
     auto obj6 = mapper.readFromString<oatpp::Object<Test6>>(R"({"strF":null})");
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error&) {
     OATPP_ASSERT(false)
   }
 
   data::type::DTOWrapper<Test7> obj7;
   try {
     obj7 = mapper.readFromString<oatpp::Object<Test7>>(R"({"strF":"value1", "child":{"name":null}})");
-  } catch (std::runtime_error& e) {
-    OATPP_LOGD(TAG, "TestChild1::name is required!")
+  } catch (std::runtime_error&) {
+    OATPP_LOGd(TAG, "TestChild1::name is required!")
   }
   OATPP_ASSERT(obj7 == nullptr)
 
   try {
     auto obj8 = mapper.readFromString<oatpp::Object<Test8>>(R"({"strF":"value1", "child":{"name":null}})");
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error&) {
     OATPP_ASSERT(false)
   }
 
-  OATPP_LOGD(TAG, "Any: String")
+  OATPP_LOGd(TAG, "Any: String")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":"my_string"})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == String::Class::getType())
     OATPP_ASSERT(dto->any.retrieve<String>() == "my_string")
   }
-  OATPP_LOGD(TAG, "Any: Boolean")
+  OATPP_LOGd(TAG, "Any: Boolean")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":false})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Boolean::Class::getType())
     OATPP_ASSERT(dto->any.retrieve<Boolean>() == false)
   }
-  OATPP_LOGD(TAG, "Any: Negative Float")
+  OATPP_LOGd(TAG, "Any: Negative Float")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":-1.23456789,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
     OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - -1.23456789) < std::numeric_limits<double>::epsilon())
   }
-  OATPP_LOGD(TAG, "Any: Positive Float")
+  OATPP_LOGd(TAG, "Any: Positive Float")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":1.23456789,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
     OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - 1.23456789) < std::numeric_limits<double>::epsilon())
   }
-  OATPP_LOGD(TAG, "Any: Negative exponential Float")
+  OATPP_LOGd(TAG, "Any: Negative exponential Float")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":-1.2345e30,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
     OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - -1.2345e30) < std::numeric_limits<double>::epsilon())
   }
-  OATPP_LOGD(TAG, "Any: Positive exponential Float")
+  OATPP_LOGd(TAG, "Any: Positive exponential Float")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":1.2345e30,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Float64::Class::getType())
     OATPP_ASSERT(fabs(dto->any.retrieve<Float64>() - 1.2345e30) < std::numeric_limits<double>::epsilon())
   }
-  OATPP_LOGD(TAG, "Any: Big Integer")
+  OATPP_LOGd(TAG, "Any: Big Integer")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":9223372036854775807,"another":1.1})");
     OATPP_ASSERT(dto)
     OATPP_ASSERT(dto->any.getStoredType() == Int64::Class::getType())
     OATPP_ASSERT(dto->any.retrieve<Int64>() == 9223372036854775807)
   }
-  OATPP_LOGD(TAG, "Any: Signed Integer")
+  OATPP_LOGd(TAG, "Any: Signed Integer")
   {
     auto dto = mapper.readFromString<oatpp::Object<AnyDto>>(R"({"any":-1234567890,"another":1.1})");
     OATPP_ASSERT(dto)

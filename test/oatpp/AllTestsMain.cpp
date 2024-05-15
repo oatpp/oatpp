@@ -66,6 +66,8 @@
 #include "oatpp/data/buffer/ProcessorTest.hpp"
 
 #include "oatpp/base/CommandLineArgumentsTest.hpp"
+#include "oatpp/base/LogTest.hpp"
+
 #include "oatpp/LoggerTest.hpp"
 
 #include "oatpp/async/Coroutine.hpp"
@@ -84,28 +86,31 @@ void runTests() {
 
   oatpp::Environment::printCompilationConfig();
 
-  OATPP_LOGD("Tests", "oatpp::String size=%lu", sizeof(oatpp::String))
-  OATPP_LOGD("Tests", "std::string size=%lu", sizeof(std::string))
-  OATPP_LOGD("Tests", "Vector size=%lu", sizeof(std::vector<int>))
-  OATPP_LOGD("Tests", "Map size=%lu", sizeof(std::unordered_map<oatpp::String, oatpp::String>))
-  OATPP_LOGD("Tests", "Tree size=%lu", sizeof(oatpp::data::mapping::Tree))
+  OATPP_LOGd("Tests", "oatpp::String size={}", sizeof(oatpp::String))
+
+  OATPP_LOGd("Tests", "oatpp::String size={}", sizeof(oatpp::String))
+  OATPP_LOGd("Tests", "std::string size={}", sizeof(std::string))
+  OATPP_LOGd("Tests", "Vector size={}", sizeof(std::vector<int>))
+  OATPP_LOGd("Tests", "Map size={}", sizeof(std::unordered_map<oatpp::String, oatpp::String>))
+  OATPP_LOGd("Tests", "Tree size={}", sizeof(oatpp::data::mapping::Tree))
 
   //return;
 
-  OATPP_LOGD("Tests", "coroutine handle size=%lu", sizeof(oatpp::async::CoroutineHandle))
-  OATPP_LOGD("Tests", "coroutine size=%lu", sizeof(oatpp::async::AbstractCoroutine))
-  OATPP_LOGD("Tests", "action size=%lu", sizeof(oatpp::async::Action))
-  OATPP_LOGD("Tests", "class count=%d", oatpp::data::type::ClassId::getClassCount())
+  OATPP_LOGd("Tests", "coroutine handle size={}", sizeof(oatpp::async::CoroutineHandle))
+  OATPP_LOGd("Tests", "coroutine size={}", sizeof(oatpp::async::AbstractCoroutine))
+  OATPP_LOGd("Tests", "action size={}", sizeof(oatpp::async::Action))
+  OATPP_LOGd("Tests", "class count={}", oatpp::data::type::ClassId::getClassCount())
 
   auto names = oatpp::data::type::ClassId::getRegisteredClassNames();
   v_int32 i = 0;
   for(auto& name : names) {
-    OATPP_LOGD("CLASS", "%d --> '%s'", i, name)
+    OATPP_LOGd("CLASS", "{} --> '{}'", i, name)
     i ++;
   }
 
   OATPP_RUN_TEST(oatpp::test::LoggerTest);
   OATPP_RUN_TEST(oatpp::base::CommandLineArgumentsTest);
+  OATPP_RUN_TEST(oatpp::base::LogTest);
 
   OATPP_RUN_TEST(oatpp::data::share::MemoryLabelTest);
   OATPP_RUN_TEST(oatpp::data::share::LazyStringMapTest);

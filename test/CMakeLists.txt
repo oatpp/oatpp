@@ -6,6 +6,8 @@ add_executable(oatppAllTests
         oatpp/async/LockTest.hpp
         oatpp/base/CommandLineArgumentsTest.cpp
         oatpp/base/CommandLineArgumentsTest.hpp
+        oatpp/base/LogTest.cpp
+        oatpp/base/LogTest.hpp
         oatpp/data/buffer/ProcessorTest.cpp
         oatpp/data/buffer/ProcessorTest.hpp
         oatpp/data/mapping/ObjectRemapperTest.cpp

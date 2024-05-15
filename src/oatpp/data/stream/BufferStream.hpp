@@ -128,6 +128,12 @@ public:
   oatpp::String toString();
 
   /**
+   * Copy data to `std::string`.
+   * @return
+   */
+  std::string toStdString() const;
+
+  /**
    * Create &id:oatpp::String; from part of buffer.
    * @param pos - starting position in buffer.
    * @param count - size of bytes to write to substring.

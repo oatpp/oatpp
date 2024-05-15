@@ -33,47 +33,47 @@ void LoggerTest::onRun() {
 
   auto logger = std::static_pointer_cast<oatpp::DefaultLogger>(oatpp::Environment::getLogger());
 
-  OATPP_LOGV("LoggerTest", "Verbose Log")
-  OATPP_LOGD("LoggerTest", "Debug Log")
-  OATPP_LOGI("LoggerTest", "Info Log")
-  OATPP_LOGW("LoggerTest", "Warning Log")
-  OATPP_LOGE("LoggerTest", "Error Log")
+  OATPP_LOGv("LoggerTest", "Verbose Log")
+  OATPP_LOGd("LoggerTest", "Debug Log")
+  OATPP_LOGi("LoggerTest", "Info Log")
+  OATPP_LOGw("LoggerTest", "Warning Log")
+  OATPP_LOGe("LoggerTest", "Error Log")
 
-  OATPP_LOGI("LoggerTest", " --- Disabling Debug Log")
+  OATPP_LOGi("LoggerTest", " --- Disabling Debug Log")
   logger->disablePriority(oatpp::DefaultLogger::PRIORITY_D);
   OATPP_ASSERT(!logger->isLogPriorityEnabled(oatpp::DefaultLogger::PRIORITY_D))
 
-  OATPP_LOGV("LoggerTest", "Verbose Log")
-  OATPP_LOGD("LoggerTest", "Debug Log")
-  OATPP_LOGI("LoggerTest", "Info Log")
-  OATPP_LOGW("LoggerTest", "Warning Log")
-  OATPP_LOGE("LoggerTest", "Error Log")
+  OATPP_LOGv("LoggerTest", "Verbose Log")
+  OATPP_LOGd("LoggerTest", "Debug Log")
+  OATPP_LOGi("LoggerTest", "Info Log")
+  OATPP_LOGw("LoggerTest", "Warning Log")
+  OATPP_LOGe("LoggerTest", "Error Log")
 
-  OATPP_LOGI("LoggerTest", " --- Enabling Debug Log again")
+  OATPP_LOGi("LoggerTest", " --- Enabling Debug Log again")
   logger->enablePriority(oatpp::DefaultLogger::PRIORITY_D);
   OATPP_ASSERT(logger->isLogPriorityEnabled(oatpp::DefaultLogger::PRIORITY_D))
 
-  OATPP_LOGV("LoggerTest", "Verbose Log")
-  OATPP_LOGD("LoggerTest", "Debug Log")
-  OATPP_LOGI("LoggerTest", "Info Log")
-  OATPP_LOGW("LoggerTest", "Warning Log")
-  OATPP_LOGE("LoggerTest", "Error Log")
+  OATPP_LOGv("LoggerTest", "Verbose Log")
+  OATPP_LOGd("LoggerTest", "Debug Log")
+  OATPP_LOGi("LoggerTest", "Info Log")
+  OATPP_LOGw("LoggerTest", "Warning Log")
+  OATPP_LOGe("LoggerTest", "Error Log")
 
-  OATPP_LOGI(TESTCATEGORY, " --- Log-Test with category")
-  OATPP_LOGV(TESTCATEGORY, "Verbose Log")
-  OATPP_LOGD(TESTCATEGORY, "Debug Log")
-  OATPP_LOGI(TESTCATEGORY, "Info Log")
-  OATPP_LOGW(TESTCATEGORY, "Warning Log")
-  OATPP_LOGE(TESTCATEGORY, "Error Log")
+  OATPP_LOGi(TESTCATEGORY, " --- Log-Test with category")
+  OATPP_LOGv(TESTCATEGORY, "Verbose Log")
+  OATPP_LOGd(TESTCATEGORY, "Debug Log")
+  OATPP_LOGi(TESTCATEGORY, "Info Log")
+  OATPP_LOGw(TESTCATEGORY, "Warning Log")
+  OATPP_LOGe(TESTCATEGORY, "Error Log")
 
-  OATPP_LOGI(TESTCATEGORY, " --- Disabling Debug Log for category")
+  OATPP_LOGi(TESTCATEGORY, " --- Disabling Debug Log for category")
   TESTCATEGORY.disablePriority(oatpp::DefaultLogger::PRIORITY_D);
   OATPP_ASSERT(!TESTCATEGORY.isLogPriorityEnabled(oatpp::DefaultLogger::PRIORITY_D))
-  OATPP_LOGV(TESTCATEGORY, "Verbose Log")
-  OATPP_LOGD(TESTCATEGORY, "Debug Log")
-  OATPP_LOGI(TESTCATEGORY, "Info Log")
-  OATPP_LOGW(TESTCATEGORY, "Warning Log")
-  OATPP_LOGE(TESTCATEGORY, "Error Log")
+  OATPP_LOGv(TESTCATEGORY, "Verbose Log")
+  OATPP_LOGd(TESTCATEGORY, "Debug Log")
+  OATPP_LOGi(TESTCATEGORY, "Info Log")
+  OATPP_LOGw(TESTCATEGORY, "Warning Log")
+  OATPP_LOGe(TESTCATEGORY, "Error Log")
 
 }
 

@@ -155,11 +155,12 @@ public:
   Action handleError(Error* error) override {
     if(error->is<oatpp::AsyncIOError>()) {
       auto e = static_cast<oatpp::AsyncIOError*>(error);
-      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "AsyncIOError. %s, %ld", e->what(), e->getCode())
+      OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "AsyncIOError. {}, {}", e->what(), e->getCode())
     } else {
-      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. %s", error->what())
+      OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_getRootAsync::handleError()]", "Error. {}", error->what())
     }
     OATPP_ASSERT(!"Error")
+    return error;
   }
 
 };
@@ -196,11 +197,12 @@ public:
   Action handleError(Error* error) override {
     if(error->is<oatpp::AsyncIOError>()) {
       auto e = static_cast<oatpp::AsyncIOError*>(error);
-      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "AsyncIOError. %s, %ld", e->what(), e->getCode())
+      OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "AsyncIOError. {}, {}", e->what(), e->getCode())
     } else {
-      OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "Error. %s", error->what())
+      OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_postBodyAsync::handleError()]", "Error. {}", error->what())
     }
     OATPP_ASSERT(!"Error")
+    return error;
   }
 
 };
@@ -242,12 +244,13 @@ public:
     if(error) {
       if(error->is<oatpp::AsyncIOError>()) {
         auto e = static_cast<oatpp::AsyncIOError*>(error);
-        OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. %s, %ld", e->what(), e->getCode())
+        OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "AsyncIOError. {}, {}", e->what(), e->getCode())
       } else {
-        OATPP_LOGE("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. %s", error->what())
+        OATPP_LOGe("[FullAsyncClientTest::ClientCoroutine_echoBodyAsync::handleError()]", "Error. {}", error->what())
       }
     }
     OATPP_ASSERT(!"Error")
+    return error;
   }
 
 };
@@ -286,7 +289,7 @@ void FullAsyncClientTest::onRun() {
       ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER != -1
     ) {
 
-      OATPP_LOGV("Client", "Root=%d, postBody=%d, echoBody=%d",
+      OATPP_LOGv("Client", "Root={}, postBody={}, echoBody={}",
         ClientCoroutine_getRootAsync::SUCCESS_COUNTER.load(),
         ClientCoroutine_postBodyAsync::SUCCESS_COUNTER.load(),
         ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER.load()
@@ -296,15 +299,15 @@ void FullAsyncClientTest::onRun() {
 
       if(ClientCoroutine_getRootAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_getRootAsync::SUCCESS_COUNTER = -1;
-        OATPP_LOGV("Client", "getRootAsync - DONE!")
+        OATPP_LOGv("Client", "getRootAsync - DONE!")
       }
       if(ClientCoroutine_postBodyAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_postBodyAsync::SUCCESS_COUNTER = -1;
-        OATPP_LOGV("Client", "postBodyAsync - DONE!")
+        OATPP_LOGv("Client", "postBodyAsync - DONE!")
       }
       if(ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER == iterations){
         ClientCoroutine_echoBodyAsync::SUCCESS_COUNTER = -1;
-        OATPP_LOGV("Client", "echoBodyAsync - DONE!")
+        OATPP_LOGv("Client", "echoBodyAsync - DONE!")
       }
     }
 

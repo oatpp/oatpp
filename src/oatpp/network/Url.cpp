@@ -33,7 +33,7 @@ oatpp::String Url::Parser::parseScheme(oatpp::utils::parser::Caret& caret) {
   caret.findChar(':');
   v_buff_size size = caret.getPosition() - pos0;
   if(size > 0) {
-    std::unique_ptr<v_char8[]> buff(new v_char8[size]);
+    std::unique_ptr<v_char8[]> buff(new v_char8[static_cast<unsigned long>(size)]);
     std::memcpy(buff.get(), &caret.getData()[pos0], static_cast<size_t>(size));
     utils::String::lowerCase_ASCII(buff.get(), size);
     return oatpp::String(reinterpret_cast<const char*>(buff.get()), size);

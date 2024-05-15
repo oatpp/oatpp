@@ -103,7 +103,7 @@ std::shared_ptr<Pattern> Pattern::parse(const char* data){
 }
 
 std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
-  return parse(reinterpret_cast<p_char8>(const_cast<char*>(data->data())), static_cast<v_buff_size>(data->size()));
+  return parse(reinterpret_cast<p_char8>(data->data()), static_cast<v_buff_size>(data->size()));
 }
   
 v_char8 Pattern::findSysChar(oatpp::utils::parser::Caret& caret) {

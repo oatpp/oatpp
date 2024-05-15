@@ -35,6 +35,8 @@ add_library(oatpp
 		oatpp/base/Config.hpp
 		oatpp/base/Countable.cpp
 		oatpp/base/Countable.hpp
+		oatpp/base/Log.cpp
+		oatpp/base/Log.hpp
 		oatpp/base/ObjectHandle.hpp
         oatpp/codegen/api_controller/auth_define.hpp
         oatpp/codegen/api_controller/auth_undef.hpp

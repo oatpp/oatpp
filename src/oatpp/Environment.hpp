@@ -87,8 +87,8 @@ namespace oatpp {
 
 /**
  * Interface for system-wide Logger.<br>
- * All calls to `OATPP_DISABLE_LOGV`, `OATPP_DISABLE_LOGD`, `OATPP_DISABLE_LOGI`,
- * `OATPP_DISABLE_LOGW`, `OATPP_DISABLE_LOGE` will come here.
+ * All calls to `OATPP_LOGv`, `OATPP_LOGd`, `OATPP_LOGi`,
+ * `OATPP_LOGw`, `OATPP_LOGe` will come here.
  */
 class Logger {
 public:
@@ -358,7 +358,6 @@ public:
 private:
   static void registerComponent(const std::string& typeName, const std::string& componentName, void* component);
   static void unregisterComponent(const std::string& typeName, const std::string& componentName);
-  static void vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args) GPP_ATTRIBUTE(format (printf, 3, 0));
 public:
 
   /**
@@ -443,26 +442,6 @@ public:
   static void log(v_uint32 priority, const std::string& tag, const std::string& message);
 
   /**
-   * Format message and call `Logger::log()`<br>
-   * Message is formatted using `vsnprintf` method.
-   * @param priority - log-priority channel of the message.
-   * @param tag - tag of the log message.
-   * @param message - message.
-   * @param ... - format arguments.
-   */
-  static void logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...) GPP_ATTRIBUTE(format (printf, 3, 4));
-
-  /**
-   * Format message and call `Logger::log()`<br>
-   * Message is formatted using `vsnprintf` method.
-   * @param priority - log-priority channel of the message.
-   * @param category - category of the log message.
-   * @param message - message.
-   * @param ... - format arguments.
-   */
-  static void logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) GPP_ATTRIBUTE(format (printf, 3, 4));
-
-  /**
    * Get component object by typeName.
    * @param typeName - type name of the component.
    * @return - pointer to a component object.
@@ -484,124 +463,6 @@ public:
   static v_int64 getMicroTickCount();
   
 };
-
-/**
- * Default oatpp assert method.
- * @param FMT - the format string used for the expression
- * @param EXP - expression that must be `true`.
- */
-#define OATPP_ASSERT_FMT(FMT, EXP) \
-if(!(EXP)) { \
-  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", FMT, #EXP) \
-  exit(EXIT_FAILURE); \
-}
-
-/**
- * Default oatpp assert method.
- * @param EXP - expression that must be `true`.
- */
-#define OATPP_ASSERT(EXP) \
-if(!(EXP)) { \
-  OATPP_LOGE("\033[1mASSERT\033[0m[\033[1;31mFAILED\033[0m]", #EXP) \
-  exit(EXIT_FAILURE); \
-}
-
-/**
- * Convenience macro to declare a logging category directly in a class header.
- * @param NAME - variable-name of the category which is later used to reference the category.
- */
-#define OATPP_DECLARE_LOG_CATEGORY(NAME) \
-  static oatpp::LogCategory NAME;
-
-/**
- * Convenience macro to implement a logging category directly in a class header.
- * @param NAME - variable-name of the category which is later used to reference the category.
- * @param TAG - tag printed with each message printed usig this category.
- * @param ENABLED - enable or disable a category (bool).
- */
-#define OATPP_LOG_CATEGORY(NAME, TAG, ENABLED) \
-  oatpp::LogCategory NAME = oatpp::LogCategory(TAG, ENABLED);
-
-
-#ifndef OATPP_DISABLE_LOGV
-
-  /**
-   * Log message with &l:Logger::PRIORITY_V; <br>
-   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGV`*
-   * @param TAG - message tag.
-   * @param ...(1) - message.
-   * @param ... - optional format parameter.
-   */
-  #define OATPP_LOGV(TAG, ...) \
-  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_V, TAG, __VA_ARGS__);
-
-#else
-  #define OATPP_LOGV(TAG, ...)
-#endif
-  
-#ifndef OATPP_DISABLE_LOGD
-
-  /**
-   * Log message with &l:Logger::PRIORITY_D; <br>
-   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGD`*
-   * @param TAG - message tag.
-   * @param ...(1) - message.
-   * @param ... - optional format parameter.
-   */
-  #define OATPP_LOGD(TAG, ...) \
-  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_D, TAG, __VA_ARGS__);
-
-#else
-  #define OATPP_LOGD(TAG, ...)
-#endif
-
-#ifndef OATPP_DISABLE_LOGI
-
-  /**
-   * Log message with &l:Logger::PRIORITY_I; <br>
-   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGI`*
-   * @param TAG - message tag.
-   * @param ...(1) - message.
-   * @param ... - optional format parameter.
-   */
-  #define OATPP_LOGI(TAG, ...) \
-  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_I, TAG, __VA_ARGS__);
-
-#else
-  #define OATPP_LOGI(TAG, ...)
-#endif
-
-#ifndef OATPP_DISABLE_LOGW
-
-  /**
-   * Log message with &l:Logger::PRIORITY_W; <br>
-   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGW`*
-   * @param TAG - message tag.
-   * @param ...(1) - message.
-   * @param ... - optional format parameter.
-   */
-  #define OATPP_LOGW(TAG, ...) \
-  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_W, TAG, __VA_ARGS__);
-
-#else
-  #define OATPP_LOGW(TAG, ...)
-#endif
-
-#ifndef OATPP_DISABLE_LOGE
-
-  /**
-   * Log message with &l:Logger::PRIORITY_E; <br>
-   * *To disable this log compile oatpp with `#define OATPP_DISABLE_LOGE`*
-   * @param TAG - message tag.
-   * @param ...(1) - message.
-   * @param ... - optional format parameter.
-   */
-  #define OATPP_LOGE(TAG, ...) \
-  oatpp::Environment::logFormatted(oatpp::Logger::PRIORITY_E, TAG, __VA_ARGS__);
-
-#else
-  #define OATPP_LOGE(TAG, ...)
-#endif
   
 }
 

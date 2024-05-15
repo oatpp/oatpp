@@ -25,6 +25,8 @@
 
 #include "Environment.hpp"
 
+#include "oatpp/base/Log.hpp"
+
 #include <iomanip>
 #include <chrono>
 #include <iostream>
@@ -309,18 +311,18 @@ std::shared_ptr<Logger> Environment::getLogger() {
 
 void Environment::printCompilationConfig() {
 
-  OATPP_LOGD("oatpp-version", OATPP_VERSION)
+  OATPP_LOGd("oatpp-version", OATPP_VERSION)
 
 #ifdef OATPP_DISABLE_ENV_OBJECT_COUNTERS
-  OATPP_LOGD("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS")
+  OATPP_LOGd("oatpp/Config", "OATPP_DISABLE_ENV_OBJECT_COUNTERS")
 #endif
 
 #ifdef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
-  OATPP_LOGD("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL")
+  OATPP_LOGd("oatpp/Config", "OATPP_COMPAT_BUILD_NO_THREAD_LOCAL")
 #endif
 
 #ifdef OATPP_THREAD_HARDWARE_CONCURRENCY
-  OATPP_LOGD("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY=%d", OATPP_THREAD_HARDWARE_CONCURRENCY)
+  OATPP_LOGd("oatpp/Config", "OATPP_THREAD_HARDWARE_CONCURRENCY={}", OATPP_THREAD_HARDWARE_CONCURRENCY)
 #endif
 
 }
@@ -329,49 +331,6 @@ void Environment::log(v_uint32 priority, const std::string& tag, const std::stri
   if(m_logger != nullptr) {
     m_logger->log(priority, tag, message);
   }
-}
-
-
-void Environment::logFormatted(v_uint32 priority, const LogCategory& category, const char* message, ...) {
-  if (category.categoryEnabled && (category.enabledPriorities & (1U << priority))) {
-    va_list args;
-    va_start(args, message);
-    vlogFormatted(priority, category.tag, message, args);
-    va_end(args);
-  }
-}
-
-void Environment::logFormatted(v_uint32 priority, const std::string& tag, const char* message, ...) {
-    va_list args;
-    va_start(args, message);
-    vlogFormatted(priority, tag, message, args);
-    va_end(args);
-}
-
-void Environment::vlogFormatted(v_uint32 priority, const std::string& tag, const char* message, va_list args) {
-  // do we have a logger and the priority is enabled?
-  if (m_logger == nullptr || !m_logger->isLogPriorityEnabled(priority)) {
-    return;
-  }
-  // if we dont need to format anything, just print the message
-  if(message == nullptr) {
-    log(priority, tag, std::string());
-    return;
-  }
-  // check how big our buffer has to be
-  va_list argscpy;
-  va_copy(argscpy, args);
-  v_buff_size allocsize = vsnprintf(nullptr, 0, message, argscpy) + 1;
-  // alloc the buffer (or the max size)
-  if (allocsize > m_logger->getMaxFormattingBufferSize()) {
-    allocsize = m_logger->getMaxFormattingBufferSize();
-  }
-  auto buffer = std::unique_ptr<char[]>(new char[allocsize]);
-  memset(buffer.get(), 0, static_cast<size_t>(allocsize));
-  // actually format
-  vsnprintf(buffer.get(), static_cast<size_t>(allocsize), message, args);
-  // call (user) providen log function
-  log(priority, tag, buffer.get());
 }
 
 void Environment::registerComponent(const std::string& typeName, const std::string& componentName, void* component) {
