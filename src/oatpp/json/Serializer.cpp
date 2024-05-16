@@ -151,7 +151,7 @@ void Serializer::serializePairs(State& state) {
 
       if(!nestedState.errorStack.empty()) {
         state.errorStack.splice(nestedState.errorStack);
-        state.errorStack.push("[oatpp::json::Serializer::serializeMap()]: key='" + pair.first + "'");
+        state.errorStack.push("[oatpp::json::Serializer::serializePairs()]: key='" + pair.first + "'");
         return;
       }
     }

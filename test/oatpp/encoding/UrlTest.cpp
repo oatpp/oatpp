@@ -38,7 +38,7 @@ void UrlTest::onRun(){
 
     for(v_int32 i = 0; i < 100; i++) {
       oatpp::String buff(100);
-      utils::random::Random::randomBytes(reinterpret_cast<p_char8>(buff->data()), static_cast<v_buff_size>(buff->size()));
+      utils::Random::randomBytes(reinterpret_cast<p_char8>(buff->data()), static_cast<v_buff_size>(buff->size()));
       auto encoded = oatpp::encoding::Url::encode(buff, config);
       auto decoded = oatpp::encoding::Url::decode(encoded);
       OATPP_ASSERT(decoded == buff)
@@ -51,7 +51,7 @@ void UrlTest::onRun(){
 
     for(v_int32 i = 0; i < 100; i++) {
       oatpp::String buff(100);
-      utils::random::Random::randomBytes(reinterpret_cast<p_char8>(buff->data()), static_cast<v_buff_size>(buff->size()));
+      utils::Random::randomBytes(reinterpret_cast<p_char8>(buff->data()), static_cast<v_buff_size>(buff->size()));
       auto encoded = oatpp::encoding::Url::encode(buff, config);
       auto decoded = oatpp::encoding::Url::decode(encoded);
       OATPP_ASSERT(decoded == buff)

@@ -29,7 +29,7 @@
 #include "oatpp/Types.hpp"
 #include <random>
 
-namespace oatpp { namespace utils { namespace random {
+namespace oatpp { namespace utils {
 
 /**
  * Utility class for random values.
@@ -53,6 +53,6 @@ public:
 
 };
 
-}}}
+}}
 
 #endif // oatpp_utils_Random_hpp

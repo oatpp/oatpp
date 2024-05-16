@@ -24,7 +24,7 @@
 
 #include "Random.hpp"
 
-namespace oatpp { namespace utils { namespace random {
+namespace oatpp { namespace utils {
 
 #ifndef OATPP_COMPAT_BUILD_NO_THREAD_LOCAL
   thread_local std::mt19937 Random::RANDOM_GENERATOR(std::random_device{}());
@@ -47,4 +47,4 @@ void Random::randomBytes(p_char8 buffer, v_buff_size bufferSize) {
 
 }
 
-}}}
+}}

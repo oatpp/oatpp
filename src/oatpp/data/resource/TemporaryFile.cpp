@@ -42,7 +42,7 @@ TemporaryFile::FileHandle::~FileHandle() {
 oatpp::String TemporaryFile::constructRandomFilename(const oatpp::String &dir, v_int32 randomWordSizeBytes, const oatpp::String &extension) {
 
   std::unique_ptr<v_char8[]> buff(new v_char8[static_cast<unsigned long>(randomWordSizeBytes)]);
-  utils::random::Random::randomBytes(buff.get(), randomWordSizeBytes);
+  utils::Random::randomBytes(buff.get(), randomWordSizeBytes);
   data::stream::BufferOutputStream s(randomWordSizeBytes * 2 + 4);
   encoding::Hex::encode(&s, buff.get(), randomWordSizeBytes, encoding::Hex::ALPHABET_LOWER);
   if (extension->at(0) != '.') {
