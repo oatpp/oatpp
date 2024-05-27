@@ -81,13 +81,24 @@ public:
     }
     if(state.config->allowLexicalCasting && state.tree->isString()) {
       const auto& text = state.tree->getString();
-
       auto pt = guessedPrimitiveType(text);
       switch (pt) {
-        case GuessedPrimitiveType::BOOL_TRUE: return T(static_cast<typename T::UnderlyingType>(true));
-        case GuessedPrimitiveType::BOOL_FALSE: return T(static_cast<typename T::UnderlyingType>(false));
-        case GuessedPrimitiveType::INT: return T(static_cast<typename T::UnderlyingType>(utils::Conversion::strToInt64(text->c_str())));
-        case GuessedPrimitiveType::FLOAT: return T(static_cast<typename T::UnderlyingType>(utils::Conversion::strToFloat64(text->c_str())));
+        case GuessedPrimitiveType::BOOL_TRUE:
+          return T(static_cast<typename T::UnderlyingType>(true));
+        case GuessedPrimitiveType::BOOL_FALSE:
+          return T(static_cast<typename T::UnderlyingType>(false));
+        case GuessedPrimitiveType::INT: {
+          bool success;
+          auto value = static_cast<typename T::UnderlyingType>(utils::Conversion::strToInt64(text, success));
+          if(!success) break;
+          return T(value);
+        }
+        case GuessedPrimitiveType::FLOAT: {
+          bool success;
+          auto value = static_cast<typename T::UnderlyingType>(utils::Conversion::strToFloat64(text, success));
+          if(!success) break;
+          return T(value);
+        }
 
         case GuessedPrimitiveType::NOT_PRIMITIVE:
         default:

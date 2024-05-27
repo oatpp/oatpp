@@ -74,7 +74,55 @@ void TreeToObjectMapper::setMapperMethod(const data::type::ClassId& classId, Map
 }
 
 TreeToObjectMapper::GuessedPrimitiveType TreeToObjectMapper::guessedPrimitiveType(const oatpp::String& text) {
+
+  if(text->empty()) {
+    return GuessedPrimitiveType::NOT_PRIMITIVE;
+  }
+
+  bool number = true;
+  bool fraction = false;
+
+  auto data = text->data();
+
+  for(v_buff_usize i = 0; i < text->size(); i ++) {
+
+    auto c = data[i];
+
+    if(c == '-' || c == ' ') {
+      continue;
+    }
+
+    bool digit = c >= '0' && c <= '9';
+    bool dot = c == '.' || c == ',';
+
+    if(dot) {
+      fraction = true;
+    } else if(!digit) {
+      number = false;
+      break;
+    }
+
+  }
+
+  if(number) {
+    if(fraction) {
+      return GuessedPrimitiveType::FLOAT;
+    }
+    return GuessedPrimitiveType::INT;
+  }
+
+  auto labelCI = data::share::StringKeyLabelCI(text);
+
+  if(labelCI == "true") {
+    return GuessedPrimitiveType::BOOL_TRUE;
+  }
+
+  if(labelCI == "false") {
+    return GuessedPrimitiveType::BOOL_FALSE;
+  }
+
   return GuessedPrimitiveType::NOT_PRIMITIVE;
+
 }
 
 oatpp::Void TreeToObjectMapper::map(State& state, const Type* type) const {
@@ -134,12 +182,88 @@ oatpp::Void TreeToObjectMapper::mapString(const TreeToObjectMapper* mapper, Stat
   (void) mapper;
   (void) type;
 
-  if(state.tree->getType() == Tree::Type::STRING) {
+  if(state.tree->isString()) {
     return state.tree->getString();
   }
 
   if(state.tree->isNull()){
     return oatpp::Void(String::Class::getType());
+  }
+
+  if(state.config->allowLexicalCasting) {
+
+    data::stream::BufferOutputStream ss(128);
+
+    switch (state.tree->getType()) {
+
+      case Tree::Type::UNDEFINED:
+      case Tree::Type::NULL_VALUE:
+        break;
+
+      case Tree::Type::INTEGER: {
+        ss << state.tree->getInteger();
+        return ss.toString();
+      }
+      case Tree::Type::FLOAT: {
+        ss << state.tree->getFloat();
+        return ss.toString();
+      }
+
+      case Tree::Type::BOOL: {
+        ss << state.tree->getPrimitive<bool>();
+        return ss.toString();
+      }
+      case Tree::Type::INT_8: {
+        ss << state.tree->getPrimitive<v_int8>();
+        return ss.toString();
+      }
+      case Tree::Type::UINT_8: {
+        ss << state.tree->getPrimitive<v_uint8>();
+        return ss.toString();
+      }
+      case Tree::Type::INT_16: {
+        ss << state.tree->getPrimitive<v_int16>();
+        return ss.toString();
+      }
+      case Tree::Type::UINT_16: {
+        ss << state.tree->getPrimitive<v_uint16>();
+        return ss.toString();
+      }
+      case Tree::Type::INT_32: {
+        ss << state.tree->getPrimitive<v_int32>();
+        return ss.toString();
+      }
+      case Tree::Type::UINT_32: {
+        ss << state.tree->getPrimitive<v_uint32>();
+        return ss.toString();
+      }
+      case Tree::Type::INT_64: {
+        ss << state.tree->getPrimitive<v_int64>();
+        return ss.toString();
+      }
+      case Tree::Type::UINT_64: {
+        ss << state.tree->getPrimitive<v_uint64>();
+        return ss.toString();
+      }
+      case Tree::Type::FLOAT_32: {
+        ss << state.tree->getPrimitive<v_float32>();
+        return ss.toString();
+      }
+      case Tree::Type::FLOAT_64: {
+        ss << state.tree->getPrimitive<v_float64>();
+        return ss.toString();
+      }
+
+      case Tree::Type::STRING:
+      case Tree::Type::VECTOR:
+      case Tree::Type::MAP:
+      case Tree::Type::PAIRS:
+
+      default:
+        break;
+
+    }
+
   }
 
   state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapString()]: Node is NOT a STRING");
