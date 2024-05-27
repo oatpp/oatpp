@@ -122,7 +122,7 @@ public:
   explicit Tree (T value)
     : Tree()
   {
-    setValue<T>(value);
+    setPrimitive<T>(value);
   }
 
   explicit Tree(const type::String& value);
@@ -134,7 +134,7 @@ public:
 
   template<typename T, typename enabled = typename NodePrimitiveType<T>::value_type>
   Tree& operator = (T value) {
-    setValue<T>(value);
+    setPrimitive<T>(value);
     return *this;
   }
 
@@ -151,19 +151,19 @@ public:
       case Type::INTEGER: return static_cast<T>(getInteger());
       case Type::FLOAT: return static_cast<T>(getFloat());
 
-      case Type::BOOL: return static_cast<T>(getValue<bool>());
+      case Type::BOOL: return static_cast<T>(getPrimitive<bool>());
 
-      case Type::INT_8: return static_cast<T>(getValue<v_int8>());
-      case Type::UINT_8: return static_cast<T>(getValue<v_uint8>());
-      case Type::INT_16: return static_cast<T>(getValue<v_int16>());
-      case Type::UINT_16: return static_cast<T>(getValue<v_uint16>());
-      case Type::INT_32: return static_cast<T>(getValue<v_int32>());
-      case Type::UINT_32: return static_cast<T>(getValue<v_uint32>());
-      case Type::INT_64: return static_cast<T>(getValue<v_int64>());
-      case Type::UINT_64: return static_cast<T>(getValue<v_uint64>());
+      case Type::INT_8: return static_cast<T>(getPrimitive<v_int8>());
+      case Type::UINT_8: return static_cast<T>(getPrimitive<v_uint8>());
+      case Type::INT_16: return static_cast<T>(getPrimitive<v_int16>());
+      case Type::UINT_16: return static_cast<T>(getPrimitive<v_uint16>());
+      case Type::INT_32: return static_cast<T>(getPrimitive<v_int32>());
+      case Type::UINT_32: return static_cast<T>(getPrimitive<v_uint32>());
+      case Type::INT_64: return static_cast<T>(getPrimitive<v_int64>());
+      case Type::UINT_64: return static_cast<T>(getPrimitive<v_uint64>());
 
-      case Type::FLOAT_32: return static_cast<T>(getValue<v_float32>());
-      case Type::FLOAT_64: return static_cast<T>(getValue<v_float64>());
+      case Type::FLOAT_32: return static_cast<T>(getPrimitive<v_float32>());
+      case Type::FLOAT_64: return static_cast<T>(getPrimitive<v_float64>());
 
       case Type::STRING:
       case Type::VECTOR:
@@ -193,7 +193,7 @@ public:
   void setMove(Tree&& other);
 
   template <typename T>
-  void setValue(T value) {
+  void setPrimitive(T value) {
     deleteValueObject();
     m_type = NodePrimitiveType<T>::type;
     m_data = 0;
@@ -201,9 +201,9 @@ public:
   }
 
   template<typename T>
-  T getValue() const {
+  T getPrimitive() const {
     if(m_type != NodePrimitiveType<T>::type) {
-      throw std::runtime_error(std::string("[oatpp::data::mapping::Tree::getValue()]: NOT a ") + NodePrimitiveType<T>::name);
+      throw std::runtime_error(std::string("[oatpp::data::mapping::Tree::getPrimitive()]: NOT a ") + NodePrimitiveType<T>::name);
     }
     T result;
     std::memcpy (&result, &m_data, sizeof(T));
@@ -217,10 +217,14 @@ public:
   void setFloat(v_float64 value);
 
   void setString(const type::String& value);
+  void setString(type::String&& value);
   void setVector(const std::vector<Tree>& value);
+  void setVector(std::vector<Tree>&& value);
   void setVector(v_uint64 size);
   void setMap(const TreeMap& value);
+  void setMap(TreeMap&& value);
   void setPairs(const std::vector<std::pair<type::String, Tree>>& value);
+  void setPairs(const std::vector<std::pair<type::String, Tree>>&& value);
 
   bool isNull() const;
   bool isUndefined() const;
@@ -229,6 +233,11 @@ public:
   v_int32 primitiveDataSize() const;
   bool isFloatPrimitive() const;
   bool isIntPrimitive() const;
+
+  bool isString() const;
+  bool isVector() const;
+  bool isMap() const;
+  bool isPairs() const;
 
   v_int64 getInteger() const;
   v_float64 getFloat() const;

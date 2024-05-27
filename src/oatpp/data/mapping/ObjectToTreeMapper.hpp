@@ -60,7 +60,7 @@ public:
   static void mapPrimitive(const ObjectToTreeMapper* mapper, State& state, const oatpp::Void& polymorph){
     (void) mapper;
     if(polymorph){
-      state.tree->setValue<typename T::ObjectType>(* static_cast<typename T::ObjectType*>(polymorph.get()));
+      state.tree->setPrimitive<typename T::ObjectType>(* static_cast<typename T::ObjectType*>(polymorph.get()));
     } else {
       state.tree->setNull();
     }

@@ -47,9 +47,9 @@ void Deserializer::deserializeNumber(State& state) {
 
 void Deserializer::deserializeBoolean(State& state) {
   if(state.caret->isAtText("true", true)) {
-    state.tree->setValue<bool>(true);
+    state.tree->setPrimitive<bool>(true);
   } else if(state.caret->isAtText("false", true)) {
-    state.tree->setValue<bool>(false);
+    state.tree->setPrimitive<bool>(false);
   } else {
     state.errorStack.push("[oatpp::json::Deserializer::deserializeBoolean()]: 'true' or 'false' expected");
   }

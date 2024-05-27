@@ -175,19 +175,19 @@ void Serializer::serialize(State& state) {
     case data::mapping::Tree::Type::INTEGER: state.stream->writeAsString(state.tree->getInteger()); return;
     case data::mapping::Tree::Type::FLOAT: state.stream->writeAsString(state.tree->getFloat()); return;
 
-    case data::mapping::Tree::Type::BOOL:  state.stream->writeAsString(state.tree->getValue<bool>()); return;
+    case data::mapping::Tree::Type::BOOL:  state.stream->writeAsString(state.tree->getPrimitive<bool>()); return;
 
-    case data::mapping::Tree::Type::INT_8: state.stream->writeAsString(state.tree->getValue<v_int8>()); return;
-    case data::mapping::Tree::Type::UINT_8: state.stream->writeAsString(state.tree->getValue<v_uint8>()); return;
-    case data::mapping::Tree::Type::INT_16: state.stream->writeAsString(state.tree->getValue<v_int16>()); return;
-    case data::mapping::Tree::Type::UINT_16: state.stream->writeAsString(state.tree->getValue<v_uint16>()); return;
-    case data::mapping::Tree::Type::INT_32: state.stream->writeAsString(state.tree->getValue<v_int32>()); return;
-    case data::mapping::Tree::Type::UINT_32: state.stream->writeAsString(state.tree->getValue<v_uint32>()); return;
-    case data::mapping::Tree::Type::INT_64: state.stream->writeAsString(state.tree->getValue<v_int64>()); return;
-    case data::mapping::Tree::Type::UINT_64: state.stream->writeAsString(state.tree->getValue<v_uint64>()); return;
+    case data::mapping::Tree::Type::INT_8: state.stream->writeAsString(state.tree->getPrimitive<v_int8>()); return;
+    case data::mapping::Tree::Type::UINT_8: state.stream->writeAsString(state.tree->getPrimitive<v_uint8>()); return;
+    case data::mapping::Tree::Type::INT_16: state.stream->writeAsString(state.tree->getPrimitive<v_int16>()); return;
+    case data::mapping::Tree::Type::UINT_16: state.stream->writeAsString(state.tree->getPrimitive<v_uint16>()); return;
+    case data::mapping::Tree::Type::INT_32: state.stream->writeAsString(state.tree->getPrimitive<v_int32>()); return;
+    case data::mapping::Tree::Type::UINT_32: state.stream->writeAsString(state.tree->getPrimitive<v_uint32>()); return;
+    case data::mapping::Tree::Type::INT_64: state.stream->writeAsString(state.tree->getPrimitive<v_int64>()); return;
+    case data::mapping::Tree::Type::UINT_64: state.stream->writeAsString(state.tree->getPrimitive<v_uint64>()); return;
 
-    case data::mapping::Tree::Type::FLOAT_32: state.stream->writeAsString(state.tree->getValue<v_float32>()); return;
-    case data::mapping::Tree::Type::FLOAT_64: state.stream->writeAsString(state.tree->getValue<v_float64>()); return;
+    case data::mapping::Tree::Type::FLOAT_32: state.stream->writeAsString(state.tree->getPrimitive<v_float32>()); return;
+    case data::mapping::Tree::Type::FLOAT_64: state.stream->writeAsString(state.tree->getPrimitive<v_float64>()); return;
 
     case data::mapping::Tree::Type::STRING: serializeString(state); return;
     case data::mapping::Tree::Type::VECTOR: serializeArray(state); return;

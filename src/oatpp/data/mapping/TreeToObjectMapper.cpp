@@ -25,7 +25,6 @@
 #include "TreeToObjectMapper.hpp"
 
 #include "oatpp/data/stream/BufferStream.hpp"
-#include "oatpp/utils/Conversion.hpp"
 
 namespace oatpp { namespace data { namespace mapping {
 
@@ -72,6 +71,10 @@ void TreeToObjectMapper::setMapperMethod(const data::type::ClassId& classId, Map
     m_methods.resize(id + 1, nullptr);
   }
   m_methods[id] = method;
+}
+
+TreeToObjectMapper::GuessedPrimitiveType TreeToObjectMapper::guessedPrimitiveType(const oatpp::String& text) {
+  return GuessedPrimitiveType::NOT_PRIMITIVE;
 }
 
 oatpp::Void TreeToObjectMapper::map(State& state, const Type* type) const {

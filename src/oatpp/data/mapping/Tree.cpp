@@ -186,7 +186,7 @@ Tree& Tree::operator = (const Tree& other) {
 }
 
 Tree& Tree::operator = (Tree&& other) noexcept {
-  setMove(std::forward<Tree>(other));
+  setMove(std::move(other));
   return *this;
 }
 
@@ -393,10 +393,24 @@ void Tree::setString(const type::String& value) {
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
+void Tree::setString(type::String&& value) {
+  deleteValueObject();
+  m_type = Type::STRING;
+  auto data = new type::String(std::move(value));
+  m_data = reinterpret_cast<LARGEST_TYPE>(data);
+}
+
 void Tree::setVector(const std::vector<Tree>& value) {
   deleteValueObject();
   m_type = Type::VECTOR;
   auto data = new std::vector<Tree>(value);
+  m_data = reinterpret_cast<LARGEST_TYPE>(data);
+}
+
+void Tree::setVector(std::vector<Tree>&& value) {
+  deleteValueObject();
+  m_type = Type::VECTOR;
+  auto data = new std::vector<Tree>(std::move(value));
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
@@ -414,10 +428,24 @@ void Tree::setMap(const TreeMap& value) {
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
+void Tree::setMap(TreeMap&& value) {
+  deleteValueObject();
+  m_type = Type::MAP;
+  auto data = new TreeMap(std::move(value));
+  m_data = reinterpret_cast<LARGEST_TYPE>(data);
+}
+
 void Tree::setPairs(const std::vector<std::pair<type::String, Tree>>& value) {
   deleteValueObject();
   m_type = Type::PAIRS;
   auto data = new std::vector<std::pair<type::String, Tree>>(value);
+  m_data = reinterpret_cast<LARGEST_TYPE>(data);
+}
+
+void Tree::setPairs(const std::vector<std::pair<type::String, Tree>>&& value) {
+  deleteValueObject();
+  m_type = Type::PAIRS;
+  auto data = new std::vector<std::pair<type::String, Tree>>(std::move(value));
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
 }
 
@@ -560,6 +588,22 @@ bool Tree::isIntPrimitive() const {
   }
 }
 
+bool Tree::isString() const {
+  return m_type == Type::STRING;
+}
+
+bool Tree::isVector() const {
+  return m_type == Type::VECTOR;
+}
+
+bool Tree::isMap() const {
+  return m_type == Type::MAP;
+}
+
+bool Tree::isPairs() const {
+  return m_type == Type::PAIRS;
+}
+
 v_int64 Tree::getInteger() const {
   if(m_type != Type::INTEGER) {
     throw std::runtime_error("[oatpp::data::mapping::Tree::getInteger()]: NOT an arbitrary INTEGER.");
@@ -692,48 +736,48 @@ type::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool first
     }
 
     case Type::BOOL: {
-      ss << getValue<bool>() << " (bool)";
+      ss << getPrimitive<bool>() << " (bool)";
       break;
     }
     case Type::INT_8: {
-      ss << getValue<v_int8>() << " (int_8)";
+      ss << getPrimitive<v_int8>() << " (int_8)";
       break;
     }
 
     case Type::UINT_8: {
-      ss << getValue<v_uint8>() << " (uint_8)";
+      ss << getPrimitive<v_uint8>() << " (uint_8)";
       break;
     }
     case Type::INT_16: {
-      ss << getValue<v_int16>() << " (int_16)";
+      ss << getPrimitive<v_int16>() << " (int_16)";
       break;
     }
     case Type::UINT_16: {
-      ss << getValue<v_uint16>() << " (uint_16)";
+      ss << getPrimitive<v_uint16>() << " (uint_16)";
       break;
     }
     case Type::INT_32: {
-      ss << getValue<v_int32 >() << " (int_32)";
+      ss << getPrimitive<v_int32 >() << " (int_32)";
       break;
     }
     case Type::UINT_32: {
-      ss << getValue<v_uint32>() << " (uint_32)";
+      ss << getPrimitive<v_uint32>() << " (uint_32)";
       break;
     }
     case Type::INT_64: {
-      ss << getValue<v_int64>() << " (int_64)";
+      ss << getPrimitive<v_int64>() << " (int_64)";
       break;
     }
     case Type::UINT_64: {
-      ss << getValue<v_uint64>() << " (uint_64)";
+      ss << getPrimitive<v_uint64>() << " (uint_64)";
       break;
     }
     case Type::FLOAT_32: {
-      ss << getValue<v_float32>() << " (float_32)";
+      ss << getPrimitive<v_float32>() << " (float_32)";
       break;
     }
     case Type::FLOAT_64: {
-      ss << getValue<v_float64>() << " (float_64)";
+      ss << getPrimitive<v_float64>() << " (float_64)";
       break;
     }
     case Type::STRING: {
@@ -786,7 +830,7 @@ TreeMap::TreeMap(const TreeMap& other) {
 }
 
 TreeMap::TreeMap(TreeMap&& other) noexcept {
-  operator=(std::forward<TreeMap>(other));
+  operator=(std::move(other));
 }
 
 TreeMap& TreeMap::operator = (const TreeMap& other) {
@@ -961,12 +1005,12 @@ Tree* TreeChildrenOperator::putPair(const type::String& key, Tree&& tree) {
     case VECTOR: break;
     case MAP: {
       auto& node = (*const_cast<TreeMap*>(m_map))[key];
-      node = std::forward<Tree>(tree);
+      node = std::move(tree);
       return std::addressof(node);
     }
     case PAIRS: {
       auto& pairs = *const_cast<std::vector<std::pair<type::String, Tree>>*>(m_pairs);
-      pairs.emplace_back(key, std::forward<Tree>(tree));
+      pairs.emplace_back(key, std::move(tree));
       auto& p = pairs.at(pairs.size() - 1);
       return std::addressof(p.second);
     }
@@ -1001,7 +1045,7 @@ Tree* TreeChildrenOperator::putItem(Tree&& tree) {
   switch (m_type) {
     case VECTOR: {
       auto& vector = *const_cast<std::vector<Tree>*>(m_vector);
-      vector.emplace_back(std::forward<Tree>(tree));
+      vector.emplace_back(std::move(tree));
       return std::addressof(vector.at(vector.size() - 1));
     }
     case MAP:
