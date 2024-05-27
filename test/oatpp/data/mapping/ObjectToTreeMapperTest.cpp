@@ -152,14 +152,14 @@ void ObjectToTreeMapperTest::onRun() {
     OATPP_ASSERT(tree.getType() == Tree::Type::MAP)
 
     OATPP_ASSERT(tree["str-q"].getString() == "hello object")
-    OATPP_ASSERT(tree["i8-q"].getValue<v_int8>() == -8)
-    OATPP_ASSERT(tree["ui8-q"].getValue<v_uint8>() == 8)
-    OATPP_ASSERT(tree["i16-q"].getValue<v_int16>() == -16)
-    OATPP_ASSERT(tree["ui16-q"].getValue<v_uint16>() == 16)
-    OATPP_ASSERT(tree["i32-q"].getValue<v_int32>() == -32)
-    OATPP_ASSERT(tree["ui32-q"].getValue<v_uint32>() == 32)
-    OATPP_ASSERT(tree["i64-q"].getValue<v_int64>() == -64)
-    OATPP_ASSERT(tree["ui64-q"].getValue<v_uint64>() == 64)
+    OATPP_ASSERT(tree["i8-q"].getPrimitive<v_int8>() == -8)
+    OATPP_ASSERT(tree["ui8-q"].getPrimitive<v_uint8>() == 8)
+    OATPP_ASSERT(tree["i16-q"].getPrimitive<v_int16>() == -16)
+    OATPP_ASSERT(tree["ui16-q"].getPrimitive<v_uint16>() == 16)
+    OATPP_ASSERT(tree["i32-q"].getPrimitive<v_int32>() == -32)
+    OATPP_ASSERT(tree["ui32-q"].getPrimitive<v_uint32>() == 32)
+    OATPP_ASSERT(tree["i64-q"].getPrimitive<v_int64>() == -64)
+    OATPP_ASSERT(tree["ui64-q"].getPrimitive<v_uint64>() == 64)
 
     OATPP_ASSERT(tree["vector-q"].getVector().size() == 3)
     OATPP_ASSERT(tree["vector-q"][0]["str-q"].getString() == "vec-item-1")
@@ -167,9 +167,9 @@ void ObjectToTreeMapperTest::onRun() {
     OATPP_ASSERT(tree["vector-q"][2]["str-q"].getString() == "vec-item-3")
 
     OATPP_ASSERT(tree["map-q"].getMap().size() == 3)
-    OATPP_ASSERT(tree["map-q"]["key1"]["i64-q"].getValue<v_int64>() == 1)
-    OATPP_ASSERT(tree["map-q"]["key2"]["i64-q"].getValue<v_int64>() == 2)
-    OATPP_ASSERT(tree["map-q"]["key3"]["i64-q"].getValue<v_int64>() == 3)
+    OATPP_ASSERT(tree["map-q"]["key1"]["i64-q"].getPrimitive<v_int64>() == 1)
+    OATPP_ASSERT(tree["map-q"]["key2"]["i64-q"].getPrimitive<v_int64>() == 2)
+    OATPP_ASSERT(tree["map-q"]["key3"]["i64-q"].getPrimitive<v_int64>() == 3)
 
     auto& pairs = tree["pairs-q"].getPairs();
     OATPP_ASSERT(pairs.size() == 3)
@@ -222,14 +222,14 @@ void ObjectToTreeMapperTest::onRun() {
     OATPP_ASSERT(tree.getType() == Tree::Type::MAP)
 
     OATPP_ASSERT(tree["str"].getString() == "hello object")
-    OATPP_ASSERT(tree["i8"].getValue<v_int8>() == -8)
-    OATPP_ASSERT(tree["ui8"].getValue<v_uint8>() == 8)
-    OATPP_ASSERT(tree["i16"].getValue<v_int16>() == -16)
-    OATPP_ASSERT(tree["ui16"].getValue<v_uint16>() == 16)
-    OATPP_ASSERT(tree["i32"].getValue<v_int32>() == -32)
-    OATPP_ASSERT(tree["ui32"].getValue<v_uint32>() == 32)
-    OATPP_ASSERT(tree["i64"].getValue<v_int64>() == -64)
-    OATPP_ASSERT(tree["ui64"].getValue<v_uint64>() == 64)
+    OATPP_ASSERT(tree["i8"].getPrimitive<v_int8>() == -8)
+    OATPP_ASSERT(tree["ui8"].getPrimitive<v_uint8>() == 8)
+    OATPP_ASSERT(tree["i16"].getPrimitive<v_int16>() == -16)
+    OATPP_ASSERT(tree["ui16"].getPrimitive<v_uint16>() == 16)
+    OATPP_ASSERT(tree["i32"].getPrimitive<v_int32>() == -32)
+    OATPP_ASSERT(tree["ui32"].getPrimitive<v_uint32>() == 32)
+    OATPP_ASSERT(tree["i64"].getPrimitive<v_int64>() == -64)
+    OATPP_ASSERT(tree["ui64"].getPrimitive<v_uint64>() == 64)
 
     OATPP_ASSERT(tree["vector"].getVector().size() == 3)
     OATPP_ASSERT(tree["vector"][0]["str"].getString() == "vec-item-1")
@@ -237,9 +237,9 @@ void ObjectToTreeMapperTest::onRun() {
     OATPP_ASSERT(tree["vector"][2]["str"].getString() == "vec-item-3")
 
     OATPP_ASSERT(tree["map"].getMap().size() == 3)
-    OATPP_ASSERT(tree["map"]["key1"]["i64"].getValue<v_int64>() == 1)
-    OATPP_ASSERT(tree["map"]["key2"]["i64"].getValue<v_int64>() == 2)
-    OATPP_ASSERT(tree["map"]["key3"]["i64"].getValue<v_int64>() == 3)
+    OATPP_ASSERT(tree["map"]["key1"]["i64"].getPrimitive<v_int64>() == 1)
+    OATPP_ASSERT(tree["map"]["key2"]["i64"].getPrimitive<v_int64>() == 2)
+    OATPP_ASSERT(tree["map"]["key3"]["i64"].getPrimitive<v_int64>() == 3)
 
     auto& pairs = tree["pairs"].getPairs();
     OATPP_ASSERT(pairs.size() == 3)

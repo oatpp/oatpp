@@ -72,6 +72,52 @@ class TestDto2 : public oatpp::DTO {
 
 };
 
+class PrimitivesDto : public oatpp::DTO {
+
+  DTO_INIT(PrimitivesDto, DTO)
+
+  DTO_FIELD(Boolean, b);
+
+  DTO_FIELD(Int8, i8);
+  DTO_FIELD(UInt8, ui8);
+
+  DTO_FIELD(Int16, i16);
+  DTO_FIELD(UInt16, ui16);
+
+  DTO_FIELD(Int32, i32);
+  DTO_FIELD(UInt32, ui32);
+
+  DTO_FIELD(Int64, i64);
+  DTO_FIELD(UInt64, ui64);
+
+  DTO_FIELD(Float32, f32);
+  DTO_FIELD(Float64, f64);
+
+};
+
+class TextPrimitivesDto : public oatpp::DTO {
+
+  DTO_INIT(TextPrimitivesDto, DTO)
+
+  DTO_FIELD(String, b);
+
+  DTO_FIELD(String, i8);
+  DTO_FIELD(String, ui8);
+
+  DTO_FIELD(String, i16);
+  DTO_FIELD(String, ui16);
+
+  DTO_FIELD(String, i32);
+  DTO_FIELD(String, ui32);
+
+  DTO_FIELD(String, i64);
+  DTO_FIELD(String, ui64);
+
+  DTO_FIELD(String, f32);
+  DTO_FIELD(String, f64);
+
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 }
@@ -216,6 +262,84 @@ void ObjectRemapperTest::onRun() {
 
     tree["hello"] = "world";
     std::cout << *tree->debugPrint() << std::endl;
+
+  }
+
+  {
+
+    remapper.treeToObjectConfig().allowLexicalCasting = true;
+
+    auto p = PrimitivesDto::createShared();
+    p->b = true;
+    p->i8 = -8;
+    p->ui8 = 8;
+    p->i16 = -16;
+    p->ui16 = 16;
+    p->i32 = -32;
+    p->ui32 = 32;
+    p->i64 = -64;
+    p->ui64 = 64;
+    p->f32 = 0.5f;
+    p->f64 = 0.5;
+
+    ErrorStack errorStack;
+    auto tp = remapper.remap<oatpp::Object<TextPrimitivesDto>>(p, errorStack);
+    if(!errorStack.empty()) {
+      OATPP_LOGe(TAG, "stack:\n{}", errorStack.stacktrace())
+    }
+
+    OATPP_LOGd(TAG, "f32={}, f64={}", tp->f32, tp->f64)
+
+    OATPP_ASSERT(tp->b == "true")
+    OATPP_ASSERT(tp->i8 == "-8")
+    OATPP_ASSERT(tp->ui8 == "8")
+    OATPP_ASSERT(tp->i16 == "-16")
+    OATPP_ASSERT(tp->ui16 == "16")
+    OATPP_ASSERT(tp->i32 == "-32")
+    OATPP_ASSERT(tp->ui32 == "32")
+    OATPP_ASSERT(tp->i64 == "-64")
+    OATPP_ASSERT(tp->ui64 == "64")
+    OATPP_ASSERT(!tp->f32->empty())
+    OATPP_ASSERT(!tp->f64->empty())
+
+  }
+
+  {
+
+    remapper.treeToObjectConfig().allowLexicalCasting = true;
+
+    auto tp = TextPrimitivesDto::createShared();
+    tp->b = "true";
+    tp->i8 = "-8";
+    tp->ui8 = "8";
+    tp->i16 = "-16";
+    tp->ui16 = "16";
+    tp->i32 = "-32";
+    tp->ui32 = "32";
+    tp->i64 = "-64";
+    tp->ui64 = "64";
+    tp->f32 = "0.5";
+    tp->f64 = "0.5";
+
+    ErrorStack errorStack;
+    auto p = remapper.remap<oatpp::Object<PrimitivesDto>>(tp, errorStack);
+    if(!errorStack.empty()) {
+      OATPP_LOGe(TAG, "stack:\n{}", errorStack.stacktrace())
+    }
+
+    OATPP_LOGd(TAG, "f32={}, f64={}", p->f32, p->f64)
+
+    OATPP_ASSERT(p->b == true)
+    OATPP_ASSERT(p->i8 == -8)
+    OATPP_ASSERT(p->ui8 == 8)
+    OATPP_ASSERT(p->i16 == -16)
+    OATPP_ASSERT(p->ui16 == 16)
+    OATPP_ASSERT(p->i32 == -32)
+    OATPP_ASSERT(p->ui32 == 32)
+    OATPP_ASSERT(p->i64 == -64)
+    OATPP_ASSERT(p->ui64 == 64)
+    OATPP_ASSERT(p->f32 > 0.4f && p->f32 < 0.6f)
+    OATPP_ASSERT(p->f64 > 0.4  && p->f64 < 0.6 )
 
   }
 

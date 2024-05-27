@@ -28,6 +28,8 @@
 #include "./Tree.hpp"
 #include "./ObjectMapper.hpp"
 
+#include "oatpp/utils/Conversion.hpp"
+
 namespace oatpp { namespace data { namespace mapping {
 
 class TreeToObjectMapper : public base::Countable {
@@ -35,9 +37,20 @@ public:
 
   struct Config {
     bool allowUnknownFields = true;
+    bool allowLexicalCasting = false;
     bool useUnqualifiedFieldNames = false;
     bool useUnqualifiedEnumNames = false;
     std::vector<std::string> enabledInterpretations = {};
+  };
+
+public:
+
+  enum class GuessedPrimitiveType : v_uint32 {
+    NOT_PRIMITIVE = 0,
+    BOOL_TRUE = 1,
+    BOOL_FALSE = 2,
+    INT = 3,
+    FLOAT = 4
   };
 
 public:
@@ -54,6 +67,8 @@ public:
   typedef oatpp::Void (*MapperMethod)(const TreeToObjectMapper*, State&, const Type* const);
 public:
 
+  static GuessedPrimitiveType guessedPrimitiveType(const oatpp::String& text);
+
   template<class T>
   static oatpp::Void mapPrimitive(const TreeToObjectMapper* mapper, State& state, const Type* const type){
     (void) mapper;
@@ -63,6 +78,32 @@ public:
     }
     if(state.tree->isNull()) {
       return oatpp::Void(T::Class::getType());
+    }
+    if(state.config->allowLexicalCasting && state.tree->isString()) {
+      const auto& text = state.tree->getString();
+      auto pt = guessedPrimitiveType(text);
+      switch (pt) {
+        case GuessedPrimitiveType::BOOL_TRUE:
+          return T(static_cast<typename T::UnderlyingType>(true));
+        case GuessedPrimitiveType::BOOL_FALSE:
+          return T(static_cast<typename T::UnderlyingType>(false));
+        case GuessedPrimitiveType::INT: {
+          bool success;
+          auto value = static_cast<typename T::UnderlyingType>(utils::Conversion::strToInt64(text, success));
+          if(!success) break;
+          return T(value);
+        }
+        case GuessedPrimitiveType::FLOAT: {
+          bool success;
+          auto value = static_cast<typename T::UnderlyingType>(utils::Conversion::strToFloat64(text, success));
+          if(!success) break;
+          return T(value);
+        }
+
+        case GuessedPrimitiveType::NOT_PRIMITIVE:
+        default:
+          break;
+      }
     }
     state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapPrimitive()]: Value is NOT a Primitive type");
     return nullptr;

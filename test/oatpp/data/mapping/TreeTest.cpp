@@ -40,18 +40,18 @@ void testTreeValue(T value) {
 
   Tree node;
 
-  //node.setValue<T>(value);
+  //node.setPrimitive<T>(value);
   node = value;
-  auto v = node.getValue<T>();
+  auto v = node.getPrimitive<T>();
   OATPP_ASSERT(std::memcmp(&v, &value, sizeof(T)) == 0 && "value check")
 
-  node.setValue<T>(std::numeric_limits<T>::min());
-  auto min = node.getValue<T>();
+  node.setPrimitive<T>(std::numeric_limits<T>::min());
+  auto min = node.getPrimitive<T>();
   auto minLim = std::numeric_limits<T>::min();
   OATPP_ASSERT(std::memcmp(&min, &minLim, sizeof(T)) == 0 && "min check")
 
-  node.setValue<T>(std::numeric_limits<T>::max());
-  auto max = node.getValue<T>();
+  node.setPrimitive<T>(std::numeric_limits<T>::max());
+  auto max = node.getPrimitive<T>();
   auto maxLim = std::numeric_limits<T>::max();
   OATPP_ASSERT(std::memcmp(&max, &maxLim, sizeof(T)) == 0 && "max check")
 
@@ -115,7 +115,7 @@ void TreeTest::onRun() {
     OATPP_LOGd(TAG, "Case 4")
     std::vector<Tree> originalVector(10);
     for(v_uint32 i = 0; i < 10; i ++) {
-      originalVector.at(i).setValue(i);
+      originalVector.at(i).setPrimitive(i);
     }
 
     Tree node;
@@ -126,7 +126,7 @@ void TreeTest::onRun() {
     OATPP_ASSERT(vector.size() == originalVector.size())
 
     for(v_uint32 i = 0; i < originalVector.size(); i ++) {
-      OATPP_ASSERT(originalVector.at(i).getValue<v_uint32>() == vector.at(i).getValue<v_uint32>())
+      OATPP_ASSERT(originalVector.at(i).getPrimitive<v_uint32>() == vector.at(i).getPrimitive<v_uint32>())
     }
 
     originalVector.resize(5);
@@ -135,7 +135,7 @@ void TreeTest::onRun() {
     vector.at(0).setString("Hello");
 
     OATPP_ASSERT(vector.at(0).getString() == "Hello")
-    OATPP_ASSERT(originalVector.at(0).getValue<v_uint32>() == 0)
+    OATPP_ASSERT(originalVector.at(0).getPrimitive<v_uint32>() == 0)
 
   }
 
@@ -143,7 +143,7 @@ void TreeTest::onRun() {
     OATPP_LOGd(TAG, "Case 5")
     TreeMap originalMap;
     for(v_uint32 i = 0; i < 10; i ++) {
-      originalMap["node_" + utils::Conversion::int32ToStr(static_cast<v_int32>(i))].setValue(i);
+      originalMap["node_" + utils::Conversion::int32ToStr(static_cast<v_int32>(i))].setPrimitive(i);
     }
 
     Tree node;
@@ -155,12 +155,12 @@ void TreeTest::onRun() {
 
     for(v_uint32 i = 0; i < originalMap.size(); i ++) {
       OATPP_ASSERT(originalMap[i].first == map[i].first)
-      OATPP_ASSERT(originalMap[i].second.get().getValue<v_uint32>() == map[i].second.get().getValue<v_uint32>())
+      OATPP_ASSERT(originalMap[i].second.get().getPrimitive<v_uint32>() == map[i].second.get().getPrimitive<v_uint32>())
     }
 
-    originalMap[0].second.get().setValue<v_uint32>(100);
-    OATPP_ASSERT(map[0].second.get().getValue<v_uint32>() == 0)
-    OATPP_ASSERT(originalMap[0].second.get().getValue<v_uint32>() == 100)
+    originalMap[0].second.get().setPrimitive<v_uint32>(100);
+    OATPP_ASSERT(map[0].second.get().getPrimitive<v_uint32>() == 0)
+    OATPP_ASSERT(originalMap[0].second.get().getPrimitive<v_uint32>() == 100)
 
   }
 
