@@ -30,6 +30,8 @@
   #include <arpa/inet.h>
 #endif
 
+#include "oatpp/data/stream/BufferStream.hpp"
+
 namespace oatpp { namespace encoding {
   
 const char* Hex::ALPHABET_UPPER = "0123456789ABCDEF";
@@ -98,6 +100,12 @@ void Hex::encode(data::stream::ConsistentOutputStream* stream,
   }
 }
 
+oatpp::String Hex::encode(const oatpp::String& data, const char* alphabet) {
+  oatpp::data::stream::BufferOutputStream ss(256);
+  encode(&ss, data->data(), static_cast<v_buff_size>(data->size()), alphabet);
+  return ss.toString();
+}
+
 void Hex::decode(data::stream::ConsistentOutputStream* stream,
                  const void* data, v_buff_size size, bool allowSeparators)
 {
@@ -133,6 +141,12 @@ void Hex::decode(data::stream::ConsistentOutputStream* stream,
     throw DecodingError("Invalid input data size");
   }
 
+}
+
+oatpp::String Hex::decode(const oatpp::String& data, bool allowSeparators) {
+  oatpp::data::stream::BufferOutputStream ss(256);
+  decode(&ss, data->data(), static_cast<v_buff_size>(data->size()), allowSeparators);
+  return ss.toString();
 }
 
 }}

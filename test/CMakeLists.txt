@@ -58,6 +58,8 @@ add_executable(oatppAllTests
         oatpp/data/type/VectorTest.hpp
         oatpp/encoding/Base64Test.cpp
         oatpp/encoding/Base64Test.hpp
+        oatpp/encoding/HexTest.cpp
+        oatpp/encoding/HexTest.hpp
         oatpp/encoding/UnicodeTest.cpp
         oatpp/encoding/UnicodeTest.hpp
         oatpp/encoding/UrlTest.cpp

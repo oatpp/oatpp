@@ -104,6 +104,14 @@ public:
                      const char* alphabet = ALPHABET_UPPER);
 
   /**
+   * Write binary data as HEX string.
+   * @param data
+   * @param alphabet
+   * @return
+   */
+  static oatpp::String encode(const oatpp::String& data, const char* alphabet = ALPHABET_UPPER);
+
+  /**
    * Read binary data from hex string.
    * @param stream
    * @param data
@@ -113,6 +121,14 @@ public:
    */
   static void decode(data::stream::ConsistentOutputStream* stream,
                      const void* data, v_buff_size size, bool allowSeparators = false);
+
+  /**
+   * Read binary data from hex string.
+   * @param data
+   * @param allowSeparators
+   * @return
+   */
+  static oatpp::String decode(const oatpp::String& data, bool allowSeparators = false);
   
 };
   

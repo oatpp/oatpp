@@ -27,6 +27,7 @@
 #include "oatpp/json/UnorderedSetTest.hpp"
 
 #include "oatpp/encoding/Base64Test.hpp"
+#include "oatpp/encoding/HexTest.hpp"
 #include "oatpp/encoding/UnicodeTest.hpp"
 #include "oatpp/encoding/UrlTest.hpp"
 
@@ -71,7 +72,6 @@
 #include "oatpp/LoggerTest.hpp"
 
 #include "oatpp/async/Coroutine.hpp"
-#include "oatpp/Types.hpp"
 
 #include "oatpp/data/mapping/Tree.hpp"
 
@@ -164,6 +164,7 @@ void runTests() {
 
   OATPP_RUN_TEST(oatpp::json::DTOMapperTest);
   OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
+  OATPP_RUN_TEST(oatpp::encoding::HexTest);
   OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
   OATPP_RUN_TEST(oatpp::test::encoding::UrlTest);
 
