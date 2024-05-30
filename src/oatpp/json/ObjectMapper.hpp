@@ -77,6 +77,12 @@ public:
 
   oatpp::Void read(oatpp::utils::parser::Caret& caret, const oatpp::Type* type, data::mapping::ErrorStack& errorStack) const override;
 
+  const data::mapping::ObjectToTreeMapper& objectToTreeMapper() const;
+  const data::mapping::TreeToObjectMapper& treeToObjectMapper() const;
+
+  data::mapping::ObjectToTreeMapper& objectToTreeMapper();
+  data::mapping::TreeToObjectMapper& treeToObjectMapper();
+
   const SerializerConfig& serializerConfig() const;
   const DeserializerConfig& deserializerConfig() const;
 

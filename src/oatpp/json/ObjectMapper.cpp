@@ -103,6 +103,22 @@ oatpp::Void ObjectMapper::read(utils::parser::Caret& caret, const data::type::Ty
 
 }
 
+const data::mapping::ObjectToTreeMapper& ObjectMapper::objectToTreeMapper() const {
+  return m_objectToTreeMapper;
+}
+
+const data::mapping::TreeToObjectMapper& ObjectMapper::treeToObjectMapper() const {
+  return m_treeToObjectMapper;
+}
+
+data::mapping::ObjectToTreeMapper& ObjectMapper::objectToTreeMapper() {
+  return m_objectToTreeMapper;
+}
+
+data::mapping::TreeToObjectMapper& ObjectMapper::treeToObjectMapper() {
+  return m_treeToObjectMapper;
+}
+
 const ObjectMapper::SerializerConfig& ObjectMapper::serializerConfig() const {
   return m_serializerConfig;
 }
