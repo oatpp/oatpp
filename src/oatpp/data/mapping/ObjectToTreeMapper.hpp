@@ -40,6 +40,11 @@ public:
     bool useUnqualifiedFieldNames = false;
     bool useUnqualifiedEnumNames = false;
     std::vector<std::string> enabledInterpretations = {};
+
+    /**
+     * Pointer to anything extra that might be useful in mapper-method.
+     */
+    void* extra = nullptr;
   };
 
 public:
