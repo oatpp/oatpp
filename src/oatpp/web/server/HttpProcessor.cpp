@@ -24,6 +24,7 @@
 
 #include "HttpProcessor.hpp"
 
+#include "oatpp/web/server/HttpServerError.hpp"
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
@@ -52,7 +53,7 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
   : Components(pRouter,
                nullptr,
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-               handler::DefaultErrorHandler::createShared(),
+               std::make_shared<handler::DefaultErrorHandler>(),
                {},
                {},
                std::make_shared<Config>())
@@ -62,7 +63,7 @@ HttpProcessor::Components::Components(const std::shared_ptr<HttpRouter>& pRouter
   : Components(pRouter,
                nullptr,
                std::make_shared<oatpp::web::protocol::http::incoming::SimpleBodyDecoder>(),
-               handler::DefaultErrorHandler::createShared(),
+               std::make_shared<handler::DefaultErrorHandler>(),
                {},
                {},
                pConfig)
@@ -89,33 +90,33 @@ HttpProcessor::processNextRequest(ProcessingResources& resources,
 
   std::shared_ptr<protocol::http::outgoing::Response> response;
 
-  try{
+  try {
+    try {
 
-    for(auto& interceptor : resources.components->requestInterceptors) {
-      response = interceptor->intercept(request);
-      if(response) {
-        return response;
+      for (auto &interceptor: resources.components->requestInterceptors) {
+        response = interceptor->intercept(request);
+        if (response) {
+          return response;
+        }
       }
+
+      auto route = resources.components->router->getRoute(request->getStartingLine().method,
+                                                          request->getStartingLine().path);
+
+      if (!route) {
+        data::stream::BufferOutputStream ss;
+        ss << "No mapping for HTTP-method: '" << request->getStartingLine().method.toString()
+           << "', URL: '" << request->getStartingLine().path.toString() << "'";
+
+        throw oatpp::web::protocol::http::HttpError(protocol::http::Status::CODE_404, ss.toString());
+      }
+
+      request->setPathVariables(route.getMatchMap());
+      return route.getEndpoint()->handle(request);
+
+    } catch (...) {
+      std::throw_with_nested(HttpServerError(request, "Error processing request"));
     }
-
-    auto route = resources.components->router->getRoute(request->getStartingLine().method, request->getStartingLine().path);
-
-    if(!route) {
-
-      data::stream::BufferOutputStream ss;
-      ss << "No mapping for HTTP-method: '" << request->getStartingLine().method.toString()
-      << "', URL: '" << request->getStartingLine().path.toString() << "'";
-
-      connectionState = ConnectionState::CLOSING;
-      oatpp::web::protocol::http::HttpError error(protocol::http::Status::CODE_404, ss.toString());
-      auto ptr = std::make_exception_ptr(error);
-      return resources.components->errorHandler->handleError(ptr);
-
-    }
-
-    request->setPathVariables(route.getMatchMap());
-    return route.getEndpoint()->handle(request);
-
   } catch (...) {
     response = resources.components->errorHandler->handleError(std::current_exception());
     connectionState = ConnectionState::CLOSING;
@@ -139,9 +140,9 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
   std::shared_ptr<protocol::http::outgoing::Response> response;
 
   if(error.status.code != 0) {
-    oatpp::web::protocol::http::HttpError httpError(error.status, "Invalid Request Headers");
-    auto eptr = std::make_exception_ptr(httpError);
-    response = resources.components->errorHandler->handleError(eptr);
+    HttpServerError httpError(nullptr, "Invalid Request Headers");
+    auto ePtr = std::make_exception_ptr(httpError);
+    response = resources.components->errorHandler->handleError(ePtr);
     connectionState = ConnectionState::CLOSING;
   } else {
 
@@ -154,17 +155,21 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
     response = processNextRequest(resources, request, connectionState);
 
     try {
+      try {
 
-      for (auto& interceptor : resources.components->responseInterceptors) {
-        response = interceptor->intercept(request, response);
-        if (!response) {
-          oatpp::web::protocol::http::HttpError httpError(protocol::http::Status::CODE_500, "Response Interceptor returned an Invalid Response - 'null'");
-          auto eptr = std::make_exception_ptr(httpError);
-          response = resources.components->errorHandler->handleError(eptr);
-          connectionState = ConnectionState::CLOSING;
+        for (auto &interceptor: resources.components->responseInterceptors) {
+          response = interceptor->intercept(request, response);
+          if (!response) {
+            HttpServerError httpError(request, "Response Interceptor returned an Invalid Response - 'null'");
+            auto ePtr = std::make_exception_ptr(httpError);
+            response = resources.components->errorHandler->handleError(ePtr);
+            connectionState = ConnectionState::CLOSING;
+          }
         }
-      }
 
+      } catch (...) {
+        std::throw_with_nested(HttpServerError(request, "Error processing request during response interception"));
+      }
     } catch (...) {
       response = resources.components->errorHandler->handleError(std::current_exception());
       connectionState = ConnectionState::CLOSING;

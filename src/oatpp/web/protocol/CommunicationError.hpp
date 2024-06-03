@@ -123,7 +123,7 @@ public:
    * Get error info.
    * @return - error info.
    */
-  Info getInfo() {
+  Info getInfo() const {
     return m_info;
   }
   

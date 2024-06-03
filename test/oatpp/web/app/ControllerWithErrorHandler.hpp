@@ -66,10 +66,6 @@ public:
     }
   }
 
-  std::shared_ptr<oatpp::web::protocol::http::outgoing::Response> handleError(const http::Status& status, const oatpp::String& message, const Headers& headers) override {
-    throw std::logic_error("Function not implemented");
-  }
-
 };
 
 class ControllerWithErrorHandler : public oatpp::web::server::api::ApiController {

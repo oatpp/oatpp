@@ -87,7 +87,7 @@ public:
    */
   virtual std::shared_ptr<OutgoingResponse> handle(const std::shared_ptr<IncomingRequest>& request) {
     (void)request;
-    throw HttpError(Status::CODE_501, "Endpoint not implemented.");
+    throw HttpError(Status::CODE_501, "Endpoint not implemented.", {});
   }
 
   /**
@@ -99,7 +99,7 @@ public:
   virtual oatpp::async::CoroutineStarterForResult<const std::shared_ptr<OutgoingResponse>&>
   handleAsync(const std::shared_ptr<IncomingRequest>& request) {
     (void)request;
-    throw HttpError(Status::CODE_501, "Asynchronous endpoint not implemented.");
+    throw HttpError(Status::CODE_501, "Asynchronous endpoint not implemented.", {});
   }
 
   /**
