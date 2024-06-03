@@ -37,33 +37,13 @@ namespace oatpp { namespace test { namespace web { namespace app {
 
 namespace http = oatpp::web::protocol::http;
 
-/**
- * Custom Error Handler.
- */
-class CustomErrorHandler : public oatpp::base::Countable, public oatpp::web::server::handler::ErrorHandler {
+class CustomErrorHandler : public oatpp::web::server::handler::DefaultErrorHandler {
 public:
-  /**
-   * Constructor.
-   */
+
   CustomErrorHandler() = default;
-public:
 
-  /**
-   * Create shared DefaultErrorHandler.
-   * @return - `std::shared_ptr` to DefaultErrorHandler.
-   */
-  static std::shared_ptr<CustomErrorHandler> createShared() {
-    return std::make_shared<CustomErrorHandler>();
-  }
-
-  std::shared_ptr<http::outgoing::Response> handleError(const std::exception_ptr& error) override {
-    try {
-      std::rethrow_exception(error);
-    } catch(const std::runtime_error& e) {
-      return oatpp::web::protocol::http::outgoing::ResponseFactory::createResponse(http::Status::CODE_418, e.what());
-    } catch(...) {
-      throw;
-    }
+  std::shared_ptr<http::outgoing::Response> renderError(const HttpServerErrorStacktrace& stacktrace) override {
+    return oatpp::web::protocol::http::outgoing::ResponseFactory::createResponse(http::Status::CODE_418, stacktrace.stack.front());
   }
 
 };
@@ -75,7 +55,7 @@ public:
   explicit ControllerWithErrorHandler(const std::shared_ptr<ObjectMapper>& objectMapper)
       : oatpp::web::server::api::ApiController(objectMapper)
   {
-    setErrorHandler(CustomErrorHandler::createShared());
+    setErrorHandler(std::make_shared<CustomErrorHandler>());
   }
 public:
 

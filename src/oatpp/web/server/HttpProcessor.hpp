@@ -264,6 +264,8 @@ public:
     std::shared_ptr<protocol::http::incoming::Request> m_currentRequest;
     std::shared_ptr<protocol::http::outgoing::Response> m_currentResponse;
     TaskProcessingListener* m_taskListener;
+  private:
+    bool m_shouldInterceptResponse;
   public:
 
     /**

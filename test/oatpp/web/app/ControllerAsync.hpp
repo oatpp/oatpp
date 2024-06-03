@@ -95,6 +95,7 @@ public:
 
     Action act() override {
       auto param = request->getHeader("X-TEST-HEADER");
+      OATPP_ASSERT_HTTP(param, Status::CODE_400, "X-TEST-HEADER missing")
       //OATPP_LOGv(TAG, "GET headers {X-TEST-HEADER: {}}", param)
       auto dto = TestDto::createShared();
       dto->testValue = param;

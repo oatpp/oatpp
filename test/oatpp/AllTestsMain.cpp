@@ -96,10 +96,11 @@ void runTests() {
 //
 //  //return;
 //
-//  OATPP_LOGd("Tests", "coroutine handle size={}", sizeof(oatpp::async::CoroutineHandle))
-//  OATPP_LOGd("Tests", "coroutine size={}", sizeof(oatpp::async::AbstractCoroutine))
-//  OATPP_LOGd("Tests", "action size={}", sizeof(oatpp::async::Action))
-//  OATPP_LOGd("Tests", "class count={}", oatpp::data::type::ClassId::getClassCount())
+  OATPP_LOGd("Tests", "coroutine handle size={}", sizeof(oatpp::async::CoroutineHandle))
+  OATPP_LOGd("Tests", "coroutine size={}", sizeof(oatpp::async::AbstractCoroutine))
+  OATPP_LOGd("Tests", "action size={}", sizeof(oatpp::async::Action))
+  OATPP_LOGd("Tests", "exception size={}", sizeof(std::exception_ptr))
+  OATPP_LOGd("Tests", "class count={}", oatpp::data::type::ClassId::getClassCount())
 //
 //  auto names = oatpp::data::type::ClassId::getRegisteredClassNames();
 //  v_int32 i = 0;
@@ -213,25 +214,25 @@ void runTests() {
 //
 //  }
 //
-//  {
-//
-//    oatpp::test::web::FullTest test_virtual(0, 1000);
-//    test_virtual.run();
-//
-//    oatpp::test::web::FullTest test_port(8000, 5);
-//    test_port.run();
-//
-//  }
-//
-//  {
-//
-//    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
-//    test_virtual.run();
-//
+  {
+
+    oatpp::test::web::FullTest test_virtual(0, 1000);
+    test_virtual.run();
+
+    oatpp::test::web::FullTest test_port(8000, 5);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::FullAsyncTest test_virtual(0, 1000);
+    test_virtual.run();
+
     oatpp::test::web::FullAsyncTest test_port(8000, 5);
     test_port.run();
-//
-//  }
+
+  }
 //
 //  {
 //

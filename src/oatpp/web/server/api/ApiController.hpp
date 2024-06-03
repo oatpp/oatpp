@@ -239,9 +239,28 @@ protected:
       }
 
       async::Action handleError(async::Error* error) override {
-        auto ePtr = std::make_exception_ptr(*error);
-        auto response = m_handler->m_controller->m_errorHandler->handleError(ePtr);
-        return this->_return(response);
+
+        std::exception_ptr ePtr = error->getExceptionPtr();
+        if(!ePtr) {
+          ePtr = std::make_exception_ptr(*error);
+        }
+
+        try {
+          try {
+            std::rethrow_exception(ePtr);
+          } catch (...) {
+            std::throw_with_nested(HttpServerError(m_request, "[ApiController]: Error processing async request"));
+          }
+        } catch (...) {
+          ePtr = std::current_exception();
+          auto response = m_handler->m_controller->handleError(ePtr);
+          if (response != nullptr) {
+            return this->_return(response);
+          }
+        }
+
+        return new async::Error(ePtr);
+
       }
 
     };
@@ -298,11 +317,11 @@ protected:
         throw HttpServerError(request, "[ApiController]: Error. Async call to non-async endpoint");
       }
 
-      if(m_controller->m_errorHandler) {
+      //if(m_controller->m_errorHandler) {
         return ErrorHandlingCoroutine::startForResult(this, request);
-      }
+      //}
 
-      return (m_controller->*m_methodAsync)(request);
+      //return (m_controller->*m_methodAsync)(request);
 
     }
 

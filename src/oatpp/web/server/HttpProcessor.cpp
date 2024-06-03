@@ -160,10 +160,7 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
         for (auto &interceptor: resources.components->responseInterceptors) {
           response = interceptor->intercept(request, response);
           if (!response) {
-            HttpServerError httpError(request, "Response Interceptor returned an Invalid Response - 'null'");
-            auto ePtr = std::make_exception_ptr(httpError);
-            response = resources.components->errorHandler->handleError(ePtr);
-            connectionState = ConnectionState::CLOSING;
+            throw protocol::http::HttpError(protocol::http::Status::CODE_500, "Response Interceptor returned an Invalid Response - 'null'");
           }
         }
 
@@ -289,6 +286,7 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_inStream(data::stream::InputStreamBufferedProxy::createShared(m_connection.object, std::make_shared<std::string>(data::buffer::IOBuffer::BUFFER_SIZE, 0)))
   , m_connectionState(ConnectionState::ALIVE)
   , m_taskListener(taskListener)
+  , m_shouldInterceptResponse(false)
 {
   m_taskListener->onTaskStart(m_connection);
 }
@@ -302,6 +300,7 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::act() {
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::parseHeaders() {
+  m_shouldInterceptResponse = true;
   return m_headersReader.readHeadersAsync(m_inStream).callbackTo(&HttpProcessor::Coroutine::onHeadersParsed);
 }
 
@@ -327,11 +326,11 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
     data::stream::BufferOutputStream ss;
     ss << "No mapping for HTTP-method: '" << headersReadResult.startingLine.method.toString()
        << "', URL: '" << headersReadResult.startingLine.path.toString() << "'";
-    oatpp::web::protocol::http::HttpError error(protocol::http::Status::CODE_404, ss.toString());
-    auto eptr = std::make_exception_ptr(error);
-    m_currentResponse = m_components->errorHandler->handleError(eptr);
-    m_connectionState = ConnectionState::CLOSING;
-    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+    throw oatpp::web::protocol::http::HttpError(protocol::http::Status::CODE_404, ss.toString());
+//    auto eptr = std::make_exception_ptr(error);
+//    m_currentResponse = m_components->errorHandler->handleError(eptr);
+//    m_connectionState = ConnectionState::CLOSING;
+//    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
   }
 
   m_currentRequest->setPathVariables(m_currentRoute.getMatchMap());
@@ -351,12 +350,16 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std:
   
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponseFormed() {
 
-  for(auto& interceptor : m_components->responseInterceptors) {
-    m_currentResponse = interceptor->intercept(m_currentRequest, m_currentResponse);
-    if(!m_currentResponse) {
-      oatpp::web::protocol::http::HttpError error(protocol::http::Status::CODE_500, "Response Interceptor returned an Invalid Response - 'null'");
-      auto eptr = std::make_exception_ptr(error);
-      m_currentResponse = m_components->errorHandler->handleError(eptr);
+  if(m_shouldInterceptResponse) {
+    m_shouldInterceptResponse = false;
+    for (auto &interceptor: m_components->responseInterceptors) {
+      m_currentResponse = interceptor->intercept(m_currentRequest, m_currentResponse);
+      if (!m_currentResponse) {
+        throw oatpp::web::protocol::http::HttpError(protocol::http::Status::CODE_500,
+                                                    "Response Interceptor returned an Invalid Response - 'null'");
+        //auto eptr = std::make_exception_ptr(error);
+        //m_currentResponse = m_components->errorHandler->handleError(eptr);
+      }
     }
   }
 
@@ -429,15 +432,37 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* er
       }
     }
 
-    if(m_currentResponse) {
-      //OATPP_LOGe("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '{}'. Dropping connection", error->what())
-      return error;
+//    if(m_currentResponse) {
+//      //OATPP_LOGe("[oatpp::web::server::HttpProcessor::Coroutine::handleError()]", "Unhandled error. '{}'. Dropping connection", error->what())
+//      return error;
+//    }
+
+
+    std::exception_ptr ePtr = error->getExceptionPtr();
+    if(!ePtr) {
+      ePtr = std::make_exception_ptr(*error);
     }
 
-    oatpp::web::protocol::http::HttpError httpError(protocol::http::Status::CODE_500, error->what());
-    auto eptr = std::make_exception_ptr(httpError);
-    m_currentResponse = m_components->errorHandler->handleError(eptr);
-    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+    try {
+      try {
+        std::rethrow_exception(ePtr);
+      } catch (...) {
+        std::throw_with_nested(HttpServerError(m_currentRequest, "Error processing async request"));
+      }
+    } catch (...) {
+      ePtr = std::current_exception();
+      m_currentResponse = m_components->errorHandler->handleError(ePtr);
+      if (m_currentResponse != nullptr) {
+        return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
+      }
+    }
+
+    return new async::Error(ePtr);
+
+//    oatpp::web::protocol::http::HttpError httpError(protocol::http::Status::CODE_500, error->what());
+//    auto eptr = std::make_exception_ptr(httpError);
+//    m_currentResponse = m_components->errorHandler->handleError(eptr);
+//    return yieldTo(&HttpProcessor::Coroutine::onResponseFormed);
 
   }
 
