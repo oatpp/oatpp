@@ -84,136 +84,133 @@ namespace {
 
 void runTests() {
 
-//  oatpp::Environment::printCompilationConfig();
-//
-//  OATPP_LOGd("Tests", "oatpp::String size={}", sizeof(oatpp::String))
-//
-//  OATPP_LOGd("Tests", "oatpp::String size={}", sizeof(oatpp::String))
-//  OATPP_LOGd("Tests", "std::string size={}", sizeof(std::string))
-//  OATPP_LOGd("Tests", "Vector size={}", sizeof(std::vector<int>))
-//  OATPP_LOGd("Tests", "Map size={}", sizeof(std::unordered_map<oatpp::String, oatpp::String>))
-//  OATPP_LOGd("Tests", "Tree size={}", sizeof(oatpp::data::mapping::Tree))
-//
-//  //return;
-//
+  oatpp::Environment::printCompilationConfig();
+
+  OATPP_LOGd("Tests", "oatpp::String size={}", sizeof(oatpp::String))
+
+  OATPP_LOGd("Tests", "oatpp::String size={}", sizeof(oatpp::String))
+  OATPP_LOGd("Tests", "std::string size={}", sizeof(std::string))
+  OATPP_LOGd("Tests", "Vector size={}", sizeof(std::vector<int>))
+  OATPP_LOGd("Tests", "Map size={}", sizeof(std::unordered_map<oatpp::String, oatpp::String>))
+  OATPP_LOGd("Tests", "Tree size={}", sizeof(oatpp::data::mapping::Tree))
+
   OATPP_LOGd("Tests", "coroutine handle size={}", sizeof(oatpp::async::CoroutineHandle))
   OATPP_LOGd("Tests", "coroutine size={}", sizeof(oatpp::async::AbstractCoroutine))
   OATPP_LOGd("Tests", "action size={}", sizeof(oatpp::async::Action))
-  OATPP_LOGd("Tests", "exception size={}", sizeof(std::exception_ptr))
   OATPP_LOGd("Tests", "class count={}", oatpp::data::type::ClassId::getClassCount())
-//
-//  auto names = oatpp::data::type::ClassId::getRegisteredClassNames();
-//  v_int32 i = 0;
-//  for(auto& name : names) {
-//    OATPP_LOGd("CLASS", "{} --> '{}'", i, name)
-//    i ++;
-//  }
-//
-//  OATPP_RUN_TEST(oatpp::test::LoggerTest);
-//  OATPP_RUN_TEST(oatpp::base::CommandLineArgumentsTest);
-//  OATPP_RUN_TEST(oatpp::base::LogTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::share::MemoryLabelTest);
-//  OATPP_RUN_TEST(oatpp::data::share::LazyStringMapTest);
-//  OATPP_RUN_TEST(oatpp::data::share::StringTemplateTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::buffer::ProcessorTest);
-//  OATPP_RUN_TEST(oatpp::data::stream::BufferStreamTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
-//  OATPP_RUN_TEST(oatpp::data::mapping::ObjectToTreeMapperTest);
-//  OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
-//  OATPP_RUN_TEST(oatpp::data::mapping::ObjectRemapperTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::type::ObjectWrapperTest);
-//  OATPP_RUN_TEST(oatpp::data::type::TypeTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::type::StringTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::type::PrimitiveTest);
-//  OATPP_RUN_TEST(oatpp::data::type::ListTest);
-//  OATPP_RUN_TEST(oatpp::data::type::VectorTest);
-//  OATPP_RUN_TEST(oatpp::data::type::UnorderedSetTest);
-//  OATPP_RUN_TEST(oatpp::data::type::PairListTest);
-//  OATPP_RUN_TEST(oatpp::data::type::UnorderedMapTest);
-//  OATPP_RUN_TEST(oatpp::data::type::AnyTest);
-//  OATPP_RUN_TEST(oatpp::data::type::EnumTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::type::ObjectTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::type::InterpretationTest);
-//  OATPP_RUN_TEST(oatpp::data::mapping::TypeResolverTest);
-//
-//  OATPP_RUN_TEST(oatpp::data::resource::InMemoryDataTest);
-//
-//  OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
-//  OATPP_RUN_TEST(oatpp::async::LockTest);
-//
-//  OATPP_RUN_TEST(oatpp::utils::parser::CaretTest);
-//
-//  OATPP_RUN_TEST(oatpp::provider::PoolTest);
-//  OATPP_RUN_TEST(oatpp::provider::PoolTemplateTest);
-//
-//  OATPP_RUN_TEST(oatpp::json::EnumTest);
-//  OATPP_RUN_TEST(oatpp::json::BooleanTest);
-//
-//  OATPP_RUN_TEST(oatpp::json::UnorderedSetTest);
-//
-//  OATPP_RUN_TEST(oatpp::json::DeserializerTest);
-//
-//  OATPP_RUN_TEST(oatpp::json::DTOMapperPerfTest);
-//
-//  OATPP_RUN_TEST(oatpp::json::DTOMapperTest);
-//  OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
-//  OATPP_RUN_TEST(oatpp::encoding::HexTest);
-//  OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
-//  OATPP_RUN_TEST(oatpp::test::encoding::UrlTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::network::UrlTest);
-//  OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
-//  OATPP_RUN_TEST(oatpp::test::network::monitor::ConnectionMonitorTest);
-//  OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
-//  OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
-//  OATPP_RUN_TEST(oatpp::web::mime::ContentMappersTest);
-//
-//  OATPP_RUN_TEST(oatpp::test::web::server::HttpRouterTest);
-//  OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
-//  OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
-//
-//  {
-//
-//    oatpp::test::web::server::ServerStopTest test_virtual(0);
-//    test_virtual.run();
-//
-//    oatpp::test::web::server::ServerStopTest test_port(8000);
-//    test_port.run();
-//
-//  }
-//
-//  {
-//
-//    oatpp::test::web::PipelineTest test_virtual(0, 3000);
-//    test_virtual.run();
-//
-//    oatpp::test::web::PipelineTest test_port(8000, 3000);
-//    test_port.run();
-//
-//  }
-//
-//  {
-//
-//    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
-//    test_virtual.run();
-//
-//    oatpp::test::web::PipelineAsyncTest test_port(8000, 3000);
-//    test_port.run();
-//
-//  }
-//
+
+  auto names = oatpp::data::type::ClassId::getRegisteredClassNames();
+  v_int32 i = 0;
+  for(auto& name : names) {
+    OATPP_LOGd("CLASS", "{} --> '{}'", i, name)
+    i ++;
+  }
+
+  OATPP_RUN_TEST(oatpp::test::LoggerTest);
+  OATPP_RUN_TEST(oatpp::base::CommandLineArgumentsTest);
+  OATPP_RUN_TEST(oatpp::base::LogTest);
+
+  OATPP_RUN_TEST(oatpp::data::share::MemoryLabelTest);
+  OATPP_RUN_TEST(oatpp::data::share::LazyStringMapTest);
+  OATPP_RUN_TEST(oatpp::data::share::StringTemplateTest);
+
+  OATPP_RUN_TEST(oatpp::data::buffer::ProcessorTest);
+  OATPP_RUN_TEST(oatpp::data::stream::BufferStreamTest);
+
+  OATPP_RUN_TEST(oatpp::data::mapping::TreeTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::ObjectToTreeMapperTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::TreeToObjectMapperTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::ObjectRemapperTest);
+
+  OATPP_RUN_TEST(oatpp::data::type::ObjectWrapperTest);
+  OATPP_RUN_TEST(oatpp::data::type::TypeTest);
+
+  OATPP_RUN_TEST(oatpp::data::type::StringTest);
+
+  OATPP_RUN_TEST(oatpp::data::type::PrimitiveTest);
+  OATPP_RUN_TEST(oatpp::data::type::ListTest);
+  OATPP_RUN_TEST(oatpp::data::type::VectorTest);
+  OATPP_RUN_TEST(oatpp::data::type::UnorderedSetTest);
+  OATPP_RUN_TEST(oatpp::data::type::PairListTest);
+  OATPP_RUN_TEST(oatpp::data::type::UnorderedMapTest);
+  OATPP_RUN_TEST(oatpp::data::type::AnyTest);
+  OATPP_RUN_TEST(oatpp::data::type::EnumTest);
+
+  OATPP_RUN_TEST(oatpp::data::type::ObjectTest);
+
+  OATPP_RUN_TEST(oatpp::data::type::InterpretationTest);
+  OATPP_RUN_TEST(oatpp::data::mapping::TypeResolverTest);
+
+  OATPP_RUN_TEST(oatpp::data::resource::InMemoryDataTest);
+
+  OATPP_RUN_TEST(oatpp::async::ConditionVariableTest);
+  OATPP_RUN_TEST(oatpp::async::LockTest);
+
+  OATPP_RUN_TEST(oatpp::utils::parser::CaretTest);
+
+  OATPP_RUN_TEST(oatpp::provider::PoolTest);
+  OATPP_RUN_TEST(oatpp::provider::PoolTemplateTest);
+
+  OATPP_RUN_TEST(oatpp::json::EnumTest);
+  OATPP_RUN_TEST(oatpp::json::BooleanTest);
+
+  OATPP_RUN_TEST(oatpp::json::UnorderedSetTest);
+
+  OATPP_RUN_TEST(oatpp::json::DeserializerTest);
+
+  OATPP_RUN_TEST(oatpp::json::DTOMapperPerfTest);
+
+  OATPP_RUN_TEST(oatpp::json::DTOMapperTest);
+  OATPP_RUN_TEST(oatpp::test::encoding::Base64Test);
+  OATPP_RUN_TEST(oatpp::encoding::HexTest);
+  OATPP_RUN_TEST(oatpp::test::encoding::UnicodeTest);
+  OATPP_RUN_TEST(oatpp::test::encoding::UrlTest);
+
+  OATPP_RUN_TEST(oatpp::test::network::UrlTest);
+  OATPP_RUN_TEST(oatpp::test::network::ConnectionPoolTest);
+  OATPP_RUN_TEST(oatpp::test::network::monitor::ConnectionMonitorTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::PipeTest);
+  OATPP_RUN_TEST(oatpp::test::network::virtual_::InterfaceTest);
+
+  OATPP_RUN_TEST(oatpp::test::web::protocol::http::encoding::ChunkedTest);
+
+  OATPP_RUN_TEST(oatpp::test::web::mime::multipart::StatefulParserTest);
+  OATPP_RUN_TEST(oatpp::web::mime::ContentMappersTest);
+
+  OATPP_RUN_TEST(oatpp::test::web::server::HttpRouterTest);
+  OATPP_RUN_TEST(oatpp::test::web::server::api::ApiControllerTest);
+  OATPP_RUN_TEST(oatpp::test::web::server::handler::AuthorizationHandlerTest);
+
+  {
+
+    oatpp::test::web::server::ServerStopTest test_virtual(0);
+    test_virtual.run();
+
+    oatpp::test::web::server::ServerStopTest test_port(8000);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::PipelineTest test_virtual(0, 3000);
+    test_virtual.run();
+
+    oatpp::test::web::PipelineTest test_port(8000, 3000);
+    test_port.run();
+
+  }
+
+  {
+
+    oatpp::test::web::PipelineAsyncTest test_virtual(0, 3000);
+    test_virtual.run();
+
+    oatpp::test::web::PipelineAsyncTest test_port(8000, 3000);
+    test_port.run();
+
+  }
+
   {
 
     oatpp::test::web::FullTest test_virtual(0, 1000);
@@ -233,26 +230,26 @@ void runTests() {
     test_port.run();
 
   }
-//
-//  {
-//
-//    oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
-//    test_virtual.run(20);
-//
-//    oatpp::test::web::FullAsyncClientTest test_port(8000, 5);
-//    test_port.run(1);
-//
-//  }
-//
-//  {
-//
-//    oatpp::test::web::ClientRetryTest test_virtual(0);
-//    test_virtual.run();
-//
-//    oatpp::test::web::ClientRetryTest test_port(8000);
-//    test_port.run();
-//
-//  }
+
+  {
+
+    oatpp::test::web::FullAsyncClientTest test_virtual(0, 1000);
+    test_virtual.run(20);
+
+    oatpp::test::web::FullAsyncClientTest test_port(8000, 5);
+    test_port.run(1);
+
+  }
+
+  {
+
+    oatpp::test::web::ClientRetryTest test_virtual(0);
+    test_virtual.run();
+
+    oatpp::test::web::ClientRetryTest test_port(8000);
+    test_port.run();
+
+  }
 
 }
 
