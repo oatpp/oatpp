@@ -90,7 +90,7 @@ std::shared_ptr<AsyncHttpConnectionHandler> AsyncHttpConnectionHandler::createSh
 void AsyncHttpConnectionHandler::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
   m_components->errorHandler = errorHandler;
   if(!m_components->errorHandler) {
-    m_components->errorHandler = handler::DefaultErrorHandler::createShared();
+    m_components->errorHandler = std::make_shared<handler::DefaultErrorHandler>();
   }
 }
 

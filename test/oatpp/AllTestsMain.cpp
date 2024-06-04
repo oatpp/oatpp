@@ -94,8 +94,6 @@ void runTests() {
   OATPP_LOGd("Tests", "Map size={}", sizeof(std::unordered_map<oatpp::String, oatpp::String>))
   OATPP_LOGd("Tests", "Tree size={}", sizeof(oatpp::data::mapping::Tree))
 
-  //return;
-
   OATPP_LOGd("Tests", "coroutine handle size={}", sizeof(oatpp::async::CoroutineHandle))
   OATPP_LOGd("Tests", "coroutine size={}", sizeof(oatpp::async::AbstractCoroutine))
   OATPP_LOGd("Tests", "action size={}", sizeof(oatpp::async::Action))

@@ -31,6 +31,7 @@
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
+#include "oatpp/web/server/HttpServerError.hpp"
 #include "oatpp/web/protocol/http/incoming/Response.hpp"
 #include "oatpp/web/protocol/http/outgoing/Request.hpp"
 #include "oatpp/web/protocol/http/outgoing/ResponseFactory.hpp"
@@ -238,9 +239,28 @@ protected:
       }
 
       async::Action handleError(async::Error* error) override {
-        auto eptr = std::make_exception_ptr(*error);
-        auto response = m_handler->m_controller->m_errorHandler->handleError(eptr);
-        return this->_return(response);
+
+        std::exception_ptr ePtr = error->getExceptionPtr();
+        if(!ePtr) {
+          ePtr = std::make_exception_ptr(*error);
+        }
+
+        try {
+          try {
+            std::rethrow_exception(ePtr);
+          } catch (...) {
+            std::throw_with_nested(HttpServerError(m_request, "[ApiController]: Error processing async request"));
+          }
+        } catch (...) {
+          ePtr = std::current_exception();
+          auto response = m_handler->m_controller->handleError(ePtr);
+          if (response != nullptr) {
+            return this->_return(response);
+          }
+        }
+
+        return new async::Error(ePtr);
+
       }
 
     };
@@ -265,20 +285,24 @@ protected:
 
       if(m_method == nullptr) {
         if(m_methodAsync == nullptr) {
-          throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
+          throw HttpServerError(request, "[ApiController]: Error. Handler method is nullptr");
         }
-        throw protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Non-async call to async endpoint.");
+        throw HttpServerError(request, "[ApiController]: Error. Non-async call to async endpoint");
       }
 
       try {
-        return (m_controller->*m_method)(request);
+        try {
+          return (m_controller->*m_method)(request);
+        } catch (...) {
+          std::throw_with_nested(HttpServerError(request, "[ApiController]: Error processing request"));
+        }
       } catch (...) {
-        auto response = m_controller->handleError(std::current_exception());
-        if(response != nullptr) {
+        auto ePtr = std::current_exception();
+        auto response = m_controller->handleError(ePtr);
+        if (response != nullptr) {
           return response;
         }
-
-        throw;
+        std::rethrow_exception(ePtr);
       }
       
     }
@@ -288,16 +312,16 @@ protected:
 
       if(m_methodAsync == nullptr) {
         if(m_method == nullptr) {
-          throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Handler method is nullptr.");
+          throw HttpServerError(request, "[ApiController]: Error. Handler method is nullptr");
         }
-        throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "[ApiController]: Error. Async call to non-async endpoint.");
+        throw HttpServerError(request, "[ApiController]: Error. Async call to non-async endpoint");
       }
 
-      if(m_controller->m_errorHandler) {
+      //if(m_controller->m_errorHandler) {
         return ErrorHandlingCoroutine::startForResult(this, request);
-      }
+      //}
 
-      return (m_controller->*m_methodAsync)(request);
+      //return (m_controller->*m_methodAsync)(request);
 
     }
 

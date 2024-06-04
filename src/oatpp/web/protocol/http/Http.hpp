@@ -419,35 +419,32 @@ public:
 
   /**
    * Constructor.
-   * @param info
-   * @param message
+   * @param info - Status object
+   * @param message - Error message
+   * @param headers - additional headers recommended for error response.
    */
-  HttpError(const Info& info, const oatpp::String& message)
+  HttpError(const Info& info,
+            const oatpp::String& message,
+            const Headers& headers = {})
     : protocol::ProtocolError<Status>(info, message)
+    , m_headers(headers)
   {}
 
   /**
    * Constructor.
-   * @param status
-   * @param message
+   * @param status - Status object
+   * @param message - Error message
+   * @param headers - additional headers recommended for error response.
    */
-  HttpError(const Status& status, const oatpp::String& message)
-    : protocol::ProtocolError<Status>(Info(0, status), message)
-  {}
-
-  /**
-   * Constructor.
-   * @param status
-   * @param message
-   * @param headers
-   */
-  HttpError(const Status& status, const oatpp::String& message, const Headers& headers)
+  HttpError(const Status& status,
+            const oatpp::String& message,
+            const Headers& headers = {})
     : protocol::ProtocolError<Status>(Info(0, status), message)
     , m_headers(headers)
   {}
 
   /**
-   * Get headers
+   * Get headers recommended for error response.
    * @return
    */
   const Headers& getHeaders() const {
@@ -463,7 +460,7 @@ public:
  * @param MESSAGE - String message.
  */
 #define OATPP_ASSERT_HTTP(COND, STATUS, MESSAGE) \
-if(!(COND)) { throw oatpp::web::protocol::http::HttpError(STATUS, MESSAGE); }
+if(!(COND)) { throw oatpp::web::protocol::http::HttpError(STATUS, MESSAGE, {}); }
 
 /**
  * Collection of HTTP Header constants.

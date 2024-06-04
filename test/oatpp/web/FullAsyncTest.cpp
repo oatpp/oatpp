@@ -172,7 +172,7 @@ void FullAsyncTest::onRun() {
         auto value = response->readBodyToString();
         OATPP_ASSERT(value == "Hello World Async!!!")
       }
-      
+
       { // test GET with path parameter
         auto response = client->getWithParams("my_test_param-Async", connection);
         OATPP_ASSERT(response->getStatusCode() == 200)
@@ -180,7 +180,7 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(dto)
         OATPP_ASSERT(dto->testValue == "my_test_param-Async")
       }
-      
+
       { // test GET with header parameter
         auto response = client->getWithHeaders("my_test_header-Async", connection);
         OATPP_ASSERT(response->getStatusCode() == 200)
@@ -188,7 +188,7 @@ void FullAsyncTest::onRun() {
         OATPP_ASSERT(dto)
         OATPP_ASSERT(dto->testValue == "my_test_header-Async")
       }
-      
+
       { // test POST with body
         auto response = client->postBody("my_test_body-Async", connection);
         OATPP_ASSERT(response->getStatusCode() == 200)
@@ -283,7 +283,7 @@ void FullAsyncTest::onRun() {
         lastTick = oatpp::Environment::getMicroTickCount();
         OATPP_LOGv("i", "{}, tick={}", i + 1, ticks)
       }
-      
+
     }
 
     connection.reset();

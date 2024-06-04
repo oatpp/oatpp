@@ -51,7 +51,7 @@ std::shared_ptr<ApiController::RequestHandler> ApiController::getEndpointHandler
 void ApiController::setErrorHandler(const std::shared_ptr<handler::ErrorHandler>& errorHandler){
   m_errorHandler = errorHandler;
   if(!m_errorHandler) {
-    m_errorHandler = handler::DefaultErrorHandler::createShared();
+    m_errorHandler = std::make_shared<handler::DefaultErrorHandler>();
   }
 }
 
@@ -82,7 +82,7 @@ std::shared_ptr<handler::AuthorizationObject> ApiController::handleDefaultAuthor
     return m_defaultAuthorizationHandler->handleAuthorization(authHeader);
   }
   // If Authorization is not setup on the server then it's 500
-  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Authorization is not setup.");
+  throw oatpp::web::protocol::http::HttpError(Status::CODE_500, "Authorization is not setup.", {});
 }
 
 const std::shared_ptr<mime::ContentMappers>& ApiController::getContentMappers() const {
@@ -91,8 +91,7 @@ const std::shared_ptr<mime::ContentMappers>& ApiController::getContentMappers() 
 
 // Helper methods
 
-std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status,
-                                                                               const oatpp::String& str) const {
+std::shared_ptr<ApiController::OutgoingResponse> ApiController::createResponse(const Status& status, const oatpp::String& str) const {
   return ResponseFactory::createResponse(status, str);
 }
 

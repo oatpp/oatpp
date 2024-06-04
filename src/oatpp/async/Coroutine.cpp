@@ -260,7 +260,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
         _CP = action.m_data.coroutine;
         _FP = &AbstractCoroutine::act;
         action.m_type = Action::TYPE_NONE;
-        return std::forward<oatpp::async::Action>(action);
+        return std::move(action);
       }
 
       case Action::TYPE_FINISH: {
@@ -277,7 +277,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
       case Action::TYPE_YIELD_TO: {
         _FP = action.m_data.fptr;
         //break;
-        return std::forward<oatpp::async::Action>(action);
+        return std::move(action);
       }
 
 //      case Action::TYPE_REPEAT: {
@@ -289,7 +289,12 @@ Action CoroutineHandle::takeAction(Action&& action) {
 //      }
 
       case Action::TYPE_ERROR: {
-        Action newAction = _CP->handleError(action.m_data.error);
+        Action newAction;
+        try {
+          newAction = _CP->handleError(action.m_data.error);
+        } catch (...) {
+          newAction = new Error(std::current_exception());
+        }
 
         if (newAction.m_type == Action::TYPE_ERROR) {
           AbstractCoroutine* savedCP = _CP;
@@ -303,7 +308,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
           if(_CP == nullptr) {
             delete action.m_data.error;
             action.m_type = Action::TYPE_NONE;
-            return std::forward<oatpp::async::Action>(action);
+            return std::move(action);
           }
         } else {
           action = std::move(newAction);
@@ -313,7 +318,7 @@ Action CoroutineHandle::takeAction(Action&& action) {
       }
 
       default:
-        return std::forward<oatpp::async::Action>(action);
+        return std::move(action);
 
     }
 
@@ -329,10 +334,8 @@ Action CoroutineHandle::takeAction(Action&& action) {
 Action CoroutineHandle::iterate() {
   try {
     return _CP->call(_FP);
-  } catch (std::exception& e) {
-    return new Error(e.what());
   } catch (...) {
-    return new Error("[oatpp::async::CoroutineHandle::iterate()]: Error. Unknown Exception.");
+    return new Error(std::current_exception());
   }
 }
 

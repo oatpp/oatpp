@@ -26,21 +26,24 @@
 #define oatpp_async_Error_hpp
 
 #include "oatpp/base/Countable.hpp"
-#include <string>
 
 namespace oatpp { namespace async {
 
 /**
  * Class to hold and communicate errors between Coroutines
  */
-class Error : public std::runtime_error, public oatpp::base::Countable {
+class Error : public oatpp::base::Countable {
+private:
+  std::string m_message;
+  std::exception_ptr m_exceptionPtr;
 public:
 
-  /**
-   * Constructor.
-   * @param what - error explanation.
-   */
-  explicit Error(const std::string& what);
+  explicit Error(const std::string& message);
+  explicit Error(const std::exception_ptr& exceptionPtr);
+
+  const std::exception_ptr& getExceptionPtr() const;
+
+  const std::string& what() const;
 
   /**
    * Check if error belongs to specified class.

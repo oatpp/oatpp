@@ -22,27 +22,17 @@
  *
  ***************************************************************************/
 
-#include "Error.hpp"
+#include "HttpServerError.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp { namespace web { namespace server {
 
-Error::Error(const std::string& message)
-  : m_message(message)
-{
+HttpServerError::HttpServerError(const std::shared_ptr<protocol::http::incoming::Request>& request, const std::string& message)
+  : std::runtime_error(message)
+  , m_request(request)
+{}
+
+const std::shared_ptr<protocol::http::incoming::Request>& HttpServerError::getRequest() const {
+  return m_request;
 }
 
-Error::Error(const std::exception_ptr& exceptionPtr)
-  : m_message("exception_ptr")
-  , m_exceptionPtr(exceptionPtr)
-{
-}
-
-const std::string& Error::what() const {
-  return m_message;
-}
-
-const std::exception_ptr& Error::getExceptionPtr() const {
-  return m_exceptionPtr;
-}
-
-}}
+}}}

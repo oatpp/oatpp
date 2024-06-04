@@ -289,6 +289,8 @@ add_library(oatpp
         oatpp/web/server/HttpRequestHandler.hpp
         oatpp/web/server/HttpRouter.cpp
         oatpp/web/server/HttpRouter.hpp
+        oatpp/web/server/HttpServerError.cpp
+        oatpp/web/server/HttpServerError.hpp
         oatpp/web/server/api/ApiController.cpp
         oatpp/web/server/api/ApiController.hpp
         oatpp/web/server/api/Endpoint.cpp
