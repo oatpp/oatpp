@@ -25,7 +25,7 @@
 #ifndef oatpp_network_tcp_ConnectionConfigurer_hpp
 #define oatpp_network_tcp_ConnectionConfigurer_hpp
 
-#include <oatpp/IODefinitions.hpp>
+#include "oatpp/IODefinitions.hpp"
 
 namespace oatpp { namespace network { namespace tcp {
 
