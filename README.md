@@ -19,17 +19,15 @@
 
 # Oat++ 
 
-**News**  
+Oat++ is a modern Web Framework for C++. 
+It's fully loaded and contains all necessary components for effective production level development. 
+It's also light and has a small memory footprint.
+
+## News  
 
 - ⚠️ Attention! Oat++ main repo is bumping its version to 1.4.0. While 1.4.0 is **IN DEVELOPMENT** use `1.3.0-latest` tag.
 - Follow the [changelog](https://github.com/oatpp/oatpp/blob/master/changelog/1.4.0.md) for news and features in version `1.4.0`.
 - Consider supporting Oat++ via the [GitHub sponsors](https://github.com/sponsors/oatpp) page.
-
----
-
-Oat++ is a modern Web Framework for C++. 
-It's fully loaded and contains all necessary components for effective production level development. 
-It's also light and has a small memory footprint.
 
 ## Start
 
