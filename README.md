@@ -1,3 +1,4 @@
+
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://vshymanskyy.github.io/StandWithUkraine/)
 
 ---
@@ -18,38 +19,40 @@
 
 # Oat++ 
 
-**News**  
+Oat++ is a modern Web Framework for C++. 
+It's fully loaded and contains all necessary components for effective production level development. 
+It's also light and has a small memory footprint.
+
+## News  
 
 - ⚠️ Attention! Oat++ main repo is bumping its version to 1.4.0. While 1.4.0 is **IN DEVELOPMENT** use `1.3.0-latest` tag.
 - Follow the [changelog](https://github.com/oatpp/oatpp/blob/master/changelog/1.4.0.md) for news and features in version `1.4.0`.
 - Consider supporting Oat++ via the [GitHub sponsors](https://github.com/sponsors/oatpp) page.
 
----
-
-Oat++ is a modern Web Framework for C++. 
-It's fully loaded and contains all necessary components for effective production level development. 
-It's also light and has a small memory footprint.
-
-**Start**
+## Start
 
 - [Get Started](https://oatpp.io/docs/start/)
 - [Build For Unix/Linux](https://oatpp.io/docs/installation/unix-linux/)
 - [Build For Windows](https://oatpp.io/docs/installation/windows/)
 - [Examples](#examples)
 
-**About**
+## Support the Project
+Maintaining and developing this project requires significant time and resources. If you enjoy using it and want to support its continued development, please consider supporting us through GitHub Sponsors.
+
+**[Become a Sponsor on GitHub](https://github.com/sponsors/oatpp)** 
+
+Every contribution, big or small, helps us keep improving and maintaining the project.
+Thank you for your support!
+
+## About
 
 - [Website](https://oatpp.io/)
 - [Supported Platforms](https://oatpp.io/supported-platforms/)
 - Latest Benchmarks: [5 Million WebSockets](https://oatpp.io/benchmark/websocket/5-million/)
 - [Contributing to Oat++](CONTRIBUTING.md)
 
-**Join Our Community**
 
-- [Gitter](https://gitter.im/oatpp-framework/Lobby) - Talk to Oat++ developers and to other Oat++ users.
-- [Twitter](https://twitter.com/oatpp_io) - Follow Oat++ on Twitter.
-- [Reddit](https://www.reddit.com/r/oatpp/) - Follow Oat++ subreddit.
-- [StackOverflow (new)](https://stackoverflow.com/questions/tagged/oat%2b%2b) - Post a Question.
+
 
 ## Quick Overview
 
@@ -91,42 +94,12 @@ QUERY(createUser,
       PARAM(oatpp::Enum<UserRoles>::AsString, role))
 ```
 
-## Frequently Asked Questions
+## Join Our Community
 
-### Q: "Oat++" name?
-
-- "Oat" is something light, organic, and green. It can be easily cooked and consumed with no effort. 
-- "++" gives a hint that it is "something" for C++.
-
-### Q: What is the main area of Oat++ application?
-
-Oat++ is used for many different purposes, from building REST APIs that run on embedded devices to 
-building microservices and highly-loaded cloud applications.
-
-But the majority of use cases appears to be in **IoT** and **Robotics**.
-
-### Q: How portable is Oat++?
-
-Theoretically, Oat++ can be **easily** ported everywhere where you have **threads** and **network stack**.
-With an additional comparably small effort, it can be ported almost everywhere depending on how
-much you strip it and what would be the final binary size.
-
-See [supported platforms](https://oatpp.io/supported-platforms/) for additional info.
-
-### Q: What is the size of a minimal Oat++ application?
-
-About **1Mb**, depending on C/C++ std-lib and oatpp version.
-
-### Q: Which Oat++ API to choose, Simple or Async?
-
-Always choose **Simple API** wherever possible. Simple API is more developed and makes the code cleaner.
-
-Async API is designed for small, specific tasks that run at high concurrency levels ex.:
-- Serving file downloads to a large number of concurrent users (1K users and more).
-- Streaming to a large number of clients (1K or more).
-- Websocket Chat servers.
-
-For all other purposes use simple API.
+- [Gitter](https://gitter.im/oatpp-framework/Lobby) - Talk to Oat++ developers and to other Oat++ users.
+- [Twitter](https://twitter.com/oatpp_io) - Follow Oat++ on Twitter.
+- [Reddit](https://www.reddit.com/r/oatpp/) - Follow Oat++ subreddit.
+- [StackOverflow (new)](https://stackoverflow.com/questions/tagged/oat%2b%2b) - Post a Question.
 
 ## Examples
 
@@ -169,3 +142,40 @@ and example on how to consolidate those microservices using [monolithization](ht
 ### Asynchronous API
 
 - [Async Service](https://github.com/oatpp/example-async-api) - Example project on how to use asynchronous API to handle a large number of simultaneous connections.
+
+## Frequently Asked Questions
+
+### Q: "Oat++" name?
+
+- "Oat" is something light, organic, and green. It can be easily cooked and consumed with no effort. 
+- "++" gives a hint that it is "something" for C++.
+
+### Q: What is the main area of Oat++ application?
+
+Oat++ is used for many different purposes, from building REST APIs that run on embedded devices to 
+building microservices and highly-loaded cloud applications.
+
+But the majority of use cases appears to be in **IoT** and **Robotics**.
+
+### Q: How portable is Oat++?
+
+Theoretically, Oat++ can be **easily** ported everywhere where you have **threads** and **network stack**.
+With an additional comparably small effort, it can be ported almost everywhere depending on how
+much you strip it and what would be the final binary size.
+
+See [supported platforms](https://oatpp.io/supported-platforms/) for additional info.
+
+### Q: What is the size of a minimal Oat++ application?
+
+About **1Mb**, depending on C/C++ std-lib and oatpp version.
+
+### Q: Which Oat++ API to choose, Simple or Async?
+
+Always choose **Simple API** wherever possible. Simple API is more developed and makes the code cleaner.
+
+Async API is designed for small, specific tasks that run at high concurrency levels ex.:
+- Serving file downloads to a large number of concurrent users (1K users and more).
+- Streaming to a large number of clients (1K or more).
+- Websocket Chat servers.
+
+For all other purposes use simple API.
