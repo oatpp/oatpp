@@ -29,6 +29,11 @@ It's also light and has a small memory footprint.
 - Follow the [changelog](https://github.com/oatpp/oatpp/blob/master/changelog/1.4.0.md) for news and features in version `1.4.0`.
 - Consider supporting Oat++ via the [GitHub sponsors](https://github.com/sponsors/oatpp) page.
 
+### New ORM integrations:
+
+- [oatpp-mysql](https://github.com/Atarasin/oatpp-mysql) by [@Atarasin](https://github.com/Atarasin)
+- [oatpp-mariadb](https://github.com/lilltiger/oatpp-mariadb) by [@lilltiger](https://github.com/lilltiger)
+
 ## Start
 
 - [Get Started](https://oatpp.io/docs/start/)
