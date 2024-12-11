@@ -84,14 +84,14 @@ public:
     /**
      * Get Endpoint.
      */
-    const Endpoint& getEndpoint() {
+    const Endpoint& getEndpoint() const {
       return m_endpoint;
     }
 
     /**
      * Match map of resolved path containing resolved path variables.
      */
-    const Pattern::MatchMap& getMatchMap() {
+    const Pattern::MatchMap& getMatchMap() const {
       return m_matchMap;
     }
 
@@ -99,7 +99,7 @@ public:
      * Check if route is valid.
      * @return
      */
-    bool isValid() {
+    bool isValid() const {
       return m_valid;
     }
     
