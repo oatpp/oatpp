@@ -28,6 +28,7 @@
 #include "./Pattern.hpp"
 
 #include "oatpp/Types.hpp"
+#include "oatpp/base/Log.hpp"
 
 #include <utility>
 #include <list>
@@ -132,7 +133,7 @@ public:
    * @param path
    * @return - &id:Router::Route;.
    */
-  Route getRoute(const StringKeyLabel& path){
+  Route getRoute(const StringKeyLabel& path) const {
 
     for(auto& pair : m_endpointsByPattern) {
       Pattern::MatchMap matchMap;
@@ -144,7 +145,7 @@ public:
     return Route();
   }
   
-  void logRouterMappings(const oatpp::data::share::StringKeyLabel &branch) {
+  void logRouterMappings(const oatpp::data::share::StringKeyLabel &branch) const {
 
     for(auto& pair : m_endpointsByPattern) {
       auto mapping = pair.first->toString();
