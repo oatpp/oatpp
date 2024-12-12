@@ -181,15 +181,17 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) const {
   
 }
 
-oatpp::String Pattern::reconstruct(const data::mapping::Tree& params, const oatpp::String& tail) const {
+oatpp::String Pattern::reconstruct(const std::unordered_map<oatpp::String, oatpp::String>& params, const oatpp::String& tail) const {
   oatpp::data::stream::BufferOutputStream stream;
   for (const std::shared_ptr<Part>& part : *m_parts) {
     if(part->function == Part::FUNCTION_CONST) {
       stream.writeSimple("/", 1);
       stream.writeSimple(part->text);
     } else if(part->function == Part::FUNCTION_VAR) {
-      stream.writeSimple(params[part->text].toString());
+      stream.writeSimple("/", 1);
+      stream.writeSimple(params.at(part->text));
     } else if(part->function == Part::FUNCTION_ANY_END) {
+      stream.writeSimple("/", 1);
       stream.writeSimple(tail);
     }
   }

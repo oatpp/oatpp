@@ -27,7 +27,6 @@
 
 #include "oatpp/data/share/MemoryLabel.hpp"
 #include "oatpp/utils/parser/Caret.hpp"
-#include "oatpp/data/mapping/Tree.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -112,7 +111,7 @@ public:
   
   bool match(const StringKeyLabel& url, MatchMap& matchMap) const;
 
-  oatpp::String reconstruct(const data::mapping::Tree& params, const oatpp::String& tail) const;
+  oatpp::String reconstruct(const std::unordered_map<oatpp::String, oatpp::String>& params, const oatpp::String& tail) const;
   oatpp::String toString() const;
   
 };
