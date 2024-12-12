@@ -26,8 +26,8 @@
 #define oatpp_web_url_mapping_Pattern_hpp
 
 #include "oatpp/data/share/MemoryLabel.hpp"
-
 #include "oatpp/utils/parser/Caret.hpp"
+#include "oatpp/data/mapping/Tree.hpp"
 
 #include <list>
 #include <unordered_map>
@@ -99,7 +99,7 @@ private:
 private:
   std::shared_ptr<std::list<std::shared_ptr<Part>>> m_parts{std::make_shared<std::list<std::shared_ptr<Part>>>()};
 private:
-  v_char8 findSysChar(oatpp::utils::parser::Caret& caret);
+  v_char8 findSysChar(oatpp::utils::parser::Caret& caret) const;
 public:
   
   static std::shared_ptr<Pattern> createShared(){
@@ -110,9 +110,10 @@ public:
   static std::shared_ptr<Pattern> parse(const char* data);
   static std::shared_ptr<Pattern> parse(const oatpp::String& data);
   
-  bool match(const StringKeyLabel& url, MatchMap& matchMap);
-  
-  oatpp::String toString();
+  bool match(const StringKeyLabel& url, MatchMap& matchMap) const;
+
+  oatpp::String reconstruct(const data::mapping::Tree& params, const oatpp::String& tail) const;
+  oatpp::String toString() const;
   
 };
   
