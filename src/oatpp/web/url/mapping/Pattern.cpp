@@ -106,7 +106,7 @@ std::shared_ptr<Pattern> Pattern::parse(const oatpp::String& data){
   return parse(reinterpret_cast<p_char8>(data->data()), static_cast<v_buff_size>(data->size()));
 }
   
-v_char8 Pattern::findSysChar(oatpp::utils::parser::Caret& caret) {
+v_char8 Pattern::findSysChar(oatpp::utils::parser::Caret& caret) const {
   auto data = caret.getData();
   for (v_buff_size i = caret.getPosition(); i < caret.getDataSize(); i++) {
     v_char8 a = static_cast<v_char8>(data[i]);
@@ -119,7 +119,7 @@ v_char8 Pattern::findSysChar(oatpp::utils::parser::Caret& caret) {
   return 0;
 }
   
-bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
+bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) const {
   
   oatpp::utils::parser::Caret caret(reinterpret_cast<const char*>(url.getData()), url.getSize());
   
@@ -181,7 +181,24 @@ bool Pattern::match(const StringKeyLabel& url, MatchMap& matchMap) {
   
 }
 
-oatpp::String Pattern::toString() {
+oatpp::String Pattern::reconstruct(const std::unordered_map<oatpp::String, oatpp::String>& params, const oatpp::String& tail) const {
+  oatpp::data::stream::BufferOutputStream stream;
+  for (const std::shared_ptr<Part>& part : *m_parts) {
+    if(part->function == Part::FUNCTION_CONST) {
+      stream.writeSimple("/", 1);
+      stream.writeSimple(part->text);
+    } else if(part->function == Part::FUNCTION_VAR) {
+      stream.writeSimple("/", 1);
+      stream.writeSimple(params.at(part->text));
+    } else if(part->function == Part::FUNCTION_ANY_END) {
+      stream.writeSimple("/", 1);
+      stream.writeSimple(tail);
+    }
+  }
+  return stream.toString();
+}
+
+oatpp::String Pattern::toString() const {
   oatpp::data::stream::BufferOutputStream stream;
   for (const std::shared_ptr<Part>& part : *m_parts) {
     if(part->function == Part::FUNCTION_CONST) {

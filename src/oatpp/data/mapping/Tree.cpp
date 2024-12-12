@@ -695,6 +695,100 @@ const Tree::Attributes& Tree::attributes() const {
   return m_attributes;
 }
 
+type::String Tree::toString() const {
+
+  stream::BufferOutputStream ss(128);
+
+  switch (m_type) {
+
+    case Type::UNDEFINED: {
+      ss << "undefined";
+      break;
+    }
+    case Type::NULL_VALUE: {
+      ss << "null";
+      break;
+    }
+
+    case Type::INTEGER: {
+      ss << getInteger();
+      break;
+    }
+    case Type::FLOAT: {
+      ss << getFloat();
+      break;
+    }
+
+    case Type::BOOL: {
+      ss << getPrimitive<bool>();
+      break;
+    }
+    case Type::INT_8: {
+      ss << getPrimitive<v_int8>();
+      break;
+    }
+    case Type::UINT_8: {
+      ss << getPrimitive<v_uint8>();
+      break;
+    }
+    case Type::INT_16: {
+      ss << getPrimitive<v_int16>();
+      break;
+    }
+    case Type::UINT_16: {
+      ss << getPrimitive<v_uint16>();
+      break;
+    }
+    case Type::INT_32: {
+      ss << getPrimitive<v_int32 >();
+      break;
+    }
+    case Type::UINT_32: {
+      ss << getPrimitive<v_uint32>();
+      break;
+    }
+    case Type::INT_64: {
+      ss << getPrimitive<v_int64>();
+      break;
+    }
+    case Type::UINT_64: {
+      ss << getPrimitive<v_uint64>();
+      break;
+    }
+    case Type::FLOAT_32: {
+      ss << getPrimitive<v_float32>();
+      break;
+    }
+    case Type::FLOAT_64: {
+      ss << getPrimitive<v_float64>();
+      break;
+    }
+    case Type::STRING: {
+      ss << getString();
+      break;
+    }
+
+    case Type::VECTOR: {
+      ss << "<vector>";
+      break;
+    }
+    case Type::MAP: {
+      ss << "<map>";
+      break;
+    }
+    case Type::PAIRS: {
+      ss << "<pairs>";
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  return ss.toString();
+
+}
+
 type::String Tree::debugPrint(v_uint32 indent0, v_uint32 indentDelta, bool firstLineIndent) const {
 
   stream::BufferOutputStream ss;

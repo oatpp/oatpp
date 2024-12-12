@@ -255,6 +255,8 @@ public:
   Attributes& attributes();
   const Attributes& attributes() const;
 
+  type::String toString() const;
+
   type::String debugPrint(v_uint32 indent0 = 0, v_uint32 indentDelta = 2, bool firstLineIndent = true) const;
 
 };
