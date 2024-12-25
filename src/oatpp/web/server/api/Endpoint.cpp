@@ -50,6 +50,9 @@ Endpoint::Info::Param& Endpoint::Info::Params::add(const oatpp::String& aname, o
 }
 
 Endpoint::Info::Param& Endpoint::Info::Params::operator [](const oatpp::String& aname) {
+  if (std::find(m_order.begin(), m_order.end(), aname) == m_order.end()) {
+      m_order.push_back(aname);
+  }
   return m_params[aname];
 }
 
