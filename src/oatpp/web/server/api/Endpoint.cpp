@@ -42,7 +42,9 @@ const std::list<oatpp::String>& Endpoint::Info::Params::getOrder() const {
 }
 
 Endpoint::Info::Param& Endpoint::Info::Params::add(const oatpp::String& aname, oatpp::data::type::Type* type) {
-  m_order.push_back(aname);
+  if (std::find(m_order.begin(), m_order.end(), aname) == m_order.end()) {
+      m_order.push_back(aname);
+  }
   Endpoint::Info::Param& param = operator [](aname);
   param.name = aname;
   param.type = type;
