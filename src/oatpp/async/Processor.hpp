@@ -108,8 +108,6 @@ private:
   std::mutex m_sleepMutex;
   std::condition_variable m_sleepCV;
 
-  std::thread m_sleepSetTask{&Processor::checkCoroutinesSleep, this};
-
 private:
 
   oatpp::concurrency::SpinLock m_taskLock;
@@ -124,6 +122,8 @@ private:
 private:
   std::atomic_bool m_running{true};
   std::atomic<v_int32> m_tasksCounter{0};
+  std::thread m_sleepSetTask{&Processor::checkCoroutinesSleep, this};
+
 private:
 
   void popIOTask(CoroutineHandle* coroutine);
