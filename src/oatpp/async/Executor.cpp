@@ -66,16 +66,22 @@ void Executor::SubmissionProcessor::pushOneTask(CoroutineHandle* task) {
 }
 
 void Executor::SubmissionProcessor::stop() {
-  m_isRunning = false;
-  m_processor.stop();
+  if (m_isRunning) {
+    m_isRunning = false;
+    m_processor.stop();
+  }
 }
 
 void Executor::SubmissionProcessor::join() {
-  m_thread.join();
+  if (m_thread.joinable()) {
+    m_thread.join();
+  }
 }
 
 void Executor::SubmissionProcessor::detach() {
-  m_thread.detach();
+  if (m_thread.joinable()) {
+    m_thread.detach();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
