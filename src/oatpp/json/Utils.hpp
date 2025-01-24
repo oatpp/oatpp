@@ -71,6 +71,7 @@ public:
   typedef oatpp::String String;
   typedef oatpp::utils::parser::Caret ParsingCaret;
 private:
+  static v_buff_size escapeUtf8CharSize(const char* sequence);
   static v_buff_size escapeUtf8Char(const char* sequence, p_char8 buffer);
   static v_buff_size calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags);
   static v_buff_size calcUnescapedStringSize(const char* data, v_buff_size size, v_int64& errorCode, v_buff_size& errorPosition);
