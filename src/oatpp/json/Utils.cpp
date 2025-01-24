@@ -76,16 +76,14 @@ v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_b
         if(i + charSize > size) {
           safeSize = i;
         }
-        i += charSize;
         if (!(flags & FLAG_ESCAPE_UTF8CHAR)) {
           result += charSize; // output as-is
-        } else if(charSize < 4) {
-          result += 6; // '\uFFFF' - 6 chars
-        } else if(charSize == 4) {
-          result += 12; // '\uFFFF\uFFFF' - 12 chars surrogate pair
+        } else if(i + charSize <= size) {
+          result += escapeUtf8CharSize(&data[i]);
         } else {
-          result += 11; // '\u+FFFFFFFF' - 11 chars NOT JSON standard case
+          result += charSize; // invalid char. output as-is
         }
+        i += charSize;
       } else {
         // invalid char
         i ++;
@@ -189,6 +187,18 @@ v_buff_size Utils::calcUnescapedStringSize(const char* data, v_buff_size size, v
   }
   
   return result;
+}
+
+v_buff_size Utils::escapeUtf8CharSize(const char* sequence) {
+  v_buff_size length;
+  v_int32 code = oatpp::encoding::Unicode::encodeUtf8Char(sequence, length);
+  if(code < 0x00010000) {
+    return 6;
+  } else if(code < 0x00200000) {
+    return 12;
+  } else {
+    return 11;
+  }
 }
   
 v_buff_size Utils::escapeUtf8Char(const char* sequence, p_char8 buffer){
