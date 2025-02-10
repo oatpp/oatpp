@@ -514,29 +514,39 @@ public:
 private:
   Range()
     : units(nullptr)
+    , start(-1)
+    , end(-1)
+    , valid(false)
   {}
 public:
   
   Range(const oatpp::String& pUnits,
         v_int64 pStart,
-        v_int64 pEnd)
+        v_int64 pEnd,
+        bool pValid = true)
     : units(pUnits)
     , start(pStart)
     , end(pEnd)
+    , valid(pValid)
   {}
   
   oatpp::String units;
   v_int64 start;
   v_int64 end;
+  bool valid;
   
   oatpp::String toString() const;
   
   bool isValid() const {
-    return units.get() != nullptr;
+    return units.get() != nullptr && valid;
   }
   
   static Range parse(oatpp::utils::parser::Caret& caret);
   static Range parse(const oatpp::String& str);
+
+  static Range parseNext(oatpp::utils::parser::Caret& caret, const oatpp::String& units);
+  static void parseAll(std::vector<Range>& ranges, oatpp::utils::parser::Caret& caret);
+  static void parseAll(std::vector<Range>& ranges, const oatpp::String& str);
   
 };
   
