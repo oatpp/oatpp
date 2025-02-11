@@ -52,6 +52,11 @@ if( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
          "${CPACK_RPM_Library_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}.${CPACK_RPM_Library_PACKAGE_ARCHITECTURE}.rpm" )
     set( CPACK_RPM_Library_PACKAGE_SUMMARY ${CPACK_COMPONENT_Library_DESCRIPTION} )
 
+    # Add libatomic to the runtime dependencies if OATPP_LINK_ATOMIC is ON
+    if(OATPP_LINK_ATOMIC)
+        set(CPACK_RPM_PACKAGE_REQUIRES "libatomic")
+    endif()
+
     set( CPACK_RPM_Devel_PACKAGE_REQUIRES "cmake >= ${CMAKE_MINIMUM_REQUIRED_VERSION},oatpp >= ${CPACK_PACKAGE_VERSION}" )
     set( CPACK_RPM_Devel_PACKAGE_SUMMARY ${CPACK_COMPONENT_Devel_DESCRIPTION} )
     set( CPACK_RPM_Devel_PACKAGE_ARCHITECTURE "noarch" )  # only contains headers and cmake files
@@ -79,6 +84,11 @@ if( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
     
     set( CPACK_DEBIAN_DEVEL_PACKAGE_DEPENDS "cmake (>= ${CMAKE_MINIMUM_REQUIRED_VERSION}), oatpp (>= ${CPACK_PACKAGE_VERSION})" )
     set( CPACK_DEBIAN_DEVEL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}-dev" )
+
+    # Add libatomic to the runtime dependencies if OATPP_LINK_ATOMIC is ON
+    if(OATPP_LINK_ATOMIC)
+        set(CPACK_DEBIAN_PACKAGE_DEPENDS "libatomic1")
+    endif()
 
 elseif( ${CMAKE_HOST_WIN32} )
     set( CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON )
