@@ -512,6 +512,8 @@ class Range {
 public:
   static const char* const UNIT_BYTES;
 private:
+  static Range parseNextRemaining(oatpp::utils::parser::Caret& caret, const oatpp::String& units);
+private:
   Range()
     : units(nullptr)
     , start(-1)
