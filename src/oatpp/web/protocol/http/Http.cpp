@@ -168,7 +168,25 @@ Range Range::parse(const oatpp::String& str) {
   return parse(caret);
 }
 
+Range Range::parseNextRemaining(oatpp::utils::parser::Caret& caret, const oatpp::String& units) {
+
+  if(!caret.canContinueAtChar('-', 1)) return Range();
+
+  auto endLabel = caret.putLabel();
+  caret.findCharFromSet(" ,\r\n");
+  endLabel.end();
+
+  bool success;
+  auto start = -1;
+  auto end = oatpp::utils::Conversion::strToInt64(endLabel.toString(), success);
+  if(!success) return Range();
+  return Range(units, start, end);
+}
+
 Range Range::parseNext(oatpp::utils::parser::Caret& caret, const oatpp::String& units) {
+
+  if(caret.canContinueAtChar('-')) return parseNextRemaining(caret, units);
+
   auto startLabel = caret.putLabel();
   if(caret.findChar('-')) {
     startLabel.end();
@@ -185,8 +203,11 @@ Range Range::parseNext(oatpp::utils::parser::Caret& caret, const oatpp::String& 
   bool success;
   auto start = oatpp::utils::Conversion::strToInt64(startLabel.toString(), success);
   if(!success) return Range();
-  auto end = oatpp::utils::Conversion::strToInt64(endLabel.toString(), success);
-  if(!success) return Range();
+  v_int64 end = -1;
+  if(endLabel.getSize() > 0) {
+    end = oatpp::utils::Conversion::strToInt64(endLabel.toString(), success);
+    if(!success) return Range();
+  }
   return Range(units, start, end);
 }
 
