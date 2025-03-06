@@ -159,6 +159,34 @@ Range Range::parse(oatpp::utils::parser::Caret& caret) {
     return Range();
   }
 
+  return parseNext(caret, unitsLabel.toString());
+  
+}
+
+Range Range::parse(const oatpp::String& str) {
+  oatpp::utils::parser::Caret caret(str);
+  return parse(caret);
+}
+
+Range Range::parseNextRemaining(oatpp::utils::parser::Caret& caret, const oatpp::String& units) {
+
+  if(!caret.canContinueAtChar('-', 1)) return Range();
+
+  auto endLabel = caret.putLabel();
+  caret.findCharFromSet(" ,\r\n");
+  endLabel.end();
+
+  bool success;
+  auto start = -1;
+  auto end = oatpp::utils::Conversion::strToInt64(endLabel.toString(), success);
+  if(!success) return Range();
+  return Range(units, start, end);
+}
+
+Range Range::parseNext(oatpp::utils::parser::Caret& caret, const oatpp::String& units) {
+
+  if(caret.canContinueAtChar('-')) return parseNextRemaining(caret, units);
+
   auto startLabel = caret.putLabel();
   if(caret.findChar('-')) {
     startLabel.end();
@@ -169,18 +197,37 @@ Range Range::parse(oatpp::utils::parser::Caret& caret) {
   }
 
   auto endLabel = caret.putLabel();
-  caret.findRN();
+  caret.findCharFromSet(" ,\r\n");
   endLabel.end();
 
-  auto start = oatpp::utils::Conversion::strToInt64(startLabel.getData());
-  auto end = oatpp::utils::Conversion::strToInt64(endLabel.getData());
-  return Range(unitsLabel.toString(), start, end);
-  
+  bool success;
+  auto start = oatpp::utils::Conversion::strToInt64(startLabel.toString(), success);
+  if(!success) return Range();
+  v_int64 end = -1;
+  if(endLabel.getSize() > 0) {
+    end = oatpp::utils::Conversion::strToInt64(endLabel.toString(), success);
+    if(!success) return Range();
+  }
+  return Range(units, start, end);
 }
 
-Range Range::parse(const oatpp::String& str) {
+void Range::parseAll(std::vector<Range>& ranges, oatpp::utils::parser::Caret& caret) {
+  caret.skipBlankChars();
+  auto range = parse(caret);
+  while(range.valid) {
+    ranges.push_back(range);
+    if(caret.canContinueAtChar(',', 1)) {
+      caret.skipBlankChars();
+      range = parseNext(caret, range.units);
+    } else {
+      break;
+    }
+  }
+}
+
+void Range::parseAll(std::vector<Range>& ranges, const oatpp::String& str) {
   oatpp::utils::parser::Caret caret(str);
-  return parse(caret);
+  return parseAll(ranges, caret);
 }
 
 oatpp::String ContentRange::toString() const {

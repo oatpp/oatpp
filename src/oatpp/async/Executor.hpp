@@ -54,6 +54,10 @@ private:
     std::thread m_thread;
   public:
     SubmissionProcessor();
+    ~SubmissionProcessor() override {
+      stop();
+      join();
+    }
   public:
 
     template<typename CoroutineType, typename ... Args>

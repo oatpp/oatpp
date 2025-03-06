@@ -238,18 +238,18 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
           bodySize = m_this->m_body->getKnownSize();
 
           if (bodySize >= 0) {
-            m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, utils::Conversion::int64ToStr(bodySize));
+            m_this->m_headers.putIfNotExists_LockFree(Header::CONTENT_LENGTH, utils::Conversion::int64ToStr(bodySize));
           } else {
-            m_this->m_headers.put_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
+            m_this->m_headers.putIfNotExists_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
           }
 
         } else {
-          m_this->m_headers.put_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
-          m_this->m_headers.put_LockFree(Header::CONTENT_ENCODING, m_contentEncoderProvider->getEncodingName());
+          m_this->m_headers.putIfNotExists_LockFree(Header::TRANSFER_ENCODING, Header::Value::TRANSFER_ENCODING_CHUNKED);
+          m_this->m_headers.putIfNotExists_LockFree(Header::CONTENT_ENCODING, m_contentEncoderProvider->getEncodingName());
         }
 
       } else {
-        m_this->m_headers.put_LockFree(Header::CONTENT_LENGTH, "0");
+        m_this->m_headers.putIfNotExists_LockFree(Header::CONTENT_LENGTH, "0");
       }
 
       m_headersWriteBuffer->setCurrentPosition(0);

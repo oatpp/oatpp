@@ -20,7 +20,7 @@
 # Oat++ 
 
 Oat++ is a modern Web Framework for C++. 
-It's fully loaded and contains all necessary components for effective production level development. 
+It's fully loaded and contains all the necessary components for effective production-level development. 
 It's also light and has a small memory footprint.
 
 ## News  
@@ -115,7 +115,7 @@ QUERY(createUser,
 
 ### WebSocket
 
-- [Can Chat](https://github.com/lganzzzo/canchat) - Feature-complete rooms-based chat for tens of thousands users. Client plus Server.
+- [Can Chat](https://github.com/lganzzzo/canchat) - Feature-complete rooms-based chat for tens of thousands of users. Client plus Server.
 - [WebSocket](https://github.com/oatpp/example-websocket) - Collection of oatpp WebSocket examples.
 - [YUV Websocket Stream](https://github.com/oatpp/example-yuv-websocket-stream) - Example project how-to create a YUV image stream from a V4L device (i.E. Webcam) using websockets.
 
@@ -123,11 +123,11 @@ QUERY(createUser,
 
 - [SQLite](https://github.com/oatpp/example-crud) - A complete example of a "CRUD" service. REST + Swagger-UI + SQLite.
 - [PostgreSQL](https://github.com/oatpp/example-postgresql) - Example of a production-grade entity service storing information in PostgreSQL. With Swagger-UI and configuration profiles.
-- [MongoDB](https://github.com/oatpp/example-mongodb) - Example project how to work with MongoDB using **oatpp-mongo** mondule. Project is a web-service with basic CRUD and Swagger-UI.
+- [MongoDB](https://github.com/oatpp/example-mongodb) - Example project how to work with MongoDB using **oatpp-mongo** mondule. The project is a web-service with basic CRUD and Swagger-UI.
  
 ### IoT
 
-- [Example-IoT-Hue](https://github.com/oatpp/example-iot-hue-ssdp) - Example project how-to create an Philips Hue compatible REST-API that is discovered and controllable by Hue compatible Smart-Home devices like Amazon Alexa or Google Echo.
+- [Example-IoT-Hue](https://github.com/oatpp/example-iot-hue-ssdp) - Example project how-to create a Philips Hue compatible REST-API that is discovered and controllable by Hue compatible Smart-Home devices like Amazon Alexa or Google Echo.
 
 ### Streaming
 
