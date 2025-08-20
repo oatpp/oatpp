@@ -264,7 +264,7 @@ void ObjectToTreeMapperTest::onRun() {
 
     std::cout << *tree.debugPrint() << std::endl;
 
-    OATPP_ASSERT(tree.getString() == "value-1");
+    OATPP_ASSERT(tree.getString() == "value-1")
   }
 
   {
@@ -282,7 +282,7 @@ void ObjectToTreeMapperTest::onRun() {
 
     std::cout << *tree.debugPrint() << std::endl;
 
-    OATPP_ASSERT(tree.getString() == "VALUE_2");
+    OATPP_ASSERT(tree.getString() == "VALUE_2")
   }
 
 }

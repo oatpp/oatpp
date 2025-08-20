@@ -25,13 +25,12 @@
 #ifndef oatpp_data_type_Type_hpp
 #define oatpp_data_type_Type_hpp
 
-#include "oatpp/base/Countable.hpp"
 #include "oatpp/Environment.hpp"
 
-#include <list>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
 
 namespace oatpp { namespace data { namespace type {
 
@@ -270,7 +269,6 @@ public:
   Void(const std::shared_ptr<void>& ptr, const type::Type* const valueType)
     : ObjectWrapper<void, __class::Void>(ptr, valueType)
   {}
-public:
 
   Void() {}
 
@@ -296,7 +294,7 @@ public:
   {}
 
   Void(Void&& other)
-    : type::ObjectWrapper<void, __class::Void>(std::move(other.getPtr()), other.getValueType())
+    : type::ObjectWrapper<void, __class::Void>(std::move(other))
   {}
 
   template<typename T, typename C>
