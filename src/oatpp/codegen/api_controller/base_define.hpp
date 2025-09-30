@@ -475,7 +475,7 @@ std::shared_ptr<oatpp::web::server::api::Endpoint::Info> Z__EDNPOINT_INFO_GET_IN
 EndpointInfoBuilder Z__CREATE_ENDPOINT_INFO_##NAME = [this](){ \
   auto info = Z__EDNPOINT_INFO_GET_INSTANCE_##NAME(); \
   info->name = #NAME; \
-  info->path = PATH; \
+  info->path = ((m_routerPrefix != nullptr) ? m_routerPrefix + PATH : PATH); \
   info->method = METHOD; \
   return info; \
 }; \
