@@ -25,6 +25,7 @@
 #include "HttpProcessor.hpp"
 
 #include "oatpp/web/server/HttpServerError.hpp"
+#include "oatpp/web/protocol/http/encoding/EncoderProvider.hpp"
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
@@ -194,8 +195,11 @@ HttpProcessor::ConnectionState HttpProcessor::processNextRequest(ProcessingResou
 
   }
 
-  auto contentEncoderProvider =
-    protocol::http::utils::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
+  std::shared_ptr<protocol::http::encoding::EncoderProvider> contentEncoderProvider;
+  // only use compression if content encoding was not set yet
+  if(response->getHeader(protocol::http::Header::CONTENT_ENCODING) == nullptr) {
+    contentEncoderProvider = protocol::http::utils::CommunicationUtils::selectEncoder(request, resources.components->contentEncodingProviders);
+  }
 
   response->send(resources.connection.object.get(), &resources.headersOutBuffer, contentEncoderProvider.get());
 
