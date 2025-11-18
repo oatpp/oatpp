@@ -81,6 +81,9 @@ public:
   LogMessage& operator << (const Float32& value);
   LogMessage& operator << (const Float64& value);
 
+  template<typename... Types>
+  LogMessage& fill(Types... args);
+
 };
 
 struct Log {
@@ -91,22 +94,24 @@ struct Log {
 
   template<typename ... Types>
   static void stream(v_uint32 priority, const std::string& tag, const oatpp::String& message, Types... args) {
-    oatpp::base::LogMessage msg(message);
-    ignore({std::addressof(msg << args)...});
-    log(priority, tag, msg);
+    log(priority, tag, LogMessage(message).fill(std::forward<Types>(args)...));
   }
 
   template<typename ... Types>
   static void stream(v_uint32 priority, const LogCategory& category, const oatpp::String& message, Types... args) {
-    oatpp::base::LogMessage msg(message);
-    ignore({std::addressof(msg << args)...});
-    log(priority, category, msg);
+    log(priority, category, LogMessage(message).fill(std::forward<Types>(args)...));
   }
 
   static void log(v_uint32 priority, const std::string& tag, const LogMessage& message);
   static void log(v_uint32 priority, const LogCategory& category, const LogMessage& message);
 
 };
+
+template<typename... Types>
+LogMessage& LogMessage::fill(Types... args) {
+  Log::ignore({std::addressof(*this << args)...});
+  return *this;
+}
 
 }}
 
