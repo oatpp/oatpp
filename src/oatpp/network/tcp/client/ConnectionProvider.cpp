@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <thread>
 
 #if defined(WIN32) || defined(_WIN32)
   #include <io.h>
@@ -313,7 +314,57 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
             ));
       }
       if(errno == EALREADY || errno == EINPROGRESS) {
-        return ioWait(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
+        // BUG: when a connection is made, it's critical that we wait for it to succeed
+
+        // wait for connection to finish and verify it's valid using blocking select
+        fd_set writefds;
+        FD_ZERO(&writefds);
+        FD_SET(m_clientHandle, &writefds);
+
+        // Set timeout to 120 seconds
+        timeval timeout;
+        timeout.tv_sec = 120; 
+        timeout.tv_usec = 0;
+
+        int selectResult = select(m_clientHandle + 1, nullptr, &writefds, nullptr, &timeout);
+
+        if (selectResult > 0 && FD_ISSET(m_clientHandle, &writefds)) 
+        {
+          // write socket is ready, possible connection
+          int so_error = 0;
+          socklen_t len = sizeof(so_error);
+
+          // query state of socket
+          if (getsockopt(m_clientHandle, SOL_SOCKET, SO_ERROR, &so_error, &len) == 0) 
+          {
+            if (so_error == 0) 
+            {
+              // success
+              return _return(provider::ResourceHandle<data::stream::IOStream>(
+              std::make_shared<oatpp::network::tcp::Connection>(m_clientHandle),
+              m_connectionInvalidator
+              ));
+            } 
+            else 
+            {
+              // failure
+              OATPP_LOGi("ConnectionProvider","oatpp::async::CoroutineStarterForResult::doConnect(m_clientHandle=%d). so_error=%d. . connect failed", m_clientHandle, so_error); // Connection failed
+
+              // If the server is not available, do not want to flood connection attempts, so add a small 1 second delay
+              std::this_thread::sleep_for(std::chrono::seconds(1));
+
+              return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
+            }
+          }
+        } 
+        else if (selectResult == 0) 
+        {
+          OATPP_LOGi("ConnectionProvider","oatpp::async::CoroutineStarterForResult::doConnect(m_clientHandle=%d). ::select() failed. Timed out", m_clientHandle);
+          return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
+        }
+
+        // if select fails, we assume socket is bad and we re-create socket
+        return yieldTo(&ConnectCoroutine::iterateAddrInfoResults);
       } else if(errno == EINTR) {
         return ioRepeat(m_clientHandle, oatpp::async::Action::IOEventType::IO_EVENT_WRITE);
       }
