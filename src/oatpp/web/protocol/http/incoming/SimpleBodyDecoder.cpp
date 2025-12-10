@@ -207,7 +207,7 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
 
   }
 
-  return std::move(pipeline);
+  return pipeline;
 
 }
   
