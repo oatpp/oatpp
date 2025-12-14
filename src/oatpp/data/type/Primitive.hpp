@@ -274,6 +274,12 @@ public:
     return !operator == (other);
   }
 
+  inline bool operator < (const String &other) const {
+    if(!m_ptr) return static_cast<bool>(other.m_ptr);
+    if(!other.m_ptr) return false;
+    return *m_ptr < *other.m_ptr;
+  }
+
 };
 
 String operator + (const char* a, const String& b);

@@ -421,6 +421,12 @@ public:
     return getPropertiesMap().at(propertyName)->getAsRef(this->m_ptr.get());
   }
 
+  inline bool operator < (const DTOWrapper& other) const {
+    if(this->m_ptr.get() == other.m_ptr.get()) return false;
+    if(!this->m_ptr.get()) return true; // lhs is null
+    if(!other.m_ptr.get()) return false; // rhs is null
+    return *this->m_ptr < *other.m_ptr; // compare content
+  }
 };
 
 /**
