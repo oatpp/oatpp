@@ -1,0 +1,248 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&family=Source+Code+Pro:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 174 70% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 174 70% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 174 70% 36%;
+
+    --radius: 0.375rem;
+
+    /* Custom oatpp colors */
+    --oat-teal: 174 70% 36%;
+    --oat-dark: 222 47% 11%;
+    --oat-navy: 222 47% 20%;
+    --oat-gray: 215 16% 47%;
+    --oat-light: 210 20% 98%;
+    --oat-code-bg: 220 13% 18%;
+    --oat-code-text: 210 14% 83%;
+    --oat-link: 174 70% 36%;
+    --oat-sidebar-active: 174 70% 36%;
+    --oat-border: 214 32% 91%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 174 70% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 174 70% 36%;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 20% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 174 70% 45%;
+    --primary-foreground: 222 47% 8%;
+
+    --secondary: 222 30% 18%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 222 30% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 174 70% 45%;
+    --accent-foreground: 222 47% 8%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 222 30% 22%;
+    --input: 222 30% 22%;
+    --ring: 174 70% 45%;
+
+    --oat-teal: 174 70% 45%;
+    --oat-dark: 210 20% 98%;
+    --oat-navy: 210 20% 90%;
+    --oat-gray: 215 20% 65%;
+    --oat-light: 222 47% 11%;
+    --oat-code-bg: 222 40% 12%;
+    --oat-code-text: 210 14% 83%;
+    --oat-link: 174 70% 50%;
+    --oat-sidebar-active: 174 70% 45%;
+    --oat-border: 222 30% 22%;
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 174 70% 45%;
+    --sidebar-primary-foreground: 222 47% 8%;
+    --sidebar-accent: 222 30% 18%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 222 30% 22%;
+    --sidebar-ring: 174 70% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer components {
+  .oat-link {
+    @apply text-oat-teal hover:underline transition-colors;
+  }
+
+  .oat-code {
+    @apply bg-oat-light px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  .oat-code-block {
+    @apply bg-oat-code text-oat-code-text p-4 rounded-md overflow-x-auto font-mono text-sm;
+  }
+
+  .oat-heading {
+    @apply text-oat-dark font-semibold;
+  }
+
+  .sidebar-link {
+    @apply block py-1.5 px-3 text-sm text-muted-foreground hover:text-foreground transition-colors rounded;
+  }
+
+  .sidebar-link-active {
+    @apply text-oat-teal border-l-2 border-oat-teal bg-transparent font-medium;
+  }
+
+  .sidebar-group-title {
+    @apply text-sm font-semibold text-foreground py-2 px-3 flex items-center justify-between cursor-pointer hover:bg-muted/50 rounded;
+  }
+
+  .feature-card {
+    @apply p-6 border-t border-oat-border;
+  }
+
+  .nav-link {
+    @apply text-muted-foreground hover:text-foreground transition-colors text-sm font-medium;
+  }
+
+  .nav-link-active {
+    @apply text-foreground;
+  }
+
+  .search-input {
+    @apply w-full h-9 px-3 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-oat-teal/20 focus:border-oat-teal transition-colors;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-2.5 bg-oat-teal text-primary-foreground rounded-md font-medium text-sm hover:bg-oat-teal/90 transition-colors;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-muted transition-colors;
+  }
+
+  .table-container {
+    @apply w-full overflow-x-auto;
+  }
+
+  .oat-table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .oat-table th {
+    @apply text-left py-2 px-4 bg-muted font-semibold border border-border;
+  }
+
+  .oat-table td {
+    @apply py-2 px-4 border border-border;
+  }
+
+  .copy-button {
+    @apply absolute top-2 right-2 p-2 rounded bg-background/10 hover:bg-background/20 text-oat-code-text transition-colors;
+  }
+
+  .feedback-widget {
+    @apply fixed bottom-4 right-4 z-50;
+  }
+
+  .playground-container {
+    @apply border border-border rounded-lg overflow-hidden;
+  }
+}
+
+@layer utilities {
+  .text-oat-teal {
+    color: hsl(var(--oat-teal));
+  }
+
+  .text-oat-dark {
+    color: hsl(var(--oat-dark));
+  }
+
+  .text-oat-navy {
+    color: hsl(var(--oat-navy));
+  }
+
+  .text-oat-gray {
+    color: hsl(var(--oat-gray));
+  }
+
+  .bg-oat-teal {
+    background-color: hsl(var(--oat-teal));
+  }
+
+  .bg-oat-light {
+    background-color: hsl(var(--oat-light));
+  }
+
+  .bg-oat-code {
+    background-color: hsl(var(--oat-code-bg));
+  }
+
+  .text-oat-code-text {
+    color: hsl(var(--oat-code-text));
+  }
+
+  .border-oat-teal {
+    border-color: hsl(var(--oat-teal));
+  }
+
+  .border-oat-border {
+    border-color: hsl(var(--oat-border));
+  }
+}
