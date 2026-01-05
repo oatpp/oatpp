@@ -37,13 +37,18 @@ public:
 
 class AllowCorsGlobal : public ResponseInterceptor {
 private:
-  oatpp::String m_origin;
+  std::unordered_set<oatpp::String> m_allowedOrigins;
   oatpp::String m_methods;
   oatpp::String m_headers;
   oatpp::String m_maxAge;
 public:
 
   AllowCorsGlobal(const oatpp::String &origin = "*",
+                  const oatpp::String &methods = "GET, POST, OPTIONS",
+                  const oatpp::String &headers = "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization",
+                  const oatpp::String &maxAge = "1728000");
+
+  AllowCorsGlobal(const std::unordered_set<oatpp::String>& allowedOrigins,
                   const oatpp::String &methods = "GET, POST, OPTIONS",
                   const oatpp::String &headers = "DNT, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization",
                   const oatpp::String &maxAge = "1728000");

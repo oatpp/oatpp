@@ -42,16 +42,37 @@ AllowCorsGlobal::AllowCorsGlobal(const oatpp::String &origin,
                                  const oatpp::String &methods,
                                  const oatpp::String &headers,
                                  const oatpp::String &maxAge)
-  : m_origin(origin)
+  : m_allowedOrigins({origin})
   , m_methods(methods)
   , m_headers(headers)
   , m_maxAge(maxAge)
 {}
 
+AllowCorsGlobal::AllowCorsGlobal(const std::unordered_set<oatpp::String>& allowedOrigins,
+                                 const oatpp::String &methods,
+                                 const oatpp::String &headers,
+                                 const oatpp::String &maxAge)
+  : m_allowedOrigins(allowedOrigins)
+  , m_methods(methods)
+  , m_headers(headers)
+  , m_maxAge(maxAge)
+{
+  if(allowedOrigins.empty()) {
+    throw std::runtime_error("[oatpp::web::server::interceptor::AllowCorsGlobal::AllowCorsGlobal()]: Error - allowed origins set is empty");
+  }
+}
+
 std::shared_ptr<protocol::http::outgoing::Response> AllowCorsGlobal::intercept(const std::shared_ptr<IncomingRequest>& request,
                                                                                const std::shared_ptr<OutgoingResponse>& response)
 {
-  response->putHeaderIfNotExists(protocol::http::Header::CORS_ORIGIN, m_origin);
+  if(m_allowedOrigins.size() == 1) {
+    response->putHeaderIfNotExists(protocol::http::Header::CORS_ORIGIN, *m_allowedOrigins.begin());
+  } else {
+    auto origin = request->getHeader(protocol::http::Header::ORIGIN);
+    if(origin && m_allowedOrigins.find(origin) != m_allowedOrigins.end()) {
+      response->putHeaderIfNotExists(protocol::http::Header::CORS_ORIGIN, origin);
+    }
+  }
   response->putHeaderIfNotExists(protocol::http::Header::CORS_METHODS, m_methods);
   response->putHeaderIfNotExists(protocol::http::Header::CORS_HEADERS, m_headers);
   response->putHeaderIfNotExists(protocol::http::Header::CORS_MAX_AGE, m_maxAge);

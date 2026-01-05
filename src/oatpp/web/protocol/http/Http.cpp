@@ -126,6 +126,8 @@ const char* const Header::SERVER = "Server";
 const char* const Header::UPGRADE = "Upgrade";
 
 
+const char* const Header::ORIGIN = "Origin";
+
 const char* const Header::CORS_ORIGIN = "Access-Control-Allow-Origin";
 const char* const Header::CORS_METHODS = "Access-Control-Allow-Methods";
 const char* const Header::CORS_HEADERS = "Access-Control-Allow-Headers";
