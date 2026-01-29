@@ -32,7 +32,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 /**
  * Timer worker.
@@ -93,6 +93,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_async_worker_TimerWorker_hpp

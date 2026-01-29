@@ -31,7 +31,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 /**
  * String template.
@@ -208,6 +208,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_share_StringTemplate_hpp

@@ -24,10 +24,10 @@
 
 #include "Enum.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
   const ClassId AbstractEnum::CLASS_ID("Enum");
 }
 
-}}}
+}

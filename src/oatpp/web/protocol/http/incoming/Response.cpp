@@ -24,7 +24,7 @@
 
 #include "./Response.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 Response::Response(v_int32 statusCode,
                    const oatpp::String& statusDescription,
@@ -124,4 +124,4 @@ oatpp::async::CoroutineStarter Response::transferBodyToStreamAsync(const std::sh
   return m_bodyDecoder->decodeAsync(m_headers, m_bodyStream, toStream, m_connection);
 }
 
-}}}}}
+}

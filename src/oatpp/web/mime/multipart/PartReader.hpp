@@ -28,7 +28,7 @@
 #include "./Multipart.hpp"
 #include "oatpp/data/stream/Stream.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 /**
  * Abstract read handler of multipart parts.
@@ -207,6 +207,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif //oatpp_web_mime_multipart_PartReader_hpp

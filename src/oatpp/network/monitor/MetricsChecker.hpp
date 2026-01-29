@@ -27,7 +27,7 @@
 
 #include "StatCollector.hpp"
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 /**
  * MetricsChecker checks &id:oatpp::network::monitor::ConnectionStats; if those are satisfy the rule.
@@ -66,6 +66,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_network_monitor_MetricsChecker_hpp

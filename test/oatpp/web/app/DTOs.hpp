@@ -28,7 +28,7 @@
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -49,6 +49,6 @@ ENUM(AllowedPathParams, v_int32,
 
 #include OATPP_CODEGEN_END(DTO)
   
-}}}}
+}
 
 #endif /* oatpp_test_web_app_DTOs_hpp */

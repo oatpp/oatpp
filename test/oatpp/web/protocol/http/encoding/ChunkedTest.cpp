@@ -27,7 +27,7 @@
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::test::web::protocol::http::encoding {
 
 void ChunkedTest::onRun() {
 
@@ -122,4 +122,4 @@ void ChunkedTest::onRun() {
 
 }
 
-}}}}}}
+}

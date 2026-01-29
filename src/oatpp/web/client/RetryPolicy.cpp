@@ -24,7 +24,7 @@
 
 #include "RetryPolicy.hpp"
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 SimpleRetryPolicy::SimpleRetryPolicy(v_int64 maxAttempts,
                                      const std::chrono::duration<v_int64, std::micro>& delay,
@@ -38,14 +38,14 @@ bool SimpleRetryPolicy::canRetry(const Context& context) {
   return context.attempt <= m_maxAttempts || m_maxAttempts == -1;
 }
 
-bool SimpleRetryPolicy::retryOnResponse(v_int32 responseStatusCode, const Context& context) {
+bool SimpleRetryPolicy::retryOnResponse(v_int32 responseStatusCode, [[maybe_unused]] const Context& context) {
   (void) context;
   return m_httpCodes.find(responseStatusCode) != m_httpCodes.end();
 }
 
-v_int64 SimpleRetryPolicy::waitForMicroseconds(const Context& context) {
+v_int64 SimpleRetryPolicy::waitForMicroseconds([[maybe_unused]] const Context& context) {
   (void) context;
   return m_delay;
 }
 
-}}}
+}

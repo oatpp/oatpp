@@ -45,7 +45,7 @@
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/macro/component.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 namespace multipart = oatpp::web::mime::multipart;
 
@@ -380,6 +380,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_test_web_app_ControllerAsync_hpp */

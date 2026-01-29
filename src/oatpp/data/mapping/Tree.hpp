@@ -27,7 +27,7 @@
 
 #include "oatpp/data/type/Object.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 class TreeMap;
 
@@ -404,6 +404,6 @@ struct Tree::NodePrimitiveType<v_float64> {
   typedef v_float64 value_type;
 };
 
-}}}
+}
 
 #endif //oatpp_data_mapping_Tree_hpp

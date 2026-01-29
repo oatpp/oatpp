@@ -27,7 +27,7 @@
 #include "oatpp/data/share/LazyStringMap.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 void LazyStringMapTest::onRun() {
 
@@ -159,4 +159,4 @@ void LazyStringMapTest::onRun() {
 
 }
 
-}}}
+}

@@ -42,7 +42,7 @@
 #include <list>
 #include <unordered_map>
 
-namespace oatpp { namespace web { namespace server { namespace api {
+namespace oatpp::web::server::api {
 
 /**
  * Class responsible for implementation and management of endpoints.<br>
@@ -611,6 +611,6 @@ struct ApiController::TypeInterpretation <data::type::EnumObjectWrapper<T, I>> {
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_web_server_api_Controller_hpp */

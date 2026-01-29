@@ -26,7 +26,7 @@
 
 #include "oatpp/data/resource/InMemoryData.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 void InMemoryDataTest::onRun() {
 
@@ -92,4 +92,4 @@ void InMemoryDataTest::onRun() {
 
 }
 
-}}}
+}

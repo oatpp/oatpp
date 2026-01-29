@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data { namespace buffer {
+namespace oatpp::data::buffer {
 
 class ProcessorTest : public oatpp::test::UnitTest{
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_buffer_ProcessorTest_hpp

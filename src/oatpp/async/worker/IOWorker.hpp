@@ -32,7 +32,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 /**
 * Naive implementation of IOWorker.
@@ -90,6 +90,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_async_worker_IOWorker_hpp

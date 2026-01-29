@@ -27,7 +27,7 @@
 #include "oatpp/encoding/Unicode.hpp"
 #include "oatpp/encoding/Hex.hpp"
 
-namespace oatpp { namespace json{
+namespace oatpp::json{
 
 v_buff_size Utils::calcEscapedStringSize(const char* data, v_buff_size size, v_buff_size& safeSize, v_uint32 flags) {
   v_buff_size result = 0;
@@ -512,4 +512,4 @@ bool Utils::findDecimalSeparatorInCurrentNumber(ParsingCaret& caret) {
   return false;
 }
   
-}}
+}

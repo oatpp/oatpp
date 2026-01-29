@@ -28,7 +28,7 @@
 #include "./Type.hpp"
 #include <list>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -219,6 +219,6 @@ struct Map::Inserter<std::list<std::pair<KeyType, ValueType>>, KeyType, ValueTyp
 
 }
 
-}}}
+}
 
 #endif //oatpp_data_type_Map_hpp

@@ -27,7 +27,7 @@
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
   
 namespace {
   
@@ -121,4 +121,4 @@ void TypeTest::onRun() {
 
 }
   
-}}}
+}

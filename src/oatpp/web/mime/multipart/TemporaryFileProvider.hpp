@@ -28,7 +28,7 @@
 #include "PartReader.hpp"
 #include "Reader.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 class TemporaryFileProvider : public PartReaderResourceProvider {
 private:
@@ -67,6 +67,6 @@ std::shared_ptr<AsyncPartReader> createAsyncTemporaryFilePartReader(const oatpp:
                                                                     v_int32 randomWordSizeBytes = 8,
                                                                     v_io_size maxDataSize = -1);
 
-}}}}
+}
 
 #endif //oatpp_web_mime_multipart_TemporaryFileProvider_hpp

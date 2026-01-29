@@ -26,7 +26,7 @@
 
 #include <algorithm>
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 SchemaMigration::SchemaMigration(const base::ObjectHandle<Executor>& executor, const oatpp::String& suffix)
   : m_executor(executor)
@@ -92,4 +92,4 @@ v_int64 SchemaMigration::getSchemaVersion() {
   return m_executor->getSchemaVersion(m_suffix);
 }
 
-}}
+}

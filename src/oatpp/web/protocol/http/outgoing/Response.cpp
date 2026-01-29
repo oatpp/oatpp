@@ -27,7 +27,7 @@
 #include "oatpp/web/protocol/http/encoding/Chunked.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 Response::Response(const Status& status,
                    const std::shared_ptr<Body>& body)
@@ -322,4 +322,4 @@ oatpp::async::CoroutineStarter Response::sendAsync(const std::shared_ptr<Respons
 
 }
 
-}}}}}
+}

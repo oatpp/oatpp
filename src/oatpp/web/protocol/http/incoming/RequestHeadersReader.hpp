@@ -30,7 +30,7 @@
 #include "oatpp/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 /**
  * Helper class to read http headers of incoming request from stream.
@@ -108,6 +108,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_incoming_RequestHeadersReader_hpp */

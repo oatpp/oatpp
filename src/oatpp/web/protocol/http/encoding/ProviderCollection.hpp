@@ -30,7 +30,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::web::protocol::http::encoding {
 
 /**
  * Collection of &id:oatpp::web::protocol::http::encoding::EncoderProvider;.
@@ -62,6 +62,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif // oatpp_web_protocol_http_encoding_ProviderCollection_hpp

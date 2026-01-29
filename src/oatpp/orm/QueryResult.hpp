@@ -29,7 +29,7 @@
 #include "oatpp/provider/Provider.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 /**
  * Result of DB query.
@@ -105,6 +105,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_orm_QueryResult_hpp

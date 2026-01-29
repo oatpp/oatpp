@@ -28,7 +28,7 @@
 #include "oatpp/Types.hpp"
 #include "oatpp/IODefinitions.hpp"
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 /**
  * ConnectionStats.
@@ -126,6 +126,6 @@ public:
   virtual void onWrite(void* metricData, v_io_size writeResult, v_int64 timestamp) = 0;
 };
 
-}}}
+}
 
 #endif //oatpp_network_monitor_StatCollector_hpp

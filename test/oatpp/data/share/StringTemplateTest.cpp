@@ -26,7 +26,7 @@
 
 #include "oatpp/data/share/StringTemplate.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 void StringTemplateTest::onRun() {
 
@@ -118,4 +118,4 @@ void StringTemplateTest::onRun() {
 
 }
 
-}}}
+}

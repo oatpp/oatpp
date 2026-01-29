@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tree::Attributes
@@ -1161,4 +1161,4 @@ v_uint64 TreeChildrenOperator::size() const {
   throw std::runtime_error("[oatpp::data::mapping::TreeChildrenOperator::size()]: Invalid operator type");
 }
 
-}}}
+}

@@ -30,7 +30,7 @@
 #endif // _CRT_SECURE_NO_WARNINGS
 #include <atomic>
 
-namespace oatpp { namespace concurrency {
+namespace oatpp::concurrency {
 
 /**
  * SpinLock implementation based on atomic.
@@ -64,6 +64,6 @@ public:
 
 };
   
-}}
+}
 
 #endif /* oatpp_concurrency_SpinLock_hpp */

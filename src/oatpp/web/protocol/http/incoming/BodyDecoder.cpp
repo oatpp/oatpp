@@ -24,7 +24,7 @@
 
 #include "BodyDecoder.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BodyDecoder
@@ -70,4 +70,4 @@ BodyDecoder::decodeToStringAsync(const Headers& headers,
 
 }
 
-}}}}}
+}

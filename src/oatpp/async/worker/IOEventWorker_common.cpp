@@ -30,7 +30,7 @@
 #include <unistd.h>
 #endif
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IOEventWorker
@@ -194,4 +194,4 @@ void IOEventWorkerForeman::detach() {
   m_writer.detach();
 }
 
-}}}
+}

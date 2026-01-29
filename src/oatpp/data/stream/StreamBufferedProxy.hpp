@@ -30,7 +30,7 @@
 #include "oatpp/data/share/MemoryLabel.hpp"
 #include "oatpp/async/Coroutine.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
   
 class OutputStreamBufferedProxy : public oatpp::base::Countable, public OutputStream {
 private:
@@ -143,6 +143,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_data_stream_StreamBufferedProxy_hpp */

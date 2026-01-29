@@ -32,7 +32,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 /**
  * Asynchronous &id:oatpp::network::ConnectionHandler; for handling http communication.
@@ -156,7 +156,7 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_web_server_AsyncHttpConnectionHandler_hpp */
 

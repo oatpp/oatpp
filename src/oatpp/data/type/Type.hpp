@@ -33,7 +33,7 @@
 #include <vector>
 #include <string>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 class Type; // FWD
 
@@ -618,7 +618,7 @@ public: \
   } \
 
 
-}}}
+}
 
 namespace std {
 

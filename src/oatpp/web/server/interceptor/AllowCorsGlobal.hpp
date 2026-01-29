@@ -28,7 +28,7 @@
 #include "oatpp/web/server/interceptor/ResponseInterceptor.hpp"
 #include "oatpp/web/server/interceptor/RequestInterceptor.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace interceptor {
+namespace oatpp::web::server::interceptor {
 
 class AllowOptionsGlobal : public RequestInterceptor {
 public:
@@ -53,6 +53,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif // oatpp_web_server_interceptor_AllowCorsGlobal_hpp

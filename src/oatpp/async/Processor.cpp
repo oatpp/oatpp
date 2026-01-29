@@ -27,7 +27,7 @@
 #include "./CoroutineWaitList.hpp"
 #include "oatpp/async/worker/Worker.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 void Processor::addWorker(const std::shared_ptr<worker::Worker>& worker) {
 
@@ -295,4 +295,4 @@ v_int32 Processor::getTasksCount() {
   return m_tasksCounter.load();
 }
 
-}}
+}

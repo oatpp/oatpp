@@ -24,7 +24,7 @@
 
 #include "HttpServerError.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 HttpServerError::HttpServerError(const std::shared_ptr<protocol::http::incoming::Request>& request, const std::string& message)
   : std::runtime_error(message)
@@ -35,4 +35,4 @@ const std::shared_ptr<protocol::http::incoming::Request>& HttpServerError::getRe
   return m_request;
 }
 
-}}}
+}

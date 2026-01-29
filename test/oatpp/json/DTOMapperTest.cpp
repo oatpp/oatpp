@@ -37,7 +37,7 @@
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
   
 namespace {
   
@@ -403,4 +403,4 @@ void DTOMapperTest::onRun(){
   
 #include OATPP_CODEGEN_END(DTO)
 
-}}
+}

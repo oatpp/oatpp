@@ -26,7 +26,7 @@
 
 #include <chrono>
 
-namespace oatpp { namespace test {
+namespace oatpp::test {
 
 void UnitTest::run(v_int32 times) {
   
@@ -63,4 +63,4 @@ void UnitTest::run(v_int32 times) {
   
 }
 
-}}
+}

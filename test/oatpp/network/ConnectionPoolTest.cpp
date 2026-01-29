@@ -28,7 +28,7 @@
 #include "oatpp/async/Executor.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace test { namespace network {
+namespace oatpp::test::network {
 
 namespace {
 
@@ -216,4 +216,4 @@ void ConnectionPoolTest::onRun() {
 
 }
 
-}}}
+}

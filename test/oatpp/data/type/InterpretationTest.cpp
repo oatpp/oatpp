@@ -29,7 +29,7 @@
 #include "oatpp/Types.hpp"
 #include "oatpp/macro/codegen.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 namespace {
 
@@ -243,4 +243,4 @@ void InterpretationTest::onRun() {
 
 }
 
-}}}
+}

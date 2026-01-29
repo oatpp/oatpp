@@ -30,7 +30,7 @@
 #include "oatpp/data/stream/Stream.hpp"
 #include "oatpp/async/Coroutine.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 /**
  * Abstract http outgoing body.
@@ -73,6 +73,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_outgoing_Body_hpp */

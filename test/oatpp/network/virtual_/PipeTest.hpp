@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace network { namespace virtual_ {
+namespace oatpp::test::network::virtual_ {
   
 class PipeTest : public UnitTest {
 public:
@@ -35,6 +35,6 @@ public:
   void onRun() override;
 };
   
-}}}}
+}
 
 #endif /* oatpp_test_network_virtual__PipeTest_hpp */

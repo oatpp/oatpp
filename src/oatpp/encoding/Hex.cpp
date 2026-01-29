@@ -32,7 +32,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
   
 const char* Hex::ALPHABET_UPPER = "0123456789ABCDEF";
 const char* Hex::ALPHABET_LOWER = "0123456789abcdef";
@@ -149,4 +149,4 @@ oatpp::String Hex::decode(const oatpp::String& data, bool allowSeparators) {
   return ss.toString();
 }
 
-}}
+}

@@ -27,7 +27,7 @@
 
 #include "oatpp/Environment.hpp"
 
-namespace oatpp { namespace base {
+namespace oatpp::base {
 
 template<class T>
 class ObjectHandle {
@@ -64,6 +64,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_base_ObjectHandle_hpp

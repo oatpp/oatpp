@@ -24,7 +24,7 @@
 
 #include "ObjectMapper.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 ObjectMapper::ObjectMapper(const SerializerConfig& serializerConfig, const DeserializerConfig& deserializerConfig)
   : data::mapping::ObjectMapper(getMapperInfo())
@@ -135,4 +135,4 @@ ObjectMapper::DeserializerConfig& ObjectMapper::deserializerConfig() {
   return m_deserializerConfig;
 }
 
-}}
+}

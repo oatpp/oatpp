@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace utils { namespace parser {
+namespace oatpp::utils::parser {
 
 class CaretTest : public oatpp::test::UnitTest{
 public:
@@ -37,7 +37,7 @@ public:
 
 };
 
-}}}
+}
 
 
 #endif //oatpp_utils_parser_CaretTest_hpp

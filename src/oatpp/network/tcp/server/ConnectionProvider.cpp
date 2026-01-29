@@ -69,7 +69,7 @@
   }
 #endif
 
-namespace oatpp { namespace network { namespace tcp { namespace server {
+namespace oatpp::network::tcp::server {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtendedConnection
@@ -449,4 +449,4 @@ provider::ResourceHandle<oatpp::data::stream::IOStream> ConnectionProvider::get(
 
 }
 
-}}}}
+}

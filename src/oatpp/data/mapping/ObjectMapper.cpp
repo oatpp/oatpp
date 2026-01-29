@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 void ErrorStack::push(const oatpp::String& error) {
   stack.emplace_back(error);
@@ -92,4 +92,4 @@ oatpp::String ObjectMapper::writeToString(const type::Void& variant) const {
   return stream.toString();
 }
 
-}}}
+}

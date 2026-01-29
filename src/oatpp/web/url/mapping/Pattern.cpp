@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace url { namespace mapping {
+namespace oatpp::web::url::mapping {
 
 const char* Pattern::Part::FUNCTION_CONST = "const";
 const char* Pattern::Part::FUNCTION_VAR = "var";
@@ -215,4 +215,4 @@ oatpp::String Pattern::toString() const {
   return stream.toString();
 }
   
-}}}}
+}

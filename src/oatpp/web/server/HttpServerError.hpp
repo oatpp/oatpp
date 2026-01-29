@@ -27,7 +27,7 @@
 
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 /**
  * HttpServerError
@@ -52,6 +52,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_web_server_HttpServerError_hpp

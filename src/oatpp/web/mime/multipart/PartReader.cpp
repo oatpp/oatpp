@@ -25,7 +25,7 @@
 #include "PartReader.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 const char* const StreamPartReader::TAG_NAME = "[oatpp::web::mime::multipart::StreamPartReader::TAG]";
 
@@ -176,4 +176,4 @@ async::CoroutineStarter AsyncStreamPartReader::onPartDataAsync(const std::shared
 
 }
 
-}}}}
+}

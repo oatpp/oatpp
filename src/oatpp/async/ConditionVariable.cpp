@@ -24,7 +24,7 @@
 
 #include "ConditionVariable.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 ConditionVariable::ConditionVariable()
   : m_notified(false)
@@ -142,4 +142,4 @@ void ConditionVariable::notifyAll() {
   m_list.notifyAll();
 }
 
-}}
+}

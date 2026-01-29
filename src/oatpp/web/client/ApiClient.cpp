@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 std::shared_ptr<RequestExecutor::ConnectionHandle> ApiClient::getConnection() {
   return m_requestExecutor->getConnection();
@@ -146,4 +146,4 @@ ApiClient::executeRequestAsync(const oatpp::String& method,
 
 }
 
-}}}
+}

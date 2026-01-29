@@ -27,7 +27,7 @@
 #include "oatpp/encoding/Base64.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace test { namespace encoding {
+namespace oatpp::test::encoding {
   
 void Base64Test::onRun() {
 
@@ -51,4 +51,4 @@ void Base64Test::onRun() {
 
 }
   
-}}}
+}

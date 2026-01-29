@@ -30,7 +30,7 @@
 #include "oatpp/base/Log.hpp"
 #include "oatpp/macro/codegen.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 namespace {
 
@@ -325,4 +325,4 @@ void DeserializerTest::onRun(){
 
 }
   
-}}
+}

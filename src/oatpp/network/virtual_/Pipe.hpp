@@ -37,7 +37,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace oatpp { namespace network { namespace virtual_ {
+namespace oatpp::network::virtual_ {
 
 /**
  * Virtual pipe implementation. Can be used for unidirectional data transfer between different threads of the same process. <br>
@@ -285,6 +285,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_network_virtual__Pipe_hpp */

@@ -31,7 +31,7 @@
 #include <list>
 #include <unordered_map>
 
-namespace oatpp { namespace web { namespace url { namespace mapping {
+namespace oatpp::web::url::mapping {
   
 class Pattern : public base::Countable{
 private:
@@ -116,6 +116,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_web_url_mapping_Pattern_hpp */

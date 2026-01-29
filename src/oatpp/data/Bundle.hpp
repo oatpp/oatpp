@@ -27,7 +27,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp::data {
 
 /**
  * Bundle of auxiliary data.
@@ -85,6 +85,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_data_Bundle_hpp

@@ -25,7 +25,7 @@
 #include "RequestHeadersReader.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 v_io_size RequestHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,
                                                                   data::stream::InputStreamBufferedProxy* stream,
@@ -176,4 +176,4 @@ RequestHeadersReader::readHeadersAsync(const std::shared_ptr<data::stream::Input
   
 }
 
-}}}}}
+}

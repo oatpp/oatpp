@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 v_io_size ResponseHeadersReader::readHeadersSectionIterative(ReadHeadersIteration& iteration,
                                                                    const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
@@ -176,4 +176,4 @@ ResponseHeadersReader::readHeadersAsync(const std::shared_ptr<oatpp::data::strea
   
 }
   
-}}}}}
+}

@@ -30,7 +30,7 @@
 
 #include <iostream>
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 namespace {
 
@@ -345,4 +345,4 @@ void ObjectRemapperTest::onRun() {
 
 }
 
-}}}
+}

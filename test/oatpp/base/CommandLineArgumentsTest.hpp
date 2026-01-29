@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace base {
+namespace oatpp::base {
   
 /**
  * Test command line arguments parsing.
@@ -40,6 +40,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_base_CommandLineArgumentsTest_hpp */

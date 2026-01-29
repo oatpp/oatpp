@@ -38,7 +38,7 @@
 #include <chrono>
 #include <exception>
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 class CoroutineHandle; // FWD
 class AbstractCoroutine; // FWD
@@ -806,6 +806,6 @@ public:
   
 };
 
-}}
+}
 
 #endif /* oatpp_async_Coroutine_hpp */

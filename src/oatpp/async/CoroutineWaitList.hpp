@@ -31,7 +31,7 @@
 #include <unordered_set>
 #include <mutex>
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 /**
  * List of &id:oatpp::async::Coroutine; waiting to be notified.
@@ -119,6 +119,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_async_CoroutineWaitList_hpp

@@ -31,7 +31,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 /**
  * Simple ConnectionHandler (&id:oatpp::network::ConnectionHandler;) for handling HTTP communication. <br>
@@ -126,6 +126,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_web_server_HttpConnectionHandler_hpp */

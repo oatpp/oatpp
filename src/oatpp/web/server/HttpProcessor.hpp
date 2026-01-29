@@ -42,7 +42,7 @@
 #include "oatpp/data/stream/StreamBufferedProxy.hpp"
 #include "oatpp/async/Processor.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 /**
  * HttpProcessor. Helper class to handle HTTP processing.
@@ -296,6 +296,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_web_server_HttpProcessor_hpp */

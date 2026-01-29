@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 namespace http = oatpp::web::protocol::http;
 
@@ -76,6 +76,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_test_web_app_ControllerWithErrorHandler_hpp */

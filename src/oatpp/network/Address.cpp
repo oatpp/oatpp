@@ -24,7 +24,7 @@
 
 #include "Address.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 Address::Address(const oatpp::String& pHost, v_uint16 pPort, Family pFamily)
   : host(pHost)
@@ -32,4 +32,4 @@ Address::Address(const oatpp::String& pHost, v_uint16 pPort, Family pFamily)
   , family(pFamily)
 {}
 
-}}
+}

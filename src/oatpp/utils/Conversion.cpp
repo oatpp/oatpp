@@ -26,7 +26,7 @@
 
 #include <cstdlib>
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
   
 v_int32 Conversion::strToInt32(const char* str){
   char* end;
@@ -258,4 +258,4 @@ bool Conversion::strToBool(const oatpp::String& str, bool& success) {
   return false;
 }
   
-}}
+}

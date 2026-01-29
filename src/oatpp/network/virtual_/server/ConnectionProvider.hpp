@@ -28,7 +28,7 @@
 #include "oatpp/network/virtual_/Interface.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
-namespace oatpp { namespace network { namespace virtual_ { namespace server {
+namespace oatpp::network::virtual_::server {
 
 /**
  * TestProvider of "virtual" connections.
@@ -109,6 +109,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_network_virtual__server_ConnectionProvider_hpp */

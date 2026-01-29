@@ -28,7 +28,7 @@
 #include "oatpp/data/share/LazyStringMap.hpp"
 #include "oatpp/data/resource/Resource.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 /**
  * One part of the multipart.
@@ -142,6 +142,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif // oatpp_web_mime_multipart_Part_hpp

@@ -30,7 +30,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 class ObjectRemapper {
 protected:
@@ -95,6 +95,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_mapping_ObjectRemapper_hpp

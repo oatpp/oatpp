@@ -35,7 +35,7 @@
 #include "oatpp/network/tcp/client/ConnectionProvider.hpp"
 #include "oatpp/network/Server.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server {
+namespace oatpp::test::web::server {
 
 namespace {
 
@@ -238,4 +238,4 @@ void ServerStopTest::onRun() {
 
 }
 
-}}}}
+}

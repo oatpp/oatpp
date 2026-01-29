@@ -28,7 +28,7 @@
 #include "./Type.hpp"
 #include <unordered_set>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -196,6 +196,6 @@ struct Collection::Inserter<std::unordered_set<ItemType>, ItemType> {
 
 }
 
-}}}
+}
 
 #endif //oatpp_data_type_Collection_hpp

@@ -25,7 +25,7 @@
 #include "Utils.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace concurrency {
+namespace oatpp::concurrency {
 
 v_int32 Utils::setThreadAffinityToOneCpu(std::thread::native_handle_type nativeHandle, v_int32 cpuIndex) {
   return setThreadAffinityToCpuRange(nativeHandle, cpuIndex, cpuIndex);
@@ -89,4 +89,4 @@ v_int32 Utils::getHardwareConcurrency() {
   return concurrency;
 }
 
-}}
+}

@@ -43,7 +43,7 @@
   #include <unistd.h>
 #endif
 
-namespace oatpp { namespace network { namespace tcp { namespace client {
+namespace oatpp::network::tcp::client {
 
 void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
 
@@ -331,4 +331,4 @@ oatpp::async::CoroutineStarterForResult<const provider::ResourceHandle<data::str
 
 }
 
-}}}}
+}

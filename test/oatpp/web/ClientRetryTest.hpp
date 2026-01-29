@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web {
+namespace oatpp::test::web {
 
 class ClientRetryTest : public UnitTest {
 private:
@@ -43,6 +43,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif /* oatpp_test_web_ClientRetryTest_hpp */

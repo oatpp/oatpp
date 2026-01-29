@@ -25,7 +25,7 @@
 #include "./Tree.hpp"
 #include "oatpp/data/mapping/Tree.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -179,4 +179,4 @@ const mapping::Tree& Tree::operator [] (v_uint64 index) const {
   return (*m_ptr)[index];
 }
 
-}}}
+}

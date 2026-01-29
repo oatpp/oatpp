@@ -28,7 +28,7 @@
 #include "Part.hpp"
 #include <list>
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 /**
  * Typedef for headers map. Headers map key is case-insensitive.
@@ -107,7 +107,7 @@ public:
 
 
 
-}}}}
+}
 
 
 #endif // oatpp_web_mime_multipart_Multipart_hpp

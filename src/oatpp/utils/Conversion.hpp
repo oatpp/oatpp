@@ -34,7 +34,7 @@
 
 #include <string>
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
 
 /**
  * Conversion utils
@@ -304,6 +304,6 @@ public:
 
 };
 
-}}
+}
 
 #endif /* oatpp_utils_Conversion_hpp */

@@ -27,7 +27,7 @@
 
 #include "oatpp/Environment.hpp"
 
-namespace oatpp { namespace base {
+namespace oatpp::base {
 
 /**
  * Class for storing and managing Command Line arguments.
@@ -154,6 +154,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_base_CommandLineArguments_hpp */

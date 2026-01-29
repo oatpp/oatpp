@@ -26,7 +26,7 @@
 
 #include <cstring>
 
-namespace oatpp { namespace base {
+namespace oatpp::base {
 
 CommandLineArguments::CommandLineArguments()
   : m_argc(0)
@@ -71,4 +71,4 @@ const char* CommandLineArguments::Parser::getNamedArgumentValue(int argc, const 
   return defaultValue;
 }
   
-}}
+}

@@ -31,7 +31,7 @@
 #include "oatpp/network/ConnectionPool.hpp"
 #include "oatpp/network/ConnectionProvider.hpp"
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 /**
  * Default implementation of &id:oatpp::web::client::RequestExecutor; for making http request.
@@ -168,6 +168,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_web_client_HttpRequestExecutor_hpp */

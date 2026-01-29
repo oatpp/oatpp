@@ -32,7 +32,7 @@
 #include <initializer_list>
 #include <utility>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -150,6 +150,6 @@ public:
 
 }
 
-}}}
+}
 
 #endif // oatpp_data_type_PairList_hpp

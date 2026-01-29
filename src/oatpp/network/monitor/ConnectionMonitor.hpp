@@ -33,7 +33,7 @@
 #include <unordered_set>
 #include <condition_variable>
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 /**
  * ConnectionMonitor is a middleman who's able to manage provided connections
@@ -158,6 +158,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_network_monitor_ConnectionMonitor_hpp

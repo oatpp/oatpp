@@ -26,7 +26,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 v_io_size MultipartBody::readBody(void *buffer, v_buff_size count, async::Action& action) {
   const auto& stream = m_iterator.getPartInputStream();
@@ -195,4 +195,4 @@ v_int64 MultipartBody::getKnownSize() {
  return -1;
 }
 
-}}}}}
+}

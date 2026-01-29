@@ -26,7 +26,7 @@
 
 #include "oatpp/data/resource/TemporaryFile.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 TemporaryFileProvider::TemporaryFileProvider(const oatpp::String& tmpDirectory, v_int32 randomWordSizeBytes)
   : m_tmpDirectory(tmpDirectory)
@@ -67,4 +67,4 @@ std::shared_ptr<AsyncPartReader> createAsyncTemporaryFilePartReader(const oatpp:
   return reader;
 }
 
-}}}}
+}

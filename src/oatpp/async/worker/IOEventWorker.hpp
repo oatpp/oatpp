@@ -57,7 +57,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 class IOEventWorkerForeman; // FWD
 
@@ -189,6 +189,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_async_worker_IOEventWorker_hpp

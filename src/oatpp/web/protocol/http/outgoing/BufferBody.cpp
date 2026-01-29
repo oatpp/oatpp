@@ -24,7 +24,7 @@
 
 #include "BufferBody.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 BufferBody::BufferBody(const oatpp::String &buffer, const data::share::StringKeyLabel &contentType)
   : m_buffer(buffer ? buffer : "")
@@ -74,4 +74,4 @@ v_int64 BufferBody::getKnownSize() {
   return static_cast<v_int64>(m_buffer->size());
 }
 
-}}}}}
+}

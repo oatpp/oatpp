@@ -28,7 +28,7 @@
 #include "oatpp/utils/Conversion.hpp"
 #include "oatpp/utils/Binary.hpp"
 
-namespace oatpp { namespace data { namespace stream {
+namespace oatpp::data::stream {
 
 void BufferStreamTest::onRun() {
 
@@ -144,4 +144,4 @@ void BufferStreamTest::onRun() {
 
 }
 
-}}}
+}

@@ -24,7 +24,7 @@
 
 #include "Lock.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lock
@@ -198,4 +198,4 @@ CoroutineStarter synchronize(oatpp::async::Lock *lock, CoroutineStarter&& starte
 
 }
 
-}}
+}

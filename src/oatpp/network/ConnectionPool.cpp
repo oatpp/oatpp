@@ -24,7 +24,7 @@
 
 #include "ConnectionPool.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionAcquisitionProxy
@@ -61,4 +61,4 @@ oatpp::data::stream::Context& ConnectionAcquisitionProxy::getInputStreamContext(
   return _handle.object->getInputStreamContext();
 }
 
-}}
+}

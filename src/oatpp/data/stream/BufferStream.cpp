@@ -26,7 +26,7 @@
 
 #include "oatpp/utils/Binary.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BufferOutputStream
@@ -47,7 +47,7 @@ BufferOutputStream::~BufferOutputStream() {
   delete [] m_data;
 }
 
-v_io_size BufferOutputStream::write(const void *data, v_buff_size count, async::Action& action) {
+v_io_size BufferOutputStream::write(const void *data, v_buff_size count, [[maybe_unused]] async::Action& action) {
 
   (void) action;
 
@@ -284,4 +284,4 @@ v_io_size BufferInputStream::commitReadOffset(v_buff_size count) {
   return count;
 }
 
-}}}
+}

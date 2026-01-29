@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
+namespace oatpp::web::protocol::http::utils {
 
 /**
  * Helper class for communication utils.
@@ -62,6 +62,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_utils_CommunicationUtils_hpp */

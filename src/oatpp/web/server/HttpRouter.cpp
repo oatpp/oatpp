@@ -24,7 +24,7 @@
 
 #include "HttpRouter.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 std::shared_ptr<HttpRouter> HttpRouter::createShared() {
   return std::make_shared<HttpRouter>();
@@ -46,4 +46,4 @@ std::shared_ptr<server::api::ApiController> HttpRouter::addController(const std:
   return controller;
 }
 
-}}}
+}

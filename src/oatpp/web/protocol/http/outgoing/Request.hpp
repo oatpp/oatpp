@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/data/Bundle.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 /**
  * Class http::outgoing::Request AKA OutgoingRequest represents client's outgoing request to server.
@@ -193,6 +193,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_outgoing_Request_hpp */

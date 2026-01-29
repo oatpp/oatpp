@@ -26,7 +26,7 @@
 
 #include "oatpp/encoding/Hex.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
 
 void HexTest::onRun() {
   oatpp::String original = "Light and powerful C++ web framework for highly scalable and resource-efficient web application. It's zero-dependency and easy-portable.";
@@ -38,4 +38,4 @@ void HexTest::onRun() {
   OATPP_ASSERT(original == decoded)
 }
 
-}}
+}

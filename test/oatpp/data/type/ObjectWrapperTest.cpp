@@ -25,7 +25,7 @@
 #include "ObjectWrapperTest.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 namespace {
 
@@ -197,4 +197,4 @@ void ObjectWrapperTest::onRun() {
 
 }
 
-}}}
+}

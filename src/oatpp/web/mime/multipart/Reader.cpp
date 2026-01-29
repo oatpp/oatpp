@@ -24,7 +24,7 @@
 
 #include "Reader.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PartsParser
@@ -216,4 +216,4 @@ void AsyncReader::setDefaultPartReader(const std::shared_ptr<AsyncPartReader>& r
   m_partsParser->m_defaultReader = reader;
 }
 
-}}}}
+}

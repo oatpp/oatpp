@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 class ObjectToTreeMapperTest : public oatpp::test::UnitTest {
 public:
@@ -35,6 +35,6 @@ public:
   void onRun() override;
 };
 
-}}}
+}
 
 #endif /* oatpp_data_mapping_ObjectToTreeMapperTest_hpp */

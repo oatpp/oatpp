@@ -28,7 +28,7 @@
 #include "oatpp/encoding/Base64.hpp"
 #include "oatpp/utils/parser/Caret.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace handler {
+namespace oatpp::web::server::handler {
 
 AuthorizationHandler::AuthorizationHandler(const oatpp::String& scheme, const oatpp::String& realm)
   : m_scheme(scheme)
@@ -135,4 +135,4 @@ std::shared_ptr<AuthorizationObject> BearerAuthorizationHandler::authorize(const
   return authObject;
 }
 
-}}}}
+}

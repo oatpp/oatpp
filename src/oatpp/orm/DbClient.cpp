@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 DbClient::DbClient(const std::shared_ptr<Executor>& executor)
   : m_executor(executor)
@@ -71,4 +71,4 @@ Transaction DbClient::beginTransaction(const provider::ResourceHandle<Connection
   return Transaction(m_executor, connection);
 }
 
-}}
+}

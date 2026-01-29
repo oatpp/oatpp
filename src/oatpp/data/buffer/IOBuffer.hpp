@@ -27,7 +27,7 @@
 
 #include "oatpp/base/Countable.hpp"
 
-namespace oatpp { namespace data{ namespace buffer {
+namespace oatpp::data::buffer {
 
 /**
  * Predefined buffer implementation for I/O operations.
@@ -73,6 +73,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_data_buffer_IOBuffer_hpp */

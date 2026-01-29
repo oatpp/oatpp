@@ -28,7 +28,7 @@
 
 #include <chrono>
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 TimerWorker::TimerWorker(const std::chrono::duration<v_int64, std::micro>& granularity)
   : Worker(Type::TIMER)
@@ -136,4 +136,4 @@ void TimerWorker::detach() {
   m_thread.detach();
 }
 
-}}}
+}

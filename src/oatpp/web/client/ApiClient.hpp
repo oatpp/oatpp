@@ -43,7 +43,7 @@
 #include <list>
 #include <unordered_map>
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 /**
  * ApiClient class provides convenient Retrofit-like interface over the oatpp::web::client::RequestExecutor.
@@ -248,7 +248,7 @@ public:
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::String> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::String &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::String &parameter) {
     (void) typeName;
     return parameter;
   }
@@ -256,7 +256,7 @@ struct ApiClient::TypeInterpretation<oatpp::String> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Int8> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int8 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Int8 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::int32ToStr(*parameter);
@@ -267,7 +267,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int8> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::UInt8> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt8 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::UInt8 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::uint32ToStr(*parameter);
@@ -278,7 +278,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt8> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Int16> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int16 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Int16 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::int32ToStr(*parameter);
@@ -289,7 +289,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int16> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::UInt16> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt16 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::UInt16 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::uint32ToStr(*parameter);
@@ -300,7 +300,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt16> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Int32> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int32 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Int32 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::int32ToStr(*parameter);
@@ -311,7 +311,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int32> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::UInt32> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt32 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::UInt32 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::uint32ToStr(*parameter);
@@ -322,7 +322,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt32> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Int64> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Int64 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Int64 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::int64ToStr(*parameter);
@@ -333,7 +333,7 @@ struct ApiClient::TypeInterpretation<oatpp::Int64> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::UInt64> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::UInt64 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::UInt64 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::uint64ToStr(*parameter);
@@ -344,7 +344,7 @@ struct ApiClient::TypeInterpretation<oatpp::UInt64> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Float32> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Float32 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Float32 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::float32ToStr(*parameter);
@@ -355,7 +355,7 @@ struct ApiClient::TypeInterpretation<oatpp::Float32> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Float64> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Float64 &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Float64 &parameter) {
     (void) typeName;
     if (parameter) {
       return utils::Conversion::float64ToStr(*parameter);
@@ -366,7 +366,7 @@ struct ApiClient::TypeInterpretation<oatpp::Float64> {
 
 template<>
 struct ApiClient::TypeInterpretation<oatpp::Boolean> {
-  static oatpp::String toString(const oatpp::String &typeName, const oatpp::Boolean &parameter) {
+  static oatpp::String toString([[maybe_unused]] const oatpp::String &typeName, const oatpp::Boolean &parameter) {
     (void) typeName;
     if(parameter != nullptr) {
         return utils::Conversion::boolToStr(*parameter);
@@ -407,6 +407,6 @@ struct ApiClient::TypeInterpretation<data::type::EnumObjectWrapper<T, I>> {
 
 };
   
-}}}
+}
 
 #endif /* oatpp_web_client_Client_hpp */

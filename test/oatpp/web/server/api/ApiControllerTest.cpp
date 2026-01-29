@@ -27,7 +27,7 @@
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/macro/codegen.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server { namespace api {
+namespace oatpp::test::web::server::api {
 
 namespace {
 
@@ -192,4 +192,4 @@ void ApiControllerTest::onRun() {
 
 }
 
-}}}}}
+}

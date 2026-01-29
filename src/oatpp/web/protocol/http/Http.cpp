@@ -27,7 +27,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http {
+namespace oatpp::web::protocol::http {
   
 const Status Status::CODE_100(100, "Continue");
 const Status Status::CODE_101(101, "Switching");
@@ -489,4 +489,4 @@ void Utils::writeHeaders(const Headers& headers, data::stream::ConsistentOutputS
 
 }
 
-}}}}
+}

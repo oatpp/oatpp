@@ -28,7 +28,7 @@
 #include "Stream.hpp"
 #include "oatpp/data/buffer/FIFOBuffer.hpp"
 
-namespace oatpp { namespace data { namespace stream {
+namespace oatpp::data::stream {
 
 
 /**
@@ -170,6 +170,6 @@ class FIFOInputStream : public BufferedInputStream, public WriteCallback {
   v_io_size availableToWrite();
 };
 
-}}}
+}
 
 #endif // oatpp_data_stream_FIFOStream_hpp

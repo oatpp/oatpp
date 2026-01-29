@@ -28,7 +28,7 @@
 #include "PartReader.hpp"
 #include "Reader.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 class FileProvider : public PartReaderResourceProvider {
 private:
@@ -62,6 +62,6 @@ std::shared_ptr<PartReader> createFilePartReader(const oatpp::String& filename, 
  */
 std::shared_ptr<AsyncPartReader> createAsyncFilePartReader(const oatpp::String& filename, v_io_size maxDataSize = -1);
 
-}}}}
+}
 
 #endif //oatpp_web_mime_multipart_FileProvider_hpp

@@ -27,7 +27,7 @@
 
 #include "Executor.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 /**
  * Database transaction.
@@ -89,6 +89,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_orm_Transaction_hpp

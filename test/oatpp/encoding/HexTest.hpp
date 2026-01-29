@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
 
 class HexTest : public oatpp::test::UnitTest{
 public:
@@ -35,6 +35,6 @@ public:
   void onRun() override;
 };
 
-}}
+}
 
 #endif /* oatpp_encoding_HexTest_hpp */

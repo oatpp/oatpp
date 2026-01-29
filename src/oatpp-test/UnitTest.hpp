@@ -30,7 +30,7 @@
 
 #include <functional>
 
-namespace oatpp { namespace test {
+namespace oatpp::test {
 
 /**
  * Base class for unit tests.
@@ -108,6 +108,6 @@ oatpp::test::UnitTest::runTest<TEST>(N)
 #define OATPP_RUN_TEST(...) \
 OATPP_MACRO_EXPAND(OATPP_MACRO_MACRO_BINARY_SELECTOR(OATPP_RUN_TEST_, (__VA_ARGS__)) (__VA_ARGS__))
 
-}}
+}
 
 #endif /* oatpp_test_UnitTest_hpp */

@@ -29,7 +29,7 @@
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server { namespace handler {
+namespace oatpp::test::web::server::handler {
 
 class AuthorizationHandlerTest : public UnitTest{
  public:
@@ -37,6 +37,6 @@ class AuthorizationHandlerTest : public UnitTest{
   void onRun() override;
 };
 
-}}}}}
+}
 
 #endif /* oatpp_test_encoding_Base64Test_hpp */

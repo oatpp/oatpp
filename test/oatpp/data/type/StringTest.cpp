@@ -28,7 +28,7 @@
 
 #include <functional>
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 void StringTest::onRun() {
 
@@ -316,4 +316,4 @@ void StringTest::onRun() {
 
 }
 
-}}}
+}

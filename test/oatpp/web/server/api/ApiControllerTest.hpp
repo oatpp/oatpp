@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server { namespace api {
+namespace oatpp::test::web::server::api {
 
 class ApiControllerTest : public UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif /* oatpp_test_web_server_api_ApiControllerTest_hpp */

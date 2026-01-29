@@ -31,7 +31,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp-test/Checker.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
   
 void MemoryLabelTest::onRun() {
 
@@ -277,4 +277,4 @@ void MemoryLabelTest::onRun() {
 
 }
   
-}}}
+}

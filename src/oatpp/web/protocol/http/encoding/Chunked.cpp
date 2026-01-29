@@ -26,7 +26,7 @@
 
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::web::protocol::http::encoding {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EncoderChunked
@@ -259,4 +259,4 @@ std::shared_ptr<data::buffer::Processor> ChunkedDecoderProvider::getProcessor() 
   return std::make_shared<DecoderChunked>();
 }
 
-}}}}}
+}

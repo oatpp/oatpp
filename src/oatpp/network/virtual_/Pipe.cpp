@@ -24,7 +24,7 @@
 
 #include "Pipe.hpp"
 
-namespace oatpp { namespace network { namespace virtual_ {
+namespace oatpp::network::virtual_ {
 
 data::stream::DefaultInitializedContext Pipe::Reader::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_INFINITE);
 
@@ -197,4 +197,4 @@ void Pipe::close() {
   m_writer.notifyWaitList();
 }
 
-}}}
+}

@@ -24,7 +24,7 @@
 
 #include "ConnectionInactivityChecker.hpp"
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 ConnectionInactivityChecker::ConnectionInactivityChecker(const std::chrono::duration<v_int64, std::micro>& lastReadTimeout,
                                                          const std::chrono::duration<v_int64, std::micro>& lastWriteTimeout)
@@ -60,4 +60,4 @@ bool ConnectionInactivityChecker::check(const ConnectionStats& stats, v_int64 cu
   return  goodRead && goodWrite;
 }
 
-}}}
+}

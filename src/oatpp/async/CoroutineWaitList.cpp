@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <set>
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 
 CoroutineWaitList::CoroutineWaitList(CoroutineWaitList&& other) {
@@ -97,4 +97,4 @@ CoroutineWaitList& CoroutineWaitList::operator=(CoroutineWaitList&& other) {
 
 }
 
-}}
+}

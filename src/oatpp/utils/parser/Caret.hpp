@@ -27,7 +27,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace utils { namespace parser {
+namespace oatpp::utils::parser {
 
 /**
  * Helper class to do parsing operations
@@ -505,6 +505,6 @@ public:
 
 };
   
-}}}
+}
 
 #endif /* oatpp_utils_parser_Caret_hpp */

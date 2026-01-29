@@ -24,7 +24,7 @@
 
 #include "ProviderCollection.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::web::protocol::http::encoding {
 
 void ProviderCollection::add(const std::shared_ptr<EncoderProvider>& provider) {
   m_providers[provider->getEncodingName()] = provider;
@@ -51,4 +51,4 @@ std::shared_ptr<EncoderProvider> ProviderCollection::get(const std::unordered_se
 
 }
 
-}}}}}
+}

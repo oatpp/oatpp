@@ -27,7 +27,7 @@
 
 #include "oatpp/base/Countable.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 /**
  * Class to hold and communicate errors between Coroutines
@@ -57,7 +57,7 @@ public:
 
 };
 
-}}
+}
 
 
 #endif //oatpp_async_Error_hpp

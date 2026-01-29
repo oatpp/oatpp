@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 StringTemplate::VectorValueProvider::VectorValueProvider(const std::vector<oatpp::String> *params)
   : m_params(params)
@@ -162,4 +162,4 @@ std::shared_ptr<void> StringTemplate::getExtraData() const {
   return m_extra;
 }
 
-}}}
+}

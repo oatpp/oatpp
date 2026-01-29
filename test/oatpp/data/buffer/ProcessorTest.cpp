@@ -30,7 +30,7 @@
 #include "oatpp/async/Executor.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace data { namespace buffer {
+namespace oatpp::data::buffer {
 
 namespace {
 
@@ -280,4 +280,4 @@ void ProcessorTest::onRun() {
 
 }
 
-}}}
+}

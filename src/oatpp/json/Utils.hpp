@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 /**
  * Utility class for json serializer/deserializer.
@@ -144,6 +144,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_json_Utils_hpp */

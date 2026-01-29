@@ -33,7 +33,7 @@
 
 #include <thread>
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 namespace {
 
@@ -574,4 +574,4 @@ void ObjectTest::onRun() {
 
 }
 
-}}}
+}

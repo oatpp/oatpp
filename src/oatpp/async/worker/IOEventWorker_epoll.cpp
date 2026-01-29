@@ -36,7 +36,7 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 void IOEventWorker::initEventQueue() {
 
@@ -277,6 +277,6 @@ void IOEventWorker::waitEvents() {
 
 }
 
-}}}
+}
 
 #endif // #ifdef OATPP_IO_EVENT_INTERFACE_EPOLL

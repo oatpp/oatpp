@@ -29,7 +29,7 @@
 
 #include <memory>
 
-namespace oatpp { namespace base{
+namespace oatpp::base {
 
 /**
  * Class instantiations of which can be counted.
@@ -45,7 +45,7 @@ public:
    * Copy constructor. Increment counter calling &id:oatpp::Environment::incObjects;.
    * @param other
    */
-  Countable(const Countable& other);
+  Countable([[maybe_unused]] const Countable& other);
 
   /**
    * Virtual destructor. Decrement counter calling &id:oatpp::Environment::decObjects;.
@@ -57,6 +57,6 @@ public:
 
 };
   
-}}
+}
 
 #endif /* oatpp_base_Countable_hpp */

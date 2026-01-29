@@ -28,7 +28,7 @@
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/async/Coroutine.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 /**
  * Helper class to read http headers of incoming response from stream.
@@ -115,6 +115,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_incoming_ResponseHeadersReader_hpp */

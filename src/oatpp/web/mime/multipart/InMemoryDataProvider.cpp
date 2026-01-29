@@ -26,7 +26,7 @@
 
 #include "oatpp/data/resource/InMemoryData.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 std::shared_ptr<data::resource::Resource> InMemoryDataProvider::getResource(const std::shared_ptr<Part>& part) {
   (void)part;
@@ -56,4 +56,4 @@ std::shared_ptr<AsyncPartReader> createAsyncInMemoryPartReader(v_io_size maxData
   return reader;
 }
 
-}}}}
+}

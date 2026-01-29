@@ -31,7 +31,7 @@
 #include "oatpp/provider/Invalidator.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace network { namespace tcp { namespace client {
+namespace oatpp::network::tcp::client {
 
 /**
  * Simple provider of clinet TCP connections.
@@ -96,6 +96,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_netword_tcp_client_ConnectionProvider_hpp */

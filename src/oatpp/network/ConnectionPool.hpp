@@ -28,7 +28,7 @@
 #include "ConnectionProvider.hpp"
 #include "oatpp/provider/Pool.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 /**
  * Wrapper over &id:oatpp::data::stream::IOStream;.
@@ -68,6 +68,6 @@ typedef oatpp::provider::Pool<
 > ServerConnectionPool;
 
 
-}}
+}
 
 #endif // oatpp_network_ConnectionPool_hpp

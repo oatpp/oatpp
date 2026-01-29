@@ -28,7 +28,7 @@
 #include "Hex.hpp"
 #include "oatpp/data/stream/Stream.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
 
 class Url {
 public:
@@ -59,6 +59,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_encoding_Url_hpp

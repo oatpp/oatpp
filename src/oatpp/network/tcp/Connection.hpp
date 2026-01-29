@@ -27,7 +27,7 @@
 
 #include "oatpp/data/stream/Stream.hpp"
 
-namespace oatpp { namespace network { namespace tcp {
+namespace oatpp::network::tcp {
 
 /**
  * TCP Connection implementation. Extends &id:oatpp::base::Countable; and &id:oatpp::data::stream::IOStream;.
@@ -125,6 +125,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_network_tcp_Connection_hpp */

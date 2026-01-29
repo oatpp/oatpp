@@ -28,7 +28,7 @@
 #include "./Resource.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 /**
  * Temporary file - the file which gets deleted when the destructor is called
@@ -138,6 +138,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_data_resource_TemporaryFile_hpp

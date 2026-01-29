@@ -26,7 +26,7 @@
 #include "FIFOStream.hpp"
 #include "oatpp/utils/Binary.hpp"
 
-namespace oatpp { namespace data { namespace stream {
+namespace oatpp::data::stream {
 
 data::stream::DefaultInitializedContext FIFOInputStream::DEFAULT_CONTEXT(data::stream::StreamType::STREAM_FINITE);
 
@@ -133,4 +133,4 @@ v_io_size FIFOInputStream::commitReadOffset(v_buff_size count) {
   return m_fifo->commitReadOffset(count);
 }
 
-}}}
+}

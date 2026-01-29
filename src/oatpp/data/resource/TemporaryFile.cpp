@@ -31,7 +31,7 @@
 #include "oatpp/encoding/Hex.hpp"
 #include "oatpp/utils/Random.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 TemporaryFile::FileHandle::~FileHandle() {
   if(fileName) {
@@ -102,4 +102,4 @@ bool TemporaryFile::moveFile(const oatpp::String& fullFileName) {
   return false;
 }
 
-}}}
+}

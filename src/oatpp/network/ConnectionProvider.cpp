@@ -24,9 +24,9 @@
 
 #include "./ConnectionProvider.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
   
 const char* const ConnectionProvider::PROPERTY_HOST = "host";
 const char* const ConnectionProvider::PROPERTY_PORT = "port";
   
-}}
+}

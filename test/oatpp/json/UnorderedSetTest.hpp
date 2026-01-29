@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 class UnorderedSetTest : public oatpp::test::UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}
+}
 
 #endif /* oatpp_json_UnorderedSetTest_hpp */

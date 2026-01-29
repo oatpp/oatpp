@@ -29,7 +29,7 @@
 
 #include <cstring>
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 Part::Part(const Headers &headers, const std::shared_ptr<data::resource::Resource>& payload)
   : m_headers(headers)
@@ -101,4 +101,4 @@ void Part::clearTag() {
   m_tagObject.reset();
 }
 
-}}}}
+}

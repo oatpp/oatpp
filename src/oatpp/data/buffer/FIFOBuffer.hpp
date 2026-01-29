@@ -30,7 +30,7 @@
 #include "oatpp/async/Coroutine.hpp"
 #include "oatpp/concurrency/SpinLock.hpp"
 
-namespace oatpp { namespace data { namespace buffer {
+namespace oatpp::data::buffer {
 
 /**
  * FIFO operations over the buffer
@@ -215,6 +215,6 @@ public:
 
 };
   
-}}}
+}
 
 #endif /* FIFOBuffer_hpp */

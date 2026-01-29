@@ -29,7 +29,7 @@
 
 #include <thread>
 
-namespace oatpp { namespace provider {
+namespace oatpp::provider {
 
 namespace {
 
@@ -230,4 +230,4 @@ void PoolTest::onRun() {
 
 }
 
-}}
+}

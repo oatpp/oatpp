@@ -24,7 +24,7 @@
 
 #include "ConnectionMaxAgeChecker.hpp"
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 ConnectionMaxAgeChecker::ConnectionMaxAgeChecker(const std::chrono::duration<v_int64, std::micro>& maxAge)
   : m_maxAge(maxAge)
@@ -43,4 +43,4 @@ bool ConnectionMaxAgeChecker::check(const ConnectionStats& stats, v_int64 currMi
   return currMicroTime - stats.timestampCreated < m_maxAge.count();
 }
 
-}}}
+}

@@ -26,7 +26,7 @@
 #include "oatpp/web/server/HttpServerError.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace handler {
+namespace oatpp::web::server::handler {
 
 void DefaultErrorHandler::unwrapErrorStack(HttpServerErrorStacktrace& stacktrace, const std::exception& e) {
 
@@ -95,4 +95,4 @@ std::shared_ptr<protocol::http::outgoing::Response> DefaultErrorHandler::renderE
 
 }
 
-}}}}
+}

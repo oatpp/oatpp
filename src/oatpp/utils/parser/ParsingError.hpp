@@ -27,7 +27,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace utils { namespace parser {
+namespace oatpp::utils::parser {
 
 /**
  * Thrown when parsing error occurred and ParsingCaret object is not accessible for user.
@@ -68,6 +68,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_utils_parser_ParsingError_hpp

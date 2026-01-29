@@ -28,7 +28,7 @@
 #include "oatpp/Types.hpp"
 #include "oatpp/macro/codegen.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 namespace {
 
@@ -626,4 +626,4 @@ void TypeResolverTest::onRun() {
 
 }
 
-}}}
+}

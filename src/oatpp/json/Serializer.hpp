@@ -32,7 +32,7 @@
 #include "oatpp/data/mapping/Tree.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 /**
  * Json Serializer.
@@ -109,6 +109,6 @@ public:
 
 };
 
-}}
+}
 
 #endif /* oatpp_json_Serializer_hpp */

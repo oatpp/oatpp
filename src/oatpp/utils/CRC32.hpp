@@ -29,7 +29,7 @@
 
 #include "oatpp/encoding/Hex.hpp"
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
 
 /**
  * Implementation of CRC-32. Cyclic redundancy check algorithm.
@@ -64,6 +64,6 @@ public:
   
 };
     
-}}
+}
 
 #endif /* oatpp_utils_CRC32_hpp */

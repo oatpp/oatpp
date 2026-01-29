@@ -24,10 +24,10 @@
 
 #include "UnorderedMap.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 const ClassId AbstractUnorderedMap::CLASS_ID("UnorderedMap");
 }
 
-}}}
+}

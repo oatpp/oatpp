@@ -41,7 +41,7 @@
 
 #include <type_traits>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 /**
  * Base class of all object-like mapping-enabled structures ex.: oatpp::DTO.
@@ -496,7 +496,7 @@ public:
 
 };
   
-}}}
+}
 
 namespace std {
 

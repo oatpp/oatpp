@@ -31,7 +31,7 @@
 #include <thread>
 #include <list>
 
-namespace oatpp { namespace test { namespace network { namespace virtual_ {
+namespace oatpp::test::network::virtual_ {
   
 namespace {
   
@@ -155,4 +155,4 @@ void InterfaceTest::onRun() {
 
 }
   
-}}}}
+}

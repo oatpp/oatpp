@@ -25,7 +25,7 @@
 #include "Checker.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace test {
+namespace oatpp::test {
 
 PerformanceChecker::PerformanceChecker(const char* tag)
   : m_tag(tag)
@@ -63,4 +63,4 @@ ThreadLocalObjectsChecker::~ThreadLocalObjectsChecker(){
   
 }
   
-}}
+}

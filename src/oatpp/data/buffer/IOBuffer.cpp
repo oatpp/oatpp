@@ -24,7 +24,7 @@
 
 #include "IOBuffer.hpp"
 
-namespace oatpp { namespace data { namespace buffer {
+namespace oatpp::data::buffer {
 
 const v_buff_size IOBuffer::BUFFER_SIZE = 4096;
 
@@ -48,4 +48,4 @@ v_buff_size IOBuffer::getSize(){
   return BUFFER_SIZE;
 }
   
-}}}
+}

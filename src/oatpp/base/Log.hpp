@@ -28,7 +28,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/macro/basic.hpp"
 
-namespace oatpp { namespace base {
+namespace oatpp::base {
 
 class LogMessage {
 private:
@@ -85,7 +85,7 @@ public:
 
 struct Log {
 
-  static void ignore(std::initializer_list<void*> list) {
+  static void ignore([[maybe_unused]] std::initializer_list<void*> list) {
     (void) list;
   }
 
@@ -108,7 +108,7 @@ struct Log {
 
 };
 
-}}
+}
 
 ////////////////////////////
 ////////////////////////////

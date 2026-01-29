@@ -32,7 +32,7 @@
 #include <thread>
 #include <condition_variable>
 
-namespace oatpp { namespace provider {
+namespace oatpp::provider {
 
 template<class TResource, class AcquisitionProxyImpl>
 class PoolTemplate; // FWD
@@ -492,6 +492,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_provider_Pool_hpp

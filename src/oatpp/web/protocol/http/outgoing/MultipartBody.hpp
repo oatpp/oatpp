@@ -30,7 +30,7 @@
 #include "oatpp/web/mime/multipart/Multipart.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 class MultipartBody : public oatpp::base::Countable, public Body {
 public:
@@ -190,6 +190,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif // oatpp_web_protocol_http_outgoing_MultipartBody_hpp

@@ -27,7 +27,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 void Deserializer::deserializeNull(State& state) {
   if(state.caret->isAtText("null", true)){
@@ -206,4 +206,4 @@ void Deserializer::deserialize(State& state) {
 
 }
 
-}}
+}

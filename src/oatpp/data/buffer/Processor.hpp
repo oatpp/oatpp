@@ -29,7 +29,7 @@
 #include "oatpp/base/ObjectHandle.hpp"
 #include <vector>
 
-namespace oatpp { namespace data { namespace buffer {
+namespace oatpp::data::buffer {
 
 /**
  * Convenience structure for stream Async-Inline read operations.
@@ -224,6 +224,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_buffer_Processor_hpp

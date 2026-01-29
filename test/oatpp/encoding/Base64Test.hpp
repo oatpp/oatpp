@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace encoding {
+namespace oatpp::test::encoding {
   
 class Base64Test : public UnitTest{
 public:
@@ -35,6 +35,6 @@ public:
   void onRun() override;
 };
   
-}}}
+}
 
 #endif /* oatpp_test_encoding_Base64Test_hpp */

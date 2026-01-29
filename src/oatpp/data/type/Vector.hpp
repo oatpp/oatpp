@@ -31,7 +31,7 @@
 #include <vector>
 #include <initializer_list>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -122,6 +122,6 @@ namespace __class {
 
 }
 
-}}}
+}
 
 #endif // oatpp_data_type_Vector_hpp

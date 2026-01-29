@@ -36,7 +36,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace oatpp { namespace web { namespace protocol { namespace http {
+namespace oatpp::web::protocol::http {
 
 /**
  * Typedef for headers map. Headers map key is case-insensitive.
@@ -743,7 +743,7 @@ public:
 
 };
   
-}}}}
+}
 
 namespace std {
   

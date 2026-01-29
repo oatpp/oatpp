@@ -29,7 +29,7 @@
 #include "oatpp/data/buffer/IOBuffer.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 Request::Request(const oatpp::data::share::StringKeyLabel& method,
                  const oatpp::data::share::StringKeyLabel& path,
@@ -252,4 +252,4 @@ oatpp::async::CoroutineStarter Request::sendAsync(std::shared_ptr<Request> _this
   
 }
   
-}}}}}
+}

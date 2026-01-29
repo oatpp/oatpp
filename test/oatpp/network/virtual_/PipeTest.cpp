@@ -33,7 +33,7 @@
 #include <iostream>
 #include <thread>
 
-namespace oatpp { namespace test { namespace network { namespace virtual_ {
+namespace oatpp::test::network::virtual_ {
   
 namespace {
   
@@ -146,4 +146,4 @@ void PipeTest::onRun() {
 
 }
   
-}}}}
+}

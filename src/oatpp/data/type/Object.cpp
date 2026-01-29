@@ -24,7 +24,7 @@
 
 #include "./Object.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BaseObject
@@ -130,4 +130,4 @@ BaseObject::Properties* DTO::Z__CLASS_EXTEND(BaseObject::Properties* properties,
   return properties;
 }
   
-}}}
+}

@@ -26,7 +26,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 void PairListTest::onRun() {
 
@@ -165,4 +165,4 @@ void PairListTest::onRun() {
 
 }
 
-}}}
+}

@@ -29,7 +29,7 @@
 #include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 
 /**
@@ -161,6 +161,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_network_url_Url_hpp */

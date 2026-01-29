@@ -27,7 +27,7 @@
 
 #include "oatpp/Environment.hpp"
 
-namespace oatpp { namespace async { namespace utils {
+namespace oatpp::async::utils {
   
 template<typename T>
 class FastQueue {
@@ -178,6 +178,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_async_utils_FastQueue_hpp */

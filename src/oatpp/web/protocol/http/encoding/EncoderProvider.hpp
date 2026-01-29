@@ -28,7 +28,7 @@
 #include "oatpp/data/buffer/Processor.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::web::protocol::http::encoding {
 
 /**
  * TestProvider of encoding or decoding &id:oatpp::data::buffer::Processor;.
@@ -55,6 +55,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif // oatpp_web_protocol_http_encoding_EncoderProvider_hpp

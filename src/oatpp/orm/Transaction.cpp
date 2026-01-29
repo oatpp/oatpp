@@ -24,7 +24,7 @@
 
 #include "Transaction.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 Transaction::Transaction(const base::ObjectHandle<Executor>& executor, const provider::ResourceHandle<Connection>& connection)
   : m_executor(executor)
@@ -92,4 +92,4 @@ std::shared_ptr<QueryResult> Transaction::rollback() {
   }
 }
 
-}}
+}
