@@ -31,7 +31,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 /**
  * Stateful parser of multipart-data stream.
@@ -223,6 +223,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif // oatpp_web_mime_multipart_StatefulParser_hpp

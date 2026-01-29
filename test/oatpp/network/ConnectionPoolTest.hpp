@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace network {
+namespace oatpp::test::network {
 
 class ConnectionPoolTest : public UnitTest {
 public:
@@ -37,7 +37,7 @@ public:
 
 };
 
-}}}
+}
 
 
 #endif // oatpp_test_network_ConnectionPoolTest_hpp

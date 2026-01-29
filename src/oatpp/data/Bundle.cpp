@@ -24,7 +24,7 @@
 
 #include "Bundle.hpp"
 
-namespace oatpp { namespace data {
+namespace oatpp::data {
 
 void Bundle::put(const oatpp::String& key, const oatpp::Void& polymorph) {
   m_data.insert({key, polymorph});
@@ -34,4 +34,4 @@ const std::unordered_map<oatpp::String, oatpp::Void>& Bundle::getAll() const {
   return m_data;
 }
 
-}}
+}

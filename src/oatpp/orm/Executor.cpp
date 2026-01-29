@@ -24,7 +24,7 @@
 
 #include "Executor.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 Executor::Executor()
   : m_defaultTypeResolver(std::make_shared<data::mapping::TypeResolver>())
@@ -43,4 +43,4 @@ std::shared_ptr<QueryResult> Executor::execute(const oatpp::String& query,
   return execute(qt, params, typeResolver, connection);
 }
 
-}}
+}

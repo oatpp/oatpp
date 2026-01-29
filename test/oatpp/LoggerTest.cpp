@@ -25,7 +25,7 @@
 
 #include "LoggerTest.hpp"
 
-namespace oatpp { namespace test {
+namespace oatpp::test {
 
 OATPP_LOG_CATEGORY(LoggerTest::TESTCATEGORY, "LogCategory", true)
 
@@ -77,4 +77,4 @@ void LoggerTest::onRun() {
 
 }
 
-}}
+}

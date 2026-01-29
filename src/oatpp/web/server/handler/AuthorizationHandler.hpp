@@ -31,7 +31,7 @@
 #include "oatpp/macro/codegen.hpp"
 #include "oatpp/data/type/Type.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace handler {
+namespace oatpp::web::server::handler {
 
 /**
  * The AuthorizationObject superclass, all AuthorizationObjects have to extend this class.
@@ -203,6 +203,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_web_server_handler_ErrorHandler_hpp */

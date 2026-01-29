@@ -27,7 +27,7 @@
 
 #include "oatpp/Environment.hpp"
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
 
 /**
  * Utility class for Strings
@@ -77,6 +77,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_utils_String_hpp

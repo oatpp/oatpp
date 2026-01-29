@@ -36,7 +36,7 @@
 
 #include "oatpp/data/Bundle.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 /**
  * Class which stores information of outgoing http Response.
@@ -224,6 +224,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_outgoing_Response_hpp */

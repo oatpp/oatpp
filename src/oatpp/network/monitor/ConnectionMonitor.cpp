@@ -29,7 +29,7 @@
 #include <chrono>
 #include <thread>
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ConnectionMonitor::ConnectionInvalidator
@@ -350,4 +350,4 @@ void ConnectionMonitor::stop() {
   m_monitor->stop();
 }
 
-}}}
+}

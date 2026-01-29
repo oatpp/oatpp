@@ -28,7 +28,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test {
+namespace oatpp::test {
 
 class LoggerTest : public oatpp::test::UnitTest{
  public:
@@ -39,6 +39,6 @@ class LoggerTest : public oatpp::test::UnitTest{
   OATPP_DECLARE_LOG_CATEGORY(TESTCATEGORY)
 };
 
-}}
+}
 
 #endif /* oatpp_test_LoggerTest_hpp */

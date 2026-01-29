@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/incoming/BodyDecoder.hpp"
 #include "oatpp/data/Bundle.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 /**
  * Class http::incoming::Response AKA IncomingResponse represents server's incoming response
@@ -261,6 +261,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_incoming_Response_hpp */

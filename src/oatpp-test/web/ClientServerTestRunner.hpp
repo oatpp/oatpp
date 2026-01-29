@@ -39,7 +39,7 @@
 #include <condition_variable>
 #include <thread>
 
-namespace oatpp { namespace test { namespace web {
+namespace oatpp::test::web {
 
 /**
  * Helper class to run Client-Server tests
@@ -148,6 +148,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_test_web_ClientServerTestRunner_hpp

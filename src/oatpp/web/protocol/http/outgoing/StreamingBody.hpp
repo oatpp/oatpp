@@ -27,7 +27,7 @@
 
 #include "./Body.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 /**
  * Abstract body for streaming data.
@@ -73,6 +73,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif // oatpp_web_protocol_http_outgoing_StreamingBody_hpp

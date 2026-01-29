@@ -30,7 +30,7 @@
 #include "oatpp/data/mapping/ObjectMapper.hpp"
 #include "oatpp/data/type/Type.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 /**
  * Helper class to create http outgoing responses (&id:oatpp::web::protocol::http::outgoing::Response).
@@ -66,6 +66,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_outgoing_ResponseFactory_hpp */

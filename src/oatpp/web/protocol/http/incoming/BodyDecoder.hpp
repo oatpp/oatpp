@@ -30,7 +30,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/async/Coroutine.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 /**
  * Abstract BodyDecoder.
@@ -181,6 +181,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_incoming_BodyDecoder_hpp */

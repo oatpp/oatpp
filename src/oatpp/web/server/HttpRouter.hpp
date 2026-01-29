@@ -31,7 +31,7 @@
 #include "oatpp/web/server/api/Endpoint.hpp"
 #include "oatpp/web/url/mapping/Router.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 /**
  * HttpRouter is responsible for routing http requests by method and path-pattern.
@@ -144,6 +144,6 @@ public:
 
 };
   
-}}}
+}
 
 #endif /* oatpp_web_server_HttpRouter_hpp */

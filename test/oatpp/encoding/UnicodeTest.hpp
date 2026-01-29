@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace encoding {
+namespace oatpp::test::encoding {
   
 class UnicodeTest : public UnitTest{
 public:
@@ -35,7 +35,7 @@ public:
   void onRun() override;
 };
   
-}}}
+}
 
 
 #endif /* oatpp_test_encoding_UnicodeTest_hpp */

@@ -30,7 +30,7 @@
 
 #include <fstream>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 String::String(const std::shared_ptr<std::string>& ptr, const type::Type* const valueType)
   : oatpp::data::type::ObjectWrapper<std::string, __class::String>(ptr)
@@ -186,4 +186,4 @@ namespace __class {
   }
 }
   
-}}}
+}

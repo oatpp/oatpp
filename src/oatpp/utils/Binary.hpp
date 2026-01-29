@@ -27,7 +27,7 @@
 
 #include "oatpp/Environment.hpp"
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
 
 /**
  * Collection of methods for binary operations and arithmetics.
@@ -45,6 +45,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_utils_Binary_hpp

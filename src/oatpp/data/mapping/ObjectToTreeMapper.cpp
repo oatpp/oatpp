@@ -27,7 +27,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 ObjectToTreeMapper::ObjectToTreeMapper() {
 
@@ -305,4 +305,4 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& stat
 
 }
 
-}}}
+}

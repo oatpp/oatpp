@@ -28,7 +28,7 @@
 
 #include <cstring>
 
-namespace oatpp { namespace base {
+namespace oatpp::base {
   
 void CommandLineArgumentsTest::onRun() {
   
@@ -60,4 +60,4 @@ void CommandLineArgumentsTest::onRun() {
 
 }
   
-}}
+}

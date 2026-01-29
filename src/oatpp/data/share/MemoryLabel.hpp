@@ -31,7 +31,7 @@
 #include <cstring>
 #include <memory>
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
   
 /**
  * MemoryLabel represent a part of the whole memory buffer refered by handle.
@@ -296,7 +296,7 @@ public:
 
 };
   
-}}}
+}
 
 namespace std {
   

@@ -33,7 +33,7 @@
 #include <utility>
 #include <list>
 
-namespace oatpp { namespace web { namespace url { namespace mapping {
+namespace oatpp::web::url::mapping {
 
 /**
  * Class responsible to map "Path" to "Route" by "Path-Pattern".
@@ -156,6 +156,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_web_url_mapping_Router_hpp */

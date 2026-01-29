@@ -28,7 +28,7 @@
 #include "EncoderProvider.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::web::protocol::http::encoding {
 
 /**
  * Chunked-encoding buffer processor. &id:oatpp::data::buffer::Processor;.
@@ -139,6 +139,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif //oatpp_web_protocol_http_encoding_Chunked_hpp

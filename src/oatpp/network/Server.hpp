@@ -37,7 +37,7 @@
 #include <thread>
 #include <functional>
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 /**
  * Server calls &id:oatpp::network::ConnectionProvider::get; in the loop and passes obtained Connection
@@ -157,6 +157,6 @@ public:
 
 };
 
-}}
+}
 
 #endif /* oatpp_network_Server_hpp */

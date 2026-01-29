@@ -28,7 +28,7 @@
 
 #include "Multipart.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 /**
  * Structure that holds Multipart parts in the `std::list`.
@@ -104,6 +104,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif //oatpp_web_mime_multipart_PartList_hpp

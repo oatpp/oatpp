@@ -24,7 +24,7 @@
 
 #include "CommunicationError.hpp"
 
-namespace oatpp { namespace web { namespace protocol {
+namespace oatpp::web::protocol {
   
 CommunicationError::CommunicationError(oatpp::v_io_size ioStatus, const oatpp::String& message)
   :std::runtime_error(*message)
@@ -40,4 +40,4 @@ oatpp::String& CommunicationError::getMessage(){
   return m_message;
 }
   
-}}}
+}

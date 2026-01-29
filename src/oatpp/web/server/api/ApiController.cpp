@@ -26,7 +26,7 @@
 
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace api {
+namespace oatpp::web::server::api {
 
 const Endpoints& ApiController::getEndpoints() {
   return m_endpoints;
@@ -120,4 +120,4 @@ std::shared_ptr<ApiController::OutgoingResponse> ApiController::createDtoRespons
   throw std::runtime_error("[ApiController::createDtoResponse()]: Unsupported content-type");
 }
 
-}}}}
+}

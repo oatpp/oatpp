@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 TreeToObjectMapper::TreeToObjectMapper() {
 
@@ -499,4 +499,4 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
 
 }
 
-}}}
+}

@@ -39,7 +39,7 @@
 
 #include <thread>
 
-namespace oatpp { namespace test { namespace network { namespace monitor {
+namespace oatpp::test::network::monitor {
 
 namespace {
 
@@ -253,4 +253,4 @@ void ConnectionMonitorTest::onRun() {
 
 }
 
-}}}}
+}

@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/FileStream.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 oatpp::String File::concatDirAndName(const oatpp::String& dir, const oatpp::String& filename) {
   if(dir && dir->size() > 0) {
@@ -76,4 +76,4 @@ oatpp::String File::getLocation() {
   return nullptr;
 }
 
-}}}
+}

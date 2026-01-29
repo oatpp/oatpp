@@ -26,7 +26,7 @@
 
 #include "oatpp/utils/parser/Caret.hpp"
 
-namespace oatpp { namespace utils { namespace parser {
+namespace oatpp::utils::parser {
 
 void CaretTest::onRun() {
 
@@ -80,4 +80,4 @@ void CaretTest::onRun() {
 
 }
 
-}}}
+}

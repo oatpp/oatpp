@@ -35,7 +35,7 @@
 
 #include <sstream>
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Default Basic Authorization
@@ -144,6 +144,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_test_web_app_Controller_hpp */

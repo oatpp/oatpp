@@ -24,7 +24,7 @@
 
 #include "Type.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
   
@@ -106,4 +106,4 @@ bool Type::extends(const Type* other) const {
   return false;
 }
 
-}}}
+}

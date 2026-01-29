@@ -28,7 +28,7 @@
 #include "./Resource.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 class InMemoryData : public Resource {
 private:
@@ -106,6 +106,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_data_resource_InMemoryData_hpp

@@ -28,7 +28,7 @@
 #include "MetricsChecker.hpp"
 #include "oatpp/base/Compiler.hpp"
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 /**
  * ConnectionMaxAgeChecker - checks if connection is too old and should be closed.
@@ -53,6 +53,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_network_monitor_ConnectionMaxAgeChecker_hpp

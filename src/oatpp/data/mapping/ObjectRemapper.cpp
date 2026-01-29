@@ -24,7 +24,7 @@
 
 #include "ObjectRemapper.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 oatpp::Void ObjectRemapper::remap(const Tree& tree, const oatpp::Type* toType, ErrorStack& errorStack) const {
   TreeToObjectMapper::State state;
@@ -104,4 +104,4 @@ const TreeToObjectMapper& ObjectRemapper::treeToObjectMapper() const {
   return m_treeToObjectMapper;
 }
 
-}}}
+}

@@ -24,7 +24,7 @@
 
 #include "InMemoryData.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 InMemoryData::OutputDataHandle::~OutputDataHandle() {
   dataHandle->data = data + stream->toString();
@@ -78,4 +78,4 @@ oatpp::String InMemoryData::getLocation() {
   return nullptr;
 }
 
-}}}
+}

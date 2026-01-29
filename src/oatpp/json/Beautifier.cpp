@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 Beautifier::Beautifier(ConsistentOutputStream* outputStream, const oatpp::String& indent, const oatpp::String& newLine)
   : m_outputStream(outputStream)
@@ -163,4 +163,4 @@ Beautifier::Context& Beautifier::getOutputStreamContext() {
   return m_outputStream->getOutputStreamContext();
 }
 
-}}
+}

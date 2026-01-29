@@ -24,7 +24,7 @@
 
 #include "Binary.hpp"
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
 
 v_int64 Binary::nextP2(v_int64 v) {
   v--;
@@ -38,4 +38,4 @@ v_int64 Binary::nextP2(v_int64 v) {
   return v;
 }
 
-}}
+}

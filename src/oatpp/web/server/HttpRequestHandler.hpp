@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 /**
  * HTTP request handler.
@@ -108,6 +108,6 @@ public:
   virtual ~HttpRequestHandler() = default;
 };
 
-}}}
+}
 
 #endif // oatpp_web_server_HttpRequestHandler_hpp

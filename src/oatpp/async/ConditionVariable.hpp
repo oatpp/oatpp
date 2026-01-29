@@ -29,7 +29,7 @@
 
 #include <functional>
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 class ConditionVariable : private CoroutineWaitList::Listener {
 public:
@@ -70,6 +70,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_async_ConditionVariable_hpp

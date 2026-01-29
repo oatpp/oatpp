@@ -34,7 +34,7 @@
 #include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/utils/parser/ParsingError.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 /**
  * Error stack
@@ -227,6 +227,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_data_mapping_ObjectMapper_hpp */

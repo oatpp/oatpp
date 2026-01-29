@@ -29,7 +29,7 @@
 #include "oatpp/provider/Pool.hpp"
 #include "oatpp/async/Executor.hpp"
 
-namespace oatpp { namespace provider {
+namespace oatpp::provider {
 
 namespace {
 
@@ -218,4 +218,4 @@ void PoolTemplateTest::onRun() {
   }
 }
 
-}}
+}

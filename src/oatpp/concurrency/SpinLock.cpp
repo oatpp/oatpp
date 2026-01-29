@@ -26,7 +26,7 @@
 
 #include <thread>
 
-namespace oatpp { namespace concurrency {
+namespace oatpp::concurrency {
 
 SpinLock::SpinLock()
   : m_atom(false)
@@ -46,4 +46,4 @@ bool SpinLock::try_lock() {
   return !std::atomic_exchange_explicit(&m_atom, true, std::memory_order_acquire);
 }
   
-}}
+}

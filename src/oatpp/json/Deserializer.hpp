@@ -35,7 +35,7 @@
 
 #include <vector>
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 /**
  * Json Deserializer.
@@ -77,6 +77,6 @@ public:
 
 };
 
-}}
+}
 
 #endif /* oatpp_json_Deserializer_hpp */

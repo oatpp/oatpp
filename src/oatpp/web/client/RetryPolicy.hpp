@@ -29,7 +29,7 @@
 
 #include <unordered_set>
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 /**
  * Class to control retries in RequestExecutor.
@@ -110,7 +110,7 @@ public:
    * @param context - &l:RetryPolicy::Context ;.
    * @return - `true` - to retry. `false` - do NOT retry.
    */
-  bool retryOnResponse(v_int32 responseStatusCode, const Context& context) override;
+  bool retryOnResponse(v_int32 responseStatusCode, [[maybe_unused]] const Context& context) override;
 
   /**
    * How much client should wait before the next attempt? <br>
@@ -118,10 +118,10 @@ public:
    * @param context - &l:RetryPolicy::Context ;.
    * @return - delay in microseconds.
    */
-  v_int64 waitForMicroseconds(const Context& context) override;
+  v_int64 waitForMicroseconds([[maybe_unused]] const Context& context) override;
 
 };
 
-}}}
+}
 
 #endif // oatpp_web_client_RetryPolicy_hpp

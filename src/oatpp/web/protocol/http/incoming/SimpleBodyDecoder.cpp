@@ -29,7 +29,7 @@
 
 #include <vector>
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 const std::string SimpleBodyDecoder::RESPONSE_100_CONTINUE = "HTTP/1.1 100 Continue\r\n\r\n";
 
@@ -211,4 +211,4 @@ async::CoroutineStarter SimpleBodyDecoder::decodeAsync(const Headers& headers,
 
 }
   
-}}}}}
+}

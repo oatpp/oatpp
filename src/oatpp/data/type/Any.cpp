@@ -24,7 +24,7 @@
 
 #include "Any.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
   const ClassId Any::CLASS_ID("Any");
@@ -41,7 +41,7 @@ Any::Any()
 
 Any::Any(std::nullptr_t) : Any() {}
 
-Any::Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type)
+Any::Any(const std::shared_ptr<AnyHandle>& handle, [[maybe_unused]] const Type* const type)
   : ObjectWrapper(handle, __class::Any::getType())
 {
   // As an ObjectWrapper, Any must have this constructor. It is used in ObjectWrapper.cast<T>(...) method.
@@ -115,4 +115,4 @@ bool Any::operator != (const Any& other) const {
   return !operator == (other);
 }
 
-}}}
+}

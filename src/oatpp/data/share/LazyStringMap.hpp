@@ -30,7 +30,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 /**
  * Lazy String Map keeps keys, and values as memory label.
@@ -338,6 +338,6 @@ using LazyStringMap = LazyStringMapTemplate<Key, std::unordered_map<Key, Value>>
 template<typename Key, typename Value = StringKeyLabel>
 using LazyStringMultimap = LazyStringMapTemplate<Key, std::unordered_multimap<Key, Value>>;
 
-}}}
+}
 
 #endif //oatpp_data_share_LazyStringMap_hpp

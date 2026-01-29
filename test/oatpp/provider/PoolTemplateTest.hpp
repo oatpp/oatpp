@@ -28,7 +28,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace provider {
+namespace oatpp::provider {
 
 class PoolTemplateTest : public oatpp::test::UnitTest{
 public:
@@ -38,7 +38,7 @@ public:
 
 };
 
-}}
+}
 
 
 #endif //oatpp_provider_PoolTemplateTest_hpp

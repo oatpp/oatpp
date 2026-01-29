@@ -27,7 +27,7 @@
 
 #include "./Pipe.hpp"
 
-namespace oatpp { namespace network { namespace virtual_ {
+namespace oatpp::network::virtual_ {
 
 /**
  * Virtual socket implementation. Can be used as a bidirectional data transfer between different threads of the same process. <br>
@@ -131,6 +131,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_network_virtual__Socket_hpp */

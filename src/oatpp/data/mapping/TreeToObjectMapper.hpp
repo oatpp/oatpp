@@ -30,7 +30,7 @@
 
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 class TreeToObjectMapper : public base::Countable {
 public:
@@ -138,6 +138,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_data_mapping_TreeToObjectMapper_hpp

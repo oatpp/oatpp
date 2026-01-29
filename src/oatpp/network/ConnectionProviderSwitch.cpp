@@ -25,7 +25,7 @@
 #include "ConnectionProviderSwitch.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 ConnectionProviderSwitch::ConnectionProviderSwitch(const std::shared_ptr<ConnectionProvider>& provider)
   : m_provider(provider)
@@ -71,4 +71,4 @@ void ConnectionProviderSwitch::stop() {
   return getCurrentProvider()->stop();
 }
 
-}}
+}

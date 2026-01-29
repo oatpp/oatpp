@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 class StringTest : public oatpp::test::UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif /* oatpp_data_type_StringTest_hpp */

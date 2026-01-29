@@ -24,7 +24,7 @@
 
 #include "./AsyncHttpConnectionHandler.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 void AsyncHttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) {
 
@@ -131,4 +131,4 @@ void AsyncHttpConnectionHandler::stop() {
   }
 }
   
-}}}
+}

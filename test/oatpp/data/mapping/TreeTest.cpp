@@ -29,7 +29,7 @@
 
 #include <limits>
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 namespace {
 
@@ -300,4 +300,4 @@ void TreeTest::onRun() {
 
 }
 
-}}}
+}

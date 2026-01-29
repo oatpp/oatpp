@@ -27,7 +27,7 @@
 
 #include "oatpp/Environment.hpp"
 
-namespace oatpp { namespace test {
+namespace oatpp::test {
 
 /**
  * Helper class to check performance of code block.
@@ -89,6 +89,6 @@ public:
   ~ThreadLocalObjectsChecker();
 };
   
-}}
+}
 
 #endif /* Checker_hpp */

@@ -28,7 +28,7 @@
 #include "oatpp/encoding/Base64.hpp"
 #include "oatpp/utils/Random.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 Multipart::Multipart(const oatpp::String& boundary)
   : m_boundary(boundary)
@@ -78,4 +78,4 @@ oatpp::String Multipart::parseBoundaryFromHeaders(const Headers& requestHeaders)
 
 }
 
-}}}}
+}

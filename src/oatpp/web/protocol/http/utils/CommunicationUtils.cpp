@@ -24,7 +24,7 @@
 
 #include "CommunicationUtils.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace utils {
+namespace oatpp::web::protocol::http::utils {
   
 void CommunicationUtils::considerConnectionState(const std::shared_ptr<protocol::http::incoming::Request>& request,
                                                  const std::shared_ptr<protocol::http::outgoing::Response>& response,
@@ -97,5 +97,5 @@ CommunicationUtils::selectEncoder(const std::shared_ptr<http::incoming::Request>
 
 }
   
-}}}}}
+}
 

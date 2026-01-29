@@ -32,7 +32,7 @@
 #include "oatpp/encoding/Base64.hpp"
 #include "oatpp/macro/codegen.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
   
 class Client : public oatpp::web::client::ApiClient {
 public:
@@ -120,6 +120,6 @@ public:
 #include OATPP_CODEGEN_END(ApiClient)
 };
   
-}}}}
+}
 
 #endif /* oatpp_test_web_app_Client_hpp */

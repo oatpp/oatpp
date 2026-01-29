@@ -25,7 +25,7 @@
 #include "Interface.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace network { namespace virtual_ {
+namespace oatpp::network::virtual_ {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ListenerLock
@@ -252,4 +252,4 @@ void Interface::notifyAcceptors() {
   m_condition.notify_all();
 }
   
-}}}
+}

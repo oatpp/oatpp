@@ -38,7 +38,7 @@
 #include <set>
 #include <vector>
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 /**
  * Asynchronous Processor.<br>
@@ -203,6 +203,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_async_Processor_hpp */

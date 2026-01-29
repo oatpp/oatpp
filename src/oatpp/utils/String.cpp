@@ -25,7 +25,7 @@
 #include "String.hpp"
 #include <cstring>
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
 
 v_buff_size String::compare(const void* data1, v_buff_size size1, const void* data2, v_buff_size size2) {
 
@@ -96,4 +96,4 @@ void String::upperCase_ASCII(void* data, v_buff_size size) {
   }
 }
 
-}}
+}

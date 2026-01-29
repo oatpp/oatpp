@@ -24,10 +24,10 @@
 
 #include "./List.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
   
 namespace __class {
   const ClassId AbstractList::CLASS_ID("List");
 }
   
-}}}
+}

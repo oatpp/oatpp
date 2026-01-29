@@ -29,7 +29,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
@@ -341,4 +341,4 @@ void EnumTest::onRun() {
 
 }
 
-}}}
+}

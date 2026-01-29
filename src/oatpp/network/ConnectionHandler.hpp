@@ -29,7 +29,7 @@
 #include "oatpp/data/stream/Stream.hpp"
 #include <unordered_map>
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 /**
  * Abstract ConnectionHandler.
@@ -66,6 +66,6 @@ public:
   virtual void stop() = 0;
 };
   
-}}
+}
 
 #endif /* oatpp_network_ConnectionHandler_hpp */

@@ -24,7 +24,7 @@
 
 #include "Base64.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
   
 const char* const Base64::ALPHABET_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 const char* const Base64::ALPHABET_BASE64_URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
@@ -196,4 +196,4 @@ oatpp::String Base64::decode(const oatpp::String& data, const char* auxiliaryCha
   return decode(data->data(), static_cast<v_buff_size>(data->size()), auxiliaryChars);
 }
   
-}}
+}

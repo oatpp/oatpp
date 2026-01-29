@@ -27,7 +27,7 @@
 
 #include "oatpp/data/stream/Stream.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 /**
  * JSON output stream beautifier.
@@ -87,6 +87,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_json_Beautifier_hpp

@@ -36,7 +36,7 @@
 #include <chrono>
 #include <fcntl.h>
 
-namespace oatpp { namespace network { namespace tcp {
+namespace oatpp::network::tcp {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connection
@@ -311,4 +311,4 @@ void Connection::close(){
 #endif
 }
 
-}}}
+}

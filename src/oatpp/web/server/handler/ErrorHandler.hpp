@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/outgoing/Response.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace handler {
+namespace oatpp::web::server::handler {
 
 /**
  * Error Handler.
@@ -90,6 +90,6 @@ public:
 
 };
   
-}}}}
+}
 
 #endif /* oatpp_web_server_handler_ErrorHandler_hpp */

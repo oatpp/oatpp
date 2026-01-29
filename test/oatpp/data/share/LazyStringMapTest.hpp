@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 class LazyStringMapTest : public oatpp::test::UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_share_LazyStringMapTest_hpp

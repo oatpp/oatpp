@@ -28,7 +28,7 @@
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Components
@@ -470,4 +470,4 @@ HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::handleError(Error* er
 
 }
   
-}}}
+}

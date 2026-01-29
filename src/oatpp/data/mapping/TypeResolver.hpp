@@ -27,7 +27,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 /**
  * Helper class to work with oatpp types.
@@ -157,6 +157,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_mapping_TypeResolver_hpp

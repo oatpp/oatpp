@@ -33,7 +33,7 @@
 #include "oatpp/data/share/MemoryLabel.hpp"
 #include "oatpp/data/share/StringTemplate.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 /**
  * Database executor.
@@ -159,6 +159,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_orm_Executor_hpp

@@ -28,7 +28,7 @@
 #include "oatpp/async/Coroutine.hpp"
 #include <thread>
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 /**
  * Worker base class.
@@ -120,6 +120,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_async_worker_Worker_hpp

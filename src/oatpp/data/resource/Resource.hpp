@@ -27,7 +27,7 @@
 
 #include "oatpp/data/stream/Stream.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 /**
  * Abstract data resource
@@ -73,6 +73,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_data_resource_Resource_hpp

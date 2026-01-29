@@ -35,7 +35,7 @@
 
 #include <sstream>
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 class BearerAuthorizationObject : public oatpp::web::server::handler::AuthorizationObject {
 public:
@@ -100,6 +100,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_test_web_app_Controller_hpp */

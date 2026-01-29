@@ -27,7 +27,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
 
 /**
  * Base64 - encoder/decoder.
@@ -159,6 +159,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_encoding_Base64_hpp */

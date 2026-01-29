@@ -27,7 +27,7 @@
 
 #include "./CoroutineWaitList.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 /**
  * Lock (mutex) for coroutines/threads synchronization. <br>
@@ -154,6 +154,6 @@ public:
  */
 CoroutineStarter synchronize(oatpp::async::Lock *lock, CoroutineStarter&& starter);
 
-}}
+}
 
 #endif // oatpp_async_Mutex_hpp

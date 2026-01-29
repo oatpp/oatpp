@@ -24,7 +24,7 @@
 
 #include "Error.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 Error::Error(const std::string& message)
   : m_message(message)
@@ -45,4 +45,4 @@ const std::exception_ptr& Error::getExceptionPtr() const {
   return m_exceptionPtr;
 }
 
-}}
+}

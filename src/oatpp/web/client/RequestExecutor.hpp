@@ -31,7 +31,7 @@
 #include "oatpp/web/protocol/http/outgoing/Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 /**
  * Abstract RequestExecutor.
@@ -244,6 +244,6 @@ public:
 
 };
   
-}}}
+}
 
 #endif /* oatpp_web_client_RequestExecutor_hpp */

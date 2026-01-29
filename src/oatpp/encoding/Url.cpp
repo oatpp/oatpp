@@ -26,7 +26,7 @@
 
 #include "oatpp/data/stream/BufferStream.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
 
 Url::Config::Config() {
 
@@ -122,4 +122,4 @@ oatpp::String Url::decode(const oatpp::String& data) {
   return stream.toString();
 }
 
-}}
+}

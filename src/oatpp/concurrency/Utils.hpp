@@ -28,7 +28,7 @@
 #include "oatpp/Environment.hpp"
 #include <thread>
 
-namespace oatpp { namespace concurrency {
+namespace oatpp::concurrency {
 
 class Utils {
 private:
@@ -64,6 +64,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_concurrency_Utils_hpp

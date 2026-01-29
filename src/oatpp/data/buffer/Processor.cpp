@@ -24,7 +24,7 @@
 
 #include "Processor.hpp"
 
-namespace oatpp { namespace data{ namespace buffer {
+namespace oatpp::data::buffer {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // InlineReadData
@@ -159,4 +159,4 @@ v_int32 ProcessingPipeline::iterate(data::buffer::InlineReadData& dataIn,
 
 }
 
-}}}
+}

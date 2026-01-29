@@ -29,7 +29,7 @@
 
 #include "oatpp/base/Countable.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -91,7 +91,7 @@ public:
    */
   Any(Any&& other);
 
-  Any(const std::shared_ptr<AnyHandle>& handle, const Type* const type);
+  Any(const std::shared_ptr<AnyHandle>& handle, [[maybe_unused]] const Type* const type);
 
   /**
    * Constructor.
@@ -160,6 +160,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_data_type_Any_hpp

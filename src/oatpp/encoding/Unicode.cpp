@@ -30,7 +30,7 @@
   #include <arpa/inet.h>
 #endif
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
   
 v_buff_size Unicode::getUtf8CharSequenceLength(v_char8 firstByte) {
   
@@ -160,4 +160,4 @@ v_int32 Unicode::utf16SurrogatePairToCode(v_int16 high, v_int16 low){
   return (((low - 0xDC00) & 1023) | (((high - 0xD800) & 1023) << 10)) + 0x010000;
 }
   
-}}
+}

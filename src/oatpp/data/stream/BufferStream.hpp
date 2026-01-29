@@ -27,7 +27,7 @@
 
 #include "Stream.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
 
 /**
  * BufferOutputStream
@@ -65,7 +65,7 @@ public:
    * caller MUST return this action on coroutine iteration.
    * @return - actual number of bytes written. &id:oatpp::v_io_size;.
    */
-  v_io_size write(const void *data, v_buff_size count, async::Action& action) override;
+  v_io_size write(const void *data, v_buff_size count, [[maybe_unused]] async::Action& action) override;
 
   /**
    * Set stream I/O mode.
@@ -294,6 +294,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_stream_BufferStream_hpp

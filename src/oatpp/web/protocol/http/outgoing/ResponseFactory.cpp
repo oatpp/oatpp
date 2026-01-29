@@ -26,7 +26,7 @@
 
 #include "./BufferBody.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 std::shared_ptr<Response>
 ResponseFactory::createResponse(const Status& status) {
@@ -49,4 +49,4 @@ ResponseFactory::createResponse(const Status& status,
 }
 
   
-}}}}}
+}

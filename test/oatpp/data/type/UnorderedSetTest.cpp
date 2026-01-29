@@ -27,7 +27,7 @@
 #include "oatpp/Types.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 void UnorderedSetTest::onRun() {
 
@@ -142,4 +142,4 @@ void UnorderedSetTest::onRun() {
 
 }
 
-}}}
+}

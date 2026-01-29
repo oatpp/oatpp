@@ -25,7 +25,7 @@
 #include "FileStream.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,4 +185,4 @@ FileOutputStream& FileOutputStream::operator=(FileOutputStream&& other) {
   return *this;
 }
 
-}}}
+}

@@ -29,7 +29,7 @@
 
 #include "oatpp-test/Checker.hpp"
 
-namespace oatpp { namespace test { namespace network {
+namespace oatpp::test::network {
 
 void UrlTest::onRun() {
 
@@ -194,4 +194,4 @@ void UrlTest::onRun() {
 
 }
 
-}}}
+}

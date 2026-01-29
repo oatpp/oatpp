@@ -29,7 +29,7 @@
 #include "oatpp/web/protocol/http/incoming/Request.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace interceptor {
+namespace oatpp::web::server::interceptor {
 
 /**
  * RequestInterceptor.
@@ -68,6 +68,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_web_server_interceptor_RequestInterceptor_hpp */

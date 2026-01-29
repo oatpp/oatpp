@@ -28,7 +28,7 @@
 #include "MetricsChecker.hpp"
 #include "oatpp/base/Compiler.hpp"
 
-namespace oatpp { namespace network { namespace monitor {
+namespace oatpp::network::monitor {
 
 /**
  * ConnectionInactivityChecker - checks if a connection is inactive (has no read/writes) and whether it should be closed.
@@ -56,6 +56,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_network_monitor_ConnectionInactivityChecker_hpp

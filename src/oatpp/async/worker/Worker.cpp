@@ -24,7 +24,7 @@
 
 #include "Worker.hpp"
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 Worker::Worker(Type type)
   : m_type(type)
@@ -54,4 +54,4 @@ Worker::Type Worker::getType() {
   return m_type;
 }
 
-}}}
+}

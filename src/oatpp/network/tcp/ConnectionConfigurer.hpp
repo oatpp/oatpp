@@ -27,7 +27,7 @@
 
 #include "oatpp/IODefinitions.hpp"
 
-namespace oatpp { namespace network { namespace tcp {
+namespace oatpp::network::tcp {
 
 /**
  * Connection configurer
@@ -46,6 +46,6 @@ public:
   virtual void configure(oatpp::v_io_handle handle) = 0;
 };
 
-}}}
+}
 
 #endif

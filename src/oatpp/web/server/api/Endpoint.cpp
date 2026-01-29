@@ -24,7 +24,7 @@
 
 #include "Endpoint.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace api {
+namespace oatpp::web::server::api {
 
 Endpoint::Info::Param::Param()
   : name(nullptr)
@@ -128,4 +128,4 @@ void Endpoints::append(const std::shared_ptr<Endpoint>& endpoint) {
   list.push_back(endpoint);
 }
 
-}}}}
+}

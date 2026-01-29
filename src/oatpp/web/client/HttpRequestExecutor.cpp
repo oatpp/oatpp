@@ -36,7 +36,7 @@
 #include <io.h>
 #endif
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HttpRequestExecutor::ConnectionProxy
@@ -360,4 +360,4 @@ HttpRequestExecutor::executeOnceAsync(const String& method,
   
 }
   
-}}}
+}

@@ -28,7 +28,7 @@
 #include "oatpp/encoding/Unicode.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace test { namespace encoding {
+namespace oatpp::test::encoding {
   
 namespace {
 
@@ -135,4 +135,4 @@ void UnicodeTest::onRun(){
 
 }
   
-}}}
+}

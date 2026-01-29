@@ -28,13 +28,13 @@
 #include "./Type.hpp"
 #include "./Primitive.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 class Tree; // FWD
 
-}}}
+}
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
 
@@ -123,6 +123,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif //oatpp_data_type_Tree_hpp

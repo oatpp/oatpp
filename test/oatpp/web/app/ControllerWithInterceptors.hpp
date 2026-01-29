@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 namespace multipart = oatpp::web::mime::multipart;
 
@@ -115,6 +115,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_test_web_app_ControllerWithInterceptors_hpp */

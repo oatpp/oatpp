@@ -52,7 +52,7 @@
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 #include "oatpp-test/Checker.hpp"
 
-namespace oatpp { namespace test { namespace web {
+namespace oatpp::test::web {
 
 namespace {
 
@@ -273,4 +273,4 @@ void ClientRetryTest::onRun() {
 
 }
 
-}}}
+}

@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web {
+namespace oatpp::test::web {
 
 class PipelineTest : public UnitTest {
 private:
@@ -45,6 +45,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_test_web_PipelineTest_hpp

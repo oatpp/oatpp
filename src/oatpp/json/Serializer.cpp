@@ -28,7 +28,7 @@
 #include "oatpp/data/stream/BufferStream.hpp"
 #include "oatpp/utils/Conversion.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 void Serializer::serializeString(data::stream::ConsistentOutputStream* stream, const char* data, v_buff_size size, v_uint32 escapeFlags) {
   auto encodedValue = Utils::escapeString(data, size, escapeFlags);
@@ -224,4 +224,4 @@ void Serializer::serializeToStream(data::stream::ConsistentOutputStream* stream,
 
 }
 
-}}
+}

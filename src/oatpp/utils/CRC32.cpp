@@ -24,7 +24,7 @@
 
 #include "CRC32.hpp"
 
-namespace oatpp { namespace utils {
+namespace oatpp::utils {
   
 const p_uint32 CRC32::TABLE_04C11DB7 = generateTable(0x04C11DB7);
   
@@ -74,4 +74,4 @@ v_uint32 CRC32::calc(const void *buffer, v_buff_size size, v_uint32 crc, v_uint3
   return crc ^ xorOut;
 }
   
-}}
+}

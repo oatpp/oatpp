@@ -29,7 +29,7 @@
 #include "oatpp/utils/parser/Caret.hpp"
 #include "oatpp/utils/parser/ParsingError.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // StatefulParser::ListenerCall
@@ -357,4 +357,4 @@ bool StatefulParser::finished() {
   return m_state == STATE_DONE;
 }
 
-}}}}
+}

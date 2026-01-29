@@ -24,7 +24,7 @@
 
 #include "ConnectionProvider.hpp"
 
-namespace oatpp { namespace network { namespace virtual_ { namespace client {
+namespace oatpp::network::virtual_::client {
 
 void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
   auto socket = std::static_pointer_cast<Socket>(connection);
@@ -119,4 +119,4 @@ ConnectionProvider::getAsync() {
   
 }
   
-}}}}
+}

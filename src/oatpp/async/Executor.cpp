@@ -30,7 +30,7 @@
 
 #include "oatpp/concurrency/Utils.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Executor::SubmissionProcessor
@@ -55,12 +55,12 @@ void Executor::SubmissionProcessor::run() {
   
 }
 
-void Executor::SubmissionProcessor::pushTasks(utils::FastQueue<CoroutineHandle>& tasks) {
+void Executor::SubmissionProcessor::pushTasks([[maybe_unused]] utils::FastQueue<CoroutineHandle>& tasks) {
   (void)tasks;
   throw std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushTasks]: Error. This method does nothing.");
 }
 
-void Executor::SubmissionProcessor::pushOneTask(CoroutineHandle* task) {
+void Executor::SubmissionProcessor::pushOneTask([[maybe_unused]] CoroutineHandle* task) {
   (void)task;
   throw std::runtime_error("[oatpp::async::Executor::SubmissionProcessor::pushOneTask]: Error. This method does nothing.");
 }
@@ -269,4 +269,4 @@ void Executor::waitTasksFinished(const std::chrono::duration<v_int64, std::micro
 
 }
   
-}}
+}

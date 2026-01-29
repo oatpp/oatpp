@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 class BooleanTest : public oatpp::test::UnitTest {
 public:
@@ -35,6 +35,6 @@ public:
    void onRun() override;
 };
 
-}}
+}
 
 #endif /* oatpp_json_BooleanTest_hpp */

@@ -28,7 +28,7 @@
 #include "oatpp/base/Countable.hpp"
 #include <memory>
 
-namespace oatpp { namespace provider {
+namespace oatpp::provider {
 
 /**
  * Abstract resource invalidator.
@@ -52,6 +52,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_provider_Invalidator_hpp

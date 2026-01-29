@@ -25,7 +25,7 @@
 #include "FIFOBuffer.hpp"
 #include <mutex>
 
-namespace oatpp { namespace data{ namespace buffer {
+namespace oatpp::data::buffer {
 
 FIFOBuffer::FIFOBuffer(void* buffer, v_buff_size bufferSize,
                        v_buff_size readPosition, v_buff_size writePosition,
@@ -466,4 +466,4 @@ v_io_size SynchronizedFIFOBuffer::write(const void *data, v_buff_size count) {
   return m_fifo.write(data, count);
 }
 
-}}}
+}

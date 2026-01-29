@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server {
+namespace oatpp::test::web::server {
 
 class HttpRouterTest : public UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_test_web_server_HttpRouterTest_hpp */

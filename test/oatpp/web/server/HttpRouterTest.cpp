@@ -27,7 +27,7 @@
 #include "oatpp/web/server/HttpRouter.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server {
+namespace oatpp::test::web::server {
 
 namespace {
 
@@ -188,4 +188,4 @@ void HttpRouterTest::onRun() {
 
 }
 
-}}}}
+}

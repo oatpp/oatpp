@@ -48,7 +48,7 @@
 
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 
-namespace oatpp { namespace test { namespace web {
+namespace oatpp::test::web {
 
 namespace {
 
@@ -299,4 +299,4 @@ void FullAsyncTest::onRun() {
 
 }
   
-}}}
+}

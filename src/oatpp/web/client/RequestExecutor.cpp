@@ -27,7 +27,7 @@
 #include <thread>
 #include <chrono>
 
-namespace oatpp { namespace web { namespace client {
+namespace oatpp::web::client {
 
 RequestExecutor::RequestExecutionError::RequestExecutionError(v_int32 errorCode, const char* message, v_int32 readErrorCode)
   : std::runtime_error(message)
@@ -212,4 +212,4 @@ RequestExecutor::executeAsync(
 
 }
 
-}}}
+}

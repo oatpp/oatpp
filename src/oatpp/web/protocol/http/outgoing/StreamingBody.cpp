@@ -24,7 +24,7 @@
 
 #include "StreamingBody.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 StreamingBody::StreamingBody(const std::shared_ptr<data::stream::ReadCallback>& readCallback)
   : m_readCallback(readCallback)
@@ -48,4 +48,4 @@ v_int64 StreamingBody::getKnownSize() {
   return -1;
 }
 
-}}}}}
+}

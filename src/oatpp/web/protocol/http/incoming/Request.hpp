@@ -31,7 +31,7 @@
 #include "oatpp/network/Url.hpp"
 #include "oatpp/data/Bundle.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 /**
  * Class http::incoming::Request AKA IncomingRequest represents client's incoming request.
@@ -306,7 +306,7 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_incoming_Request_hpp */
 

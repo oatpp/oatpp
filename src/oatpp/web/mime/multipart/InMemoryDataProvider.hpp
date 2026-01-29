@@ -28,7 +28,7 @@
 #include "PartReader.hpp"
 #include "Reader.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 class InMemoryDataProvider : public PartReaderResourceProvider {
 public:
@@ -54,6 +54,6 @@ std::shared_ptr<PartReader> createInMemoryPartReader(v_io_size maxDataSize);
  */
 std::shared_ptr<AsyncPartReader> createAsyncInMemoryPartReader(v_io_size maxDataSize);
 
-}}}}
+}
 
 #endif //oatpp_web_mime_multipart_InMemoryDataProvider_hpp

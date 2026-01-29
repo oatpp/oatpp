@@ -27,7 +27,7 @@
 
 #include "oatpp/IODefinitions.hpp"
 
-namespace oatpp { namespace web { namespace protocol {
+namespace oatpp::web::protocol {
 
 /**
  * Communication Error
@@ -175,6 +175,6 @@ public:
 
 };
   
-}}}
+}
 
 #endif /* oatpp_web_protocol_CommunicationError_hpp */

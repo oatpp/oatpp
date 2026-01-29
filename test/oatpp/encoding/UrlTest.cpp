@@ -28,7 +28,7 @@
 #include "oatpp/encoding/Url.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace test { namespace encoding {
+namespace oatpp::test::encoding {
 
 void UrlTest::onRun(){
 
@@ -88,4 +88,4 @@ void UrlTest::onRun(){
 
 }
 
-}}}
+}

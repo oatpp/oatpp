@@ -28,7 +28,7 @@
 
 #include <chrono>
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 IOWorker::IOWorker()
   : Worker(Type::IO)
@@ -172,4 +172,4 @@ void IOWorker::detach() {
   m_thread.detach();
 }
 
-}}}
+}

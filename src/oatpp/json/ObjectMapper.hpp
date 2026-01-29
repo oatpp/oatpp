@@ -32,7 +32,7 @@
 #include "oatpp/data/mapping/TreeToObjectMapper.hpp"
 #include "oatpp/data/mapping/ObjectMapper.hpp"
 
-namespace oatpp { namespace json {
+namespace oatpp::json {
 
 /**
  * Json ObjectMapper. Serialized/Deserializes oatpp DTO objects to/from JSON.
@@ -91,6 +91,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_json_ObjectMapper_hpp */

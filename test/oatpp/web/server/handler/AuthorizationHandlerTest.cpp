@@ -27,7 +27,7 @@
 
 #include "oatpp/web/server/handler/AuthorizationHandler.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server { namespace handler {
+namespace oatpp::test::web::server::handler {
 
 namespace {
 
@@ -75,4 +75,4 @@ void AuthorizationHandlerTest::onRun() {
 
 }
 
-}}}}}
+}

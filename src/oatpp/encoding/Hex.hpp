@@ -28,7 +28,7 @@
 #include "oatpp/data/stream/Stream.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace encoding {
+namespace oatpp::encoding {
 
 /**
  * Utility class for hex string encoding/decoding .
@@ -132,6 +132,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_encoding_Hex_hpp */

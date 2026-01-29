@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace protocol { namespace http { namespace encoding {
+namespace oatpp::test::web::protocol::http::encoding {
 
 class ChunkedTest : public UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}}}}
+}
 
 #endif /* oatpp_test_web_protocol_http_encoding_ChunkedTest_hpp */

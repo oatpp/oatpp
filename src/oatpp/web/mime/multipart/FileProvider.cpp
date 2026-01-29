@@ -26,7 +26,7 @@
 
 #include "oatpp/data/resource/File.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 FileProvider::FileProvider(const oatpp::String& filename)
   : m_filename(filename)
@@ -60,4 +60,4 @@ std::shared_ptr<AsyncPartReader> createAsyncFilePartReader(const oatpp::String& 
   return reader;
 }
 
-}}}}
+}

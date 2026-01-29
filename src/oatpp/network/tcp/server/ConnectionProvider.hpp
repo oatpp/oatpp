@@ -32,7 +32,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace network { namespace tcp { namespace server {
+namespace oatpp::network::tcp::server {
 
 /**
  * Simple provider of TCP connections.
@@ -172,6 +172,6 @@ public:
   
 };
   
-}}}}
+}
 
 #endif /* oatpp_netword_tcp_server_ConnectionProvider_hpp */

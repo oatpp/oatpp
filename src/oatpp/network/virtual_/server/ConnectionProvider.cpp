@@ -26,7 +26,7 @@
 
 #include <chrono>
 
-namespace oatpp { namespace network { namespace virtual_ { namespace server {
+namespace oatpp::network::virtual_::server {
 
 void ConnectionProvider::ConnectionInvalidator::invalidate(const std::shared_ptr<data::stream::IOStream>& connection) {
   auto socket = std::static_pointer_cast<Socket>(connection);
@@ -68,4 +68,4 @@ provider::ResourceHandle<data::stream::IOStream> ConnectionProvider::get() {
   return provider::ResourceHandle<data::stream::IOStream>(socket, m_invalidator);
 }
 
-}}}}
+}

@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace server {
+namespace oatpp::test::web::server {
 
 class ServerStopTest : public UnitTest {
 private:
@@ -43,6 +43,6 @@ public:
 
 };
 
-}}}}
+}
 
 #endif /* oatpp_test_web_server_ServerStopTest_hpp */

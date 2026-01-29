@@ -33,7 +33,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 /**
  * Errors of enum interpretation.
@@ -667,7 +667,7 @@ namespace __class {
 
 }
 
-}}}
+}
 
 namespace std {
 

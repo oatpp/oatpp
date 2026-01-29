@@ -31,7 +31,7 @@
 #include "oatpp/data/stream/Stream.hpp"
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 /**
  * Database client.
@@ -116,6 +116,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_orm_DbClient_hpp

@@ -28,7 +28,7 @@
 #include "./Body.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace outgoing {
+namespace oatpp::web::protocol::http::outgoing {
 
 /**
  * Implementation of &id:oatpp::web::protocol::http::outgoing::Body; class.
@@ -82,6 +82,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_outgoing_BufferBody_hpp */

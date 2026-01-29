@@ -26,7 +26,7 @@
 
 #include "oatpp/Types.hpp"
 
-namespace oatpp { namespace data { namespace  type {
+namespace oatpp::data::type {
 
 void UnorderedMapTest::onRun() {
 
@@ -160,4 +160,4 @@ void UnorderedMapTest::onRun() {
 
 }
 
-}}}
+}

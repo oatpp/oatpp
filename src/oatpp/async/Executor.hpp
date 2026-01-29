@@ -35,7 +35,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 /**
  * Asynchronous Executor.<br>
@@ -67,9 +67,9 @@ private:
 
     oatpp::async::Processor& getProcessor();
 
-    void pushTasks(utils::FastQueue<CoroutineHandle>& tasks) override GPP_ATTRIBUTE(noreturn);
+    void pushTasks([[maybe_unused]] utils::FastQueue<CoroutineHandle>& tasks) override GPP_ATTRIBUTE(noreturn);
 
-    void pushOneTask(CoroutineHandle* task) override GPP_ATTRIBUTE(noreturn);
+    void pushOneTask([[maybe_unused]] CoroutineHandle* task) override GPP_ATTRIBUTE(noreturn);
 
     void run();
 
@@ -169,6 +169,6 @@ public:
   
 };
   
-}}
+}
 
 #endif /* oatpp_async_Executor_hpp */

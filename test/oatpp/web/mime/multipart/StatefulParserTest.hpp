@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace test { namespace web { namespace mime { namespace multipart {
+namespace oatpp::test::web::mime::multipart {
 
 class StatefulParserTest : public UnitTest {
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}}}}
+}
 
 #endif /* oatpp_test_web_mime_multipart_StatefulParserTest_hpp */

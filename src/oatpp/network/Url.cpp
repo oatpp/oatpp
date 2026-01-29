@@ -26,7 +26,7 @@
 
 #include <cstdlib>
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 oatpp::String Url::Parser::parseScheme(oatpp::utils::parser::Caret& caret) {
   v_buff_size pos0 = caret.getPosition();
@@ -177,4 +177,4 @@ Url Url::Parser::parseUrl(const oatpp::String& str) {
   return parseUrl(caret);
 }
   
-}}
+}

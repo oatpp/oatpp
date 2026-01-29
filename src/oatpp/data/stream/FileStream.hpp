@@ -29,7 +29,7 @@
 
 #include <cstdio>
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
 
 /**
  * Wrapper over `std::FILE`.
@@ -206,6 +206,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif // oatpp_data_stream_FileStream_hpp

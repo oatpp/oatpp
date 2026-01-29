@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace data { namespace resource {
+namespace oatpp::data::resource {
 
 class InMemoryDataTest : public oatpp::test::UnitTest {
 public:
@@ -38,6 +38,6 @@ public:
 
 };
 
-}}}
+}
 
 #endif /* oatpp_data_resource_InMemoryDataTest_hpp */

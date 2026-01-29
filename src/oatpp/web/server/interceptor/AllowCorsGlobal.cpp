@@ -24,7 +24,7 @@
 
 #include "AllowCorsGlobal.hpp"
 
-namespace oatpp { namespace web { namespace server { namespace interceptor {
+namespace oatpp::web::server::interceptor {
 
 std::shared_ptr<protocol::http::outgoing::Response> AllowOptionsGlobal::intercept(const std::shared_ptr<IncomingRequest> &request) {
 
@@ -58,4 +58,4 @@ std::shared_ptr<protocol::http::outgoing::Response> AllowCorsGlobal::intercept(c
   return response;
 }
 
-}}}}
+}

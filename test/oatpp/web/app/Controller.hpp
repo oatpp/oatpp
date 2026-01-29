@@ -47,7 +47,7 @@
 #include <sstream>
 #include <thread>
 
-namespace oatpp { namespace test { namespace web { namespace app {
+namespace oatpp::test::web::app {
 
 namespace multipart = oatpp::web::mime::multipart;
 
@@ -425,6 +425,6 @@ public:
 
 #include OATPP_CODEGEN_END(ApiController)
 
-}}}}
+}
 
 #endif /* oatpp_test_web_app_Controller_hpp */

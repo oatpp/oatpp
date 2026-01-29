@@ -24,10 +24,10 @@
 
 #include "Vector.hpp"
 
-namespace oatpp { namespace data { namespace type {
+namespace oatpp::data::type {
 
 namespace __class {
   const ClassId AbstractVector::CLASS_ID("Vector");
 }
 
-}}}
+}

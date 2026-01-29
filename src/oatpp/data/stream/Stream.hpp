@@ -32,7 +32,7 @@
 
 #include "oatpp/IODefinitions.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
 
 /**
  * Stream Type.
@@ -563,6 +563,6 @@ async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& re
                                       const base::ObjectHandle<data::buffer::Processor>& processor = &StatelessDataTransferProcessor::INSTANCE);
 
   
-}}}
+}
 
 #endif /* defined(_data_Stream) */

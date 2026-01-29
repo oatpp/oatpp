@@ -27,7 +27,7 @@
 
 #include "oatpp/base/Countable.hpp"
 
-namespace oatpp { namespace orm {
+namespace oatpp::orm {
 
 /**
  * Abstract database connection.
@@ -42,6 +42,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_orm_Connection_hpp

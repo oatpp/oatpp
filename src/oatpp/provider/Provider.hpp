@@ -30,7 +30,7 @@
 #include "oatpp/async/Coroutine.hpp"
 #include "oatpp/data/share/MemoryLabel.hpp"
 
-namespace oatpp { namespace provider {
+namespace oatpp::provider {
 
 /**
  * Resource handle template.
@@ -220,6 +220,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_provider_Provider_hpp

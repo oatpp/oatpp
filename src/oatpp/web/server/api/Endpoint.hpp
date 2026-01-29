@@ -31,7 +31,7 @@
 #include <unordered_map>
 #include <functional>
 
-namespace oatpp { namespace web { namespace server { namespace api {
+namespace oatpp::web::server::api {
 
 /**
  * Endpoint - class which holds information about endpoint.
@@ -311,6 +311,6 @@ struct Endpoints {
 
 };
   
-}}}}
+}
 
 #endif /* oatpp_web_server_api_Endpoint_hpp */

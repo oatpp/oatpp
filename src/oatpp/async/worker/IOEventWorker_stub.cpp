@@ -31,7 +31,7 @@
 
 #include "oatpp/async/Processor.hpp"
 
-namespace oatpp { namespace async { namespace worker {
+namespace oatpp::async::worker {
 
 void IOEventWorker::initEventQueue() {
   throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
@@ -61,6 +61,6 @@ void IOEventWorker::waitEvents() {
   throw std::runtime_error("[IOEventWorker for Target OS is NOT IMPLEMENTED! Use IOWorker instead.]");
 }
 
-}}}
+}
 
 #endif // #ifdef OATPP_IO_EVENT_INTERFACE_STUB

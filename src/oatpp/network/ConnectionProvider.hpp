@@ -31,7 +31,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 /**
  * Abstract ConnectionProvider. <br>
@@ -66,6 +66,6 @@ class ServerConnectionProvider : virtual public ConnectionProvider {
 class ClientConnectionProvider : virtual public ConnectionProvider {
 };
   
-}}
+}
 
 #endif /* oatpp_network_ConnectionProvider_hpp */

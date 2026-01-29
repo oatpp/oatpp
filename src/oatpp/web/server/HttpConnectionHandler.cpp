@@ -35,7 +35,7 @@
 #include "oatpp/data/stream/StreamBufferedProxy.hpp"
 
 
-namespace oatpp { namespace web { namespace server {
+namespace oatpp::web::server {
 
 void HttpConnectionHandler::onTaskStart(const provider::ResourceHandle<data::stream::IOStream>& connection) {
 
@@ -132,4 +132,4 @@ void HttpConnectionHandler::stop() {
   }
 }
 
-}}}
+}

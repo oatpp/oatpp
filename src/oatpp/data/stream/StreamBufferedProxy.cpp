@@ -24,7 +24,7 @@
 
 #include "StreamBufferedProxy.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
   
 v_io_size OutputStreamBufferedProxy::write(const void *data, v_buff_size count, async::Action& action) {
   if(m_buffer.availableToWrite() > 0) {
@@ -106,4 +106,4 @@ v_io_size InputStreamBufferedProxy::availableToRead() const {
   return m_buffer.availableToRead();
 }
 
-}}}
+}

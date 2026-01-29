@@ -26,7 +26,7 @@
 #include "oatpp/utils/Conversion.hpp"
 #include "oatpp/base/Log.hpp"
 
-namespace oatpp { namespace data{ namespace stream {
+namespace oatpp::data::stream {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WriteCallback
@@ -814,4 +814,4 @@ async::CoroutineStarter transferAsync(const base::ObjectHandle<ReadCallback>& re
 
 }
   
-}}}
+}

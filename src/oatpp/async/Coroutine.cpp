@@ -25,7 +25,7 @@
 
 #include "Coroutine.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Action
@@ -413,4 +413,4 @@ Action AbstractCoroutine::error(Error* error) {
   return error;
 }
 
-}}
+}

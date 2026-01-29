@@ -24,7 +24,7 @@
 
 #include "Request.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 Request::Request(const std::shared_ptr<oatpp::data::stream::IOStream>& connection,
                  const http::RequestStartingLine& startingLine,
@@ -171,4 +171,4 @@ async::CoroutineStarterForResult<const oatpp::String&> Request::readBodyToString
   return m_bodyDecoder->decodeToStringAsync(m_headers, m_bodyStream, m_connection);
 }
 
-}}}}}
+}

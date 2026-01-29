@@ -26,7 +26,7 @@
 
 #include <cstring>
 
-namespace oatpp { namespace data { namespace share {
+namespace oatpp::data::share {
 
 MemoryLabel::MemoryLabel(const std::shared_ptr<std::string>& memHandle, const void* data, v_buff_size size)
   : m_memoryHandle(memHandle)
@@ -58,4 +58,4 @@ StringKeyLabelCI::StringKeyLabelCI(const String& str)
   : oatpp::data::share::MemoryLabel(str.getPtr(), str->data(), static_cast<v_buff_size>(str->size()))
 {}
   
-}}}
+}

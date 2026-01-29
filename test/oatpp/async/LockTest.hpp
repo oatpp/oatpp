@@ -27,7 +27,7 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-namespace oatpp { namespace async {
+namespace oatpp::async {
 
 class LockTest : public oatpp::test::UnitTest{
 public:
@@ -37,6 +37,6 @@ public:
 
 };
 
-}}
+}
 
 #endif // oatpp_async_LockTest_hpp

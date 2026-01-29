@@ -24,7 +24,7 @@
 
 #include "Socket.hpp"
 
-namespace oatpp { namespace network { namespace virtual_ {
+namespace oatpp::network::virtual_ {
 
 Socket::Socket(const std::shared_ptr<Pipe>& pipeIn, const std::shared_ptr<Pipe>& pipeOut)
   : m_pipeIn(pipeIn)
@@ -82,4 +82,4 @@ void Socket::close() {
   m_pipeOut->close();
 }
   
-}}}
+}

@@ -28,7 +28,7 @@
 #include "ConnectionProvider.hpp"
 #include <mutex>
 
-namespace oatpp { namespace network {
+namespace oatpp::network {
 
 /**
  * ConnectionProviderSwitch can be used to hot-change connection providers.
@@ -78,6 +78,6 @@ public:
 
 };
 
-}}
+}
 
 #endif //oatpp_network_ConnectionProviderSwitch_hpp

@@ -33,7 +33,7 @@
 
 #include <unordered_map>
 
-namespace oatpp { namespace test { namespace web { namespace mime { namespace multipart {
+namespace oatpp::test::web::mime::multipart {
 
 namespace {
 
@@ -155,4 +155,4 @@ void StatefulParserTest::onRun() {
 
 }
 
-}}}}}
+}

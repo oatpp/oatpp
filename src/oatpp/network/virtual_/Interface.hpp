@@ -31,7 +31,7 @@
 #include <unordered_map>
 #include <chrono>
 
-namespace oatpp { namespace network { namespace virtual_ {
+namespace oatpp::network::virtual_ {
 
 /**
  * "Virtual" Interface provides functionality for accepting "virtual" connections.
@@ -196,6 +196,6 @@ public:
   
 };
   
-}}}
+}
 
 #endif /* oatpp_network_virtual__Interface_hpp */

@@ -25,7 +25,7 @@
 
 #include "PartList.hpp"
 
-namespace oatpp { namespace web { namespace mime { namespace multipart {
+namespace oatpp::web::mime::multipart {
 
 PartList::PartList(const oatpp::String& boundary)
   : Multipart(boundary)
@@ -97,4 +97,4 @@ v_int64 PartList::count() {
   return static_cast<v_int64>(m_parts.size());
 }
 
-}}}}
+}

@@ -28,7 +28,7 @@
 #include "BodyDecoder.hpp"
 #include "oatpp/web/protocol/http/encoding/ProviderCollection.hpp"
 
-namespace oatpp { namespace web { namespace protocol { namespace http { namespace incoming {
+namespace oatpp::web::protocol::http::incoming {
 
 /**
  * Default implementation of &id:oatpp::web::protocol::http::incoming::BodyDecoder;.
@@ -80,6 +80,6 @@ public:
   
 };
   
-}}}}}
+}
 
 #endif /* oatpp_web_protocol_http_incoming_SimpleBodyDecoder_hpp */

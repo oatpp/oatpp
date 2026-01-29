@@ -24,7 +24,7 @@
 
 #include "TypeResolver.hpp"
 
-namespace oatpp { namespace data { namespace mapping {
+namespace oatpp::data::mapping {
 
 TypeResolver::TypeResolver() {
 
@@ -242,4 +242,4 @@ type::Void TypeResolver::resolveObjectPropertyValue(const type::Void& object,
   return findPropertyValue(object, path, 0, cache);
 }
 
-}}}
+}
