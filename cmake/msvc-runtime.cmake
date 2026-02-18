@@ -1,36 +1,16 @@
 macro(configure_msvc_runtime)
+	# Let possibility for user to define CMAKE_MSVC_RUNTIME_LIBRARY (if defined, OATPP_MSVC_LINK_STATIC_RUNTIME will be ignored)
 	if(MSVC)
-		# Set compiler options.
-		set(variables
-			CMAKE_C_FLAGS
-			CMAKE_C_FLAGS_DEBUG
-			CMAKE_C_FLAGS_MINSIZEREL
-			CMAKE_C_FLAGS_RELEASE
-			CMAKE_C_FLAGS_RELWITHDEBINFO
-			CMAKE_CXX_FLAGS
-			CMAKE_CXX_FLAGS_DEBUG
-			CMAKE_CXX_FLAGS_MINSIZEREL
-			CMAKE_CXX_FLAGS_RELEASE
-			CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-
-		if(OATPP_MSVC_LINK_STATIC_RUNTIME)
-			message(STATUS "MSVC: using statically-linked runtime (/MT and /MTd).")
-			foreach(variable ${variables})
-				if(${variable} MATCHES "/MD")
-					string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
-				endif()
-			endforeach()
+		if(DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+			message(STATUS "MSVC: using runtime from provided CMAKE_MSVC_RUNTIME_LIBRARY (OATPP_MSVC_LINK_STATIC_RUNTIME option is ignored)")
 		else()
-			message(STATUS "MSVC: using dynamically-linked runtime (/MD and /MDd).")
-			foreach(variable ${variables})
-				if(${variable} MATCHES "/MT")
-					string(REGEX REPLACE "/MT" "/MD" ${variable} "${${variable}}")
-				endif()
-			endforeach()
+			if(OATPP_MSVC_LINK_STATIC_RUNTIME)
+				message(STATUS "MSVC: using statically-linked runtime (/MT and /MTd).")
+				set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+			else()
+				message(STATUS "MSVC: using dynamically-linked runtime (/MD and /MDd).")
+				set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			endif()
 		endif()
-
-		foreach(variable ${variables})
-			set(${variable} "${${variable}}" CACHE STRING "MSVC_${variable}" FORCE)
-		endforeach()
 	endif()
 endmacro(configure_msvc_runtime)
