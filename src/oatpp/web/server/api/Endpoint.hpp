@@ -121,6 +121,7 @@ public:
       oatpp::String contentType;
       oatpp::data::type::Type* schema;
       oatpp::String description;
+      oatpp::String format;
       std::list<std::pair<oatpp::String, oatpp::Any>> examples;
 
       ContentHints& addExample(const oatpp::String& title, const oatpp::Any& example) {
@@ -237,6 +238,19 @@ public:
     }
 
     /**
+     * Add "consumes" info to endpoint with explicit schema format.
+     * @tparam T
+     * @param contentType
+     * @param desc
+     * @param schemaFormat - OpenAPI schema format hint (e.g. "binary", "byte")
+     */
+    template<class Wrapper>
+    ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& desc, const oatpp::String& schemaFormat) {
+      consumes.push_back({contentType, Wrapper::Class::getType(), desc, schemaFormat});
+      return consumes.back();
+    }
+
+    /**
      * Add response info to endpoint
      * @tparam Wrapper
      * @param status
@@ -249,6 +263,24 @@ public:
       hint.contentType = contentType;
       hint.description = responseDescription.get() == nullptr ? status.description : responseDescription;
       hint.schema = Wrapper::Class::getType();
+      return hint;
+    }
+
+    /**
+     * Add response info to endpoint with explicit schema format.
+     * @tparam Wrapper
+     * @param status
+     * @param contentType
+     * @param responseDescription
+     * @param schemaFormat - OpenAPI schema format hint (e.g. "binary", "byte")
+     */
+    template<class Wrapper>
+    ContentHints& addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription, const oatpp::String& schemaFormat) {
+      auto& hint = responses[status];
+      hint.contentType = contentType;
+      hint.description = responseDescription.get() == nullptr ? status.description : responseDescription;
+      hint.schema = Wrapper::Class::getType();
+      hint.format = schemaFormat;
       return hint;
     }
 
