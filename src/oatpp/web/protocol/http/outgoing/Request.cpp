@@ -124,7 +124,7 @@ void Request::send(data::stream::OutputStream* stream){
   oatpp::data::stream::BufferOutputStream buffer(2048);
 
   buffer.writeSimple(m_method.getData(), m_method.getSize());
-  buffer.writeSimple(" /", 2);
+  buffer.writeSimple(" ", 1);
   buffer.writeSimple(m_path.getData(), m_path.getSize());
   buffer.writeSimple(" ", 1);
   buffer.writeSimple("HTTP/1.1", 8);
