@@ -23,6 +23,8 @@
  ***************************************************************************/
 
 #include "ObjectWrapperTest.hpp"
+
+#include "oatpp/macro/codegen.hpp"
 #include "oatpp/Types.hpp"
 
 namespace oatpp { namespace data { namespace  type {
@@ -31,6 +33,20 @@ namespace {
 
   template<class T, class Clazz = oatpp::data::type::__class::Void>
   using TestWrapper = oatpp::data::type::ObjectWrapper<T, Clazz>;
+
+#include OATPP_CODEGEN_BEGIN(DTO)
+
+  /* DTO inheritance pair to exercise `ObjectWrapper::checkType` up-cast direction. */
+  class WrapperDtoBase : public oatpp::DTO {
+    DTO_INIT(WrapperDtoBase, DTO)
+    DTO_FIELD(oatpp::Int32, id) = 0;
+  };
+
+  class WrapperDtoChild : public WrapperDtoBase {
+    DTO_INIT(WrapperDtoChild, WrapperDtoBase)
+  };
+
+#include OATPP_CODEGEN_END(DTO)
 
 }
 
@@ -193,6 +209,41 @@ void ObjectWrapperTest::onRun() {
     OATPP_ASSERT(i.getValueType() == oatpp::Int32::Class::getType())
     OATPP_ASSERT(i == 32)
 
+  }
+
+  {
+    OATPP_LOGi(TAG, "Check valid up-cast assignment: derived-typed value into base-labelled wrapper...")
+
+    OATPP_ASSERT(oatpp::Object<WrapperDtoChild>::Class::getType()->extends(oatpp::Object<WrapperDtoBase>::Class::getType()))
+
+    /* derived value assigned to a wrapper labelled with its base type must be accepted */
+    TestWrapper<void> src(WrapperDtoChild::createShared().getPtr(), oatpp::Object<WrapperDtoChild>::Class::getType());
+    TestWrapper<void> dst(oatpp::Object<WrapperDtoBase>::Class::getType());
+    dst = src; /* derived-to-base assignment must NOT throw */
+
+    OATPP_ASSERT(dst)
+    OATPP_ASSERT(dst.getValueType() == oatpp::Object<WrapperDtoBase>::Class::getType())
+    OATPP_LOGi(TAG, "OK")
+  }
+
+  {
+    OATPP_LOGi(TAG, "Check type-confusing down-cast assignment is rejected...")
+
+    /* base value assigned to a wrapper labelled with the derived type must throw:
+     * otherwise the wrapper would keep the derived label while pointing to a base object */
+    TestWrapper<void> src(WrapperDtoBase::createShared().getPtr(), oatpp::Object<WrapperDtoBase>::Class::getType());
+    TestWrapper<void> dst(oatpp::Object<WrapperDtoChild>::Class::getType());
+    bool throws = false;
+    try {
+      dst = src; /* base-to-derived assignment must throw */
+    } catch (std::runtime_error&) {
+      throws = true;
+    }
+    OATPP_ASSERT(throws)
+    /* the wrapper must be left untouched by the rejected assignment */
+    OATPP_ASSERT(!dst)
+    OATPP_ASSERT(dst.getValueType() == oatpp::Object<WrapperDtoChild>::Class::getType())
+    OATPP_LOGi(TAG, "OK")
   }
 
 }

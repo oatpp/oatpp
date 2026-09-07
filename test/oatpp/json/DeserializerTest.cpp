@@ -323,6 +323,56 @@ void DeserializerTest::onRun(){
     OATPP_ASSERT(dto->any.retrieve<Int64>() == -1234567890)
   }
 
+  OATPP_LOGd(TAG, "Test missing comma in array should error")
+  {
+    bool caught = false;
+    try {
+      mapper.readFromString<oatpp::Object<Test1>>(R"([1 2])");
+    } catch (const std::runtime_error&) {
+      caught = true;
+    }
+    OATPP_ASSERT(caught)
+  }
+
+  OATPP_LOGd(TAG, "Test missing comma between null and object in array (issue #1080)")
+  {
+    bool caught = false;
+    try {
+      mapper.readFromString<oatpp::Object<Test1>>(R"([null{"name":"child1","id":1}])");
+    } catch (const std::runtime_error&) {
+      caught = true;
+    }
+    OATPP_ASSERT(caught)
+  }
+
+  OATPP_LOGd(TAG, "Test missing comma in map should error")
+  {
+    bool caught = false;
+    try {
+      mapper.readFromString<oatpp::Object<Test1>>(R"({"a":1 "b":2})");
+    } catch (const std::runtime_error&) {
+      caught = true;
+    }
+    OATPP_ASSERT(caught)
+  }
+
+  OATPP_LOGd(TAG, "Test trailing comma in array should still work")
+  {
+    auto list = mapper.readFromString<oatpp::List<oatpp::Int32>>("[1, 2, 3]");
+    OATPP_ASSERT(list)
+    OATPP_ASSERT(list->size() == 3)
+  }
+
+  OATPP_LOGd(TAG, "Test valid null in array should still work")
+  {
+    auto list = mapper.readFromString<oatpp::List<oatpp::String>>(R"(["a", null, "b"])");
+    OATPP_ASSERT(list)
+    OATPP_ASSERT(list->size() == 3)
+    OATPP_ASSERT(list[0] == "a")
+    OATPP_ASSERT(list[1] == nullptr)
+    OATPP_ASSERT(list[2] == "b")
+  }
+
 }
   
 }}

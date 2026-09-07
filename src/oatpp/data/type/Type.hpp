@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <type_traits>
 
 namespace oatpp { namespace data { namespace type {
 
@@ -556,8 +557,21 @@ public:
 template <class T, class Clazz>
 template<class Wrapper>
 Wrapper ObjectWrapper<T, Clazz>::cast() const {
-  if(!Wrapper::Class::getType()->extends(m_valueType)) {
-    if(Wrapper::Class::getType() != __class::Void::getType() && m_valueType != __class::Void::getType()) {
+  /**
+   * The value type must extend the target type (up-cast only).
+   * Note: the previous check was inverted - `Wrapper::Class::getType()->extends(m_valueType)`,
+   * which accepted down-casts (e.g. a base-class pointer cast to a derived wrapper) and thus
+   * caused type confusion. It also wrongly rejected valid derived-to-base casts.
+  */
+  if(!m_valueType->extends(Wrapper::Class::getType())) {
+    /**
+     * Cast to `Void` is always safe - it's a type erasure (shared_ptr<void>).
+     * Cast from an untyped (`Void`-typed) value is only safe while the pointer is null:
+     * a non-null pointer with no type information must not be reinterpreted.
+    */
+    if(Wrapper::Class::getType() != __class::Void::getType() &&
+       (m_valueType != __class::Void::getType() || m_ptr != nullptr))
+    {
       throw std::runtime_error("[oatpp::data::type::ObjectWrapper::cast()]: Error. Invalid cast "
                                "from '" + std::string(m_valueType->classId.name) + "' to '" +
                                std::string(Wrapper::Class::getType()->classId.name) + "'.");
@@ -568,7 +582,14 @@ Wrapper ObjectWrapper<T, Clazz>::cast() const {
 
 template <class T, class Clazz>
 void ObjectWrapper<T, Clazz>::checkType(const Type* _this, const Type* other) {
-  if(!_this->extends(other)) {
+  /**
+   * The assigned value type must extend the stored type (up-cast only).
+   * Note: the previous check was inverted - `_this->extends(other)`,
+   * which accepted down-casts (assigning a base-class value to a wrapper holding a
+   * derived type label, later reinterpreting it via that label) and thus caused type
+   * confusion. It also wrongly rejected valid derived-to-base assignments.
+  */
+  if(!other->extends(_this)) {
     throw std::runtime_error("[oatpp::data::type::ObjectWrapper::checkType()]: Error. "
                              "Type mismatch: stored '" + std::string(_this->classId.name) + "' vs "
                              "assigned '" + std::string(other->classId.name) + "'.");
@@ -617,6 +638,19 @@ public: \
     return *this; \
   } \
 
+
+}}}
+
+namespace oatpp { namespace data { namespace type {
+
+template<typename T, typename = void>
+struct __class__has_class_get_type : std::false_type {};
+
+template<typename T>
+struct __class__has_class_get_type<T, decltype(void(T::Class::getType()))> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_class_with_class_get_type_v = __class__has_class_get_type<T>::value;
 
 }}}
 

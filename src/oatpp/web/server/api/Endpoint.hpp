@@ -102,6 +102,9 @@ public:
        */
       template<class T>
       Param& add(const oatpp::String& aname) {
+        static_assert(oatpp::data::type::is_class_with_class_get_type_v<T>,
+          "Type must be an oatpp type wrapper (e.g., oatpp::Object<YourDto>, oatpp::String, oatpp::Int32, etc.). "
+          "Did you forget to declare as oatpp::Object<YourDto>?");
         return add(aname, T::Class::getType());
       }
 
@@ -232,6 +235,9 @@ public:
      */
     template<class Wrapper>
     ContentHints& addConsumes(const oatpp::String& contentType, const oatpp::String& desc = oatpp::String()) {
+      static_assert(oatpp::data::type::is_class_with_class_get_type_v<Wrapper>,
+        "Type must be an oatpp type wrapper (e.g., oatpp::Object<YourDto>, oatpp::String, oatpp::Int32, etc.). "
+        "Did you forget to declare as oatpp::Object<YourDto>?");
       consumes.push_back({contentType, Wrapper::Class::getType(), desc});
       return consumes.back();
     }
@@ -245,6 +251,9 @@ public:
      */
     template<class Wrapper>
     ContentHints& addResponse(const oatpp::web::protocol::http::Status& status, const oatpp::String& contentType, const oatpp::String& responseDescription = oatpp::String()) {
+      static_assert(oatpp::data::type::is_class_with_class_get_type_v<Wrapper>,
+        "Type must be an oatpp type wrapper (e.g., oatpp::Object<YourDto>, oatpp::String, oatpp::Int32, etc.). "
+        "Did you forget to declare as oatpp::Object<YourDto>?");
       auto& hint = responses[status];
       hint.contentType = contentType;
       hint.description = responseDescription.get() == nullptr ? status.description : responseDescription;

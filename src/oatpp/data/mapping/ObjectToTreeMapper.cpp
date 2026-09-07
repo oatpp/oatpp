@@ -272,7 +272,7 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& stat
       value = field->get(object);
     }
 
-    if(field->info.required && value == nullptr) {
+    if(field->info.required && value == nullptr && !field->info.nullable) {
       oatpp::String key;
       state.config->useUnqualifiedFieldNames ? key = field->unqualifiedName : key = field->name;
       state.errorStack.push("[oatpp::data::mapping::ObjectToTreeMapper::mapObject()]: "
@@ -281,7 +281,7 @@ void ObjectToTreeMapper::mapObject(const ObjectToTreeMapper* mapper, State& stat
       return;
     }
 
-    if (value || state.config->includeNullFields || (field->info.required && state.config->alwaysIncludeRequired)) {
+    if (value || state.config->includeNullFields || (field->info.required && state.config->alwaysIncludeRequired) || field->info.nullable) {
 
       oatpp::String key;
       state.config->useUnqualifiedFieldNames ? key = field->unqualifiedName : key = field->name;

@@ -572,6 +572,65 @@ void ObjectTest::onRun() {
     OATPP_LOGi(TAG, "OK")
   }
 
+  {
+    OATPP_LOGi(TAG, "Test 19 - property owner type validation...")
+
+    auto dtoB = DtoB::createShared();
+    auto dtoC = DtoC::createShared();
+
+    const auto& propsB = Object<DtoB>::getPropertiesMap();
+    const auto& propsC = Object<DtoC>::getPropertiesMap();
+
+    /* apply DtoC's property to a DtoB object - must throw (issue #1104) */
+
+    bool thrownBySet = false;
+    try {
+      propsC.at("c")->set(dtoB.get(), oatpp::String("x"));
+    } catch (const std::runtime_error& e) {
+      thrownBySet = true;
+      OATPP_LOGd(TAG, "caught: {}", e.what())
+    }
+    OATPP_ASSERT(thrownBySet)
+
+    bool thrownByGet = false;
+    try {
+      propsC.at("c")->get(dtoB.get());
+    } catch (const std::runtime_error&) {
+      thrownByGet = true;
+    }
+    OATPP_ASSERT(thrownByGet)
+
+    bool thrownByGetAsRef = false;
+    try {
+      (void)propsC.at("c")->getAsRef(dtoB.get());
+    } catch (const std::runtime_error&) {
+      thrownByGetAsRef = true;
+    }
+    OATPP_ASSERT(thrownByGetAsRef)
+
+    /* legit usages must keep working */
+
+    /* own property */
+    propsB.at("field-a")->set(dtoB.get(), oatpp::String("hello"));
+    OATPP_ASSERT(dtoB->a == "hello")
+
+    /* property declared on the base class applied to a derived object */
+    propsB.at("id")->set(dtoB.get(), oatpp::String("id-2"));
+    OATPP_ASSERT(dtoB->id == "id-2")
+
+    auto value = propsB.at("id")->get(dtoB.get());
+    OATPP_ASSERT(value.getValueType() == oatpp::String::Class::getType())
+
+    propsB.at("id")->getAsRef(dtoB.get()) = oatpp::String("id-3");
+    OATPP_ASSERT(dtoB->id == "id-3")
+
+    /* operator[] goes through the same guarded path */
+    dtoB["field-a"] = oatpp::String("via-operator");
+    OATPP_ASSERT(dtoB->a == "via-operator")
+
+    OATPP_LOGi(TAG, "OK")
+  }
+
 }
 
 }}}

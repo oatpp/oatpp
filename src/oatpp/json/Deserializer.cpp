@@ -91,7 +91,12 @@ void Deserializer::deserializeArray(State& state) {
 
       state.caret->skipBlankChars();
 
-      state.caret->canContinueAtChar(',', 1);
+      if(!state.caret->canContinueAtChar(',', 1)){
+        if(!state.caret->isAtChar(']')){
+          state.errorStack.push("[oatpp::json::Deserializer::deserializeArray()]: ',' or ']' expected");
+          return;
+        }
+      }
 
       index ++;
 
@@ -149,7 +154,12 @@ void Deserializer::deserializeMap(State& state) {
       }
 
       state.caret->skipBlankChars();
-      state.caret->canContinueAtChar(',', 1);
+      if(!state.caret->canContinueAtChar(',', 1)){
+        if(!state.caret->isAtChar('}')){
+          state.errorStack.push("[oatpp::json::Deserializer::deserializeMap()]: ',' or '}' expected");
+          return;
+        }
+      }
 
     }
 

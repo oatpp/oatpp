@@ -83,6 +83,12 @@ public:
      */
     v_buff_size headersReaderMaxSize = 4096;
 
+    /**
+     * Request timeout in milliseconds. 0 means no timeout.
+     * If a request handler takes longer than this time to process, a 504 Gateway Timeout will be returned.
+     */
+    v_int64 requestTimeout = 0;
+
   };
 
 public:
@@ -266,6 +272,8 @@ public:
     TaskProcessingListener* m_taskListener;
   private:
     bool m_shouldInterceptResponse;
+    v_int64 m_requestTimeoutMs;
+    bool m_requestTimedOut;
   public:
 
     /**
@@ -282,14 +290,15 @@ public:
     Action act() override;
 
     Action parseHeaders();
-    
+
     Action onHeadersParsed(const RequestHeadersReader::Result& headersReadResult);
-    
+
     Action onRequestFormed();
+    Action onRequestWithTimeout();
     Action onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response);
     Action onResponseFormed();
     Action onRequestDone();
-    
+
     Action handleError(Error* error) override;
     
   };

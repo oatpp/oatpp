@@ -275,9 +275,12 @@ Tree::Type Tree::getType() const {
 
 void Tree::setCopy(const Tree& other) {
 
-  deleteValueObject();
-  m_type = other.m_type;
-  m_attributes = other.m_attributes;
+  /**
+   * Allocate and validate everything that can throw BEFORE deleting the current value object
+   * and BEFORE committing the type tag. Otherwise, a throw would leave this tree claiming the
+   * new type while `m_data` still holds the previous variant's raw bits (type confusion).
+   */
+  LARGEST_TYPE data = 0;
 
   switch (other.m_type) {
 
@@ -300,7 +303,7 @@ void Tree::setCopy(const Tree& other) {
     case Type::FLOAT_32:
     case Type::FLOAT_64:
     {
-      m_data = other.m_data;
+      data = other.m_data;
       break;
     }
 
@@ -310,7 +313,7 @@ void Tree::setCopy(const Tree& other) {
         throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'STRING'");
       }
       auto ptr = new type::String(*otherData);
-      m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
+      data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::VECTOR: {
@@ -319,7 +322,7 @@ void Tree::setCopy(const Tree& other) {
         throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'VECTOR'");
       }
       auto ptr = new std::vector<Tree>(*otherData);
-      m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
+      data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::MAP: {
@@ -328,7 +331,7 @@ void Tree::setCopy(const Tree& other) {
         throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'MAP'");
       }
       auto ptr = new TreeMap(*otherData);
-      m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
+      data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
     case Type::PAIRS: {
@@ -337,15 +340,20 @@ void Tree::setCopy(const Tree& other) {
         throw std::runtime_error("[oatpp::data::mapping::Tree::setCopy()]: other.data is null, other.type is 'PAIRS'");
       }
       auto ptr = new std::vector<std::pair<type::String, Tree>>(*otherData);
-      m_data = reinterpret_cast<LARGEST_TYPE>(ptr);
+      data = reinterpret_cast<LARGEST_TYPE>(ptr);
       break;
     }
 
     default:
-      m_data = other.m_data;
+      data = other.m_data;
       break;
 
   }
+
+  deleteValueObject();
+  m_type = other.m_type;
+  m_data = data;
+  m_attributes = other.m_attributes;
 
 }
 
@@ -387,66 +395,66 @@ void Tree::setFloat(v_float64 value) {
 }
 
 void Tree::setString(const type::String& value) {
-  deleteValueObject();
-  m_type = Type::STRING;
   auto data = new type::String(value);
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::STRING;
 }
 
 void Tree::setString(type::String&& value) {
-  deleteValueObject();
-  m_type = Type::STRING;
   auto data = new type::String(std::move(value));
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::STRING;
 }
 
 void Tree::setVector(const std::vector<Tree>& value) {
-  deleteValueObject();
-  m_type = Type::VECTOR;
   auto data = new std::vector<Tree>(value);
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::VECTOR;
 }
 
 void Tree::setVector(std::vector<Tree>&& value) {
-  deleteValueObject();
-  m_type = Type::VECTOR;
   auto data = new std::vector<Tree>(std::move(value));
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::VECTOR;
 }
 
 void Tree::setVector(v_uint64 size) {
-  deleteValueObject();
-  m_type = Type::VECTOR;
   auto data = new std::vector<Tree>(size);
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::VECTOR;
 }
 
 void Tree::setMap(const TreeMap& value) {
-  deleteValueObject();
-  m_type = Type::MAP;
   auto data = new TreeMap(value);
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::MAP;
 }
 
 void Tree::setMap(TreeMap&& value) {
-  deleteValueObject();
-  m_type = Type::MAP;
   auto data = new TreeMap(std::move(value));
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::MAP;
 }
 
 void Tree::setPairs(const std::vector<std::pair<type::String, Tree>>& value) {
-  deleteValueObject();
-  m_type = Type::PAIRS;
   auto data = new std::vector<std::pair<type::String, Tree>>(value);
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::PAIRS;
 }
 
 void Tree::setPairs(const std::vector<std::pair<type::String, Tree>>&& value) {
-  deleteValueObject();
-  m_type = Type::PAIRS;
   auto data = new std::vector<std::pair<type::String, Tree>>(std::move(value));
+  deleteValueObject();
   m_data = reinterpret_cast<LARGEST_TYPE>(data);
+  m_type = Type::PAIRS;
 }
 
 bool Tree::isNull() const {

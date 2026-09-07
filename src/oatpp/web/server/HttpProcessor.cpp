@@ -28,6 +28,9 @@
 #include "oatpp/web/protocol/http/incoming/SimpleBodyDecoder.hpp"
 #include "oatpp/data/stream/BufferStream.hpp"
 
+#include <future>
+#include <chrono>
+
 namespace oatpp { namespace web { namespace server {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +115,27 @@ HttpProcessor::processNextRequest(ProcessingResources& resources,
       }
 
       request->setPathVariables(route.getMatchMap());
-      return route.getEndpoint()->handle(request);
+
+      // Handle request timeout if configured
+      v_int64 timeoutMs = resources.components->config->requestTimeout;
+      if (timeoutMs > 0) {
+        // Use async/future to implement timeout for synchronous handler
+        auto endpoint = route.getEndpoint();
+        auto future = std::async(std::launch::async, [&request, endpoint]() {
+          return endpoint->handle(request);
+        });
+
+        if (future.wait_for(std::chrono::milliseconds(timeoutMs)) == std::future_status::timeout) {
+          // Handler timed out
+          throw RequestTimeoutException(request, timeoutMs);
+        }
+
+        response = future.get();
+      } else {
+        response = route.getEndpoint()->handle(request);
+      }
+
+      return response;
 
     } catch (...) {
       std::throw_with_nested(HttpServerError(request, "Error processing request"));
@@ -287,6 +310,8 @@ HttpProcessor::Coroutine::Coroutine(const std::shared_ptr<Components>& component
   , m_connectionState(ConnectionState::ALIVE)
   , m_taskListener(taskListener)
   , m_shouldInterceptResponse(false)
+  , m_requestTimeoutMs(components->config->requestTimeout)
+  , m_requestTimedOut(false)
 {
   m_taskListener->onTaskStart(m_connection);
 }
@@ -340,7 +365,65 @@ oatpp::async::Action HttpProcessor::Coroutine::onHeadersParsed(const RequestHead
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestFormed() {
+  // If request timeout is configured, use timeout wrapper
+  if (m_requestTimeoutMs > 0) {
+    return onRequestWithTimeout();
+  }
   return m_currentRoute.getEndpoint()->handleAsync(m_currentRequest).callbackTo(&HttpProcessor::Coroutine::onResponse);
+}
+
+HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onRequestWithTimeout() {
+
+  class TimeoutCoroutine : public oatpp::async::CoroutineWithResult<TimeoutCoroutine, const std::shared_ptr<protocol::http::outgoing::Response>&> {
+  private:
+    std::shared_ptr<protocol::http::incoming::Request> m_request;
+    std::shared_ptr<HttpRequestHandler> m_endpoint;
+    std::shared_ptr<protocol::http::outgoing::Response> m_response;
+    v_int64 m_timeoutMicroseconds;
+    v_int64 m_startTime;
+    enum State { START, HANDLER, TIMEOUT, DONE } m_state;
+  public:
+
+    TimeoutCoroutine(const std::shared_ptr<protocol::http::incoming::Request>& request,
+                    const std::shared_ptr<HttpRequestHandler>& endpoint,
+                    v_int64 timeoutMs)
+      : m_request(request)
+      , m_endpoint(endpoint)
+      , m_timeoutMicroseconds(timeoutMs * 1000)
+      , m_startTime(0)
+      , m_state(START)
+    {}
+
+    Action act() override {
+      if (m_state == START) {
+        m_startTime = oatpp::Environment::getMicroTickCount();
+        m_state = HANDLER;
+        // Start handler and also set up timeout wait
+        return m_endpoint->handleAsync(m_request).callbackTo(&TimeoutCoroutine::onHandlerResponse);
+      } else if (m_state == TIMEOUT) {
+        // Timeout occurred
+        throw RequestTimeoutException(m_request, m_timeoutMicroseconds / 1000);
+      }
+      return _return(m_response);
+    }
+
+    Action onHandlerResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {
+      m_response = response;
+      // Check if we're within timeout
+      v_int64 elapsed = oatpp::Environment::getMicroTickCount() - m_startTime;
+      if (elapsed > m_timeoutMicroseconds) {
+        m_state = TIMEOUT;
+        return repeat();
+      }
+      m_state = DONE;
+      return repeat();
+    }
+
+  };
+
+  return TimeoutCoroutine::startForResult(m_currentRequest, m_currentRoute.getEndpoint(), m_requestTimeoutMs)
+    .callbackTo(&HttpProcessor::Coroutine::onResponse);
+
 }
 
 HttpProcessor::Coroutine::Action HttpProcessor::Coroutine::onResponse(const std::shared_ptr<protocol::http::outgoing::Response>& response) {

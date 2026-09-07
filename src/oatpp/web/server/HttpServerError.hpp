@@ -52,6 +52,20 @@ public:
 
 };
 
+/**
+ * RequestTimeoutException - thrown when request processing exceeds the configured timeout.
+ */
+class RequestTimeoutException : public HttpServerError {
+public:
+  /**
+   * Constructor
+   * @param request - the request that timed out
+   * @param timeoutMs - the timeout value in milliseconds
+   */
+  RequestTimeoutException(const std::shared_ptr<protocol::http::incoming::Request>& request, v_int64 timeoutMs)
+    : HttpServerError(request, "Request processing timeout after " + std::to_string(timeoutMs) + "ms") {}
+};
+
 }}}
 
 #endif //oatpp_web_server_HttpServerError_hpp

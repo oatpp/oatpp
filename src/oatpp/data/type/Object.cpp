@@ -24,6 +24,8 @@
 
 #include "./Object.hpp"
 
+#include <stdexcept>
+
 namespace oatpp { namespace data { namespace type {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,22 +86,49 @@ const std::list<BaseObject::Property*>& BaseObject::Properties::getList() const 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BaseObject::Property
 
-BaseObject::Property::Property(v_int64 pOffset, std::string pName, std::string pUName, const Type* pType)
+BaseObject::Property::Property(v_int64 pOffset, std::string pName, std::string pUName, const Type* pType, const Type* pOwner)
   : offset(pOffset)
   , name(std::move(pName))
   , unqualifiedName(std::move(pUName))
   , type(pType)
+  , owner(pOwner)
 {}
 
+void BaseObject::Property::verifyObjectOwner(BaseObject* object) const {
+
+  if(owner == nullptr) {
+    /* owner type is not tracked for this property - nothing to verify against. */
+    return;
+  }
+
+  auto objectType = object->getObjectType();
+  while(objectType != nullptr) {
+    if(objectType == owner) {
+      return;
+    }
+    objectType = objectType->parent;
+  }
+
+  throw std::runtime_error(
+    "[oatpp::data::type::BaseObject::Property]: property '" + name + "' of type '" +
+    (owner->nameQualifier != nullptr ? owner->nameQualifier : "<unknown>") +
+    "' can not be applied to an object of an unrelated type"
+  );
+
+}
+
 void BaseObject::Property::set(BaseObject* object, const Void& value) const {
+  verifyObjectOwner(object);
   object->set(offset, value);
 }
 
 Void BaseObject::Property::get(BaseObject* object) const {
+  verifyObjectOwner(object);
   return object->get(offset);
 }
 
 Void& BaseObject::Property::getAsRef(BaseObject* object) const {
+  verifyObjectOwner(object);
   return object->getAsRef(offset);
 }
 

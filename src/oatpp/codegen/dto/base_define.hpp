@@ -54,6 +54,10 @@ private: \
 \
 public: \
 \
+  const oatpp::Type* getObjectType() const override { \
+    return oatpp::Object<Z__CLASS>::Class::getType(); \
+  } \
+\
   template<typename ... Args> \
   static Wrapper createShared(Args... args){ \
     return Wrapper(std::make_shared<Z__CLASS>(args...), Wrapper::Class::getType()); \
@@ -75,7 +79,8 @@ static oatpp::data::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() {
       new oatpp::data::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                   #NAME, \
                                                   #NAME, \
-                                                  TYPE::Class::getType())); \
+                                                  TYPE::Class::getType(), \
+                                                  oatpp::Object<Z__CLASS>::Class::getType())); \
   return property.get(); \
 } \
 \
@@ -107,7 +112,8 @@ static oatpp::data::type::BaseObject::Property* Z__PROPERTY_SINGLETON_##NAME() {
       new oatpp::data::type::BaseObject::Property(Z__PROPERTY_OFFSET_##NAME(), \
                                                   QUALIFIER, \
                                                   #NAME, \
-                                                  TYPE::Class::getType())); \
+                                                  TYPE::Class::getType(), \
+                                                  oatpp::Object<Z__CLASS>::Class::getType())); \
   return property.get(); \
 } \
 \

@@ -109,6 +109,11 @@ public:
       bool required = false;
 
       /**
+       * Nullable.
+       */
+      bool nullable = false;
+
+      /**
        * Type selector.
        * &l:Property::TypeSelector;.
        */
@@ -126,8 +131,10 @@ public:
      * @param pName - name of the property.
      * @param pUName - unqualified name of the property. Name of the class field in the code.
      * @param pType - &l:Type; of the property.
+     * @param pOwner - &l:Type; of the objects that own this property
+     * (the DTO class that declared the field).
      */
-    Property(v_int64 pOffset, std::string pName, std::string pUName, const Type* pType);
+    Property(v_int64 pOffset, std::string pName, std::string pUName, const Type* pType, const Type* pOwner);
 
     /**
      * Property name.
@@ -144,6 +151,14 @@ public:
      * Property type.
      */
     const Type* const type;
+
+    /**
+     * Owner type - the type of objects this property can be applied to.
+     * &l:Property::set;, &l:Property::get; and &l:Property::getAsRef; verify
+     * that the passed object is of this type (or of a type derived from it)
+     * before accessing the object's memory.
+     */
+    const Type* const owner;
 
     /**
      * Property additional info.
@@ -170,6 +185,17 @@ public:
      * @return - reference to ObjectWrapper of the object field.
      */
     Void& getAsRef(BaseObject* object) const;
+
+  private:
+
+    /**
+     * Verify that this property belongs to the passed object - ie. that the
+     * object is of the owner type or of a type derived from it.
+     * @param object - object to verify.
+     * @throws - &id:std::runtime_error; if the type of the object is not
+     * compatible with the owner type of this property.
+     */
+    void verifyObjectOwner(BaseObject* object) const;
 
   };
 
@@ -224,6 +250,16 @@ private:
 protected:
   void setBasePointer(void* basePointer);
   void* getBasePointer() const;
+public:
+
+  /**
+   * Get the runtime type of this object.
+   * Used by &l:BaseObject::Property; to verify that a property is applied
+   * to an object of a compatible type.
+   * @return - &l:Type; of this object or `nullptr` if the type is not known.
+   */
+  virtual const Type* getObjectType() const { return nullptr; }
+
 };
 
 namespace __class {
@@ -477,6 +513,10 @@ private:
   static data::type::BaseObject::Properties* Z__CLASS_GET_FIELDS_MAP();
   static BaseObject::Properties* Z__CLASS_EXTEND(BaseObject::Properties* properties, BaseObject::Properties* extensionProperties);
 public:
+
+  const type::Type* getObjectType() const override {
+    return __class::Object<DTO>::getType();
+  }
 
   virtual v_uint64 defaultHashCode() const {
     return reinterpret_cast<v_uint64>(this);

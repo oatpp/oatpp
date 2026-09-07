@@ -452,7 +452,7 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
           return nullptr;
         }
 
-        if(field->info.required && value == nullptr) {
+        if(field->info.required && value == nullptr && !field->info.nullable) {
           state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. " +
                                 oatpp::String(type->nameQualifier) + "::" +
                                 oatpp::String(field->name) + " is required!");
@@ -483,7 +483,7 @@ oatpp::Void TreeToObjectMapper::mapObject(const TreeToObjectMapper* mapper, Stat
       return nullptr;
     }
 
-    if(p.first->info.required && value == nullptr) {
+    if(p.first->info.required && value == nullptr && !p.first->info.nullable) {
       state.errorStack.push("[oatpp::data::mapping::TreeToObjectMapper::mapObject()]: Error. " +
                             oatpp::String(type->nameQualifier) + "::" +
                             oatpp::String(p.first->name) + " is required!");
