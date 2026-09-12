@@ -80,6 +80,7 @@ void Deserializer::deserializeArray(State& state) {
       nestedState.caret = state.caret;
       nestedState.config = state.config;
       nestedState.tree = &vector[vector.size() - 1];
+      nestedState.depth = state.depth + 1;
 
       deserialize(nestedState);
 
@@ -139,6 +140,7 @@ void Deserializer::deserializeMap(State& state) {
       nestedState.caret = state.caret;
       nestedState.config = state.config;
       nestedState.tree = &map[key];
+      nestedState.depth = state.depth + 1;
 
       deserialize(nestedState);
 
@@ -165,6 +167,11 @@ void Deserializer::deserializeMap(State& state) {
 }
 
 void Deserializer::deserialize(State& state) {
+
+  if(state.depth > state.config->maxDepth) {
+    state.errorStack.push("[oatpp::json::Deserializer::deserialize()]: Error. Maximum nesting depth exceeded.");
+    return;
+  }
 
   state.caret->skipBlankChars();
 

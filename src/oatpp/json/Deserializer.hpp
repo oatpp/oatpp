@@ -50,6 +50,8 @@ public:
   class Config : public oatpp::base::Countable {
   public:
 
+  v_uint32 maxDepth = 512;
+
   };
 
 public:
@@ -59,6 +61,7 @@ public:
     data::mapping::Tree* tree;
     utils::parser::Caret* caret;
     data::mapping::ErrorStack errorStack;
+    v_uint32 depth = 0;
   };
 
 private:
