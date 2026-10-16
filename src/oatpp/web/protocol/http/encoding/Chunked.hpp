@@ -66,6 +66,7 @@ public:
 class DecoderChunked : public data::buffer::Processor {
 public:
   static constexpr v_int32 ERROR_CHUNK_HEADER_TOO_LONG = 100;
+  static constexpr v_int32 ERROR_CHUNK_HEADER_INVALID = 101;
 private:
   data::stream::BufferOutputStream m_chunkHeaderBuffer;
   v_io_size m_currentChunkSize;
