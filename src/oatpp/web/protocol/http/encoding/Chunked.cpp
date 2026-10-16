@@ -146,12 +146,49 @@ v_int32 DecoderChunked::readHeader(data::buffer::InlineReadData& dataIn) {
 
         if (pos > 2 && m_chunkHeaderBuffer.getData()[pos - 2] == '\r' && m_chunkHeaderBuffer.getData()[pos - 1] == '\n') {
 
-          if(m_firstChunk) {
-            m_currentChunkSize = strtol(reinterpret_cast<const char *>(m_chunkHeaderBuffer.getData()), nullptr, 16);
-          } else {
-            // skip "/r/n" before chunk size
-            m_currentChunkSize = strtol(reinterpret_cast<const char *>(m_chunkHeaderBuffer.getData() + 2), nullptr, 16);
+          auto data = m_chunkHeaderBuffer.getData();
+          v_buff_size i = 0;
+          v_buff_size lineEnd = pos - 2;
+
+          if(!m_firstChunk) {
+            // data of the previous chunk must be followed by "\r\n"
+            if(data[0] != '\r' || data[1] != '\n') {
+              return ERROR_CHUNK_HEADER_INVALID;
+            }
+            i = 2;
           }
+
+          // chunk-size = 1*HEXDIG
+          // header length is capped above so the value can't overflow
+          v_buff_size digitsStart = i;
+          v_io_size chunkSize = 0;
+          for(; i < lineEnd; i++) {
+            v_char8 a = data[i];
+            if(a >= '0' && a <= '9') {
+              chunkSize = (chunkSize << 4) | (a - '0');
+            } else if(a >= 'A' && a <= 'F') {
+              chunkSize = (chunkSize << 4) | (a - 'A' + 10);
+            } else if(a >= 'a' && a <= 'f') {
+              chunkSize = (chunkSize << 4) | (a - 'a' + 10);
+            } else {
+              break;
+            }
+          }
+
+          if(i == digitsStart) {
+            return ERROR_CHUNK_HEADER_INVALID;
+          }
+
+          // only chunk-ext (*( BWS ";" ... )) may follow chunk-size
+          while(i < lineEnd && (data[i] == ' ' || data[i] == '\t')) {
+            i++;
+          }
+          if(i < lineEnd && data[i] != ';') {
+            return ERROR_CHUNK_HEADER_INVALID;
+          }
+
+          m_currentChunkSize = chunkSize;
+          m_firstChunk = false;
 
           if (m_currentChunkSize > 0) {
             return Error::OK;
