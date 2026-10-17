@@ -133,6 +133,30 @@ void UrlTest::onRun() {
   }
 
   {
+    const char* urlText = "http://user:pass@oatpp.io/path";
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
+    auto url = Url::Parser::parseUrl(urlText);
+
+    OATPP_ASSERT(url.scheme && url.scheme == "http")
+    OATPP_ASSERT(url.authority.userInfo && url.authority.userInfo == "user:pass")
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == -1)
+    OATPP_ASSERT(url.path == "/path")
+  }
+
+  {
+    const char* urlText = "http://user@oatpp.io";
+    OATPP_LOGv(TAG, "urlText='{}'", urlText)
+    auto url = Url::Parser::parseUrl(urlText);
+
+    OATPP_ASSERT(url.scheme && url.scheme == "http")
+    OATPP_ASSERT(url.authority.userInfo && url.authority.userInfo == "user")
+    OATPP_ASSERT(url.authority.host && url.authority.host == "oatpp.io")
+    OATPP_ASSERT(url.authority.port == -1)
+    OATPP_ASSERT(url.path == nullptr)
+  }
+
+  {
     const char* urlText = "?key1=value1&key2=value2&key3=value3";
     OATPP_LOGv(TAG, "urlText='{}'", urlText)
     auto params = Url::Parser::parseQueryParams(urlText);

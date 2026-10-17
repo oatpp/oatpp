@@ -87,7 +87,7 @@ Url::Authority Url::Parser::parseAuthority(oatpp::utils::parser::Caret& caret) {
       caret.setError("Invalid port string");
     }
   } else {
-    result.host = oatpp::String(&data[hostPos], pos - pos0);
+    result.host = oatpp::String(&data[hostPos], pos - hostPos);
   }
   
   return result;
