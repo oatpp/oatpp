@@ -86,6 +86,25 @@ void UrlTest::onRun(){
     OATPP_ASSERT_FMT("{}", encoded == "%D0%A1%D0%BC%D0%B0%D1%87%D0%BD%D0%B0+%D0%9E%D0%B2%D1%81%D1%8F%D0%BD%D0%BE%D1%87%D0%BA%D0%B0%21")
   }
 
+  {
+    // truncated percent-escape at the end: the single hex digit has no second
+    // digit to pair with, so it must be dropped, not read past the input end.
+    auto decoded = oatpp::encoding::Url::decode("ab%A");
+    OATPP_ASSERT(decoded == "ab")
+  }
+
+  {
+    // a lone trailing '%' is likewise incomplete and dropped.
+    auto decoded = oatpp::encoding::Url::decode("ab%");
+    OATPP_ASSERT(decoded == "ab")
+  }
+
+  {
+    // a complete escape right at the end still decodes.
+    auto decoded = oatpp::encoding::Url::decode("a%41");
+    OATPP_ASSERT(decoded == "aA")
+  }
+
 }
 
 }}}

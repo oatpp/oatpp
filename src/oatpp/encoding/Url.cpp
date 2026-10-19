@@ -90,7 +90,7 @@ void Url::decode(data::stream::ConsistentOutputStream* stream, const void* data,
 
     v_char8 c = static_cast<v_char8>(pdata[i]);
     if(c == '%') {
-      if(size - i > 1) {
+      if(size - i > 2) {
         Hex::decode(stream, pdata + i + 1, 2);
         i += 3;
       } else {
