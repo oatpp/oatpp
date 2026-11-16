@@ -39,6 +39,7 @@
 #include "oatpp/utils/Conversion.hpp"
 #include "oatpp/base/Log.hpp"
 
+#include <cstdint>
 #include <list>
 #include <unordered_map>
 
@@ -502,8 +503,11 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::Int8> {
   static oatpp::Int8 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
-    return static_cast<Int8::UnderlyingType>(utils::Conversion::strToInt32(text, success));
+    auto value = utils::Conversion::strToInt32(text, success);
+    if(value < INT8_MIN || value > INT8_MAX) {
+      success = false;
+    }
+    return static_cast<Int8::UnderlyingType>(value);
   }
 };
 
@@ -511,8 +515,11 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::UInt8> {
   static oatpp::UInt8 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
-    return static_cast<UInt8::UnderlyingType>(utils::Conversion::strToUInt32(text, success));
+    auto value = utils::Conversion::strToUInt32(text, success);
+    if(value > UINT8_MAX) {
+      success = false;
+    }
+    return static_cast<UInt8::UnderlyingType>(value);
   }
 };
 
@@ -520,8 +527,11 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::Int16> {
   static oatpp::Int16 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
-    return static_cast<Int16::UnderlyingType>(utils::Conversion::strToInt32(text, success));
+    auto value = utils::Conversion::strToInt32(text, success);
+    if(value < INT16_MIN || value > INT16_MAX) {
+      success = false;
+    }
+    return static_cast<Int16::UnderlyingType>(value);
   }
 };
 
@@ -529,8 +539,11 @@ template<>
 struct ApiController::TypeInterpretation <oatpp::UInt16> {
   static oatpp::UInt16 fromString(const oatpp::String& typeName, const oatpp::String& text, bool& success) {
     (void) typeName;
-    //TODO: check the range and perhaps throw an exception if the variable doesn't fit
-    return static_cast<UInt16::UnderlyingType>(utils::Conversion::strToUInt32(text, success));
+    auto value = utils::Conversion::strToUInt32(text, success);
+    if(value > UINT16_MAX) {
+      success = false;
+    }
+    return static_cast<UInt16::UnderlyingType>(value);
   }
 };
 

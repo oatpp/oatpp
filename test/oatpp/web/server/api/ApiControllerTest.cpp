@@ -190,6 +190,45 @@ void ApiControllerTest::onRun() {
 
   }
 
+  {
+    typedef oatpp::web::server::api::ApiController ApiController;
+    bool success;
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::Int8>::fromString("Int8", "-128", success) == -128 && success)
+    ApiController::TypeInterpretation<oatpp::Int8>::fromString("Int8", "300", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::UInt8>::fromString("UInt8", "255", success) == 255 && success)
+    ApiController::TypeInterpretation<oatpp::UInt8>::fromString("UInt8", "256", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::Int16>::fromString("Int16", "32767", success) == 32767 && success)
+    ApiController::TypeInterpretation<oatpp::Int16>::fromString("Int16", "32768", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::UInt16>::fromString("UInt16", "65535", success) == 65535 && success)
+    ApiController::TypeInterpretation<oatpp::UInt16>::fromString("UInt16", "-1", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::Int32>::fromString("Int32", "-2147483648", success) == -2147483647 - 1 && success)
+    ApiController::TypeInterpretation<oatpp::Int32>::fromString("Int32", "4294967297", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::UInt32>::fromString("UInt32", "4294967295", success) == 4294967295U && success)
+    ApiController::TypeInterpretation<oatpp::UInt32>::fromString("UInt32", "-1", success);
+    OATPP_ASSERT(!success)
+    ApiController::TypeInterpretation<oatpp::UInt32>::fromString("UInt32", "4294967296", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::Int64>::fromString("Int64", "9223372036854775807", success) == 9223372036854775807LL && success)
+    ApiController::TypeInterpretation<oatpp::Int64>::fromString("Int64", "9223372036854775808", success);
+    OATPP_ASSERT(!success)
+
+    OATPP_ASSERT(*ApiController::TypeInterpretation<oatpp::UInt64>::fromString("UInt64", "18446744073709551615", success) == 18446744073709551615ULL && success)
+    ApiController::TypeInterpretation<oatpp::UInt64>::fromString("UInt64", "-1", success);
+    OATPP_ASSERT(!success)
+  }
+
 }
 
 }}}}}
