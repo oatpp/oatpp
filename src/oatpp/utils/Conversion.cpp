@@ -24,6 +24,8 @@
 
 #include "Conversion.hpp"
 
+#include <cerrno>
+#include <cstdint>
 #include <cstdlib>
 
 namespace oatpp { namespace utils {
@@ -39,9 +41,12 @@ v_int32 Conversion::strToInt32(const oatpp::String& str, bool& success){
     return 0;
   }
   char* end;
-  v_int32 result = static_cast<v_int32>(std::strtol(str->data(), &end, 10));
+  v_int64 result = std::strtoll(str->data(), &end, 10);
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
-  return result;
+  if(result < INT32_MIN || result > INT32_MAX) {
+    success = false;
+  }
+  return static_cast<v_int32>(result);
 }
 
 v_uint32 Conversion::strToUInt32(const char* str){
@@ -50,14 +55,18 @@ v_uint32 Conversion::strToUInt32(const char* str){
 }
 
 v_uint32 Conversion::strToUInt32(const oatpp::String& str, bool& success){
-  if(str == nullptr || str->empty()) {
+  // strtoull() accepts a leading '-' and negates the result, so "-1" would parse as the max value
+  if(str == nullptr || str->empty() || str->find('-') != std::string::npos) {
     success = false;
     return 0;
   }
   char* end;
-  v_uint32 result = static_cast<v_uint32>(std::strtoul(str->data(), &end, 10));
+  v_uint64 result = std::strtoull(str->data(), &end, 10);
   success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
-  return result;
+  if(result > UINT32_MAX) {
+    success = false;
+  }
+  return static_cast<v_uint32>(result);
 }
 
 v_int64 Conversion::strToInt64(const char* str){
@@ -71,8 +80,9 @@ v_int64 Conversion::strToInt64(const oatpp::String& str, bool& success){
     return 0;
   }
   char* end;
+  errno = 0;
   v_int64 result = std::strtoll(str->data(), &end, 10);
-  success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
+  success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size())) && errno != ERANGE;
   return result;
 }
 
@@ -82,13 +92,15 @@ v_uint64 Conversion::strToUInt64(const char* str){
 }
 
 v_uint64 Conversion::strToUInt64(const oatpp::String& str, bool& success){
-  if(str == nullptr || str->empty()) {
+  // strtoull() accepts a leading '-' and negates the result, so "-1" would parse as the max value
+  if(str == nullptr || str->empty() || str->find('-') != std::string::npos) {
     success = false;
     return 0;
   }
   char* end;
+  errno = 0;
   v_uint64 result = std::strtoull(str->data(), &end, 10);
-  success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size()));
+  success = ((reinterpret_cast<v_buff_size>(end) - reinterpret_cast<v_buff_size>(str->data())) == static_cast<v_buff_size>(str->size())) && errno != ERANGE;
   return result;
 }
 
