@@ -1,0 +1,14 @@
+# Multi-byte tokens traceable to src/oatpp/web/protocol/http/encoding/Chunked.cpp
+# (hex chunk sizes, chunk framing, chunk extensions, trailers).
+"0\x0d\x0a\x0d\x0a"
+"1000\x0d\x0a"
+"ff\x0d\x0a"
+"a\x0d\x0a"
+"1a;ext\x0d\x0a"
+"FFFF\x0d\x0a"
+"\x0d\x0a"
+"X-"
+"Trailer: "
+"0\x0d\x0a"
+"chunk-extension"
+"80000000\x0d\x0a"
