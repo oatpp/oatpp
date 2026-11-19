@@ -1,0 +1,10 @@
+12345
+--12345
+Content-Disposition: form-data; name="a"
+
+AAA
+--12345
+Content-Disposition: form-data; name="b"; filename="f.txt"
+
+BBB
+--12345--
