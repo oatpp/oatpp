@@ -1,0 +1,17 @@
+# Multi-byte tokens traceable to src/oatpp/network/Url.cpp and
+# src/oatpp/web/url/mapping/Pattern.cpp (pattern syntax, URL constructs).
+"http://"
+"https://"
+"://"
+"{value}"
+"{tail}"
+"//"
+"%2f"
+"%00"
+"?q1=1&q2=2"
+"user:pass@"
+":8080"
+"/path/to/resource"
+"localhost"
+"?"
+"&"

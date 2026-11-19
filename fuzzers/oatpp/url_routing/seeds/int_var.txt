@@ -1,0 +1,2 @@
+ints/{value}
+/ints/42?q=1

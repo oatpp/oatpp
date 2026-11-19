@@ -1,0 +1,2 @@
+*
+/anything/at/all
