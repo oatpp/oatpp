@@ -1,0 +1,3 @@
+GET /a HTTP/1.1
+Accept: text/html, application/json;q=0.9, */*;q=0.8
+
