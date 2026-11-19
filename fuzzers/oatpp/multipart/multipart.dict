@@ -1,0 +1,15 @@
+# Multi-byte tokens traceable to src/oatpp/web/mime/multipart/StatefulParser.cpp
+# (boundary framing, part header syntax).
+"--"
+"\x0d\x0a"
+"\x0d\x0a\x0d\x0a"
+"Content-Disposition: form-data; name=\""
+"filename=\""
+"Content-Type: text/plain"
+"form-data"
+"name="
+"; "
+"Content-Transfer-Encoding: base64"
+"multipart/mixed"
+"\x0d\x0a--"
+"--\x0d\x0a"
