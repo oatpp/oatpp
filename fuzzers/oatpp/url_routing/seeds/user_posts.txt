@@ -1,0 +1,2 @@
+users/{userId}/posts/*
+/users/7/posts/latest/photo

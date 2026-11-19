@@ -1,0 +1,2 @@
+/path/{id}
+http://user@localhost:8000/path/12?q1=1&q2=2
